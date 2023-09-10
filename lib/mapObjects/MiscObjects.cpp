@@ -359,6 +359,55 @@ std::vector<ObjectInstanceID> CGTeleport::getAllExits(bool excludeCurrent) const
 	return ret;
 }
 
+/**
+ * \brief Finds the next visible exit for a teleporter.
+ * 
+ * This method tries to find the next visible exit for a teleporter based on the player color.
+ * If an exit is found, it returns the object instance. Otherwise, it returns a nullopt.
+ */
+std::optional<const CGObjectInstance*> CGTeleport::getNextVisibleExit(PlayerColor playerColor) const
+{
+	try {
+		std::vector<ObjectInstanceID> portals;
+
+		switch(type) {
+		case CGTeleport::ENTRANCE:
+		case CGTeleport::BOTH:
+			portals = getAllExits(false);
+			break;
+		case CGTeleport::EXIT:
+			portals = getAllEntrances(false);
+			break;
+		default:
+			logGlobal->error("Unknown portal type" + std::to_string(type));
+			return std::nullopt;
+		}
+
+		int portalsSize = portals.size();
+		int portalIndex = std::distance(portals.begin(), std::find(portals.begin(), portals.end(), id));  // create iterator and convert it to int (the only way)
+
+		for (int i = 1; i < portalsSize; i++) {  // Start from 1 to exclude current portal
+			auto portalId = portals[((portalIndex +i) % portalsSize)];  // Get the next one (by index in portals) portal after the current.
+			const CGObjectInstance* obj = cb->getObj(portalId);
+			// isVisible method probably may be merged with getObj but I don't know LOCPLINT to use cb of current player
+			if(obj != nullptr && cb->isVisible(obj, playerColor)) {  // not visible objects returns nullptr (not sure is this check need)
+				return obj;
+			}
+		}
+		return std::nullopt;
+	}
+	catch (const std::exception& e) {
+	logGlobal->error("Exception caught: " + std::string(e.what()));
+	return std::nullopt;
+	}
+	catch (...) {
+		logGlobal->error("Unknown exception caught inside CGTeleport::getNextVisibleExit");
+		return std::nullopt;
+	}
+
+}
+
+
 ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 {
 	auto passableExits = getPassableExits(cb->gameState(), h, getAllExits(true));

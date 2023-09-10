@@ -41,8 +41,10 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+
 
 std::shared_ptr<AdventureMapInterface> adventureInt;
 
@@ -463,6 +465,7 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 
 void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 {
+
 	if(!shortcuts->optionMapViewActive())
 		return;
 
@@ -723,6 +726,8 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 
 void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 {
+	const CGObjectInstance * obj = getActiveObject(mapPos);
+
 	if(!shortcuts->optionMapViewActive())
 		return;
 
@@ -738,7 +743,6 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 		return;
 	}
 
-	const CGObjectInstance * obj = getActiveObject(mapPos);
 	if(!obj)
 	{
 		// Bare or undiscovered terrain
@@ -749,6 +753,16 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 			CRClickPopup::createAndPush(hlp);
 		}
 		return;
+	}
+
+	const CGTeleport * portal = dynamic_cast<const CGTeleport*>(obj);
+	if(portal) {
+			std::optional<const CGObjectInstance*> closestExit = portal->getNextVisibleExit(LOCPLINT->playerID);
+			if (closestExit.has_value()) {
+					widget->getMapView()->onCenteredObject(closestExit.value());
+					// Remove to ensure easy hero selection after screen moving (rather than opening hero window)
+					// LOCPLINT->localState->setSelection(nullptr);
+				}
 	}
 
 	CRClickPopup::createAndPush(obj, GH.getCursorPosition(), ETextAlignment::CENTER);
