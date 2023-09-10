@@ -384,7 +384,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.value = reader->readInt32();
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.277");
-				specialVictory.onFulfill.appendTextID("core.genrltxt.6");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.276");
 				specialVictory.trigger = EventExpression(cond);
 
 				mapHeader->victoryMessage.appendTextID("core.vcdesc.2");
