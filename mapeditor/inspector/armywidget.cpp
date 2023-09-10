@@ -31,7 +31,6 @@ ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 	
 	for(int i = 0; i < TOTAL_SLOTS; ++i)
 	{
-		uiCounts[i]->setText("1");
 		uiSlots[i]->addItem("");
 		uiSlots[i]->setItemData(0, -1);
 		
@@ -64,7 +63,7 @@ void ArmyWidget::obtainData()
 		{
 			auto * creature = army.getCreature(SlotID(i));
 			uiSlots[i]->setCurrentIndex(searchItemIndex(i, creature->getId()));
-			uiCounts[i]->setText(QString::number(army.getStackCount(SlotID(i))));
+			uiCounts[i]->setValue(army.getStackCount(SlotID(i)));
 		}
 	}
 	
@@ -88,7 +87,7 @@ bool ArmyWidget::commitChanges()
 		else
 		{
 			isArmed = true;
-			int amount = uiCounts[i]->text().toInt();
+			int amount = uiCounts[i]->value();
 			if(amount)
 			{
 				army.setCreature(SlotID(i), creId, amount);
