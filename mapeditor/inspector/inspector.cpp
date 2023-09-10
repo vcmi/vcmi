@@ -25,6 +25,7 @@
 #include "messagewidget.h"
 #include "rewardswidget.h"
 #include "questwidget.h"
+#include "heroskillswidget.h"
 
 static QList<std::pair<QString, QVariant>> MissionIdentifiers
 {
@@ -278,6 +279,9 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty("Name", o->nameCustom, false);
 	addProperty("Biography", o->biographyCustom, new MessageDelegate, false);
 	addProperty("Portrait", o->portrait, false);
+	
+	auto * delegate = new HeroSkillsDelegate(*o);
+	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
 	
 	if(o->type)
 	{ //Hero type

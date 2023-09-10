@@ -999,8 +999,11 @@ int32_t CGHeroInstance::getSpellCost(const spells::Spell * sp) const
 
 void CGHeroInstance::pushPrimSkill( PrimarySkill which, int val )
 {
-	assert(!hasBonus(Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(which))
-						.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL))));
+	auto sel = Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(which))
+		.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
+	if(hasBonus(sel))
+		removeBonuses(sel);
+		
 	addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::HERO_BASE_SKILL, val, id.getNum(), static_cast<int>(which)));
 }
 
