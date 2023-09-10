@@ -45,7 +45,6 @@
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
-
 std::shared_ptr<AdventureMapInterface> adventureInt;
 
 AdventureMapInterface::AdventureMapInterface():
@@ -465,7 +464,6 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 
 void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 {
-
 	if(!shortcuts->optionMapViewActive())
 		return;
 
@@ -726,8 +724,6 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 
 void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 {
-	const CGObjectInstance * obj = getActiveObject(mapPos);
-
 	if(!shortcuts->optionMapViewActive())
 		return;
 
@@ -743,6 +739,7 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 		return;
 	}
 
+	const CGObjectInstance * obj = getActiveObject(mapPos);
 	if(!obj)
 	{
 		// Bare or undiscovered terrain
@@ -760,8 +757,6 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 			std::optional<const CGObjectInstance*> closestExit = portal->getNextVisibleExit(LOCPLINT->playerID);
 			if (closestExit.has_value()) {
 					widget->getMapView()->onCenteredObject(closestExit.value());
-					// Remove to ensure easy hero selection after screen moving (rather than opening hero window)
-					// LOCPLINT->localState->setSelection(nullptr);
 				}
 	}
 

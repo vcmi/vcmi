@@ -361,7 +361,7 @@ std::vector<ObjectInstanceID> CGTeleport::getAllExits(bool excludeCurrent) const
 
 /**
  * \brief Finds the next visible exit for a teleporter.
- * 
+ *
  * This method tries to find the next visible exit for a teleporter based on the player color.
  * If an exit is found, it returns the object instance. Otherwise, it returns a nullopt.
  */
@@ -406,7 +406,6 @@ std::optional<const CGObjectInstance*> CGTeleport::getNextVisibleExit(PlayerColo
 	}
 
 }
-
 
 ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 {

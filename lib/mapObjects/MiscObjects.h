@@ -16,7 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
 
-
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
@@ -257,7 +256,6 @@ protected:
 
 public:
 	TeleportChannelID channel;
-
 
 	bool isEntrance() const;
 	bool isExit() const;
