@@ -421,6 +421,17 @@ std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CG
 	case Obj::GARRISON:
 	case Obj::GARRISON2:
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGGarrison *>(specific));
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+	case Obj::MONOLITH_ONE_WAY_EXIT:
+	case Obj::MONOLITH_TWO_WAY:
+	     // CRClickPopupInt  Больше подходит по смыслу и реализации
+	     //return std::make_shared<CRClickPopupInt>(, position);
+	     // CInfoBoxPopup имеет метод point toScreen, но он скорее для героя, гарнизона или замка (отображает войска), а его родитель - CWindowObject
+	     // Не годится, т.к. конструктору нужен герой, гарнизон или замок
+	     //return std::make_shared<CInfoBoxPopup>(/* опции, имя картинки */, position);
+	     // CWindowObject родитель для CInfoBoxPopup
+	     return std::make_shared<CWindowObject>(8, "BoCsMag3.pcx", position);
+	     //return std::make_shared<CWindowObject>(/* опции, имя картинки */, position);
 	default:
 		return std::shared_ptr<WindowBase>();
 	}
