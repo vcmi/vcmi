@@ -996,7 +996,7 @@ void MainWindow::loadInspector(CGObjectInstance * obj, bool switchTab)
 
 void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 {
-	if(!item->isSelected())
+	if(!item->isSelected() && !(item->flags() & Qt::ItemIsUserCheckable))
 		return;
 
 	int r = item->row();
@@ -1015,10 +1015,7 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 	//set parameter
 	Inspector inspector(controller.map(), obj, tableWidget);
-	if(item->flags() & Qt::ItemIsUserCheckable)
-		inspector.setProperty(param, QVariant::fromValue(item->checkState() == Qt::Checked));
-	else
-		inspector.setProperty(param, item->text());
+	inspector.setProperty(param, item);
 	controller.commitObjectChange(mapLevel);
 }
 

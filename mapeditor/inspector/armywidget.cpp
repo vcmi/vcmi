@@ -137,12 +137,7 @@ void ArmyDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, cons
 {
 	if(auto * ed = qobject_cast<ArmyWidget *>(editor))
 	{
-		auto isArmed = ed->commitChanges();
-		model->setData(index, "dummy");
-		if(isArmed)
-			model->setData(index, "HAS ARMY");
-		else
-			model->setData(index, "");
+		ed->commitChanges();
 	}
 	else
 	{

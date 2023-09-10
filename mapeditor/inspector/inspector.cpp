@@ -18,12 +18,36 @@
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/constants/StringConstants.h"
 
 #include "townbulidingswidget.h"
 #include "armywidget.h"
 #include "messagewidget.h"
 #include "rewardswidget.h"
 #include "questwidget.h"
+
+static QList<std::pair<QString, QVariant>> MissionIdentifiers
+{
+	{QObject::tr("None"), QVariant::fromValue(int(CQuest::Emission::MISSION_NONE))},
+	{QObject::tr("Reach level"), QVariant::fromValue(int(CQuest::Emission::MISSION_LEVEL))},
+	{QObject::tr("Stats"), QVariant::fromValue(int(CQuest::Emission::MISSION_PRIMARY_STAT))},
+	{QObject::tr("Kill hero"), QVariant::fromValue(int(CQuest::Emission::MISSION_KILL_HERO))},
+	{QObject::tr("Kill monster"), QVariant::fromValue(int(CQuest::Emission::MISSION_KILL_CREATURE))},
+	{QObject::tr("Artifact"), QVariant::fromValue(int(CQuest::Emission::MISSION_ART))},
+	{QObject::tr("Army"), QVariant::fromValue(int(CQuest::Emission::MISSION_ARMY))},
+	{QObject::tr("Resources"), QVariant::fromValue(int(CQuest::Emission::MISSION_RESOURCES))},
+	{QObject::tr("Hero"), QVariant::fromValue(int(CQuest::Emission::MISSION_HERO))},
+	{QObject::tr("Player"), QVariant::fromValue(int(CQuest::Emission::MISSION_PLAYER))},
+};
+
+static QList<std::pair<QString, QVariant>> CharacterIdentifiers
+{
+	{QObject::tr("Compliant"), QVariant::fromValue(int(CGCreature::Character::COMPLIANT))},
+	{QObject::tr("Friendly"), QVariant::fromValue(int(CGCreature::Character::FRIENDLY))},
+	{QObject::tr("Agressive"), QVariant::fromValue(int(CGCreature::Character::AGRESSIVE))},
+	{QObject::tr("Hostile"), QVariant::fromValue(int(CGCreature::Character::HOSTILE))},
+	{QObject::tr("Savage"), QVariant::fromValue(int(CGCreature::Character::SAVAGE))},
+};
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : defaultPlayer(pl)
@@ -246,9 +270,9 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty<int>("Experience", o->exp, false);
 	addProperty("Hero class", o->type ? o->type->heroClass->getNameTranslated() : "", true);
 	
-	{ //Sex
+	{ //Gender
 		auto * delegate = new InspectorDelegate;
-		delegate->options << "MALE" << "FEMALE";
+		delegate->options = {{"MALE", QVariant::fromValue(int(EHeroGender::MALE))}, {"FEMALE", QVariant::fromValue(int(EHeroGender::FEMALE))}};
 		addProperty<std::string>("Gender", (o->gender == EHeroGender::FEMALE ? "FEMALE" : "MALE"), delegate , false);
 	}
 	addProperty("Name", o->nameCustom, false);
@@ -263,7 +287,9 @@ void Inspector::updateProperties(CGHeroInstance * o)
 			if(map->allowedHeroes.at(i))
 			{
 				if(o->ID == Obj::PRISON || (o->type && VLC->heroh->objects[i]->heroClass->getIndex() == o->type->heroClass->getIndex()))
-					delegate->options << QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str());
+				{
+					delegate->options.push_back({QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(VLC->heroh->objects[i]->getId().getNum())});
+				}
 			}
 		}
 		addProperty("Hero type", o->type->getNameTranslated(), delegate, false);
@@ -296,7 +322,7 @@ void Inspector::updateProperties(CGArtifact * o)
 			for(auto spell : VLC->spellh->objects)
 			{
 				if(map->allowedSpells.at(spell->id))
-					delegate->options << QObject::tr(spell->getNameTranslated().c_str());
+					delegate->options.push_back({QObject::tr(spell->getNameTranslated().c_str()), QVariant::fromValue(int(spell->getId()))});
 			}
 			addProperty("Spell", VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);
 		}
@@ -334,7 +360,7 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty("Message", o->message, false);
 	{ //Character
 		auto * delegate = new InspectorDelegate;
-		delegate->options << "COMPLIANT" << "FRIENDLY" << "AGRESSIVE" << "HOSTILE" << "SAVAGE";
+		delegate->options = CharacterIdentifiers;
 		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
 	}
 	addProperty("Never flees", o->neverFlees, false);
@@ -371,7 +397,7 @@ void Inspector::updateProperties(CGSeerHut * o)
 
 	{ //Mission type
 		auto * delegate = new InspectorDelegate;
-		delegate->options << "Reach level" << "Stats" << "Kill hero" << "Kill creature" << "Artifact" << "Army" << "Resources" << "Hero" << "Player";
+		delegate->options = MissionIdentifiers;
 		addProperty<CQuest::Emission>("Mission type", o->quest->missionType, delegate, false);
 	}
 	
@@ -410,10 +436,10 @@ void Inspector::updateProperties()
 	}
 	
 	auto * delegate = new InspectorDelegate();
-	delegate->options << "NEUTRAL";
+	delegate->options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum())});
 	for(int p = 0; p < map->players.size(); ++p)
 		if(map->players[p].canAnyonePlay())
-			delegate->options << QString("PLAYER %1").arg(p);
+			delegate->options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum())});
 	addProperty("Owner", obj->tempOwner, delegate, true);
 	
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
@@ -436,20 +462,30 @@ void Inspector::updateProperties()
 }
 
 //===============IMPLEMENT PROPERTY UPDATE================================
+void Inspector::setProperty(const QString & key, const QTableWidgetItem * item)
+{
+	if(!item->data(Qt::UserRole).isNull())
+	{
+		setProperty(key, item->data(Qt::UserRole));
+		return;
+	}
+	
+	if(item->flags() & Qt::ItemIsUserCheckable)
+	{
+		setProperty(key, QVariant::fromValue(item->checkState() == Qt::Checked));
+		return;
+	}
+	
+	setProperty(key, item->text());
+}
+
 void Inspector::setProperty(const QString & key, const QVariant & value)
 {
 	if(!obj)
 		return;
 	
 	if(key == "Owner")
-	{
-		PlayerColor owner(value.toString().mid(6).toInt()); //receiving PLAYER N, N has index 6
-		if(value == "NEUTRAL")
-			owner = PlayerColor::NEUTRAL;
-		if(value == "UNFLAGGABLE")
-			owner = PlayerColor::UNFLAGGABLE;
-		obj->tempOwner = owner;
-	}
+		obj->tempOwner = PlayerColor(value.toInt());
 	
 	SET_PROPERTIES(CArmedInstance);
 	SET_PROPERTIES(CGTownInstance);
@@ -533,14 +569,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	
 	if(o->storedArtifact && key == "Spell")
 	{
-		for(auto spell : VLC->spellh->objects)
-		{
-			if(spell->getNameTranslated() == value.toString().toStdString())
-			{
-				o->storedArtifact = ArtifactUtils::createScroll(spell->getId());
-				break;
-			}
-		}
+		o->storedArtifact = ArtifactUtils::createScroll(SpellID(value.toInt()));
 	}
 }
 
@@ -562,13 +591,13 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	if(!o) return;
 	
 	if(key == "Gender")
-		o->gender = value.toString() == "MALE" ? EHeroGender::MALE : EHeroGender::FEMALE;
+		o->gender = EHeroGender(value.toInt());
 	
 	if(key == "Name")
 		o->nameCustom = value.toString().toStdString();
 	
 	if(key == "Experience")
-		o->exp = value.toInt();
+		o->exp = value.toString().toInt();
 	
 	if(key == "Hero type")
 	{
@@ -604,19 +633,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 	if(key == "Message")
 		o->message = value.toString().toStdString();
 	if(key == "Character")
-	{
-		//COMPLIANT = 0, FRIENDLY = 1, AGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
-		if(value == "COMPLIANT")
-			o->character = CGCreature::Character::COMPLIANT;
-		if(value == "FRIENDLY")
-			o->character = CGCreature::Character::FRIENDLY;
-		if(value == "AGRESSIVE")
-			o->character = CGCreature::Character::AGRESSIVE;
-		if(value == "HOSTILE")
-			o->character = CGCreature::Character::HOSTILE;
-		if(value == "SAVAGE")
-			o->character = CGCreature::Character::SAVAGE;
-	}
+		o->character = CGCreature::Character(value.toInt());
 	if(key == "Never flees")
 		o->neverFlees = value.toBool();
 	if(key == "Not growing")
@@ -630,27 +647,7 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 	if(!o) return;
 	
 	if(key == "Mission type")
-	{
-		if(value == "Reach level")
-			o->quest->missionType = CQuest::Emission::MISSION_LEVEL;
-		if(value == "Stats")
-			o->quest->missionType = CQuest::Emission::MISSION_PRIMARY_STAT;
-		if(value == "Kill hero")
-			o->quest->missionType = CQuest::Emission::MISSION_KILL_HERO;
-		if(value == "Kill creature")
-			o->quest->missionType = CQuest::Emission::MISSION_KILL_CREATURE;
-		if(value == "Artifact")
-			o->quest->missionType = CQuest::Emission::MISSION_ART;
-		if(value == "Army")
-			o->quest->missionType = CQuest::Emission::MISSION_ARMY;
-		if(value == "Resources")
-			o->quest->missionType = CQuest::Emission::MISSION_RESOURCES;
-		if(value == "Hero")
-			o->quest->missionType = CQuest::Emission::MISSION_HERO;
-		if(value == "Player")
-			o->quest->missionType = CQuest::Emission::MISSION_PLAYER;
-	}
-	
+		o->quest->missionType = CQuest::Emission(value.toInt());
 	if(key == "First visit text")
 		o->quest->firstVisitText = value.toString().toStdString();
 	if(key == "Next visit text")
@@ -663,30 +660,38 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 //===============IMPLEMENT PROPERTY VALUE TYPE============================
 QTableWidgetItem * Inspector::addProperty(CGObjectInstance * value)
 {
-	return new QTableWidgetItem(QString::number(data_cast<CGObjectInstance>(value)));
+	auto * item = new QTableWidgetItem(QString::number(data_cast<CGObjectInstance>(value)));
+	item->setFlags(Qt::NoItemFlags);
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(Inspector::PropertyEditorPlaceholder value)
 {
-	auto item = new QTableWidgetItem("");
-	item->setData(Qt::UserRole, QString("PropertyEditor"));
+	auto item = new QTableWidgetItem("...");
+	item->setFlags(Qt::NoItemFlags);
 	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(unsigned int value)
 {
-	return new QTableWidgetItem(QString::number(value));
+	auto * item = new QTableWidgetItem(QString::number(value));
+	item->setFlags(Qt::NoItemFlags);
+	//item->setData(Qt::UserRole, QVariant::fromValue(value));
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(int value)
 {
-	return new QTableWidgetItem(QString::number(value));
+	auto * item = new QTableWidgetItem(QString::number(value));
+	item->setFlags(Qt::NoItemFlags);
+	//item->setData(Qt::UserRole, QVariant::fromValue(value));
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(bool value)
 {
 	auto item = new QTableWidgetItem;
-	item->setFlags(item->flags() & ~Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+	item->setFlags(Qt::ItemIsUserCheckable);
 	item->setCheckState(value ? Qt::Checked : Qt::Unchecked);
 	return item;
 }
@@ -698,118 +703,75 @@ QTableWidgetItem * Inspector::addProperty(const std::string & value)
 
 QTableWidgetItem * Inspector::addProperty(const QString & value)
 {
-	return new QTableWidgetItem(value);
+	auto * item = new QTableWidgetItem(value);
+	item->setFlags(Qt::NoItemFlags);
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(const int3 & value)
 {
-	return new QTableWidgetItem(QString("(%1, %2, %3)").arg(value.x, value.y, value.z));
+	auto * item = new QTableWidgetItem(QString("(%1, %2, %3)").arg(value.x, value.y, value.z));
+	item->setFlags(Qt::NoItemFlags);
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 {
-	auto str = QString("PLAYER %1").arg(value.getNum());
+	auto str = QObject::tr("UNFLAGGABLE");
 	if(value == PlayerColor::NEUTRAL)
-		str = "NEUTRAL";
-	if(value == PlayerColor::UNFLAGGABLE)
-		str = "UNFLAGGABLE";
-	return new QTableWidgetItem(str);
+		str = QObject::tr("neutral");
+	
+	if(value.isValidPlayer())
+		str = QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[value]);
+	
+	auto * item = new QTableWidgetItem(str);
+	item->setFlags(Qt::NoItemFlags);
+	item->setData(Qt::UserRole, QVariant::fromValue(value.getNum()));
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(const GameResID & value)
 {
-	QString str;
-	switch (value.toEnum()) {
-		case EGameResID::WOOD:
-			str = "WOOD";
-			break;
-		case EGameResID::ORE:
-			str = "ORE";
-			break;
-		case EGameResID::SULFUR:
-			str = "SULFUR";
-			break;
-		case EGameResID::GEMS:
-			str = "GEMS";
-			break;
-		case EGameResID::MERCURY:
-			str = "MERCURY";
-			break;
-		case EGameResID::CRYSTAL:
-			str = "CRYSTAL";
-			break;
-		case EGameResID::GOLD:
-			str = "GOLD";
-			break;
-		default:
-			break;
-	}
-	return new QTableWidgetItem(str);
+	auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[value.toEnum()]));
+	item->setFlags(Qt::NoItemFlags);
+	item->setData(Qt::UserRole, QVariant::fromValue(value.getNum()));
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 {
-	QString str;
-	switch (value) {
-		case CGCreature::Character::COMPLIANT:
-			str = "COMPLIANT";
+	auto * item = new QTableWidgetItem;
+	item->setFlags(Qt::NoItemFlags);
+	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
+	
+	for(auto & i : CharacterIdentifiers)
+	{
+		if(i.second.toInt() == value)
+		{
+			item->setText(i.first);
 			break;
-		case CGCreature::Character::FRIENDLY:
-			str = "FRIENDLY";
-			break;
-		case CGCreature::Character::AGRESSIVE:
-			str = "AGRESSIVE";
-			break;
-		case CGCreature::Character::HOSTILE:
-			str = "HOSTILE";
-			break;
-		case CGCreature::Character::SAVAGE:
-			str = "SAVAGE";
-			break;
-		default:
-			break;
+		}
 	}
-	return new QTableWidgetItem(str);
+	
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(CQuest::Emission value)
 {
-	QString str;
-	switch (value) {
-		case CQuest::Emission::MISSION_LEVEL:
-			str = "Reach level";
+	auto * item = new QTableWidgetItem;
+	item->setFlags(Qt::NoItemFlags);
+	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
+	
+	for(auto & i : MissionIdentifiers)
+	{
+		if(i.second.toInt() == value)
+		{
+			item->setText(i.first);
 			break;
-		case CQuest::Emission::MISSION_PRIMARY_STAT:
-			str = "Stats";
-			break;
-		case CQuest::Emission::MISSION_KILL_HERO:
-			str = "Kill hero";
-			break;
-		case CQuest::Emission::MISSION_KILL_CREATURE:
-			str = "Kill creature";
-			break;
-		case CQuest::Emission::MISSION_ART:
-			str = "Artifact";
-			break;
-		case CQuest::Emission::MISSION_ARMY:
-			str = "Army";
-			break;
-		case CQuest::Emission::MISSION_RESOURCES:
-			str = "Resources";
-			break;
-		case CQuest::Emission::MISSION_HERO:
-			str = "Hero";
-			break;
-		case CQuest::Emission::MISSION_PLAYER:
-			str = "Player";
-			break;
-		case CQuest::Emission::MISSION_KEYMASTER:
-			str = "Key master";
-			break;
-		default:
-			break;
+		}
 	}
-	return new QTableWidgetItem(str);
+	
+	return item;
 }
 
 //========================================================================
@@ -831,7 +793,11 @@ void InspectorDelegate::setEditorData(QWidget *editor, const QModelIndex &index)
 {
 	if(QComboBox *ed = qobject_cast<QComboBox *>(editor))
 	{
-		ed->addItems(options);
+		for(auto & i : options)
+		{
+			ed->addItem(i.first);
+			ed->setItemData(ed->count() - 1, i.second);
+		}
 	}
 	else
 	{
@@ -846,7 +812,8 @@ void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 		if(!options.isEmpty())
 		{
 			QMap<int, QVariant> data;
-			data[0] = options[ed->currentIndex()];
+			data[Qt::DisplayRole] = options[ed->currentIndex()].first;
+			data[Qt::UserRole] = options[ed->currentIndex()].second;
 			model->setItemData(index, data);
 		}
 	}

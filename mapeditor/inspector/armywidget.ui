@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>ArmyWidget</class>
  <widget class="QDialog" name="ArmyWidget">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -18,6 +21,9 @@
   </property>
   <property name="windowTitle">
    <string>Army settings</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="5" column="0">

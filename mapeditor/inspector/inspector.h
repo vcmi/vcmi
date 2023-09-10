@@ -96,6 +96,8 @@ protected:
 public:
 	Inspector(CMap *, CGObjectInstance *, QTableWidget *);
 
+	void setProperty(const QString & key, const QTableWidgetItem * item);
+	
 	void setProperty(const QString & key, const QVariant & value);
 
 	void updateProperties();
@@ -106,9 +108,10 @@ protected:
 	void addProperty(const QString & key, const T & value, QAbstractItemDelegate * delegate, bool restricted)
 	{
 		auto * itemValue = addProperty(value);
-		if(restricted)
-			itemValue->setFlags(itemValue->flags() & ~Qt::ItemIsEnabled);
-		//itemValue->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable);
+		if(!restricted)
+			itemValue->setFlags(itemValue->flags() | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+		if(!(itemValue->flags() & Qt::ItemIsUserCheckable))
+			itemValue->setFlags(itemValue->flags() | Qt::ItemIsEditable);
 		
 		QTableWidgetItem * itemKey = nullptr;
 		if(keyItems.contains(key))
@@ -160,6 +163,6 @@ public:
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 	
-	QStringList options;
+	QList<std::pair<QString, QVariant>> options;
 };
 
