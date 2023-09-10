@@ -166,11 +166,18 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 	}
 }
 
-void Canvas::drawColor(const Rect & target, const ColorRGBA & color, const bool replace)
+void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 {
 	Rect realTarget = target + renderArea.topLeft();
 
-	CSDL_Ext::fillRect(surface, realTarget, CSDL_Ext::toSDL(color), replace);
+	CSDL_Ext::fillRect(surface, realTarget, CSDL_Ext::toSDL(color));
+}
+
+void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
+{
+	Rect realTarget = target + renderArea.topLeft();
+
+	CSDL_Ext::fillRectBlended(surface, realTarget, CSDL_Ext::toSDL(color));
 }
 
 SDL_Surface * Canvas::getInternalSurface()
