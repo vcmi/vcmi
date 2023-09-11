@@ -11,6 +11,7 @@
 
 #include "../lib/constants/EntityIdentifiers.h"
 #include "../lib/int3.h"
+#include "../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
@@ -20,6 +21,7 @@ class CArmedInstance;
 
 struct CGPath;
 struct TryMoveHero;
+enum class EPathNodeAction : ui8;
 VCMI_LIB_NAMESPACE_END
 
 class HeroMovementController
@@ -41,6 +43,12 @@ class HeroMovementController
 	EMoveState movementState;
 
 	void setMovementStatus(bool value);
+
+	void updatePath(const CGHeroInstance * hero, const TryMoveHero & details);
+
+	AudioPath getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType);
+	void updateMovementSound(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType);
+	void stopMovementSound();
 public:
 	HeroMovementController();
 
