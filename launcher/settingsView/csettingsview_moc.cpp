@@ -121,7 +121,7 @@ void CSettingsView::loadSettings()
 	ui->spinBoxAutosaveFrequency->setEnabled(autosaveMode != "Off");
 
     ui->spinBoxAutosaveCountLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
-	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveMode != "Off");
+	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveMode == "Using Counter");
 
 	ui->checkBoxAutosaveBeforeBattles->setChecked(settings["general"]["autosaveBeforeBattles"].Bool());
 	ui->checkBoxAutosaveBeforeBattles->setEnabled(autosaveMode != "Off");
