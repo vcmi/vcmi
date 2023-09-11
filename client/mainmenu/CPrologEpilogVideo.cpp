@@ -29,7 +29,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 
 	CCS->videoh->open(spe.prologVideo);
 	CCS->musich->playMusic(spe.prologMusic, true, true);
-    voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
+	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
 
 	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText);
 	text->scrollTextTo(-100);
