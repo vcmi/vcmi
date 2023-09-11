@@ -241,12 +241,12 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 			battleResult->exp[1] += 500;
 		if(heroDefender)
 			battleResult->exp[0] += 500;
-
-		// Give 500 exp to winner if a town was conquered during the battle
-		const auto * defendedTown = battle.battleGetDefendedTown();
-		if (defendedTown && battleResult->winner == BattleSide::ATTACKER)
-			battleResult->exp[BattleSide::ATTACKER] += 500;
 	}
+
+	// Give 500 exp to winner if a town was conquered during the battle
+	const auto * defendedTown = battle.battleGetDefendedTown();
+	if (defendedTown && battleResult->winner == BattleSide::ATTACKER)
+		battleResult->exp[BattleSide::ATTACKER] += 500;
 
 	if(heroAttacker)
 		battleResult->exp[0] = heroAttacker->calculateXp(battleResult->exp[0]);//scholar skill
