@@ -172,7 +172,7 @@ void Initializer::initialize(CGArtifact * o)
 		std::vector<SpellID> out;
 		for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 		{
-			//if(map->isAllowedSpell(spell->id))
+			if(VLC->spellh->getDefaultAllowed().at(spell->id))
 			{
 				out.push_back(spell->id);
 			}
@@ -189,8 +189,8 @@ void Initializer::initialize(CGMine * o)
 	o->tempOwner = defaultPlayer;
 	if(o->isAbandoned())
 	{
-		for(auto r = 0; r < GameConstants::RESOURCE_QUANTITY - 1; ++r)
-			o->abandonedMineResources.insert(GameResID(r));
+		for(auto r = GameResID(0); r < GameResID::COUNT; ++r)
+			o->abandonedMineResources.insert(r);
 	}
 	else
 	{
@@ -300,10 +300,10 @@ void Inspector::updateProperties(CGArtifact * o)
 			auto * delegate = new InspectorDelegate;
 			for(auto spell : VLC->spellh->objects)
 			{
-				//if(map->isAllowedSpell(spell->id))
-				delegate->options << QObject::tr(spell->getJsonKey().c_str());
+				if(map->allowedSpells.at(spell->id))
+					delegate->options << QObject::tr(spell->getNameTranslated().c_str());
 			}
-			addProperty("Spell", VLC->spellh->getById(spellId)->getJsonKey(), delegate, false);
+			addProperty("Spell", VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);
 		}
 	}
 }
@@ -540,7 +540,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	{
 		for(auto spell : VLC->spellh->objects)
 		{
-			if(spell->getJsonKey() == value.toString().toStdString())
+			if(spell->getNameTranslated() == value.toString().toStdString())
 			{
 				o->storedArtifact = ArtifactUtils::createScroll(spell->getId());
 				break;

@@ -12,7 +12,15 @@ set(editor_SRCS
 		generatorprogress.cpp
 		mapview.cpp
 		objectbrowser.cpp
-		mapsettings.cpp
+		mapsettings/abstractsettings.cpp
+		mapsettings/mapsettings.cpp
+		mapsettings/generalsettings.cpp
+		mapsettings/modsettings.cpp
+		mapsettings/timedevent.cpp
+		mapsettings/victoryconditions.cpp
+		mapsettings/loseconditions.cpp
+		mapsettings/eventsettings.cpp
+		mapsettings/rumorsettings.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
@@ -40,7 +48,15 @@ set(editor_HEADERS
 		generatorprogress.h
 		mapview.h
 		objectbrowser.h
-		mapsettings.h
+		mapsettings/abstractsettings.h
+		mapsettings/mapsettings.h
+		mapsettings/generalsettings.h
+		mapsettings/modsettings.h
+		mapsettings/timedevent.h
+		mapsettings/victoryconditions.h
+		mapsettings/loseconditions.h
+		mapsettings/eventsettings.h
+		mapsettings/rumorsettings.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
@@ -59,7 +75,14 @@ set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
 		generatorprogress.ui
-		mapsettings.ui
+		mapsettings/mapsettings.ui
+		mapsettings/generalsettings.ui
+		mapsettings/modsettings.ui
+		mapsettings/timedevent.ui
+		mapsettings/victoryconditions.ui
+		mapsettings/loseconditions.ui
+		mapsettings/eventsettings.ui
+		mapsettings/rumorsettings.ui
 		playersettings.ui
 		playerparams.ui
 		validator.ui
