@@ -256,8 +256,9 @@ void CPlayerInterface::performAutosave()
 	std::string autosaveMode = settings["general"]["autosaveMode"].String();
 	int autosaveFrequency = static_cast<int>(settings["general"]["autosaveFrequency"].Integer());
 	auto turnNumber = cb->getDate();
+	bool turnMatchesAutosaveFrequency = turnNumber % autosaveFrequency == 0;
 
-	if(autosaveMode == "Off" && turnNumber % autosaveFrequency == 0)
+	if(autosaveMode == "Off" || !turnMatchesAutosaveFrequency)
 		return;
 
 	enum MapType {
@@ -276,7 +277,8 @@ void CPlayerInterface::performAutosave()
 	bool isCampaign = cb->getStartInfo()->mode == StartInfo::CAMPAIGN;
 
 	std::string saveName = "";
-	std::string lastMapSaveName = ""; // ToDo : krs - count for autosaves continues from autosave counter found in loaded save file name
+	std::string loadedSaveFileName = ""; // TODO: krs - fix getting loaded save name from cb->getStartInfo()->mapname;
+
 	std::string mapName = cb->getMapHeader()->name;
 	std::string mapDescription = cb->getMapHeader()->description;
 	std::string campaignName = "NA";
@@ -332,10 +334,15 @@ void CPlayerInterface::performAutosave()
  
 	if(autosaveMode == "Using Counter")
 	{
-		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer(); 
-		auto saveNumber = extractNumberAfterHash(lastMapSaveName);
-		if(saveNumber != -1)
-			autosaveCount = saveNumber;
+		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
+		if(!loadedSaveFileName.empty())
+		{
+			auto autosaveNumber = extractNumberAfterHash(loadedSaveFileName);
+			if(autosaveNumber != -1)
+				autosaveCount = autosaveNumber;
+			
+			loadedSaveFileName = "";
+		}
 
 		autosaveCount++;
 
@@ -382,10 +389,10 @@ void CPlayerInterface::performAutosave()
 		}
 
 		// replace variables in save name with actual values
-		for (auto const & entry : variables)
+		for(auto const & entry : variables)
 			boost::replace_all(saveName, entry.first, entry.second);
-	} 
- 
+	}
+
 	cb->save("Saves/" + saveName); 
 }
 

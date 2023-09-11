@@ -108,7 +108,7 @@ struct DLL_LINKAGE StartInfo
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
-	std::string mapname; // empty for random map, otherwise name of the map or savegame
+	std::string mapname; // empty for random map, otherwise name of the map or savegame <- krs this returns <relative_folder>/<mapname> no savegame!
 	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 
