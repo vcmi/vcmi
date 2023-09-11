@@ -16,8 +16,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct DLL_LINKAGE CampaignScenarioPrologEpilog
 {
 	bool hasPrologEpilog = false;
-	VideoPath prologVideo; // from CmpMovie.txt
+	VideoPath prologVideo;
 	AudioPath prologMusic; // from CmpMusic.txt
+	AudioPath prologVoice;
 	std::string prologText;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
@@ -25,6 +26,7 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 		h & hasPrologEpilog;
 		h & prologVideo;
 		h & prologMusic;
+		h & prologVoice;
 		h & prologText;
 	}
 };

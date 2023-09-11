@@ -35,7 +35,7 @@ class DLL_LINKAGE CampaignHandler
 
 	static VideoPath prologVideoName(ui8 index);
 	static AudioPath prologMusicName(ui8 index);
-	static std::string prologVoiceName(ui8 index);
+	static AudioPath prologVoiceName(ui8 index);
 
 public:
 	static std::unique_ptr<Campaign> getHeader( const std::string & name); //name - name of appropriate file
