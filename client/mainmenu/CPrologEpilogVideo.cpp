@@ -30,6 +30,11 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	CCS->videoh->open(spe.prologVideo);
 	CCS->musich->playMusic(spe.prologMusic, true, true);
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
+	auto onVoiceStop = [this]()
+	{
+		voiceStopped = true;
+	};
+	CCS->soundh->setCallback(voiceSoundHandle, onVoiceStop);
 
 	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText);
 	text->scrollTextTo(-100);
@@ -50,7 +55,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 	else
 		text->showAll(to); // blit text over video, if needed
 
-	if(text->textSize.y + 100 < positionCounter / 5 && !CCS->soundh->isSoundPlaying(voiceSoundHandle))
+	if(text->textSize.y + 100 < positionCounter / 5 && voiceStopped)
 		clickPressed(GH.getCursorPosition());
 }
 

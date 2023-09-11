@@ -404,8 +404,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 		ret.hasPrologEpilog = reader.readUInt8();
 		if(ret.hasPrologEpilog)
 		{
-			std::string originalCampaigns[] = { "DATA/GOOD1", "DATA/EVIL1", "DATA/GOOD2", "DATA/NEUTRAL1", "DATA/EVIL2", "DATA/GOOD3", "DATA/SECRET1", "DATA/AB", "DATA/BLOOD", "DATA/SLAYER", "DATA/FESTIVAL", "DATA/FIRE", "DATA/FOOL", "DATA/GEM", "DATA/GELU", "DATA/CRAG", "DATA/SANDRO", "DATA/YOG", "DATA/FINAL", "DATA/SECRET" };
-			bool isOriginalCampaign = std::find(std::begin(originalCampaigns), std::end(originalCampaigns), header.getFilename()) != std::end(originalCampaigns);
+			bool isOriginalCampaign = boost::starts_with(header.getFilename(), "DATA/");
 
 			ui8 index = reader.readUInt8();
 			ret.prologVideo = CampaignHandler::prologVideoName(index);

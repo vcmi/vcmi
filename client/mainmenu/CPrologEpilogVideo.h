@@ -23,6 +23,8 @@ class CPrologEpilogVideo : public CWindowObject
 
 	std::shared_ptr<CMultiLineLabel> text;
 
+	bool voiceStopped = false;
+
 public:
 	CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback);
 

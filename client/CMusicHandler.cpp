@@ -190,8 +190,6 @@ int CSoundHandler::playSound(const AudioPath & sound, int repeats, bool cache)
 			initCallback(channel);
 		else
 			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
-
-		channelPlaying[channel] = true;
 	}
 	else
 		channel = -1;
@@ -209,11 +207,6 @@ void CSoundHandler::stopSound(int handler)
 {
 	if (initialized && handler != -1)
 		Mix_HaltChannel(handler);
-}
-
-bool CSoundHandler::isSoundPlaying(int handler)
-{
-	return initialized && handler != -1 && channelPlaying[handler];
 }
 
 // Sets the sound volume, from 0 (mute) to 100
@@ -259,8 +252,6 @@ void CSoundHandler::setCallback(int channel, std::function<void()> function)
 
 void CSoundHandler::soundFinishedCallback(int channel)
 {
-	channelPlaying[channel] = false;
-	
 	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
 
 	if (callbacks.count(channel) == 0)
