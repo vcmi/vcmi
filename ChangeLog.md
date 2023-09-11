@@ -4,6 +4,7 @@
 * VCMI now uses new application icon
 * Fixed freeze in Launcher on repository checkout and on mod install
 * Added option to open hero backpack window in hero screen
+* Added detection of misclicks for touch inputs to make hitting small UI elements easier
 * Context popup for adventure map monsters will now show creature icon
 * It is no longer possible to stop movement while moving over water with Water Walk
 * Fixed crash on loading VCMI map with placed Abandoned Mine
@@ -15,6 +16,7 @@
 * Fixed reorderging of hero primary skills after moving to next scenario in campaigns
 
 ### BATTLES
+* Quick combat is now enabled by default
 * Fixed invisible creatures from SUMMON_GUARDIANS bonus
 * Added option to toggle spell usage by AI in quick combat
 * Fixed updating of spell point of enemy hero in game interface after spell cast
