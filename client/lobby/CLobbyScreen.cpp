@@ -88,6 +88,8 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		break;
 	}
 
+	buttonStart->block(true); // to be unblocked after map list is ready
+
 	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [&]()
 	{
 		CSH->sendClientDisconnecting();
@@ -126,33 +128,10 @@ void CLobbyScreen::startCampaign()
 
 void CLobbyScreen::startScenario(bool allowOnlyAI)
 {
-	try
+	if (CSH->validateGameStart(allowOnlyAI))
 	{
 		CSH->sendStartGame(allowOnlyAI);
 		buttonStart->block(true);
-	}
-	catch(CModHandler::Incompatibility & e)
-	{
-		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
-		
-		auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
-		errorMsg += e.what();
-		
-		CInfoWindow::showInfoDialog(errorMsg, CInfoWindow::TCompsInfo(), PlayerColor(1));
-	}
-	catch(std::exception & e)
-	{
-		logGlobal->error("Exception during startScenario: %s", e.what());
-		
-		if(std::string(e.what()) == "ExceptionNoHuman")
-			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[530], CInfoWindow::TCompsInfo(), PlayerColor(1));
-		
-		if(std::string(e.what()) == "ExceptionNoTemplate")
-			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[751], CInfoWindow::TCompsInfo(), PlayerColor(1));
-	}
-	catch(...)
-	{
-		logGlobal->error("Unknown exception");
 	}
 }
 
@@ -191,6 +170,8 @@ void CLobbyScreen::updateAfterStateChange()
 {
 	if(CSH->mi && tabOpt)
 		tabOpt->recreate();
+
+	buttonStart->block(CSH->mi == nullptr || CSH->isGuest());
 
 	card->changeSelection();
 	if (card->iconDifficulty)
