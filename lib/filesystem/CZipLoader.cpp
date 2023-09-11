@@ -157,7 +157,15 @@ std::vector<std::string> ZipArchive::listFiles(const boost::filesystem::path & f
 
 	unzFile file = unzOpen2_64(filename.c_str(), FileStream::GetMinizipFilefunc());
 
-	if (unzGoToFirstFile(file) == UNZ_OK)
+	if (file == nullptr)
+	{
+		logGlobal->error("Failed to open file '%s'! Unable to list files!", filename.string());
+		return {};
+	}
+
+	int result = unzGoToFirstFile(file);
+
+	if (result == UNZ_OK)
 	{
 		do
 		{
@@ -171,9 +179,21 @@ std::vector<std::string> ZipArchive::listFiles(const boost::filesystem::path & f
 			unzGetCurrentFileInfo64(file, &info, zipFilename.data(), static_cast<uLong>(zipFilename.size()), nullptr, 0, nullptr, 0);
 
 			ret.emplace_back(zipFilename.data(), zipFilename.size());
+
+			result = unzGoToNextFile(file);
 		}
-		while (unzGoToNextFile(file) == UNZ_OK);
+		while (result == UNZ_OK);
+
+		if (result != UNZ_OK && result != UNZ_END_OF_LIST_OF_FILE)
+		{
+			logGlobal->error("Failed to list file from '%s'! Error code %d", filename.string(), result);
+		}
 	}
+	else
+	{
+		logGlobal->error("Failed to list files from '%s'! Error code %d", filename.string(), result);
+	}
+
 	unzClose(file);
 
 	return ret;

@@ -39,6 +39,11 @@ QString detectModArchive(QString path, QString modName)
 			}
 		}
 	}
+
+	logGlobal->error("Failed to detect mod path in archive!");
+	logGlobal->debug("List of file in archive:");
+	for(auto file : files)
+		logGlobal->debug("%s", file.c_str());
 	
 	return "";
 }
