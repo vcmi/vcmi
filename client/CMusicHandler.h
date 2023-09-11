@@ -60,6 +60,7 @@ private:
 
 	std::map<AudioPath, int> ambientChannels;
 	std::map<int, int> channelVolumes;
+	std::map<int, bool> channelPlaying;
 
 	void initCallback(int channel, const std::function<void()> & function);
 	void initCallback(int channel);
@@ -78,6 +79,7 @@ public:
 	int playSound(const AudioPath & sound, int repeats=0, bool cache=false);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
+	bool isSoundPlaying(int handler);
 
 	void setCallback(int channel, std::function<void()> function);
 	void soundFinishedCallback(int channel);

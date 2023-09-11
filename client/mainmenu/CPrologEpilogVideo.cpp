@@ -50,7 +50,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 	else
 		text->showAll(to); // blit text over video, if needed
 
-	if(text->textSize.y + 100 < positionCounter / 5)
+	if(text->textSize.y + 100 < positionCounter / 5 && !CCS->soundh->isSoundPlaying(voiceSoundHandle))
 		clickPressed(GH.getCursorPosition());
 }
 
