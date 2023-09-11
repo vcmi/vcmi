@@ -186,7 +186,7 @@ void VictoryConditions::update(CMap & map)
 	{
 		map.triggeredEvents.push_back(standardVictory);
 		map.victoryIconIndex = 11;
-		map.victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[0]);
+		map.victoryMessage = MetaString::createFromTextID("core.vcdesc.0");
 	}
 	else
 	{
@@ -198,7 +198,7 @@ void VictoryConditions::update(CMap & map)
 		specialVictory.description.clear(); // TODO: display in quest window
 
 		map.victoryIconIndex = vicCondition;
-		map.victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1]);
+		map.victoryMessage = MetaString::createFromTextID("core.vcdesc." + std::to_string(vicCondition + 1));
 
 		switch(vicCondition)
 		{
@@ -301,7 +301,7 @@ void VictoryConditions::update(CMap & map)
 		if(ui->standardVictoryCheck->isChecked())
 		{
 			map.victoryMessage.appendRawString(" / ");
-			map.victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[0]);
+			map.victoryMessage.appendTextID("core.vcdesc.0");
 			map.triggeredEvents.push_back(standardVictory);
 		}
 		map.triggeredEvents.push_back(specialVictory);

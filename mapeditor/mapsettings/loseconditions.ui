@@ -42,7 +42,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="defeatMessageEdit"/>
+      <widget class="QLineEdit" name="defeatMessageEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

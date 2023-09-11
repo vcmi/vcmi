@@ -137,7 +137,7 @@ void LoseConditions::update(CMap & map)
 	{
 		map.triggeredEvents.push_back(standardDefeat);
 		map.defeatIconIndex = 3;
-		map.defeatMessage.appendTextID("core.lcdesc.0");
+		map.defeatMessage = MetaString::createFromTextID("core.lcdesc.0");
 	}
 	else
 	{
@@ -162,7 +162,7 @@ void LoseConditions::update(CMap & map)
 				noneOf.expressions.push_back(cond);
 				specialDefeat.onFulfill.appendTextID("core.genrltxt.251");
 				specialDefeat.trigger = EventExpression(noneOf);
-				map.defeatMessage.appendTextID("core.lcdesc.1");
+				map.defeatMessage = MetaString::createFromTextID("core.lcdesc.1");
 				break;
 			}
 
@@ -176,7 +176,7 @@ void LoseConditions::update(CMap & map)
 				noneOf.expressions.push_back(cond);
 				specialDefeat.onFulfill.appendTextID("core.genrltxt.253");
 				specialDefeat.trigger = EventExpression(noneOf);
-				map.defeatMessage.appendTextID("core.lcdesc.2");
+				map.defeatMessage = MetaString::createFromTextID("core.lcdesc.2");
 				break;
 			}
 
@@ -186,7 +186,7 @@ void LoseConditions::update(CMap & map)
 				cond.value = expiredDate(loseValueWidget->text());
 				specialDefeat.onFulfill.appendTextID("core.genrltxt.254");
 				specialDefeat.trigger = EventExpression(cond);
-				map.defeatMessage.appendTextID("core.lcdesc.3");
+				map.defeatMessage = MetaString::createFromTextID("core.lcdesc.3");
 				break;
 			}
 
