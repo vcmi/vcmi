@@ -175,6 +175,13 @@ void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 	CSDL_Ext::fillRect(surface, realTarget, CSDL_Ext::toSDL(color));
 }
 
+void Canvas::drawColorBlended(const Rect & target, const ColorRGBA & color)
+{
+	Rect realTarget = target + renderArea.topLeft();
+
+	CSDL_Ext::fillRectBlended(surface, realTarget, CSDL_Ext::toSDL(color));
+}
+
 SDL_Surface * Canvas::getInternalSurface()
 {
 	return surface;
