@@ -30,6 +30,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	std::string text((char *)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"') + 1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote);
+	text = "{- VCMI -}\r\n\r\n{Contributors:}\r\n" + boost::algorithm::join(contributors, "\r\n") + "\r\n\r\n{Website:}\r\nhttps://vcmi.eu\r\n\r\n\r\n\r\n\r\n{- Heroes of Might and Magic III -}\r\n\r\n" + text;
 	credits = std::make_shared<CMultiLineLabel>(Rect(pos.w - 350, 0, 350, 600), FONT_CREDITS, ETextAlignment::CENTER, Colors::WHITE, text);
 	credits->scrollTextTo(-600); // move all text below the screen
 }
