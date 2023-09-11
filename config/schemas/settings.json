@@ -132,7 +132,7 @@
 				},
 				"autosaveAtTurnStart" : {
 					"type": "boolean",
-					"default": true
+					"default": false
 				},
 				"singlePlayerScenarioSaveName" : {
 					"type": "string",
