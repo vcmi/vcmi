@@ -279,10 +279,53 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 
 void LoseConditions::onObjectSelect()
 {
+	int loseCondition = ui->loseComboBox->currentIndex() - 1;
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller->scene(lvl)->objectPickerView;
+		switch(loseCondition)
+		{
+			case 0: {  //EventCondition::CONTROL (Obj::TOWN)
+				l.highlight<const CGTownInstance>();
+				break;
+			}
+				
+			case 1: { //EventCondition::CONTROL (Obj::HERO)
+				l.highlight<const CGHeroInstance>();
+				break;
+			}
+			default:
+				return;
+		}
+		l.update();
+		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
+	}
 	
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
 }
 
 void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 {
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
 	
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller->scene(lvl)->objectPickerView;
+		l.clear();
+		l.update();
+		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
+	}
+	
+	if(!obj) //discarded
+		return;
+	
+	for(int i = 0; i < loseTypeWidget->count(); ++i)
+	{
+		auto data = controller->map()->objects.at(loseTypeWidget->itemData(i).toInt());
+		if(data == obj)
+		{
+			loseTypeWidget->setCurrentIndex(i);
+			break;
+		}
+	}
 }
