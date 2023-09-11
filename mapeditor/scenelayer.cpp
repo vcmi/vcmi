@@ -121,17 +121,20 @@ void ObjectPickerLayer::highlight(std::function<bool(const CGObjectInstance *)> 
 	if(!map)
 		return;
 	
-	for(int j = 0; j < map->height; ++j)
+	if(scene->level == 0 || map->twoLevel)
 	{
-		for(int i = 0; i < map->width; ++i)
+		for(int j = 0; j < map->height; ++j)
 		{
-			auto tl = map->getTile(int3(i, j, scene->level));
-			auto * obj = tl.topVisitableObj();
-			if(!obj && !tl.blockingObjects.empty())
-				obj = tl.blockingObjects.front();
-			
-			if(obj && predicate(obj))
-				possibleObjects.insert(obj);
+			for(int i = 0; i < map->width; ++i)
+			{
+				auto tl = map->getTile(int3(i, j, scene->level));
+				auto * obj = tl.topVisitableObj();
+				if(!obj && !tl.blockingObjects.empty())
+					obj = tl.blockingObjects.front();
+				
+				if(obj && predicate(obj))
+					possibleObjects.insert(obj);
+			}
 		}
 	}
 	

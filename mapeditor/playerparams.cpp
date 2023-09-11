@@ -151,8 +151,7 @@ void PlayerParams::allowedFactionsCheck(QListWidgetItem * item)
 		playerInfo.allowedFactions.erase(FactionID(item->data(Qt::UserRole).toInt()));
 }
 
-
-void PlayerParams::on_mainTown_activated(int index)
+void PlayerParams::on_mainTown_currentIndexChanged(int index)
 {
 	if(index == 0) //default
 	{
@@ -198,16 +197,12 @@ void PlayerParams::on_townSelect_clicked()
 		return false;
 	};
 	
-	std::vector<std::reference_wrapper<ObjectPickerLayer>> pickers;
-	pickers.emplace_back(controller.scene(0)->objectPickerView);
-	if(controller.map()->twoLevel)
-		pickers.emplace_back(controller.scene(1)->objectPickerView);
-	
-	for(auto l : pickers)
+	for(int lvl : {0, 1})
 	{
-		l.get().highlight(pred);
-		l.get().update();
-		QObject::connect(&l.get(), &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.highlight(pred);
+		l.update();
+		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
 	}
 	
 	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->hide();
@@ -217,20 +212,25 @@ void PlayerParams::onTownPicked(const CGObjectInstance * obj)
 {
 	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->show();
 	
-	std::vector<std::reference_wrapper<ObjectPickerLayer>> pickers;
-	pickers.emplace_back(controller.scene(0)->objectPickerView);
-	if(controller.map()->twoLevel)
-		pickers.emplace_back(controller.scene(1)->objectPickerView);
-	
-	for(auto l : pickers)
+	for(int lvl : {0, 1})
 	{
-		l.get().clear();
-		l.get().update();
-		QObject::disconnect(&l.get(), &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.clear();
+		l.update();
+		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
 	}
 	
 	if(!obj) //discarded
 		return;
 	
-	
+	for(int i = 0; i < ui->mainTown->count(); ++i)
+	{
+		auto town = controller.map()->objects.at(ui->mainTown->itemData(i).toInt());
+		if(town == obj)
+		{
+			ui->mainTown->setCurrentIndex(i);
+			break;
+		}
+	}
 }
+
