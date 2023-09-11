@@ -30,9 +30,9 @@ public:
 	virtual void initialize(const CMap & map) = 0;
 	virtual void update(CMap & map) = 0;
 
-	std::string getTownName(const CMap & map, int objectIdx);
-	std::string getHeroName(const CMap & map, int objectIdx);
-	std::string getMonsterName(const CMap & map, int objectIdx);
+	static std::string getTownName(const CMap & map, int objectIdx);
+	static std::string getHeroName(const CMap & map, int objectIdx);
+	static std::string getMonsterName(const CMap & map, int objectIdx);
 
 	static JsonNode conditionToJson(const EventCondition & event);
 

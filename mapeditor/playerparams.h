@@ -28,6 +28,8 @@ public:
 
 	PlayerInfo playerInfo;
 	int playerColor;
+	
+	void onTownPicked(const CGObjectInstance *);
 
 private slots:
 	void on_radioHuman_toggled(bool checked);
@@ -45,6 +47,8 @@ private slots:
 	void on_teamId_activated(int index);
 
 	void on_playerColorCombo_activated(int index);
+
+	void on_townSelect_clicked();
 
 private:
 	Ui::PlayerParams *ui;

@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "playerparams.h"
 #include "ui_playerparams.h"
+#include "mapsettings/abstractsettings.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/constants/StringConstants.h"
 
@@ -87,7 +88,8 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 			{
 				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
 					foundMainTown = townIndex;
-				const auto name = ctown->faction ? town->getObjectName() : town->getNameTranslated() + ", (random)";
+				
+				const auto name = AbstractSettings::getTownName(*controller.map(), i);
 				ui->mainTown->addItem(tr(name.c_str()), QVariant::fromValue(i));
 				++townIndex;
 			}
@@ -186,3 +188,49 @@ void PlayerParams::on_playerColorCombo_activated(int index)
 	}
 }
 
+
+void PlayerParams::on_townSelect_clicked()
+{
+	auto pred = [this](const CGObjectInstance * obj) -> bool
+	{
+		if(auto town = dynamic_cast<const CGTownInstance*>(obj))
+			return town->getOwner().getNum() == playerColor;
+		return false;
+	};
+	
+	std::vector<std::reference_wrapper<ObjectPickerLayer>> pickers;
+	pickers.emplace_back(controller.scene(0)->objectPickerView);
+	if(controller.map()->twoLevel)
+		pickers.emplace_back(controller.scene(1)->objectPickerView);
+	
+	for(auto l : pickers)
+	{
+		l.get().highlight(pred);
+		l.get().update();
+		QObject::connect(&l.get(), &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+	}
+	
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->hide();
+}
+
+void PlayerParams::onTownPicked(const CGObjectInstance * obj)
+{
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->show();
+	
+	std::vector<std::reference_wrapper<ObjectPickerLayer>> pickers;
+	pickers.emplace_back(controller.scene(0)->objectPickerView);
+	if(controller.map()->twoLevel)
+		pickers.emplace_back(controller.scene(1)->objectPickerView);
+	
+	for(auto l : pickers)
+	{
+		l.get().clear();
+		l.get().update();
+		QObject::disconnect(&l.get(), &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+	}
+	
+	if(!obj) //discarded
+		return;
+	
+	
+}

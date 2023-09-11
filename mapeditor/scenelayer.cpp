@@ -112,6 +112,83 @@ void PassabilityLayer::update()
 	redraw();
 }
 
+ObjectPickerLayer::ObjectPickerLayer(MapSceneBase * s): AbstractLayer(s)
+{
+}
+
+void ObjectPickerLayer::highlight(std::function<bool(const CGObjectInstance *)> predicate)
+{
+	if(!map)
+		return;
+	
+	for(int j = 0; j < map->height; ++j)
+	{
+		for(int i = 0; i < map->width; ++i)
+		{
+			auto tl = map->getTile(int3(i, j, scene->level));
+			auto * obj = tl.topVisitableObj();
+			if(!obj && !tl.blockingObjects.empty())
+				obj = tl.blockingObjects.front();
+			
+			if(obj && predicate(obj))
+				possibleObjects.insert(obj);
+		}
+	}
+	
+	isActive = true;
+}
+
+bool ObjectPickerLayer::isVisible() const
+{
+	return isShown && isActive;
+}
+
+void ObjectPickerLayer::clear()
+{
+	possibleObjects.clear();
+	isActive = false;
+}
+
+void ObjectPickerLayer::update()
+{
+	if(!map)
+		return;
+	
+	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap->fill(Qt::transparent);
+	if(isActive)
+		pixmap->fill(QColor(255, 255, 255, 128));
+	
+	
+	QPainter painter(pixmap.get());
+	painter.setCompositionMode(QPainter::CompositionMode_Source);
+	for(auto * obj : possibleObjects)
+	{
+		if(obj->pos.z != scene->level)
+			continue;
+		
+		for(auto & pos : obj->getBlockedPos())
+			painter.fillRect(pos.x * 32, pos.y * 32, 32, 32, QColor(255, 211, 0, 64));
+	}
+	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	redraw();
+}
+
+void ObjectPickerLayer::select(const CGObjectInstance * obj)
+{
+	if(obj && possibleObjects.count(obj))
+	{
+		clear();
+		emit selectionMade(obj);
+	}
+}
+
+void ObjectPickerLayer::discard()
+{
+	clear();
+	emit selectionMade(nullptr);
+}
+
 SelectionTerrainLayer::SelectionTerrainLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
