@@ -149,6 +149,7 @@ public:
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
 	bool validateGameStart(bool allowOnlyAI = false) const;
+	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
