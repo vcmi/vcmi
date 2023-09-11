@@ -87,11 +87,10 @@ std::string AbstractSettings::getTownName(const CMap & map, int objectIdx)
 	std::string name;
 	if(auto town = dynamic_cast<const CGTownInstance*>(map.objects[objectIdx].get()))
 	{
-		auto * ctown = town->town;
-		if(!ctown)
-			ctown = VLC->townh->randomTown;
-
-		name = ctown->faction ? town->getObjectName() : town->getNameTranslated() + ", (random)";
+		name = town->getNameTranslated();
+		
+		if(name.empty())
+			name = town->getTown()->faction->getNameTranslated();
 	}
 	return name;
 }
