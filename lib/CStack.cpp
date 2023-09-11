@@ -395,6 +395,7 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 		logGlobal->warn("Unexpected spell cost %d for creature", spellCost);
 
 	BattleSetStackProperty ssp;
+	ssp.battleID = battle->battleID;
 	ssp.stackID = unitId();
 	ssp.which = BattleSetStackProperty::CASTS;
 	ssp.val = -spellCost;

@@ -116,6 +116,7 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 		for(auto & b : converted)
 		{
 			GiveBonus gb(GiveBonus::ETarget::BATTLE);
+			gb.id = m->battle()->getBattle()->getBattleID().getNum();
 			gb.bonus = b;
 			server->apply(&gb);
 		}
