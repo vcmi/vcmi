@@ -23,8 +23,8 @@ public:
 	explicit EventSettings(QWidget *parent = nullptr);
 	~EventSettings();
 
-	void initialize(const CMap & map) override;
-	void update(CMap & map) override;
+	void initialize(MapController & map) override;
+	void update() override;
 
 private slots:
 	void on_timedEventAdd_clicked();

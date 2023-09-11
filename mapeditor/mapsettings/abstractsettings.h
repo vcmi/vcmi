@@ -20,6 +20,8 @@ QString expiredDate(int date);
 int3 posFromJson(const JsonNode & json);
 std::vector<JsonNode> linearJsonArray(const JsonNode & json);
 
+class MapController;
+
 class AbstractSettings : public QWidget
 {
 	Q_OBJECT
@@ -27,8 +29,8 @@ public:
 	explicit AbstractSettings(QWidget *parent = nullptr);
 	virtual ~AbstractSettings() = default;
 
-	virtual void initialize(const CMap & map) = 0;
-	virtual void update(CMap & map) = 0;
+	virtual void initialize(MapController & controller);
+	virtual void update() = 0;
 
 	static std::string getTownName(const CMap & map, int objectIdx);
 	static std::string getHeroName(const CMap & map, int objectIdx);
@@ -37,7 +39,7 @@ public:
 	static JsonNode conditionToJson(const EventCondition & event);
 
 	template<class T>
-	std::vector<int> getObjectIndexes(const CMap & map) const
+	static std::vector<int> getObjectIndexes(const CMap & map)
 	{
 		std::vector<int> result;
 		for(int i = 0; i < map.objects.size(); ++i)
@@ -49,7 +51,7 @@ public:
 	}
 
 	template<class T>
-	int getObjectByPos(const CMap & map, const int3 & pos)
+	static int getObjectByPos(const CMap & map, const int3 & pos)
 	{
 		for(int i = 0; i < map.objects.size(); ++i)
 		{
@@ -62,6 +64,7 @@ public:
 		return -1;
 	}
 
-signals:
+protected:
+	MapController * controller = nullptr;
 
 };

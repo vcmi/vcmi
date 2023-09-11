@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "rumorsettings.h"
 #include "ui_rumorsettings.h"
+#include "../mapcontroller.h"
 
 RumorSettings::RumorSettings(QWidget *parent) :
 	AbstractSettings(parent),
@@ -23,9 +24,10 @@ RumorSettings::~RumorSettings()
 	delete ui;
 }
 
-void RumorSettings::initialize(const CMap & map)
+void RumorSettings::initialize(MapController & c)
 {
-	for(auto & rumor : map.rumors)
+	AbstractSettings::initialize(c);
+	for(auto & rumor : controller->map()->rumors)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(rumor.name));
 		item->setData(Qt::UserRole, QVariant(QString::fromStdString(rumor.text)));
@@ -34,15 +36,15 @@ void RumorSettings::initialize(const CMap & map)
 	}
 }
 
-void RumorSettings::update(CMap & map)
+void RumorSettings::update()
 {
-	map.rumors.clear();
+	controller->map()->rumors.clear();
 	for(int i = 0; i < ui->rumors->count(); ++i)
 	{
 		Rumor rumor;
 		rumor.name = ui->rumors->item(i)->text().toStdString();
 		rumor.text = ui->rumors->item(i)->data(Qt::UserRole).toString().toStdString();
-		map.rumors.push_back(rumor);
+		controller->map()->rumors.push_back(rumor);
 	}
 }
 

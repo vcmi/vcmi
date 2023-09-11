@@ -35,9 +35,9 @@ ModSettings::~ModSettings()
 	delete ui;
 }
 
-void ModSettings::initialize(const CMap & map)
+void ModSettings::initialize(MapController & c)
 {
-	mapPointer = &map;
+	AbstractSettings::initialize(c);
 
 	//mods management
 	//collect all active mods
@@ -50,7 +50,7 @@ void ModSettings::initialize(const CMap & map)
 		auto item = new QTreeWidgetItem(parent, {QString::fromStdString(modInfo.name), QString::fromStdString(modInfo.version.toString())});
 		item->setData(0, Qt::UserRole, QVariant(QString::fromStdString(modInfo.identifier)));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(0, map.mods.count(modInfo.identifier) ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(0, controller->map()->mods.count(modInfo.identifier) ? Qt::Checked : Qt::Unchecked);
 		//set parent check
 		if(parent && item->checkState(0) == Qt::Checked)
 			parent->setCheckState(0, Qt::Checked);
@@ -96,7 +96,7 @@ void ModSettings::initialize(const CMap & map)
 	ui->treeMods->blockSignals(false);
 }
 
-void ModSettings::update(CMap & map)
+void ModSettings::update()
 {
 	//Mod management
 	auto widgetAction = [&](QTreeWidgetItem * item)
@@ -104,11 +104,11 @@ void ModSettings::update(CMap & map)
 		if(item->checkState(0) == Qt::Checked)
 		{
 			auto modName = item->data(0, Qt::UserRole).toString().toStdString();
-			map.mods[modName] = VLC->modh->getModInfo(modName).version;
+			controller->map()->mods[modName] = VLC->modh->getModInfo(modName).version;
 		}
 	};
 
-	map.mods.clear();
+	controller->map()->mods.clear();
 	for (int i = 0; i < ui->treeMods->topLevelItemCount(); ++i)
 	{
 		QTreeWidgetItem *item = ui->treeMods->topLevelItem(i);
@@ -134,7 +134,7 @@ void ModSettings::updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods)
 
 void ModSettings::on_modResolution_map_clicked()
 {
-	updateModWidgetBasedOnMods(MapController::modAssessmentMap(*mapPointer));
+	updateModWidgetBasedOnMods(MapController::modAssessmentMap(*controller->map()));
 }
 
 

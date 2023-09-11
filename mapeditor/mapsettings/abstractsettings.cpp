@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "abstractsettings.h"
+#include "../mapcontroller.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/CTownHandler.h"
@@ -80,6 +81,11 @@ AbstractSettings::AbstractSettings(QWidget *parent)
 	: QWidget{parent}
 {
 
+}
+
+void AbstractSettings::initialize(MapController & c)
+{
+	controller = &c;
 }
 
 std::string AbstractSettings::getTownName(const CMap & map, int objectIdx)

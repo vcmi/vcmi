@@ -23,18 +23,22 @@ public:
 	explicit LoseConditions(QWidget *parent = nullptr);
 	~LoseConditions();
 
-	void initialize(const CMap & map) override;
-	void update(CMap & map) override;
+	void initialize(MapController & map) override;
+	void update() override;
+	
+public slots:
+	void onObjectSelect();
+	void onObjectPicked(const CGObjectInstance *);
 
 private slots:
 	void on_loseComboBox_currentIndexChanged(int index);
 
 private:
 	Ui::LoseConditions *ui;
-	const CMap * mapPointer = nullptr;
 
 	QComboBox * loseTypeWidget = nullptr;
 	QComboBox * loseSelectWidget = nullptr;
 	QLineEdit * loseValueWidget = nullptr;
+	QToolButton * pickObjectButton = nullptr;
 };
 

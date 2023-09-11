@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "victoryconditions.h"
 #include "ui_victoryconditions.h"
-
+#include "../mapcontroller.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/constants/StringConstants.h"
 
@@ -23,12 +23,12 @@ VictoryConditions::VictoryConditions(QWidget *parent) :
 	ui->setupUi(this);
 }
 
-void VictoryConditions::initialize(const CMap & map)
+void VictoryConditions::initialize(MapController & c)
 {
-	mapPointer = &map;
+	AbstractSettings::initialize(c);
 
 	//victory message
-	ui->victoryMessageEdit->setText(QString::fromStdString(map.victoryMessage.toString()));
+	ui->victoryMessageEdit->setText(QString::fromStdString(controller->map()->victoryMessage.toString()));
 
 	//victory conditions
 	const std::array<std::string, 8> conditionStringsWin = {
@@ -49,7 +49,7 @@ void VictoryConditions::initialize(const CMap & map)
 	ui->standardVictoryCheck->setChecked(false);
 	ui->onlyForHumansCheck->setChecked(false);
 
-	for(auto & ev : map.triggeredEvents)
+	for(auto & ev : controller->map()->triggeredEvents)
 	{
 		if(ev.effect.type == EventEffect::VICTORY)
 		{
@@ -98,7 +98,7 @@ void VictoryConditions::initialize(const CMap & map)
 							assert(victorySelectWidget);
 							auto idx = victoryTypeWidget->findData(int(json["objectType"].Integer()));
 							victoryTypeWidget->setCurrentIndex(idx);
-							int townIdx = getObjectByPos<const CGTownInstance>(*mapPointer, posFromJson(json["position"]));
+							int townIdx = getObjectByPos<const CGTownInstance>(*controller->map(), posFromJson(json["position"]));
 							if(townIdx >= 0)
 							{
 								auto idx = victorySelectWidget->findData(townIdx);
@@ -112,7 +112,7 @@ void VictoryConditions::initialize(const CMap & map)
 							assert(victoryTypeWidget);
 							if(json["objectType"].Integer() == Obj::TOWN)
 							{
-								int townIdx = getObjectByPos<const CGTownInstance>(*mapPointer, posFromJson(json["position"]));
+								int townIdx = getObjectByPos<const CGTownInstance>(*controller->map(), posFromJson(json["position"]));
 								if(townIdx >= 0)
 								{
 									auto idx = victoryTypeWidget->findData(townIdx);
@@ -128,7 +128,7 @@ void VictoryConditions::initialize(const CMap & map)
 							assert(victoryTypeWidget);
 							if(json["objectType"].Integer() == Obj::HERO)
 							{
-								int heroIdx = getObjectByPos<const CGHeroInstance>(*mapPointer, posFromJson(json["position"]));
+								int heroIdx = getObjectByPos<const CGHeroInstance>(*controller->map(), posFromJson(json["position"]));
 								if(heroIdx >= 0)
 								{
 									auto idx = victoryTypeWidget->findData(heroIdx);
@@ -144,7 +144,7 @@ void VictoryConditions::initialize(const CMap & map)
 							assert(victoryTypeWidget);
 							assert(victorySelectWidget);
 							victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
-							int townIdx = getObjectByPos<const CGTownInstance>(*mapPointer, posFromJson(json["position"]));
+							int townIdx = getObjectByPos<const CGTownInstance>(*controller->map(), posFromJson(json["position"]));
 							if(townIdx >= 0)
 							{
 								auto idx = victorySelectWidget->findData(townIdx);
@@ -164,10 +164,10 @@ void VictoryConditions::initialize(const CMap & map)
 	}
 }
 
-void VictoryConditions::update(CMap & map)
+void VictoryConditions::update()
 {
 	//victory messages
-	map.victoryMessage = MetaString::createFromRawString(ui->victoryMessageEdit->text().toStdString());
+	controller->map()->victoryMessage = MetaString::createFromRawString(ui->victoryMessageEdit->text().toStdString());
 
 	//victory conditions
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
@@ -184,9 +184,9 @@ void VictoryConditions::update(CMap & map)
 	//VICTORY
 	if(ui->victoryComboBox->currentIndex() == 0)
 	{
-		map.triggeredEvents.push_back(standardVictory);
-		map.victoryIconIndex = 11;
-		map.victoryMessage = MetaString::createFromTextID("core.vcdesc.0");
+		controller->map()->triggeredEvents.push_back(standardVictory);
+		controller->map()->victoryIconIndex = 11;
+		controller->map()->victoryMessage = MetaString::createFromTextID("core.vcdesc.0");
 	}
 	else
 	{
@@ -197,8 +197,8 @@ void VictoryConditions::update(CMap & map)
 		specialVictory.identifier = "specialVictory";
 		specialVictory.description.clear(); // TODO: display in quest window
 
-		map.victoryIconIndex = vicCondition;
-		map.victoryMessage = MetaString::createFromTextID("core.vcdesc." + std::to_string(vicCondition + 1));
+		controller->map()->victoryIconIndex = vicCondition;
+		controller->map()->victoryMessage = MetaString::createFromTextID("core.vcdesc." + std::to_string(vicCondition + 1));
 
 		switch(vicCondition)
 		{
@@ -240,7 +240,7 @@ void VictoryConditions::update(CMap & map)
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
-					cond.position = map.objects[townIdx]->pos;
+					cond.position = controller->map()->objects[townIdx]->pos;
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.283");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.282");
 				specialVictory.trigger = EventExpression(cond);
@@ -252,7 +252,7 @@ void VictoryConditions::update(CMap & map)
 				assert(victoryTypeWidget);
 				cond.objectType = Obj::TOWN;
 				int townIdx = victoryTypeWidget->currentData().toInt();
-				cond.position = map.objects[townIdx]->pos;
+				cond.position = controller->map()->objects[townIdx]->pos;
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.250");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.249");
 				specialVictory.trigger = EventExpression(cond);
@@ -264,7 +264,7 @@ void VictoryConditions::update(CMap & map)
 				assert(victoryTypeWidget);
 				cond.objectType = Obj::HERO;
 				int heroIdx = victoryTypeWidget->currentData().toInt();
-				cond.position = map.objects[heroIdx]->pos;
+				cond.position = controller->map()->objects[heroIdx]->pos;
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.253");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.252");
 				specialVictory.trigger = EventExpression(cond);
@@ -277,7 +277,7 @@ void VictoryConditions::update(CMap & map)
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
-					cond.position = map.objects[townIdx]->pos;
+					cond.position = controller->map()->objects[townIdx]->pos;
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.293");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.292");
 				specialVictory.trigger = EventExpression(cond);
@@ -300,11 +300,11 @@ void VictoryConditions::update(CMap & map)
 		// if normal victory allowed - add one more quest
 		if(ui->standardVictoryCheck->isChecked())
 		{
-			map.victoryMessage.appendRawString(" / ");
-			map.victoryMessage.appendTextID("core.vcdesc.0");
-			map.triggeredEvents.push_back(standardVictory);
+			controller->map()->victoryMessage.appendRawString(" / ");
+			controller->map()->victoryMessage.appendTextID("core.vcdesc.0");
+			controller->map()->triggeredEvents.push_back(standardVictory);
 		}
-		map.triggeredEvents.push_back(specialVictory);
+		controller->map()->triggeredEvents.push_back(specialVictory);
 	}
 }
 
@@ -339,7 +339,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 		case 0: { //EventCondition::HAVE_ARTIFACT
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			for(int i = 0; i < mapPointer->allowedArtifact.size(); ++i)
+			for(int i = 0; i < controller->map()->allowedArtifact.size(); ++i)
 				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
 			break;
 		}
@@ -383,37 +383,37 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);
 			victorySelectWidget->addItem("Any town", QVariant::fromValue(-1));
-			for(int i : getObjectIndexes<const CGTownInstance>(*mapPointer))
-				victorySelectWidget->addItem(getTownName(*mapPointer, i).c_str(), QVariant::fromValue(i));
+			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
+				victorySelectWidget->addItem(getTownName(*controller->map(), i).c_str(), QVariant::fromValue(i));
 			break;
 		}
 
 		case 4: { //EventCondition::CONTROL (Obj::TOWN)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			for(int i : getObjectIndexes<const CGTownInstance>(*mapPointer))
-				victoryTypeWidget->addItem(tr(getTownName(*mapPointer, i).c_str()), QVariant::fromValue(i));
+			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
+				victoryTypeWidget->addItem(tr(getTownName(*controller->map(), i).c_str()), QVariant::fromValue(i));
 			break;
 		}
 
 		case 5: { //EventCondition::DESTROY (Obj::HERO)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			for(int i : getObjectIndexes<const CGHeroInstance>(*mapPointer))
-				victoryTypeWidget->addItem(tr(getHeroName(*mapPointer, i).c_str()), QVariant::fromValue(i));
+			for(int i : getObjectIndexes<const CGHeroInstance>(*controller->map()))
+				victoryTypeWidget->addItem(tr(getHeroName(*controller->map(), i).c_str()), QVariant::fromValue(i));
 			break;
 		}
 
 		case 6: { //EventCondition::TRANSPORT (Obj::ARTEFACT)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			for(int i = 0; i < mapPointer->allowedArtifact.size(); ++i)
+			for(int i = 0; i < controller->map()->allowedArtifact.size(); ++i)
 				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
 
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);
-			for(int i : getObjectIndexes<const CGTownInstance>(*mapPointer))
-				victorySelectWidget->addItem(tr(getTownName(*mapPointer, i).c_str()), QVariant::fromValue(i));
+			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
+				victorySelectWidget->addItem(tr(getTownName(*controller->map(), i).c_str()), QVariant::fromValue(i));
 			break;
 		}
 
@@ -433,3 +433,13 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 	}
 }
 
+
+void VictoryConditions::onObjectSelect()
+{
+	
+}
+
+void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
+{
+	
+}

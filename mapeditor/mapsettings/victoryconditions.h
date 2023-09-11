@@ -23,17 +23,21 @@ public:
 	explicit VictoryConditions(QWidget *parent = nullptr);
 	~VictoryConditions();
 
-	void initialize(const CMap & map) override;
-	void update(CMap & map) override;
+	void initialize(MapController & map) override;
+	void update() override;
+	
+public slots:
+	void onObjectSelect();
+	void onObjectPicked(const CGObjectInstance *);
 
 private slots:
 	void on_victoryComboBox_currentIndexChanged(int index);
 
 private:
 	Ui::VictoryConditions *ui;
-	const CMap * mapPointer = nullptr;
 
 	QComboBox * victoryTypeWidget = nullptr;
 	QComboBox * victorySelectWidget = nullptr;
 	QLineEdit * victoryValueWidget = nullptr;
+	QToolButton * pickObjectButton = nullptr;
 };
