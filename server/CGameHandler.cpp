@@ -589,6 +589,11 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 			battleResult.data->exp[0] += 500;
 	}
 
+	// Give 500 exp to winner if a town was conquered during the battle
+	const auto * defendedTown = battleGetDefendedTown();
+	if (defendedTown && battleResult.data->winner == BattleSide::ATTACKER)
+		battleResult.data->exp[BattleSide::ATTACKER] += 500;
+
 	if(heroAttacker)
 		battleResult.data->exp[0] = heroAttacker->calculateXp(battleResult.data->exp[0]);//scholar skill
 	if(heroDefender)
