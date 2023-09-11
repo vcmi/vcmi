@@ -116,6 +116,7 @@ void Moat::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 		for(auto & b : converted)
 		{
 			GiveBonus gb(GiveBonus::ETarget::BATTLE);
+			gb.id = m->battle()->getBattle()->getBattleID().getNum();
 			gb.bonus = b;
 			server->apply(&gb);
 		}
@@ -128,6 +129,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 	assert(m->casterSide == BattleSide::DEFENDER); // Moats are always cast by defender
 
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 

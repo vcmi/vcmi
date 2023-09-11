@@ -44,6 +44,7 @@ bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const Ef
 void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & obstacle : getTargets(m, target, false))
 	{
