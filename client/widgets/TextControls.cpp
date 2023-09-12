@@ -153,6 +153,15 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 	//We should count delimiters length from string to correct centering later.
 	delimitersCount *= f->getStringWidth(delimeters)/2;
 
+	std::smatch match;
+	std::regex expr("\\{(#[0-9a-fA-F]{6})");
+	std::string::const_iterator searchStart( what.cbegin() );
+	while(std::regex_search(searchStart, what.cend(), match, expr))
+	{
+		delimitersCount += f->getStringWidth(match[1].str());
+		searchStart = match.suffix().first;
+	}
+
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
 	if(alignment == ETextAlignment::TOPLEFT)
@@ -189,8 +198,21 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 		{
 			std::string toPrint = what.substr(begin, end - begin);
 
-			if(currDelimeter % 2) // Enclosed in {} text - set to yellow
-				to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);
+			if(currDelimeter % 2) // Enclosed in {} text - set to yellow or defined color
+			{
+				std::smatch match;
+   				std::regex expr("^#([0-9a-fA-F]{6})");
+				if(std::regex_search(toPrint, match, expr))
+				{
+					ui8 rgb[3] = {0, 0, 0}; 
+					std::string tmp = boost::algorithm::unhex(match[1].str()); 
+					std::copy(tmp.begin(), tmp.end(), rgb);
+
+					to.drawText(where, font, ColorRGBA(rgb[0], rgb[1], rgb[2]), ETextAlignment::TOPLEFT, toPrint.substr(7, toPrint.length() - 7));
+				}
+				else
+					to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);
+			}
 			else // Non-enclosed text, use default color
 				to.drawText(where, font, color, ETextAlignment::TOPLEFT, toPrint);
 

@@ -122,6 +122,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <optional>
 #include <queue>
 #include <random>
+#include <regex>
 #include <set>
 #include <sstream>
 #include <string>
@@ -147,6 +148,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_ASIO_ENABLE_OLD_SERVICES
 #endif
 
+#include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/crc.hpp>
 #include <boost/current_function.hpp>
