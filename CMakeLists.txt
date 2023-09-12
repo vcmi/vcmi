@@ -588,11 +588,6 @@ if(ANDROID)
 		)
 	endif()
 
-	install(FILES AUTHORS
-		DESTINATION res/raw
-		RENAME authors.txt
-	)
-
 	# zip internal assets - 'config' and 'Mods' dirs, save md5 of the zip
 	install(CODE "
 		cmake_path(ABSOLUTE_PATH CMAKE_INSTALL_PREFIX
