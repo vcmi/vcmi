@@ -12,15 +12,11 @@ In order to make functional town you also need:
 -   Mage guild window view (1 image)
 -   Town hall background (1 image)
 
-<!-- -->
-
 -   Set of town icons, consists from all possible combinations of: (8
     images total)
     -   small and big icons
     -   village and fort icons
     -   built and normal icons
-
-<!-- -->
 
 -   Set for castle siege screen, consists from:
     -   Background (1 image)
@@ -49,18 +45,18 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Faction node (root entry for town configuration)
 
-``` javascript
-// Unique faction identifier. Should be unique.
-"myTown" :
+```jsonc
+// Unique faction identifier.
+"myFaction" :
 {
 	// Main part of town description, see below
 	// Optional but it should be present for playable faction
 	"town" : { ... },
 
-	// Native terrain for this town. See config/terrains.json for identifiers
+	// Native terrain for creatures. Creatures fighting on native terrain receive several bonuses
 	"nativeTerrain" : "grass",
 
-	// Localizable town name, e.g. "Rampart"
+	// Localizable faction name, e.g. "Rampart"
 	"name" : "", 
 
 	// Faction alignment. Can be good, neutral (default) or evil.
@@ -72,7 +68,13 @@ Each town requires a set of buildings (Around 30-45 buildings)
 		// Paths to background images
 		"120px" : "",
 		"130px" : ""
-	}
+	},
+	
+	// Identifier of boat type that is produced by shipyard and used by heroes in water taverns or prisons
+	"boat" : "boatFortress",
+	
+	// Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground.
+	"preferUndergroundPlacement" : false
 
 	// Town puzzle map
 	"puzzleMap" :
@@ -98,17 +100,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Town node
 
-``` javascript
+```jsonc
 {
-	// DEPRECATED, see "mapObject" field below | Path to images of object on adventure map
-	"adventureMap" : 
-	{
-		"village": "", // village without built fort
-		"castle" : "", // town with built fort
-		"capitol": ""  // town with capitol (usually have some additional flags)
-	},
-
-	// field that describes behavior of map object part of town. Town-specific part of object format
+	// Field that describes behavior of map object part of town. Town-specific part of object format
 	"mapObject" : 
 	{
 		// Optional, controls what template will be used to display this object.
@@ -174,21 +168,20 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Small scenery for window in mage guild screen
 	"guildWindow": "",
 
-	// Background image for window in mage guild screen - since 0.95b
+	// Background image for window in mage guild screen
 	"guildBackground" : "",
 
-	// Video for tavern window - since 0.95b
+	// Video for tavern window
 	"tavernVideo" : "",
 	
-	// Building icons for town hall
+	// Path to building icons for town hall
 	"buildingsIcons": "HALLCSTL.DEF", 
 
 	// Background image for town hall window
 	"hallBackground": "",
 
 	// List of buildings available in each slot of town hall window
-	// As in most cases there is no hard limit on number of columns, rows
-	// or items in any of them, but size of gui is limited to 5 rows and 4 columns
+	// Note that size of gui is limited to 5 rows and 4 columns
 	"hallSlots": 
 	[
 		[ [ "buildingID1" ], [ "buildingID2", "buildingID3" ] ],
@@ -232,19 +225,16 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Chance of specific spell to appear in mages guild of this town
 	// If spell is missing or set to 0 it will not appear unless set as "always present" in editor
 	// Spells from unavailable levels are not required to be in this list
-	// TODO: Mirrored version of field "guildSpells" from spell format
 	"guildSpells" :
 	{
 		"magicArrow" : 30,
 		"bless"  : 10
 	},
 
-	// TODO: Entries below should be replaced with autodetection
-
 	// Which tiers in this town have creature hordes. Set to -1 to disable horde(s)
 	"horde" : [ 2, -1 ], 
 
-	// Resource given by starting bonus, if not set silo will produce wood + ore
+	// Resource given by starting bonus. If not set silo will produce wood + ore
 	"primaryResource" : "gems", 
 
 	// maximum level of mage guild
@@ -252,12 +242,15 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 	// war machine produced in town
 	"warMachine" : "ballista"
+	
+	// Identifier of spell that will create effects for town moat during siege
+	"moatAbility" : "castleMoat"
 }
 ```
 
 ## Siege node
 
-``` javascript
+```jsonc
 // Describes town siege screen
 // Comments in the end of each graphic position indicate specify required suffix for image
 // Note: one not included image is battlefield background with suffix "BACK"
@@ -265,13 +258,13 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// shooter creature name
 	"shooter" : "archer",
 
-	// (VCMI 1.1 or later) Large icon of towers, for use in battle queue
+	// Large icon of towers, for use in battle queue
 	"towerIconLarge" : "",
 
-	// (VCMI 1.1 or later) Small icon of towers, for use in battle queue
+	// (Small icon of towers, for use in battle queue
 	"towerIconSmall" : "",
 
-	// prefix for all siege images. Final name will be composed as <prefix><suffix>
+	// Prefix for all siege images. Final name will be composed as <prefix><suffix>
 	"imagePrefix" : "SGCS",
 
 	// Descriptions for towers. Each tower consist from 3 parts:
@@ -302,7 +295,7 @@ Each town requires a set of buildings (Around 30-45 buildings)
 			"creature" :   { "x": 0, "y": 0}
 		},
 	},
-	//Two parts of gate: gate itself and arch above it
+	// Two parts of gate: gate itself and arch above it
 	"gate" :
 	{
 		"gate" : { "x": 0, "y": 0}, // "DRW1" ... "DRW3" and "DRWC" (rope)
@@ -317,8 +310,13 @@ Each town requires a set of buildings (Around 30-45 buildings)
 		"bottomMid" : { "x": 0, "y": 0}, // "WA31" ... "WA33"
 		"bottom"    : { "x": 0, "y": 0}  // "WA11" ... "WA13"
 	},
-	// Two pieces for moat: moat itself and shore
-	"moat" : { "x": 0, "y": 0}, // moat: "MOAT", shore: "MLIP"
+
+	// Two pieces for moat: moat itself and moat bank
+	"moat" :
+	{
+		"bank" : { "x" : 0, "y" : 0 }, // "MOAT"
+		"moat" : { "x" : 0, "y" : 0 }  // "MLIP"
+	},
 
 	// Static non-destructible walls. All of them have only one piece
 	"static" : 
@@ -337,28 +335,56 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 ## Building node
 
-``` javascript
+```jsonc
 {
+	// Numeric identifier of this building
 	"id" : 0,
+	
+	// Localizable name of this building
 	"name" : "",
+	
+	// Localizable decsription of this building
 	"description" : "",
-	"upgrades" : "baseBuilding", // optional, which building can be upgraded by this one
-	"requires" : [ "allOf", [ "mageGuild1" ], [ "tavern" ] ], // building requirements, H3-style. See below for full format.
-	"cost" : { ... }, //resources needed to buy building
-	"produce" : { ... }, //resources produced each day by building - since 0.95b
+	
+	// Optional, indicates that this building upgrades another base building
+	"upgrades" : "baseBuilding",
+	
+	// List of town buildings that must be built before this one. See below for full format
+	"requires" : [ "allOf", [ "mageGuild1" ], [ "tavern" ] ],
+	
+	// Resources needed to build building
+	"cost" : { ... }, 
+	
+	// TODO: Document me: Subtype for some special buildings
+	"type" : "",
+	
+	// TODO: Document me: Height for lookout towers and some grails
+	"height" : "average"
+	
+	// Resources produced each day by this building
+	"produce" : { ... }, 
 
 	//determine how this building can be built. Possible values are:
 	// normal  - default value. Fulfill requirements, use resources, spend one day
 	// auto    - building appears when all requirements are built
 	// special - building can not be built manually
 	// grail   - building reqires grail to be built
-	"mode" : "auto"
+	"mode" : "auto",
+	
+	// Buildings which bonuses should be overridden with bonuses of the current building
+	"overrides" : [ "anotherBuilding ]
+	
+	// Bonuses, provided by this special building on build using bonus system
+	"bonuses" : BONUS_FORMAT
+	
+	// Bonuses, provided by this special building on hero visit and applied to the visiting hero
+	"onVisitBonuses" : BONUS_FORMAT
 }
 ```
 
 Building requirements can be described using logical expressions:
 
-``` javascript
+```jsonc
 "requires" :
 [
     "allOf", // Normal H3 "build all" mode
@@ -378,13 +404,30 @@ Building requirements can be described using logical expressions:
 
 ## Structure node
 
-``` javascript
+```jsonc
 {
-	"animation" : "", // def file with animation
+	// Main animation file for this building
+	"animation" : "", 
+	
+	// Horizontal position on town screen
 	"x" : 0,
+	
+	// Vertical  position on town screen
 	"y" : 0,
-	"z" : 0, // used for blit order. Higher value places structure close to screen
-	"border" : "", // selection highlight
-	"area" : "" // used to detect building selection
+	
+	// used for blit order. Higher value places structure close to screen and drawn on top of buildings with lower values
+	"z" : 0, 
+	
+	// Path to image with golden border around building, displayed when building is selected
+	"border" : "", 
+	
+	// Path to image with area that indicate when building is selected
+	"area" : "",
+	
+	//TODO: describe me
+	"builds": "",
+	
+	// If upgrade, this building will replace parent animation but will not alter its behaviour
+	"hidden" : false 
 }
 ```

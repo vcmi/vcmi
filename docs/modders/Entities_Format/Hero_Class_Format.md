@@ -61,8 +61,7 @@ In order to make functional hero class you also need:
 		"knowledge"  : 2
 	},
 
-	// Chance to get specific primary skill on level-up
-	// This set specifies chances for levels 2-9
+	// Chance to get specific primary skill on level-up, applicable for levels less than 10
 	"lowLevelChance" :
 	{
 		"attack"     : 15,
@@ -71,8 +70,7 @@ In order to make functional hero class you also need:
 		"knowledge"  : 25
 	},
 
-	// Chance to get specific primary skill on level-up
-	// This set specifies chances for levels starting from 10
+	// Chance to get specific primary skill on level-up, applicable for levels starting from 10
 	"highLevelChance" :
 	{
 		"attack"     : 25,
@@ -82,7 +80,7 @@ In order to make functional hero class you also need:
 	},
 
 	// Chance to get specific secondary skill on level-up
-	// Skills not listed here will be considered as unavailable, including universities
+	// All missing skills are considered to be banned, including universities
 	"secondarySkills" :
 	{
 		"pathfinding"  : 3.

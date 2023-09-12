@@ -12,10 +12,10 @@ In order to make functional hero you also need:
 ``` javascript
 "myHeroName" :
 {
-	// Identifier of class. Usually camelCase version of human-readable name
+	// Identifier of class this hero belongs to. Such as knight or battleMage
 	"class" : "wizard",
 
-	// List of starting spells, if available. Will also grant spellbook
+	// List of starting spells, if available. This entry (even empty) will also grant spellbook
 	"spellbook" :
 	[
 		"magicArrow"
@@ -26,6 +26,12 @@ In order to make functional hero you also need:
 
 	// If set to true hero will be unavailable on start and won't appear in taverns (campaign heroes)
 	"special" : true,
+	
+	// If set to true, hero won't show up on a map with water
+	"onlyOnWaterMap" : false,
+	
+	// If set to true, hero will show up only if the map contains no water
+	"onlyOnMapWithoutWater" : false,
 
 	// All translatable texts related to hero
 	"texts" :
@@ -61,11 +67,10 @@ In order to make functional hero you also need:
 
 		// Small 48x32px portrait
 		"small" : "myMod/myHero/small.png"
-
-		// Class-independent animation in battle
-		"small" : "myMod/myHero/battle.def"
-
 	},
+	
+	// Custom animation to be used on battle, overrides hero class property
+	"battleImage" : "heroInBattle.def"
 
 	// Initial hero army when recruited in tavern
 	// Must have 1-3 elements
@@ -95,7 +100,7 @@ In order to make functional hero you also need:
 		}
 	],
 
-	// List of skills received by hero
+	// List of skills initially known by hero
 	// Not limited by size - you can add as many skills as you wish
 	"skills" :
 	[

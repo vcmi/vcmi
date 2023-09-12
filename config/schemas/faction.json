@@ -30,20 +30,20 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI faction format",
 	"description" : "Json format for defining new faction (aka towns) in VCMI",
-	"required" : [ "name", "alignment", "nativeTerrain", "creatureBackground" ],
+	"required" : [ "name", "boat", "alignment", "nativeTerrain", "creatureBackground" ],
 	"dependencies" : {
-		"town" : [ "puzzleMap", "boat" ]
+		"town" : [ "puzzleMap" ]
 	},
 	"additionalProperties" : false,
 	"properties" : {
 		"name" : {
 			"type" : "string",
-			"description" : "Translatable name of town"
+			"description" : "Localizable faction name, e.g. Rampart"
 		},
 		"alignment" : {
 			"type" : "string",
 			"enum" : [ "good", "neutral", "evil" ],
-			"description" : "Town alignment, good, neutral or evil"
+			"description" : "Faction alignment, good, neutral or evil"
 		},
 		"nativeTerrain" : {
 			"type" : "string",
@@ -51,12 +51,12 @@
 		},
 		"boat" : {
 			"type" : "string",
-			"description" : "Identifier of boat type that is produced by shipyard in town, if any"
+			"description" : "Identifier of boat type that is produced by shipyard and used by heroes in water taverns or prisons"
 		},
 
 		"preferUndergroundPlacement" : {
 			"type" : "boolean",
-			"description" : "Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground. False by default."
+			"description" : "Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground."
 		},
 		"creatureBackground" : {
 			"type" : "object",
@@ -173,7 +173,7 @@
 				},
 				"buildingsIcons" : {
 					"type" : "string",
-					"description" : "Path to .def file with building icons",
+					"description" : "Path to building icons for town hall",
 					"format" : "animationFile"
 				},
 				"mapObject" : {
