@@ -325,6 +325,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
+    <ClInclude Include="..\AUTHORS.h" />
     <ClInclude Include="..\Version.h" />
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="battle\BattleAction.h" />

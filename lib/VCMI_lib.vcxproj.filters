@@ -470,6 +470,9 @@
     <ClInclude Include="..\Global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\AUTHORS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="AI_Base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
