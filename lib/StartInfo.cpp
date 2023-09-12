@@ -71,7 +71,7 @@ std::string StartInfo::getCampaignName() const
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
 	if(!mi || !mi->mapHeader)
-		throw std::domain_error("There is no map to start!");
+		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.529"));
 	
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
 	CModHandler::Incompatibility::ModList modList;
@@ -88,12 +88,12 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 			break;
 
 	if(i == si->playerInfos.cend() && !ignoreNoHuman)
-		throw std::domain_error("There is no human player on map");
+		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.530"));
 
 	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
 	{
 		if(!si->mapGenOptions->checkOptions())
-			throw std::domain_error("No random map template found!");
+			throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.751"));
 	}
 }
 
