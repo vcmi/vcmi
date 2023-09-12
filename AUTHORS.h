@@ -43,6 +43,6 @@ std::vector<std::vector<std::string>> contributors = {
    { "Developing", "Tom Zielinski",        "Warmonger",             "Warmonger@vp.pl"              },
    { "Developing", "Xiaomin Ding",         "",                      "dingding303@gmail.com"        },
 
-   { "Testing",    "",                     "Povelitel",             ""                             },
    { "Testing",    "",                     "Misiokles",             ""                             },
+   { "Testing",    "",                     "Povelitel",             ""                             },
 };
