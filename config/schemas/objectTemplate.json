@@ -14,11 +14,11 @@
 		"editorAnimation" : {
 			"type" : "string",
 			"description" : "Optional path to def file with animation of this object to use in map editor",
-			"format" : "defFile"			
+			"format" : "defFile"
 		},
 		"visitableFrom" : {
 			"type" : "array",
-			"description" : "Directions from which this object is visible",
+			"description" : "Directions from which hero can visit this object",
 			"minItems" : 3,
 			"maxItems" : 3,
 			"items" : {

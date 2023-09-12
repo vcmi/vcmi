@@ -83,3 +83,7 @@ Remark: The stack level for war machines is 0.
 `       "parameters" : [ 20, 3, 10, 700 ],`  
 `       "type" : "ARMY_MOVEMENT"`  
 `   }`
+
+## BONUS_OWNER_UPDATER
+
+TODO: document me

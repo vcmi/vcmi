@@ -1,5 +1,8 @@
 < [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Creature Bank
 
+Reward types for clearing creature bank are limited to resources, creatures, artifacts and spell.
+Format of rewards is same as in [Rewardable Objects](Rewardable.md)
+
 ``` javascript
 {
 	/// List of levels of this bank. On map loading, one of them will be randomly assigned to bank.
@@ -27,14 +30,8 @@
 				{ "amount": 4, "type": "cyclop" }
 			],
 
-			// How hard are guards of this level. Unused?
-			"combat_value": 506,
-
 			/// Description of rewards granted for clearing bank
 			"reward" : {
-
-				/// Approximate value of reward, known to AI. Unused?
-				"value": 10000,
 
 				/// Granted resources
 				"resources": {

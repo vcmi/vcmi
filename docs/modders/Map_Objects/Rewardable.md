@@ -26,7 +26,7 @@
 
 ## Base object definition
 Rewardable object is defined similarly to other objects, with key difference being `handler`. This field must be set to `"handler" : "configurable"` in order for vcmi to use this mode.
-```js
+```jsonc
 {
   "baseObjectName" : {
     "name" : "Object name",
@@ -58,7 +58,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
 ```
 
 ## Configurable object definition
-```js
+```jsonc
 // List of potential rewards
 "rewards" : [
   {
@@ -92,7 +92,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
     // message that will be shown if this is the only available award
     "message": "{Warehouse of Crystal}"
 
-    // (VCMI 1.2) object will be disappeared after taking reward is set to true
+    // object will be disappeared after taking reward is set to true
     "removeObject": false
 
     // See "Configurable Properties" section for additiona parameters
@@ -100,7 +100,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
   }
 ],
 
-// (VCMI 1.2) If true, hero can not move to visitable tile of the object and will access this object from adjacent tile (e.g. Treasure Chest)
+// If true, hero can not move to visitable tile of the object and will access this object from adjacent tile (e.g. Treasure Chest)
 "blockedVisitable" : true,
 
 // Message that will be shown if there are no applicable awards
@@ -126,13 +126,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
 // Note that in this case object will not become "visited" and can still be revisited later
 "canRefuse": true,
 
-// object reset period. Note that period is counted from game start and not from hero visit
-// reset duration of 7 will always reset object on new week & duration of 28 will reset on new month
-// if field is not present or set to 0 object will never reset
-// (VCMI 1.2) This property has been removed in favor of more detailed "resetParameters" property
-"resetDuration" : 7, 
-
-// (VCMI 1.2) see Reset Parameters definition section
+// Controls when object state will be reset, allowing potential revisits. See Reset Parameters definition section
 "resetParameters" : {
 }
 
@@ -153,14 +147,12 @@ Rewardable object is defined similarly to other objects, with key difference bei
 ```
 
 ## Reset Parameters definition
-(VCMI 1.2 only) 
-
 This property describes how object state should be reset. Objects without this field will never reset its state.
 - Period describes interval between object resets in day. Periods are counted from game start and not from hero visit, so reset duration of 7 will always reset object on new week & duration of 28 will always reset on new month.
 - If `visitors` is set to true, game will reset list of visitors (heroes and players) on start of new period, allowing revisits of objects with `visitMode` set to `once`, `hero`, or `player`. Objects with visit mode set to `bonus` are not affected. In order to allow revisit such objects use appropriate bonus duration (e.g. `ONE_DAY` or `ONE_WEEK`) instead.
 - If `rewards` is set to true, object will re-randomize its provided rewards, similar to such H3 objects as "Fountain of Fortune" or "Windmill"
 
-```js
+```jsonc
 "resetParameters" : {
     "period" : 7,
     "visitors" : true,
@@ -172,7 +164,7 @@ This property describes how object state should be reset. Objects without this f
 This property describes chance for reward to be selected.
 When object is initialized on map load, game will roll a "dice" - random number in range 0-99, and pick all awards that have appear chance within selected number
 
-```js
+```jsonc
     "appearChance": 
     {
       // (Advanced) rewards with different dice number will get different dice number
@@ -190,24 +182,24 @@ When object is initialized on map load, game will roll a "dice" - random number 
 
 ## Configurable Properties
 Unless stated othervice, all numbers in this section can be replaced with random values, e.g.
-```js
+```jsonc
 "minLevel" : { "min" : 5, "max" : 10 } // select random number between 5-10, including both 5 & 10
 "minLevel" : [ 2, 4, 6, 8, 10] // (VCMI 1.2) select random number out of provided list, with equal chance for each
 ```
 
 In this case, actual value for minLevel will be picked randomly. 
-(VCMI 1.2) Keep in mind, that all randomization is performed on map load and on reset (only if `rewards` field in `resetParameter` was set).
+Keep in mind, that all randomization is performed on map load and on object reset (if `rewards` field in `resetParameter` was set).
 
 ### Current Day
 - Can only be used as limiter. To pass, current day of week should be equal to this value. 1 = first day of the week, 7 = last day
 
-```js
+```jsonc
 "dayOfWeek" : 0 
 ```
 
-- (VCMI 1.2) Can only be used as limiter. To pass, number of days since game started must be at equal or greater than this value
+- Can only be used as limiter. To pass, number of days since game started must be at equal or greater than this value
 
-```js
+```jsonc
 "daysPassed" : 8
 ```
 
@@ -216,15 +208,15 @@ In this case, actual value for minLevel will be picked randomly.
 - Can be used as reward to grant resources to player
 - If negative value is used as reward, it will be used as cost and take resources from player
 
-```js
+```jsonc
 "resources": {
     "crystal" : 6,
     "gold" : -1000,
 }, 
 ```
-- (VCMI 1.2) Alternative format that allows random selection of a resource type
+- Alternative format that allows random selection of a resource type
 
-```js
+```jsonc
 "resources": [
     {
         "list" : [ "wood", "ore" ],
@@ -238,41 +230,41 @@ In this case, actual value for minLevel will be picked randomly.
 ```
 
 ### Experience
-- (VCMI 1.2) Can be used as limiter
+- Can be used as limiter
 - Can be used as reward to grant experience to hero
 
-```js
+```jsonc
 "heroExperience" : 1000, 
 ```
 
 ### Hero Level
 - Can be used as limiter. Hero requires to have at least specified level
-- (VCMI 1.2) Can be used as reward, will grant hero experience amount equal to the difference between the hero's next level and current level (Tree of Knowledge)
+- Can be used as reward, will grant hero experience amount equal to the difference between the hero's next level and current level (Tree of Knowledge)
 
-```js
+```jsonc
 "heroLevel" : 1,
 ```
 
 ### Mana Points
-- (VCMI 1.2) Can be used as limiter. Hero must have at least specific mana amount
+- Can be used as limiter. Hero must have at least specific mana amount
 - Can be used as reward, to give mana points to hero. Mana points may go above mana pool limit.
 - If negative value is used as reward, it will be used as cost and take mana from player
 
-```js
+```jsonc
 "manaPoints": -10, 
 ```
 
-- (VCMI 1.2) if giving mana points puts hero above mana pool limit, any overflow will be multiplied by specified percentage. If set to 0, mana will not go above mana pool limit.
+- If giving mana points puts hero above mana pool limit, any overflow will be multiplied by specified percentage. If set to 0, mana will not go above mana pool limit.
 
-```js
+```jsonc
 "manaOverflowFactor" : 50,
 ```
 
 ### Mana Percentage
-- (VCMI 1.2) Can be used as limiter. Hero must have at least specific mana percentage
+- Can be used as limiter. Hero must have at least specific mana percentage
 - Can be used to set hero mana level to specified percentage value, not restricted to mana pool limit (Magic Well, Mana Spring)
 
-```js
+```jsonc
 "manaPercentage": 200, 
 ```
 
@@ -280,7 +272,7 @@ In this case, actual value for minLevel will be picked randomly.
 - Can NOT be used as limiter
 - Can be used as reward, to give movement points to hero. Movement points may go above mana pool limit.
 
-```js
+```jsonc
 "movePoints": 200,
 ```
     
@@ -288,7 +280,7 @@ In this case, actual value for minLevel will be picked randomly.
 - Can NOT be used as limiter
 - Can be used to set hero movement points level to specified percentage value. Value of 0 will take away any remaining movement points
 
-```js
+```jsonc
 "movePercentage": 50,
 ```
 
@@ -296,8 +288,10 @@ In this case, actual value for minLevel will be picked randomly.
 - Can be used as limiter, hero must have primary skill at least at specified level
 - Can be used as reward, to increase hero primary skills by selected value
 - If reward value is negative, value will be used as cost, decreasing primary skill
-- (VCMI 1.3) Each primary skill can be explicitly specified or randomly selected
-```js
+- Each primary skill can be explicitly specified or randomly selected
+- Possible values: `"attack", "defence", "spellpower", "knowledge"`
+
+```jsonc
 "primary": [
     {
         // Specific primary skill
@@ -321,14 +315,6 @@ In this case, actual value for minLevel will be picked randomly.
     }
 ]
 ```
-- Possible values: `"attack", "defence", "spellpower", "knowledge"`
-- (VCMI 1.2) Deprecated format
-```js
-"primary": {
-    "attack" : 1,
-    "spellpower": -1
-},
-```
 
 ### Secondary Skills
 - Can be used as limiter, hero must have secondary skill at least at specified level
@@ -336,8 +322,8 @@ In this case, actual value for minLevel will be picked randomly.
 - If hero already has specified skill, the skills will be leveled up specified number of times
 - If hero does not have selected skill and have free skill slots, he will receive skill at specified level
 - Possible values: 1 (basic), 2 (advanced), 3 (expert)
-- (VCMI 1.3) Each secondary skill can be explicitly specified or randomly selected
-```js
+- Each secondary skill can be explicitly specified or randomly selected
+```jsonc
 "secondary": [
     {
         // Specific skill
@@ -361,20 +347,14 @@ In this case, actual value for minLevel will be picked randomly.
     }
 ]
 ```
-- (VCMI 1.2) deprecated format
-```js
-"secondary": {
-    "wisdom" : 1
-},
-```
 
 ### Bonus System
-- (VCMI 1.2) Can be used as reward, to grant bonus to player
-- (VCMI 1.2) if present, MORALE and LUCK bonus will add corresponding image component to UI.
-- (VCMI 1.2) Note that unlike most values, parameter of bonuses can NOT be randomized
-- (VCMI 1.X) Description can be string or number of corresponding string from `arraytxt.txt`
+- Can be used as reward, to grant bonus to player
+- if present, MORALE and LUCK bonus will add corresponding image component to UI.
+- Note that unlike most values, parameter of bonuses can NOT be randomized
+- Description can be string or number of corresponding string from `arraytxt.txt`
 
-```js
+```jsonc
 "bonuses" : [
     {
         "type" : "MORALE", 
@@ -388,9 +368,9 @@ In this case, actual value for minLevel will be picked randomly.
 ### Artifacts
 - Can be used as limiter, hero must have artifact either equipped or in backpack
 - Can be used as reward, to give new artifact to a hero
-- (VCMI 1.2) Artifacts added as reward will be used for text substitution. First `%s` in text string will be replaced with name of an artifact
+- Artifacts added as reward will be used for text substitution. First `%s` in text string will be replaced with name of an artifact
 
-```js
+```jsonc
 "artifacts": [
     "ribCage"
 ],
@@ -400,7 +380,7 @@ In this case, actual value for minLevel will be picked randomly.
 - For artifact class possible values are "TREASURE", "MINOR", "MAJOR", "RELIC"
 - Artifact value range can be specified with min value and max value
 
-```js
+```jsonc
 "artifacts": [
     {
         "class" : "TREASURE",
@@ -409,22 +389,22 @@ In this case, actual value for minLevel will be picked randomly.
     }
 ],
 ```
-    
-### Spells
-- (VCMI 1.2) Can be used as limiter
-- Can be used as reward, to give new spell to a hero
-- (VCMI 1.2) Spells added as reward will be used for text substitution. First `%s` in text string will be replaced with spell name
 
-```js
+### Spells
+- Can be used as limiter
+- Can be used as reward, to give new spell to a hero
+- Spells added as reward will be used for text substitution. First `%s` in text string will be replaced with spell name
+
+```jsonc
 "spells": [
     "magicArrow"
 ],
 ```
 
 - Alternative format, random spell selection
-- (VCMI 1.X) Spell can be selected from specifically selected school
+- Spell can be selected from specifically selected school
 
-```js
+```jsonc
 "spells": [
     {
         "level" : 1,
@@ -432,13 +412,13 @@ In this case, actual value for minLevel will be picked randomly.
     }
 ],
 ```
-    
+
 ### Creatures
 - Can be used as limiter
 - Can be used as reward, to give new creatures to a hero
 - If hero does not have enough free slots, game will show selection dialog to pick troops to keep
 - It is possible to specify probabilty to receive upgraded creature
-```js
+```jsonc
 "creatures" : [
     {
         "creature" : "archer",
@@ -449,22 +429,22 @@ In this case, actual value for minLevel will be picked randomly.
 ```
 
 ### Creatures Change
-- (VCMI 1.2) Can NOT be used as limiter
-- (VCMI 1.2) Can be used as reward, to replace creatures in hero army. It is possible to use this parameter both for upgrades of creatures as well as for changing them into completely unrelated creature, e.g. similar to Skeleton Transformer
-- (VCMI 1.2) This parameter will not change creatures given by `creatures` parameter on the same visit
+- Can NOT be used as limiter
+- Can be used as reward, to replace creatures in hero army. It is possible to use this parameter both for upgrades of creatures as well as for changing them into completely unrelated creature, e.g. similar to Skeleton Transformer
+- This parameter will not change creatures given by `creatures` parameter on the same visit
 
-```js
+```jsonc
 "changeCreatures" : {
     "cavalier" : "champion"
 }
 ```
 
 ### Spell cast
-- (VCMI 1.3) Can NOT be used as limiter
-- (VCMI 1.3) As reward, instantly casts adventure map spell for visiting hero. All checks for spell book, wisdom or presence of mana will be ignored. It's possible to specify school level at which spell will be casted. If it's necessary to reduce player's mana or do some checks, they shall be introduced as limiters and other rewards
+- Can NOT be used as limiter
+- As reward, instantly casts adventure map spell for visiting hero. All checks for spell book, wisdom or presence of mana will be ignored. It's possible to specify school level at which spell will be casted. If it's necessary to reduce player's mana or do some checks, they shall be introduced as limiters and other rewards
 - School level possible values: 1 (basic), 2 (advanced), 3 (expert)
 
-```js
+```jsonc
 "spellCast" : {
     "spell" : "townPortal",
     "schoolLevel": 3

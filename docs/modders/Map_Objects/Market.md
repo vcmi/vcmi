@@ -77,8 +77,7 @@ Game logic prohibits using modes unavailable for faction
 
 # Offer
 
-This field allows to configure specific items available in the market.
-In VCMI-1.3 it can be used only for `resource-skill` mode
+This field allows to configure specific items available in the market. It can be used only for `resource-skill` mode
 
 See [Secondary skills](Rewardable.md#secondary-skills) description for more details
 

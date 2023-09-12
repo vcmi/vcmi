@@ -1,14 +1,18 @@
 < [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Types
 
-The bonuses were grouped according to their original purpose. The bonus
-system allows them to propagate freely betwen the nodes, however they
-may not be recognized properly beyond the scope of original use.
+The bonuses were grouped according to their original purpose. The bonus system allows them to propagate freely betwen the nodes, however they may not be recognized properly beyond the scope of original use.
 
 # General-purpose bonuses
 
 ### NONE
 
-### MORALE, LUCK
+Special bonus that gives no effect
+
+### MORALE
+
+-   val = value
+
+### LUCK
 
 -   val = value
 
@@ -19,8 +23,6 @@ eg. for magic plains terrain and for magic school secondary skills
 -   subtype: school of magic (0 - all, 1 - air, 2 - fire, 4 - water, 8 -
     earth)
 -   val - level
-
-### NO_TYPE
 
 ### DARKNESS
 
@@ -35,10 +37,6 @@ land
 
 -   val = number of movement points (100 points for a tile)
 
-### LAND_MOVEMENT, SEA_MOVEMENT (before 1.2)
-
--   val = number of movement points (100 points for a tile)
-
 ### WATER_WALKING
 
 -   subtype: 1 - without penalty, 2 - with penalty
@@ -47,7 +45,7 @@ land
 
 -   subtype: 1 - without penalty, 2 - with penalty
 
-### NO_TERRAIN_PENALTY (since 0.98f)
+### NO_TERRAIN_PENALTY
 
 Hero does not get movement penalty on certain terrain type (Nomads
 ability).
@@ -59,13 +57,7 @@ ability).
 -   uses subtype to pick skill
 -   additional info if set: 1 - only melee, 2 - only distance
 
-### SIGHT_RADIOUS (before 1.2)
-
-Additional bonus to range of sight (Used for Scouting secondary skill)
-
--   val = distance in tiles
-
-### SIGHT_RADIUS (after 1.2)
+### SIGHT_RADIUS
 
 Sight radius of a hero. Used for base radius + Scouting secondary skill
 
@@ -85,19 +77,13 @@ all mana points are replenished every day
 
 good and neutral creatures can be mixed without morale penalty
 
-### SECONDARY_SKILL_PREMY (before 1.2)
-
-%
-
 ### SURRENDER_DISCOUNT
 
 %
 
 ### IMPROVED_NECROMANCY
 
-Before 1.2: allows Necropolis units other than skeletons to be raised by
-necromancy After 1.2: determine units which is raised by necromancy
-skill.
+Determine units which is raised by necromancy skill.
 
 -   subtype: creature raised
 -   val: Necromancer power
@@ -110,7 +96,7 @@ skill.
 `  "addInfo" : 0`  
 ` }`
 
-### LEARN_BATTLE_SPELL_CHANCE (since 1.2)
+### LEARN_BATTLE_SPELL_CHANCE
 
 -   subtype: 0 - from enemy hero, 1 - from entire battlefield (not
     implemented now).
@@ -118,14 +104,14 @@ skill.
 
 Note: used for Eagle Eye skill
 
-### LEARN_BATTLE_SPELL_LEVEL_LIMIT (since 1.2)
+### LEARN_BATTLE_SPELL_LEVEL_LIMIT
 
 -   subtype: school (-1 for all), others TODO
 -   val: maximum learning level
 
 Note: used for Eagle Eye skill
 
-### LEARN_MEETING_SPELL_LIMIT (since 1.2)
+### LEARN_MEETING_SPELL_LIMIT
 
 -   subtype: school (-1 for all), others TODO
 -   val: maximum learning level for learning a spell during hero
@@ -133,35 +119,34 @@ Note: used for Eagle Eye skill
 
 Note: used for Scholar skill
 
-### ROUGH_TERRAIN_DISCOUNT (since 1.2)
+### ROUGH_TERRAIN_DISCOUNT
 
 -   val: Non-road terrain discount in movement points
 
 Note: used for Pathfinding skill
 
-### WANDERING_CREATURES_JOIN_BONUS (since 1.2)
+### WANDERING_CREATURES_JOIN_BONUS
 
 -   val: value than used as level of diplomacy inside joining
     probability calculating
 
-### BEFORE_BATTLE_REPOSITION (since 1.2)
+### BEFORE_BATTLE_REPOSITION
 
--   val: number of hexes - 1 than should be used as repositionable hexes
-    before battle (like H3 tactics skill)
+-   val: number of hexes - 1 than should be used as repositionable hexes before battle (like H3 tactics skill)
 
-### BEFORE_BATTLE_REPOSITION_BLOCK (since 1.2)
+Note that Tactics phase for both sides simultaneously is not supported
 
--   val: value than block opposite tactics, if value of opposite tactics
-    is less than this value of your hero (for 1.2, double-side tactics
-    is not working).
+### BEFORE_BATTLE_REPOSITION_BLOCK
 
-### HERO_EXPERIENCE_GAIN_PERCENT (since 1.2)
+-   val: value than block opposite tactics, if value of opposite tactics is less than this value of your hero.
+
+### HERO_EXPERIENCE_GAIN_PERCENT
 
 -   val: how many experience hero gains from any source. There is a
     global effect which set it by 100 (global value) and it is used as
     learning skill
 
-### UNDEAD_RAISE_PERCENTAGE (since 1.2)
+### UNDEAD_RAISE_PERCENTAGE
 
 -   val: Percentage of killed enemy creatures to be raised after battle
     as undead.
@@ -169,32 +154,32 @@ Note: used for Pathfinding skill
 Note: used for Necromancy secondary skill, Necromancy artifacts and town
 buildings.
 
-### MANA_PER_KNOWLEDGE (since 1.2)
+### MANA_PER_KNOWLEDGE
 
 -   val: Percentage rate of translating 10 hero knowledge to mana, used
     for intelligence and global bonus
 
-### HERO_GRANTS_ATTACKS (since 1.2)
+### HERO_GRANTS_ATTACKS
 
 -   subtype: creature to have additional attacks
 -   val: Number of attacks
 
 Note: used for Artillery secondary skill
 
-### BONUS_DAMAGE_PERCENTAGE (since 1.2)
+### BONUS_DAMAGE_PERCENTAGE
 
 -   subtype: creature to have additional damage percentage
 -   val: percentage to be granted
 
 Note: used for Artillery secondary skill
 
-### BONUS_DAMAGE_CHANCE (since 1.2)
+### BONUS_DAMAGE_CHANCE
 
 -   subtype: creature to have additional damage chance (will have
     BONUS_DAMAGE_PERCENTAGE applied before attack concluded)
 -   val: chance in percent
 
-### MAX_LEARNABLE_SPELL_LEVEL (since 1.2)
+### MAX_LEARNABLE_SPELL_LEVEL
 
 -   val: maximum level of spells than hero can learn from any source.
     This bonus have priority above any other LEARN\_\*SPELL_LEVEL
@@ -211,25 +196,13 @@ Note: used as global effect and as wisdom secondary skill.
 
 ### SPELL_DAMAGE
 
-Since 1.2: used for Sorcery secondary skill
-
--   val = value in percent
+- val = value in percent
+- subtype - spell school
 
 ### SPECIFIC_SPELL_DAMAGE
 
 -   subtype = id of spell
 -   val = value in percent (Luna, Ciele)
-
-### SPECIAL_BLESS_DAMAGE (before 1.2)
-
--   subtype = spell (bless by default)
--   val = value per level in percent
-
-### MAXED_SPELL (before 1.2)
-
-Spell always has expert effects but not expert range
-
--   subtype = id
 
 ### SPECIAL_PECULIAR_ENCHANT
 
@@ -246,18 +219,9 @@ blesses and curses with id = val dependent on unit's level
 
 ### SPELL_DURATION
 
-### AIR_SPELL_DMG_PREMY, EARTH_SPELL_DMG_PREMY, FIRE_SPELL_DMG_PREMY, WATER_SPELL_DMG_PREMY
-
-Effect of original Orb artifacts.
-
--   val - **percent** bonus to air / earth / fire / water spell damage.
-
-### BLOCK_MORALE, BLOCK_LUCK (removed in 1.2)
-
 ### SPELL
 
-Hero knows spell, even if this spell is banned in map options or set to
-"special".
+Hero knows spell, even if this spell is banned in map options or set to "special".
 
 -   subtype - spell id
 -   val - skill level (0 - 3)
@@ -271,10 +235,11 @@ hero knows all spells of given level
 
 Does not grant spells banned in map options.
 
-### FIRE_SPELLS, AIR_SPELLS, WATER_SPELLS, EARTH_SPELLS
+### SPELLS_OF_SCHOOL
 
-All spells of this school are granted to hero, eg. by Tomes of Magic.
-Does not grant spells banned in map options.
+-   subtype = spell school
+
+All spells of this school are granted to hero, eg. by Tomes of Magic. Does not grant spells banned in map options.
 
 ### GENERATE_RESOURCE
 
@@ -358,11 +323,7 @@ and don't move.
 
 ### DRAGON_NATURE
 
-### KING1, KING2, KING3 (before 1.2)
-
-Creatures take more damage from basic, advanced or expert Slayer effect.
-
-### KING (after 1.2)
+### KING
 
 Creatures take more damage from Slayer effect than have greater or equal
 value than KING bonus.
@@ -376,14 +337,6 @@ eg. when fighting on cursed ground
 ### NO_MORALE
 
 eg. when fighting on cursed ground
-
-### SELF_MORALE (before 1.2)
-
-eg. minotaur
-
-### SELF_LUCK (before 1.2)
-
-halfling
 
 ## Combat abilities
 
@@ -446,7 +399,7 @@ in % (value) eg. behemots
 -   subtype - 0 - shield (melee) , 1 - air shield effect (ranged), -1 -
     armorer secondary skill (all, since 1.2)
 
-### PERCENTAGE_DAMAGE_BOOST (since 1.2)
+### PERCENTAGE_DAMAGE_BOOST
 
 -   subtype: -1 - any damage (not used), 0 - melee damage (offence), 1 -
     ranged damage (archery)
@@ -541,7 +494,7 @@ Kills extra units after hit
 -   val: chance in percent to trigger
 -   addInfo: amount/percentage to kill
 
-### LIMITED_SHOOTING_RANGE (since VCMI 1.2)
+### LIMITED_SHOOTING_RANGE
 
 Limits shooting range and/or changes long range penalty
 
@@ -553,19 +506,12 @@ Limits shooting range and/or changes long range penalty
 
 ### CATAPULT
 
--   subtype: (since 1.2) ability to use when catapulting (usually it
-    contains ballistics parameters, ability for standard catapult and
-    affected by ballistics is core:spell.catapultShot)
+-   subtype: ability to use when catapulting (usually it contains ballistics parameters, ability for standard catapult and affected by ballistics is core:spell.catapultShot)
 
 ### CATAPULT_EXTRA_SHOTS
 
--   subtype: (since 1.2) ability to be affected. Ability of CATAPULT
-    bonus should match. Used for ballistics secondary skill with subtype
-    of core:spell.catapultShot.
--   val: (since 1.2) ability level to be used with catapult. Additional
-    shots configured in ability level, not here.
--   val: (before 1.2) number of additional shots, requires CATAPULT
-    bonus to work
+-   subtype: ability to be affected. Ability of CATAPULT bonus should match. Used for ballistics secondary skill with subtype of core:spell.catapultShot.
+-   val: ability level to be used with catapult. Additional shots configured in ability level, not here.
 
 ### MANUAL_CONTROL
 
@@ -623,7 +569,7 @@ eg. dread knight
 
 First aid tent
 
--   subtype: (since 1.2) ability used for healing.
+-   subtype: ability used for healing.
 
 ### FIRE_SHIELD
 
@@ -721,16 +667,13 @@ total duration of spells casted by creature
 
 ### ENCHANTED
 
-Stack is permanently enchanted with spell subID of skill level = val, if
-val \> 3 then spell is mass and has level of val-3. Enchantment is
-refreshed every turn.
+Stack is permanently enchanted with spell subID of skill level = val, if val > 3 then spell is mass and has level of val-3. Enchantment is refreshed every turn.
 
 ## Spell immunities
 
 ### LEVEL_SPELL_IMMUNITY
 
-creature is immune to all spell with level below or equal to value of
-this bonus
+creature is immune to all spell with level below or equal to value of this bonus
 
 ### MAGIC_RESISTANCE
 
@@ -762,23 +705,10 @@ Creature is immune to all mind spells.
 -   subtype - spell id
 -   ainfo - 0 - normal, 1 - absolute
 
-### DIRECT_DAMAGE_IMMUNITY
-
-WoG ability. Creature is completely immune to damage spells.
-
 ### RECEPTIVE
 
 WoG ability. Creature accepts all friendly spells even though it would
 be normally immune to it.
-
-## Deprecated creature abilities
-
-### DAEMON_SUMMONING
-
-pit lord - removed in VCMI 1.2 as part of major battles refactoring
-
--   subtype - type of creatures
--   val - hp per unit
 
 # Spell effects
 
@@ -832,3 +762,48 @@ while in berserk
 ### NO_RETALIATION
 
 Eg. when blinded or paralyzed.
+
+# Undocumented
+
+### LEVEL_COUNTER
+for commander artifacts
+
+### BLOCK_MAGIC_ABOVE
+blocks casting spells of the level > value 
+
+### BLOCK_ALL_MAGIC
+blocks casting spells
+
+### SPELL_IMMUNITY
+subid - spell id
+
+### GENERAL_DAMAGE_PREMY
+
+### ADDITIONAL_UNITS
+val of units with id = subtype will be added to hero's army at the beginning of battle
+
+### SPOILS_OF_WAR
+val * 10^-6 * gained exp resources of subtype will be given to hero after battle
+
+### BLOCK
+
+### DISGUISED
+subtype - spell level
+
+### VISIONS
+subtype - spell level
+
+### SYNERGY_TARGET
+dummy skill for alternative upgrades mod
+
+### BLOCK_MAGIC_BELOW
+blocks casting spells of the level < value 
+
+### SPECIAL_ADD_VALUE_ENCHANT
+specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add
+
+### SPECIAL_FIXED_VALUE_ENCHANT
+specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.
+
+### TOWN_MAGIC_WELL
+one-time pseudo-bonus to implement Magic Well in the town

@@ -4,11 +4,14 @@
 
 The limiters take no parameters:
 
--   SHOOTER_ONLY
--   DRAGON_NATURE
--   IS_UNDEAD
--   CREATURE_NATIVE_TERRAIN
--   OPPOSITE_SIDE
+- SHOOTER_ONLY
+- DRAGON_NATURE
+- IS_UNDEAD
+- CREATURE_NATIVE_TERRAIN
+- CREATURE_FACTION
+- SAME_FACTION
+- CREATURES_ONLY
+- OPPOSITE_SIDE
 
 Example:
 
@@ -56,7 +59,15 @@ Parameters:
 
 -   Alignment identifier
 
-### CREATURE_FACTION_LIMITER
+### CREATURE_LEVEL_LIMITER
+
+If parameters is empty, level limiter works as CREATURES_ONLY limiter
+
+Parameters:
+- Minimal level
+- Maximal level
+
+### FACTION_LIMITER
 
 Parameters:
 
@@ -83,6 +94,12 @@ Example:
 	"parameters" : ["sand"]
 } ]
 ```
+
+### UNIT_ON_HEXES
+
+Parameters:
+
+- List of affected battlefield hexes
 
 ## Aggregate Limiters
 
