@@ -208,7 +208,8 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 					std::string tmp = boost::algorithm::unhex(match[1].str()); 
 					std::copy(tmp.begin(), tmp.end(), rgb);
 
-					to.drawText(where, font, ColorRGBA(rgb[0], rgb[1], rgb[2]), ETextAlignment::TOPLEFT, toPrint.substr(7, toPrint.length() - 7));
+					toPrint = toPrint.substr(7, toPrint.length() - 6);
+					to.drawText(where, font, ColorRGBA(rgb[0], rgb[1], rgb[2]), ETextAlignment::TOPLEFT, toPrint);
 				}
 				else
 					to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);

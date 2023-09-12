@@ -147,7 +147,17 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 
 			/* We don't count braces in string length. */
 			if (text[currPos] == '{')
+			{
 				opened=true;
+
+				std::smatch match;
+   				std::regex expr("^\\{#([0-9a-fA-F]{6})$");
+				std::string tmp = text.substr(currPos, 8);
+				if(std::regex_search(tmp, match, expr))
+				{
+					currPos += 7;
+				}
+			}
 			else if (text[currPos]=='}')
 				opened=false;
 			else
