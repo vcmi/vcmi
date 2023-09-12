@@ -189,10 +189,14 @@ void Lobby::serverCommand(const ServerCommand & command) try
 			
 	case CLIENTMODS: {
 		protocolAssert(args.size() >= 1);
+		auto & clientModsMap = clientsModsMap[args[0]];
 		amount = args[1].toInt();
 		protocolAssert(amount * 2 == (args.size() - 2));
 
 		tagPoint = 2;
+		for(int i = 0; i < amount; ++i, tagPoint += 2)
+			clientModsMap[args[tagPoint]] = args[tagPoint + 1];
+		
 		break;
 		}
 
@@ -342,6 +346,7 @@ void Lobby::onDisconnected()
 	authentificationStatus = AuthStatus::AUTH_NONE;
 	session = "";
 	ui->chatWidget->setSession(session);
+	ui->chatWidget->setChannel("global");
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 	ui->serverEdit->setEnabled(true);
@@ -517,7 +522,14 @@ void Lobby::on_kickButton_clicked()
 void Lobby::on_buttonResolve_clicked()
 {
 	QStringList toEnableList, toDisableList;
-	for(auto * item : ui->modsList->selectedItems())
+	auto items = ui->modsList->selectedItems();
+	if(items.empty())
+	{
+		for(int i = 0; i < ui->modsList->count(); ++i)
+			items.push_back(ui->modsList->item(i));
+	}
+	
+	for(auto * item : items)
 	{
 		auto modName = item->data(ModResolutionRoles::ModNameRole);
 		if(modName.isNull())
