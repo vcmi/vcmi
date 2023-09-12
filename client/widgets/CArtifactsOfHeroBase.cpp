@@ -261,8 +261,10 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 			{
 				arts.insert(std::pair(combinedArt, 0));
 				for(const auto part : combinedArt->getConstituents())
-					if(artSet.hasArt(part->getId(), true))
+				{
+					if(artSet.hasArt(part->getId(), false))
 						arts.at(combinedArt)++;
+				}
 			}
 			artPlace->addCombinedArtInfo(arts);
 		}

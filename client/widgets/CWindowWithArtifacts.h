@@ -43,7 +43,7 @@ private:
 	std::vector<CArtifactsOfHeroPtr> artSets;
 	CloseCallback closeCallback;
 
-	void updateSlots(const ArtifactPosition & slot);
+	void updateSlots();
 	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
 	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();

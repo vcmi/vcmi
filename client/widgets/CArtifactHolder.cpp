@@ -264,7 +264,7 @@ bool ArtifactUtilsClient::askToAssemble(const CGHeroInstance * hero, const Artif
 	if(hero->tempOwner != LOCPLINT->playerID)
 		return false;
 
-	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), ArtifactUtils::isSlotEquipment(slot));
+	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId());
 	if(!assemblyPossibilities.empty())
 	{
 		auto askThread = new boost::thread([hero, art, slot, assemblyPossibilities]() -> void

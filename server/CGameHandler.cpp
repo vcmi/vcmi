@@ -2787,7 +2787,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
+bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
 {
 	const CGHeroInstance * hero = getHero(heroID);
 	const CArtifactInstance * destArtifact = hero->getArt(artifactSlot);
@@ -2795,23 +2795,27 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 	if(!destArtifact)
 		COMPLAIN_RET("assembleArtifacts: there is no such artifact instance!");
 
+	const auto dstLoc = ArtifactLocation(hero, artifactSlot);
 	if(assemble)
 	{
 		CArtifact * combinedArt = VLC->arth->objects[assembleTo];
 		if(!combinedArt->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		if (!vstd::contains(ArtifactUtils::assemblyPossibilities(hero, destArtifact->getTypeId(),
-			ArtifactUtils::isSlotEquipment(artifactSlot)), combinedArt))
+		if(!vstd::contains(ArtifactUtils::assemblyPossibilities(hero, destArtifact->getTypeId()), combinedArt))
 		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 		}
-
+		if(!destArtifact->canBePutAt(dstLoc)
+			&& !destArtifact->canBePutAt(ArtifactLocation(hero, ArtifactPosition::BACKPACK_START)))
+		{
+			COMPLAIN_RET("assembleArtifacts: It's impossible to give the artholder requested artifact!");
+		}
 		
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;
-		aa.al = ArtifactLocation(hero, artifactSlot);
+		aa.al = dstLoc;
 		aa.builtArt = combinedArt;
 		sendAndApply(&aa);
 	}
@@ -2825,7 +2829,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble but backpack is full!");
 
 		DisassembledArtifact da;
-		da.al = ArtifactLocation(hero, artifactSlot);
+		da.al = dstLoc;
 		sendAndApply(&da);
 	}
 

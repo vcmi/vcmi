@@ -36,7 +36,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
-	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, bool equipped);
+	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid);
 	DLL_LINKAGE CArtifactInstance * createScroll(const SpellID & sid);
 	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(CArtifact * art);
 	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const ArtifactID & aid);

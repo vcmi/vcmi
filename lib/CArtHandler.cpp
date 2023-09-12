@@ -820,12 +820,6 @@ ArtifactPosition CArtifactSet::getArtPos(const ArtifactID & aid, bool onlyWorn, 
 	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
 }
 
-ArtifactPosition CArtifactSet::getArtBackpackPos(const ArtifactID & aid) const
-{
-	const auto result = getBackpackArtPositions(aid);
-	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
-}
-
 std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(const ArtifactID & aid, bool onlyWorn, bool allowLocked, bool getAll) const
 {
 	std::vector<ArtifactPosition> result;
