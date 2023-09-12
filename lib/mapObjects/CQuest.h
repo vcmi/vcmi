@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
+#include "CRewardableObject.h"
 #include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -80,7 +80,7 @@ public:
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	virtual void getCompletionText (MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = nullptr) const;
+	virtual void getCompletionText(MetaString &text) const;
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest (const CGHeroInstance * h) const {};
 	virtual void addReplacements(MetaString &out, const std::string &base) const;
@@ -138,13 +138,9 @@ protected:
 	void afterAddToMapCommon(CMap * map) const;
 };
 
-class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
+class DLL_LINKAGE CGSeerHut : public CRewardableObject, public IQuestObject //army is used when giving reward
 {
 public:
-	enum ERewardType {NOTHING, EXPERIENCE, MANA_POINTS, MORALE_BONUS, LUCK_BONUS, RESOURCES, PRIMARY_SKILL, SECONDARY_SKILL, ARTIFACT, SPELL, CREATURE};
-	ERewardType rewardType = ERewardType::NOTHING;
-	si32 rID = -1; //reward ID
-	si32 rVal = -1; //reward value
 	std::string seerName;
 
 	void initObj(CRandomGenerator & rand) override;
@@ -159,9 +155,8 @@ public:
 	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
 	const CGCreature *getCreatureToKill(bool allowNull = false) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
-	void getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = nullptr) const;
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
-	virtual void completeQuest (const CGHeroInstance * h) const;
+	virtual void completeQuest() const;
 
 	void afterAddToMap(CMap * map) override;
 
@@ -169,9 +164,9 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & static_cast<IQuestObject&>(*this);
-		h & rewardType;
-		h & rID;
-		h & rVal;
+		//h & rewardType;
+		//h & rID;
+		//h & rVal;
 		h & seerName;
 	}
 protected:
@@ -186,7 +181,7 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	void init(CRandomGenerator & rand) override;
-	void completeQuest (const CGHeroInstance * h) const override;
+	void completeQuest() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

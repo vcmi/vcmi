@@ -1842,70 +1842,78 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 
 	if(hut->quest->missionType)
 	{
-		auto rewardType = static_cast<CGSeerHut::ERewardType>(reader->readUInt8());
-		hut->rewardType = rewardType;
+		auto rewardType = reader->readUInt8();
+		Rewardable::Reward reward;
 		switch(rewardType)
 		{
-			case CGSeerHut::EXPERIENCE:
-			{
-				hut->rVal = reader->readUInt32();
-				break;
-			}
-			case CGSeerHut::MANA_POINTS:
-			{
-				hut->rVal = reader->readUInt32();
-				break;
-			}
-			case CGSeerHut::MORALE_BONUS:
-			{
-				hut->rVal = reader->readUInt8();
-				break;
-			}
-			case CGSeerHut::LUCK_BONUS:
-			{
-				hut->rVal = reader->readUInt8();
-				break;
-			}
-			case CGSeerHut::RESOURCES:
-			{
-				hut->rID = reader->readUInt8();
-				hut->rVal = reader->readUInt32();
-
-				assert(hut->rID < features.resourcesCount);
-				assert((hut->rVal & 0x00ffffff) == hut->rVal);
-				break;
-			}
-			case CGSeerHut::PRIMARY_SKILL:
-			{
-				hut->rID = reader->readUInt8();
-				hut->rVal = reader->readUInt8();
-				break;
-			}
-			case CGSeerHut::SECONDARY_SKILL:
-			{
-				hut->rID = reader->readSkill();
-				hut->rVal = reader->readUInt8();
-				break;
-			}
-			case CGSeerHut::ARTIFACT:
-			{
-				hut->rID = reader->readArtifact();
-				break;
-			}
-			case CGSeerHut::SPELL:
-			{
-				hut->rID = reader->readSpell();
-				break;
-			}
-			case CGSeerHut::CREATURE:
-			{
-				hut->rID = reader->readCreature();
-				hut->rVal = reader->readUInt16();
-				break;
-			}
-			case CGSeerHut::NOTHING:
+			case 0: //NOTHING
 			{
 				// no-op
+				break;
+			}
+			case 1: //EXPERIENCE
+			{
+				reward.heroExperience = reader->readUInt32();
+				break;
+			}
+			case 2: //MANA POINTS:
+			{
+				reward.manaDiff = reader->readUInt32();
+				break;
+			}
+			case 3: //MORALE_BONUS
+			{
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, reader->readUInt8(), hut->id);
+				break;
+			}
+			case 4: //LUCK_BONUS
+			{
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, reader->readUInt8(), hut->id);
+				break;
+			}
+			case 5: //RESOURCES
+			{
+				auto rId = reader->readUInt8();
+				auto rVal = reader->readUInt32();
+
+				assert(rId < features.resourcesCount);
+				assert((rVal & 0x00ffffff) == rVal);
+				
+				reward.resources[rId] = rVal;
+				break;
+			}
+			case 6: //PRIMARY_SKILL
+			{
+				auto rId = reader->readUInt8();
+				auto rVal = reader->readUInt8();
+				
+				reward.primary.at(rId) = rVal;
+				break;
+			}
+			case 7: //SECONDARY_SKILL
+			{
+				auto rId = reader->readSkill();
+				auto rVal = reader->readUInt8();
+				
+				reward.secondary[rId] = rVal;
+				break;
+			}
+			case 8: //ARTIFACT
+			{
+				reward.artifacts.push_back(reader->readArtifact());
+				break;
+			}
+			case 9: //SPELL
+			{
+				reward.spells.push_back(reader->readSpell());
+				break;
+			}
+			case 10: //CREATURE
+			{
+				auto rId = reader->readCreature();
+				auto rVal = reader->readUInt16();
+				
+				reward.creatures.emplace_back(rId, rVal);
 				break;
 			}
 			default:
@@ -1913,6 +1921,10 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 				assert(0);
 			}
 		}
+		
+		hut->configuration.info.push_back({});
+		hut->configuration.info.back().reward = reward;
+		hut->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	}
 	else
 	{

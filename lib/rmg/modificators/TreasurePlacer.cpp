@@ -441,9 +441,12 @@ void TreasurePlacer::addAllPossibleObjects()
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
-				obj->rewardType = CGSeerHut::CREATURE;
-				obj->rID = creature->getId();
-				obj->rVal = creaturesAmount;
+				
+				Rewardable::Reward reward;
+				reward.creatures.emplace_back(creature->getId(), creaturesAmount);
+				obj->configuration.info.push_back({});
+				obj->configuration.info.back().reward = reward;
+				obj->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				
@@ -490,10 +493,12 @@ void TreasurePlacer::addAllPossibleObjects()
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
-
-				obj->rewardType = CGSeerHut::EXPERIENCE;
-				obj->rID = 0; //unitialized?
-				obj->rVal = generator.getConfig().questRewardValues[i];
+				
+				Rewardable::Reward reward;
+				reward.heroExperience = generator.getConfig().questRewardValues[i];
+				obj->configuration.info.push_back({});
+				obj->configuration.info.back().reward = reward;
+				obj->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();
@@ -513,9 +518,12 @@ void TreasurePlacer::addAllPossibleObjects()
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
-				obj->rewardType = CGSeerHut::RESOURCES;
-				obj->rID = GameResID(EGameResID::GOLD);
-				obj->rVal = generator.getConfig().questRewardValues[i];
+				
+				Rewardable::Reward reward;
+				reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
+				obj->configuration.info.push_back({});
+				obj->configuration.info.back().reward = reward;
+				obj->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();
