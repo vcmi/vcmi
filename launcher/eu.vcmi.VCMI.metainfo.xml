@@ -37,8 +37,8 @@
 	<url type="homepage">https://vcmi.eu/</url>
 	<url type="bugtracker">https://github.com/vcmi/vcmi/issues</url>
 	<url type="faq">https://vcmi.eu/faq/</url>
-	<url type="help">https://wiki.vcmi.eu/Main_Page</url>
-	<url type="translate">https://github.com/vcmi/vcmi/wiki/Translations</url>
+	<url type="help">https://github.com/vcmi/vcmi/blob/master/docs/Readme.md</url>
+	<url type="translate">https://github.com/vcmi/vcmi/blob/master/docs/modders/Translations.md</url>
 	<url type="contact">https://slack.vcmi.eu/</url>
 	<url type="vcs-browser">https://github.com/vcmi/vcmi</url>
 	<recommends>

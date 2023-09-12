@@ -430,8 +430,8 @@
 ### MODDING:
 * All configurable objects from H3 now have their configuration in json
 * Improvements to functionality of configurable objects
-* Replaced `SECONDARY_SKILL_PREMY` bonus with separate bonuses for each skill. See https://wiki.vcmi.eu/List_of_all_bonus_types
-* Removed multiple bonuses that can be replaced with another bonus. See https://wiki.vcmi.eu/List_of_all_bonus_types
+* Replaced `SECONDARY_SKILL_PREMY` bonus with separate bonuses for each skill.
+* Removed multiple bonuses that can be replaced with another bonus.
 * It is now possible to define new hero movement sounds in terrains
 * Implemented translation support for mods
 * Implemented translation support for .h3m maps and .h3c campaigns
@@ -756,7 +756,7 @@
 * Wall hit/miss sound will be played when using catapult during siege
 
 ### SPELLS:
-* New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
+* New configuration format
 
 ### RANDOM MAP GENERATOR:
 * Towns from mods can be used
@@ -789,7 +789,6 @@
 * (linux) Added a SIGSEV violation handler to vcmiserver executable for logging stacktrace (for convenience)
 
 ### ADVENTURE AI:
-More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * AI will use fuzzy logic to compare and choose multiple possible subgoals.
 * AI will now use SectorMap to find a way to guarded / covered objects. 
 * Significantly improved exploration algorithm.
@@ -812,7 +811,6 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Extended building dependencies support
 
 ### MODS:
-* See http://wiki.vcmi.eu/index.php?title=Modding_changelog#0.94_-.3E_0.95 for format changes
 * Custom victory/loss conditions for maps or campaigns
 * 7 days without towns loss condition is no longer hardcoded
 * Only changed mods will be validated
@@ -870,7 +868,6 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Fixed crash at month of double population.
 
 ### MODS:
-* See http://wiki.vcmi.eu/index.php?title=Modding_changelog#0.92_-.3E_0.93 for compatibility info.
 * Improved json validation. Now it support most of features from latest json schema draft.
 * Icons use path to icon instead of image indexes.
 * It is possible to edit data of another mod or H3 data via mods.
