@@ -105,7 +105,7 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Set the map scrolling speed to very slow",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Set the map scrolling speed to very fast",
-	"vcmi.adventureOptions.mapScrollSpeed6.help": "Set the map scrolling speed to instantaneous.",
+	"vcmi.adventureOptions.mapScrollSpeed6.help": "Set the map scrolling speed to instantaneous",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Show Turn Order Queue",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "OFF",
