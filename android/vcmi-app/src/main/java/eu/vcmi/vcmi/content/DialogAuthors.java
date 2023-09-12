@@ -44,7 +44,7 @@ public class DialogAuthors extends DialogFragment
             vcmiAuthorsView.setText(authorsContent);
             launcherAuthorsView.setText("Fay"); // TODO hardcoded for now
         }
-        catch (final IOException e)
+        catch (final Exception e)
         {
             Log.e(this, "Could not load authors content", e);
         }
