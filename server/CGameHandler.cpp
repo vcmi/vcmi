@@ -2683,7 +2683,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		}
 
 		MoveArtifact ma(&src, &dst);
-		if(dst.slot == ArtifactPosition::TRANSITION_POS)
+		if(src.artHolder == dst.artHolder)
 			ma.askAssemble = false;
 		sendAndApply(&ma);
 	}
