@@ -131,6 +131,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 		ui32 wordBreak = -1;    //last position for line break (last space character)
 		ui32 currPos = 0;       //current position in text
 		bool opened = false;    //set to true when opening brace is found
+		std::string color = "";    //color found
 
 		size_t symbolSize = 0; // width of character, in bytes
 		size_t glyphWidth = 0; // width of printable glyph, pixels
@@ -151,15 +152,19 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 				opened=true;
 
 				std::smatch match;
-   				std::regex expr("^\\{#([0-9a-fA-F]{6})$");
+   				std::regex expr("^\\{(#[0-9a-fA-F]{6})$");
 				std::string tmp = text.substr(currPos, 8);
 				if(std::regex_search(tmp, match, expr))
 				{
+					color = match[1].str();
 					currPos += 7;
 				}
 			}
 			else if (text[currPos]=='}')
+			{
 				opened=false;
+				color = "";
+			}
 			else
 				lineWidth += (ui32)glyphWidth;
 			currPos += (ui32)symbolSize;
@@ -206,7 +211,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 		{
 			/* Add an opening brace for the next line. */
 			if (text.length() != 0)
-				text.insert(0, "{");
+				text.insert(0, "{" + color);
 		}
 	}
 
