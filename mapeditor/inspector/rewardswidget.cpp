@@ -163,10 +163,21 @@ void RewardsWidget::obtainData()
 	
 	if(seerhut)
 	{
-		switch(seerhut->rewardType)
+		for(auto & i : seerhut->configuration.info)
+		{
+			if(i.reward.heroExperience)
+				addReward(RewardType::EXPERIENCE, 0, i.reward.heroExperience);
+			if(i.reward.manaDiff)
+				addReward(RewardType::MANA, 0, i.reward.manaDiff);
+			for(auto & a : i.reward.artifacts)
+				addReward(RewardType::ARTIFACT, a.getNum(), 0);
+			for(auto & a : i.reward.creatures)
+				addReward(RewardType::CREATURE, a.getType()->getId().getNum(), a.getCount());
+		}
+		/*switch(seerhut->rewardType)
 		{
 			case CGSeerHut::ERewardType::EXPERIENCE:
-				addReward(RewardType::EXPERIENCE, 0, seerhut->rVal);
+				
 				break;
 				
 			case CGSeerHut::ERewardType::MANA_POINTS:
@@ -182,7 +193,7 @@ void RewardsWidget::obtainData()
 				break;
 				
 			case CGSeerHut::ERewardType::RESOURCES:
-				addReward(RewardType::RESOURCE, seerhut->rID, seerhut->rVal);
+				
 				break;
 				
 			case CGSeerHut::ERewardType::PRIMARY_SKILL:
@@ -207,7 +218,7 @@ void RewardsWidget::obtainData()
 				
 			default:
 				break;
-		}
+		}*/
 	}
 }
 
@@ -279,15 +290,29 @@ bool RewardsWidget::commitChanges()
 	}
 	if(seerhut)
 	{
+		seerhut->configuration.info.clear();
 		for(int row = 0; row < rewards; ++row)
 		{
+			Rewardable::Reward reward;
 			haveRewards = true;
 			int typeId = ui->rewardsTable->item(row, 0)->data(Qt::UserRole).toInt();
 			int listId = ui->rewardsTable->item(row, 1) ? ui->rewardsTable->item(row, 1)->data(Qt::UserRole).toInt() : 0;
 			int amount = ui->rewardsTable->item(row, 2)->data(Qt::UserRole).toInt();
-			seerhut->rewardType = CGSeerHut::ERewardType(typeId + 1);
-			seerhut->rID = listId;
-			seerhut->rVal = amount;
+			switch (typeId) {
+				case RewardType::EXPERIENCE:
+					reward.heroExperience = amount;
+					break;
+					
+				case RewardType::ARTIFACT:
+					reward.artifacts.push_back(listId);
+					break;
+					
+				case RewardType::CREATURE:
+					reward.creatures.emplace_back(listId, amount);
+					
+				default:
+					break;
+			}
 		}
 	}
 	return haveRewards;

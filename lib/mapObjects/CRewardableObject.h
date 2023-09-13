@@ -31,6 +31,8 @@ protected:
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+	
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 public:
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)

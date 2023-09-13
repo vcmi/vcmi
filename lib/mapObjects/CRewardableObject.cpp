@@ -276,4 +276,9 @@ void CRewardableObject::initObj(CRandomGenerator & rand)
 CRewardableObject::CRewardableObject()
 {}
 
+void CRewardableObject::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	
+}
+
 VCMI_LIB_NAMESPACE_END
