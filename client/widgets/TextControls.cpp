@@ -159,7 +159,7 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 	while(std::regex_search(searchStart, what.cend(), match, expr))
 	{
 		std::string colorText = match[1].str();
-		if(CMessage::parseColor(colorText).a != Colors::TRANSPARENCY.ALPHA_TRANSPARENT)
+		if(auto c = Colors::parseColor(colorText))
 			delimitersCount += f->getStringWidth(colorText + "|");
 		searchStart = match.suffix().first;
 	}
@@ -207,12 +207,11 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 				if(std::regex_search(toPrint, match, expr))
 				{
 					std::string colorText = match[1].str();
-					ColorRGBA color = CMessage::parseColor(colorText);
 					
-					if(color.a != Colors::TRANSPARENCY.ALPHA_TRANSPARENT)
+					if(auto color = Colors::parseColor(colorText))
 					{
 						toPrint = toPrint.substr(colorText.length() + 1, toPrint.length() - colorText.length());
-						to.drawText(where, font, color, ETextAlignment::TOPLEFT, toPrint);
+						to.drawText(where, font, *color, ETextAlignment::TOPLEFT, toPrint);
 					}
 					else
 						to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);

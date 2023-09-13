@@ -49,4 +49,7 @@ public:
 	static const ColorRGBA BLACK;
 
 	static const ColorRGBA TRANSPARENCY;
+
+	/// parse color
+	static std::optional<ColorRGBA> parseColor(std::string text);
 };

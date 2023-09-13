@@ -14,7 +14,6 @@
 #include "../CGameInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/TextOperations.h"
-#include "../../lib/JsonNode.h"
 
 #include "../windows/InfoWindows.h"
 #include "../widgets/Buttons.h"
@@ -158,7 +157,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 				if(std::regex_search(tmp, match, expr))
 				{
 					std::string colorText = match[1].str();
-					if(CMessage::parseColor(colorText).a != Colors::TRANSPARENCY.ALPHA_TRANSPARENT)
+					if(auto c = Colors::parseColor(colorText))
 					{
 						color = colorText + "|";
 						currPos += colorText.length() + 1;
@@ -225,32 +224,6 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 		boost::algorithm::trim(elem);
 
 	return ret;
-}
-
-ColorRGBA CMessage::parseColor(std::string text)
-{
-	std::smatch match;
-	std::regex expr("^#([0-9a-fA-F]{6})$");
-	ui8 rgb[3] = {0, 0, 0};
-	if(std::regex_search(text, match, expr))
-	{
-		std::string tmp = boost::algorithm::unhex(match[1].str()); 
-		std::copy(tmp.begin(), tmp.end(), rgb);
-		return ColorRGBA(rgb[0], rgb[1], rgb[2]);
-	}
-
-	const JsonNode config(JsonPath::builtin("CONFIG/textColors"));
-	auto colors = config["colors"].Struct();
-	for(auto & color : colors) {
-		if(boost::algorithm::to_lower_copy(color.first) == boost::algorithm::to_lower_copy(text))
-		{
-			std::string tmp = boost::algorithm::unhex(color.second.String()); 
-			std::copy(tmp.begin(), tmp.end(), rgb);
-			return ColorRGBA(rgb[0], rgb[1], rgb[2]);
-		}
-	}
-
-	return Colors::TRANSPARENCY;
 }
 
 std::string CMessage::guessHeader(const std::string & msg)
