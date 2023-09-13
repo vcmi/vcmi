@@ -15,6 +15,7 @@
 struct SDL_Surface;
 class CInfoWindow;
 class CComponent;
+class ColorRGBA;
 
 
 /// Class which draws formatted text messages and generates chat windows
@@ -31,6 +32,9 @@ public:
 
 	/// split text in lines
 	static std::vector<std::string> breakText(std::string text, size_t maxLineWidth, EFonts font);
+
+	/// parse color
+	static ColorRGBA parseColor(std::string text);
 
 	/// Try to guess a header of a message
 	static std::string guessHeader(const std::string & msg);

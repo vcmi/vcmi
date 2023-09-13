@@ -154,11 +154,13 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 	delimitersCount *= f->getStringWidth(delimeters)/2;
 
 	std::smatch match;
-	std::regex expr("\\{(#[0-9a-fA-F]{6})");
+	std::regex expr("\\{(.*?)\\|");
 	std::string::const_iterator searchStart( what.cbegin() );
 	while(std::regex_search(searchStart, what.cend(), match, expr))
 	{
-		delimitersCount += f->getStringWidth(match[1].str());
+		std::string colorText = match[1].str();
+		if(CMessage::parseColor(colorText).a != Colors::TRANSPARENCY.ALPHA_TRANSPARENT)
+			delimitersCount += f->getStringWidth(colorText + "|");
 		searchStart = match.suffix().first;
 	}
 
@@ -201,15 +203,19 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 			if(currDelimeter % 2) // Enclosed in {} text - set to yellow or defined color
 			{
 				std::smatch match;
-   				std::regex expr("^#([0-9a-fA-F]{6})");
+   				std::regex expr("^(.*?)\\|");
 				if(std::regex_search(toPrint, match, expr))
 				{
-					ui8 rgb[3] = {0, 0, 0}; 
-					std::string tmp = boost::algorithm::unhex(match[1].str()); 
-					std::copy(tmp.begin(), tmp.end(), rgb);
-
-					toPrint = toPrint.substr(7, toPrint.length() - 6);
-					to.drawText(where, font, ColorRGBA(rgb[0], rgb[1], rgb[2]), ETextAlignment::TOPLEFT, toPrint);
+					std::string colorText = match[1].str();
+					ColorRGBA color = CMessage::parseColor(colorText);
+					
+					if(color.a != Colors::TRANSPARENCY.ALPHA_TRANSPARENT)
+					{
+						toPrint = toPrint.substr(colorText.length() + 1, toPrint.length() - colorText.length());
+						to.drawText(where, font, color, ETextAlignment::TOPLEFT, toPrint);
+					}
+					else
+						to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);
 				}
 				else
 					to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);
