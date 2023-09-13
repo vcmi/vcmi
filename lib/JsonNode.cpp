@@ -1058,9 +1058,9 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["noneOf"];
 	if(value->isVector())
 	{
-		CSelector base = Selector::all;
+		CSelector base = Selector::none;
 		for(const auto & andN : value->Vector())
-			base.And(parseSelector(andN));
+			base.Or(parseSelector(andN));
 		
 		ret = ret.And(base.Not());
 	}
