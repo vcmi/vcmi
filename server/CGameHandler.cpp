@@ -5730,6 +5730,11 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		removeUnits.changedStacks.emplace_back(defender->unitId(), UnitChanges::EOperation::REMOVE);
 		sendAndApply(&removeUnits);
 		sendAndApply(&addUnits);
+
+		// send empty event to client
+		// temporary(?) workaround to force animations to trigger
+		StacksInjured fakeEvent;
+		sendAndApply(&fakeEvent);
 	}
 
 	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, 0) || attacker->hasBonusOfType(BonusType::DESTRUCTION, 1))
