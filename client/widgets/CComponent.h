@@ -77,11 +77,13 @@ class CSelectableComponent : public CComponent, public CKeyShortcut
 public:
 	bool selected; //if true, this component is selected
 	std::function<void()> onSelect; //function called on selection change
+	std::function<void()> onChoose; //function called on doubleclick
 
 	void showAll(Canvas & to) override;
 	void select(bool on);
 
 	void clickPressed(const Point & cursorPosition) override; //call-in
+	void clickDouble(const Point & cursorPosition) override; //call-in
 	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
 	CSelectableComponent(const Component & c, std::function<void()> OnSelect = nullptr);
 };
