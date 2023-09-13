@@ -764,10 +764,10 @@ void CModListView::installMods(QStringList archives)
 		enableMod(mod);
 	}
 
+	checkManagerErrors();
+
 	for(QString archive : archives)
 		QFile::remove(archive);
-
-	checkManagerErrors();
 }
 
 void CModListView::on_refreshButton_clicked()

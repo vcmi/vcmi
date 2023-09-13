@@ -173,6 +173,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Відкрити вікно командира",
 	"vcmi.heroWindow.openCommander.help"  : "Показує інформацію про командира героя",
+	"vcmi.heroWindow.openBackpack.hover" : "Відкрити вікно рюкзака з артефактами",
+	"vcmi.heroWindow.openBackpack.help"  : "Відкриває вікно, що дозволяє легше керувати рюкзаком артефактів",
 
 	"vcmi.commanderWindow.artifactMessage" : "Бажаєте передати цей артефакт герою?",
 

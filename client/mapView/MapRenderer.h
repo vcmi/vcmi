@@ -90,7 +90,6 @@ public:
 class MapRendererBorder
 {
 	std::unique_ptr<CAnimation> animation;
-	std::unique_ptr<Canvas> emptyFill;
 
 	size_t getIndexForTile(IMapRendererContext & context, const int3 & coordinates);
 
