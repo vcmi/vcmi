@@ -537,8 +537,11 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 			}
 			else //remove old path and find a new one if we clicked on accessible tile
 			{
-				if(canSelect && GH.isKeyboardCtrlDown())
-					LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
+				if(GH.isKeyboardCtrlDown())
+				{
+					if(canSelect)
+						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
+				}
 				else
 				{
 					LOCPLINT->localState->setPath(currentHero, mapPos);
@@ -616,7 +619,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		}
 	}
 
-	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN)
+	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardCtrlDown())
 	{
 		if(objAtTile)
 		{
@@ -668,12 +671,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 				if(LOCPLINT->localState->getCurrentArmy()  == objAtTile)
 					CCS->curh->set(Cursor::Map::HERO);
 				else
-				{
-					if(GH.isKeyboardCtrlDown())
-						CCS->curh->set(Cursor::Map::HERO);
-					else
-						CCS->curh->set(cursorExchange[turns]);
-				}
+					CCS->curh->set(cursorExchange[turns]);
 			}
 			else if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorVisit[turns]);
