@@ -25,7 +25,7 @@ In order to make functional creature you also need:
 // camelCase unique creature identifier
 "creatureName" : 
 {
-	// translatable names
+	// Translatable names for this creature
 	"name" :
 	{
 		"singular" : "Creature",
@@ -33,12 +33,13 @@ In order to make functional creature you also need:
 	},
 	"level" : 0,
 
-	// if set to true creature will not appear in-game randomly (e.g. as neutral creature)
+	// Marks this object as special and not available by default
 	"special" : true, 
-	
-	// config name of faction. Examples: castle, rampart
+
+	// Faction this creature belongs to. Examples: castle, rampart
 	"faction" : "", 
-	// cost to recruit, zero values can be omitted.
+
+	// Cost to recruit this creature, zero values can be omitted.
 	"cost" : 
 	{
 		"wood" : 0,
@@ -52,75 +53,80 @@ In order to make functional creature you also need:
 	// "value" of creature, used to determine for example army strength
 	"fightValue" : 0,
 
-	// "ai value" - how valuable this creature should be for AI
+	// Describes how valuable this creature is to AI. Usually similar to fightValue
 	"aiValue" : 0,
 	
-	// normal growth in town or external dwellings
+	// Basic growth of this creature in town or in external dwellings
 	"growth" : 0,
 	
-	// growth bonus from horde building
-	// TODO: reconsider need of this field after configurable buildings support
+	// Bonus growth of this creature from built horde
 	"hordeGrowth" : 0,
 	
 	// Creature stats in battle
 	"attack" : 0,
 	"defense" : 0,
 	"hitPoints" : 0,
-	"shots" : 0,
 	"speed" : 0,
 	"damage" :
 	{
 		"min" : 0,
 		"max" : 0
 	},
-	// spellpoints this creature has, how many times creature may cast its spells
+
+	// Number of shots this creature has, required only for ranged units
+	"shots" : 0,
+
+	// Spell points this creature has (usually equal to number of casts)
 	"spellPoints" : 0,
-	// initial size of creature army on adventure map
+
+	// Initial size of random stacks on adventure map
 	"advMapAmount" :
 	{
 		"min" : 0,
 		"max" : 0
 	},
 	
-	// Creature to which this creature can be upgraded
-	// Note that only one upgrade can be available from UI
+	// List of creatures to which this one can be upgraded
 	"upgrades" :
 	[
 		"anotherCreature"
 	],
 
-	// Creature is 2-tiles in size on the battlefield
+	// If set, creature will be two tiles wide on battlefield
 	"doubleWide" : false,
 
-	// All creature abilities, using bonus format
+	// Creature abilities described using Bonus system
 	"abilities" :
 	[
 		"someName1" : Bonus Format,
 		"someName2" : Bonus Format
 	],
 
+	// creature may receive "week of" events
 	"hasDoubleWeek": true,
 	
 	"graphics" :
 	{
-		// name of file with creature battle animation
+		// File with animation of this creature in battles
 		"animation" : "",
-		// adventure map animation def
+		// File with animation of this creature on adventure map
 		"map" : "",
-		// path to small icon for tooltips & hero exchange window
+		// Optional. Object mask that describes on which tiles object is visible/blocked/activatable
+		"mapMask" : [ "VV", "VA" ],
+
+		// Small icon for this creature, used for example in exchange screen
 		"iconSmall" : "",
-		// path to large icon, used on town screen and in hero screen
+		// Large icon for this creature, used for example in town screen
 		"iconLarge" : "",
 		
 		// animation parameters
 
 		// how often creature should play idle animation
 		"timeBetweenFidgets" : 1.00,
-		// unused H3 property
-		"troopCountLocationOffset" : 0,
+
 		"animationTime" :
 		{
-			// movement animation time.
+			// movement animation time factor
 			"walk" : 1.00,
 
 			// idle animation time. For H3 creatures this value is always 10
@@ -128,19 +134,15 @@ In order to make functional creature you also need:
 
 			// ranged attack animation time. Applicable to shooting and casting animation
 			// NOTE: does NOT affects melee attacks
-			// This is H3 behaviour, for proper synchronization of attack/defense animations
+			// This is H3 behaviour, likely for proper synchronization of attack/defense animations
 			"attack" : 1.00,
-
-			// How far flying creature should move during one "round" of movement animation
-			// This is multiplier to base value (200 pixels)
-			"flight" : 1.00
 		},
 		"missile" :
 		{
 			// name of file for missile
 			"animation" : "", 
 
-			// (VCMI 1.1 or later only) indicates that creature uses ray animation for ranged attacks instead of missile image (e.g. Evil Eye)
+			// indicates that creature uses ray animation for ranged attacks instead of missile image (e.g. Evil Eye)
 			"ray" : 
 			[
 				{ // definition of first (top-most) line in the ray
@@ -153,7 +155,7 @@ In order to make functional creature you also need:
 			// Frame at which shooter shoots his projectile (e.g. releases arrow)
 			"attackClimaxFrame" : 0,
 
-			// offsets between position of shooter and position where projectile should appear
+			// Position where projectile image appears during shooting in specific direction
 			"offset" :
 			{
 				"upperX" : 0,
@@ -190,6 +192,19 @@ In order to make functional creature you also need:
 		// Creature start/end movement or teleports
 		"startMoving" : "",
 		"endMoving" : ""
-	}
+	},
+	
+	// Stack experience, using bonus system
+	"stackExperience" : [
+		{
+			// Bonus description
+			"bonus" : { BONUS_FORMAT },
+			// Per-level value of bonus. Must have 10 elements
+			"values" : [
+				0, 0, 1, 1, 2, 2, 3, 3, 4, 4
+			]
+		},
+		...
+	]
 }
 ```

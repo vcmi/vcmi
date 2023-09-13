@@ -15,6 +15,7 @@ All parameters but type are optional.
 	"duration" :    "BONUS_DURATION", //or ["BONUS_DURATION1", "BONUS_DURATION2", ...]"
 	"turns" :       0,
 
+	"targetSourceType" : "SOURCE_TYPE",
 	"sourceType" :  "SOURCE_TYPE",
 	"sourceID" :    0,
 	"effectRange" : "EFFECT_RANGE",
@@ -45,9 +46,7 @@ All parameters but type are optional.
 
 ## Subtype resolution
 
-All string identifiers of items can be used in "subtype" field. This
-allows cross-referencing between the mods and make config file more
-readable.
+All string identifiers of items can be used in "subtype" field. This allows cross-referencing between the mods and make config file more readable.
 
 ### Available prefixes
 
