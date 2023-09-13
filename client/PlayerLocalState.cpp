@@ -68,7 +68,10 @@ bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destinatio
 {
 	CGPath path;
 	if(!owner.cb->getPathsInfo(h)->getPath(path, destination))
+	{
+		paths.erase(h); //invalidate previously possible path if selected (before other hero blocked only path / fly spell expired)
 		return false;
+	}
 
 	setPath(h, path);
 	return true;
