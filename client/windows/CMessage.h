@@ -15,7 +15,10 @@
 struct SDL_Surface;
 class CInfoWindow;
 class CComponent;
+
+VCMI_LIB_NAMESPACE_BEGIN
 class ColorRGBA;
+VCMI_LIB_NAMESPACE_END
 
 
 /// Class which draws formatted text messages and generates chat windows
