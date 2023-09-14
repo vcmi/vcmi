@@ -535,14 +535,14 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 					LOCPLINT->moveHero(currentHero, LOCPLINT->localState->getPath(currentHero));
 				return;
 			}
-			else //remove old path and find a new one if we clicked on accessible tile
+			else
 			{
-				if(GH.isKeyboardCtrlDown())
+				if(GH.isKeyboardCtrlDown()) //normal click behaviour (as no hero selected)
 				{
 					if(canSelect)
 						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
 				}
-				else
+				else //remove old path and find a new one if we clicked on accessible tile
 				{
 					LOCPLINT->localState->setPath(currentHero, mapPos);
 					onHeroChanged(currentHero);
