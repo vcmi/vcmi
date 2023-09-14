@@ -1,48 +1,64 @@
 < [Documentation](../Readme.md) / Release Process
 
-## Branches
+# Branches
 Our branching strategy is very similar to GitFlow
-* `master` branch has release commits. One commit - one release. Each release commit should be tagged with version `maj.min.patch`
-* `beta` branch is for stabilization of ongoing release. We don't merge new features into `beta` branch - only bug fixes are acceptable. Hotfixes for already released software should be delivered to this branch as well.
-* `develop` branch is a main branch for ongoing development. Pull requests with new features should be targeted to this branch, `develop` version is one step ahead of 'beta`
+- `master` branch has release commits. One commit - one release. Each release commit should be tagged with version `maj.min.patch`
+- `beta` branch is for stabilization of ongoing release. Only safe changes should be targeted into this branch. Breaking changes (e.g. save format changes) are forbidden in beta.
+- `develop` branch is a main branch for ongoing development. Pull requests with new features should be targeted to this branch, `develop` version is one major release ahead of `beta`
 
-## Release process step-by-step
-Assuming that all features planned to be released are implemented in `develop` branch and next release version will be `1.x.0`
+# Release process step-by-step
 
-### Start of stabilization stage
-Should be done several weeks before planned release date
+### Initial release setup (major releases only)
+Should be done immediately after start of stabilization stage for previous release
 
-- Create [milestone](https://github.com/vcmi/vcmi/milestones) named `Release 1.x`
-- Specify new milestone for all regression bugs and major bugs related to new functionality
+- Create project named `Release 1.X`
+- Add all features and bugs that should be fixed as part of this release into this project
+
+### Start of stabilization stage (major releases only)
+Should be done 2-4 weeks before planned release date. All major features should be finished at this point.
+
 - Create `beta` branch from `develop`
-- Bump vcmi version on `develop` branch
-- Bump version for linux on `develop` branch
+- Bump vcmi version in CMake on `develop` branch
+- Bump version for Linux on `develop` branch
+- Bump version and build ID for Android on `develop` branch
+
+### Initial release setup (patch releases only)
+
+- Bump vcmi version in CMake on `beta` branch
+- Bump version for Linux on `beta` branch
+- Bump version and build ID for Android on `beta` branch
 
 ### Release preparation stage
-Should be done several days before planned release date
+Should be done 1 week before release. Release date should be decided at this point.
 
-- Make sure to announce codebase freeze deadline to all developers
-- Update [release notes](https://github.com/vcmi/vcmi/blob/develop/ChangeLog.md)
-- Update release date for Linux packaging. See [example](https://github.com/vcmi/vcmi/pull/1258)
-- Update release date for Android packaging. See [example](https://github.com/vcmi/vcmi/pull/2090)
-- Create draft release page, specify `1.x.0` as tag for `master` after publishing
-- Prepare pull request with release update for web site https://github.com/vcmi/VCMI.eu
+- Make sure to announce codebase freeze deadline (1 day before release) to all developers
+- Create pull request for release preparation tasks targeting `beta`:
+- - Update [changelog](https://github.com/vcmi/vcmi/blob/develop/ChangeLog.md)
+- - Update release date for Linux packaging. See [example](https://github.com/vcmi/vcmi/pull/1258)
+- - Update build ID for Android packaging. See [example](https://github.com/vcmi/vcmi/pull/2090)
+- - Update downloads counter in readme.md. See [example](https://github.com/vcmi/vcmi/pull/2091)
+
+### Release preparation stage
+Should be done 1 day before release. At this point beta branch is in full freeze.
+
+- Merge release preparation PR into `beta`
+- Merge `beta` into `master`. This will trigger CI pipeline that will generate release packages
+- Create draft release page, specify `1.x.y` as tag for `master` after publishing
+- Check that artifacts for all platforms have been build by CI `master` branch
+- Attach build artifacts for all platforms to release page
+- Manually extract Windows installer, remove `$PLUGINSDIR` directory and repackage data as .zip archive
+- Attach produced zip archive to release page as an alternative Windows installer
+- Upload built AAB to Google Play and send it for review
 - Prepare pull request for [vcmi-updates](https://github.com/vcmi/vcmi-updates)
+- (major releases only) Prepare pull request with release update for web site https://github.com/vcmi/VCMI.eu
 
 ### Release publishing phase
 Should be done on release date
 
-- Check that all items from milestone `Release 1.x` completed
-- Merge `beta` into `master`
-- Check that artifacts for all platforms are available on `master` branch
 - Trigger builds for new release on Ubuntu PPA
-- Attach build artifacts for all platforms to release page
-- Merge prepared pull requests
+- Publish new release on Google Play
 - Publish release page
-
-### After release publish
-
-- Close `Release 1.x` milestone
-- Write announcements in social networks
 - Merge `master` into `develop`
-- Update downloads counter in readme.md. See [example](https://github.com/vcmi/vcmi/pull/2091)
+- Merge prepared PR's for vcmi-updates and for website (if any)
+- Close `Release 1.x` project
+- Write announcements in social networks
