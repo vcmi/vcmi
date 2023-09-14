@@ -79,6 +79,7 @@ void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArm
 			}
 		}
 
+		lastBattleQuery->rngSerializer.iser & gameHandler->getRandomGenerator();
 		lastBattleQuery->result = std::nullopt;
 
 		assert(lastBattleQuery->belligerents[0] == battle->sides[0].armyObject);
@@ -109,6 +110,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	heroes[0] = hero1;
 	heroes[1] = hero2;
 
+	auto savedRng = CMemorySerializer::deepCopy(gameHandler->getRandomGenerator());
 	auto battleID = setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
 	const auto * battle = gameHandler->gameState()->getBattle(battleID);
@@ -129,6 +131,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 			if(heroes[i])
 				newBattleQuery->initialHeroMana[i] = heroes[i]->mana;
 
+		newBattleQuery->rngSerializer.oser & *savedRng.release();
 		gameHandler->queries->addQuery(newBattleQuery);
 	}
 

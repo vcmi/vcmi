@@ -12,6 +12,7 @@
 #include "CQuery.h"
 
 #include "../../lib/NetPacks.h"
+#include "../../lib/serializer/CMemorySerializer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class IBattleInfo;
@@ -25,6 +26,7 @@ public:
 
 	BattleID battleID;
 	std::optional<BattleResult> result;
+	CMemorySerializer rngSerializer;
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
