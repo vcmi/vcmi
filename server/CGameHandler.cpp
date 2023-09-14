@@ -468,8 +468,8 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	int i = 100;
 	for (auto specialSkill : VLC->creh->skillRequirements)
 	{
-		if (c->secondarySkills.at(specialSkill.second.first) == ECommander::MAX_SKILL_LEVEL - 1
-			&&  c->secondarySkills.at(specialSkill.second.second) == ECommander::MAX_SKILL_LEVEL - 1
+		if (c->secondarySkills.at(specialSkill.second.first) >= ECommander::MAX_SKILL_LEVEL - 1
+			&&  c->secondarySkills.at(specialSkill.second.second) >= ECommander::MAX_SKILL_LEVEL - 1
 			&&  !vstd::contains (c->specialSkills, i))
 			clu.skills.push_back (i);
 		++i;
