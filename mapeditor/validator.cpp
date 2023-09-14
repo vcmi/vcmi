@@ -131,7 +131,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 					if(!allHeroesOnMap.insert(ins->type).second)
 						issues.emplace_back(QString(tr("Hero %1 has duplicate on map")).arg(ins->type->getNameTranslated().c_str()), false);
 				}
-				else
+				else if(ins->ID != Obj::RANDOM_HERO)
 					issues.emplace_back(QString(tr("Hero %1 has an empty type and must be removed")).arg(ins->instanceName.c_str()), true);
 			}
 			

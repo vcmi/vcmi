@@ -96,6 +96,8 @@ protected:
 public:
 	Inspector(CMap *, CGObjectInstance *, QTableWidget *);
 
+	void setProperty(const QString & key, const QTableWidgetItem * item);
+	
 	void setProperty(const QString & key, const QVariant & value);
 
 	void updateProperties();
@@ -106,8 +108,10 @@ protected:
 	void addProperty(const QString & key, const T & value, QAbstractItemDelegate * delegate, bool restricted)
 	{
 		auto * itemValue = addProperty(value);
-		if(restricted)
-			itemValue->setFlags(Qt::NoItemFlags);
+		if(!restricted)
+			itemValue->setFlags(itemValue->flags() | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+		if(!(itemValue->flags() & Qt::ItemIsUserCheckable))
+			itemValue->setFlags(itemValue->flags() | Qt::ItemIsEditable);
 		
 		QTableWidgetItem * itemKey = nullptr;
 		if(keyItems.contains(key))
@@ -120,15 +124,16 @@ protected:
 		else
 		{
 			itemKey = new QTableWidgetItem(key);
-			itemKey->setFlags(Qt::NoItemFlags);
 			keyItems[key] = itemKey;
 			
 			table->setRowCount(row + 1);
 			table->setItem(row, 0, itemKey);
 			table->setItem(row, 1, itemValue);
-			table->setItemDelegateForRow(row, delegate);
+			if(delegate)
+				table->setItemDelegateForRow(row, delegate);
 			++row;
 		}
+		itemKey->setFlags(restricted ? Qt::NoItemFlags : Qt::ItemIsEnabled);
 	}
 	
 	template<class T>
@@ -152,14 +157,12 @@ class InspectorDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
-	static InspectorDelegate * boolDelegate();
-	
 	using QStyledItemDelegate::QStyledItemDelegate;
 
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 	
-	QStringList options;
+	QList<std::pair<QString, QVariant>> options;
 };
 

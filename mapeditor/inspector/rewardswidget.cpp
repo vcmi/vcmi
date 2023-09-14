@@ -396,12 +396,7 @@ void RewardsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, c
 {
 	if(auto * ed = qobject_cast<RewardsWidget *>(editor))
 	{
-		auto hasReward = ed->commitChanges();
-		model->setData(index, "dummy");
-		if(hasReward)
-			model->setData(index, "HAS REWARD");
-		else
-			model->setData(index, "");
+		ed->commitChanges();
 	}
 	else
 	{

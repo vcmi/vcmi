@@ -23,8 +23,8 @@ public:
 	explicit RumorSettings(QWidget *parent = nullptr);
 	~RumorSettings();
 
-	void initialize(const CMap & map) override;
-	void update(CMap & map) override;
+	void initialize(MapController & map) override;
+	void update() override;
 
 private slots:
 	void on_message_textChanged();

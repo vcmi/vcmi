@@ -23,8 +23,8 @@ public:
 	explicit ModSettings(QWidget *parent = nullptr);
 	~ModSettings();
 
-	void initialize(const CMap & map) override;
-	void update(CMap & map) override;
+	void initialize(MapController & map) override;
+	void update() override;
 
 private slots:
 	void on_modResolution_map_clicked();
@@ -38,5 +38,4 @@ private:
 
 private:
 	Ui::ModSettings *ui;
-	const CMap * mapPointer = nullptr;
 };

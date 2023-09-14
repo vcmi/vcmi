@@ -63,12 +63,12 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		ui->listHeroes->addItem(item);
 	}
 
-	ui->general->initialize(*controller.map());
-	ui->mods->initialize(*controller.map());
-	ui->victory->initialize(*controller.map());
-	ui->lose->initialize(*controller.map());
-	ui->events->initialize(*controller.map());
-	ui->rumors->initialize(*controller.map());
+	ui->general->initialize(controller);
+	ui->mods->initialize(controller);
+	ui->victory->initialize(controller);
+	ui->lose->initialize(controller);
+	ui->events->initialize(controller);
+	ui->rumors->initialize(controller);
 }
 
 MapSettings::~MapSettings()
@@ -94,12 +94,12 @@ void MapSettings::on_pushButton_clicked()
 
 	controller.map()->triggeredEvents.clear();
 
-	ui->general->update(*controller.map());
-	ui->mods->update(*controller.map());
-	ui->victory->update(*controller.map());
-	ui->lose->update(*controller.map());
-	ui->events->update(*controller.map());
-	ui->rumors->update(*controller.map());
+	ui->general->update();
+	ui->mods->update();
+	ui->victory->update();
+	ui->lose->update();
+	ui->events->update();
+	ui->rumors->update();
 
 	controller.commitChangeWithoutRedraw();
 

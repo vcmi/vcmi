@@ -1,5 +1,5 @@
 /*
- * armywidget.h, part of VCMI engine
+ * heroskillswidget.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,49 +9,51 @@
  */
 #pragma once
 
-#include "../StdInc.h"
 #include <QDialog>
-#include "../lib/mapObjects/CArmedInstance.h"
-
-const int TOTAL_SLOTS = 7;
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 namespace Ui {
-class ArmyWidget;
+class HeroSkillsWidget;
 }
 
-class ArmyWidget : public QDialog
+class HeroSkillsWidget : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit ArmyWidget(CArmedInstance &, QWidget *parent = nullptr);
-	~ArmyWidget();
+	explicit HeroSkillsWidget(CGHeroInstance &, QWidget *parent = nullptr);
+	~HeroSkillsWidget();
 	
 	void obtainData();
-	bool commitChanges();
+	void commitChanges();
+
+private slots:
+	void on_addButton_clicked();
+
+	void on_removeButton_clicked();
+
+	void on_checkBox_toggled(bool checked);
 
 private:
-	int searchItemIndex(int slotId, CreatureID creId) const;
+	Ui::HeroSkillsWidget *ui;
 	
-	Ui::ArmyWidget *ui;
-	CArmedInstance & army;
-	std::array<QSpinBox*, TOTAL_SLOTS> uiCounts;
-	std::array<QComboBox*, TOTAL_SLOTS> uiSlots;
+	CGHeroInstance & hero;
+	
+	std::set<int> occupiedSkills;
 };
 
-class ArmyDelegate : public QStyledItemDelegate
+class HeroSkillsDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
 	using QStyledItemDelegate::QStyledItemDelegate;
 	
-	ArmyDelegate(CArmedInstance &);
+	HeroSkillsDelegate(CGHeroInstance &);
 	
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 	
 private:
-	CArmedInstance & army;
+	CGHeroInstance & hero;
 };
-

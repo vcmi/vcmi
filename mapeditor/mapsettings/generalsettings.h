@@ -23,8 +23,8 @@ public:
 	explicit GeneralSettings(QWidget *parent = nullptr);
 	~GeneralSettings();
 
-	void initialize(const CMap & map) override;
-	void update(CMap & map) override;
+	void initialize(MapController & map) override;
+	void update() override;
 
 private slots:
 	void on_heroLevelLimitCheck_toggled(bool checked);

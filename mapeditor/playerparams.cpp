@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "playerparams.h"
 #include "ui_playerparams.h"
+#include "mapsettings/abstractsettings.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/constants/StringConstants.h"
 
@@ -87,7 +88,8 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 			{
 				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
 					foundMainTown = townIndex;
-				const auto name = ctown->faction ? town->getObjectName() : town->getNameTranslated() + ", (random)";
+				
+				const auto name = AbstractSettings::getTownName(*controller.map(), i);
 				ui->mainTown->addItem(tr(name.c_str()), QVariant::fromValue(i));
 				++townIndex;
 			}
@@ -149,8 +151,7 @@ void PlayerParams::allowedFactionsCheck(QListWidgetItem * item)
 		playerInfo.allowedFactions.erase(FactionID(item->data(Qt::UserRole).toInt()));
 }
 
-
-void PlayerParams::on_mainTown_activated(int index)
+void PlayerParams::on_mainTown_currentIndexChanged(int index)
 {
 	if(index == 0) //default
 	{
@@ -183,6 +184,53 @@ void PlayerParams::on_playerColorCombo_activated(int index)
 		controller.map()->players[playerColor].canHumanPlay = false;
 		controller.map()->players[playerColor].canComputerPlay = false;
 		playerColor = data;
+	}
+}
+
+
+void PlayerParams::on_townSelect_clicked()
+{
+	auto pred = [this](const CGObjectInstance * obj) -> bool
+	{
+		if(auto town = dynamic_cast<const CGTownInstance*>(obj))
+			return town->getOwner().getNum() == playerColor;
+		return false;
+	};
+	
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.highlight(pred);
+		l.update();
+		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+	}
+	
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->hide();
+}
+
+void PlayerParams::onTownPicked(const CGObjectInstance * obj)
+{
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->show();
+	
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.clear();
+		l.update();
+		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+	}
+	
+	if(!obj) //discarded
+		return;
+	
+	for(int i = 0; i < ui->mainTown->count(); ++i)
+	{
+		auto town = controller.map()->objects.at(ui->mainTown->itemData(i).toInt());
+		if(town == obj)
+		{
+			ui->mainTown->setCurrentIndex(i);
+			break;
+		}
 	}
 }
 

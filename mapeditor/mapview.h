@@ -66,6 +66,7 @@ public:
 	TerrainLayer terrainView;
 	ObjectsLayer objectsView;
 	SelectionObjectsLayer selectionObjectsView;
+	ObjectPickerLayer objectPickerView;
 
 signals:
 	void selected(bool anything);

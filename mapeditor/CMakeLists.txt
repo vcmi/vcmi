@@ -32,6 +32,7 @@ set(editor_SRCS
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
+		inspector/heroskillswidget.cpp
 		resourceExtractor/ResourceConverter.cpp
 )
 
@@ -68,6 +69,7 @@ set(editor_HEADERS
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
 		inspector/questwidget.h
+		inspector/heroskillswidget.h
 		resourceExtractor/ResourceConverter.h
 )
 
@@ -91,6 +93,7 @@ set(editor_FORMS
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui
 		inspector/questwidget.ui
+		inspector/heroskillswidget.ui
 )
 
 set(editor_TS

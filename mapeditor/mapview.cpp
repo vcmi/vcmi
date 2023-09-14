@@ -198,6 +198,9 @@ void MapView::mousePressEvent(QMouseEvent *event)
 	auto * sc = static_cast<MapScene*>(scene());
 	if(!sc || !controller->map())
 		return;
+	
+	if(sc->objectPickerView.isVisible())
+		return;
 
 	mouseStart = mapToScene(event->pos());
 	tileStart = tilePrev = int3(mouseStart.x() / 32, mouseStart.y() / 32, sc->level);
@@ -338,6 +341,22 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	
 	if(rubberBand)
 		rubberBand->hide();
+	
+	if(sc->objectPickerView.isVisible())
+	{
+		if(event->button() == Qt::RightButton)
+			sc->objectPickerView.discard();
+		
+		if(event->button() == Qt::LeftButton)
+		{
+			mouseStart = mapToScene(event->pos());
+			tileStart = tilePrev = int3(mouseStart.x() / 32, mouseStart.y() / 32, sc->level);
+			if(auto * pickedObject = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y))
+				sc->objectPickerView.select(pickedObject);
+		}
+		
+		return;
+	}
 
 	switch(selectionTool)
 	{
@@ -397,6 +416,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		bool tab = false;
 		if(sc->selectionObjectsView.selectionMode == SelectionObjectsLayer::MOVEMENT)
 		{
+			tab = sc->selectionObjectsView.shift.isNull();
 			controller->commitObjectShift(sc->level);
 		}
 		else
@@ -405,7 +425,6 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 			sc->selectionObjectsView.shift = QPoint(0, 0);
 			sc->selectionObjectsView.draw();
 			tab = true;
-			//check if we have only one object
 		}
 		auto selection = sc->selectionObjectsView.getSelection();
 		if(selection.size() == 1)
@@ -463,7 +482,9 @@ void MapView::dropEvent(QDropEvent * event)
 		QString errorMsg;
 		if(controller->canPlaceObject(sc->level, sc->selectionObjectsView.newObject, errorMsg))
 		{
+			auto * obj = sc->selectionObjectsView.newObject;
 			controller->commitObjectCreate(sc->level);
+			emit openObjectProperties(obj, false);
 		}
 		else
 		{
@@ -545,6 +566,7 @@ MapScene::MapScene(int lvl):
 	terrainView(this),
 	objectsView(this),
 	selectionObjectsView(this),
+	objectPickerView(this),
 	isTerrainSelected(false),
 	isObjectSelected(false)
 {
@@ -560,6 +582,7 @@ std::list<AbstractLayer *> MapScene::getAbstractLayers()
 		&objectsView,
 		&gridView,
 		&passabilityView,
+		&objectPickerView,
 		&selectionTerrainView,
 		&selectionObjectsView
 	};
@@ -573,6 +596,7 @@ void MapScene::updateViews()
 	objectsView.show(true);
 	selectionTerrainView.show(true);
 	selectionObjectsView.show(true);
+	objectPickerView.show(true);
 }
 
 void MapScene::terrainSelected(bool anythingSelected)

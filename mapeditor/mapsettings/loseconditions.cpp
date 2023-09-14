@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "loseconditions.h"
 #include "ui_loseconditions.h"
-
+#include "../mapcontroller.h"
 #include "../lib/CGeneralTextHandler.h"
 
 LoseConditions::LoseConditions(QWidget *parent) :
@@ -25,12 +25,12 @@ LoseConditions::~LoseConditions()
 	delete ui;
 }
 
-void LoseConditions::initialize(const CMap & map)
+void LoseConditions::initialize(MapController & c)
 {
-	mapPointer = &map;
+	AbstractSettings::initialize(c);
 
 	//loss messages
-	ui->defeatMessageEdit->setText(QString::fromStdString(map.defeatMessage.toString()));
+	ui->defeatMessageEdit->setText(QString::fromStdString(controller->map()->defeatMessage.toString()));
 
 	//loss conditions
 	const std::array<std::string, 5> conditionStringsLose = {
@@ -47,7 +47,7 @@ void LoseConditions::initialize(const CMap & map)
 	}
 	ui->standardLoseCheck->setChecked(false);
 
-	for(auto & ev : map.triggeredEvents)
+	for(auto & ev : controller->map()->triggeredEvents)
 	{
 		if(ev.effect.type == EventEffect::DEFEAT)
 		{
@@ -68,7 +68,7 @@ void LoseConditions::initialize(const CMap & map)
 							{
 								ui->loseComboBox->setCurrentIndex(1);
 								assert(loseTypeWidget);
-								int townIdx = getObjectByPos<const CGTownInstance>(*mapPointer, posFromJson(json["position"]));
+								int townIdx = getObjectByPos<const CGTownInstance>(*controller->map(), posFromJson(json["position"]));
 								if(townIdx >= 0)
 								{
 									auto idx = loseTypeWidget->findData(townIdx);
@@ -79,7 +79,7 @@ void LoseConditions::initialize(const CMap & map)
 							{
 								ui->loseComboBox->setCurrentIndex(2);
 								assert(loseTypeWidget);
-								int heroIdx = getObjectByPos<const CGHeroInstance>(*mapPointer, posFromJson(json["position"]));
+								int heroIdx = getObjectByPos<const CGHeroInstance>(*controller->map(), posFromJson(json["position"]));
 								if(heroIdx >= 0)
 								{
 									auto idx = loseTypeWidget->findData(heroIdx);
@@ -114,10 +114,10 @@ void LoseConditions::initialize(const CMap & map)
 	}
 }
 
-void LoseConditions::update(CMap & map)
+void LoseConditions::update()
 {
 	//loss messages
-	map.defeatMessage = MetaString::createFromRawString(ui->defeatMessageEdit->text().toStdString());
+	controller->map()->defeatMessage = MetaString::createFromRawString(ui->defeatMessageEdit->text().toStdString());
 
 	//loss conditions
 	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
@@ -135,9 +135,9 @@ void LoseConditions::update(CMap & map)
 	//DEFEAT
 	if(ui->loseComboBox->currentIndex() == 0)
 	{
-		map.triggeredEvents.push_back(standardDefeat);
-		map.defeatIconIndex = 3;
-		map.defeatMessage.appendTextID("core.lcdesc.0");
+		controller->map()->triggeredEvents.push_back(standardDefeat);
+		controller->map()->defeatIconIndex = 3;
+		controller->map()->defeatMessage = MetaString::createFromTextID("core.lcdesc.0");
 	}
 	else
 	{
@@ -148,7 +148,7 @@ void LoseConditions::update(CMap & map)
 		specialDefeat.identifier = "specialDefeat";
 		specialDefeat.description.clear(); // TODO: display in quest window
 
-		map.defeatIconIndex = lossCondition;
+		controller->map()->defeatIconIndex = lossCondition;
 
 		switch(lossCondition)
 		{
@@ -158,11 +158,11 @@ void LoseConditions::update(CMap & map)
 				cond.objectType = Obj::TOWN;
 				assert(loseTypeWidget);
 				int townIdx = loseTypeWidget->currentData().toInt();
-				cond.position = map.objects[townIdx]->pos;
+				cond.position = controller->map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
 				specialDefeat.onFulfill.appendTextID("core.genrltxt.251");
 				specialDefeat.trigger = EventExpression(noneOf);
-				map.defeatMessage.appendTextID("core.lcdesc.1");
+				controller->map()->defeatMessage = MetaString::createFromTextID("core.lcdesc.1");
 				break;
 			}
 
@@ -172,11 +172,11 @@ void LoseConditions::update(CMap & map)
 				cond.objectType = Obj::HERO;
 				assert(loseTypeWidget);
 				int townIdx = loseTypeWidget->currentData().toInt();
-				cond.position = map.objects[townIdx]->pos;
+				cond.position = controller->map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
 				specialDefeat.onFulfill.appendTextID("core.genrltxt.253");
 				specialDefeat.trigger = EventExpression(noneOf);
-				map.defeatMessage.appendTextID("core.lcdesc.2");
+				controller->map()->defeatMessage = MetaString::createFromTextID("core.lcdesc.2");
 				break;
 			}
 
@@ -186,7 +186,7 @@ void LoseConditions::update(CMap & map)
 				cond.value = expiredDate(loseValueWidget->text());
 				specialDefeat.onFulfill.appendTextID("core.genrltxt.254");
 				specialDefeat.trigger = EventExpression(cond);
-				map.defeatMessage.appendTextID("core.lcdesc.3");
+				controller->map()->defeatMessage = MetaString::createFromTextID("core.lcdesc.3");
 				break;
 			}
 
@@ -210,9 +210,9 @@ void LoseConditions::update(CMap & map)
 
 		if(ui->standardLoseCheck->isChecked())
 		{
-			map.triggeredEvents.push_back(standardDefeat);
+			controller->map()->triggeredEvents.push_back(standardDefeat);
 		}
-		map.triggeredEvents.push_back(specialDefeat);
+		controller->map()->triggeredEvents.push_back(specialDefeat);
 	}
 
 }
@@ -222,9 +222,11 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 	delete loseTypeWidget;
 	delete loseValueWidget;
 	delete loseSelectWidget;
+	delete pickObjectButton;
 	loseTypeWidget = nullptr;
 	loseValueWidget = nullptr;
 	loseSelectWidget = nullptr;
+	pickObjectButton = nullptr;
 
 	if(index == 0)
 	{
@@ -240,16 +242,22 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 		case 0: {  //EventCondition::CONTROL (Obj::TOWN)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
-			for(int i : getObjectIndexes<const CGTownInstance>(*mapPointer))
-				loseTypeWidget->addItem(tr(getTownName(*mapPointer, i).c_str()), QVariant::fromValue(i));
+			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
+				loseTypeWidget->addItem(tr(getTownName(*controller->map(), i).c_str()), QVariant::fromValue(i));
+			pickObjectButton = new QToolButton;
+			connect(pickObjectButton, &QToolButton::clicked, this, &LoseConditions::onObjectSelect);
+			ui->loseParamsLayout->addWidget(pickObjectButton);
 			break;
 		}
 
 		case 1: { //EventCondition::CONTROL (Obj::HERO)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
-			for(int i : getObjectIndexes<const CGHeroInstance>(*mapPointer))
-				loseTypeWidget->addItem(tr(getHeroName(*mapPointer, i).c_str()), QVariant::fromValue(i));
+			for(int i : getObjectIndexes<const CGHeroInstance>(*controller->map()))
+				loseTypeWidget->addItem(tr(getHeroName(*controller->map(), i).c_str()), QVariant::fromValue(i));
+			pickObjectButton = new QToolButton;
+			connect(pickObjectButton, &QToolButton::clicked, this, &LoseConditions::onObjectSelect);
+			ui->loseParamsLayout->addWidget(pickObjectButton);
 			break;
 		}
 
@@ -269,3 +277,55 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 	}
 }
 
+void LoseConditions::onObjectSelect()
+{
+	int loseCondition = ui->loseComboBox->currentIndex() - 1;
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller->scene(lvl)->objectPickerView;
+		switch(loseCondition)
+		{
+			case 0: {  //EventCondition::CONTROL (Obj::TOWN)
+				l.highlight<const CGTownInstance>();
+				break;
+			}
+				
+			case 1: { //EventCondition::CONTROL (Obj::HERO)
+				l.highlight<const CGHeroInstance>();
+				break;
+			}
+			default:
+				return;
+		}
+		l.update();
+		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
+	}
+	
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+}
+
+void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
+{
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+	
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller->scene(lvl)->objectPickerView;
+		l.clear();
+		l.update();
+		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
+	}
+	
+	if(!obj) //discarded
+		return;
+	
+	for(int i = 0; i < loseTypeWidget->count(); ++i)
+	{
+		auto data = controller->map()->objects.at(loseTypeWidget->itemData(i).toInt());
+		if(data == obj)
+		{
+			loseTypeWidget->setCurrentIndex(i);
+			break;
+		}
+	}
+}

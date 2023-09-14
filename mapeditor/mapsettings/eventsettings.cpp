@@ -11,6 +11,7 @@
 #include "eventsettings.h"
 #include "timedevent.h"
 #include "ui_eventsettings.h"
+#include "../mapcontroller.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
@@ -73,9 +74,10 @@ EventSettings::~EventSettings()
 	delete ui;
 }
 
-void EventSettings::initialize(const CMap & map)
+void EventSettings::initialize(MapController & c)
 {
-	for(const auto & event : map.events)
+	AbstractSettings::initialize(c);
+	for(const auto & event : controller->map()->events)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(event.name));
 		item->setData(Qt::UserRole, toVariant(event));
@@ -83,13 +85,13 @@ void EventSettings::initialize(const CMap & map)
 	}
 }
 
-void EventSettings::update(CMap & map)
+void EventSettings::update()
 {
-	map.events.clear();
+	controller->map()->events.clear();
 	for(int i = 0; i < ui->eventsList->count(); ++i)
 	{
 		const auto * item = ui->eventsList->item(i);
-		map.events.push_back(eventFromVariant(item->data(Qt::UserRole)));
+		controller->map()->events.push_back(eventFromVariant(item->data(Qt::UserRole)));
 	}
 }
 
