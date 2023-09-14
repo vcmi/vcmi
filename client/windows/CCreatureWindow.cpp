@@ -96,14 +96,14 @@ private:
 
 };
 
-CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, bool isGrandmasterAbility_, std::function<void()> callback)
+CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, bool isMasterAbility_, std::function<void()> callback)
 	: object(),
-	isGrandmasterAbility(isGrandmasterAbility_),
-	isSelected(false),
-	callback(callback)
+	  isMasterAbility(isMasterAbility_),
+	  isSelected(false),
+	  callback(callback)
 {
 	pos = object_->pos;
-	this->isGrandmasterAbility = isGrandmasterAbility_;
+	this->isMasterAbility = isMasterAbility_;
 	setObject(object_);
 }
 
@@ -128,16 +128,16 @@ void CCommanderSkillIcon::deselect()
 	isSelected = false;
 }
 
-bool CCommanderSkillIcon::getIsGrandmasterAbility()
+bool CCommanderSkillIcon::getIsMasterAbility()
 {
-	return isGrandmasterAbility;
+	return isMasterAbility;
 }
 
 void CCommanderSkillIcon::show(Canvas &to)
 {
 	CIntObject::show(to);
 
-	if(isGrandmasterAbility && isSelected)
+	if(isMasterAbility && isSelected)
 		to.drawBorder(pos, Colors::YELLOW, 2);
 }
 
@@ -921,7 +921,7 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 
 	if(selectedIcon)
 	{
-		if(!selectedIcon->getIsGrandmasterAbility()) //unlike WoG, in VCMI grandmaster skill descriptions are taken from bonus descriptions
+		if(!selectedIcon->getIsMasterAbility()) //unlike WoG, in VCMI master skill descriptions are taken from bonus descriptions
 		{
 			selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
 		}
@@ -932,7 +932,7 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 	if(newSkill < 100)
 	{
 		newIcon->setObject(std::make_shared<CPicture>(getSkillImage(newSkill)));
-		if(!newIcon->getIsGrandmasterAbility())
+		if(!newIcon->getIsMasterAbility())
 		{
 			newIcon->text = getSkillDescription(newSkill, true); //update currently selected icon's message to show upgrade description
 		}
