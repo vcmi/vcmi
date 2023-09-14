@@ -1,0 +1,8 @@
+{
+	"basepath" : "buttons/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "backpackNormal.png"},
+		{ "frame" : 1, "file" : "backpackPressed.png"}
+	]
+}

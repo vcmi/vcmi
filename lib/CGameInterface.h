@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "battle/AutocombatPreferences.h"
 #include "battle/BattleAction.h"
 #include "IGameEventsReceiver.h"
 
@@ -76,6 +77,7 @@ public:
 
 	virtual ~CBattleGameInterface() {};
 	virtual void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
+	virtual void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences){};
 
 	//battle call-ins
 	virtual void activeStack(const CStack * stack)=0; //called when it's turn of that stack

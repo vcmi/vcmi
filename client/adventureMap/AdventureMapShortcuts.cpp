@@ -397,12 +397,12 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 
 bool AdventureMapShortcuts::optionCanViewQuests()
 {
-	return optionInMapView() && CGI->mh->getMap()->quests.empty();
+	return optionInMapView() && !CGI->mh->getMap()->quests.empty();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()
 {
-	return optionInMapView() && LOCPLINT->cb->getMapSize().z > 1;
+	return optionSidePanelActive() && LOCPLINT->cb->getMapSize().z > 1;
 }
 
 bool AdventureMapShortcuts::optionMapLevelSurface()

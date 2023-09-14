@@ -218,8 +218,9 @@ void MapViewController::afterRender()
 		if(!hero)
 			hero = boat->hero;
 
-		if(movementContext->progress >= 1.0)
+		if(movementContext->progress >= 0.999)
 		{
+			logGlobal->debug("Ending movement animation");
 			setViewCenter(hero->getSightCenter());
 
 			removeObject(context->getObject(movementContext->target));
@@ -229,20 +230,23 @@ void MapViewController::afterRender()
 		}
 	}
 
-	if(teleportContext && teleportContext->progress >= 1.0)
+	if(teleportContext && teleportContext->progress >= 0.999)
 	{
+		logGlobal->debug("Ending teleport animation");
 		activateAdventureContext(teleportContext->animationTime);
 	}
 
-	if(fadingOutContext && fadingOutContext->progress <= 0.0)
+	if(fadingOutContext && fadingOutContext->progress <= 0.001)
 	{
+		logGlobal->debug("Ending fade out animation");
 		removeObject(context->getObject(fadingOutContext->target));
 
 		activateAdventureContext(fadingOutContext->animationTime);
 	}
 
-	if(fadingInContext && fadingInContext->progress >= 1.0)
+	if(fadingInContext && fadingInContext->progress >= 0.999)
 	{
+		logGlobal->debug("Ending fade in animation");
 		activateAdventureContext(fadingInContext->animationTime);
 	}
 }
@@ -300,6 +304,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 
 void MapViewController::fadeOutObject(const CGObjectInstance * obj)
 {
+	logGlobal->debug("Starting fade out animation");
 	fadingOutContext = std::make_shared<MapRendererAdventureFadingContext>(*state);
 	fadingOutContext->animationTime = adventureContext->animationTime;
 	adventureContext = fadingOutContext;
@@ -319,6 +324,7 @@ void MapViewController::fadeOutObject(const CGObjectInstance * obj)
 
 void MapViewController::fadeInObject(const CGObjectInstance * obj)
 {
+	logGlobal->debug("Starting fade in animation");
 	fadingInContext = std::make_shared<MapRendererAdventureFadingContext>(*state);
 	fadingInContext->animationTime = adventureContext->animationTime;
 	adventureContext = fadingInContext;
@@ -457,6 +463,7 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 
 	if(isEventVisible(obj, from, dest))
 	{
+		logGlobal->debug("Starting teleport animation");
 		teleportContext = std::make_shared<MapRendererAdventureTransitionContext>(*state);
 		teleportContext->animationTime = adventureContext->animationTime;
 		adventureContext = teleportContext;
@@ -491,6 +498,7 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 
 	if(movementTime > 1)
 	{
+		logGlobal->debug("Starting movement animation");
 		movementContext = std::make_shared<MapRendererAdventureMovingContext>(*state);
 		movementContext->animationTime = adventureContext->animationTime;
 		adventureContext = movementContext;

@@ -286,7 +286,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			//if level set to range
 			if(auto * info = dynamic_cast<CCreGenLeveledInfo *>(dwl->info))
 			{
-				level = getRandomGenerator().nextInt(info->minLevel, info->maxLevel);
+				level = getRandomGenerator().nextInt(info->minLevel, info->maxLevel) - 1;
 			}
 			else // fixed level
 			{
@@ -297,7 +297,20 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			dwl->info = nullptr;
 
 			std::pair<Obj, int> result(Obj::NO_OBJ, -1);
-			CreatureID cid = (*VLC->townh)[faction]->town->creatures[level][0];
+			CreatureID cid;
+			if((*VLC->townh)[faction]->town)
+				cid = (*VLC->townh)[faction]->town->creatures[level][0];
+			else
+			{
+				//neutral faction
+				std::vector<CCreature*> possibleCreatures;
+				std::copy_if(VLC->creh->objects.begin(), VLC->creh->objects.end(), std::back_inserter(possibleCreatures), [faction](const CCreature * c)
+				{
+					return c->getFaction() == faction;
+				});
+				assert(!possibleCreatures.empty());
+				cid = (*RandomGeneratorUtil::nextItem(possibleCreatures, getRandomGenerator()))->getId();
+			}
 
 			//NOTE: this will pick last dwelling with this creature (Mantis #900)
 			//check for block map equality is better but more complex solution

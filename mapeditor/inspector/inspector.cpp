@@ -118,7 +118,10 @@ void Initializer::initialize(CGHeroInstance * o)
 	
 	o->tempOwner = defaultPlayer;
 	if(o->ID == Obj::PRISON)
+	{
+		o->subID = 0;
 		o->tempOwner = PlayerColor::NEUTRAL;
+	}
 	
 	if(o->ID == Obj::HERO)
 	{
@@ -184,8 +187,16 @@ void Initializer::initialize(CGMine * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
-	o->producedResource = GameResID(o->subID);
-	o->producedQuantity = o->defaultResProduction();
+	if(o->isAbandoned())
+	{
+		for(auto r = 0; r < GameConstants::RESOURCE_QUANTITY - 1; ++r)
+			o->abandonedMineResources.insert(GameResID(r));
+	}
+	else
+	{
+		o->producedResource = GameResID(o->subID);
+		o->producedQuantity = o->defaultResProduction();
+	}
 }
 
 void Initializer::initialize(CGResource * o)

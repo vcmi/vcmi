@@ -24,6 +24,7 @@
 #include "../gui/CIntObject.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/CCreatureWindow.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -215,7 +216,7 @@ std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActi
 	return std::vector<PossiblePlayerBattleAction>(allActions);
 }
 
-void BattleActionsController::reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context)
+void BattleActionsController::reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack)
 {
 	if(owner.tacticsMode || possibleActions.empty()) return; //this function is not supposed to be called in tactics mode or before getPossibleActionsForStack
 
@@ -229,10 +230,17 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			case PossiblePlayerBattleAction::NO_LOCATION:
 			case PossiblePlayerBattleAction::FREE_LOCATION:
 			case PossiblePlayerBattleAction::OBSTACLE:
-				if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
-					return 1;
-				else
-					return 100; //bottom priority
+				if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && targetStack != nullptr)
+				{
+					PlayerColor stackOwner = owner.curInt->cb->battleGetOwner(targetStack);
+					bool enemyTargetingPositiveSpellcast = item.spell().toSpell()->isPositive() && stackOwner != LOCPLINT->playerID;
+					bool friendTargetingNegativeSpellcast = item.spell().toSpell()->isNegative() && stackOwner == LOCPLINT->playerID;
+
+					if(!enemyTargetingPositiveSpellcast && !friendTargetingNegativeSpellcast)
+						return 1;
+				}
+				return 100; //bottom priority
+
 				break;
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 				return 2;
@@ -600,10 +608,10 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
@@ -621,7 +629,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
@@ -788,7 +796,7 @@ PossiblePlayerBattleAction BattleActionsController::selectAction(BattleHex targe
 
 	const CStack * targetStack = getStackForHex(targetHex);
 
-	reorderPossibleActionsPriority(owner.stacksController->getActiveStack(), targetStack ? MouseHoveredHexContext::OCCUPIED_HEX : MouseHoveredHexContext::UNOCCUPIED_HEX);
+	reorderPossibleActionsPriority(owner.stacksController->getActiveStack(), targetStack);
 
 	for (PossiblePlayerBattleAction action : possibleActions)
 	{
@@ -972,6 +980,11 @@ void BattleActionsController::activateStack()
 					
 				case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 					actionsToSelect.push_back(possibleActions.front());
+					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
+					break;
+				case PossiblePlayerBattleAction::ANY_LOCATION:
+					actionsToSelect.push_back(possibleActions.front());
+					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
 					break;
 			}
 		}
@@ -981,8 +994,19 @@ void BattleActionsController::activateStack()
 
 void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 {
-	if (spellcastingModeActive())
+	auto spellcastActionPredicate = [](PossiblePlayerBattleAction & action)
+	{
+		return action.spellcast();
+	};
+
+	bool isCurrentStackInSpellcastMode = std::all_of(possibleActions.begin(), possibleActions.end(), spellcastActionPredicate);
+
+	if (spellcastingModeActive() || isCurrentStackInSpellcastMode)
+	{
 		endCastingSpell();
+		CRClickPopup::createAndPush(CGI->generaltexth->translate("core.genrltxt.731")); // spell cancelled
+		return;
+	}
 
 	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
 
@@ -998,7 +1022,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 
 bool BattleActionsController::spellcastingModeActive() const
 {
-	return heroSpellToCast != nullptr;;
+	return heroSpellToCast != nullptr;
 }
 
 bool BattleActionsController::currentActionSpellcasting(BattleHex hoveredHex)

@@ -165,7 +165,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 
 				if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroBackpack>>)
 				{
-					if(!isTransferAllowed)
+					if(!isTransferAllowed && artPlace.getArt())
 					{
 						if(closeCallback)
 							closeCallback();

@@ -32,14 +32,20 @@ class CCommanderArtPlace;
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
 	std::shared_ptr<CIntObject> object; // passive object that will be used to determine clickable area
+	bool isMasterAbility; // refers to WoG abilities obtainable via combining master skills (for example attack + speed unlocks shoot)
+	bool isSelected; // used only for programatically created border around selected "master abilities"
 public:
-	CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback);
+	CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, bool isMasterAbility_, std::function<void()> callback);
 
 	std::function<void()> callback;
 
 	void clickPressed(const Point & cursorPosition) override;
 
 	void setObject(std::shared_ptr<CIntObject> object);
+	void deselect(); //TODO: consider using observer pattern instead?
+	bool getIsMasterAbility();
+
+	void show(Canvas &to) override;
 };
 
 class CStackWindow : public CWindowObject

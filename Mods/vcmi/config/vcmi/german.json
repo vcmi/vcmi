@@ -31,7 +31,6 @@
 	"vcmi.capitalColors.7" : "Rosa",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Gleiche Kreaturen zusammenführen",
-	"vcmi.radialWheel.showUnitInformation" : "Informationen zur Kreatur anzeigen",
 	"vcmi.radialWheel.splitSingleUnit" : "Wegtrennen einzelner Kreaturen",
 	"vcmi.radialWheel.splitUnitEqually" : "Gleichmäßiges trennen der Kreaturen",
 	"vcmi.radialWheel.moveUnit" : "Verschieben der Kreatur in andere Armee",

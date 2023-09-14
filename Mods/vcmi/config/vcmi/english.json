@@ -31,7 +31,7 @@
 	"vcmi.capitalColors.7" : "Pink",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Merge same creatures",
-	"vcmi.radialWheel.showUnitInformation" : "Show creature information",
+	"vcmi.radialWheel.fillSingleUnit" : "Fill with single creatures",
 	"vcmi.radialWheel.splitSingleUnit" : "Split off single creature",
 	"vcmi.radialWheel.splitUnitEqually" : "Split creatures equally",
 	"vcmi.radialWheel.moveUnit" : "Move creatures to another army",
@@ -173,6 +173,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Open commander info window",
 	"vcmi.heroWindow.openCommander.help"  : "Shows details about the commander of this hero",
+	"vcmi.heroWindow.openBackpack.hover" : "Open artifact backpack window",
+	"vcmi.heroWindow.openBackpack.help"  : "Opens window that allows easier artifact backpack management",
 
 	"vcmi.commanderWindow.artifactMessage" : "Do you want to return this artifact to the hero?",
 

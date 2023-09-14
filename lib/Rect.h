@@ -142,6 +142,9 @@ public:
 		return x == other.x && y == other.y && w == other.w && h == other.h;
 	}
 
+	/// returns distance from this rect to point, or 0 if inside
+	DLL_LINKAGE int distanceTo(const Point & target) const;
+
 	/// returns true if this rect intersects with another rect
 	DLL_LINKAGE bool intersectionTest(const Rect & other) const;
 

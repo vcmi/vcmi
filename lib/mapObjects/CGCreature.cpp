@@ -53,7 +53,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		ms.appendRawString(" ");
 		ms.appendLocalString(EMetaText::CRE_PL_NAMES,subID);
 
-		ms.appendRawString("\n");
+		ms.appendRawString("\n\n");
 
 		int decision = takenAction(hero, true);
 

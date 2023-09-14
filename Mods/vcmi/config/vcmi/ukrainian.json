@@ -31,7 +31,7 @@
 	"vcmi.capitalColors.7" : "Рожевий",
 
 	"vcmi.radialWheel.mergeSameUnit" : "Об'єднати однакових істот",
-	"vcmi.radialWheel.showUnitInformation" : "Показати відомості про істоту",
+	"vcmi.radialWheel.fillSingleUnit" : "Заповнити одиничними істотами",
 	"vcmi.radialWheel.splitSingleUnit" : "Відділити одну істоту",
 	"vcmi.radialWheel.splitUnitEqually" : "Розділити істот порівну",
 	"vcmi.radialWheel.moveUnit" : "Перемістити істоту до іншої армії",
@@ -173,6 +173,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Відкрити вікно командира",
 	"vcmi.heroWindow.openCommander.help"  : "Показує інформацію про командира героя",
+	"vcmi.heroWindow.openBackpack.hover" : "Відкрити вікно рюкзака з артефактами",
+	"vcmi.heroWindow.openBackpack.help"  : "Відкриває вікно, що дозволяє легше керувати рюкзаком артефактів",
 
 	"vcmi.commanderWindow.artifactMessage" : "Бажаєте передати цей артефакт герою?",
 

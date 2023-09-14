@@ -78,6 +78,9 @@ struct TouchInputParameters
 	/// gesture will be qualified as pinch if distance between fingers is at least specified here
 	uint32_t pinchSensitivityThreshold = 10;
 
+	/// touch event will trigger clicking of elements up to X pixels away from actual touch position
+	uint32_t touchToleranceDistance = 20;
+
 	bool useRelativeMode = false;
 
 	bool hapticFeedbackEnabled = false;

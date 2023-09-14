@@ -39,6 +39,11 @@ QString detectModArchive(QString path, QString modName)
 			}
 		}
 	}
+
+	logGlobal->error("Failed to detect mod path in archive!");
+	logGlobal->debug("List of file in archive:");
+	for(auto file : files)
+		logGlobal->debug("%s", file.c_str());
 	
 	return "";
 }
@@ -68,9 +73,11 @@ void CModManager::resetRepositories()
 	modList->resetRepositories();
 }
 
-void CModManager::loadRepository(QVariantMap repomap)
+void CModManager::loadRepositories(QVector<QVariantMap> repomap)
 {
-	modList->addRepository(repomap);
+	for (auto const & entry : repomap)
+		modList->addRepository(entry);
+	modList->reloadRepositories();
 }
 
 void CModManager::loadMods()

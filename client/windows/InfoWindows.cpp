@@ -35,6 +35,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+#include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -243,6 +244,9 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alig
 	case ETextAlignment::TOPLEFT:
 		init(p.x, p.y);
 		break;
+	case ETextAlignment::TOPCENTER:
+		init(p.x - Bitmap->w/2, p.y);
+		break;
 	default:
 		assert(0); //not implemented
 	}
@@ -333,7 +337,7 @@ void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CCompo
 
 void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment)
 {
-	auto iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
+	auto iWin = createCustomInfoWindow(p, obj); //try get custom infowindow for this obj
 	if(iWin)
 	{
 		GH.windows().pushWindow(iWin);
@@ -401,14 +405,21 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 	tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
 }
 
-std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
+CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
+		: CWindowObject(RCLICK_POPUP | BORDERED, "DIBOXBCK", toScreen(position))
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	tooltip = std::make_shared<CreatureTooltip>(Point(9, 10), creature);
+}
+
+std::shared_ptr<WindowBase> CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if(nullptr == specific)
 		specific = LOCPLINT->localState->getCurrentArmy();
 
 	if(nullptr == specific)
 	{
-		logGlobal->error("createInfoWin: no object to describe");
+		logGlobal->error("createCustomInfoWindow: no object to describe");
 		return nullptr;
 	}
 
@@ -418,6 +429,8 @@ std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CG
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGHeroInstance *>(specific));
 	case Obj::TOWN:
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGTownInstance *>(specific));
+	case Obj::MONSTER:
+		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGCreature *>(specific));
 	case Obj::GARRISON:
 	case Obj::GARRISON2:
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGGarrison *>(specific));

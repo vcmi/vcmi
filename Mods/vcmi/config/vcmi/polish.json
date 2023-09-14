@@ -31,7 +31,6 @@
 	"vcmi.capitalColors.7" : "Różowy",
 
 	"vcmi.radialWheel.mergeSameUnit" : "Złącz takie same stworzenia",
-	"vcmi.radialWheel.showUnitInformation" : "Pokaż informacje o stworzeniu",
 	"vcmi.radialWheel.splitSingleUnit" : "Wydziel pojedyncze stworzenie",
 	"vcmi.radialWheel.splitUnitEqually" : "Podziel stworzenia równo",
 	"vcmi.radialWheel.moveUnit" : "Przenieś stworzenia do innej armii",
@@ -173,6 +172,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Otwórz okno dowódcy",
 	"vcmi.heroWindow.openCommander.help"  : "Wyświetla informacje o dowódcy przynależącym do tego bohatera",
+	"vcmi.heroWindow.openBackpack.hover" : "Otwórz okno sakwy",
+	"vcmi.heroWindow.openBackpack.help"  : "Otwiera okno pozwalające łatwiej zarządzać artefaktami w sakwie",
 
 	"vcmi.commanderWindow.artifactMessage" : "Czy chcesz zwrócić ten artefakt bohaterowi?",
 

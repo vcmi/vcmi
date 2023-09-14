@@ -18,6 +18,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/Colors.h"
 
 #include "../../CCallback.h"
 
@@ -246,7 +247,6 @@ uint8_t MapRendererRoad::checksum(IMapRendererContext & context, const int3 & co
 
 MapRendererBorder::MapRendererBorder()
 {
-	emptyFill = std::make_unique<Canvas>(Point(32,32));
 	animation = std::make_unique<CAnimation>("EDG");
 	animation->preload();
 }
@@ -298,7 +298,7 @@ void MapRendererBorder::renderTile(IMapRendererContext & context, Canvas & targe
 	}
 	else
 	{
-		target.draw(*emptyFill, Point(0,0));
+		target.drawColor(Rect(0,0,32,32), Colors::BLACK);
 	}
 }
 

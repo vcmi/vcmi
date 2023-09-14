@@ -573,17 +573,35 @@ void CServerHandler::sendRestartGame() const
 	sendLobbyPack(endGame);
 }
 
-void CServerHandler::sendStartGame(bool allowOnlyAI) const
+bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 {
 	try
 	{
 		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 	}
-	catch (const std::exception & e)
+	catch(CModHandler::Incompatibility & e)
 	{
-		showServerError( std::string("Unable to start map! Reason: ") + e.what());
-		return;
+		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
+
+		auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
+		errorMsg += e.what();
+
+		showServerError(errorMsg);
+		return false;
 	}
+	catch(std::exception & e)
+	{
+		logGlobal->error("Exception during startScenario: %s", e.what());
+		showServerError( std::string("Unable to start map! Reason: ") + e.what());
+		return false;
+	}
+
+	return true;
+}
+
+void CServerHandler::sendStartGame(bool allowOnlyAI) const
+{
+	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
 	LobbyStartGame lsg;
 	if(client)
@@ -708,7 +726,7 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 	});
 }
 
-void CServerHandler::showServerError(std::string txt) const
+void CServerHandler::showServerError(const std::string & txt) const
 {
 	CInfoWindow::showInfoDialog(txt, {});
 }

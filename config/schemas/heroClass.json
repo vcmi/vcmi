@@ -16,7 +16,7 @@
 		},
 		"faction" : {
 			"type" : "string",
-			"description" : "Faction this hero class belongs to"
+			"description" : "Identifier of faction this class belongs to"
 		},
 		"affinity" : {
 			"type" : "string",

@@ -468,9 +468,9 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	int i = 100;
 	for (auto specialSkill : VLC->creh->skillRequirements)
 	{
-		if (c->secondarySkills.at(specialSkill.second.first) == ECommander::MAX_SKILL_LEVEL
-			&&  c->secondarySkills.at(specialSkill.second.second) == ECommander::MAX_SKILL_LEVEL
-			&&  !vstd::contains (c->specialSKills, i))
+		if (c->secondarySkills.at(specialSkill.second.first) >= ECommander::MAX_SKILL_LEVEL - 1
+			&&  c->secondarySkills.at(specialSkill.second.second) >= ECommander::MAX_SKILL_LEVEL - 1
+			&&  !vstd::contains (c->specialSkills, i))
 			clu.skills.push_back (i);
 		++i;
 	}
@@ -588,6 +588,11 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		if(heroDefender)
 			battleResult.data->exp[0] += 500;
 	}
+
+	// Give 500 exp to winner if a town was conquered during the battle
+	const auto * defendedTown = battleGetDefendedTown();
+	if (defendedTown && battleResult.data->winner == BattleSide::ATTACKER)
+		battleResult.data->exp[BattleSide::ATTACKER] += 500;
 
 	if(heroAttacker)
 		battleResult.data->exp[0] = heroAttacker->calculateXp(battleResult.data->exp[0]);//scholar skill
@@ -5725,6 +5730,11 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		removeUnits.changedStacks.emplace_back(defender->unitId(), UnitChanges::EOperation::REMOVE);
 		sendAndApply(&removeUnits);
 		sendAndApply(&addUnits);
+
+		// send empty event to client
+		// temporary(?) workaround to force animations to trigger
+		StacksInjured fakeEvent;
+		sendAndApply(&fakeEvent);
 	}
 
 	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, 0) || attacker->hasBonusOfType(BonusType::DESTRUCTION, 1))
@@ -6120,6 +6130,12 @@ void CGameHandler::runBattle()
 					sendAndApply(&pack);
 				}
 			}
+
+			// send empty event to client
+			// temporary(?) workaround to force animations to trigger
+			StacksInjured fakeEvent;
+			sendAndApply(&fakeEvent);
+
 		}
 
 		stackEnchantedTrigger(stack);

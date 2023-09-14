@@ -32,6 +32,7 @@ private:
 	void queueSizeChangedCallback(int value, BattleInterface * parentBattleInterface);
 	void skipBattleIntroMusicChangedCallback(bool value);
 	void showStickyHeroWindowsChangedCallback(bool value, BattleInterface * parentBattleInterface);
+	void enableAutocombatSpellsChangedCallback(bool value);
 public:
 	BattleOptionsTab(BattleInterface * owner = nullptr);
 };

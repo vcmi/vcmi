@@ -803,7 +803,7 @@ void SetCommanderProperty::applyGs(CGameState *gs)
 			break;
 		case SPECIAL_SKILL:
 			commander->accumulateBonus (std::make_shared<Bonus>(accumulatedBonus));
-			commander->specialSKills.insert (additionalInfo);
+			commander->specialSkills.insert (additionalInfo);
 			break;
 		case SECONDARY_SKILL:
 			commander->secondarySkills[additionalInfo] = static_cast<ui8>(amount);

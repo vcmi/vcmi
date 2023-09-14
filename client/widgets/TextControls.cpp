@@ -158,6 +158,12 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 		where.y += getBorderSize().y;
 	}
 
+	if(alignment == ETextAlignment::TOPCENTER)
+	{
+		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;
+		where.y += getBorderSize().y;
+	}
+
 	if(alignment == ETextAlignment::CENTER)
 	{
 		where.x += (int(destRect.w) - int(f->getStringWidth(what) - delimitersCount)) / 2;
@@ -268,6 +274,7 @@ Rect CMultiLineLabel::getTextLocation()
 	switch(alignment)
 	{
 	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSize);
+	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSize);
 	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
 	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
 	}
@@ -477,6 +484,7 @@ Point CGStatusBar::getBorderSize()
 	switch(alignment)
 	{
 	case ETextAlignment::TOPLEFT:     return Point(borderSize.x, borderSize.y);
+	case ETextAlignment::TOPCENTER:   return Point(pos.w / 2, borderSize.y);
 	case ETextAlignment::CENTER:      return Point(pos.w / 2, pos.h / 2);
 	case ETextAlignment::BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
 	}

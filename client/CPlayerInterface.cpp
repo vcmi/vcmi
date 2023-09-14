@@ -476,9 +476,6 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 	adventureInt->onHeroChanged(hero);
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->onHeroChanged(hero);
-
-	for (auto window : GH.windows().findWindows<BattleWindow>())
-		window->heroManaPointsChanged(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
@@ -662,7 +659,11 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	if ((replayAllowed && useQuickCombat) || forceQuickCombat)
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		autofightingAI->initBattleInterface(env, cb);
+
+		AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+
+		autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
 		autofightingAI->battleStart(army1, army2, tile, hero1, hero2, side, false);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
@@ -897,6 +898,12 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->effectsController->battleTriggerEffect(bte);
+
+	if(bte.effect == vstd::to_underlying(BonusType::MANA_DRAIN))
+	{
+		const CGHeroInstance * manaDrainedHero = LOCPLINT->cb->getHero(ObjectInstanceID(bte.additionalInfo));
+		battleInt->windowObject->heroManaPointsChanged(manaDrainedHero);
+	}
 }
 void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
@@ -1611,15 +1618,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (GH.curInt == this)
 			GH.curInt = nullptr;
 	}
-	else
-	{
-		if (victoryLossCheckResult.loss() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
-		{
-			MetaString message = victoryLossCheckResult.messageToSelf;
-			message.appendLocalString(EMetaText::COLOR, player.getNum());
-			showInfoDialog(message.toString(), std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(CComponent::flag, player.getNum(), 0)));
-		}
-	}
 }
 
 void CPlayerInterface::playerBonusChanged( const Bonus &bonus, bool gain )
@@ -2009,13 +2007,13 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 		auto canStop = [&](CGPathNode * node) -> bool
 		{
-			if (node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
-				return true;
+			if (node->layer != EPathfindingLayer::LAND && node->layer != EPathfindingLayer::SAIL)
+				return false;
 
-			if (node->accessible == EPathAccessibility::ACCESSIBLE)
-				return true;
+			if (node->accessible != EPathAccessibility::ACCESSIBLE)
+				return false;
 
-			return false;
+			return true;
 		};
 
 		for (i=(int)path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
