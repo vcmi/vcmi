@@ -147,7 +147,7 @@ jobs:
 
     - name: Validate JSON
       run: |
-        pip install jstyleson
+        pip3 install json5 jstyleson
         python3 .github/validate_json.py
 
     - name: Dependencies
