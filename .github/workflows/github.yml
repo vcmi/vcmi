@@ -145,6 +145,11 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Validate JSON
+      run: |
+        pip install jstyleson
+        python3 .github/validate_json.py
+
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
