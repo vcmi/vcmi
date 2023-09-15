@@ -29,6 +29,9 @@ Some of H3 mechanics can't be straight considered as bug, but default VCMI behav
 
 # List of extended game functionality
 
+## Adventure map
+- [LCtrl] + LClick – perform a normal click (same as no hero is selected). This make it possible to select other hero instead of changing path of current hero.
+
 ## Quick Army Management
 
 - [LShift] + LClick – splits a half units from the selected stack into an empty slot.
