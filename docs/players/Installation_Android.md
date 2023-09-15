@@ -23,7 +23,7 @@ Installation is a two step process, at first you need to install game, then you 
 
 ### I imported game data files, but music in game is missing
 
-**Solution:** Try to run data import again or copy Mp3 folder from Heroes III manually to Android/data/is.xyz.vcmi/files/vcmi-data/Mp3
+**Solution:** Try to run data import again or place Mp3 folder from Heroes III manually to Android/data/is.xyz.vcmi/files/vcmi-data/Mp3
 
 ### I installed google play version, but have a problem while installing daily builds
 
