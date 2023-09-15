@@ -162,11 +162,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this);
+		h & static_cast<CRewardableObject&>(*this);
 		h & static_cast<IQuestObject&>(*this);
-		//h & rewardType;
-		//h & rID;
-		//h & rVal;
 		h & seerName;
 	}
 protected:
@@ -181,7 +178,6 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	void init(CRandomGenerator & rand) override;
-	void completeQuest() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

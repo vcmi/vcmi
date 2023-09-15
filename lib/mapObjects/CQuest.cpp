@@ -794,20 +794,11 @@ void CGSeerHut::afterAddToMap(CMap* map)
 void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	//quest and reward
+	CRewardableObject::serializeJsonOptions(handler);
 	quest->serializeJson(handler, "quest");
-
-	if(handler.saving)
+	
+	if(!handler.saving)
 	{
-		CRewardableObject::serializeJsonOptions(handler);
-	}
-	else
-	{
-		if(handler.getCurrent()["reward"].isNull() || handler.getCurrent()["reward"].Struct().empty())
-		{
-			CRewardableObject::serializeJsonOptions(handler);
-			return;
-		}
-		
 		//backward compatibility
 		auto s = handler.enterStruct("reward");
 		const JsonNode & rewardsJson = handler.getCurrent();
@@ -827,7 +818,8 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		int val = 0;
 		handler.serializeInt(fullIdentifier, val);
 		
-		Rewardable::Reward reward;
+		Rewardable::VisitInfo vinfo;
+		auto & reward = vinfo.reward;
 		if(metaTypeName == "experience")
 		   reward.heroExperience = val;
 		if(metaTypeName == "mana")
@@ -867,9 +859,8 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 			reward.creatures.emplace_back(rawId, val);
 		}
 		
-		configuration.info.push_back({});
-		configuration.info.back().reward = reward;
-		configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		configuration.info.push_back(vinfo);
 	}
 }
 
@@ -881,12 +872,8 @@ void CGQuestGuard::init(CRandomGenerator & rand)
 	
 	configuration.info.push_back({});
 	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	configuration.info.back().reward.removeObject = true;
 	configuration.canRefuse = true;
-}
-
-void CGQuestGuard::completeQuest() const
-{
-	cb->removeObject(this);
 }
 
 void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -946,7 +933,6 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGBorderGuard::initObj(CRandomGenerator & rand)
 {
-	//ui32 m13489val = subID; //store color as quest info
 	blockVisit = true;
 }
 

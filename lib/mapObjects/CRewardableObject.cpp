@@ -271,7 +271,6 @@ void CRewardableObject::newTurn(CRandomGenerator & rand) const
 void CRewardableObject::initObj(CRandomGenerator & rand)
 {
 	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
-	assert(!configuration.info.empty());
 }
 
 CRewardableObject::CRewardableObject()

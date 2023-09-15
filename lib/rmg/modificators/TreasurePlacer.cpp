@@ -235,7 +235,12 @@ void TreasurePlacer::addAllPossibleObjects()
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
-			obj->resources[EGameResID::GOLD] = i * 5000;
+			
+			Rewardable::VisitInfo reward;
+			reward.reward.resources[EGameResID::GOLD] = i * 5000;
+			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+			obj->configuration.info.push_back(reward);
+			
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
@@ -251,7 +256,12 @@ void TreasurePlacer::addAllPossibleObjects()
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
-			obj->gainedExp = i * 5000;
+			
+			Rewardable::VisitInfo reward;
+			reward.reward.heroExperience = i * 5000;
+			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+			obj->configuration.info.push_back(reward);
+			
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
@@ -307,8 +317,12 @@ void TreasurePlacer::addAllPossibleObjects()
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
-			auto * stack = new CStackInstance(creature, creaturesAmount);
-			obj->creatures.putStack(SlotID(0), stack);
+			
+			Rewardable::VisitInfo reward;
+			reward.reward.creatures.emplace_back(creature, creaturesAmount);
+			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+			obj->configuration.info.push_back(reward);
+			
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
@@ -333,10 +347,13 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
+			Rewardable::VisitInfo reward;
 			for(int j = 0; j < std::min(12, static_cast<int>(spells.size())); j++)
 			{
-				obj->spells.push_back(spells[j]->id);
+				reward.reward.spells.push_back(spells[j]->id);
 			}
+			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+			obj->configuration.info.push_back(reward);
 			
 			return obj;
 		};
@@ -362,10 +379,13 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
+			Rewardable::VisitInfo reward;
 			for(int j = 0; j < std::min(15, static_cast<int>(spells.size())); j++)
 			{
-				obj->spells.push_back(spells[j]->id);
+				reward.reward.spells.push_back(spells[j]->id);
 			}
+			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+			obj->configuration.info.push_back(reward);
 			
 			return obj;
 		};
@@ -390,10 +410,13 @@ void TreasurePlacer::addAllPossibleObjects()
 		}
 		
 		RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
+		Rewardable::VisitInfo reward;
 		for(int j = 0; j < std::min(60, static_cast<int>(spells.size())); j++)
 		{
-			obj->spells.push_back(spells[j]->id);
+			reward.reward.spells.push_back(spells[j]->id);
 		}
+		reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		obj->configuration.info.push_back(reward);
 		
 		return obj;
 	};
@@ -442,11 +465,10 @@ void TreasurePlacer::addAllPossibleObjects()
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
 				
-				Rewardable::Reward reward;
-				reward.creatures.emplace_back(creature->getId(), creaturesAmount);
-				obj->configuration.info.push_back({});
-				obj->configuration.info.back().reward = reward;
-				obj->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+				Rewardable::VisitInfo reward;
+				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
+				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+				obj->configuration.info.push_back(reward);
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				
@@ -494,11 +516,10 @@ void TreasurePlacer::addAllPossibleObjects()
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
 				
-				Rewardable::Reward reward;
-				reward.heroExperience = generator.getConfig().questRewardValues[i];
-				obj->configuration.info.push_back({});
-				obj->configuration.info.back().reward = reward;
-				obj->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+				Rewardable::VisitInfo reward;
+				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
+				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+				obj->configuration.info.push_back(reward);
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();
@@ -519,11 +540,10 @@ void TreasurePlacer::addAllPossibleObjects()
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
 				
-				Rewardable::Reward reward;
-				reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
-				obj->configuration.info.push_back({});
-				obj->configuration.info.back().reward = reward;
-				obj->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+				Rewardable::VisitInfo reward;
+				reward.reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
+				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+				obj->configuration.info.push_back(reward);
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();

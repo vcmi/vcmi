@@ -9,63 +9,31 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
+#include "CRewardableObject.h"
 #include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct InfoWindow;
 
-class DLL_LINKAGE CGPandoraBox : public CArmedInstance
+class DLL_LINKAGE CGPandoraBox : public CRewardableObject
 {
 public:
 	std::string message;
-	mutable bool hasGuardians = false; //helper - after battle even though we have no stacks, allows us to know that there was battle
-
-	//gained things:
-	ui32 gainedExp = 0;
-	si32 manaDiff = 0; //amount of gained / lost mana
-	si32 moraleDiff = 0; //morale modifier
-	si32 luckDiff = 0; //luck modifier
-	TResources resources;//gained / lost resources
-	std::vector<si32> primskills;//gained / lost prim skills
-	std::vector<SecondarySkill> abilities; //gained abilities
-	std::vector<si32> abilityLevels; //levels of gained abilities
-	std::vector<ArtifactID> artifacts; //gained artifacts
-	std::vector<SpellID> spells; //gained spells
-	CCreatureSet creatures; //gained creatures
 
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
-	void heroLevelUpDone(const CGHeroInstance *hero) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this);
+		h & static_cast<CRewardableObject&>(*this);
 		h & message;
-		h & hasGuardians;
-		h & gainedExp;
-		h & manaDiff;
-		h & moraleDiff;
-		h & luckDiff;
-		h & resources;
-		h & primskills;
-		h & abilities;
-		h & abilityLevels;
-		h & artifacts;
-		h & spells;
-		h & creatures;
 	}
 protected:
-	void giveContentsUpToExp(const CGHeroInstance *h) const;
-	void giveContentsAfterExp(const CGHeroInstance *h) const;
+	virtual void init();
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-private:
-	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
-	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
-	virtual void afterSuccessfulVisit() const;
 };
 
 class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
@@ -87,10 +55,10 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 protected:
+	void init() override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 private:
 	void activated(const CGHeroInstance * h) const;
-	void afterSuccessfulVisit() const override;
 };
 
 VCMI_LIB_NAMESPACE_END

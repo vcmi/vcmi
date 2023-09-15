@@ -1019,34 +1019,46 @@ CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & mapPosition)
 void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPosition)
 {
 	readMessageAndGuards(object->message, object, mapPosition);
+	Rewardable::VisitInfo vinfo;
+	auto & reward = vinfo.reward;
+	
+	reward.heroExperience = reader->readUInt32();
+	reward.manaDiff = reader->readInt32();
+	reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, reader->readUInt8(), object->id);
+	reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, reader->readUInt8(), object->id);
 
-	object->gainedExp = reader->readUInt32();
-	object->manaDiff = reader->readInt32();
-	object->moraleDiff = reader->readInt8();
-	object->luckDiff = reader->readInt8();
-
-	reader->readResourses(object->resources);
-
-	object->primskills.resize(GameConstants::PRIMARY_SKILLS);
+	reader->readResourses(reward.resources);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
-		object->primskills[x] = reader->readUInt8();
+		reward.primary.at(x) = reader->readUInt8();
 
 	int gabn = reader->readUInt8(); //number of gained abilities
 	for(int oo = 0; oo < gabn; ++oo)
 	{
-		object->abilities.emplace_back(reader->readSkill());
-		object->abilityLevels.push_back(reader->readUInt8());
+		auto rId = reader->readSkill();
+		auto rVal = reader->readUInt8();
+		
+		reward.secondary[rId] = rVal;
 	}
 	int gart = reader->readUInt8(); //number of gained artifacts
 	for(int oo = 0; oo < gart; ++oo)
-		object->artifacts.emplace_back(reader->readArtifact());
+		reward.artifacts.push_back(reader->readArtifact());
 
 	int gspel = reader->readUInt8(); //number of gained spells
 	for(int oo = 0; oo < gspel; ++oo)
-		object->spells.emplace_back(reader->readSpell());
+		reward.spells.push_back(reader->readSpell());
 
 	int gcre = reader->readUInt8(); //number of gained creatures
-	readCreatureSet(&object->creatures, gcre);
+	for(int oo = 0; oo < gcre; ++oo)
+	{
+		auto rId = reader->readCreature();
+		auto rVal = reader->readUInt16();
+		
+		reward.creatures.emplace_back(rId, rVal);
+	}
+	
+	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	object->configuration.info.push_back(vinfo);
+	
 	reader->skipZero(8);
 }
 
@@ -1843,7 +1855,8 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 	if(hut->quest->missionType)
 	{
 		auto rewardType = reader->readUInt8();
-		Rewardable::Reward reward;
+		Rewardable::VisitInfo vinfo;
+		auto & reward = vinfo.reward;
 		switch(rewardType)
 		{
 			case 0: //NOTHING
@@ -1922,9 +1935,8 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 			}
 		}
 		
-		hut->configuration.info.push_back({});
-		hut->configuration.info.back().reward = reward;
-		hut->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		hut->configuration.info.push_back(vinfo);
 	}
 	else
 	{
