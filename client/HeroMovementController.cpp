@@ -30,45 +30,31 @@
 #include "../lib/NetPacks.h"
 #include "../lib/CondSh.h"
 
-// Code flow of movement process:
-// - Player requests movement (e.g. press "move" button)
-// -> calls doMoveHero (GUI thread)
-// -> -> sends LOCPLINT->cb->moveHero
-// - Server sends reply
-// -> calls heroMoved (NETWORK thread)
-// -> -> animation starts, sound starts
-// -> -> waits for animation to finish
-// -> -> if player have requested stop and path is not finished, calls doMoveHero again
-//
-// - Players requests movement stop (e.g. mouse click during movement)
-// -> calls movementStopRequested
-// -> -> sets flag that movement should be aborted
-
-HeroMovementController::HeroMovementController()
+std::optional<int3> HeroMovementController::getLastTile(const CGHeroInstance * hero) const
 {
-	destinationTeleport = ObjectInstanceID();
-	destinationTeleportPos = int3(-1);
-	duringMovement = false;
+	if (!LOCPLINT->localState->hasPath(hero))
+		return std::nullopt;
+
+	return LOCPLINT->localState->getPath(hero).endPos();
 }
 
-void HeroMovementController::setMovementStatus(bool value)
+std::optional<int3> HeroMovementController::getNextTile(const CGHeroInstance * hero) const
 {
-	duringMovement = value;
-	if (value)
-		CCS->curh->hide();
-	else
-		CCS->curh->show();
+	if (!LOCPLINT->localState->hasPath(hero))
+		return std::nullopt;
+
+	return LOCPLINT->localState->getPath(hero).nextNode().coord;
 }
 
 bool HeroMovementController::isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const
 {
 	assert(LOCPLINT->localState->hasPath(hero));
-	assert(movementState == EMoveState::DURING_MOVE);
+	assert(duringMovement);
 
 	if (!LOCPLINT->localState->hasPath(hero))
 		return false;
 
-	if (garrison->visitableAt(*LOCPLINT->localState->getLastTile(hero)))
+	if (garrison->visitableAt(*getLastTile(hero)))
 		return false; // hero want to enter garrison, not pass through it
 
 	return true;
@@ -79,55 +65,50 @@ bool HeroMovementController::isHeroMoving() const
 	return duringMovement;
 }
 
-void HeroMovementController::onMoveHeroApplied()
-{
-	assert(movementState == EMoveState::DURING_MOVE);
-
-	if(movementState == EMoveState::DURING_MOVE)
-	{
-		assert(destinationTeleport == ObjectInstanceID::NONE);
-		movementState = EMoveState::CONTINUE_MOVE;
-	}
-}
-
-void HeroMovementController::onQueryReplyApplied()
-{
-	assert(movementState == EMoveState::DURING_MOVE);
-
-	if(movementState == EMoveState::DURING_MOVE)
-	{
-		// After teleportation via CGTeleport object is finished
-		assert(destinationTeleport != ObjectInstanceID::NONE);
-		destinationTeleport = ObjectInstanceID();
-		destinationTeleportPos = int3(-1);
-		movementState = EMoveState::CONTINUE_MOVE;
-	}
-}
-
 void HeroMovementController::onPlayerTurnStarted()
 {
-	assert(movementState == EMoveState::STOP_MOVE);
-	movementState = EMoveState::STOP_MOVE;
+	assert(duringMovement == false);
+	assert(stoppingMovement == false);
+	duringMovement = false;
 }
 
 void HeroMovementController::onBattleStarted()
 {
-	assert(movementState == EMoveState::STOP_MOVE);
 	// when battle starts, game will send battleStart pack *before* movement confirmation
 	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
 	// leading to several bugs, such as blocked input during intro
-	movementState = EMoveState::STOP_MOVE;
+	// FIXME: should be on hero visit
+	assert(duringMovement == false);
+	assert(stoppingMovement == false);
+	duringMovement = false;
 }
 
-void HeroMovementController::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	assert(destinationTeleport != ObjectInstanceID::NONE);
+	if (!LOCPLINT->localState->hasPath(hero))
+	{
+		assert(exits.size() == 1); // select random? Let server select?
+		LOCPLINT->cb->selectionMade(0, askID);
+		return;
+	}
 
-	auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
-	assert(vstd::contains(exits, neededExit));
+	const auto & heroPath = LOCPLINT->localState->getPath(hero);
+	const auto & nextNode = heroPath.nextNode();
 
-	int choosenExit = vstd::find_pos(exits, neededExit);
-	LOCPLINT->cb->selectionMade(choosenExit, askID);
+	for (size_t i = 0; i < exits.size(); ++i)
+	{
+		const auto * teleporter = LOCPLINT->cb->getObj(exits[i].first);
+
+		if (teleporter && teleporter->visitableAt(nextNode.coord))
+		{
+			LOCPLINT->cb->selectionMade(i, askID);
+			return;
+		}
+	}
+
+	assert(0); // exit not found? How? select random? Let server select?
+	LOCPLINT->cb->selectionMade(0, askID);
+	return;
 }
 
 void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMoveHero & details)
@@ -135,13 +116,15 @@ void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMo
 	if (hero->tempOwner != LOCPLINT->playerID)
 		return;
 
+	if (!LOCPLINT->localState->hasPath(hero))
+		return; // may happen when hero teleports
+
 	assert(LOCPLINT->makingTurn);
-	assert(LOCPLINT->localState->hasPath(hero));
-	assert(LOCPLINT->localState->getNextTile(hero).has_value());
+	assert(getNextTile(hero).has_value());
 
-	bool directlyAttackingCreature = details.attackedFrom.has_value() && LOCPLINT->localState->getLastTile(hero) == details.attackedFrom;
+	bool directlyAttackingCreature = details.attackedFrom.has_value() && getLastTile(hero) == details.attackedFrom;
 
-	auto desiredTarget = LOCPLINT->localState->getNextTile(hero);
+	auto desiredTarget = getNextTile(hero);
 	auto actualTarget = hero->convertToVisitablePos(details.end);
 
 	//don't erase path when revisiting with spacebar
@@ -168,6 +151,8 @@ void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMo
 
 void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMoveHero & details)
 {
+	//assert(duringMovement == true); // May be false if hero teleported
+
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
 		if(hero->getRemovalSound() && hero->tempOwner == LOCPLINT->playerID)
@@ -185,8 +170,8 @@ void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMov
 
 	if(details.stopMovement()) //hero failed to move
 	{
-		movementState = EMoveState::STOP_MOVE;
-		adventureInt->onHeroChanged(hero);
+		if (duringMovement)
+			endHeroMove(hero);
 		return;
 	}
 
@@ -194,13 +179,6 @@ void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMov
 
 	//move finished
 	adventureInt->onHeroChanged(hero);
-
-	//check if user cancelled movement
-	if (GH.input().ignoreEventsUntilInput())
-		movementState = EMoveState::STOP_MOVE;
-
-	if (movementState == EMoveState::WAITING_MOVE)
-		movementState = EMoveState::DURING_MOVE;
 
 //	// Hero attacked creature directly, set direction to face it.
 //	if (directlyAttackingCreature)
@@ -218,12 +196,51 @@ void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMov
 //	}
 }
 
-void HeroMovementController::movementStopRequested()
+void HeroMovementController::onMoveHeroApplied()
 {
-	assert(movementState == EMoveState::DURING_MOVE);
+	auto const * hero = LOCPLINT->localState->getCurrentHero();
 
-	if (movementState == EMoveState::DURING_MOVE)//if we are in the middle of hero movement
-		movementState = EMoveState::STOP_MOVE;
+	assert(hero);
+
+	//check if user cancelled movement
+	if (GH.input().ignoreEventsUntilInput())
+		stoppingMovement = true;
+
+	if (duringMovement)
+	{
+		bool canMove = LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0;
+		bool wantStop = stoppingMovement;
+		bool canStop = !canMove || canHeroStopAtNode(LOCPLINT->localState->getPath(hero).currNode());
+
+		if (!canMove)
+		{
+			endHeroMove(hero);
+		}
+		else if ( wantStop && canStop )
+		{
+			endHeroMove(hero);
+		}
+		else
+		{
+			moveHeroOnce(hero, LOCPLINT->localState->getPath(hero));
+		}
+	}
+}
+
+void HeroMovementController::movementAbortRequested()
+{
+	if(duringMovement)
+		endHeroMove(LOCPLINT->localState->getCurrentHero());
+}
+
+void HeroMovementController::endHeroMove(const CGHeroInstance * hero)
+{
+	assert(duringMovement == true);
+	duringMovement = false;
+	stoppingMovement = false;
+	stopMovementSound();
+	adventureInt->onHeroChanged(hero);
+	CCS->curh->show();
 }
 
 AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType)
@@ -241,8 +258,8 @@ AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * her
 	if (hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
 		return AudioPath::builtin("HORSE10.wav");
 
-	auto prevTile = LOCPLINT->cb->getTile(hero->convertToVisitablePos(posPrev));
-	auto nextTile = LOCPLINT->cb->getTile(hero->convertToVisitablePos(posNext));
+	auto prevTile = LOCPLINT->cb->getTile(posPrev);
+	auto nextTile = LOCPLINT->cb->getTile(posNext);
 
 	auto prevRoad = prevTile->roadType;
 	auto nextRoad = nextTile->roadType;
@@ -254,155 +271,93 @@ AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * her
 		return nextTile->terType->horseSoundPenalty;
 };
 
-void HeroMovementController::updateMovementSound(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType)
+void HeroMovementController::updateMovementSound(const CGHeroInstance * h, int3 posPrev, int3 nextCoord, EPathNodeAction moveType)
 {
-
 	// Start a new sound for the hero movement or let the existing one carry on.
-	AudioPath newSoundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
+	AudioPath newSoundName = getMovementSoundFor(h, posPrev, nextCoord, moveType);
 
-	if(newSoundName != soundName)
+	if(newSoundName != currentMovementSoundName)
 	{
-		soundName = newSoundName;
+		currentMovementSoundName = newSoundName;
 
-		CCS->soundh->stopSound(soundChannel);
-		if (!soundName.empty())
-			soundChannel = CCS->soundh->playSound(soundName, -1);
+		if (currentMovementSoundChannel != -1)
+			CCS->soundh->stopSound(currentMovementSoundChannel);
+
+		if (!currentMovementSoundName.empty())
+			currentMovementSoundChannel = CCS->soundh->playSound(currentMovementSoundName, -1, true);
 		else
-			soundChannel = -1;
+			currentMovementSoundChannel = -1;
 	}
-
-
-	int soundChannel = -1;
-	AudioPath soundName;
 }
 
 void HeroMovementController::stopMovementSound()
 {
-	CCS->soundh->stopSound(soundChannel);
+	CCS->soundh->stopSound(currentMovementSoundChannel);
+	currentMovementSoundChannel = -1;
+	currentMovementSoundName = AudioPath();
+}
+
+bool HeroMovementController::canHeroStopAtNode(const CGPathNode & node) const
+{
+	if (node.layer != EPathfindingLayer::LAND && node.layer != EPathfindingLayer::SAIL)
+		return false;
+
+	if (node.accessible != EPathAccessibility::ACCESSIBLE)
+		return false;
+
+	return true;
 }
 
 void HeroMovementController::movementStartRequested(const CGHeroInstance * h, const CGPath & path)
 {
-	setMovementStatus(true);
+	assert(duringMovement == false);
+	duringMovement = true;
 
-	auto getObj = [&](int3 coord, bool ignoreHero)
+	CCS->curh->show();
+	moveHeroOnce(h, path);
+}
+
+void HeroMovementController::moveHeroOnce(const CGHeroInstance * h, const CGPath & path)
+{
+	assert(duringMovement == true);
+
+	const auto & currNode = path.currNode();
+	const auto & nextNode = path.nextNode();
+
+	assert(nextNode.turns == 0);
+	assert(currNode.coord == h->visitablePos());
+
+	int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
+
+	if (nextNode.isTeleportAction())
 	{
-		return LOCPLINT->cb->getTile(h->convertToVisitablePos(coord))->topVisitableObj(ignoreHero);
-	};
-
-	auto isTeleportAction = [&](EPathNodeAction action) -> bool
-	{
-		if (action != EPathNodeAction::TELEPORT_NORMAL &&
-			action != EPathNodeAction::TELEPORT_BLOCKING_VISIT &&
-			action != EPathNodeAction::TELEPORT_BATTLE)
-		{
-			return false;
-		}
-
-		return true;
-	};
-
-	auto getDestTeleportObj = [&](const CGObjectInstance * currentObject, const CGObjectInstance * nextObjectTop, const CGObjectInstance * nextObject) -> const CGObjectInstance *
-	{
-		if (CGTeleport::isConnected(currentObject, nextObjectTop))
-			return nextObjectTop;
-
-		if (nextObjectTop && nextObjectTop->ID == Obj::HERO && CGTeleport::isConnected(currentObject, nextObject))
-		{
-			return nextObject;
-		}
-
-		return nullptr;
-	};
-
-	auto doMovement = [&](int3 dst, bool transit)
-	{
-		movementState = EMoveState::WAITING_MOVE;
-		LOCPLINT->cb->moveHero(h, dst, transit);
-		while(movementState != EMoveState::STOP_MOVE && movementState != EMoveState::CONTINUE_MOVE)
-		{
-			assert(0);
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
-		}
-	};
-
-	auto canStop = [&](const CGPathNode * node) -> bool
-	{
-		if (node->layer != EPathfindingLayer::LAND && node->layer != EPathfindingLayer::SAIL)
-			return false;
-
-		if (node->accessible != EPathAccessibility::ACCESSIBLE)
-			return false;
-
-		return true;
-	};
-
-	int i = 1;
-	movementState = EMoveState::CONTINUE_MOVE;
-
-	for (i=(int)path.nodes.size()-1; i>0 && (movementState == EMoveState::CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
-	{
-		int3 prevCoord = h->convertFromVisitablePos(path.nodes[i].coord);
-		int3 nextCoord = h->convertFromVisitablePos(path.nodes[i-1].coord);
-
-		auto prevObject = getObj(prevCoord, prevCoord == h->pos);
-		auto nextObjectTop = getObj(nextCoord, false);
-		auto nextObject = getObj(nextCoord, true);
-		auto destTeleportObj = getDestTeleportObj(prevObject, nextObjectTop, nextObject);
-		if (isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
-		{
-			stopMovementSound();
-			destinationTeleport = destTeleportObj->id;
-			destinationTeleportPos = nextCoord;
-			doMovement(h->pos, false);
-			if (path.nodes[i-1].action == EPathNodeAction::TELEPORT_BLOCKING_VISIT
-				|| path.nodes[i-1].action == EPathNodeAction::TELEPORT_BATTLE)
-			{
-				destinationTeleport = ObjectInstanceID();
-				destinationTeleportPos = int3(-1);
-			}
-
-			if(i != path.nodes.size() - 1)
-				updateMovementSound(h, prevCoord, nextCoord, path.nodes[i-1].action);
-
-			continue;
-		}
-
-		if (path.nodes[i-1].turns)
-		{ //stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
-			movementState = EMoveState::STOP_MOVE;
-			break;
-		}
-
-		updateMovementSound(h, prevCoord, nextCoord, path.nodes[i-1].action);
-
-		assert(h->pos.z == nextCoord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
-		int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
-		logGlobal->trace("Requesting hero movement to %s", endpos.toString());
-
-		bool useTransit = false;
-		if ((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-			&& (CGTeleport::isConnected(nextObjectTop, getObj(h->convertFromVisitablePos(path.nodes[i-2].coord), false))
-				|| CGTeleport::isTeleport(nextObjectTop)))
-		{ // Hero should be able to go through object if it's allow transit
-			useTransit = true;
-		}
-		else if (path.nodes[i-1].layer == EPathfindingLayer::AIR)
-			useTransit = true;
-
-		doMovement(endpos, useTransit);
-
-		logGlobal->trace("Resuming %s", __FUNCTION__);
-		bool guarded = LOCPLINT->cb->isInTheMap(LOCPLINT->cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
-		if ((!useTransit && guarded) || LOCPLINT->showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
-			break;
+		stopMovementSound();
+		LOCPLINT->cb->moveHero(h, nextCoord, false);
+		return;
 	}
-	stopMovementSound();
+	else
+	{
+		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
 
-	//Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement
-	if (!LOCPLINT->showingDialog->get())
-		GH.fakeMouseMove();
+		assert(h->pos.z == nextNode.coord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
 
-	CGI->mh->waitForOngoingAnimations();
-	setMovementStatus(false);
+		logGlobal->trace("Requesting hero movement to %s", nextNode.coord.toString());
+
+		bool useTransit = nextNode.layer == EPathfindingLayer::AIR;
+		LOCPLINT->cb->moveHero(h, nextCoord, useTransit);
+		return;
+	}
+
+//	bool guarded = LOCPLINT->cb->isInTheMap(LOCPLINT->cb->getGuardingCreaturePosition(nextCoord - int3(1, 0, 0)));
+//	if ((!useTransit && guarded) || LOCPLINT->showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
+//		break;
+
+//	stopMovementSound();
+//
+//	//Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement
+//	if (!LOCPLINT->showingDialog->get())
+//		GH.fakeMouseMove();
+//
+//	CGI->mh->waitForOngoingAnimations();
+//	setMovementStatus(false);
 }

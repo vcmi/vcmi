@@ -143,6 +143,18 @@ struct DLL_LINKAGE CGPathNode
 		return turns < 255;
 	}
 
+	bool isTeleportAction() const
+	{
+		if (action != EPathNodeAction::TELEPORT_NORMAL &&
+			action != EPathNodeAction::TELEPORT_BLOCKING_VISIT &&
+			action != EPathNodeAction::TELEPORT_BATTLE)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	using TFibHeap = boost::heap::fibonacci_heap<CGPathNode *, boost::heap::compare<NodeComparer<CGPathNode>>>;
 
 	TFibHeap::handle_type pqHandle;
@@ -155,6 +167,13 @@ private:
 struct DLL_LINKAGE CGPath
 {
 	std::vector<CGPathNode> nodes; //just get node by node
+
+	/// Starting position of path, matches location of hero
+	const CGPathNode & currNode() const;
+	/// First node in path, this is where hero will move next
+	const CGPathNode & nextNode() const;
+	/// Last node in path, this is what hero wants to reach in the end
+	const CGPathNode & lastNode() const;
 
 	int3 startPos() const; // start point
 	int3 endPos() const; //destination point

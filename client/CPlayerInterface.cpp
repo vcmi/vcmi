@@ -131,7 +131,8 @@ struct HeroObjectRetriever
 };
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player):
-	localState(std::make_unique<PlayerLocalState>(*this))
+	localState(std::make_unique<PlayerLocalState>(*this)),
+	movementController(std::make_unique<HeroMovementController>())
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
 	GH.defActionsDef = 0;
@@ -935,6 +936,9 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 		waitWhileDialog(); //Fix for mantis #98
 		adventureInt->showInfoBoxMessage(components, text, timer);
 
+		// abort movement, if any. Strictly speaking unnecessary, but prevents some edge cases, like movement sound on visiting Magi Hut with "show messages in status window" on
+		movementController->movementAbortRequested();
+
 		if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
 			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		return;
@@ -980,7 +984,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
-		movementController->movementStopRequested(); // interrupt movement to show dialog
+		movementController->movementAbortRequested(); // interrupt movement to show dialog
 		GH.windows().pushWindow(temp);
 	}
 	else
@@ -1003,7 +1007,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	movementController->movementStopRequested();
+	movementController->movementAbortRequested();
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
@@ -1013,7 +1017,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 
-	movementController->movementStopRequested();
+	movementController->movementAbortRequested();
 	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 
 	if (!selection && cancel) //simple yes/no dialog
@@ -1046,10 +1050,10 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	}
 }
 
-void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void CPlayerInterface::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	movementController->showTeleportDialog(channel, exits, impassable, askID);
+	movementController->showTeleportDialog(hero, channel, exits, impassable, askID);
 }
 
 void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
@@ -1163,7 +1167,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	assert(LOCPLINT->makingTurn);
 	assert(h);
 	assert(!showingDialog->get());
-	assert(!dialogs.empty());
+	assert(dialogs.empty());
 
 	LOG_TRACE(logGlobal);
 	if (!LOCPLINT->makingTurn)
@@ -1230,15 +1234,9 @@ void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, con
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-
 	if(pa->packType == typeList.getTypeID<MoveHero>())
 		movementController->onMoveHeroApplied();
-
-	if (pa->packType == typeList.getTypeID<QueryReply>())
-		movementController->onQueryReplyApplied();
 }
-
 
 void CPlayerInterface::showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {

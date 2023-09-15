@@ -18,6 +18,7 @@ using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 class CGHeroInstance;
 class CArmedInstance;
+struct CGPathNode;
 
 struct CGPath;
 struct TryMoveHero;
@@ -26,45 +27,45 @@ VCMI_LIB_NAMESPACE_END
 
 class HeroMovementController
 {
-	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
-	int3 destinationTeleportPos;
+	/// there is an ongoing movement loop, in one or another stage
+	bool duringMovement = false;
+	/// movement was requested to be terminated, e.g. by player or due to inability to move
+	bool stoppingMovement = false;
 
-	bool duringMovement;
+	AudioPath currentMovementSoundName;
+	int currentMovementSoundChannel = -1;
 
+	/// return final node in a path, if exists
+	std::optional<int3> getLastTile(const CGHeroInstance * h) const;
+	/// return first path in a path, if exists
+	std::optional<int3> getNextTile(const CGHeroInstance * h) const;
 
-	enum class EMoveState
-	{
-		STOP_MOVE,
-		WAITING_MOVE,
-		CONTINUE_MOVE,
-		DURING_MOVE
-	};
-
-	EMoveState movementState;
-
-	void setMovementStatus(bool value);
+	bool canHeroStopAtNode(const CGPathNode & node) const;
 
 	void updatePath(const CGHeroInstance * hero, const TryMoveHero & details);
+
+	/// Moves hero 1 tile / path node
+	void moveHeroOnce(const CGHeroInstance * h, const CGPath & path);
+
+	void endHeroMove(const CGHeroInstance * h);
 
 	AudioPath getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType);
 	void updateMovementSound(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType);
 	void stopMovementSound();
-public:
-	HeroMovementController();
 
+public:
 	// const queries
 	bool isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const;
 	bool isHeroMoving() const;
 
 	// netpack handlers
 	void onMoveHeroApplied();
-	void onQueryReplyApplied();
 	void onPlayerTurnStarted();
 	void onBattleStarted();
-	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID);
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID);
 	void heroMoved(const CGHeroInstance * hero, const TryMoveHero & details);
 
 	// UI handlers
 	void movementStartRequested(const CGHeroInstance * h, const CGPath & path);
-	void movementStopRequested();
+	void movementAbortRequested();
 };
