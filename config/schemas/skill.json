@@ -63,19 +63,18 @@
 		},
 		"gainChance" : {
 			"description" : "Chance for the skill to be offered on level-up (heroClass may override)",
-				"type" : "object",
-				"required" : ["might", "magic"],
-				"properties" : {
-					"might" : {
-						"type" : "number",
-						"description" : "Chance for hero classes with might affinity"
-					},
-					"magic" : {
-						"type" : "number",
-						"description" : "Chance for hero classes with magic affinity"
-					}
+			"type" : "object",
+			"required" : ["might", "magic"],
+			"properties" : {
+				"might" : {
+					"type" : "number",
+					"description" : "Chance for hero classes with might affinity"
+				},
+				"magic" : {
+					"type" : "number",
+					"description" : "Chance for hero classes with magic affinity"
 				}
-			]
+			}
 		},
 		"base" : {
 			"type" : "object",
