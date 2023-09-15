@@ -1,13 +1,14 @@
-import jstyleson
+import re
 from pathlib import Path
 from pprint import pprint
-import yaml
+
 import json5
-import re
+import jstyleson
+import yaml
 
 # 'json', 'json5' or 'yaml'
 # json:  strict, but doesn't preserve line numbers necessarily, since it strips comments before parsing
-# json5: strict and preserves line numbers even for files will with line comments
+# json5: strict and preserves line numbers even for files with line comments
 # yaml:  less strict, allows e.g. leading zeros
 VALIDATION_TYPE = 'json5'
 
@@ -20,10 +21,8 @@ for path in sorted(Path('.').glob('**/*.json')):
             if VALIDATION_TYPE == 'json':
                 jstyleson.load(file)
             if VALIDATION_TYPE == 'json5':
-                
                 json5.load(file)
             elif VALIDATION_TYPE == 'yaml':
-                
                 file = file.read().replace("\t", "    ")
                 file = file.replace("//", "#")
                 yaml.safe_load(file)
@@ -38,7 +37,6 @@ for path in sorted(Path('.').glob('**/*.json')):
             # https://stackoverflow.com/a/72850269/2278742
             error_pos = f"{path_str}:{exc.lineno}:{exc.colno}"
             print(error_pos)
-            # error_msg = "position": position_msg, "exception": exc
         if hasattr(exc, 'problem_mark'):
             mark = exc.problem_mark
             error_pos = f"{path_str}:{mark.line+1}:{mark.column+1}"
