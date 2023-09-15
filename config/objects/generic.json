@@ -548,7 +548,7 @@
 				"templates" :
 				{
 					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
-					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] },
+					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] }
 				},
 				"rmg" : {
 					"value"		: 100,
@@ -876,6 +876,21 @@
 				"index" : 0,
 				"aiValue" : 0,
 				"rmg" : {
+				},
+				"templates" : {
+					"normal" : {
+						"animation" : "AVXMKTT0",
+						"editorAnimation" : "AVXMKTT0",
+						"visitableFrom" : [
+							"---",
+							"--+",
+							"+++"
+						],
+						"mask" : [
+							"VV",
+							"BV"
+						]
+					}
 				}
 			}
 		}
