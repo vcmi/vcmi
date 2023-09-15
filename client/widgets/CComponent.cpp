@@ -269,6 +269,12 @@ void CSelectableComponent::clickPressed(const Point & cursorPosition)
 		onSelect();
 }
 
+void CSelectableComponent::clickDouble(const Point & cursorPosition)
+{
+	if(onChoose)
+		onChoose();
+}
+
 void CSelectableComponent::init()
 {
 	selected = false;
@@ -278,7 +284,7 @@ CSelectableComponent::CSelectableComponent(const Component &c, std::function<voi
 	CComponent(c),onSelect(OnSelect)
 {
 	setRedrawParent(true);
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | DOUBLECLICK | KEYBOARD);
 	init();
 }
 
@@ -286,7 +292,7 @@ CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, ESize i
 	CComponent(Type,Sub,Val, imageSize),onSelect(OnSelect)
 {
 	setRedrawParent(true);
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | DOUBLECLICK | KEYBOARD);
 	init();
 }
 
