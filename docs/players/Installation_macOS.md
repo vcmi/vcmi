@@ -16,4 +16,4 @@ Please report about gameplay problem on forums: [Help & Bugs](https://forum.vcmi
 # Step 2: Installing Heroes III data files
 
 1.  Find a way to unpack Windows Heroes III or GOG installer. For example, use `vcmibuilder` script inside app bundle or install the game with [CrossOver](https://www.codeweavers.com/crossover) or [Wineskin](https://github.com/Gcenx/WineskinServer).
-2.  Copy (or symlink) **Data**, **Maps** and **Mp3** directories from Heroes III to:`~/Library/Application\ Support/vcmi/`
+2.  Symlink **Data**, **Maps** and **Mp3** directories from Heroes III to:`~/Library/Application\ Support/vcmi/`
