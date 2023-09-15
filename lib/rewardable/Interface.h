@@ -44,6 +44,8 @@ public:
 	
 	Rewardable::Configuration configuration;
 	
+	void serializeJson(JsonSerializeFormat & handler);
+	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & configuration;

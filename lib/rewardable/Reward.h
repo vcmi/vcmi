@@ -110,6 +110,8 @@ struct DLL_LINKAGE Reward
 		if(version >= 821)
 			h & spellCast;
 	}
+	
+	void serializeJson(JsonSerializeFormat & handler);
 };
 }
 

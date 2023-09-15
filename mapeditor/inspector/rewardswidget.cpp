@@ -293,7 +293,9 @@ bool RewardsWidget::commitChanges()
 		seerhut->configuration.info.clear();
 		for(int row = 0; row < rewards; ++row)
 		{
-			Rewardable::Reward reward;
+			seerhut->configuration.info.emplace_back();
+			seerhut->configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+			Rewardable::Reward & reward = seerhut->configuration.info.back().reward;
 			haveRewards = true;
 			int typeId = ui->rewardsTable->item(row, 0)->data(Qt::UserRole).toInt();
 			int listId = ui->rewardsTable->item(row, 1) ? ui->rewardsTable->item(row, 1)->data(Qt::UserRole).toInt() : 0;

@@ -12,6 +12,9 @@
 #include "Reward.h"
 
 #include "../mapObjects/CGHeroInstance.h"
+#include "../serializer/JsonSerializeFormat.h"
+#include "../constants/StringConstants.h"
+#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -91,6 +94,99 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps,
 	{
 		if (resources[i] !=0)
 			comps.emplace_back(Component::EComponentType::RESOURCE, static_cast<ui16>(i), resources[i], 0);
+	}
+}
+
+void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
+{
+	resources.serializeJson(handler, "resources");
+	handler.serializeBool("removeObject", removeObject);
+	handler.serializeInt("manaPercentage", manaPercentage);
+	handler.serializeInt("movePercentage", movePercentage);
+	handler.serializeInt("heroExperience", heroExperience);
+	handler.serializeInt("heroLevel", heroLevel);
+	handler.serializeInt("manaDiff", manaDiff);
+	handler.serializeInt("manaOverflowFactor", manaOverflowFactor);
+	handler.serializeInt("movePoints", movePoints);
+	handler.serializeIdArray("artifacts", artifacts);
+	handler.serializeIdArray("spells", spells);
+	handler.enterArray("creatures").serializeStruct(creatures);
+	{
+		auto a = handler.enterArray("primary");
+		a.syncSize(primary);
+		for(int i = 0; i < primary.size(); ++i)
+			a.serializeInt(i, primary[i]);
+	}
+	
+	{
+		auto a = handler.enterArray("secondary");
+		std::vector<std::pair<std::string, std::string>> fieldValue;
+		if(handler.saving)
+		{
+			for(auto & i : secondary)
+			{
+				auto key = VLC->skillh->encodeSkill(i.first);
+				auto value = NSecondarySkill::levels.at(i.second);
+				fieldValue.emplace_back(key, value);
+			}
+		}
+		a.syncSize(fieldValue);
+		for(int i = 0; i < fieldValue.size(); ++i)
+		{
+			auto e = a.enterStruct(i);
+			e->serializeString("skill", fieldValue[i].first);
+			e->serializeString("level", fieldValue[i].second);
+		}
+		if(!handler.saving)
+		{
+			for(auto & i : fieldValue)
+			{
+				const int skillId = VLC->skillh->decodeSkill(i.first);
+				if(skillId < 0)
+				{
+					logGlobal->error("Invalid secondary skill %s", i.first);
+					continue;
+				}
+				
+				const int level = vstd::find_pos(NSecondarySkill::levels, i.second);
+				if(level < 0)
+				{
+					logGlobal->error("Invalid secondary skill level%s", i.second);
+					continue;
+				}
+				
+				secondary[SecondarySkill(skillId)] = level;
+			}
+				
+		}
+	}
+	
+	{
+		auto a = handler.enterArray("creaturesChange");
+		std::vector<std::pair<CreatureID, CreatureID>> fieldValue;
+		if(handler.saving)
+		{
+			for(auto & i : creaturesChange)
+				fieldValue.push_back(i);
+		}
+		a.syncSize(fieldValue);
+		for(int i = 0; i < fieldValue.size(); ++i)
+		{
+			auto e = a.enterStruct(i);
+			e->serializeId("creature", fieldValue[i].first, CreatureID{});
+			e->serializeId("amount", fieldValue[i].second, CreatureID{});
+		}
+		if(!handler.saving)
+		{
+			for(auto & i : fieldValue)
+				creaturesChange[i.first] = i.second;
+		}
+	}
+	
+	{
+		auto a = handler.enterStruct("spellCast");
+		a->serializeId("spell", spellCast.first, SpellID{});
+		a->serializeInt("level", spellCast.second);
 	}
 }
 

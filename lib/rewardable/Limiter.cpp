@@ -14,6 +14,7 @@
 #include "../IGameCallback.h"
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -117,6 +118,11 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return true;
 	}
 	return false;
+}
+
+void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
+{
+	
 }
 
 VCMI_LIB_NAMESPACE_END

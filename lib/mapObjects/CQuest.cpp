@@ -802,35 +802,28 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 	else
 	{
-		auto s = handler.enterStruct("reward");
-		std::string fullIdentifier;
-		std::string metaTypeName;
-		std::string scope;
-		std::string identifier;
-		
-		const JsonNode & rewardsJson = handler.getCurrent();
-
-		fullIdentifier.clear();
-
-		if(rewardsJson.Struct().empty())
-		{
-			CRewardableObject::serializeJsonOptions(handler);
-			return;
-		}
-		else
-		{
-			auto iter = rewardsJson.Struct().begin();
-			fullIdentifier = iter->first;
-		}
-
-		ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
-		if(!std::set<std::string>{"resource", "primarySkill", "secondarySkill", "artifact", "spell", "creature", "experience", "mana", "morale", "luck"}.count(metaTypeName))
+		if(handler.getCurrent()["reward"].isNull() || handler.getCurrent()["reward"].Struct().empty())
 		{
 			CRewardableObject::serializeJsonOptions(handler);
 			return;
 		}
 		
 		//backward compatibility
+		auto s = handler.enterStruct("reward");
+		const JsonNode & rewardsJson = handler.getCurrent();
+		
+		std::string fullIdentifier;
+		std::string metaTypeName;
+		std::string scope;
+		std::string identifier;
+
+		auto iter = rewardsJson.Struct().begin();
+		fullIdentifier = iter->first;
+
+		ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
+		if(!std::set<std::string>{"resource", "primarySkill", "secondarySkill", "artifact", "spell", "creature", "experience", "mana", "morale", "luck"}.count(metaTypeName))
+			return;
+
 		int val = 0;
 		handler.serializeInt(fullIdentifier, val);
 		

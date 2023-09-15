@@ -65,7 +65,9 @@ struct DLL_LINKAGE ResetInfo
 
 	/// if true - re-randomize rewards on a new week
 	bool rewards;
-
+	
+	void serializeJson(JsonSerializeFormat & handler);
+	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & period;
@@ -84,6 +86,8 @@ struct DLL_LINKAGE VisitInfo
 
 	/// Event to which this reward is assigned
 	EEventType visitType;
+	
+	void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -120,6 +124,8 @@ struct DLL_LINKAGE Configuration
 	
 	EVisitMode getVisitMode() const;
 	ui16 getResetDuration() const;
+	
+	void serializeJson(JsonSerializeFormat & handler);
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

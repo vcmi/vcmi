@@ -147,4 +147,9 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 			cb->removeAfterVisit(instance);
 }
 
+void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
+{
+	configuration.serializeJson(handler);
+}
+
 VCMI_LIB_NAMESPACE_END

@@ -17,6 +17,7 @@
 #include "../NetPacks.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -278,7 +279,8 @@ CRewardableObject::CRewardableObject()
 
 void CRewardableObject::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	
+	CArmedInstance::serializeJsonOptions(handler);
+	handler.serializeStruct("rewardable", static_cast<Rewardable::Interface&>(*this));
 }
 
 VCMI_LIB_NAMESPACE_END
