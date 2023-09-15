@@ -344,7 +344,7 @@ void CBonusSelection::updateAfterStateChange()
 	{
 		buttonStart->block(getCampaign()->scenario(CSH->campaignMap).travelOptions.bonusesToChoose.size());
 	}
-	else if(buttonStart->isBlocked())
+	else
 	{
 		buttonStart->block(false);
 	}
@@ -391,6 +391,9 @@ void CBonusSelection::goBack()
 
 void CBonusSelection::startMap()
 {
+	if (!CSH->validateGameStart())
+		return;
+
 	auto showPrologVideo = [=]()
 	{
 		auto exitCb = [=]()

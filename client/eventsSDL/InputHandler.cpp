@@ -129,6 +129,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #endif
 	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
 	{
+		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 		Settings full = settings.write["video"]["fullscreen"];
 		full->Bool() = !full->Bool();
 

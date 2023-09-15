@@ -1266,6 +1266,11 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		removeUnits.changedStacks.emplace_back(defender->unitId(), UnitChanges::EOperation::REMOVE);
 		gameHandler->sendAndApply(&removeUnits);
 		gameHandler->sendAndApply(&addUnits);
+
+		// send empty event to client
+		// temporary(?) workaround to force animations to trigger
+		StacksInjured fakeEvent;
+		gameHandler->sendAndApply(&fakeEvent);
 	}
 
 	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, 0) || attacker->hasBonusOfType(BonusType::DESTRUCTION, 1))

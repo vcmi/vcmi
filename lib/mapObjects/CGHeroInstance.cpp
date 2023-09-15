@@ -79,7 +79,7 @@ ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const Terrain
 			!ti->hasBonusOfType(BonusType::NO_TERRAIN_PENALTY, from.terType->getIndex())) //no special movement bonus
 	{
 
-		ret = VLC->terrainTypeHandler->getById(dest.terType->getId())->moveCost;
+		ret = VLC->terrainTypeHandler->getById(from.terType->getId())->moveCost;
 		ret -= ti->valOfBonuses(BonusType::ROUGH_TERRAIN_DISCOUNT);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;

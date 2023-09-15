@@ -402,7 +402,7 @@ bool AdventureMapShortcuts::optionCanViewQuests()
 
 bool AdventureMapShortcuts::optionCanToggleLevel()
 {
-	return optionInMapView() && LOCPLINT->cb->getMapSize().z > 1;
+	return optionSidePanelActive() && LOCPLINT->cb->getMapSize().z > 1;
 }
 
 bool AdventureMapShortcuts::optionMapLevelSurface()

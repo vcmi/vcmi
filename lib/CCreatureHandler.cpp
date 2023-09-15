@@ -566,7 +566,8 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		data["advMapAmount"]["min"].Float() = parser.readNumber();
 		data["advMapAmount"]["max"].Float() = parser.readNumber();
 
-		data["abilityText"].String() = parser.readString();
+		// unused - ability text, not used since we no longer have original creature window
+		parser.readString();
 		loadBonuses(data, parser.readString()); //Attributes
 
 		h3Data.push_back(data);

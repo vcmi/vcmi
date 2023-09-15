@@ -41,6 +41,11 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 			}
 		}
 	}
+
+	logGlobal->error("Failed to detect mod path in archive!");
+	logGlobal->debug("List of file in archive:");
+	for(auto file : filesToExtract)
+		logGlobal->debug("%s", file.c_str());
 	
 	return "";
 }

@@ -91,7 +91,7 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 
 void FirstLaunchView::on_pushButtonDataHelp_clicked()
 {
-	static const QUrl vcmibuilderWiki("https://wiki.vcmi.eu/Using_vcmibuilder");
+	static const QUrl vcmibuilderWiki("https://github.com/vcmi/vcmi/blob/master/docs/players/Installation_Linux.md#install-data-using-vcmibuilder-script");
 	QDesktopServices::openUrl(vcmibuilderWiki);
 }
 

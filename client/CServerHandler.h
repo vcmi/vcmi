@@ -154,16 +154,18 @@ public:
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
 	void startMapAfterConnection(std::shared_ptr<CMapInfo> to);
+	bool validateGameStart(bool allowOnlyAI = false) const;
+	void debugStartTest(std::string filename, bool save = false);
+
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CampaignState> cs = {});
-	void showServerError(std::string txt) const;
+	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
 	int howManyPlayerInterfaces();
 	ui8 getLoadMode();
 
-	void debugStartTest(std::string filename, bool save = false);
 	void restoreLastSession();
 
 	void visitForLobby(CPackForLobby & lobbyPack);
