@@ -106,6 +106,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		addChild(comps[i].get());
 		components.push_back(comps[i]);
 		comps[i]->onSelect = std::bind(&CSelWindow::selectionChange,this,i);
+		comps[i]->onChoose = std::bind(&CSelWindow::madeChoiceAndClose,this);
 		if(i<8)
 			comps[i]->assignedKey = vstd::next(EShortcut::SELECT_INDEX_1,i);
 	}
@@ -125,6 +126,12 @@ void CSelWindow::madeChoice()
 		}
 	}
 	LOCPLINT->cb->selectionMade(ret+1,ID);
+}
+
+void CSelWindow::madeChoiceAndClose()
+{
+	madeChoice();
+	close();
 }
 
 CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons)

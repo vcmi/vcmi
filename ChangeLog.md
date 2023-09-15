@@ -1,3 +1,65 @@
+# 1.3.1 -> 1.3.2
+
+### GENERAL
+* VCMI now uses new application icon
+* Added initial version of Czech translation
+* Game will now use tile hero is moving from for movement cost calculations, in line with H3
+* Added option to open hero backpack window in hero screen
+* Added detection of misclicks for touch inputs to make hitting small UI elements easier
+* Hero commander will now gain option to learn perks on reaching master level in corresponding abilities
+* It is no longer possible to stop movement while moving over water with Water Walk
+* Game will now automatically update hero path if it was blocked by another hero
+* Added "vcmiartifacts angelWings" form to "give artifacts" cheat
+
+### STABILITY
+* Fixed freeze in Launcher on repository checkout and on mod install
+* Fixed crash on loading VCMI map with placed Abandoned Mine
+* Fixed crash on loading VCMI map with neutral towns
+* Fixed crash on attempting to visit unknown object, such as Market of Time
+* Fixed crash on attempting to teleport unit that is immune to a spell
+* Fixed crash on switching fullscreen mode during AI turn
+
+### CAMPAIGNS
+* Fixed reorderging of hero primary skills after moving to next scenario in campaigns
+
+### BATTLES
+* Conquering a town will now correctly award additional 500 experience points
+* Quick combat is now enabled by default
+* Fixed invisible creatures from SUMMON_GUARDIANS and TRANSMUTATION bonuses
+* Added option to toggle spell usage by AI in quick combat
+* Fixed updating of spell point of enemy hero in game interface after spell cast
+* Fixed wrong creature spellcasting shortcut (now set to "F")
+* It is now possible to perform melee attack by creatures with spells, especially area spells
+* Right-click will now properly end spellcast mode
+* Fixed cursor preview when casting spell using touchscreen
+* Long tap during spell casting will now properly abort the spell
+
+### INTERFACE
+* Added "Fill all empty slots with 1 creature" option to radial wheel in garrison windows
+* Context popup for adventure map monsters will now show creature icon
+* Game will now show correct victory message for gather troops victory condition
+* Fixed incorrect display of number of owned Sawmills in Kingdom Overview window
+* Fixed incorrect color of resource bar in hotseat mode
+* Fixed broken toggle map level button in world view mode
+* Fixed corrupted interface after opening puzzle window from world view mode
+* Fixed blocked interface after attempt to start invalid map
+* Add yellow border to selected commander grandmaster ability
+* Always use bonus description for commander abilities instead of not provided wog-specific translation  
+* Fix scrolling when commander has large number of grandmaster abilities
+* Fixed corrupted message on another player defeat
+* Fixed unavailable Quest Log button on maps with quests
+* Fixed incorrect values on a difficulty selector in save load screen
+* Removed invalid error message on attempting to move non-existing unit in exchange window
+
+### RANDOM MAP GENERATOR
+* Fixed bug leading to unreachable resources around mines
+
+### MAP EDITOR
+* Fixed crash on maps containing abandoned mines
+* Fixed crash on maps containing neutral objects
+* Fixed problem with random map initialized in map editor
+* Fixed problem with initialization of random dwellings
+
 # 1.3.0 -> 1.3.1
 
 ### GENERAL:
@@ -430,8 +492,8 @@
 ### MODDING:
 * All configurable objects from H3 now have their configuration in json
 * Improvements to functionality of configurable objects
-* Replaced `SECONDARY_SKILL_PREMY` bonus with separate bonuses for each skill. See https://wiki.vcmi.eu/List_of_all_bonus_types
-* Removed multiple bonuses that can be replaced with another bonus. See https://wiki.vcmi.eu/List_of_all_bonus_types
+* Replaced `SECONDARY_SKILL_PREMY` bonus with separate bonuses for each skill.
+* Removed multiple bonuses that can be replaced with another bonus.
 * It is now possible to define new hero movement sounds in terrains
 * Implemented translation support for mods
 * Implemented translation support for .h3m maps and .h3c campaigns
@@ -756,7 +818,7 @@
 * Wall hit/miss sound will be played when using catapult during siege
 
 ### SPELLS:
-* New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
+* New configuration format
 
 ### RANDOM MAP GENERATOR:
 * Towns from mods can be used
@@ -789,7 +851,6 @@
 * (linux) Added a SIGSEV violation handler to vcmiserver executable for logging stacktrace (for convenience)
 
 ### ADVENTURE AI:
-More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * AI will use fuzzy logic to compare and choose multiple possible subgoals.
 * AI will now use SectorMap to find a way to guarded / covered objects. 
 * Significantly improved exploration algorithm.
@@ -812,7 +873,6 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Extended building dependencies support
 
 ### MODS:
-* See http://wiki.vcmi.eu/index.php?title=Modding_changelog#0.94_-.3E_0.95 for format changes
 * Custom victory/loss conditions for maps or campaigns
 * 7 days without towns loss condition is no longer hardcoded
 * Only changed mods will be validated
@@ -870,7 +930,6 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Fixed crash at month of double population.
 
 ### MODS:
-* See http://wiki.vcmi.eu/index.php?title=Modding_changelog#0.92_-.3E_0.93 for compatibility info.
 * Improved json validation. Now it support most of features from latest json schema draft.
 * Icons use path to icon instead of image indexes.
 * It is possible to edit data of another mod or H3 data via mods.

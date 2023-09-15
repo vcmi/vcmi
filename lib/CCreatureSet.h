@@ -139,7 +139,7 @@ public:
 	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
 	std::vector <ui8> secondarySkills; //ID -> level
-	std::set <ui8> specialSKills;
+	std::set <ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
 	void init() override;
 	CCommanderInstance();
@@ -161,7 +161,7 @@ public:
 		h & level;
 		h & name;
 		h & secondarySkills;
-		h & specialSKills;
+		h & specialSkills;
 	}
 };
 

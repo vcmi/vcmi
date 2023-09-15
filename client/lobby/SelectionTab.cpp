@@ -345,7 +345,10 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 		return;
 
 	if(itemIndex >= 0 && curItems[itemIndex]->isFolder)
+	{
+		select(position);
 		return;
+	}
 
 	if(getLine() != -1) //double clicked scenarios list
 	{
@@ -370,6 +373,8 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 		GH.windows().createAndPushWindow<CMapInfoTooltipBox>(text, ResourcePath(curItems[py]->fileURI), tabType);
 	}
+	else
+		CRClickPopup::createAndPush(curItems[py]->folderName);
 }
 
 auto SelectionTab::checkSubfolder(std::string path)

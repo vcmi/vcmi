@@ -59,6 +59,7 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 
 	void fillSurface(SDL_Surface * dst, const SDL_Color & color);
 	void fillRect(SDL_Surface * dst, const Rect & dstrect, const SDL_Color & color);
+	void fillRectBlended(SDL_Surface * dst, const Rect & dstrect, const SDL_Color & color);
 
 	void updateRect(SDL_Surface * surface, const Rect & rect);
 

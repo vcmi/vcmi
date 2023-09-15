@@ -50,7 +50,7 @@ public:
 		return intValue == DEFEAT;
 	}
 
-	EVictoryLossCheckResult invert()
+	EVictoryLossCheckResult invert() const
 	{
 		return EVictoryLossCheckResult(-intValue, messageToOthers, messageToSelf);
 	}

@@ -107,7 +107,10 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 	}
 	
 	if(pack.restart)
-		handler.sendStartGame();
+	{
+		if (handler.validateGameStart())
+			handler.sendStartGame();
+	}
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)

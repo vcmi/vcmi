@@ -22,15 +22,15 @@
 
 namespace
 {
-QString detectModArchive(QString path, QString modName)
+QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
 {
-	auto files = ZipArchive::listFiles(qstringToPath(path));
+	filesToExtract = ZipArchive::listFiles(qstringToPath(path));
 
 	QString modDirName;
 
 	for(int folderLevel : {0, 1}) //search in subfolder if there is no mod.json in the root
 	{
-		for(auto file : files)
+		for(auto file : filesToExtract)
 		{
 			QString filename = QString::fromUtf8(file.c_str());
 			modDirName = filename.section('/', 0, folderLevel);
@@ -41,6 +41,11 @@ QString detectModArchive(QString path, QString modName)
 			}
 		}
 	}
+
+	logGlobal->error("Failed to detect mod path in archive!");
+	logGlobal->debug("List of file in archive:");
+	for(auto file : filesToExtract)
+		logGlobal->debug("%s", file.c_str());
 	
 	return "";
 }
@@ -275,11 +280,12 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(localMods.contains(modname))
 		return addError(modname, "Mod with such name is already installed");
 
-	QString modDirName = ::detectModArchive(archivePath, modname);
+	std::vector<std::string> filesToExtract;
+	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
 	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
 
-	if(!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir)))
+	if(!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir), filesToExtract))
 	{
 		removeModDir(destDir + modDirName);
 		return addError(modname, "Failed to extract mod data");

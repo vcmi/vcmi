@@ -96,6 +96,9 @@ public:
 	/// fills selected area with solid color
 	void drawColor(const Rect & target, const ColorRGBA & color);
 
+	/// fills selected area with blended color
+	void drawColorBlended(const Rect & target, const ColorRGBA & color);
+
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	SDL_Surface * getInternalSurface();
 };

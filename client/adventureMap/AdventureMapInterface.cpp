@@ -175,7 +175,7 @@ void AdventureMapInterface::dim(Canvas & to)
 			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
 			if(backgroundDimLevel > 0)
-				to.drawColor(targetRect, colorToFill);
+				to.drawColorBlended(targetRect, colorToFill);
 			return;
 		}
 	}
@@ -535,10 +535,18 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 					LOCPLINT->moveHero(currentHero, LOCPLINT->localState->getPath(currentHero));
 				return;
 			}
-			else //remove old path and find a new one if we clicked on accessible tile
+			else
 			{
-				LOCPLINT->localState->setPath(currentHero, mapPos);
-				onHeroChanged(currentHero);
+				if(GH.isKeyboardCtrlDown()) //normal click behaviour (as no hero selected)
+				{
+					if(canSelect)
+						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
+				}
+				else //remove old path and find a new one if we clicked on accessible tile
+				{
+					LOCPLINT->localState->setPath(currentHero, mapPos);
+					onHeroChanged(currentHero);
+				}
 			}
 		}
 	} //end of hero is selected "case"
@@ -611,7 +619,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		}
 	}
 
-	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN)
+	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardCtrlDown())
 	{
 		if(objAtTile)
 		{

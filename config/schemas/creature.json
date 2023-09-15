@@ -23,7 +23,7 @@
 		},
 		"disabled" : {
 			"type" : "boolean",
-			"description" : "Object is competely disabled and may not be even loaded in-game"
+			"description" : "Internal. Object is competely disabled and may not be even loaded in-game"
 		},
 		"name" : {
 			"type" : "object",
@@ -122,26 +122,22 @@
 				"$ref" : "bonus.json"
 			}
 		},
-		"abilityText" : {
-			"type" : "string",
-			"description" : "Text version of creature abilities. Used only with original creature window"
-		},
 		"graphics" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"description" : "Describes how this creature looks like during battles",
+			"description" : "Describes how this creature looks like",
 			"required" : [
 				"animation", "animationTime", "timeBetweenFidgets"
 			],
 			"properties" : {
 				"animation" : {
 					"type" : "string",
-					"description" : ".def file with animation of this creature in battles",
+					"description" : "File with animation of this creature in battles",
 					"format" : "defFile"
 				},
 				"map" : {
 					"type" : "string",
-					"description" : ".def file with animation of this creature on adventure map",
+					"description" : "File with animation of this creature on adventure map",
 					"format" : "defFile"
 				},
 				"mapMask" : {
@@ -247,7 +243,7 @@
 						},
 						"attackClimaxFrame" : {
 							"type" : "number",
-							"description" : "Frame from attack animation during which creature deals damage"
+							"description" : "Frame at which shooter shoots his projectile (e.g. releases arrow)"
 						}
 					}
 				},
@@ -264,7 +260,7 @@
 		"sound" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"description" : "Various sound files associated with this creature",
+			"description" : "Sound files associated with this creature",
 			"properties" : {
 				"attack" :      { "type" : "string", "format" : "soundFile" },
 				"defend" :      { "type" : "string", "format" : "soundFile" },

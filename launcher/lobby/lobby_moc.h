@@ -74,6 +74,7 @@ private:
 	QString username;
 	QStringList gameArgs;
 	QMap<QString, QString> hostModsMap;
+	QMap<QString, QMap<QString, QString>> clientsModsMap;
 
 	enum AuthStatus
 	{

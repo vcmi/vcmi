@@ -12,6 +12,16 @@
 		]
 	},
 
+	"czech" : {
+		"name" : "Nezbytné soubory VCMI",
+		"description" : "Nezbytné soubory pro správný běh VCMI",
+		
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/czech.json"
+		]
+	},
+
 	"french" : {
 		"name" : "VCMI - fichiers nécessaires",
 		"description" : "Fichiers nécessaires pour exécuter correctement VCMI",
