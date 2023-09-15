@@ -111,6 +111,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 					case Rewardable::SELECT_ALL: // give all rewards
 						for(auto i : rewards)
 							grantRewardWithMessage(i, i == rewards.size() - 1);
+						break;
 				}
 				break;
 			}

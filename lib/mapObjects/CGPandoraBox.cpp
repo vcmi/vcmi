@@ -45,7 +45,6 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 {
 	auto setText = [](MetaString & text, int tId, const CGHeroInstance * h)
 	{
-		text.clear();
 		text.appendLocalString(EMetaText::ADVOB_TXT, tId);
 		text.replaceRawString(h->getNameTranslated());
 	};
@@ -124,7 +123,8 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 			txt.replaceRawString(h->getNameTranslated());
 		}
 		
-		const_cast<MetaString&>(r.message) = txt;
+		if(r.message.empty())
+			const_cast<MetaString&>(r.message) = txt;
 	}
 	
 	BlockingDialog bd (true, false);

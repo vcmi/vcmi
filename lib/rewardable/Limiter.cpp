@@ -15,6 +15,8 @@
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../constants/StringConstants.h"
+#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -122,7 +124,81 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 
 void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 {
+	handler.serializeInt("dayOfWeek", dayOfWeek);
+	handler.serializeInt("daysPassed", daysPassed);
+	resources.serializeJson(handler, "resources");
+	handler.serializeInt("manaPercentage", manaPercentage);
+	handler.serializeInt("heroExperience", heroExperience);
+	handler.serializeInt("heroLevel", heroLevel);
+	handler.serializeInt("manaPoints", manaPoints);
+	handler.serializeIdArray("artifacts", artifacts);
+	handler.enterArray("creatures").serializeStruct(creatures);
+	{
+		auto a = handler.enterArray("primary");
+		a.syncSize(primary);
+		for(int i = 0; i < primary.size(); ++i)
+			a.serializeInt(i, primary[i]);
+	}
 	
+	{
+		auto a = handler.enterArray("secondary");
+		std::vector<std::pair<std::string, std::string>> fieldValue;
+		if(handler.saving)
+		{
+			for(auto & i : secondary)
+			{
+				auto key = VLC->skillh->encodeSkill(i.first);
+				auto value = NSecondarySkill::levels.at(i.second);
+				fieldValue.emplace_back(key, value);
+			}
+		}
+		a.syncSize(fieldValue);
+		for(int i = 0; i < fieldValue.size(); ++i)
+		{
+			auto e = a.enterStruct(i);
+			e->serializeString("skill", fieldValue[i].first);
+			e->serializeString("level", fieldValue[i].second);
+		}
+		if(!handler.saving)
+		{
+			for(auto & i : fieldValue)
+			{
+				const int skillId = VLC->skillh->decodeSkill(i.first);
+				if(skillId < 0)
+				{
+					logGlobal->error("Invalid secondary skill %s", i.first);
+					continue;
+				}
+				
+				const int level = vstd::find_pos(NSecondarySkill::levels, i.second);
+				if(level < 0)
+				{
+					logGlobal->error("Invalid secondary skill level%s", i.second);
+					continue;
+				}
+				
+				secondary[SecondarySkill(skillId)] = level;
+			}
+				
+		}
+	}
+	
+	//sublimiters
+	auto serializeSublimitersList = [&handler](const std::string & field, LimitersList & container)
+	{
+		auto a = handler.enterArray(field);
+		a.syncSize(container);
+		for(int i = 0; i < container.size(); ++i)
+		{
+			if(!handler.saving)
+				container[i] = std::make_shared<Rewardable::Limiter>();
+			auto e = a.enterStruct(i);
+			container[i]->serializeJson(handler);
+		}
+	};
+	serializeSublimitersList("allOf", allOf);
+	serializeSublimitersList("anyOf", anyOf);
+	serializeSublimitersList("noneOf", noneOf);
 }
 
 VCMI_LIB_NAMESPACE_END
