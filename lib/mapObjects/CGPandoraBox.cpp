@@ -45,6 +45,7 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 {
 	auto setText = [](MetaString & text, int tId, const CGHeroInstance * h)
 	{
+		text.clear();
 		text.appendLocalString(EMetaText::ADVOB_TXT, tId);
 		text.replaceRawString(h->getNameTranslated());
 	};
@@ -179,6 +180,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				configuration.info.emplace_back();
 				configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				configuration.info.back().reward = reward;
+				reward = Rewardable::Reward{};
 			}
 		};
 		
