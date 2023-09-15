@@ -101,7 +101,7 @@ innoextract --output-dir=~/Downloads/HoMM3 "setup_heroes_of_might_and_magic_3_co
 ```
 (note that installer file name might be different)
 
-Once innoextract completes, start VCMI Launcher and choose to copy existing files. Select the ~/Downloads/HoMM3 directory. Once copy is complete, you can delete both offline installer files as well as ~/Downloads/HoMM3.
+Once innoextract completes, start VCMI Launcher and choose to place existing files. Select the ~/Downloads/HoMM3 directory. Once placing is complete, you can delete both offline installer files as well as ~/Downloads/HoMM3.
 
 ## Install manually using existing Heroes III data
 
