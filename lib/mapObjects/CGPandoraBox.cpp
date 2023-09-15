@@ -28,6 +28,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CGPandoraBox::init()
 {
 	blockVisit = true;
+	configuration.selectMode = Rewardable::SELECT_ALL;
 	
 	for(auto & i : configuration.info)
 		i.reward.removeObject = true;
@@ -169,33 +170,62 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		//backward compatibility
 		CCreatureSet::serializeJson(handler, "guards", 7);
+		Rewardable::Reward reward;
 		
-		Rewardable::VisitInfo vinfo;
-		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		auto & reward = vinfo.reward;
+		auto addReward = [this, &reward](bool condition)
+		{
+			if(condition)
+			{
+				configuration.info.emplace_back();
+				configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+				configuration.info.back().reward = reward;
+			}
+		};
+		
+		addReward(true);
+		
 		int val;
 		handler.serializeInt("experience", reward.heroExperience, 0);
+		addReward(reward.heroExperience);
+		
 		handler.serializeInt("mana", reward.manaDiff, 0);
+		addReward(reward.manaDiff);
+		
 		handler.serializeInt("morale", val, 0);
 		if(val)
 			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, val, id);
+		addReward(val);
+		
 		handler.serializeInt("luck", val, 0);
 		if(val)
 			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, val, id);
+		addReward(val);
 		
 		reward.resources.serializeJson(handler, "resources");
+		addReward(reward.resources.nonZero());
+		
 		{
+			bool updateReward = false;
 			auto s = handler.enterStruct("primarySkills");
 			for(int idx = 0; idx < reward.primary.size(); idx ++)
+			{
 				handler.serializeInt(NPrimarySkill::names[idx], reward.primary[idx], 0);
+				updateReward |= reward.primary[idx];
+			}
+			addReward(updateReward);
 		}
 		
 		handler.serializeIdArray("artifacts", reward.artifacts);
+		addReward(!reward.artifacts.empty());
+		
 		handler.serializeIdArray("spells", reward.spells);
+		addReward(!reward.spells.empty());
 
 		handler.enterArray("creatures").serializeStruct(reward.creatures);
+		addReward(!reward.creatures.empty());
 		
 		{
+			bool updateReward = false;
 			auto s = handler.enterStruct("secondarySkills");
 			for(const auto & p : handler.getCurrent().Struct())
 			{
@@ -217,15 +247,17 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				}
 				
 				reward.secondary[rawId] = level;
+				updateReward = true;
 			}
+			addReward(updateReward);
 		}
-		configuration.info.push_back(vinfo);
 	}
 }
 
 void CGEvent::init()
 {
 	blockVisit = false;
+	configuration.selectMode = Rewardable::SELECT_ALL;
 	
 	for(auto & i : configuration.info)
 		i.reward.removeObject = removeAfterVisit;

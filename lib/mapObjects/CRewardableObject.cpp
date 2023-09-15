@@ -108,6 +108,9 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 					case Rewardable::SELECT_RANDOM: // give random
 						grantRewardWithMessage(*RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()), true);
 						break;
+					case Rewardable::SELECT_ALL: // give all rewards
+						for(auto i : rewards)
+							grantRewardWithMessage(i, i == rewards.size() - 1);
 				}
 				break;
 			}
