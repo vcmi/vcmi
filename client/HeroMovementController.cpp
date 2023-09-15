@@ -77,10 +77,7 @@ void HeroMovementController::onBattleStarted()
 	// when battle starts, game will send battleStart pack *before* movement confirmation
 	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
 	// leading to several bugs, such as blocked input during intro
-	// FIXME: should be on hero visit
-	assert(duringMovement == false);
-	assert(stoppingMovement == false);
-	duringMovement = false;
+	movementAbortRequested();
 }
 
 void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
@@ -343,7 +340,7 @@ void HeroMovementController::moveHeroOnce(const CGHeroInstance * h, const CGPath
 
 		logGlobal->trace("Requesting hero movement to %s", nextNode.coord.toString());
 
-		bool useTransit = nextNode.layer == EPathfindingLayer::AIR;
+		bool useTransit = nextNode.layer == EPathfindingLayer::AIR || nextNode.layer == EPathfindingLayer::WATER;
 		LOCPLINT->cb->moveHero(h, nextCoord, useTransit);
 		return;
 	}
