@@ -228,6 +228,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 	vinfo.reward.movePoints = ui->rMovePoints->value();
 	vinfo.reward.movePercentage = ui->rMovePercentage->value();
 	vinfo.reward.removeObject = ui->removeObject->isChecked();
+	vinfo.reward.primary.resize(4);
 	vinfo.reward.primary[0] = ui->rAttack->value();
 	vinfo.reward.primary[1] = ui->rDefence->value();
 	vinfo.reward.primary[2] = ui->rPower->value();
@@ -292,6 +293,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 	vinfo.limiter.heroExperience = ui->lHeroExperience->value();
 	vinfo.limiter.manaPoints = ui->lManaPoints->value();
 	vinfo.limiter.manaPercentage = ui->lManaPercentage->value();
+	vinfo.limiter.primary.resize(4);
 	vinfo.limiter.primary[0] = ui->lAttack->value();
 	vinfo.limiter.primary[1] = ui->lDefence->value();
 	vinfo.limiter.primary[2] = ui->lPower->value();
