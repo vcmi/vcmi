@@ -17,7 +17,7 @@ Install one of following into new folder, same as when installing new game:
 **Since VCMI 1.2 you can skip this step, just run VCMI launcher and it will help you with importing H3 data. For older releases you can follow this step.**
 
 -   Install Heroes III from disk or using GOG installer.
--   Copy "Data", "Maps" and "Mp3" from Heroes III to: `Documents\My Games\vcmi\`
+-   Place "Data", "Maps" and "Mp3" from Heroes III to: `Documents\My Games\vcmi\`
 
 Create this folder if it doesnt exist yet
 

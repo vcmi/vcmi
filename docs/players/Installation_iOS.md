@@ -28,7 +28,7 @@ To play the game, you need to upload HoMM3 data files - **Data**, **Maps** and *
 
 If you have data somewhere on device or in shared folder or you have downloaded it, you can copy it directly on your iPhone/iPad using Files application.
 
-Move or copy **Data**, **Maps** and **Mp3** folders into vcmi application - it will be visible in Files along with other applications' folders.
+Place **Data**, **Maps** and **Mp3** folders into vcmi application - it will be visible in Files along with other applications' folders.
 
 ### Step 2.c: Installing data files with Xcode on macOS
 
