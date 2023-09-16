@@ -48,8 +48,8 @@ std::optional<int3> HeroMovementController::getNextTile(const CGHeroInstance * h
 
 bool HeroMovementController::isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const
 {
-	assert(LOCPLINT->localState->hasPath(hero));
-	assert(duringMovement);
+	if(!duringMovement)
+		return false;
 
 	if (!LOCPLINT->localState->hasPath(hero))
 		return false;
@@ -70,6 +70,7 @@ void HeroMovementController::onPlayerTurnStarted()
 	assert(duringMovement == false);
 	assert(stoppingMovement == false);
 	duringMovement = false;
+	currentlyMovingHero = nullptr;
 }
 
 void HeroMovementController::onBattleStarted()
@@ -82,10 +83,12 @@ void HeroMovementController::onBattleStarted()
 
 void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
+	assert(hero == currentlyMovingHero);
+
 	if (!LOCPLINT->localState->hasPath(hero))
 	{
-		assert(exits.size() == 1); // select random? Let server select?
-		LOCPLINT->cb->selectionMade(0, askID);
+		// Hero enters teleporter without specifying exit - select it randomly
+		LOCPLINT->cb->selectionMade(-1, askID);
 		return;
 	}
 
@@ -103,8 +106,8 @@ void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, Tel
 		}
 	}
 
-	assert(0); // exit not found? How? select random? Let server select?
-	LOCPLINT->cb->selectionMade(0, askID);
+	assert(0); // exit not found? How?
+	LOCPLINT->cb->selectionMade(-1, askID);
 	return;
 }
 
@@ -116,6 +119,7 @@ void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMo
 	if (!LOCPLINT->localState->hasPath(hero))
 		return; // may happen when hero teleports
 
+	assert(hero == currentlyMovingHero);
 	assert(LOCPLINT->makingTurn);
 	assert(getNextTile(hero).has_value());
 
@@ -148,8 +152,6 @@ void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMo
 
 void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMoveHero & details)
 {
-	//assert(duringMovement == true); // May be false if hero teleported
-
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
 		if(hero->getRemovalSound() && hero->tempOwner == LOCPLINT->playerID)
@@ -195,16 +197,15 @@ void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMov
 
 void HeroMovementController::onMoveHeroApplied()
 {
-	auto const * hero = LOCPLINT->localState->getCurrentHero();
-
-	assert(hero);
-
 	//check if user cancelled movement
 	if (GH.input().ignoreEventsUntilInput())
 		stoppingMovement = true;
 
 	if (duringMovement)
 	{
+		assert(currentlyMovingHero);
+		auto const * hero = currentlyMovingHero;
+
 		bool canMove = LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nextNode().turns == 0;
 		bool wantStop = stoppingMovement;
 		bool canStop = !canMove || canHeroStopAtNode(LOCPLINT->localState->getPath(hero).currNode());
@@ -227,7 +228,7 @@ void HeroMovementController::onMoveHeroApplied()
 void HeroMovementController::movementAbortRequested()
 {
 	if(duringMovement)
-		endHeroMove(LOCPLINT->localState->getCurrentHero());
+		endHeroMove(currentlyMovingHero);
 }
 
 void HeroMovementController::endHeroMove(const CGHeroInstance * hero)
@@ -235,6 +236,7 @@ void HeroMovementController::endHeroMove(const CGHeroInstance * hero)
 	assert(duringMovement == true);
 	duringMovement = false;
 	stoppingMovement = false;
+	currentlyMovingHero = nullptr;
 	stopMovementSound();
 	adventureInt->onHeroChanged(hero);
 	CCS->curh->show();
@@ -309,6 +311,7 @@ void HeroMovementController::movementStartRequested(const CGHeroInstance * h, co
 {
 	assert(duringMovement == false);
 	duringMovement = true;
+	currentlyMovingHero = h;
 
 	CCS->curh->show();
 	moveHeroOnce(h, path);
@@ -344,17 +347,4 @@ void HeroMovementController::moveHeroOnce(const CGHeroInstance * h, const CGPath
 		LOCPLINT->cb->moveHero(h, nextCoord, useTransit);
 		return;
 	}
-
-//	bool guarded = LOCPLINT->cb->isInTheMap(LOCPLINT->cb->getGuardingCreaturePosition(nextCoord - int3(1, 0, 0)));
-//	if ((!useTransit && guarded) || LOCPLINT->showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
-//		break;
-
-//	stopMovementSound();
-//
-//	//Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement
-//	if (!LOCPLINT->showingDialog->get())
-//		GH.fakeMouseMove();
-//
-//	CGI->mh->waitForOngoingAnimations();
-//	setMovementStatus(false);
 }

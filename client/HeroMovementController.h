@@ -32,6 +32,7 @@ class HeroMovementController
 	/// movement was requested to be terminated, e.g. by player or due to inability to move
 	bool stoppingMovement = false;
 
+	const CGHeroInstance * currentlyMovingHero = nullptr;
 	AudioPath currentMovementSoundName;
 	int currentMovementSoundChannel = -1;
 
