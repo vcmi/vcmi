@@ -22,6 +22,9 @@
     <ClCompile Include="windows\CCreatureWindow.cpp">
       <Filter>windows</Filter>
     </ClCompile>
+    <ClCompile Include="windows\CHeroOverview.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
     <ClCompile Include="windows\CHeroWindow.cpp">
       <Filter>windows</Filter>
     </ClCompile>
@@ -170,6 +173,9 @@
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="windows\CCreatureWindow.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CHeroOverview.h">
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="windows\CHeroWindow.h">

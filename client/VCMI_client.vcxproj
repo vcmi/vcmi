@@ -236,6 +236,7 @@
     <ClCompile Include="windows\CAdvmapInterface.cpp" />
     <ClCompile Include="windows\CCastleInterface.cpp" />
     <ClCompile Include="windows\CCreatureWindow.cpp" />
+    <ClCompile Include="windows\CHeroOverview.cpp" />
     <ClCompile Include="windows\CHeroWindow.cpp" />
     <ClCompile Include="windows\CKingdomInterface.cpp" />
     <ClCompile Include="windows\CQuestLog.cpp" />
@@ -301,6 +302,7 @@
     <ClInclude Include="windows\CAdvmapInterface.h" />
     <ClInclude Include="windows\CCastleInterface.h" />
     <ClInclude Include="windows\CCreatureWindow.h" />
+    <ClInclude Include="windows\CHeroOverview.h" />
     <ClInclude Include="windows\CHeroWindow.h" />
     <ClInclude Include="windows\CKingdomInterface.h" />
     <ClInclude Include="windows\CQuestLog.h" />

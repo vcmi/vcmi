@@ -225,6 +225,8 @@
 		<Unit filename="windows/CCastleInterface.h" />
 		<Unit filename="windows/CCreatureWindow.cpp" />
 		<Unit filename="windows/CCreatureWindow.h" />
+		<Unit filename="windows/CHeroOverview.cpp" />
+		<Unit filename="windows/CHeroOverview.h" />
 		<Unit filename="windows/CHeroWindow.cpp" />
 		<Unit filename="windows/CHeroWindow.h" />
 		<Unit filename="windows/CKingdomInterface.cpp" />

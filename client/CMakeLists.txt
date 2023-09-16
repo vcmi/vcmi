@@ -114,6 +114,7 @@ set(client_SRCS
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
+	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
 	windows/CMessage.cpp
@@ -275,6 +276,7 @@ set(client_HEADERS
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
+	windows/CHeroOverview.h
 	windows/CHeroWindow.h
 	windows/CKingdomInterface.h
 	windows/CMessage.h
