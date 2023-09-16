@@ -20,6 +20,7 @@
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/CMap.h"
+#include "spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -472,6 +473,12 @@ CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Her
 	turnsInfo.reserve(16);
 	updateTurnInfo();
 	initializePatrol();
+
+	SpellID flySpell = SpellID::FLY;
+	canCastFly = Hero->canCastThisSpell(flySpell.toSpell());
+
+	SpellID waterWalk = SpellID::WATER_WALK;
+	canCastWaterWalk = Hero->canCastThisSpell(waterWalk.toSpell());
 }
 
 CPathfinderHelper::~CPathfinderHelper()
@@ -501,11 +508,17 @@ bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer & layer) const
 		if(!options.useFlying)
 			return false;
 
+		if(canCastFly && options.canUseCast)
+			return true;
+
 		break;
 
 	case EPathfindingLayer::WATER:
 		if(!options.useWaterWalking)
 			return false;
+
+		if(canCastWaterWalk && options.canUseCast)
+			return true;
 
 		break;
 	}

@@ -114,7 +114,7 @@ namespace AIPathfinding
 			source->manaCost);
 #endif
 
-		return hero->mana >= (si32)(source->manaCost + getManaCost(hero));
+		return hero->mana >= source->manaCost + getManaCost(hero);
 	}
 
 	std::string SummonBoatAction::toString() const
@@ -122,7 +122,7 @@ namespace AIPathfinding
 		return "Summon Boat";
 	}
 
-	uint32_t SummonBoatAction::getManaCost(const CGHeroInstance * hero) const
+	int32_t SummonBoatAction::getManaCost(const CGHeroInstance * hero) const
 	{
 		SpellID summonBoat = SpellID::SUMMON_BOAT;
 

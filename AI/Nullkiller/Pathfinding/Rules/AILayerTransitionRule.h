@@ -13,6 +13,7 @@
 #include "../AINodeStorage.h"
 #include "../../AIGateway.h"
 #include "../Actions/BoatActions.h"
+#include "../Actions/AdventureSpellCastMovementActions.h"
 #include "../../../../CCallback.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../../../lib/pathfinder/PathfindingRules.h"
@@ -29,6 +30,8 @@ namespace AIPathfinding
 		std::map<int3, std::shared_ptr<const BuildBoatAction>> virtualBoats;
 		std::shared_ptr<AINodeStorage> nodeStorage;
 		std::map<const CGHeroInstance *, std::shared_ptr<const SummonBoatAction>> summonableVirtualBoats;
+		std::map<const CGHeroInstance *, std::shared_ptr<const WaterWalkingAction>> waterWalkingActions;
+		std::map<const CGHeroInstance *, std::shared_ptr<const AirWalkingAction>> airWalkingActions;
 
 	public:
 		AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, Nullkiller * ai, std::shared_ptr<AINodeStorage> nodeStorage);
@@ -41,15 +44,17 @@ namespace AIPathfinding
 
 	private:
 		void setup();
+		void collectVirtualBoats();
 
 		std::shared_ptr<const VirtualBoatAction> findVirtualBoat(
 			CDestinationNodeInfo & destination,
 			const PathNodeInfo & source) const;
 
-		bool tryEmbarkVirtualBoat(
+		bool tryUseSpecialAction(
 			CDestinationNodeInfo & destination,
 			const PathNodeInfo & source,
-			std::shared_ptr<const VirtualBoatAction> virtualBoat) const;
+			std::shared_ptr<const SpecialAction> specialAction,
+			EPathNodeAction targetAction) const;
 	};
 }
 

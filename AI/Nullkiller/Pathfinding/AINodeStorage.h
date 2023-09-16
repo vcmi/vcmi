@@ -45,7 +45,7 @@ struct AIPathNode : public CGPathNode
 {
 	uint64_t danger;
 	uint64_t armyLoss;
-	uint32_t manaCost;
+	int32_t manaCost;
 	const AIPathNode * chainOther;
 	std::shared_ptr<const SpecialAction> specialAction;
 	const ChainActor * actor;

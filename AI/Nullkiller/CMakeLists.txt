@@ -9,6 +9,7 @@ set(Nullkiller_SRCS
 		Pathfinding/Actions/BuyArmyAction.cpp
 		Pathfinding/Actions/BoatActions.cpp
 		Pathfinding/Actions/TownPortalAction.cpp
+		Pathfinding/Actions/AdventureSpellCastMovementActions.cpp
 		Pathfinding/Rules/AILayerTransitionRule.cpp
 		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
@@ -69,6 +70,7 @@ set(Nullkiller_HEADERS
 		Pathfinding/Actions/BuyArmyAction.h
 		Pathfinding/Actions/BoatActions.h
 		Pathfinding/Actions/TownPortalAction.h
+		Pathfinding/Actions/AdventureSpellCastMovementActions.h
 		Pathfinding/Rules/AILayerTransitionRule.h
 		Pathfinding/Rules/AIMovementAfterDestinationRule.h
 		Pathfinding/Rules/AIMovementToDestinationRule.h
