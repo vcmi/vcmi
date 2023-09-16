@@ -45,6 +45,31 @@ Some of H3 mechanics can't be straight considered as bug, but default VCMI behav
 
 Mouse click on castle icon in the town screen open quick recruitment window, where we can purhase in fast way units.
 
+## Color support
+
+Additional color are supported for text fields (e.g. map description). Uses HTML color syntax (e.g. #abcdef) / HTML predefined colors (e.g. green).
+
+##### Original Heroes III Support
+
+`This is white`
+
+<span style="color:white;background-color:black;">This is white</span>
+
+`{This is yellow}`
+
+<span style="color:yellow;background-color:black;">This is yellow</span>
+
+##### New
+
+`{#ff0000|This is red}`
+
+<span style="color:red">This is red</span>
+
+`{green|This is green}`
+
+<span style="color:green">This is green</span>
+
+
 # Manuals and guides
 
-- https://heroes.thelazy.net//index.php/Main_Page Wiki that aims to be a complete reference to Heroes of Might and Magic III. 
+- https://heroes.thelazy.net/index.php/Main_Page Wiki that aims to be a complete reference to Heroes of Might and Magic III. 
