@@ -17,6 +17,7 @@
 #include "renderSDL/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/CInputStream.h"
 
 #include <SDL_render.h>
 
@@ -367,7 +368,8 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 			show(x,y,dst,update);
 		else
 		{
-			open(fname);
+			VideoPath filenameToReopen = fname; // create copy to backup this->fname
+			open(filenameToReopen);
 			nextFrame();
 
 			// The y position is wrong at the first frame.
