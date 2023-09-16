@@ -873,12 +873,19 @@ void ApplyClientNetPackVisitor::visitPlayerBlocked(PlayerBlocked & pack)
 	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::playerBlocked, pack.reason, pack.startOrEnd == PlayerBlocked::BLOCKADE_STARTED);
 }
 
-void ApplyClientNetPackVisitor::visitYourTurn(YourTurn & pack)
+void ApplyClientNetPackVisitor::visitPlayerStartsTurn(PlayerStartsTurn & pack)
 {
 	logNetwork->debug("Server gives turn to %s", pack.player.toString());
 
 	callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, pack.player);
 	callOnlyThatInterface(cl, pack.player, &CGameInterface::yourTurn, pack.queryID);
+}
+
+void ApplyClientNetPackVisitor::visitPlayerEndsTurn(PlayerEndsTurn & pack)
+{
+	logNetwork->debug("Server ends turn of %s", pack.player.toString());
+
+	callAllInterfaces(cl, &IGameEventsReceiver::playerEndsTurn, pack.player);
 }
 
 void ApplyClientNetPackVisitor::visitTurnTimeUpdate(TurnTimeUpdate & pack)

@@ -53,7 +53,7 @@ public:
 	/// Ends player turn and removes this player from turn order
 	void onPlayerEndsGame(PlayerColor which);
 
-	/// Start game (or resume from save) and send YourTurn pack to player(s)
+	/// Start game (or resume from save) and send PlayerStartsTurn pack to player(s)
 	void onGameStarted();
 
 	template<typename Handler>

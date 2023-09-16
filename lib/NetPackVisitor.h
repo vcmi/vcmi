@@ -26,7 +26,7 @@ public:
 	virtual void visitSystemMessage(SystemMessage & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
 	virtual void visitPlayerCheated(PlayerCheated & pack) {}
-	virtual void visitYourTurn(YourTurn & pack) {}
+	virtual void visitPlayerStartsTurn(PlayerStartsTurn & pack) {}
 	virtual void visitDaysWithoutTown(DaysWithoutTown & pack) {}
 	virtual void visitTurnTimeUpdate(TurnTimeUpdate & pack) {}
 	virtual void visitEntitiesChanged(EntitiesChanged & pack) {}
@@ -41,6 +41,7 @@ public:
 	virtual void visitSetAvailableHeroes(SetAvailableHero & pack) {}
 	virtual void visitGiveBonus(GiveBonus & pack) {}
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
+	virtual void visitPlayerEndsTurn(PlayerEndsTurn & pack) {};
 	virtual void visitPlayerEndsGame(PlayerEndsGame & pack) {}
 	virtual void visitPlayerReinitInterface(PlayerReinitInterface & pack) {}
 	virtual void visitRemoveBonus(RemoveBonus & pack) {}

@@ -163,7 +163,7 @@ struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE YourTurn : public Query
+struct DLL_LINKAGE PlayerStartsTurn : public Query
 {
 	void applyGs(CGameState * gs) const;
 
@@ -431,6 +431,20 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 	{
 		h & objid;
 		h & nPos;
+	}
+};
+
+struct DLL_LINKAGE PlayerEndsTurn : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+
+	PlayerColor player;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & player;
 	}
 };
 
