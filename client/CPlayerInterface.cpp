@@ -1236,6 +1236,9 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
 	if(pa->packType == typeList.getTypeID<MoveHero>())
 		movementController->onMoveHeroApplied();
+
+	if(pa->packType == typeList.getTypeID<QueryReply>())
+		movementController->onQueryReplyApplied();
 }
 
 void CPlayerInterface::showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)

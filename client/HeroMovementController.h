@@ -1,5 +1,5 @@
 /*
- * CPlayerInterface.h, part of VCMI engine
+ * HeroMovementController.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -32,14 +32,11 @@ class HeroMovementController
 	/// movement was requested to be terminated, e.g. by player or due to inability to move
 	bool stoppingMovement = false;
 
+	bool waitingForQueryApplyReply = false;
+
 	const CGHeroInstance * currentlyMovingHero = nullptr;
 	AudioPath currentMovementSoundName;
 	int currentMovementSoundChannel = -1;
-
-	/// return final node in a path, if exists
-	std::optional<int3> getLastTile(const CGHeroInstance * h) const;
-	/// return first path in a path, if exists
-	std::optional<int3> getNextTile(const CGHeroInstance * h) const;
 
 	bool canHeroStopAtNode(const CGPathNode & node) const;
 
@@ -56,11 +53,16 @@ class HeroMovementController
 
 public:
 	// const queries
+
+	/// Returns true if hero should move through garrison without displaying garrison dialog
 	bool isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const;
+
+	/// Returns true if there is an ongoing hero movement process
 	bool isHeroMoving() const;
 
 	// netpack handlers
 	void onMoveHeroApplied();
+	void onQueryReplyApplied();
 	void onPlayerTurnStarted();
 	void onBattleStarted();
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID);
