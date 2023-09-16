@@ -8,7 +8,11 @@
 *
 */
 #pragma once
-#include "fl/Headers.h"
+#if __has_include(<fuzzylite/Headers.h>)
+#  include <fuzzylite/Headers.h>
+#else
+#  include <fl/Headers.h>
+#endif
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
