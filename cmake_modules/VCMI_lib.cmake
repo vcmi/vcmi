@@ -281,6 +281,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	set(lib_HEADERS
 		${MAIN_LIB_DIR}/../include/vstd/CLoggerBase.h
 		${MAIN_LIB_DIR}/../Global.h
+		${MAIN_LIB_DIR}/../AUTHORS.h
 		${MAIN_LIB_DIR}/StdInc.h
 
 		${MAIN_LIB_DIR}/../include/vstd/ContainerUtils.h

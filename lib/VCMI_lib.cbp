@@ -127,6 +127,7 @@
 		</Linker>
 		<Unit filename="../CMakeLists.txt" />
 		<Unit filename="../Global.h" />
+		<Unit filename="../AUTHORS.h" />
 		<Unit filename="../Version.h" />
 		<Unit filename="../include/vcmi/Artifact.h" />
 		<Unit filename="../include/vcmi/ArtifactService.h" />
