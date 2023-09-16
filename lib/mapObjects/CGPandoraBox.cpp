@@ -212,7 +212,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 			for(int idx = 0; idx < reward.primary.size(); idx ++)
 			{
 				handler.serializeInt(NPrimarySkill::names[idx], reward.primary[idx], 0);
-				updateReward |= reward.primary[idx];
+				updateReward |= bool(reward.primary[idx]);
 			}
 			addReward(updateReward);
 		}
