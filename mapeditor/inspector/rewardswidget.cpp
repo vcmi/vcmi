@@ -511,6 +511,7 @@ void RewardsWidget::on_removeVisitInfo_clicked()
 	delete ui->visitInfoList->currentItem();
 	ui->visitInfoList->blockSignals(false);
 	on_visitInfoList_itemSelectionChanged();
+	loadCurrentVisitInfo(ui->visitInfoList->currentRow());
 }
 
 void RewardsWidget::on_selectMode_currentIndexChanged(int index)
@@ -534,13 +535,15 @@ void RewardsWidget::on_visitInfoList_itemSelectionChanged()
 	}
 	
 	ui->eventInfoGroup->show();
-	loadCurrentVisitInfo(ui->visitInfoList->currentRow());
 }
 
 void RewardsWidget::on_visitInfoList_currentItemChanged(QListWidgetItem * current, QListWidgetItem * previous)
 {
 	if(previous)
 		saveCurrentVisitInfo(ui->visitInfoList->row(previous));
+	
+	if(current)
+		loadCurrentVisitInfo(ui->visitInfoList->currentRow());
 }
 
 
