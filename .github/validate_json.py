@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import re
 from pathlib import Path
 from pprint import pprint
@@ -20,7 +22,7 @@ for path in sorted(Path('.').glob('**/*.json')):
         with open(path_str, 'r') as file:
             if VALIDATION_TYPE == 'json':
                 jstyleson.load(file)
-            if VALIDATION_TYPE == 'json5':
+            elif VALIDATION_TYPE == 'json5':
                 json5.load(file)
             elif VALIDATION_TYPE == 'yaml':
                 file = file.read().replace("\t", "    ")
@@ -33,17 +35,21 @@ for path in sorted(Path('.').glob('**/*.json')):
 
         error_pos = path_str
 
+        # create error position strings for each type of parser
         if hasattr(exc, 'pos'):
+            # 'json'
             # https://stackoverflow.com/a/72850269/2278742
             error_pos = f"{path_str}:{exc.lineno}:{exc.colno}"
             print(error_pos)
-        if hasattr(exc, 'problem_mark'):
+        elif VALIDATION_TYPE == 'json5':
+            # 'json5'
+            pos = re.findall(r'\d+', str(exc))
+            error_pos = f"{path_str}:{pos[0]}:{pos[-1]}"
+        elif hasattr(exc, 'problem_mark'):
+            # 'yaml'
             mark = exc.problem_mark
             error_pos = f"{path_str}:{mark.line+1}:{mark.column+1}"
             print(error_pos)
-        if VALIDATION_TYPE == 'json5':
-            pos = re.findall(r'\d+', str(exc))
-            error_pos = f"{path_str}:{pos[0]}:{pos[-1]}"
 
         errors.append({"error_pos": error_pos, "error_msg": exc})
 

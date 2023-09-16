@@ -147,7 +147,8 @@ jobs:
 
     - name: Validate JSON
       # the Python yaml module doesn't seem to work on mac-arm
-      if: ${{ startsWith(matrix.preset, 'linux') }}
+      # also, running it on multiple presets is redundant and slightly increases already long CI built times
+      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
       run: |
         pip3 install json5 jstyleson
         python3 .github/validate_json.py
