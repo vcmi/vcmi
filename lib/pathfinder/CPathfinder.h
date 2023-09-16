@@ -121,6 +121,8 @@ public:
 
 	int movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const;
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
+
+	int getGuardiansCount(int3 tile) const;
 };
 
 VCMI_LIB_NAMESPACE_END

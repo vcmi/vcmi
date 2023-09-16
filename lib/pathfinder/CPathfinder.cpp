@@ -455,6 +455,11 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 	return true;
 }
 
+int CPathfinderHelper::getGuardiansCount(int3 tile) const
+{
+	return getGuardingCreatures(tile).size();
+}
+
 CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
 	CGameInfoCallback(gs),
 	turn(-1),
