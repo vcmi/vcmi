@@ -45,10 +45,13 @@ class CHeroOverview : public CWindowObject
     std::shared_ptr<CLabel> labelWarMachineTitle;
     std::vector<std::shared_ptr<CAnimImage>> imageWarMachine;
 
-    std::shared_ptr<CLabel> labelSpellBookTitle;
-    std::shared_ptr<CAnimImage> imageSpellBook;
+    std::shared_ptr<CLabel> labelSpellTitle;
     std::vector<std::shared_ptr<CAnimImage>> imageSpells;
     std::vector<std::shared_ptr<CLabel>> labelSpellsNames;
+
+    std::shared_ptr<CLabel> labelSecSkillTitle;
+    std::vector<std::shared_ptr<CAnimImage>> imageSecSkills;
+    std::vector<std::shared_ptr<CLabel>> labelSecSkillsNames;
 
     void genHeader();
     void genHeroWindow();

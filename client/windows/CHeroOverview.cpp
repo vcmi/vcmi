@@ -24,6 +24,8 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 
 CHeroOverview::CHeroOverview(const HeroTypeID & h)
 	: CWindowObject(BORDERED | RCLICK_POPUP), hero { h }
@@ -197,9 +199,8 @@ void CHeroOverview::genHeader()
         }
     }
 
-
     // war machine title
-    labelWarMachineTitle = std::make_shared<CLabel>(302 + borderOffset, 4 * borderOffset + yOffset + 30 + 32 + 28, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: War Machine");
+    labelWarMachineTitle = std::make_shared<CLabel>(302 + borderOffset, 4 * borderOffset + yOffset + 30 + 32 + 27, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: War Machine");
 
     // war machine
     i = 0;
@@ -218,18 +219,32 @@ void CHeroOverview::genHeader()
         }
     }
 
-    /*std::shared_ptr<CLabel> labelArmyTitle;
-    std::vector<std::shared_ptr<CAnimImage>> imageArmy;
-    std::vector<std::shared_ptr<CLabel>> labelArmyNames;
+    // secskill title
+    labelSecSkillTitle = std::make_shared<CLabel>(302 + borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: Sek. Skills");
 
-    std::shared_ptr<CLabel> labelWarMachineTitle;
-    std::vector<std::shared_ptr<CAnimImage>> imageWarMachine;
-    std::vector<std::shared_ptr<CLabel>> labelWarMachineNames;
+    // spell title
+    labelSpellTitle = std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: Spells");
 
-    std::shared_ptr<CLabel> labelSpellBookTitle;
-    std::shared_ptr<CAnimImage> imageSpellBook;
-    std::vector<std::shared_ptr<CAnimImage>> imageSpells;
-    std::vector<std::shared_ptr<CLabel>> labelSpellsNames;*/
+    // secskill
+    i = 0;
+    for(auto & skill : (*CGI->heroh)[heroIndex]->secSkillsInit)
+    {
+        imageSecSkills.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), (*CGI->skillh)[skill.first]->getIconIndex(), 0, 302, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset)));
+        labelSecSkillsNames.push_back(std::make_shared<CLabel>(302 + 32 + 2 * borderOffset, 8 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->levels[skill.second - 1]));
+        labelSecSkillsNames.push_back(std::make_shared<CLabel>(302 + 32 + 2 * borderOffset, 8 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->skillh)[skill.first]->getNameTranslated()));
+ 
+        i++;
+    }
+
+    // spell
+    i = 0;
+    for(auto & spell : (*CGI->heroh)[heroIndex]->spells)
+    {
+        imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("SPELLBON")), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset), 32, 32), 0));
+        labelSpellsNames.push_back(std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset + 32 + borderOffset, 8 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) + 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->spellh)[spell]->getNameTranslated()));
+
+        i++;
+    }
 }
 
 void CHeroOverview::genHeroWindow()
