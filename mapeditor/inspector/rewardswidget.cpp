@@ -208,7 +208,10 @@ bool RewardsWidget::commitChanges()
 	object.configuration.visitMode = ui->visitMode->currentIndex();
 	object.configuration.selectMode = ui->selectMode->currentIndex();
 	object.configuration.infoWindowType = EInfoWindowMode(ui->windowMode->currentIndex());
-	object.configuration.onSelect = MetaString::createFromRawString(ui->onSelectText->text().toStdString());
+	if(ui->onSelectText->text().isEmpty())
+		object.configuration.onSelect.clear();
+	else
+		object.configuration.onSelect = MetaString::createFromRawString(ui->onSelectText->text().toStdString());
 	object.configuration.canRefuse = ui->canRefuse->isChecked();
 	
 	//reset parameters
@@ -226,7 +229,10 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 {
 	auto & vinfo = object.configuration.info.at(index);
 	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-	vinfo.message = MetaString::createFromRawString(ui->rewardMessage->text().toStdString());
+	if(ui->rewardMessage->text().isEmpty())
+		vinfo.message.clear();
+	else
+		vinfo.message = MetaString::createFromRawString(ui->rewardMessage->text().toStdString());
 	
 	vinfo.reward.heroLevel = ui->rHeroLevel->value();
 	vinfo.reward.heroExperience = ui->rHeroExperience->value();

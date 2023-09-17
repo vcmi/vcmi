@@ -206,6 +206,11 @@ enum class EArmyFormation : uint8_t
 	TIGHT
 };
 
+namespace NArmyFormation
+{
+	static const std::vector<std::string> names{ "wide", "tight" };
+}
+
 class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet &) = delete;
@@ -284,7 +289,7 @@ public:
 		h & formation;
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize = std::nullopt);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize = std::nullopt);
 
 	operator bool() const
 	{

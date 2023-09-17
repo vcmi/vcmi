@@ -196,7 +196,7 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::serializeJson(handler, "army", 7);
+	CArmedInstance::serializeJsonOptions(handler);
 
 	if(isAbandoned())
 	{
@@ -316,7 +316,9 @@ void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::serializeJson(handler, "guards", 7);
+	CArmedInstance::serializeJsonOptions(handler);
+	if(!handler.saving && !handler.getCurrent()["guards"].Vector().empty())
+		CCreatureSet::serializeJson(handler, "guards", 7);
 	handler.serializeInt("amount", amount, 0);
 	handler.serializeString("guardMessage", message);
 }
@@ -827,7 +829,9 @@ void CGArtifact::afterAddToMap(CMap * map)
 void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	handler.serializeString("guardMessage", message);
-	CCreatureSet::serializeJson(handler, "guards" ,7);
+	CArmedInstance::serializeJsonOptions(handler);
+	if(!handler.saving && !handler.getCurrent()["guards"].Vector().empty())
+		CCreatureSet::serializeJson(handler, "guards", 7);
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
@@ -1233,7 +1237,7 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	handler.serializeBool("removableUnits", removableUnits);
 	serializeJsonOwner(handler);
-	CCreatureSet::serializeJson(handler, "army", 7);
+	CArmedInstance::serializeJsonOptions(handler);
 }
 
 void CGMagi::reset()

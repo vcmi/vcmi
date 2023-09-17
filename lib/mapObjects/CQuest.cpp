@@ -799,7 +799,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	
 	if(!handler.saving)
 	{
-		//backward compatibility
+		//backward compatibility for VCMI maps that use old SeerHut format
 		auto s = handler.enterStruct("reward");
 		const JsonNode & rewardsJson = handler.getCurrent();
 		

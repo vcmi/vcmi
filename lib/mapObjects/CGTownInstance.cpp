@@ -1093,11 +1093,10 @@ void CGTownInstance::reset()
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	static const std::vector<std::string> FORMATIONS  =	{ "wide", "tight" };
-
 	CGObjectInstance::serializeJsonOwner(handler);
-	CCreatureSet::serializeJson(handler, "army", 7);
-	handler.serializeEnum("tightFormation", formation, FORMATIONS);
+	if(!handler.saving)
+		handler.serializeEnum("tightFormation", formation, NArmyFormation::names); //for old format
+	CArmedInstance::serializeJsonOptions(handler);
 	handler.serializeString("name", name);
 
 	{

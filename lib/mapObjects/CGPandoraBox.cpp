@@ -28,9 +28,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CGPandoraBox::init()
 {
 	blockVisit = true;
+	configuration.info.emplace_back();
+	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	
 	for(auto & i : configuration.info)
+	{
 		i.reward.removeObject = true;
+		if(!message.empty() && i.message.empty())
+			i.message = MetaString::createFromRawString(message);
+	}
 }
 
 void CGPandoraBox::initObj(CRandomGenerator & rand)
@@ -202,14 +208,17 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CRewardableObject::serializeJsonOptions(handler);
+	
 	handler.serializeString("guardMessage", message);
 	
 	if(!handler.saving)
 	{
-		//backward compatibility
-		CCreatureSet::serializeJson(handler, "guards", 7);
-		configuration.info.emplace_back();
-		Rewardable::VisitInfo & vinfo = configuration.info.back();
+		//backward compatibility for VCMI maps that use old Pandora Box format
+		if(!handler.getCurrent()["guards"].Vector().empty())
+			CCreatureSet::serializeJson(handler, "guards", 7);
+		
+		bool hasSomething = false;
+		Rewardable::VisitInfo vinfo;
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				
 		handler.serializeInt("experience", vinfo.reward.heroExperience, 0);
@@ -230,6 +239,8 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 			for(int idx = 0; idx < vinfo.reward.primary.size(); idx ++)
 			{
 				handler.serializeInt(NPrimarySkill::names[idx], vinfo.reward.primary[idx], 0);
+				if(vinfo.reward.primary[idx])
+					hasSomething = true;
 			}
 		}
 		
@@ -261,6 +272,19 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				vinfo.reward.secondary[rawId] = level;
 			}
 		}
+		
+		hasSomething = hasSomething
+		|| vinfo.reward.heroExperience
+		|| vinfo.reward.manaDiff
+		|| vinfo.reward.resources.nonZero()
+		|| !vinfo.reward.bonuses.empty()
+		|| !vinfo.reward.artifacts.empty()
+		|| !vinfo.reward.secondary.empty()
+		|| !vinfo.reward.artifacts.empty()
+		|| !vinfo.reward.creatures.empty();
+		
+		if(hasSomething)
+			configuration.info.push_back(vinfo);
 	}
 }
 

@@ -138,7 +138,7 @@ protected:
 	void afterAddToMapCommon(CMap * map) const;
 };
 
-class DLL_LINKAGE CGSeerHut : public CRewardableObject, public IQuestObject //army is used when giving reward
+class DLL_LINKAGE CGSeerHut : public CRewardableObject, public IQuestObject
 {
 public:
 	std::string seerName;

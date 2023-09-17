@@ -119,76 +119,28 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeIdArray("artifacts", artifacts);
 	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);
-	{
-		auto a = handler.enterArray("primary");
-		a.syncSize(primary);
-		for(int i = 0; i < primary.size(); ++i)
-			a.serializeInt(i, primary[i]);
-	}
-	
+	handler.enterArray("primary").serializeArray(primary);
 	{
 		auto a = handler.enterArray("secondary");
-		std::vector<std::pair<std::string, std::string>> fieldValue;
-		if(handler.saving)
+		std::vector<std::pair<SecondarySkill, si32>> fieldValue(secondary.begin(), secondary.end());
+		a.serializeStruct<std::pair<SecondarySkill, si32>>(fieldValue, [](JsonSerializeFormat & h, std::pair<SecondarySkill, si32> & e)
 		{
-			for(auto & i : secondary)
-			{
-				auto key = VLC->skillh->encodeSkill(i.first);
-				auto value = NSecondarySkill::levels.at(i.second);
-				fieldValue.emplace_back(key, value);
-			}
-		}
+			h.serializeId("skill", e.first, SecondarySkill{}, VLC->skillh->decodeSkill, VLC->skillh->encodeSkill);
+			h.serializeId("level", e.second, 0, [](const std::string & i){return vstd::find_pos(NSecondarySkill::levels, i);}, [](si32 i){return NSecondarySkill::levels.at(i);});
+		});
 		a.syncSize(fieldValue);
-		for(int i = 0; i < fieldValue.size(); ++i)
-		{
-			auto e = a.enterStruct(i);
-			e->serializeString("skill", fieldValue[i].first);
-			e->serializeString("level", fieldValue[i].second);
-		}
-		if(!handler.saving)
-		{
-			for(auto & i : fieldValue)
-			{
-				const int skillId = VLC->skillh->decodeSkill(i.first);
-				if(skillId < 0)
-				{
-					logGlobal->error("Invalid secondary skill %s", i.first);
-					continue;
-				}
-				
-				const int level = vstd::find_pos(NSecondarySkill::levels, i.second);
-				if(level < 0)
-				{
-					logGlobal->error("Invalid secondary skill level%s", i.second);
-					continue;
-				}
-				
-				secondary[SecondarySkill(skillId)] = level;
-			}
-				
-		}
+		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
 	}
 	
 	{
 		auto a = handler.enterArray("creaturesChange");
-		std::vector<std::pair<CreatureID, CreatureID>> fieldValue;
-		if(handler.saving)
+		std::vector<std::pair<CreatureID, CreatureID>> fieldValue(creaturesChange.begin(), creaturesChange.end());
+		a.serializeStruct<std::pair<CreatureID, CreatureID>>(fieldValue, [](JsonSerializeFormat & h, std::pair<CreatureID, CreatureID> & e)
 		{
-			for(auto & i : creaturesChange)
-				fieldValue.push_back(i);
-		}
-		a.syncSize(fieldValue);
-		for(int i = 0; i < fieldValue.size(); ++i)
-		{
-			auto e = a.enterStruct(i);
-			e->serializeId("creature", fieldValue[i].first, CreatureID{});
-			e->serializeId("amount", fieldValue[i].second, CreatureID{});
-		}
-		if(!handler.saving)
-		{
-			for(auto & i : fieldValue)
-				creaturesChange[i.first] = i.second;
-		}
+			h.serializeId("creature", e.first, CreatureID{});
+			h.serializeId("amount", e.second, CreatureID{});
+		});
+		creaturesChange = std::map<CreatureID, CreatureID>(fieldValue.begin(), fieldValue.end());
 	}
 	
 	{

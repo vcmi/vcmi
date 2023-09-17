@@ -160,4 +160,10 @@ const IBonusBearer* CArmedInstance::getBonusBearer() const
 	return this;
 }
 
+void CArmedInstance::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	CGObjectInstance::serializeJsonOptions(handler);
+	CCreatureSet::serializeJson(handler, "army", 7);
+}
+
 VCMI_LIB_NAMESPACE_END

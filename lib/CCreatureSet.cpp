@@ -624,12 +624,13 @@ void CCreatureSet::armyChanged()
 
 }
 
-void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize)
+void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize)
 {
 	if(handler.saving && stacks.empty())
 		return;
 
-	auto a = handler.enterArray(fieldName);
+	handler.serializeEnum("formation", formation, NArmyFormation::names);
+	auto a = handler.enterArray(armyFieldName);
 
 
 	if(handler.saving)
