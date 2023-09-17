@@ -226,6 +226,14 @@ TODO: blesses and curses with id = val dependent on unit's level
 
 - subtype: 0 or 1 for Coronius
 
+### SPECIAL_ADD_VALUE_ENCHANT
+
+TODO: specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add
+
+### SPECIAL_FIXED_VALUE_ENCHANT
+
+TODO: specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.
+
 ### SPECIAL_UPGRADE
 
 Allows creature upgrade for affected armies
@@ -689,7 +697,15 @@ Affected unit can cast randomly selected beneficial spell on its turn (Master Ge
 
 - val - spell mastery level
 
+### CASTS
+
+Determines how many times per combat affected creature can cast its targeted spell
+
+- val: number of casts available per combat
+
 ### SPELL_AFTER_ATTACK
+
+TODO: 
 
 - subtype - spell id
 - value - chance %
@@ -699,167 +715,196 @@ Affected unit can cast randomly selected beneficial spell on its turn (Master Ge
 
 ### SPELL_BEFORE_ATTACK
 
+TODO: 
+
 - subtype - spell id
 - value - chance %
 - additional info - \[X, Y\]
 - X - spell level
 - Y = 0 - all attacks, 1 - shot only, 2 - melee only
 
-### CASTS
-
-how many times creature can cast activated spell
-
 ### SPECIFIC_SPELL_POWER
 
-- value used for Thunderbolt and Resurrection casted by units, also
-    for Healing secondary skill (for core:spell.firstAid used by First
-    Aid tent)
+TODO: 
+
+- value used for Thunderbolt and Resurrection casted by units, also for Healing secondary skill (for core:spell.firstAid used by First Aid tent)
 - subtype - spell id
 
 ### CREATURE_SPELL_POWER
+
+TODO: 
 
 - value per unit, divided by 100 (so faerie Dragons have 500)
 
 ### CREATURE_ENCHANT_POWER
 
+TODO: 
+
 total duration of spells casted by creature
 
 ### REBIRTH
+
+Affected stack will resurrect after death
+
+TODO: recheck math
 
 - val - percent of total stack HP restored
 - subtype = 0 - regular, 1 - at least one unit (sacred Phoenix)
 
 ### ENCHANTED
 
-Stack is permanently enchanted with spell subID of skill level = val, if val > 3 then spell is mass and has level of val-3. Enchantment is refreshed every turn.
+Affected unit is permanently enchanted with a spell, that is cast again every turn
+
+- subtype: spell identifier
+- val: spell mastery level. If above 3, then spell has mass effect with mastery level of (val-3)
 
 ## Spell immunities
 
 ### LEVEL_SPELL_IMMUNITY
 
-creature is immune to all spell with level below or equal to value of this bonus
+Affected unit is immune to all spell with level below or equal to value of this bonus
+
+- val: level to which this unit is immune to
+
+TODO: additional info?
 
 ### MAGIC_RESISTANCE
 
-- value - percent
+Affected unit has a chance to resist hostile spell and avoid its effects
+
+- val: chance to trigger, percentage
 
 ### SPELL_DAMAGE_REDUCTION
 
-eg. golems
+Affected unit receives decreased damage from spells of specific school (Golems)
 
-- value - reduction in %
-- subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 -
-    earth
+- val: reduction to damage, percentage
+- subtype - spell school identifier
 
 ### MORE_DAMAGE_FROM_SPELL
 
-- value - damage increase in %
-- subtype - spell id
+Affected unit receives increased damage from specific spell
 
-### FIRE_IMMUNITY,WATER_IMMUNITY, EARTH_IMMUNITY, AIR_IMMUNITY
-
-- subtype 0 - all, 1 - all except positive, 2 - only damage spells
+- val: increase to damage, percentage
+- subtype: spell identifer
 
 ### MIND_IMMUNITY
 
-Creature is immune to all mind spells.
+Affected creature is immune to all mind spells and receives reduced damage from Mind Elemental
 
 ### SPELL_IMMUNITY
 
-- subtype - spell id
-- ainfo - 0 - normal, 1 - absolute
+Affected unit is completely immune to effects of specific spell
+
+- subid: identifier of spell to which unit is immune
 
 ### RECEPTIVE
 
-WoG ability. Creature accepts all friendly spells even though it would
-be normally immune to it.
+Affected unit can be affected by all friendly spells even it would be normally immune to such spell.
 
 # Spell effects
 
 ### POISON
 
+TODO: describe
+
 - val - max health penalty from poison possible
 
 ### SLAYER
 
-- value - spell level
+Affected unit will deal increased damage to creatures with KING bonus
 
-### BIND_EFFECT
-
-doesn't do anything particular, works as a marker
+- val: skill mastery of Slayer spell, only creatures with lower or equal value of KING bonus are affected
 
 ### FORGETFULL
 
-forgetfulness spell effect
+Affected unit has its ranged attack power reduced (Forgetfulness)
 
-- value - level
+- val: if 0 or 1, damage is reduced by 50%. If greater than 1 then creature can not use ranged attacks
 
 ### NOT_ACTIVE
 
+Affected unit can not act and is excluded from turn order (Blind, Stone Gaze, Paralyze)
+
 ### ALWAYS_MINIMUM_DAMAGE
 
-unit does its minimum damage from range
+Affected creature always deals its minimum damage
 
-- subtype: -1 - any attack, 0 - melee, 1 - ranged
-- value: additional damage penalty (it'll subtracted from dmg)
-- additional info - multiplicative anti-bonus for dmg in % \[eg 20
-    means that creature will inflict 80% of normal minimal dmg\]
+- val: additional decrease to unit's minimum damage, points. Can not reduce damage to zero
 
 ### ALWAYS_MAXIMUM_DAMAGE
 
-eg. bless effect
+Affected creature always deals its maximum damage. If unit is also affected by ALWAYS_MINIMUM_DAMAGE then only additional bonus to damage will be applied
 
-- subtype: -1 - any attack, 0 - melee, 1 - ranged
-- value: additional damage
-- additional info - multiplicative bonus for dmg in %
+- val: additional increase to unit's maximum damage, points
 
 ### ATTACKS_NEAREST_CREATURE
 
-while in berserk
+Affected unit can not be controlled by player and instead it will attempt to move and attack nearest unit, friend or foe
 
 ### IN_FRENZY
 
-- value - level
+Affected unit's defence is reduced to 0 and is transferred to attack with specified multiplier
+
+- val: multiplier factor with which defence is transferred to attack (percentage)
 
 ### HYPNOTIZED
 
+Affected unit is considered to be hypnotized and will be controlled by enemy player
+
 ### NO_RETALIATION
 
-Eg. when blinded or paralyzed.
+Affected unit will never retaliate to an attack (Blind, Paralyze)
 
-# Undocumented
-
-### LEVEL_COUNTER
-for commander artifacts
+# Others
 
 ### BLOCK_MAGIC_ABOVE
-blocks casting spells of the level > value 
+
+Blocks casting spells of the level above specified one in battles affected by this bonus
+
+- val: level above which spellcasting is blocked
 
 ### BLOCK_ALL_MAGIC
-blocks casting spells
 
-### SPELL_IMMUNITY
-subid - spell id
+Blocks casting of all spells in battles affected by this bonus
 
 ### GENERAL_DAMAGE_PREMY
 
+Affected unit will deal more damage in all attacks (Adela specialty)
+
+- val: additional damage, percentage
+
 ### DISGUISED
-subtype - spell level
+
+Affected heroes will be under effect of Disguise spell, hiding some of their information from opposing players
+
+- subtype: spell mastery level
 
 ### VISIONS
-subtype - spell level
 
-### SYNERGY_TARGET
-dummy skill for alternative upgrades mod
+Affected heroes will be under effect of Visions spell, revealing information of enemy objects in specific range
+
+- val: multiplier to effect range. Information is revealed within (val \* hero spell power) range
 
 ### BLOCK_MAGIC_BELOW
-blocks casting spells of the level < value 
 
-### SPECIAL_ADD_VALUE_ENCHANT
-specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add
+Blocks casting spells of the level below specified one in battles affected by this bonus
 
-### SPECIAL_FIXED_VALUE_ENCHANT
-specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.
+- val: level below which spellcasting is blocked
+
+### BIND_EFFECT
+
+Dummy bonus that acts as marker for Dendroid's Bind ability
+
+### SYNERGY_TARGET
+
+Dummy skill for alternative upgrades mod
 
 ### TOWN_MAGIC_WELL
-one-time pseudo-bonus to implement Magic Well in the town
+
+Internal bonus, do not use
+
+### LEVEL_COUNTER
+
+Internal bonus, do not use
+
