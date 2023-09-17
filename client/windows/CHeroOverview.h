@@ -12,6 +12,7 @@
 #include "../windows/CWindowObject.h"
 
 class CLabel;
+class CMultiLineLabel;
 class CFilledTexture;
 class CAnimImage;
 class CComponentBox;
@@ -19,7 +20,7 @@ class CTextBox;
 
 class CHeroOverview : public CWindowObject
 {
-	const HeroTypeID & hero;
+	//const HeroTypeID & hero;
 	int heroIndex;
 
     std::shared_ptr<CFilledTexture> backgroundTexture;
@@ -28,12 +29,12 @@ class CHeroOverview : public CWindowObject
     std::shared_ptr<CAnimImage> image;
 
     std::shared_ptr<CLabel> labelHeroName;
+    std::shared_ptr<CMultiLineLabel> labelHeroBiography;
     std::shared_ptr<CLabel> labelHeroClass;
     std::shared_ptr<CLabel> labelHeroSpeciality;
     std::shared_ptr<CAnimImage> imageSpeciality;
     std::shared_ptr<CLabel> labelSpecialityName;
-
-    std::shared_ptr<CTextBox> textBonusDescription;
+    std::shared_ptr<CMultiLineLabel> labelSpecialityDescription;
 
     void genHeader();
     void genHeroWindow();
