@@ -21,7 +21,8 @@
 						"type" : "object",
 						"properties" : {
 							"verticalPosition" : {"type" : "string", "enum" :["top","bottom"]},
-							"defName" : {"type" : "string", "format" : "defFile"}
+							"defName" : {"type" : "string", "format" : "defFile"},
+							"effectName" : { "type" : "string" }
 						},
 						"additionalProperties" : false
 					}
