@@ -89,12 +89,59 @@ void CHeroOverview::genHeader()
 
     // army title
     canvas.drawColorBlended(Rect(302, borderOffset + yOffset, 292, 30), ColorRGBA(0, 0, 0, alpha));
+    canvas.drawBorder(Rect(302 - 1, borderOffset + yOffset - 1, 292 + 2, 30 + 2), borderColor);
 
     // army
     for(int i = 0; i < 6; i++)
     {
-        int space = (292 - 6 * 32) / 5;
-        canvas.drawColorBlended(Rect(302 + i * (32 + space), 2 * borderOffset + yOffset + 30, 32, 32), ColorRGBA(0, 0, 0, alpha));
+        int space = (292 - 32 - 6 * 32) / 5;
+        canvas.drawColorBlended(Rect(302 + i * (32 + space) + 16, 2 * borderOffset + yOffset + 30, 32, 32), ColorRGBA(0, 0, 0, alpha));
+        canvas.drawBorder(Rect(302 + i * (32 + space) + 16 - 1, 2 * borderOffset + yOffset + 30 - 1, 32 + 2, 32 + 2), borderColor);
+    }
+
+    // army footer
+    canvas.drawColorBlended(Rect(302, 3 * borderOffset + yOffset + 30 + 32, 292, 20), ColorRGBA(0, 0, 0, alpha));
+    canvas.drawBorder(Rect(302 - 1, 3 * borderOffset + yOffset + 30 + 32 - 1, 292 + 2, 20 + 2), borderColor);
+
+    // warmachine title
+    canvas.drawColorBlended(Rect(302, 4 * borderOffset + yOffset + 30 + 32 + 20, 292, 30), ColorRGBA(0, 0, 0, alpha));
+    canvas.drawBorder(Rect(302 - 1, 4 * borderOffset + yOffset + 30 + 32 + 20 - 1, 292 + 2, 30 + 2), borderColor);
+
+    // warmachine
+    for(int i = 0; i < 6; i++)
+    {
+        int space = (292 - 32 - 6 * 32) / 5;
+        canvas.drawColorBlended(Rect(302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 30 + 32 + 20 + 30, 32, 32), ColorRGBA(0, 0, 0, alpha));
+        canvas.drawBorder(Rect(302 + i * (32 + space) + 16 - 1, 5 * borderOffset + yOffset + 30 + 32 + 20 + 30 - 1, 32 + 2, 32 + 2), borderColor);
+    }
+
+    // secskill title
+    canvas.drawColorBlended(Rect(302, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32, (292 / 2) - 2 * borderOffset, 30), ColorRGBA(0, 0, 0, alpha));
+    canvas.drawBorder(Rect(302 - 1, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 - 1, (292 / 2) - 2 * borderOffset + 2, 30 + 2), borderColor);
+
+    // vertical line
+    canvas.drawLine(Point(302 + (292 / 2), 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32), Point(302 + (292 / 2), 445), borderColor, borderColor);
+
+    // spell title
+    canvas.drawColorBlended(Rect(302 + (292 / 2) + 2 * borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32, (292 / 2) - 2 * borderOffset, 30), ColorRGBA(0, 0, 0, alpha));
+    canvas.drawBorder(Rect(302 + (292 / 2) + 2 * borderOffset - 1, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 - 1, (292 / 2) - 2 * borderOffset + 2, 30 + 2), borderColor);
+
+    // secskill
+    for(int i = 0; i < 6; i++)
+    {
+        canvas.drawColorBlended(Rect(302, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset), 32, 32), ColorRGBA(0, 0, 0, alpha));
+        canvas.drawBorder(Rect(302 - 1, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) - 1, 32 + 2, 32 + 2), borderColor);
+        canvas.drawColorBlended(Rect(302 + 32 + borderOffset, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset), (292 / 2) - 32 - 3 * borderOffset, 32), ColorRGBA(0, 0, 0, alpha));
+        canvas.drawBorder(Rect(302 + 32 + borderOffset - 1, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) - 1, (292 / 2) - 32 - 3 * borderOffset + 2, 32 + 2), borderColor);
+    }
+
+    // spell
+    for(int i = 0; i < 6; i++)
+    {
+        canvas.drawColorBlended(Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset), 32, 32), ColorRGBA(0, 0, 0, alpha));
+        canvas.drawBorder(Rect(302 + (292 / 2) + 2 * borderOffset - 1, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) - 1, 32 + 2, 32 + 2), borderColor);
+        canvas.drawColorBlended(Rect(302 + (292 / 2) + 2 * borderOffset + 32 + borderOffset, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset), (292 / 2) - 32 - 3 * borderOffset, 32), ColorRGBA(0, 0, 0, alpha));
+        canvas.drawBorder(Rect(302 + (292 / 2) + 2 * borderOffset + 32 + borderOffset - 1, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) - 1, (292 / 2) - 32 - 3 * borderOffset + 2, 32 + 2), borderColor);
     }
 
     std::shared_ptr<IImage> backgroundShapesImg = GH.renderHandler().createImage(canvas.getInternalSurface());
@@ -143,28 +190,46 @@ void CHeroOverview::genHeader()
     {
         if((*CGI->creh)[army.creature]->warMachine == ArtifactID::NONE)
         {
-            imageArmy.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 300 + 5 + i * 32, 30 + 100)); // size 32x32
-            labelArmyNames.push_back(std::make_shared<CLabel>(300 + 5 + i * 32 + 16, 30 + 40 + 100, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->creh)[army.creature]->getNameSingularTranslated()));
-            labelArmyCount.push_back(std::make_shared<CLabel>(300 + 5 + i * 32 + 16, 30 + 60 + 100, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (army.minAmount == army.maxAmount) ? std::to_string(army.minAmount) : std::to_string(army.minAmount) + "-" + std::to_string(army.maxAmount)));
+            int space = (292 - 32 - 6 * 32) / 5;
+            imageArmy.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 2 * borderOffset + yOffset + 30));
+            labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 32, 3 * borderOffset + yOffset + 30 + 32 + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (army.minAmount == army.maxAmount) ? std::to_string(army.minAmount) : std::to_string(army.minAmount) + "-" + std::to_string(army.maxAmount)));
             i++;
         }
     }
 
 
     // war machine title
-    labelWarMachineTitle = std::make_shared<CLabel>(300 + 5, 5 + 5 + 100 + 100, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "war m");
+    labelWarMachineTitle = std::make_shared<CLabel>(302 + borderOffset, 4 * borderOffset + yOffset + 30 + 32 + 28, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: War Machine");
 
     // war machine
     i = 0;
     for(auto & army : (*CGI->heroh)[heroIndex]->initialArmy)
     {
+        int space = (292 - 32 - 6 * 32) / 5;
+        if(i == 0)
+        {
+            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature.CATAPULT]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 30 + 32 + 20 + 30));
+            i++;
+        }
         if((*CGI->creh)[army.creature]->warMachine != ArtifactID::NONE)
         {
-            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 300 + 5 + i * 32, 30 + 100 + 100)); // size 32x32
-            labelWarMachineNames.push_back(std::make_shared<CLabel>(300 + 5 + i * 32 + 16, 30 + 40 + 100 + 100, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->creh)[army.creature]->getNameSingularTranslated()));
+            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 30 + 32 + 20 + 30));
             i++;
         }
     }
+
+    /*std::shared_ptr<CLabel> labelArmyTitle;
+    std::vector<std::shared_ptr<CAnimImage>> imageArmy;
+    std::vector<std::shared_ptr<CLabel>> labelArmyNames;
+
+    std::shared_ptr<CLabel> labelWarMachineTitle;
+    std::vector<std::shared_ptr<CAnimImage>> imageWarMachine;
+    std::vector<std::shared_ptr<CLabel>> labelWarMachineNames;
+
+    std::shared_ptr<CLabel> labelSpellBookTitle;
+    std::shared_ptr<CAnimImage> imageSpellBook;
+    std::vector<std::shared_ptr<CAnimImage>> imageSpells;
+    std::vector<std::shared_ptr<CLabel>> labelSpellsNames;*/
 }
 
 void CHeroOverview::genHeroWindow()

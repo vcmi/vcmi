@@ -41,11 +41,9 @@ class CHeroOverview : public CWindowObject
     std::shared_ptr<CLabel> labelArmyTitle;
     std::vector<std::shared_ptr<CAnimImage>> imageArmy;
     std::vector<std::shared_ptr<CLabel>> labelArmyCount;
-    std::vector<std::shared_ptr<CLabel>> labelArmyNames;
 
     std::shared_ptr<CLabel> labelWarMachineTitle;
     std::vector<std::shared_ptr<CAnimImage>> imageWarMachine;
-    std::vector<std::shared_ptr<CLabel>> labelWarMachineNames;
 
     std::shared_ptr<CLabel> labelSpellBookTitle;
     std::shared_ptr<CAnimImage> imageSpellBook;
