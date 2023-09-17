@@ -38,7 +38,6 @@ public:
 	void addPart(CArtifactInstance * art, const ArtifactPosition & slot);
 	// Checks if supposed part inst is part of this combined art inst
 	bool isPart(const CArtifactInstance * supposedPart) const;
-	std::vector<PartInfo> & getPartsInfo();
 	const std::vector<PartInfo> & getPartsInfo() const;
 	void addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap);
 

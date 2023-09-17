@@ -44,12 +44,6 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 	return false;
 }
 
-std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo()
-{
-	// TODO romove this func. encapsulation violation
-	return partsInfo;
-}
-
 const std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo() const
 {
 	return partsInfo;

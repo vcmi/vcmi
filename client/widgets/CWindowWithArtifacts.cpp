@@ -38,7 +38,7 @@ void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr artSet)
 		{
 			auto artSet = artSetWeak.lock();
 			artSet->leftClickCallback = std::bind(&CWindowWithArtifacts::leftClickArtPlaceHero, this, _1, _2);
-			artSet->rightClickCallback = std::bind(&CWindowWithArtifacts::rightClickArtPlaceHero, this, _1, _2);
+			artSet->showPopupCallback = std::bind(&CWindowWithArtifacts::rightClickArtPlaceHero, this, _1, _2);
 			artSet->setPutBackPickedArtifactCallback(artPutBackHandler);
 		}, artSet);
 }

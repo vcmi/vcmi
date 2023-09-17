@@ -492,7 +492,7 @@ void CMap::checkForObjectives()
 	}
 }
 
-void CMap::addNewArtifactInstance(CArtifactInstance * art)
+void CMap::addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art)
 {
 	art->setId(static_cast<ArtifactInstanceID>(artInstances.size()));
 	artInstances.emplace_back(art);
