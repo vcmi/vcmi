@@ -307,10 +307,6 @@ void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 		{
 			bonus.source = BonusSource::TOWN_STRUCTURE;
 			bonus.sid = bID;
-			if (bonus.type == BonusType::MORALE)
-				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
-			if (bonus.type == BonusType::LUCK)
-				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
 		}
 	}
 }

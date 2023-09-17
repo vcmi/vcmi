@@ -61,7 +61,15 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps,
 {
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
-
+	
+	for (auto & bonus : bonuses)
+	{
+		if (bonus.type == BonusType::MORALE)
+			comps.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
+		if (bonus.type == BonusType::LUCK)
+			comps.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
+	}
+	
 	if (heroExperience)
 	{
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
