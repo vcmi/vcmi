@@ -17,6 +17,8 @@ class CFilledTexture;
 class CAnimImage;
 class CComponentBox;
 class CTextBox;
+class TransparentFilledRectangle;
+class SimpleLine;
 
 class CHeroOverview : public CWindowObject
 {

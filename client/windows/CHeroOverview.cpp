@@ -20,6 +20,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/MiscWidgets.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"

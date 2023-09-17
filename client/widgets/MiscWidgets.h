@@ -226,3 +226,24 @@ public:
 
 	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
 };
+
+class TransparentFilledRectangle : public CIntObject
+{
+	ColorRGBA color;
+	ColorRGBA colorLine;
+	bool drawLine;
+public:
+    TransparentFilledRectangle(Rect position, ColorRGBA color);
+    TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine);
+    void showAll(Canvas & to) override;
+};
+
+class SimpleLine : public CIntObject
+{
+	Point pos1;
+	Point pos2;
+	ColorRGBA color;
+public:
+    SimpleLine(Point pos1, Point pos2, ColorRGBA color);
+    void showAll(Canvas & to) override;
+};
