@@ -29,6 +29,7 @@ class CHeroOverview : public CWindowObject
     const int borderOffset = 5;
     const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
     const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+    const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
 
     std::shared_ptr<CFilledTexture> backgroundTexture;
     std::vector<std::shared_ptr<TransparentFilledRectangle>> backgroundRectangles;

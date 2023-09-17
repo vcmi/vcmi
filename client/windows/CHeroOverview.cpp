@@ -22,6 +22,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 
+#include "../../lib/GameSettings.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -120,8 +121,10 @@ void CHeroOverview::genControls()
     labelArmyTitle = std::make_shared<CLabel>(r.x + borderOffset, r.y + borderOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.startingArmy"));
 
     // army numbers
-    r = Rect(302, 3 * borderOffset + yOffset + 62, 292, 20);
+    r = Rect(302, 3 * borderOffset + yOffset + 62, 292, 32);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
+
+    auto stacksCountChances = VLC->settings()->getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 
     // army
     int space = (260 - 7 * 32) / 6;
@@ -131,18 +134,22 @@ void CHeroOverview::genControls()
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     }
     int i = 0;
+    int iStack = 0;
     for(auto & army : (*CGI->heroh)[heroIdx]->initialArmy)
     {
         if((*CGI->creh)[army.creature]->warMachine == ArtifactID::NONE)
         {
             imageArmy.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 2 * borderOffset + yOffset + 30));
             labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 32, 3 * borderOffset + yOffset + 72, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (army.minAmount == army.maxAmount) ? std::to_string(army.minAmount) : std::to_string(army.minAmount) + "-" + std::to_string(army.maxAmount)));
+            if(iStack<stacksCountChances.size())
+                labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 32, 3 * borderOffset + yOffset + 86, FONT_SMALL, ETextAlignment::CENTER, grayedColor, std::to_string(stacksCountChances[iStack]) + "%"));
             i++;
         }
+        iStack++;
     }
 
     // war machine title
-    r = Rect(302, 4 * borderOffset + yOffset + 82, 292, 30);
+    r = Rect(302, 4 * borderOffset + yOffset + 94, 292, 30);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     labelWarMachineTitle = std::make_shared<CLabel>(r.x + borderOffset, r.y + borderOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.warMachine"));
 
@@ -150,41 +157,46 @@ void CHeroOverview::genControls()
     space = (260 - 4 * 32) / 3;
     for(int i = 0; i < 4; i++)
     {
-        r = Rect(318 + i * (32 + space), 5 * borderOffset + yOffset + 112, 32, 32);
+        r = Rect(318 + i * (32 + space), 5 * borderOffset + yOffset + 124, 32, 32);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     }
     i = 0;
+    iStack = 0;
     for(auto & army : (*CGI->heroh)[heroIdx]->initialArmy)
     {
         if(i == 0)
         {
-            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature.CATAPULT]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 112));
+            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature.CATAPULT]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 124));
+            labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 51, 5 * borderOffset + yOffset + 144, FONT_SMALL, ETextAlignment::TOPLEFT, grayedColor, "100%"));
             i++;
         }
         if((*CGI->creh)[army.creature]->warMachine != ArtifactID::NONE)
         {
-            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 112));
+            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 124));
+            if(iStack<stacksCountChances.size())
+                labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 51, 5 * borderOffset + yOffset + 144, FONT_SMALL, ETextAlignment::TOPLEFT, grayedColor, std::to_string(stacksCountChances[iStack]) + "%"));
             i++;
         }
+        iStack++;
     }
 
     // secskill title
-    r = Rect(302, 6 * borderOffset + yOffset + 144, (292 / 2) - 2 * borderOffset, 30);
+    r = Rect(302, 6 * borderOffset + yOffset + 156, (292 / 2) - 2 * borderOffset, 30);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     labelSecSkillTitle = std::make_shared<CLabel>(r.x + borderOffset, r.y + borderOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.secondarySkills"));
 
     // vertical line
-    backgroundLines.push_back(std::make_shared<SimpleLine>(Point(302 + (292 / 2), 6 * borderOffset + yOffset + 144 - 1), Point(302 + (292 / 2), 6 * borderOffset + yOffset + 144 - 2 + 254), borderColor));
+    backgroundLines.push_back(std::make_shared<SimpleLine>(Point(302 + (292 / 2), 6 * borderOffset + yOffset + 156 - 1), Point(302 + (292 / 2), 6 * borderOffset + yOffset + 156 - 2 + 254), borderColor));
 
     // spell title
-    r = Rect(302 + (292 / 2) + 2 * borderOffset, 6 * borderOffset + yOffset + 144, (292 / 2) - 2 * borderOffset, 30);
+    r = Rect(302 + (292 / 2) + 2 * borderOffset, 6 * borderOffset + yOffset + 156, (292 / 2) - 2 * borderOffset, 30);
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     labelSpellTitle = std::make_shared<CLabel>(r.x + borderOffset, r.y + borderOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.spells"));
 
     // secskill
     for(int i = 0; i < 6; i++)
     {
-        r = Rect(302, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), 32, 32);
+        r = Rect(302, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
         r = Rect(r.x + 32 + borderOffset, r.y, (292 / 2) - 32 - 3 * borderOffset, r.h);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
@@ -192,16 +204,16 @@ void CHeroOverview::genControls()
     i = 0;
     for(auto & skill : (*CGI->heroh)[heroIdx]->secSkillsInit)
     {
-        imageSecSkills.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), (*CGI->skillh)[skill.first]->getIconIndex() * 3 + skill.second + 2, 0, 302, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset)));
-        labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 174 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->levels[skill.second - 1]));
-        labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 174 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->skillh)[skill.first]->getNameTranslated()));
+        imageSecSkills.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), (*CGI->skillh)[skill.first]->getIconIndex() * 3 + skill.second + 2, 0, 302, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset)));
+        labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->levels[skill.second - 1]));
+        labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->skillh)[skill.first]->getNameTranslated()));
         i++;
     }
 
     // spell
     for(int i = 0; i < 6; i++)
     {
-        r = Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), 32, 32);
+        r = Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
         r = Rect(r.x + 32 + borderOffset, r.y, (292 / 2) - 32 - 3 * borderOffset, r.h);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
@@ -213,13 +225,13 @@ void CHeroOverview::genControls()
         {
             if((*CGI->heroh)[heroIdx]->haveSpellBook)
             {
-                imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("ARTIFACT")), 0, Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), 32, 32), 0));
+                imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("ARTIFACT")), 0, Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
             }
             i++;
         }
 
-        imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("SPELLBON")), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), 32, 32), 0));
-        labelSpellsNames.push_back(std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset + 32 + borderOffset, 8 * borderOffset + yOffset + 174 + i * (32 + borderOffset) + 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->spellh)[spell]->getNameTranslated()));
+        imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("SPELLBON")), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
+        labelSpellsNames.push_back(std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset + 32 + borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->spellh)[spell]->getNameTranslated()));
         i++;
     }
 }
