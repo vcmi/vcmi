@@ -8,16 +8,35 @@
 		"zone" : {
 			"type" : "object",
 			"required" : ["type", "monsters", "size"],
+			"additionalProperties" : false,
 			"properties" : {
-				"type" : {"$ref" : "#/definitions/type"},
-				"size" : {"$ref" : "#/definitions/size"},			
-				"playerTowns" : {"$ref" : "#/definitions/playerTowns"},				
-				"neuralTowns" : {"$ref" : "#/definitions/neuralTowns"},
-				"townsAreSameType" : {"$ref" : "#/definitions/townsAreSameType"},
-				"terrainTypes": {"$ref" : "#/definitions/terrains"},
-				"bannedTerrains": {"$ref" : "#/definitions/terrains"},
-				"monsters" : {"$ref" : "#/definitions/monsters"},
-				"bannedMonsters" : {"$ref" : "#/definitions/monsters"},
+				"type" : {
+					"type" : "string",
+					"enum" : ["playerStart", "cpuStart", "treasure", "junction"]
+				},
+				"size" : { "type" : "number", "minimum" : 1 },
+				"owner" : {},
+				"playerTowns" : {"$ref" : "#/definitions/towns"},
+				"neutralTowns" : {"$ref" : "#/definitions/towns"},
+				"matchTerrainToTown" : { "type" : "boolean"},
+				"minesLikeZone" : { "type" : "number" },
+				"terrainTypeLikeZone" : { "type" : "number" },
+				"treasureLikeZone" : { "type" : "number" },
+				
+				"terrainTypes": {"$ref" : "#/definitions/stringArray"},
+				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},
+
+				"townsAreSameType" : { "type" : "boolean"},
+				"allowedMonsters" : {"$ref" : "#/definitions/stringArray"},
+				"bannedMonsters" : {"$ref" : "#/definitions/stringArray"},
+				"allowedTowns" : {"$ref" : "#/definitions/stringArray"},
+				"bannedTowns" : {"$ref" : "#/definitions/stringArray"},
+
+				"monsters" : {
+					"type" : "string",
+					"enum" : ["weak", "normal", "strong", "none"]
+				},
+
 				"mines" : {"$ref" : "#/definitions/mines"},
 				"treasure" : {
 					"type" : "array",
@@ -27,21 +46,39 @@
 							"min" : {"type" : "number", "minimum" : 0},
 							"max" : {"type" : "number", "minimum" : 0},
 							"density" : {"type" : "number", "minimum" : 1}
-						},					
-						"additionalProperties" : false						
+						},
+						"additionalProperties" : false
 					}
-				}				
-			}		
+				}
+			}
 		},
-		"type" : {
-			"type" : "string",
+
+		"towns" : {
+			"type" : "object",
 			"additionalProperties" : false,
-			"enum" : ["playerStart", "cpuStart", "treasure", "junction"]
+			"properties" : {
+				"towns" : { "type" : "number" },
+				"castles" : { "type" : "number" },
+				"townDensity" : { "type" : "number" },
+				"castleDensity" : { "type" : "number" }
+			}
 		},
-		"size" : {
-			"type" : "number",
-			"minimum" : 1,
-			"additionalProperties" : false
+		"stringArray" : {
+			"type" : "array",
+			"items" : { "type" : "string" }
+		},
+		"mines" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"gold" :    { "type" : "number"},
+				"wood" :    { "type" : "number"},
+				"ore" :     { "type" : "number"},
+				"mercury" : { "type" : "number"},
+				"sulfur" :  { "type" : "number"},
+				"crystal" : { "type" : "number"},
+				"gems" :    { "type" : "number"}
+			}
 		},
 		"connection" :
 		{
@@ -74,16 +111,30 @@
 			"type" : "string"
 		}
 	},
+	
+	"additionalProperties" : false,
 	"properties" :
 	{
-		"required" : ["zones", "connections"],
-		"additionalProperties" : false,
+		"required" : ["zones", "connections", "minSize", "maxSize", "players"],
+		
+		"players" : {
+			"type": "string"
+		},
+		"cpu" : {
+			"type": "string"
+		},
+		"minSize" : {
+			"type": "string"
+		},
+		"maxSize" : {
+			"type": "string"
+		},
 		"description" : {
 			"type": "string"
 		},
 		"zones" : {
 			"type" : "object",
-			"additionalProperties" : {"$ref" : "#/definitions/zone"	}						
+			"additionalProperties" : {"$ref" : "#/definitions/zone"	}
 		},
 		"connections" : {
 			"type" : "array",
