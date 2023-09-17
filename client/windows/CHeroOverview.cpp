@@ -124,9 +124,9 @@ void CHeroOverview::genControls()
     backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
 
     // army
-    for(int i = 0; i < 6; i++)
+    int space = (260 - 7 * 32) / 6;
+    for(int i = 0; i < 7; i++)
     {
-        int space = (260 - 6 * 32) / 5;
         r = Rect(318 + i * (32 + space), 2 * borderOffset + yOffset + 30, 32, 32);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     }
@@ -135,7 +135,6 @@ void CHeroOverview::genControls()
     {
         if((*CGI->creh)[army.creature]->warMachine == ArtifactID::NONE)
         {
-            int space = (292 - 32 - 6 * 32) / 5;
             imageArmy.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 2 * borderOffset + yOffset + 30));
             labelArmyCount.push_back(std::make_shared<CLabel>(302 + i * (32 + space) + 32, 3 * borderOffset + yOffset + 72, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (army.minAmount == army.maxAmount) ? std::to_string(army.minAmount) : std::to_string(army.minAmount) + "-" + std::to_string(army.maxAmount)));
             i++;
@@ -148,16 +147,15 @@ void CHeroOverview::genControls()
     labelWarMachineTitle = std::make_shared<CLabel>(r.x + borderOffset, r.y + borderOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.warMachine"));
 
     // war machine
-    for(int i = 0; i < 6; i++)
+    space = (260 - 4 * 32) / 3;
+    for(int i = 0; i < 4; i++)
     {
-        int space = (292 - 32 - 6 * 32) / 5;
         r = Rect(318 + i * (32 + space), 5 * borderOffset + yOffset + 112, 32, 32);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     }
     i = 0;
     for(auto & army : (*CGI->heroh)[heroIdx]->initialArmy)
     {
-        int space = (292 - 32 - 6 * 32) / 5;
         if(i == 0)
         {
             imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature.CATAPULT]->getIconIndex(), 0, 302 + i * (32 + space) + 16, 5 * borderOffset + yOffset + 112));
@@ -188,7 +186,7 @@ void CHeroOverview::genControls()
     {
         r = Rect(302, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), 32, 32);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
-        r = Rect(302 + 32 + borderOffset, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), (292 / 2) - 32 - 3 * borderOffset, 32);
+        r = Rect(r.x + 32 + borderOffset, r.y, (292 / 2) - 32 - 3 * borderOffset, r.h);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     }
     i = 0;
@@ -205,7 +203,7 @@ void CHeroOverview::genControls()
     {
         r = Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), 32, 32);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
-        r = Rect(302 + (292 / 2) + 2 * borderOffset + 32 + borderOffset, 7 * borderOffset + yOffset + 174 + i * (32 + borderOffset), (292 / 2) - 32 - 3 * borderOffset, 32);
+        r = Rect(r.x + 32 + borderOffset, r.y, (292 / 2) - 32 - 3 * borderOffset, r.h);
         backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
     }
     i = 0;
