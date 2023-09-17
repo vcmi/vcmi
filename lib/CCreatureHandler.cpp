@@ -716,9 +716,6 @@ void CCreatureHandler::loadCrExpMod()
 
 			expBonParser.endLine();
 		}
-		//skeleton gets exp penalty
-		objects[56].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
-		objects[57].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
 		//exp for tier >7, rank 11
 		expRanks[0].push_back(147000);
 		expAfterUpgrade = 75; //percent
