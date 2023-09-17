@@ -23,15 +23,17 @@ class SimpleLine;
 class CHeroOverview : public CWindowObject
 {
 	const HeroTypeID & hero;
-	int heroIndex;
+	int heroIdx;
 
     const int yOffset = 35;
     const int borderOffset = 5;
-    const int alpha = 75;
+    const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
     const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
 
     std::shared_ptr<CFilledTexture> backgroundTexture;
-    std::shared_ptr<CPicture> backgroundShapes;
+    std::vector<std::shared_ptr<TransparentFilledRectangle>> backgroundRectangles;
+    std::vector<std::shared_ptr<SimpleLine>> backgroundLines;
+
     std::shared_ptr<CLabel> labelTitle;
     std::shared_ptr<CAnimImage> imageHero;
     std::shared_ptr<CLabel> labelHeroName;

@@ -100,7 +100,7 @@ public:
 
 	Rect resize(const int size) const
 	{
-		return Rect(x-size,y-size,w+size,h+size);
+		return Rect(x-size,y-size,w+2*size,h+2*size);
 	}
 
 	void moveTo(const Point & dest)
