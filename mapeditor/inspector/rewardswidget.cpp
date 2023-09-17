@@ -218,6 +218,7 @@ bool RewardsWidget::commitChanges()
 void RewardsWidget::saveCurrentVisitInfo(int index)
 {
 	auto & vinfo = object.configuration.info.at(index);
+	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	vinfo.message = MetaString::createFromRawString(ui->rewardMessage->text().toStdString());
 	
 	vinfo.reward.heroLevel = ui->rHeroLevel->value();

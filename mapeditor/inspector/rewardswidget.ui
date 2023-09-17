@@ -49,7 +49,7 @@
         <set>QAbstractItemView::NoEditTriggers</set>
        </property>
        <property name="spacing">
-        <number>-3</number>
+        <number>0</number>
        </property>
       </widget>
      </item>

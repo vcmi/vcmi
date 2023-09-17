@@ -171,60 +171,58 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		//backward compatibility
 		CCreatureSet::serializeJson(handler, "guards", 7);
-		Rewardable::Reward reward;
+		Rewardable::VisitInfo vinfo;
+		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 		
-		auto addReward = [this, &reward](bool condition)
+		auto addReward = [this, &vinfo](bool condition)
 		{
 			if(condition)
 			{
-				configuration.info.emplace_back();
-				configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-				configuration.info.back().reward = reward;
-				reward = Rewardable::Reward{};
+				configuration.info.push_back(vinfo);
+				vinfo = Rewardable::VisitInfo{};
+				vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 			}
 		};
-		
-		addReward(true);
-		
+				
 		int val;
-		handler.serializeInt("experience", reward.heroExperience, 0);
-		addReward(reward.heroExperience);
+		handler.serializeInt("experience", vinfo.reward.heroExperience, 0);
+		addReward(vinfo.reward.heroExperience);
 		
-		handler.serializeInt("mana", reward.manaDiff, 0);
-		addReward(reward.manaDiff);
+		handler.serializeInt("mana", vinfo.reward.manaDiff, 0);
+		addReward(vinfo.reward.manaDiff);
 		
 		handler.serializeInt("morale", val, 0);
 		if(val)
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, val, id);
+			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, val, id);
 		addReward(val);
 		
 		handler.serializeInt("luck", val, 0);
 		if(val)
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, val, id);
+			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, val, id);
 		addReward(val);
 		
-		reward.resources.serializeJson(handler, "resources");
-		addReward(reward.resources.nonZero());
+		vinfo.reward.resources.serializeJson(handler, "resources");
+		addReward(vinfo.reward.resources.nonZero());
 		
 		{
 			bool updateReward = false;
 			auto s = handler.enterStruct("primarySkills");
-			for(int idx = 0; idx < reward.primary.size(); idx ++)
+			for(int idx = 0; idx < vinfo.reward.primary.size(); idx ++)
 			{
-				handler.serializeInt(NPrimarySkill::names[idx], reward.primary[idx], 0);
-				updateReward |= bool(reward.primary[idx]);
+				handler.serializeInt(NPrimarySkill::names[idx], vinfo.reward.primary[idx], 0);
+				updateReward |= bool(vinfo.reward.primary[idx]);
 			}
 			addReward(updateReward);
 		}
 		
-		handler.serializeIdArray("artifacts", reward.artifacts);
-		addReward(!reward.artifacts.empty());
+		handler.serializeIdArray("artifacts", vinfo.reward.artifacts);
+		addReward(!vinfo.reward.artifacts.empty());
 		
-		handler.serializeIdArray("spells", reward.spells);
-		addReward(!reward.spells.empty());
+		handler.serializeIdArray("spells", vinfo.reward.spells);
+		addReward(!vinfo.reward.spells.empty());
 
-		handler.enterArray("creatures").serializeStruct(reward.creatures);
-		addReward(!reward.creatures.empty());
+		handler.enterArray("creatures").serializeStruct(vinfo.reward.creatures);
+		addReward(!vinfo.reward.creatures.empty());
 		
 		{
 			bool updateReward = false;
@@ -248,7 +246,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 					continue;
 				}
 				
-				reward.secondary[rawId] = level;
+				vinfo.reward.secondary[rawId] = level;
 				updateReward = true;
 			}
 			addReward(updateReward);
