@@ -23,10 +23,12 @@ class CHeroOverview : public CWindowObject
 	int heroIndex;
 
     std::shared_ptr<CFilledTexture> backgroundTexture;
+    std::shared_ptr<CPicture> backgroundShapes;
     std::shared_ptr<CLabel> labelTitle;
-    std::shared_ptr<CLabel> labelSubTitle;
     std::shared_ptr<CAnimImage> image;
 
+    std::shared_ptr<CLabel> labelHeroName;
+    std::shared_ptr<CLabel> labelHeroClass;
     std::shared_ptr<CLabel> labelHeroSpeciality;
     std::shared_ptr<CAnimImage> imageSpeciality;
     std::shared_ptr<CLabel> labelSpecialityName;
