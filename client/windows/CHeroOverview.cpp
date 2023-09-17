@@ -34,12 +34,14 @@ CHeroOverview::CHeroOverview(const HeroTypeID & h)
 
     heroIndex = hero.getNum();
 
+	pos = Rect(0, 0, 600, 450 + 35);
+
 	genHeroWindow();
 
 	center();
 }
 
-void CHeroOverview::genHeader()
+void CHeroOverview::genHeroWindow()
 {
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 	updateShadow();
@@ -60,7 +62,7 @@ void CHeroOverview::genHeader()
     canvas.drawBorder(Rect(64 + borderOffset - 1, borderOffset + yOffset - 1, 220 + 2, 64 + 2), borderColor);
 
     // vertical line
-    canvas.drawLine(Point(295, borderOffset + yOffset - 1), Point(295, 445), borderColor, borderColor);
+    canvas.drawLine(Point(295, borderOffset + yOffset - 1), Point(295, borderOffset + yOffset - 2 + 439), borderColor, borderColor);
     
     // skill header
     canvas.drawColorBlended(Rect(borderOffset, 2 * borderOffset + yOffset + 64, 284, 20), ColorRGBA(0, 0, 0, alpha));
@@ -122,7 +124,7 @@ void CHeroOverview::genHeader()
     canvas.drawBorder(Rect(302 - 1, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 - 1, (292 / 2) - 2 * borderOffset + 2, 30 + 2), borderColor);
 
     // vertical line
-    canvas.drawLine(Point(302 + (292 / 2), 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32), Point(302 + (292 / 2), 445), borderColor, borderColor);
+    canvas.drawLine(Point(302 + (292 / 2), 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 - 1), Point(302 + (292 / 2), 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 - 2 + 254), borderColor, borderColor);
 
     // spell title
     canvas.drawColorBlended(Rect(302 + (292 / 2) + 2 * borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32, (292 / 2) - 2 * borderOffset, 30), ColorRGBA(0, 0, 0, alpha));
@@ -163,8 +165,9 @@ void CHeroOverview::genHeader()
         labelSkillHeader.push_back(std::make_shared<CLabel>((284 / 4) * i + 42, 2 * borderOffset + yOffset + 64 + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[1 + i]));
 
     // skill
+    const int tmp[] = {0, 1, 2, 5};
     for(int i = 0; i < 4; i++)
-        imageSkill.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), (const int[]){0, 1, 2, 5}[i], 0, (284 / 4) * i + 21, 3 * borderOffset + yOffset + 64 + 20 + 1));
+        imageSkill.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), tmp[i], 0, (284 / 4) * i + 21, 3 * borderOffset + yOffset + 64 + 20 + 1));
 
     // skills footer
     for(int i = 0; i < 4; i++)
@@ -184,7 +187,7 @@ void CHeroOverview::genHeader()
 	labelSpecialityDescription = std::make_shared<CMultiLineLabel>(Rect(2 * borderOffset, 8 * borderOffset + yOffset + 64 + 20 + 44 + 20 + 130 + 44 - 1, 284 - borderOffset, 85 - borderOffset), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->heroh)[heroIndex]->getSpecialtyDescriptionTranslated());
 
     // army title
-    labelArmyTitle = std::make_shared<CLabel>(302 + borderOffset, 2 * borderOffset + yOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: Starting Army");
+    labelArmyTitle = std::make_shared<CLabel>(302 + borderOffset, 2 * borderOffset + yOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.startingArmy"));
 
     // army
     int i = 0;
@@ -200,7 +203,7 @@ void CHeroOverview::genHeader()
     }
 
     // war machine title
-    labelWarMachineTitle = std::make_shared<CLabel>(302 + borderOffset, 4 * borderOffset + yOffset + 30 + 32 + 27, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: War Machine");
+    labelWarMachineTitle = std::make_shared<CLabel>(302 + borderOffset, 4 * borderOffset + yOffset + 30 + 32 + 27, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.warMachine"));
 
     // war machine
     i = 0;
@@ -220,19 +223,18 @@ void CHeroOverview::genHeader()
     }
 
     // secskill title
-    labelSecSkillTitle = std::make_shared<CLabel>(302 + borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: Sek. Skills");
+    labelSecSkillTitle = std::make_shared<CLabel>(302 + borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.secondarySkills"));
 
     // spell title
-    labelSpellTitle = std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: Spells");
+    labelSpellTitle = std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset, 6 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->translate("vcmi.heroOverview.spells"));
 
     // secskill
     i = 0;
     for(auto & skill : (*CGI->heroh)[heroIndex]->secSkillsInit)
     {
-        imageSecSkills.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), (*CGI->skillh)[skill.first]->getIconIndex(), 0, 302, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset)));
+        imageSecSkills.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK32"), (*CGI->skillh)[skill.first]->getIconIndex() * 3 + skill.second + 2, 0, 302, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset)));
         labelSecSkillsNames.push_back(std::make_shared<CLabel>(302 + 32 + 2 * borderOffset, 8 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->levels[skill.second - 1]));
         labelSecSkillsNames.push_back(std::make_shared<CLabel>(302 + 32 + 2 * borderOffset, 8 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->skillh)[skill.first]->getNameTranslated()));
- 
         i++;
     }
 
@@ -240,15 +242,17 @@ void CHeroOverview::genHeader()
     i = 0;
     for(auto & spell : (*CGI->heroh)[heroIndex]->spells)
     {
+        if(i == 0)
+        {
+            if((*CGI->heroh)[heroIndex]->haveSpellBook)
+            {
+                imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("ARTIFACT")), 0, Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset), 32, 32), 0));
+            }
+            i++;
+        }
+
         imageSpells.push_back(std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("SPELLBON")), (*CGI->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset), 32, 32), 0));
         labelSpellsNames.push_back(std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset + 32 + borderOffset, 8 * borderOffset + yOffset + 30 + 32 + 20 + 30 + 32 + 30 + i * (32 + borderOffset) + 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->spellh)[spell]->getNameTranslated()));
-
         i++;
     }
-}
-
-void CHeroOverview::genHeroWindow()
-{
-	pos = Rect(0, 0, 600, 450 + 35);
-	genHeader();
 }

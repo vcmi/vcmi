@@ -53,7 +53,6 @@ class CHeroOverview : public CWindowObject
     std::vector<std::shared_ptr<CAnimImage>> imageSecSkills;
     std::vector<std::shared_ptr<CLabel>> labelSecSkillsNames;
 
-    void genHeader();
     void genHeroWindow();
 
 public:
