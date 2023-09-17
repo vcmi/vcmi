@@ -147,10 +147,17 @@ RewardsWidget::RewardsWidget(const CMap & m, CRewardableObject & p, QWidget *par
 	{
 		ui->visitMode->setCurrentIndex(vstd::find_pos(Rewardable::VisitModeString, "once"));
 		ui->visitMode->setEnabled(false);
-		ui->selectMode->setCurrentIndex(vstd::find_pos(Rewardable::SelectModeString, "selectAll"));
+		ui->selectMode->setCurrentIndex(vstd::find_pos(Rewardable::SelectModeString, "selectFirst"));
 		ui->selectMode->setEnabled(false);
 		ui->windowMode->setEnabled(false);
 		ui->canRefuse->setEnabled(false);
+	}
+	
+	if(auto * e = dynamic_cast<CGEvent*>(&object))
+	{
+		ui->selectMode->setEnabled(true);
+		if(!e->removeAfterVisit)
+			ui->visitMode->setCurrentIndex(vstd::find_pos(Rewardable::VisitModeString, "unlimited"));
 	}
 	
 	if(dynamic_cast<CGSeerHut*>(&object))
@@ -512,7 +519,8 @@ void RewardsWidget::on_removeVisitInfo_clicked()
 	delete ui->visitInfoList->currentItem();
 	ui->visitInfoList->blockSignals(false);
 	on_visitInfoList_itemSelectionChanged();
-	loadCurrentVisitInfo(ui->visitInfoList->currentRow());
+	if(ui->visitInfoList->currentItem())
+		loadCurrentVisitInfo(ui->visitInfoList->currentRow());
 }
 
 void RewardsWidget::on_selectMode_currentIndexChanged(int index)

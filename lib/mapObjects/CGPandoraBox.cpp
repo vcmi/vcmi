@@ -28,7 +28,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CGPandoraBox::init()
 {
 	blockVisit = true;
-	configuration.selectMode = Rewardable::SELECT_ALL;
 	
 	for(auto & i : configuration.info)
 		i.reward.removeObject = true;
@@ -41,92 +40,130 @@ void CGPandoraBox::initObj(CRandomGenerator & rand)
 	CRewardableObject::initObj(rand);
 }
 
-void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
+void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, bool markAsVisit) const
 {
-	auto setText = [](MetaString & text, int tId, const CGHeroInstance * h)
+	auto vi = configuration.info.at(index);
+	if(!vi.message.empty())
 	{
-		text.appendLocalString(EMetaText::ADVOB_TXT, tId);
-		text.replaceRawString(h->getNameTranslated());
-	};
-	
-	for(auto i : getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT))
-	{
-		MetaString txt;
-		auto & r = configuration.info[i];
-		
-		if(r.reward.spells.size() == 1)
-			setText(txt, 184, h);
-		else if(!r.reward.spells.empty())
-			setText(txt, 188, h);
-		
-		if(r.reward.heroExperience || !r.reward.secondary.empty())
-			setText(txt, 175, h);
-		
-		for(int ps : r.reward.primary)
-		{
-			if(ps)
-			{
-				setText(txt, 175, h);
-				break;
-			}
-		}
-		
-		if(r.reward.manaDiff < 0)
-			setText(txt, 176, h);
-		if(r.reward.manaDiff > 0)
-			setText(txt, 177, h);
-		
-		for(auto b : r.reward.bonuses)
-		{
-			if(b.type == BonusType::MORALE)
-			{
-				if(b.val < 0)
-					setText(txt, 178, h);
-				if(b.val > 0)
-					setText(txt, 179, h);
-			}
-			if(b.type == BonusType::LUCK)
-			{
-				if(b.val < 0)
-					setText(txt, 180, h);
-				if(b.val > 0)
-					setText(txt, 181, h);
-			}
-		}
-		
-		for(auto res : r.reward.resources)
-		{
-			if(res < 0)
-				setText(txt, 182, h);
-			if(res > 0)
-				setText(txt, 183, h);
-		}
-		
-		if(!r.reward.artifacts.empty())
-			setText(txt, 183, h);
-		
-		if(!r.reward.creatures.empty())
-		{
-			MetaString loot;
-			for(auto c : r.reward.creatures)
-			{
-				loot.appendRawString("%s");
-				loot.replaceCreatureName(c);
-			}
-			
-			if(r.reward.creatures.size() == 1 && r.reward.creatures[0].count == 1)
-				txt.appendLocalString(EMetaText::ADVOB_TXT, 185);
-			else
-				txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
-			
-			txt.replaceRawString(loot.buildList());
-			txt.replaceRawString(h->getNameTranslated());
-		}
-		
-		if(r.message.empty())
-			const_cast<MetaString&>(r.message) = txt;
+		CRewardableObject::grantRewardWithMessage(h, index, markAsVisit);
+		return;
 	}
 	
+	//split reward message for pandora box
+	auto setText = [](bool cond, int posId, int negId, const CGHeroInstance * h)
+	{
+		MetaString text;
+		text.appendLocalString(EMetaText::ADVOB_TXT, cond ? posId : negId);
+		text.replaceRawString(h->getNameTranslated());
+		return text;
+	};
+	
+	auto sendInfoWindow = [h](const MetaString & text, const Rewardable::Reward & reward)
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text = text;
+		reward.loadComponents(iw.components, h);
+		iw.type = EInfoWindowMode::MODAL;
+		if(!iw.components.empty())
+			cb->showInfoDialog(&iw);
+	};
+
+	Rewardable::Reward temp;
+	temp.spells = vi.reward.spells;
+	temp.heroExperience = vi.reward.heroExperience;
+	temp.heroLevel = vi.reward.heroLevel;
+	temp.primary = vi.reward.primary;
+	temp.secondary = vi.reward.secondary;
+	temp.bonuses = vi.reward.bonuses;
+	temp.manaDiff = vi.reward.manaDiff;
+	temp.manaPercentage = vi.reward.manaPercentage;
+	
+	MetaString txt;
+	if(!vi.reward.spells.empty())
+		txt = setText(temp.spells.size() == 1, 184, 188, h);
+	
+	if(vi.reward.heroExperience || vi.reward.heroLevel || !vi.reward.secondary.empty())
+		txt = setText(true, 175, 175, h);
+	
+	for(int i : vi.reward.primary)
+	{
+		if(i)
+		{
+			txt = setText(true, 175, 175, h);
+			break;
+		}
+	}
+	
+	if(vi.reward.manaDiff || vi.reward.manaPercentage)
+		txt = setText(temp.manaDiff > 0, 177, 176, h);
+	
+	for(auto b : vi.reward.bonuses)
+	{
+		if(b.val && b.type == BonusType::MORALE)
+			txt = setText(b.val > 0, 179, 178, h);
+		if(b.val && b.type == BonusType::LUCK)
+			txt = setText(b.val > 0, 181, 180, h);
+	}
+	sendInfoWindow(txt, temp);
+	
+	//resource message
+	temp = Rewardable::Reward{};
+	temp.resources = vi.reward.resources;
+	sendInfoWindow(setText(vi.reward.resources.marketValue() > 0, 183, 182, h), temp);
+	
+	//artifacts message
+	temp = Rewardable::Reward{};
+	temp.artifacts = vi.reward.artifacts;
+	sendInfoWindow(setText(true, 183, 183, h), temp);
+	
+	//creatures message
+	temp = Rewardable::Reward{};
+	temp.creatures = vi.reward.creatures;
+	txt.clear();
+	if(!vi.reward.creatures.empty())
+	{
+		MetaString loot;
+		for(auto c : vi.reward.creatures)
+		{
+			loot.appendRawString("%s");
+			loot.replaceCreatureName(c);
+		}
+		
+		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].count == 1)
+			txt.appendLocalString(EMetaText::ADVOB_TXT, 185);
+		else
+			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
+		
+		txt.replaceRawString(loot.buildList());
+		txt.replaceRawString(h->getNameTranslated());
+	}
+	sendInfoWindow(txt, temp);
+	
+	//everything else
+	temp = vi.reward;
+	temp.heroExperience = 0;
+	temp.heroLevel = 0;
+	temp.secondary.clear();
+	temp.primary.clear();
+	temp.resources.amin(0);
+	temp.resources.amax(0);
+	temp.manaDiff = 0;
+	temp.manaPercentage = 0;
+	temp.spells.clear();
+	temp.creatures.clear();
+	temp.bonuses.clear();
+	temp.artifacts.clear();
+	sendInfoWindow(setText(true, 175, 175, h), temp);
+	
+	// grant reward afterwards. Note that it may remove object
+	if(markAsVisit)
+		markAsVisited(h);
+	grantReward(index, h);
+}
+
+void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
+{
 	BlockingDialog bd (true, false);
 	bd.player = h->getOwner();
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, 14);
@@ -171,61 +208,36 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		//backward compatibility
 		CCreatureSet::serializeJson(handler, "guards", 7);
-		Rewardable::VisitInfo vinfo;
+		configuration.info.emplace_back();
+		Rewardable::VisitInfo & vinfo = configuration.info.back();
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		
-		auto addReward = [this, &vinfo](bool condition)
-		{
-			if(condition)
-			{
-				configuration.info.push_back(vinfo);
-				vinfo = Rewardable::VisitInfo{};
-				vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-			}
-		};
 				
-		int val;
 		handler.serializeInt("experience", vinfo.reward.heroExperience, 0);
-		addReward(vinfo.reward.heroExperience);
-		
 		handler.serializeInt("mana", vinfo.reward.manaDiff, 0);
-		addReward(vinfo.reward.manaDiff);
 		
+		int val;
 		handler.serializeInt("morale", val, 0);
 		if(val)
 			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, val, id);
-		addReward(val);
 		
 		handler.serializeInt("luck", val, 0);
 		if(val)
 			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, val, id);
-		addReward(val);
 		
 		vinfo.reward.resources.serializeJson(handler, "resources");
-		addReward(vinfo.reward.resources.nonZero());
-		
 		{
-			bool updateReward = false;
 			auto s = handler.enterStruct("primarySkills");
 			for(int idx = 0; idx < vinfo.reward.primary.size(); idx ++)
 			{
 				handler.serializeInt(NPrimarySkill::names[idx], vinfo.reward.primary[idx], 0);
-				updateReward |= bool(vinfo.reward.primary[idx]);
 			}
-			addReward(updateReward);
 		}
 		
 		handler.serializeIdArray("artifacts", vinfo.reward.artifacts);
-		addReward(!vinfo.reward.artifacts.empty());
-		
 		handler.serializeIdArray("spells", vinfo.reward.spells);
-		addReward(!vinfo.reward.spells.empty());
-
 		handler.enterArray("creatures").serializeStruct(vinfo.reward.creatures);
-		addReward(!vinfo.reward.creatures.empty());
 		
 		{
-			bool updateReward = false;
 			auto s = handler.enterStruct("secondarySkills");
 			for(const auto & p : handler.getCurrent().Struct())
 			{
@@ -247,9 +259,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				}
 				
 				vinfo.reward.secondary[rawId] = level;
-				updateReward = true;
 			}
-			addReward(updateReward);
 		}
 	}
 }
@@ -257,10 +267,18 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 void CGEvent::init()
 {
 	blockVisit = false;
-	configuration.selectMode = Rewardable::SELECT_ALL;
 	
 	for(auto & i : configuration.info)
+	{
 		i.reward.removeObject = removeAfterVisit;
+		if(!message.empty() && i.message.empty())
+			i.message = MetaString::createFromRawString(message);
+	}
+}
+
+void CGEvent::grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
+{
+	CRewardableObject::grantRewardWithMessage(contextHero, rewardIndex, markAsVisit);
 }
 
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const

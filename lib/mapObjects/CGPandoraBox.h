@@ -32,6 +32,8 @@ public:
 		h & message;
 	}
 protected:
+	void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
+	
 	virtual void init();
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
@@ -55,6 +57,8 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 protected:
+	void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
+	
 	void init() override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 private:

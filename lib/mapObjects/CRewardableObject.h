@@ -33,6 +33,9 @@ protected:
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
 	
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+	
+	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
+	virtual void selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndeces, const MetaString & dialog) const;
 
 public:
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)

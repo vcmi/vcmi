@@ -28,44 +28,45 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
+void CRewardableObject::grantRewardWithMessage(const CGHeroInstance * contextHero, int index, bool markAsVisit) const
+{
+	auto vi = configuration.info.at(index);
+	logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
+	// show message only if it is not empty or in infobox
+	if (configuration.infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
+	{
+		InfoWindow iw;
+		iw.player = contextHero->tempOwner;
+		iw.text = vi.message;
+		vi.reward.loadComponents(iw.components, contextHero);
+		iw.type = configuration.infoWindowType;
+		if(!iw.components.empty() || !iw.text.toString().empty())
+			cb->showInfoDialog(&iw);
+	}
+	// grant reward afterwards. Note that it may remove object
+	if(markAsVisit)
+		markAsVisited(contextHero);
+	grantReward(index, contextHero);
+}
+
+void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndeces, const MetaString & dialog) const
+{
+	BlockingDialog sd(configuration.canRefuse, rewardIndeces.size() > 1);
+	sd.player = contextHero->tempOwner;
+	sd.text = dialog;
+
+	if (rewardIndeces.size() > 1)
+		for (auto index : rewardIndeces)
+			sd.components.push_back(configuration.info.at(index).reward.getDisplayedComponent(contextHero));
+
+	if (rewardIndeces.size() == 1)
+		configuration.info.at(rewardIndeces.front()).reward.loadComponents(sd.components, contextHero);
+
+	cb->showBlockingDialog(&sd);
+}
+
 void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 {
-	auto grantRewardWithMessage = [&](int index, bool markAsVisit) -> void
-	{
-		auto vi = configuration.info.at(index);
-		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
- 		// show message only if it is not empty or in infobox
-		if (configuration.infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
-		{
-			InfoWindow iw;
-			iw.player = h->tempOwner;
-			iw.text = vi.message;
-			vi.reward.loadComponents(iw.components, h);
-			iw.type = configuration.infoWindowType;
-			if(!iw.components.empty() || !iw.text.toString().empty())
-				cb->showInfoDialog(&iw);
-		}
-		// grant reward afterwards. Note that it may remove object
-		if(markAsVisit)
-			markAsVisited(h);
-		grantReward(index, h);
-	};
-	auto selectRewardsMessage = [&](const std::vector<ui32> & rewards, const MetaString & dialog) -> void
-	{
-		BlockingDialog sd(configuration.canRefuse, rewards.size() > 1);
-		sd.player = h->tempOwner;
-		sd.text = dialog;
-
-		if (rewards.size() > 1)
-			for (auto index : rewards)
-				sd.components.push_back(configuration.info.at(index).reward.getDisplayedComponent(h));
-
-		if (rewards.size() == 1)
-			configuration.info.at(rewards.front()).reward.loadComponents(sd.components, h);
-
-		cb->showBlockingDialog(&sd);
-	};
-
 	if(!wasVisitedBefore(h))
 	{
 		auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
@@ -83,7 +84,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			{
 				auto emptyRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_NOT_AVAILABLE);
 				if (!emptyRewards.empty())
-					grantRewardWithMessage(emptyRewards[0], false);
+					grantRewardWithMessage(h, emptyRewards[0], false);
 				else
 					logMod->warn("No applicable message for visiting empty object!");
 				break;
@@ -91,26 +92,22 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			case 1: // one reward. Just give it with message
 			{
 				if (configuration.canRefuse)
-					selectRewardsMessage(rewards, configuration.info.at(rewards.front()).message);
+					selectRewardWthMessage(h, rewards, configuration.info.at(rewards.front()).message);
 				else
-					grantRewardWithMessage(rewards.front(), true);
+					grantRewardWithMessage(h, rewards.front(), true);
 				break;
 			}
 			default: // multiple rewards. Act according to select mode
 			{
 				switch (configuration.selectMode) {
 					case Rewardable::SELECT_PLAYER: // player must select
-						selectRewardsMessage(rewards, configuration.onSelect);
+						selectRewardWthMessage(h, rewards, configuration.onSelect);
 						break;
 					case Rewardable::SELECT_FIRST: // give first available
-						grantRewardWithMessage(rewards.front(), true);
+						grantRewardWithMessage(h, rewards.front(), true);
 						break;
 					case Rewardable::SELECT_RANDOM: // give random
-						grantRewardWithMessage(*RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()), true);
-						break;
-					case Rewardable::SELECT_ALL: // give all rewards
-						for(auto i : rewards)
-							grantRewardWithMessage(i, i == rewards.size() - 1);
+						grantRewardWithMessage(h, *RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()), true);
 						break;
 				}
 				break;
@@ -129,7 +126,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 
 		auto visitedRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_ALREADY_VISITED);
 		if (!visitedRewards.empty())
-			grantRewardWithMessage(visitedRewards[0], false);
+			grantRewardWithMessage(h, visitedRewards[0], false);
 		else
 			logMod->warn("No applicable message for visiting already visited object!");
 	}
