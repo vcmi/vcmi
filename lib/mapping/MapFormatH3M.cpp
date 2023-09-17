@@ -989,11 +989,11 @@ void CMapLoaderH3M::readObjectTemplates()
 	}
 }
 
-CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition)
+CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition, const ObjectInstanceID & idToBeGiven)
 {
 	auto * object = new CGEvent();
 
-	readBoxContent(object, mapPosition);
+	readBoxContent(object, mapPosition, idToBeGiven);
 
 	reader->readBitmaskPlayers(object->availableFor, false);
 	object->computerActivate = reader->readBool();
@@ -1009,14 +1009,14 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition)
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & mapPosition)
+CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & mapPosition, const ObjectInstanceID & idToBeGiven)
 {
 	auto * object = new CGPandoraBox();
-	readBoxContent(object, mapPosition);
+	readBoxContent(object, mapPosition, idToBeGiven);
 	return object;
 }
 
-void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPosition)
+void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPosition, const ObjectInstanceID & idToBeGiven)
 {
 	readMessageAndGuards(object->message, object, mapPosition);
 	Rewardable::VisitInfo vinfo;
@@ -1024,8 +1024,8 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
-	reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, reader->readUInt8(), object->id);
-	reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, reader->readUInt8(), object->id);
+	reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, reader->readUInt8(), idToBeGiven);
+	reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, reader->readUInt8(), idToBeGiven);
 
 	reader->readResourses(reward.resources);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
@@ -1417,7 +1417,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 	switch(objectTemplate->id)
 	{
 		case Obj::EVENT:
-			return readEvent(mapPosition);
+			return readEvent(mapPosition, objectInstanceID);
 
 		case Obj::HERO:
 		case Obj::RANDOM_HERO:
@@ -1440,7 +1440,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readSign(mapPosition);
 
 		case Obj::SEER_HUT:
-			return readSeerHut(mapPosition);
+			return readSeerHut(mapPosition, objectInstanceID);
 
 		case Obj::WITCH_HUT:
 			return readWitchHut();
@@ -1483,7 +1483,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readShrine();
 
 		case Obj::PANDORAS_BOX:
-			return readPandora(mapPosition);
+			return readPandora(mapPosition, objectInstanceID);
 
 		case Obj::GRAIL:
 			return readGrail(mapPosition, objectTemplate);
@@ -1794,7 +1794,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
+CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
 	auto * hut = new CGSeerHut();
 
@@ -1808,7 +1808,7 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 		logGlobal->warn("Map '%s': Seer Hut at %s - %d quests are not implemented!", mapName, position.toString(), questsCount);
 
 	for(size_t i = 0; i < questsCount; ++i)
-		readSeerHutQuest(hut, position);
+		readSeerHutQuest(hut, position, idToBeGiven);
 
 	if(features.levelHOTA3)
 	{
@@ -1818,7 +1818,7 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 			logGlobal->warn("Map '%s': Seer Hut at %s - %d repeatable quests are not implemented!", mapName, position.toString(), repeateableQuestsCount);
 
 		for(size_t i = 0; i < repeateableQuestsCount; ++i)
-			readSeerHutQuest(hut, position);
+			readSeerHutQuest(hut, position, idToBeGiven);
 	}
 
 	reader->skipZero(2);
@@ -1826,7 +1826,22 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position)
 	return hut;
 }
 
-void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
+enum class ESeerHutRewardType : uint8_t
+{
+	NOTHING = 0,
+	EXPERIENCE = 1,
+	MANA_POINTS = 2,
+	MORALE = 3,
+	LUCK = 4,
+	RESOURCES = 5,
+	PRIMARY_SKILL = 6,
+	SECONDARY_SKILL = 7,
+	ARTIFACT = 8,
+	SPELL = 9,
+	CREATURE = 10,
+};
+
+void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
 	if(features.levelAB)
 	{
@@ -1854,37 +1869,37 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 
 	if(hut->quest->missionType)
 	{
-		auto rewardType = reader->readUInt8();
+		auto rewardType = static_cast<ESeerHutRewardType>(reader->readUInt8());
 		Rewardable::VisitInfo vinfo;
 		auto & reward = vinfo.reward;
 		switch(rewardType)
 		{
-			case 0: //NOTHING
+			case ESeerHutRewardType::NOTHING:
 			{
 				// no-op
 				break;
 			}
-			case 1: //EXPERIENCE
+			case ESeerHutRewardType::EXPERIENCE:
 			{
 				reward.heroExperience = reader->readUInt32();
 				break;
 			}
-			case 2: //MANA POINTS:
+			case ESeerHutRewardType::MANA_POINTS:
 			{
 				reward.manaDiff = reader->readUInt32();
 				break;
 			}
-			case 3: //MORALE_BONUS
+			case ESeerHutRewardType::MORALE:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, reader->readUInt8(), hut->id);
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, reader->readUInt8(), idToBeGiven);
 				break;
 			}
-			case 4: //LUCK_BONUS
+			case ESeerHutRewardType::LUCK:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, reader->readUInt8(), hut->id);
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, reader->readUInt8(), idToBeGiven);
 				break;
 			}
-			case 5: //RESOURCES
+			case ESeerHutRewardType::RESOURCES:
 			{
 				auto rId = reader->readUInt8();
 				auto rVal = reader->readUInt32();
@@ -1895,7 +1910,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 				reward.resources[rId] = rVal;
 				break;
 			}
-			case 6: //PRIMARY_SKILL
+			case ESeerHutRewardType::PRIMARY_SKILL:
 			{
 				auto rId = reader->readUInt8();
 				auto rVal = reader->readUInt8();
@@ -1903,7 +1918,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 				reward.primary.at(rId) = rVal;
 				break;
 			}
-			case 7: //SECONDARY_SKILL
+			case ESeerHutRewardType::SECONDARY_SKILL:
 			{
 				auto rId = reader->readSkill();
 				auto rVal = reader->readUInt8();
@@ -1911,17 +1926,17 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position)
 				reward.secondary[rId] = rVal;
 				break;
 			}
-			case 8: //ARTIFACT
+			case ESeerHutRewardType::ARTIFACT:
 			{
 				reward.artifacts.push_back(reader->readArtifact());
 				break;
 			}
-			case 9: //SPELL
+			case ESeerHutRewardType::SPELL:
 			{
 				reward.spells.push_back(reader->readSpell());
 				break;
 			}
-			case 10: //CREATURE
+			case ESeerHutRewardType::CREATURE:
 			{
 				auto rId = reader->readCreature();
 				auto rVal = reader->readUInt16();
