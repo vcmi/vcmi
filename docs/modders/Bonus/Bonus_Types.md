@@ -449,232 +449,243 @@ Affected unit will ignore specified percentage of attacked unit defence (Behemot
 
 ### GENERAL_DAMAGE_REDUCTION
 
-- subtype - 0 - shield (melee) , 1 - air shield effect (ranged), -1 -
-    armorer secondary skill (all, since 1.2)
+Affected units will receive reduced damage from attacks by other units
+
+- val: damage reduction, percentage
+- subtype: 0 - melee damage (Shield spell), 1 - ranged damage (Air Shield), -1 - all damage (Armorer skill)
 
 ### PERCENTAGE_DAMAGE_BOOST
 
-- subtype: -1 - any damage (not used), 0 - melee damage (offence), 1 -
-    ranged damage (archery)
+Affected units will deal increased damage when attacking other units
+
+- val: damage increase, percentage
+- subtype: 0 - melee damage (Offense skill), 1 - ranged damage (Archery skill)
 
 ### GENERAL_ATTACK_REDUCTION
 
-eg. while stoned or blinded - in %
+Affected units will deal reduced damage when attacking other units (Blind or Paralyze spells)
 
-- subtype: -1 - any damage, 0 - melee damage, 1 - ranged damage
+- val: damage reduction, percentage
 
 ### DEFENSIVE_STANCE
 
-WoG ability.
+Affected units will receive increased bonus to defence while defending
 
-- val - bonus to defense while defending
+- val: additional bonus to defence, in skill points
 
 ### NO_DISTANCE_PENALTY
 
+Affected unit will have no distance penalty when shooting. Does not negates wall penalties in sieges
+
 ### NO_MELEE_PENALTY
 
-Ranged stack does full damage in melee.
+Affected ranged unit will deal full damage in melee attacks
 
 ### NO_WALL_PENALTY
 
+Affected unit will deal full damage when shooting over walls in sieges. Does not negates distance penalty
+
 ### FREE_SHOOTING
 
-stacks can shoot even if otherwise blocked (sharpshooter's bow effect)
+Affected unit can use ranged attack even when blocked by enemy unit. (Sharpshooter's Bow)
 
 ### BLOCKS_RETALIATION
 
-eg. naga
+Affected unit will never receive retaliations when attacking
 
 ### SOUL_STEAL
 
-WoG ability. Gains new creatures for each enemy killed
+Affected unit will gain new creatures for each enemy killed by this unit
 
 - val: number of units gained per enemy killed
-- subtype: 0 - gained units survive after battle, 1 - they do not
+- subtype: 0 - gained units disappear after battle, 1 - gained units are permanent
 
 ### TRANSMUTATION
 
-WoG ability. % chance to transform attacked unit to other type
+Affected units have chance to transform attacked unit to other creature type
 
-- val: chance to trigger in %
-- subtype: 0 - resurrection based on HP, 1 - based on unit count
-- addInfo: additional info - target creature ID (attacker default)
+- val: chance for ability to trigger, percentage
+- subtype: 0 - transformed unit will have same HP pool as original stack, 1 - transformed unit will have same number of units as original stack
+- addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
 
 ### SUMMON_GUARDIANS
 
-WoG ability. Summon guardians surrounding desired stack
+When battle starts, affected units will be surrounded from all side with summoned units
 
-- val - amount in % of stack count
-- subtype = creature ID
+- val: amount of units to summon, per stack, percentage of summoner stack size
+- subtype: identifier of creature to summon
 
 ### RANGED_RETALIATION
 
-Allows shooters to perform ranged retaliation
-
-- no additional parameters
+Affected units will retaliate against ranged attacks, if able
 
 ### BLOCKS_RANGED_RETALIATION
 
-Disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus
-is for melee retaliation only
-
-- no additional parameters
+Affected unit will never receive counterattack in ranged attacks. Counters RANGED_RETALIATION bonus
 
 ### WIDE_BREATH
 
-Dragon breath affecting multiple nearby hexes
-
-- no additional parameters
+Affected unit will attack units on all hexes that surround attacked hex
 
 ### FIRST_STRIKE
 
-First counterattack, then attack if possible
-
-- no additional parameters
+Affected unit will retaliate before enemy attacks, if able
 
 ### SHOOTS_ALL_ADJACENT
 
-H4 Cyclops-like shoot (attacks all hexes neighboring with target)
-without spell-like mechanics
-
-- no additional parameters
+Affected unit will attack units on all hexes that surround attacked hex in ranged attacks
 
 ### DESTRUCTION
 
-Kills extra units after hit
+Affected unit will kills additional units after attack
 
+- val: chance to trigger, percentage
 - subtype: 0 - kill percentage of units, 1 - kill amount
-- val: chance in percent to trigger
-- addInfo: amount/percentage to kill
+- addInfo: amount or percentage to kill
 
 ### LIMITED_SHOOTING_RANGE
 
-Limits shooting range and/or changes long range penalty
+Affected unit can use ranged attacks only within specified range
 
 - val: max shooting range in hexes
-- addInfo: optional - sets range for "broken arrow" half damage
-    mechanic - default is 10
+- addInfo: optional, range at which ranged penalty will trigger (default is 10)
 
 ## Special abilities
 
 ### CATAPULT
 
-- subtype: ability to use when catapulting (usually it contains ballistics parameters, ability for standard catapult and affected by ballistics is core:spell.catapultShot)
+Affected unit can attack walls during siege battles
+
+- subtype: spell that describes attack parameters
 
 ### CATAPULT_EXTRA_SHOTS
 
-- subtype: ability to be affected. Ability of CATAPULT bonus should match. Used for ballistics secondary skill with subtype of core:spell.catapultShot.
-- val: ability level to be used with catapult. Additional shots configured in ability level, not here.
+Defines spell mastery level for spell used by CATAPULT bonus
+- subtype: affected spell
+- val: spell mastery level to use
 
 ### MANUAL_CONTROL
 
-- manually control warmachine with
-- id = subtype
-- val = chance
+Hero can control war machine affected by this bonus
+
+- id: creature identifier of affected war machine
+- val: chance to control unit, percentage
 
 ### CHANGES_SPELL_COST_FOR_ALLY
 
-eg. mage
+Affected units will decrease spell cost for their hero (Mage). If multiple units have this bonus only best value will be used
 
-- value - reduction in mana points
+- val: reduction in mana points.
 
 ### CHANGES_SPELL_COST_FOR_ENEMY
 
-eg. Silver Pegasus
+Affected units will increase spell cost for enemy hero (Silver Pegasus). If multiple units have this bonus only best value will be used
 
-- value - mana points penalty
+- val: increase in mana points.
 
 ### SPELL_RESISTANCE_AURA
 
-eg. unicorns
+All units adjacent to affected unit will receive additional spell resistance bonus. If multiple adjacent units have this bonus only best value will be used
 
-- value - resistance bonus in % for adjacent creatures
+- val: additional resistance bonus, percentage
 
 ### HP_REGENERATION
 
-creature regenerates val HP every new round
+Affected unit will regenerate portion of its health points on its turn
 
-- val: amount of HP regeneration per round
+- val: amount of health points gained per round
 
 ### MANA_DRAIN
 
-value - spell points per turn
+Affected unit will drain specified amount of mana points from enemy hero on each turn
+
+val: spell points per turn to take
 
 ### MANA_CHANNELING
 
-eg. familiar
+Affected unit will give his hero specified portion of mana points spent by enemy hero
 
-- value in %
+- val: spell points to give, percentage
 
 ### LIFE_DRAIN
 
-- val - precentage of life drained
+Affected unit will heal itself, resurrecting any dead units, by amount of dealt damage
+
+- val: percentage of damage that will be converted into health points
 
 ### DOUBLE_DAMAGE_CHANCE
 
-eg. dread knight
+Affected unit has chance to deal double damage on attack
 
-- value in %
+- val: chance to trigger, percentage
 
 ### FEAR
 
+If enemy army has creatures affected by this bonus, they will skip their turn with 10% chance. Blocked by FEARLESS bonus.
+
 ### HEALER
 
-First aid tent
+Affected unit acts as healing tent and can heal allied units on each turn
 
-- subtype: ability used for healing.
+- subtype: identifier of spell that will be used for healing action
 
 ### FIRE_SHIELD
 
+When affected unit is attacked, portion of received damage will be also dealt to the attacked. Units immune to fire magic will not receive this damage. Only melee attacks will trigger this bonus
+
+- val: amount to deal in return, percentage
+
 ### MAGIC_MIRROR
 
-- value - chance of redirecting in %
+If affected unit is targeted by a spell it will reflect spell to a random enemy unit
+
+- val: chance to trigger, percentage
 
 ### ACID_BREATH
 
-- val - damage per creature after attack,
-- additional info - chance in percent
+Affected unit will deal additional damage after attack
+
+- val - additional damage to deal, multiplied by unit stack size
+- additional info: chance to trigger, percentage
 
 ### DEATH_STARE
 
-- subtype: 0 - gorgon, 1 - commander
-- val: if subtype is 0, its the (average) percentage of killed
-    creatures related to size of attacking stack
+Affected unit will kill additional units after attack
+
+- subtype: 0 - random amount (Gorgons), 1 - fixed amount (Commanders)
+- val: 
+- - for subtype 0: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once. TODO: recheck formula
+- - for subtype 1: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
 
 ### SPECIAL_CRYSTAL_GENERATION
 
-Crystal dragon crystal generation
+If player has affected unit under his control in any army, he will receive additional 3 crystals on new week (Crystal Dragons)
 
 ### NO_SPELLCAST_BY_DEFAULT
 
-Spellcast will not be default attack option for this creature
+Affected unit will not use spellcast as default attack option
 
 ## Creature spellcasting and activated abilities
 
 ### SPELLCASTER
 
-Creature gain activated ability to cast a spell. Example: Archangel,
-Faerie Dragon
+Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power.
 
-- subtype - spell id
-- value - level of school
-- additional info - weighted chance
-
-use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER
-for calculating the power (since 1.2 those bonuses can be used for
-calculating CATAPULT and HEALER bonuses)
+- subtype: spell identifier
+- value: spell mastery level
+- additional info: weighted chance to select this spell. Can be omitted for always available spells
 
 ### ENCHANTER
 
-for Enchanter spells
+Affected unit will cast specified spell before his turn (Enchanter)
 
-- val - skill level
-- subtype - spell id
-- additionalInfo - cooldown (number of turns)
+- val - spell mastery level
+- subtype - spell identifier
+- additionalInfo - cooldown before next cast, in number of turns
 
 ### RANDOM_SPELLCASTER
 
-eg. master genie
+Affected unit can cast randomly selected beneficial spell on its turn (Master Genie)
 
 - val - spell mastery level
 
@@ -831,14 +842,6 @@ blocks casting spells
 subid - spell id
 
 ### GENERAL_DAMAGE_PREMY
-
-### ADDITIONAL_UNITS
-val of units with id = subtype will be added to hero's army at the beginning of battle
-
-### SPOILS_OF_WAR
-val * 10^-6 * gained exp resources of subtype will be given to hero after battle
-
-### BLOCK
 
 ### DISGUISED
 subtype - spell level
