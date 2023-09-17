@@ -61,6 +61,10 @@ void CHeroOverview::genHeader()
     canvas.drawColorBlended(Rect(borderOffset, 2 * borderOffset + yOffset + 64, 284, 20), ColorRGBA(0, 0, 0, alpha));
     canvas.drawBorder(Rect(borderOffset - 1, 2 * borderOffset + yOffset + 64 - 1, 284 + 2, 20 + 2), borderColor);
 
+    // skill
+    for(int i = 0; i < 4; i++)
+        canvas.drawBorder(Rect((284 / 4) * i + 21 - 1, 3 * borderOffset + yOffset + 64 + 20 + 1 - 1, 42 + 2, 42 + 2), borderColor);
+
     // skill footer
     canvas.drawColorBlended(Rect(borderOffset, 4 * borderOffset + yOffset + 64 + 20 + 44, 284, 20), ColorRGBA(0, 0, 0, alpha));
     canvas.drawBorder(Rect(borderOffset - 1, 4 * borderOffset + yOffset + 64 + 20 + 44 - 1, 284 + 2, 20 + 2), borderColor);
@@ -92,6 +96,18 @@ void CHeroOverview::genHeader()
     // hero name
 	labelHeroName = std::make_shared<CLabel>(64 + borderOffset + 110, borderOffset + yOffset + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, (*CGI->heroh)[heroIndex]->getNameTranslated());
 	labelHeroClass = std::make_shared<CLabel>(64 + borderOffset + 110, borderOffset + yOffset + 45, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->heroClass->getNameTranslated());
+
+    // skills header
+    for(int i = 0; i < 4; i++)
+        labelSkillHeader.push_back(std::make_shared<CLabel>((284 / 4) * i + 42, 2 * borderOffset + yOffset + 64 + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[1 + i]));
+
+    // skill
+    for(int i = 0; i < 4; i++)
+        imageSkill.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), (const int[]){0, 1, 2, 5}[i], 0, (284 / 4) * i + 21, 3 * borderOffset + yOffset + 64 + 20 + 1));
+
+    // skills footer
+    for(int i = 0; i < 4; i++)
+        labelSkillFooter.push_back(std::make_shared<CLabel>((284 / 4) * i + 42, 4 * borderOffset + yOffset + 64 + 20 + 44 + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string((*CGI->heroh)[heroIndex]->heroClass->primarySkillInitial[i])));
 
     // hero biography
     labelHeroBiography = std::make_shared<CMultiLineLabel>(Rect(2 * borderOffset, 5 * borderOffset + borderOffset + yOffset + 64 + 20 + 44 + 20, 284 - 2 * borderOffset, 130 - 2 * borderOffset), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->heroh)[heroIndex]->getBiographyTranslated());
