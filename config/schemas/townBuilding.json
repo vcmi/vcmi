@@ -17,7 +17,7 @@
 			"additionalItems" :
 			{
 				"description" : "Following items that contain expression elements",
-				"$ref" : "#/definitions/buidingRequirement"				
+				"$ref" : "#/definitions/buildingRequirement"				
 			}
 		} 
 	},
