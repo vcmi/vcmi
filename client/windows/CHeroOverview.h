@@ -23,6 +23,11 @@ class CHeroOverview : public CWindowObject
 	const HeroTypeID & hero;
 	int heroIndex;
 
+    const int yOffset = 35;
+    const int borderOffset = 5;
+    const int alpha = 75;
+    const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+
     std::shared_ptr<CFilledTexture> backgroundTexture;
     std::shared_ptr<CPicture> backgroundShapes;
     std::shared_ptr<CLabel> labelTitle;
@@ -53,7 +58,8 @@ class CHeroOverview : public CWindowObject
     std::vector<std::shared_ptr<CAnimImage>> imageSecSkills;
     std::vector<std::shared_ptr<CLabel>> labelSecSkillsNames;
 
-    void genHeroWindow();
+    void genBackground();
+    void genControls();
 
 public:
     CHeroOverview(const HeroTypeID & h);
