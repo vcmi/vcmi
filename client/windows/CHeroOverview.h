@@ -20,14 +20,13 @@ class CTextBox;
 
 class CHeroOverview : public CWindowObject
 {
-	//const HeroTypeID & hero;
+	const HeroTypeID & hero;
 	int heroIndex;
 
     std::shared_ptr<CFilledTexture> backgroundTexture;
     std::shared_ptr<CPicture> backgroundShapes;
     std::shared_ptr<CLabel> labelTitle;
-    std::shared_ptr<CAnimImage> image;
-
+    std::shared_ptr<CAnimImage> imageHero;
     std::shared_ptr<CLabel> labelHeroName;
     std::shared_ptr<CMultiLineLabel> labelHeroBiography;
     std::shared_ptr<CLabel> labelHeroClass;
@@ -38,6 +37,20 @@ class CHeroOverview : public CWindowObject
     std::vector<std::shared_ptr<CLabel>> labelSkillFooter;
     std::shared_ptr<CLabel> labelSpecialityName;
     std::shared_ptr<CMultiLineLabel> labelSpecialityDescription;
+
+    std::shared_ptr<CLabel> labelArmyTitle;
+    std::vector<std::shared_ptr<CAnimImage>> imageArmy;
+    std::vector<std::shared_ptr<CLabel>> labelArmyCount;
+    std::vector<std::shared_ptr<CLabel>> labelArmyNames;
+
+    std::shared_ptr<CLabel> labelWarMachineTitle;
+    std::vector<std::shared_ptr<CAnimImage>> imageWarMachine;
+    std::vector<std::shared_ptr<CLabel>> labelWarMachineNames;
+
+    std::shared_ptr<CLabel> labelSpellBookTitle;
+    std::shared_ptr<CAnimImage> imageSpellBook;
+    std::vector<std::shared_ptr<CAnimImage>> imageSpells;
+    std::vector<std::shared_ptr<CLabel>> labelSpellsNames;
 
     void genHeader();
     void genHeroWindow();

@@ -22,14 +22,17 @@
 #include "../widgets/TextControls.h"
 
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
 
 CHeroOverview::CHeroOverview(const HeroTypeID & h)
-	: CWindowObject(BORDERED | RCLICK_POPUP), /*hero { h },*/ heroIndex { h.getNum() }
+	: CWindowObject(BORDERED | RCLICK_POPUP), hero { h }
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-    genHeroWindow();
+    heroIndex = hero.getNum();
+
+	genHeroWindow();
 
 	center();
 }
@@ -84,6 +87,15 @@ void CHeroOverview::genHeader()
     canvas.drawColorBlended(Rect(borderOffset, 7 * borderOffset + yOffset + 64 + 20 + 44 + 20 + 130 + 44, 284, 85), ColorRGBA(0, 0, 0, alpha));
     canvas.drawBorder(Rect(borderOffset - 1, 7 * borderOffset + yOffset + 64 + 20 + 44 + 20 + 130 + 44 - 1, 284 + 2, 85 + 2), borderColor);
 
+    // army title
+    canvas.drawColorBlended(Rect(302, borderOffset + yOffset, 292, 30), ColorRGBA(0, 0, 0, alpha));
+
+    // army
+    for(int i = 0; i < 6; i++)
+    {
+        int space = (292 - 6 * 32) / 5;
+        canvas.drawColorBlended(Rect(302 + i * (32 + space), 2 * borderOffset + yOffset + 30, 32, 32), ColorRGBA(0, 0, 0, alpha));
+    }
 
     std::shared_ptr<IImage> backgroundShapesImg = GH.renderHandler().createImage(canvas.getInternalSurface());
     backgroundShapes = std::make_shared<CPicture>(backgroundShapesImg, pos);
@@ -91,7 +103,7 @@ void CHeroOverview::genHeader()
 	labelTitle = std::make_shared<CLabel>(pos.w / 2 + 8, 21, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[77]);
 
     // hero image
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), (*CGI->heroh)[heroIndex]->imageIndex, 0, borderOffset, borderOffset + yOffset);
+	imageHero = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), (*CGI->heroh)[heroIndex]->imageIndex, 0, borderOffset, borderOffset + yOffset);
 
     // hero name
 	labelHeroName = std::make_shared<CLabel>(64 + borderOffset + 110, borderOffset + yOffset + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, (*CGI->heroh)[heroIndex]->getNameTranslated());
@@ -121,10 +133,42 @@ void CHeroOverview::genHeader()
 
     // speciality description
 	labelSpecialityDescription = std::make_shared<CMultiLineLabel>(Rect(2 * borderOffset, 8 * borderOffset + yOffset + 64 + 20 + 44 + 20 + 130 + 44 - 1, 284 - borderOffset, 85 - borderOffset), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*CGI->heroh)[heroIndex]->getSpecialtyDescriptionTranslated());
+
+    // army title
+    labelArmyTitle = std::make_shared<CLabel>(302 + borderOffset, 2 * borderOffset + yOffset + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "TODO: Starting Army");
+
+    // army
+    int i = 0;
+    for(auto & army : (*CGI->heroh)[heroIndex]->initialArmy)
+    {
+        if((*CGI->creh)[army.creature]->warMachine == ArtifactID::NONE)
+        {
+            imageArmy.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 300 + 5 + i * 32, 30 + 100)); // size 32x32
+            labelArmyNames.push_back(std::make_shared<CLabel>(300 + 5 + i * 32 + 16, 30 + 40 + 100, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->creh)[army.creature]->getNameSingularTranslated()));
+            labelArmyCount.push_back(std::make_shared<CLabel>(300 + 5 + i * 32 + 16, 30 + 60 + 100, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (army.minAmount == army.maxAmount) ? std::to_string(army.minAmount) : std::to_string(army.minAmount) + "-" + std::to_string(army.maxAmount)));
+            i++;
+        }
+    }
+
+
+    // war machine title
+    labelWarMachineTitle = std::make_shared<CLabel>(300 + 5, 5 + 5 + 100 + 100, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, "war m");
+
+    // war machine
+    i = 0;
+    for(auto & army : (*CGI->heroh)[heroIndex]->initialArmy)
+    {
+        if((*CGI->creh)[army.creature]->warMachine != ArtifactID::NONE)
+        {
+            imageWarMachine.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[army.creature]->getIconIndex(), 0, 300 + 5 + i * 32, 30 + 100 + 100)); // size 32x32
+            labelWarMachineNames.push_back(std::make_shared<CLabel>(300 + 5 + i * 32 + 16, 30 + 40 + 100 + 100, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->creh)[army.creature]->getNameSingularTranslated()));
+            i++;
+        }
+    }
 }
 
 void CHeroOverview::genHeroWindow()
 {
-	pos = Rect(0, 0, 450, 450 + 35);
+	pos = Rect(0, 0, 600, 450 + 35);
 	genHeader();
 }
