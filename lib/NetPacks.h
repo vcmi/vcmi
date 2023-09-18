@@ -1436,12 +1436,12 @@ struct DLL_LINKAGE TeleportDialog : public Query
 {
 	TeleportDialog() = default;
 
-	TeleportDialog(const PlayerColor & Player, const TeleportChannelID & Channel)
-		: player(Player)
+	TeleportDialog(const ObjectInstanceID & hero, const TeleportChannelID & Channel)
+		: hero(hero)
 		, channel(Channel)
 	{
 	}
-	PlayerColor player;
+	ObjectInstanceID hero;
 	TeleportChannelID channel;
 	TTeleportExitsList exits;
 	bool impassable = false;
@@ -1451,7 +1451,7 @@ struct DLL_LINKAGE TeleportDialog : public Query
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & queryID;
-		h & player;
+		h & hero;
 		h & channel;
 		h & exits;
 		h & impassable;

@@ -656,7 +656,7 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 	});
 }
 
-void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void VCAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 //	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
 	NET_EVENT_HANDLER;

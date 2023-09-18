@@ -703,7 +703,8 @@ void ApplyClientNetPackVisitor::visitExchangeDialog(ExchangeDialog & pack)
 
 void ApplyClientNetPackVisitor::visitTeleportDialog(TeleportDialog & pack)
 {
-	callOnlyThatInterface(cl, pack.player, &CGameInterface::showTeleportDialog, pack.channel, pack.exits, pack.impassable, pack.queryID);
+	const CGHeroInstance *h = cl.getHero(pack.hero);
+	callOnlyThatInterface(cl, h->getOwner(), &CGameInterface::showTeleportDialog, h, pack.channel, pack.exits, pack.impassable, pack.queryID);
 }
 
 void ApplyClientNetPackVisitor::visitMapObjectSelectDialog(MapObjectSelectDialog & pack)

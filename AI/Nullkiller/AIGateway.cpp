@@ -654,7 +654,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 	});
 }
 
-void AIGateway::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits") % exits.size()));
