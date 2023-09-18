@@ -39,10 +39,7 @@ BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRan
 	BankConfig bc;
 
 	bc.chance = static_cast<ui32>(level["chance"].Float());
-
 	bc.guards = JsonRandom::loadCreatures(level["guards"], rng);
-	bc.upgradeChance = static_cast<ui32>(level["upgrade_chance"].Float());
-	bc.combatValue = static_cast<ui32>(level["combat_value"].Float());
 
 	std::vector<SpellID> spells;
 	IObjectInterface::cb->getAllowedSpells(spells);
@@ -51,8 +48,6 @@ BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRan
 	bc.creatures = JsonRandom::loadCreatures(level["reward"]["creatures"], rng);
 	bc.artifacts = JsonRandom::loadArtifacts(level["reward"]["artifacts"], rng);
 	bc.spells = JsonRandom::loadSpells(level["reward"]["spells"], rng, spells);
-
-	bc.value = static_cast<ui32>(level["value"].Float());
 
 	return bc;
 }
