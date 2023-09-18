@@ -24,9 +24,41 @@ TurnOrderProcessor::TurnOrderProcessor(CGameHandler * owner):
 
 }
 
+int TurnOrderProcessor::simturnsTurnsLimit() const
+{
+	// TODO
+	return 7;
+}
+
+bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) const
+{
+	// TODO
+	return false;
+}
+
 bool TurnOrderProcessor::canActSimultaneously(PlayerColor active, PlayerColor waiting) const
 {
-	return false;
+	const auto * activeInfo = gameHandler->getPlayerState(active, false);
+	const auto * waitingInfo = gameHandler->getPlayerState(waiting, false);
+
+	assert(active != waiting);
+	assert(activeInfo);
+	assert(waitingInfo);
+
+	if (gameHandler->getDate(Date::DAY) > simturnsTurnsLimit())
+		return false;
+
+	if (gameHandler->hasBothPlayersAtSameConnection(active, waiting))
+	{
+		// only one AI and one human can play simultaneoulsy from single connection
+		if (activeInfo->human == waitingInfo->human)
+			return false;
+	}
+
+	if (playersInContact(active, waiting))
+		return false;
+
+	return true;
 }
 
 bool TurnOrderProcessor::mustActBefore(PlayerColor left, PlayerColor right) const
@@ -107,8 +139,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	pst.queryID = turnQuery->queryID;
 	gameHandler->sendAndApply(&pst);
 
-	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
+	assert(!actingPlayers.empty());
 }
 
 void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
@@ -130,8 +161,6 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 		doStartNewDay();
 
 	assert(!actingPlayers.empty());
-	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
 }
 
 void TurnOrderProcessor::addPlayer(PlayerColor which)
@@ -152,8 +181,6 @@ void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
 		doStartNewDay();
 
 	assert(!actingPlayers.empty());
-	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
 }
 
 bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)

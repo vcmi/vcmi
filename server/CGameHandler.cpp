@@ -2188,6 +2188,11 @@ bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> 
 	return connections.at(player).count(c);
 }
 
+bool CGameHandler::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const
+{
+	return connections.at(left) == connections.at(right);
+}
+
 bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 {
 	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id));

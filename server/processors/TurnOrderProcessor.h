@@ -21,6 +21,12 @@ class TurnOrderProcessor : boost::noncopyable
 	std::set<PlayerColor> actingPlayers;
 	std::set<PlayerColor> actedPlayers;
 
+	/// Returns date on which simturns must end unconditionally
+	int simturnsTurnsLimit() const;
+
+	/// Returns true if players are close enough to each other for their heroes to meet on this turn
+	bool playersInContact(PlayerColor left, PlayerColor right) const;
+
 	/// Returns true if waiting player can act alongside with currently acting player
 	bool canActSimultaneously(PlayerColor active, PlayerColor waiting) const;
 

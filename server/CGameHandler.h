@@ -176,6 +176,7 @@ public:
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
 	void handleReceivedPack(CPackForServer * pack);
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
+	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
 	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
