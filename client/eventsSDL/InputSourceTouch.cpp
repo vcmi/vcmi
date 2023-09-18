@@ -33,7 +33,7 @@
 #include <SDL_timer.h>
 
 InputSourceTouch::InputSourceTouch()
-	: lastTapTimeTicks(0)
+	: lastTapTimeTicks(0), lastLeftClickTimeTicks(0)
 {
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
@@ -181,8 +181,15 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		case TouchState::TAP_DOWN_SHORT:
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-			GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger), params.touchToleranceDistance);
-			GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger), params.touchToleranceDistance);
+			if(tfinger.timestamp - lastLeftClickTimeTicks < doubleTouchTimeMilliseconds && (convertTouchToMouse(tfinger) - lastLeftClickPosition).distance < doubleTouchToleranceDistance)
+				GH.events().dispatchMouseDoubleClick(convertTouchToMouse(tfinger);
+			else
+			{
+				GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger), params.touchToleranceDistance);
+				GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger), params.touchToleranceDistance);
+			}
+			lastLeftClickTimeTicks = tfinger.timestamp;
+			lastLeftClickPosition = convertTouchToMouse(tfinger);
 			state = TouchState::IDLE;
 			break;
 		}

@@ -72,6 +72,12 @@ struct TouchInputParameters
 	/// tap for period longer than specified here will be qualified as "long tap", triggering corresponding gesture
 	uint32_t longTouchTimeMilliseconds = 750;
 
+	/// time span in where the second tap has to happen for qualifing as "double click"
+	uint32_t doubleTouchTimeMilliseconds = 500;
+
+	/// max distance in where the second tap has to happen for qualifing as "double click"
+	uint32_t doubleTouchToleranceDistance = 50;
+
 	/// moving finger for distance larger than specified will be qualified as panning gesture instead of long press
 	uint32_t panningSensitivityThreshold = 10;
 
@@ -93,6 +99,9 @@ class InputSourceTouch
 	TouchState state;
 	uint32_t lastTapTimeTicks;
 	Point lastTapPosition;
+
+	uint32_t lastLeftClickTimeTicks;
+	Point lastLeftClickPosition;
 
 	Point convertTouchToMouse(const SDL_TouchFingerEvent & current);
 	Point convertTouchToMouse(float x, float y);
