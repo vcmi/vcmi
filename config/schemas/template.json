@@ -99,7 +99,6 @@
 				"type":
 				{
 					"type" : "string",
-					"additionalProperties" : false,
 					"enum" : ["wide", "fictive", "repulsive"]
 				}
 			}
@@ -107,7 +106,6 @@
 		"waterContent" :
 		{
 			"enum" : ["none", "normal", "islands"],
-			"additionalProperties" : false,
 			"type" : "string"
 		}
 	},
@@ -118,29 +116,37 @@
 		"required" : ["zones", "connections", "minSize", "maxSize", "players"],
 		
 		"players" : {
+			"description" : "Number of players that will be present on map (human or AI)",
 			"type": "string"
 		},
 		"cpu" : {
+			"description" : "Optional, number of AI-only players",
 			"type": "string"
 		},
 		"minSize" : {
+			"description" : "Minimal size of the map, e.g. 'm+u' or '120x120x1",
 			"type": "string"
 		},
 		"maxSize" : {
+			"description" : "Maximal size of the map, e.g. 'm+u' or '120x120x1",
 			"type": "string"
 		},
-		"description" : {
+		"name" : {
+			"description" : "Optional name - useful to have several template variations with same name",
 			"type": "string"
 		},
 		"zones" : {
+			"description" : "List of named zones",
 			"type" : "object",
 			"additionalProperties" : {"$ref" : "#/definitions/zone"	}
 		},
 		"connections" : {
+			"description" : "List of connections between zones",
 			"type" : "array",
 			"items" : {"$ref" : "#/definitions/connection"}	
 		},
 		"allowedWaterContent" : {
+			"description" : "Optional parameter allowing to prohibit some water modes. All modes are allowed if parameter is not specified",
 			"type" : "array",
 			"items" : {"$ref" : "#/definitions/waterContent"}
 		}
