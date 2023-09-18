@@ -231,7 +231,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SystemMessage>();
 	s.template registerType<CPackForClient, PlayerBlocked>();
 	s.template registerType<CPackForClient, PlayerCheated>();
-	s.template registerType<CPackForClient, YourTurn>();
+	s.template registerType<CPackForClient, PlayerStartsTurn>();
 	s.template registerType<CPackForClient, DaysWithoutTown>();
 	s.template registerType<CPackForClient, TurnTimeUpdate>();
 	s.template registerType<CPackForClient, SetResources>();
@@ -245,6 +245,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SetAvailableHero>();
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
+	s.template registerType<CPackForClient, PlayerEndsTurn>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();
 	s.template registerType<CPackForClient, PlayerReinitInterface>();
 	s.template registerType<CPackForClient, RemoveBonus>();

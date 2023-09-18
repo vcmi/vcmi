@@ -172,11 +172,17 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	adventureInt.reset(new AdventureMapInterface());
 }
 
+void CPlayerInterface::playerEndsTurn(PlayerColor player)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if (player == playerID)
+		makingTurn = false;
+}
+
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	makingTurn = false;
 	movementController->onPlayerTurnStarted();
 
 	if(GH.windows().findWindows<AdventureMapInterface>().empty())
