@@ -872,7 +872,25 @@ void CMarketplaceWindow::selectionChanged(bool side)
 
 bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
 {
-	return market->allowsTrade(M) && M != mode && (hero || ( M != EMarketMode::CREATURE_RESOURCE && M != EMarketMode::RESOURCE_ARTIFACT && M != EMarketMode::ARTIFACT_RESOURCE ));
+	if (!market->allowsTrade(M))
+		return false;
+
+	if (M == mode)
+		return false;
+
+	if ( M == EMarketMode::RESOURCE_RESOURCE || M == EMarketMode::RESOURCE_PLAYER)
+	{
+		auto * town = dynamic_cast<const CGTownInstance *>(market);
+
+		if (town)
+			return town->getOwner() == LOCPLINT->playerID;
+		else
+			return true;
+	}
+	else
+	{
+		return hero != nullptr;
+	}
 }
 
 void CMarketplaceWindow::garrisonChanged()
