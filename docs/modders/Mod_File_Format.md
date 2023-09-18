@@ -178,6 +178,23 @@ These are fields that are present only in local mod.json file
 }
 ```
 
+## Mod repository fields
+
+These are fields that are present only in remote repository and are generally not used in mod.json
+
+```jsonc
+{
+	// URL to mod.json that describes this mod
+	"mod" : "https://raw.githubusercontent.com/vcmi-mods/vcmi-extras/vcmi-1.4/mod.json",
+	
+	// URL that player can use to download mod
+	"download" : "https://github.com/vcmi-mods/vcmi-extras/archive/refs/heads/vcmi-1.4.zip",
+	
+	// Approximate size of download, megabytes
+	"downloadSize" : 4.496
+}
+```
+
 ## Notes
 
 For mod description it is possible to use certain subset of HTML as
