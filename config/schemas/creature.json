@@ -250,10 +250,6 @@
 				"timeBetweenFidgets" : {
 					"type" : "number",
 					"description" : "How often creature will play idling animation"
-				},
-				"troopCountLocationOffset" : {
-					"type" : "number",
-					"description" : "Position of troop count label?"
 				}
 			}
 		},
