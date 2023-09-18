@@ -347,7 +347,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if (!hero)
 		return;
 
-	movementController->heroMoved(hero, details);
+	movementController->onTryMoveHero(hero, details);
 }
 
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
@@ -937,7 +937,7 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 		adventureInt->showInfoBoxMessage(components, text, timer);
 
 		// abort movement, if any. Strictly speaking unnecessary, but prevents some edge cases, like movement sound on visiting Magi Hut with "show messages in status window" on
-		movementController->movementAbortRequested();
+		movementController->requestMovementAbort();
 
 		if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
 			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
@@ -984,7 +984,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
-		movementController->movementAbortRequested(); // interrupt movement to show dialog
+		movementController->requestMovementAbort(); // interrupt movement to show dialog
 		GH.windows().pushWindow(temp);
 	}
 	else
@@ -1007,7 +1007,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	movementController->movementAbortRequested();
+	movementController->requestMovementAbort();
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
@@ -1017,7 +1017,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 
-	movementController->movementAbortRequested();
+	movementController->requestMovementAbort();
 	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 
 	if (!selection && cancel) //simple yes/no dialog
@@ -1182,7 +1182,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	if (localState->isHeroSleeping(h))
 		localState->setHeroAwaken(h);
 
-	movementController->movementStartRequested(h, path);
+	movementController->requestMovementStart(h, path);
 }
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)

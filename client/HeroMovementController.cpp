@@ -60,11 +60,17 @@ void HeroMovementController::onBattleStarted()
 	// when battle starts, game will send battleStart pack *before* movement confirmation
 	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
 	// leading to several bugs, such as blocked input during intro
-	movementAbortRequested();
+	requestMovementAbort();
 }
 
 void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
+	if (impassable || exits.empty()) //FIXME: why we even have this dialog in such case?
+	{
+		LOCPLINT->cb->selectionMade(-1, askID);
+		return;
+	}
+
 	// Player entered teleporter
 	// Check whether hero that has entered teleporter has paths that goes through teleporter and select appropriate exit
 	// othervice, ask server to select one randomly by sending invalid (-1) value as answer
@@ -139,7 +145,7 @@ void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMo
 	}
 }
 
-void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMoveHero & details)
+void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const TryMoveHero & details)
 {
 	// Server initiated movement -> start movement animation
 	// Note that this movement is not necessarily of owned heroes - other players movement will also pass through this method
@@ -167,7 +173,7 @@ void HeroMovementController::heroMoved(const CGHeroInstance * hero, const TryMov
 	if(details.stopMovement())
 	{
 		if(duringMovement)
-			endHeroMove(hero);
+			endMove(hero);
 		return;
 	}
 
@@ -233,27 +239,23 @@ void HeroMovementController::onMoveHeroApplied()
 	bool wantStop = stoppingMovement;
 	bool canStop = !canMove || canHeroStopAtNode(LOCPLINT->localState->getPath(hero).currNode());
 
-	if(!canMove)
+	if(!canMove || (wantStop && canStop))
 	{
-		endHeroMove(hero);
-	}
-	else if(wantStop && canStop)
-	{
-		endHeroMove(hero);
+		endMove(hero);
 	}
 	else
 	{
-		moveHeroOnce(hero, LOCPLINT->localState->getPath(hero));
+		moveOnce(hero, LOCPLINT->localState->getPath(hero));
 	}
 }
 
-void HeroMovementController::movementAbortRequested()
+void HeroMovementController::requestMovementAbort()
 {
 	if(duringMovement)
-		endHeroMove(currentlyMovingHero);
+		endMove(currentlyMovingHero);
 }
 
-void HeroMovementController::endHeroMove(const CGHeroInstance * hero)
+void HeroMovementController::endMove(const CGHeroInstance * hero)
 {
 	assert(duringMovement == true);
 	assert(currentlyMovingHero != nullptr);
@@ -331,17 +333,17 @@ bool HeroMovementController::canHeroStopAtNode(const CGPathNode & node) const
 	return true;
 }
 
-void HeroMovementController::movementStartRequested(const CGHeroInstance * h, const CGPath & path)
+void HeroMovementController::requestMovementStart(const CGHeroInstance * h, const CGPath & path)
 {
 	assert(duringMovement == false);
 	duringMovement = true;
 	currentlyMovingHero = h;
 
 	CCS->curh->hide();
-	moveHeroOnce(h, path);
+	moveOnce(h, path);
 }
 
-void HeroMovementController::moveHeroOnce(const CGHeroInstance * h, const CGPath & path)
+void HeroMovementController::moveOnce(const CGHeroInstance * h, const CGPath & path)
 {
 	// Moves hero once, sends request to server and immediately returns
 	// movement alongside paths will be done on receiving response from server

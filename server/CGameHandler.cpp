@@ -1139,7 +1139,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	if(h->movementPointsRemaining() < cost && dst != h->pos && !teleporting)
 		complainRet("Hero doesn't have any movement points left!");
 
-	if (transit && !canFly && !CGTeleport::isTeleport(t.topVisitableObj()))
+	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()))
 		complainRet("Hero cannot transit over this tile!");
 
 	//several generic blocks of code
@@ -1259,7 +1259,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			if (CGTeleport::isTeleport(t.topVisitableObj()))
 				visitDest = DONT_VISIT_DEST;
 
-			if (canFly)
+			if (canFly || (canWalkOnSea && t.terType->isWater()))
 			{
 				lookForGuards = IGNORE_GUARDS;
 				visitDest = DONT_VISIT_DEST;

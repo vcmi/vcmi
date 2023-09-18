@@ -43,9 +43,9 @@ class HeroMovementController
 	void updatePath(const CGHeroInstance * hero, const TryMoveHero & details);
 
 	/// Moves hero 1 tile / path node
-	void moveHeroOnce(const CGHeroInstance * h, const CGPath & path);
+	void moveOnce(const CGHeroInstance * h, const CGPath & path);
 
-	void endHeroMove(const CGHeroInstance * h);
+	void endMove(const CGHeroInstance * h);
 
 	AudioPath getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType);
 	void updateMovementSound(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType);
@@ -66,9 +66,9 @@ public:
 	void onPlayerTurnStarted();
 	void onBattleStarted();
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID);
-	void heroMoved(const CGHeroInstance * hero, const TryMoveHero & details);
+	void onTryMoveHero(const CGHeroInstance * hero, const TryMoveHero & details);
 
 	// UI handlers
-	void movementStartRequested(const CGHeroInstance * h, const CGPath & path);
-	void movementAbortRequested();
+	void requestMovementStart(const CGHeroInstance * h, const CGPath & path);
+	void requestMovementAbort();
 };
