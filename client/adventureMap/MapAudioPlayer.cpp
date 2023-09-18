@@ -50,22 +50,22 @@ void MapAudioPlayer::onAfterHeroDisembark(const CGHeroInstance * obj, const int3
 		update();
 }
 
-void MapAudioPlayer::onObjectFadeIn(const CGObjectInstance * obj)
+void MapAudioPlayer::onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	addObject(obj);
 }
 
-void MapAudioPlayer::onObjectFadeOut(const CGObjectInstance * obj)
+void MapAudioPlayer::onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	removeObject(obj);
 }
 
-void MapAudioPlayer::onObjectInstantAdd(const CGObjectInstance * obj)
+void MapAudioPlayer::onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	addObject(obj);
 }
 
-void MapAudioPlayer::onObjectInstantRemove(const CGObjectInstance * obj)
+void MapAudioPlayer::onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	removeObject(obj);
 }

@@ -424,6 +424,8 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 	ObjectInstanceID objid;
 	/// New position of visitable tile of an object
 	int3 nPos;
+	/// Player that initiated this action, if any
+	PlayerColor initiator;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -431,6 +433,7 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 	{
 		h & objid;
 		h & nPos;
+		h & initiator;
 	}
 };
 
@@ -613,19 +616,25 @@ struct DLL_LINKAGE ChangeFormation : public CPackForClient
 struct DLL_LINKAGE RemoveObject : public CPackForClient
 {
 	RemoveObject() = default;
-	RemoveObject(const ObjectInstanceID & ID)
-		: id(ID)
+	RemoveObject(const ObjectInstanceID & objectID, const PlayerColor & initiator)
+		: objectID(objectID)
+		, initiator(initiator)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
-	ObjectInstanceID id;
+	/// ID of removed object
+	ObjectInstanceID objectID;
+
+	/// Player that initiated this action, if any
+	PlayerColor initiator;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & id;
+		h & objectID;
+		h & initiator;
 	}
 };
 
@@ -803,6 +812,8 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	ui32 subID = 0;
 	/// Position of visitable tile of created object
 	int3 targetPos;
+	/// Which player initiated creation of this object
+	PlayerColor initiator;
 
 	ObjectInstanceID createdObjectID; //used locally, filled during applyGs
 
@@ -813,6 +824,7 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 		h & ID;
 		h & subID;
 		h & targetPos;
+		h & initiator;
 	}
 };
 

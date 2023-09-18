@@ -299,7 +299,7 @@ void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
 	}
 	else
 	{
-		cb->removeObject(this);
+		cb->removeObject(this, h->getOwner());
 	}
 }
 
@@ -400,12 +400,12 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	if(result.winner == 0)
 	{
 		giveReward(hero);
-		cb->removeObject(this);
+		cb->removeObject(this, hero->getOwner());
 	}
 	else if(result.winner > 1) // draw
 	{
 		// guarded reward is lost forever on draw
-		cb->removeObject(this);
+		cb->removeObject(this, hero->getOwner());
 	}
 	else
 	{

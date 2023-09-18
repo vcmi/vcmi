@@ -189,7 +189,7 @@ public:
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;
-	void objectRemoved(const CGObjectInstance * obj) override;
+	void objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;

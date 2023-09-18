@@ -196,7 +196,7 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 		else if(getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
 			hero->showInfoDialog(15);
-			cb->removeObject(this);
+			cb->removeObject(this, hero->getOwner());
 		}
 		else //if it gives something without battle
 		{

@@ -14,6 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class int3;
 class CGObjectInstance;
 class CGHeroInstance;
+class PlayerColor;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -26,16 +27,16 @@ public:
 	virtual bool hasOngoingAnimations() = 0;
 
 	/// Plays fade-in animation and adds object to map
-	virtual void onObjectFadeIn(const CGObjectInstance * obj) = 0;
+	virtual void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 
 	/// Plays fade-out animation and removed object from map
-	virtual void onObjectFadeOut(const CGObjectInstance * obj) = 0;
+	virtual void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 
 	/// Adds object to map instantly, with no animation
-	virtual void onObjectInstantAdd(const CGObjectInstance * obj) = 0;
+	virtual void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 
 	/// Removes object from map instantly, with no animation
-	virtual void onObjectInstantRemove(const CGObjectInstance * obj) = 0;
+	virtual void onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 
 	/// Perform hero movement animation, moving hero across terrain
 	virtual void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) = 0;

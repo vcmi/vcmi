@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 class ObjectInstanceID;
 class CArmedInstance;
+class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 
 class MapAudioPlayer : public IMapObjectObserver
@@ -38,10 +39,10 @@ class MapAudioPlayer : public IMapObjectObserver
 protected:
 	// IMapObjectObserver impl
 	bool hasOngoingAnimations() override;
-	void onObjectFadeIn(const CGObjectInstance * obj) override;
-	void onObjectFadeOut(const CGObjectInstance * obj) override;
-	void onObjectInstantAdd(const CGObjectInstance * obj) override;
-	void onObjectInstantRemove(const CGObjectInstance * obj) override;
+	void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 
 	void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;

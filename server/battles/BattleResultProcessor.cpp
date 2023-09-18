@@ -469,12 +469,12 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	if(finishingBattle->loserHero) //remove beaten hero
 	{
-		RemoveObject ro(finishingBattle->loserHero->id);
+		RemoveObject ro(finishingBattle->loserHero->id, battle.battleGetArmyObject(0)->getOwner());
 		gameHandler->sendAndApply(&ro);
 	}
 	if(finishingBattle->isDraw() && finishingBattle->winnerHero) //for draw case both heroes should be removed
 	{
-		RemoveObject ro(finishingBattle->winnerHero->id);
+		RemoveObject ro(finishingBattle->winnerHero->id, battle.battleGetArmyObject(0)->getOwner());
 		gameHandler->sendAndApply(&ro);
 	}
 
@@ -557,7 +557,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	if (result.winner != 2 && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty()
 		&& (!finishingBattle->winnerHero->commander || !finishingBattle->winnerHero->commander->alive))
 	{
-		RemoveObject ro(finishingBattle->winnerHero->id);
+		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->winnerHero->getOwner());
 		gameHandler->sendAndApply(&ro);
 
 		if (VLC->settings()->getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))

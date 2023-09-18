@@ -14,6 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct ObjectPosInfo;
+class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 
 struct MapRendererContextState;
@@ -55,8 +56,8 @@ private:
 	Point targetTileSize = Point(32, 32);
 	bool wasInDeadZone = true;
 
-	bool isEventInstant(const CGObjectInstance * obj);
-	bool isEventVisible(const CGObjectInstance * obj);
+	bool isEventInstant(const CGObjectInstance * obj, const PlayerColor & initiator);
+	bool isEventVisible(const CGObjectInstance * obj, const PlayerColor & initiator);
 	bool isEventVisible(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
 
 	void fadeOutObject(const CGObjectInstance * obj);
@@ -67,10 +68,10 @@ private:
 
 	// IMapObjectObserver impl
 	bool hasOngoingAnimations() override;
-	void onObjectFadeIn(const CGObjectInstance * obj) override;
-	void onObjectFadeOut(const CGObjectInstance * obj) override;
-	void onObjectInstantAdd(const CGObjectInstance * obj) override;
-	void onObjectInstantRemove(const CGObjectInstance * obj) override;
+	void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;

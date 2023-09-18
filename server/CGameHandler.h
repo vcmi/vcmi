@@ -100,8 +100,8 @@ public:
 	//from IGameCallback
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
-	bool removeObject(const CGObjectInstance * obj) override;
-	void createObject(const int3 & visitablePosition, Obj type, int32_t subtype ) override;
+	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype ) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override;
@@ -145,7 +145,7 @@ public:
 	void setMovePoints(SetMovePoints * smp) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override;
-	void changeObjPos(ObjectInstanceID objid, int3 newPos) override;
+	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;

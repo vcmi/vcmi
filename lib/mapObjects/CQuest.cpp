@@ -980,7 +980,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if (answer)
-		cb->removeObject(this);
+		cb->removeObject(this, hero->getOwner());
 }
 
 void CGBorderGuard::afterAddToMap(CMap * map)
