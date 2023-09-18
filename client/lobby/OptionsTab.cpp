@@ -908,7 +908,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 			if(!doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
-									GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 			}
 			else
 				selectedHero = set.hero;
@@ -991,7 +991,7 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 	if(settings.hero.getNum() == PlayerSettings::NONE && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 		return;
 
-			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
+	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 }
 
 void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
