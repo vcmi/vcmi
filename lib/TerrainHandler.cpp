@@ -58,7 +58,6 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	{
 		//Set bits
 		const auto & s = node.String();
-		if (s == "LAND") info->passabilityType |= TerrainType::PassabilityType::LAND;
 		if (s == "WATER") info->passabilityType |= TerrainType::PassabilityType::WATER;
 		if (s == "ROCK") info->passabilityType |= TerrainType::PassabilityType::ROCK;
 		if (s == "SURFACE") info->passabilityType |= TerrainType::PassabilityType::SURFACE;
