@@ -624,7 +624,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 	}
 
 	allowedBonus.push_back(-1); // random
-	if(initialHero.getNum() >= -1)
+	if(initialHero.getNum() >= -1 || SEL->getPlayerInfo(color.getNum()).heroesNames.size() > 0)
 		allowedBonus.push_back(0); // artifact
 	allowedBonus.push_back(1); // gold
 	if(initialFaction.getNum() >= 0)
@@ -908,7 +908,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 			if(!doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
-				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+									GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 			}
 			else
 				selectedHero = set.hero;
@@ -918,7 +918,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 	{
 		if(elem >= 4)
 			return;
-		set.bonus = static_cast<PlayerSettings::Ebonus>(elem-1);
+		set.bonus = static_cast<PlayerSettings::Ebonus>(allowedBonus[elem]);
 		if(set.bonus != PlayerSettings::NONE)
 		{
 			if(!doApply)
@@ -991,7 +991,7 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 	if(settings.hero.getNum() == PlayerSettings::NONE && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 		return;
 
-	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
+			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 }
 
 void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
