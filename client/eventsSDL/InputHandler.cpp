@@ -24,6 +24,7 @@
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
+#include "../CMusicHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -152,6 +153,18 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 				GH.onScreenResize();
 			}
 #endif
+			break;
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			if(settings["general"]["enableUiEnhancements"].Bool()) {
+				CCS->musich->setVolume(settings["general"]["music"].Integer());
+				CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+			}
+			break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			if(settings["general"]["enableUiEnhancements"].Bool()) {
+				CCS->musich->setVolume(0);
+				CCS->soundh->setVolume(0);
+			}
 			break;
 		}
 		return;
