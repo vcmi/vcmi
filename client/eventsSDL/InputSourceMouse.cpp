@@ -48,7 +48,7 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 	{
 		case SDL_BUTTON_LEFT:
 			if(button.clicks > 1)
-				GH.events().dispatchMouseDoubleClick(position);
+				GH.events().dispatchMouseDoubleClick(position, 0);
 			else
 				GH.events().dispatchMouseLeftButtonPressed(position, 0);
 			break;

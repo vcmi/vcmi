@@ -182,7 +182,10 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
 			if(tfinger.timestamp - lastLeftClickTimeTicks < params.doubleTouchTimeMilliseconds && (convertTouchToMouse(tfinger) - lastLeftClickPosition).length() < params.doubleTouchToleranceDistance)
-				GH.events().dispatchMouseDoubleClick(convertTouchToMouse(tfinger));
+			{
+				GH.events().dispatchMouseDoubleClick(convertTouchToMouse(tfinger), params.touchToleranceDistance);
+				GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger), params.touchToleranceDistance);
+			}
 			else
 			{
 				GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger), params.touchToleranceDistance);
