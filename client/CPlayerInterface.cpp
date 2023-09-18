@@ -170,6 +170,13 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
 	adventureInt.reset(new AdventureMapInterface());
+
+	if(GH.windows().findWindows<AdventureMapInterface>().empty())
+	{
+		// after map load - remove all active windows and replace them with adventure map
+		GH.windows().clear();
+		GH.windows().pushWindow(adventureInt);
+	}
 }
 
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
@@ -182,32 +189,14 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-
-	movementController->onPlayerTurnStarted();
-
-	if(GH.windows().findWindows<AdventureMapInterface>().empty())
-	{
-		// after map load - remove all active windows and replace them with adventure map
-		GH.windows().clear();
-		GH.windows().pushWindow(adventureInt);
-	}
-
-	// close window from another player
-	if(auto w = GH.windows().topWindow<CInfoWindow>())
-		if(w->ID == QueryID::NONE && player != playerID)
-			w->close();
-	
-	// remove all dialogs that do not expect query answer
-	while (!GH.windows().topWindow<AdventureMapInterface>() && !GH.windows().topWindow<CInfoWindow>())
-		GH.windows().popWindows(1);
-
 	if (player != playerID && LOCPLINT == this)
 	{
 		waitWhileDialog();
 
 		bool isHuman = cb->getStartInfo()->playerInfos.count(player) && cb->getStartInfo()->playerInfos.at(player).isControlledByHuman();
 
-		adventureInt->onEnemyTurnStarted(player, isHuman);
+		if (makingTurn == false)
+			adventureInt->onEnemyTurnStarted(player, isHuman);
 	}
 }
 
@@ -260,6 +249,21 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 	{
 		LOCPLINT = this;
 		GH.curInt = this;
+
+		// close window from another player
+		if(auto w = GH.windows().topWindow<CInfoWindow>())
+		{
+			assert(0);// what is this?
+			if(w->ID == QueryID::NONE)
+				w->close();
+		}
+
+		// remove all dialogs that do not expect query answer
+		while (!GH.windows().topWindow<AdventureMapInterface>() && !GH.windows().topWindow<CInfoWindow>())
+		{
+			assert(0);// what is this?
+			GH.windows().popWindows(1);
+		}
 
 		NotificationHandler::notify("Your turn");
 		if(settings["general"]["startTurnAutosave"].Bool())
@@ -335,6 +339,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 	}
 	
 	cb->selectionMade(0, queryID);
+	movementController->onPlayerTurnStarted();
 }
 
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
