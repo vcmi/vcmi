@@ -181,15 +181,15 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		case TouchState::TAP_DOWN_SHORT:
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-			if(tfinger.timestamp - lastLeftClickTimeTicks < doubleTouchTimeMilliseconds && (convertTouchToMouse(tfinger) - lastLeftClickPosition).distance < doubleTouchToleranceDistance)
-				GH.events().dispatchMouseDoubleClick(convertTouchToMouse(tfinger);
+			if(tfinger.timestamp - lastLeftClickTimeTicks < params.doubleTouchTimeMilliseconds && (convertTouchToMouse(tfinger) - lastLeftClickPosition).length() < params.doubleTouchToleranceDistance)
+				GH.events().dispatchMouseDoubleClick(convertTouchToMouse(tfinger));
 			else
 			{
 				GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger), params.touchToleranceDistance);
 				GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger), params.touchToleranceDistance);
+				lastLeftClickTimeTicks = tfinger.timestamp;
+				lastLeftClickPosition = convertTouchToMouse(tfinger);
 			}
-			lastLeftClickTimeTicks = tfinger.timestamp;
-			lastLeftClickPosition = convertTouchToMouse(tfinger);
 			state = TouchState::IDLE;
 			break;
 		}
