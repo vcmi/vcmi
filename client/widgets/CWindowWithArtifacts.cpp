@@ -28,12 +28,17 @@
 
 void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr artSet)
 {
+	artSets.emplace_back(artSet);
+}
+
+void CWindowWithArtifacts::addSetAndCallbacks(CArtifactsOfHeroPtr artSet)
+{
 	CArtifactsOfHeroBase::PutBackPickedArtCallback artPutBackHandler = []() -> void
 	{
 		CCS->curh->dragAndDropCursor(nullptr);
 	};
 
-	artSets.emplace_back(artSet);
+	addSet(artSet);
 	std::visit([this, artPutBackHandler](auto artSetWeak)
 		{
 			auto artSet = artSetWeak.lock();

@@ -28,6 +28,7 @@ public:
 	using CloseCallback = std::function<void()>;
 
 	void addSet(CArtifactsOfHeroPtr artSet);
+	void addSetAndCallbacks(CArtifactsOfHeroPtr artSet);
 	void addCloseCallback(CloseCallback callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
@@ -39,7 +40,7 @@ public:
 	void artifactDisassembled(const ArtifactLocation & artLoc) override;
 	void artifactAssembled(const ArtifactLocation & artLoc) override;
 
-private:
+protected:
 	std::vector<CArtifactsOfHeroPtr> artSets;
 	CloseCallback closeCallback;
 

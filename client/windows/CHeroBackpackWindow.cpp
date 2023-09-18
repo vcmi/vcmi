@@ -28,7 +28,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 
 	arts = std::make_shared<CArtifactsOfHeroBackpack>(Point(windowMargin, windowMargin));
 	arts->setHero(hero);
-	addSet(arts);
+	addSetAndCallbacks(arts);
 
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
 
