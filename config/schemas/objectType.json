@@ -13,7 +13,26 @@
 			"type" : "number"
 		},
 		"base" : {
+			"additionalProperties" : true, // Not validated on its own - instead data copied to main object and validated as part of it
 			"type" : "object"
+		},
+		"rmg" : {
+			"additionalProperties" : false,
+			"type" : "object",
+			"properties" : {
+				"value" : {
+					"type" : "number"
+				},
+				"mapLimit" : {
+					"type" : "number"
+				},
+				"zoneLimit" : {
+					"type" : "number"
+				},
+				"rarity" : {
+					"type" : "number"
+				}
+			}
 		},
 		"templates" : {
 			"type" : "object",
