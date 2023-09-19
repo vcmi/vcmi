@@ -22,6 +22,7 @@
 #include "../gui/TextAlignment.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
@@ -111,7 +112,7 @@ void CInGameConsole::print(const std::string & txt)
 		CCS->soundh->setVolume(settings["general"]["sound"].Integer());
 	int handle = CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 	if(volume == 0)
-		CCS->soundh->setCallback(handle, [&]() { CCS->soundh->setVolume(0); });
+		CCS->soundh->setCallback(handle, [&]() { if(!GH.screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
 }
 
 bool CInGameConsole::captureThisKey(EShortcut key)

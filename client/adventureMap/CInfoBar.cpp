@@ -25,6 +25,7 @@
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../render/IScreenHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -243,7 +244,7 @@ void CInfoBar::playNewDaySound()
 		handle = CCS->soundh->playSound(soundBase::newDay);
 
 	if(volume == 0)
-		CCS->soundh->setCallback(handle, [&]() { CCS->soundh->setVolume(0); });
+		CCS->soundh->setCallback(handle, [&]() { if(!GH.screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
 }
 
 void CInfoBar::reset()
