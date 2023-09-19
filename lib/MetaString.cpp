@@ -19,6 +19,7 @@
 #include "VCMI_Lib.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "spells/CSpellHandler.h"
+#include "serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -383,6 +384,16 @@ void MetaString::jsonDeserialize(const JsonNode & source)
 
 	for (const auto & entry : source["numbers"].Vector() )
 		numbers.push_back(entry.Integer());
+}
+
+void MetaString::serializeJson(JsonSerializeFormat & handler)
+{
+	JsonNode attr;
+	if(handler.saving)
+		jsonSerialize(attr);
+	handler.serializeRaw("attributes", attr, std::nullopt);
+	if(!handler.saving)
+		jsonDeserialize(attr);
 }
 
 VCMI_LIB_NAMESPACE_END

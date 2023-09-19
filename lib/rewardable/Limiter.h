@@ -92,6 +92,8 @@ struct DLL_LINKAGE Limiter
 		h & anyOf;
 		h & noneOf;
 	}
+	
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 }

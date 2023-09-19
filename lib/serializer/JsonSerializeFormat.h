@@ -74,17 +74,43 @@ public:
 	///String <-> Json string
 	void serializeString(const size_t index, std::string & value);
 
-	///vector of serializable <-> Json vector of structs
+	///vector of anything int-convertible <-> Json vector of integers
+	template<typename T>
+	void serializeArray(std::vector<T> & value)
+	{
+		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
+
+		for(size_t idx = 0; idx < size(); idx++)
+			serializeInt(idx, value[idx]);
+	}
+	
+	///vector of strings <-> Json vector of strings
+	void serializeArray(std::vector<std::string> & value)
+	{
+		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
+
+		for(size_t idx = 0; idx < size(); idx++)
+			serializeString(idx, value[idx]);
+	}
+	
+	///vector of anything with custom serializing function <-> Json vector of structs
 	template <typename Element>
-	void serializeStruct(std::vector<Element> & value)
+	void serializeStruct(std::vector<Element> & value, std::function<void(JsonSerializeFormat&, Element&)> serializer)
 	{
 		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
 
 		for(size_t idx = 0; idx < size(); idx++)
 		{
 			auto s = enterStruct(idx);
-			value[idx].serializeJson(*owner);
+			serializer(*owner, value[idx]);
 		}
+	}
+	
+	///vector of serializable <-> Json vector of structs
+	template <typename Element>
+	void serializeStruct(std::vector<Element> & value)
+	{
+		serializeStruct<Element>(value, [](JsonSerializeFormat & h, Element & e){e.serializeJson(h);});
 	}
 
 	void resize(const size_t newSize);

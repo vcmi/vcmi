@@ -158,10 +158,10 @@ private:
 	/// Reads single object from input stream based on template
 	CGObjectInstance * readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
 
-	CGObjectInstance * readEvent(const int3 & objectPosition);
+	CGObjectInstance * readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
 	CGObjectInstance * readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
 	CGObjectInstance * readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readSeerHut(const int3 & initialPos);
+	CGObjectInstance * readSeerHut(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
 	CGObjectInstance * readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readSign(const int3 & position);
 	CGObjectInstance * readWitchHut();
@@ -170,7 +170,7 @@ private:
 	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readPandora(const int3 & position);
+	CGObjectInstance * readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
 	CGObjectInstance * readDwelling(const int3 & position);
 	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	CGObjectInstance * readShrine();
@@ -196,7 +196,7 @@ private:
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	void readBoxContent(CGPandoraBox * object, const int3 & position);
+	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/**
 	 * Reads a quest for the given quest guard.
@@ -205,7 +205,7 @@ private:
 	 */
 	void readQuest(IQuestObject * guard, const int3 & position);
 
-	void readSeerHutQuest(CGSeerHut * hut, const int3 & position);
+	void readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/**
 	 * Reads events.

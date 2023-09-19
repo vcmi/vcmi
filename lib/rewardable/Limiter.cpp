@@ -14,6 +14,9 @@
 #include "../IGameCallback.h"
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../serializer/JsonSerializeFormat.h"
+#include "../constants/StringConstants.h"
+#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -117,6 +120,47 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return true;
 	}
 	return false;
+}
+
+void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeInt("dayOfWeek", dayOfWeek);
+	handler.serializeInt("daysPassed", daysPassed);
+	resources.serializeJson(handler, "resources");
+	handler.serializeInt("manaPercentage", manaPercentage);
+	handler.serializeInt("heroExperience", heroExperience);
+	handler.serializeInt("heroLevel", heroLevel);
+	handler.serializeInt("manaPoints", manaPoints);
+	handler.serializeIdArray("artifacts", artifacts);
+	handler.enterArray("creatures").serializeStruct(creatures);
+	handler.enterArray("primary").serializeArray(primary);
+	{
+		auto a = handler.enterArray("secondary");
+		std::vector<std::pair<SecondarySkill, si32>> fieldValue(secondary.begin(), secondary.end());
+		a.serializeStruct<std::pair<SecondarySkill, si32>>(fieldValue, [](JsonSerializeFormat & h, std::pair<SecondarySkill, si32> & e)
+		{
+			h.serializeId("skill", e.first, SecondarySkill{}, VLC->skillh->decodeSkill, VLC->skillh->encodeSkill);
+			h.serializeId("level", e.second, 0, [](const std::string & i){return vstd::find_pos(NSecondarySkill::levels, i);}, [](si32 i){return NSecondarySkill::levels.at(i);});
+		});
+		a.syncSize(fieldValue);
+		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
+	}
+	//sublimiters
+	auto serializeSublimitersList = [&handler](const std::string & field, LimitersList & container)
+	{
+		auto a = handler.enterArray(field);
+		a.syncSize(container);
+		for(int i = 0; i < container.size(); ++i)
+		{
+			if(!handler.saving)
+				container[i] = std::make_shared<Rewardable::Limiter>();
+			auto e = a.enterStruct(i);
+			container[i]->serializeJson(handler);
+		}
+	};
+	serializeSublimitersList("allOf", allOf);
+	serializeSublimitersList("anyOf", anyOf);
+	serializeSublimitersList("noneOf", noneOf);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../mapObjects/CArmedInstance.h"
+#include "CArmedInstance.h"
 #include "../rewardable/Interface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -31,6 +31,11 @@ protected:
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+	
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+	
+	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
+	virtual void selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
 
 public:
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)

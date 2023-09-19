@@ -1709,10 +1709,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			setHeroTypeName(typeName);
 	}
 
-	static const std::vector<std::string> FORMATIONS  =	{ "wide", "tight" };
-
-	CCreatureSet::serializeJson(handler, "army", 7);
-	handler.serializeEnum("formation", formation, FORMATIONS);
+	CArmedInstance::serializeJsonOptions(handler);
 
 	{
 		static constexpr int NO_PATROLING = -1;
