@@ -38,7 +38,7 @@ RewardsWidget::RewardsWidget(const CMap & m, CRewardableObject & p, QWidget *par
 	for(const auto & s : Rewardable::SelectModeString)
 		ui->selectMode->addItem(QString::fromStdString(s));
 	
-	for(const std::string & s : {"AUTO", "MODAL", "INFO"})
+	for(auto s : {"AUTO", "MODAL", "INFO"})
 		ui->windowMode->addItem(QString::fromStdString(s));
 	
 	ui->lDayOfWeek->addItem(tr("None"));
