@@ -79,7 +79,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroSelected(),   [this]() { this->digGrail(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
 		{ EShortcut::GAME_RESTART_GAME,          optionInMapView(),      [this]() { this->restartGame(); } },
-		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionHeroSelected(),   [this]() { this->visitObject(); } },
+		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
 		{ EShortcut::GAME_OPEN_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
 		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+1); } },
@@ -420,6 +420,18 @@ bool AdventureMapShortcuts::optionHeroAwake()
 {
 	const CGHeroInstance *hero = LOCPLINT->localState->getCurrentHero();
 	return optionInMapView() && hero && !LOCPLINT->localState->isHeroSleeping(hero);
+}
+
+bool AdventureMapShortcuts::optionCanVisitObject()
+{
+	if (!optionHeroSelected())
+		return false;
+
+	auto * hero = LOCPLINT->localState->getCurrentHero();
+	auto objects = LOCPLINT->cb->getVisitableObjs(hero->visitablePos());
+
+	assert(vstd::contains(objects,hero));
+	return objects.size() > 1; // there is object other than our hero
 }
 
 bool AdventureMapShortcuts::optionHeroSelected()
