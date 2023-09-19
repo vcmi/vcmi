@@ -580,3 +580,31 @@ void CCreaturePic::setAmount(int newAmount)
 	else
 		amount->setText("");
 }
+
+TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color) :
+	color(color), colorLine(ColorRGBA()), drawLine(false)
+{
+	pos = position + pos.topLeft();
+}
+
+TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine) :
+	color(color), colorLine(colorLine), drawLine(true)
+{
+	pos = position + pos.topLeft();
+}
+
+void TransparentFilledRectangle::showAll(Canvas & to) 
+{
+	to.drawColorBlended(pos, color);
+	if(drawLine)
+		to.drawBorder(pos, colorLine);
+}
+
+SimpleLine::SimpleLine(Point pos1, Point pos2, ColorRGBA color) :
+	pos1(pos1), pos2(pos2), color(color)
+{}
+
+void SimpleLine::showAll(Canvas & to) 
+{
+	to.drawLine(pos1 + pos.topLeft(), pos2 + pos.topLeft(), color, color);
+}

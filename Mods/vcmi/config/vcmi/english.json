@@ -30,6 +30,11 @@
 	"vcmi.capitalColors.6" : "Teal",
 	"vcmi.capitalColors.7" : "Pink",
 	
+	"vcmi.heroOverview.startingArmy" : "Starting Units",
+	"vcmi.heroOverview.warMachine" : "War Machines",
+	"vcmi.heroOverview.secondarySkills" : "Secondary Skills",
+	"vcmi.heroOverview.spells" : "Spells",
+	
 	"vcmi.radialWheel.mergeSameUnit" : "Merge same creatures",
 	"vcmi.radialWheel.fillSingleUnit" : "Fill with single creatures",
 	"vcmi.radialWheel.splitSingleUnit" : "Split off single creature",

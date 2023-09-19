@@ -53,11 +53,11 @@ private:
 	
 	struct CPlayerSettingsHelper
 	{
-		const PlayerSettings & settings;
+		const PlayerSettings & playerSettings;
 		const SelType type;
 
-		CPlayerSettingsHelper(const PlayerSettings & settings, SelType type)
-			: settings(settings), type(type)
+		CPlayerSettingsHelper(const PlayerSettings & playerSettings, SelType type)
+			: playerSettings(playerSettings), type(type)
 		{}
 
 		/// visible image settings
@@ -156,7 +156,7 @@ private:
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
 
-		SelectedBox(Point position, PlayerSettings & settings, SelType type);
+		SelectedBox(Point position, PlayerSettings & playerSettings, SelType type);
 		void showPopupWindow(const Point & cursorPosition) override;
 		void clickReleased(const Point & cursorPosition) override;
 		void scrollBy(int distance) override;

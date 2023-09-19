@@ -30,6 +30,11 @@
 	"vcmi.capitalColors.6" : "Türkis",
 	"vcmi.capitalColors.7" : "Rosa",
 	
+	"vcmi.heroOverview.startingArmy" : "Starteinheiten",
+	"vcmi.heroOverview.warMachine" : "Kriegsmaschinen",
+	"vcmi.heroOverview.secondarySkills" : "Sekundäre Skills",
+	"vcmi.heroOverview.spells" : "Zaubersprüche",
+	
 	"vcmi.radialWheel.mergeSameUnit" : "Gleiche Kreaturen zusammenführen",
 	"vcmi.radialWheel.splitSingleUnit" : "Wegtrennen einzelner Kreaturen",
 	"vcmi.radialWheel.splitUnitEqually" : "Gleichmäßiges trennen der Kreaturen",
