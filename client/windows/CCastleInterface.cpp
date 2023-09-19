@@ -698,7 +698,11 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 				break;
 
 		case BuildingID::MARKETPLACE:
-				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero);
+				// can't use allied marketplace
+				if (town->getOwner() == LOCPLINT->playerID)
+					GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero);
+				else
+					enterBuilding(building);
 				break;
 
 		case BuildingID::BLACKSMITH:

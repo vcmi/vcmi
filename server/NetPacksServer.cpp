@@ -155,35 +155,54 @@ void ApplyGhNetPackVisitor::visitBuyArtifact(BuyArtifact & pack)
 
 void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
+	const CGObjectInstance * object = gh.getObj(pack.marketId);
+	const CGHeroInstance * hero = gh.getHero(pack.heroId);
+	const IMarket * market = IMarket::castFrom(object);
+
 	gh.throwIfWrongPlayer(&pack);
 
-	const CGObjectInstance * market = gh.getObj(pack.marketId);
-	if(!market)
+	if(!object)
 		gh.throwAndComplain(&pack, "Invalid market object");
-	const CGHeroInstance * hero = gh.getHero(pack.heroId);
 
-	//market must be owned or visited
-	const IMarket * m = IMarket::castFrom(market);
-
-	if(!m)
+	if(!market)
 		gh.throwAndComplain(&pack, "market is not-a-market! :/");
 
-	PlayerColor player = market->tempOwner;
+	bool heroCanBeInvalid = false;
 
-	if(!player.isValidPlayer())
-		player = gh.getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
+	if (pack.mode == EMarketMode::RESOURCE_RESOURCE || pack.mode == EMarketMode::RESOURCE_PLAYER)
+	{
+		// For resource exchange we must use our own market or visit neutral market
+		if (object->getOwner().isValidPlayer())
+		{
+			gh.throwIfWrongOwner(&pack, pack.marketId);
+			heroCanBeInvalid = true;
+		}
+	}
 
-	if(!player.isValidPlayer())
-		gh.throwAndComplain(&pack, "No player can use this market!");
+	if (pack.mode == EMarketMode::CREATURE_UNDEAD)
+	{
+		// For skeleton transformer, if hero is null then object must be owned
+		if (!hero)
+		{
+			gh.throwIfWrongOwner(&pack, pack.marketId);
+			heroCanBeInvalid = true;
+		}
+	}
 
-	bool allyTownSkillTrade = (pack.mode == EMarketMode::RESOURCE_SKILL && gh.getPlayerRelations(player, hero->tempOwner) == PlayerRelations::ALLIES);
+	if (!heroCanBeInvalid)
+	{
+		gh.throwIfWrongOwner(&pack, pack.heroId);
 
-	if(hero && (!(player == hero->tempOwner || allyTownSkillTrade)
-		|| hero->visitablePos() != market->visitablePos()))
-		gh.throwAndComplain(&pack, "This hero can't use this marketplace!");
+		if (!hero)
+			gh.throwAndComplain(&pack, "Can not trade - no hero!");
 
-	if(!allyTownSkillTrade)
-		gh.throwIfWrongPlayer(&pack, player);
+		// TODO: check that object is actually being visited (e.g. Query exists)
+		if (!object->visitableAt(hero->visitablePos().x, hero->visitablePos().y))
+			gh.throwAndComplain(&pack, "Can not trade - object not visited!");
+
+		if (object->getOwner().isValidPlayer() && gh.getPlayerRelations(object->getOwner(), hero->getOwner()) == PlayerRelations::ENEMIES)
+			gh.throwAndComplain(&pack, "Can not trade - market not owned!");
+	}
 
 	result = true;
 
@@ -191,43 +210,43 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.tradeResources(m, pack.val[i], player, pack.r1[i], pack.r2[i]);
+			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i], pack.r2[i]);
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sendResources(pack.val[i], player, GameResID(pack.r1[i]), PlayerColor(pack.r2[i]));
+			result &= gh.sendResources(pack.val[i], pack.player, GameResID(pack.r1[i]), PlayerColor(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellCreatures(pack.val[i], m, hero, SlotID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellCreatures(pack.val[i], market, hero, SlotID(pack.r1[i]), GameResID(pack.r2[i]));
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.buyArtifact(m, hero, GameResID(pack.r1[i]), ArtifactID(pack.r2[i]));
+			result &= gh.buyArtifact(market, hero, GameResID(pack.r1[i]), ArtifactID(pack.r2[i]));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellArtifact(market, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.transformInUndead(m, hero, SlotID(pack.r1[i]));
+			result &= gh.transformInUndead(market, hero, SlotID(pack.r1[i]));
 		break;
 	case EMarketMode::RESOURCE_SKILL:
 		for(int i = 0; i < pack.r2.size(); ++i)
-			result &= gh.buySecSkill(m, hero, SecondarySkill(pack.r2[i]));
+			result &= gh.buySecSkill(market, hero, SecondarySkill(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
 		std::vector<SlotID> slotIDs(pack.r1.begin(), pack.r1.end());
 		std::vector<ui32> count(pack.val.begin(), pack.val.end());
-		result = gh.sacrificeCreatures(m, hero, slotIDs, count);
+		result = gh.sacrificeCreatures(market, hero, slotIDs, count);
 		return;
 	}
 	case EMarketMode::ARTIFACT_EXP:
 	{
 		std::vector<ArtifactPosition> positions(pack.r1.begin(), pack.r1.end());
-		result = gh.sacrificeArtifact(m, hero, positions);
+		result = gh.sacrificeArtifact(market, hero, positions);
 		return;
 	}
 	default:
