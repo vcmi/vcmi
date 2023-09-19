@@ -17,6 +17,8 @@
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/NetPacks.h"
+#include "../../lib/pathfinder/CPathfinder.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 
 TurnOrderProcessor::TurnOrderProcessor(CGameHandler * owner):
 	gameHandler(owner)
@@ -33,12 +35,58 @@ int TurnOrderProcessor::simturnsTurnsMaxLimit() const
 int TurnOrderProcessor::simturnsTurnsMinLimit() const
 {
 	// TODO
-	return 7;
+	return 0;
 }
 
 bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) const
 {
-	// TODO
+	// TODO: refactor, cleanup and optimize
+
+	boost::multi_array<bool, 3> leftReachability;
+	boost::multi_array<bool, 3> rightReachability;
+
+	int3 mapSize = gameHandler->getMapSize();
+
+	leftReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
+	rightReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
+
+	const auto * leftInfo = gameHandler->getPlayerState(left, false);
+	const auto * rightInfo = gameHandler->getPlayerState(right, false);
+
+	for(const auto & hero : leftInfo->heroes)
+	{
+		CPathsInfo out(mapSize, hero);
+		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);
+		CPathfinder pathfinder(gameHandler->gameState(), config);
+		pathfinder.calculatePaths();
+
+		for (int z = 0; z < mapSize.z; ++z)
+			for (int y = 0; y < mapSize.y; ++y)
+				for (int x = 0; x < mapSize.x; ++x)
+					if (out.getNode({x,y,z})->reachable())
+						leftReachability[z][x][y] = true;
+	}
+
+	for(const auto & hero : rightInfo->heroes)
+	{
+		CPathsInfo out(mapSize, hero);
+		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);
+		CPathfinder pathfinder(gameHandler->gameState(), config);
+		pathfinder.calculatePaths();
+
+		for (int z = 0; z < mapSize.z; ++z)
+			for (int y = 0; y < mapSize.y; ++y)
+				for (int x = 0; x < mapSize.x; ++x)
+					if (out.getNode({x,y,z})->reachable())
+						rightReachability[z][x][y] = true;
+	}
+
+	for (int z = 0; z < mapSize.z; ++z)
+		for (int y = 0; y < mapSize.y; ++y)
+			for (int x = 0; x < mapSize.x; ++x)
+				if (leftReachability[z][x][y] && rightReachability[z][x][y])
+					return true;
+
 	return false;
 }
 
