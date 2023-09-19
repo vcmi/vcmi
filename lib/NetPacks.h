@@ -2609,14 +2609,14 @@ struct DLL_LINKAGE BuildBoat : public CPackForServer
 struct DLL_LINKAGE QueryReply : public CPackForServer
 {
 	QueryReply() = default;
-	QueryReply(const QueryID & QID, const JsonNode & Reply)
+	QueryReply(const QueryID & QID, std::optional<int32_t> Reply)
 		: qid(QID)
 		, reply(Reply)
 	{
 	}
 	QueryID qid;
 	PlayerColor player;
-	JsonNode reply;
+	std::optional<int32_t> reply;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 

@@ -3120,12 +3120,13 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
 	return true;
 }
 
-bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor player)
+bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
-	logGlobal->trace(answer.toJson());
+	if (answer)
+		logGlobal->trace("%d", *answer);
 
 	auto topQuery = queries->topQuery(player);
 

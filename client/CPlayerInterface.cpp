@@ -1063,15 +1063,12 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	auto selectCallback = [=](int selection)
 	{
-		JsonNode reply(JsonNode::JsonType::DATA_INTEGER);
-		reply.Integer() = selection;
-		cb->sendQueryReply(reply, askID);
+		cb->sendQueryReply(selection, askID);
 	};
 
 	auto cancelCallback = [=]()
 	{
-		JsonNode reply(JsonNode::JsonType::DATA_NULL);
-		cb->sendQueryReply(reply, askID);
+		cb->sendQueryReply(std::nullopt, askID);
 	};
 
 	const std::string localTitle = title.toString();

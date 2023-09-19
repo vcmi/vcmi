@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
-#include "../../lib/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -39,8 +38,7 @@ public:
 	std::vector<PlayerColor> players; //players that are affected (often "blocked") by query
 	QueryID queryID;
 
-	CQuery(QueriesProcessor * Owner);
-
+	CQuery(CGameHandler * gh);
 
 	virtual bool blocksPack(const CPack *pack) const; //query can block attempting actions by player. Eg. he can't move hero during the battle.
 
@@ -53,11 +51,12 @@ public:
 
 	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const;
 
-	virtual void setReply(const JsonNode & reply);
+	virtual void setReply(std::optional<int32_t> reply);
 
 	virtual ~CQuery();
 protected:
 	QueriesProcessor * owner;
+	CGameHandler * gh;
 	void addPlayer(PlayerColor color);
 	bool blockAllButReply(const CPack * pack) const;
 };
@@ -65,21 +64,13 @@ protected:
 std::ostream &operator<<(std::ostream &out, const CQuery &query);
 std::ostream &operator<<(std::ostream &out, QueryPtr query);
 
-class CGhQuery : public CQuery
-{
-public:
-	CGhQuery(CGameHandler * owner);
-protected:
-	CGameHandler * gh;
-};
-
-class CDialogQuery : public CGhQuery
+class CDialogQuery : public CQuery
 {
 public:
 	CDialogQuery(CGameHandler * owner);
 	virtual bool endsByPlayerAnswer() const override;
 	virtual bool blocksPack(const CPack *pack) const override;
-	void setReply(const JsonNode & reply) override;
+	void setReply(std::optional<int32_t> reply) override;
 protected:
 	std::optional<ui32> answer;
 };
@@ -87,14 +78,14 @@ protected:
 class CGenericQuery : public CQuery
 {
 public:
-	CGenericQuery(QueriesProcessor * Owner, PlayerColor color, std::function<void(const JsonNode &)> Callback);
+	CGenericQuery(CGameHandler * gh, PlayerColor color, std::function<void(std::optional<int32_t>)> Callback);
 
 	bool blocksPack(const CPack * pack) const override;
 	bool endsByPlayerAnswer() const override;
 	void onExposure(QueryPtr topQuery) override;
-	void setReply(const JsonNode & reply) override;
+	void setReply(std::optional<int32_t> reply) override;
 	void onRemoval(PlayerColor color) override;
 private:
-	std::function<void(const JsonNode &)> callback;
-	JsonNode reply;
+	std::function<void(std::optional<int32_t>)> callback;
+	std::optional<int32_t> reply;
 };

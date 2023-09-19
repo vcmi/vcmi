@@ -482,11 +482,11 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 	if(!parameters.pos.valid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
 	{
-		auto queryCallback = [=](const JsonNode & reply) -> void
+		auto queryCallback = [=](std::optional<int32_t> reply) -> void
 		{
-			if(reply.getType() == JsonNode::JsonType::DATA_INTEGER)
+			if(reply.has_value())
 			{
-				ObjectInstanceID townId(static_cast<si32>(reply.Integer()));
+				ObjectInstanceID townId(*reply);
 
 				const CGObjectInstance * o = env->getCb()->getObj(townId, true);
 				if(o == nullptr)

@@ -17,7 +17,7 @@ class TurnTimerHandler;
 
 //Created when player starts turn
 //Removed when player accepts a turn
-class PlayerStartsTurnQuery : public CGhQuery
+class PlayerStartsTurnQuery : public CQuery
 {
 public:	
 	PlayerStartsTurnQuery(CGameHandler * owner, PlayerColor player);
@@ -30,7 +30,7 @@ public:
 
 //Created when hero visits object.
 //Removed when query above is resolved (or immediately after visit if no queries were created)
-class CObjectVisitQuery : public CGhQuery
+class CObjectVisitQuery : public CQuery
 {
 public:
 	const CGObjectInstance *visitedObject;
@@ -47,7 +47,7 @@ public:
 
 //Created when hero attempts move and something happens
 //(not necessarily position change, could be just an object interaction).
-class CHeroMovementQuery : public CGhQuery
+class CHeroMovementQuery : public CQuery
 {
 public:
 	TryMoveHero tmh;

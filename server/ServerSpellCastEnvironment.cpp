@@ -93,9 +93,9 @@ bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool t
 	return gh->moveHero(hid, dst, teleporting, false);
 }
 
-void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode&)> callback)
+void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
-	auto query = std::make_shared<CGenericQuery>(gh->queries.get(), color, callback);
+	auto query = std::make_shared<CGenericQuery>(gh, color, callback);
 	request->queryID = query->queryID;
 	gh->queries->addQuery(query);
 	gh->sendAndApply(request);

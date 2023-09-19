@@ -45,8 +45,9 @@ std::ostream & operator<<(std::ostream & out, QueryPtr query)
 	return out << "[" << query.get() << "] " << query->toString();
 }
 
-CQuery::CQuery(QueriesProcessor * Owner):
-	owner(Owner)
+CQuery::CQuery(CGameHandler * gameHandler)
+	: owner(gameHandler->queries.get())
+	, gh(gameHandler)
 {
 	boost::unique_lock<boost::mutex> l(QueriesProcessor::mx);
 
@@ -127,7 +128,7 @@ void CQuery::onAdded(PlayerColor color)
 
 }
 
-void CQuery::setReply(const JsonNode & reply)
+void CQuery::setReply(std::optional<int32_t> reply)
 {
 
 }
@@ -141,14 +142,8 @@ bool CQuery::blockAllButReply(const CPack * pack) const
 	return true;
 }
 
-CGhQuery::CGhQuery(CGameHandler * owner):
-	CQuery(owner->queries.get()), gh(owner)
-{
-
-}
-
 CDialogQuery::CDialogQuery(CGameHandler * owner):
-	CGhQuery(owner)
+	CQuery(owner)
 {
 
 }
@@ -163,14 +158,14 @@ bool CDialogQuery::blocksPack(const CPack * pack) const
 	return blockAllButReply(pack);
 }
 
-void CDialogQuery::setReply(const JsonNode & reply)
+void CDialogQuery::setReply(std::optional<int32_t> reply)
 {
-	if(reply.getType() == JsonNode::JsonType::DATA_INTEGER)
-		answer = reply.Integer();
+	if(reply.has_value())
+		answer = *reply;
 }
 
-CGenericQuery::CGenericQuery(QueriesProcessor * Owner, PlayerColor color, std::function<void(const JsonNode &)> Callback):
-	CQuery(Owner), callback(Callback)
+CGenericQuery::CGenericQuery(CGameHandler * gh, PlayerColor color, std::function<void(std::optional<int32_t>)> Callback):
+	CQuery(gh), callback(Callback)
 {
 	addPlayer(color);
 }
@@ -190,7 +185,7 @@ void CGenericQuery::onExposure(QueryPtr topQuery)
 	//do nothing
 }
 
-void CGenericQuery::setReply(const JsonNode & reply)
+void CGenericQuery::setReply(std::optional<int32_t> reply)
 {
 	this->reply = reply;
 }

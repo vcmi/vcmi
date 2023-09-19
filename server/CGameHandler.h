@@ -178,7 +178,7 @@ public:
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
-	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
+	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);

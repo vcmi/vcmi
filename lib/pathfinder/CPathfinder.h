@@ -19,7 +19,7 @@ class CGWhirlpool;
 struct TurnInfo;
 struct PathfinderOptions;
 
-class CPathfinder
+class DLL_LINKAGE CPathfinder
 {
 public:
 	friend class CPathfinderHelper;

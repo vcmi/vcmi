@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class IBattleInfo;
 VCMI_LIB_NAMESPACE_END
 
-class CBattleQuery : public CGhQuery
+class CBattleQuery : public CQuery
 {
 public:
 	std::array<const CArmedInstance *,2> belligerents;
