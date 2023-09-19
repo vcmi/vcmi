@@ -53,6 +53,8 @@ class TurnOrderProcessor : boost::noncopyable
 public:
 	TurnOrderProcessor(CGameHandler * owner);
 
+	bool isContactAllowed(PlayerColor left, PlayerColor right) const;
+
 	/// Add new player to handle (e.g. on game start)
 	void addPlayer(PlayerColor which);
 

@@ -1086,8 +1086,18 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	const TerrainTile t = *getTile(hmpos);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
+	CGObjectInstance * objectToVisit = nullptr;
+	CGObjectInstance * guardian = nullptr;
 
-	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
+	if (!t.visitableObjects.empty())
+		objectToVisit = t.visitableObjects.back();
+
+	if (isInTheMap(guardPos))
+		guardian = getTile(guardPos)->visitableObjects.back();
+
+	assert(guardian == nullptr || dynamic_cast<CGCreature*>(guardian) != nullptr);
+
+	const bool embarking = !h->boat && objectToVisit && objectToVisit->ID == Obj::BOAT;
 	const bool disembarking = h->boat
 		&& t.terType->isLand()
 		&& (dst == h->pos
@@ -1110,7 +1120,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
 	const bool standAtObstacle = t.blocked && !t.visitable;
-	const bool standAtWater = !h->boat && t.terType->isWater() && (t.visitableObjects.empty() || !t.visitableObjects.back()->isCoastVisitable());
+	const bool standAtWater = !h->boat && t.terType->isWater() && (objectToVisit || !objectToVisit->isCoastVisitable());
 
 	const auto complainRet = [&](const std::string & message)
 	{
@@ -1119,6 +1129,18 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		sendAndApply(&tmh);
 		return false;
 	};
+
+	if (guardian && isVisitActiveForAny(guardian))
+		complainRet("Cannot move hero, destination monster is busy!");
+
+	if (objectToVisit && isVisitActiveForAny(objectToVisit))
+		complainRet("Cannot move hero, destination object is busy!");
+
+	if (objectToVisit &&
+		objectToVisit->getOwner().isValidPlayer() &&
+		getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
+		!turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
+		complainRet("Cannot move hero, destination player is busy!");
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -1179,8 +1201,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		}
 		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
 		{
-			const TerrainTile &guardTile = *gs->getTile(guardPos);
-			objectVisited(guardTile.visitableObjects.back(), h);
+			objectVisited(guardian, h);
 
 			moveQuery->visitDestAfterVictory = visitDest==VISIT_DEST;
 		}
@@ -1238,9 +1259,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		// visit town for town portal \ castle gates
 		// do not use generic visitObjectOnTile to avoid double-teleporting
 		// if this moveHero call was triggered by teleporter
-		if (!t.visitableObjects.empty())
+		if (objectToVisit)
 		{
-			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(t.visitableObjects.back()))
+			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(objectToVisit))
 				town->onHeroVisit(h);
 		}
 

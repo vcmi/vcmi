@@ -90,6 +90,11 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	return false;
 }
 
+bool TurnOrderProcessor::isContactAllowed(PlayerColor active, PlayerColor waiting) const
+{
+	return true;
+}
+
 bool TurnOrderProcessor::canActSimultaneously(PlayerColor active, PlayerColor waiting) const
 {
 	const auto * activeInfo = gameHandler->getPlayerState(active, false);
