@@ -228,14 +228,22 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 
 void CInfoBar::playNewDaySound()
 {
+	int volume = CCS->soundh->getVolume();
+	int handle = -1;
+	if(volume == 0)
+		CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
-		CCS->soundh->playSound(soundBase::newDay);
+		handle = CCS->soundh->playSound(soundBase::newDay);
 	else if(LOCPLINT->cb->getDate(Date::WEEK) != 1) // not first week in month
-		CCS->soundh->playSound(soundBase::newWeek);
+		handle = CCS->soundh->playSound(soundBase::newWeek);
 	else if(LOCPLINT->cb->getDate(Date::MONTH) != 1) // not first month
-		CCS->soundh->playSound(soundBase::newMonth);
+		handle = CCS->soundh->playSound(soundBase::newMonth);
 	else
-		CCS->soundh->playSound(soundBase::newDay);
+		handle = CCS->soundh->playSound(soundBase::newDay);
+
+	if(volume == 0)
+		CCS->soundh->setCallback(handle, [&]() { CCS->soundh->setVolume(0); });
 }
 
 void CInfoBar::reset()
