@@ -24,7 +24,13 @@ TurnOrderProcessor::TurnOrderProcessor(CGameHandler * owner):
 
 }
 
-int TurnOrderProcessor::simturnsTurnsLimit() const
+int TurnOrderProcessor::simturnsTurnsMaxLimit() const
+{
+	// TODO
+	return 28;
+}
+
+int TurnOrderProcessor::simturnsTurnsMinLimit() const
 {
 	// TODO
 	return 7;
@@ -45,15 +51,18 @@ bool TurnOrderProcessor::canActSimultaneously(PlayerColor active, PlayerColor wa
 	assert(activeInfo);
 	assert(waitingInfo);
 
-	if (gameHandler->getDate(Date::DAY) > simturnsTurnsLimit())
-		return false;
-
 	if (gameHandler->hasBothPlayersAtSameConnection(active, waiting))
 	{
 		// only one AI and one human can play simultaneoulsy from single connection
 		if (activeInfo->human == waitingInfo->human)
 			return false;
 	}
+
+	if (gameHandler->getDate(Date::DAY) < simturnsTurnsMinLimit())
+		return true;
+
+	if (gameHandler->getDate(Date::DAY) > simturnsTurnsMaxLimit())
+		return false;
 
 	if (playersInContact(active, waiting))
 		return false;

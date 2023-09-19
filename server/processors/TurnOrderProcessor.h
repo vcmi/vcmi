@@ -22,7 +22,10 @@ class TurnOrderProcessor : boost::noncopyable
 	std::set<PlayerColor> actedPlayers;
 
 	/// Returns date on which simturns must end unconditionally
-	int simturnsTurnsLimit() const;
+	int simturnsTurnsMaxLimit() const;
+
+	/// Returns date until which simturns must play unconditionally
+	int simturnsTurnsMinLimit() const;
 
 	/// Returns true if players are close enough to each other for their heroes to meet on this turn
 	bool playersInContact(PlayerColor left, PlayerColor right) const;
