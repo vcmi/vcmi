@@ -71,7 +71,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_GAME_OPTIONS,     optionInMapView(),      [this]() { this->adventureOptions(); } },
 		{ EShortcut::GLOBAL_OPTIONS,             optionInMapView(),      [this]() { this->systemOptions(); } },
 		{ EShortcut::ADVENTURE_NEXT_HERO,        optionHasNextHero(),    [this]() { this->nextHero(); } },
-		{ EShortcut::GAME_END_TURN,              optionInMapView(),      [this]() { this->endTurn(); } },
+		{ EShortcut::GAME_END_TURN,              optionCanEndTurn(),     [this]() { this->endTurn(); } },
 		{ EShortcut::ADVENTURE_THIEVES_GUILD,    optionInMapView(),      [this]() { this->showThievesGuild(); } },
 		{ EShortcut::ADVENTURE_VIEW_SCENARIO,    optionInMapView(),      [this]() { this->showScenarioInfo(); } },
 		{ EShortcut::GAME_SAVE_GAME,             optionInMapView(),      [this]() { this->saveGame(); } },
@@ -451,6 +451,11 @@ bool AdventureMapShortcuts::optionHasNextHero()
 	const auto * nextSuitableHero = LOCPLINT->localState->getNextWanderingHero(hero);
 
 	return optionInMapView() && nextSuitableHero != nullptr;
+}
+
+bool AdventureMapShortcuts::optionCanEndTurn()
+{
+	return optionInMapView() && LOCPLINT->makingTurn;
 }
 
 bool AdventureMapShortcuts::optionSpellcasting()

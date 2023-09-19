@@ -78,6 +78,7 @@ public:
 	bool optionHeroCanMove();
 	bool optionHasNextHero();
 	bool optionCanVisitObject();
+	bool optionCanEndTurn();
 	bool optionSpellcasting();
 	bool optionInMapView();
 	bool optionInWorldView();
