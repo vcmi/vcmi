@@ -2035,10 +2035,18 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
 {
-	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1)),
-		* s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
-	const CCreatureSet &S1 = *s1, &S2 = *s2;
+	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1));
+	const CArmedInstance * s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
+	const CCreatureSet & S1 = *s1;
+	const CCreatureSet & S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
+
+	if (s1 == nullptr || s2 == nullptr)
+	{
+		complain("Cannot exchange stacks between non-existing objects!!\n");
+		return false;
+	}
+
 	if (!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
 	{
 		complain(complainInvalidSlot);
