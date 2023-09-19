@@ -136,7 +136,7 @@ bool CModEntry::isInstalled() const
 
 bool CModEntry::isValid() const
 {
-	return (!localData.isEmpty() || !repository.isEmpty()) && !getValue("name").isNull();
+	return !localData.isEmpty() || (!repository.isEmpty() && !repository.contains("mod"));
 }
 
 bool CModEntry::isTranslation() const
