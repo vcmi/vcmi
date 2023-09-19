@@ -49,18 +49,18 @@ void CRewardableObject::grantRewardWithMessage(const CGHeroInstance * contextHer
 	grantReward(index, contextHero);
 }
 
-void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndeces, const MetaString & dialog) const
+void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const
 {
-	BlockingDialog sd(configuration.canRefuse, rewardIndeces.size() > 1);
+	BlockingDialog sd(configuration.canRefuse, rewardIndices.size() > 1);
 	sd.player = contextHero->tempOwner;
 	sd.text = dialog;
 
-	if (rewardIndeces.size() > 1)
-		for (auto index : rewardIndeces)
+	if (rewardIndices.size() > 1)
+		for (auto index : rewardIndices)
 			sd.components.push_back(configuration.info.at(index).reward.getDisplayedComponent(contextHero));
 
-	if (rewardIndeces.size() == 1)
-		configuration.info.at(rewardIndeces.front()).reward.loadComponents(sd.components, contextHero);
+	if (rewardIndices.size() == 1)
+		configuration.info.at(rewardIndices.front()).reward.loadComponents(sd.components, contextHero);
 
 	cb->showBlockingDialog(&sd);
 }

@@ -291,6 +291,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 void CGEvent::init()
 {
 	blockVisit = false;
+	configuration.infoWindowType = EInfoWindowMode::MODAL;
 	
 	for(auto & i : configuration.info)
 	{
