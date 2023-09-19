@@ -52,7 +52,7 @@ const std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstan
 void CCombinedArtifactInstance::addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap)
 {
 	if(!placementMap.empty())
-		for(auto& part : partsInfo)
+		for(auto & part : partsInfo)
 		{
 			assert(placementMap.find(part.art) != placementMap.end());
 			part.slot = placementMap.at(part.art);
@@ -167,7 +167,8 @@ bool CArtifactInstance::isCombined() const
 
 void CArtifactInstance::putAt(const ArtifactLocation & al)
 {
-	addPlacementMap(al.getHolderArtSet()->putArtifact(al.slot, this));
+	auto placementMap = al.getHolderArtSet()->putArtifact(al.slot, this);
+	addPlacementMap(placementMap);
 }
 
 void CArtifactInstance::removeFrom(const ArtifactLocation & al)

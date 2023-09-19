@@ -755,7 +755,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	if(qeLayout)
 	{
-		auto moveArtifacts = [this](const std::function<void(bool, bool)> moveRoutine) -> void
+		auto moveArtifacts = [](const std::function<void(bool, bool)> moveRoutine) -> void
 		{
 			bool moveEquipped = true;
 			bool moveBackpack = true;
