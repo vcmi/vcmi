@@ -121,6 +121,8 @@ void CPathfinder::calculatePaths()
 			movement = hlp->getMaxMovePoints(source.node->layer);
 			if(!hlp->passOneTurnLimitCheck(source))
 				continue;
+			if(turn >= hlp->options.turnLimit)
+				continue;
 		}
 
 		source.isInitialPosition = source.nodeHero == hlp->hero;
