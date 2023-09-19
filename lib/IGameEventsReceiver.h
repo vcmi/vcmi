@@ -134,6 +134,7 @@ public:
 	virtual void playerBlocked(int reason, bool start){}; //reason: 0 - upcoming battle
 	virtual void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) {}; //player lost or won the game
 	virtual void playerStartsTurn(PlayerColor player){};
+	virtual void playerEndsTurn(PlayerColor player){};
 
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};

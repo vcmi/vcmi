@@ -100,9 +100,9 @@ void PlayerCheated::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPlayerCheated(*this);
 }
 
-void YourTurn::visitTyped(ICPackVisitor & visitor)
+void PlayerStartsTurn::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitYourTurn(*this);
+	visitor.visitPlayerStartsTurn(*this);
 }
 
 void DaysWithoutTown::visitTyped(ICPackVisitor & visitor)
@@ -168,6 +168,11 @@ void GiveBonus::visitTyped(ICPackVisitor & visitor)
 void ChangeObjPos::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeObjPos(*this);
+}
+
+void PlayerEndsTurn::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPlayerEndsTurn(*this);
 }
 
 void PlayerEndsGame::visitTyped(ICPackVisitor & visitor)
@@ -1071,6 +1076,9 @@ void PlayerEndsGame::applyGs(CGameState * gs) const
 	{
 		p->status = EPlayerStatus::LOSER;
 	}
+
+	// defeated player may be making turn right now
+	gs->actingPlayers.erase(player);
 }
 
 void PlayerReinitInterface::applyGs(CGameState *gs)
@@ -2503,10 +2511,16 @@ void PlayerCheated::applyGs(CGameState * gs) const
 	gs->getPlayerState(player)->enteredWinningCheatCode = winningCheatCode;
 }
 
-void YourTurn::applyGs(CGameState * gs) const
+void PlayerStartsTurn::applyGs(CGameState * gs) const
 {
-	gs->actingPlayers.clear();
+	assert(gs->actingPlayers.count(player) == 0);
 	gs->actingPlayers.insert(player);
+}
+
+void PlayerEndsTurn::applyGs(CGameState * gs) const
+{
+	assert(gs->actingPlayers.count(player) == 1);
+	gs->actingPlayers.erase(player);
 }
 
 void DaysWithoutTown::applyGs(CGameState * gs) const

@@ -453,7 +453,7 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, int Su
 
 void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 {
-	TeleportDialog td(h->tempOwner, channel);
+	TeleportDialog td(h->id, channel);
 	if(isEntrance())
 	{
 		if(cb->isTeleportChannelBidirectional(channel) && 1 < cb->getTeleportChannelExits(channel).size())
@@ -527,7 +527,7 @@ void CGMonolith::initObj(CRandomGenerator & rand)
 
 void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 {
-	TeleportDialog td(h->tempOwner, channel);
+	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
 		h->showInfoDialog(153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
@@ -611,7 +611,7 @@ void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
 
 void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 {
-	TeleportDialog td(h->tempOwner, channel);
+	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
 		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), pos.toString());

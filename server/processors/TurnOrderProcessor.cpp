@@ -102,10 +102,10 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	auto turnQuery = std::make_shared<PlayerStartsTurnQuery>(gameHandler, which);
 	gameHandler->queries->addQuery(turnQuery);
 
-	YourTurn yt;
-	yt.player = which;
-	yt.queryID = turnQuery->queryID;
-	gameHandler->sendAndApply(&yt);
+	PlayerStartsTurn pst;
+	pst.player = which;
+	pst.queryID = turnQuery->queryID;
+	gameHandler->sendAndApply(&pst);
 
 	assert(actingPlayers.size() == 1); // No simturns yet :(
 	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
@@ -118,6 +118,10 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 
 	actingPlayers.erase(which);
 	actedPlayers.insert(which);
+
+	PlayerEndsTurn pet;
+	pet.player = which;
+	gameHandler->sendAndApply(&pet);
 
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();

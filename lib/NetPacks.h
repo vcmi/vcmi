@@ -163,7 +163,7 @@ struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE YourTurn : public Query
+struct DLL_LINKAGE PlayerStartsTurn : public Query
 {
 	void applyGs(CGameState * gs) const;
 
@@ -431,6 +431,20 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 	{
 		h & objid;
 		h & nPos;
+	}
+};
+
+struct DLL_LINKAGE PlayerEndsTurn : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+
+	PlayerColor player;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & player;
 	}
 };
 
@@ -1436,12 +1450,12 @@ struct DLL_LINKAGE TeleportDialog : public Query
 {
 	TeleportDialog() = default;
 
-	TeleportDialog(const PlayerColor & Player, const TeleportChannelID & Channel)
-		: player(Player)
+	TeleportDialog(const ObjectInstanceID & hero, const TeleportChannelID & Channel)
+		: hero(hero)
 		, channel(Channel)
 	{
 	}
-	PlayerColor player;
+	ObjectInstanceID hero;
 	TeleportChannelID channel;
 	TTeleportExitsList exits;
 	bool impassable = false;
@@ -1451,7 +1465,7 @@ struct DLL_LINKAGE TeleportDialog : public Query
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & queryID;
-		h & player;
+		h & hero;
 		h & channel;
 		h & exits;
 		h & impassable;

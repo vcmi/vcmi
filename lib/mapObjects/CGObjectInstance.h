@@ -60,12 +60,17 @@ public:
 
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
-	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
 	int3 visitablePos() const override;
 	int3 getPosition() const override;
 	int3 getTopVisiblePos() const;
+	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) (h3m pos)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
+
+	bool visitableAt(const int3 & pos) const; //returns true if object is visitable at location (x, y) (h3m pos)
+	bool blockingAt (const int3 & pos) const; //returns true if object is blocking location (x, y) (h3m pos)
+	bool coveringAt (const int3 & pos) const; //returns true if object covers with picture location (x, y) (h3m pos)
+
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 

@@ -531,7 +531,8 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 			if(LOCPLINT->localState->hasPath(currentHero) &&
 			   LOCPLINT->localState->getPath(currentHero).endPos() == mapPos)//we'll be moving
 			{
-				if(!CGI->mh->hasOngoingAnimations())
+				assert(!CGI->mh->hasOngoingAnimations());
+				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
 					LOCPLINT->moveHero(currentHero, LOCPLINT->localState->getPath(currentHero));
 				return;
 			}

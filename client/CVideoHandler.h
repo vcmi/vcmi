@@ -15,7 +15,7 @@
 struct SDL_Surface;
 struct SDL_Texture;
 
-class IVideoPlayer
+class IVideoPlayer : boost::noncopyable
 {
 public:
 	virtual bool open(const VideoPath & name, bool scale = false)=0; //true - succes
@@ -31,8 +31,6 @@ public:
 class IMainVideoPlayer : public IVideoPlayer
 {
 public:
-	VideoPath fname;  //name of current video file (empty if idle)
-
 	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true){}
 	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false)
 	{
@@ -55,13 +53,15 @@ public:
 
 #ifndef DISABLE_VIDEO
 
-#include "../lib/filesystem/CInputStream.h"
-
 struct AVFormatContext;
 struct AVCodecContext;
 struct AVCodec;
 struct AVFrame;
 struct AVIOContext;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CInputStream;
+VCMI_LIB_NAMESPACE_END
 
 class CVideoPlayer : public IMainVideoPlayer
 {
@@ -73,6 +73,8 @@ class CVideoPlayer : public IMainVideoPlayer
 	struct SwsContext *sws;
 
 	AVIOContext * context;
+
+	VideoPath fname;  //name of current video file (empty if idle)
 
 	// Destination. Either overlay or dest.
 

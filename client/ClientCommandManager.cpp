@@ -470,7 +470,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 {
-	YourTurn yt;
+	PlayerStartsTurn yt;
 	yt.player = colorIdentifier;
 	yt.queryID = -1;
 

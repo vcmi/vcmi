@@ -1111,29 +1111,36 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const bool standAtObstacle = t.blocked && !t.visitable;
 	const bool standAtWater = !h->boat && t.terType->isWater() && (t.visitableObjects.empty() || !t.visitableObjects.back()->isCoastVisitable());
 	
-	//it's a rock or blocked and not visitable tile
-	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if (((!t.terType->isPassable() || (standAtObstacle && !canFly))
-			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((standAtWater && !canFly && !canWalkOnSea)  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
-			&& complain("Cannot move hero, destination tile is on water!"))
-		|| ((h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
-			&& complain("Cannot disembark hero, tile is blocked!"))
-		|| ((distance(h->pos, dst) >= 1.5 && !teleporting)
-			&& complain("Tiles are not neighboring!"))
-		|| ((h->inTownGarrison)
-			&& complain("Can not move garrisoned hero!"))
-		|| (((int)h->movementPointsRemaining() < cost  &&  dst != h->pos  &&  !teleporting)
-			&& complain("Hero doesn't have any movement points left!"))
-		|| ((transit && !canFly && !CGTeleport::isTeleport(t.topVisitableObj()))
-			&& complain("Hero cannot transit over this tile!"))
-		/*|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
-			&& complain("Cannot move hero during the battle"))*/)
-	{
+	auto const complainRet = [&](const std::string & message){
 		//send info about movement failure
+		complain(message);
 		sendAndApply(&tmh);
 		return false;
-	}
+	};
+
+	//it's a rock or blocked and not visitable tile
+	//OR hero is on land and dest is water and (there is not present only one object - boat)
+	if (!t.terType->isPassable() || (standAtObstacle && !canFly))
+		complainRet("Cannot move hero, destination tile is blocked!");
+
+	//hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+	if(standAtWater && !canFly && !canWalkOnSea)
+		complainRet("Cannot move hero, destination tile is on water!");
+
+	if(h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
+		complainRet("Cannot disembark hero, tile is blocked!");
+
+	if(distance(h->pos, dst) >= 1.5 && !teleporting)
+		complainRet("Tiles are not neighboring!");
+
+	if(h->inTownGarrison)
+		complainRet("Can not move garrisoned hero!");
+
+	if(h->movementPointsRemaining() < cost && dst != h->pos && !teleporting)
+		complainRet("Hero doesn't have any movement points left!");
+
+	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()))
+		complainRet("Hero cannot transit over this tile!");
 
 	//several generic blocks of code
 
@@ -1252,7 +1259,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			if (CGTeleport::isTeleport(t.topVisitableObj()))
 				visitDest = DONT_VISIT_DEST;
 
-			if (canFly)
+			if (canFly || (canWalkOnSea && t.terType->isWater()))
 			{
 				lookForGuards = IGNORE_GUARDS;
 				visitDest = DONT_VISIT_DEST;

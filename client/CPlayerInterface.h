@@ -47,6 +47,7 @@ class KeyInterested;
 class MotionInterested;
 class PlayerLocalState;
 class TimeInterested;
+class HeroMovementController;
 
 namespace boost
 {
@@ -57,7 +58,6 @@ namespace boost
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
-	bool duringMovement;
 	bool ignoreEvents;
 	size_t numOfMovedArts;
 
@@ -67,9 +67,7 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
-	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
-	int3 destinationTeleportPos;
-
+	std::unique_ptr<HeroMovementController> movementController;
 public: // TODO: make private
 	std::shared_ptr<Environment> env;
 
@@ -122,7 +120,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
@@ -147,6 +145,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void playerBlocked(int reason, bool start) override;
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
+	void playerEndsTurn(PlayerColor player) override;
 	void saveGame(BinarySerializer & h, const int version) override; //saving
 	void loadGame(BinaryDeserializer & h, const int version) override; //loading
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
@@ -196,7 +195,6 @@ public: // public interface for use by client via LOCPLINT access
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
-	void stopMovement();
 	void moveHero(const CGHeroInstance *h, const CGPath& path);
 
 	void tryDigging(const CGHeroInstance *h);
@@ -222,7 +220,6 @@ private:
 		{
 			owner.ignoreEvents = false;
 		};
-
 	};
 
 	void heroKilled(const CGHeroInstance* hero);
@@ -231,9 +228,6 @@ private:
 	void acceptTurn(QueryID queryID); //used during hot seat after your turn message is close
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
-	void doMoveHero(const CGHeroInstance *h, CGPath path);
-	void setMovementStatus(bool value);
-
 };
 
 /// Provides global access to instance of interface of currently active player
