@@ -590,6 +590,8 @@ void CModListView::downloadFile(QString file, QString url, QString description, 
 		connect(dlManager, SIGNAL(finished(QStringList,QStringList,QStringList)),
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
 		
+		connect(manager.get(), SIGNAL(extractionProgress(qint64,qint64)),
+			this, SLOT(downloadProgress(qint64,qint64)));
 		
 		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
@@ -606,6 +608,7 @@ void CModListView::downloadFile(QString file, QString url, QString description, 
 void CModListView::downloadProgress(qint64 current, qint64 max)
 {
 	// display progress, in megabytes
+	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max / (1024 * 1024));
 	ui->progressBar->setValue(current / (1024 * 1024));
 }
@@ -640,15 +643,16 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 		doInstallFiles = true;
 	}
 
-	// remove progress bar after some delay so user can see that download was complete and not interrupted.
-	QTimer::singleShot(1000, this, SLOT(hideProgressBar()));
-
 	dlManager->deleteLater();
 	dlManager = nullptr;
+	
+	ui->progressBar->setMaximum(0);
+	ui->progressBar->setValue(0);
 
 	if(doInstallFiles)
 		installFiles(savedFiles);
 	
+	hideProgressBar();
 	emit modsChanged();
 }
 
@@ -751,7 +755,10 @@ void CModListView::installMods(QStringList archives)
 	}
 
 	for(int i = 0; i < modNames.size(); i++)
+	{
+		ui->progressBar->setFormat(tr("Installing mod %1").arg(modNames[i]));
 		manager->installMod(modNames[i], archives[i]);
+	}
 
 	std::function<void(QString)> enableMod;
 
