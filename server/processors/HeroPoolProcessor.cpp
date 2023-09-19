@@ -174,6 +174,9 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	if(mapObject->ID == Obj::TAVERN)
 	{
+		if (!gameHandler->isVisitActiveForPlayer(mapObject, player) && gameHandler->complain("Can't buy hero in tavern you are not visiting!"))
+			return false;
+
 		if(gameHandler->getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject && gameHandler->complain("Tavern entry must be unoccupied!"))
 			return false;
 	}

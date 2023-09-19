@@ -2418,6 +2418,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	}
 	else
 	{
+		COMPLAIN_RET_FALSE_IF(isVisitActiveForHero(dwelling, hero), "Cannot recruit: can only recruit by visiting hero!");
 		COMPLAIN_RET_FALSE_IF(!hero || hero->getOwner() != player, "Cannot recruit: can only recruit to owned hero!");
 	}
 
@@ -4084,8 +4085,46 @@ void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor p
 	sendAndApply(&fow);
 }
 
+bool CGameHandler::isVisitActiveForAny(const CGObjectInstance *obj)
+{
+	for (auto const & query : queries->allQueries())
+	{
+		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		if (visit && visit->visitedObject == obj)
+			return true;
+	}
+	return false;
+}
+
+bool CGameHandler::isVisitActiveForPlayer(const CGObjectInstance *obj, PlayerColor player)
+{
+	for (auto const & query : queries->allQueries())
+	{
+		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		if (visit && visit->visitedObject == obj && visit->visitingHero->getOwner() == player)
+			return true;
+	}
+	return false;
+}
+
+bool CGameHandler::isVisitActiveForHero(const CGObjectInstance *obj, const CGHeroInstance *hero)
+{
+	for (auto const & query : queries->allQueries())
+	{
+		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		if (visit && visit->visitedObject == obj && visit->visitingHero == hero)
+			return true;
+	}
+	return false;
+}
+
 bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
+	assert(isVisitActiveForHero(obj, hero));
+	// Check top query of targeted player:
+	// If top query is NOT visit to targeted object then we assume that
+	// visitation query is covered by other query that must be answered first
+
 	if (auto topQuery = queries->topQuery(hero->getOwner()))
 		if (auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(topQuery))
 			return !(visit->visitedObject == obj && visit->visitingHero == hero);
