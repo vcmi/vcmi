@@ -565,3 +565,9 @@ std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) con
 
 	return result;
 }
+
+bool ScreenHandler::hasFocus()
+{
+	ui32 flags = SDL_GetWindowFlags(mainWindow);
+	return flags & SDL_WINDOW_INPUT_FOCUS;
+}

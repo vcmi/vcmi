@@ -40,4 +40,7 @@ public:
 
 	/// Dimensions of render output
 	virtual Point getRenderResolution() const = 0;
+
+	/// Window has focus
+	virtual bool hasFocus() = 0;
 };
