@@ -49,7 +49,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesROE()
 
 	result.factionsCount = 8;
 	result.heroesCount = 128;
-	result.heroesPortraitsCount = 128;
+	result.heroesPortraitsCount = 130; // +General Kendal, +Catherine (portrait-only in RoE)
 	result.artifactsCount = 127;
 	result.resourcesCount = 7;
 	result.creaturesCount = 118;

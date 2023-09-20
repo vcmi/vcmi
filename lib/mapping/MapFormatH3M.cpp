@@ -44,6 +44,7 @@ static std::string convertMapName(std::string input)
 {
 	boost::algorithm::to_lower(input);
 	boost::algorithm::trim(input);
+	boost::algorithm::erase_all(input, ".");
 
 	size_t slashPos = input.find_last_of('/');
 
@@ -345,27 +346,11 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		bool allowNormalVictory = reader->readBool();
 		bool appliesToAI = reader->readBool();
 
-		if(allowNormalVictory)
-		{
-			size_t playersOnMap = boost::range::count_if(
-				mapHeader->players,
-				[](const PlayerInfo & info)
-				{
-					return info.canAnyonePlay();
-				}
-			);
-
-			if(playersOnMap == 1)
-			{
-				logGlobal->warn("Map %s: Only one player exists, but normal victory allowed!", mapName);
-				allowNormalVictory = false; // makes sense? Not much. Works as H3? Yes!
-			}
-		}
-
 		switch(vicCondition)
 		{
 			case EVictoryConditionType::ARTIFACT:
 			{
+				assert(allowNormalVictory == true); // not selectable in editor
 				EventCondition cond(EventCondition::HAVE_ARTIFACT);
 				cond.objectType = reader->readArtifact();
 
@@ -404,6 +389,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::BUILDCITY:
 			{
+				assert(appliesToAI == true); // not selectable in editor
 				EventExpression::OperatorAll oper;
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.position = reader->readInt3();
@@ -421,6 +407,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::BUILDGRAIL:
 			{
+				assert(allowNormalVictory == true); // not selectable in editor
+				assert(appliesToAI == true); // not selectable in editor
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.objectType = BuildingID::GRAIL;
 				cond.position = reader->readInt3();
@@ -436,6 +424,10 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::BEATHERO:
 			{
+				if (!allowNormalVictory)
+					logGlobal->warn("Map %s: Has 'beat hero' as victory condition, but 'allow normal victory' not set. Ignoring", mapName);
+				allowNormalVictory = true; // H3 behavior
+				assert(appliesToAI == false); // not selectable in editor
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = Obj::HERO;
 				cond.position = reader->readInt3();
@@ -462,6 +454,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::BEATMONSTER:
 			{
+				assert(appliesToAI == true); // not selectable in editor
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = Obj::MONSTER;
 				cond.position = reader->readInt3();
@@ -500,6 +493,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::TRANSPORTITEM:
 			{
+				assert(allowNormalVictory == true); // not selectable in editor
 				EventCondition cond(EventCondition::TRANSPORT);
 				cond.objectType = reader->readUInt8();
 				cond.position = reader->readInt3();
@@ -513,6 +507,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
 			{
+				assert(appliesToAI == false); // not selectable in editor
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = Obj::MONSTER;
 
@@ -526,6 +521,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
 			{
+				assert(appliesToAI == false); // not selectable in editor
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				cond.value = reader->readUInt32();
 
@@ -539,6 +535,24 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			default:
 				assert(0);
+		}
+
+		if(allowNormalVictory)
+		{
+			size_t playersOnMap = boost::range::count_if(
+				mapHeader->players,
+				[](const PlayerInfo & info)
+				{
+					return info.canAnyonePlay();
+				}
+			);
+
+			assert(playersOnMap > 1);
+			if(playersOnMap == 1)
+			{
+				logGlobal->warn("Map %s: Only one player exists, but normal victory allowed!", mapName);
+				allowNormalVictory = false; // makes sense? Not much. Works as H3? Yes!
+			}
 		}
 
 		// if condition is human-only turn it into following construction: AllOf(human, condition)
@@ -883,7 +897,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
-		logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getNameTranslated(), hero->pos.toString());
+		logGlobal->debug("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getNameTranslated(), hero->pos.toString());
 
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
@@ -1551,6 +1565,9 @@ void CMapLoaderH3M::readObjects()
 		newObject->appearance = objectTemplate;
 		assert(objectInstanceID == ObjectInstanceID((si32)map->objects.size()));
 
+		if (newObject->isVisitable() && !map->isInTheMap(newObject->visitablePos()))
+			logGlobal->error("Map '%s': Object at %s - outside of map borders!", mapName, mapPosition.toString());
+
 		{
 			//TODO: define valid typeName and subtypeName for H3M maps
 			//boost::format fmt("%s_%d");
@@ -1703,7 +1720,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		if(!object->secSkills.empty())
 		{
 			if(object->secSkills[0].first != SecondarySkill::DEFAULT)
-				logGlobal->warn("Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTextID(), object->subID);
+				logGlobal->debug("Map '%s': Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...", mapName, object->getNameTextID(), object->subID);
 			object->secSkills.clear();
 		}
 
@@ -1775,7 +1792,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTranslated(), object->subID );
+				logGlobal->debug("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTranslated(), object->subID );
 				for(const auto & b : *ps)
 					object->removeBonus(b);
 			}
@@ -1907,8 +1924,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 				auto rVal = reader->readUInt32();
 
 				assert(rId < features.resourcesCount);
-				assert((rVal & 0x00ffffff) == rVal);
-				
+
 				reward.resources[rId] = rVal;
 				break;
 			}
@@ -2172,7 +2188,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 		 uint8_t alignment = reader->readUInt8();
 
-		if(alignment != PlayerColor::NEUTRAL.getNum())
+		if(alignment != 255)
 		{
 			if(alignment < PlayerColor::PLAYER_LIMIT.getNum())
 			{
