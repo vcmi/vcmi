@@ -37,6 +37,7 @@ public:
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 	std::vector<QuestInfo> quests; //store info about all received quests
+	std::vector<Bonus> battleBonuses; //additional bonuses to be added during battle with neutrals
 
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	EPlayerStatus status;
@@ -82,6 +83,7 @@ public:
 		h & visitedObjects;
 		h & status;
 		h & daysWithoutCastle;
+		h & battleBonuses;
 		h & enteredLosingCheatCode;
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);

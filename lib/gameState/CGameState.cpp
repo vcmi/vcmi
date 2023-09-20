@@ -450,6 +450,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initPlayerStates();
 	if (campaign)
 		campaign->placeCampaignHeroes();
+	initBattleBonuses();
 	removeHeroPlaceholders();
 	initGrailPosition();
 	initRandomFactionsForPlayers();
@@ -657,6 +658,31 @@ void CGameState::initGlobalBonuses()
 	VLC->creh->loadCrExpBon(globalEffects);
 }
 
+void CGameState::initBattleBonuses()
+{
+	logGlobal->debug("\tLoading battle bonuses up resources");
+	const JsonNode config(JsonPath::builtin("config/difficulty.json"));
+	const JsonVector &vector = config["battleBonus"].Vector();
+	const JsonNode &level = vector[scenarioOps->difficulty];
+	const JsonNode & bonusesAI(level["ai"]);
+	const JsonNode & bonusesHuman(level["human"]);
+
+	for (auto & elem : players)
+	{
+		PlayerState &p = elem.second;
+		if(p.human)
+		{
+			for(auto & jsonBonus : bonusesHuman.Vector())
+				p.battleBonuses.push_back(*JsonUtils::parseBonus(jsonBonus));
+		}
+		else
+		{
+			for(auto & jsonBonus : bonusesAI.Vector())
+				p.battleBonuses.push_back(*JsonUtils::parseBonus(jsonBonus));
+		}
+	}
+}
+
 void CGameState::initGrailPosition()
 {
 	logGlobal->debug("\tPicking grail position");
@@ -816,8 +842,8 @@ void CGameState::removeHeroPlaceholders()
 void CGameState::initStartingResources()
 {
 	logGlobal->debug("\tSetting up resources");
-	const JsonNode config(JsonPath::builtin("config/startres.json"));
-	const JsonVector &vector = config["difficulty"].Vector();
+	const JsonNode config(JsonPath::builtin("config/difficulty.json"));
+	const JsonVector &vector = config["startres"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
 
 	TResources startresAI(level["ai"]);

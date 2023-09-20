@@ -184,6 +184,7 @@ private:
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
 	void checkMapChecksum();
 	void initGlobalBonuses();
+	void initBattleBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
 	void randomizeMapObjects();
