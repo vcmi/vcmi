@@ -1163,7 +1163,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	if(h->movementPointsRemaining() < cost && dst != h->pos && !teleporting)
 		complainRet("Hero doesn't have any movement points left!");
 
-	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()))
+	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()) && !CGTeleport::isTeleport(objectToVisit))
 		complainRet("Hero cannot transit over this tile!");
 
 	//several generic blocks of code
@@ -1195,7 +1195,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		tmh.result = result;
 		sendAndApply(&tmh);
 
-		if (visitDest == VISIT_DEST && t.topVisitableObj() && t.topVisitableObj()->id == h->id)
+		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
 		{ // Hero should be always able to visit any object he staying on even if there guards around
 			visitObjectOnTile(t, h);
 		}
@@ -1279,7 +1279,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		EVisitDest visitDest = VISIT_DEST;
 		if (transit)
 		{
-			if (CGTeleport::isTeleport(t.topVisitableObj()))
+			if (CGTeleport::isTeleport(objectToVisit))
 				visitDest = DONT_VISIT_DEST;
 
 			if (canFly || (canWalkOnSea && t.terType->isWater()))
@@ -1292,7 +1292,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			return true;
 		
 		if(h->boat && !h->boat->onboardAssaultAllowed)
-		   lookForGuards = IGNORE_GUARDS;
+			lookForGuards = IGNORE_GUARDS;
 
 		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !standAtWater && !standAtObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
