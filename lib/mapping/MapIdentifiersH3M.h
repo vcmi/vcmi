@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +44,7 @@ class MapIdentifiersH3M
 	std::map<ArtifactID, ArtifactID> mappingArtifact;
 	std::map<SecondarySkill, SecondarySkill> mappingSecondarySkill;
 
-	std::map<std::string, std::string> mappingObjectTemplate;
+	std::map<AnimationPath, AnimationPath> mappingObjectTemplate;
 	std::map<ObjectTypeIdentifier, ObjectTypeIdentifier> mappingObjectIndex;
 
 	template<typename IdentifierID>
