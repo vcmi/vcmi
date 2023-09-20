@@ -70,7 +70,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	}
 
 	for(const JsonNode & node : config[name]["items"].Vector())
-		campButtons.push_back(std::make_shared<CCampaignButton>(node, campaignSet));
+		campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
 }
 
 void CCampaignScreen::activate()
@@ -89,7 +89,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
-CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, std::string campaignSet)
+CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
 	: campaignSet(campaignSet)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -102,13 +102,23 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, std::
 	campFile = config["file"].String();
 	video = VideoPath::fromJson(config["video"]);
 
-	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
+	status = CCampaignScreen::ENABLED;
 
 	auto header = CampaignHandler::getHeader(campFile);
 	hoverText = header->getName();
 
 	if(persistent["campaign"][campaignSet][header->getFilename()]["completed"].Bool())
 		status = CCampaignScreen::COMPLETED;
+
+	for(const JsonNode & node : parentConfig[campaignSet]["items"].Vector())
+	{
+		for(const JsonNode & requirement : config["requires"].Vector())
+		{
+			if(node["id"].Integer() == requirement.Integer())
+				if(!persistent["campaign"][campaignSet][node["file"].String()]["completed"].Bool())
+					status = CCampaignScreen::DISABLED;
+		}
+	}
 
 	if(status != CCampaignScreen::DISABLED)
 	{

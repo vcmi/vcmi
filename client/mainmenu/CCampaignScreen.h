@@ -46,7 +46,7 @@ private:
 		void hover(bool on) override;
 
 	public:
-		CCampaignButton(const JsonNode & config, std::string campaignSet);
+		CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet);
 		void show(Canvas & to) override;
 	};
 
