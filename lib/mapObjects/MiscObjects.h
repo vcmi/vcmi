@@ -269,6 +269,7 @@ public:
 	static void addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj);
 	static std::vector<ObjectInstanceID> getPassableExits(CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits);
 	static bool isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj);
+	std::optional<const CGObjectInstance*> getNextVisibleExit(PlayerColor playerColor) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

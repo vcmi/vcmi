@@ -41,6 +41,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
@@ -758,6 +759,14 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 			CRClickPopup::createAndPush(hlp);
 		}
 		return;
+	}
+
+	const CGTeleport * portal = dynamic_cast<const CGTeleport*>(obj);
+	if(portal) {
+			std::optional<const CGObjectInstance*> closestExit = portal->getNextVisibleExit(LOCPLINT->playerID);
+			if (closestExit.has_value()) {
+					widget->getMapView()->onCenteredObject(closestExit.value());
+				}
 	}
 
 	CRClickPopup::createAndPush(obj, GH.getCursorPosition(), ETextAlignment::CENTER);

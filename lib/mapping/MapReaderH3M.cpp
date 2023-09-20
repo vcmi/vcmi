@@ -112,8 +112,6 @@ int32_t MapReaderH3M::readHeroPortrait()
 
 	if(result.getNum() == features.heroIdentifierInvalid)
 		return int32_t(-1);
-
-	assert(result.getNum() < features.heroesPortraitsCount);
 	return remapper.remapPortrrait(result);
 }
 
