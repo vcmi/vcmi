@@ -349,14 +349,16 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 	GH.windows().createAndPushWindow<CSimpleJoinScreen>(host);
 }
 
-void CMainMenu::openCampaignLobby(const std::string & campaignFileName)
+void CMainMenu::openCampaignLobby(const std::string & campaignFileName, std::string campaignSet)
 {
 	auto ourCampaign = CampaignHandler::getCampaign(campaignFileName);
-	openCampaignLobby(ourCampaign);
+	openCampaignLobby(ourCampaign, campaignSet);
 }
 
-void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
+void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign, std::string campaignSet)
 {
+	campaign->campaignSet = campaignSet;
+
 	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
 	CSH->screenType = ESelectionScreen::campaignList;
 	CSH->campaignStateToSend = campaign;
@@ -367,7 +369,7 @@ void CMainMenu::openCampaignScreen(std::string name)
 {
 	if(vstd::contains(CMainMenuConfig::get().getCampaigns().Struct(), name))
 	{
-		GH.windows().createAndPushWindow<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
+		GH.windows().createAndPushWindow<CCampaignScreen>(CMainMenuConfig::get().getCampaigns(), name);
 		return;
 	}
 	logGlobal->error("Unknown campaign set: %s", name);

@@ -689,6 +689,8 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 				GH.windows().pushWindow(CMM->menu);
 				CMM->openCampaignLobby(ourCampaign);
 			}
+			else
+				CMM->openCampaignScreen(ourCampaign->campaignSet);
 		};
 		if(epilogue.hasPrologEpilog)
 		{

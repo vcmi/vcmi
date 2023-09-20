@@ -40,13 +40,17 @@ private:
 		VideoPath video; // the resource name of the video
 		std::string hoverText;
 
+		std::string set;
+
 		void clickReleased(const Point & cursorPosition) override;
 		void hover(bool on) override;
 
 	public:
-		CCampaignButton(const JsonNode & config);
+		CCampaignButton(const JsonNode & config, std::string set);
 		void show(Canvas & to) override;
 	};
+
+	std::string campaignSet;
 
 	std::vector<std::shared_ptr<CCampaignButton>> campButtons;
 	std::vector<std::shared_ptr<CPicture>> images;
@@ -55,9 +59,7 @@ private:
 	std::shared_ptr<CButton> createExitButton(const JsonNode & button);
 
 public:
-	enum CampaignSet {ROE, AB, SOD, WOG};
-
-	CCampaignScreen(const JsonNode & config);
+	CCampaignScreen(const JsonNode & config, std::string name);
 
 	void activate() override;
 };
