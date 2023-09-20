@@ -388,12 +388,11 @@ void MetaString::jsonDeserialize(const JsonNode & source)
 
 void MetaString::serializeJson(JsonSerializeFormat & handler)
 {
-	JsonNode attr;
 	if(handler.saving)
-		jsonSerialize(attr);
-	handler.serializeRaw("attributes", attr, std::nullopt);
+		jsonSerialize(const_cast<JsonNode&>(handler.getCurrent()));
+
 	if(!handler.saving)
-		jsonDeserialize(attr);
+		jsonDeserialize(handler.getCurrent());
 }
 
 VCMI_LIB_NAMESPACE_END
