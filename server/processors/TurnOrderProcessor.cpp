@@ -38,6 +38,26 @@ int TurnOrderProcessor::simturnsTurnsMinLimit() const
 	return 0;
 }
 
+void TurnOrderProcessor::updateContactStatus()
+{
+	blockedContacts.clear();
+
+	assert(actedPlayers.empty());
+	assert(actingPlayers.empty());
+
+	for (auto left : awaitingPlayers)
+	{
+		for(auto right : awaitingPlayers)
+		{
+			if (left == right)
+				continue;
+
+			if (computeCanActSimultaneously(left, right))
+				blockedContacts.push_back({left, right});
+		}
+	}
+}
+
 bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) const
 {
 	// TODO: refactor, cleanup and optimize
@@ -92,10 +112,11 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 
 bool TurnOrderProcessor::isContactAllowed(PlayerColor active, PlayerColor waiting) const
 {
-	return true;
+	assert(active != waiting);
+	return !vstd::contains(blockedContacts, PlayerPair{active, waiting});
 }
 
-bool TurnOrderProcessor::canActSimultaneously(PlayerColor active, PlayerColor waiting) const
+bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerColor waiting) const
 {
 	const auto * activeInfo = gameHandler->getPlayerState(active, false);
 	const auto * waitingInfo = gameHandler->getPlayerState(waiting, false);
@@ -155,7 +176,7 @@ bool TurnOrderProcessor::canStartTurn(PlayerColor which) const
 
 	for (auto player : actingPlayers)
 	{
-		if (!canActSimultaneously(player, which))
+		if (player != which && isContactAllowed(player, which))
 			return false;
 	}
 
@@ -180,6 +201,7 @@ void TurnOrderProcessor::doStartNewDay()
 	std::swap(actedPlayers, awaitingPlayers);
 
 	gameHandler->onNewTurn();
+	updateContactStatus();
 	tryStartTurnsForPlayers();
 }
 
@@ -277,6 +299,9 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 void TurnOrderProcessor::onGameStarted()
 {
+	if (actingPlayers.empty())
+		updateContactStatus();
+
 	// this may be game load - send notification to players that they can act
 	auto actingPlayersCopy = actingPlayers;
 	for (auto player : actingPlayersCopy)

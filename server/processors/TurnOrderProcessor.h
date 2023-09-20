@@ -17,6 +17,26 @@ class TurnOrderProcessor : boost::noncopyable
 {
 	CGameHandler * gameHandler;
 
+	struct PlayerPair
+	{
+		PlayerColor a;
+		PlayerColor b;
+
+		bool operator == (const PlayerPair & other) const
+		{
+			return (a == other.a && b == other.b) || (a == other.b && b == other.a);
+		}
+
+		template<typename Handler>
+		void serialize(Handler & h, const int version)
+		{
+			h & a;
+			h & b;
+		}
+	};
+
+	std::vector<PlayerPair> blockedContacts;
+
 	std::set<PlayerColor> awaitingPlayers;
 	std::set<PlayerColor> actingPlayers;
 	std::set<PlayerColor> actedPlayers;
@@ -31,7 +51,7 @@ class TurnOrderProcessor : boost::noncopyable
 	bool playersInContact(PlayerColor left, PlayerColor right) const;
 
 	/// Returns true if waiting player can act alongside with currently acting player
-	bool canActSimultaneously(PlayerColor active, PlayerColor waiting) const;
+	bool computeCanActSimultaneously(PlayerColor active, PlayerColor waiting) const;
 
 	/// Returns true if left player must act before right player
 	bool mustActBefore(PlayerColor left, PlayerColor right) const;
@@ -41,6 +61,8 @@ class TurnOrderProcessor : boost::noncopyable
 
 	/// Starts turn for all players that can start turn
 	void tryStartTurnsForPlayers();
+
+	void updateContactStatus();
 
 	void doStartNewDay();
 	void doStartPlayerTurn(PlayerColor which);
@@ -70,6 +92,7 @@ public:
 	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
+		h & blockedContacts;
 		h & awaitingPlayers;
 		h & actingPlayers;
 		h & actedPlayers;
