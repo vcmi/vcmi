@@ -284,8 +284,19 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
 	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
-
-	if(!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir), filesToExtract))
+	
+	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesToExtract]()
+	{
+		return ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir), filesToExtract);
+	});
+	
+	while(futureExtract.wait_for(std::chrono::milliseconds(50)) != std::future_status::ready)
+	{
+		emit extractionProgress(0, 0);
+		qApp->processEvents();
+	}
+	
+	if(!futureExtract.get())
 	{
 		removeModDir(destDir + modDirName);
 		return addError(modname, "Failed to extract mod data");

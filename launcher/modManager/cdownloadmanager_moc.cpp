@@ -131,7 +131,7 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 
 	entry.file->write(entry.reply->readAll());
 	entry.bytesReceived = bytesReceived;
-	if(bytesTotal)
+	if(bytesTotal > entry.totalSize)
 		entry.totalSize = bytesTotal;
 
 	quint64 total = 0;
