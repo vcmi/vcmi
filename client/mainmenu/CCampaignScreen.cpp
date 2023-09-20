@@ -107,6 +107,9 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, std::
 	auto header = CampaignHandler::getHeader(campFile);
 	hoverText = header->getName();
 
+	if(persistent["campaign"][campaignSet][header->getFilename()]["completed"].Bool())
+		status = CCampaignScreen::COMPLETED;
+
 	if(status != CCampaignScreen::DISABLED)
 	{
 		addUsedEvents(LCLICK | HOVER);

@@ -53,6 +53,7 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool 
 	VLC = new LibClasses();
 	VLC->loadFilesystem(extractArchives);
 	settings.init();
+	persistent.init(true);
 	VLC->loadModFilesystem(onlyEssential);
 
 }
