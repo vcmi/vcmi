@@ -683,8 +683,11 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
 		auto finisher = [=]()
 		{
-			Settings entry = persistent.write["campaign"][ourCampaign->campaignSet][ourCampaign->getFilename()]["completed"];
-			entry->Bool() = true;
+			if(ourCampaign->campaignSet != "")
+			{
+				Settings entry = persistent.write["campaign"][ourCampaign->campaignSet][ourCampaign->getFilename()]["completed"];
+				entry->Bool() = true;
+			}
 
 			if(!ourCampaign->isCampaignFinished())
 			{
