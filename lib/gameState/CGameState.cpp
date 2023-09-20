@@ -29,6 +29,7 @@
 #include "../VCMI_Lib.h"
 #include "../battle/BattleInfo.h"
 #include "../campaign/CampaignState.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/ResourcePath.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -450,13 +451,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initPlayerStates();
 	if (campaign)
 		campaign->placeCampaignHeroes();
-	initBattleBonuses();
 	removeHeroPlaceholders();
 	initGrailPosition();
 	initRandomFactionsForPlayers();
 	randomizeMapObjects();
 	placeStartingHeroes();
-	initStartingResources();
+	initDifficulty();
 	initHeroes();
 	initStartingBonus();
 	initTowns();
@@ -658,29 +658,41 @@ void CGameState::initGlobalBonuses()
 	VLC->creh->loadCrExpBon(globalEffects);
 }
 
-void CGameState::initBattleBonuses()
+void CGameState::initDifficulty()
 {
-	logGlobal->debug("\tLoading battle bonuses up resources");
+	logGlobal->debug("\tLoading difficulty settings");
 	const JsonNode config(JsonPath::builtin("config/difficulty.json"));
+	
 	const JsonVector &vector = config["battleBonus"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
-	const JsonNode & bonusesAI(level["ai"]);
-	const JsonNode & bonusesHuman(level["human"]);
+	const JsonNode & difficultyAI(level["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
+	const JsonNode & difficultyHuman(level["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
+	
+	auto setDifficulty = [](PlayerState & state, const JsonNode & json)
+	{
+		//set starting resources
+		state.resources = TResources(json["resources"]);
+		
+		//set global bonuses
+		for(auto & jsonBonus : json["globalBonuses"].Vector())
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+				state.addNewBonus(bonus);
+		
+		//set battle bonuses
+		for(auto & jsonBonus : json["battleBonuses"].Vector())
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+				state.battleBonuses.push_back(*bonus);
+		
+	};
 
 	for (auto & elem : players)
 	{
 		PlayerState &p = elem.second;
-		if(p.human)
-		{
-			for(auto & jsonBonus : bonusesHuman.Vector())
-				p.battleBonuses.push_back(*JsonUtils::parseBonus(jsonBonus));
-		}
-		else
-		{
-			for(auto & jsonBonus : bonusesAI.Vector())
-				p.battleBonuses.push_back(*JsonUtils::parseBonus(jsonBonus));
-		}
+		setDifficulty(p, p.human ? difficultyHuman : difficultyAI);
 	}
+
+	if (campaign)
+		campaign->initStartingResources();
 }
 
 void CGameState::initGrailPosition()
@@ -837,30 +849,6 @@ void CGameState::removeHeroPlaceholders()
 			delete heroPlaceholder;
 		}
 	}
-}
-
-void CGameState::initStartingResources()
-{
-	logGlobal->debug("\tSetting up resources");
-	const JsonNode config(JsonPath::builtin("config/difficulty.json"));
-	const JsonVector &vector = config["startres"].Vector();
-	const JsonNode &level = vector[scenarioOps->difficulty];
-
-	TResources startresAI(level["ai"]);
-	TResources startresHuman(level["human"]);
-
-	for (auto & elem : players)
-	{
-		PlayerState &p = elem.second;
-
-		if (p.human)
-			p.resources = startresHuman;
-		else
-			p.resources = startresAI;
-	}
-
-	if (campaign)
-		campaign->initStartingResources();
 }
 
 void CGameState::initHeroes()

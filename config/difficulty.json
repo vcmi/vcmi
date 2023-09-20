@@ -1,89 +1,70 @@
-// Starting resources, ordered by difficulty level (0 to 4)
+//Configured difficulty
 {
-	"startres":
-	[
+	"human":
+	{
+		"pawn":
 		{
-		  "human": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000, "mithril": 0 },
-		  "ai": { "wood" : 5, "mercury": 2, "ore": 5, "sulfur": 2, "crystal": 2, "gems": 2, "gold": 5000, "mithril": 0 }
+			"resources": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"knight":
 		{
-		  "human": { "wood" : 20, "mercury": 10, "ore": 20, "sulfur": 10, "crystal": 10, "gems": 10, "gold": 20000, "mithril": 0 },
-		  "ai": { "wood" : 10, "mercury": 4, "ore": 10, "sulfur": 4, "crystal": 4, "gems": 4, "gold": 7500, "mithril": 0 }
+			"resources": { "wood" : 20, "mercury": 10, "ore": 20, "sulfur": 10, "crystal": 10, "gems": 10, "gold": 20000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"rook":
 		{
-		  "human": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 15000, "mithril": 0 },
-		  "ai": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 }
+			"resources": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 15000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"queen":
 		{
-		  "human": { "wood" : 10, "mercury": 4, "ore": 10, "sulfur": 4, "crystal": 4, "gems": 4, "gold": 10000, "mithril": 0 },
-		  "ai": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 }
+			"resources": { "wood" : 10, "mercury": 4, "ore": 10, "sulfur": 4, "crystal": 4, "gems": 4, "gold": 10000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"king":
 		{
-		  "human": { "wood" : 0, "mercury": 0, "ore": 0	, "sulfur": 0, "crystal": 0, "gems": 0, "gold": 0, "mithril": 0 },
-		  "ai": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 }
+			"resources": { "wood" : 0, "mercury": 0, "ore": 0	, "sulfur": 0, "crystal": 0, "gems": 0, "gold": 0, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		}
-	],
-	"battleBonus":
-	[
+	},
+	"ai":
+	{
+		"pawn":
 		{
+			"resources": { "wood" : 5, "mercury": 2, "ore": 5, "sulfur": 2, "crystal": 2, "gems": 2, "gold": 5000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"knight":
 		{
-			"ai":
-			[
-				{
-					"type" : "STACK_HEALTH",
-					"val" : 50,
-					"valueType" : "PERCENT_TO_ALL",
-					"duration" : "ONE_BATTLE",
-					"sourceType" : "OTHER"
-				}
-			],
+			"resources": { "wood" : 10, "mercury": 4, "ore": 10, "sulfur": 4, "crystal": 4, "gems": 4, "gold": 7500, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"rook":
 		{
-			"ai":
-			[
-				{
-					"type" : "STACK_HEALTH",
-					"val" : 100,
-					"valueType" : "PERCENT_TO_ALL",
-					"duration" : "ONE_BATTLE",
-					"sourceType" : "OTHER"
-				}
-			],
+			"resources": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"queen":
 		{
-			"ai":
-			[
-				{
-					"type" : "STACK_HEALTH",
-					"val" : 150,
-					"valueType" : "PERCENT_TO_ALL",
-					"duration" : "ONE_BATTLE",
-					"sourceType" : "OTHER"
-				},
-			],
+			"resources": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
 		},
-
+		"king":
 		{
-			"ai":
-			[
-				{
-					"type" : "STACK_HEALTH",
-					"val" : 200,
-					"valueType" : "PERCENT_TO_ALL",
-					"duration" : "ONE_BATTLE",
-					"sourceType" : "OTHER"
-				},
-
-			],
-		},
-	]
+			"resources": { "wood" : 15, "mercury": 7, "ore": 15, "sulfur": 7, "crystal": 7, "gems": 7, "gold": 10000, "mithril": 0 },
+			"globalBonuses": [],
+			"battleBonuses": []
+		}
+	},
 }
 
