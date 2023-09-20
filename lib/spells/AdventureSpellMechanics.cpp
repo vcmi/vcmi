@@ -202,6 +202,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		ChangeObjPos cop;
 		cop.objid = nearest->id;
 		cop.nPos = summonPos;
+		cop.initiator = parameters.caster->getCasterOwner();
 		env->apply(&cop);
 	}
 	else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
@@ -217,6 +218,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		no.ID = Obj::BOAT;
 		no.subID = BoatId::NECROPOLIS;
 		no.targetPos = summonPos;
+		no.initiator = parameters.caster->getCasterOwner();
 		env->apply(&no);
 	}
 	return ESpellCastResult::OK;
@@ -257,7 +259,8 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 	}
 
 	RemoveObject ro;
-	ro.id = t->visitableObjects.back()->id;
+	ro.initiator = parameters.caster->getCasterOwner();
+	ro.objectID = t->visitableObjects.back()->id;
 	env->apply(&ro);
 	return ESpellCastResult::OK;
 }

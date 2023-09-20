@@ -1217,7 +1217,12 @@ CCastleInterface::~CCastleInterface()
 
 void CCastleInterface::updateGarrisons()
 {
+	garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);
+	garr->setArmy(town->visitingHero, EGarrisonType::LOWER);
 	garr->recreateSlots();
+	heroes->update();
+
+	redraw();
 }
 
 void CCastleInterface::close()

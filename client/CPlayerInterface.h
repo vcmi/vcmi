@@ -140,7 +140,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void centerView (int3 pos, int focusTime) override;
 	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
-	void objectRemoved(const CGObjectInstance *obj) override;
+	void objectRemoved(const CGObjectInstance *obj, const PlayerColor & initiator) override;
 	void objectRemovedAfter() override;
 	void playerBlocked(int reason, bool start) override;
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;

@@ -479,24 +479,14 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	adventureInt->onHeroChanged(nullptr);
 	adventureInt->onTownChanged(town);
 
-	if(castleInt)
-	{
-		castleInt->garr->selectSlot(nullptr);
-		castleInt->garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);
-		castleInt->garr->setArmy(town->visitingHero, EGarrisonType::LOWER);
-		castleInt->garr->recreateSlots();
-		castleInt->heroes->update();
-
-		// Perform totalRedraw to update hero list on adventure map
-		GH.windows().totalRedraw();
-	}
+	for (auto gh : GH.windows().findWindows<IGarrisonHolder>())
+		gh->updateGarrisons();
 
 	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
-	{
 		ki->townChanged(town);
-		ki->updateGarrisons();
-		ki->redraw();
-	}
+
+	// Perform totalRedraw to update hero list on adventure map, if any dialogs are open
+	GH.windows().totalRedraw();
 }
 
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
@@ -1126,7 +1116,8 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 			fortScreen->creaturesChangedEventHandler();
 
 		for (auto castleInterface : GH.windows().findWindows<CCastleInterface>())
-			castleInterface->creaturesChangedEventHandler();
+			if(castleInterface->town == town)
+				castleInterface->creaturesChangedEventHandler();
 
 		if (townObj)
 			for (auto ki : GH.windows().findWindows<CKingdomInterface>())
@@ -1391,10 +1382,10 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	CCS->curh->show();
 }
 
-void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
+void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT->cb->isPlayerMakingTurn(playerID) && obj->getRemovalSound())
+	if(playerID == initiator && obj->getRemovalSound())
 	{
 		waitWhileDialog();
 		CCS->soundh->playSound(obj->getRemovalSound().value());
@@ -1414,9 +1405,9 @@ void CPlayerInterface::objectRemovedAfter()
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onMapTilesChanged(boost::none);
 
-	// visiting or garrisoned hero removed - recreate castle window
+	// visiting or garrisoned hero removed - update window
 	if (castleInt)
-		openTownWindow(castleInt->town);
+		castleInt->updateGarrisons();
 
 	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
 		ki->heroRemoved();

@@ -299,7 +299,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 	sii.components.emplace_back(Component::EComponentType::RESOURCE,subID,amount,0);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
 	cb->showInfoDialog(&sii);
-	cb->removeObject(this);
+	cb->removeObject(this, player);
 }
 
 void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
@@ -797,7 +797,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
 	if(cb->giveHeroArtifact(h, storedArtifact, ArtifactPosition::FIRST_AVAILABLE))
-		cb->removeObject(this);
+		cb->removeObject(this, h->getOwner());
 }
 
 BattleField CGArtifact::getBattlefield() const
@@ -1063,7 +1063,7 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showInfoDialog(&iw);
 
 	if(ID == Obj::OCEAN_BOTTLE)
-		cb->removeObject(this);
+		cb->removeObject(this, h->getOwner());
 }
 
 void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
@@ -1113,7 +1113,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	cb->showInfoDialog(&iw);
-	cb->removeObject(this);
+	cb->removeObject(this, h->getOwner());
 }
 
 void CGScholar::initObj(CRandomGenerator & rand)

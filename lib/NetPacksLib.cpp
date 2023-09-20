@@ -1118,8 +1118,8 @@ void RemoveBonus::applyGs(CGameState *gs)
 void RemoveObject::applyGs(CGameState *gs)
 {
 
-	CGObjectInstance *obj = gs->getObjInstance(id);
-	logGlobal->debug("removing object id=%d; address=%x; name=%s", id, (intptr_t)obj, obj->getObjectName());
+	CGObjectInstance *obj = gs->getObjInstance(objectID);
+	logGlobal->debug("removing object id=%d; address=%x; name=%s", objectID, (intptr_t)obj, obj->getObjectName());
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
@@ -1159,7 +1159,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		//return hero to the pool, so he may reappear in tavern
 
 		gs->heroesPool->addHeroToPool(beatenHero);
-		gs->map->objects[id.getNum()] = nullptr;
+		gs->map->objects[objectID.getNum()] = nullptr;
 
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->boat)
@@ -1210,7 +1210,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		event.trigger = event.trigger.morph(patcher);
 	}
 	gs->map->instanceNames.erase(obj->instanceName);
-	gs->map->objects[id.getNum()].dellNull();
+	gs->map->objects[objectID.getNum()].dellNull();
 	gs->map->calculateGuardingGreaturePositions();
 }
 

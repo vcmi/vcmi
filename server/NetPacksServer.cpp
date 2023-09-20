@@ -44,7 +44,7 @@ void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
 void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.hid);
-	result = gh.removeObject(gh.getObj(pack.hid));
+	result = gh.removeObject(gh.getObj(pack.hid), pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)

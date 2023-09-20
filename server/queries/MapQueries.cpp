@@ -61,7 +61,7 @@ void CObjectVisitQuery::onRemoval(PlayerColor color)
 	//TODO or should it be destructor?
 	//Can object visit affect 2 players and what would be desired behavior?
 	if(removeObjectAfterVisit)
-		gh->removeObject(visitedObject);
+		gh->removeObject(visitedObject, color);
 }
 
 void CObjectVisitQuery::onExposure(QueryPtr topQuery)

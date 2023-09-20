@@ -1045,7 +1045,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 		sendAndApply(&cs);
 }
 
-bool CGameHandler::removeObject(const CGObjectInstance * obj)
+bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	if (!obj || !getObj(obj->id))
 	{
@@ -1054,7 +1054,8 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj)
 	}
 
 	RemoveObject ro;
-	ro.id = obj->id;
+	ro.objectID = obj->id;
+	ro.initiator = initiator;
 	sendAndApply(&ro);
 
 	checkVictoryLossConditionsForAll(); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
@@ -1110,8 +1111,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	const bool standAtObstacle = t.blocked && !t.visitable;
 	const bool standAtWater = !h->boat && t.terType->isWater() && (t.visitableObjects.empty() || !t.visitableObjects.back()->isCoastVisitable());
-	
-	auto const complainRet = [&](const std::string & message){
+
+	const auto complainRet = [&](const std::string & message)
+	{
 		//send info about movement failure
 		complain(message);
 		sendAndApply(&tmh);
@@ -1504,11 +1506,12 @@ void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player, ObjectInsta
 	changeFogOfWar(h->pos, h->getSightRadius(), player, false);
 }
 
-void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos)
+void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)
 {
 	ChangeObjPos cop;
 	cop.objid = objid;
 	cop.nPos = newPos;
+	cop.initiator = initiator;
 	sendAndApply(&cop);
 }
 
@@ -2035,10 +2038,18 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
 {
-	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1)),
-		* s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
-	const CCreatureSet &S1 = *s1, &S2 = *s2;
+	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1));
+	const CArmedInstance * s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
+	const CCreatureSet & S1 = *s1;
+	const CCreatureSet & S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
+
+	if (s1 == nullptr || s2 == nullptr)
+	{
+		complain("Cannot exchange stacks between non-existing objects!!\n");
+		return false;
+	}
+
 	if (!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
 	{
 		complain(complainInvalidSlot);
@@ -3454,7 +3465,7 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 	}
 
 	giveResources(playerID, -boatCost);
-	createObject(tile, Obj::BOAT, obj->getBoatType().getNum());
+	createObject(tile, playerID, Obj::BOAT, obj->getBoatType().getNum());
 	return true;
 }
 
@@ -3530,7 +3541,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			for (auto h : hlp) //eliminate heroes
 			{
 				if (h.get())
-					removeObject(h);
+					removeObject(h, player);
 			}
 
 			//player lost -> all his objects become unflagged (neutral)
@@ -3579,7 +3590,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	if (h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", static_cast<int>(h->diggingStatus()));
 
-	createObject(h->visitablePos(), Obj::HOLE, 0 );
+	createObject(h->visitablePos(), h->getOwner(), Obj::HOLE, 0 );
 
 	//take MPs
 	SetMovePoints smp;
@@ -3973,7 +3984,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 		{
 			auto count = cre->getRandomAmount(std::rand);
 
-			createObject(*tile, Obj::MONSTER, creatureID);
+			createObject(*tile, PlayerColor::NEUTRAL, Obj::MONSTER, creatureID);
 			auto monsterId = getTopObj(*tile)->id;
 
 			setObjProperty(monsterId, ObjProperty::MONSTER_COUNT, count);
@@ -4115,11 +4126,12 @@ scripting::Pool * CGameHandler::getGlobalContextPool() const
 //}
 #endif
 
-void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_t subtype)
+void CGameHandler::createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype)
 {
 	NewObject no;
 	no.ID = type;
-	no.subID= subtype;
+	no.subID = subtype;
+	no.initiator = initiator;
 	no.targetPos = visitablePosition;
 	sendAndApply(&no);
 }

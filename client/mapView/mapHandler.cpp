@@ -144,16 +144,16 @@ bool CMapHandler::isInMap(const int3 & tile)
 	return map->isInTheMap(tile);
 }
 
-void CMapHandler::onObjectFadeIn(const CGObjectInstance * obj)
+void CMapHandler::onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	for(auto * observer : observers)
-		observer->onObjectFadeIn(obj);
+		observer->onObjectFadeIn(obj, initiator);
 }
 
-void CMapHandler::onObjectFadeOut(const CGObjectInstance * obj)
+void CMapHandler::onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	for(auto * observer : observers)
-		observer->onObjectFadeOut(obj);
+		observer->onObjectFadeOut(obj, initiator);
 }
 
 void CMapHandler::onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest)
@@ -180,16 +180,16 @@ void CMapHandler::onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & 
 		observer->onAfterHeroDisembark(obj, from, dest);
 }
 
-void CMapHandler::onObjectInstantAdd(const CGObjectInstance * obj)
+void CMapHandler::onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	for(auto * observer : observers)
-		observer->onObjectInstantAdd(obj);
+		observer->onObjectInstantAdd(obj, initiator);
 }
 
-void CMapHandler::onObjectInstantRemove(const CGObjectInstance * obj)
+void CMapHandler::onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	for(auto * observer : observers)
-		observer->onObjectInstantRemove(obj);
+		observer->onObjectInstantRemove(obj, initiator);
 }
 
 void CMapHandler::onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest)

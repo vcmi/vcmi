@@ -368,15 +368,16 @@ void ApplyFirstClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
 	if(CGI->mh)
-		CGI->mh->onObjectFadeOut(obj);
+		CGI->mh->onObjectFadeOut(obj, pack.initiator);
 
 	CGI->mh->waitForOngoingAnimations();
 }
+
 void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
 	if(CGI->mh)
-		CGI->mh->onObjectFadeIn(obj);
+		CGI->mh->onObjectFadeIn(obj, pack.initiator);
 
 	CGI->mh->waitForOngoingAnimations();
 	cl.invalidatePaths();
@@ -447,10 +448,10 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 
 void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
-	const CGObjectInstance *o = cl.getObj(pack.id);
+	const CGObjectInstance *o = cl.getObj(pack.objectID);
 
 	if(CGI->mh)
-		CGI->mh->onObjectFadeOut(o);
+		CGI->mh->onObjectFadeOut(o, pack.initiator);
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
@@ -458,7 +459,7 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another pack.player collects object that got re-covered by FoW, unsure if AI code workarounds this
 		if(gs.isVisible(o, i->first) || (!cl.getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
-			i->second->objectRemoved(o);
+			i->second->objectRemoved(o, pack.initiator);
 	}
 
 	CGI->mh->waitForOngoingAnimations();
@@ -543,12 +544,12 @@ void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)
 	CGTownInstance *town = gs.getTown(pack.tid);
 	for(const auto & id : pack.bid)
 	{
-		callInterfaceIfPresent(cl, town->tempOwner, &IGameEventsReceiver::buildChanged, town, id, 1);
+		callInterfaceIfPresent(cl, town->getOwner(), &IGameEventsReceiver::buildChanged, town, id, 1);
 	}
 
 	// invalidate section of map view with our object and force an update
-	CGI->mh->onObjectInstantRemove(town);
-	CGI->mh->onObjectInstantAdd(town);
+	CGI->mh->onObjectInstantRemove(town, town->getOwner());
+	CGI->mh->onObjectInstantAdd(town, town->getOwner());
 
 }
 void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
@@ -556,12 +557,12 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 	CGTownInstance * town = gs.getTown(pack.tid);
 	for(const auto & id : pack.bid)
 	{
-		callInterfaceIfPresent(cl, town->tempOwner, &IGameEventsReceiver::buildChanged, town, id, 2);
+		callInterfaceIfPresent(cl, town->getOwner(), &IGameEventsReceiver::buildChanged, town, id, 2);
 	}
 
 	// invalidate section of map view with our object and force an update
-	CGI->mh->onObjectInstantRemove(town);
-	CGI->mh->onObjectInstantAdd(town);
+	CGI->mh->onObjectInstantRemove(town, town->getOwner());
+	CGI->mh->onObjectInstantAdd(town, town->getOwner());
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
@@ -609,17 +610,17 @@ void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 	if(callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h))
 	{
 		if(const CGTownInstance *t = gs.getTown(pack.tid))
-			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroInGarrisonChange, t);
+			callInterfaceIfPresent(cl, h->getOwner(), &IGameEventsReceiver::heroInGarrisonChange, t);
 	}
 	if(CGI->mh)
-		CGI->mh->onObjectInstantAdd(h);
+		CGI->mh->onObjectInstantAdd(h, h->getOwner());
 }
 
 void ApplyClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.id);
 	if(CGI->mh)
-		CGI->mh->onObjectInstantAdd(h);
+		CGI->mh->onObjectInstantAdd(h, h->getOwner());
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroCreated, h);
 }
 
@@ -646,7 +647,10 @@ void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & 
 
 	// invalidate section of map view with our object and force an update with new flag color
 	if (pack.what == ObjProperty::OWNER)
-		CGI->mh->onObjectInstantRemove(gs.getObjInstance(pack.id));
+	{
+		auto object = gs.getObjInstance(pack.id);
+		CGI->mh->onObjectInstantRemove(object, object->getOwner());
+	}
 }
 
 void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
@@ -660,7 +664,10 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 
 	// invalidate section of map view with our object and force an update with new flag color
 	if (pack.what == ObjProperty::OWNER)
-		CGI->mh->onObjectInstantAdd(gs.getObjInstance(pack.id));
+	{
+		auto object = gs.getObjInstance(pack.id);
+		CGI->mh->onObjectInstantAdd(object, object->getOwner());
+	}
 }
 
 void ApplyClientNetPackVisitor::visitHeroLevelUp(HeroLevelUp & pack)
@@ -996,7 +1003,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 
 	const CGObjectInstance *obj = cl.getObj(pack.createdObjectID);
 	if(CGI->mh)
-		CGI->mh->onObjectFadeIn(obj);
+		CGI->mh->onObjectFadeIn(obj, pack.initiator);
 
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
 	{
