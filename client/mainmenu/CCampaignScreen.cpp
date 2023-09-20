@@ -89,8 +89,8 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
-CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, std::string set)
-	: set(set)
+CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, std::string campaignSet)
+	: campaignSet(campaignSet)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -135,7 +135,7 @@ void CCampaignScreen::CCampaignButton::show(Canvas & to)
 void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
 	CCS->videoh->close();
-	CMainMenu::openCampaignLobby(campFile, set);
+	CMainMenu::openCampaignLobby(campFile, campaignSet);
 }
 
 void CCampaignScreen::CCampaignButton::hover(bool on)

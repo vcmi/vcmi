@@ -352,13 +352,12 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName, std::string campaignSet)
 {
 	auto ourCampaign = CampaignHandler::getCampaign(campaignFileName);
-	openCampaignLobby(ourCampaign, campaignSet);
+	ourCampaign->campaignSet = campaignSet;
+	openCampaignLobby(ourCampaign);
 }
 
-void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign, std::string campaignSet)
+void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 {
-	campaign->campaignSet = campaignSet;
-
 	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
 	CSH->screenType = ESelectionScreen::campaignList;
 	CSH->campaignStateToSend = campaign;
