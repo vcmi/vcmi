@@ -3,8 +3,8 @@
 	//Commander receives these bonuses on level-up
 	"bonusPerLevel":
 	[
-		["CREATURE_DAMAGE", 2, "creatureDamageMin", 0 ], //+1 minimum damage
-		["CREATURE_DAMAGE", 2, "creatureDamageMax", 0 ], //+2 maximum damage
+		["CREATURE_DAMAGE", 2, "creatureDamageMin", 0 ], //+2 minimum damage
+		["CREATURE_DAMAGE", 4, "creatureDamageMax", 0 ], //+4 maximum damage
 		["STACK_HEALTH", 20, null, 0 ] //+5 hp
 	],
 	//Value of bonuses given by each skill level
