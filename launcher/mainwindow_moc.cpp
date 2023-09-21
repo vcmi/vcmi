@@ -45,7 +45,7 @@ void MainWindow::load()
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
 #endif
 
-	settings.init();
+	settings.init("config/settings.json", "vcmi:settings");
 }
 
 void MainWindow::computeSidePanelSizes()
