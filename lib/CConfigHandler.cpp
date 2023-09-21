@@ -67,7 +67,7 @@ void SettingsStorage::init(const std::string & dataFilename, const std::string &
 	if (!CResourceHandler::get("local")->existsResource(confName))
 		CResourceHandler::get("local")->createResource(dataFilename);
 
-	if(schema != "")
+	if(!schema.empty())
 	{
 		JsonUtils::maximize(config, schema);
 		JsonUtils::validate(config, schema, "settings");
@@ -81,7 +81,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 
 	JsonNode savedConf = config;
 	savedConf.Struct().erase("session");
-	if(schema != "")
+	if(!schema.empty())
 		JsonUtils::minimize(savedConf, schema);
 
 	std::fstream file(CResourceHandler::get()->getResourceName(JsonPath::builtin(dataFilename))->c_str(), std::ofstream::out | std::ofstream::trunc);

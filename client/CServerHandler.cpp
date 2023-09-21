@@ -689,18 +689,13 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 				entry->Bool() = true;
 			}
 
+			GH.windows().pushWindow(CMM);
+			GH.windows().pushWindow(CMM->menu);
+
 			if(!ourCampaign->isCampaignFinished())
-			{
-				GH.windows().pushWindow(CMM);
-				GH.windows().pushWindow(CMM->menu);
 				CMM->openCampaignLobby(ourCampaign);
-			}
 			else
-			{
-				GH.windows().pushWindow(CMM);
-				GH.windows().pushWindow(CMM->menu);
 				CMM->openCampaignScreen(ourCampaign->campaignSet);
-			}
 		};
 		if(epilogue.hasPrologEpilog)
 		{
