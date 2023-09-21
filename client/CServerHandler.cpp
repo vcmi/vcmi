@@ -685,7 +685,7 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 		{
 			if(ourCampaign->campaignSet != "")
 			{
-				Settings entry = persistent.write["campaign"][ourCampaign->campaignSet][ourCampaign->getFilename()]["completed"];
+				Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
 				entry->Bool() = true;
 			}
 

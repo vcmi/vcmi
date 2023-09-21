@@ -107,7 +107,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	auto header = CampaignHandler::getHeader(campFile);
 	hoverText = header->getName();
 
-	if(persistent["campaign"][campaignSet][header->getFilename()]["completed"].Bool())
+	if(persistentStorage["completedCampaigns"][header->getFilename()].Bool())
 		status = CCampaignScreen::COMPLETED;
 
 	for(const JsonNode & node : parentConfig[campaignSet]["items"].Vector())
@@ -115,10 +115,13 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 		for(const JsonNode & requirement : config["requires"].Vector())
 		{
 			if(node["id"].Integer() == requirement.Integer())
-				if(!persistent["campaign"][campaignSet][node["file"].String()]["completed"].Bool())
+				if(!persistentStorage["completedCampaigns"][node["file"].String()].Bool())
 					status = CCampaignScreen::DISABLED;
 		}
 	}
+
+	if(persistentStorage["unlockAllCampaigns"].Bool())
+		status = CCampaignScreen::ENABLED;
 
 	if(status != CCampaignScreen::DISABLED)
 	{

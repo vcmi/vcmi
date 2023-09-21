@@ -35,8 +35,8 @@ class DLL_LINKAGE SettingsStorage
 	std::set<SettingsListener*> listeners;
 	JsonNode config;
 
-	bool persistentStorage;
-	std::string cfgName;
+	std::string dataFilename;
+	std::string schema;
 
 	JsonNode & getNode(const std::vector<std::string> & path);
 
@@ -48,7 +48,7 @@ class DLL_LINKAGE SettingsStorage
 public:
 	// Initialize config structure
 	SettingsStorage();
-	void init(bool persistent = false);
+	void init(const std::string & dataFilename, const std::string & schema);
 	
 	// Get write access to config node at path
 	const NodeAccessor<Settings> write;
@@ -116,6 +116,6 @@ public:
 };
 
 extern DLL_LINKAGE SettingsStorage settings;
-extern DLL_LINKAGE SettingsStorage persistent;
+extern DLL_LINKAGE SettingsStorage persistentStorage;
 
 VCMI_LIB_NAMESPACE_END

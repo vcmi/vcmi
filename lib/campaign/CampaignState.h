@@ -293,7 +293,7 @@ public:
 	static JsonNode crossoverSerialize(CGHeroInstance * hero);
 	static CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map);
 
-	std::string campaignSet = "";
+	std::string campaignSet;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
