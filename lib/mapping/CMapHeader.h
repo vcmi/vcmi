@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../modding/CModVersion.h"
+#include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
 #include "../MetaString.h"
@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
-using ModCompatibilityInfo = std::map<std::string, CModVersion>;
+using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName
@@ -249,8 +249,7 @@ public:
 	void serialize(Handler & h, const int Version)
 	{
 		h & version;
-		if(Version >= 821)
-			h & mods;
+		h & mods;
 		h & name;
 		h & description;
 		h & width;

@@ -704,6 +704,9 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 
 void CServerHandler::showServerError(const std::string & txt) const
 {
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+		GH.windows().popWindow(w);
+	
 	CInfoWindow::showInfoDialog(txt, {});
 }
 

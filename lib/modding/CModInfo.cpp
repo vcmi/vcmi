@@ -23,7 +23,6 @@ static JsonNode addMeta(JsonNode config, const std::string & meta)
 }
 
 CModInfo::CModInfo():
-	checksum(0),
 	explicitlyEnabled(false),
 	implicitlyEnabled(true),
 	validation(PENDING)
@@ -33,17 +32,17 @@ CModInfo::CModInfo():
 
 CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config):
 	identifier(identifier),
-	name(config["name"].String()),
 	description(config["description"].String()),
 	dependencies(config["depends"].convertTo<std::set<std::string>>()),
 	conflicts(config["conflicts"].convertTo<std::set<std::string>>()),
-	checksum(0),
 	explicitlyEnabled(false),
 	implicitlyEnabled(true),
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
-	version = CModVersion::fromString(config["version"].String());
+	verificationInfo.name = config["name"].String();
+	verificationInfo.version = CModVersion::fromString(config["version"].String());
+	
 	if(!config["compatibility"].isNull())
 	{
 		vcmiCompatibleMin = CModVersion::fromString(config["compatibility"]["min"].String());
@@ -61,7 +60,7 @@ CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const
 JsonNode CModInfo::saveLocalData() const
 {
 	std::ostringstream stream;
-	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << checksum;
+	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << verificationInfo.checksum;
 
 	JsonNode conf;
 	conf["active"].Bool() = explicitlyEnabled;
@@ -83,9 +82,9 @@ JsonPath CModInfo::getModFile(const std::string & name)
 void CModInfo::updateChecksum(ui32 newChecksum)
 {
 	// comment-out next line to force validation of all mods ignoring checksum
-	if (newChecksum != checksum)
+	if (newChecksum != verificationInfo.checksum)
 	{
-		checksum = newChecksum;
+		verificationInfo.checksum = newChecksum;
 		validation = PENDING;
 	}
 }
@@ -95,7 +94,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	bool validated = false;
 	implicitlyEnabled = true;
 	explicitlyEnabled = !config["keepDisabled"].Bool();
-	checksum = 0;
+	verificationInfo.checksum = 0;
 	if (data.getType() == JsonNode::JsonType::DATA_BOOL)
 	{
 		explicitlyEnabled = data.Bool();
@@ -104,7 +103,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	{
 		explicitlyEnabled = data["active"].Bool();
 		validated = data["validated"].Bool();
-		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
+		updateChecksum(strtol(data["checksum"].String().c_str(), nullptr, 16));
 	}
 
 	//check compatibility
@@ -112,13 +111,13 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(CModVersion::GameVersion(), true, true));
 
 	if(!implicitlyEnabled)
-		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", name);
+		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", verificationInfo.name);
 
 	if (boost::iequals(config["modType"].String(), "translation")) // compatibility code - mods use "Translation" type at the moment
 	{
 		if (baseLanguage != VLC->generaltexth->getPreferredLanguage())
 		{
-			logGlobal->warn("Translation mod %s was not loaded: language mismatch!", name);
+			logGlobal->warn("Translation mod %s was not loaded: language mismatch!", verificationInfo.name);
 			implicitlyEnabled = false;
 		}
 	}
@@ -127,6 +126,8 @@ void CModInfo::loadLocalData(const JsonNode & data)
 		validation = validated ? PASSED : PENDING;
 	else
 		validation = validated ? PASSED : FAILED;
+	
+	verificationInfo.impactsGameplay = checkModGameplayAffecting();
 }
 
 bool CModInfo::checkModGameplayAffecting() const
@@ -169,6 +170,11 @@ bool CModInfo::checkModGameplayAffecting() const
 	}
 	modGameplayAffecting = false;
 	return *modGameplayAffecting;
+}
+
+const CModInfo::VerificationInfo & CModInfo::getVerificationInfo() const
+{
+	return verificationInfo;
 }
 
 bool CModInfo::isEnabled() const

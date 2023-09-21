@@ -9,13 +9,12 @@
  */
 #pragma once
 
-#include "CModVersion.h"
+#include "CModInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CModHandler;
 class CModIndentifier;
-class CModInfo;
 class JsonNode;
 class IHandlerBase;
 class CIdentifierStorage;
@@ -52,7 +51,7 @@ class DLL_LINKAGE CModHandler : boost::noncopyable
 	CModVersion getModVersion(TModID modName) const;
 
 	/// Attempt to set active mods according to provided list of mods from save, throws on failure
-	void trySetActiveMods(std::vector<TModID> saveActiveMods, const std::map<TModID, CModVersion> & modList);
+	void trySetActiveMods(const std::vector<std::pair<TModID, CModInfo::VerificationInfo>> & modList);
 
 public:
 	std::shared_ptr<CContentHandler> content; //(!)Do not serialize FIXME: make private
@@ -88,22 +87,22 @@ public:
 		{
 			h & activeMods;
 			for(const auto & m : activeMods)
-			{
-				CModVersion version = getModVersion(m);
-				h & version;
-			}
+				h & getModInfo(m).getVerificationInfo();
 		}
 		else
 		{
 			loadMods();
 			std::vector<TModID> saveActiveMods;
-			std::map<TModID, CModVersion> modVersions;
 			h & saveActiveMods;
+			
+			std::vector<std::pair<TModID, CModInfo::VerificationInfo>> saveModInfos(saveActiveMods.size());
+			for(int i = 0; i < saveActiveMods.size(); ++i)
+			{
+				saveModInfos[i].first = saveActiveMods[i];
+				h & saveModInfos[i].second;
+			}
 
-			for(const auto & m : saveActiveMods)
-				h & modVersions[m];
-
-			trySetActiveMods(saveActiveMods, modVersions);
+			trySetActiveMods(saveModInfos);
 		}
 	}
 };

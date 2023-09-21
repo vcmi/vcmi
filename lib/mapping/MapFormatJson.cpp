@@ -342,7 +342,7 @@ namespace TerrainDetail
 
 ///CMapFormatJson
 const int CMapFormatJson::VERSION_MAJOR = 1;
-const int CMapFormatJson::VERSION_MINOR = 2;
+const int CMapFormatJson::VERSION_MINOR = 3;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
@@ -953,7 +953,18 @@ void CMapLoaderJson::readHeader(const bool complete)
 	if(!header["mods"].isNull())
 	{
 		for(auto & mod : header["mods"].Vector())
-			mapHeader->mods[mod["name"].String()] = CModVersion::fromString(mod["version"].String());
+		{
+			CModInfo::VerificationInfo info;
+			info.version = CModVersion::fromString(mod["version"].String());
+			info.checksum = mod["checksum"].Integer();
+			info.name = mod["name"].String();
+			info.impactsGameplay = true;
+			
+			if(!mod["modId"].isNull())
+				mapHeader->mods[mod["modId"].String()] = info;
+			else
+				mapHeader->mods[mod["name"].String()] = info;
+		}
 	}
 
 	//todo: multilevel map load support
@@ -1294,8 +1305,10 @@ void CMapSaverJson::writeHeader()
 	for(const auto & mod : mapHeader->mods)
 	{
 		JsonNode modWriter;
-		modWriter["name"].String() = mod.first;
-		modWriter["version"].String() = mod.second.toString();
+		modWriter["modId"].String() = mod.first;
+		modWriter["name"].String() = mod.second.name;
+		modWriter["version"].String() = mod.second.version.toString();
+		modWriter["checksum"].Integer() = mod.second.checksum;
 		mods.Vector().push_back(modWriter);
 	}
 

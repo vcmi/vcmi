@@ -588,7 +588,7 @@ ModCompatibilityInfo MapController::modAssessmentAll()
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 			if(modName != "core")
-				result[modName] = VLC->modh->getModInfo(modName).version;
+				result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
 		}
 	}
 	return result;
@@ -605,7 +605,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 		if(modName != "core")
-			result[modName] = VLC->modh->getModInfo(modName).version;
+			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
 	}
 	//TODO: terrains?
 	return result;

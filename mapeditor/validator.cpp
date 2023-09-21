@@ -174,7 +174,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 		{
 			if(!map->mods.count(mod.first))
 			{
-				issues.emplace_back(QString(tr("Map contains object from mod \"%1\", but doesn't require it")).arg(QString::fromStdString(VLC->modh->getModInfo(mod.first).name)), true);
+				issues.emplace_back(QString(tr("Map contains object from mod \"%1\", but doesn't require it")).arg(QString::fromStdString(VLC->modh->getModInfo(mod.first).getVerificationInfo().name)), true);
 			}
 		}
 	}

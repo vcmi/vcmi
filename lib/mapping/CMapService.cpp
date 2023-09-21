@@ -92,14 +92,15 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 
 ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 {
-	ModCompatibilityInfo modCompatibilityInfo;
 	const auto & activeMods = VLC->modh->getActiveMods();
+	
+	ModCompatibilityInfo modCompatibilityInfo;
 	for(const auto & mapMod : map.mods)
 	{
 		if(vstd::contains(activeMods, mapMod.first))
 		{
 			const auto & modInfo = VLC->modh->getModInfo(mapMod.first);
-			if(modInfo.version.compatible(mapMod.second))
+			if(modInfo.getVerificationInfo().version.compatible(mapMod.second.version))
 				continue;
 		}
 		

@@ -76,7 +76,7 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
 	ModIncompatibility::ModList modList;
 	for(const auto & m : missingMods)
-		modList.push_back({m.first, m.second.toString()});
+		modList.push_back({m.second.name, m.second.version.toString()});
 	
 	if(!modList.empty())
 		throw ModIncompatibility(std::move(modList));

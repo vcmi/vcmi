@@ -338,7 +338,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 			auto missingMods = CMapService::verifyMapHeaderMods(*header);
 			ModIncompatibility::ModList modList;
 			for(const auto & m : missingMods)
-				modList.push_back({m.first, m.second.toString()});
+				modList.push_back({m.second.name, m.second.version.toString()});
 			
 			if(!modList.empty())
 				throw ModIncompatibility(std::move(modList));
