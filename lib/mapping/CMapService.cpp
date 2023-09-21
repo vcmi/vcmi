@@ -94,7 +94,7 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 {
 	const auto & activeMods = VLC->modh->getActiveMods();
 	
-	ModCompatibilityInfo modCompatibilityInfo;
+	ModCompatibilityInfo missingMods, missingModsFiltered;
 	for(const auto & mapMod : map.mods)
 	{
 		if(vstd::contains(activeMods, mapMod.first))
@@ -103,10 +103,18 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 			if(modInfo.getVerificationInfo().version.compatible(mapMod.second.version))
 				continue;
 		}
-		
-		modCompatibilityInfo[mapMod.first] = mapMod.second;
-	}	
-	return modCompatibilityInfo;
+		missingMods[mapMod.first] = mapMod.second;
+	}
+	
+	//filter child mods
+	for(const auto & mapMod : missingMods)
+	{
+		if(!mapMod.second.parent.empty() && missingMods.count(mapMod.second.parent))
+			continue;
+		missingModsFiltered.insert(mapMod);
+	}
+	
+	return missingModsFiltered;
 }
 
 std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourcePath & name)
