@@ -42,6 +42,9 @@ CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const
 {
 	verificationInfo.name = config["name"].String();
 	verificationInfo.version = CModVersion::fromString(config["version"].String());
+	verificationInfo.parent = identifier.substr(0, identifier.find_last_of('.'));
+	if(verificationInfo.parent == identifier)
+		verificationInfo.parent.clear();
 	
 	if(!config["compatibility"].isNull())
 	{

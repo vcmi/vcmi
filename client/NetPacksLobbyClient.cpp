@@ -149,8 +149,6 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress 
 		w->tick(0);
 		w->redraw();
 	}
-	else
-		GH.windows().createAndPushWindow<CLoadingScreen>();
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)

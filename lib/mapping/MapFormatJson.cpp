@@ -958,6 +958,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 			info.version = CModVersion::fromString(mod["version"].String());
 			info.checksum = mod["checksum"].Integer();
 			info.name = mod["name"].String();
+			info.parent = mod["parent"].String();
 			info.impactsGameplay = true;
 			
 			if(!mod["modId"].isNull())
@@ -1307,6 +1308,7 @@ void CMapSaverJson::writeHeader()
 		JsonNode modWriter;
 		modWriter["modId"].String() = mod.first;
 		modWriter["name"].String() = mod.second.name;
+		modWriter["parent"].String() = mod.second.parent;
 		modWriter["version"].String() = mod.second.version.toString();
 		modWriter["checksum"].Integer() = mod.second.checksum;
 		mods.Vector().push_back(modWriter);

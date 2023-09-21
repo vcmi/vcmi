@@ -41,6 +41,9 @@ public:
 		/// CRC-32 checksum of the mod
 		ui32 checksum = 0;
 		
+		/// parent mod ID, empty if root-level mod
+		TModID parent;
+		
 		/// for serialization purposes
 		bool impactsGameplay = true;
 		
@@ -50,6 +53,7 @@ public:
 			h & name;
 			h & version;
 			h & checksum;
+			h & parent;
 			h & impactsGameplay;
 		}
 	};

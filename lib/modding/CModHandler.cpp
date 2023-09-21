@@ -473,41 +473,46 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo::VerificationInfo>> & modList)
 {
-	auto hasMod = [&modList](const TModID & m) -> bool
+	auto searchVerificationInfo = [&modList](const TModID & m) -> const CModInfo::VerificationInfo*
 	{
 		for(auto & i : modList)
 			if(i.first == m)
-				return true;
-		return false;
+				return &i.second;
+		return nullptr;
 	};
 	
 	for(const auto & m : activeMods)
 	{
-		if(hasMod(m))
+		if(searchVerificationInfo(m))
 			continue;
 
+		//TODO: support actual disabling of these mods
 		if(getModInfo(m).checkModGameplayAffecting())
 			allMods[m].setEnabled(false);
 	}
 
-	std::vector<TModID> newActiveMods;
-	ModIncompatibility::ModList missingMods;
+	std::vector<TModID> newActiveMods, missingMods;
+	ModIncompatibility::ModList missingModsResult;
 	
 	for(const auto & infoPair : modList)
 	{
 		auto & remoteModId = infoPair.first;
 		auto & remoteModInfo = infoPair.second;
 		
+		bool modAffectsGameplay = remoteModInfo.impactsGameplay;
+		//parent mod affects gameplay if child affects too
+		for(const auto & subInfoPair : modList)
+			modAffectsGameplay |= (subInfoPair.second.impactsGameplay && subInfoPair.second.parent == remoteModId);
+		
 		if(!allMods.count(remoteModId))
 		{
-			if(remoteModInfo.impactsGameplay)
-				missingMods.push_back({remoteModInfo.name, remoteModInfo.version.toString()}); //mod is not installed
+			if(modAffectsGameplay)
+				missingMods.push_back(remoteModId); //mod is not installed
 			continue;
 		}
 		
 		auto & localModInfo = getModInfo(remoteModId).getVerificationInfo();
-
-		bool modAffectsGameplay = getModInfo(remoteModId).checkModGameplayAffecting();
+		modAffectsGameplay |= getModInfo(remoteModId).checkModGameplayAffecting();
 		bool modVersionCompatible = localModInfo.version.isNull()
 			|| remoteModInfo.version.isNull()
 			|| localModInfo.version.compatible(remoteModInfo.version);
@@ -519,13 +524,26 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 			continue;
 		}
 		
-		if(modAffectsGameplay || remoteModInfo.impactsGameplay)
-			missingMods.push_back({remoteModInfo.name, remoteModInfo.version.toString()}); //incompatible mod impacts gameplay
+		if(modAffectsGameplay)
+			missingMods.push_back(remoteModId); //incompatible mod impacts gameplay
 	}
 	
-	if(!missingMods.empty())
-		throw ModIncompatibility(std::move(missingMods));
+	//filter mods
+	for(auto & m : missingMods)
+	{
+		if(auto * vInfo = searchVerificationInfo(m))
+		{
+			assert(vInfo->parent != m);
+			if(!vInfo->parent.empty() && vstd::contains(missingMods, vInfo->parent))
+				continue;
+			missingModsResult.push_back({vInfo->name, vInfo->version.toString()});
+		}
+	}
 	
+	if(!missingModsResult.empty())
+		throw ModIncompatibility(std::move(missingModsResult));
+	
+	//TODO: support actual enabling of these mods
 	for(auto & m : newActiveMods)
 		allMods[m].setEnabled(true);
 
