@@ -683,12 +683,19 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
 		auto finisher = [=]()
 		{
-			if(!ourCampaign->isCampaignFinished())
+			if(ourCampaign->campaignSet != "")
 			{
-				GH.windows().pushWindow(CMM);
-				GH.windows().pushWindow(CMM->menu);
-				CMM->openCampaignLobby(ourCampaign);
+				Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
+				entry->Bool() = true;
 			}
+
+			GH.windows().pushWindow(CMM);
+			GH.windows().pushWindow(CMM->menu);
+
+			if(!ourCampaign->isCampaignFinished())
+				CMM->openCampaignLobby(ourCampaign);
+			else
+				CMM->openCampaignScreen(ourCampaign->campaignSet);
 		};
 		if(epilogue.hasPrologEpilog)
 		{

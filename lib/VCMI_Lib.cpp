@@ -52,7 +52,8 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool 
 	console = Console;
 	VLC = new LibClasses();
 	VLC->loadFilesystem(extractArchives);
-	settings.init();
+	settings.init("config/settings.json", "vcmi:settings");
+	persistentStorage.init("config/persistentStorage.json", "");
 	VLC->loadModFilesystem(onlyEssential);
 
 }

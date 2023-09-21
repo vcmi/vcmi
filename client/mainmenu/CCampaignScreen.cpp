@@ -47,12 +47,12 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CCampaignScreen::CCampaignScreen(const JsonNode & config)
-	: CWindowObject(BORDERED)
+CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
+	: CWindowObject(BORDERED), campaignSet(name)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	for(const JsonNode & node : config["images"].Vector())
+	for(const JsonNode & node : config[name]["images"].Vector())
 		images.push_back(CMainMenu::createPicture(node));
 
 	if(!images.empty())
@@ -63,14 +63,14 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config)
 		pos = images[0]->pos; // fix height\width of this window
 	}
 
-	if(!config["exitbutton"].isNull())
+	if(!config[name]["exitbutton"].isNull())
 	{
-		buttonBack = createExitButton(config["exitbutton"]);
+		buttonBack = createExitButton(config[name]["exitbutton"]);
 		buttonBack->hoverable = true;
 	}
 
-	for(const JsonNode & node : config["items"].Vector())
-		campButtons.push_back(std::make_shared<CCampaignButton>(node));
+	for(const JsonNode & node : config[name]["items"].Vector())
+		campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
 }
 
 void CCampaignScreen::activate()
@@ -89,7 +89,8 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
-CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
+CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
+	: campaignSet(campaignSet)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -101,10 +102,26 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 	campFile = config["file"].String();
 	video = VideoPath::fromJson(config["video"]);
 
-	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
+	status = CCampaignScreen::ENABLED;
 
 	auto header = CampaignHandler::getHeader(campFile);
 	hoverText = header->getName();
+
+	if(persistentStorage["completedCampaigns"][header->getFilename()].Bool())
+		status = CCampaignScreen::COMPLETED;
+
+	for(const JsonNode & node : parentConfig[campaignSet]["items"].Vector())
+	{
+		for(const JsonNode & requirement : config["requires"].Vector())
+		{
+			if(node["id"].Integer() == requirement.Integer())
+				if(!persistentStorage["completedCampaigns"][node["file"].String()].Bool())
+					status = CCampaignScreen::DISABLED;
+		}
+	}
+
+	if(persistentStorage["unlockAllCampaigns"].Bool())
+		status = CCampaignScreen::ENABLED;
 
 	if(status != CCampaignScreen::DISABLED)
 	{
@@ -134,7 +151,7 @@ void CCampaignScreen::CCampaignButton::show(Canvas & to)
 void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
 	CCS->videoh->close();
-	CMainMenu::openCampaignLobby(campFile);
+	CMainMenu::openCampaignLobby(campFile, campaignSet);
 }
 
 void CCampaignScreen::CCampaignButton::hover(bool on)

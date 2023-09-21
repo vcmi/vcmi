@@ -17,6 +17,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 SettingsStorage settings;
+SettingsStorage persistentStorage;
 
 template<typename Accessor>
 SettingsStorage::NodeAccessor<Accessor>::NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path):
@@ -53,18 +54,24 @@ SettingsStorage::SettingsStorage():
 {
 }
 
-void SettingsStorage::init()
+void SettingsStorage::init(const std::string & dataFilename, const std::string & schema)
 {
-	JsonPath confName = JsonPath::builtin("config/settings.json");
+	this->dataFilename = dataFilename;
+	this->schema = schema;
+
+	JsonPath confName = JsonPath::builtin(dataFilename);
 
 	JsonUtils::assembleFromFiles(confName.getOriginalName()).swap(config);
 
 	// Probably new install. Create config file to save settings to
 	if (!CResourceHandler::get("local")->existsResource(confName))
-		CResourceHandler::get("local")->createResource("config/settings.json");
+		CResourceHandler::get("local")->createResource(dataFilename);
 
-	JsonUtils::maximize(config, "vcmi:settings");
-	JsonUtils::validate(config, "vcmi:settings", "settings");
+	if(!schema.empty())
+	{
+		JsonUtils::maximize(config, schema);
+		JsonUtils::validate(config, schema, "settings");
+	}
 }
 
 void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath)
@@ -74,9 +81,10 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 
 	JsonNode savedConf = config;
 	savedConf.Struct().erase("session");
-	JsonUtils::minimize(savedConf, "vcmi:settings");
+	if(!schema.empty())
+		JsonUtils::minimize(savedConf, schema);
 
-	std::fstream file(CResourceHandler::get()->getResourceName(JsonPath::builtin("config/settings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::fstream file(CResourceHandler::get()->getResourceName(JsonPath::builtin(dataFilename))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << savedConf.toJson();
 }
 
