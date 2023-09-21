@@ -59,6 +59,7 @@ set(client_SRCS
 	mainmenu/CMainMenu.cpp
 	mainmenu/CPrologEpilogVideo.cpp
 	mainmenu/CreditsScreen.cpp
+	mainmenu/CHighScoreScreen.cpp
 
 	mapView/MapRenderer.cpp
 	mapView/MapRendererContext.cpp
@@ -213,6 +214,7 @@ set(client_HEADERS
 	mainmenu/CMainMenu.h
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
+	mainmenu/CHighScoreScreen.h
 
 	mapView/IMapRendererContext.h
 	mapView/IMapRendererObserver.h

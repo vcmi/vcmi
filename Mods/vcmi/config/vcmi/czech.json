@@ -37,7 +37,6 @@
 	"vcmi.radialWheel.moveUnit" : "Přesunout jednotky do jiného oddílu",
 	"vcmi.radialWheel.splitUnit" : "Rozdělit jednotku do jiné pozice",
 
-	"vcmi.mainMenu.highscoresNotImplemented" : "Omlouvám se, menu nejvyšší skóre ještě není implementováno\n",
 	"vcmi.mainMenu.serverConnecting" : "Připojování...",
 	"vcmi.mainMenu.serverAddressEnter" : "Zadejte adresu:",
 	"vcmi.mainMenu.serverClosing" : "Zavírání...",

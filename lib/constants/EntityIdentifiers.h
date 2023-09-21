@@ -204,8 +204,8 @@ class HeroTypeID : public Identifier<HeroTypeID>
 public:
 	using Identifier<HeroTypeID>::Identifier;
 	///json serialization helpers
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 
 	DLL_LINKAGE static const HeroTypeID NONE;
@@ -248,8 +248,8 @@ public:
 
 	std::string toString() const;
 
-	static si32 decode(const std::string& identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string& identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
@@ -333,8 +333,8 @@ public:
 	static const FactionID CONFLUX;
 	static const FactionID NEUTRAL;
 
-	static si32 decode(const std::string& identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string& identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
@@ -603,8 +603,8 @@ public:
 
 	static_assert (AFTER_LAST == BACKPACK_START, "incorrect number of artifact slots");
 
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 };
 
 class ArtifactPosition : public IdentifierWithEnum<ArtifactPosition, ArtifactPositionBase>
@@ -643,8 +643,8 @@ public:
 	using IdentifierWithEnum<ArtifactID, ArtifactIDBase>::IdentifierWithEnum;
 
 	///json serialization helpers
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
@@ -683,8 +683,8 @@ public:
 	using IdentifierWithEnum<CreatureID, CreatureIDBase>::IdentifierWithEnum;
 
 	///json serialization helpers
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
@@ -801,8 +801,8 @@ public:
 	using IdentifierWithEnum<SpellID, SpellIDBase>::IdentifierWithEnum;
 
 	///json serialization helpers
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
@@ -855,8 +855,8 @@ class TerrainId : public IdentifierWithEnum<TerrainId, TerrainIdBase>
 public:
 	using IdentifierWithEnum<TerrainId, TerrainIdBase>::IdentifierWithEnum;
 
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
