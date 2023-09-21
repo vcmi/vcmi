@@ -117,7 +117,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	
 	//add battle bonuses based from player state only when attacks neutral creatures
 	const auto * attackerInfo = gameHandler->getPlayerState(army1->getOwner(), false);
-	if(attackerInfo && army2->getOwner() == PlayerColor::NEUTRAL)
+	if(attackerInfo && !army2->getOwner().isValidPlayer())
 	{
 		for(auto bonus : attackerInfo->battleBonuses)
 		{

@@ -663,10 +663,8 @@ void CGameState::initDifficulty()
 	logGlobal->debug("\tLoading difficulty settings");
 	const JsonNode config(JsonPath::builtin("config/difficulty.json"));
 	
-	const JsonVector &vector = config["battleBonus"].Vector();
-	const JsonNode &level = vector[scenarioOps->difficulty];
-	const JsonNode & difficultyAI(level["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
-	const JsonNode & difficultyHuman(level["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
+	const JsonNode & difficultyAI(config["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
+	const JsonNode & difficultyHuman(config["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
 	
 	auto setDifficulty = [](PlayerState & state, const JsonNode & json)
 	{
