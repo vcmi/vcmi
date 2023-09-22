@@ -42,7 +42,7 @@ CHighScoreScreen::CHighScoreScreen()
         Settings entry1 = persistentStorage.write["highscore"]["campaign"][std::to_string(i)]["campaign"];
         entry1->String() = "test";
         Settings entry2 = persistentStorage.write["highscore"]["campaign"][std::to_string(i)]["points"];
-        entry2->Integer() = 100;
+        entry2->Integer() = std::rand() % 400 * 5;
 
         Settings entry3 = persistentStorage.write["highscore"]["standard"][std::to_string(i)]["player"];
         entry3->String() = "test";
@@ -51,7 +51,7 @@ CHighScoreScreen::CHighScoreScreen()
         Settings entry5 = persistentStorage.write["highscore"]["standard"][std::to_string(i)]["days"];
         entry5->Integer() = 123;
         Settings entry6 = persistentStorage.write["highscore"]["standard"][std::to_string(i)]["points"];
-        entry6->Integer() = 100;
+        entry6->Integer() = std::rand() % 400;
     }
 }
 
@@ -74,12 +74,10 @@ void CHighScoreScreen::addHighScores()
     background = std::make_shared<CPicture>(ImagePath::builtin(highscorepage == HighScorePage::STANDARD ? "HISCORE" : "HISCORE2"));
 
     texts.clear();
+    images.clear();
 
     static const JsonNode configCreatures(JsonPath::builtin("CONFIG/highscoreCreatures.json"));
     auto creatures = configCreatures["creatures"].Vector();
-    for(auto & creature : creatures) {
-        images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[CreatureID::decode(creature["creature"].String())]->getIconIndex(), 0, 10, 10));
-    }
 
     // Header
     texts.push_back(std::make_shared<CLabel>(115, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.433")));
@@ -117,6 +115,12 @@ void CHighScoreScreen::addHighScores()
         {
             texts.push_back(std::make_shared<CLabel>(410, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, curData["campaign"].String()));
             texts.push_back(std::make_shared<CLabel>(590, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, std::to_string(curData["points"].Integer())));
+        }
+
+        int divide = (highscorepage == HighScorePage::STANDARD) ? 1 : 5;
+        for(auto & creature : creatures) {
+            if(curData["points"].Integer() / divide <= creature["max"].Integer() && curData["points"].Integer() / divide >= creature["min"].Integer())
+                images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[CreatureID::decode(creature["creature"].String())]->getIconIndex(), 0, 670, y - 15 + i * 50));
         }
     }
 }
