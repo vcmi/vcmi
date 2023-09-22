@@ -1696,8 +1696,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 				CSH->endGameplay();
 				GH.defActionsDef = 63;
 				CMM->menu->switchToTab("main");
-				if(won)
-					GH.windows().createAndPushWindow<CHighScoreInputScreen>();
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(won);
 			}
 		);
 	}

@@ -22,6 +22,7 @@
 
 #include "../CGameInfo.h"
 #include "../CVideoHandler.h"
+#include "../CMusicHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -167,8 +168,8 @@ void CHighScoreScreen::buttonExitClick()
     close();
 }
 
-CHighScoreInputScreen::CHighScoreInputScreen()
-	: CWindowObject(BORDERED)
+CHighScoreInputScreen::CHighScoreInputScreen(bool won)
+	: CWindowObject(BORDERED), won(won)
 {
     addUsedEvents(LCLICK);
 
@@ -176,11 +177,20 @@ CHighScoreInputScreen::CHighScoreInputScreen()
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
-    int border = 100;
-    int textareaW = ((pos.w - 2 * border) / 4);
-    std::vector<std::string> t = { "438", "439", "440", "441", "676" };
-    for (int i = 0; i < 5; i++)
-        texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 450, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt." + t[i])));
+    if(won)
+    {
+        int border = 100;
+        int textareaW = ((pos.w - 2 * border) / 4);
+        std::vector<std::string> t = { "438", "439", "440", "441", "676" };
+        for (int i = 0; i < 5; i++)
+            texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 450, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt." + t[i])));
+ 
+        CCS->musich->playMusic(AudioPath::builtin("music/Win Scenario"), true, true);
+    }
+    else
+        CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
+
+    video = won ? "HSANIM.SMK" : "LOSEGAME.SMK";
 }
 
 void CHighScoreInputScreen::addEntry(std::string text) {
@@ -189,7 +199,18 @@ void CHighScoreInputScreen::addEntry(std::string text) {
 
 void CHighScoreInputScreen::show(Canvas & to)
 {
-	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false);
+	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false,
+    [&]()
+    {
+        if(won)
+        {
+            CCS->videoh->close();
+            video = "HSLOOP.SMK";
+            CCS->videoh->open(VideoPath::builtin(video));
+        }
+        else
+            close();
+    });
     redraw();
 
 	CIntObject::show(to);
@@ -197,7 +218,7 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::activate()
 {
-    CCS->videoh->open(VideoPath::builtin("HSLOOP.SMK"));
+    CCS->videoh->open(VideoPath::builtin(video));
 	CIntObject::activate();
 }
 
@@ -211,6 +232,12 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 {
     OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
+    if(!won)
+    {
+        close();
+        return;
+    }
+
     if(!input)
     {
         input = std::make_shared<CHighScoreInput>(
@@ -219,8 +246,11 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
             if(!text.empty())
             {
                 addEntry(text);
+                close();
+                GH.windows().createAndPushWindow<CHighScoreScreen>();
             }
-            close();
+            else
+                close();
         });
     }
 }

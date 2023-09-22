@@ -349,7 +349,7 @@ void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 	show(x, y, dst, update);
 }
 
-void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
+void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update, std::function<void()> restart)
 {
 	if (sws == nullptr)
 		return;
@@ -368,6 +368,8 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 			show(x,y,dst,update);
 		else
 		{
+			if(restart)
+				restart();
 			VideoPath filenameToReopen = fname; // create copy to backup this->fname
 			open(filenameToReopen);
 			nextFrame();

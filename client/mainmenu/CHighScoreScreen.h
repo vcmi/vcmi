@@ -59,8 +59,11 @@ class CHighScoreInputScreen : public CWindowObject
 {
     std::vector<std::shared_ptr<CMultiLineLabel>> texts;
     std::shared_ptr<CHighScoreInput> input;
+
+    std::string video;
+    bool won;
 public:
-	CHighScoreInputScreen();
+	CHighScoreInputScreen(bool won);
 
     void addEntry(std::string text);
 
