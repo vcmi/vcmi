@@ -31,7 +31,7 @@ class HighScoreCalculation
 {
 public:
     std::vector<HighScoreParameter> parameters = std::vector<HighScoreParameter>();
-    int calculate();
+    auto calculate();
 };
 
 class CHighScoreScreen : public CWindowObject
@@ -80,6 +80,7 @@ class CHighScoreInputScreen : public CWindowObject
 
     std::string video;
     bool won;
+    HighScoreCalculation calc;
 public:
 	CHighScoreInputScreen(bool won, HighScoreCalculation calc);
 

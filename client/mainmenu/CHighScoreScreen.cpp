@@ -28,9 +28,44 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
-int HighScoreCalculation::calculate()
+auto HighScoreCalculation::calculate()
 {
-    return 0;
+    struct result
+    {
+        int basic;
+        int total;
+        int sumDays;
+    };
+    
+    std::vector<int> scoresBasic;
+    std::vector<int> scoresTotal;
+    double sumBasic = 0;
+    double sumTotal = 0;
+    int sumDays = 0;
+    for(auto & param : parameters)
+    {
+        double tmp = 200 - (param.day + 10) / (param.townAmount + 5) + (param.allDefeated ? 25 : 0) + (param.hasGrail ? 25 : 0);
+        scoresBasic.push_back(static_cast<int>(tmp));
+        sumBasic += tmp;
+        if(param.difficulty == 0)
+            tmp *= 0.8;
+        if(param.difficulty == 1)
+            tmp *= 1.0;
+        if(param.difficulty == 2)
+            tmp *= 1.3;
+        if(param.difficulty == 3)
+            tmp *= 1.6;
+        if(param.difficulty == 4)
+            tmp *= 2.0;
+        scoresTotal.push_back(static_cast<int>(tmp));
+        sumTotal += tmp;
+        sumDays += param.day;
+    }
+
+    if(scoresBasic.size() == 1)
+        return result { scoresBasic[0], scoresTotal[0], sumDays };
+
+    return result { static_cast<int>((sumBasic / parameters.size()) * 5.0), static_cast<int>((sumTotal / parameters.size()) * 5.0), sumDays };
 }
 
 CHighScoreScreen::CHighScoreScreen()
@@ -174,7 +209,7 @@ void CHighScoreScreen::buttonExitClick()
 }
 
 CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
-	: CWindowObject(BORDERED), won(won)
+	: CWindowObject(BORDERED), won(won), calc(calc)
 {
     addUsedEvents(LCLICK);
 
@@ -189,6 +224,10 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
         std::vector<std::string> t = { "438", "439", "440", "441", "676" };
         for (int i = 0; i < 5; i++)
             texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 450, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt." + t[i])));
+
+        t = { std::to_string(calc.calculate().sumDays), std::to_string(calc.calculate().basic), CGI->generaltexth->translate("core.arraytxt." + std::to_string((142 + calc.parameters[0].difficulty))), std::to_string(calc.calculate().total), "TODO" };
+        for (int i = 0; i < 5; i++)
+            texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 530, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, t[i]));
  
         CCS->musich->playMusic(AudioPath::builtin("music/Win Scenario"), true, true);
     }
