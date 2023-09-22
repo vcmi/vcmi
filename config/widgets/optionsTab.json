@@ -73,15 +73,40 @@
 			"adoptHeight": true
 		},
 		
-		// timer
 		{
+			"name": "simturnsDuration",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 55, "y": 537},
+			"size": 194,
+			"callback": "setSimturnDuration",
+			"itemsVisible": 1,
+			"itemsTotal": 28,
+			"selected": 0,
+			"style": "blue",
+			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
+			"panningStep": 20
+		},
+		
+		{
+			"name": "labelSimturnsDurationValue",
 			"type": "label",
 			"font": "small",
 			"alignment": "center",
-			"color": "yellow",
-			"text": "core.genrltxt.521",
-			"position": {"x": 222, "y": 544}
+			"color": "white",
+			"text": "",
+			"position": {"x": 319, "y": 545}
 		},
+		
+		// timer
+		//{
+		//	"type": "label",
+		//	"font": "small",
+		//	"alignment": "center",
+		//	"color": "yellow",
+		//	"text": "core.genrltxt.521",
+		//	"position": {"x": 222, "y": 544}
+		//},
 		
 		{
 			"name": "labelTurnDurationValue",
@@ -104,7 +129,8 @@
 			"itemsTotal": 11,
 			"selected": 11,
 			"style": "blue",
-			"scrollBounds": {"x": -3, "y": -25, "w": 337, "h": 43},
+			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
+			//"scrollBounds": {"x": -3, "y": -25, "w": 337, "h": 43},
 			"panningStep": 20
 		},
 	],

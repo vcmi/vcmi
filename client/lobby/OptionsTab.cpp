@@ -58,6 +58,12 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 			CSH->setTurnTimerInfo(tinfo);
 		}
 	});
+
+	addCallback("setSimturnDuration", [&](int index){
+		SimturnsInfo info;
+		info.optionalTurns = index;
+		CSH->setSimturnsInfo(info);
+	});
 	
 	//helper function to parse string containing time to integer reflecting time in seconds
 	//assumed that input string can be modified by user, function shall support user's intention
@@ -213,6 +219,18 @@ void OptionsTab::recreate()
 			humanPlayers++;
 
 		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
+	}
+
+	//Simultaneous turns
+	if(auto turnSlider = widget<CSlider>("labelSimturnsDurationValue"))
+		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.optionalTurns);
+
+	if(auto w = widget<CLabel>("labelSimturnsDurationValue"))
+	{
+		MetaString message;
+		message.appendRawString("Simturns: up to %d days");
+		message.replaceNumber(SEL->getStartInfo()->simturnsInfo.optionalTurns);
+		w->setText(message.toString());
 	}
 	
 	const auto & turnTimerRemote = SEL->getStartInfo()->turnTimerInfo;
