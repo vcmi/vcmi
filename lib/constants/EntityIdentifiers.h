@@ -248,8 +248,8 @@ public:
 
 	std::string toString() const;
 
-	DLL_LINKAGE static si32 decode(const std::string& identifier);
-	DLL_LINKAGE static std::string encode(const si32 index);
+	static si32 decode(const std::string& identifier);
+	static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
@@ -333,8 +333,8 @@ public:
 	static const FactionID CONFLUX;
 	static const FactionID NEUTRAL;
 
-	DLL_LINKAGE static si32 decode(const std::string& identifier);
-	DLL_LINKAGE static std::string encode(const si32 index);
+	static si32 decode(const std::string& identifier);
+	static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
