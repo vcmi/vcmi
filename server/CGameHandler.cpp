@@ -1765,8 +1765,17 @@ bool CGameHandler::load(const std::string & filename)
 	catch(const ModIncompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
-		auto errorMsg = VLC->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
-		errorMsg += e.what();
+		std::string errorMsg;
+		if(!e.whatMissing().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
+			errorMsg += e.whatMissing();
+		}
+		if(!e.whatExcessive().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
+			errorMsg += e.whatExcessive();
+		}
 		lobby->announceMessage(errorMsg);
 		return false;
 	}

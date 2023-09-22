@@ -47,9 +47,9 @@
 	"vcmi.lobby.filename" : "Nazwa pliku",
 	"vcmi.lobby.creationDate" : "Data utworzenia",
 
-	"vcmi.server.errors.existingProcess"     : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
-	"vcmi.server.errors.modsIncompatibility" : "Następujące mody są wymagane do wczytania gry:",
-	"vcmi.server.confirmReconnect"           : "Połączyć ponownie z ostatnią sesją?",
+	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
+	"vcmi.server.errors.modsToEnable"    : "{Następujące mody są wymagane do wczytania gry}",
+	"vcmi.server.confirmReconnect"       : "Połączyć ponownie z ostatnią sesją?",
 
 	"vcmi.settingsMainWindow.generalTab.hover"   : "Ogólne",
 	"vcmi.settingsMainWindow.generalTab.help"    : "Przełącza do zakładki opcji ogólnych, która zawiera ustawienia związane z ogólnym działaniem gry",

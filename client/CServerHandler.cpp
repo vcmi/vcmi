@@ -552,10 +552,17 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 	catch(ModIncompatibility & e)
 	{
 		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
-
-		auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
-		errorMsg += e.what();
-
+		std::string errorMsg;
+		if(!e.whatMissing().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
+			errorMsg += e.whatMissing();
+		}
+		if(!e.whatExcessive().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
+			errorMsg += e.whatExcessive();
+		}
 		showServerError(errorMsg);
 		return false;
 	}

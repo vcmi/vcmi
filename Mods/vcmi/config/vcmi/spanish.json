@@ -30,9 +30,9 @@
 	"vcmi.capitalColors.6" : "Turquesa",
 	"vcmi.capitalColors.7" : "Rosa",
 
-	"vcmi.server.errors.existingProcess"     : "Otro proceso de vcmiserver está en ejecución, por favor termínalo primero",
-	"vcmi.server.errors.modsIncompatibility" : "Mods necesarios para cargar el juego:",
-	"vcmi.server.confirmReconnect"           : "¿Conectar a la última sesión?",
+	"vcmi.server.errors.existingProcess" : "Otro proceso de vcmiserver está en ejecución, por favor termínalo primero",
+	"vcmi.server.errors.modsToEnable"    : "{Mods necesarios para cargar el juego}",
+	"vcmi.server.confirmReconnect"       : "¿Conectar a la última sesión?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "General",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Cambiar a la pestaña de opciones generales, que contiene ajustes relacionados con el comportamiento general del juego",

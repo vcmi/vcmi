@@ -29,7 +29,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 
 CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)

@@ -52,9 +52,9 @@
 	"vcmi.lobby.filename" : "Dateiname",
 	"vcmi.lobby.creationDate" : "Erstellungsdatum",
 
-	"vcmi.server.errors.existingProcess"     : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
-	"vcmi.server.errors.modsIncompatibility" : "Erforderliche Mods um das Spiel zu laden:",
-	"vcmi.server.confirmReconnect"           : "Mit der letzten Sitzung verbinden?",
+	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
+	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
+	"vcmi.server.confirmReconnect"       : "Mit der letzten Sitzung verbinden?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Allgemein",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Wechselt zur Registerkarte Allgemeine Optionen, die Einstellungen zum allgemeinen Verhalten des Spielclients enthält.",

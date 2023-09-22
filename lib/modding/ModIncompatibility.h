@@ -14,29 +14,44 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE ModIncompatibility: public std::exception
 {
 public:
-	using StringPair = std::pair<const std::string, const std::string>;
-	using ModList = std::list<StringPair>;
+	using ModListWithVersion = std::vector<std::pair<const std::string, const std::string>>;
+	using ModList = std::vector<const std::string>;
 
-	ModIncompatibility(ModList && _missingMods):
-		missingMods(std::move(_missingMods))
+	ModIncompatibility(const ModListWithVersion & _missingMods)
 	{
 		std::ostringstream _ss;
-		for(const auto & m : missingMods)
+		for(const auto & m : _missingMods)
 			_ss << m.first << ' ' << m.second << std::endl;
-		message = _ss.str();
+		messageMissingMods = _ss.str();
 	}
-
+	
+	ModIncompatibility(const ModListWithVersion & _missingMods, ModList & _excessiveMods)
+		: ModIncompatibility(_missingMods)
+	{
+		std::ostringstream _ss;
+		for(const auto & m : _excessiveMods)
+			_ss << m << std::endl;
+		messageExcessiveMods = _ss.str();
+	}
+	
 	const char * what() const noexcept override
 	{
-		return message.c_str();
+		static const std::string w("Mod incompatibility exception");
+		return w.c_str();
+	}
+	
+	const std::string & whatMissing() const noexcept
+	{
+		return messageMissingMods;
+	}
+	
+	const std::string & whatExcessive() const noexcept
+	{
+		return messageExcessiveMods;
 	}
 
 private:
-	//list of mods required to load the game
-	// first: mod name
-	// second: mod version
-	const ModList missingMods;
-	std::string message;
+	std::string messageMissingMods, messageExcessiveMods;
 };
 
 VCMI_LIB_NAMESPACE_END

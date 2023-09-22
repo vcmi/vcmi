@@ -481,6 +481,10 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 		return nullptr;
 	};
 	
+	std::vector<TModID> newActiveMods, missingMods, excessiveMods;
+	ModIncompatibility::ModListWithVersion missingModsResult;
+	ModIncompatibility::ModList excessiveModsResult;
+	
 	for(const auto & m : activeMods)
 	{
 		if(searchVerificationInfo(m))
@@ -488,11 +492,11 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 
 		//TODO: support actual disabling of these mods
 		if(getModInfo(m).checkModGameplayAffecting())
+		{
+			excessiveMods.push_back(m);
 			allMods[m].setEnabled(false);
+		}
 	}
-
-	std::vector<TModID> newActiveMods, missingMods;
-	ModIncompatibility::ModList missingModsResult;
 	
 	for(const auto & infoPair : modList)
 	{
@@ -539,9 +543,17 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 			missingModsResult.push_back({vInfo->name, vInfo->version.toString()});
 		}
 	}
+	for(auto & m : excessiveMods)
+	{
+		auto & vInfo = getModInfo(m).getVerificationInfo();
+		assert(vInfo.parent != m);
+		if(!vInfo.parent.empty() && vstd::contains(excessiveMods, vInfo.parent))
+			continue;
+		excessiveModsResult.push_back(vInfo.name);
+	}
 	
-	if(!missingModsResult.empty())
-		throw ModIncompatibility(std::move(missingModsResult));
+	if(!missingModsResult.empty() || !excessiveModsResult.empty())
+		throw ModIncompatibility(missingModsResult, excessiveModsResult);
 	
 	//TODO: support actual enabling of these mods
 	for(auto & m : newActiveMods)
