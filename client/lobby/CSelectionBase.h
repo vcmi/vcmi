@@ -59,6 +59,7 @@ public:
 	std::shared_ptr<CButton> buttonOptions;
 	std::shared_ptr<CButton> buttonStart;
 	std::shared_ptr<CButton> buttonBack;
+	std::shared_ptr<CButton> buttonSimturns;
 
 	std::shared_ptr<SelectionTab> tabSel;
 	std::shared_ptr<OptionsTab> tabOpt;

@@ -477,6 +477,13 @@ void CServerHandler::setDifficulty(int to) const
 	sendLobbyPack(lsd);
 }
 
+void CServerHandler::setSimturnsInfo(const SimturnsInfo & info) const
+{
+	LobbySetSimturns pack;
+	pack.simturnsInfo = info;
+	sendLobbyPack(pack);
+}
+
 void CServerHandler::setTurnTimerInfo(const TurnTimerInfo & info) const
 {
 	LobbySetTurnTime lstt;

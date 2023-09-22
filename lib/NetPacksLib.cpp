@@ -750,6 +750,11 @@ void LobbySetPlayer::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbySetPlayer(*this);
 }
 
+void LobbySetSimturns::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetSimturns(*this);
+}
+
 void LobbySetTurnTime::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbySetTurnTime(*this);
