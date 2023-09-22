@@ -15,7 +15,7 @@ class DLL_LINKAGE ModIncompatibility: public std::exception
 {
 public:
 	using ModListWithVersion = std::vector<std::pair<const std::string, const std::string>>;
-	using ModList = std::vector<const std::string>;
+	using ModList = std::vector<std::string>;
 
 	ModIncompatibility(const ModListWithVersion & _missingMods)
 	{
