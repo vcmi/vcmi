@@ -117,6 +117,6 @@
         { "min" : 389, "max" : 391, "creature": "titan" },
         { "min" : 392, "max" : 394, "creature": "goldDragon" },
         { "min" : 395, "max" : 397, "creature": "blackDragon" },
-        { "min" : 398, "max" : 400, "creature": "archangel" }
+        { "min" : 398, "max" : 500, "creature": "archangel" }
     ]
 }

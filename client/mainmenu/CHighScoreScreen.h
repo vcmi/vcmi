@@ -16,6 +16,24 @@ class CMultiLineLabel;
 class CAnimImage;
 class CTextInput;
 
+class HighScoreParameter
+{
+public:
+    int difficulty;
+    int day;
+    int townAmount;
+    bool usedCheat;
+    bool hasGrail;
+    bool allDefeated;
+};
+
+class HighScoreCalculation
+{
+public:
+    std::vector<HighScoreParameter> parameters = std::vector<HighScoreParameter>();
+    int calculate();
+};
+
 class CHighScoreScreen : public CWindowObject
 {
     enum HighScorePage { SCENARIO, CAMPAIGN };
@@ -63,7 +81,7 @@ class CHighScoreInputScreen : public CWindowObject
     std::string video;
     bool won;
 public:
-	CHighScoreInputScreen(bool won);
+	CHighScoreInputScreen(bool won, HighScoreCalculation calc);
 
     void addEntry(std::string text);
 

@@ -669,14 +669,18 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	saveSession->Bool() = false;
 }
 
-void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
+void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
 {
 	std::shared_ptr<CampaignState> ourCampaign = cs;
 
 	if (!cs)
+	{
 		ourCampaign = si->campState;
+		calc.parameters.clear();
+	}
+	calc.parameters.push_back(param);
 
-	GH.dispatchMainThread([ourCampaign]()
+	GH.dispatchMainThread([ourCampaign, this]()
 	{
 		CSH->campaignServerRestartLock.set(true);
 		CSH->endGameplay();
@@ -698,7 +702,7 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 			else
 			{
 				CMM->openCampaignScreen(ourCampaign->campaignSet);
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, calc);
 			}
 		};
 		if(epilogue.hasPrologEpilog)

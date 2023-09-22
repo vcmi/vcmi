@@ -28,6 +28,11 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
+int HighScoreCalculation::calculate()
+{
+    return 0;
+}
+
 CHighScoreScreen::CHighScoreScreen()
 	: CWindowObject(BORDERED)
 {
@@ -168,7 +173,7 @@ void CHighScoreScreen::buttonExitClick()
     close();
 }
 
-CHighScoreInputScreen::CHighScoreInputScreen(bool won)
+CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
 	: CWindowObject(BORDERED), won(won)
 {
     addUsedEvents(LCLICK);

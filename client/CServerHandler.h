@@ -14,6 +14,8 @@
 #include "../lib/StartInfo.h"
 #include "../lib/CondSh.h"
 
+#include "mainmenu/CHighScoreScreen.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CConnection;
@@ -85,6 +87,8 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 	std::shared_ptr<CMapInfo> mapToStart;
 
 	std::vector<std::string> myNames;
+
+	HighScoreCalculation calc;
 
 	void threadHandleConnection();
 	void threadRunServer();
@@ -159,7 +163,7 @@ public:
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
-	void startCampaignScenario(std::shared_ptr<CampaignState> cs = {});
+	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle

@@ -66,6 +66,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/CStack.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CThreadHelper.h"
@@ -1686,17 +1687,37 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::requestReturningToMainMenu(bool won)
 {
+	HighScoreParameter param;
+	param.difficulty = cb->getStartInfo()->difficulty;
+	param.day = cb->getDate();
+	param.townAmount = cb->howManyTowns();
+	param.usedCheat = cb->getPlayerState(*cb->getPlayerID())->enteredWinningCheatCode;
+	param.hasGrail = false;
+	for(const CGHeroInstance * h : cb->getHeroesInfo())
+		if(h->hasArt(ArtifactID::GRAIL))
+			param.hasGrail = true;
+	param.allDefeated = true;
+	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
+		auto ps = cb->getPlayerState(player);
+		if(ps && player != *cb->getPlayerID())
+			if(!ps->checkVanquished())
+				param.allDefeated = false;
+	}
+	HighScoreCalculation calc;
+	calc.parameters.push_back(param);
+
 	if(won && cb->getStartInfo()->campState)
-		CSH->startCampaignScenario(cb->getStartInfo()->campState);
+		CSH->startCampaignScenario(param, cb->getStartInfo()->campState);
 	else
 	{
 		GH.dispatchMainThread(
-			[won]()
+			[won, calc]()
 			{
 				CSH->endGameplay();
 				GH.defActionsDef = 63;
 				CMM->menu->switchToTab("main");
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(won);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(won, calc);
 			}
 		);
 	}
