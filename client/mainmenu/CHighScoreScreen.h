@@ -55,8 +55,10 @@ class CHighScoreScreen : public CWindowObject
     std::vector<std::shared_ptr<CButton>> buttons;
     std::vector<std::shared_ptr<CLabel>> texts;
     std::vector<std::shared_ptr<CAnimImage>> images;
+
+    int highlighted;
 public:
-	CHighScoreScreen();
+	CHighScoreScreen(int highlighted = -1);
 };
 
 class CHighScoreInput : public CWindowObject

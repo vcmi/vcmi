@@ -85,8 +85,8 @@ CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
     return -1;
 }
 
-CHighScoreScreen::CHighScoreScreen()
-	: CWindowObject(BORDERED)
+CHighScoreScreen::CHighScoreScreen(int highlighted)
+	: CWindowObject(BORDERED), highlighted(highlighted)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos = center(Rect(0, 0, 800, 600));
@@ -94,6 +94,8 @@ CHighScoreScreen::CHighScoreScreen()
 
     addHighScores();
     addButtons();
+
+    // TODO write also datetime for RMB menu
 
     // TODO: remove; only for testing
     for (int i = 0; i < 11; i++)
@@ -159,20 +161,21 @@ void CHighScoreScreen::addHighScores()
     for (int i = 0; i < 11; i++)
     {
         auto & curData = data[std::to_string(i)];
+        ColorRGBA color = (i == highlighted) ? Colors::YELLOW : Colors::WHITE;
 
-        texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, std::to_string(i+1)));
-        texts.push_back(std::make_shared<CLabel>(220, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, curData["player"].String()));
+        texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(i+1)));
+        texts.push_back(std::make_shared<CLabel>(220, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, curData["player"].String()));
     
         if(highscorepage == HighScorePage::SCENARIO)
         {
-            texts.push_back(std::make_shared<CLabel>(400, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, curData["land"].String()));
-            texts.push_back(std::make_shared<CLabel>(555, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, std::to_string(curData["days"].Integer())));
-            texts.push_back(std::make_shared<CLabel>(625, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, std::to_string(curData["points"].Integer())));
+            texts.push_back(std::make_shared<CLabel>(400, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, curData["land"].String()));
+            texts.push_back(std::make_shared<CLabel>(555, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["days"].Integer())));
+            texts.push_back(std::make_shared<CLabel>(625, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
         }
         else
         {
-            texts.push_back(std::make_shared<CLabel>(410, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, curData["campaign"].String()));
-            texts.push_back(std::make_shared<CLabel>(590, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, std::to_string(curData["points"].Integer())));
+            texts.push_back(std::make_shared<CLabel>(410, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, curData["campaign"].String()));
+            texts.push_back(std::make_shared<CLabel>(590, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
         }
 
         images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[HighScoreCalculation::getCreatureForPoints(curData["points"].Integer(), highscorepage == HighScorePage::CAMPAIGN)]->getIconIndex(), 0, 670, y - 15 + i * 50));
