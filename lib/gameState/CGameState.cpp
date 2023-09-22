@@ -661,7 +661,7 @@ void CGameState::initGlobalBonuses()
 void CGameState::initDifficulty()
 {
 	logGlobal->debug("\tLoading difficulty settings");
-	const JsonNode config(JsonPath::builtin("config/difficulty.json"));
+	const JsonNode config = JsonUtils::assembleFromFiles("config/difficulty.json");
 	
 	const JsonNode & difficultyAI(config["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
 	const JsonNode & difficultyHuman(config["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
