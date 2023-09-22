@@ -22,6 +22,7 @@
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
+#include "mainmenu/CHighScoreScreen.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -695,7 +696,10 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 			if(!ourCampaign->isCampaignFinished())
 				CMM->openCampaignLobby(ourCampaign);
 			else
+			{
 				CMM->openCampaignScreen(ourCampaign->campaignSet);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>();
+			}
 		};
 		if(epilogue.hasPrologEpilog)
 		{

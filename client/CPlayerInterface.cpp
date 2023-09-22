@@ -37,6 +37,7 @@
 #include "gui/WindowHandler.h"
 
 #include "mainmenu/CMainMenu.h"
+#include "mainmenu/CHighScoreScreen.h"
 
 #include "mapView/mapHandler.h"
 
@@ -1690,11 +1691,13 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	else
 	{
 		GH.dispatchMainThread(
-			[]()
+			[won]()
 			{
 				CSH->endGameplay();
 				GH.defActionsDef = 63;
 				CMM->menu->switchToTab("main");
+				if(won)
+					GH.windows().createAndPushWindow<CHighScoreInputScreen>();
 			}
 		);
 	}
