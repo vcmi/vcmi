@@ -35,6 +35,7 @@ auto HighScoreCalculation::calculate()
         int basic;
         int total;
         int sumDays;
+        bool cheater;
     };
     
     std::vector<int> scoresBasic;
@@ -42,6 +43,7 @@ auto HighScoreCalculation::calculate()
     double sumBasic = 0;
     double sumTotal = 0;
     int sumDays = 0;
+    bool cheater = false;
     for(auto & param : parameters)
     {
         double tmp = 200 - (param.day + 10) / (param.townAmount + 5) + (param.allDefeated ? 25 : 0) + (param.hasGrail ? 25 : 0);
@@ -60,12 +62,27 @@ auto HighScoreCalculation::calculate()
         scoresTotal.push_back(static_cast<int>(tmp));
         sumTotal += tmp;
         sumDays += param.day;
+        if(param.usedCheat)
+            cheater = true;
     }
 
     if(scoresBasic.size() == 1)
-        return result { scoresBasic[0], scoresTotal[0], sumDays };
+        return result { scoresBasic[0], scoresTotal[0], sumDays , cheater};
 
-    return result { static_cast<int>((sumBasic / parameters.size()) * 5.0), static_cast<int>((sumTotal / parameters.size()) * 5.0), sumDays };
+    return result { static_cast<int>((sumBasic / parameters.size()) * 5.0), static_cast<int>((sumTotal / parameters.size()) * 5.0), sumDays, cheater };
+}
+
+CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
+{
+    static const JsonNode configCreatures(JsonPath::builtin("CONFIG/highscoreCreatures.json"));
+    auto creatures = configCreatures["creatures"].Vector();
+    int divide = campaign ? 5 : 1;
+
+    for(auto & creature : creatures)
+        if(points / divide <= creature["max"].Integer() && points / divide >= creature["min"].Integer())
+            return CreatureID::decode(creature["creature"].String());
+
+    return -1;
 }
 
 CHighScoreScreen::CHighScoreScreen()
@@ -120,9 +137,6 @@ void CHighScoreScreen::addHighScores()
     texts.clear();
     images.clear();
 
-    static const JsonNode configCreatures(JsonPath::builtin("CONFIG/highscoreCreatures.json"));
-    auto creatures = configCreatures["creatures"].Vector();
-
     // Header
     texts.push_back(std::make_shared<CLabel>(115, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.433")));
     texts.push_back(std::make_shared<CLabel>(220, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.434")));
@@ -161,11 +175,7 @@ void CHighScoreScreen::addHighScores()
             texts.push_back(std::make_shared<CLabel>(590, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, std::to_string(curData["points"].Integer())));
         }
 
-        int divide = (highscorepage == HighScorePage::SCENARIO) ? 1 : 5;
-        for(auto & creature : creatures) {
-            if(curData["points"].Integer() / divide <= creature["max"].Integer() && curData["points"].Integer() / divide >= creature["min"].Integer())
-                images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[CreatureID::decode(creature["creature"].String())]->getIconIndex(), 0, 670, y - 15 + i * 50));
-        }
+        images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[HighScoreCalculation::getCreatureForPoints(curData["points"].Integer(), highscorepage == HighScorePage::CAMPAIGN)]->getIconIndex(), 0, 670, y - 15 + i * 50));
     }
 }
 
@@ -225,7 +235,8 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
         for (int i = 0; i < 5; i++)
             texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 450, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt." + t[i])));
 
-        t = { std::to_string(calc.calculate().sumDays), std::to_string(calc.calculate().basic), CGI->generaltexth->translate("core.arraytxt." + std::to_string((142 + calc.parameters[0].difficulty))), std::to_string(calc.calculate().total), "TODO" };
+        std::string creatureName = (calc.calculate().cheater) ? CGI->generaltexth->translate("core.genrltxt.260") : (*CGI->creh)[HighScoreCalculation::getCreatureForPoints(calc.calculate().total, calc.isCampaign)]->getNameSingularTranslated();
+        t = { std::to_string(calc.calculate().sumDays), std::to_string(calc.calculate().basic), CGI->generaltexth->translate("core.arraytxt." + std::to_string((142 + calc.parameters[0].difficulty))), std::to_string(calc.calculate().total), creatureName };
         for (int i = 0; i < 5; i++)
             texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 530, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, t[i]));
  

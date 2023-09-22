@@ -676,6 +676,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 	{
 		ourCampaign = si->campState;
+		calc.isCampaign = true;
 		calc.parameters.clear();
 	}
 	calc.parameters.push_back(param);

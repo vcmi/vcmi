@@ -31,7 +31,10 @@ class HighScoreCalculation
 {
 public:
     std::vector<HighScoreParameter> parameters = std::vector<HighScoreParameter>();
+    bool isCampaign = false;
+
     auto calculate();
+    static CreatureID getCreatureForPoints(int points, bool campaign);
 };
 
 class CHighScoreScreen : public CWindowObject

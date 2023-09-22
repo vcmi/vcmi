@@ -66,7 +66,6 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/gameState/CGameState.h"
 #include "../lib/CStack.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CThreadHelper.h"
@@ -1706,6 +1705,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	}
 	HighScoreCalculation calc;
 	calc.parameters.push_back(param);
+	calc.isCampaign = false;
 
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(param, cb->getStartInfo()->campState);
