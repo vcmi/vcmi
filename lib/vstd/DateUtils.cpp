@@ -13,8 +13,8 @@ namespace vstd
 	DLL_LINKAGE std::string getFormattedDateTime(std::time_t dt)
 	{
 #if defined(VCMI_ANDROID)
-        CAndroidVMHelper vmHelper;
-        return vmHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getFormattedDateTime");
+		CAndroidVMHelper vmHelper;
+		return vmHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getFormattedDateTime");
 #endif
 
 		std::tm tm = *std::localtime(&dt);
