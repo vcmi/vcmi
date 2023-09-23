@@ -106,10 +106,12 @@ void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
 {
 	for (int i = 0; i < 11; i++)
 	{
+		bool currentGameNotInListEntry = (i == 10 && highlighted > 10);
+
 		Rect r = Rect(80, 40 + i * 50, 635, 50);
 		if(r.isInside(cursorPosition - pos))
 		{
-			std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][i]["datetime"].String();
+			std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][currentGameNotInListEntry ? highlighted : i]["datetime"].String();
 			if(!tmp.empty())
 				CRClickPopup::createAndPush(tmp);
 		}
@@ -184,7 +186,7 @@ void CHighScoreScreen::addHighScores()
 			texts.push_back(std::make_shared<CLabel>(592, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
 		}
 
-		if(curData["points"].Integer() > 0)
+		if(curData["points"].Integer() > 0 && curData["points"].Integer() <= ((highscorepage == HighScorePage::CAMPAIGN) ? 2500 : 500))
 			images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[HighScoreCalculation::getCreatureForPoints(curData["points"].Integer(), highscorepage == HighScorePage::CAMPAIGN)]->getIconIndex(), 0, 670, y - 15 + i * 50));
 	}
 }
@@ -265,6 +267,8 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	
 	auto sortFunctor = [](const JsonNode & left, const JsonNode & right)
 	{
+		if(left["points"].Integer() == right["points"].Integer())
+			return left["posFlag"].Integer() > right["posFlag"].Integer();
 		return left["points"].Integer() > right["points"].Integer();
 	};
 
@@ -282,7 +286,6 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	baseNode.push_back(newNode);
 	boost::range::sort(baseNode, sortFunctor);
 
-	Settings s = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"];
 	int pos = -1;
 	for (int i = 0; i < baseNode.size(); i++)
 	{
@@ -292,7 +295,8 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 			pos = i;
 		}
 	}
-	
+
+	Settings s = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"];
 	s->Vector() = baseNode;
 
 	return pos;
