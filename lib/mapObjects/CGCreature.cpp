@@ -103,6 +103,16 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 {
+	//show message
+	if(!message.empty())
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text.appendRawString(message);
+		iw.type = EInfoWindowMode::MODAL;
+		cb->showInfoDialog(&iw);
+	}
+	
 	int action = takenAction(h);
 	switch( action ) //decide what we do...
 	{
