@@ -676,10 +676,10 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 	{
 		ourCampaign = si->campState;
-		calc.isCampaign = true;
-		calc.parameters.clear();
+		calc->isCampaign = true;
+		calc->parameters.clear();
 	}
-	calc.parameters.push_back(param);
+	calc->parameters.push_back(param);
 
 	GH.dispatchMainThread([ourCampaign, this]()
 	{
@@ -703,7 +703,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			else
 			{
 				CMM->openCampaignScreen(ourCampaign->campaignSet);
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, calc);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *calc);
 			}
 		};
 		if(epilogue.hasPrologEpilog)

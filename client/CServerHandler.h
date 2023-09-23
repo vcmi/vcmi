@@ -14,8 +14,6 @@
 #include "../lib/StartInfo.h"
 #include "../lib/CondSh.h"
 
-#include "mainmenu/CHighScoreScreen.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CConnection;
@@ -36,6 +34,9 @@ VCMI_LIB_NAMESPACE_END
 
 class CClient;
 class CBaseForLobbyApply;
+
+class HighScoreCalculation;
+class HighScoreParameter;
 
 // TODO: Add mutex so we can't set CONNECTION_CANCELLED if client already connected, but thread not setup yet
 enum class EClientState : ui8
@@ -88,7 +89,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	std::vector<std::string> myNames;
 
-	HighScoreCalculation calc;
+	std::shared_ptr<HighScoreCalculation> calc;
 
 	void threadHandleConnection();
 	void threadRunServer();
