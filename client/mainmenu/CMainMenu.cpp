@@ -108,7 +108,12 @@ std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 void CMenuScreen::show(Canvas & to)
 {
 	if(!config["video"].isNull())
+	{
 		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
+		tabs->setRedrawParent(false);
+		tabs->redraw();
+		tabs->setRedrawParent(true);
+	}
 	CIntObject::show(to);
 }
 
