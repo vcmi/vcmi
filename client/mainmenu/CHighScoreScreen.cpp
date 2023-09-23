@@ -158,10 +158,12 @@ void CHighScoreScreen::addHighScores()
 	auto & data = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"];
 	for (int i = 0; i < 11; i++)
 	{
-		auto & curData = data[i];
-		ColorRGBA color = (i == highlighted) ? Colors::YELLOW : Colors::WHITE;
+		bool currentGameNotInListEntry = (i == 10 && highlighted > 10);
+		auto & curData = data[currentGameNotInListEntry ? highlighted : i];
 
-		texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(i + 1)));
+		ColorRGBA color = (i == highlighted || currentGameNotInListEntry) ? Colors::YELLOW : Colors::WHITE;
+
+		texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string((currentGameNotInListEntry ? highlighted : i) + 1)));
 		std::string tmp = curData["player"].String();
 		TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 13));
 		texts.push_back(std::make_shared<CLabel>(225, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
