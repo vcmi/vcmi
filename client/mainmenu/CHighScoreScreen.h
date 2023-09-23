@@ -19,81 +19,83 @@ class CTextInput;
 class HighScoreParameter
 {
 public:
-    int difficulty;
-    int day;
-    int townAmount;
-    bool usedCheat;
-    bool hasGrail;
-    bool allDefeated;
-    std::string campaign;
-    std::string land;
+	int difficulty;
+	int day;
+	int townAmount;
+	bool usedCheat;
+	bool hasGrail;
+	bool allDefeated;
+	std::string campaign;
+	std::string land;
 };
 
 class HighScoreCalculation
 {
 public:
-    std::vector<HighScoreParameter> parameters = std::vector<HighScoreParameter>();
-    bool isCampaign = false;
+	std::vector<HighScoreParameter> parameters = std::vector<HighScoreParameter>();
+	bool isCampaign = false;
 
-    auto calculate();
-    static CreatureID getCreatureForPoints(int points, bool campaign);
+	auto calculate();
+	static CreatureID getCreatureForPoints(int points, bool campaign);
 };
 
 class CHighScoreScreen : public CWindowObject
 {
 public:
-    enum HighScorePage { SCENARIO, CAMPAIGN };
+	enum HighScorePage { SCENARIO, CAMPAIGN };
 
 private:
-    void addButtons();
-    void addHighScores();
-    
-    void buttonCampaginClick();
-    void buttonStandardClick();
-    void buttonResetClick();
-    void buttonExitClick();
+	void addButtons();
+	void addHighScores();
+	
+	void buttonCampaginClick();
+	void buttonStandardClick();
+	void buttonResetClick();
+	void buttonExitClick();
 
-    HighScorePage highscorepage;
+	void showPopupWindow(const Point & cursorPosition) override;
 
-    std::shared_ptr<CPicture> background;
-    std::vector<std::shared_ptr<CButton>> buttons;
-    std::vector<std::shared_ptr<CLabel>> texts;
-    std::vector<std::shared_ptr<CAnimImage>> images;
+	HighScorePage highscorepage;
 
-    int highlighted;
+	std::shared_ptr<CPicture> background;
+	std::vector<std::shared_ptr<CButton>> buttons;
+	std::vector<std::shared_ptr<CLabel>> texts;
+	std::vector<std::shared_ptr<CAnimImage>> images;
+
+	int highlighted;
 public:
 	CHighScoreScreen(HighScorePage highscorepage = HighScorePage::SCENARIO, int highlighted = -1);
 };
 
 class CHighScoreInput : public CWindowObject
 {
-    std::shared_ptr<CPicture> background;
-    std::shared_ptr<CMultiLineLabel> text;
-    std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CMultiLineLabel> text;
+	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CButton> buttonCancel;
 	std::shared_ptr<CGStatusBar> statusBar;
-    std::shared_ptr<CTextInput> textInput;
+	std::shared_ptr<CTextInput> textInput;
 
-    std::function<void(std::string text)> ready;
-    
-    void okay();
-    void abort();
+	std::function<void(std::string text)> ready;
+	
+	void okay();
+	void abort();
 public:
 	CHighScoreInput(std::function<void(std::string text)> readyCB);
 };
 
 class CHighScoreInputScreen : public CWindowObject
 {
-    std::vector<std::shared_ptr<CMultiLineLabel>> texts;
-    std::shared_ptr<CHighScoreInput> input;
+	std::vector<std::shared_ptr<CMultiLineLabel>> texts;
+	std::shared_ptr<CHighScoreInput> input;
 
-    std::string video;
-    bool won;
-    HighScoreCalculation calc;
+	std::string video;
+	bool won;
+	HighScoreCalculation calc;
 public:
 	CHighScoreInputScreen(bool won, HighScoreCalculation calc);
 
-    void addEntry(std::string text);
+	int addEntry(std::string text);
 
 	void show(Canvas & to) override;
 	void activate() override;

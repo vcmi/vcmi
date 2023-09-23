@@ -600,6 +600,8 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		CMM->disable();
 	client = new CClient();
 
+	calc = nullptr;
+
 	switch(si->mode)
 	{
 	case StartInfo::NEW_GAME:
@@ -674,8 +676,11 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	std::shared_ptr<CampaignState> ourCampaign = cs;
 
 	if (!cs)
-	{
 		ourCampaign = si->campState;
+
+	if(calc == nullptr)
+	{
+		calc = std::make_shared<HighScoreCalculation>();
 		calc->isCampaign = true;
 		calc->parameters.clear();
 	}
@@ -950,7 +955,7 @@ void CServerHandler::threadRunServer()
 	}
 
 	comm += " > \"" + logName + '\"';
-    logGlobal->info("Server command line: %s", comm);
+	logGlobal->info("Server command line: %s", comm);
 
 #ifdef VCMI_WINDOWS
 	int result = -1;
