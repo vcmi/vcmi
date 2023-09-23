@@ -275,7 +275,7 @@ void ScreenHandler::initializeWindow()
 	}
 
 	//create first available renderer if preferred not set. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
-	mainRenderer = SDL_CreateRenderer(mainWindow, getPreferredRenderingDriver(), 0);
+	mainRenderer = SDL_CreateRenderer(mainWindow, getPreferredRenderingDriver(), SDL_RENDERER_PRESENTVSYNC);
 
 	if(mainRenderer == nullptr)
 		throw std::runtime_error("Unable to create renderer\n");
