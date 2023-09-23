@@ -1695,6 +1695,9 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	for(const CGHeroInstance * h : cb->getHeroesInfo())
 		if(h->hasArt(ArtifactID::GRAIL))
 			param.hasGrail = true;
+	for(const CGTownInstance * t : cb->getTownInfo())
+		if(t->builtBuildings.find(BuildingID::GRAIL))
+			param.hasGrail = true;
 	param.allDefeated = true;
 	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{

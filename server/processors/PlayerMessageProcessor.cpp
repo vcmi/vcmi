@@ -513,7 +513,13 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 
 	assert(callbacks.count(cheatName));
 	if (callbacks.count(cheatName))
+	{
+		PlayerCheated pc;
+		pc.player = player;
+		gameHandler->sendAndApply(&pc);
+
 		callbacks.at(cheatName)();
+	}
 }
 
 void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
