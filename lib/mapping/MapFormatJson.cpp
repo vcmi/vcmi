@@ -870,6 +870,11 @@ void CMapPatcher::readPatchData()
 {
 	JsonDeserializer handler(mapObjectResolver.get(), input);
 	readTriggeredEvents(handler);
+
+	handler.serializeInt("defeatIconIndex", mapHeader->defeatIconIndex);
+	handler.serializeInt("victoryIconIndex", mapHeader->victoryIconIndex);
+	handler.serializeStruct("victoryString", mapHeader->victoryMessage);
+	handler.serializeStruct("defeatString", mapHeader->defeatMessage);
 }
 
 ///CMapLoaderJson

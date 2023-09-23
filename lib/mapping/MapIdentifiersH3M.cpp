@@ -53,11 +53,11 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 
 	for (auto entryTemplate : mapping["templates"].Struct())
 	{
-		std::string h3mName = boost::to_lower_copy(entryTemplate.second.String());
-		std::string vcmiName = boost::to_lower_copy(entryTemplate.first);
+		AnimationPath h3mName = AnimationPath::builtinTODO(entryTemplate.second.String());
+		AnimationPath vcmiName = AnimationPath::builtinTODO(entryTemplate.first);
 
-		if (!CResourceHandler::get()->existsResource(AnimationPath::builtinTODO("SPRITES/" + vcmiName)))
-			logMod->warn("Template animation file %s was not found!", vcmiName);
+		if (!CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/")))
+			logMod->warn("Template animation file %s was not found!", vcmiName.getOriginalName());
 
 		mappingObjectTemplate[h3mName] = vcmiName;
 	}
@@ -108,10 +108,10 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 
 void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 {
-	std::string name = boost::to_lower_copy(objectTemplate.animationFile.getName());
+	auto name = objectTemplate.animationFile;
 
 	if (mappingObjectTemplate.count(name))
-		objectTemplate.animationFile = AnimationPath::builtinTODO(mappingObjectTemplate.at(name));
+		objectTemplate.animationFile = mappingObjectTemplate.at(name);
 
 	ObjectTypeIdentifier objectType{ objectTemplate.id, objectTemplate.subid};
 

@@ -113,7 +113,12 @@ int32_t MapReaderH3M::readHeroPortrait()
 	if(result.getNum() == features.heroIdentifierInvalid)
 		return int32_t(-1);
 
-	assert(result.getNum() < features.heroesPortraitsCount);
+	if (result.getNum() >= features.heroesPortraitsCount)
+	{
+		logGlobal->warn("Map contains invalid hero portrait ID %d. Will be reset!", result.getNum() );
+		return int32_t(-1);
+	}
+
 	return remapper.remapPortrrait(result);
 }
 
@@ -199,7 +204,12 @@ PlayerColor MapReaderH3M::readPlayer()
 	if (value == 255)
 		return PlayerColor::NEUTRAL;
 
-	assert(value < PlayerColor::PLAYER_LIMIT_I);
+	if (value >= PlayerColor::PLAYER_LIMIT_I)
+	{
+		logGlobal->warn("Map contains invalid player ID %d. Will be reset!", value );
+		return PlayerColor::NEUTRAL;
+	}
+
 	return PlayerColor(value);
 }
 
@@ -210,7 +220,12 @@ PlayerColor MapReaderH3M::readPlayer32()
 	if (value == 255)
 		return PlayerColor::NEUTRAL;
 
-	assert(value < PlayerColor::PLAYER_LIMIT_I);
+	if (value >= PlayerColor::PLAYER_LIMIT_I)
+	{
+		logGlobal->warn("Map contains invalid player ID %d. Will be reset!", value );
+		return PlayerColor::NEUTRAL;
+	}
+
 	return PlayerColor(value);
 }
 

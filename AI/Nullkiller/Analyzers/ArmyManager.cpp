@@ -393,7 +393,7 @@ void ArmyManager::update()
 		}
 	}
 
-	for(auto army : totalArmy)
+	for(auto & army : totalArmy)
 	{
 		army.second.creature = army.first.toCreature();
 		army.second.power = evaluateStackPower(army.second.creature, army.second.count);
