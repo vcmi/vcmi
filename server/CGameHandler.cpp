@@ -1280,7 +1280,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 {
 	int ret = 0;
 
-	const CStack *curStack = gs->curB->battleGetStackByID(stack),
+	const auto *curStack = gs->curB->battleGetStackByID(stack),
 		*stackAtEnd = gs->curB->battleGetStackByPos(dest);
 
 	assert(curStack);
@@ -1561,6 +1561,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
+	if(dest == start) 	//If dest is equal to start, then we should handle obstacles for it anyway
+		passed.clear();	//Just empty passed, obstacles will handled automatically
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
 	handleObstacleTriggersForUnit(*spellEnv, *curStack, passed);
 
