@@ -138,22 +138,22 @@ void CHighScoreScreen::addHighScores()
 
 	// Header
 	texts.push_back(std::make_shared<CLabel>(115, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.433")));
-	texts.push_back(std::make_shared<CLabel>(220, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.434")));
+	texts.push_back(std::make_shared<CLabel>(225, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.434")));
 
 	if(highscorepage == HighScorePage::SCENARIO)
 	{
-		texts.push_back(std::make_shared<CLabel>(400, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.435")));
-		texts.push_back(std::make_shared<CLabel>(555, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.436")));
-		texts.push_back(std::make_shared<CLabel>(625, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75")));
+		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.435")));
+		texts.push_back(std::make_shared<CLabel>(557, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.436")));
+		texts.push_back(std::make_shared<CLabel>(627, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75")));
 	}
 	else
 	{
-		texts.push_back(std::make_shared<CLabel>(410, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.672")));
-		texts.push_back(std::make_shared<CLabel>(590, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75")));
+		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.672")));
+		texts.push_back(std::make_shared<CLabel>(592, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75")));
 	}
 
 	// Content
-	int y = 65;
+	int y = 66;
 	auto & data = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"];
 	for (int i = 0; i < 11; i++)
 	{
@@ -163,22 +163,22 @@ void CHighScoreScreen::addHighScores()
 		texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(i+1)));
 		std::string tmp = curData["player"].String();
 		TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 13));
-		texts.push_back(std::make_shared<CLabel>(220, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
+		texts.push_back(std::make_shared<CLabel>(225, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
 
 		if(highscorepage == HighScorePage::SCENARIO)
 		{
 			std::string tmp = curData["land"].String();
 			TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 25));
-			texts.push_back(std::make_shared<CLabel>(400, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
-			texts.push_back(std::make_shared<CLabel>(555, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["days"].Integer())));
-			texts.push_back(std::make_shared<CLabel>(625, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
+			texts.push_back(std::make_shared<CLabel>(405, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
+			texts.push_back(std::make_shared<CLabel>(557, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["days"].Integer())));
+			texts.push_back(std::make_shared<CLabel>(627, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
 		}
 		else
 		{
 			std::string tmp = curData["campaign"].String();
 			TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 25));
-			texts.push_back(std::make_shared<CLabel>(410, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
-			texts.push_back(std::make_shared<CLabel>(590, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
+			texts.push_back(std::make_shared<CLabel>(405, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
+			texts.push_back(std::make_shared<CLabel>(592, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
 		}
 
 		if(curData["points"].Integer() > 0)
@@ -228,7 +228,7 @@ void CHighScoreScreen::buttonExitClick()
 CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
 	: CWindowObject(BORDERED), won(won), calc(calc)
 {
-	addUsedEvents(LCLICK);
+	addUsedEvents(LCLICK | KEYBOARD);
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos = center(Rect(0, 0, 800, 600));
@@ -356,6 +356,11 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 				close();
 		});
 	}
+}
+
+void CHighScoreInputScreen::keyPressed(EShortcut key)
+{
+	clickPressed(Point());
 }
 
 CHighScoreInput::CHighScoreInput(std::function<void(std::string text)> readyCB)

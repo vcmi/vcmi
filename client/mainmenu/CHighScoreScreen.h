@@ -101,4 +101,5 @@ public:
 	void activate() override;
 	void deactivate() override;
 	void clickPressed(const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
 };
