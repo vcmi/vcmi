@@ -65,6 +65,9 @@ class DLL_LINKAGE CIdentifierStorage
 
 	ELoadingState state = ELoadingState::LOADING;
 
+	/// Helper method that dumps all registered identifier into log file
+	void debugDumpIdentifiers();
+
 	/// Check if identifier can be valid (camelCase, point as separator)
 	static void checkIdentifier(std::string & ID);
 

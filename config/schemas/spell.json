@@ -190,38 +190,37 @@
 			"description" : "Various flags",
 			"additionalProperties" : false,
 			"properties" : {
-					"indifferent" : {
-							"type" : "boolean",
-							"description" : "Spell is indifferent for target"
-					},
-					"negative" : {
-							"type" : "boolean",
-							"description" : "Spell is negative for target"
-					},
-					"positive" : {
-							"type" : "boolean",
-							"description" : "Spell is positive for target"
-					},
-					"damage" : {
-							"type" : "boolean",
-							"description" : "Spell does damage (direct or indirect)"
-					},
-					"offensive" : {
-							"type" : "boolean",
-							"description" : "Spell does direct damage (implicitly sets damage and negative)"
-					},
-					"rising" : {
-							"type" : "boolean",
-							"description" : "Rising spell (implicitly sets positive)"
-					},
-					"special" : {
-							"type" : "boolean",
-							"description" : "Special spell. Can be given only by BonusType::SPELL"
-					},
-					"nonMagical" : {
+				"indifferent" : {
 						"type" : "boolean",
-						"description" : "Non-magical ability. Usually used by some creatures. Should not be affected by sorcery and generic magic resistance. School resistances apply. Examples: dendroid bind, efreet fire shield."
-					}
+						"description" : "Spell is indifferent for target"
+				},
+				"negative" : {
+						"type" : "boolean",
+						"description" : "Spell is negative for target"
+				},
+				"positive" : {
+						"type" : "boolean",
+						"description" : "Spell is positive for target"
+				},
+				"damage" : {
+						"type" : "boolean",
+						"description" : "Spell does damage (direct or indirect)"
+				},
+				"offensive" : {
+						"type" : "boolean",
+						"description" : "Spell does direct damage (implicitly sets damage and negative)"
+				},
+				"rising" : {
+						"type" : "boolean",
+						"description" : "Rising spell (implicitly sets positive)"
+				},
+				"special" : {
+						"type" : "boolean",
+						"description" : "Special spell. Can be given only by BonusType::SPELL"
+				},
+				"nonMagical" : {
+					"type" : "boolean",
+					"description" : "Non-magical ability. Usually used by some creatures. Should not be affected by sorcery and generic magic resistance. School resistances apply. Examples: dendroid bind, efreet fire shield."
 				}
 			}
 		},
@@ -315,5 +314,5 @@
 			"type" : "boolean",
 			"description" : "If true, spell won't be available on a map without water"
 		}
-	},
+	}
 }

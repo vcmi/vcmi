@@ -48,6 +48,7 @@ VCMI contains several new strings, to cover functionality not existing in Heroes
 - In-game texts, most noticeably - in-game settings menu.
 - Game Launcher
 - Map Editor
+- Android Launcher
 
 Before you start, make sure that you have copy of VCMI source code. If you are not familiar with git, you can use Github Desktop to clone VCMI repository.
 
@@ -71,6 +72,13 @@ VCMI Launcher and Map Editor use translation system provided by Qt framework so 
 - Once translation has been finished, save resulting file.
 
 Translation of Map Editor is identical, except for location of translation files. Open `<VCMI Sources>/editor/translation/` instead to translate Map Editor
+
+TODO: how to test translation locally
+
+### Translation of Android Launcher
+
+TODO
+see https://github.com/vcmi/vcmi/blob/develop/android/vcmi-app/src/main/res/values/strings.xml
 
 ### Submitting changes
 
