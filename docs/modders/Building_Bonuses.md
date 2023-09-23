@@ -3,6 +3,8 @@
 Work-in-progress page do describe all bonuses provided by town buildings
 for future configuration.
 
+TODO: This page is outdated and may not represent VCMI 1.3 state
+
 ## unique buildings
 
 Hardcoded functionalities, selectable but not configurable. In future

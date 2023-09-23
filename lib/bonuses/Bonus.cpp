@@ -177,8 +177,6 @@ JsonNode Bonus::toJsonNode() const
 		root["subtype"] = subtypeToJson(type, subtype);
 	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
-	if(turnsRemain != 0)
-		root["turns"].Integer() = turnsRemain;
 	if(source != BonusSource::OTHER)
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(targetSourceType != BonusSource::OTHER)
