@@ -50,7 +50,8 @@ AdventureMapInterface::AdventureMapInterface():
 	mapAudio(new MapAudioPlayer()),
 	spellBeingCasted(nullptr),
 	scrollingWasActive(false),
-	scrollingWasBlocked(false)
+	scrollingWasBlocked(false),
+	isHotseatMessage(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.x = pos.y = 0;
@@ -172,6 +173,8 @@ void AdventureMapInterface::dim(Canvas & to)
 		if (!casted && !window->isPopupWindow())
 		{
 			int backgroundDimLevel = settings["adventure"]["backgroundDimLevel"].Integer();
+			if(isHotseatMessage)
+				backgroundDimLevel = 255;
 			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
 			if(backgroundDimLevel > 0)
@@ -335,6 +338,7 @@ void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set
 
 void AdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
+	isHotseatMessage = true;
 	onCurrentPlayerChanged(playerID);
 	setState(EAdventureState::HOTSEAT_WAIT);
 }
@@ -379,6 +383,8 @@ void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 
 void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 {
+	isHotseatMessage = false;
+
 	onCurrentPlayerChanged(playerID);
 
 	setState(EAdventureState::MAKING_TURN);
