@@ -17,9 +17,9 @@ import org.libsdl.app.SDLActivity;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.Date;;
+import java.util.Date;
 import java.util.Locale;
-import java.text.SimpleDateFormat
+import java.text.SimpleDateFormat;
 
 import eu.vcmi.vcmi.util.Log;
 
