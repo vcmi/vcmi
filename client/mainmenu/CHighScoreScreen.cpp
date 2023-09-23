@@ -17,6 +17,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
+#include "../widgets/MiscWidgets.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
 
@@ -234,6 +235,8 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
+	background = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), Colors::BLACK);
+
 	if(won)
 	{
 		int border = 100;
@@ -321,7 +324,13 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::activate()
 {
-	CCS->videoh->open(VideoPath::builtin(video));
+	if(!CCS->videoh->open(VideoPath::builtin(video)))
+	{
+		if(!won)
+			close();
+	}
+	else
+		background = nullptr;
 	CIntObject::activate();
 }
 

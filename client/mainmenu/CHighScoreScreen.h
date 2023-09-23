@@ -16,6 +16,8 @@ class CMultiLineLabel;
 class CAnimImage;
 class CTextInput;
 
+class TransparentFilledRectangle;
+
 class HighScoreParameter
 {
 public:
@@ -88,6 +90,7 @@ class CHighScoreInputScreen : public CWindowObject
 {
 	std::vector<std::shared_ptr<CMultiLineLabel>> texts;
 	std::shared_ptr<CHighScoreInput> input;
+	std::shared_ptr<TransparentFilledRectangle> background;
 
 	std::string video;
 	bool won;
