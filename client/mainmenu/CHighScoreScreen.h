@@ -25,6 +25,8 @@ public:
     bool usedCheat;
     bool hasGrail;
     bool allDefeated;
+    std::string campaign;
+    std::string land;
 };
 
 class HighScoreCalculation
@@ -39,8 +41,10 @@ public:
 
 class CHighScoreScreen : public CWindowObject
 {
+public:
     enum HighScorePage { SCENARIO, CAMPAIGN };
 
+private:
     void addButtons();
     void addHighScores();
     
@@ -49,7 +53,7 @@ class CHighScoreScreen : public CWindowObject
     void buttonResetClick();
     void buttonExitClick();
 
-    HighScorePage highscorepage = HighScorePage::SCENARIO;
+    HighScorePage highscorepage;
 
     std::shared_ptr<CPicture> background;
     std::vector<std::shared_ptr<CButton>> buttons;
@@ -58,7 +62,7 @@ class CHighScoreScreen : public CWindowObject
 
     int highlighted;
 public:
-	CHighScoreScreen(int highlighted = -1);
+	CHighScoreScreen(HighScorePage highscorepage = HighScorePage::SCENARIO, int highlighted = -1);
 };
 
 class CHighScoreInput : public CWindowObject

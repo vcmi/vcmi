@@ -27,6 +27,9 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/TextOperations.h"
+
+#include "vstd/DateUtils.h"
 
 auto HighScoreCalculation::calculate()
 {
@@ -85,8 +88,8 @@ CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
     return -1;
 }
 
-CHighScoreScreen::CHighScoreScreen(int highlighted)
-	: CWindowObject(BORDERED), highlighted(highlighted)
+CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
+	: CWindowObject(BORDERED), highscorepage(highscorepage), highlighted(highlighted)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos = center(Rect(0, 0, 800, 600));
@@ -94,28 +97,6 @@ CHighScoreScreen::CHighScoreScreen(int highlighted)
 
     addHighScores();
     addButtons();
-
-    // TODO write also datetime for RMB menu
-
-    // TODO: remove; only for testing
-    for (int i = 0; i < 11; i++)
-    {
-        Settings entry = persistentStorage.write["highscore"]["campaign"][std::to_string(i)]["player"];
-        entry->String() = "test";
-        Settings entry1 = persistentStorage.write["highscore"]["campaign"][std::to_string(i)]["campaign"];
-        entry1->String() = "test";
-        Settings entry2 = persistentStorage.write["highscore"]["campaign"][std::to_string(i)]["points"];
-        entry2->Integer() = std::rand() % 400 * 5;
-
-        Settings entry3 = persistentStorage.write["highscore"]["scenario"][std::to_string(i)]["player"];
-        entry3->String() = "test";
-        Settings entry4 = persistentStorage.write["highscore"]["scenario"][std::to_string(i)]["land"];
-        entry4->String() = "test";
-        Settings entry5 = persistentStorage.write["highscore"]["scenario"][std::to_string(i)]["days"];
-        entry5->Integer() = 123;
-        Settings entry6 = persistentStorage.write["highscore"]["scenario"][std::to_string(i)]["points"];
-        entry6->Integer() = std::rand() % 400;
-    }
 }
 
 void CHighScoreScreen::addButtons()
@@ -164,17 +145,23 @@ void CHighScoreScreen::addHighScores()
         ColorRGBA color = (i == highlighted) ? Colors::YELLOW : Colors::WHITE;
 
         texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(i+1)));
-        texts.push_back(std::make_shared<CLabel>(220, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, curData["player"].String()));
+        std::string tmp = curData["player"].String();
+        TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 13));
+        texts.push_back(std::make_shared<CLabel>(220, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
     
         if(highscorepage == HighScorePage::SCENARIO)
         {
-            texts.push_back(std::make_shared<CLabel>(400, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, curData["land"].String()));
+            std::string tmp = curData["land"].String();
+            TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 25));
+            texts.push_back(std::make_shared<CLabel>(400, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
             texts.push_back(std::make_shared<CLabel>(555, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["days"].Integer())));
             texts.push_back(std::make_shared<CLabel>(625, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
         }
         else
         {
-            texts.push_back(std::make_shared<CLabel>(410, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, curData["campaign"].String()));
+            std::string tmp = curData["campaign"].String();
+            TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 25));
+            texts.push_back(std::make_shared<CLabel>(410, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
             texts.push_back(std::make_shared<CLabel>(590, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
         }
 
@@ -252,7 +239,43 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 }
 
 void CHighScoreInputScreen::addEntry(std::string text) {
+    for (int i = 0; i < 11; i++)
+    {
+        JsonNode node = persistentStorage["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)];
+        
+        if(node["points"].isNull() || node["points"].Integer() <= calc.calculate().total)
+        {
+            // move following entries down
+            for (int j = 10; j > i; j--)
+            {
+                JsonNode node = persistentStorage["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(j)];
+                Settings entry = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(j + 1)];
+                entry->Struct() = node.Struct();
+            }
 
+            Settings entry = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["player"];
+            entry->String() = text;
+            if(calc.isCampaign)
+            {
+                Settings entry2 = persistentStorage.write["highscore"]["campaign"][std::to_string(i)]["campaign"];
+                entry2->String() = calc.parameters[0].campaign;
+            }
+            else
+            {
+                Settings entry3 = persistentStorage.write["highscore"]["scenario"][std::to_string(i)]["land"];
+                entry3->String() = calc.parameters[0].land;
+            }
+            Settings entry4 = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["days"];
+            entry4->Integer() = calc.calculate().sumDays;
+            Settings entry5 = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["points"];
+            entry5->Integer() = calc.calculate().total;
+
+            Settings entry6 = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["datetime"];
+            entry6->String() = vstd::getFormattedDateTime(std::time(0));
+
+            return;
+        }
+    }
 }
 
 void CHighScoreInputScreen::show(Canvas & to)
@@ -305,7 +328,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
             {
                 addEntry(text);
                 close();
-                GH.windows().createAndPushWindow<CHighScoreScreen>();
+                GH.windows().createAndPushWindow<CHighScoreScreen>(calc.isCampaign ? CHighScoreScreen::HighScorePage::CAMPAIGN : CHighScoreScreen::HighScorePage::SCENARIO);
             }
             else
                 close();

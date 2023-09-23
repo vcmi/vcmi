@@ -1703,6 +1703,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 			if(!ps->checkVanquished())
 				param.allDefeated = false;
 	}
+	param.land = cb->getMapHeader()->name;
 	HighScoreCalculation calc;
 	calc.parameters.push_back(param);
 	calc.isCampaign = false;
