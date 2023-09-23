@@ -109,7 +109,7 @@ void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
 		Rect r = Rect(80, 40 + i * 50, 635, 50);
 		if(r.isInside(cursorPosition - pos))
 		{
-			std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][std::to_string(i)]["datetime"].String();
+			std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][i]["datetime"].String();
 			if(!tmp.empty())
 				CRClickPopup::createAndPush(tmp);
 		}
@@ -158,7 +158,7 @@ void CHighScoreScreen::addHighScores()
 	auto & data = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"];
 	for (int i = 0; i < 11; i++)
 	{
-		auto & curData = data[std::to_string(i)];
+		auto & curData = data[i];
 		ColorRGBA color = (i == highlighted) ? Colors::YELLOW : Colors::WHITE;
 
 		texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(i + 1)));
@@ -259,38 +259,41 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 }
 
 int CHighScoreInputScreen::addEntry(std::string text) {
-	for (int i = 0; i < 11; i++)
+	std::vector<JsonNode> baseNode = persistentStorage["highscore"][calc.isCampaign ? "campaign" : "scenario"].Vector();
+	
+	auto sortFunctor = [](const JsonNode & left, const JsonNode & right)
 	{
-		if(calc.calculate().cheater)
-			i = 10;
+		return left["points"].Integer() > right["points"].Integer();
+	};
 
-		JsonNode baseNode = persistentStorage["highscore"][calc.isCampaign ? "campaign" : "scenario"];
-		
-		if(baseNode[std::to_string(i)]["points"].isNull() || baseNode[std::to_string(i)]["points"].Integer() <= calc.calculate().total)
+	JsonNode newNode = JsonNode();
+	newNode["player"].String() = text;
+	if(calc.isCampaign)
+		newNode["campaign"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaign;
+	else
+		newNode["land"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].land;
+	newNode["days"].Integer() = calc.calculate().sumDays;
+	newNode["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
+	newNode["datetime"].String() = vstd::getFormattedDateTime(std::time(0));
+	newNode["posFlag"].Bool() = true;
+
+	baseNode.push_back(newNode);
+	boost::range::sort(baseNode, sortFunctor);
+
+	Settings s = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"];
+	int pos = -1;
+	for (int i = 0; i < baseNode.size(); i++)
+	{
+		if(!baseNode[i]["posFlag"].isNull())
 		{
-			// move following entries down
-			for (int j = 10; j + 1 >= i; j--)
-			{
-				JsonNode node = baseNode[std::to_string(j - 1)];
-				Settings entry = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(j)];
-				entry->Struct() = node.Struct();
-			}
-
-			Settings currentEntry = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)];
-			currentEntry["player"].String() = text;
-			if(calc.isCampaign)
-				currentEntry["campaign"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaign;
-			else
-				currentEntry["land"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].land;
-			currentEntry["days"].Integer() = calc.calculate().sumDays;
-			currentEntry["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
-			currentEntry["datetime"].String() = vstd::getFormattedDateTime(std::time(0));
-
-			return i;
+			baseNode[i]["posFlag"].clear();
+			pos = i;
 		}
 	}
+	
+	s->Vector() = baseNode;
 
-	return -1;
+	return pos;
 }
 
 void CHighScoreInputScreen::show(Canvas & to)
