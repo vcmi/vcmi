@@ -39,6 +39,7 @@ PlayerState::PlayerState(PlayerState && other) noexcept:
 	std::swap(towns, other.towns);
 	std::swap(dwellings, other.dwellings);
 	std::swap(quests, other.quests);
+	std::swap(battleBonuses, other.battleBonuses);
 }
 
 PlayerState::~PlayerState() = default;

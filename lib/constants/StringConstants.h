@@ -27,6 +27,8 @@ namespace GameConstants
 	};
 
 	const std::string ALIGNMENT_NAMES [3] = {"good", "evil", "neutral"};
+
+	const std::string DIFFICULTY_NAMES [5] = {"pawn", "knight", "rook", "queen", "king"};
 }
 
 namespace NPrimarySkill

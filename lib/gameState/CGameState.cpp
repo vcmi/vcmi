@@ -29,6 +29,7 @@
 #include "../VCMI_Lib.h"
 #include "../battle/BattleInfo.h"
 #include "../campaign/CampaignState.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/ResourcePath.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -455,7 +456,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initRandomFactionsForPlayers();
 	randomizeMapObjects();
 	placeStartingHeroes();
-	initStartingResources();
+	initDifficulty();
 	initHeroes();
 	initStartingBonus();
 	initTowns();
@@ -657,6 +658,41 @@ void CGameState::initGlobalBonuses()
 	VLC->creh->loadCrExpBon(globalEffects);
 }
 
+void CGameState::initDifficulty()
+{
+	logGlobal->debug("\tLoading difficulty settings");
+	const JsonNode config = JsonUtils::assembleFromFiles("config/difficulty.json");
+	
+	const JsonNode & difficultyAI(config["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
+	const JsonNode & difficultyHuman(config["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
+	
+	auto setDifficulty = [](PlayerState & state, const JsonNode & json)
+	{
+		//set starting resources
+		state.resources = TResources(json["resources"]);
+		
+		//set global bonuses
+		for(auto & jsonBonus : json["globalBonuses"].Vector())
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+				state.addNewBonus(bonus);
+		
+		//set battle bonuses
+		for(auto & jsonBonus : json["battleBonuses"].Vector())
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+				state.battleBonuses.push_back(*bonus);
+		
+	};
+
+	for (auto & elem : players)
+	{
+		PlayerState &p = elem.second;
+		setDifficulty(p, p.human ? difficultyHuman : difficultyAI);
+	}
+
+	if (campaign)
+		campaign->initStartingResources();
+}
+
 void CGameState::initGrailPosition()
 {
 	logGlobal->debug("\tPicking grail position");
@@ -811,30 +847,6 @@ void CGameState::removeHeroPlaceholders()
 			delete heroPlaceholder;
 		}
 	}
-}
-
-void CGameState::initStartingResources()
-{
-	logGlobal->debug("\tSetting up resources");
-	const JsonNode config(JsonPath::builtin("config/startres.json"));
-	const JsonVector &vector = config["difficulty"].Vector();
-	const JsonNode &level = vector[scenarioOps->difficulty];
-
-	TResources startresAI(level["ai"]);
-	TResources startresHuman(level["human"]);
-
-	for (auto & elem : players)
-	{
-		PlayerState &p = elem.second;
-
-		if (p.human)
-			p.resources = startresHuman;
-		else
-			p.resources = startresAI;
-	}
-
-	if (campaign)
-		campaign->initStartingResources();
 }
 
 void CGameState::initHeroes()

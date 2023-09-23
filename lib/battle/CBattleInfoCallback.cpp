@@ -1573,7 +1573,7 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 		}
 	}
 
-	return ret - manaReduction + manaIncrease;
+	return std::max(0, ret - manaReduction + manaIncrease);
 }
 
 bool CBattleInfoCallback::battleHasShootingPenalty(const battle::Unit * shooter, BattleHex destHex) const

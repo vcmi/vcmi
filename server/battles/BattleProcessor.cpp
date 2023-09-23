@@ -24,6 +24,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/CPlayerState.h"
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -113,6 +114,19 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 
 	const auto * battle = gameHandler->gameState()->getBattle(battleID);
 	assert(battle);
+	
+	//add battle bonuses based from player state only when attacks neutral creatures
+	const auto * attackerInfo = gameHandler->getPlayerState(army1->getOwner(), false);
+	if(attackerInfo && !army2->getOwner().isValidPlayer())
+	{
+		for(auto bonus : attackerInfo->battleBonuses)
+		{
+			GiveBonus giveBonus(GiveBonus::ETarget::HERO);
+			giveBonus.id = hero1->id.getNum();
+			giveBonus.bonus = bonus;
+			gameHandler->sendAndApply(&giveBonus);
+		}
+	}
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
 
