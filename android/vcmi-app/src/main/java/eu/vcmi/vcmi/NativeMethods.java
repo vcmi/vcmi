@@ -160,9 +160,8 @@ public class NativeMethods
     public static String getFormattedDateTime()
     {
         String currentDate = new SimpleDateFormat((new SimpleDateFormat()).toLocalizedPattern(), Locale.getDefault()).format(new Date());
-        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        return currentDate + " " + currentTime;
+        return currentDate;
     }
 
     private static void internalProgressDisplay(final boolean show)
