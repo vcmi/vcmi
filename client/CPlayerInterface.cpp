@@ -1690,7 +1690,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	param.difficulty = cb->getStartInfo()->difficulty;
 	param.day = cb->getDate();
 	param.townAmount = cb->howManyTowns();
-	param.usedCheat = cb->getPlayerState(*cb->getPlayerID())->enteredWinningCheatCode;
+	param.usedCheat = cb->getPlayerState(*cb->getPlayerID())->cheated;
 	param.hasGrail = false;
 	for(const CGHeroInstance * h : cb->getHeroesInfo())
 		if(h->hasArt(ArtifactID::GRAIL))
@@ -1698,27 +1698,27 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	param.allDefeated = true;
 	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{
-		auto ps = cb->getPlayerState(player);
+		auto ps = cb->getPlayerState(player, false);
 		if(ps && player != *cb->getPlayerID())
 			if(!ps->checkVanquished())
 				param.allDefeated = false;
 	}
 	param.land = cb->getMapHeader()->name;
-	HighScoreCalculation calc;
-	calc.parameters.push_back(param);
-	calc.isCampaign = false;
+	HighScoreCalculation highScoreCalc;
+	highScoreCalc.parameters.push_back(param);
+	highScoreCalc.isCampaign = false;
 
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(param, cb->getStartInfo()->campState);
 	else
 	{
 		GH.dispatchMainThread(
-			[won, calc]()
+			[won, highScoreCalc]()
 			{
 				CSH->endGameplay();
 				GH.defActionsDef = 63;
 				CMM->menu->switchToTab("main");
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(won, calc);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(won, highScoreCalc);
 			}
 		);
 	}

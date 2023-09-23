@@ -122,8 +122,8 @@ void CHighScoreScreen::addButtons()
 	
 	buttons.clear();
 
-	buttons.push_back(std::make_shared<CButton>(Point(31, 113), AnimationPath::builtin("HISCCAM.DEF"), CButton::tooltip(), [&](){ buttonCampaginClick(); }));
-	buttons.push_back(std::make_shared<CButton>(Point(31, 345), AnimationPath::builtin("HISCSTA.DEF"), CButton::tooltip(), [&](){ buttonStandardClick(); }));
+	buttons.push_back(std::make_shared<CButton>(Point(31, 113), AnimationPath::builtin("HISCCAM.DEF"), CButton::tooltip(), [&](){ buttonCampaignClick(); }));
+	buttons.push_back(std::make_shared<CButton>(Point(31, 345), AnimationPath::builtin("HISCSTA.DEF"), CButton::tooltip(), [&](){ buttonScenarioClick(); }));
 	buttons.push_back(std::make_shared<CButton>(Point(726, 113), AnimationPath::builtin("HISCRES.DEF"), CButton::tooltip(), [&](){ buttonResetClick(); }));
 	buttons.push_back(std::make_shared<CButton>(Point(726, 345), AnimationPath::builtin("HISCEXT.DEF"), CButton::tooltip(), [&](){ buttonExitClick(); }));
 }
@@ -138,19 +138,19 @@ void CHighScoreScreen::addHighScores()
 	images.clear();
 
 	// Header
-	texts.push_back(std::make_shared<CLabel>(115, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.433")));
-	texts.push_back(std::make_shared<CLabel>(225, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.434")));
+	texts.push_back(std::make_shared<CLabel>(115, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.433"))); // rank
+	texts.push_back(std::make_shared<CLabel>(225, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.434"))); // player
 
 	if(highscorepage == HighScorePage::SCENARIO)
 	{
-		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.435")));
-		texts.push_back(std::make_shared<CLabel>(557, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.436")));
-		texts.push_back(std::make_shared<CLabel>(627, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75")));
+		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.435"))); // land
+		texts.push_back(std::make_shared<CLabel>(557, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.436"))); // days
+		texts.push_back(std::make_shared<CLabel>(627, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75"))); // score
 	}
 	else
 	{
-		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.672")));
-		texts.push_back(std::make_shared<CLabel>(592, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75")));
+		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.672"))); // campaign
+		texts.push_back(std::make_shared<CLabel>(592, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75"))); // score
 	}
 
 	// Content
@@ -161,7 +161,7 @@ void CHighScoreScreen::addHighScores()
 		auto & curData = data[std::to_string(i)];
 		ColorRGBA color = (i == highlighted) ? Colors::YELLOW : Colors::WHITE;
 
-		texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(i+1)));
+		texts.push_back(std::make_shared<CLabel>(115, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(i + 1)));
 		std::string tmp = curData["player"].String();
 		TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 13));
 		texts.push_back(std::make_shared<CLabel>(225, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
@@ -187,7 +187,7 @@ void CHighScoreScreen::addHighScores()
 	}
 }
 
-void CHighScoreScreen::buttonCampaginClick()
+void CHighScoreScreen::buttonCampaignClick()
 {
 	highscorepage = HighScorePage::CAMPAIGN;
 	addHighScores();
@@ -195,7 +195,7 @@ void CHighScoreScreen::buttonCampaginClick()
 	redraw();
 }
 
-void CHighScoreScreen::buttonStandardClick()
+void CHighScoreScreen::buttonScenarioClick()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	highscorepage = HighScorePage::SCENARIO;
@@ -241,7 +241,7 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 	{
 		int border = 100;
 		int textareaW = ((pos.w - 2 * border) / 4);
-		std::vector<std::string> t = { "438", "439", "440", "441", "676" };
+		std::vector<std::string> t = { "438", "439", "440", "441", "676" }; // time, score, difficulty, final score, rank
 		for (int i = 0; i < 5; i++)
 			texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 450, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt." + t[i])));
 
@@ -264,37 +264,27 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 		if(calc.calculate().cheater)
 			i = 10;
 
-		JsonNode node = persistentStorage["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)];
+		JsonNode baseNode = persistentStorage["highscore"][calc.isCampaign ? "campaign" : "scenario"];
 		
-		if(node["points"].isNull() || node["points"].Integer() <= calc.calculate().total)
+		if(baseNode[std::to_string(i)]["points"].isNull() || baseNode[std::to_string(i)]["points"].Integer() <= calc.calculate().total)
 		{
 			// move following entries down
 			for (int j = 10; j + 1 >= i; j--)
 			{
-				JsonNode node = persistentStorage["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(j - 1)];
+				JsonNode node = baseNode[std::to_string(j - 1)];
 				Settings entry = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(j)];
 				entry->Struct() = node.Struct();
 			}
 
-			Settings entry = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["player"];
-			entry->String() = text;
+			Settings currentEntry = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)];
+			currentEntry["player"].String() = text;
 			if(calc.isCampaign)
-			{
-				Settings entry2 = persistentStorage.write["highscore"]["campaign"][std::to_string(i)]["campaign"];
-				entry2->String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaign;
-			}
+				currentEntry["campaign"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaign;
 			else
-			{
-				Settings entry3 = persistentStorage.write["highscore"]["scenario"][std::to_string(i)]["land"];
-				entry3->String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].land;
-			}
-			Settings entry4 = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["days"];
-			entry4->Integer() = calc.calculate().sumDays;
-			Settings entry5 = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["points"];
-			entry5->Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
-
-			Settings entry6 = persistentStorage.write["highscore"][calc.isCampaign ? "campaign" : "scenario"][std::to_string(i)]["datetime"];
-			entry6->String() = vstd::getFormattedDateTime(std::time(0));
+				currentEntry["land"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].land;
+			currentEntry["days"].Integer() = calc.calculate().sumDays;
+			currentEntry["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
+			currentEntry["datetime"].String() = vstd::getFormattedDateTime(std::time(0));
 
 			return i;
 		}
@@ -373,14 +363,13 @@ void CHighScoreInputScreen::keyPressed(EShortcut key)
 }
 
 CHighScoreInput::CHighScoreInput(std::function<void(std::string text)> readyCB)
-	: CWindowObject(0), ready(readyCB)
+	: CWindowObject(0, ImagePath::builtin("HIGHNAME")), ready(readyCB)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	pos = center(Rect(0, 0, 232, 212));
 	updateShadow();
 
-	background = std::make_shared<CPicture>(ImagePath::builtin("HIGHNAME"));
 	text = std::make_shared<CMultiLineLabel>(Rect(15, 15, 202, 202), FONT_SMALL, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.96"));
 
 	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CHighScoreInput::okay, this), EShortcut::GLOBAL_ACCEPT);

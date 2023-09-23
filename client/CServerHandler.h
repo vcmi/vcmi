@@ -89,7 +89,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	std::vector<std::string> myNames;
 
-	std::shared_ptr<HighScoreCalculation> calc;
+	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
 	void threadHandleConnection();
 	void threadRunServer();

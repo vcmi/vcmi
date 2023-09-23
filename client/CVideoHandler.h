@@ -101,7 +101,7 @@ public:
 
 	void show(int x, int y, SDL_Surface *dst, bool update = true) override; //blit current frame
 	void redraw(int x, int y, SDL_Surface *dst, bool update = true) override; //reblits buffer
-	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = 0) override; //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
+	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> onVideoRestart = nullptr) override; //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
 
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
 	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false) override;

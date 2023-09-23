@@ -50,8 +50,8 @@ private:
 	void addButtons();
 	void addHighScores();
 	
-	void buttonCampaginClick();
-	void buttonStandardClick();
+	void buttonCampaignClick();
+	void buttonScenarioClick();
 	void buttonResetClick();
 	void buttonExitClick();
 
@@ -71,7 +71,6 @@ public:
 
 class CHighScoreInput : public CWindowObject
 {
-	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CMultiLineLabel> text;
 	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CButton> buttonCancel;

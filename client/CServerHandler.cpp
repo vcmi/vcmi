@@ -600,7 +600,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		CMM->disable();
 	client = new CClient();
 
-	calc = nullptr;
+	highScoreCalc = nullptr;
 
 	switch(si->mode)
 	{
@@ -678,14 +678,14 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 	if (!cs)
 		ourCampaign = si->campState;
 
-	if(calc == nullptr)
+	if(highScoreCalc == nullptr)
 	{
-		calc = std::make_shared<HighScoreCalculation>();
-		calc->isCampaign = true;
-		calc->parameters.clear();
+		highScoreCalc = std::make_shared<HighScoreCalculation>();
+		highScoreCalc->isCampaign = true;
+		highScoreCalc->parameters.clear();
 	}
 	param.campaign = cs->getName();
-	calc->parameters.push_back(param);
+	highScoreCalc->parameters.push_back(param);
 
 	GH.dispatchMainThread([ourCampaign, this]()
 	{
@@ -709,7 +709,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			else
 			{
 				CMM->openCampaignScreen(ourCampaign->campaignSet);
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *calc);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *highScoreCalc);
 			}
 		};
 		if(epilogue.hasPrologEpilog)
