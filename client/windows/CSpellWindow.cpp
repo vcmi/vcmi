@@ -96,19 +96,22 @@ public:
 	}
 } spellsorter;
 
-CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
-	CWindowObject(PLAYER_COLORED),
+CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, bool isBigSpellbook):
+	CWindowObject(PLAYER_COLORED | (isBigSpellbook ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
 	myHero(_myHero),
 	myInt(_myInt),
-	isBigSpellbook(true)
+	isBigSpellbook(isBigSpellbook)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	if(isBigSpellbook)
+	{
 		background = std::make_shared<CPicture>(createBigSpellBook(), Point(0, 0));
+		updateShadow();
+	}
 	else
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("SpelBack"), 0, 0);
@@ -197,13 +200,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(auto item : schoolBorders)
 		item->preload();
-	mana = std::make_shared<CLabel>(435 + offL, 426 + offR, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
+	mana = std::make_shared<CLabel>(435 + (isBigSpellbook ? 157 : 0), 426 + offB, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
 	statusBar = CGStatusBar::create(7, 569, ImagePath::builtin("Spelroll.bmp"));
 
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x, 405 + pos.y + offB, 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 221 + pos.x, 405 + pos.y + offB, 36, 56), std::bind(&CSpellWindow::fbattleSpellsb, this),    453, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 355 + pos.x, 405 + pos.y + offB, 36, 56), std::bind(&CSpellWindow::fadvSpellsb,    this),    452, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 418 + pos.x, 405 + pos.y + offB, 36, 56), std::bind(&CSpellWindow::fmanaPtsb,      this),    459, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x + (isBigSpellbook ? 175 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 221 + pos.x + (isBigSpellbook ? 43 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fbattleSpellsb, this),    453, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 355 + pos.x + (isBigSpellbook ? 110 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fadvSpellsb,    this),    452, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 418 + pos.x + (isBigSpellbook ? 142 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fmanaPtsb,      this),    459, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x + offR,  94 + pos.y, 36, 56), std::bind(&CSpellWindow::selectSchool,   this, 0), 454, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x + offR, 151 + pos.y, 45, 35), std::bind(&CSpellWindow::selectSchool,   this, 3), 457, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x + offR, 210 + pos.y, 45, 35), std::bind(&CSpellWindow::selectSchool,   this, 1), 455, this));
@@ -226,13 +229,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		}
 		else
 		{
-			if(v%3 == 0 || v%3 == 1)
+			if(v%(isBigSpellbook ? 3 : 2) == 0 || (v%3 == 1 && isBigSpellbook))
 			{
 				xpos+=85;
 			}
 			else
 			{
-				xpos -= 2*85; ypos+=97;
+				xpos -= (isBigSpellbook ? 2 : 1)*85; ypos+=97;
 			}
 		}
 	}
