@@ -49,6 +49,9 @@ namespace TextOperations
 	/// give back amount of unicode characters
 	size_t DLL_LINKAGE getUnicodeCharactersCount(const std::string & text);
 
+	/// shortens a string to specified length, trimming characters from the right if necessary
+	std::string DLL_LINKAGE shortenUnicodeString(const std::string & input, int maxLength);
+
 	/// converts number into string using metric system prefixes, e.g. 'k' or 'M' to keep resulting strings within specified size
 	/// Note that resulting string may have more symbols than digits: minus sign and prefix symbol
 	template<typename Arithmetic>

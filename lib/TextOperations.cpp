@@ -199,6 +199,15 @@ size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
 	return conv.from_bytes(text).size(); 
 }
 
+std::string TextOperations::shortenUnicodeString(const std::string & input, int maxLength)
+{
+    int txtlen = getUnicodeCharactersCount(input);
+    std::string trimmedString = input;
+    trimRightUnicode(trimmedString, std::max(0, txtlen-maxLength));
+
+    return trimmedString;
+}
+
 std::string TextOperations::escapeString(std::string input)
 {
 	boost::replace_all(input, "\\", "\\\\");
