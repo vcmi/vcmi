@@ -20,7 +20,7 @@
     <string name="launcher_btn_music_title">Гучність музики</string>
     <string name="launcher_btn_adventure_ai">Комп’ютерний гравець</string>
     <string name="launcher_btn_adventure_ai_title">Змінити программу комп’ютерного гравця</string>
-    <string name="launcher_error_vcmi_data_root_failed">Не вдалося створити папку VCMI з даними в %1$s.</string>
+    <string name="launcher_error_vcmi_data_root_failed">Не вдалося створити теку VCMI з даними в %1$s.</string>
     <string name="launcher_error_vcmi_data_internal_missing">Не вдалося розпакувати файли ресурсів. Спробуйте перевстановити програму.</string>
     <string name="launcher_error_vcmi_data_internal_update">Не вдалося оновити файли ресурсів. Спробуйте перевстановити програму.</string>
     <string name="launcher_error_permissions">VCMI необхідні права для запису контенту до зовнішнього сховища.</string>
