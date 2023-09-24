@@ -58,6 +58,39 @@ bool PlayerSettings::isControlledByHuman() const
 	return !connectedPlayerIDs.empty();
 }
 
+std::vector<std::string> StartInfo::getPlayerNames() const
+{
+	std::vector<std::string> playerNames;
+	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
+		if(!playerInfos.count(player))
+			continue;
+
+		auto playerInfo = playerInfos.at(player);
+		if(playerInfos.at(player).isControlledByHuman())
+		{
+			playerNames.push_back(playerInfo.name);
+		}
+	}
+
+	return playerNames;
+}
+
+uint8_t StartInfo::getNoOfHumanPlayers() const
+{
+	uint8_t NoOfHumanPlayers = 0;
+	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
+		if(!playerInfos.count(player))
+			continue;
+
+		if(playerInfos.at(player).isControlledByHuman())
+			NoOfHumanPlayers++;
+	}
+
+	return NoOfHumanPlayers;
+}
+
 PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no)
 {
 	if(playerInfos.find(no) != playerInfos.end())
@@ -65,6 +98,7 @@ PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no)
 	logGlobal->error("Cannot find info about player %s. Throwing...", no.toString());
 	throw std::runtime_error("Cannot find info about player");
 }
+
 const PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no) const
 {
 	return const_cast<StartInfo &>(*this).getIthPlayersSettings(no);
@@ -83,7 +117,7 @@ PlayerSettings * StartInfo::getPlayersSettings(const ui8 connectedPlayerId)
 
 std::string StartInfo::getCampaignName() const
 {
-	if(!campState->getNameTranslated().empty())
+	if(campState && !campState->getNameTranslated().empty())
 		return campState->getNameTranslated();
 	else
 		return VLC->generaltexth->allTexts[508];

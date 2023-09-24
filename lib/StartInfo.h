@@ -100,6 +100,8 @@ struct DLL_LINKAGE StartInfo
 
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
+	std::vector<std::string> getPlayerNames() const;
+	uint8_t getNoOfHumanPlayers() const;
 
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
 	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
@@ -109,7 +111,10 @@ struct DLL_LINKAGE StartInfo
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
 	std::string mapname; // empty for random map, otherwise name of the map or savegame <- krs this returns <relative_folder>/<mapname> no savegame!
-	bool createRandomMap() const { return mapGenOptions != nullptr; }
+	bool isCampaignMap() const { return mode == StartInfo::CAMPAIGN; }
+	bool isRandomMap() const { return mapGenOptions != nullptr; }
+	bool isMultiplayerGame() const { return getNoOfHumanPlayers() > 1; }
+
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 
 	std::shared_ptr<CampaignState> campState;

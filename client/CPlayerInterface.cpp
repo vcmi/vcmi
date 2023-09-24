@@ -247,19 +247,42 @@ int extractNumberAfterHash(const std::string& input)
     return -1; // Return -1 if '#' is not found or parsing fails
 }
 
+// Generic function to concatenate a vector of strings with a specified delimiter
+std::string concatenateWithDelimiter(const std::vector<std::string>& strings, const std::string& delimiter) {
+    std::string result;
+    
+    for (const std::string& str : strings) {
+        result += str + delimiter;
+    }
+
+    if (!result.empty() && result.size() >= delimiter.size()) {
+        result.erase(result.end() - delimiter.size(), result.end());
+    }
+
+    return result;
+}
+
+// Generic function to replace forbidden characters with underscores
+std::string replaceForbiddenChars(const std::string& input)
+{
+    std::string forbiddenChars = "\\/<>:\"|?*\t\n\v\f\r"; // space is not here since folder and file names can have spaces!
+    std::string result = input;
+
+    for (char& c : result)
+    {
+        if (forbiddenChars.find(c) != std::string::npos)
+            c = '_';
+    }
+
+    return result;
+}
+
 void CPlayerInterface::performAutosave() 
 {
 	// ToDo : krs - gather all static info only once at map start / load
 	// ToDo : krs - autosaves before each battle
 	// ToDo : krs - autosave at beginning of game
 	// ToDo : krs - quick autosaves on hotkey (autosave mode Using Counter could be used)
-	std::string autosaveMode = settings["general"]["autosaveMode"].String();
-	int autosaveFrequency = static_cast<int>(settings["general"]["autosaveFrequency"].Integer());
-	auto turnNumber = cb->getDate();
-	bool turnMatchesAutosaveFrequency = turnNumber % autosaveFrequency == 0;
-
-	if(autosaveMode == "Off" || !turnMatchesAutosaveFrequency)
-		return;
 
 	enum MapType {
 		Campaign,
@@ -269,28 +292,36 @@ void CPlayerInterface::performAutosave()
 	};
 	MapType mapType{ Scenario };
 
+	std::string autosaveMode = settings["general"]["autosaveMode"].String();
+	int autosaveFrequency = static_cast<int>(settings["general"]["autosaveFrequency"].Integer());
+	auto turnNumber = cb->getDate();
+	bool turnMatchesAutosaveFrequency = turnNumber % autosaveFrequency == 0;
+
+	if(autosaveMode == "Off" || !turnMatchesAutosaveFrequency)
+		return;
+
 	// gather needed info for save file name
-	int humanPlayerCount = 0;
-	bool isMulitplayerGame = false;
 	bool isHotseat = CSH->howManyPlayerInterfaces() > 1;
-	bool isRMGMap = cb->getStartInfo()->createRandomMap();
-	bool isCampaign = cb->getStartInfo()->mode == StartInfo::CAMPAIGN;
+	bool isMulitplayerGame = cb->getStartInfo()->isMultiplayerGame();
+	bool isRMGMap = cb->getStartInfo()->isRandomMap();
+	bool isCampaign = cb->getStartInfo()->isCampaignMap();
+	std::string campaignName;
+	std::string timeStamp = cb->getStartInfo()->startTimeFormatted;
 
 	std::string saveName = "";
 	std::string loadedSaveFileName = ""; // TODO: krs - fix getting loaded save name from cb->getStartInfo()->mapname;
 
 	std::string mapName = cb->getMapHeader()->name;
 	std::string mapDescription = cb->getMapHeader()->description;
-	std::string campaignName = "NA";
-	std::string timeStamp = cb->getStartInfo()->startTimeFormatted;
-	std::string turn = std::to_string(cb->getDate(Date::MONTH))  
-		+ std::to_string(cb->getDate(Date::WEEK))
-		+ std::to_string(cb->getDate(Date::DAY_OF_WEEK)); 
+
+	std::string turn = std::to_string(cb->getDate(Date::MONTH)) + std::to_string(cb->getDate(Date::WEEK)) + std::to_string(cb->getDate(Date::DAY_OF_WEEK));
+
+	std::string playerNames;
 
 	if(isRMGMap)
 	{
 		mapType = RandomMap;
-		mapName = cb->getStartInfo()->mapGenOptions->getMapTemplate()->getName(); // template name
+		mapName = cb->getStartInfo()->mapGenOptions->getMapTemplate()->getName(); // rmg template name
 	}
 
 	if(isCampaign)
@@ -299,29 +330,10 @@ void CPlayerInterface::performAutosave()
 		campaignName = cb->getStartInfo()->getCampaignName();
 	}
 
-	// get human player names (, separated) and number
-	std::string playerNames;
-	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-	{
-		if(!cb->getStartInfo()->playerInfos.count(player))
-			continue;
+	if(isMulitplayerGame)
+		playerNames = concatenateWithDelimiter(cb->getStartInfo()->getPlayerNames(), ", ");
 
-		auto playerInfo = cb->getStartInfo()->playerInfos.at(player);
-		if(playerInfo.isControlledByHuman())
-		{
-			playerNames += playerInfo.name + ", ";
-			humanPlayerCount++;
-		}
-	}
-	playerNames.pop_back();
-	playerNames.pop_back();
-	isMulitplayerGame = humanPlayerCount > 1;
-
-	// normalize map name
-	//int txtlen = TextOperations::getUnicodeCharactersCount(mapName); 
-	//TextOperations::trimRightUnicode(mapName, std::max(0, txtlen - 15)); // shorten to max 15 chars
-	std::string forbiddenChars("\\/<>:\"|?*\t\n\v\f\r"); 
-	std::replace_if(mapName.begin(), mapName.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' ); // replace forbidden chars with _
+	mapName = replaceForbiddenChars(mapName);
 
 	// store variable values in map
 	std::unordered_map<std::string, std::string> variables;

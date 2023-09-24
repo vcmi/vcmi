@@ -550,7 +550,7 @@ void CGameState::preInitAuto()
 
 void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
 {
-	if(scenarioOps->createRandomMap())
+	if(scenarioOps->isRandomMap())
 	{
 		logGlobal->info("Create random map.");
 		CStopWatch sw;
