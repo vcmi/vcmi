@@ -64,6 +64,8 @@ private:
 	std::vector<std::shared_ptr<CLabel>> texts;
 	std::vector<std::shared_ptr<CAnimImage>> images;
 
+	const int screenRows = 11;
+
 	int highlighted;
 public:
 	CHighScoreScreen(HighScorePage highscorepage = HighScorePage::SCENARIO, int highlighted = -1);

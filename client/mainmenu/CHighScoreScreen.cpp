@@ -34,46 +34,30 @@
 
 auto HighScoreCalculation::calculate()
 {
-	struct result
+	struct Result
 	{
-		int basic;
-		int total;
-		int sumDays;
-		bool cheater;
+		int basic = 0;
+		int total = 0;
+		int sumDays = 0;
+		bool cheater = false;
 	};
 	
-	std::vector<int> scoresBasic;
-	std::vector<int> scoresTotal;
-	double sumBasic = 0;
-	double sumTotal = 0;
-	int sumDays = 0;
-	bool cheater = false;
+	Result firstResult, summary;
+	const std::array<double, 5> difficultyMultipliers{0.8, 1.0, 1.3, 1.6, 2.0}; 
 	for(auto & param : parameters)
 	{
 		double tmp = 200 - (param.day + 10) / (param.townAmount + 5) + (param.allDefeated ? 25 : 0) + (param.hasGrail ? 25 : 0);
-		scoresBasic.push_back(static_cast<int>(tmp));
-		sumBasic += tmp;
-		if(param.difficulty == 0)
-			tmp *= 0.8;
-		if(param.difficulty == 1)
-			tmp *= 1.0;
-		if(param.difficulty == 2)
-			tmp *= 1.3;
-		if(param.difficulty == 3)
-			tmp *= 1.6;
-		if(param.difficulty == 4)
-			tmp *= 2.0;
-		scoresTotal.push_back(static_cast<int>(tmp));
-		sumTotal += tmp;
-		sumDays += param.day;
-		if(param.usedCheat)
-			cheater = true;
+		firstResult = Result{static_cast<int>(tmp), static_cast<int>(tmp * difficultyMultipliers.at(param.difficulty)), param.day, param.usedCheat};
+		summary.basic += firstResult.basic * 5.0 / parameters.size();
+		summary.total += firstResult.total * 5.0 / parameters.size();
+		summary.sumDays += firstResult.sumDays;
+		summary.cheater |= firstResult.cheater;
 	}
 
-	if(scoresBasic.size() == 1)
-		return result { scoresBasic[0], scoresTotal[0], sumDays , cheater};
+	if(parameters.size() == 1)
+		return firstResult;
 
-	return result { static_cast<int>((sumBasic / parameters.size()) * 5.0), static_cast<int>((sumTotal / parameters.size()) * 5.0), sumDays, cheater };
+	return summary;
 }
 
 CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
@@ -104,9 +88,9 @@ CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 
 void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
 {
-	for (int i = 0; i < 11; i++)
+	for (int i = 0; i < screenRows; i++)
 	{
-		bool currentGameNotInListEntry = (i == 10 && highlighted > 10);
+		bool currentGameNotInListEntry = i == (screenRows - 1) && highlighted > (screenRows - 1);
 
 		Rect r = Rect(80, 40 + i * 50, 635, 50);
 		if(r.isInside(cursorPosition - pos))
@@ -158,9 +142,9 @@ void CHighScoreScreen::addHighScores()
 	// Content
 	int y = 66;
 	auto & data = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"];
-	for (int i = 0; i < 11; i++)
+	for (int i = 0; i < screenRows; i++)
 	{
-		bool currentGameNotInListEntry = (i == 10 && highlighted > 10);
+		bool currentGameNotInListEntry = (i == (screenRows - 1) && highlighted > (screenRows - 1));
 		auto & curData = data[currentGameNotInListEntry ? highlighted : i];
 
 		ColorRGBA color = (i == highlighted || currentGameNotInListEntry) ? Colors::YELLOW : Colors::WHITE;
