@@ -279,9 +279,10 @@ void AINodeStorage::commit(
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 	logAi->trace(
-		"Commited %s -> %s, cost: %f, turn: %s, mp: %d, hero: %s, mask: %x, army: %lld",
+		"Commited %s -> %s, layer: %d, cost: %f, turn: %s, mp: %d, hero: %s, mask: %x, army: %lld",
 		source->coord.toString(),
 		destination->coord.toString(),
+		destination->layer,
 		destination->getCost(),
 		std::to_string(destination->turns),
 		destination->moveRemains,
@@ -1343,6 +1344,7 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 			pathNode.coord = node->coord;
 			pathNode.parentIndex = parentIndex;
 			pathNode.actionIsBlocked = false;
+			pathNode.layer = node->layer;
 
 			if(pathNode.specialAction)
 			{

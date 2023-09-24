@@ -65,6 +65,7 @@ struct AIPathNodeInfo
 	float cost;
 	uint8_t turns;
 	int3 coord;
+	EPathfindingLayer layer;
 	uint64_t danger;
 	const CGHeroInstance * targetHero;
 	int parentIndex;

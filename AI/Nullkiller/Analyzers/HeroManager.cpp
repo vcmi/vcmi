@@ -190,6 +190,41 @@ bool HeroManager::heroCapReached() const
 		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 }
 
+float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
+{
+	auto hasFly = hero->spellbookContainsSpell(SpellID::FLY);
+	auto hasTownPortal = hero->spellbookContainsSpell(SpellID::TOWN_PORTAL);
+	auto manaLimit = hero->manaLimit();
+	auto spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	auto hasEarth = hero->getSpellSchoolLevel(SpellID(SpellID::TOWN_PORTAL).toSpell()) > 0;
+
+	auto score = 0.0f;
+
+	for(auto spellId : hero->getSpellsInSpellbook())
+	{
+		auto spell = spellId.toSpell();
+		auto schoolLevel = hero->getSpellSchoolLevel(spell);
+
+		score += (spell->getLevel() + 1) * (schoolLevel + 1) * 0.05f;
+	}
+
+	vstd::amin(score, 1);
+
+	score *= std::min(1.0f, spellPower / 10.0f);
+
+	if(hasFly)
+		score += 0.3f;
+
+	if(hasTownPortal && hasEarth)
+		score += 0.6f;
+
+	vstd::amin(score, 1);
+
+	score *= std::min(1.0f, manaLimit / 100.0f);
+
+	return std::min(score, 1.0f);
+}
+
 bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 {
 	if(!town)

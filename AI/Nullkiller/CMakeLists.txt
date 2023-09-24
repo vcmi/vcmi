@@ -35,6 +35,7 @@ set(Nullkiller_SRCS
 		Goals/ExecuteHeroChain.cpp
 		Goals/ExchangeSwapTownHeroes.cpp
 		Goals/CompleteQuest.cpp
+		Goals/StayAtTown.cpp
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
@@ -53,6 +54,7 @@ set(Nullkiller_SRCS
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
+		Behaviors/StayAtTownBehavior.cpp
 		Helpers/ArmyFormation.cpp
 		AIGateway.cpp
 )
@@ -99,6 +101,7 @@ set(Nullkiller_HEADERS
 		Goals/ExchangeSwapTownHeroes.h
 		Goals/CompleteQuest.h
 		Goals/Goals.h
+		Goals/StayAtTown.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
@@ -117,6 +120,7 @@ set(Nullkiller_HEADERS
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
 		Behaviors/ClusterBehavior.h
+		Behaviors/StayAtTownBehavior.h
 		Helpers/ArmyFormation.h
 		AIGateway.h
 )
