@@ -74,13 +74,17 @@ class CSpellWindow : public CWindowObject
 	std::shared_ptr<CAnimImage> schoolTab;
 	std::shared_ptr<CAnimImage> schoolPicture;
 
-	std::array<std::shared_ptr<SpellArea>, 12> spellAreas;
+	std::array<std::shared_ptr<SpellArea>, 21> spellAreas;
 	std::shared_ptr<CLabel> mana;
 	std::shared_ptr<CGStatusBar> statusBar;
 
 	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
 
 	bool isBigSpellbook;
+	int offL = -11;
+	int offR = 195;
+	int offT = -37;
+	int offB = 56;
 
 	int sitesPerTabAdv[5];
 	int sitesPerTabBattle[5];
