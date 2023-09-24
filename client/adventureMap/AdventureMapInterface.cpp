@@ -50,7 +50,8 @@ AdventureMapInterface::AdventureMapInterface():
 	mapAudio(new MapAudioPlayer()),
 	spellBeingCasted(nullptr),
 	scrollingWasActive(false),
-	scrollingWasBlocked(false)
+	scrollingWasBlocked(false),
+	backgroundDimLevel(settings["adventure"]["backgroundDimLevel"].Integer())
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.x = pos.y = 0;
@@ -171,7 +172,6 @@ void AdventureMapInterface::dim(Canvas & to)
 		std::shared_ptr<AdventureMapInterface> casted = std::dynamic_pointer_cast<AdventureMapInterface>(window);
 		if (!casted && !window->isPopupWindow())
 		{
-			int backgroundDimLevel = settings["adventure"]["backgroundDimLevel"].Integer();
 			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
 			if(backgroundDimLevel > 0)
@@ -335,6 +335,8 @@ void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set
 
 void AdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
+	backgroundDimLevel = 255;
+
 	onCurrentPlayerChanged(playerID);
 	setState(EAdventureState::HOTSEAT_WAIT);
 }
@@ -379,6 +381,8 @@ void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 
 void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 {
+	backgroundDimLevel = settings["adventure"]["backgroundDimLevel"].Integer();
+
 	onCurrentPlayerChanged(playerID);
 
 	setState(EAdventureState::MAKING_TURN);
