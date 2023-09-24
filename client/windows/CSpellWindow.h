@@ -108,7 +108,7 @@ class CSpellWindow : public CWindowObject
 	std::shared_ptr<IImage> createBigSpellBook();
 
 public:
-	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true, bool isBigSpellbook = true);
+	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true);
 	~CSpellWindow();
 
 	void fexitb();

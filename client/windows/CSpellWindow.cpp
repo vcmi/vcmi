@@ -96,14 +96,14 @@ public:
 	}
 } spellsorter;
 
-CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells, bool isBigSpellbook):
-	CWindowObject(PLAYER_COLORED | (isBigSpellbook ? BORDERED : 0)),
+CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
+	CWindowObject(PLAYER_COLORED | (settings["general"]["enableUiEnhancements"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
 	myHero(_myHero),
 	myInt(_myInt),
-	isBigSpellbook(isBigSpellbook)
+	isBigSpellbook(settings["general"]["enableUiEnhancements"].Bool())
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -200,8 +200,12 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(auto item : schoolBorders)
 		item->preload();
-	mana = std::make_shared<CLabel>(435 + (isBigSpellbook ? 157 : 0), 426 + offB, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
-	statusBar = CGStatusBar::create(7, 569, ImagePath::builtin("Spelroll.bmp"));
+	mana = std::make_shared<CLabel>(435 + (isBigSpellbook ? 159 : 0), 426 + offB, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
+	
+	if(isBigSpellbook)
+		statusBar = CGStatusBar::create(400, 587, ImagePath::builtin(""));
+	else
+		statusBar = CGStatusBar::create(7, 569, ImagePath::builtin("Spelroll.bmp"));
 
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x + (isBigSpellbook ? 175 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 221 + pos.x + (isBigSpellbook ? 43 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fbattleSpellsb, this),    453, this));
@@ -259,13 +263,13 @@ std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"));
 	Canvas canvas = Canvas(Point(800, 600));
 	// edges
-	canvas.draw(img, Point(0, 0), Rect(10, 38, 90, 45));
-	canvas.draw(img, Point(0, 460), Rect(10, 400, 90, 141));
+	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
+	canvas.draw(img, Point(0, 460), Rect(15, 400, 90, 141));
 	canvas.draw(img, Point(705, 0), Rect(509, 38, 95, 45));
 	canvas.draw(img, Point(705, 460), Rect(509, 400, 95, 141));
 	// left / right
 	Canvas tmp1 = Canvas(Point(90, 355 - 45));
-	tmp1.draw(img, Point(0, 0), Rect(10, 38 + 45, 90, 355 - 45));
+	tmp1.draw(img, Point(0, 0), Rect(15, 38 + 45, 90, 355 - 45));
 	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415));
 	Canvas tmp2 = Canvas(Point(95, 355 - 45));
 	tmp2.draw(img, Point(0, 0), Rect(509, 38 + 45, 95, 355 - 45));
@@ -279,7 +283,7 @@ std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 	canvas.drawScaled(tmp4, Point(90, 460), Point(615, 141));
 	// middle
 	Canvas tmp5 = Canvas(Point(409, 141));
-	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 10, 400 - 38));
+	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
 	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
 
 	return GH.renderHandler().createImage(canvas.getInternalSurface());

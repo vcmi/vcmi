@@ -461,6 +461,9 @@ CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 	addUsedEvents(LCLICK);
 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	if(name.empty())
+		return;
 	auto backgroundImage = std::make_shared<CPicture>(name);
 	background = backgroundImage;
 	pos = background->pos;
