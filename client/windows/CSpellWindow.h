@@ -80,6 +80,8 @@ class CSpellWindow : public CWindowObject
 
 	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
 
+	bool isBigSpellbook;
+
 	int sitesPerTabAdv[5];
 	int sitesPerTabBattle[5];
 
@@ -96,6 +98,8 @@ class CSpellWindow : public CWindowObject
 	void setCurrentPage(int value);
 	void turnPageLeft();
 	void turnPageRight();
+
+	std::shared_ptr<IImage> createBigSpellBook();
 
 public:
 	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true);

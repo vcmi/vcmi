@@ -31,6 +31,9 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
+#include "../render/IImage.h"
+#include "../render/IImageLoader.h"
+#include "../render/Canvas.h"
 
 #include "../../CCallback.h"
 
@@ -94,14 +97,22 @@ public:
 } spellsorter;
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
-	CWindowObject(PLAYER_COLORED, ImagePath::builtin("SpelBack")),
+	CWindowObject(PLAYER_COLORED),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
 	myHero(_myHero),
-	myInt(_myInt)
+	myInt(_myInt),
+	isBigSpellbook(true)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	if(isBigSpellbook)
+		background = std::make_shared<CPicture>(createBigSpellBook(), Point(0, 0));
+	else
+		background = std::make_shared<CPicture>(ImagePath::builtin("SpelBack"), 0, 0);
+	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
+
 	//initializing castable spells
 	mySpells.reserve(CGI->spellh->objects.size());
 	for(const CSpell * spell : CGI->spellh->objects)
@@ -234,6 +245,37 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 CSpellWindow::~CSpellWindow()
 {
+}
+
+std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
+{
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"));
+	Canvas canvas = Canvas(Point(800, 600));
+	// edges
+	canvas.draw(img, Point(0, 0), Rect(10, 38, 90, 45));
+	canvas.draw(img, Point(0, 460), Rect(10, 400, 90, 141));
+	canvas.draw(img, Point(705, 0), Rect(509, 38, 95, 45));
+	canvas.draw(img, Point(705, 460), Rect(509, 400, 95, 141));
+	// left / right
+	Canvas tmp1 = Canvas(Point(90, 355 - 45));
+	tmp1.draw(img, Point(0, 0), Rect(10, 38 + 45, 90, 355 - 45));
+	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415));
+	Canvas tmp2 = Canvas(Point(95, 355 - 45));
+	tmp2.draw(img, Point(0, 0), Rect(509, 38 + 45, 95, 355 - 45));
+	canvas.drawScaled(tmp2, Point(705, 45), Point(95, 415));
+	// top / bottom
+	Canvas tmp3 = Canvas(Point(409, 45));
+	tmp3.draw(img, Point(0, 0), Rect(100, 38, 409, 45));
+	canvas.drawScaled(tmp3, Point(90, 0), Point(615, 45));
+	Canvas tmp4 = Canvas(Point(409, 141));
+	tmp4.draw(img, Point(0, 0), Rect(100, 400, 409, 141));
+	canvas.drawScaled(tmp4, Point(90, 460), Point(615, 141));
+	// middle
+	Canvas tmp5 = Canvas(Point(409, 141));
+	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 10, 400 - 38));
+	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
+
+	return GH.renderHandler().createImage(canvas.getInternalSurface());
 }
 
 void CSpellWindow::fexitb()
