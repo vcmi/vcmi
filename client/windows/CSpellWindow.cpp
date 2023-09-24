@@ -112,7 +112,8 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	else
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("SpelBack"), 0, 0);
-		offL = offR = offT = offB = 0;
+		offL = offR = offT = offB = offRM = 0;
+		spellsPerPage = 12;
 	}
 	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
@@ -142,39 +143,39 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 			++sitesPerOurTab[school];
 		});
 	}
-	if(sitesPerTabAdv[4] % 12 == 0)
-		sitesPerTabAdv[4]/=12;
+	if(sitesPerTabAdv[4] % spellsPerPage == 0)
+		sitesPerTabAdv[4]/=spellsPerPage;
 	else
-		sitesPerTabAdv[4] = sitesPerTabAdv[4]/12 + 1;
+		sitesPerTabAdv[4] = sitesPerTabAdv[4]/spellsPerPage + 1;
 
 	for(int v=0; v<4; ++v)
 	{
-		if(sitesPerTabAdv[v] <= 10)
+		if(sitesPerTabAdv[v] <= spellsPerPage - 2)
 			sitesPerTabAdv[v] = 1;
 		else
 		{
-			if((sitesPerTabAdv[v] - 10) % 12 == 0)
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - 10) / 12 + 1;
+			if((sitesPerTabAdv[v] - spellsPerPage - 2) % spellsPerPage == 0)
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 1;
 			else
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - 10) / 12 + 2;
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 2;
 		}
 	}
 
-	if(sitesPerTabBattle[4] % 12 == 0)
-		sitesPerTabBattle[4]/=12;
+	if(sitesPerTabBattle[4] % spellsPerPage == 0)
+		sitesPerTabBattle[4]/=spellsPerPage;
 	else
-		sitesPerTabBattle[4] = sitesPerTabBattle[4]/12 + 1;
+		sitesPerTabBattle[4] = sitesPerTabBattle[4]/spellsPerPage + 1;
 
 	for(int v=0; v<4; ++v)
 	{
-		if(sitesPerTabBattle[v] <= 10)
+		if(sitesPerTabBattle[v] <= spellsPerPage - 2)
 			sitesPerTabBattle[v] = 1;
 		else
 		{
-			if((sitesPerTabBattle[v] - 10) % 12 == 0)
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - 10) / 12 + 1;
+			if((sitesPerTabBattle[v] - spellsPerPage - 2) % spellsPerPage == 0)
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 1;
 			else
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - 10) / 12 + 2;
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 2;
 		}
 	}
 
@@ -215,13 +216,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	//areas for spells
 	int xpos = 117 + offL + pos.x, ypos = 90 + offT + pos.y;
 
-	for(int v=0; v<21; ++v)
+	for(int v=0; v<spellsPerPage; ++v)
 	{
 		spellAreas[v] = std::make_shared<SpellArea>( Rect(xpos, ypos, 65, 78), this);
 
-		if(v == 11) //to right page
+		if(v == (spellsPerPage / 2) - 1) //to right page
 		{
-			xpos = offL + 336 + pos.x; ypos = 90 + offT + pos.y;
+			xpos = offRM + 336 + pos.x; ypos = 90 + offT + pos.y;
 		}
 		else
 		{
@@ -371,29 +372,29 @@ void CSpellWindow::computeSpellsPerArea()
 
 	if(selectedTab == 4)
 	{
-		if(spellsCurSite.size() > 12)
+		if(spellsCurSite.size() > spellsPerPage)
 		{
-			spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + currentPage*12, spellsCurSite.end());
-			if(spellsCurSite.size() > 12)
+			spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + currentPage*spellsPerPage, spellsCurSite.end());
+			if(spellsCurSite.size() > spellsPerPage)
 			{
-				spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
+				spellsCurSite.erase(spellsCurSite.begin()+spellsPerPage, spellsCurSite.end());
 			}
 		}
 	}
 	else //selectedTab == 0, 1, 2 or 3
 	{
-		if(spellsCurSite.size() > 10)
+		if(spellsCurSite.size() > spellsPerPage - 2)
 		{
 			if(currentPage == 0)
 			{
-				spellsCurSite.erase(spellsCurSite.begin()+10, spellsCurSite.end());
+				spellsCurSite.erase(spellsCurSite.begin()+spellsPerPage-2, spellsCurSite.end());
 			}
 			else
 			{
-				spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + (currentPage-1)*12 + 10, spellsCurSite.end());
-				if(spellsCurSite.size() > 12)
+				spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + (currentPage-1)*spellsPerPage + spellsPerPage-2, spellsCurSite.end());
+				if(spellsCurSite.size() > spellsPerPage)
 				{
-					spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
+					spellsCurSite.erase(spellsCurSite.begin()+spellsPerPage, spellsCurSite.end());
 				}
 			}
 		}
@@ -401,7 +402,7 @@ void CSpellWindow::computeSpellsPerArea()
 	//applying
 	if(selectedTab == 4 || currentPage != 0)
 	{
-		for(size_t c=0; c<12; ++c)
+		for(size_t c=0; c<spellsPerPage; ++c)
 		{
 			if(c < spellsCurSite.size())
 			{
@@ -417,7 +418,7 @@ void CSpellWindow::computeSpellsPerArea()
 	{
 		spellAreas[0]->setSpell(nullptr);
 		spellAreas[1]->setSpell(nullptr);
-		for(size_t c=0; c<10; ++c)
+		for(size_t c=0; c<spellsPerPage-2; ++c)
 		{
 			if(c < spellsCurSite.size())
 				spellAreas[c+2]->setSpell(spellsCurSite[c]);
