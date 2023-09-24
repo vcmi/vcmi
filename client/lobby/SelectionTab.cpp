@@ -45,6 +45,7 @@
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/serializer/Connection.h"
+#include "../../lib/TextOperations.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -417,6 +418,9 @@ auto SelectionTab::checkSubfolder(std::string path)
 // selMaps with the relevant data.
 void SelectionTab::filter(int size, bool selectFirst)
 {
+	uint8_t mapNameMaxDisplayLength = 25;
+	uint8_t folderNameMaxDisplayLength = 45;
+
 	if(size == -1)
 		size = currentMapSizeFilter;
 	currentMapSizeFilter = size;
@@ -433,7 +437,8 @@ void SelectionTab::filter(int size, bool selectFirst)
 			{
 				auto folder = std::make_shared<ElementInfo>();
 				folder->isFolder = true;
-				folder->folderName = "..     (" + curFolder + ")";
+				folder->folderName = "..  (" + curFolder + ")";
+				folder->displayName = TextOperations::shortenUnicodeString(folder->folderName, folderNameMaxDisplayLength);
 				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return boost::starts_with(e->folderName, ".."); });
 				if (itemIt == curItems.end()) {
 					curItems.push_back(folder);
@@ -443,13 +448,17 @@ void SelectionTab::filter(int size, bool selectFirst)
 			std::shared_ptr<ElementInfo> folder = std::make_shared<ElementInfo>();
 			folder->isFolder = true;
 			folder->folderName = folderName;
+			folder->displayName = TextOperations::shortenUnicodeString(folder->folderName, folderNameMaxDisplayLength);
 			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
 			if (itemIt == curItems.end() && folderName != "") {
 				curItems.push_back(folder);
 			}
 
 			if(fileInFolder)
+			{
+				elem->displayName = TextOperations::shortenUnicodeString(elem->getNameForList(), mapNameMaxDisplayLength);
 				curItems.push_back(elem);
+			}
 		}
 	}
 
@@ -861,7 +870,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
 		labelName->enable();
-		labelName->setText(info->folderName);
+		labelName->setText(info->displayName);
 		labelName->setColor(color);
 		return;
 	}
@@ -902,6 +911,6 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 	}
 	labelName->enable();
-	labelName->setText(info->getNameForList());
+	labelName->setText(info->displayName);
 	labelName->setColor(color);
 }

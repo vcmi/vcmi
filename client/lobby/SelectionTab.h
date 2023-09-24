@@ -31,7 +31,8 @@ class ElementInfo : public CMapInfo
 public:
 	ElementInfo() : CMapInfo() { }
 	~ElementInfo() { }
-	std::string folderName = "";
+	std::string folderName;
+	std::string displayName; // used for displaying the map or folder name in select map window. (could be limited to be shorter than actual name)
 	bool isFolder = false;
 };
 
