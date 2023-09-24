@@ -59,8 +59,8 @@ private:
 	/// if true, then scrolling was blocked via ctrl and should not restart until player move cursor outside scrolling area
 	bool scrollingWasBlocked;
 
-	/// if true, the hotseat next player is opened
-	bool isHotseatMessage;
+	/// how much should the background dimmed, when windows are on the top
+	int backgroundDimLevel;
 
 	/// spell for which player is selecting target, or nullptr if none
 	const CSpell *spellBeingCasted;
