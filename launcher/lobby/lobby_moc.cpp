@@ -153,11 +153,11 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case JOINED:
 	case KICKED:
 		protocolAssert(args.size() == 2);
-		session = "";
-		ui->chatWidget->setSession(session);
 		if(args[1] == username)
 		{
 			hostModsMap.clear();
+			session = "";
+			ui->chatWidget->setSession(session);
 			ui->buttonReady->setText("Ready");
 			ui->optNewGame->setChecked(true);
 			session = args[0];
