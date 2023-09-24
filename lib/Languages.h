@@ -57,6 +57,9 @@ struct Options
 	/// primary IETF language tag
 	std::string tagIETF;
 
+	/// POSIX locale
+	std::string locale;
+
 	/// VCMI supports translations into this language
 	bool hasTranslation = false;
 };
@@ -65,27 +68,27 @@ inline const auto & getLanguageList()
 {
 	static const std::array<Options, 20> languages
 	{ {
-		{ "czech",      "Czech",      "Čeština",    "CP1250", "cs", true },
-		{ "chinese",    "Chinese",    "简体中文",       "GBK",    "zh", true }, // Note: actually Simplified Chinese
-		{ "english",    "English",    "English",    "CP1252", "en", true },
-		{ "finnish",    "Finnish",    "Suomi",      "CP1252", "fi", true },
-		{ "french",     "French",     "Français",   "CP1252", "fr", true },
-		{ "german",     "German",     "Deutsch",    "CP1252", "de", true },
-		{ "hungarian",  "Hungarian",  "Magyar",     "CP1250", "hu", true },
-		{ "italian",    "Italian",    "Italiano",   "CP1250", "it", true },
-		{ "korean",     "Korean",     "한국어",        "CP949",  "ko", true },
-		{ "polish",     "Polish",     "Polski",     "CP1250", "pl", true },
-		{ "portuguese", "Portuguese", "Português",  "CP1252", "pt", true }, // Note: actually Brazilian Portuguese
-		{ "russian",    "Russian",    "Русский",    "CP1251", "ru", true },
-		{ "spanish",    "Spanish",    "Español",    "CP1252", "es", true },
-		{ "swedish",    "Swedish",    "Svenska",    "CP1252", "sv", true },
-		{ "turkish",    "Turkish",    "Türkçe",     "CP1254", "tr", true },
-		{ "ukrainian",  "Ukrainian",  "Українська", "CP1251", "uk", true },
-		{ "vietnamese",  "Vietnamese",  "Tiếng Việt", "UTF-8", "vi", true }, // Fan translation uses special encoding
+		{ "czech",      "Czech",      "Čeština",    "CP1250", "cs", "cs_CZ.UTF-8", true },
+		{ "chinese",    "Chinese",    "简体中文",       "GBK",    "zh", "zh_CN.UTF-8", true }, // Note: actually Simplified Chinese
+		{ "english",    "English",    "English",    "CP1252", "en", "en_US.UTF-8", true },
+		{ "finnish",    "Finnish",    "Suomi",      "CP1252", "fi", "fi_FI.UTF-8", true },
+		{ "french",     "French",     "Français",   "CP1252", "fr", "fr_FR.UTF-8", true },
+		{ "german",     "German",     "Deutsch",    "CP1252", "de", "de_DE.UTF-8", true },
+		{ "hungarian",  "Hungarian",  "Magyar",     "CP1250", "hu", "hu_HU.UTF-8", true },
+		{ "italian",    "Italian",    "Italiano",   "CP1250", "it", "it_IT.UTF-8", true },
+		{ "korean",     "Korean",     "한국어",        "CP949",  "ko", "ko_KR.UTF-8", true },
+		{ "polish",     "Polish",     "Polski",     "CP1250", "pl", "pl_PL.UTF-8", true },
+		{ "portuguese", "Portuguese", "Português",  "CP1252", "pt", "pt_BR.UTF-8", true }, // Note: actually Brazilian Portuguese
+		{ "russian",    "Russian",    "Русский",    "CP1251", "ru", "ru_RU.UTF-8", true },
+		{ "spanish",    "Spanish",    "Español",    "CP1252", "es", "es_ES.UTF-8", true },
+		{ "swedish",    "Swedish",    "Svenska",    "CP1252", "sv", "sv_SE.UTF-8", true },
+		{ "turkish",    "Turkish",    "Türkçe",     "CP1254", "tr", "tr_TR.UTF-8", true },
+		{ "ukrainian",  "Ukrainian",  "Українська", "CP1251", "uk", "uk_UA.UTF-8", true },
+		{ "vietnamese",  "Vietnamese",  "Tiếng Việt", "UTF-8", "vi", "vi_VN.UTF-8", true }, // Fan translation uses special encoding
 
-		{ "other_cp1250", "Other (East European)",   "", "CP1250", "", false },
-		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1251", "", false },
-		{ "other_cp1252", "Other (West European)",   "", "CP1252", "", false }
+		{ "other_cp1250", "Other (East European)",   "", "CP1250", "", "", false },
+		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1251", "", "", false },
+		{ "other_cp1252", "Other (West European)",   "", "CP1252", "", "", false }
 	} };
 	static_assert(languages.size() == static_cast<size_t>(ELanguages::COUNT), "Languages array is missing a value!");
 

@@ -17,9 +17,6 @@ import org.libsdl.app.SDLActivity;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.Date;
-import java.util.Locale;
-import java.text.SimpleDateFormat;
 
 import eu.vcmi.vcmi.util.Log;
 
@@ -154,14 +151,6 @@ public class NativeMethods
         } else {
             ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(30);
         }
-    }
-
-    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    public static String getFormattedDateTime()
-    {
-        String currentDate = new SimpleDateFormat((new SimpleDateFormat()).toLocalizedPattern(), Locale.getDefault()).format(new Date());
-
-        return currentDate;
     }
 
     private static void internalProgressDisplay(final boolean show)

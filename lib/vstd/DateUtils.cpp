@@ -1,9 +1,8 @@
 #include "StdInc.h"
 #include <vstd/DateUtils.h>
 
-#if defined(VCMI_ANDROID)
-#include "../CAndroidVMHelper.h"
-#endif
+#include "../CConfigHandler.h"
+#include "../Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -12,16 +11,17 @@ namespace vstd
 
 	DLL_LINKAGE std::string getFormattedDateTime(std::time_t dt)
 	{
-#if defined(VCMI_ANDROID)
-		CAndroidVMHelper vmHelper;
-		return vmHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getFormattedDateTime");
-#endif
+		std::string lang = settings["general"]["language"].String();
+		std::string locale = Languages::getLanguageOptions(lang).locale;
 
 		std::tm tm = *std::localtime(&dt);
 		std::stringstream s;
 		try
 		{
-			s.imbue(std::locale(""));
+			if(locale.empty())
+				s.imbue(std::locale(""));
+			else
+				s.imbue(std::locale(locale));
 		}
 		catch(const std::runtime_error & e)
 		{
