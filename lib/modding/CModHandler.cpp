@@ -481,7 +481,7 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 		return nullptr;
 	};
 	
-	std::vector<TModID> newActiveMods, missingMods, excessiveMods;
+	std::vector<TModID> missingMods, excessiveMods;
 	ModIncompatibility::ModListWithVersion missingModsResult;
 	ModIncompatibility::ModList excessiveModsResult;
 	
@@ -492,10 +492,7 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 
 		//TODO: support actual disabling of these mods
 		if(getModInfo(m).checkModGameplayAffecting())
-		{
 			excessiveMods.push_back(m);
-			allMods[m].setEnabled(false);
-		}
 	}
 	
 	for(const auto & infoPair : modList)
@@ -523,10 +520,7 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 		bool modLocalyEnabled = vstd::contains(activeMods, remoteModId);
 		
 		if(modVersionCompatible && modAffectsGameplay && modLocalyEnabled)
-		{
-			newActiveMods.push_back(remoteModId);
 			continue;
-		}
 		
 		if(modAffectsGameplay)
 			missingMods.push_back(remoteModId); //incompatible mod impacts gameplay
@@ -555,11 +549,7 @@ void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo:
 	if(!missingModsResult.empty() || !excessiveModsResult.empty())
 		throw ModIncompatibility(missingModsResult, excessiveModsResult);
 	
-	//TODO: support actual enabling of these mods
-	for(auto & m : newActiveMods)
-		allMods[m].setEnabled(true);
-
-	std::swap(activeMods, newActiveMods);
+	//TODO: support actual enabling of required mods
 }
 
 VCMI_LIB_NAMESPACE_END
