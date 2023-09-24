@@ -65,7 +65,11 @@ void SettingsStorage::init(const std::string & dataFilename, const std::string &
 
 	// Probably new install. Create config file to save settings to
 	if (!CResourceHandler::get("local")->existsResource(confName))
+	{
 		CResourceHandler::get("local")->createResource(dataFilename);
+		if(schema.empty())
+			invalidateNode(std::vector<std::string>());
+	}
 
 	if(!schema.empty())
 	{
