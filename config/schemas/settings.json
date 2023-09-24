@@ -140,7 +140,7 @@
 				},
 				"singlePlayerCampaignSaveName" : {
 					"type": "string",
-					"default": "_CAMPAIGNS/%campaignName%/%timestamp%/%mapName%/%turn%"
+					"default": "_CAMP/%campaignName%/%timestamp%/%mapName%/%turn%"
 				},
 				"singlePlayerRmgSaveName" : {
 					"type": "string",
