@@ -392,7 +392,7 @@ void CMainMenu::startTutorial()
 
 void CMainMenu::openHighScoreScreen()
 {
-	GH.windows().createAndPushWindow<CHighScoreScreen>();
+	GH.windows().createAndPushWindow<CHighScoreScreen>(CHighScoreScreen::HighScorePage::SCENARIO);
 	return;
 }
 

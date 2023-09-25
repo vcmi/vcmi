@@ -27,8 +27,8 @@ public:
 	bool usedCheat;
 	bool hasGrail;
 	bool allDefeated;
-	std::string campaign;
-	std::string land;
+	std::string campaignName;
+	std::string scenarioName;
 };
 
 class HighScoreCalculation
@@ -68,7 +68,7 @@ private:
 
 	int highlighted;
 public:
-	CHighScoreScreen(HighScorePage highscorepage = HighScorePage::SCENARIO, int highlighted = -1);
+	CHighScoreScreen(HighScorePage highscorepage, int highlighted = -1);
 };
 
 class CHighScoreInput : public CWindowObject

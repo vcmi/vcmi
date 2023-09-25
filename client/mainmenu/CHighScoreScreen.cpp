@@ -156,7 +156,7 @@ void CHighScoreScreen::addHighScores()
 
 		if(highscorepage == HighScorePage::SCENARIO)
 		{
-			std::string tmp = curData["land"].String();
+			std::string tmp = curData["scenarioName"].String();
 			TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 25));
 			texts.push_back(std::make_shared<CLabel>(405, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
 			texts.push_back(std::make_shared<CLabel>(557, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["days"].Integer())));
@@ -164,7 +164,7 @@ void CHighScoreScreen::addHighScores()
 		}
 		else
 		{
-			std::string tmp = curData["campaign"].String();
+			std::string tmp = curData["campaignName"].String();
 			TextOperations::trimRightUnicode(tmp, std::max(0, (int)TextOperations::getUnicodeCharactersCount(tmp) - 25));
 			texts.push_back(std::make_shared<CLabel>(405, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, tmp));
 			texts.push_back(std::make_shared<CLabel>(592, y + i * 50, FONT_MEDIUM, ETextAlignment::CENTER, color, std::to_string(curData["points"].Integer())));
@@ -259,9 +259,9 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	JsonNode newNode = JsonNode();
 	newNode["player"].String() = text;
 	if(calc.isCampaign)
-		newNode["campaign"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaign;
+		newNode["campaignName"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaignName;
 	else
-		newNode["land"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].land;
+		newNode["scenarioName"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].scenarioName;
 	newNode["days"].Integer() = calc.calculate().sumDays;
 	newNode["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
 	newNode["datetime"].String() = vstd::getFormattedDateTime(std::time(0));

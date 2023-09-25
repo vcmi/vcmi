@@ -1706,7 +1706,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 			if(!ps->checkVanquished())
 				param.allDefeated = false;
 	}
-	param.land = cb->getMapHeader()->name;
+	param.scenarioName = cb->getMapHeader()->name;
 	HighScoreCalculation highScoreCalc;
 	highScoreCalc.parameters.push_back(param);
 	highScoreCalc.isCampaign = false;
