@@ -61,6 +61,9 @@
 				{
 					"text": "vcmi.systemOptions.hapticFeedbackButton.hover",
 					"created" : "mobile"
+				},
+				{
+					"text": "vcmi.systemOptions.enableUiEnhancementsButton.hover"
 				}
 			]
 		},
@@ -116,6 +119,11 @@
 					"help": "vcmi.systemOptions.hapticFeedbackButton",
 					"callback": "hapticFeedbackChanged",
 					"created" : "mobile"
+				},
+				{
+					"name": "enableUiEnhancementsCheckbox",
+					"help": "vcmi.systemOptions.enableUiEnhancementsButton",
+					"callback": "enableUiEnhancementsChanged"
 				}
 			]
 		},

@@ -89,6 +89,8 @@
 	"vcmi.systemOptions.framerateButton.help"   : "{FPS anzeigen}\n\n Schaltet die Sichtbarkeit des Zählers für die Bilder pro Sekunde in der Ecke des Spielfensters um.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptisches Feedback",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptisches Feedback}\n\nHaptisches Feedback bei Touch-Eingaben.",
+	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Interface Verbesserungen",
+	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Interface Verbesserungen}\n\nSchaltet verschiedene Interface Verbesserungen um.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Meldungen im Infobereich anzeigen",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Meldungen im Infobereich anzeigen}\n\nWann immer möglich, werden Spielnachrichten von besuchten Kartenobjekten in der Infoleiste angezeigt, anstatt als Popup-Fenster zu erscheinen",

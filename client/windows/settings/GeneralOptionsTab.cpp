@@ -157,6 +157,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		setBoolSetting("general", "hapticFeedback", value);
 	});
+	addCallback("enableUiEnhancementsChanged", [](bool value)
+	{
+		setBoolSetting("general", "enableUiEnhancements", value);
+	});
 
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
@@ -197,6 +201,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
 	if (hapticFeedbackCheckbox)
 		hapticFeedbackCheckbox->setSelected(settings["general"]["hapticFeedback"].Bool());
+
+	std::shared_ptr<CToggleButton> enableUiEnhancementsCheckbox = widget<CToggleButton>("enableUiEnhancementsCheckbox");
+	if (enableUiEnhancementsCheckbox)
+		enableUiEnhancementsCheckbox->setSelected(settings["general"]["enableUiEnhancements"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());
