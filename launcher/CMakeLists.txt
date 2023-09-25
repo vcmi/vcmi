@@ -66,6 +66,7 @@ set(launcher_TS
 	translation/russian.ts
 	translation/spanish.ts
 	translation/ukrainian.ts
+	translation/vietnamese.ts
 )
 
 if(APPLE_IOS)
