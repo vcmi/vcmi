@@ -14,6 +14,10 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 
+#include "../render/IRenderHandler.h"
+#include "../render/CAnimation.h"
+#include "../render/IImage.h"
+
 #include "CComponent.h"
 
 #include "../windows/CHeroWindow.h"
@@ -270,7 +274,16 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			if(pickedArtInst)
 			{
 				markPossibleSlots();
-				CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), pickedArtInst->artType->getIconIndex());
+				
+				if(pickedArtInst->getTypeId() == ArtifactID::SPELL_SCROLL && pickedArtInst->getScrollSpellID().num >= 0 && settings["general"]["enableUiEnhancements"].Bool())
+				{
+					auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin("spellscr"));
+					anim->load(pickedArtInst->getScrollSpellID().num);
+					std::shared_ptr<IImage> img = anim->getImage(pickedArtInst->getScrollSpellID().num);
+					CCS->curh->dragAndDropCursor(img->scaleFast(Point(44, 34)));
+				}
+				else
+					CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), pickedArtInst->artType->getIconIndex());
 			}
 			else
 			{

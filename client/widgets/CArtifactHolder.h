@@ -34,6 +34,7 @@ class CArtPlace : public LRClickableAreaWTextComp
 {
 protected:
 	std::shared_ptr<CAnimImage> image;
+	std::shared_ptr<CAnimImage> imageSpell;
 	const CArtifactInstance * ourArt;
 
 	void setInternals(const CArtifactInstance * artInst);
