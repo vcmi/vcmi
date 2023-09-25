@@ -81,12 +81,12 @@ class CSpellWindow : public CWindowObject
 	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
 
 	bool isBigSpellbook;
-	int spellsPerPage = 24;
-	int offL = -11;
-	int offR = 195;
-	int offRM = 110;
-	int offT = -37;
-	int offB = 56;
+	int spellsPerPage;
+	int offL;
+	int offR;
+	int offRM;
+	int offT;
+	int offB;
 
 	int sitesPerTabAdv[5];
 	int sitesPerTabBattle[5];
