@@ -76,7 +76,7 @@ std::vector<std::string> StartInfo::getPlayerNames() const
 	return playerNames;
 }
 
-uint8_t StartInfo::getNoOfHumanPlayers() const
+uint8_t StartInfo::getHumanPlayersCount() const
 {
 	uint8_t NoOfHumanPlayers = 0;
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)

@@ -223,60 +223,6 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 }
 
-int extractNumberAfterHash(const std::string& input) 
-{
-    size_t hashPos = input.find('#');
-    if(hashPos != std::string::npos) 
-    {
-        std::string numberAsString = input.substr(hashPos + 1); // Get the substring after '#'
-        try 
-        {
-            int number = std::stoi(numberAsString);
-            return number;
-        } 
-        catch(const std::invalid_argument&)
-        {
-			logGlobal->error("Invalid number format found in autosave file name :" + input);
-        } 
-        catch(const std::out_of_range&)
-        {
-			logGlobal->error("Number out of range found in autosave file name :" + input);
-        }
-    }
-
-    return -1; // Return -1 if '#' is not found or parsing fails
-}
-
-// Generic function to concatenate a vector of strings with a specified delimiter
-std::string concatenateWithDelimiter(const std::vector<std::string>& strings, const std::string& delimiter) {
-    std::string result;
-    
-    for (const std::string& str : strings) {
-        result += str + delimiter;
-    }
-
-    if (!result.empty() && result.size() >= delimiter.size()) {
-        result.erase(result.end() - delimiter.size(), result.end());
-    }
-
-    return result;
-}
-
-// Generic function to replace forbidden characters with underscores
-std::string replaceForbiddenChars(const std::string& input)
-{
-    std::string forbiddenChars = "\\/<>:\"|?*\t\n\v\f\r"; // space is not here since folder and file names can have spaces!
-    std::string result = input;
-
-    for (char& c : result)
-    {
-        if (forbiddenChars.find(c) != std::string::npos)
-            c = '_';
-    }
-
-    return result;
-}
-
 void CPlayerInterface::performAutosave() 
 {
 	// ToDo : krs - gather all static info only once at map start / load
@@ -331,9 +277,9 @@ void CPlayerInterface::performAutosave()
 	}
 
 	if(isMulitplayerGame)
-		playerNames = concatenateWithDelimiter(cb->getStartInfo()->getPlayerNames(), ", ");
+		playerNames = TextOperations::concatenateStringsWithDelimiter(cb->getStartInfo()->getPlayerNames(), ", ");
 
-	mapName = replaceForbiddenChars(mapName);
+	mapName = TextOperations::replaceForbiddenPathChars(mapName);
 
 	// store variable values in map
 	std::unordered_map<std::string, std::string> variables;
@@ -349,7 +295,7 @@ void CPlayerInterface::performAutosave()
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
 		if(!loadedSaveFileName.empty())
 		{
-			auto autosaveNumber = extractNumberAfterHash(loadedSaveFileName);
+			auto autosaveNumber = TextOperations::extractNumberAfterHash(loadedSaveFileName);
 			if(autosaveNumber != -1)
 				autosaveCount = autosaveNumber;
 			

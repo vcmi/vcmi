@@ -57,11 +57,18 @@ namespace TextOperations
 	template<typename Arithmetic>
 	inline std::string formatMetric(Arithmetic number, int maxDigits);
 
+	// Concatenate a vector of strings with a specified delimiter
+	std::string DLL_LINKAGE concatenateStringsWithDelimiter(const std::vector<std::string> & strings, const std::string& delimiter);
+
+	// Replace forbidden Path characters with underscores
+	std::string DLL_LINKAGE replaceForbiddenPathChars(const std::string & input);
+
 	/// replaces all symbols that normally need escaping with appropriate escape sequences
 	std::string escapeString(std::string input);
+
+	/// extracts the number after a # character (useful in autosave filenames)
+	int DLL_LINKAGE extractNumberAfterHash(const std::string & input);
 };
-
-
 
 template<typename Arithmetic>
 inline std::string TextOperations::formatMetric(Arithmetic number, int maxDigits)
