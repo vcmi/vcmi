@@ -94,7 +94,8 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	menuNameToEntry.push_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
-	tabs->setRedrawParent(true);
+	if(config["video"].isNull())
+		tabs->setRedrawParent(true);
 }
 
 std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
@@ -109,10 +110,10 @@ void CMenuScreen::show(Canvas & to)
 {
 	if(!config["video"].isNull())
 	{
+		// redraw order: background -> video -> buttons and pictures
+		background->redraw();
 		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
-		tabs->setRedrawParent(false);
 		tabs->redraw();
-		tabs->setRedrawParent(true);
 	}
 	CIntObject::show(to);
 }
