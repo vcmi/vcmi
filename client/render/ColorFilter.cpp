@@ -138,7 +138,7 @@ ColorFilter ColorFilter::genFromJson(const JsonNode & entry)
 		r.a = entry["red"].Vector()[3].Float();
 	}
 
-	if (!entry["red"].isNull())
+	if (!entry["green"].isNull())
 	{
 		g.r = entry["green"].Vector()[0].Float();
 		g.g = entry["green"].Vector()[1].Float();
@@ -146,7 +146,7 @@ ColorFilter ColorFilter::genFromJson(const JsonNode & entry)
 		g.a = entry["green"].Vector()[3].Float();
 	}
 
-	if (!entry["red"].isNull())
+	if (!entry["blue"].isNull())
 	{
 		b.r = entry["blue"].Vector()[0].Float();
 		b.g = entry["blue"].Vector()[1].Float();
