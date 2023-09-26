@@ -7,7 +7,7 @@
 			"name": "lineLabelsEnd",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 319, "w": 365, "h": 3}
 		},
 		{
 			"type" : "labelTitle",
@@ -176,7 +176,7 @@
 		{
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 325},
+			"position": {"x": 45, "y": 355},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
