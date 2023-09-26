@@ -21,7 +21,8 @@
 						"type" : "object",
 						"properties" : {
 							"verticalPosition" : {"type" : "string", "enum" :["top","bottom"]},
-							"defName" : {"type" : "string", "format" : "defFile"}
+							"defName" : {"type" : "string", "format" : "defFile"},
+							"effectName" : { "type" : "string" }
 						},
 						"additionalProperties" : false
 					}
@@ -129,99 +130,99 @@
 	"additionalProperties" : false,
 	"properties" : {
 		"index" : {
-				"type" : "number",
-				"description" : "numeric id of spell required only for original spells, prohibited for new spells"
+			"type" : "number",
+			"description" : "numeric id of spell required only for original spells, prohibited for new spells"
 		},
 		"name" : {
 			"type" : "string",
-			"description" : "Localizable name"
+			"description" : "Localizable name of this spell"
 		},
 		"type" : {
-				"type" : "string",
-				"enum" : ["adventure", "combat", "ability"],
-				"description" : "Spell type"
+			"type" : "string",
+			"enum" : ["adventure", "combat", "ability"],
+			"description" : "Spell type"
 		},
 		"school" : {
-				"type" : "object",
-				"description" : "Spell schools",
-				"additionalProperties" : false,
-				"properties" : {
-						"air" : {"type" : "boolean"},
-						"fire" : {"type" : "boolean"},
-						"earth" : {"type" : "boolean"},
-						"water" : {"type" : "boolean"}
-				}
+			"type" : "object",
+			"description" : "List of spell schools this spell belongs to",
+			"additionalProperties" : false,
+			"properties" : {
+				"air" : {"type" : "boolean"},
+				"fire" : {"type" : "boolean"},
+				"earth" : {"type" : "boolean"},
+				"water" : {"type" : "boolean"}
+			}
 		},
 		"level" : {
-				"type" : "number",
-				"description" : "Spell level",
-				"minimum" : 0,
-				"maximum" : 5
+			"type" : "number",
+			"description" : "Spell level",
+			"minimum" : 0,
+			"maximum" : 5
 		},
 		"power" : {
-				"type" : "number",
-				"description" : "Base power"
+			"type" : "number",
+			"description" : "Base power of the spell"
 		},
 		"defaultGainChance" : {
-				"type" : "number",
-				"description" : "Gain chance by default for all factions"
+			"type" : "number",
+			"description" : "Gain chance by default for all factions"
 
 		},
 		"gainChance" : {
-				"type" : "object",
-				"description" : "Chance in % to gain for faction. NOTE: this field is merged with faction config",
-				"additionalProperties" : {
-					"type" : "number",
-					"minimum" : 0
-				}
+			"type" : "object",
+			"description" : "Chance for this spell to appear in Mage Guild of a specific faction",
+			"additionalProperties" : {
+				"type" : "number",
+				"minimum" : 0
+			}
 		},
 		"targetType" : {
-				  "type" : "string",
-				  "description" : "NO_TARGET - instant cast no aiming, default; CREATURE - target is unit; OBSTACLE - target is OBSTACLE; LOCATION - target is location",
-				  "enum" : ["NO_TARGET","CREATURE","OBSTACLE","LOCATION"]
+			"type" : "string",
+			"description" : "NO_TARGET - instant cast no aiming, default; CREATURE - target is unit; OBSTACLE - target is OBSTACLE; LOCATION - target is location",
+			"enum" : ["NO_TARGET","CREATURE","OBSTACLE","LOCATION"]
 		},
 		"counters" : {
-				 "$ref" : "#/definitions/flags",
-				 "description" : "Flags structure ids of countering spells"
+			 "$ref" : "#/definitions/flags",
+			 "description" : "Flags structure ids of countering spells"
 		},
 		"flags" : {
-				"type" : "object",
-				"description" : "Various flags",
-				"additionalProperties" : false,
-				"properties" : {
-						"indifferent" : {
-								"type" : "boolean",
-								"description" : "Spell is indifferent for target"
-						},
-						"negative" : {
-								"type" : "boolean",
-								"description" : "Spell is negative for target"
-						},
-						"positive" : {
-								"type" : "boolean",
-								"description" : "Spell is positive for target"
-						},
-						"damage" : {
-								"type" : "boolean",
-								"description" : "Spell does damage (direct or indirect)"
-						},
-						"offensive" : {
-								"type" : "boolean",
-								"description" : "Spell does direct damage (implicitly sets damage and negative)"
-						},
-						"rising" : {
-								"type" : "boolean",
-								"description" : "Rising spell (implicitly sets positive)"
-						},
-						"special" : {
-								"type" : "boolean",
-								"description" : "Special spell. Can be given only by BonusType::SPELL"
-						},
-						"nonMagical" : {
-							"type" : "boolean",
-							"description" : "Non-magical ability. Usually used by some creatures. Should not be affected by sorcery and generic magic resistance. School resistances apply. Examples: dendroid bind, efreet fire shield."
-					}
+			"type" : "object",
+			"description" : "Various flags",
+			"additionalProperties" : false,
+			"properties" : {
+				"indifferent" : {
+						"type" : "boolean",
+						"description" : "Spell is indifferent for target"
+				},
+				"negative" : {
+						"type" : "boolean",
+						"description" : "Spell is negative for target"
+				},
+				"positive" : {
+						"type" : "boolean",
+						"description" : "Spell is positive for target"
+				},
+				"damage" : {
+						"type" : "boolean",
+						"description" : "Spell does damage (direct or indirect)"
+				},
+				"offensive" : {
+						"type" : "boolean",
+						"description" : "Spell does direct damage (implicitly sets damage and negative)"
+				},
+				"rising" : {
+						"type" : "boolean",
+						"description" : "Rising spell (implicitly sets positive)"
+				},
+				"special" : {
+						"type" : "boolean",
+						"description" : "Special spell. Can be given only by BonusType::SPELL"
+				},
+				"nonMagical" : {
+					"type" : "boolean",
+					"description" : "Non-magical ability. Usually used by some creatures. Should not be affected by sorcery and generic magic resistance. School resistances apply. Examples: dendroid bind, efreet fire shield."
 				}
+			}
 		},
 		"immunity" : {
 				"$ref" : "#/definitions/flags",
@@ -311,7 +312,7 @@
 		},
 		"onlyOnWaterMap" : {
 			"type" : "boolean",
-			"description" : "It true, spell won't be available on a map without water"
+			"description" : "If true, spell won't be available on a map without water"
 		}
-	},
+	}
 }

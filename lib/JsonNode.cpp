@@ -1279,9 +1279,19 @@ const JsonNode & JsonUtils::getSchema(const std::string & URI)
 
 	// check if json pointer if present (section after hash in string)
 	if(posHash == std::string::npos || posHash == URI.size() - 1)
-		return getSchemaByName(filename);
+	{
+		auto const & result = getSchemaByName(filename);
+		if (result.isNull())
+			logMod->error("Error: missing schema %s", URI);
+		return result;
+	}
 	else
-		return getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
+	{
+		auto const & result = getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
+		if (result.isNull())
+			logMod->error("Error: missing schema %s", URI);
+		return result;
+	}
 }
 
 void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, bool copyMeta)

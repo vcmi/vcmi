@@ -44,7 +44,7 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 
 	enum PassabilityType : ui8
 	{
-		LAND = 1,
+		//LAND = 1,
 		WATER = 2,
 		SURFACE = 4,
 		SUBTERRANEAN = 8,

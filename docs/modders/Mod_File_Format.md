@@ -32,6 +32,9 @@
 	// Type of mod, list of all possible values:
 	// "Translation", "Town", "Test", "Templates", "Spells", "Music", "Sounds", "Skills", "Other", "Objects", 
 	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Artifacts", "AI"
+	//
+	// Some mod types have additional effects on your mod:
+	// Translation: mod of this type is only active if player uses base language of this mod. See "language" property.
 	"modType" : "Graphical",
 	
 	// Base language of the mod, before applying localizations. By default vcmi assumes English
@@ -175,6 +178,39 @@ These are fields that are present only in local mod.json file
 	[
 		"config/myMod/englishStrings.json
 	]
+}
+```
+
+## Translation fields
+
+In addition to field listed above, it is possible to add following block for any language supported by VCMI. If such block is present, Launcher will use this information for displaying translated mod information and game will use provided json files to translate mod to specified language.
+See [Translations](Translations.md) for more information
+
+```
+	"<language>" : {
+		"name" : "<translated name>",
+		"description" : "<translated description>",
+		"author" : "<translated author>",
+		"translations" : [
+			"config/<modName>/<language>.json"
+		]
+	},
+```
+
+## Mod repository fields
+
+These are fields that are present only in remote repository and are generally not used in mod.json
+
+```jsonc
+{
+	// URL to mod.json that describes this mod
+	"mod" : "https://raw.githubusercontent.com/vcmi-mods/vcmi-extras/vcmi-1.4/mod.json",
+	
+	// URL that player can use to download mod
+	"download" : "https://github.com/vcmi-mods/vcmi-extras/archive/refs/heads/vcmi-1.4.zip",
+	
+	// Approximate size of download, megabytes
+	"downloadSize" : 4.496
 }
 ```
 

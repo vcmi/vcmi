@@ -6,29 +6,59 @@ All parameters but type are optional.
 
 ``` javascript
 {
+	// Type of the bonus. See Bonus Types for full list
 	"type":         "BONUS_TYPE",
+
+	// Subtype of the bonus. Function depends on bonus type.
 	"subtype":      0,
+	
+	// Value of the bonus. Function depends on bonus type.
 	"val" :         0,
+
+	// Describes how this bonus is accumulated with other bonuses of the same type
 	"valueType":    "VALUE_TYPE",
+	
+	// Additional info that bonus might need. Function depends on bonus type.
 	"addInfo" :     0, // or [1, 2, ...]
 
+	// How long this bonus should be active until removal.
+	// May use multiple triggers, in which case first event will remove this bonus
 	"duration" :    "BONUS_DURATION", //or ["BONUS_DURATION1", "BONUS_DURATION2", ...]"
+	
+	// How long this bonus should remain, in days or battle turns (depending on bonus duration)
 	"turns" :       0,
 
+	// TODO
 	"targetSourceType" : "SOURCE_TYPE",
+	
+	// TODO
 	"sourceType" :  "SOURCE_TYPE",
+	
+	// TODO
 	"sourceID" :    0,
+	
+	// TODO
 	"effectRange" : "EFFECT_RANGE",
 
+	// TODO
 	"limiters" : [
 		"PREDEFINED_LIMITER", optional_parameters (...), //whhich one is preferred?
 		{"type" : LIMITER_TYPE, "parameters" : [1,2,3]}
 	],
 	
+	// TODO
 	"propagator" : 	["PROPAGATOR_TYPE", optional_parameters (...)],
+	
+	// TODO
 	"updater" :	    {Bonus Updater},
+	
+	// TODO
 	"propagationUpdater" :	{Bonus Updater, but works during propagation},
+	
+	// TODO
 	"description" : "",
+	
+	// TODO
 	"stacking" :    ""
 }
 ```
@@ -47,44 +77,8 @@ All parameters but type are optional.
 ## Subtype resolution
 
 All string identifiers of items can be used in "subtype" field. This allows cross-referencing between the mods and make config file more readable.
-
-### Available prefixes
-
--   creature.
--   artifact.
--   skill:
-``` javascript
-		"pathfinding",  "archery",      "logistics",    "scouting",     "diplomacy",
-		"navigation",   "leadership",   "wisdom",       "mysticism",    "luck",
-		"ballistics",   "eagleEye",     "necromancy",   "estates",      "fireMagic",
-		"airMagic",     "waterMagic",   "earthMagic",   "scholar",      "tactics",
-		"artillery",    "learning",     "offence",      "armorer",      "intelligence",
-		"sorcery",      "resistance",   "firstAid"
-```
-
--   resource:
-``` javascript
-		"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
-```
-
--   hero.
--   faction.
--   spell.
--   primarySkill
-``` javascript
- "attack", "defence", "spellpower", "knowledge" 
-```
-
--   terrain:
-``` javascript
- "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
-```
-
--   spellSchool
-```javascript
-"any", "fire", "air", "water", "earth" 
-```
-
+See [Game Identifiers](Game_Identifiers.md) for full list of available identifiers
+ 
 ### Example
 
 ``` javascript

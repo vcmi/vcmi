@@ -728,7 +728,11 @@ namespace
 			//node must be validated using schema pointed by this reference and not by data here
 			//Local reference. Turn it into more easy to handle remote ref
 			if (boost::algorithm::starts_with(URI, "#"))
-				URI = validator.usedSchemas.back() + URI;
+			{
+				const std::string name = validator.usedSchemas.back();
+				const std::string nameClean = name.substr(0, name.find('#'));
+				URI = nameClean + URI;
+			}
 			return check(URI, data, validator);
 		}
 
@@ -739,9 +743,16 @@ namespace
 			auto checker = formats.find(schema.String());
 			if (checker != formats.end())
 			{
-				std::string result = checker->second(data);
-				if (!result.empty())
-					errors += validator.makeErrorMessage(result);
+				if (data.isString())
+				{
+					std::string result = checker->second(data);
+					if (!result.empty())
+						errors += validator.makeErrorMessage(result);
+				}
+				else
+				{
+					errors += validator.makeErrorMessage("Format value must be string: " + schema.String());
+				}
 			}
 			else
 				errors += validator.makeErrorMessage("Unsupported format type: " + schema.String());

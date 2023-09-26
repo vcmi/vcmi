@@ -734,7 +734,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->identifiers()->requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id) 
+			VLC->identifiers()->requestIdentifier(counteredSpell.second.meta, "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});

@@ -5,63 +5,79 @@
 ``` javascript
 {
 	"spellName":
-	{	//numeric id of spell required only for original spells, prohibited for new spells
-		"index": 0,
-		//Original Heroes 3 info
-		//Mandatory, spell type 
-		"type": "adventure",//"adventure", "combat", "ability"
+	{	
+		// Mandatory. Spell type 
+		// Allowed values: "adventure", "combat", "ability"
+		"type": "adventure",
 		
-		//Mandatory, spell target type
-		"targetType":"NO_TARGET",//"CREATURE","OBSTACLE"."LOCATION"
+		// Mandatory. Spell target type
+		// "NO_TARGET" - instant cast no aiming (e.g. Armageddon)
+		// "CREATURE" - target is unit (e.g. Resurrection)
+		// "OBSTACLE" - target is obstacle (e.g. Remove Obstacle)
+		// "LOCATION" - target is location (e.g. Fire Wall)
+		"targetType":"NO_TARGET",
 
-		//Mandatory
+		// Localizable name of this spell
 		"name": "Localizable name",
-		//Mandatory, flags structure of school names, Spell schools this spell belongs to
+	
+		// Mandatory. List of spell schools this spell belongs to
 		"school": {"air":true, "earth":true, "fire":true, "water":true},
-		//number, mandatory, Spell level, value in range 1-5
+	
+		// Mandatory. Spell level, value in range 1-5, or 0 for abilities
 		"level": 1,
-		//Mandatory, base power
+
+		// Mandatory. Base power of the spell
 		"power": 10,
-		//Mandatory, default chance for this spell to appear in Mage Guilds
-		//Used only if chance for a faction is not set in gainChance field
+	
+		// Mandatory. Default chance for this spell to appear in Mage Guilds
+		// Used only if chance for a faction is not set in gainChance field
 		"defaultGainChance": 0, 
-		//Optional, chance for it to appear in Mage Guild of a specific faction
-		//NOTE: this field is linker with faction configuration
+	
+		// Chance for this spell to appear in Mage Guild of a specific faction
+		// Symmetric property of "guildSpells" property in towns
 		"gainChance":
 		{
-			"factionName": 3
+			"factionName" : 3
 		},
-		//VCMI info
-			
+
 		"animation":{<Animation format>},
 			
-		//countering spells, flags structure of spell ids (spell. prefix is required)
-		"counters": {"spell.spellID1":true, ...}
+		// List of spells that will be countered by this spell
+		"counters": {
+			"spellID" : true, 
+			...
+		},
 
-		//Mandatory,flags structure:
-		//              indifferent, negative, positive - Positiveness of spell for target (required)
-		//		damage - spell does damage (direct or indirect)
-		//		offensive - direct damage (implicitly sets damage and negative)
-		//		rising - rising spell (implicitly sets positive)
-		//		summoning //todo:
-		//		special - can be obtained only with bonus::SPELL
+		//Mandatory. List of flags that describe this spell
+		// positive - this spell is positive to target (buff)
+		// negative - this spell is negative to target (debuff)
+		// indifferent - spell is neither positive, nor negative
+		// damage - spell does damage (direct or indirect)
+		// offensive - direct damage (implicitly sets damage and negative)
+		// rising - rising spell (implicitly sets positive)
+		// special - this spell is normally unavailable and can only be received explicitly, e.g. from bonus SPELL
+		// nonMagical - this spell is not affected by Sorcery or magic resistance. School resistances apply.
+		"flags" : {
+			"positive": true,
+		},
+		
+		// If true, spell won't be available on a map without water
+		"onlyOnWaterMap" : true,
 
-		"flags" : {"flag1": true, "flag2": true},
-
-		//DEPRECATED | optional| no default | flags structure of bonus names,any one of these bonus grants immunity. Negatable by the Orb.
+		//TODO: DEPRECATED | optional| no default | flags structure of bonus names,any one of these bonus grants immunity. Negatable by the Orb.
 		"immunity": {"BONUS_NAME":true, ...},
 			
-		//DEPRECATED | optional| no default | flags structure of bonus names
+		//TODO: DEPRECATED | optional| no default | flags structure of bonus names
 		//any one of these bonus grants immunity, cant be negated
 		"absoluteImmunity": {"BONUS_NAME": true, ...},
 
-		//DEPRECATED | optional| no default | flags structure of bonus names, presence of all bonuses required to be affected by. Negatable by the Orb.
+		//TODO: DEPRECATED | optional| no default | flags structure of bonus names, presence of all bonuses required to be affected by. Negatable by the Orb.
 		"limit": {"BONUS_NAME": true, ...},
 
-		//DEPRECATED | optional| no default | flags structure of bonus names, presence of all bonuses required to be affected by. Cant be negated
+		//TODO: DEPRECATED | optional| no default | flags structure of bonus names, presence of all bonuses required to be affected by. Cant be negated
 		"absoluteLimit": {"BONUS_NAME": true, ...},
 		
-		//[WIP] optional | default no limit no immunity
+		//TODO: optional | default no limit no immunity
 		//
 		"targetCondition" {
 			//at least one required to be affected
@@ -86,44 +102,34 @@
 			}
 		}
 
-
-		//graphics; mandatory; object;
 		"graphics":
 		{
-			//  ! will be moved to bonus type config in next bonus config version
-			//  iconImmune - OPTIONAL; string; 
-			//resource path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)
+			// resource path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)
 			"iconImmune":"ZVS/LIB1.RES/E_SPMET",
 
-
-			//  iconScenarioBonus- mandatory, string, image resource path
-			//resource path of icon for scenario bonus
+			// resource path of icon for scenario bonus
 			"iconScenarioBonus": "MYSPELL_B",
 
-			//  iconEffect- mandatory, string, image resource path
-			//resource path of icon for spell effects during battle
+			// resource path of icon for spell effects during battle
 			"iconEffect": "MYSPELL_E",
 
-			//  iconBook- mandatory, string, image resource path
-			//resource path of icon for spellbook
+			// resource path of icon for spellbook
 			"iconBook": "MYSPELL_E",
 
-			//  iconScroll- mandatory, string, image resource path
-			//resource path of icon for spell scrolls
+			// resource path of icon for spell scrolls
 			"iconScroll": "MYSPELL_E"
 
 		},
 
-		//OPTIONAL; object; TODO
 		"sounds":
 		{
-			//OPTIONAL; resourse path, casting sound
+			//Resourse path of cast sound
 			"cast":"LIGHTBLT"
 
 		},
 
-		//Mandatory structure
-		//configuration for no skill, basic, adv, expert
+		// Mandatory structure
+		// configuration for no skill, basic, adv, expert
 		"levels":{
 			"base": {Spell level base format},
 			"none": {Spell level format},
@@ -138,8 +144,9 @@
 
 # Animation format
 
-``` javascript
+TODO
 
+``` javascript
 {
 	"projectile": [
 		{"minimumAngle": 0 ,"defName":"C20SPX4"},
@@ -148,6 +155,7 @@
 		{"minimumAngle": 1.20 ,"defName":"C20SPX1"},
 		{"minimumAngle": 1.50 ,"defName":"C20SPX0"}
 	],
+	"cast" : []
 	"hit":["C20SPX"],
 	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 }
@@ -162,28 +170,25 @@ Json object with data common for all levels can be put here. These configuration
 This will make spell affect single target on all levels except expert, where it is massive spell.
 
 ``` javascript
-
 "base":{
-
-   "range": 0
+	"range": 0
 },
 "expert":{
-"range": "X"
+	"range": "X"
 }
 ```
 
 # Spell level format
 
+TODO
+
 ``` javascript
 
 {
-	//Mandatory, localizable description
-	//Use {xxx} for formatting
+	//Mandatory, localizable description. Use {xxx} for formatting
 	"description": "",
 
-
-	//Mandatory, number, 
-	//cost in mana points
+	//Mandatory, cost in mana points
 	"cost": 1,
 
 	//Mandatory, number
@@ -194,14 +199,13 @@ This will make spell affect single target on all levels except expert, where it 
 
 	//Mandatory, flags structure //TODO
 	// modifiers make sense for creature target
-	//
-	//
 	"targetModifier":
 	{
 		"smart": false,	//true: friendly/hostile based on positiveness; false: all targets
 		"clearTarget": false,
 		"clearAffected": false,
-	}
+	},
+	
 	//Mandatory
 	//spell range description in SRSL
 	// range "X" + smart modifier = enchanter casting, expert massive spells
@@ -246,6 +250,8 @@ Configurable spells ignore *offensive* flag, *effects* and *cumulativeEffects*. 
 
 ## Special effect common format
 
+TODO
+
 ``` javascript
 
 "mod:effectId":{
@@ -265,6 +271,8 @@ Configurable spells ignore *offensive* flag, *effects* and *cumulativeEffects*. 
 
 ## catapult
 
+TODO
+
 ``` javascript
 
 "mod:effectId":{
@@ -282,6 +290,8 @@ Configurable spells ignore *offensive* flag, *effects* and *cumulativeEffects*. 
 
 ## Clone
 
+TODO
+
 Configurable version of Clone spell.
 
 ``` javascript
@@ -295,6 +305,8 @@ Configurable version of Clone spell.
 ```
 
 ## Damage effect
+
+TODO
 
 If effect is automatic, spell behave like offensive spell (uses power, levelPower etc)
 
@@ -313,33 +325,35 @@ If effect is automatic, spell behave like offensive spell (uses power, levelPowe
 
 ## Dispel
 
-documetation
+TODO
 
 ## Heal
 
-documetation
+TODO
 
 ## Obstacle
 
-documetation
+TODO
 
 ## Remove obstacle
 
-documetation
+TODO
 
 ## Sacrifice
 
-documetation
+TODO
 
 ## Summon
 
-documetation
+TODO
 
 ## Teleport
 
-documetation
+TODO
 
 ## Timed
+
+TODO
 
 If effect is automatic, spell behave like \[de\]buff spell (effect and
 cumulativeEffects ignored)
@@ -361,6 +375,8 @@ cumulativeEffects ignored)
 # Additional documentation
 
 ## Targets, ranges, modifiers
+
+TODO
 
 - CREATURE target (only battle spells)
  - range 0: smart assumed single creature target

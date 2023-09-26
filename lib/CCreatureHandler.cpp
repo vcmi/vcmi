@@ -716,9 +716,6 @@ void CCreatureHandler::loadCrExpMod()
 
 			expBonParser.endLine();
 		}
-		//skeleton gets exp penalty
-		objects[56].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
-		objects[57].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
 		//exp for tier >7, rank 11
 		expRanks[0].push_back(147000);
 		expAfterUpgrade = 75; //percent
@@ -847,7 +844,8 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 		missile["frameAngles"].Vector().push_back(entry);
 	}
 
-	graphics["troopCountLocationOffset"].Float() = parser.readNumber();
+	// Unused property "troopCountLocationOffset"
+	parser.readNumber();
 
 	missile["attackClimaxFrame"].Float() = parser.readNumber();
 
@@ -860,7 +858,6 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graphics) const
 {
 	cre->animation.timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
-	cre->animation.troopCountLocationOffset = static_cast<int>(graphics["troopCountLocationOffset"].Float());
 
 	const JsonNode & animationTime = graphics["animationTime"];
 	cre->animation.walkAnimationTime = animationTime["walk"].Float();

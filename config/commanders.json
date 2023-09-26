@@ -29,7 +29,7 @@
 		{"ability": ["BLOCKS_RETALIATION", 0, 1, 0 ], "skills": [0,5]},
 		{"ability": ["UNLIMITED_RETALIATIONS", 0, 0, 0 ], "skills": [1, 2]},
 		{"ability": ["ATTACKS_ALL_ADJACENT", 0, 0, 0 ], "skills": [1, 3]},
-		{"ability": ["BLOCK", 30, 0, 0 ], "skills": [1, 4]},
+		{"ability": ["NONE", 30, 0, 0 ], "skills": [1, 4]}, // TODO: Implement bonus that gives chance to completely block one enemy attack per turn
 		{"ability": ["FIRE_SHIELD", 1, 1, 0 ], "skills": [1, 5]},
 		{"ability": ["ADDITIONAL_ATTACK", 1, 0, 0 ], "skills": [2, 3]},
 		{"ability": ["HP_REGENERATION", 50, 0, 0 ], "skills": [2, 4]},

@@ -119,14 +119,17 @@ In order to make functional hero you also need:
 
 	// Description of specialty mechanics using bonuses (with updaters)
 	"specialty" : {
-		// to be merged with all bonuses, use for specialties with multiple similar bonuses (optional)
+	
+		// Optional. Section that will be added into every bonus instance, for use in specialties with multiple similar bonuses
 		"base" : {common bonus properties},
+		
+		// List of bonuses added by this specialty. See bonus format for more details
 		"bonuses" : {
 			// use updaters for bonuses that grow with level
 			"someBonus" : {Bonus Format},
 			"anotherOne" : {Bonus Format}
 		},
-		// adds creature specialty following the HMM3 default formula
+		// Optional. Shortcut for defining creature specialty, using standard H3 rules
 		"creature" : "griffin"
 	}
 }

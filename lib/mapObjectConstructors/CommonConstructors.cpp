@@ -180,6 +180,9 @@ void BoatInstanceConstructor::initTypeData(const JsonNode & input)
 	int pos = vstd::find_pos(NPathfindingLayer::names, input["layer"].String());
 	if(pos != -1)
 		layer = EPathfindingLayer(pos);
+	else
+		logMod->error("Unknown layer %s found in boat!", input["layer"].String());
+
 	onboardAssaultAllowed = input["onboardAssaultAllowed"].Bool();
 	onboardVisitAllowed = input["onboardVisitAllowed"].Bool();
 	actualAnimation = AnimationPath::fromJson(input["actualAnimation"]);

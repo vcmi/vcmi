@@ -9,7 +9,7 @@
 		"shortIdentifier" :
 		{
 			"type" : "string",
-			"description" : "Two-letters unique indentifier for this road. Used in map format"
+			"description" : "Two-letters unique indentifier for this river. Used in map format"
 		},
 		"text" :
 		{
@@ -29,7 +29,7 @@
 		},
 		"paletteAnimation" : {
 			"type" : "array",
-			"description" : "If defined, terrain will be animated using palette color cycling effect",
+			"description" : "If defined, river will be animated using palette color cycling effect",
 			"items" :
 			{
 				"type" : "object",

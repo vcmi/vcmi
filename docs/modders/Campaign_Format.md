@@ -88,6 +88,7 @@ Prolog and epilog properties are optional
 {
     "video": "NEUTRALA.smk", //video to show
     "music": "musicFile.ogg", //music to play, should be located in music directory
+    "voice": "musicFile.wav", //voice to play, should be located in sounds directory
     "text": "some long text" //text to be shown
 }
 ```

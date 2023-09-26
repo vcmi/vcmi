@@ -355,16 +355,45 @@ void CIdentifierStorage::finalize()
 			errorsFound = true;
 	}
 
+	debugDumpIdentifiers();
+
 	if (errorsFound)
-	{
-		for(const auto & object : registeredObjects)
-		{
-			logMod->trace("%s : %s -> %d", object.second.scope, object.first, object.second.id);
-		}
 		logMod->error("All known identifiers were dumped into log file");
-	}
+
 	assert(errorsFound == false);
 	state = ELoadingState::FINISHED;
+
+}
+
+void CIdentifierStorage::debugDumpIdentifiers()
+{
+	logMod->trace("List of all registered objects:");
+
+	std::map<std::string, std::vector<std::string>> objectList;
+
+	for(const auto & object : registeredObjects)
+	{
+		size_t categoryLength = object.first.find('.');
+		assert(categoryLength != std::string::npos);
+
+		std::string objectCategory = object.first.substr(0, categoryLength);
+		std::string objectName = object.first.substr(categoryLength + 1);
+
+		objectList[objectCategory].push_back("[" + object.second.scope + "] " + objectName);
+	}
+
+	for(auto & category : objectList)
+		boost::range::sort(category.second);
+
+	for(const auto & category : objectList)
+	{
+		logMod->trace("");
+		logMod->trace("### %s", category.first);
+		logMod->trace("");
+
+		for(const auto & entry : category.second)
+			logMod->trace("- " + entry);
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -96,7 +96,7 @@ public:
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
 		std::vector<double> missleFrameAngles;
-		int troopCountLocationOffset, attackClimaxFrame;
+		int attackClimaxFrame;
 
 		AnimationPath projectileImageName;
 		std::vector<RayColor> projectileRay;
@@ -108,13 +108,6 @@ public:
 			h & idleAnimationTime;
 			h & walkAnimationTime;
 			h & attackAnimationTime;
-
-			if (version < 814)
-			{
-				float unused = 0.f;
-				h & unused;
-			}
-
 			h & upperRightMissleOffsetX;
 			h & rightMissleOffsetX;
 			h & lowerRightMissleOffsetX;
@@ -122,7 +115,6 @@ public:
 			h & rightMissleOffsetY;
 			h & lowerRightMissleOffsetY;
 			h & missleFrameAngles;
-			h & troopCountLocationOffset;
 			h & attackClimaxFrame;
 			h & projectileImageName;
 			h & projectileRay;

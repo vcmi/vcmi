@@ -34,7 +34,7 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
         ...
     ],
 
-    // Allow overriding individual frames in file
+    // Alternative to "sequences". Allow overriding individual frames in file. Generally should not be used in the same time as "sequences"
     "images" :
     [
         {
@@ -52,6 +52,57 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
 
 }
 ```
+
+# Examples
+
+## Replacing a button
+
+This json file will allow replacing .def file for a button with png images. Buttons require following images:
+1. Active state. Button is active and can be pressed by player
+2. Pressed state. Player pressed button but have not released it yet
+3. Blocked state. Button is blocked and can not be interacted with. Note that some buttons are never blocked and can be used without this image
+4. Highlighted state. This state is used by only some buttons and only in some cases. For example, in main menu buttons will appear highlighted when mouse cursor is on top of the image. Another example is buttons that can be selected, such as settings that can be toggled on or off
+
+```javascript
+	"basepath" : "interface/MyButton", // all images are located in this directory
+
+	"images" :
+	[
+		{"frame" : 0, "file" : "active.png" },
+		{"frame" : 1, "file" : "pressed.png" },
+		{"frame" : 2, "file" : "blocked.png" },
+		{"frame" : 3, "file" : "highlighted.png" },
+	]
+}
+```
+
+## Replacing simple animation
+
+This json file allows defining one animation sequence, for example for adventure map objects or for town buildings.
+
+```javascript
+	"basepath" : "myTown/myBuilding", // all images are located in this directory
+
+	"sequences" :
+	[
+		{
+			"group" : 0,
+			"frames" : [
+				"frame01.png",
+				"frame02.png",
+				"frame03.png",
+				"frame04.png",
+				"frame05.png"
+				...
+			]
+		}
+	]
+}
+```
+
+## Replacing creature animation
+
+TODO
 
 # Creature animation groups
 
