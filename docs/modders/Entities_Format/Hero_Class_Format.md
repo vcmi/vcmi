@@ -26,14 +26,14 @@ In order to make functional hero class you also need:
 		}
 	},
 
-	// Description of map object representing this hero class. See map template format for details
+	// Description of map object representing this hero class.
 	"mapObject" : {
 		// Optional, hero ID-base filter, using same rules as building requirements
 		"filters" : {
 			"mutare" : [ "anyOf", [ "mutare" ], [ "mutareDrake" ]]
 		},
 
-		// List of templates used for this object, normally - only one is needed
+		// List of templates used for this object, normally - only one is needed. See map template format for details
 		"templates" : {
 			"normal" : { "animation" : "AH00_.def" }
 		}

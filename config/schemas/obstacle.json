@@ -16,12 +16,12 @@
 	"properties" : {
 		"allowedTerrains" : {
 			"type" : "array",
-			"description" : "Obstacles can be place on specified terrains only",
+			"description" : "List of terrains on which this obstacle can be used",
 			"items" : { "type" : "string" }
 		},
 		"specialBattlefields" : {
 			"type" : "array",
-			"description" : "Obstacles can be placed on specified specified battlefields",
+			"description" : "List of special battlefields on which this obstacle can be used",
 			"items" : { "type" : "string" }
 		},
 		"absolute" : {

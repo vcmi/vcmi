@@ -8,7 +8,7 @@
 	"properties" : {
 		"name" : {
 			"type" : "string",
-			"description" : "Name of the battleground"
+			"description" : "Human-readable name of the battlefield"
 		},
 		"isSpecial" : {
 			"type" : "boolean",
@@ -16,17 +16,17 @@
 		},
 		"bonuses": {
 			"type":"array",
-			"description": "Bonuses provided by this battleground using bonus system",
+			"description": "List of bonuses that will affect all battles on this battlefield",
 			"items": { "$ref" : "bonus.json" }
 		},
 		"graphics" : {
 			"type" : "string",
 			"format" : "imageFile",
-			"description" : "BMP battleground resource"
+			"description" : "Background image for this battlefield"
 		},
 		"impassableHexes" : {
 			"type" : "array",
-			"description" : "Battle hexes always impassable for this type of battlefield (ship to ship for instance)",
+			"description" : "List of battle hexes that will be always blocked on this battlefield (e.g. ship to ship battles)",
 			"items" : {
 				"type" : "number"
 			}
