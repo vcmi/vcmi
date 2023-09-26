@@ -153,9 +153,8 @@ public:
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
 
-	bool isVisitActiveForAny(const CGObjectInstance *obj);
-	bool isVisitActiveForPlayer(const CGObjectInstance *obj, PlayerColor player);
-	bool isVisitActiveForHero(const CGObjectInstance *obj, const CGHeroInstance *hero);
+	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
+	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override;
 	void showInfoDialog(InfoWindow * iw) override;
