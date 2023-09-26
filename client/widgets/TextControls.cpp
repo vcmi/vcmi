@@ -454,6 +454,14 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, E
 	autoRedraw = false;
 }
 
+CGStatusBar::CGStatusBar(int x, int y)
+	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
+	, enteringText(false)
+{
+	 // without background
+	addUsedEvents(LCLICK);
+}
+
 CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
 	, enteringText(false)
@@ -461,6 +469,7 @@ CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 	addUsedEvents(LCLICK);
 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
 	auto backgroundImage = std::make_shared<CPicture>(name);
 	background = backgroundImage;
 	pos = background->pos;

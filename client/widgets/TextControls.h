@@ -126,6 +126,7 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 
 	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const ColorRGBA & Color = Colors::WHITE);
 	CGStatusBar(int x, int y, const ImagePath & name, int maxw = -1);
+	CGStatusBar(int x, int y);
 
 	//make CLabel API private
 	using CLabel::getText;
