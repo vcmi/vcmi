@@ -167,16 +167,6 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	CCS->musich->loadTerrainMusicThemes();
 
 	initializeHeroTownList();
-
-	// always recreate advmap interface to avoid possible memory-corruption bugs
-	adventureInt.reset(new AdventureMapInterface());
-
-	if(GH.windows().findWindows<AdventureMapInterface>().empty())
-	{
-		// after map load - remove all active windows and replace them with adventure map
-		GH.windows().clear();
-		GH.windows().pushWindow(adventureInt);
-	}
 }
 
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
@@ -213,6 +203,16 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
+	if(GH.windows().findWindows<AdventureMapInterface>().empty())
+	{
+		// after map load - remove all active windows and replace them with adventure map
+		// always recreate advmap interface to avoid possible memory-corruption bugs
+		adventureInt.reset(new AdventureMapInterface());
+
+		GH.windows().clear();
+		GH.windows().pushWindow(adventureInt);
+	}
+
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (player != playerID && LOCPLINT == this)
 	{
