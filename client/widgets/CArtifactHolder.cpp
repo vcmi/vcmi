@@ -18,6 +18,7 @@
 #include "../windows/GUIClasses.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
+#include "../render/IRenderHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 
@@ -25,6 +26,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/CConfigHandler.h"
 
 void CArtPlace::setInternals(const CArtifactInstance * artInst)
 {
@@ -33,12 +35,16 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 	if(!artInst)
 	{
 		image->disable();
+		imageSpell->disable();
 		text.clear();
 		hoverText = CGI->generaltexth->allTexts[507];
 		return;
 	}
+
 	image->enable();
+	imageSpell->disable();
 	image->setFrame(artInst->artType->getIconIndex());
+	
 	if(artInst->getTypeId() == ArtifactID::SPELL_SCROLL)
 	{
 		auto spellID = artInst->getScrollSpellID();
@@ -48,6 +54,13 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 			baseType = CComponent::spell;
 			type = spellID;
 			bonusValue = 0;
+
+			if(settings["general"]["enableUiEnhancements"].Bool())
+			{
+				imageSpell->enable();
+				image->disable();
+				imageSpell->setFrame(spellID.num);
+			}
 		}
 	}
 	else
@@ -56,6 +69,7 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 		type = artInst->getTypeId();
 		bonusValue = 0;
 	}
+
 	text = artInst->getDescription();
 }
 
@@ -247,9 +261,13 @@ void CHeroArtPlace::createImage()
 	else if(ourArt)
 		imageIndex = ourArt->artType->getIconIndex();
 
+	imageSpell = std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("spellscr")), 0, Rect(0, 5, 44, 34));
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	if(!ourArt)
+	{
 		image->disable();
+		imageSpell->disable();
+	}
 
 	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION);
 	selection->disable();
