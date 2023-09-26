@@ -437,12 +437,12 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 				executeCheatCode(cheatName, i.first, h->id, parameters);
 	}
 
-	if (!playerTargetedCheat)
-		executeCheatCode(cheatName, player, currObj, words);
-
 	PlayerCheated pc;
 	pc.player = player;
 	gameHandler->sendAndApply(&pc);
+	
+	if (!playerTargetedCheat)
+		executeCheatCode(cheatName, player, currObj, words);
 	
 	return true;
 }
