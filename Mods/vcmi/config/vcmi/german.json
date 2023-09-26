@@ -90,7 +90,7 @@
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptisches Feedback",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptisches Feedback}\n\nHaptisches Feedback bei Touch-Eingaben.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Interface Verbesserungen",
-	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Interface Verbesserungen}\n\nSchaltet verschiedene Interface Verbesserungen um.",
+	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Interface Verbesserungen}\n\nSchaltet verschiedene Interface Verbesserungen um. Wie z.B. ein größeres Zauberbuch, Rucksack, etc. Deaktivieren, um ein klassischeres Erlebnis zu haben.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Meldungen im Infobereich anzeigen",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Meldungen im Infobereich anzeigen}\n\nWann immer möglich, werden Spielnachrichten von besuchten Kartenobjekten in der Infoleiste angezeigt, anstatt als Popup-Fenster zu erscheinen",
