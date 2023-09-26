@@ -41,6 +41,10 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 		return;
 	}
 
+	image->enable();
+	imageSpell->disable();
+	image->setFrame(artInst->artType->getIconIndex());
+	
 	if(artInst->getTypeId() == ArtifactID::SPELL_SCROLL)
 	{
 		auto spellID = artInst->getScrollSpellID();
@@ -51,13 +55,7 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 			type = spellID;
 			bonusValue = 0;
 
-			if(!settings["general"]["enableUiEnhancements"].Bool())
-			{
-				image->enable();
-				imageSpell->disable();
-				image->setFrame(artInst->artType->getIconIndex());
-			}
-			else
+			if(settings["general"]["enableUiEnhancements"].Bool())
 			{
 				imageSpell->enable();
 				image->disable();
@@ -67,9 +65,6 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 	}
 	else
 	{
-		image->enable();
-		imageSpell->disable();
-		image->setFrame(artInst->artType->getIconIndex());
 		baseType = CComponent::artifact;
 		type = artInst->getTypeId();
 		bonusValue = 0;
