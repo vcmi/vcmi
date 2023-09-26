@@ -263,8 +263,8 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		}
 		catch(std::runtime_error & error)
 		{
-			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+			logNetwork->warn("\nCannot establish connection. %s Retrying in 10 ms", error.what());
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 		}
 	}
 
