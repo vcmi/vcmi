@@ -18,9 +18,8 @@ FramerateManager::FramerateManager(int targetFrameRate)
 	: lastFrameIndex(0)
 	, lastFrameTimes({})
 	, lastTimePoint(Clock::now())
-	, vsyncEnabled(settings["video"]["vsync"].Bool())
 {
-	if(vsyncEnabled)
+	if(settings["video"]["vsync"].Bool())
 	{
 		static int display_in_use = settings["video"]["displayIndex"].Integer();
 		SDL_DisplayMode mode;
