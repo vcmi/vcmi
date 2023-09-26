@@ -48,9 +48,9 @@
 	"vcmi.lobby.filename" : "Назва файлу",
 	"vcmi.lobby.creationDate" : "Дата створення",
 
-	"vcmi.server.errors.existingProcess"     : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
-	"vcmi.server.errors.modsIncompatibility" : "Потрібні модифікації для завантаження гри:",
-	"vcmi.server.confirmReconnect"           : "Підключитися до минулої сесії?",
+	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
+	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
+	"vcmi.server.confirmReconnect"       : "Підключитися до минулої сесії?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Загальні",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Перемикає на вкладку загальних параметрів, яка містить налаштування, пов'язані із загальною поведінкою ігрового клієнта",

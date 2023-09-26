@@ -74,12 +74,12 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.529"));
 	
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
-	ModIncompatibility::ModList modList;
+	ModIncompatibility::ModListWithVersion modList;
 	for(const auto & m : missingMods)
-		modList.push_back({m.first, m.second.toString()});
+		modList.push_back({m.second.name, m.second.version.toString()});
 	
 	if(!modList.empty())
-		throw ModIncompatibility(std::move(modList));
+		throw ModIncompatibility(modList);
 
 	//there must be at least one human player before game can be started
 	std::map<PlayerColor, PlayerSettings>::const_iterator i;

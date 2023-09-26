@@ -336,19 +336,20 @@ bool MainWindow::openMap(const QString & filenameSelect)
 		if(auto header = mapService.loadMapHeader(resId))
 		{
 			auto missingMods = CMapService::verifyMapHeaderMods(*header);
-			ModIncompatibility::ModList modList;
+			ModIncompatibility::ModListWithVersion modList;
 			for(const auto & m : missingMods)
-				modList.push_back({m.first, m.second.toString()});
+				modList.push_back({m.second.name, m.second.version.toString()});
 			
 			if(!modList.empty())
-				throw ModIncompatibility(std::move(modList));
+				throw ModIncompatibility(modList);
 			
 			controller.setMap(mapService.loadMap(resId));
 		}
 	}
 	catch(const ModIncompatibility & e)
 	{
-		QMessageBox::warning(this, "Mods requiered", e.what());
+		assert(e.whatExcessive().empty());
+		QMessageBox::warning(this, "Mods are requiered", QString::fromStdString(e.whatMissing()));
 		return false;
 	}
 	catch(const std::exception & e)

@@ -30,9 +30,9 @@
 	"vcmi.capitalColors.6" : "褐色",
 	"vcmi.capitalColors.7" : "粉色",
 
-	"vcmi.server.errors.existingProcess"     : "一个VCMI进程已经在运行，启动新进程前请结束它。",
-	"vcmi.server.errors.modsIncompatibility" : "需要加载的MOD列表:",
-	"vcmi.server.confirmReconnect"           : "您想要重连上一个会话么？",
+	"vcmi.server.errors.existingProcess" : "一个VCMI进程已经在运行，启动新进程前请结束它。",
+	"vcmi.server.errors.modsToEnable"    : "{需要加载的MOD列表}",
+	"vcmi.server.confirmReconnect"       : "您想要重连上一个会话么？",
 
 	"vcmi.settingsMainWindow.generalTab.hover"   : "常规",
 	"vcmi.settingsMainWindow.generalTab.help"    : "切换到“常规”选项卡 - 设置游戏客户端呈现",

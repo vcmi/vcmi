@@ -537,6 +537,8 @@ void CServerHandler::sendGuiAction(ui8 action) const
 
 void CServerHandler::sendRestartGame() const
 {
+	GH.windows().createAndPushWindow<CLoadingScreen>();
+	
 	LobbyEndGame endGame;
 	endGame.closeConnection = false;
 	endGame.restart = true;
@@ -552,10 +554,17 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 	catch(ModIncompatibility & e)
 	{
 		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
-
-		auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
-		errorMsg += e.what();
-
+		std::string errorMsg;
+		if(!e.whatMissing().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
+			errorMsg += e.whatMissing();
+		}
+		if(!e.whatExcessive().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
+			errorMsg += e.whatExcessive();
+		}
 		showServerError(errorMsg);
 		return false;
 	}
@@ -572,7 +581,8 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
-
+	GH.windows().createAndPushWindow<CLoadingScreen>();
+	
 	LobbyStartGame lsg;
 	if(client)
 	{
@@ -711,6 +721,9 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 
 void CServerHandler::showServerError(const std::string & txt) const
 {
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+		GH.windows().popWindow(w);
+	
 	CInfoWindow::showInfoDialog(txt, {});
 }
 

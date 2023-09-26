@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../modding/CModInfo.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class ResourcePath;
@@ -17,12 +19,11 @@ class ResourcePath;
 class CMap;
 class CMapHeader;
 class CInputStream;
-struct CModVersion;
 
 class IMapLoader;
 class IMapPatcher;
 
-using ModCompatibilityInfo = std::map<std::string, CModVersion>;
+using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
 
 /**
  * The map service provides loading of VCMI/H3 map files. It can

@@ -212,7 +212,8 @@ void CContentHandler::preloadData(CModInfo & mod)
 	bool validate = (mod.validation != CModInfo::PASSED);
 
 	// print message in format [<8-symbols checksum>] <modname>
-	logMod->info("\t\t[%08x]%s", mod.checksum, mod.name);
+	auto & info = mod.getVerificationInfo();
+	logMod->info("\t\t[%08x]%s", info.checksum, info.name);
 
 	if (validate && mod.identifier != ModScope::scopeBuiltin())
 	{
@@ -233,12 +234,12 @@ void CContentHandler::load(CModInfo & mod)
 	if (validate)
 	{
 		if (mod.validation != CModInfo::FAILED)
-			logMod->info("\t\t[DONE] %s", mod.name);
+			logMod->info("\t\t[DONE] %s", mod.getVerificationInfo().name);
 		else
-			logMod->error("\t\t[FAIL] %s", mod.name);
+			logMod->error("\t\t[FAIL] %s", mod.getVerificationInfo().name);
 	}
 	else
-		logMod->info("\t\t[SKIP] %s", mod.name);
+		logMod->info("\t\t[SKIP] %s", mod.getVerificationInfo().name);
 }
 
 const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const

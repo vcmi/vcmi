@@ -53,9 +53,10 @@
 	"vcmi.lobby.filename" : "Filename",
 	"vcmi.lobby.creationDate" : "Creation date",
 
-	"vcmi.server.errors.existingProcess"     : "Another VCMI server process is running. Please terminate it before starting a new game.",
-	"vcmi.server.errors.modsIncompatibility" : "The following mods are required to load the game:",
-	"vcmi.server.confirmReconnect"           : "Do you want to reconnect to the last session?",
+	"vcmi.server.errors.existingProcess" : "Another VCMI server process is running. Please terminate it before starting a new game.",
+	"vcmi.server.errors.modsToEnable"    : "{Following mods are required}",
+	"vcmi.server.errors.modsToDisable"   : "{Following mods must be disabled}",
+	"vcmi.server.confirmReconnect"       : "Do you want to reconnect to the last session?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "General",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Switches to General Options tab, which contains settings related to general game client behavior.",

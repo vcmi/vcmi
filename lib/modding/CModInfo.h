@@ -29,16 +29,40 @@ public:
 		FAILED,
 		PASSED
 	};
+	
+	struct VerificationInfo
+	{
+		/// human-readable mod name
+		std::string name;
+		
+		/// version of the mod
+		CModVersion version;
+		
+		/// CRC-32 checksum of the mod
+		ui32 checksum = 0;
+		
+		/// parent mod ID, empty if root-level mod
+		TModID parent;
+		
+		/// for serialization purposes
+		bool impactsGameplay = true;
+		
+		template <typename Handler>
+		void serialize(Handler & h, const int v)
+		{
+			h & name;
+			h & version;
+			h & checksum;
+			h & parent;
+			h & impactsGameplay;
+		}
+	};
 
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
 
-	/// human-readable strings
-	std::string name;
+	/// detailed mod description
 	std::string description;
-
-	/// version of the mod
-	CModVersion version;
 
 	/// Base language of mod, all mod strings are assumed to be in this language
 	std::string baseLanguage;
@@ -51,9 +75,6 @@ public:
 
 	/// list of mods that can't be used in the same time as this one
 	std::set <TModID> conflicts;
-
-	/// CRC-32 checksum of the mod
-	ui32 checksum;
 
 	EValidationStatus validation;
 
@@ -73,6 +94,8 @@ public:
 
 	/// return true if this mod can affect gameplay, e.g. adds or modifies any game objects
 	bool checkModGameplayAffecting() const;
+	
+	const VerificationInfo & getVerificationInfo() const;
 
 private:
 	/// true if mod is enabled by user, e.g. in Launcher UI
@@ -80,6 +103,8 @@ private:
 
 	/// true if mod can be loaded - compatible and has no missing deps
 	bool implicitlyEnabled;
+	
+	VerificationInfo verificationInfo;
 
 	void loadLocalData(const JsonNode & data);
 };

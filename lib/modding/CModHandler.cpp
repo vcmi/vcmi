@@ -56,7 +56,7 @@ bool CModHandler::hasCircularDependency(const TModID & modID, std::set<TModID> c
 	if (vstd::contains(currentList, modID))
 	{
 		logMod->error("Error: Circular dependency detected! Printing dependency list:");
-		logMod->error("\t%s -> ", mod.name);
+		logMod->error("\t%s -> ", mod.getVerificationInfo().name);
 		return true;
 	}
 
@@ -67,7 +67,7 @@ bool CModHandler::hasCircularDependency(const TModID & modID, std::set<TModID> c
 	{
 		if (hasCircularDependency(dependency, currentList))
 		{
-			logMod->error("\t%s ->\n", mod.name); // conflict detected, print dependency list
+			logMod->error("\t%s ->\n", mod.getVerificationInfo().name); // conflict detected, print dependency list
 			return true;
 		}
 	}
@@ -129,7 +129,7 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		for(const TModID & dependency : brokenMod.dependencies)
 		{
 			if(!vstd::contains(resolvedModIDs, dependency))
-				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", brokenMod.name, dependency);
+				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", brokenMod.getVerificationInfo().name, dependency);
 		}
 	}
 	return sortedValidMods;
@@ -212,7 +212,6 @@ void CModHandler::loadMods(bool onlyEssential)
 	}
 
 	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")));
-	coreMod->name = "Original game files";
 }
 
 std::vector<std::string> CModHandler::getAllMods()
@@ -352,7 +351,7 @@ void CModHandler::initializeConfig()
 CModVersion CModHandler::getModVersion(TModID modName) const
 {
 	if (allMods.count(modName))
-		return allMods.at(modName).version;
+		return allMods.at(modName).getVerificationInfo().version;
 	return {};
 }
 
@@ -462,6 +461,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 		modSettings["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
 	}
 	modSettings[ModScope::scopeBuiltin()] = coreMod->saveLocalData();
+	modSettings[ModScope::scopeBuiltin()]["name"].String() = "Original game files";
 
 	if(!onlyEssential)
 	{
@@ -471,49 +471,85 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 }
 
-void CModHandler::trySetActiveMods(std::vector<TModID> saveActiveMods, const std::map<TModID, CModVersion> & modList)
+void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo::VerificationInfo>> & modList)
 {
-	std::vector<TModID> newActiveMods;
-
-	ModIncompatibility::ModList missingMods;
-
+	auto searchVerificationInfo = [&modList](const TModID & m) -> const CModInfo::VerificationInfo*
+	{
+		for(auto & i : modList)
+			if(i.first == m)
+				return &i.second;
+		return nullptr;
+	};
+	
+	std::vector<TModID> missingMods, excessiveMods;
+	ModIncompatibility::ModListWithVersion missingModsResult;
+	ModIncompatibility::ModList excessiveModsResult;
+	
 	for(const auto & m : activeMods)
 	{
-		if (vstd::contains(saveActiveMods, m))
+		if(searchVerificationInfo(m))
 			continue;
 
-		auto & modInfo = allMods.at(m);
-		if(modInfo.checkModGameplayAffecting())
-			missingMods.emplace_back(m, modInfo.version.toString());
+		//TODO: support actual disabling of these mods
+		if(getModInfo(m).checkModGameplayAffecting())
+			excessiveMods.push_back(m);
 	}
-
-	for(const auto & m : saveActiveMods)
+	
+	for(const auto & infoPair : modList)
 	{
-		const CModVersion & mver = modList.at(m);
-
-		if (allMods.count(m) == 0)
+		auto & remoteModId = infoPair.first;
+		auto & remoteModInfo = infoPair.second;
+		
+		bool modAffectsGameplay = remoteModInfo.impactsGameplay;
+		//parent mod affects gameplay if child affects too
+		for(const auto & subInfoPair : modList)
+			modAffectsGameplay |= (subInfoPair.second.impactsGameplay && subInfoPair.second.parent == remoteModId);
+		
+		if(!allMods.count(remoteModId))
 		{
-			missingMods.emplace_back(m, mver.toString());
+			if(modAffectsGameplay)
+				missingMods.push_back(remoteModId); //mod is not installed
 			continue;
 		}
-
-		auto & modInfo = allMods.at(m);
-
-		bool modAffectsGameplay = modInfo.checkModGameplayAffecting();
-		bool modVersionCompatible = modInfo.version.isNull() || mver.isNull() || modInfo.version.compatible(mver);
-		bool modEnabledLocally = vstd::contains(activeMods, m);
-		bool modCanBeEnabled = modEnabledLocally && modVersionCompatible;
-
-		allMods[m].setEnabled(modCanBeEnabled);
-
-		if (modCanBeEnabled)
-			newActiveMods.push_back(m);
-
-		if (!modCanBeEnabled && modAffectsGameplay)
-			missingMods.emplace_back(m, mver.toString());
+		
+		auto & localModInfo = getModInfo(remoteModId).getVerificationInfo();
+		modAffectsGameplay |= getModInfo(remoteModId).checkModGameplayAffecting();
+		bool modVersionCompatible = localModInfo.version.isNull()
+			|| remoteModInfo.version.isNull()
+			|| localModInfo.version.compatible(remoteModInfo.version);
+		bool modLocalyEnabled = vstd::contains(activeMods, remoteModId);
+		
+		if(modVersionCompatible && modAffectsGameplay && modLocalyEnabled)
+			continue;
+		
+		if(modAffectsGameplay)
+			missingMods.push_back(remoteModId); //incompatible mod impacts gameplay
 	}
-
-	std::swap(activeMods, newActiveMods);
+	
+	//filter mods
+	for(auto & m : missingMods)
+	{
+		if(auto * vInfo = searchVerificationInfo(m))
+		{
+			assert(vInfo->parent != m);
+			if(!vInfo->parent.empty() && vstd::contains(missingMods, vInfo->parent))
+				continue;
+			missingModsResult.push_back({vInfo->name, vInfo->version.toString()});
+		}
+	}
+	for(auto & m : excessiveMods)
+	{
+		auto & vInfo = getModInfo(m).getVerificationInfo();
+		assert(vInfo.parent != m);
+		if(!vInfo.parent.empty() && vstd::contains(excessiveMods, vInfo.parent))
+			continue;
+		excessiveModsResult.push_back(vInfo.name);
+	}
+	
+	if(!missingModsResult.empty() || !excessiveModsResult.empty())
+		throw ModIncompatibility(missingModsResult, excessiveModsResult);
+	
+	//TODO: support actual enabling of required mods
 }
 
 VCMI_LIB_NAMESPACE_END

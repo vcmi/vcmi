@@ -21,9 +21,9 @@
 	"vcmi.adventureMap.moveCostDetails"        : "Очки движения - Стоимость: %TURNS ходов + %POINTS очков, Останется: %REMAINING очков",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Очки движения - Стоимость: %POINTS очков, Останется: %REMAINING очков",
 
-	"vcmi.server.errors.existingProcess"     : "Запущен другой процесс vcmiserver, сначала завершите его.",
-	"vcmi.server.errors.modsIncompatibility" : "Требуемые моды для загрузки игры:",
-	"vcmi.server.confirmReconnect"          : "Подключиться к предыдущей сессии?",
+	"vcmi.server.errors.existingProcess" : "Запущен другой процесс vcmiserver, сначала завершите его.",
+	"vcmi.server.errors.modsToEnable"    : "{Требуемые моды для загрузки игры}",
+	"vcmi.server.confirmReconnect"       : "Подключиться к предыдущей сессии?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Общее",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Переключиться на вкладку \"Общее\", содержащее общие настройки клиента игры",

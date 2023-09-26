@@ -13,10 +13,10 @@
 #include "maphandler.h"
 #include "mapview.h"
 
-#include "../lib/modding/CModVersion.h"
+#include "../lib/modding/CModInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-using ModCompatibilityInfo = std::map<std::string, CModVersion>;
+using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
 class EditorObstaclePlacer;
 VCMI_LIB_NAMESPACE_END
 

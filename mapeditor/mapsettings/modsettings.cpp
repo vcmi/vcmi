@@ -47,7 +47,7 @@ void ModSettings::initialize(MapController & c)
 
 	auto createModTreeWidgetItem = [&](QTreeWidgetItem * parent, const CModInfo & modInfo)
 	{
-		auto item = new QTreeWidgetItem(parent, {QString::fromStdString(modInfo.name), QString::fromStdString(modInfo.version.toString())});
+		auto item = new QTreeWidgetItem(parent, {QString::fromStdString(modInfo.getVerificationInfo().name), QString::fromStdString(modInfo.getVerificationInfo().version.toString())});
 		item->setData(0, Qt::UserRole, QVariant(QString::fromStdString(modInfo.identifier)));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(0, controller->map()->mods.count(modInfo.identifier) ? Qt::Checked : Qt::Unchecked);
@@ -104,7 +104,7 @@ void ModSettings::update()
 		if(item->checkState(0) == Qt::Checked)
 		{
 			auto modName = item->data(0, Qt::UserRole).toString().toStdString();
-			controller->map()->mods[modName] = VLC->modh->getModInfo(modName).version;
+			controller->map()->mods[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
 		}
 	};
 

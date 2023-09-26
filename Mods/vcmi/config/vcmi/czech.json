@@ -48,9 +48,9 @@
 	"vcmi.lobby.filename" : "Název souboru",
 	"vcmi.lobby.creationDate" : "Datum vytvoření",
 
-	"vcmi.server.errors.existingProcess"     : "Již běží jiný server VCMI. Prosím, ukončete ho před startem nové hry.",
-	"vcmi.server.errors.modsIncompatibility" : "Následující modifikace jsou nutné pro načtení hry:",
-	"vcmi.server.confirmReconnect"           : "Chcete se připojit k poslední relaci?",
+	"vcmi.server.errors.existingProcess" : "Již běží jiný server VCMI. Prosím, ukončete ho před startem nové hry.",
+	"vcmi.server.errors.modsToEnable"    : "{Následující modifikace jsou nutné pro načtení hry}",
+	"vcmi.server.confirmReconnect"       : "Chcete se připojit k poslední relaci?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Obecné",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Přepne na kartu obecných nastavení, která obsahuje nastavení související s obecným chováním klienta hry",
