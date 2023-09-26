@@ -62,6 +62,8 @@ private slots:
 
 	void on_spinBoxFramerateLimit_valueChanged(int arg1);
 
+	void on_checkBoxVSync_stateChanged(int arg1);
+
 	void on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1);
 
 	void on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1);
