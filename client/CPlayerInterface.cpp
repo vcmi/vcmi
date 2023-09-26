@@ -183,7 +183,32 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (player == playerID)
+	{
 		makingTurn = false;
+
+		// remove all active dialogs that do not expect query answer
+		for (;;)
+		{
+			auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
+			auto infoWindow = GH.windows().topWindow<CInfoWindow>();
+
+			if(adventureWindow != nullptr)
+				break;
+
+			if(infoWindow && infoWindow->ID != QueryID::NONE)
+				break;
+
+			if (infoWindow)
+				infoWindow->close();
+			else
+				GH.windows().popWindows(1);
+		}
+
+		// remove all pending dialogs that do not expect query answer
+		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
+			return window->ID == QueryID::NONE;
+		});
+	}
 }
 
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
@@ -249,21 +274,6 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 	{
 		LOCPLINT = this;
 		GH.curInt = this;
-
-		// close window from another player
-		if(auto w = GH.windows().topWindow<CInfoWindow>())
-		{
-			assert(0);// what is this?
-			if(w->ID == QueryID::NONE)
-				w->close();
-		}
-
-		// remove all dialogs that do not expect query answer
-		while (!GH.windows().topWindow<AdventureMapInterface>() && !GH.windows().topWindow<CInfoWindow>())
-		{
-			assert(0);// what is this?
-			GH.windows().popWindows(1);
-		}
 
 		NotificationHandler::notify("Your turn");
 		if(settings["general"]["startTurnAutosave"].Bool())
