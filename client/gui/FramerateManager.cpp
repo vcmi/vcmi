@@ -22,7 +22,7 @@ FramerateManager::FramerateManager(int targetFrameRate)
 {
 	if(vsyncEnabled)
 	{
-		static int display_in_use = 0;
+		static int display_in_use = settings["video"]["displayIndex"].Integer();
 		SDL_DisplayMode mode;
 		SDL_GetCurrentDisplayMode(display_in_use, &mode);
 		int displayRefreshRate = mode.refresh_rate;
