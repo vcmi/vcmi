@@ -454,6 +454,13 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, E
 	autoRedraw = false;
 }
 
+CGStatusBar::CGStatusBar(int x, int y)
+	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
+	, enteringText(false)
+{
+	addUsedEvents(LCLICK);
+}
+
 CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
 	, enteringText(false)
