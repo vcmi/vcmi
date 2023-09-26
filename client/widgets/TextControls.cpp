@@ -458,6 +458,7 @@ CGStatusBar::CGStatusBar(int x, int y)
 	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
 	, enteringText(false)
 {
+	 // without background
 	addUsedEvents(LCLICK);
 }
 
@@ -469,8 +470,6 @@ CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	if(name.empty()) // without background
-		return;
 	auto backgroundImage = std::make_shared<CPicture>(name);
 	background = backgroundImage;
 	pos = background->pos;
