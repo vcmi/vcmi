@@ -537,6 +537,8 @@ void CServerHandler::sendGuiAction(ui8 action) const
 
 void CServerHandler::sendRestartGame() const
 {
+	GH.windows().createAndPushWindow<CLoadingScreen>();
+	
 	LobbyEndGame endGame;
 	endGame.closeConnection = false;
 	endGame.restart = true;
