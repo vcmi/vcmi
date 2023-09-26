@@ -7,7 +7,7 @@
 			"name": "lineLabelsEnd",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 319, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
 		},
 		{
 			"type" : "labelTitle",
@@ -21,7 +21,7 @@
 		},
 		{
 			"type" : "labelTitle",
-			"position": {"x": 10, "y": 295},
+			"position": {"x": 10, "y": 355},
 			"text": "vcmi.systemOptions.townsGroup"
 		},
 /////////////////////////////////////// Left section - Video Settings
@@ -176,7 +176,7 @@
 		{
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 355},
+			"position": {"x": 45, "y": 385},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
@@ -189,7 +189,7 @@
 		{
 			"name": "availableCreaturesAsDwellingPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 323},
+			"position": {"x": 10, "y": 383},
 			"items":
 			[
 				{
@@ -211,7 +211,7 @@
 			"name": "compactTownCreatureInfoLabel",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 385},
+			"position": {"x": 45, "y": 445},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
@@ -222,7 +222,7 @@
 			"name": "compactTownCreatureInfoCheckbox",
 			"type": "checkbox",
 			"help": "vcmi.otherOptions.compactTownCreatureInfo",
-			"position": {"x": 10, "y": 383},
+			"position": {"x": 10, "y": 443},
 			"callback": "compactTownCreatureInfoChanged"
 		}
 	]
