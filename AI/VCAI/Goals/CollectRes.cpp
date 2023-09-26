@@ -60,14 +60,11 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 				return false;
 			}
 			break;
-		case Obj::WATER_WHEEL:
-			if (resID != GameResID(EGameResID::GOLD))
-				return false;
-			break;
 		case Obj::MYSTICAL_GARDEN:
 			if ((resID != GameResID(EGameResID::GOLD)) && (resID != GameResID(EGameResID::GEMS)))
 				return false;
 			break;
+		case Obj::WATER_WHEEL:
 		case Obj::LEAN_TO:
 		case Obj::WAGON:
 			if (resID != GameResID(EGameResID::GOLD))
