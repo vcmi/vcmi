@@ -1707,6 +1707,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 				param.allDefeated = false;
 	}
 	param.scenarioName = cb->getMapHeader()->name;
+	param.playerName = cb->getStartInfo()->playerInfos.find(*cb->getPlayerID())->second.name;
 	HighScoreCalculation highScoreCalc;
 	highScoreCalc.parameters.push_back(param);
 	highScoreCalc.isCampaign = false;

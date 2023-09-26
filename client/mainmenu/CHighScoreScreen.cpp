@@ -335,7 +335,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 
 	if(!input)
 	{
-		input = std::make_shared<CHighScoreInput>(
+		input = std::make_shared<CHighScoreInput>(calc.parameters[0].playerName,
 		[&] (std::string text) 
 		{
 			if(!text.empty())
@@ -355,7 +355,7 @@ void CHighScoreInputScreen::keyPressed(EShortcut key)
 	clickPressed(Point());
 }
 
-CHighScoreInput::CHighScoreInput(std::function<void(std::string text)> readyCB)
+CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std::string text)> readyCB)
 	: CWindowObject(0, ImagePath::builtin("HIGHNAME")), ready(readyCB)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -369,7 +369,7 @@ CHighScoreInput::CHighScoreInput(std::function<void(std::string text)> readyCB)
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], std::bind(&CHighScoreInput::abort, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
 	textInput = std::make_shared<CTextInput>(Rect(18, 104, 200, 25), FONT_SMALL, 0);
-	textInput->setText(settings["general"]["playerName"].String());
+	textInput->setText(playerName);
 }
 
 void CHighScoreInput::okay()

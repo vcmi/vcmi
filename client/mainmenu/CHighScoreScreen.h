@@ -29,6 +29,7 @@ public:
 	bool allDefeated;
 	std::string campaignName;
 	std::string scenarioName;
+	std::string playerName;
 };
 
 class HighScoreCalculation
@@ -84,7 +85,7 @@ class CHighScoreInput : public CWindowObject
 	void okay();
 	void abort();
 public:
-	CHighScoreInput(std::function<void(std::string text)> readyCB);
+	CHighScoreInput(std::string playerName, std::function<void(std::string text)> readyCB);
 };
 
 class CHighScoreInputScreen : public CWindowObject
