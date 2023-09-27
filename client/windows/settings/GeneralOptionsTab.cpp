@@ -289,7 +289,6 @@ void GeneralOptionsTab::setGameResolution(int index)
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 
 	GH.dispatchMainThread([](){
-		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 		GH.onScreenResize();
 	});
 }
@@ -314,7 +313,6 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 	updateResolutionSelector();
 
 	GH.dispatchMainThread([](){
-		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 		GH.onScreenResize();
 	});
 }
@@ -374,7 +372,6 @@ void GeneralOptionsTab::setGameScaling(int index)
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 
 	GH.dispatchMainThread([](){
-		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 		GH.onScreenResize();
 	});
 }

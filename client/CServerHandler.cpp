@@ -90,7 +90,7 @@ template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
 public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
@@ -296,7 +296,7 @@ void CServerHandler::applyPacksOnLobbyScreen()
 	boost::unique_lock<boost::recursive_mutex> lock(*mx);
 	while(!packsForLobbyScreen.empty())
 	{
-		boost::unique_lock<boost::recursive_mutex> guiLock(*CPlayerInterface::pim);
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		CPackForLobby * pack = packsForLobbyScreen.front();
 		packsForLobbyScreen.pop_front();
 		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier

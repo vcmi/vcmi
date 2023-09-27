@@ -473,8 +473,6 @@ static void quitApplication()
 
 	vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(750));//???
-
 	if(!settings["session"]["headless"].Bool())
 		GH.screenHandler().close();
 
@@ -486,6 +484,10 @@ static void quitApplication()
 	}
 
 	std::cout << "Ending...\n";
+
+	// this method is always called from event/network threads, which keep interface mutex locked
+	// unlock it here to avoid assertion failure on GH descruction in exit()
+	GH.interfaceMutex.unlock();
 	exit(0);
 }
 

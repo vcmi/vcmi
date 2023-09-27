@@ -113,8 +113,6 @@
 	if (isAutoFightOn && !battleInt)	\
 		return;
 
-boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
-
 CPlayerInterface * LOCPLINT;
 
 std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
@@ -534,7 +532,6 @@ void CPlayerInterface::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID i
 
 void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	for (auto object : objs)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(object);
@@ -754,7 +751,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 		{
 			//FIXME: we want client rendering to proceed while AI is making actions
 			// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
-			auto unlockPim = vstd::makeUnlockGuard(*pim);
+			auto unlockPim = vstd::makeUnlockGuard(GH.interfaceMutex);
 			autofightingAI->activeStack(battleID, stack);
 			return;
 		}
@@ -770,11 +767,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 		cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 	}
 
-	{
-		boost::unique_lock<boost::recursive_mutex> un(*pim);
-		battleInt->stackActivated(stack);
-		//Regeneration & mana drain go there
-	}
+	battleInt->stackActivated(stack);
 }
 
 void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID)
@@ -1017,8 +1010,6 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-
 	movementController->requestMovementAbort();
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
@@ -1116,7 +1107,6 @@ void CPlayerInterface::tileHidden(const std::unordered_set<int3> &pos)
 
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	GH.windows().createAndPushWindow<CHeroWindow>(hero);
 }
 
@@ -1349,7 +1339,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim)
 		return;
 	}
 
-	auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
+	auto unlock = vstd::makeUnlockGuardIf(GH.interfaceMutex, unlockPim);
 	boost::unique_lock<boost::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
 		showingDialog->cond.wait(un);
@@ -1387,8 +1377,8 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	{
 		GH.windows().totalRedraw();
 		{
-			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
+			auto unlockPim = vstd::makeUnlockGuard(GH.interfaceMutex);
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
 		}
 	}
@@ -1825,7 +1815,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 {
 	while(!dialogs.empty())
 	{
-		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
+		auto unlock = vstd::makeUnlockGuardIf(GH.interfaceMutex, unlockPim);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
 	waitWhileDialog(unlockPim);
