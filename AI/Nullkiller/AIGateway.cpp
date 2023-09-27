@@ -702,8 +702,8 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	NET_EVENT_HANDLER;
 
-	std::string s1 = up ? up->nodeName() : "NONE";
-	std::string s2 = down ? down->nodeName() : "NONE";
+	std::string s1 = up->nodeName();
+	std::string s2 = down->nodeName();
 
 	status.addQuery(queryID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
@@ -711,7 +711,9 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	requestActionASAP([=]()
 	{
 		if(removableUnits && up->tempOwner == down->tempOwner)
+		{
 			pickBestCreatures(down, up);
+		}
 
 		answerQuery(queryID, 0);
 	});
