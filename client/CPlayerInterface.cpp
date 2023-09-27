@@ -1331,7 +1331,7 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 	GH.windows().createAndPushWindow<CRecruitmentWindow>(dwelling, level, dst, recruitCb);
 }
 
-void CPlayerInterface::waitWhileDialog(bool unlockPim)
+void CPlayerInterface::waitWhileDialog()
 {
 	if (GH.amIGuiThread())
 	{
@@ -1339,7 +1339,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim)
 		return;
 	}
 
-	auto unlock = vstd::makeUnlockGuardIf(GH.interfaceMutex, unlockPim);
+	auto unlock = vstd::makeUnlockGuard(GH.interfaceMutex);
 	boost::unique_lock<boost::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
 		showingDialog->cond.wait(un);
@@ -1811,14 +1811,14 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 		artWin->artifactDisassembled(al);
 }
 
-void CPlayerInterface::waitForAllDialogs(bool unlockPim)
+void CPlayerInterface::waitForAllDialogs()
 {
 	while(!dialogs.empty())
 	{
-		auto unlock = vstd::makeUnlockGuardIf(GH.interfaceMutex, unlockPim);
+		auto unlock = vstd::makeUnlockGuard(GH.interfaceMutex);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
-	waitWhileDialog(unlockPim);
+	waitWhileDialog();
 }
 
 void CPlayerInterface::proposeLoadingGame()

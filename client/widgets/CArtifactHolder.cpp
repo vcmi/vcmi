@@ -287,6 +287,7 @@ bool ArtifactUtilsClient::askToAssemble(const CGHeroInstance * hero, const Artif
 	{
 		auto askThread = new boost::thread([hero, art, slot, assemblyPossibilities]() -> void
 			{
+				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 				for(const auto combinedArt : assemblyPossibilities)
 				{
 					bool assembleConfirmed = false;
@@ -294,7 +295,7 @@ bool ArtifactUtilsClient::askToAssemble(const CGHeroInstance * hero, const Artif
 					onYesHandlers += std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combinedArt->getId());
 
 					LOCPLINT->showArtifactAssemblyDialog(art->artType, combinedArt, onYesHandlers);
-					LOCPLINT->waitWhileDialog(false);
+					LOCPLINT->waitWhileDialog();
 					if(assembleConfirmed)
 						break;
 				}

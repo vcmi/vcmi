@@ -184,8 +184,8 @@ public: // public interface for use by client via LOCPLINT access
 
 	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);
 	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<void()> onYes);
-	void waitWhileDialog(bool unlockPim = true);
-	void waitForAllDialogs(bool unlockPim = true);
+	void waitWhileDialog();
+	void waitForAllDialogs();
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 
