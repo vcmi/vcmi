@@ -223,8 +223,8 @@ public:
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
 	bool twoLevel; /// The default value is true.
-	std::string name;
-	std::string description;
+	MetaString name;
+	MetaString description;
 	ui8 difficulty; /// The default value is 1 representing a normal map difficulty.
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.

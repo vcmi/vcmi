@@ -1030,8 +1030,6 @@ si32 CGHeroInstance::manaLimit() const
 
 std::string CGHeroInstance::getNameTranslated() const
 {
-	if (!nameCustom.empty())
-		return nameCustom;
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
@@ -1049,9 +1047,6 @@ std::string CGHeroInstance::getNameTextID() const
 
 std::string CGHeroInstance::getBiographyTranslated() const
 {
-	if (!biographyCustom.empty())
-		return biographyCustom;
-
 	return VLC->generaltexth->translate(getBiographyTextID());
 }
 

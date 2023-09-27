@@ -413,8 +413,8 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 
 void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 {
-	handler.serializeString("name", mapHeader->name);
-	handler.serializeString("description", mapHeader->description);
+	handler.serializeStruct("name", mapHeader->name);
+	handler.serializeStruct("description", mapHeader->description);
 	handler.serializeInt("heroLevelLimit", mapHeader->levelLimit, 0);
 
 	//todo: support arbitrary percentage

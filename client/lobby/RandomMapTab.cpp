@@ -163,8 +163,8 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
-	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];
+	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 	mapInfo->mapHeader->difficulty = 1; // Normal
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();

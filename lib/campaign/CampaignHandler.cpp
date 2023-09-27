@@ -134,7 +134,7 @@ std::string CampaignHandler::readLocalizedString(CBinaryReader & reader, std::st
 		return "";
 
 	VLC->generaltexth->registerString(modName, stringID, input);
-	return VLC->generaltexth->translate(stringID.get());
+	return stringID.get();
 }
 
 void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, std::string filename, std::string modName, std::string encoding)
@@ -149,8 +149,8 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.version = CampaignVersion::VCMI;
 	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
-	ret.name = reader["name"].String();
-	ret.description = reader["description"].String();
+	ret.name.appendTextID(reader["name"].String());
+	ret.description.appendTextID(reader["description"].String());
 	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
 	ret.music = AudioPath::fromJson(reader["music"]);
 	ret.filename = filename;
@@ -383,8 +383,8 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
 	ret.loadLegacyData(campId);
-	ret.name = readLocalizedString(reader, filename, modName, encoding, "name");
-	ret.description = readLocalizedString(reader, filename, modName, encoding, "description");
+	ret.name.appendTextID(readLocalizedString(reader, filename, modName, encoding, "name"));
+	ret.description.appendTextID(readLocalizedString(reader, filename, modName, encoding, "description"));
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else

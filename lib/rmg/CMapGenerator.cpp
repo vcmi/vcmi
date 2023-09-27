@@ -407,8 +407,8 @@ void CMapGenerator::addHeaderInfo()
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
 	m.twoLevel = mapGenOptions.getHasTwoLevels();
-	m.name = VLC->generaltexth->allTexts[740];
-	m.description = getMapDescription();
+	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	m.description.appendRawString(getMapDescription());
 	m.difficulty = 1;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);

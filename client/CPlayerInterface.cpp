@@ -239,7 +239,7 @@ void CPlayerInterface::performAutosave()
 			prefix = settings["general"]["savePrefix"].String();
 			if(prefix.empty())
 			{
-				std::string name = cb->getMapHeader()->name;
+				std::string name = cb->getMapHeader()->name.toString();
 				int txtlen = TextOperations::getUnicodeCharactersCount(name);
 
 				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
@@ -1718,7 +1718,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 			if(!ps->checkVanquished())
 				param.allDefeated = false;
 	}
-	param.scenarioName = cb->getMapHeader()->name;
+	param.scenarioName = cb->getMapHeader()->name.toString();
 	param.playerName = cb->getStartInfo()->playerInfos.find(*cb->getPlayerID())->second.name;
 	HighScoreCalculation highScoreCalc;
 	highScoreCalc.parameters.push_back(param);

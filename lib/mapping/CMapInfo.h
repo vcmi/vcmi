@@ -50,9 +50,9 @@ public:
 	void campaignInit();
 	void countPlayers();
 	// TODO: Those must be on client-side
-	std::string getName() const;
+	std::string getNameTranslated() const;
 	std::string getNameForList() const;
-	std::string getDescription() const;
+	std::string getDescriptionTranslated() const;
 	int getMapSizeIconId() const;
 	int getMapSizeFormatIconId() const;
 	std::string getMapSizeName() const;

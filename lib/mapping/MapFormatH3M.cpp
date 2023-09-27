@@ -180,8 +180,8 @@ void CMapLoaderH3M::readHeader()
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readInt32();
 	mapHeader->twoLevel = reader->readBool();
-	mapHeader->name = readLocalizedString("header.name");
-	mapHeader->description = readLocalizedString("header.description");
+	mapHeader->name.appendTextID(readLocalizedString("header.name"));
+	mapHeader->description.appendTextID(readLocalizedString("header.description"));
 	mapHeader->difficulty = reader->readInt8();
 
 	if(features.levelAB)
@@ -2275,7 +2275,7 @@ std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIden
 		return "";
 
 	VLC->generaltexth->registerString(modName, fullIdentifier, mapString);
-	return VLC->generaltexth->translate(fullIdentifier.get());
+	return fullIdentifier.get();
 }
 
 void CMapLoaderH3M::afterRead()

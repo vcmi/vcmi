@@ -701,7 +701,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		highScoreCalc->isCampaign = true;
 		highScoreCalc->parameters.clear();
 	}
-	param.campaignName = cs->getName();
+	param.campaignName = cs->getNameTranslated();
 	highScoreCalc->parameters.push_back(param);
 
 	GH.dispatchMainThread([ourCampaign, this]()
