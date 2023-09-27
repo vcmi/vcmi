@@ -17,6 +17,8 @@
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/NetPacks.h"
+#include "../../lib/pathfinder/CPathfinder.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 
 TurnOrderProcessor::TurnOrderProcessor(CGameHandler * owner):
 	gameHandler(owner)
@@ -24,9 +26,123 @@ TurnOrderProcessor::TurnOrderProcessor(CGameHandler * owner):
 
 }
 
-bool TurnOrderProcessor::canActSimultaneously(PlayerColor active, PlayerColor waiting) const
+int TurnOrderProcessor::simturnsTurnsMaxLimit() const
 {
+	return gameHandler->getStartInfo()->simturnsInfo.optionalTurns;
+}
+
+int TurnOrderProcessor::simturnsTurnsMinLimit() const
+{
+	return gameHandler->getStartInfo()->simturnsInfo.requiredTurns;
+}
+
+void TurnOrderProcessor::updateContactStatus()
+{
+	blockedContacts.clear();
+
+	assert(actedPlayers.empty());
+	assert(actingPlayers.empty());
+
+	for (auto left : awaitingPlayers)
+	{
+		for(auto right : awaitingPlayers)
+		{
+			if (left == right)
+				continue;
+
+			if (computeCanActSimultaneously(left, right))
+				blockedContacts.push_back({left, right});
+		}
+	}
+}
+
+bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) const
+{
+	// TODO: refactor, cleanup and optimize
+
+	boost::multi_array<bool, 3> leftReachability;
+	boost::multi_array<bool, 3> rightReachability;
+
+	int3 mapSize = gameHandler->getMapSize();
+
+	leftReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
+	rightReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
+
+	const auto * leftInfo = gameHandler->getPlayerState(left, false);
+	const auto * rightInfo = gameHandler->getPlayerState(right, false);
+
+	for(const auto & hero : leftInfo->heroes)
+	{
+		CPathsInfo out(mapSize, hero);
+		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);
+		CPathfinder pathfinder(gameHandler->gameState(), config);
+		pathfinder.calculatePaths();
+
+		for (int z = 0; z < mapSize.z; ++z)
+			for (int y = 0; y < mapSize.y; ++y)
+				for (int x = 0; x < mapSize.x; ++x)
+					if (out.getNode({x,y,z})->reachable())
+						leftReachability[z][x][y] = true;
+	}
+
+	for(const auto & hero : rightInfo->heroes)
+	{
+		CPathsInfo out(mapSize, hero);
+		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);
+		CPathfinder pathfinder(gameHandler->gameState(), config);
+		pathfinder.calculatePaths();
+
+		for (int z = 0; z < mapSize.z; ++z)
+			for (int y = 0; y < mapSize.y; ++y)
+				for (int x = 0; x < mapSize.x; ++x)
+					if (out.getNode({x,y,z})->reachable())
+						rightReachability[z][x][y] = true;
+	}
+
+	for (int z = 0; z < mapSize.z; ++z)
+		for (int y = 0; y < mapSize.y; ++y)
+			for (int x = 0; x < mapSize.x; ++x)
+				if (leftReachability[z][x][y] && rightReachability[z][x][y])
+					return true;
+
 	return false;
+}
+
+bool TurnOrderProcessor::isContactAllowed(PlayerColor active, PlayerColor waiting) const
+{
+	assert(active != waiting);
+	return !vstd::contains(blockedContacts, PlayerPair{active, waiting});
+}
+
+bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerColor waiting) const
+{
+	const auto * activeInfo = gameHandler->getPlayerState(active, false);
+	const auto * waitingInfo = gameHandler->getPlayerState(waiting, false);
+
+	assert(active != waiting);
+	assert(activeInfo);
+	assert(waitingInfo);
+
+	if (gameHandler->hasBothPlayersAtSameConnection(active, waiting))
+	{
+		if (!gameHandler->getStartInfo()->simturnsInfo.allowHumanWithAI)
+			return false;
+
+		// only one AI and one human can play simultaneoulsy from single connection
+		if (activeInfo->human == waitingInfo->human)
+			return false;
+	}
+
+	if (gameHandler->getDate(Date::DAY) < simturnsTurnsMinLimit())
+		return true;
+
+	if (gameHandler->getDate(Date::DAY) > simturnsTurnsMaxLimit())
+		return false;
+
+	if (playersInContact(active, waiting))
+		return false;
+
+	return true;
 }
 
 bool TurnOrderProcessor::mustActBefore(PlayerColor left, PlayerColor right) const
@@ -61,7 +177,7 @@ bool TurnOrderProcessor::canStartTurn(PlayerColor which) const
 
 	for (auto player : actingPlayers)
 	{
-		if (!canActSimultaneously(player, which))
+		if (player != which && isContactAllowed(player, which))
 			return false;
 	}
 
@@ -86,6 +202,7 @@ void TurnOrderProcessor::doStartNewDay()
 	std::swap(actedPlayers, awaitingPlayers);
 
 	gameHandler->onNewTurn();
+	updateContactStatus();
 	tryStartTurnsForPlayers();
 }
 
@@ -107,8 +224,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	pst.queryID = turnQuery->queryID;
 	gameHandler->sendAndApply(&pst);
 
-	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
+	assert(!actingPlayers.empty());
 }
 
 void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
@@ -130,8 +246,6 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 		doStartNewDay();
 
 	assert(!actingPlayers.empty());
-	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
 }
 
 void TurnOrderProcessor::addPlayer(PlayerColor which)
@@ -152,8 +266,6 @@ void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
 		doStartNewDay();
 
 	assert(!actingPlayers.empty());
-	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
 }
 
 bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
@@ -188,6 +300,9 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 void TurnOrderProcessor::onGameStarted()
 {
+	if (actingPlayers.empty())
+		updateContactStatus();
+
 	// this may be game load - send notification to players that they can act
 	auto actingPlayersCopy = actingPlayers;
 	for (auto player : actingPlayersCopy)

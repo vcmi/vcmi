@@ -372,7 +372,7 @@ ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 
 bool CGTeleport::isTeleport(const CGObjectInstance * obj)
 {
-	return ((dynamic_cast<const CGTeleport *>(obj)));
+	return dynamic_cast<const CGTeleport *>(obj) != nullptr;
 }
 
 bool CGTeleport::isConnected(const CGTeleport * src, const CGTeleport * dst)

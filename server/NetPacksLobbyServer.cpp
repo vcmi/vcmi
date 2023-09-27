@@ -391,6 +391,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetPlayer(LobbySetPlayer & pack)
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbySetSimturns(LobbySetSimturns & pack)
+{
+	srv.si->simturnsInfo = pack.simturnsInfo;
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 {
 	srv.si->turnTimerInfo = pack.turnTimerInfo;

@@ -167,47 +167,61 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	CCS->musich->loadTerrainMusicThemes();
 
 	initializeHeroTownList();
-
-	// always recreate advmap interface to avoid possible memory-corruption bugs
-	adventureInt.reset(new AdventureMapInterface());
 }
 
 void CPlayerInterface::playerEndsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (player == playerID)
+	{
 		makingTurn = false;
+
+		// remove all active dialogs that do not expect query answer
+		for (;;)
+		{
+			auto adventureWindow = GH.windows().topWindow<AdventureMapInterface>();
+			auto infoWindow = GH.windows().topWindow<CInfoWindow>();
+
+			if(adventureWindow != nullptr)
+				break;
+
+			if(infoWindow && infoWindow->ID != QueryID::NONE)
+				break;
+
+			if (infoWindow)
+				infoWindow->close();
+			else
+				GH.windows().popWindows(1);
+		}
+
+		// remove all pending dialogs that do not expect query answer
+		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
+			return window->ID == QueryID::NONE;
+		});
+	}
 }
 
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-
-	movementController->onPlayerTurnStarted();
-
 	if(GH.windows().findWindows<AdventureMapInterface>().empty())
 	{
 		// after map load - remove all active windows and replace them with adventure map
+		// always recreate advmap interface to avoid possible memory-corruption bugs
+		adventureInt.reset(new AdventureMapInterface());
+
 		GH.windows().clear();
 		GH.windows().pushWindow(adventureInt);
 	}
 
-	// close window from another player
-	if(auto w = GH.windows().topWindow<CInfoWindow>())
-		if(w->ID == QueryID::NONE && player != playerID)
-			w->close();
-	
-	// remove all dialogs that do not expect query answer
-	while (!GH.windows().topWindow<AdventureMapInterface>() && !GH.windows().topWindow<CInfoWindow>())
-		GH.windows().popWindows(1);
-
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (player != playerID && LOCPLINT == this)
 	{
 		waitWhileDialog();
 
 		bool isHuman = cb->getStartInfo()->playerInfos.count(player) && cb->getStartInfo()->playerInfos.at(player).isControlledByHuman();
 
-		adventureInt->onEnemyTurnStarted(player, isHuman);
+		if (makingTurn == false)
+			adventureInt->onEnemyTurnStarted(player, isHuman);
 	}
 }
 
@@ -335,6 +349,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 	}
 	
 	cb->selectionMade(0, queryID);
+	movementController->onPlayerTurnStarted();
 }
 
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
@@ -1058,15 +1073,12 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	auto selectCallback = [=](int selection)
 	{
-		JsonNode reply(JsonNode::JsonType::DATA_INTEGER);
-		reply.Integer() = selection;
-		cb->sendQueryReply(reply, askID);
+		cb->sendQueryReply(selection, askID);
 	};
 
 	auto cancelCallback = [=]()
 	{
-		JsonNode reply(JsonNode::JsonType::DATA_NULL);
-		cb->sendQueryReply(reply, askID);
+		cb->sendQueryReply(std::nullopt, askID);
 	};
 
 	const std::string localTitle = title.toString();

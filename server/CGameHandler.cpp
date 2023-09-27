@@ -1086,8 +1086,18 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	const TerrainTile t = *getTile(hmpos);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
+	CGObjectInstance * objectToVisit = nullptr;
+	CGObjectInstance * guardian = nullptr;
 
-	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
+	if (!t.visitableObjects.empty())
+		objectToVisit = t.visitableObjects.back();
+
+	if (isInTheMap(guardPos))
+		guardian = getTile(guardPos)->visitableObjects.back();
+
+	assert(guardian == nullptr || dynamic_cast<CGCreature*>(guardian) != nullptr);
+
+	const bool embarking = !h->boat && objectToVisit && objectToVisit->ID == Obj::BOAT;
 	const bool disembarking = h->boat
 		&& t.terType->isLand()
 		&& (dst == h->pos
@@ -1110,7 +1120,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
 	const bool standAtObstacle = t.blocked && !t.visitable;
-	const bool standAtWater = !h->boat && t.terType->isWater() && (t.visitableObjects.empty() || !t.visitableObjects.back()->isCoastVisitable());
+	const bool standAtWater = !h->boat && t.terType->isWater() && (objectToVisit || !objectToVisit->isCoastVisitable());
 
 	const auto complainRet = [&](const std::string & message)
 	{
@@ -1120,29 +1130,41 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		return false;
 	};
 
+	if (guardian && getVisitingHero(guardian) != nullptr)
+		return complainRet("Cannot move hero, destination monster is busy!");
+
+	if (objectToVisit && getVisitingHero(objectToVisit) != nullptr)
+		return complainRet("Cannot move hero, destination object is busy!");
+
+	if (objectToVisit &&
+		objectToVisit->getOwner().isValidPlayer() &&
+		getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
+		!turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
+		return complainRet("Cannot move hero, destination player is busy!");
+
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
 	if (!t.terType->isPassable() || (standAtObstacle && !canFly))
-		complainRet("Cannot move hero, destination tile is blocked!");
+		return complainRet("Cannot move hero, destination tile is blocked!");
 
 	//hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 	if(standAtWater && !canFly && !canWalkOnSea)
-		complainRet("Cannot move hero, destination tile is on water!");
+		return complainRet("Cannot move hero, destination tile is on water!");
 
 	if(h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
-		complainRet("Cannot disembark hero, tile is blocked!");
+		return complainRet("Cannot disembark hero, tile is blocked!");
 
 	if(distance(h->pos, dst) >= 1.5 && !teleporting)
-		complainRet("Tiles are not neighboring!");
+		return complainRet("Tiles are not neighboring!");
 
 	if(h->inTownGarrison)
-		complainRet("Can not move garrisoned hero!");
+		return complainRet("Can not move garrisoned hero!");
 
 	if(h->movementPointsRemaining() < cost && dst != h->pos && !teleporting)
-		complainRet("Hero doesn't have any movement points left!");
+		return complainRet("Hero doesn't have any movement points left!");
 
-	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()))
-		complainRet("Hero cannot transit over this tile!");
+	if (transit && !canFly && !(canWalkOnSea && t.terType->isWater()) && !CGTeleport::isTeleport(objectToVisit))
+		return complainRet("Hero cannot transit over this tile!");
 
 	//several generic blocks of code
 
@@ -1173,14 +1195,13 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		tmh.result = result;
 		sendAndApply(&tmh);
 
-		if (visitDest == VISIT_DEST && t.topVisitableObj() && t.topVisitableObj()->id == h->id)
+		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
 		{ // Hero should be always able to visit any object he staying on even if there guards around
 			visitObjectOnTile(t, h);
 		}
 		else if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
 		{
-			const TerrainTile &guardTile = *gs->getTile(guardPos);
-			objectVisited(guardTile.visitableObjects.back(), h);
+			objectVisited(guardian, h);
 
 			moveQuery->visitDestAfterVictory = visitDest==VISIT_DEST;
 		}
@@ -1238,9 +1259,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		// visit town for town portal \ castle gates
 		// do not use generic visitObjectOnTile to avoid double-teleporting
 		// if this moveHero call was triggered by teleporter
-		if (!t.visitableObjects.empty())
+		if (objectToVisit)
 		{
-			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(t.visitableObjects.back()))
+			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(objectToVisit))
 				town->onHeroVisit(h);
 		}
 
@@ -1258,7 +1279,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		EVisitDest visitDest = VISIT_DEST;
 		if (transit)
 		{
-			if (CGTeleport::isTeleport(t.topVisitableObj()))
+			if (CGTeleport::isTeleport(objectToVisit))
 				visitDest = DONT_VISIT_DEST;
 
 			if (canFly || (canWalkOnSea && t.terType->isWater()))
@@ -1271,7 +1292,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			return true;
 		
 		if(h->boat && !h->boat->onboardAssaultAllowed)
-		   lookForGuards = IGNORE_GUARDS;
+			lookForGuards = IGNORE_GUARDS;
 
 		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !standAtWater && !standAtObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
@@ -2197,6 +2218,11 @@ bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> 
 	return connections.at(player).count(c);
 }
 
+bool CGameHandler::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const
+{
+	return connections.at(left) == connections.at(right);
+}
+
 bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 {
 	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id));
@@ -2422,6 +2448,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	}
 	else
 	{
+		COMPLAIN_RET_FALSE_IF(getVisitingHero(dwelling) != hero, "Cannot recruit: can only recruit by visiting hero!");
 		COMPLAIN_RET_FALSE_IF(!hero || hero->getOwner() != player, "Cannot recruit: can only recruit to owned hero!");
 	}
 
@@ -3124,12 +3151,13 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
 	return true;
 }
 
-bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor player)
+bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
-	logGlobal->trace(answer.toJson());
+	if (answer)
+		logGlobal->trace("%d", *answer);
 
 	auto topQuery = queries->topQuery(player);
 
@@ -3387,6 +3415,12 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 	using events::ObjectVisitStarted;
 
 	logGlobal->debug("%s visits %s (%d:%d)", h->nodeName(), obj->getObjectName(), obj->ID, obj->subID);
+
+	if (getVisitingHero(obj) != nullptr)
+	{
+		logGlobal->error("Attempt to visit object that is being visited by another hero!");
+		throw std::runtime_error("Can not visit object that is being visited");
+	}
 
 	std::shared_ptr<CObjectVisitQuery> visitQuery;
 
@@ -4087,8 +4121,28 @@ void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor p
 	sendAndApply(&fow);
 }
 
+const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj)
+{
+	assert(obj);
+
+	for (auto const & query : queries->allQueries())
+	{
+		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		if (visit && visit->visitedObject == obj)
+			return visit->visitingHero;
+	}
+	return nullptr;
+}
+
 bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
+	assert(obj);
+	assert(hero);
+	assert(getVisitingHero(obj) == hero);
+	// Check top query of targeted player:
+	// If top query is NOT visit to targeted object then we assume that
+	// visitation query is covered by other query that must be answered first
+
 	if (auto topQuery = queries->topQuery(hero->getOwner()))
 		if (auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(topQuery))
 			return !(visit->visitedObject == obj && visit->visitingHero == hero);

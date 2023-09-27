@@ -126,7 +126,7 @@ public:
 		return false;
 	}
 
-	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) override
+	void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override
 	{
 		//todo:
 	}

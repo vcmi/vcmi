@@ -250,6 +250,18 @@ struct DLL_LINKAGE LobbySetPlayer : public CLobbyPackToServer
 	}
 };
 
+struct DLL_LINKAGE LobbySetSimturns : public CLobbyPackToServer
+{
+	SimturnsInfo simturnsInfo;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & simturnsInfo;
+	}
+};
+
 struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 {
 	TurnTimerInfo turnTimerInfo;

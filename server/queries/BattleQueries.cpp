@@ -26,7 +26,7 @@ void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisi
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
-	CGhQuery(owner),
+	CQuery(owner),
 	battleID(bi->getBattleID())
 {
 	belligerents[0] = bi->getSideArmy(0);
@@ -37,7 +37,7 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner):
-	CGhQuery(owner)
+	CQuery(owner)
 {
 	belligerents[0] = belligerents[1] = nullptr;
 }

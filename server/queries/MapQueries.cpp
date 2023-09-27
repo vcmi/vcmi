@@ -16,7 +16,7 @@
 #include "../../lib/serializer/Cast.h"
 
 PlayerStartsTurnQuery::PlayerStartsTurnQuery(CGameHandler * owner, PlayerColor player):
-	CGhQuery(owner)
+	CQuery(owner)
 {
 	addPlayer(player);
 }
@@ -42,7 +42,7 @@ bool PlayerStartsTurnQuery::endsByPlayerAnswer() const
 }
 
 CObjectVisitQuery::CObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, int3 Tile):
-	CGhQuery(owner), visitedObject(Obj), visitingHero(Hero), tile(Tile), removeObjectAfterVisit(false)
+	CQuery(owner), visitedObject(Obj), visitingHero(Hero), tile(Tile), removeObjectAfterVisit(false)
 {
 	addPlayer(Hero->tempOwner);
 }
@@ -213,7 +213,7 @@ void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQu
 }
 
 CHeroMovementQuery::CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):
-	CGhQuery(owner), tmh(Tmh), visitDestAfterVictory(VisitDestAfterVictory), hero(Hero)
+	CQuery(owner), tmh(Tmh), visitDestAfterVictory(VisitDestAfterVictory), hero(Hero)
 {
 	players.push_back(hero->tempOwner);
 }

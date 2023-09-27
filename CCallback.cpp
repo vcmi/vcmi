@@ -41,12 +41,10 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst, bool transit)
 
 int CCallback::selectionMade(int selection, QueryID queryID)
 {
-	JsonNode reply(JsonNode::JsonType::DATA_INTEGER);
-	reply.Integer() = selection;
-	return sendQueryReply(reply, queryID);
+	return sendQueryReply(selection, queryID);
 }
 
-int CCallback::sendQueryReply(const JsonNode & reply, QueryID queryID)
+int CCallback::sendQueryReply(std::optional<int32_t> reply, QueryID queryID)
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	if(queryID == QueryID(-1))

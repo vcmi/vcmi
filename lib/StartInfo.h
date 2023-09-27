@@ -23,6 +23,24 @@ class CMapInfo;
 struct PlayerInfo;
 class PlayerColor;
 
+struct DLL_LINKAGE SimturnsInfo
+{
+	/// Minimal number of turns that must be played simultaneously even if contact has been detected
+	int requiredTurns = 0;
+	/// Maximum number of turns that might be played simultaneously unless contact is detected
+	int optionalTurns = 0;
+	/// If set to true, human and 1 AI can act at the same time
+	bool allowHumanWithAI = true;
+
+	template <typename Handler>
+	void serialize(Handler &h, const int version)
+	{
+		h & requiredTurns;
+		h & optionalTurns;
+		h & allowHumanWithAI;
+	}
+};
+
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings
 {
@@ -84,6 +102,7 @@ struct DLL_LINKAGE StartInfo
 	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
 	ui32 mapfileChecksum; //0 if not relevant
 	std::string startTimeIso8601;
+	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
 	bool createRandomMap() const { return mapGenOptions != nullptr; }
@@ -108,6 +127,7 @@ struct DLL_LINKAGE StartInfo
 		h & seedPostInit;
 		h & mapfileChecksum;
 		h & startTimeIso8601;
+		h & simturnsInfo;
 		h & turnTimerInfo;
 		h & mapname;
 		h & mapGenOptions;

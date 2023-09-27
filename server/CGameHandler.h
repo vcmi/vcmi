@@ -153,6 +153,8 @@ public:
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
 
+	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
+	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override;
 	void showInfoDialog(InfoWindow * iw) override;
@@ -176,8 +178,9 @@ public:
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
 	void handleReceivedPack(CPackForServer * pack);
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
+	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
-	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
+	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);
