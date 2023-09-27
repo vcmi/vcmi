@@ -611,8 +611,6 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 
 void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
 {
-	setThreadName("startGameplay");
-
 	if(CMM)
 		CMM->disable();
 	client = new CClient();
