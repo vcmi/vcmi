@@ -3364,13 +3364,20 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	sendAndApply(&gd);
 }
 
-void CGameHandler::showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId)
+void CGameHandler::showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery)
 {
-	OpenWindow ow;
-	ow.window = EOpenWindowMode::THIEVES_GUILD;
-	ow.id1 = player.getNum();
-	ow.id2 = requestingObjId.getNum();
-	sendAndApply(&ow);
+	OpenWindow pack;
+	pack.window = window;
+	pack.object = object->id;
+	pack.visitor = visitor->id;
+
+	if (addQuery)
+	{
+		auto windowQuery = std::make_shared<OpenWindowQuery>(this, visitor, window);
+		pack.queryID = windowQuery->queryID;
+		queries->addQuery(windowQuery);
+	}
+	sendAndApply(&pack);
 }
 
 bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)

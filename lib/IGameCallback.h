@@ -25,6 +25,7 @@ struct ArtifactLocation;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
+enum class EOpenWindowMode : uint8_t;
 
 namespace spells
 {
@@ -96,7 +97,7 @@ public:
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
-	virtual void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) =0;
+	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
 	virtual void giveResources(PlayerColor player, TResources resources)=0;
 

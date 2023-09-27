@@ -283,7 +283,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case Obj::TAVERN:
 		{
-			openWindow(EOpenWindowMode::TAVERN_WINDOW,h->id.getNum(),id.getNum());
+			cb->showObjectWindow(this, EOpenWindowMode::TAVERN_WINDOW, h, true);
 		}
 		break;
 	}

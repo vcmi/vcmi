@@ -110,11 +110,11 @@ public:
 
 	virtual void showPuzzleMap(){};
 	virtual void viewWorldMap(){};
-	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor){};
-	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor){};
+	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
+	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
-	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};
+	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) {};
 	virtual void showQuestLog(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const std::unordered_set<int3> &pos){};

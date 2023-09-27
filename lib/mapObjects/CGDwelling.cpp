@@ -393,13 +393,8 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			cb->sendAndApply(&sac);
 		}
 
-		OpenWindow ow;
-		ow.id1 = id.getNum();
-		ow.id2 = h->id.getNum();
-		ow.window = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP)
-			? EOpenWindowMode::RECRUITMENT_FIRST
-			: EOpenWindowMode::RECRUITMENT_ALL;
-		cb->sendAndApply(&ow);
+		auto windowMode = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP) ? EOpenWindowMode::RECRUITMENT_FIRST : EOpenWindowMode::RECRUITMENT_ALL;
+		cb->showObjectWindow(this, windowMode, h, false);
 	}
 }
 

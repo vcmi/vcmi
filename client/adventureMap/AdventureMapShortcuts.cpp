@@ -342,7 +342,7 @@ void AdventureMapShortcuts::showMarketplace()
 	}
 
 	if(townWithMarket) //if any town has marketplace, open window
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(townWithMarket);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }

@@ -165,10 +165,13 @@ void VCAI::artifactAssembled(const ArtifactLocation & al)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showTavernWindow(const CGObjectInstance * townOrTavern)
+void VCAI::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "TavernWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -512,10 +515,13 @@ void VCAI::receivedResource()
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
+void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "UniversityWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -577,10 +583,13 @@ void VCAI::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bo
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
+void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "MarketWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)

@@ -157,6 +157,39 @@ CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const BlockingD
 	addPlayer(bd.player);
 }
 
+OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode):
+	CDialogQuery(owner),
+	mode(mode)
+{
+	addPlayer(hero->getOwner());
+}
+
+bool OpenWindowQuery::blocksPack(const CPack *pack) const
+{
+	if (mode == EOpenWindowMode::TAVERN_WINDOW)
+	{
+		if(dynamic_ptr_cast<HireHero>(pack) != nullptr)
+			return false;
+	}
+
+	if (mode == EOpenWindowMode::MARKET_WINDOW)
+	{
+		if(dynamic_ptr_cast<ExchangeArtifacts>(pack) != nullptr)
+			return false;
+
+		if(dynamic_ptr_cast<AssembleArtifacts>(pack))
+			return false;
+
+		if(dynamic_ptr_cast<EraseArtifactByClient>(pack))
+			return false;
+
+		if(dynamic_ptr_cast<TradeOnMarketplace>(pack) != nullptr)
+			return false;
+	}
+
+	return CDialogQuery::blocksPack(pack);
+}
+
 void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	// do not change to dynamic_ptr_cast - SIGSEGV!

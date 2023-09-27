@@ -430,8 +430,9 @@ CLevelWindow::~CLevelWindow()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
+CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed)
 	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPTAVERN")),
+	onWindowClosed(onWindowClosed),
 	tavernObj(TavernObj)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -500,13 +501,22 @@ void CTavernWindow::recruitb()
 {
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
-	close();
+
 	LOCPLINT->cb->recruitHero(obj, toBuy);
+	close();
 }
 
 void CTavernWindow::thievesguildb()
 {
 	GH.windows().createAndPushWindow<CThievesGuildWindow>(tavernObj);
+}
+
+void CTavernWindow::close()
+{
+	if (onWindowClosed)
+		onWindowClosed();
+
+	CStatusbarWindow::close();
 }
 
 CTavernWindow::~CTavernWindow()
@@ -993,9 +1003,10 @@ void CTransformerWindow::updateGarrisons()
 		item->update();
 }
 
-CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero)
+CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed)
 	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("SKTRNBK")),
 	hero(_hero),
+	onWindowClosed(onWindowClosed),
 	market(_market)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1022,6 +1033,14 @@ CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInst
 	titleRight = std::make_shared<CLabel>(153+295, 29, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[486]);//transformer
 	helpLeft = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//move creatures to create skeletons
 	helpRight = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW);//creatures here will become skeletons
+}
+
+void CTransformerWindow::close()
+{
+	if (onWindowClosed)
+		onWindowClosed();
+
+	CStatusbarWindow::close();
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y)
@@ -1083,9 +1102,10 @@ void CUniversityWindow::CItem::showAll(Canvas & to)
 	CIntObject::showAll(to);
 }
 
-CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market)
+CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed)
 	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("UNIVERS1")),
 	hero(_hero),
+	onWindowClosed(onWindowClosed),
 	market(_market)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1128,6 +1148,14 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 	cancel = std::make_shared<CButton>(Point(200, 313), AnimationPath::builtin("IOKAY.DEF"), CGI->generaltexth->zelp[632], [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+}
+
+void CUniversityWindow::close()
+{
+	if (onWindowClosed)
+		onWindowClosed();
+
+	CStatusbarWindow::close();
 }
 
 void CUniversityWindow::makeDeal(int skill)

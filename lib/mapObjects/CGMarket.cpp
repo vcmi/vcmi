@@ -30,7 +30,7 @@ void CGMarket::initObj(CRandomGenerator & rand)
 
 void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(EOpenWindowMode::MARKET_WINDOW, id.getNum(), h->id.getNum());
+	cb->showObjectWindow(this, EOpenWindowMode::MARKET_WINDOW, h, true);
 }
 
 int CGMarket::getMarketEfficiency() const
@@ -124,7 +124,7 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
 
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(EOpenWindowMode::UNIVERSITY_WINDOW,id.getNum(),h->id.getNum());
+	cb->showObjectWindow(this, EOpenWindowMode::UNIVERSITY_WINDOW, h, true);
 }
 
 VCMI_LIB_NAMESPACE_END

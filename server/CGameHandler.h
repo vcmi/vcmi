@@ -109,7 +109,7 @@ public:
 	void showBlockingDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
-	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override;
+	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, TResources resources) override;
 

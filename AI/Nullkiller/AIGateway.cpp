@@ -154,10 +154,13 @@ void AIGateway::artifactAssembled(const ArtifactLocation & al)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showTavernWindow(const CGObjectInstance * townOrTavern)
+void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "TavernWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -425,10 +428,13 @@ void AIGateway::receivedResource()
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "UniversityWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -498,10 +504,13 @@ void AIGateway::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonu
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "MarketWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)

@@ -1621,24 +1621,30 @@ void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 	battleInt->newRoundFirst();
 }
 
-void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
+void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	auto onWindowClosed = [this, queryID](){
+		cb->selectionMade(0, queryID);
+	};
 
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
-		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, EMarketMode::ARTIFACT_EXP);
+		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
-		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, EMarketMode::CREATURE_EXP);
+		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
-		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor);
+		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor, onWindowClosed);
 	else if(!market->availableModes().empty())
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(market, visitor, market->availableModes().front());
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(market, visitor, onWindowClosed, market->availableModes().front());
 }
 
-void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
+void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, market);
+	auto onWindowClosed = [this, queryID](){
+		cb->selectionMade(0, queryID);
+	};
+	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, market, onWindowClosed);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
@@ -1654,10 +1660,13 @@ void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 		cmw->artifactsChanged(false);
 }
 
-void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
+void CPlayerInterface::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().createAndPushWindow<CTavernWindow>(townOrTavern);
+	auto onWindowClosed = [this, queryID](){
+		cb->selectionMade(0, queryID);
+	};
+	GH.windows().createAndPushWindow<CTavernWindow>(object, onWindowClosed);
 }
 
 void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)

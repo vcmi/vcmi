@@ -193,6 +193,8 @@ public:
 
 class CTavernWindow : public CStatusbarWindow
 {
+	std::function<void()> onWindowClosed;
+
 public:
 	class HeroPortrait : public CIntObject
 	{
@@ -233,9 +235,10 @@ public:
 
 	std::shared_ptr<CTextBox> rumor;
 
-	CTavernWindow(const CGObjectInstance * TavernObj);
+	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
 	~CTavernWindow();
 
+	void close();
 	void recruitb();
 	void thievesguildb();
 	void show(Canvas & to) override;
@@ -349,12 +352,15 @@ class CTransformerWindow : public CStatusbarWindow, public IGarrisonHolder
 	std::shared_ptr<CButton> all;
 	std::shared_ptr<CButton> convert;
 	std::shared_ptr<CButton> cancel;
+
+	std::function<void()> onWindowClosed;
 public:
 
 	void makeDeal();
 	void addAll();
+	void close();
 	void updateGarrisons() override;
-	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero);
+	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed);
 };
 
 class CUniversityWindow : public CStatusbarWindow
@@ -390,10 +396,13 @@ class CUniversityWindow : public CStatusbarWindow
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CTextBox> clerkSpeech;
 
+	std::function<void()> onWindowClosed;
+
 public:
-	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market);
+	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed);
 
 	void makeDeal(int skill);
+	void close();
 };
 
 /// Confirmation window for University
