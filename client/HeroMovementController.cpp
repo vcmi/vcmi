@@ -203,15 +203,12 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 
 void HeroMovementController::onQueryReplyApplied()
 {
-	if(duringMovement)
-	{
-		// Server accepted our TeleportDialog query reply and moved hero
-		// Continue moving alongside our path, if any
+	waitingForQueryApplyReply = false;
 
-		assert(waitingForQueryApplyReply);
-		waitingForQueryApplyReply = false;
+	// Server accepted our TeleportDialog query reply and moved hero
+	// Continue moving alongside our path, if any
+	if(duringMovement)
 		onMoveHeroApplied();
-	}
 }
 
 void HeroMovementController::onMoveHeroApplied()
