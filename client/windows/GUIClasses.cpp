@@ -12,6 +12,7 @@
 
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
+#include "CHeroBackpackWindow.h"
 #include "CHeroWindow.h"
 #include "InfoWindows.h"
 
@@ -19,62 +20,40 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
-#include "../CServerHandler.h"
-
-#include "../battle/BattleInterfaceClasses.h"
-#include "../battle/BattleInterface.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
-#include "../widgets/MiscWidgets.h"
 #include "../widgets/CreatureCostBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
 
-#include "../lobby/CSavingScreen.h"
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
-#include "../CMT.h"
 
 #include "../../CCallback.h"
 
-#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGMarket.h"
-#include "../lib/ArtifactUtils.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/gameState/CGameState.h"
-#include "../lib/gameState/InfoAboutArmy.h"
 #include "../lib/gameState/SThievesGuildInfo.h"
-#include "../lib/CArtHandler.h"
-#include "../lib/CBuildingHandler.h"
-#include "../lib/CConfigHandler.h"
-#include "../lib/CCreatureHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/GameSettings.h"
 #include "../lib/CondSh.h"
 #include "../lib/CSkillHandler.h"
-#include "../lib/spells/CSpellHandler.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/CStopWatch.h"
-#include "../lib/CTownHandler.h"
-#include "../lib/GameConstants.h"
-#include "../lib/bonuses/Bonus.h"
-#include "../lib/NetPacksBase.h"
-#include "../lib/StartInfo.h"
 #include "../lib/TextOperations.h"
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
@@ -623,215 +602,9 @@ static bool isQuickExchangeLayoutAvailable()
 	return CResourceHandler::get()->existsResource(ImagePath::builtin("SPRITES/" + QUICK_EXCHANGE_BG));
 }
 
-CExchangeController::CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2)
-	:left(LOCPLINT->cb->getHero(hero1)), right(LOCPLINT->cb->getHero(hero2)), cb(LOCPLINT->cb), view(view)
-{
-}
-
-std::function<void()> CExchangeController::onMoveArmyToLeft()
-{
-	return [&]() { moveArmy(false); };
-}
-
-std::function<void()> CExchangeController::onMoveArmyToRight()
-{
-	return [&]() { moveArmy(true); };
-}
-
-std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
-{
-	std::vector<CArtifactInstance *> result;
-
-	for(auto slot : hero->artifactsInBackpack)
-	{
-		result.push_back(slot.artifact);
-	}
-
-	return result;
-}
-
-std::function<void()> CExchangeController::onSwapArtifacts()
-{
-	return [&]()
-	{
-		cb->bulkMoveArtifacts(left->id, right->id, true);
-	};
-}
-
-std::function<void()> CExchangeController::onMoveArtifactsToLeft()
-{
-	return [&]() { moveArtifacts(false); };
-}
-
-std::function<void()> CExchangeController::onMoveArtifactsToRight()
-{
-	return [&]() { moveArtifacts(true); };
-}
-
-std::vector<std::pair<SlotID, CStackInstance *>> getStacks(const CArmedInstance * source)
-{
-	auto slots = source->Slots();
-
-	return std::vector<std::pair<SlotID, CStackInstance *>>(slots.begin(), slots.end());
-}
-
-std::function<void()> CExchangeController::onSwapArmy()
-{
-	return [&]()
-	{
-		if(left->tempOwner != cb->getPlayerID()
-		   || right->tempOwner != cb->getPlayerID())
-		{
-			return;
-		}
-
-		auto leftSlots = getStacks(left);
-		auto rightSlots = getStacks(right);
-
-		auto i = leftSlots.begin(), j = rightSlots.begin();
-
-		for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
-		{
-			cb->swapCreatures(left, right, i->first, j->first);
-		}
-
-		if(i != leftSlots.end())
-		{
-			auto freeSlots = right->getFreeSlots();
-			auto slot = freeSlots.begin();
-
-			for(; i != leftSlots.end() && slot != freeSlots.end(); i++, slot++)
-			{
-				cb->swapCreatures(left, right, i->first, *slot);
-			}
-		}
-		else if(j != rightSlots.end())
-		{
-			auto freeSlots = left->getFreeSlots();
-			auto slot = freeSlots.begin();
-
-			for(; j != rightSlots.end() && slot != freeSlots.end(); j++, slot++)
-			{
-				cb->swapCreatures(left, right, *slot, j->first);
-			}
-		}
-	};
-}
-
-std::function<void()> CExchangeController::onMoveStackToLeft(SlotID slotID)
-{
-	return [=]()
-	{
-		if(right->tempOwner != cb->getPlayerID())
-		{
-			return;
-		}
-
-		moveStack(right, left, slotID);
-	};
-}
-
-std::function<void()> CExchangeController::onMoveStackToRight(SlotID slotID)
-{
-	return [=]()
-	{
-		if(left->tempOwner != cb->getPlayerID())
-		{
-			return;
-		}
-
-		moveStack(left, right, slotID);
-	};
-}
-
-void CExchangeController::moveStack(
-	const CGHeroInstance * source,
-	const CGHeroInstance * target,
-	SlotID sourceSlot)
-{
-	auto creature = source->getCreature(sourceSlot);
-	if(creature == nullptr)
-		return;
-
-	SlotID targetSlot = target->getSlotFor(creature);
-
-	if(targetSlot.validSlot())
-	{
-		if(source->stacksCount() == 1 && source->needsLastStack())
-		{
-			cb->splitStack(
-				source,
-				target,
-				sourceSlot,
-				targetSlot,
-				target->getStackCount(targetSlot) + source->getStackCount(sourceSlot) - 1);
-		}
-		else
-		{
-			cb->mergeOrSwapStacks(source, target, sourceSlot, targetSlot);
-		}
-	}
-}
-
-void CExchangeController::moveArmy(bool leftToRight)
-{
-	const CGHeroInstance * source = leftToRight ? left : right;
-	const CGHeroInstance * target = leftToRight ? right : left;
-	const CGarrisonSlot * selection =  this->view->getSelectedSlotID();
-	SlotID slot;
-
-	if(source->tempOwner != cb->getPlayerID())
-	{
-		return;
-	}
-
-	if(selection && selection->our() && selection->getObj() == source)
-	{
-		slot = selection->getSlot();
-	}
-	else
-	{
-		auto weakestSlot = vstd::minElementByFun(
-			source->Slots(), 
-			[](const std::pair<SlotID, CStackInstance *> & s) -> int
-			{
-				return s.second->getCreatureID().toCreature()->getAIValue();
-			});
-
-		slot = weakestSlot->first;
-	}
-
-	cb->bulkMoveArmy(source->id, target->id, slot);
-}
-
-void CExchangeController::moveArtifacts(bool leftToRight)
-{
-	const CGHeroInstance * source = leftToRight ? left : right;
-	const CGHeroInstance * target = leftToRight ? right : left;
-
-	if(source->tempOwner != cb->getPlayerID())
-	{
-		return;
-	}
-
-	cb->bulkMoveArtifacts(source->id, target->id, false);
-}
-
-void CExchangeController::moveArtifact(
-	const CGHeroInstance * source,
-	const CGHeroInstance * target,
-	ArtifactPosition srcPosition)
-{
-	auto srcLocation = ArtifactLocation(source, srcPosition);
-	auto dstLocation = ArtifactLocation(target,
-		ArtifactUtils::getArtAnyPosition(target, source->getArt(srcPosition)->getTypeId()));
-
-	cb->swapArtifacts(srcLocation, dstLocation);
-}
-
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
 	: CStatusbarWindow(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2")),
-	controller(this, hero1, hero2),
+	controller(hero1, hero2),
 	moveStackLeftButtons(),
 	moveStackRightButtons()
 {
@@ -890,8 +663,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 150));
 	artifs[1]->setHero(heroInst[1]);
 
-	addSet(artifs[0]);
-	addSet(artifs[1]);
+	addSetAndCallbacks(artifs[0]);
+	addSetAndCallbacks(artifs[1]);
 
 	for(int g=0; g<4; ++g)
 	{
@@ -982,12 +755,62 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	if(qeLayout)
 	{
-		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), controller.onMoveArmyToRight());
-		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[2]), controller.onSwapArmy());
-		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]), controller.onMoveArmyToLeft());
-		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), controller.onMoveArtifactsToRight());
-		echangeArtifactsButton   = std::make_shared<CButton>(Point(377, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[4]), controller.onSwapArtifacts());
-		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]), controller.onMoveArtifactsToLeft());
+		auto moveArtifacts = [](const std::function<void(bool, bool)> moveRoutine) -> void
+		{
+			bool moveEquipped = true;
+			bool moveBackpack = true;
+
+			if(GH.isKeyboardCtrlDown())
+				moveBackpack = false;
+			else if(GH.isKeyboardShiftDown())
+				moveEquipped = false;
+			moveRoutine(moveEquipped, moveBackpack);
+		};
+
+		auto moveArmy = [this](const bool leftToRight) -> void
+		{
+			std::optional<SlotID> slotId = std::nullopt;
+			if(auto slot = getSelectedSlotID())
+				slotId = slot->getSlot();
+			controller.moveArmy(leftToRight, slotId);
+		};
+
+		auto openBackpack = [this](const CGHeroInstance * hero) -> void
+		{
+			GH.windows().createAndPushWindow<CHeroBackpackWindow>(hero);
+			for(auto artSet : artSets)
+				GH.windows().topWindow<CHeroBackpackWindow>()->addSet(artSet);
+		};
+
+		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
+			std::bind(moveArmy, true));
+		exchangeGarrButton       = std::make_shared<CButton>(Point(377, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[2]),
+			std::bind(&CExchangeController::swapArmy, &controller));
+		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/armLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
+			std::bind(moveArmy, false));
+		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artRight.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
+			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(true, equipped, baclpack);}));
+		exchangeArtifactsButton  = std::make_shared<CButton>(Point(377, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[4]),
+			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.swapArtifacts(equipped, baclpack);}));
+		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
+			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(false, equipped, baclpack);}));
+		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+			std::bind(openBackpack, heroInst[0]));
+		backpackButtonLeft->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+			std::bind(openBackpack, heroInst[1]));
+		backpackButtonRight->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+
+		auto leftHeroBlock = heroInst[0]->tempOwner != LOCPLINT->cb->getPlayerID();
+		auto rightHeroBlock = heroInst[1]->tempOwner != LOCPLINT->cb->getPlayerID();
+		moveAllGarrButtonLeft->block(leftHeroBlock);
+		exchangeGarrButton->block(leftHeroBlock || rightHeroBlock);
+		moveAllGarrButtonRight->block(rightHeroBlock);
+		moveArtifactsButtonLeft->block(leftHeroBlock);
+		exchangeArtifactsButton->block(leftHeroBlock || rightHeroBlock);
+		moveArtifactsButtonRight->block(rightHeroBlock);
+		backpackButtonLeft->block(leftHeroBlock);
+		backpackButtonRight->block(rightHeroBlock);
 
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
 		{
@@ -996,14 +819,16 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 					Point(484 + 35 * i, 154),
 					AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/unitLeft.DEF"),
 					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-					controller.onMoveStackToLeft(SlotID(i))));
+					std::bind(&CExchangeController::moveStack, &controller, false, SlotID(i))));
+			moveStackLeftButtons.back()->block(leftHeroBlock);
 
 			moveStackRightButtons.push_back(
 				std::make_shared<CButton>(
 					Point(66 + 35 * i, 154),
 					AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/unitRight.DEF"),
 					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
-					controller.onMoveStackToRight(SlotID(i))));
+					std::bind(&CExchangeController::moveStack, &controller, true, SlotID(i))));
+			moveStackLeftButtons.back()->block(rightHeroBlock);
 		}
 	}
 

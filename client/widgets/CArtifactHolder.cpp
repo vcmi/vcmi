@@ -200,8 +200,8 @@ void CHeroArtPlace::clickPressed(const Point & cursorPosition)
 
 void CHeroArtPlace::showPopupWindow(const Point & cursorPosition)
 {
-	if(rightClickCallback)
-		rightClickCallback(*this);
+	if(showPopupCallback)
+		showPopupCallback(*this);
 }
 
 void CHeroArtPlace::showAll(Canvas & to)

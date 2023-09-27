@@ -44,15 +44,19 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 	return false;
 }
 
-std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo()
-{
-	// TODO romove this func. encapsulation violation
-	return partsInfo;
-}
-
 const std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo() const
 {
 	return partsInfo;
+}
+
+void CCombinedArtifactInstance::addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap)
+{
+	if(!placementMap.empty())
+		for(auto & part : partsInfo)
+		{
+			assert(placementMap.find(part.art) != placementMap.end());
+			part.slot = placementMap.at(part.art);
+		}
 }
 
 SpellID CScrollArtifactInstance::getScrollSpellID() const
@@ -163,7 +167,8 @@ bool CArtifactInstance::isCombined() const
 
 void CArtifactInstance::putAt(const ArtifactLocation & al)
 {
-	al.getHolderArtSet()->putArtifact(al.slot, this);
+	auto placementMap = al.getHolderArtSet()->putArtifact(al.slot, this);
+	addPlacementMap(placementMap);
 }
 
 void CArtifactInstance::removeFrom(const ArtifactLocation & al)

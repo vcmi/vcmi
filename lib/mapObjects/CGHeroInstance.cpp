@@ -1066,13 +1066,13 @@ std::string CGHeroInstance::getBiographyTextID() const
 	return "";
 }
 
-void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
+CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
 	assert(art->artType->canBePutAt(this, pos));
 
-	CArtifactSet::putArtifact(pos, art);
 	if(ArtifactUtils::isSlotEquipment(pos))
 		attachTo(*art);
+	return CArtifactSet::putArtifact(pos, art);
 }
 
 void CGHeroInstance::removeArtifact(ArtifactPosition pos)

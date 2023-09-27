@@ -12,6 +12,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
 #include "ConstTransitivePtr.h"
+#include "CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,8 +38,8 @@ public:
 	void addPart(CArtifactInstance * art, const ArtifactPosition & slot);
 	// Checks if supposed part inst is part of this combined art inst
 	bool isPart(const CArtifactInstance * supposedPart) const;
-	std::vector<PartInfo> & getPartsInfo();
 	const std::vector<PartInfo> & getPartsInfo() const;
+	void addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

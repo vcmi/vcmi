@@ -68,7 +68,7 @@ void ApplyGhNetPackVisitor::visitArrangeStacks(ArrangeStacks & pack)
 
 void ApplyGhNetPackVisitor::visitBulkMoveArmy(BulkMoveArmy & pack)
 {
-	gh.throwIfWrongPlayer(&pack);
+	gh.throwIfWrongOwner(&pack, pack.srcArmy);
 	result = gh.bulkMoveArmy(pack.srcArmy, pack.destArmy, pack.srcSlot);
 }
 
@@ -132,7 +132,9 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.srcHero);
-	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap);
+	if(pack.swap)
+		gh.throwIfWrongOwner(&pack, pack.dstHero);
+	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
 }
 
 void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)

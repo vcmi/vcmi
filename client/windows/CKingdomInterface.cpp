@@ -706,7 +706,7 @@ std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 	if(index < heroesList.size())
 	{
 		auto hero = std::make_shared<CHeroItem>(heroesList[index]);
-		addSet(hero->heroArts);
+		addSetAndCallbacks(hero->heroArts);
 		return hero;
 	}
 	else

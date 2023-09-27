@@ -42,7 +42,7 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 		artPlace = std::make_shared<CHeroArtPlace>(pos);
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 		artPlaceIdx++;
 	}
 

@@ -680,7 +680,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		arts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46));
 		arts->selectArtCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
 		arts->setHero(hero);
-		addSet(arts);
+		addSetAndCallbacks(arts);
 	}
 	initItems(false);
 	initItems(true);
@@ -1133,7 +1133,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 
 		arts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -12));
 		arts->setHero(hero);
-		addSet(arts);
+		addSetAndCallbacks(arts);
 
 		initItems(true);
 		initItems(false);

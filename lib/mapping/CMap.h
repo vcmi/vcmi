@@ -94,7 +94,7 @@ public:
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
 	void calculateGuardingGreaturePositions();
 
-	void addNewArtifactInstance(CArtifactInstance * art);
+	void addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art);
 	void eraseArtifactInstance(CArtifactInstance * art);
 
 	void addNewQuestInstance(CQuest * quest);

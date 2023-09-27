@@ -2744,7 +2744,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	return true;
 }
 
-bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped, bool backpack)
 {
 	// Make sure exchange is even possible between the two heroes.
 	if(!isAllowedExchange(srcHero, dstHero))
@@ -2799,34 +2799,45 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 				slots.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
 			}
 		};
-		// Move over artifacts that are worn srcHero -> dstHero
-		moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
-		artFittingSet.artifactsWorn.clear();
-		// Move over artifacts that are worn dstHero -> srcHero
-		moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
-		// Move over artifacts that are in backpack srcHero -> dstHero
-		moveArtsInBackpack(psrcHero, slotsSrcDst);
-		// Move over artifacts that are in backpack dstHero -> srcHero
-		moveArtsInBackpack(pdstHero, slotsDstSrc);
+		if(equipped)
+		{
+			// Move over artifacts that are worn srcHero -> dstHero
+			moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
+			artFittingSet.artifactsWorn.clear();
+			// Move over artifacts that are worn dstHero -> srcHero
+			moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
+		}
+		if(backpack)
+		{
+			// Move over artifacts that are in backpack srcHero -> dstHero
+			moveArtsInBackpack(psrcHero, slotsSrcDst);
+			// Move over artifacts that are in backpack dstHero -> srcHero
+			moveArtsInBackpack(pdstHero, slotsDstSrc);
+		}
 	}
 	else
 	{
 		artFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
 		artFittingSet.artifactsWorn = pdstHero->artifactsWorn;
-
-		// Move over artifacts that are worn
-		for(auto & artInfo : psrcHero->artifactsWorn)
+		if(equipped)
 		{
-			if(ArtifactUtils::isArtRemovable(artInfo))
+			// Move over artifacts that are worn
+			for(auto & artInfo : psrcHero->artifactsWorn)
 			{
-				moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero, slotsSrcDst);
+				if(ArtifactUtils::isArtRemovable(artInfo))
+				{
+					moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero, slotsSrcDst);
+				}
 			}
 		}
-		// Move over artifacts that are in backpack
-		for(auto & slotInfo : psrcHero->artifactsInBackpack)
+		if(backpack)
 		{
-			moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)),
-				psrcHero->getArtPos(slotInfo.artifact), pdstHero, slotsSrcDst);
+			// Move over artifacts that are in backpack
+			for(auto & slotInfo : psrcHero->artifactsInBackpack)
+			{
+				moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)),
+					psrcHero->getArtPos(slotInfo.artifact), pdstHero, slotsSrcDst);
+			}
 		}
 	}
 	sendAndApply(&ma);

@@ -941,10 +941,10 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	// He has Shackles of War (normally - MISC slot artifact) in LEFT_HAND slot set in editor
 	// Artifact seems to be missing in game, so skip artifacts that don't fit target slot
 	auto * artifact = ArtifactUtils::createArtifact(map, artifactID);
-	auto artifactPos = ArtifactPosition(slot);
-	if(artifact->canBePutAt(ArtifactLocation(hero, artifactPos)))
+	auto dstLoc = ArtifactLocation(hero, ArtifactPosition(slot));
+	if(artifact->canBePutAt(dstLoc))
 	{
-		hero->putArtifact(artifactPos, artifact);
+		artifact->putAt(dstLoc);
 	}
 	else
 	{

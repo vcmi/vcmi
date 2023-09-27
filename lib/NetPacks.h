@@ -2439,12 +2439,16 @@ struct DLL_LINKAGE BulkExchangeArtifacts : public CPackForServer
 	ObjectInstanceID srcHero;
 	ObjectInstanceID dstHero;
 	bool swap = false;
+	bool equipped = true;
+	bool backpack = true;
 
 	BulkExchangeArtifacts() = default;
-	BulkExchangeArtifacts(const ObjectInstanceID & srcHero, const ObjectInstanceID & dstHero, bool swap)
+	BulkExchangeArtifacts(const ObjectInstanceID & srcHero, const ObjectInstanceID & dstHero, bool swap, bool equipped, bool backpack)
 		: srcHero(srcHero)
 		, dstHero(dstHero)
 		, swap(swap)
+		, equipped(equipped)
+		, backpack(backpack)
 	{
 	}
 
@@ -2456,6 +2460,8 @@ struct DLL_LINKAGE BulkExchangeArtifacts : public CPackForServer
 		h & srcHero;
 		h & dstHero;
 		h & swap;
+		h & equipped;
+		h & backpack;
 	}
 };
 

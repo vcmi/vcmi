@@ -95,6 +95,7 @@ set(client_SRCS
 	widgets/Buttons.cpp
 	widgets/CArtifactHolder.cpp
 	widgets/CComponent.cpp
+	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
 	widgets/ComboBox.cpp
@@ -259,6 +260,7 @@ set(client_HEADERS
 	widgets/Buttons.h
 	widgets/CArtifactHolder.h
 	widgets/CComponent.h
+	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
 	widgets/ComboBox.h

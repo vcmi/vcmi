@@ -9,10 +9,8 @@
  */
 #pragma once
 
-#include "CWindowObject.h"
-#include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
-#include "../lib/int3.h"
+#include "../widgets/CExchangeController.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/Images.h"
 
@@ -28,16 +26,13 @@ class CreatureCostBox;
 class CCreaturePic;
 class MoraleLuckBox;
 class CHeroArea;
-class CMinorResDataBar;
 class CSlider;
 class CComponentBox;
 class CTextInput;
 class CListBox;
 class CLabelGroup;
-class CToggleButton;
 class CGStatusBar;
 class CTextBox;
-class CResDataBar;
 class CGarrisonInt;
 class CGarrisonSlot;
 
@@ -246,35 +241,6 @@ public:
 	void show(Canvas & to) override;
 };
 
-class CCallback;
-class CExchangeWindow;
-
-class CExchangeController
-{
-private:
-	const CGHeroInstance * left;
-	const CGHeroInstance * right;
-	std::shared_ptr<CCallback> cb;
-	CExchangeWindow * view;
-
-public:
-	CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2);
-	std::function<void()> onMoveArmyToRight();
-	std::function<void()> onSwapArmy();
-	std::function<void()> onMoveArmyToLeft();
-	std::function<void()> onSwapArtifacts();
-	std::function<void()> onMoveArtifactsToLeft();
-	std::function<void()> onMoveArtifactsToRight();
-	std::function<void()> onMoveStackToLeft(SlotID slotID);
-	std::function<void()> onMoveStackToRight(SlotID slotID);
-
-private:
-	void moveArmy(bool leftToRight);
-	void moveArtifacts(bool leftToRight);
-	void moveArtifact(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
-	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
-};
-
 class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
 {
 	std::array<std::shared_ptr<CLabel>, 2> titles;
@@ -303,13 +269,15 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 
 	std::shared_ptr<CGarrisonInt> garr;
 	std::shared_ptr<CButton> moveAllGarrButtonLeft;
-	std::shared_ptr<CButton> echangeGarrButton;
+	std::shared_ptr<CButton> exchangeGarrButton;
 	std::shared_ptr<CButton> moveAllGarrButtonRight;
 	std::shared_ptr<CButton> moveArtifactsButtonLeft;
-	std::shared_ptr<CButton> echangeArtifactsButton;
+	std::shared_ptr<CButton> exchangeArtifactsButton;
 	std::shared_ptr<CButton> moveArtifactsButtonRight;
 	std::vector<std::shared_ptr<CButton>> moveStackLeftButtons;
 	std::vector<std::shared_ptr<CButton>> moveStackRightButtons;
+	std::shared_ptr<CButton> backpackButtonLeft;
+	std::shared_ptr<CButton> backpackButtonRight;
 	CExchangeController controller;
 
 public:

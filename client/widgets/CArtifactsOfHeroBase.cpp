@@ -55,10 +55,10 @@ void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCall
 }
 
 void CArtifactsOfHeroBase::init(
-	CHeroArtPlace::ClickHandler lClickCallback,
-	CHeroArtPlace::ClickHandler rClickCallback,
+	CHeroArtPlace::ClickFunctor lClickCallback,
+	CHeroArtPlace::ClickFunctor showPopupCallback,
 	const Point & position,
-	BpackScrollHandler scrollHandler)
+	BpackScrollFunctor scrollCallback)
 {
 	// CArtifactsOfHeroBase::init may be transform to CArtifactsOfHeroBase::CArtifactsOfHeroBase if OBJECT_CONSTRUCTION_CAPTURING is removed
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -78,16 +78,16 @@ void CArtifactsOfHeroBase::init(
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
 		artPlace.second->leftClickCallback = lClickCallback;
-		artPlace.second->rightClickCallback = rClickCallback;
+		artPlace.second->showPopupCallback = showPopupCallback;
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = lClickCallback;
-		artPlace->rightClickCallback = rClickCallback;
+		artPlace->showPopupCallback = showPopupCallback;
 	}
-	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [scrollHandler]() { scrollHandler(-1); }, EShortcut::MOVE_LEFT);
-	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [scrollHandler]() { scrollHandler(+1); }, EShortcut::MOVE_RIGHT);
+	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(-1);}, EShortcut::MOVE_LEFT);
+	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(+1);}, EShortcut::MOVE_RIGHT);
 	leftBackpackRoll->block(true);
 	rightBackpackRoll->block(true);
 
@@ -102,8 +102,8 @@ void CArtifactsOfHeroBase::leftClickArtPlace(CHeroArtPlace & artPlace)
 
 void CArtifactsOfHeroBase::rightClickArtPlace(CHeroArtPlace & artPlace)
 {
-	if(rightClickCallback)
-		rightClickCallback(*this, artPlace);
+	if(showPopupCallback)
+		showPopupCallback(*this, artPlace);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)

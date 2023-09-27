@@ -868,14 +868,13 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
-void CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
+CStackInstance::ArtPlacementMap CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
 	assert(!getArt(pos));
 	assert(art->artType->canBePutAt(this, pos));
 
-	CArtifactSet::putArtifact(pos, art);
-	if(ArtifactUtils::isSlotEquipment(pos))
-		attachTo(*art);
+	attachTo(*art);
+	return CArtifactSet::putArtifact(pos, art);
 }
 
 void CStackInstance::removeArtifact(ArtifactPosition pos)
