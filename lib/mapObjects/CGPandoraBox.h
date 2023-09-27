@@ -19,7 +19,7 @@ struct InfoWindow;
 class DLL_LINKAGE CGPandoraBox : public CRewardableObject
 {
 public:
-	std::string message;
+	MetaString message;
 
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;

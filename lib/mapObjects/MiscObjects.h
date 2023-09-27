@@ -43,7 +43,7 @@ public:
 class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
 {
 public:
-	std::string message;
+	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
@@ -119,7 +119,7 @@ class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
 public:
 	CArtifactInstance * storedArtifact = nullptr;
-	std::string message;
+	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -149,7 +149,7 @@ public:
 	static constexpr ui32 RANDOM_AMOUNT = 0;
 	ui32 amount = RANDOM_AMOUNT; //0 if random
 	
-	std::string message;
+	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;

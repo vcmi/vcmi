@@ -1135,7 +1135,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 CGObjectInstance * CMapLoaderH3M::readSign(const int3 & mapPosition)
 {
 	auto * object = new CGSignBottle();
-	object->message = readLocalizedString(TextIdentifier("sign", mapPosition.x, mapPosition.y, mapPosition.z, "message"));
+	object->message.appendTextID(readLocalizedString(TextIdentifier("sign", mapPosition.x, mapPosition.y, mapPosition.z, "message")));
 	reader->skipZero(4);
 	return object;
 }
@@ -2247,12 +2247,12 @@ void CMapLoaderH3M::readEvents()
 	}
 }
 
-void CMapLoaderH3M::readMessageAndGuards(std::string & message, CCreatureSet * guards, const int3 & position)
+void CMapLoaderH3M::readMessageAndGuards(MetaString & message, CCreatureSet * guards, const int3 & position)
 {
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
 	{
-		message = readLocalizedString(TextIdentifier("guards", position.x, position.y, position.z, "message"));
+		message.appendTextID(readLocalizedString(TextIdentifier("guards", position.x, position.y, position.z, "message")));
 		bool hasGuards = reader->readBool();
 		if(hasGuards)
 			readCreatureSet(guards, 7);
