@@ -91,6 +91,8 @@
 	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\nToggle the visibility of the Frames Per Second counter in the corner of the game window.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptic feedback",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptic feedback}\n\nToggle the haptic feedback on touch inputs.",
+	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Interface Enhancements",
+	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Interface Enhancements}\n\nToggle various quality of life interface improvements. Such as a larger spell book, backpack, etc. Disable to have a more classic experience.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Show Messages in Info Panel",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Show Messages in Info Panel}\n\nWhenever possible, game messages from visiting map objects will be shown in the info panel, instead of popping up in a separate window.",
