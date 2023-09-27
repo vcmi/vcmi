@@ -76,7 +76,7 @@ void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 
 	VCMI_CHECK_FIELD_EQUAL(isFactionRandom);
 	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroPortrait);
-	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroName);
+	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroNameTextId);
 
 	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroId);
 

@@ -62,7 +62,7 @@ bool PlayerInfo::canAnyonePlay() const
 
 bool PlayerInfo::hasCustomMainHero() const
 {
-	return !mainCustomHeroName.empty() && mainCustomHeroPortrait != -1;
+	return !mainCustomHeroNameTextId.empty() && mainCustomHeroPortrait != -1;
 }
 
 EventCondition::EventCondition(EWinLoseType condition):

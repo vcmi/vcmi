@@ -571,7 +571,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 				if(instanceName == info.mainHeroInstance)
 				{
 					//this is main hero
-					info.mainCustomHeroName = hname.heroName;
+					info.mainCustomHeroNameTextId = hname.heroName;
 					info.hasRandomHero = (hname.heroId == -1);
 					info.mainCustomHeroId = hname.heroId;
 					info.mainCustomHeroPortrait = -1;

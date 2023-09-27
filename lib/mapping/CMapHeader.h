@@ -63,7 +63,7 @@ struct DLL_LINKAGE PlayerInfo
 	bool hasRandomHero;
 	/// The default value is -1.
 	si32 mainCustomHeroPortrait;
-	std::string mainCustomHeroName;
+	std::string mainCustomHeroNameTextId;
 	/// ID of custom hero (only if portrait and hero name are set, otherwise unpredicted value), -1 if none (not always -1)
 	si32 mainCustomHeroId;
 
@@ -84,7 +84,7 @@ struct DLL_LINKAGE PlayerInfo
 		h & allowedFactions;
 		h & isFactionRandom;
 		h & mainCustomHeroPortrait;
-		h & mainCustomHeroName;
+		h & mainCustomHeroNameTextId;
 		h & heroesNames;
 		h & hasMainTown;
 		h & generateHeroAtMainTown;

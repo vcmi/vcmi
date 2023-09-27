@@ -253,7 +253,7 @@ void CMapLoaderH3M::readPlayerInfo()
 		if(playerInfo.mainCustomHeroId != -1)
 		{
 			playerInfo.mainCustomHeroPortrait = reader->readHeroPortrait();
-			playerInfo.mainCustomHeroName = readLocalizedString(TextIdentifier("header", "player", i, "mainHeroName"));
+			playerInfo.mainCustomHeroNameTextId = readLocalizedString(TextIdentifier("header", "player", i, "mainHeroName"));
 		}
 
 		if(features.levelAB)

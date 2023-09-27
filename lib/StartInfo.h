@@ -59,7 +59,7 @@ struct DLL_LINKAGE PlayerSettings
 	HeroTypeID hero;
 	HeroTypeID heroPortrait; //-1 if default, else ID
 
-	std::string heroName;
+	std::string heroNameTextId;
 	PlayerColor color; //from 0 -
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
 	EHandicap handicap;//0-no, 1-mild, 2-severe
@@ -73,7 +73,7 @@ struct DLL_LINKAGE PlayerSettings
 		h & castle;
 		h & hero;
 		h & heroPortrait;
-		h & heroName;
+		h & heroNameTextId;
 		h & bonus;
 		h & color;
 		h & handicap;
