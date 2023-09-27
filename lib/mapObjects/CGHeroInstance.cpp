@@ -1035,8 +1035,8 @@ std::string CGHeroInstance::getNameTranslated() const
 
 std::string CGHeroInstance::getNameTextID() const
 {
-	if (!nameCustom.empty())
-		return nameCustom;
+	if (!nameCustomTextId.empty())
+		return nameCustomTextId;
 	if (type)
 		return type->getNameTextID();
 
@@ -1052,8 +1052,8 @@ std::string CGHeroInstance::getBiographyTranslated() const
 
 std::string CGHeroInstance::getBiographyTextID() const
 {
-	if (!biographyCustom.empty())
-		return biographyCustom;
+	if (!biographyCustomTextId.empty())
+		return biographyCustomTextId;
 	if (type)
 		return type->getBiographyTextID();
 
@@ -1515,7 +1515,7 @@ void CGHeroInstance::updateFrom(const JsonNode & data)
 
 void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeString("biography", biographyCustom);
+	handler.serializeString("biography", biographyCustomTextId);
 	handler.serializeInt("experience", exp, 0);
 
 	if(!handler.saving && exp != UNINITIALIZED_EXPERIENCE) //do not gain levels if experience is not initialized
@@ -1526,7 +1526,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		}
 	}
 
-	handler.serializeString("name", nameCustom);
+	handler.serializeString("name", nameCustomTextId);
 	handler.serializeInt("gender", gender, 0);
 
 	{

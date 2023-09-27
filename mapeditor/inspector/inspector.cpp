@@ -277,8 +277,8 @@ void Inspector::updateProperties(CGHeroInstance * o)
 		delegate->options = {{"MALE", QVariant::fromValue(int(EHeroGender::MALE))}, {"FEMALE", QVariant::fromValue(int(EHeroGender::FEMALE))}};
 		addProperty<std::string>("Gender", (o->gender == EHeroGender::FEMALE ? "FEMALE" : "MALE"), delegate , false);
 	}
-	addProperty("Name", o->nameCustom, false);
-	addProperty("Biography", o->biographyCustom, new MessageDelegate, false);
+	addProperty("Name", o->nameCustomTextId, false);
+	addProperty("Biography", o->biographyCustomTextId, new MessageDelegate, false);
 	addProperty("Portrait", o->portrait, false);
 	
 	auto * delegate = new HeroSkillsDelegate(*o);
@@ -606,7 +606,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		o->gender = EHeroGender(value.toInt());
 	
 	if(key == "Name")
-		o->nameCustom = value.toString().toStdString();
+		o->nameCustomTextId = value.toString().toStdString();
 	
 	if(key == "Experience")
 		o->exp = value.toString().toInt();

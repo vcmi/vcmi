@@ -529,7 +529,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 					if(hero)
 					{
 						auto heroData = handler.enterStruct(hero->instanceName);
-						heroData->serializeString("name", hero->nameCustom);
+						heroData->serializeString("name", hero->nameCustomTextId);
 
 						if(hero->ID == Obj::HERO)
 						{

@@ -860,7 +860,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 		bool hasCustomBio = reader->readBool();
 		if(hasCustomBio)
-			hero->biographyCustom = readLocalizedString(TextIdentifier("heroes", heroID, "biography"));
+			hero->biographyCustomTextId = readLocalizedString(TextIdentifier("heroes", heroID, "biography"));
 
 		// 0xFF is default, 00 male, 01 female
 		hero->gender = static_cast<EHeroGender>(reader->readUInt8());
@@ -1685,7 +1685,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	{
 		if(elem.heroId.getNum() == object->subID)
 		{
-			object->nameCustom = elem.name;
+			object->nameCustomTextId = elem.name;
 			object->portrait = elem.portrait;
 			break;
 		}
@@ -1693,7 +1693,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->nameCustom = readLocalizedString(TextIdentifier("heroes", object->subID, "name"));
+		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "name"));
 
 	if(features.levelSOD)
 	{
@@ -1748,7 +1748,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	{
 		bool hasCustomBiography = reader->readBool();
 		if(hasCustomBiography)
-			object->biographyCustom = readLocalizedString(TextIdentifier("heroes", object->subID, "biography"));
+			object->biographyCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "biography"));
 
 		object->gender = static_cast<EHeroGender>(reader->readUInt8());
 		assert(object->gender == EHeroGender::MALE || object->gender == EHeroGender::FEMALE || object->gender == EHeroGender::DEFAULT);
