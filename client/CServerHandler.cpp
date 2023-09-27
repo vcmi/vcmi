@@ -260,7 +260,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 	boost::chrono::duration<long, boost::ratio<1, 1000>> sleepDuration{};
 	int maxConnectionAttempts;
 	
-	if(hostAddress == "127.0.0.1")
+	if(hostAddress == "127.0.0.1" || hostAddress == "localhost")
 	{
 		sleepDuration = boost::chrono::milliseconds(10);
 		maxConnectionAttempts = 100;
@@ -281,7 +281,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		if(connectionAttemptCount > maxConnectionAttempts)
 		{
 			logNetwork->error("\nExceeded maximum of %d connection attempts", maxConnectionAttempts);
-			break;
+			return;
 		}
 
 		try
