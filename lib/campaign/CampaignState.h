@@ -182,7 +182,7 @@ struct DLL_LINKAGE CampaignScenario
 	ui8 regionColor = 0;
 	ui8 difficulty = 0;
 
-	std::string regionText;
+	MetaString regionText;
 	CampaignScenarioPrologEpilog prolog;
 	CampaignScenarioPrologEpilog epilog;
 

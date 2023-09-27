@@ -509,9 +509,9 @@ void CBonusSelection::CRegion::clickReleased(const Point & cursorPosition)
 void CBonusSelection::CRegion::showPopupWindow(const Point & cursorPosition)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
-	auto text = CSH->si->campState->scenario(idOfMapAndRegion).regionText;
-	if(!graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && text.size())
+	auto & text = CSH->si->campState->scenario(idOfMapAndRegion).regionText;
+	if(!graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && !text.empty())
 	{
-		CRClickPopup::createAndPush(text);
+		CRClickPopup::createAndPush(text.toString());
 	}
 }
