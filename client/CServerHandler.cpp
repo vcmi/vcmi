@@ -251,14 +251,16 @@ void CServerHandler::startLocalServerAndConnect()
 void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
 {
 	state = EClientState::CONNECTING;
+	std::string hostAddress = getHostAddress();
+	ui16 hostPort = getHostPort();
+	logNetwork->info("Establishing connection...");
 	while(!c && state != EClientState::CONNECTION_CANCELLED)
 	{
 		try
 		{
-			logNetwork->info("Establishing connection...");
 			c = std::make_shared<CConnection>(
-					addr.size() ? addr : getHostAddress(),
-					port ? port : getHostPort(),
+					addr.size() ? addr : hostAddress,
+					port ? port : hostPort,
 					NAME, uuid);
 		}
 		catch(std::runtime_error & error)
