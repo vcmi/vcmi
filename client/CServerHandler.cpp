@@ -274,7 +274,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 
 	logNetwork->info("\nWaiting for %d ms between each of the %d attempts to connect", sleepDuration.count(), maxConnectionAttempts);
 	
-	uint connectionAttemptCount = 0;
+	ui16 connectionAttemptCount = 0;
 	while(!c && state != EClientState::CONNECTION_CANCELLED)
 	{
 		connectionAttemptCount++;
