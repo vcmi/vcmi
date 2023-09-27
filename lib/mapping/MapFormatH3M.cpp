@@ -2072,9 +2072,9 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 	}
 
 	guard->quest->lastDay = reader->readInt32();
-	guard->quest->firstVisitText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit"));
-	guard->quest->nextVisitText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit"));
-	guard->quest->completedText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed"));
+	guard->quest->firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
+	guard->quest->nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
+	guard->quest->completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
 	guard->quest->isCustomFirst = !guard->quest->firstVisitText.empty();
 	guard->quest->isCustomNext = !guard->quest->nextVisitText.empty();
 	guard->quest->isCustomComplete = !guard->quest->completedText.empty();
