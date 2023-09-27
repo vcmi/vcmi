@@ -649,33 +649,34 @@ EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbos
 
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
-	std::string text;
+	MetaString text;
+	text.appendLocalString(EMetaText::GENERAL_TXT, 216);
+	
 	std::string extraText;
 	if(gs->rumor.type == RumorState::TYPE_NONE)
-		return text;
+		return text.toString();
 
 	auto rumor = gs->rumor.last[gs->rumor.type];
 	switch(gs->rumor.type)
 	{
 	case RumorState::TYPE_SPECIAL:
+		text.replaceLocalString(EMetaText::GENERAL_TXT, rumor.first);
 		if(rumor.first == RumorState::RUMOR_GRAIL)
-			extraText = VLC->generaltexth->arraytxt[158 + rumor.second];
+			text.replaceTextID(TextIdentifier("core", "genrltxt", "arraytxt", 158 + rumor.second).get());
 		else
-			extraText = VLC->generaltexth->capColors[rumor.second];
-
-		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % extraText);
+			text.replaceTextID(TextIdentifier("core", "genrltxt", "capitalColors", rumor.second).get());
 
 		break;
 	case RumorState::TYPE_MAP:
-		text = gs->map->rumors[rumor.first].text;
+		text.replaceRawString(gs->map->rumors[rumor.first].text.toString());
 		break;
 
 	case RumorState::TYPE_RAND:
-		text = VLC->generaltexth->tavernRumors[rumor.first];
+		text.replaceTextID(TextIdentifier("core", "genrltxt", "randtvrn", rumor.first).get());
 		break;
 	}
 
-	return text;
+	return text.toString();
 }
 
 PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const

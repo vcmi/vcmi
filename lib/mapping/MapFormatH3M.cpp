@@ -807,7 +807,7 @@ void CMapLoaderH3M::readRumors()
 	{
 		Rumor ourRumor;
 		ourRumor.name = readBasicString();
-		ourRumor.text = readLocalizedString(TextIdentifier("header", "rumor", it, "text"));
+		ourRumor.text.appendTextID(readLocalizedString(TextIdentifier("header", "rumor", it, "text")));
 		map->rumors.push_back(ourRumor);
 	}
 }
