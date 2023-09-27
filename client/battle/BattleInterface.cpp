@@ -780,7 +780,7 @@ void BattleInterface::onAnimationsFinished()
 void BattleInterface::waitForAnimations()
 {
 	{
-		auto unlockPim = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 		ongoingAnimationsState.waitUntil(false);
 	}
 

@@ -104,7 +104,7 @@
 #include "../lib/spells/CSpellHandler.h"
 
 // The macro below is used to mark functions that are called by client when game state changes.
-// They all assume that CPlayerInterface::pim mutex is locked.
+// They all assume that interface mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT
 
 #define BATTLE_EVENT_POSSIBLE_RETURN	\
@@ -751,7 +751,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 		{
 			//FIXME: we want client rendering to proceed while AI is making actions
 			// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
-			auto unlockPim = vstd::makeUnlockGuard(GH.interfaceMutex);
+			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 			autofightingAI->activeStack(battleID, stack);
 			return;
 		}
@@ -1339,7 +1339,7 @@ void CPlayerInterface::waitWhileDialog()
 		return;
 	}
 
-	auto unlock = vstd::makeUnlockGuard(GH.interfaceMutex);
+	auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 	boost::unique_lock<boost::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
 		showingDialog->cond.wait(un);
@@ -1378,7 +1378,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 		GH.windows().totalRedraw();
 		{
 			IgnoreEvents ignore(*this);
-			auto unlockPim = vstd::makeUnlockGuard(GH.interfaceMutex);
+			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
 		}
 	}
@@ -1815,7 +1815,7 @@ void CPlayerInterface::waitForAllDialogs()
 {
 	while(!dialogs.empty())
 	{
-		auto unlock = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
 	waitWhileDialog();

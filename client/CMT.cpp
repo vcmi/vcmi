@@ -486,7 +486,7 @@ static void quitApplication()
 	std::cout << "Ending...\n";
 
 	// this method is always called from event/network threads, which keep interface mutex locked
-	// unlock it here to avoid assertion failure on GH descruction in exit()
+	// unlock it here to avoid assertion failure on GH destruction in exit()
 	GH.interfaceMutex.unlock();
 	exit(0);
 }

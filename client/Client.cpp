@@ -641,15 +641,17 @@ void CClient::battleFinished(const BattleID & battleID)
 
 void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor color)
 {
-	assert(vstd::contains(battleints, color));
+	auto battleint = battleints.at(color);
 
-	if(vstd::contains(battleints, color))
+	if (!battleint->human)
 	{
 		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
-		auto unlock = vstd::makeUnlockGuardIf(GH.interfaceMutex, !battleints[color]->human);
-
-		assert(vstd::contains(battleints, color));
-		battleints[color]->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		battleint->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
+	}
+	else
+	{
+		battleint->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
 	}
 }
 
