@@ -2155,7 +2155,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	{
 		CCastleEvent event;
 		event.name = readBasicString();
-		event.message = readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"));
+		event.message.appendTextID(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description")));
 
 		reader->readResourses(event.resources);
 
@@ -2225,7 +2225,7 @@ void CMapLoaderH3M::readEvents()
 	{
 		CMapEvent event;
 		event.name = readBasicString();
-		event.message = readLocalizedString(TextIdentifier("event", eventID, "description"));
+		event.message.appendTextID(readLocalizedString(TextIdentifier("event", eventID, "description")));
 
 		reader->readResourses(event.resources);
 		event.players = reader->readUInt8();
