@@ -263,7 +263,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 	if(hostAddress == "127.0.0.1" || hostAddress == "localhost")
 	{
 		sleepDuration = boost::chrono::milliseconds(10);
-		maxConnectionAttempts = 100;
+		maxConnectionAttempts = 1000;
 	}
 	else
 	{
