@@ -487,7 +487,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				if (!boat)
 				{
 					//Create a new boat for hero
-					cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
+					cb->createObject(boatPos, h->getOwner(), Obj::BOAT, getBoatType().getNum());
 					boatId = cb->getTopObj(boatPos)->id;
 				}
 			}
