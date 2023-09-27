@@ -425,7 +425,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::BEATHERO:
 			{
 				if (!allowNormalVictory)
-					logGlobal->warn("Map %s: Has 'beat hero' as victory condition, but 'allow normal victory' not set. Ignoring", mapName);
+					logGlobal->debug("Map %s: Has 'beat hero' as victory condition, but 'allow normal victory' not set. Ignoring", mapName);
 				allowNormalVictory = true; // H3 behavior
 				assert(appliesToAI == false); // not selectable in editor
 				EventCondition cond(EventCondition::DESTROY);
