@@ -25,6 +25,8 @@ class FramerateManager
 	/// index of last measured frome in lastFrameTimes array
 	ui32 lastFrameIndex;
 
+	bool vsyncEnabled;
+
 public:
 	FramerateManager(int targetFramerate);
 
