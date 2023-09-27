@@ -251,11 +251,39 @@ void CServerHandler::startLocalServerAndConnect()
 void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
 {
 	state = EClientState::CONNECTING;
+	
+	logNetwork->info("Establishing connection...");
+	
 	std::string hostAddress = getHostAddress();
 	ui16 hostPort = getHostPort();
-	logNetwork->info("Establishing connection...");
+
+	boost::chrono::duration<long, boost::ratio<1, 1000>> sleepDuration{};
+	int maxConnectionAttempts;
+	
+	if(hostAddress == "127.0.0.1")
+	{
+		sleepDuration = boost::chrono::milliseconds(10);
+		maxConnectionAttempts = 100;
+	}
+	else
+	{
+		// remote server
+		sleepDuration = boost::chrono::seconds(2);
+		maxConnectionAttempts = 10;
+	}
+
+	logNetwork->info("\nWaiting for %d ms between each of the %d attempts to connect", sleepDuration.count(), maxConnectionAttempts);
+	
+	uint connectionAttemptCount = 0;
 	while(!c && state != EClientState::CONNECTION_CANCELLED)
 	{
+		connectionAttemptCount++;
+		if(connectionAttemptCount > maxConnectionAttempts)
+		{
+			logNetwork->error("\nExceeded maximum of %d connection attempts", maxConnectionAttempts);
+			break;
+		}
+
 		try
 		{
 			c = std::make_shared<CConnection>(
@@ -265,8 +293,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		}
 		catch(std::runtime_error & error)
 		{
-			logNetwork->warn("\nCannot establish connection. %s Retrying in 10 ms", error.what());
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+			boost::this_thread::sleep_for(sleepDuration);
 		}
 	}
 
