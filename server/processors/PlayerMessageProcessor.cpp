@@ -109,11 +109,18 @@ bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::st
 	}
 	if(words.size() == 2 && words[1] == "cheaters")
 	{
-		if (cheaters.empty())
-			broadcastSystemMessage("No cheaters registered!");
+		int playersCheated = 0;
+		for (const auto & player : gameHandler->gameState()->players)
+		{
+			if(player.second.cheated)
+			{
+				broadcastSystemMessage("Player " + player.first.toString() + " is cheater!");
+				playersCheated++;
+			}
+		}
 
-		for (auto const & entry : cheaters)
-			broadcastSystemMessage("Player " + entry.toString() + " is cheater!");
+		if (!playersCheated)
+			broadcastSystemMessage("No cheaters registered!");
 
 		return true;
 	}
@@ -411,7 +418,10 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 		std::vector<std::string> parameters = words;
 
-		cheaters.insert(i.first);
+		PlayerCheated pc;
+		pc.player = i.first;
+		gameHandler->sendAndApply(&pc);
+
 		playerTargetedCheat = true;
 		parameters.erase(parameters.begin());
 
@@ -427,10 +437,13 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 				executeCheatCode(cheatName, i.first, h->id, parameters);
 	}
 
+	PlayerCheated pc;
+	pc.player = player;
+	gameHandler->sendAndApply(&pc);
+	
 	if (!playerTargetedCheat)
 		executeCheatCode(cheatName, player, currObj, words);
-
-	cheaters.insert(player);
+	
 	return true;
 }
 

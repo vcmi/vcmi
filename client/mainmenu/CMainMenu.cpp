@@ -12,6 +12,7 @@
 
 #include "CCampaignScreen.h"
 #include "CreditsScreen.h"
+#include "CHighScoreScreen.h"
 
 #include "../lobby/CBonusSelection.h"
 #include "../lobby/CSelectionBase.h"
@@ -216,7 +217,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 5: //highscores
 			{
-				return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.highscoresNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+				return std::bind(CMainMenu::openHighScoreScreen);
 			}
 			}
 		}
@@ -393,6 +394,12 @@ void CMainMenu::startTutorial()
 	mapInfo->mapInit(tutorialMap.getName());
 	CMainMenu::openLobby(ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
 	CSH->startMapAfterConnection(mapInfo);
+}
+
+void CMainMenu::openHighScoreScreen()
+{
+	GH.windows().createAndPushWindow<CHighScoreScreen>(CHighScoreScreen::HighScorePage::SCENARIO);
+	return;
 }
 
 std::shared_ptr<CMainMenu> CMainMenu::create()

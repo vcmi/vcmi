@@ -198,6 +198,8 @@
 		<Unit filename="mainmenu/CPrologEpilogVideo.h" />
 		<Unit filename="mainmenu/CreditsScreen.cpp" />
 		<Unit filename="mainmenu/CreditsScreen.h" />
+		<Unit filename="mainmenu/CHighScoreScreen.cpp" />
+		<Unit filename="mainmenu/CHighScoreScreen.h" />
 		<Unit filename="mapHandler.cpp" />
 		<Unit filename="mapHandler.h" />
 		<Unit filename="resource.h" />

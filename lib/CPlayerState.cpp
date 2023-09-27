@@ -17,7 +17,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerState::PlayerState()
- : color(-1), human(false), enteredWinningCheatCode(false),
+ : color(-1), human(false), cheated(false), enteredWinningCheatCode(false),
    enteredLosingCheatCode(false), status(EPlayerStatus::INGAME)
 {
 	setNodeType(PLAYER);
@@ -29,6 +29,7 @@ PlayerState::PlayerState(PlayerState && other) noexcept:
 	human(other.human),
 	team(other.team),
 	resources(other.resources),
+	cheated(other.cheated),
 	enteredWinningCheatCode(other.enteredWinningCheatCode),
 	enteredLosingCheatCode(other.enteredLosingCheatCode),
 	status(other.status),

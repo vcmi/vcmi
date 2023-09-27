@@ -22,6 +22,7 @@
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
+#include "mainmenu/CHighScoreScreen.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -616,6 +617,8 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		CMM->disable();
 	client = new CClient();
 
+	highScoreCalc = nullptr;
+
 	switch(si->mode)
 	{
 	case StartInfo::NEW_GAME:
@@ -685,14 +688,23 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	saveSession->Bool() = false;
 }
 
-void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
+void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
 {
 	std::shared_ptr<CampaignState> ourCampaign = cs;
 
 	if (!cs)
 		ourCampaign = si->campState;
 
-	GH.dispatchMainThread([ourCampaign]()
+	if(highScoreCalc == nullptr)
+	{
+		highScoreCalc = std::make_shared<HighScoreCalculation>();
+		highScoreCalc->isCampaign = true;
+		highScoreCalc->parameters.clear();
+	}
+	param.campaignName = cs->getName();
+	highScoreCalc->parameters.push_back(param);
+
+	GH.dispatchMainThread([ourCampaign, this]()
 	{
 		CSH->campaignServerRestartLock.set(true);
 		CSH->endGameplay();
@@ -712,7 +724,10 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 			if(!ourCampaign->isCampaignFinished())
 				CMM->openCampaignLobby(ourCampaign);
 			else
+			{
 				CMM->openCampaignScreen(ourCampaign->campaignSet);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *highScoreCalc);
+			}
 		};
 		if(epilogue.hasPrologEpilog)
 		{
@@ -960,7 +975,7 @@ void CServerHandler::threadRunServer()
 	}
 
 	comm += " > \"" + logName + '\"';
-    logGlobal->info("Server command line: %s", comm);
+	logGlobal->info("Server command line: %s", comm);
 
 #ifdef VCMI_WINDOWS
 	int result = -1;

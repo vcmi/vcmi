@@ -132,6 +132,7 @@
     <ClCompile Include="mainmenu\CMainMenu.cpp" />
     <ClCompile Include="mainmenu\CPrologEpilogVideo.cpp" />
     <ClCompile Include="mainmenu\CreditsScreen.cpp" />
+    <ClCompile Include="mainmenu\CHighScoreScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />
@@ -290,5 +291,6 @@
     <ClInclude Include="mainmenu\CMainMenu.h" />
     <ClInclude Include="mainmenu\CPrologEpilogVideo.h" />
     <ClInclude Include="mainmenu\CreditsScreen.h" />
+    <ClInclude Include="mainmenu\CHighScoreScreen.h" />
   </ItemGroup>
 </Project>

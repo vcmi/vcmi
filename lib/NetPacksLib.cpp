@@ -2514,6 +2514,7 @@ void PlayerCheated::applyGs(CGameState * gs) const
 
 	gs->getPlayerState(player)->enteredLosingCheatCode = losingCheatCode;
 	gs->getPlayerState(player)->enteredWinningCheatCode = winningCheatCode;
+	gs->getPlayerState(player)->cheated = true;
 }
 
 void PlayerStartsTurn::applyGs(CGameState * gs) const

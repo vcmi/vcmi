@@ -152,6 +152,7 @@ public:
 	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
 	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
 	static void startTutorial();
+	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);
 
 	static std::shared_ptr<CMainMenu> create();

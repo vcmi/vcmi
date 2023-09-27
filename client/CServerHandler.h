@@ -35,6 +35,9 @@ VCMI_LIB_NAMESPACE_END
 class CClient;
 class CBaseForLobbyApply;
 
+class HighScoreCalculation;
+class HighScoreParameter;
+
 // TODO: Add mutex so we can't set CONNECTION_CANCELLED if client already connected, but thread not setup yet
 enum class EClientState : ui8
 {
@@ -86,6 +89,8 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 	std::shared_ptr<CMapInfo> mapToStart;
 
 	std::vector<std::string> myNames;
+
+	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
 	void threadHandleConnection();
 	void threadRunServer();
@@ -161,7 +166,7 @@ public:
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
-	void startCampaignScenario(std::shared_ptr<CampaignState> cs = {});
+	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle

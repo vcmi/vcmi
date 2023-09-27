@@ -217,6 +217,7 @@
     <ClCompile Include="mainmenu\CMainMenu.cpp" />
     <ClCompile Include="mainmenu\CPrologEpilogVideo.cpp" />
     <ClCompile Include="mainmenu\CreditsScreen.cpp" />
+    <ClCompile Include="mainmenu\CHighScoreScreen.cpp" />
     <ClCompile Include="mapHandler.cpp" />
     <ClCompile Include="NetPacksClient.cpp" />
     <ClCompile Include="NetPacksLobbyClient.cpp" />
@@ -286,6 +287,7 @@
     <ClInclude Include="mainmenu\CMainMenu.h" />
     <ClInclude Include="mainmenu\CPrologEpilogVideo.h" />
     <ClInclude Include="mainmenu\CreditsScreen.h" />
+    <ClInclude Include="mainmenu\CHighScoreScreen.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SDLRWwrapper.h" />
