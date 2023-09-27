@@ -1099,7 +1099,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
 	{
-		object->message = readLocalizedString(TextIdentifier("monster", mapPosition.x, mapPosition.y, mapPosition.z, "message"));
+		object->message.appendTextID(readLocalizedString(TextIdentifier("monster", mapPosition.x, mapPosition.y, mapPosition.z, "message")));
 		reader->readResourses(object->resources);
 		object->gainedArtifact = reader->readArtifact();
 	}
