@@ -1119,8 +1119,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(BonusType::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
-	const bool standAtObstacle = t.blocked && !t.visitable;
-	const bool standAtWater = !h->boat && t.terType->isWater() && (objectToVisit || !objectToVisit->isCoastVisitable());
+	const bool movingOntoObstacle = t.blocked && !t.visitable;
+	const bool objectCoastVisitable = objectToVisit && objectToVisit->isCoastVisitable();
+	const bool movingOntoWater = !h->boat && t.terType->isWater() && !objectCoastVisitable;
 
 	const auto complainRet = [&](const std::string & message)
 	{
@@ -1144,11 +1145,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if (!t.terType->isPassable() || (standAtObstacle && !canFly))
+	if (!t.terType->isPassable() || (movingOntoObstacle && !canFly))
 		return complainRet("Cannot move hero, destination tile is blocked!");
 
 	//hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
-	if(standAtWater && !canFly && !canWalkOnSea)
+	if(movingOntoWater && !canFly && !canWalkOnSea)
 		return complainRet("Cannot move hero, destination tile is on water!");
 
 	if(h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
@@ -1294,7 +1295,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if(h->boat && !h->boat->onboardAssaultAllowed)
 			lookForGuards = IGNORE_GUARDS;
 
-		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !standAtWater && !standAtObstacle);
+		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
 	}
