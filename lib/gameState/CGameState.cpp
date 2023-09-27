@@ -1020,7 +1020,7 @@ void CGameState::initTowns()
 		if(vti->getNameTranslated().empty())
 		{
 			size_t nameID = getRandomGenerator().nextInt(vti->getTown()->getRandomNamesCount() - 1);
-			vti->setNameTranslated(vti->getTown()->getRandomNameTranslated(nameID));
+			vti->setNameTextId(vti->getTown()->getRandomNameTextID(nameID));
 		}
 
 		static const BuildingID basicDwellings[] = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };

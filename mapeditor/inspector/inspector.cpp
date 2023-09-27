@@ -553,7 +553,7 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 	if(!o) return;
 	
 	if(key == "Town name")
-		o->setNameTranslated(value.toString().toStdString());
+		o->setNameTextId(value.toString().toStdString());
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)

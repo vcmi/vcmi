@@ -2094,7 +2094,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
+		object->setNameTextId(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
 
 	bool hasGarrison = reader->readBool();
 	if(hasGarrison)
