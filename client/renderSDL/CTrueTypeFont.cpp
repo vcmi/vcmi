@@ -72,7 +72,7 @@ CTrueTypeFont::~CTrueTypeFont() = default;
 size_t CTrueTypeFont::getLineHeight() const
 {
 	if (fallbackFont)
-		fallbackFont->getLineHeight();
+		return fallbackFont->getLineHeight();
 
 	return TTF_FontHeight(font.get());
 }
