@@ -65,7 +65,7 @@ TEST(MapFormat, Random)
 	CMapGenerator gen(opt, TEST_RANDOM_SEED);
 
 	std::unique_ptr<CMap> initialMap = gen.generate();
-	initialMap->name = "Test";
+	initialMap->name.appendRawString("Test");
 	SCOPED_TRACE("MapFormat_Random generated");
 
 	CMemoryBuffer serializeBuffer;
