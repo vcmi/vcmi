@@ -18,6 +18,7 @@
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/mapObjects/CRewardableObject.h"
+#include "../lib/CGeneralTextHandler.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/MetaString.h"
 
@@ -85,6 +86,7 @@ protected:
 	QTableWidgetItem * addProperty(unsigned int value);
 	QTableWidgetItem * addProperty(int value);
 	QTableWidgetItem * addProperty(const MetaString & value);
+	QTableWidgetItem * addProperty(const TextIdentifier & value);
 	QTableWidgetItem * addProperty(const std::string & value);
 	QTableWidgetItem * addProperty(const QString & value);
 	QTableWidgetItem * addProperty(const int3 & value);
@@ -146,6 +148,8 @@ protected:
 	{
 		addProperty<T>(key, value, nullptr, restricted);
 	}
+	
+	std::string mapWriteStringId(const TextIdentifier & stringIdentifier, const std::string & localized);
 
 protected:
 	int row = 0;

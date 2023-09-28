@@ -301,26 +301,17 @@ void TextLocalizationContainer::registerString(const std::string & modContext, c
 	if(stringsLocalizations.count(UID.get()) > 0)
 	{
 		auto & value = stringsLocalizations[UID.get()];
-
-		if(value.baseLanguage.empty())
-		{
-			value.baseLanguage = language;
-			value.baseValue = localized;
-		}
-		else
-		{
-			if(value.baseValue != localized)
-				logMod->warn("Duplicate registered string '%s' found! Old value: '%s', new value: '%s'", UID.get(), value.baseValue, localized);
-		}
+		value.baseLanguage = language;
+		value.baseValue = localized;
 	}
 	else
 	{
-		StringState result;
-		result.baseLanguage = language;
-		result.baseValue = localized;
-		result.modContext = modContext;
+		StringState value;
+		value.baseLanguage = language;
+		value.baseValue = localized;
+		value.modContext = modContext;
 
-		stringsLocalizations[UID.get()] = result;
+		stringsLocalizations[UID.get()] = value;
 	}
 }
 
