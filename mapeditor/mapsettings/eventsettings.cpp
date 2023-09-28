@@ -47,12 +47,12 @@ QVariant toVariant(const CMapEvent & event)
 	return QVariant(result);
 }
 
-CMapEvent eventFromVariant(const QVariant & variant)
+CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 {
 	CMapEvent result;
 	auto v = variant.toMap();
 	result.name = v.value("name").toString().toStdString();
-	result.message.appendRawString(v.value("message").toString().toStdString());
+	result.message.appendTextID(mapRegisterLocalizedString(mapHeader, TextIdentifier("header", "event", result.name, "message"), v.value("message").toString().toStdString()));
 	result.players = v.value("players").toInt();
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
@@ -91,7 +91,7 @@ void EventSettings::update()
 	for(int i = 0; i < ui->eventsList->count(); ++i)
 	{
 		const auto * item = ui->eventsList->item(i);
-		controller->map()->events.push_back(eventFromVariant(item->data(Qt::UserRole)));
+		controller->map()->events.push_back(eventFromVariant(*controller->map(), item->data(Qt::UserRole)));
 	}
 }
 
