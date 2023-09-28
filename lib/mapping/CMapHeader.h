@@ -280,4 +280,8 @@ public:
 	}
 };
 
+/// wrapper functions to register string into the map and stores its translation
+std::string DLL_LINKAGE mapRegisterLocalizedString(CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized);
+std::string DLL_LINKAGE mapRegisterLocalizedString(CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language);
+
 VCMI_LIB_NAMESPACE_END

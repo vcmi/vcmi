@@ -149,8 +149,6 @@ protected:
 		addProperty<T>(key, value, nullptr, restricted);
 	}
 	
-	std::string mapWriteStringId(const TextIdentifier & stringIdentifier, const std::string & localized);
-
 protected:
 	int row = 0;
 	QTableWidget * table;

@@ -531,7 +531,7 @@ void Inspector::setProperty(CGPandoraBox * o, const QString & key, const QVarian
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message.appendTextID(mapWriteStringId(TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
+		o->message.appendTextID(mapRegisterLocalizedString(*map, TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 }
 
 void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & value)
@@ -553,7 +553,7 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 	if(!o) return;
 	
 	if(key == "Town name")
-		o->setNameTextId(mapWriteStringId(TextIdentifier("town", o->instanceName, "name"), value.toString().toStdString()));
+		o->setNameTextId(mapRegisterLocalizedString(*map, TextIdentifier("town", o->instanceName, "name"), value.toString().toStdString()));
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)
@@ -561,7 +561,7 @@ void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVarian
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message.appendTextID(mapWriteStringId(TextIdentifier("sign", o->instanceName, "message"), value.toString().toStdString()));
+		o->message.appendTextID(mapRegisterLocalizedString(*map, TextIdentifier("sign", o->instanceName, "message"), value.toString().toStdString()));
 }
 
 void Inspector::setProperty(CGMine * o, const QString & key, const QVariant & value)
@@ -577,7 +577,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message.appendTextID(mapWriteStringId(TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
+		o->message.appendTextID(mapRegisterLocalizedString(*map, TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 	
 	if(o->storedArtifact && key == "Spell")
 	{
@@ -606,10 +606,10 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		o->gender = EHeroGender(value.toInt());
 	
 	if(key == "Name")
-		o->nameCustomTextId = mapWriteStringId(TextIdentifier("hero", o->instanceName, "name"), value.toString().toStdString());
+		o->nameCustomTextId = mapRegisterLocalizedString(*map, TextIdentifier("hero", o->instanceName, "name"), value.toString().toStdString());
 	
 	if(key == "Biography")
-		o->biographyCustomTextId = mapWriteStringId(TextIdentifier("hero", o->instanceName, "biography"), value.toString().toStdString());
+		o->biographyCustomTextId = mapRegisterLocalizedString(*map, TextIdentifier("hero", o->instanceName, "biography"), value.toString().toStdString());
 	
 	if(key == "Experience")
 		o->exp = value.toString().toInt();
@@ -646,7 +646,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message.appendTextID(mapWriteStringId(TextIdentifier("monster", o->instanceName, "message"), value.toString().toStdString()));
+		o->message.appendTextID(mapRegisterLocalizedString(*map, TextIdentifier("monster", o->instanceName, "message"), value.toString().toStdString()));
 	if(key == "Character")
 		o->character = CGCreature::Character(value.toInt());
 	if(key == "Never flees")
@@ -664,11 +664,11 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 	if(key == "Mission type")
 		o->quest->missionType = CQuest::Emission(value.toInt());
 	if(key == "First visit text")
-		o->quest->firstVisitText.appendTextID(mapWriteStringId(TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
+		o->quest->firstVisitText.appendTextID(mapRegisterLocalizedString(*map, TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
 	if(key == "Next visit text")
-		o->quest->nextVisitText.appendTextID(mapWriteStringId(TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
+		o->quest->nextVisitText.appendTextID(mapRegisterLocalizedString(*map, TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
 	if(key == "Completed text")
-		o->quest->completedText.appendTextID(mapWriteStringId(TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
+		o->quest->completedText.appendTextID(mapRegisterLocalizedString(*map, TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
 }
 
 
@@ -803,12 +803,6 @@ QTableWidgetItem * Inspector::addProperty(CQuest::Emission value)
 
 Inspector::Inspector(CMap * m, CGObjectInstance * o, QTableWidget * t): obj(o), table(t), map(m)
 {
-}
-
-std::string Inspector::mapWriteStringId(const TextIdentifier & stringIdentifier, const std::string & localized)
-{
-	map->registerString("map", stringIdentifier, localized);
-	return stringIdentifier.get();
 }
 
 /*

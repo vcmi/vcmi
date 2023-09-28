@@ -168,4 +168,16 @@ void CMapHeader::registerMapStrings()
 		registerString("map", TextIdentifier(s.first), s.second.String(), language);
 }
 
+std::string mapRegisterLocalizedString(CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
+{
+	return mapRegisterLocalizedString(mapHeader, UID, localized, VLC->generaltexth->getPreferredLanguage());
+}
+
+std::string mapRegisterLocalizedString(CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
+{
+	mapHeader.registerString("map", UID, localized, language);
+	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
+	return UID.get();
+}
+
 VCMI_LIB_NAMESPACE_END

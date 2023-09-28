@@ -319,8 +319,10 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name)
 
 std::string CModHandler::getModLanguage(const TModID& modId) const
 {
-	if ( modId == "core")
+	if(modId == "core")
 		return VLC->generaltexth->getInstalledLanguage();
+	if(modId == "map")
+		return VLC->generaltexth->getPreferredLanguage();
 	return allMods.at(modId).baseLanguage;
 }
 

@@ -23,7 +23,7 @@
 #include "../lib/mapObjects/CGPandoraBox.h"
 #include "../lib/mapObjects/CQuest.h"
 
-RewardsWidget::RewardsWidget(const CMap & m, CRewardableObject & p, QWidget *parent) :
+RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	QDialog(parent),
 	map(m),
 	object(p),
@@ -211,7 +211,7 @@ bool RewardsWidget::commitChanges()
 	if(ui->onSelectText->text().isEmpty())
 		object.configuration.onSelect.clear();
 	else
-		object.configuration.onSelect = MetaString::createFromRawString(ui->onSelectText->text().toStdString());
+		object.configuration.onSelect = MetaString::createFromTextID(mapRegisterLocalizedString(map, TextIdentifier("reward", object.instanceName, "onSelect"), ui->onSelectText->text().toStdString()));
 	object.configuration.canRefuse = ui->canRefuse->isChecked();
 	
 	//reset parameters
@@ -232,7 +232,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 	if(ui->rewardMessage->text().isEmpty())
 		vinfo.message.clear();
 	else
-		vinfo.message = MetaString::createFromRawString(ui->rewardMessage->text().toStdString());
+		vinfo.message = MetaString::createFromTextID(mapRegisterLocalizedString(map, TextIdentifier("reward", object.instanceName, "info", index, "message"), ui->rewardMessage->text().toStdString()));
 	
 	vinfo.reward.heroLevel = ui->rHeroLevel->value();
 	vinfo.reward.heroExperience = ui->rHeroExperience->value();
@@ -649,7 +649,7 @@ void RewardsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, c
 	}
 }
 
-RewardsDelegate::RewardsDelegate(const CMap & m, CRewardableObject & t): map(m), object(t)
+RewardsDelegate::RewardsDelegate(CMap & m, CRewardableObject & t): map(m), object(t)
 {
 }
 
