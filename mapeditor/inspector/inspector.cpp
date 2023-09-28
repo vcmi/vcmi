@@ -531,7 +531,7 @@ void Inspector::setProperty(CGPandoraBox * o, const QString & key, const QVarian
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = value.toString().toStdString();
+		o->message.appendRawString(value.toString().toStdString());
 }
 
 void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & value)
@@ -561,7 +561,7 @@ void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVarian
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = value.toString().toStdString();
+		o->message.appendRawString(value.toString().toStdString());
 }
 
 void Inspector::setProperty(CGMine * o, const QString & key, const QVariant & value)
@@ -577,7 +577,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = value.toString().toStdString();
+		o->message.appendRawString(value.toString().toStdString());
 	
 	if(o->storedArtifact && key == "Spell")
 	{
@@ -643,7 +643,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = value.toString().toStdString();
+		o->message.appendRawString(value.toString().toStdString());
 	if(key == "Character")
 		o->character = CGCreature::Character(value.toInt());
 	if(key == "Never flees")
@@ -661,11 +661,11 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 	if(key == "Mission type")
 		o->quest->missionType = CQuest::Emission(value.toInt());
 	if(key == "First visit text")
-		o->quest->firstVisitText = value.toString().toStdString();
+		o->quest->firstVisitText.appendRawString(value.toString().toStdString());
 	if(key == "Next visit text")
-		o->quest->nextVisitText = value.toString().toStdString();
+		o->quest->nextVisitText.appendRawString(value.toString().toStdString());
 	if(key == "Completed text")
-		o->quest->completedText = value.toString().toStdString();
+		o->quest->completedText.appendRawString(value.toString().toStdString());
 }
 
 
@@ -711,6 +711,11 @@ QTableWidgetItem * Inspector::addProperty(bool value)
 QTableWidgetItem * Inspector::addProperty(const std::string & value)
 {
 	return addProperty(QString::fromStdString(value));
+}
+
+QTableWidgetItem * Inspector::addProperty(const MetaString & value)
+{
+	return addProperty(value.toString());
 }
 
 QTableWidgetItem * Inspector::addProperty(const QString & value)

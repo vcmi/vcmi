@@ -37,7 +37,7 @@ QVariant toVariant(const CMapEvent & event)
 {
 	QVariantMap result;
 	result["name"] = QString::fromStdString(event.name);
-	result["message"] = QString::fromStdString(event.message);
+	result["message"] = QString::fromStdString(event.message.toString());
 	result["players"] = QVariant::fromValue(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);
@@ -52,7 +52,7 @@ CMapEvent eventFromVariant(const QVariant & variant)
 	CMapEvent result;
 	auto v = variant.toMap();
 	result.name = v.value("name").toString().toStdString();
-	result.message = v.value("message").toString().toStdString();
+	result.message.appendRawString(v.value("message").toString().toStdString());
 	result.players = v.value("players").toInt();
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
