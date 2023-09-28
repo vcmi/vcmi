@@ -20,7 +20,6 @@ struct SetMovePoints;
 struct GiveBonus;
 struct BlockingDialog;
 struct TeleportDialog;
-class MetaString;
 struct StackLocation;
 struct ArtifactLocation;
 class CCreatureSet;
