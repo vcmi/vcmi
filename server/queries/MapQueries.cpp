@@ -164,11 +164,22 @@ OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *her
 	addPlayer(hero->getOwner());
 }
 
+void OpenWindowQuery::onExposure(QueryPtr topQuery)
+{
+	//do nothing - wait for reply
+}
+
 bool OpenWindowQuery::blocksPack(const CPack *pack) const
 {
 	if (mode == EOpenWindowMode::TAVERN_WINDOW)
 	{
 		if(dynamic_ptr_cast<HireHero>(pack) != nullptr)
+			return false;
+	}
+
+	if (mode == EOpenWindowMode::UNIVERSITY_WINDOW)
+	{
+		if(dynamic_ptr_cast<TradeOnMarketplace>(pack) != nullptr)
 			return false;
 	}
 

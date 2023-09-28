@@ -88,7 +88,8 @@ class OpenWindowQuery : public CDialogQuery
 public:
 	OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode);
 
-	virtual bool blocksPack(const CPack *pack) const override;
+	bool blocksPack(const CPack *pack) const override;
+	void onExposure(QueryPtr topQuery) override;
 };
 
 class CTeleportDialogQuery : public CDialogQuery
