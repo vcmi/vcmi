@@ -10,10 +10,10 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #include "../ResourceSet.h"
 #include "../MetaString.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class TerrainType;
 class RiverType;
