@@ -557,6 +557,10 @@ void CGSeerHut::setObjToKill()
 		quest->heroName = getHeroToKill(false)->getNameTranslated();
 		quest->heroPortrait = getHeroToKill(false)->portrait;
 	}
+
+	quest->getCompletionText(configuration.onSelect);
+	for(auto & i : configuration.info)
+		quest->getCompletionText(i.message);
 }
 
 void CGSeerHut::init(CRandomGenerator & rand)
@@ -596,10 +600,6 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 		quest->progress = CQuest::COMPLETE;
 		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->completedOption];
 	}
-	
-	quest->getCompletionText(configuration.onSelect);
-	for(auto & i : configuration.info)
-		quest->getCompletionText(i.message);
 }
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
