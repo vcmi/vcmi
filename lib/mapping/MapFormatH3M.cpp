@@ -2274,8 +2274,7 @@ std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIden
 	if(mapString.empty())
 		return "";
 
-	mapHeader->registerString(modName, fullIdentifier, mapString);
-	return fullIdentifier.get();
+	return mapRegisterLocalizedString(modName, *mapHeader, fullIdentifier, mapString);
 }
 
 void CMapLoaderH3M::afterRead()

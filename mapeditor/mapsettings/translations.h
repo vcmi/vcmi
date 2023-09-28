@@ -41,4 +41,5 @@ private slots:
 private:
 	Ui::Translations *ui;
 	CMapHeader & mapHeader;
+	std::string mapPreferredLanguage;
 };

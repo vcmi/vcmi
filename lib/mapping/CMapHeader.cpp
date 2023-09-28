@@ -15,6 +15,7 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
+#include "../modding/CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../Languages.h"
 
@@ -168,14 +169,14 @@ void CMapHeader::registerMapStrings()
 		registerString("map", TextIdentifier(s.first), s.second.String(), language);
 }
 
-std::string mapRegisterLocalizedString(CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
+std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
 {
-	return mapRegisterLocalizedString(mapHeader, UID, localized, VLC->generaltexth->getPreferredLanguage());
+	return mapRegisterLocalizedString(modContext, mapHeader, UID, localized, VLC->modh->getModLanguage(modContext));
 }
 
-std::string mapRegisterLocalizedString(CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
+std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
-	mapHeader.registerString("map", UID, localized, language);
+	mapHeader.registerString(modContext, UID, localized, language);
 	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
 	return UID.get();
 }

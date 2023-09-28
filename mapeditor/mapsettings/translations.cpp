@@ -28,7 +28,7 @@ void Translations::cleanupRemovedItems(CMap & map)
 		{
 			for(auto part : QString::fromStdString(s.first).split('.'))
 			{
-				if(existingObjects.count(part.toStdString()))
+				if(part == "map" || existingObjects.count(part.toStdString()))
 				{
 					updateTranslations.Struct()[s.first] = s.second;
 					break;
@@ -61,15 +61,31 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 	ui->setupUi(this);
 	
 	//fill languages list
+	std::set<int> indexFoundLang;
+	int foundLang = -1;
+	ui->languageSelect->blockSignals(true);
 	for(auto & language : Languages::getLanguageList())
 	{
-		ui->languageSelect->blockSignals(true);
 		ui->languageSelect->addItem(QString("%1 (%2)").arg(QString::fromStdString(language.nameEnglish), QString::fromStdString(language.nameNative)));
 		ui->languageSelect->setItemData(ui->languageSelect->count() - 1, QVariant(QString::fromStdString(language.identifier)));
-		ui->languageSelect->blockSignals(false);
+		if(mapHeader.translations.Struct().count(language.identifier) && !mapHeader.translations[language.identifier].Struct().empty())
+			indexFoundLang.insert(ui->languageSelect->count() - 1);
 		if(language.identifier == VLC->generaltexth->getPreferredLanguage())
-			ui->languageSelect->setCurrentIndex(ui->languageSelect->count() - 1);
+			foundLang = ui->languageSelect->count() - 1;
 	}
+	ui->languageSelect->blockSignals(false);
+	
+	if(foundLang >= 0 && !indexFoundLang.empty() && !indexFoundLang.count(foundLang))
+	{
+		foundLang = *indexFoundLang.begin();
+		mapPreferredLanguage = ui->languageSelect->itemData(foundLang).toString().toStdString();
+	}
+	
+	if(foundLang >= 0)
+		ui->languageSelect->setCurrentIndex(foundLang);
+	
+	if(mapPreferredLanguage.empty())
+		mapPreferredLanguage = VLC->generaltexth->getPreferredLanguage();
 }
 
 Translations::~Translations()
@@ -101,7 +117,7 @@ void Translations::fillTranslationsTable(const std::string & language)
 void Translations::on_languageSelect_currentIndexChanged(int index)
 {
 	auto language = ui->languageSelect->currentData().toString().toStdString();
-	bool hasLanguage = !mapHeader.translations[language].isNull();
+	bool hasLanguage = mapHeader.translations.Struct().count(language);
 	ui->supportedCheck->blockSignals(true);
 	ui->supportedCheck->setChecked(hasLanguage);
 	ui->supportedCheck->blockSignals(false);
@@ -122,21 +138,21 @@ void Translations::on_supportedCheck_toggled(bool checked)
 	if(checked)
 	{
 		//copy from default language
-		translation = mapHeader.translations[VLC->generaltexth->getPreferredLanguage()];
+		translation = mapHeader.translations[mapPreferredLanguage];
 		
 		fillTranslationsTable(language);
 		ui->translationsTable->setEnabled(true);
 	}
 	else
 	{
-		bool canRemove = language != VLC->generaltexth->getPreferredLanguage();
+		bool canRemove = language != mapPreferredLanguage;
 		if(!canRemove)
 		{
 			QMessageBox::information(this, tr("Remove translation"), tr("Default language cannot be removed"));
 		}
 		else if(hasRecord)
 		{
-			auto sure = QMessageBox::question(this, tr("Remove translation"), tr("This language has text records which will be removed. Continue?"));
+			auto sure = QMessageBox::question(this, tr("Remove translation"), tr("All existing text records for this language will be removed. Continue?"));
 			canRemove = sure != QMessageBox::No;
 		}
 		

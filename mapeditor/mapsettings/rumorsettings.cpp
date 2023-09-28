@@ -43,7 +43,7 @@ void RumorSettings::update()
 	{
 		Rumor rumor;
 		rumor.name = ui->rumors->item(i)->text().toStdString();
-		rumor.text.appendTextID(mapRegisterLocalizedString(*controller->map(), TextIdentifier("header", "rumor", i, "text"), ui->rumors->item(i)->data(Qt::UserRole).toString().toStdString()));
+		rumor.text.appendTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "rumor", i, "text"), ui->rumors->item(i)->data(Qt::UserRole).toString().toStdString()));
 		controller->map()->rumors.push_back(rumor);
 	}
 }

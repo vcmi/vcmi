@@ -52,7 +52,7 @@ CMapEvent eventFromVariant(CMapHeader & mapHeader, const QVariant & variant)
 	CMapEvent result;
 	auto v = variant.toMap();
 	result.name = v.value("name").toString().toStdString();
-	result.message.appendTextID(mapRegisterLocalizedString(mapHeader, TextIdentifier("header", "event", result.name, "message"), v.value("message").toString().toStdString()));
+	result.message.appendTextID(mapRegisterLocalizedString("map", mapHeader, TextIdentifier("header", "event", result.name, "message"), v.value("message").toString().toStdString()));
 	result.players = v.value("players").toInt();
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
