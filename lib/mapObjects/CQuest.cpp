@@ -632,10 +632,13 @@ void CQuest::addReplacements(MetaString &out, const std::string &base) const
 	switch(missionType)
 	{
 	case MISSION_KILL_CREATURE:
-		out.replaceCreatureName(stackToKill);
-		if (std::count(base.begin(), base.end(), '%') == 2) //say where is placed monster
+		if(stackToKill.type)
 		{
-			out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
+			out.replaceCreatureName(stackToKill);
+			if (std::count(base.begin(), base.end(), '%') == 2) //say where is placed monster
+			{
+				out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
+			}
 		}
 		break;
 	case MISSION_KILL_HERO:
