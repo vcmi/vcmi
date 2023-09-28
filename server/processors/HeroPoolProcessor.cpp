@@ -72,7 +72,7 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
-	sah.hid = hero->subID;
+	sah.hid.setNum(hero->subID);
 	gameHandler->sendAndApply(&sah);
 }
 
@@ -83,7 +83,7 @@ void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroIns
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
-	sah.hid = hero->subID;
+	sah.hid.setNum(hero->subID);
 	sah.army.clearSlots();
 	sah.army.setCreature(SlotID(0), hero->type->initialArmy.at(0).creature, 1);
 
@@ -110,7 +110,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 
 	if (newHero)
 	{
-		sah.hid = newHero->subID;
+		sah.hid.setNum(newHero->subID);
 
 		if (giveArmy)
 		{
@@ -126,7 +126,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	}
 	else
 	{
-		sah.hid = -1;
+		sah.hid = HeroTypeID::NONE;
 	}
 	gameHandler->sendAndApply(&sah);
 }
@@ -205,7 +205,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	HeroRecruited hr;
 	hr.tid = mapObject->id;
-	hr.hid = recruitedHero->subID;
+	hr.hid.setNum(recruitedHero->subID);
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
 	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->boat)

@@ -401,7 +401,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 		box = std::make_shared<CComponentBox>(comps, Rect(75, 300, pos.w - 150, 100));
 	}
 
-	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->portrait, 0, 170, 66);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex(), 0, 170, 66);
 	ok = std::make_shared<CButton>(Point(297, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
@@ -580,7 +580,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 		boost::algorithm::replace_first(description, "%s", h->type->heroClass->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
 
-		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->portrait);
+		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->getIconIndex());
 	}
 }
 
@@ -1210,7 +1210,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	title = std::make_shared<CLabel>(275, 30, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleText);
 
 	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), up->getOwner().getNum(), 0, 28, 124);
-	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), down->portrait, 0, 29, 222);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), down->getIconIndex(), 0, 29, 222);
 }
 
 void CGarrisonWindow::updateGarrisons()
@@ -1501,9 +1501,9 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	for(auto & iter : tgi.colorToBestHero)
 	{
 		banners.push_back(std::make_shared<CPicture>(ImagePath::builtin(colorToBox[iter.first.getNum()]), 253 + 66 * counter, 334));
-		if(iter.second.portrait >= 0)
+		if(iter.second.portraitSource.isValid())
 		{
-			bestHeroes.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), iter.second.portrait, 0, 260 + 66 * counter, 360));
+			bestHeroes.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), iter.second.getIconIndex(), 0, 260 + 66 * counter, 360));
 			//TODO: r-click info:
 			// - r-click on hero
 			// - r-click on primary skill label

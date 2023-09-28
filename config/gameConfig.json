@@ -42,7 +42,8 @@
 		"config/heroes/stronghold.json",
 		"config/heroes/fortress.json",
 		"config/heroes/conflux.json",
-		"config/heroes/special.json"
+		"config/heroes/special.json",
+		"config/heroes/portraits.json"
 	],
 
 	"objects" :
@@ -218,6 +219,11 @@
 						"special2" : 19, // bloodObelisk
 						"special3" : 18  // glyphsOfFear
 					}
+				},
+
+				"portraits" : {
+					"catherine" : 128, // In "RoE" Catherine only has portrait
+					"portraitGeneralKendal" : 129
 				}
 			},
 			"armageddonsBlade" : {
@@ -228,11 +234,27 @@
 						"special1" : 10, // artifactMerchants
 						"special2" : 18  // magicUniversity
 					}
+				},
+				
+				"portraits" : {
+					"portraitGeneralKendal" : 156,
+					"portraitYoungCristian" : 157,
+					"portraitOrdwald" : 158
 				}
 			},
 			"shadowOfDeath" : { 
 				"supported" : true,
-				"iconIndex" : 2
+				"iconIndex" : 2,
+				
+				"portraits" : {
+					"portraitGeneralKendal" : 156,
+					"portraitYoungCristian" : 157,
+					"portraitOrdwald" : 158,
+					"portraitFinneas" : 159,
+					"portraitYoungGem" : 160,
+					"portraitYoungSandro" : 161,
+					"portraitYoungYog" : 162
+				}
 			},
 			"jsonVCMI" : { 
 				"supported" : true,

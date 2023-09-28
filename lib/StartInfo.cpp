@@ -11,6 +11,8 @@
 #include "StartInfo.h"
 
 #include "CGeneralTextHandler.h"
+#include "CTownHandler.h"
+#include "CHeroHandler.h"
 #include "VCMI_Lib.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
@@ -22,9 +24,28 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerSettings::PlayerSettings()
-	: bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM), color(0), handicap(NO_HANDICAP), compOnly(false)
+	: bonus(PlayerStartingBonus::RANDOM), color(0), handicap(NO_HANDICAP), compOnly(false)
 {
+}
 
+FactionID PlayerSettings::getCastleValidated() const
+{
+	if (!castle.isValid())
+		return FactionID(0);
+	if (castle.getNum() < VLC->townh->size())
+		return castle;
+
+	return FactionID(0);
+}
+
+HeroTypeID PlayerSettings::getHeroValidated() const
+{
+	if (!hero.isValid())
+		return HeroTypeID(0);
+	if (hero.getNum() < VLC->heroh->size())
+		return hero;
+
+	return HeroTypeID(0);
 }
 
 bool PlayerSettings::isControlledByAI() const
@@ -196,15 +217,15 @@ ui8 LobbyInfo::clientFirstId(int clientId) const
 	return 0;
 }
 
-PlayerInfo & LobbyInfo::getPlayerInfo(int color)
+PlayerInfo & LobbyInfo::getPlayerInfo(PlayerColor color)
 {
-	return mi->mapHeader->players[color];
+	return mi->mapHeader->players[color.getNum()];
 }
 
 TeamID LobbyInfo::getPlayerTeamId(const PlayerColor & color)
 {
 	if(color.isValidPlayer())
-		return getPlayerInfo(color.getNum()).team;
+		return getPlayerInfo(color).team;
 	else
 		return TeamID::NO_TEAM;
 }

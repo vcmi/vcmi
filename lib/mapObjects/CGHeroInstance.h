@@ -69,7 +69,9 @@ public:
 	ConstTransitivePtr<CHero> type;
 	TExpType exp; //experience points
 	ui32 level; //current level of hero
-	si32 portrait; //may be custom
+
+	/// If not NONE - then hero should use portrait from referenced hero type
+	HeroTypeID customPortraitSource;
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	EHeroGender gender;
@@ -82,7 +84,6 @@ public:
 	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat * boat = nullptr; //set to CGBoat when sailing
 
-	static constexpr si32 UNINITIALIZED_PORTRAIT = -1;
 	static constexpr si32 UNINITIALIZED_MANA = -1;
 	static constexpr ui32 UNINITIALIZED_MOVEMENT = -1;
 	static constexpr TExpType UNINITIALIZED_EXPERIENCE = std::numeric_limits<TExpType>::max();
@@ -143,6 +144,9 @@ public:
 
 	std::string getBiographyTranslated() const;
 	std::string getNameTranslated() const;
+
+	HeroTypeID getPortraitSource() const;
+	int32_t getIconIndex() const;
 
 private:
 	std::string getNameTextID() const;
@@ -321,7 +325,7 @@ public:
 		h & level;
 		h & nameCustomTextId;
 		h & biographyCustomTextId;
-		h & portrait;
+		h & customPortraitSource;
 		h & mana;
 		h & secSkills;
 		h & movement;

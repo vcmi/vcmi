@@ -246,7 +246,6 @@ CGHeroInstance::CGHeroInstance():
 	moveDir(4),
 	mana(UNINITIALIZED_MANA),
 	movement(UNINITIALIZED_MOVEMENT),
-	portrait(UNINITIALIZED_PORTRAIT),
 	level(1),
 	exp(UNINITIALIZED_EXPERIENCE),
 	gender(EHeroGender::DEFAULT),
@@ -273,7 +272,7 @@ void CGHeroInstance::setType(si32 ID, si32 subID)
 {
 	assert(ID == Obj::HERO); // just in case
 	type = VLC->heroh->objects[subID];
-	portrait = type->imageIndex;
+
 	CGObjectInstance::setType(ID, type->heroClass->getIndex()); // to find object handler we must use heroClass->id
 	this->subID = subID; // after setType subID used to store unique hero identify id. Check issue 2277 for details
 	randomizeArmy(type->heroClass->faction);
@@ -309,8 +308,6 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	if(!getArt(ArtifactPosition::MACH4))
 		putArtifact(ArtifactPosition::MACH4, ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT)); //everyone has a catapult
 
-	if(portrait < 0 || portrait == 255)
-		portrait = type->imageIndex;
 	if(!hasBonus(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)))
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
@@ -1028,6 +1025,19 @@ si32 CGHeroInstance::manaLimit() const
 		* (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE)));
 }
 
+HeroTypeID CGHeroInstance::getPortraitSource() const
+{
+	if (customPortraitSource.isValid())
+		return customPortraitSource;
+	else
+		return HeroTypeID(subID);
+}
+
+int32_t CGHeroInstance::getIconIndex() const
+{
+	return VLC->heroTypes()->getById(getPortraitSource())->getIconIndex();
+}
+
 std::string CGHeroInstance::getNameTranslated() const
 {
 	return VLC->generaltexth->translate(getNameTextID());
@@ -1528,40 +1538,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 
 	handler.serializeString("name", nameCustomTextId);
 	handler.serializeInt("gender", gender, 0);
-
-	{
-		const int legacyHeroes = VLC->settings()->getInteger(EGameSettings::TEXTS_HERO);
-		const int moddedStart = legacyHeroes + GameConstants::HERO_PORTRAIT_SHIFT;
-
-		if(handler.saving)
-		{
-			if(portrait >= 0)
-			{
-				if(portrait < legacyHeroes || portrait >= moddedStart)
-				{
-					int tempPortrait = portrait >= moddedStart
-						? portrait - GameConstants::HERO_PORTRAIT_SHIFT
-						: portrait;
-					handler.serializeId<si32, si32, HeroTypeID>("portrait", tempPortrait, -1);
-				}
-				else
-					handler.serializeInt("portrait", portrait, -1);
-			}
-		}
-		else
-		{
-			const JsonNode & portraitNode = handler.getCurrent()["portrait"];
-
-			if(portraitNode.getType() == JsonNode::JsonType::DATA_STRING)
-			{
-				handler.serializeId<si32, si32, HeroTypeID>("portrait", portrait, -1);
-				if(portrait >= legacyHeroes)
-					portrait += GameConstants::HERO_PORTRAIT_SHIFT;
-			}
-			else
-				handler.serializeInt("portrait", portrait, -1);
-		}
-	}
+	handler.serializeId("portrait", customPortraitSource, HeroTypeID::NONE);
 
 	//primary skills
 	if(handler.saving)

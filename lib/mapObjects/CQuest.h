@@ -69,7 +69,7 @@ public:
 	CStackBasicDescriptor stackToKill;
 	ui8 stackDirection;
 	std::string heroName; //backup of hero name
-	si32 heroPortrait;
+	HeroTypeID heroPortrait;
 
 	MetaString firstVisitText, nextVisitText, completedText;
 	bool isCustomFirst;

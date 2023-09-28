@@ -274,7 +274,7 @@ void CBonusSelection::createBonusesIcons()
 			auto superhero = getCampaign()->strongestHero(static_cast<CampaignScenarioID>(bonDescs[i].info2), PlayerColor(bonDescs[i].info1));
 			if(!superhero)
 				logGlobal->warn("No superhero! How could it be transferred?");
-			picNumber = superhero ? superhero->portrait : 0;
+			picNumber = superhero ? superhero->getIconIndex() : 0;
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 719);
 			desc.replaceRawString(getCampaign()->scenario(static_cast<CampaignScenarioID>(bonDescs[i].info2)).scenarioName.toString());
 			break;

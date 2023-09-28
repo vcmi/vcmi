@@ -450,7 +450,7 @@ void CHeroGSlot::set(const CGHeroInstance * newHero)
 	if(newHero)
 	{
 		portrait->visible = true;
-		portrait->setFrame(newHero->portrait);
+		portrait->setFrame(newHero->getIconIndex());
 	}
 	else if(!upg && owner->showEmpty) //up garrison
 	{

@@ -184,9 +184,6 @@ void MapController::repairMap(CMap * map) const
 					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
 			}
 			
-			//fix portrait
-			if(nih->portrait < 0 || nih->portrait == 255)
-				nih->portrait = type->imageIndex;
 		}
 		//fix town instance
 		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj.get()))

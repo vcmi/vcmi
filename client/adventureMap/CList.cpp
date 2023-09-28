@@ -220,7 +220,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	movement = std::make_shared<CAnimImage>(AnimationPath::builtin("IMOBIL"), 0, 0, 0, 1);
-	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->portrait, 0, movement->pos.w + 1);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex(), 0, movement->pos.w + 1);
 	mana = std::make_shared<CAnimImage>(AnimationPath::builtin("IMANA"), 0, 0, movement->pos.w + portrait->pos.w + 2, 1);
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;

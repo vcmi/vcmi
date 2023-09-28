@@ -273,7 +273,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 		break;
 	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
 		{
-			ret.playerColor = reader["playerColor"].Integer();
+			ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
 			for(auto & bjson : reader["bonuses"].Vector())
 			{
 				CampaignBonus bonus;
@@ -472,7 +472,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 		break;
 	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
 		{
-			ret.playerColor = reader.readUInt8();
+			ret.playerColor.setNum(reader.readUInt8());
 			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{

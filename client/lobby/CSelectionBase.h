@@ -44,7 +44,7 @@ public:
 	virtual const StartInfo * getStartInfo() = 0;
 
 	virtual int getCurrentDifficulty();
-	virtual PlayerInfo getPlayerInfo(int color);
+	virtual PlayerInfo getPlayerInfo(PlayerColor color);
 
 };
 

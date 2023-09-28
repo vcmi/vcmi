@@ -35,7 +35,7 @@ public:
 	ArtifactID readArtifact32();
 	CreatureID readCreature();
 	HeroTypeID readHero();
-	int32_t readHeroPortrait();
+	HeroTypeID readHeroPortrait();
 	TerrainId readTerrain();
 	RoadId readRoad();
 	RiverId readRiver();

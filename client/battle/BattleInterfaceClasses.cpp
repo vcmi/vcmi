@@ -407,7 +407,7 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	auto currentSpellPoints = hero.details->mana;
 	auto maxSpellPoints = hero.details->manaLimit;
 
-	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.portrait, 0, 10, 6));
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 10, 6));
 
 	//primary stats
 	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
@@ -506,9 +506,9 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		auto heroInfo = owner.cb->getBattle(br.battleID)->battleGetHeroInfo(i);
 		const int xs[] = {21, 392};
 
-		if(heroInfo.portrait >= 0) //attacking hero
+		if(heroInfo.portraitSource.isValid()) //attacking hero
 		{
-			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInfo.portrait, 0, xs[i], 38));
+			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInfo.getIconIndex(), 0, xs[i], 38));
 			sideNames[i] = heroInfo.name;
 		}
 		else

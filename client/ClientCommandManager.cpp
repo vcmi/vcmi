@@ -466,7 +466,7 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 {
 	PlayerStartsTurn yt;
 	yt.player = colorIdentifier;
-	yt.queryID = -1;
+	yt.queryID = QueryID::NONE;
 
 	ApplyClientNetPackVisitor visitor(*CSH->client, *CSH->client->gameState());
 	yt.visit(visitor);

@@ -108,14 +108,14 @@ public:
 	// Work with LobbyInfo
 	void setPlayer(PlayerColor clickedColor);
 	void optionNextHero(PlayerColor player, int dir); //dir == -1 or +1
-	void optionSetHero(PlayerColor player, int id);
-	HeroTypeID nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir);
-	bool canUseThisHero(PlayerColor player, int ID);
-	std::vector<int> getUsedHeroes();
+	void optionSetHero(PlayerColor player, HeroTypeID id);
+	HeroTypeID nextAllowedHero(PlayerColor player, HeroTypeID id, int direction);
+	bool canUseThisHero(PlayerColor player, HeroTypeID ID);
+	std::vector<HeroTypeID> getUsedHeroes();
 	void optionNextBonus(PlayerColor player, int dir); //dir == -1 or +1
-	void optionSetBonus(PlayerColor player, int id);
+	void optionSetBonus(PlayerColor player, PlayerStartingBonus id);
 	void optionNextCastle(PlayerColor player, int dir); //dir == -1 or +
-	void optionSetCastle(PlayerColor player, int id);
+	void optionSetCastle(PlayerColor player, FactionID id);
 
 	// Campaigns
 	void setCampaignMap(CampaignScenarioID mapId);

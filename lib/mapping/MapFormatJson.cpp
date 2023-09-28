@@ -562,11 +562,11 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 				const std::string instanceName = hero.first;
 
 				SHeroName hname;
-				hname.heroId = -1;
+				hname.heroId = HeroTypeID::NONE;
 				std::string rawId = data["type"].String();
 
 				if(!rawId.empty())
-					hname.heroId = HeroTypeID::decode(rawId);
+					hname.heroId = HeroTypeID(HeroTypeID::decode(rawId));
 
 				hname.heroName = data["name"].String();
 
@@ -574,9 +574,9 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 				{
 					//this is main hero
 					info.mainCustomHeroNameTextId = hname.heroName;
-					info.hasRandomHero = (hname.heroId == -1);
+					info.hasRandomHero = (hname.heroId == HeroTypeID::NONE);
 					info.mainCustomHeroId = hname.heroId;
-					info.mainCustomHeroPortrait = -1;
+					info.mainCustomHeroPortrait = HeroTypeID::NONE;
 					//todo:mainHeroPortrait
 				}
 
@@ -744,7 +744,7 @@ void CMapFormatJson::readDisposedHeroes(JsonSerializeFormat & handler)
 		{
 			DisposedHero hero;
 
-			hero.heroId = type.getNum();
+			hero.heroId = type;
 			hero.players = mask;
 			//name and portrait are not used
 

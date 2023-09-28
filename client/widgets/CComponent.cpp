@@ -30,6 +30,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/CHeroHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
@@ -153,7 +154,7 @@ size_t CComponent::getIndex()
 	case morale:     return val+3;
 	case luck:       return val+3;
 	case building:   return val;
-	case hero:       return subtype;
+	case hero:       return CGI->heroTypes()->getByIndex(subtype)->getIconIndex();
 	case flag:       return subtype;
 	}
 	assert(0);

@@ -131,7 +131,7 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * hero)
 
 	if(hero)
 	{
-		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->portrait);
+		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex());
 		clickFunctor = [hero]() -> void
 		{
 			LOCPLINT->openHeroWindow(hero);
@@ -291,7 +291,7 @@ CArmyTooltip::CArmyTooltip(Point pos, const CArmedInstance * army):
 void CHeroTooltip::init(const InfoAboutHero & hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.portrait, 0, 3, 2);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 3, 2);
 
 	if(hero.details)
 	{
@@ -329,7 +329,7 @@ CInteractableHeroTooltip::CInteractableHeroTooltip(Point pos, const CGHeroInstan
 void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.portrait, 0, 3, 2);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 3, 2);
 	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name);
 
 	if(hero.details)

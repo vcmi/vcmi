@@ -38,7 +38,11 @@ class CNonConstInfoCallback;
 class IdentifierBase
 {
 protected:
-	constexpr IdentifierBase(int32_t value = -1 ):
+	constexpr IdentifierBase():
+		num(-1)
+	{}
+
+	explicit constexpr IdentifierBase(int32_t value):
 		num(value)
 	{}
 
@@ -49,6 +53,11 @@ public:
 	constexpr int32_t getNum() const
 	{
 		return num;
+	}
+
+	constexpr void setNum(int32_t value)
+	{
+		num = value;
 	}
 
 	struct hash
@@ -88,8 +97,11 @@ class Identifier : public IdentifierBase
 {
 	using BaseClass = IdentifierBase;
 public:
-	constexpr Identifier(int32_t _num = -1)
-		:IdentifierBase(_num)
+	constexpr Identifier()
+	{}
+
+	explicit constexpr Identifier(int32_t value):
+		IdentifierBase(value)
 	{}
 
 	constexpr bool operator == (const Identifier & b) const { return BaseClass::num == b.num; }
@@ -103,6 +115,19 @@ public:
 	{
 		++BaseClass::num;
 		return static_cast<FinalClass&>(*this);
+	}
+
+	constexpr FinalClass & operator--()
+	{
+		--BaseClass::num;
+		return static_cast<FinalClass&>(*this);
+	}
+
+	constexpr FinalClass operator--(int)
+	{
+		FinalClass ret(num);
+		--BaseClass::num;
+		return ret;
 	}
 
 	constexpr FinalClass operator++(int)
@@ -209,6 +234,12 @@ public:
 	static std::string entityType();
 
 	DLL_LINKAGE static const HeroTypeID NONE;
+	DLL_LINKAGE static const HeroTypeID RANDOM;
+
+	bool isValid() const
+	{
+		return getNum() >= 0;
+	}
 };
 
 class SlotID : public Identifier<SlotID>
@@ -336,6 +367,11 @@ public:
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
+
+	bool isValid() const
+	{
+		return getNum() >= 0;
+	}
 };
 
 class BuildingIDBase : public IdentifierBase

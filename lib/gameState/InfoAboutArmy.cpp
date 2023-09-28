@@ -73,18 +73,18 @@ void InfoAboutHero::assign(const InfoAboutHero & iah)
 
 	details = (iah.details ? new Details(*iah.details) : nullptr);
 	hclass = iah.hclass;
-	portrait = iah.portrait;
+	portraitSource = iah.portraitSource;
 }
 
-InfoAboutHero::InfoAboutHero(): portrait(-1) {}
+InfoAboutHero::InfoAboutHero()
+{}
 
 InfoAboutHero::InfoAboutHero(const InfoAboutHero & iah): InfoAboutArmy(iah)
 {
 	assign(iah);
 }
 
-InfoAboutHero::InfoAboutHero(const CGHeroInstance * h, InfoAboutHero::EInfoLevel infoLevel):
-	portrait(-1)
+InfoAboutHero::InfoAboutHero(const CGHeroInstance * h, InfoAboutHero::EInfoLevel infoLevel)
 {
 	initFromHero(h, infoLevel);
 }
@@ -100,6 +100,11 @@ InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
 	return *this;
 }
 
+int32_t InfoAboutHero::getIconIndex() const
+{
+	return VLC->heroTypes()->getById(portraitSource)->getIconIndex();
+}
+
 void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel infoLevel)
 {
 	vstd::clear_pointer(details);
@@ -112,7 +117,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 
 	hclass = h->type->heroClass;
 	name = h->getNameTranslated();
-	portrait = h->portrait;
+	portraitSource = h->getPortraitSource();
 
 	if(detailed)
 	{

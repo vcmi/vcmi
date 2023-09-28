@@ -240,7 +240,7 @@ PlayerColor InterfaceObjectConfigurable::readPlayerColor(const JsonNode & config
 {
 	logGlobal->debug("Reading PlayerColor");
 	if(!config.isNull() && config.isString())
-		return PlayerColor::decode(config.String());
+		return PlayerColor(PlayerColor::decode(config.String()));
 	
 	logGlobal->debug("Unknown PlayerColor attribute");
 	return PlayerColor::CANNOT_DETERMINE;

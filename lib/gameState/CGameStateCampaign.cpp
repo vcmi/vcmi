@@ -233,7 +233,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 	// now add removed heroes again with unused type ID
 	for(auto * hero : removedHeroes)
 	{
-		si32 heroTypeId = 0;
+		HeroTypeID heroTypeId;
 		if(hero->ID == Obj::HERO)
 		{
 			heroTypeId = gameState->pickUnusedHeroTypeRandomly(hero->tempOwner);
@@ -243,7 +243,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 			auto unusedHeroTypeIds = gameState->getUnusedAllowedHeroes();
 			if(!unusedHeroTypeIds.empty())
 			{
-				heroTypeId = (*RandomGeneratorUtil::nextItem(unusedHeroTypeIds, gameState->getRandomGenerator())).getNum();
+				heroTypeId = (*RandomGeneratorUtil::nextItem(unusedHeroTypeIds, gameState->getRandomGenerator()));
 			}
 			else
 			{
@@ -257,7 +257,6 @@ void CGameStateCampaign::placeCampaignHeroes()
 		}
 
 		hero->subID = heroTypeId;
-		hero->portrait = hero->subID;
 		gameState->map->getEditManager()->insertObject(hero);
 	}
 }

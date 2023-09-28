@@ -16,6 +16,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerSettings;
 struct PlayerInfo;
+enum class PlayerStartingBonus : int8_t;
 VCMI_LIB_NAMESPACE_END
 
 class CLabel;
@@ -54,10 +55,10 @@ private:
 	struct CPlayerSettingsHelper
 	{
 		const PlayerSettings & playerSettings;
-		const SelType type;
+		const SelType selectionType;
 
 		CPlayerSettingsHelper(const PlayerSettings & playerSettings, SelType type)
-			: playerSettings(playerSettings), type(type)
+			: playerSettings(playerSettings), selectionType(type)
 		{}
 
 		/// visible image settings
@@ -118,14 +119,14 @@ private:
 
 		FactionID initialFaction;
 		HeroTypeID initialHero;
-		int initialBonus;
+		PlayerStartingBonus initialBonus;
 		FactionID selectedFaction;
 		HeroTypeID selectedHero;
-		int selectedBonus;
+		PlayerStartingBonus selectedBonus;
 
 		std::set<FactionID> allowedFactions;
 		std::set<HeroTypeID> allowedHeroes;
-		std::vector<int> allowedBonus;
+		std::vector<PlayerStartingBonus> allowedBonus;
 
 		void genContentGrid(int lines);
 		void genContentFactions();
