@@ -52,7 +52,7 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 if(NOT ANDROID)
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+#	option(ENABLE_EDITOR "Enable compilation of map editor" ON) disable map editor until it is ready
 endif()
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
