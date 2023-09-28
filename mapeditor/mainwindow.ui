@@ -51,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>37</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -70,6 +70,7 @@
     </property>
     <addaction name="actionMapSettings"/>
     <addaction name="actionPlayers_settings"/>
+    <addaction name="actionTranslations"/>
     <addaction name="actionValidate"/>
     <addaction name="actionUpdate_appearance"/>
     <addaction name="actionRecreate_obstacles"/>
@@ -140,6 +141,7 @@
    <addaction name="actionPaste"/>
    <addaction name="separator"/>
    <addaction name="actionFill"/>
+   <addaction name="actionTranslations"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
    <property name="sizePolicy">
@@ -754,7 +756,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>251</height>
+          <height>236</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -797,7 +799,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>251</height>
+          <height>236</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -833,7 +835,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>251</height>
+          <height>236</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1235,6 +1237,21 @@
   <action name="actionExport">
    <property name="text">
     <string>Export as...</string>
+   </property>
+  </action>
+  <action name="actionTranslations">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:translations.png</normaloff>icons:translations.png</iconset>
+   </property>
+   <property name="text">
+    <string>Translations</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>

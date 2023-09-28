@@ -42,6 +42,7 @@
 #include "objectbrowser.h"
 #include "inspector/inspector.h"
 #include "mapsettings/mapsettings.h"
+#include "mapsettings/translations.h"
 #include "playersettings.h"
 #include "validator.h"
 
@@ -300,6 +301,7 @@ void MainWindow::initializeMap(bool isNew)
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
+	ui->actionTranslations->setEnabled(true);
 	
 	//set minimal players count
 	if(isNew)
@@ -1237,5 +1239,12 @@ void MainWindow::on_actionExport_triggered()
 		ui->mapView->scene()->render(&painter);
 		image.save(fileName);
 	}
+}
+
+
+void MainWindow::on_actionTranslations_triggered()
+{
+	auto translationsDialog = new Translations(*controller.map(), this);
+	translationsDialog->show();
 }
 

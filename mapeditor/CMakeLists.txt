@@ -21,6 +21,7 @@ set(editor_SRCS
 		mapsettings/loseconditions.cpp
 		mapsettings/eventsettings.cpp
 		mapsettings/rumorsettings.cpp
+		mapsettings/translations.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
@@ -58,6 +59,7 @@ set(editor_HEADERS
 		mapsettings/loseconditions.h
 		mapsettings/eventsettings.h
 		mapsettings/rumorsettings.h
+		mapsettings/translations.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
@@ -85,6 +87,7 @@ set(editor_FORMS
 		mapsettings/loseconditions.ui
 		mapsettings/eventsettings.ui
 		mapsettings/rumorsettings.ui
+		mapsettings/translations.ui
 		playersettings.ui
 		playerparams.ui
 		validator.ui

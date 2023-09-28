@@ -117,6 +117,8 @@ private slots:
 
 	void on_actionExport_triggered();
 
+	void on_actionTranslations_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
