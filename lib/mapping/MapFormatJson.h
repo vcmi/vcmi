@@ -42,6 +42,7 @@ public:
 
 	static const std::string HEADER_FILE_NAME;
 	static const std::string OBJECTS_FILE_NAME;
+	static const std::string TERRAIN_FILE_NAMES[2];
 
 	int fileVersionMajor;
 	int fileVersionMinor;
