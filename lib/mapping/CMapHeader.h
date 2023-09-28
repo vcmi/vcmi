@@ -270,6 +270,9 @@ public:
 		h & defeatMessage;
 		h & defeatIconIndex;
 	}
+	
+	/// do not serialize, used only in map editor to write translations properly
+	JsonNode mapEditorTranslations;
 };
 
 VCMI_LIB_NAMESPACE_END

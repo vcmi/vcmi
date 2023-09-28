@@ -15,6 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CInputStream;
 class JsonNode;
+class JsonSerializeFormat;
 
 /// Parser for any text files from H3
 class DLL_LINKAGE CLegacyConfigParser
@@ -167,6 +168,7 @@ public:
 	
 	/// add selected string to internal storage
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
+	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language);
 	
 	/// returns translated version of a string that can be displayed to user
 	template<typename  ... Args>
@@ -187,6 +189,8 @@ public:
 	
 	/// Remove subcontainer with give name
 	void removeSubContainer(const TextLocalizationContainer & container);
+	
+	void jsonSerialize(JsonNode & dest) const;
 	
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)

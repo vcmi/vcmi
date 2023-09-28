@@ -35,6 +35,7 @@
 #include "../constants/StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
+#include "../Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -341,8 +342,8 @@ namespace TerrainDetail
 }
 
 ///CMapFormatJson
-const int CMapFormatJson::VERSION_MAJOR = 1;
-const int CMapFormatJson::VERSION_MINOR = 3;
+const int CMapFormatJson::VERSION_MAJOR = 2;
+const int CMapFormatJson::VERSION_MINOR = 0;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
@@ -906,6 +907,11 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 	return result;
 }
 
+bool CMapLoaderJson::isExistArchive(const std::string & archiveFilename)
+{
+	return loader.existsResource(JsonPath::builtin(archiveFilename));
+}
+
 JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 {
 	JsonPath resource = JsonPath::builtin(archiveFilename);
@@ -938,7 +944,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	fileVersionMajor = static_cast<int>(header["versionMajor"].Integer());
 
-	if(fileVersionMajor != VERSION_MAJOR)
+	if(fileVersionMajor > VERSION_MAJOR)
 	{
 		logGlobal->error("Unsupported map format version: %d", fileVersionMajor);
 		throw std::runtime_error("Unsupported map format version");
@@ -998,6 +1004,8 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	if(complete)
 		readOptions(handler);
+	
+	readTranslations();
 }
 
 void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile)
@@ -1259,6 +1267,36 @@ void CMapLoaderJson::readObjects()
 	});
 }
 
+void CMapLoaderJson::readTranslations()
+{
+	auto language = CGeneralTextHandler::getPreferredLanguage();
+	JsonNode data;
+
+	if(!isExistArchive(language + ".json"))
+	{
+		//english is preferrable
+		language = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
+		std::list<Languages::Options> options{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
+		while(!isExistArchive(language + ".json") && !options.empty())
+		{
+			language = options.front().identifier;
+			options.pop_front();
+		}
+		
+		if(!isExistArchive(language + ".json"))
+		{
+			logGlobal->info("Map doesn't have any translation");
+			return;
+		}
+	}
+
+	data = getFromArchive(language + ".json");
+	
+	for(auto & s : data.Struct())
+		mapHeader->registerString("map", TextIdentifier(s.first), s.second.String(), language);
+}
+
+
 ///CMapSaverJson
 CMapSaverJson::CMapSaverJson(CInputOutputStream * stream)
 	: buffer(stream)
@@ -1340,6 +1378,12 @@ void CMapSaverJson::writeHeader()
 	writeTeams(handler);
 
 	writeOptions(handler);
+	
+	for(auto & s : mapHeader->mapEditorTranslations.Struct())
+	{
+		mapHeader->loadTranslationOverrides(s.first, "map", s.second);
+		writeTranslations(s.first);
+	}
 
 	addToArchive(header, HEADER_FILE_NAME);
 }
@@ -1440,5 +1484,20 @@ void CMapSaverJson::writeObjects()
 	addToArchive(data, OBJECTS_FILE_NAME);
 }
 
+void CMapSaverJson::writeTranslations(const std::string & language)
+{
+	if(Languages::getLanguageOptions(language).identifier.empty())
+	{
+		logGlobal->error("Serializing of unsupported language %s is not permitted", language);
+		return;
+	}
+		
+	logGlobal->trace("Saving translations, language: %s", language);
+	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
+	
+	mapHeader->jsonSerialize(data);
+	
+	addToArchive(data, language + ".json");
+}
 
 VCMI_LIB_NAMESPACE_END

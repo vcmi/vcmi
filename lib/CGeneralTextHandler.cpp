@@ -11,6 +11,7 @@
 #include "CGeneralTextHandler.h"
 
 #include "filesystem/Filesystem.h"
+#include "serializer/JsonSerializeFormat.h"
 #include "CConfigHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/CQuest.h"
@@ -290,10 +291,10 @@ const std::string & TextLocalizationContainer::deserialize(const TextIdentifier 
 	return entry.baseValue;
 }
 
-void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
+void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
 	assert(!modContext.empty());
-	assert(!getModLanguage(modContext).empty());
+	assert(!Languages::getLanguageOptions(language).identifier.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
 	//assert(stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
 
@@ -303,7 +304,7 @@ void TextLocalizationContainer::registerString(const std::string & modContext, c
 
 		if(value.baseLanguage.empty())
 		{
-			value.baseLanguage = getModLanguage(modContext);
+			value.baseLanguage = language;
 			value.baseValue = localized;
 		}
 		else
@@ -315,12 +316,18 @@ void TextLocalizationContainer::registerString(const std::string & modContext, c
 	else
 	{
 		StringState result;
-		result.baseLanguage = getModLanguage(modContext);
+		result.baseLanguage = language;
 		result.baseValue = localized;
 		result.modContext = modContext;
 
 		stringsLocalizations[UID.get()] = result;
 	}
+}
+
+void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
+{
+	assert(!getModLanguage(modContext).empty());
+	registerString(modContext, UID, localized, getModLanguage(modContext));
 }
 
 bool TextLocalizationContainer::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
@@ -404,6 +411,16 @@ std::string TextLocalizationContainer::getModLanguage(const std::string & modCon
 	if (modContext == "core")
 		return CGeneralTextHandler::getInstalledLanguage();
 	return VLC->modh->getModLanguage(modContext);
+}
+
+void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
+{
+	for(auto & s : stringsLocalizations)
+	{
+		dest.Struct()[s.first].String() = s.second.baseValue;
+		if(!s.second.overrideValue.empty())
+			dest.Struct()[s.first].String() = s.second.overrideValue;
+	}
 }
 
 void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
