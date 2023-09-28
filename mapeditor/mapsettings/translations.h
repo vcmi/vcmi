@@ -20,6 +20,8 @@ class Translations;
 class Translations : public QDialog
 {
 	Q_OBJECT
+	
+	void fillTranslationsTable(const std::string & language);
 
 public:
 	explicit Translations(CMapHeader & mapHeader, QWidget *parent = nullptr);
