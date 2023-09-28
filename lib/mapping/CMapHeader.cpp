@@ -16,6 +16,7 @@
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
+#include "../Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -138,6 +139,33 @@ CMapHeader::~CMapHeader()
 ui8 CMapHeader::levels() const
 {
 	return (twoLevel ? 2 : 1);
+}
+
+void CMapHeader::registerMapStrings()
+{
+	auto language = CGeneralTextHandler::getPreferredLanguage();
+	JsonNode data;
+
+	if(translations[language].isNull())
+	{
+		//english is preferrable
+		language = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
+		std::list<Languages::Options> languages{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
+		while(translations[language].isNull() && !languages.empty())
+		{
+			language = languages.front().identifier;
+			languages.pop_front();
+		}
+		
+		if(!translations[language].isNull())
+		{
+			logGlobal->info("Map %s doesn't have any translation", name.toString());
+			return;
+		}
+	}
+
+	for(auto & s : translations[language].Struct())
+		registerString("map", TextIdentifier(s.first), s.second.String(), language);
 }
 
 VCMI_LIB_NAMESPACE_END

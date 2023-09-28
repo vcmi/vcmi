@@ -259,7 +259,7 @@ public:
 	/**
 	 * Saves texts and translations to zip archive
 	 */
-	void writeTranslations(const std::string & language);
+	void writeTranslations();
 
 	/**
 	 * Encodes one tile into string

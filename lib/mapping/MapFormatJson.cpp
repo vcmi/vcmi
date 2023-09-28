@@ -1269,31 +1269,12 @@ void CMapLoaderJson::readObjects()
 
 void CMapLoaderJson::readTranslations()
 {
-	auto language = CGeneralTextHandler::getPreferredLanguage();
-	JsonNode data;
-
-	if(!isExistArchive(language + ".json"))
+	std::list<Languages::Options> languages{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
+	for(auto & language : Languages::getLanguageList())
 	{
-		//english is preferrable
-		language = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
-		std::list<Languages::Options> options{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
-		while(!isExistArchive(language + ".json") && !options.empty())
-		{
-			language = options.front().identifier;
-			options.pop_front();
-		}
-		
-		if(!isExistArchive(language + ".json"))
-		{
-			logGlobal->info("Map doesn't have any translation");
-			return;
-		}
+		if(isExistArchive(language.identifier + ".json"))
+			mapHeader->translations.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
 	}
-
-	data = getFromArchive(language + ".json");
-	
-	for(auto & s : data.Struct())
-		mapHeader->registerString("map", TextIdentifier(s.first), s.second.String(), language);
 }
 
 
@@ -1378,12 +1359,8 @@ void CMapSaverJson::writeHeader()
 	writeTeams(handler);
 
 	writeOptions(handler);
-	
-	for(auto & s : mapHeader->mapEditorTranslations.Struct())
-	{
-		mapHeader->loadTranslationOverrides(s.first, "map", s.second);
-		writeTranslations(s.first);
-	}
+
+	writeTranslations();
 
 	addToArchive(header, HEADER_FILE_NAME);
 }
@@ -1484,20 +1461,19 @@ void CMapSaverJson::writeObjects()
 	addToArchive(data, OBJECTS_FILE_NAME);
 }
 
-void CMapSaverJson::writeTranslations(const std::string & language)
+void CMapSaverJson::writeTranslations()
 {
-	if(Languages::getLanguageOptions(language).identifier.empty())
+	for(auto & s : mapHeader->translations.Struct())
 	{
-		logGlobal->error("Serializing of unsupported language %s is not permitted", language);
-		return;
+		auto & language = s.first;
+		if(Languages::getLanguageOptions(language).identifier.empty())
+		{
+			logGlobal->error("Serializing of unsupported language %s is not permitted", language);
+			continue;;
+		}
+		logGlobal->trace("Saving translations, language: %s", language);
+		addToArchive(s.second, language + ".json");
 	}
-		
-	logGlobal->trace("Saving translations, language: %s", language);
-	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
-	
-	mapHeader->jsonSerialize(data);
-	
-	addToArchive(data, language + ".json");
 }
 
 VCMI_LIB_NAMESPACE_END

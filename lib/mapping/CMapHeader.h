@@ -245,6 +245,11 @@ public:
 
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
+	
+	/// translations for map to be transferred over network
+	JsonNode translations;
+	
+	void registerMapStrings();
 
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)
@@ -269,10 +274,10 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
+		h & translations;
+		if(!h.saving)
+			registerMapStrings();
 	}
-	
-	/// do not serialize, used only in map editor to write translations properly
-	JsonNode mapEditorTranslations;
 };
 
 VCMI_LIB_NAMESPACE_END
