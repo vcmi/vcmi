@@ -327,7 +327,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), nameTextId);
+		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), getNameTranslated());
 	}
 }
 
@@ -337,15 +337,15 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 	if(visitingHero == h)
 	{
 		cb->stopHeroVisitCastle(this, h);
-		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), nameTextId);
+		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), getNameTranslated());
 	}
 	else
-		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), nameTextId);
+		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), getNameTranslated());
 }
 
 std::string CGTownInstance::getObjectName() const
 {
-	return nameTextId + ", " + town->faction->getNameTranslated();
+	return getNameTranslated() + ", " + town->faction->getNameTranslated();
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const
@@ -767,7 +767,7 @@ void CGTownInstance::updateAppearance()
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + (town ? town->faction->getNameTranslated() : "unknown") + ") of " +  nameTextId;
+	return "Town (" + (town ? town->faction->getNameTranslated() : "unknown") + ") of " + getNameTranslated();
 }
 
 void CGTownInstance::deserializationFix()
@@ -980,7 +980,7 @@ TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 		return town->buildings.at(buildingID)->resources;
 	else
 	{
-		logGlobal->error("Town %s at %s has no possible building %d!", nameTextId, pos.toString(), buildingID.toEnum());
+		logGlobal->error("Town %s at %s has no possible building %d!", getNameTranslated(), pos.toString(), buildingID.toEnum());
 		return TResources();
 	}
 
