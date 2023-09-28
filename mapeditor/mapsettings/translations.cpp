@@ -15,6 +15,44 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/VCMI_Lib.h"
 
+void Translations::cleanupRemovedItems(CMap & map)
+{
+	std::set<std::string> existingObjects;
+	for(auto object : map.objects)
+		existingObjects.insert(object->instanceName);
+	
+	for(auto & translations : map.translations.Struct())
+	{
+		auto updateTranslations = JsonNode(JsonNode::JsonType::DATA_STRUCT);
+		for(auto & s : translations.second.Struct())
+		{
+			for(auto part : QString::fromStdString(s.first).split('.'))
+			{
+				if(existingObjects.count(part.toStdString()))
+				{
+					updateTranslations.Struct()[s.first] = s.second;
+					break;
+				}
+			}
+		}
+		translations.second = updateTranslations;
+	}
+}
+
+void Translations::cleanupRemovedItems(CMap & map, const std::string & pattern)
+{
+	for(auto & translations : map.translations.Struct())
+	{
+		auto updateTranslations = JsonNode(JsonNode::JsonType::DATA_STRUCT);
+		for(auto & s : translations.second.Struct())
+		{
+			if(s.first.find(pattern) == std::string::npos)
+				updateTranslations.Struct()[s.first] = s.second;
+		}
+		translations.second = updateTranslations;
+	}
+}
+
 Translations::Translations(CMapHeader & mh, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::Translations),
@@ -41,6 +79,7 @@ Translations::~Translations()
 
 void Translations::fillTranslationsTable(const std::string & language)
 {
+	Translations::cleanupRemovedItems(dynamic_cast<CMap&>(mapHeader));
 	auto & translation = mapHeader.translations[language];
 	ui->translationsTable->blockSignals(true);
 	ui->translationsTable->setRowCount(0);

@@ -400,6 +400,8 @@ void MainWindow::saveMap()
 		else
 			QMessageBox::information(this, "Map validation", "Map has some errors. Open Validator from the Map menu to see issues found");
 	}
+	
+	Translations::cleanupRemovedItems(*controller.map());
 
 	CMapService mapService;
 	try

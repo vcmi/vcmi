@@ -11,7 +11,7 @@
 #pragma once
 
 #include <QDialog>
-#include "../lib/mapping/CMapHeader.h"
+#include "../lib/mapping/CMap.h"
 
 namespace Ui {
 class Translations;
@@ -26,6 +26,10 @@ class Translations : public QDialog
 public:
 	explicit Translations(CMapHeader & mapHeader, QWidget *parent = nullptr);
 	~Translations();
+	
+	//removes unused string IDs from map translations
+	static void cleanupRemovedItems(CMap & map);
+	static void cleanupRemovedItems(CMap & map, const std::string & pattern);
 
 private slots:
 	void on_languageSelect_currentIndexChanged(int index);

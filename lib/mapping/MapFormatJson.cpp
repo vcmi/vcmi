@@ -1275,6 +1275,7 @@ void CMapLoaderJson::readTranslations()
 		if(isExistArchive(language.identifier + ".json"))
 			mapHeader->translations.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
 	}
+	mapHeader->registerMapStrings();
 }
 
 
