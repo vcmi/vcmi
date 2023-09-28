@@ -113,9 +113,9 @@ public:
 	{}
 };
 
-/// Handles all text-related data in game
-class DLL_LINKAGE CGeneralTextHandler
+class DLL_LINKAGE TextLocalizationContainer
 {
+protected:
 	struct StringState
 	{
 		/// Human-readable string that was added on registration
@@ -132,21 +132,26 @@ class DLL_LINKAGE CGeneralTextHandler
 
 		/// ID of mod that created this string
 		std::string modContext;
+		
+		template <typename Handler>
+		void serialize(Handler & h, const int Version)
+		{
+			h & baseValue;
+			h & baseLanguage;
+			h & modContext;
+		}
 	};
-
+	
 	/// map identifier -> localization
 	std::unordered_map<std::string, StringState> stringsLocalizations;
-
-	void readToVector(const std::string & sourceID, const std::string & sourceName);
-
-	/// number of scenarios in specific campaign. TODO: move to a better location
-	std::vector<size_t> scenariosCountPerCampaign;
-
-	std::string getModLanguage(const std::string & modContext);
-
+	
+	std::set<const TextLocalizationContainer *> subContainers;
+	
 	/// add selected string to internal storage as high-priority strings
 	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);
-
+	
+	std::string getModLanguage(const std::string & modContext);
+	
 public:
 	/// validates translation of specified language for specified mod
 	/// returns true if localization is valid and complete
@@ -157,13 +162,12 @@ public:
 	/// Any entries loaded by this will have priority over texts registered normally
 	void loadTranslationOverrides(const std::string & language, const std::string & modContext, JsonNode const & file);
 
+	// returns true if identifier with such name was registered, even if not translated to current language
+	bool identifierExists(const TextIdentifier & UID) const;
+	
 	/// add selected string to internal storage
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
-
-	// returns true if identifier with such name was registered, even if not translated to current language
-	// not required right now, can be added if necessary
-	// bool identifierExists( const std::string identifier) const;
-
+	
 	/// returns translated version of a string that can be displayed to user
 	template<typename  ... Args>
 	std::string translate(std::string arg1, Args ... args) const
@@ -174,10 +178,51 @@ public:
 
 	/// converts identifier into user-readable string
 	const std::string & deserialize(const TextIdentifier & identifier) const;
-
+	
 	/// Debug method, dumps all currently known texts into console using Json-like format
 	void dumpAllTexts();
+	
+	/// Add or override subcontainer which can store identifiers
+	void addSubContainer(const TextLocalizationContainer & container);
+	
+	/// Remove subcontainer with give name
+	void removeSubContainer(const TextLocalizationContainer & container);
+	
+	template <typename Handler>
+	void serialize(Handler & h, const int Version)
+	{
+		std::string key;
+		auto sz = stringsLocalizations.size();
+		h & sz;
+		if(h.saving)
+		{
+			for(auto s : stringsLocalizations)
+			{
+				key = s.first;
+				h & key;
+				h & s.second;
+			}
+		}
+		else
+		{
+			for(size_t i = 0; i < sz; ++i)
+			{
+				h & key;
+				h & stringsLocalizations[key];
+			}
+		}
+	}
+};
 
+/// Handles all text-related data in game
+class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
+{
+	void readToVector(const std::string & sourceID, const std::string & sourceName);
+
+	/// number of scenarios in specific campaign. TODO: move to a better location
+	std::vector<size_t> scenariosCountPerCampaign;
+
+public:
 	LegacyTextContainer allTexts;
 
 	LegacyTextContainer arraytxt;

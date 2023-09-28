@@ -127,6 +127,12 @@ CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
+	VLC->generaltexth->addSubContainer(*this);
+}
+
+CMapHeader::~CMapHeader()
+{
+	VLC->generaltexth->removeSubContainer(*this);
 }
 
 ui8 CMapHeader::levels() const

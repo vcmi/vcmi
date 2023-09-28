@@ -14,6 +14,7 @@
 #include "../LogicalExpression.h"
 #include "../int3.h"
 #include "../MetaString.h"
+#include "../CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -199,7 +200,7 @@ struct DLL_LINKAGE TriggeredEvent
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
-class DLL_LINKAGE CMapHeader
+class DLL_LINKAGE CMapHeader: public TextLocalizationContainer
 {
 	void setupEvents();
 public:
@@ -213,7 +214,7 @@ public:
 	static const int MAP_SIZE_GIANT = 252;
 
 	CMapHeader();
-	virtual ~CMapHeader() = default;
+	virtual ~CMapHeader();
 
 	ui8 levels() const;
 
@@ -248,6 +249,7 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)
 	{
+		h & static_cast<TextLocalizationContainer&>(*this);
 		h & version;
 		h & mods;
 		h & name;

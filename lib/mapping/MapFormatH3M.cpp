@@ -2274,7 +2274,7 @@ std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIden
 	if(mapString.empty())
 		return "";
 
-	VLC->generaltexth->registerString(modName, fullIdentifier, mapString);
+	mapHeader->registerString(modName, fullIdentifier, mapString);
 	return fullIdentifier.get();
 }
 
