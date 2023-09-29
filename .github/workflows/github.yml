@@ -158,6 +158,15 @@ jobs:
       env:
         VCMI_BUILD_PLATFORM: x64
 
+    - name: ccache
+      if: startsWith(matrix.preset, 'ios') != true
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+          key: ${{ matrix.preset }}
+          # actual cache takes up less space, at most ~1 GB
+          max-size: "5G"
+          verbose: 2
+
     - uses: actions/setup-python@v4
       if: "${{ matrix.conan_profile != '' }}"
       with:
@@ -193,7 +202,13 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: CMake Preset
+    - name: CMake Preset with ccache
+      if: startsWith(matrix.preset, 'ios') != true
+      run: |
+        cmake -DCMAKE_CXX_COMPILER_LAUNCHER=ccache --preset ${{ matrix.preset }}
+
+    - name: CMake Preset without ccache
+      if: startsWith(matrix.preset, 'ios')
       run: |
         cmake --preset ${{ matrix.preset }}
 
