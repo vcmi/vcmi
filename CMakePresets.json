@@ -25,7 +25,8 @@
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "ENABLE_TEST": "OFF",
                 "ENABLE_STRICT_COMPILATION": "ON",
-                "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}"
+                "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}",
+                "ENABLE_PCH" : "OFF"
             }
         },
         {
@@ -217,7 +218,10 @@
             "inherits": [
                 "base-ios-release",
                 "ios-device-conan"
-            ]
+            ],
+            "cacheVariables": {
+                "ENABLE_PCH" : "ON"
+            }
         },
         {
             "name": "ios-release-legacy",
