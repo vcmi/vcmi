@@ -848,10 +848,7 @@ void AddQuest::applyGs(CGameState * gs) const
 
 void UpdateArtHandlerLists::applyGs(CGameState * gs) const
 {
-	VLC->arth->minors = minors;
-	VLC->arth->majors = majors;
-	VLC->arth->treasures = treasures;
-	VLC->arth->relics = relics;
+	VLC->arth->allocatedArtifacts = allocatedArtifacts;
 }
 
 void UpdateMapEvents::applyGs(CGameState * gs) const

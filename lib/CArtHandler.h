@@ -172,14 +172,13 @@ public:
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
-	std::vector<CArtifact*> treasures, minors, majors, relics; //tmp vectors!!! do not touch if you don't know what you are doing!!!
+	/// Stores number of times each artifact was placed on map via randomization
+	std::map<ArtifactID, int> allocatedArtifacts;
 
+	/// List of artifacts allowed on the map
 	std::vector<CArtifact *> allowedArtifacts;
-	std::set<ArtifactID> growingArtifacts;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
-
-	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of given class. No side effects
 
 	static CArtifact::EartClass stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
 
@@ -187,6 +186,7 @@ public:
 	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
 	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
 	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> filtered);
 
 	bool legalArtifact(const ArtifactID & id);
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
@@ -207,11 +207,7 @@ public:
 	{
 		h & objects;
 		h & allowedArtifacts;
-		h & treasures;
-		h & minors;
-		h & majors;
-		h & relics;
-		h & growingArtifacts;
+		h & allocatedArtifacts;
 	}
 
 protected:
@@ -224,8 +220,6 @@ private:
 	void loadClass(CArtifact * art, const JsonNode & node) const;
 	void loadType(CArtifact * art, const JsonNode & node) const;
 	void loadComponents(CArtifact * art, const JsonNode & node);
-
-	void erasePickedArt(const ArtifactID & id);
 };
 
 struct DLL_LINKAGE ArtSlotInfo

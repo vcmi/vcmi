@@ -609,49 +609,60 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 
 ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
 {
-	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, CArtifact::EartClass flag)
+	std::set<ArtifactID> potentialPicks;
+
+	// Select artifacts that satisfy provided criterias
+	for (auto const * artifact : allowedArtifacts)
 	{
-		if (arts->empty()) //restock available arts
-			fillList(*arts, flag);
+		assert(artifact->aClass != CArtifact::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
 
-		for (auto & arts_i : *arts)
-		{
-			if (accepts(arts_i->id))
-			{
-				CArtifact *art = arts_i;
-				out.emplace_back(art);
-			}
-		}
-	};
+		if ((flags & CArtifact::ART_TREASURE) == 0 && artifact->aClass == CArtifact::ART_TREASURE)
+			continue;
 
-	auto getAllowed = [&](std::vector<ConstTransitivePtr<CArtifact> > &out)
+		if ((flags & CArtifact::ART_MINOR) == 0 && artifact->aClass == CArtifact::ART_MINOR)
+			continue;
+
+		if ((flags & CArtifact::ART_MAJOR) == 0 && artifact->aClass == CArtifact::ART_MAJOR)
+			continue;
+
+		if ((flags & CArtifact::ART_RELIC) == 0 && artifact->aClass == CArtifact::ART_RELIC)
+			continue;
+
+		if (!accepts(artifact->id))
+			continue;
+
+		potentialPicks.insert(artifact->id);
+	}
+
+	return pickRandomArtifact(rand, potentialPicks);
+}
+
+ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> potentialPicks)
+{
+	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
+	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
+	if (potentialPicks.empty())
 	{
-		if (flags & CArtifact::ART_TREASURE)
-			getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
-		if (flags & CArtifact::ART_MINOR)
-			getAllowedArts (out, &minors, CArtifact::ART_MINOR);
-		if (flags & CArtifact::ART_MAJOR)
-			getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
-		if (flags & CArtifact::ART_RELIC)
-			getAllowedArts (out, &relics, CArtifact::ART_RELIC);
-		if(out.empty()) //no artifact of specified rarity, we need to take another one
-		{
-			getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
-			getAllowedArts (out, &minors, CArtifact::ART_MINOR);
-			getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
-			getAllowedArts (out, &relics, CArtifact::ART_RELIC);
-		}
-		if(out.empty()) //no arts are available at all
-		{
-			out.resize (64);
-			std::fill_n (out.begin(), 64, objects[2]); //Give Grail - this can't be banned (hopefully)
-		}
-	};
+		logGlobal->warn("Failed to find artifact that matches requested parameters!");
+		return ArtifactID::GRAIL;
+	}
 
-	std::vector<ConstTransitivePtr<CArtifact> > out;
-	getAllowed(out);
-	ArtifactID artID = (*RandomGeneratorUtil::nextItem(out, rand))->id;
-	erasePickedArt(artID);
+	// Find how many times least used artifacts were picked by randomizer
+	int leastUsedTimes = std::numeric_limits<int>::max();
+	for (auto const & artifact : potentialPicks)
+		if (allocatedArtifacts[artifact] < leastUsedTimes)
+			leastUsedTimes = allocatedArtifacts[artifact];
+
+	// Pick all artifacts that were used least number of times
+	std::set<ArtifactID> preferredPicks;
+	for (auto const & artifact : potentialPicks)
+		if (allocatedArtifacts[artifact] == leastUsedTimes)
+			preferredPicks.insert(artifact);
+
+	assert(!preferredPicks.empty());
+
+	ArtifactID artID = *RandomGeneratorUtil::nextItem(preferredPicks, rand);
+	allocatedArtifacts[artID] += 1; // record +1 more usage
 	return artID;
 }
 
@@ -712,16 +723,13 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 {
 	allowedArtifacts.clear();
-	treasures.clear();
-	minors.clear();
-	majors.clear();
-	relics.clear();
+	allocatedArtifacts.clear();
 
 	for (ArtifactID i=ArtifactID::SPELLBOOK; i < ArtifactID(static_cast<si32>(objects.size())); i.advance(1))
 	{
 		if (allowed[i] && legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(objects[i]);
-			 //keep im mind that artifact can be worn by more than one type of bearer
+			//keep im mind that artifact can be worn by more than one type of bearer
 	}
 }
 
@@ -732,52 +740,6 @@ std::vector<bool> CArtHandler::getDefaultAllowed() const
 	allowedArtifacts.resize(141, false);
 	allowedArtifacts.resize(size(), true);
 	return allowedArtifacts;
-}
-
-void CArtHandler::erasePickedArt(const ArtifactID & id)
-{
-	CArtifact *art = objects[id];
-
-	std::vector<CArtifact*> * artifactList = nullptr;
-	switch(art->aClass)
-	{
-		case CArtifact::ART_TREASURE:
-			artifactList = &treasures;
-			break;
-		case CArtifact::ART_MINOR:
-			artifactList = &minors;
-			break;
-		case CArtifact::ART_MAJOR:
-			artifactList = &majors;
-			break;
-		case CArtifact::ART_RELIC:
-			artifactList = &relics;
-			break;
-		default:
-			logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
-			return;
-	}
-
-	if(artifactList->empty())
-		fillList(*artifactList, art->aClass);
-
-	auto itr = vstd::find(*artifactList, art);
-	if(itr != artifactList->end())
-	{
-		artifactList->erase(itr);
-	}
-	else
-		logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
-}
-
-void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )
-{
-	assert(listToBeFilled.empty());
-	for (auto & elem : allowedArtifacts)
-	{
-		if (elem->aClass == artifactClass)
-			listToBeFilled.push_back(elem);
-	}
 }
 
 void CArtHandler::afterLoadFinalization()

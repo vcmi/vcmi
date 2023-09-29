@@ -4061,10 +4061,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 void CGameHandler::synchronizeArtifactHandlerLists()
 {
 	UpdateArtHandlerLists uahl;
-	uahl.treasures = VLC->arth->treasures;
-	uahl.minors = VLC->arth->minors;
-	uahl.majors = VLC->arth->majors;
-	uahl.relics = VLC->arth->relics;
+	uahl.allocatedArtifacts = VLC->arth->allocatedArtifacts;
 	sendAndApply(&uahl);
 }
 
