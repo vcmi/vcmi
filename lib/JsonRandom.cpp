@@ -56,31 +56,156 @@ namespace JsonRandom
 		return defaultValue;
 	}
 
-	std::string loadKey(const JsonNode & value, CRandomGenerator & rng, const std::set<std::string> & valuesSet)
+	template<typename IdentifierType>
+	IdentifierType decodeKey(const JsonNode & value)
+	{
+		return IdentifierType(*VLC->identifiers()->getIdentifier(IdentifierType::entityType(), value));
+	}
+
+	template<>
+	PrimarySkill decodeKey(const JsonNode & value)
+	{
+		return PrimarySkill(*VLC->identifiers()->getIdentifier("primarySkill", value));
+	}
+
+	/// Method that allows type-specific object filtering
+	/// Default implementation is to accept all input objects
+	template<typename IdentifierType>
+	std::set<IdentifierType> filterKeysTyped(const JsonNode & value, const std::set<IdentifierType> & valuesSet)
+	{
+		return valuesSet;
+	}
+
+	template<>
+	std::set<ArtifactID> filterKeysTyped(const JsonNode & value, const std::set<ArtifactID> & valuesSet)
+	{
+		assert(value.isStruct());
+
+		std::set<CArtifact::EartClass> allowedClasses;
+		std::set<ArtifactPosition> allowedPositions;
+		ui32 minValue = 0;
+		ui32 maxValue = std::numeric_limits<ui32>::max();
+
+		if (value["class"].getType() == JsonNode::JsonType::DATA_STRING)
+			allowedClasses.insert(CArtHandler::stringToClass(value["class"].String()));
+		else
+			for(const auto & entry : value["class"].Vector())
+				allowedClasses.insert(CArtHandler::stringToClass(entry.String()));
+
+		if (value["slot"].getType() == JsonNode::JsonType::DATA_STRING)
+			allowedPositions.insert(ArtifactPosition::decode(value["class"].String()));
+		else
+			for(const auto & entry : value["slot"].Vector())
+				allowedPositions.insert(ArtifactPosition::decode(entry.String()));
+
+		if (!value["minValue"].isNull())
+			minValue = static_cast<ui32>(value["minValue"].Float());
+		if (!value["maxValue"].isNull())
+			maxValue = static_cast<ui32>(value["maxValue"].Float());
+
+		std::set<ArtifactID> result;
+
+		for (auto const & artID : valuesSet)
+		{
+			CArtifact * art = VLC->arth->objects[artID];
+
+			if(!vstd::iswithin(art->getPrice(), minValue, maxValue))
+				continue;
+
+			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
+				continue;
+
+			if(!IObjectInterface::cb->isAllowed(1, art->getIndex()))
+				continue;
+
+			if(!allowedPositions.empty())
+			{
+				bool positionAllowed = false;
+				for(const auto & pos : art->getPossibleSlots().at(ArtBearer::HERO))
+				{
+					if(allowedPositions.count(pos))
+						positionAllowed = true;
+				}
+
+				if (!positionAllowed)
+					continue;
+			}
+
+			result.insert(artID);
+		}
+		return result;
+	}
+
+	template<>
+	std::set<SpellID> filterKeysTyped(const JsonNode & value, const std::set<SpellID> & valuesSet)
+	{
+		std::set<SpellID> result = valuesSet;
+
+		if (!value["level"].isNull())
+		{
+			int32_t spellLevel = value["level"].Float();
+
+			vstd::erase_if(result, [=](const SpellID & spell)
+			{
+				return VLC->spellh->getById(spell)->getLevel() != spellLevel;
+			});
+		}
+
+		if (!value["school"].isNull())
+		{
+			int32_t schoolID = VLC->identifiers()->getIdentifier("spellSchool", value["school"]).value();
+
+			vstd::erase_if(result, [=](const SpellID & spell)
+			{
+				return !VLC->spellh->getById(spell)->hasSchool(SpellSchool(schoolID));
+			});
+		}
+		return result;
+	}
+
+	template<typename IdentifierType>
+	std::set<IdentifierType> filterKeys(const JsonNode & value, const std::set<IdentifierType> & valuesSet)
 	{
 		if(value.isString())
-			return value.String();
-		
+			return { decodeKey<IdentifierType>(value) };
+
+		assert(value.isStruct());
+
 		if(value.isStruct())
 		{
 			if(!value["type"].isNull())
-				return value["type"].String();
+				return filterKeys(value["type"], valuesSet);
+
+			std::set<IdentifierType> filteredTypes = filterKeysTyped(value, valuesSet);
 
 			if(!value["anyOf"].isNull())
-				return RandomGeneratorUtil::nextItem(value["anyOf"].Vector(), rng)->String();
-			
+			{
+				std::set<IdentifierType> filteredAnyOf;
+				for (auto const & entry : value["anyOf"].Vector())
+				{
+					std::set<IdentifierType> subset = filterKeys(entry, valuesSet);
+					filteredAnyOf.insert(subset.begin(), subset.end());
+				}
+
+				vstd::erase_if(filteredTypes, [&](const IdentifierType & value)
+				{
+					return filteredAnyOf.count(value) == 0;
+				});
+			}
+
 			if(!value["noneOf"].isNull())
 			{
-				auto copyValuesSet = valuesSet;
-				for(auto & s : value["noneOf"].Vector())
-					copyValuesSet.erase(s.String());
-				
-				if(!copyValuesSet.empty())
-					return *RandomGeneratorUtil::nextItem(copyValuesSet, rng);
+				for (auto const & entry : value["noneOf"].Vector())
+				{
+					std::set<IdentifierType> subset = filterKeys(entry, valuesSet);
+					for (auto bannedEntry : subset )
+						filteredTypes.erase(bannedEntry);
+				}
 			}
+
+			return filteredTypes;
 		}
-		
-		return valuesSet.empty() ? "" : *RandomGeneratorUtil::nextItem(valuesSet, rng);
+		return valuesSet;
 	}
 
 	TResources loadResources(const JsonNode & value, CRandomGenerator & rng)
@@ -103,11 +228,19 @@ namespace JsonRandom
 
 	TResources loadResource(const JsonNode & value, CRandomGenerator & rng)
 	{
-		std::set<std::string> defaultResources(std::begin(GameConstants::RESOURCE_NAMES), std::end(GameConstants::RESOURCE_NAMES) - 1); //except mithril
-		
-		std::string resourceName = loadKey(value, rng, defaultResources);
+		std::set<GameResID> defaultResources{
+			GameResID::WOOD,
+			GameResID::MERCURY,
+			GameResID::ORE,
+			GameResID::SULFUR,
+			GameResID::CRYSTAL,
+			GameResID::GEMS,
+			GameResID::GOLD
+		};
+
+		std::set<GameResID> potentialPicks = filterKeys(value, defaultResources);
+		GameResID resourceID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 		si32 resourceAmount = loadValue(value, rng, 0);
-		si32 resourceID(VLC->identifiers()->getIdentifier(value.meta, "resource", resourceName).value());
 
 		TResources ret;
 		ret[resourceID] = resourceAmount;
@@ -127,15 +260,22 @@ namespace JsonRandom
 		}
 		if(value.isVector())
 		{
+			std::set<PrimarySkill> defaultSkills{
+				PrimarySkill::ATTACK,
+				PrimarySkill::DEFENSE,
+				PrimarySkill::SPELL_POWER,
+				PrimarySkill::KNOWLEDGE
+			};
+
 			ret.resize(GameConstants::PRIMARY_SKILLS, 0);
-			std::set<std::string> defaultStats(std::begin(NPrimarySkill::names), std::end(NPrimarySkill::names));
+
 			for(const auto & element : value.Vector())
 			{
-				auto key = loadKey(element, rng, defaultStats);
-				defaultStats.erase(key);
-				int id = vstd::find_pos(NPrimarySkill::names, key);
-				if(id != -1)
-					ret[id] += loadValue(element, rng);
+				std::set<PrimarySkill> potentialPicks = filterKeys(element, defaultSkills);
+				PrimarySkill skillID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+
+				defaultSkills.erase(skillID);
+				ret[static_cast<int>(skillID)] += loadValue(element, rng);
 			}
 		}
 		return ret;
@@ -154,26 +294,18 @@ namespace JsonRandom
 		}
 		if(value.isVector())
 		{
-			std::set<std::string> defaultSkills;
+			std::set<SecondarySkill> defaultSkills;
 			for(const auto & skill : VLC->skillh->objects)
-			{
-				IObjectInterface::cb->isAllowed(2, skill->getIndex());
-				auto scopeAndName = vstd::splitStringToPair(skill->getJsonKey(), ':');
-				if(scopeAndName.first == ModScope::scopeBuiltin() || scopeAndName.first == value.meta)
-					defaultSkills.insert(scopeAndName.second);
-				else
-					defaultSkills.insert(skill->getJsonKey());
-			}
-			
+				if (IObjectInterface::cb->isAllowed(2, skill->getIndex()))
+					defaultSkills.insert(skill->getId());
+
 			for(const auto & element : value.Vector())
 			{
-				auto key = loadKey(element, rng, defaultSkills);
-				defaultSkills.erase(key); //avoid dupicates
-				if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "skill", key))
-				{
-					SecondarySkill id(identifier.value());
-					ret[id] = loadValue(element, rng);
-				}
+				std::set<SecondarySkill> potentialPicks = filterKeys(element, defaultSkills);
+				SecondarySkill skillID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+
+				defaultSkills.erase(skillID); //avoid dupicates
+				ret[skillID] = loadValue(element, rng);
 			}
 		}
 		return ret;
@@ -181,53 +313,13 @@ namespace JsonRandom
 
 	ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng)
 	{
-		if (value.getType() == JsonNode::JsonType::DATA_STRING)
-			return ArtifactID(VLC->identifiers()->getIdentifier("artifact", value).value());
+		std::set<ArtifactID> allowedArts;
+		for (auto const * artifact : VLC->arth->allowedArtifacts)
+			allowedArts.insert(artifact->getId());
 
-		std::set<CArtifact::EartClass> allowedClasses;
-		std::set<ArtifactPosition> allowedPositions;
-		ui32 minValue = 0;
-		ui32 maxValue = std::numeric_limits<ui32>::max();
+		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts);
 
-		if (value["class"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedClasses.insert(CArtHandler::stringToClass(value["class"].String()));
-		else
-			for(const auto & entry : value["class"].Vector())
-				allowedClasses.insert(CArtHandler::stringToClass(entry.String()));
-
-		if (value["slot"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedPositions.insert(ArtifactPosition::decode(value["class"].String()));
-		else
-			for(const auto & entry : value["slot"].Vector())
-				allowedPositions.insert(ArtifactPosition::decode(entry.String()));
-
-		if (!value["minValue"].isNull()) minValue = static_cast<ui32>(value["minValue"].Float());
-		if (!value["maxValue"].isNull()) maxValue = static_cast<ui32>(value["maxValue"].Float());
-
-		return VLC->arth->pickRandomArtifact(rng, [=](const ArtifactID & artID) -> bool
-		{
-			CArtifact * art = VLC->arth->objects[artID];
-
-			if(!vstd::iswithin(art->getPrice(), minValue, maxValue))
-				return false;
-
-			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
-				return false;
-			
-			if(!IObjectInterface::cb->isAllowed(1, art->getIndex()))
-				return false;
-
-			if(!allowedPositions.empty())
-			{
-				for(const auto & pos : art->getPossibleSlots().at(ArtBearer::HERO))
-				{
-					if(allowedPositions.count(pos))
-						return true;
-				}
-				return false;
-			}
-			return true;
-		});
+		return VLC->arth->pickRandomArtifact(rng, potentialPicks);
 	}
 
 	std::vector<ArtifactID> loadArtifacts(const JsonNode & value, CRandomGenerator & rng)
@@ -242,35 +334,19 @@ namespace JsonRandom
 
 	SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, std::vector<SpellID> spells)
 	{
-		if (value.getType() == JsonNode::JsonType::DATA_STRING)
-			return SpellID(VLC->identifiers()->getIdentifier("spell", value).value());
+		std::set<SpellID> defaultSpells;
+		for(const auto & spell : VLC->spellh->objects)
+			if (IObjectInterface::cb->isAllowed(0, spell->getIndex()))
+				defaultSpells.insert(spell->getId());
 
-		if (!value["level"].isNull())
-		{
-			int32_t spellLevel = value["level"].Float();
+		std::set<SpellID> potentialPicks = filterKeys(value, defaultSpells);
 
-			vstd::erase_if(spells, [=](const SpellID & spell)
-			{
-				return VLC->spellh->getById(spell)->getLevel() != spellLevel;
-			});
-		}
-
-		if (!value["school"].isNull())
-		{
-			int32_t schoolID = VLC->identifiers()->getIdentifier("spellSchool", value["school"]).value();
-
-			vstd::erase_if(spells, [=](const SpellID & spell)
-			{
-				return !VLC->spellh->getById(spell)->hasSchool(SpellSchool(schoolID));
-			});
-		}
-
-		if (spells.empty())
+		if (potentialPicks.empty())
 		{
 			logMod->warn("Failed to select suitable random spell!");
 			return SpellID::NONE;
 		}
-		return SpellID(*RandomGeneratorUtil::nextItem(spells, rng));
+		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
 	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const std::vector<SpellID> & spells)
@@ -326,7 +402,21 @@ namespace JsonRandom
 	CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng)
 	{
 		CStackBasicDescriptor stack;
-		stack.type = VLC->creh->objects[VLC->identifiers()->getIdentifier("creature", value["type"]).value()];
+
+		std::set<CreatureID> defaultCreatures;
+		for(const auto & creature : VLC->creh->objects)
+			if (!creature->special)
+				defaultCreatures.insert(creature->getId());
+
+		std::set<CreatureID> potentialPicks = filterKeys(value, defaultCreatures);
+		CreatureID pickedCreature;
+
+		if (!potentialPicks.empty())
+			pickedCreature = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+		else
+			logMod->warn("Failed to select suitable random creature!");
+
+		stack.type = VLC->creh->objects[pickedCreature];
 		stack.count = loadValue(value, rng);
 		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
 		{

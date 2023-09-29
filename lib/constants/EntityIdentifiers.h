@@ -347,6 +347,7 @@ class SecondarySkill : public IdentifierWithEnum<SecondarySkill, SecondarySkillB
 {
 public:
 	using IdentifierWithEnum<SecondarySkill, SecondarySkillBase>::IdentifierWithEnum;
+	static std::string entityType();
 };
 
 class DLL_LINKAGE FactionID : public Identifier<FactionID>
@@ -945,6 +946,8 @@ class GameResID : public IdentifierWithEnum<GameResID, GameResIDBase>
 {
 public:
 	using IdentifierWithEnum<GameResID, GameResIDBase>::IdentifierWithEnum;
+
+	static std::string entityType();
 };
 
 // Deprecated

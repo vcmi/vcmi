@@ -323,4 +323,14 @@ const ObstacleInfo * Obstacle::getInfo() const
 	return VLC->obstacles()->getById(*this);
 }
 
+std::string GameResID::entityType()
+{
+	return "resource";
+}
+
+std::string SecondarySkill::entityType()
+{
+	return "secondarySkill";
+}
+
 VCMI_LIB_NAMESPACE_END
