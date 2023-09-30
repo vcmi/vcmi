@@ -13,6 +13,8 @@
 
 #include "../lobby/SelectionTab.h"
 
+#include <vstd/DateUtils.h>
+
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -35,6 +37,7 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
@@ -175,12 +178,15 @@ std::shared_ptr<CLabel> CMapOverview::CMapOverviewWidget::buildDrawString(const 
 	if("mapname" == config["text"].String())
 		text = parent.mapName;
 	if("date" == config["text"].String())
+	{
 		if(parent.date.empty())
 		{
-			//std::time_t time =
+			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(parent.resource.getName(), EResType::MAP)));
+			text = vstd::getFormattedDateTime(time);
 		}
 		else
 			text = parent.date;
+	}
 	auto position = readPosition(config["position"]);
 	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text);
 }

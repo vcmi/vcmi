@@ -48,11 +48,11 @@ class CMapOverview : public CWindowObject
 	std::shared_ptr<CMapOverviewWidget> widget;
 
 public:
-	ResourcePath resource;
-	std::string mapName;
-	std::string fileName;
-	std::string date;
-	ESelectionScreen tabType;
+	const ResourcePath resource;
+	const std::string mapName;
+	const std::string fileName;
+	const std::string date;
+	const ESelectionScreen tabType;
 
 	CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType);
 };

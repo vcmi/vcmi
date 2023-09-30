@@ -5,7 +5,7 @@
 			"name": "background",
 			"type": "texture",
 			"image": "DIBOXBCK",
-			"rect": {"w": 428, "h": 500}
+			"rect": {"w": 428, "h": 384}
 		},
 		{
 			"type": "drawTransparentRect",
@@ -18,7 +18,7 @@
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
-			"text": "vcmi.lobby.filename",
+			"text": "vcmi.lobby.scenarioName",
 			"position": {"x": 214, "y": 15}
 		},
 		{
@@ -46,7 +46,7 @@
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
-			"text": "vcmi.lobby.filename",
+			"text": "vcmi.lobby.mapPreview",
 			"position": {"x": 214, "y": 65}
 		},
 		{

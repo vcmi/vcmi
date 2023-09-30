@@ -50,6 +50,8 @@
 	
 	"vcmi.lobby.filename" : "Dateiname",
 	"vcmi.lobby.creationDate" : "Erstellungsdatum",
+	"vcmi.lobby.scenarioName" : "Szenario-Name",
+	"vcmi.lobby.mapPreview" : "Kartenvorschau",
 
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
