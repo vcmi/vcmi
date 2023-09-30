@@ -44,6 +44,9 @@ struct DLL_LINKAGE Limiter final
 	/// percentage of mana points that hero needs to have
 	si32 manaPercentage;
 
+	/// Number of free secondary slots that hero needs to have
+	bool canLearnSkills;
+
 	/// resources player needs to have in order to trigger reward
 	TResources resources;
 

@@ -26,6 +26,7 @@ enum EVisitMode
 	VISIT_ONCE,      // only once, first to visit get all the rewards
 	VISIT_HERO,      // every hero can visit object once
 	VISIT_BONUS,     // can be visited by any hero that don't have bonus from this object
+	VISIT_LIMITER,   // can be visited by heroes that don't fulfill provided limiter
 	VISIT_PLAYER     // every player can visit object once
 };
 
@@ -46,7 +47,7 @@ enum class EEventType
 };
 
 const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer", "selectRandom"};
-const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
+const std::array<std::string, 6> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player"};
 
 struct DLL_LINKAGE ResetInfo
 {
@@ -134,6 +135,9 @@ struct DLL_LINKAGE Configuration
 
 	/// List of variables shoread between all limiters and rewards
 	Rewardable::Variables variables;
+
+	/// Limiter that will be used to determine that object is visited. Only if visit mode is set to "limiter"
+	Rewardable::Limiter visitLimiter;
 
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse = false;

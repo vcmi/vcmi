@@ -38,7 +38,7 @@ JsonNode Rewardable::Configuration::getPresetVariable(const std::string & catego
 {
 	std::string variableID = category + '@' + name;
 
-	if (variables.values.count(variableID))
+	if (variables.preset.count(variableID))
 		return variables.preset.at(variableID);
 	else
 		return JsonNode();

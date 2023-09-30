@@ -188,6 +188,8 @@ bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) con
 			return contextHero->hasBonusFrom(BonusSource::OBJECT, ID);
 		case Rewardable::VISIT_HERO:
 			return contextHero->visitedObjects.count(ObjectInstanceID(id));
+		case Rewardable::VISIT_LIMITER:
+			return configuration.visitLimiter.heroAllowed(contextHero);
 		default:
 			return false;
 	}
@@ -200,6 +202,7 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 		case Rewardable::VISIT_UNLIMITED:
 		case Rewardable::VISIT_BONUS:
 		case Rewardable::VISIT_HERO:
+		case Rewardable::VISIT_LIMITER:
 			return false;
 		case Rewardable::VISIT_ONCE:
 		case Rewardable::VISIT_PLAYER:
@@ -217,6 +220,8 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 			return h->hasBonusFrom(BonusSource::OBJECT, ID);
 		case Rewardable::VISIT_HERO:
 			return h->visitedObjects.count(ObjectInstanceID(id));
+		case Rewardable::VISIT_LIMITER:
+			return configuration.visitLimiter.heroAllowed(h);
 		default:
 			return wasVisited(h->tempOwner);
 	}

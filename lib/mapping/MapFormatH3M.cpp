@@ -34,6 +34,7 @@
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
 
 #include <boost/crc.hpp>
@@ -1156,7 +1157,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 		{
 			auto defaultAllowed = VLC->skillh->getDefaultAllowed();
 
-			for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
+			for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
 				if(defaultAllowed[skillID])
 					allowedAbilities.insert(SecondarySkill(skillID));
 		}
@@ -1170,7 +1171,8 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 			anyOfList.push_back(entry);
 		}
 		JsonNode variable;
-		variable.Vector() = anyOfList;
+		variable["anyOf"].Vector() = anyOfList;
+		variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
 
 		rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 	}

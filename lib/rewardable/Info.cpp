@@ -108,6 +108,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng, variables);
 	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
 	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
+	limiter.canLearnSkills = source["canLearnSkills"].Bool();
 
 	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables);
 	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng, variables);
@@ -185,31 +186,32 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 		for(const auto & entry : category.second.Struct())
 		{
 			JsonNode preset = object.getPresetVariable(category.first, entry.first);
+			const JsonNode & input = preset.isNull() ? entry.second : preset;
 			int32_t value = -1;
 
 			if (category.first == "number")
-				value = JsonRandom::loadValue(entry.second, rng, object.variables.values);
+				value = JsonRandom::loadValue(input, rng, object.variables.values);
 
 			if (category.first == "artifact")
-				value = JsonRandom::loadArtifact(entry.second, rng, object.variables.values).getNum();
+				value = JsonRandom::loadArtifact(input, rng, object.variables.values).getNum();
 
 			if (category.first == "spell")
-				value = JsonRandom::loadSpell(entry.second, rng, object.variables.values).getNum();
+				value = JsonRandom::loadSpell(input, rng, object.variables.values).getNum();
 
 			// TODO
 			//	if (category.first == "creature")
-			//		value = JsonRandom::loadCreature(entry.second, rng, object.variables.values).type->getId();
+			//		value = JsonRandom::loadCreature(input, rng, object.variables.values).type->getId();
 
 			// TODO
 			//	if (category.first == "resource")
-			//		value = JsonRandom::loadResource(entry.second, rng, object.variables.values).getNum();
+			//		value = JsonRandom::loadResource(input, rng, object.variables.values).getNum();
 
 			// TODO
 			//	if (category.first == "primarySkill")
-			//		value = JsonRandom::loadCreature(entry.second, rng, object.variables.values).getNum();
+			//		value = JsonRandom::loadCreature(input, rng, object.variables.values).getNum();
 
 			if (category.first == "secondarySkill")
-				value = JsonRandom::loadSecondary(entry.second, rng, object.variables.values).getNum();
+				value = JsonRandom::loadSecondary(input, rng, object.variables.values).getNum();
 
 			object.initVariable(category.first, entry.first, value);
 		}
@@ -328,6 +330,9 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 			break;
 		}
 	}
+
+	configureLimiter(object, rng, object.visitLimiter, parameters["visitLimiter"]);
+
 }
 
 bool Rewardable::Info::givesResources() const
