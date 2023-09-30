@@ -110,7 +110,7 @@ public:
 		switch(formula)
 		{
 		case DIST_2D:
-			return static_cast<ui32>(dist2d(o));
+			return std::round(dist2d(o));
 		case DIST_MANHATTAN:
 			return static_cast<ui32>(mandist2d(o));
 		case DIST_CHEBYSHEV:

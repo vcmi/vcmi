@@ -49,7 +49,7 @@
 						},
 						"secondary" : {
 							"@gainedSkill" : 1
-						}
+						},
 						"message" : 171 // Witch teaches you skill
 					}
 				],

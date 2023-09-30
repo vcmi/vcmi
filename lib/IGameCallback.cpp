@@ -97,7 +97,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
 			{
 				int3 tilePos(xd,yd,pos.z);
-				double distance = pos.dist(tilePos, distanceFormula);
+				int distance = pos.dist(tilePos, distanceFormula);
 
 				if(distance <= radious)
 				{
