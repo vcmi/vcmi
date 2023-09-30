@@ -63,6 +63,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionExport"/>
+    <addaction name="actionh3m_coverter"/>
    </widget>
    <widget class="QMenu" name="menuMap">
     <property name="title">
@@ -1252,6 +1253,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionh3m_coverter">
+   <property name="text">
+    <string>h3m coverter</string>
    </property>
   </action>
  </widget>
