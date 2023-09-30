@@ -101,7 +101,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		}
 	}
 	
-	if(vi.reward.manaDiff || vi.reward.manaPercentage)
+	if(vi.reward.manaDiff || vi.reward.manaPercentage >= 0)
 		txt = setText(temp.manaDiff > 0, 177, 176, h);
 	
 	for(auto b : vi.reward.bonuses)
@@ -155,7 +155,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	temp.resources.amin(0);
 	temp.resources.amax(0);
 	temp.manaDiff = 0;
-	temp.manaPercentage = 0;
+	temp.manaPercentage = -1;
 	temp.spells.clear();
 	temp.creatures.clear();
 	temp.bonuses.clear();
