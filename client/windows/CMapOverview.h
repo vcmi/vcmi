@@ -33,7 +33,6 @@ class CMapOverview : public CWindowObject
 		CMapOverview& p;
 
 		bool drawPlayerElements;
-		bool renderImage;
 		std::vector<Canvas> minimaps;
 
 		Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const;

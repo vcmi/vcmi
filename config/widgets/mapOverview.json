@@ -130,5 +130,10 @@
 			"text": "",
 			"rect": {"x": 10, "y": 334, "w": 408, "h": 35}
 		}
-	]
+	],
+
+	"variables":
+	{
+		"mapPreviewForSaves": true
+	}
 }

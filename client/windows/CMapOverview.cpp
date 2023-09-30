@@ -148,31 +148,31 @@ CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 	InterfaceObjectConfigurable(), p(parent)
 {
 	drawPlayerElements = p.tabType == ESelectionScreen::newGame;
-	renderImage = settings["lobby"]["mapPreview"].Bool();
 
-	// create minimaps
-	ResourcePath res = ResourcePath(p.resource.getName(), EResType::MAP);
-	std::unique_ptr<CMap> campaignMap = nullptr;
-	if(p.tabType != ESelectionScreen::newGame)
-	{
-		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
-		lf.checkMagicBytes(SAVEGAME_MAGIC);
-
-		std::unique_ptr<CMapHeader> mapHeader = std::make_unique<CMapHeader>();
-		StartInfo * startInfo;
-		lf >> *(mapHeader) >> startInfo;
-
-		if(startInfo->campState)
-			campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario());
-		res = ResourcePath(startInfo->fileURI, EResType::MAP);
-	}
-	if(!campaignMap)
-		minimaps = createMinimaps(res);
-	else
-		minimaps = createMinimaps(campaignMap);
-
-	// config
 	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
+
+	if(settings["lobby"]["mapPreview"].Bool())
+	{
+		ResourcePath res = ResourcePath(p.resource.getName(), EResType::MAP);
+		std::unique_ptr<CMap> campaignMap = nullptr;
+		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
+		{
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			lf.checkMagicBytes(SAVEGAME_MAGIC);
+
+			std::unique_ptr<CMapHeader> mapHeader = std::make_unique<CMapHeader>();
+			StartInfo * startInfo;
+			lf >> *(mapHeader) >> startInfo;
+
+			if(startInfo->campState)
+				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario());
+			res = ResourcePath(startInfo->fileURI, EResType::MAP);
+		}
+		if(!campaignMap)
+			minimaps = createMinimaps(res);
+		else
+			minimaps = createMinimaps(campaignMap);
+	}
 
 	REGISTER_BUILDER("drawMinimap", &CMapOverview::CMapOverviewWidget::buildDrawMinimap);
 
