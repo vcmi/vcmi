@@ -36,55 +36,18 @@
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
 
-CMapOverview::CMapOverview(std::string text, ResourcePath resource, ESelectionScreen tabType)
-	: CWindowObject(BORDERED | RCLICK_POPUP)
+CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
+	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
 {
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	pos = Rect(0, 0, 400, 300);
+	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
+	pos = Rect(0, 0, config["items"][0]["rect"]["w"].Integer(), config["items"][0]["rect"]["h"].Integer());
 
-	widget = std::make_shared<CMapOverviewWidget>(text, resource, tabType);
+	widget = std::make_shared<CMapOverviewWidget>(*this);
 
 	updateShadow();
-
-	/*
-	std::vector<std::shared_ptr<IImage>> mapLayerImages;
-	if(renderImage)
-		mapLayerImages = createMinimaps(ResourcePath(resource.getName(), EResType::MAP), IMAGE_SIZE);
-
-	if(mapLayerImages.size() == 0)
-		renderImage = false;
-
-	pos = Rect(0, 0, 3 * BORDER + 2 * IMAGE_SIZE, 2000);
-
-	auto drawLabel = [&]() {
-		label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, BORDER + 2 * IMAGE_SIZE, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
-		if(!label->slider)
-			label->resize(Point(BORDER + 2 * IMAGE_SIZE, label->label->textSize.y));
-	};
-	drawLabel();
-
-	int textHeight = std::min(350, label->label->textSize.y);
-	pos.h = BORDER + textHeight + BORDER;
-	if(renderImage)
-		pos.h += IMAGE_SIZE + BORDER;
-	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
-	updateShadow();
-
-	drawLabel();
-
-	if(renderImage)
-	{
-		if(mapLayerImages.size() == 1)
-			image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER + (BORDER + IMAGE_SIZE) / 2, textHeight + 2 * BORDER));
-		else
-		{
-			image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER, textHeight + 2 * BORDER));
-			image2 = std::make_shared<CPicture>(mapLayerImages[1], Point(BORDER + IMAGE_SIZE + BORDER, textHeight + 2 * BORDER));
-		}
-	}
-	*/
 
 	center(GH.getCursorPosition()); //center on mouse
 #ifdef VCMI_MOBILE
@@ -177,21 +140,66 @@ std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(con
 
 	auto rect = readRect(config["rect"]);
 	auto id = config["id"].Integer();
-	const std::vector<std::shared_ptr<IImage>> images = createMinimaps(ResourcePath(resource.getName(), EResType::MAP), Point(rect.w, rect.h));
+
+	if(!renderImage)
+		return nullptr;
+
+	const std::vector<std::shared_ptr<IImage>> images = createMinimaps(ResourcePath(parent.resource.getName(), EResType::MAP), Point(rect.w, rect.h));
+
+	if(id >= images.size())
+		return nullptr;
 
 	return std::make_shared<CPicture>(images[id], Point(rect.x, rect.y));
 }
 
-CMapOverview::CMapOverviewWidget::CMapOverviewWidget(std::string text, ResourcePath resource, ESelectionScreen tabType):
-	InterfaceObjectConfigurable(), resource(resource)
+std::shared_ptr<CTextBox> CMapOverview::CMapOverviewWidget::buildDrawPath(const JsonNode & config) const
 {
-	drawPlayerElements = tabType == ESelectionScreen::newGame;
-	renderImage = tabType == ESelectionScreen::newGame && settings["lobby"]["mapPreview"].Bool();
+	logGlobal->debug("Building widget drawPath");
+
+	auto rect = readRect(config["rect"]);
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+
+	return std::make_shared<CTextBox>(parent.fileName, rect, 0, font, alignment, color);
+}
+
+std::shared_ptr<CLabel> CMapOverview::CMapOverviewWidget::buildDrawString(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget drawString");
+
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+	std::string text = "";
+	if("mapname" == config["text"].String())
+		text = parent.mapName;
+	if("date" == config["text"].String())
+		if(parent.date.empty())
+		{
+			//std::time_t time =
+		}
+		else
+			text = parent.date;
+	auto position = readPosition(config["position"]);
+	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text);
+}
+
+CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
+	InterfaceObjectConfigurable(), parent(parent)
+{
+	drawPlayerElements = parent.tabType == ESelectionScreen::newGame;
+	renderImage = parent.tabType == ESelectionScreen::newGame && settings["lobby"]["mapPreview"].Bool();
 
 	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
 
 	REGISTER_BUILDER("drawTransparentRect", &CMapOverview::CMapOverviewWidget::buildDrawTransparentRect);
 	REGISTER_BUILDER("drawMinimap", &CMapOverview::CMapOverviewWidget::buildDrawMinimap);
+	REGISTER_BUILDER("drawPath", &CMapOverview::CMapOverviewWidget::buildDrawPath);
+	REGISTER_BUILDER("drawString", &CMapOverview::CMapOverviewWidget::buildDrawString);
+
+	drawPlayerElements = parent.tabType == ESelectionScreen::newGame;
+	renderImage = parent.tabType == ESelectionScreen::newGame && settings["lobby"]["mapPreview"].Bool();
 
 	build(config);
 }

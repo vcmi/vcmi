@@ -1,0 +1,130 @@
+{
+	"items":
+	[		
+		{
+			"name": "background",
+			"type": "texture",
+			"image": "DIBOXBCK",
+			"rect": {"w": 428, "h": 500}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 5, "y": 5, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.filename",
+			"position": {"x": 214, "y": 15}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 5, "y": 30, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "drawString",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "mapname",
+			"position": {"x": 214, "y": 40}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 5, "y": 55, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.filename",
+			"position": {"x": 214, "y": 65}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 29, "y": 79, "w": 171, "h": 171},
+			"color": [0, 0, 0, 255],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "drawMinimap",
+			"id": 0,
+			"rect": {"x": 30, "y": 80, "w": 169, "h": 169}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 228, "y": 79, "w": 171, "h": 171},
+			"color": [0, 0, 0, 255],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "drawMinimap",
+			"id": 1,
+			"rect": {"x": 229, "y": 80, "w": 169, "h": 169}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 5, "y": 254, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.creationDate",
+			"position": {"x": 214, "y": 264}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 5, "y": 279, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "drawString",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "date",
+			"position": {"x": 214, "y": 289}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 5, "y": 309, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.filename",
+			"position": {"x": 214, "y": 319}
+		},
+		{
+			"type": "drawTransparentRect",
+			"rect": {"x": 5, "y": 334, "w": 418, "h": 45},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "drawPath",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"rect": {"x": 10, "y": 339, "w": 408, "h": 35}
+		}
+	]
+}

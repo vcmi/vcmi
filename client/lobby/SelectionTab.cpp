@@ -363,13 +363,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	if(!curItems[py]->isFolder)
-	{
-		std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fullFileURI);
-		if(curItems[py]->date != "")
-			text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
-
-		GH.windows().createAndPushWindow<CMapOverview>(text, ResourcePath(curItems[py]->fileURI), tabType);
-	}
+		GH.windows().createAndPushWindow<CMapOverview>(curItems[py]->getName(), curItems[py]->fullFileURI, curItems[py]->date, ResourcePath(curItems[py]->fileURI), tabType);
 	else
 		CRClickPopup::createAndPush(curItems[py]->folderName);
 }

@@ -28,17 +28,9 @@ enum ESelectionScreen : ui8;
 
 class CMapOverview : public CWindowObject
 {
-	//const int IMAGE_SIZE = 169;
-	//const int BORDER = 30;
-
-	std::shared_ptr<CFilledTexture> backgroundTexture;
-	std::shared_ptr<CTextBox> label;
-	std::shared_ptr<CPicture> image1;
-	std::shared_ptr<CPicture> image2;
-
 	class CMapOverviewWidget : public InterfaceObjectConfigurable
 	{
-		ResourcePath resource;
+		CMapOverview& parent;
 
 		bool drawPlayerElements;
 		bool renderImage;
@@ -47,12 +39,20 @@ class CMapOverview : public CWindowObject
 
 		std::shared_ptr<TransparentFilledRectangle> buildDrawTransparentRect(const JsonNode & config) const;
 		std::shared_ptr<CPicture> buildDrawMinimap(const JsonNode & config) const;
+		std::shared_ptr<CTextBox> buildDrawPath(const JsonNode & config) const;
+		std::shared_ptr<CLabel> buildDrawString(const JsonNode & config) const;
 	public:
-		CMapOverviewWidget(std::string text, ResourcePath resource, ESelectionScreen tabType);
+		CMapOverviewWidget(CMapOverview& parent);
 	};
 
 	std::shared_ptr<CMapOverviewWidget> widget;
 
 public:
-	CMapOverview(std::string text, ResourcePath resource, ESelectionScreen tabType);
+	ResourcePath resource;
+	std::string mapName;
+	std::string fileName;
+	std::string date;
+	ESelectionScreen tabType;
+
+	CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType);
 };
