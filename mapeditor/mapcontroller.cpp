@@ -105,7 +105,9 @@ void MapController::repairMap()
 	}
 	
 	//fix owners for objects
-	for(auto obj : _map->objects)
+	auto allImpactedObjects(_map->objects);
+	allImpactedObjects.insert(allImpactedObjects.end(), _map->predefinedHeroes.begin(), _map->predefinedHeroes.end());
+	for(auto obj : allImpactedObjects)
 	{
 		//setup proper names (hero name will be fixed later
 		if(obj->ID != Obj::HERO && obj->ID != Obj::PRISON && (obj->typeName.empty() || obj->subTypeName.empty()))
@@ -154,12 +156,16 @@ void MapController::repairMap()
 			if(nih->spellbookContainsSpell(SpellID::PRESET))
 			{
 				nih->removeSpellFromSpellbook(SpellID::PRESET);
-			}
-			else
-			{
 				for(auto spellID : type->spells)
 					nih->addSpellToSpellbook(spellID);
 			}
+			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
+			{
+				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
+				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+			}
+			
 			//fix portrait
 			if(nih->portrait < 0 || nih->portrait == 255)
 				nih->portrait = type->imageIndex;
