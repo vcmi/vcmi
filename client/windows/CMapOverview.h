@@ -30,7 +30,7 @@ class CMapOverview : public CWindowObject
 {
 	class CMapOverviewWidget : public InterfaceObjectConfigurable
 	{
-		CMapOverview& parent;
+		CMapOverview& p;
 
 		bool drawPlayerElements;
 		bool renderImage;
@@ -38,12 +38,9 @@ class CMapOverview : public CWindowObject
 		std::vector<std::shared_ptr<IImage>> createMinimaps(ResourcePath resource, Point size) const;
 		std::vector<std::shared_ptr<IImage>> createMinimaps(std::unique_ptr<CMap> & map, Point size) const;
 
-		std::shared_ptr<TransparentFilledRectangle> buildDrawTransparentRect(const JsonNode & config) const;
 		std::shared_ptr<CPicture> buildDrawMinimap(const JsonNode & config) const;
-		std::shared_ptr<CTextBox> buildDrawPath(const JsonNode & config) const;
-		std::shared_ptr<CLabel> buildDrawString(const JsonNode & config) const;
 	public:
-		CMapOverviewWidget(CMapOverview& parent);
+		CMapOverviewWidget(CMapOverview& p);
 	};
 
 	std::shared_ptr<CMapOverviewWidget> widget;

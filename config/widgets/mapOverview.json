@@ -8,7 +8,7 @@
 			"rect": {"w": 428, "h": 379}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 5, "y": 5, "w": 418, "h": 20},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
@@ -22,21 +22,22 @@
 			"position": {"x": 214, "y": 15}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 5, "y": 30, "w": 418, "h": 20},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
 		},
 		{
-			"type": "drawString",
+			"type": "label",
+			"name": "mapName",
 			"font": "small",
 			"alignment": "center",
 			"color": "white",
-			"text": "mapname",
+			"text": "",
 			"position": {"x": 214, "y": 40}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 5, "y": 55, "w": 418, "h": 20},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
@@ -50,7 +51,7 @@
 			"position": {"x": 214, "y": 65}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 29, "y": 79, "w": 171, "h": 171},
 			"color": [0, 0, 0, 255],
 			"colorLine": [128, 100, 75, 255]
@@ -61,7 +62,7 @@
 			"rect": {"x": 30, "y": 80, "w": 169, "h": 169}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 228, "y": 79, "w": 171, "h": 171},
 			"color": [0, 0, 0, 255],
 			"colorLine": [128, 100, 75, 255]
@@ -72,7 +73,7 @@
 			"rect": {"x": 229, "y": 80, "w": 169, "h": 169}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 5, "y": 254, "w": 418, "h": 20},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
@@ -86,21 +87,22 @@
 			"position": {"x": 214, "y": 264}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 5, "y": 279, "w": 418, "h": 20},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
 		},
 		{
-			"type": "drawString",
+			"type": "label",
+			"name": "date",
 			"font": "small",
 			"alignment": "center",
 			"color": "white",
-			"text": "date",
+			"text": "",
 			"position": {"x": 214, "y": 289}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 5, "y": 304, "w": 418, "h": 20},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
@@ -114,16 +116,18 @@
 			"position": {"x": 214, "y": 314}
 		},
 		{
-			"type": "drawTransparentRect",
+			"type": "transparentFilledRectangle",
 			"rect": {"x": 5, "y": 329, "w": 418, "h": 45},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
 		},
 		{
-			"type": "drawPath",
+			"type": "textBox",
+			"name": "fileName",
 			"font": "small",
 			"alignment": "center",
 			"color": "white",
+			"text": "",
 			"rect": {"x": 10, "y": 334, "w": 408, "h": 35}
 		}
 	]

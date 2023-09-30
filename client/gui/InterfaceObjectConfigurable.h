@@ -29,6 +29,8 @@ class CShowableAnim;
 class CFilledTexture;
 class ComboBox;
 class CTextInput;
+class TransparentFilledRectangle;
+class CTextBox;
 
 #define REGISTER_BUILDER(type, method) registerBuilder(type, std::bind(method, this, std::placeholders::_1))
 
@@ -105,6 +107,8 @@ protected:
 	std::shared_ptr<CIntObject> buildLayout(const JsonNode &);
 	std::shared_ptr<ComboBox> buildComboBox(const JsonNode &);
 	std::shared_ptr<CTextInput> buildTextInput(const JsonNode &) const;
+	std::shared_ptr<TransparentFilledRectangle> buildTransparentFilledRectangle(const JsonNode & config) const;
+	std::shared_ptr<CTextBox> buildTextBox(const JsonNode & config) const;
 		
 	//composite widgets
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;

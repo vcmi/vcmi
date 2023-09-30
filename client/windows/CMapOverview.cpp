@@ -134,20 +134,6 @@ std::vector<std::shared_ptr<IImage>> CMapOverview::CMapOverviewWidget::createMin
 	return ret;
 }
 
-std::shared_ptr<TransparentFilledRectangle> CMapOverview::CMapOverviewWidget::CMapOverviewWidget::buildDrawTransparentRect(const JsonNode & config) const
-{
-	logGlobal->debug("Building widget drawTransparentRect");
-
-	auto rect = readRect(config["rect"]);
-	auto color = readColor(config["color"]);
-	if(!config["colorLine"].isNull())
-	{
-		auto colorLine = readColor(config["colorLine"]);
-		return std::make_shared<TransparentFilledRectangle>(rect, color, colorLine);
-	}
-	return std::make_shared<TransparentFilledRectangle>(rect, color);
-}
-
 std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget drawMinimap");
@@ -158,11 +144,11 @@ std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(con
 	if(!renderImage)
 		return nullptr;
 
-	ResourcePath res = ResourcePath(parent.resource.getName(), EResType::MAP);
+	ResourcePath res = ResourcePath(p.resource.getName(), EResType::MAP);
 	std::unique_ptr<CMap> campaignMap = nullptr;
-	if(parent.tabType != ESelectionScreen::newGame)
+	if(p.tabType != ESelectionScreen::newGame)
 	{
-		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(parent.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 		lf.checkMagicBytes(SAVEGAME_MAGIC);
 
 		std::unique_ptr<CMapHeader> mapHeader = std::make_unique<CMapHeader>();
@@ -187,54 +173,34 @@ std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(con
 	return std::make_shared<CPicture>(images[id], Point(rect.x, rect.y));
 }
 
-std::shared_ptr<CTextBox> CMapOverview::CMapOverviewWidget::buildDrawPath(const JsonNode & config) const
-{
-	logGlobal->debug("Building widget drawPath");
-
-	auto rect = readRect(config["rect"]);
-	auto font = readFont(config["font"]);
-	auto alignment = readTextAlignment(config["alignment"]);
-	auto color = readColor(config["color"]);
-
-	return std::make_shared<CTextBox>(parent.fileName, rect, 0, font, alignment, color);
-}
-
-std::shared_ptr<CLabel> CMapOverview::CMapOverviewWidget::buildDrawString(const JsonNode & config) const
-{
-	logGlobal->debug("Building widget drawString");
-
-	auto font = readFont(config["font"]);
-	auto alignment = readTextAlignment(config["alignment"]);
-	auto color = readColor(config["color"]);
-	std::string text = "";
-	if("mapname" == config["text"].String())
-		text = parent.mapName;
-	if("date" == config["text"].String())
-	{
-		if(parent.date.empty())
-		{
-			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(parent.resource.getName(), EResType::MAP)));
-			text = vstd::getFormattedDateTime(time);
-		}
-		else
-			text = parent.date;
-	}
-	auto position = readPosition(config["position"]);
-	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text);
-}
-
 CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
-	InterfaceObjectConfigurable(), parent(parent)
+	InterfaceObjectConfigurable(), p(parent)
 {
-	drawPlayerElements = parent.tabType == ESelectionScreen::newGame;
+	drawPlayerElements = p.tabType == ESelectionScreen::newGame;
 	renderImage = settings["lobby"]["mapPreview"].Bool();
 
 	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
 
-	REGISTER_BUILDER("drawTransparentRect", &CMapOverview::CMapOverviewWidget::buildDrawTransparentRect);
 	REGISTER_BUILDER("drawMinimap", &CMapOverview::CMapOverviewWidget::buildDrawMinimap);
-	REGISTER_BUILDER("drawPath", &CMapOverview::CMapOverviewWidget::buildDrawPath);
-	REGISTER_BUILDER("drawString", &CMapOverview::CMapOverviewWidget::buildDrawString);
 
 	build(config);
+
+	if(auto w = widget<CTextBox>("fileName"))
+	{
+		w->setText(p.fileName);
+	}
+	if(auto w = widget<CLabel>("mapName"))
+	{
+		w->setText(p.mapName);
+	}
+	if(auto w = widget<CLabel>("date"))
+	{
+		if(p.date.empty())
+		{
+			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::MAP)));
+			w->setText(vstd::getFormattedDateTime(time));
+		}
+		else
+			w->setText(p.date);
+	}
 }
