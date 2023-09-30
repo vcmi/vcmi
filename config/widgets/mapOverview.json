@@ -101,7 +101,7 @@
 		},
 		{
 			"type": "drawTransparentRect",
-			"rect": {"x": 5, "y": 309, "w": 418, "h": 20},
+			"rect": {"x": 5, "y": 304, "w": 418, "h": 20},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
 		},
@@ -111,11 +111,11 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "vcmi.lobby.filename",
-			"position": {"x": 214, "y": 319}
+			"position": {"x": 214, "y": 314}
 		},
 		{
 			"type": "drawTransparentRect",
-			"rect": {"x": 5, "y": 334, "w": 418, "h": 45},
+			"rect": {"x": 5, "y": 329, "w": 418, "h": 45},
 			"color": [0, 0, 0, 75],
 			"colorLine": [128, 100, 75, 255]
 		},
@@ -124,7 +124,7 @@
 			"font": "small",
 			"alignment": "center",
 			"color": "white",
-			"rect": {"x": 10, "y": 339, "w": 408, "h": 35}
+			"rect": {"x": 10, "y": 334, "w": 408, "h": 35}
 		}
 	]
 }
