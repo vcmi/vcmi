@@ -14,7 +14,7 @@ namespace vstd
 	{
 #if defined(VCMI_ANDROID)
 		CAndroidVMHelper vmHelper;
-		return vmHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getFormattedDateTime");
+		return vmHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getDateTimeFormatted");
 #endif
 
 		std::tm tm = *std::localtime(&dt);
