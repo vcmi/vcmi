@@ -587,26 +587,6 @@
 			}
 		}
 	},
-	"witchHut" : {
-		"index" :113,
-		"handler" : "witch",
-		"base" : {
-			"sounds" : {
-				"visit" : ["GAZEBO"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 1500,
-				"rmg" : {
-					"zoneLimit"	: 3,
-					"value"		: 1500,
-					"rarity"	: 80
-				}
-			}
-		}
-	},
 	"questGuard" : {
 		"index" :215,
 		"handler" : "questGuard",

@@ -528,12 +528,15 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	}
 }
 
-float RewardEvaluator::evaluateWitchHutSkillScore(const CGWitchHut * hut, const CGHeroInstance * hero, HeroRole role) const
+float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const
 {
+	auto rewardable = dynamic_cast<const CRewardableObject *>(hut);
+	assert(rewardable);
+
+	auto skill = SecondarySkill(*rewardable->configuration.getVariable("secondarySkill", "gainedSkill"));
+
 	if(!hut->wasVisited(hero->tempOwner))
 		return role == HeroRole::SCOUT ? 2 : 0;
-
-	auto skill = SecondarySkill(hut->ability);
 
 	if(hero->getSecSkillLevel(skill) != SecSkillLevel::NONE
 		|| hero->secSkills.size() >= GameConstants::SKILL_PER_HERO)
@@ -575,7 +578,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		return 8;
 	case Obj::WITCH_HUT:
-		return evaluateWitchHutSkillScore(dynamic_cast<const CGWitchHut *>(target), hero, role);
+		return evaluateWitchHutSkillScore(target, hero, role);
 	case Obj::PANDORAS_BOX:
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;

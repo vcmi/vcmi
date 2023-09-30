@@ -48,7 +48,7 @@ private:
 	std::string identifier;
 
 public:
-	CSkill(const SecondarySkill & id = SecondarySkill::DEFAULT, std::string identifier = "default", bool obligatoryMajor = false, bool obligatoryMinor = false);
+	CSkill(const SecondarySkill & id = SecondarySkill::NONE, std::string identifier = "default", bool obligatoryMajor = false, bool obligatoryMinor = false);
 	~CSkill() = default;
 
 	enum class Obligatory : ui8

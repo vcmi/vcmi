@@ -90,7 +90,6 @@ public:
 
 // POSSIBLE
 // class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
-// class DLL_LINKAGE CGWitchHut : public CPlayersVisited
 // class DLL_LINKAGE CGScholar : public CGObjectInstance
 
 VCMI_LIB_NAMESPACE_END

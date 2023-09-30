@@ -102,26 +102,23 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 
 void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
-	std::vector<SpellID> spells;
-	IObjectInterface::cb->getAllowedSpells(spells);
+	auto const & variables = object.variables.values;
 
+	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng, variables);
+	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng, variables);
+	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
+	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
 
-	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng);
-	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng);
-	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng);
-	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng)
-					 + JsonRandom::loadValue(source["minLevel"], rng); // VCMI 1.1 compatibilty
+	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables);
+	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng, variables);
 
-	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng);
-	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng);
+	limiter.resources = JsonRandom::loadResources(source["resources"], rng, variables);
 
-	limiter.resources = JsonRandom::loadResources(source["resources"], rng);
-
-	limiter.primary = JsonRandom::loadPrimary(source["primary"], rng);
-	limiter.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
-	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
-	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, spells);
-	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+	limiter.primary = JsonRandom::loadPrimary(source["primary"], rng, variables);
+	limiter.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
+	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
+	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, variables);
+	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
 	
 	limiter.players = JsonRandom::loadColors(source["colors"], rng);
 	limiter.heroes = JsonRandom::loadHeroes(source["heroes"], rng);
@@ -134,36 +131,32 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 
 void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Reward & reward, const JsonNode & source) const
 {
-	reward.resources = JsonRandom::loadResources(source["resources"], rng);
+	auto const & variables = object.variables.values;
 
-	reward.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng)
-						  + JsonRandom::loadValue(source["gainedExp"], rng); // VCMI 1.1 compatibilty
+	reward.resources = JsonRandom::loadResources(source["resources"], rng, variables);
 
-	reward.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng)
-						+ JsonRandom::loadValue(source["gainedLevels"], rng); // VCMI 1.1 compatibilty
+	reward.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
+	reward.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
 
-	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng);
-	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng);
-	reward.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, -1);
+	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng, variables);
+	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng, variables);
+	reward.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables, -1);
 
-	reward.movePoints = JsonRandom::loadValue(source["movePoints"], rng);
-	reward.movePercentage = JsonRandom::loadValue(source["movePercentage"], rng, -1);
+	reward.movePoints = JsonRandom::loadValue(source["movePoints"], rng, variables);
+	reward.movePercentage = JsonRandom::loadValue(source["movePercentage"], rng, variables, -1);
 
 	reward.removeObject = source["removeObject"].Bool();
 	reward.bonuses = JsonRandom::loadBonuses(source["bonuses"]);
 
-	reward.primary = JsonRandom::loadPrimary(source["primary"], rng);
-	reward.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
+	reward.primary = JsonRandom::loadPrimary(source["primary"], rng, variables);
+	reward.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
 
-	std::vector<SpellID> spells;
-	IObjectInterface::cb->getAllowedSpells(spells);
-
-	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
-	reward.spells = JsonRandom::loadSpells(source["spells"], rng, spells);
-	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
+	reward.spells = JsonRandom::loadSpells(source["spells"], rng, variables);
+	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
 	{
-		reward.spellCast.first = JsonRandom::loadSpell(source["spellCast"]["spell"], rng);
+		reward.spellCast.first = JsonRandom::loadSpell(source["spellCast"]["spell"], rng, variables);
 		reward.spellCast.second = source["spellCast"]["schoolLevel"].Integer();
 	}
 
@@ -185,11 +178,48 @@ void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CR
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
+{
+	for(const auto & category : source.Struct())
+	{
+		for(const auto & entry : category.second.Struct())
+		{
+			JsonNode preset = object.getPresetVariable(category.first, entry.first);
+			int32_t value = -1;
+
+			if (category.first == "number")
+				value = JsonRandom::loadValue(entry.second, rng, object.variables.values);
+
+			if (category.first == "artifact")
+				value = JsonRandom::loadArtifact(entry.second, rng, object.variables.values).getNum();
+
+			if (category.first == "spell")
+				value = JsonRandom::loadSpell(entry.second, rng, object.variables.values).getNum();
+
+			// TODO
+			//	if (category.first == "creature")
+			//		value = JsonRandom::loadCreature(entry.second, rng, object.variables.values).type->getId();
+
+			// TODO
+			//	if (category.first == "resource")
+			//		value = JsonRandom::loadResource(entry.second, rng, object.variables.values).getNum();
+
+			// TODO
+			//	if (category.first == "primarySkill")
+			//		value = JsonRandom::loadCreature(entry.second, rng, object.variables.values).getNum();
+
+			if (category.first == "secondarySkill")
+				value = JsonRandom::loadSecondary(entry.second, rng, object.variables.values).getNum();
+
+			object.initVariable(category.first, entry.first, value);
+		}
+	}
+}
+
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
 		CRandomGenerator & rng, const
 		JsonNode & source,
-		std::map<si32, si32> & thrownDice,
 		Rewardable::EEventType event,
 		const std::string & modeName) const
 {
@@ -200,21 +230,27 @@ void Rewardable::Info::configureRewards(
 		if (!reward["appearChance"].isNull())
 		{
 			JsonNode chance = reward["appearChance"];
-			si32 diceID = static_cast<si32>(chance["dice"].Float());
+			std::string diceID = std::to_string(chance["dice"].Integer());
 
-			if (thrownDice.count(diceID) == 0)
-				thrownDice[diceID] = rng.getIntRange(0, 99)();
+			auto diceValue = object.getVariable("dice", diceID);
+
+			if (!diceValue.has_value())
+			{
+				object.initVariable("dice", diceID, rng.getIntRange(0, 99)());
+				diceValue = object.getVariable("dice", diceID);
+			}
+			assert(diceValue.has_value());
 
 			if (!chance["min"].isNull())
 			{
 				int min = static_cast<int>(chance["min"].Float());
-				if (min > thrownDice[diceID])
+				if (min > *diceValue)
 					continue;
 			}
 			if (!chance["max"].isNull())
 			{
 				int max = static_cast<int>(chance["max"].Float());
-				if (max <= thrownDice[diceID])
+				if (max <= *diceValue)
 					continue;
 			}
 		}
@@ -240,11 +276,11 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 {
 	object.info.clear();
 
-	std::map<si32, si32> thrownDice;
+	configureVariables(object, rng, parameters["variables"]);
 
-	configureRewards(object, rng, parameters["rewards"], thrownDice, Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
-	configureRewards(object, rng, parameters["onVisited"], thrownDice, Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
-	configureRewards(object, rng, parameters["onEmpty"], thrownDice, Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
+	configureRewards(object, rng, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
+	configureRewards(object, rng, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
+	configureRewards(object, rng, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
 
 	object.onSelect   = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
 

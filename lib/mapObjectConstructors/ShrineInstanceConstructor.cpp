@@ -23,6 +23,8 @@ void ShrineInstanceConstructor::initTypeData(const JsonNode & config)
 
 void ShrineInstanceConstructor::randomizeObject(CGShrine * shrine, CRandomGenerator & rng) const
 {
+	JsonRandom::Variables emptyVariables;
+
 	auto visitTextParameter = parameters["visitText"];
 
 	if (visitTextParameter.isNumber())
@@ -31,12 +33,7 @@ void ShrineInstanceConstructor::randomizeObject(CGShrine * shrine, CRandomGenera
 		shrine->visitText.appendRawString(visitTextParameter.String());
 
 	if(shrine->spell == SpellID::NONE) // shrine has no predefined spell
-	{
-		std::vector<SpellID> possibilities;
-		shrine->cb->getAllowedSpells(possibilities);
-
-		shrine->spell =JsonRandom::loadSpell(parameters["spell"], rng, possibilities);
-	}
+		shrine->spell =JsonRandom::loadSpell(parameters["spell"], rng, emptyVariables);
 }
 
 VCMI_LIB_NAMESPACE_END

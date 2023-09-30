@@ -62,7 +62,6 @@ struct DLL_LINKAGE ResetInfo
 	/// if true - reset list of visitors (heroes & players) on reset
 	bool visitors;
 
-
 	/// if true - re-randomize rewards on a new week
 	bool rewards;
 	
@@ -86,7 +85,7 @@ struct DLL_LINKAGE VisitInfo
 
 	/// Event to which this reward is assigned
 	EEventType visitType;
-	
+
 	void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -95,6 +94,23 @@ struct DLL_LINKAGE VisitInfo
 		h & reward;
 		h & message;
 		h & visitType;
+	}
+};
+
+struct DLL_LINKAGE Variables
+{
+	/// List of variables used by this object in their current values
+	std::map<std::string, int> values;
+
+	/// List of per-instance preconfigured variables, e.g. from map
+	std::map<std::string, JsonNode> preset;
+
+	void serializeJson(JsonSerializeFormat & handler);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & values;
+		h & preset;
 	}
 };
 
@@ -116,6 +132,9 @@ struct DLL_LINKAGE Configuration
 	/// how and when should the object be reset
 	Rewardable::ResetInfo resetParameters;
 
+	/// List of variables shoread between all limiters and rewards
+	Rewardable::Variables variables;
+
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse = false;
 
@@ -124,6 +143,11 @@ struct DLL_LINKAGE Configuration
 	
 	EVisitMode getVisitMode() const;
 	ui16 getResetDuration() const;
+
+	std::optional<int> getVariable(const std::string & category, const std::string & name) const;
+	JsonNode getPresetVariable(const std::string & category, const std::string & name) const;
+	void presetVariable(const std::string & category, const std::string & name, const JsonNode & value);
+	void initVariable(const std::string & category, const std::string & name, int value);
 	
 	void serializeJson(JsonSerializeFormat & handler);
 	

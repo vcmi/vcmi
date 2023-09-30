@@ -57,26 +57,6 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGWitchHut : public CTeamVisited
-{
-public:
-	std::set<SecondarySkill> allowedAbilities;
-	SecondarySkill ability;
-
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(CRandomGenerator & rand) override;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CTeamVisited&>(*this);
-		h & allowedAbilities;
-		h & ability;
-	}
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
 class DLL_LINKAGE CGScholar : public CGObjectInstance
 {
 public:

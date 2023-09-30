@@ -24,6 +24,38 @@ ui16 Rewardable::Configuration::getResetDuration() const
 	return resetParameters.period;
 }
 
+std::optional<int> Rewardable::Configuration::getVariable(const std::string & category, const std::string & name) const
+{
+	std::string variableID = category + '@' + name;
+
+	if (variables.values.count(variableID))
+		return variables.values.at(variableID);
+
+	return std::nullopt;
+}
+
+JsonNode Rewardable::Configuration::getPresetVariable(const std::string & category, const std::string & name) const
+{
+	std::string variableID = category + '@' + name;
+
+	if (variables.values.count(variableID))
+		return variables.preset.at(variableID);
+	else
+		return JsonNode();
+}
+
+void Rewardable::Configuration::presetVariable(const std::string & category, const std::string & name, const JsonNode & value)
+{
+	std::string variableID = category + '@' + name;
+	variables.preset[variableID] = value;
+}
+
+void Rewardable::Configuration::initVariable(const std::string & category, const std::string & name, int value)
+{
+	std::string variableID = category + '@' + name;
+	variables.values[variableID] = value;
+}
+
 void Rewardable::ResetInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("period", period);
@@ -37,6 +69,11 @@ void Rewardable::VisitInfo::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeStruct("reward", reward);
 	handler.serializeStruct("message", message);
 	handler.serializeInt("visitType", visitType);
+}
+
+void Rewardable::Variables::serializeJson(JsonSerializeFormat & handler)
+{
+	// TODO
 }
 
 void Rewardable::Configuration::serializeJson(JsonSerializeFormat & handler)

@@ -95,7 +95,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("monolith", CGMonolith);
 	SET_HANDLER("subterraneanGate", CGSubterraneanGate);
 	SET_HANDLER("whirlpool", CGWhirlpool);
-	SET_HANDLER("witch", CGWitchHut);
 	SET_HANDLER("terrain", CGTerrainPatch);
 
 #undef SET_HANDLER_CLASS

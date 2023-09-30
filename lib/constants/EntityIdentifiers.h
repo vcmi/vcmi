@@ -308,8 +308,7 @@ class SecondarySkillBase : public IdentifierBase
 public:
 	enum Type : int32_t
 	{
-		WRONG = -2,
-		DEFAULT = -1,
+		NONE = -1,
 		PATHFINDING = 0,
 		ARCHERY,
 		LOGISTICS,
@@ -938,7 +937,7 @@ public:
 		COUNT,
 
 		WOOD_AND_ORE = 127,  // special case for town bonus resource
-		INVALID = -1
+		NONE = -1
 	};
 };
 

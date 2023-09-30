@@ -147,7 +147,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGWhirlpool);
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
-	REGISTER_GENERIC_HANDLER(CGWitchHut);
 	REGISTER_GENERIC_HANDLER(HillFort);
 
 #undef REGISTER_GENERIC_HANDLER
@@ -177,7 +176,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
-		s.template registerType<CTeamVisited, CGWitchHut>();
 		s.template registerType<CTeamVisited, CGShrine>();
 		s.template registerType<CTeamVisited, CCartographer>();
 		s.template registerType<CTeamVisited, CGObelisk>();

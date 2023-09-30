@@ -1139,23 +1139,40 @@ CGObjectInstance * CMapLoaderH3M::readSign(const int3 & mapPosition)
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readWitchHut()
+CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGWitchHut();
+	auto * object = readGeneric(position, objectTemplate);
+	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
+
+	assert(rewardable);
 
 	// AB and later maps have allowed abilities defined in H3M
 	if(features.levelAB)
 	{
-		reader->readBitmaskSkills(object->allowedAbilities, false);
+		std::set<SecondarySkill> allowedAbilities;
+		reader->readBitmaskSkills(allowedAbilities, false);
 
-		if(object->allowedAbilities.size() != 1)
+		if(allowedAbilities.size() != 1)
 		{
 			auto defaultAllowed = VLC->skillh->getDefaultAllowed();
 
 			for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
 				if(defaultAllowed[skillID])
-					object->allowedAbilities.insert(SecondarySkill(skillID));
+					allowedAbilities.insert(SecondarySkill(skillID));
 		}
+
+		JsonVector anyOfList;
+
+		for (auto const & skill : allowedAbilities)
+		{
+			JsonNode entry;
+			entry.String() = VLC->skills()->getById(skill)->getJsonKey();
+			anyOfList.push_back(entry);
+		}
+		JsonNode variable;
+		variable.Vector() = anyOfList;
+
+		rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 	}
 	return object;
 }
@@ -1458,7 +1475,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readSeerHut(mapPosition, objectInstanceID);
 
 		case Obj::WITCH_HUT:
-			return readWitchHut();
+			return readWitchHut(mapPosition, objectTemplate);
 		case Obj::SCHOLAR:
 			return readScholar();
 
@@ -1717,7 +1734,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	{
 		if(!object->secSkills.empty())
 		{
-			if(object->secSkills[0].first != SecondarySkill::DEFAULT)
+			if(object->secSkills[0].first != SecondarySkill::NONE)
 				logGlobal->debug("Map '%s': Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...", mapName, object->getNameTextID(), object->subID);
 			object->secSkills.clear();
 		}

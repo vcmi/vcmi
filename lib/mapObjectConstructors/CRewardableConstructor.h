@@ -35,8 +35,7 @@ public:
 	{
 		AObjectTypeHandler::serialize(h, version);
 
-		if (version >= 816)
-			h & objectInfo;
+		h & objectInfo;
 	}
 };
 

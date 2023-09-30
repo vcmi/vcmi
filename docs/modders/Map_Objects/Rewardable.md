@@ -220,7 +220,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 ```jsonc
 "resources": [
     {
-        "list" : [ "wood", "ore" ],
+        "anyOf" : [ "wood", "ore" ],
         "amount" : 10
     },
     {

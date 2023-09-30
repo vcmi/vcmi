@@ -32,7 +32,8 @@ class DLL_LINKAGE Info : public IObjectInfo
 	JsonNode parameters;
 	std::string objectTextID;
 
-	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source, std::map<si32, si32> & thrownDice, Rewardable::EEventType mode, const std::string & textPrefix) const;
+	void configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const;
+	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source, Rewardable::EEventType mode, const std::string & textPrefix) const;
 
 	void configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const;
 	Rewardable::LimitersList configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const;
