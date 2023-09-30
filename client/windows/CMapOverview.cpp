@@ -39,6 +39,10 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
+#include "../../lib/serializer/BinaryDeserializer.h"
+#include "../../lib/StartInfo.h"
+#include "../../lib/rmg/CMapGenOptions.h"
+
 CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
 {
@@ -110,6 +114,13 @@ std::vector<std::shared_ptr<IImage>> CMapOverview::CMapOverviewWidget::createMin
 		return ret;
 	}
 
+	return createMinimaps(map, size);
+}
+
+std::vector<std::shared_ptr<IImage>> CMapOverview::CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map, Point size) const
+{
+	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
+
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
 	{
 		Canvas canvas = createMinimapForLayer(map, i);
@@ -147,7 +158,28 @@ std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(con
 	if(!renderImage)
 		return nullptr;
 
-	const std::vector<std::shared_ptr<IImage>> images = createMinimaps(ResourcePath(parent.resource.getName(), EResType::MAP), Point(rect.w, rect.h));
+	ResourcePath res = ResourcePath(parent.resource.getName(), EResType::MAP);
+	std::unique_ptr<CMap> campaignMap = nullptr;
+	if(parent.tabType != ESelectionScreen::newGame)
+	{
+		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(parent.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+		lf.checkMagicBytes(SAVEGAME_MAGIC);
+
+		std::unique_ptr<CMapHeader> mapHeader = std::make_unique<CMapHeader>();
+		StartInfo * startInfo;
+		lf >> *(mapHeader) >> startInfo;
+
+		if(startInfo->campState)
+			campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario());
+		res = ResourcePath(startInfo->fileURI, EResType::MAP);
+	}
+
+	std::vector<std::shared_ptr<IImage>> images;
+	if(!campaignMap)
+		images = createMinimaps(res, Point(rect.w, rect.h));
+	else
+		images = createMinimaps(campaignMap, Point(rect.w, rect.h));
+
 
 	if(id >= images.size())
 		return nullptr;
@@ -195,7 +227,7 @@ CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 	InterfaceObjectConfigurable(), parent(parent)
 {
 	drawPlayerElements = parent.tabType == ESelectionScreen::newGame;
-	renderImage = parent.tabType == ESelectionScreen::newGame && settings["lobby"]["mapPreview"].Bool();
+	renderImage = settings["lobby"]["mapPreview"].Bool();
 
 	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
 
@@ -203,9 +235,6 @@ CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 	REGISTER_BUILDER("drawMinimap", &CMapOverview::CMapOverviewWidget::buildDrawMinimap);
 	REGISTER_BUILDER("drawPath", &CMapOverview::CMapOverviewWidget::buildDrawPath);
 	REGISTER_BUILDER("drawString", &CMapOverview::CMapOverviewWidget::buildDrawString);
-
-	drawPlayerElements = parent.tabType == ESelectionScreen::newGame;
-	renderImage = parent.tabType == ESelectionScreen::newGame && settings["lobby"]["mapPreview"].Bool();
 
 	build(config);
 }

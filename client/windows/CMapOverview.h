@@ -36,6 +36,7 @@ class CMapOverview : public CWindowObject
 		bool renderImage;
 		Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const;
 		std::vector<std::shared_ptr<IImage>> createMinimaps(ResourcePath resource, Point size) const;
+		std::vector<std::shared_ptr<IImage>> createMinimaps(std::unique_ptr<CMap> & map, Point size) const;
 
 		std::shared_ptr<TransparentFilledRectangle> buildDrawTransparentRect(const JsonNode & config) const;
 		std::shared_ptr<CPicture> buildDrawMinimap(const JsonNode & config) const;
