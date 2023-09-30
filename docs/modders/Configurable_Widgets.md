@@ -517,6 +517,22 @@ Configurable object has following structure:
 
 `"text"`: [text](#text),
 
+### TextBox
+
+`"type": "textBox"`
+
+`"name": "string"` optional, object name
+
+`"font"`: [font](#font)
+
+`"alignment"`: [alignment](#text-alignment),
+
+`"color"`: [color](#color),
+
+`"text"`: [text](#text),
+
+`"rect"`: [rect](#rect)
+
 ### Picture
 
 `"type": "picture"`
@@ -556,6 +572,18 @@ Filling area with texture
 `"name": "string"` optional, object name
 
 `"image": string`, specify filename
+
+`"rect"`: [rect](#rect)
+
+### TransparentFilledRectangle
+
+`"type": "transparentFilledRectangle"`
+
+`"name": "string"` optional, object name
+
+`"color"`: [color](#color) fill color of rectangle (supports transparency)
+
+`"colorLine"`: [color](#color) optional, 1px border color
 
 `"rect"`: [rect](#rect)
 
