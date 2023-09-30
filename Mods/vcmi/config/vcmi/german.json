@@ -52,6 +52,8 @@
 	"vcmi.lobby.creationDate" : "Erstellungsdatum",
 	"vcmi.lobby.scenarioName" : "Szenario-Name",
 	"vcmi.lobby.mapPreview" : "Kartenvorschau",
+	"vcmi.lobby.noPreview" : "Keine Vorschau",
+	"vcmi.lobby.noUnderground" : "Kein Untergrund",
 
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",

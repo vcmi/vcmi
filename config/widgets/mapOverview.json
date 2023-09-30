@@ -57,6 +57,14 @@
 			"colorLine": [128, 100, 75, 255]
 		},
 		{
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "vcmi.lobby.noPreview",
+			"position": {"x": 114, "y": 164}
+		},
+		{
 			"type": "drawMinimap",
 			"id": 0,
 			"rect": {"x": 30, "y": 80, "w": 169, "h": 169}
@@ -66,6 +74,15 @@
 			"rect": {"x": 228, "y": 79, "w": 171, "h": 171},
 			"color": [0, 0, 0, 255],
 			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"name": "noUnderground",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "vcmi.lobby.noUnderground",
+			"position": {"x": 313, "y": 164}
 		},
 		{
 			"type": "drawMinimap",

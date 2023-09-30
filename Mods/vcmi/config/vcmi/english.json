@@ -53,6 +53,8 @@
 	"vcmi.lobby.creationDate" : "Creation date",
 	"vcmi.lobby.scenarioName" : "Scenario name",
 	"vcmi.lobby.mapPreview" : "Map preview",
+	"vcmi.lobby.noPreview" : "no preview",
+	"vcmi.lobby.noUnderground" : "no underground",
 
 	"vcmi.server.errors.existingProcess" : "Another VCMI server process is running. Please terminate it before starting a new game.",
 	"vcmi.server.errors.modsToEnable"    : "{Following mods are required}",

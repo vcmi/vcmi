@@ -196,4 +196,9 @@ CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		else
 			w->setText(p.date);
 	}
+	if(auto w = widget<CLabel>("noUnderground"))
+	{
+		if(minimaps.size() == 0)
+			w->setText("");
+	}
 }
