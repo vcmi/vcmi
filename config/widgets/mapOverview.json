@@ -129,7 +129,7 @@
 			"font": "medium",
 			"alignment": "center",
 			"color": "yellow",
-			"text": "vcmi.lobby.filename",
+			"text": "vcmi.lobby.filepath",
 			"position": {"x": 214, "y": 314}
 		},
 		{

@@ -43,7 +43,7 @@
 	"vcmi.mainMenu.joinTCP" : "Dołącz do gry TCP/IP",
 	"vcmi.mainMenu.playerName" : "Gracz",
 
-	"vcmi.lobby.filename" : "Nazwa pliku",
+	"vcmi.lobby.filepath" : "Nazwa pliku",
 	"vcmi.lobby.creationDate" : "Data utworzenia",
 
 	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",

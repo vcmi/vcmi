@@ -49,7 +49,7 @@
 	"vcmi.mainMenu.joinTCP" : "Join TCP/IP game",
 	"vcmi.mainMenu.playerName" : "Player",
 	
-	"vcmi.lobby.filename" : "Filename",
+	"vcmi.lobby.filepath" : "File path",
 	"vcmi.lobby.creationDate" : "Creation date",
 	"vcmi.lobby.scenarioName" : "Scenario name",
 	"vcmi.lobby.mapPreview" : "Map preview",

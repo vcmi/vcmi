@@ -44,7 +44,7 @@
 	"vcmi.mainMenu.joinTCP" : "Приєднатися до TCP/IP гри",
 	"vcmi.mainMenu.playerName" : "Гравець",
 	
-	"vcmi.lobby.filename" : "Назва файлу",
+	"vcmi.lobby.filepath" : "Назва файлу",
 	"vcmi.lobby.creationDate" : "Дата створення",
 
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",

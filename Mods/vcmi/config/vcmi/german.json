@@ -48,7 +48,7 @@
 	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
 	"vcmi.mainMenu.playerName" : "Spieler",
 	
-	"vcmi.lobby.filename" : "Dateiname",
+	"vcmi.lobby.filepath" : "Dateipfad",
 	"vcmi.lobby.creationDate" : "Erstellungsdatum",
 	"vcmi.lobby.scenarioName" : "Szenario-Name",
 	"vcmi.lobby.mapPreview" : "Kartenvorschau",
