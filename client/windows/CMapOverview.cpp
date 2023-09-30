@@ -99,9 +99,9 @@ Canvas CMapOverview::CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<C
 	return canvas;
 }
 
-std::vector<std::shared_ptr<IImage>> CMapOverview::CMapOverviewWidget::createMinimaps(ResourcePath resource, Point size) const
+std::vector<Canvas> CMapOverview::CMapOverviewWidget::createMinimaps(ResourcePath resource) const
 {
-	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
+	std::vector<Canvas> ret = std::vector<Canvas>();
 
 	CMapService mapService;
 	std::unique_ptr<CMap> map;
@@ -114,22 +114,15 @@ std::vector<std::shared_ptr<IImage>> CMapOverview::CMapOverviewWidget::createMin
 		return ret;
 	}
 
-	return createMinimaps(map, size);
+	return createMinimaps(map);
 }
 
-std::vector<std::shared_ptr<IImage>> CMapOverview::CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map, Point size) const
+std::vector<Canvas> CMapOverview::CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
 {
-	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
+	std::vector<Canvas> ret = std::vector<Canvas>();
 
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
-	{
-		Canvas canvas = createMinimapForLayer(map, i);
-		Canvas canvasScaled = Canvas(size);
-		canvasScaled.drawScaled(canvas, Point(0, 0), size);
-		std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
-		
-		ret.push_back(img);
-	}
+		ret.push_back(createMinimapForLayer(map, i));
 
 	return ret;
 }
@@ -141,9 +134,23 @@ std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(con
 	auto rect = readRect(config["rect"]);
 	auto id = config["id"].Integer();
 
-	if(!renderImage)
+	if(id >= minimaps.size())
 		return nullptr;
 
+	Canvas canvasScaled = Canvas(Point(rect.w, rect.h));
+	canvasScaled.drawScaled(minimaps[id], Point(0, 0), Point(rect.w, rect.h));
+	std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
+
+	return std::make_shared<CPicture>(img, Point(rect.x, rect.y));
+}
+
+CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
+	InterfaceObjectConfigurable(), p(parent)
+{
+	drawPlayerElements = p.tabType == ESelectionScreen::newGame;
+	renderImage = settings["lobby"]["mapPreview"].Bool();
+
+	// create minimaps
 	ResourcePath res = ResourcePath(p.resource.getName(), EResType::MAP);
 	std::unique_ptr<CMap> campaignMap = nullptr;
 	if(p.tabType != ESelectionScreen::newGame)
@@ -159,26 +166,12 @@ std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(con
 			campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario());
 		res = ResourcePath(startInfo->fileURI, EResType::MAP);
 	}
-
-	std::vector<std::shared_ptr<IImage>> images;
 	if(!campaignMap)
-		images = createMinimaps(res, Point(rect.w, rect.h));
+		minimaps = createMinimaps(res);
 	else
-		images = createMinimaps(campaignMap, Point(rect.w, rect.h));
+		minimaps = createMinimaps(campaignMap);
 
-
-	if(id >= images.size())
-		return nullptr;
-
-	return std::make_shared<CPicture>(images[id], Point(rect.x, rect.y));
-}
-
-CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
-	InterfaceObjectConfigurable(), p(parent)
-{
-	drawPlayerElements = p.tabType == ESelectionScreen::newGame;
-	renderImage = settings["lobby"]["mapPreview"].Bool();
-
+	// config
 	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
 
 	REGISTER_BUILDER("drawMinimap", &CMapOverview::CMapOverviewWidget::buildDrawMinimap);
