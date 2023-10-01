@@ -255,6 +255,23 @@ if(MINGW OR MSVC)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 	if(MSVC)
+		if(CMAKE_CXX_COMPILER_LAUNCHER)
+			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
+			find_program(ccache_exe ccache)
+			if (ccache_exe)
+				file(COPY_FILE
+					${ccache_exe} ${CMAKE_BINARY_DIR}/cl.exe
+					ONLY_IF_DIFFERENT)
+
+				set(CMAKE_VS_GLOBALS
+					"CLToolExe=cl.exe"
+					"CLToolPath=${CMAKE_BINARY_DIR}"
+					"TrackFileAccess=false"
+					"UseMultiToolTask=true"
+				)
+			endif()
+		endif()
+
 		add_definitions(-DBOOST_ALL_NO_LIB)
 		add_definitions(-DBOOST_ALL_DYN_LINK)
 		set(Boost_USE_STATIC_LIBS OFF)
