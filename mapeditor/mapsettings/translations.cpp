@@ -58,6 +58,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 	ui(new Ui::Translations),
 	mapHeader(mh)
 {
+	setAttribute(Qt::WA_DeleteOnClose, true);
 	ui->setupUi(this);
 	
 	//fill languages list
@@ -90,6 +91,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 
 Translations::~Translations()
 {
+	mapHeader.registerMapStrings();
 	delete ui;
 }
 
@@ -103,8 +105,11 @@ void Translations::fillTranslationsTable(const std::string & language)
 	int i = 0;
 	for(auto & s : translation.Struct())
 	{
+		auto textLines = QString::fromStdString(s.second.String());
+		textLines = textLines.replace('\n', "\\n");
+		
 		auto * wId = new QTableWidgetItem(QString::fromStdString(s.first));
-		auto * wText = new QTableWidgetItem(QString::fromStdString(s.second.String()));
+		auto * wText = new QTableWidgetItem(textLines);
 		wId->setFlags(wId->flags() & ~Qt::ItemIsEditable);
 		wText->setFlags(wId->flags() | Qt::ItemIsEditable);
 		ui->translationsTable->setItem(i, 0, wId);
@@ -186,6 +191,8 @@ void Translations::on_translationsTable_itemChanged(QTableWidgetItem * item)
 	if(textId.empty())
 		return;
 	
-	translation[textId].String() = item->text().toStdString();
+	auto textLines = item->text();
+	textLines = textLines.replace("\\n", "\n");
+	translation[textId].String() = textLines.toStdString();
 }
 
