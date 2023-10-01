@@ -1248,15 +1248,15 @@ void MainWindow::on_actionTranslations_triggered()
 	translationsDialog->show();
 }
 
-void MainWindow::on_actionh3m_coverter_triggered()
+void MainWindow::on_actionh3m_converter_triggered()
 {
-	auto mapFiles = QFileDialog::getOpenFileNames(this, tr("Select maps to covert"),
+	auto mapFiles = QFileDialog::getOpenFileNames(this, tr("Select maps to convert"),
 		QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()),
 		tr("HoMM3 maps(*.h3m)"));
 	if(mapFiles.empty())
 		return;
 	
-	auto saveDirectory = QFileDialog::getExistingDirectory(this, tr("Choose directory to save coverted maps"), QCoreApplication::applicationDirPath());
+	auto saveDirectory = QFileDialog::getExistingDirectory(this, tr("Choose directory to save converted maps"), QCoreApplication::applicationDirPath());
 	if(saveDirectory.isEmpty())
 		return;
 	

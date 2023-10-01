@@ -121,7 +121,7 @@ private slots:
 
 	void on_actionTranslations_triggered();
 	
-	void on_actionh3m_coverter_triggered();
+	void on_actionh3m_converter_triggered();
 
 public slots:
 
