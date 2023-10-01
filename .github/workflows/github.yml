@@ -103,7 +103,7 @@ jobs:
             test: 0
             pack: 1
             extension: ipa
-            preset: ios-release-conan
+            preset: ios-release-conan-ccache
             conan_profile: ios-arm64
             conan_options: --options with_apple_system_libs=True
           - platform: msvc

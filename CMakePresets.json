@@ -217,7 +217,19 @@
             "inherits": [
                 "base-ios-release",
                 "ios-device-conan"
-            ]
+            ],
+            "cacheVariables": {
+                "ENABLE_PCH" : "ON"
+            }
+        },
+        {
+            "name": "ios-release-conan-ccache",
+            "displayName": "iOS+Conan release using ccache",
+            "description": "VCMI iOS release using Conan and ccache",
+            "inherits": "ios-release-conan",
+            "cacheVariables": {
+                "ENABLE_PCH" : "OFF"
+            }
         },
         {
             "name": "ios-release-legacy",
@@ -326,6 +338,11 @@
             "nativeToolOptions": [
                 "CODE_SIGNING_ALLOWED_FOR_APPS=NO"
             ]
+        },
+        {
+            "name": "ios-release-conan-ccache",
+            "configurePreset": "ios-release-conan-ccache",
+            "inherits": "ios-release-conan"
         },
         {
             "name": "ios-release-legacy",
