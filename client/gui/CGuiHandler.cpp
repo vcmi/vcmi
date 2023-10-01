@@ -129,11 +129,10 @@ void CGuiHandler::renderFrame()
 
 		CCS->curh->render();
 
-		SDL_RenderPresent(mainRenderer);
-
 		windows().onFrameRendered();
 	}
 
+	SDL_RenderPresent(mainRenderer);
 	framerate().framerateDelay(); // holds a constant FPS
 }
 

@@ -149,7 +149,8 @@
 				"driver",
 				"displayIndex",
 				"showfps",
-				"targetfps"
+				"targetfps",
+				"vsync"
 			],
 			"properties" : {
 				"resolution" : {
@@ -207,6 +208,10 @@
 				"targetfps" : {
 					"type" : "number",
 					"default" : 60
+				},
+				"vsync" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
