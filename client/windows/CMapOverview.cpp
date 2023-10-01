@@ -49,9 +49,6 @@ CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::strin
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
-	pos = Rect(0, 0, config["items"][0]["rect"]["w"].Integer(), config["items"][0]["rect"]["h"].Integer());
-
 	widget = std::make_shared<CMapOverviewWidget>(*this);
 
 	updateShadow();
@@ -179,6 +176,10 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 
 	build(config);
 
+	if(auto w = widget<CFilledTexture>("background"))
+	{
+		p.pos = w->pos;
+	}
 	if(auto w = widget<CTextBox>("fileName"))
 	{
 		w->setText(p.fileName);
