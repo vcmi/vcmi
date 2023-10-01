@@ -84,7 +84,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "ENABLE_LUA" : "ON",
-                "ENABLE_PCH" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -218,10 +217,7 @@
             "inherits": [
                 "base-ios-release",
                 "ios-device-conan"
-            ],
-            "cacheVariables": {
-                "ENABLE_PCH" : "ON"
-            }
+            ]
         },
         {
             "name": "ios-release-legacy",
