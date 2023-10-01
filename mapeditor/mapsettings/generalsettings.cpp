@@ -59,8 +59,8 @@ void GeneralSettings::initialize(MapController & c)
 
 void GeneralSettings::update()
 {
-	controller->map()->name.appendTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "name"),  ui->mapNameEdit->text().toStdString()));
-	controller->map()->description.appendTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "description"), ui->mapDescriptionEdit->toPlainText().toStdString()));
+	controller->map()->name = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "name"),  ui->mapNameEdit->text().toStdString()));
+	controller->map()->description = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "description"), ui->mapDescriptionEdit->toPlainText().toStdString()));
 	if(ui->heroLevelLimitCheck->isChecked())
 		controller->map()->levelLimit = ui->heroLevelLimit->value();
 	else
