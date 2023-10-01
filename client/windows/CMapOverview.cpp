@@ -63,7 +63,7 @@ CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::strin
 	fitToScreen(10);
 }
 
-Canvas CMapOverview::CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
+Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const
 {
 	Canvas canvas = Canvas(Point(map->width, map->height));
 
@@ -99,7 +99,7 @@ Canvas CMapOverview::CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<C
 	return canvas;
 }
 
-std::vector<Canvas> CMapOverview::CMapOverviewWidget::createMinimaps(ResourcePath resource) const
+std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) const
 {
 	std::vector<Canvas> ret = std::vector<Canvas>();
 
@@ -109,15 +109,16 @@ std::vector<Canvas> CMapOverview::CMapOverviewWidget::createMinimaps(ResourcePat
 	{
 		map = mapService.loadMap(resource);
 	}
-	catch (...)
+	catch (const std::exception & e)
 	{
+		logGlobal->warn("Failed to generate map preview! %s", e.what());
 		return ret;
 	}
 
 	return createMinimaps(map);
 }
 
-std::vector<Canvas> CMapOverview::CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
+std::vector<Canvas> CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
 {
 	std::vector<Canvas> ret = std::vector<Canvas>();
 
@@ -127,7 +128,7 @@ std::vector<Canvas> CMapOverview::CMapOverviewWidget::createMinimaps(std::unique
 	return ret;
 }
 
-std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(const JsonNode & config) const
+std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget drawMinimap");
 
@@ -144,7 +145,7 @@ std::shared_ptr<CPicture> CMapOverview::CMapOverviewWidget::buildDrawMinimap(con
 	return std::make_shared<CPicture>(img, Point(rect.x, rect.y));
 }
 
-CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
+CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 	InterfaceObjectConfigurable(), p(parent)
 {
 	drawPlayerElements = p.tabType == ESelectionScreen::newGame;
@@ -174,7 +175,7 @@ CMapOverview::CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 			minimaps = createMinimaps(campaignMap);
 	}
 
-	REGISTER_BUILDER("drawMinimap", &CMapOverview::CMapOverviewWidget::buildDrawMinimap);
+	REGISTER_BUILDER("drawMinimap", &CMapOverviewWidget::buildDrawMinimap);
 
 	build(config);
 

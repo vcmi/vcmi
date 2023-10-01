@@ -26,24 +26,26 @@ class Canvas;
 class TransparentFilledRectangle;
 enum ESelectionScreen : ui8;
 
+class CMapOverview;
+
+class CMapOverviewWidget : public InterfaceObjectConfigurable
+{
+	CMapOverview& p;
+
+	bool drawPlayerElements;
+	std::vector<Canvas> minimaps;
+
+	Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const;
+	std::vector<Canvas> createMinimaps(ResourcePath resource) const;
+	std::vector<Canvas> createMinimaps(std::unique_ptr<CMap> & map) const;
+
+	std::shared_ptr<CPicture> buildDrawMinimap(const JsonNode & config) const;
+public:
+	CMapOverviewWidget(CMapOverview& p);
+};
+
 class CMapOverview : public CWindowObject
 {
-	class CMapOverviewWidget : public InterfaceObjectConfigurable
-	{
-		CMapOverview& p;
-
-		bool drawPlayerElements;
-		std::vector<Canvas> minimaps;
-
-		Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const;
-		std::vector<Canvas> createMinimaps(ResourcePath resource) const;
-		std::vector<Canvas> createMinimaps(std::unique_ptr<CMap> & map) const;
-
-		std::shared_ptr<CPicture> buildDrawMinimap(const JsonNode & config) const;
-	public:
-		CMapOverviewWidget(CMapOverview& p);
-	};
-
 	std::shared_ptr<CMapOverviewWidget> widget;
 
 public:
