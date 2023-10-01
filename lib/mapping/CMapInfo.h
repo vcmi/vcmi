@@ -49,7 +49,7 @@ public:
 	void saveInit(const ResourcePath & file);
 	void campaignInit();
 	void countPlayers();
-	// TODO: Those must be on client-side
+	
 	std::string getNameTranslated() const;
 	std::string getNameForList() const;
 	std::string getDescriptionTranslated() const;

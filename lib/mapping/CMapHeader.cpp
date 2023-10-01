@@ -144,28 +144,59 @@ ui8 CMapHeader::levels() const
 
 void CMapHeader::registerMapStrings()
 {
-	auto language = CGeneralTextHandler::getPreferredLanguage();
-	JsonNode data;
-
-	if(translations[language].isNull())
+	//get supported languages. Assuming that translation containing most strings is the base language
+	std::set<std::string> mapLanguages, mapBaseLanguages;
+	int maxStrings = 0;
+	for(auto & translation : translations.Struct())
 	{
-		//english is preferrable
-		language = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
-		std::list<Languages::Options> languages{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
-		while(translations[language].isNull() && !languages.empty())
-		{
-			language = languages.front().identifier;
-			languages.pop_front();
-		}
+		if(translation.first.empty() || !translation.second.isStruct() || translation.second.Struct().empty())
+			continue;
 		
-		if(!translations[language].isNull())
-		{
-			logGlobal->info("Map %s doesn't have any translation", name.toString());
-			return;
-		}
+		if(translation.second.Struct().size() > maxStrings)
+			maxStrings = translation.second.Struct().size();
+		mapLanguages.insert(translation.first);
 	}
+	
+	if(maxStrings == 0 || mapBaseLanguages.empty())
+	{
+		logGlobal->info("Map %s doesn't have any supported translation", name.toString());
+		return;
+	}
+	
+	//identifying base languages
+	for(auto & translation : translations.Struct())
+	{
+		if(translation.second.isStruct() && translation.second.Struct().size() == maxStrings)
+			mapBaseLanguages.insert(translation.first);
+	}
+	
+	std::string baseLanguage, language;
+	//english is preferrable as base language
+	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
+		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
+	else
+		baseLanguage = *mapBaseLanguages.begin();
 
-	for(auto & s : translations[language].Struct())
+	if(mapBaseLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
+	{
+		language = CGeneralTextHandler::getPreferredLanguage(); //preferred language is base language - use it
+		baseLanguage = language;
+	}
+	else
+	{
+		if(mapLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
+			language = CGeneralTextHandler::getPreferredLanguage();
+		else
+			language = baseLanguage; //preferred language is not supported, use base language
+	}
+	
+	assert(!language.empty());
+	
+	JsonNode data = translations[baseLanguage];
+	if(language != baseLanguage)
+		JsonUtils::mergeCopy(data, translations[language]);
+	
+	for(auto & s : data.Struct())
 		registerString("map", TextIdentifier(s.first), s.second.String(), language);
 }
 
