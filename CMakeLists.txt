@@ -222,6 +222,24 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED_FOR_APPS YES)
 	set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUNDLE_IDENTIFIER_PREFIX}.$(PRODUCT_NAME)")
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
+
+	if(CMAKE_CXX_COMPILER_LAUNCHER)
+		find_program(CCACHE "ccache")
+		if(CCACHE)
+			# https://stackoverflow.com/a/36515503/2278742
+			# Set up wrapper scripts
+			configure_file(ios/launch-c.in   ios/launch-c)
+			configure_file(ios/launch-cxx.in ios/launch-cxx)
+			execute_process(COMMAND chmod a+rx
+													"${CMAKE_BINARY_DIR}/ios/launch-c"
+													"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+			# Set Xcode project attributes to route compilation through our scripts
+			set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/ios/launch-c")
+			set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+			set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/ios/launch-c")
+			set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+		endif()
+	endif()
 endif()
 
 if(APPLE_MACOS)
