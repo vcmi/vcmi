@@ -1265,8 +1265,11 @@ void MainWindow::on_actionh3m_converter_triggered()
 		for(auto & m : mapFiles)
 		{
 			CMapService mapService;
-			mapService.saveMap(openMapInternal(m), (saveDirectory + QFileInfo(m).fileName()).toStdString());
+			auto map = openMapInternal(m);
+			controller.repairMap(map.get());
+			mapService.saveMap(map, (saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap").toStdString());
 		}
+		QMessageBox::information(this, tr("Operation completed"), tr("Successfully converted %1 maps").arg(mapFiles.size()));
 	}
 	catch(const std::exception & e)
 	{
