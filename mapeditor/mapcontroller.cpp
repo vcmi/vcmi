@@ -112,6 +112,16 @@ void MapController::repairMap(CMap * map) const
 		map->allowedHeroes.resize(VLC->heroh->getDefaultAllowed().size());
 	}
 	
+	//make sure events/rumors has name to have proper identifiers
+	int emptyNameId = 1;
+	for(auto & e : map->events)
+		if(e.name.empty())
+			e.name = "event_" + std::to_string(emptyNameId++);
+	emptyNameId = 1;
+	for(auto & e : map->rumors)
+		if(e.name.empty())
+			e.name = "rumor_" + std::to_string(emptyNameId++);
+	
 	//fix owners for objects
 	auto allImpactedObjects(map->objects);
 	allImpactedObjects.insert(allImpactedObjects.end(), map->predefinedHeroes.begin(), map->predefinedHeroes.end());
