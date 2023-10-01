@@ -122,6 +122,7 @@ public:
 	CChatBox(const Rect & rect);
 
 	void keyPressed(EShortcut key) override;
+	bool captureThisKey(EShortcut key) override;
 	void addNewMessage(const std::string & text);
 };
 

@@ -327,6 +327,11 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
+bool CChatBox::captureThisKey(EShortcut key)
+{
+	return !inputBox->getText().empty() && key == EShortcut::GLOBAL_ACCEPT;
+}
+
 void CChatBox::keyPressed(EShortcut key)
 {
 	if(key == EShortcut::GLOBAL_ACCEPT && inputBox->getText().size())
