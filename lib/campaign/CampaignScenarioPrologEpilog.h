@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../filesystem/ResourcePath.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,7 +20,7 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 	VideoPath prologVideo;
 	AudioPath prologMusic; // from CmpMusic.txt
 	AudioPath prologVoice;
-	std::string prologText;
+	MetaString prologText;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{

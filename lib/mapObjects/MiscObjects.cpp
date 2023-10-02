@@ -268,7 +268,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
-			ynd.text.appendRawString(message);
+			ynd.text = message;
 			cb->showBlockingDialog(&ynd);
 		}
 		else
@@ -288,7 +288,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 	if(!message.empty())
 	{
 		sii.type = EInfoWindowMode::AUTO;
-		sii.text.appendRawString(message);
+		sii.text = message;
 	}
 	else
 	{
@@ -320,7 +320,7 @@ void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
 	if(!handler.saving && !handler.getCurrent()["guards"].Vector().empty())
 		CCreatureSet::serializeJson(handler, "guards", 7);
 	handler.serializeInt("amount", amount, 0);
-	handler.serializeString("guardMessage", message);
+	handler.serializeStruct("guardMessage", message);
 }
 
 bool CGTeleport::isEntrance() const
@@ -728,8 +728,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			case Obj::ARTIFACT:
 			{
 				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
-				if(message.length())
-					iw.text.appendRawString(message);
+				if(!message.empty())
+					iw.text = message;
 				else
 					iw.text.appendLocalString(EMetaText::ART_EVNTS, subID);
 			}
@@ -738,8 +738,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 				int spellID = storedArtifact->getScrollSpellID();
 				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
-				if(message.length())
-					iw.text.appendRawString(message);
+				if(!message.empty())
+					iw.text = message;
 				else
 				{
 					iw.text.appendLocalString(EMetaText::ADVOB_TXT,135);
@@ -764,8 +764,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 				BlockingDialog ynd(true,false);
 				ynd.player = h->getOwner();
-				if(message.length())
-					ynd.text.appendRawString(message);
+				if(!message.empty())
+					ynd.text = message;
 				else
 				{
 					// TODO: Guard text is more complex in H3, see mantis issue 2325 for details
@@ -779,11 +779,11 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			break;
 		case Obj::SPELL_SCROLL:
 			{
-				if(message.length())
+				if(!message.empty())
 				{
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
-					ynd.text.appendRawString(message);
+					ynd.text = message;
 					cb->showBlockingDialog(&ynd);
 				}
 				else
@@ -828,7 +828,7 @@ void CGArtifact::afterAddToMap(CMap * map)
 
 void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	handler.serializeString("guardMessage", message);
+	handler.serializeStruct("guardMessage", message);
 	CArmedInstance::serializeJsonOptions(handler);
 	if(!handler.saving && !handler.getCurrent()["guards"].Vector().empty())
 		CCreatureSet::serializeJson(handler, "guards", 7);
@@ -1046,7 +1046,7 @@ void CGSignBottle::initObj(CRandomGenerator & rand)
 	{
 		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
 		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
-		message = VLC->generaltexth->translate(messageIdentifier);
+		message.appendTextID(TextIdentifier("core", "randsign", messageIdentifier).get());
 	}
 
 	if(ID == Obj::OCEAN_BOTTLE)
@@ -1059,7 +1059,7 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	iw.text.appendRawString(message);
+	iw.text = message;
 	cb->showInfoDialog(&iw);
 
 	if(ID == Obj::OCEAN_BOTTLE)
@@ -1068,7 +1068,7 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	handler.serializeString("text", message);
+	handler.serializeStruct("text", message);
 }
 
 void CGScholar::onHeroVisit( const CGHeroInstance * h ) const

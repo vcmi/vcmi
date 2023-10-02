@@ -100,12 +100,12 @@ void CMapInfo::countPlayers()
 				amountOfHumanPlayersInSave++;
 }
 
-std::string CMapInfo::getName() const
+std::string CMapInfo::getNameTranslated() const
 {
-	if(campaign && !campaign->getName().empty())
-		return campaign->getName();
-	else if(mapHeader && mapHeader->name.length())
-		return mapHeader->name;
+	if(campaign && !campaign->getNameTranslated().empty())
+		return campaign->getNameTranslated();
+	else if(mapHeader && !mapHeader->name.empty())
+		return mapHeader->name.toString();
 	else
 		return VLC->generaltexth->allTexts[508];
 }
@@ -121,16 +121,16 @@ std::string CMapInfo::getNameForList() const
 	}
 	else
 	{
-		return getName();
+		return getNameTranslated();
 	}
 }
 
-std::string CMapInfo::getDescription() const
+std::string CMapInfo::getDescriptionTranslated() const
 {
 	if(campaign)
-		return campaign->getDescription();
+		return campaign->getDescriptionTranslated();
 	else
-		return mapHeader->description;
+		return mapHeader->description.toString();
 }
 
 int CMapInfo::getMapSizeIconId() const

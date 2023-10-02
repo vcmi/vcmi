@@ -3221,7 +3221,7 @@ void CGameHandler::handleTimeEvents()
 				//prepare dialog
 				InfoWindow iw;
 				iw.player = color;
-				iw.text.appendRawString(ev.message);
+				iw.text = ev.message;
 
 				for (int i=0; i<ev.resources.size(); i++)
 				{
@@ -3272,7 +3272,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 			// dialog
 			InfoWindow iw;
 			iw.player = player;
-			iw.text.appendRawString(ev.message);
+			iw.text = ev.message;
 
 			if (ev.resources.nonZero())
 			{

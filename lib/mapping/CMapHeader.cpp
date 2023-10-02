@@ -15,7 +15,9 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
+#include "../modding/CModHandler.h"
 #include "../CHeroHandler.h"
+#include "../Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -62,7 +64,7 @@ bool PlayerInfo::canAnyonePlay() const
 
 bool PlayerInfo::hasCustomMainHero() const
 {
-	return !mainCustomHeroName.empty() && mainCustomHeroPortrait != -1;
+	return !mainCustomHeroNameTextId.empty() && mainCustomHeroPortrait != -1;
 }
 
 EventCondition::EventCondition(EWinLoseType condition):
@@ -127,11 +129,87 @@ CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
+	VLC->generaltexth->addSubContainer(*this);
+}
+
+CMapHeader::~CMapHeader()
+{
+	VLC->generaltexth->removeSubContainer(*this);
 }
 
 ui8 CMapHeader::levels() const
 {
 	return (twoLevel ? 2 : 1);
+}
+
+void CMapHeader::registerMapStrings()
+{
+	//get supported languages. Assuming that translation containing most strings is the base language
+	std::set<std::string> mapLanguages, mapBaseLanguages;
+	int maxStrings = 0;
+	for(auto & translation : translations.Struct())
+	{
+		if(translation.first.empty() || !translation.second.isStruct() || translation.second.Struct().empty())
+			continue;
+		
+		if(translation.second.Struct().size() > maxStrings)
+			maxStrings = translation.second.Struct().size();
+		mapLanguages.insert(translation.first);
+	}
+	
+	if(maxStrings == 0 || mapBaseLanguages.empty())
+	{
+		logGlobal->info("Map %s doesn't have any supported translation", name.toString());
+		return;
+	}
+	
+	//identifying base languages
+	for(auto & translation : translations.Struct())
+	{
+		if(translation.second.isStruct() && translation.second.Struct().size() == maxStrings)
+			mapBaseLanguages.insert(translation.first);
+	}
+	
+	std::string baseLanguage, language;
+	//english is preferrable as base language
+	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
+		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
+	else
+		baseLanguage = *mapBaseLanguages.begin();
+
+	if(mapBaseLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
+	{
+		language = CGeneralTextHandler::getPreferredLanguage(); //preferred language is base language - use it
+		baseLanguage = language;
+	}
+	else
+	{
+		if(mapLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
+			language = CGeneralTextHandler::getPreferredLanguage();
+		else
+			language = baseLanguage; //preferred language is not supported, use base language
+	}
+	
+	assert(!language.empty());
+	
+	JsonNode data = translations[baseLanguage];
+	if(language != baseLanguage)
+		JsonUtils::mergeCopy(data, translations[language]);
+	
+	for(auto & s : data.Struct())
+		registerString("map", TextIdentifier(s.first), s.second.String(), language);
+}
+
+std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
+{
+	return mapRegisterLocalizedString(modContext, mapHeader, UID, localized, VLC->modh->getModLanguage(modContext));
+}
+
+std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
+{
+	mapHeader.registerString(modContext, UID, localized, language);
+	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
+	return UID.get();
 }
 
 VCMI_LIB_NAMESPACE_END

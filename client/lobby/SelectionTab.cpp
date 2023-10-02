@@ -111,11 +111,11 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->victoryIconIndex < b->victoryIconIndex);
 			break;
 		case _name: //by name
-			return boost::ilexicographical_compare(a->name, b->name);
+			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
 		case _fileName: //by filename
 			return boost::ilexicographical_compare(aaa->fileURI, bbb->fileURI);
 		default:
-			return boost::ilexicographical_compare(a->name, b->name);
+			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
 		}
 	}
 	else //if we are sorting campaigns
@@ -125,9 +125,9 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _numOfMaps: //by number of maps in campaign
 			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
 		case _name: //by name
-			return boost::ilexicographical_compare(aaa->campaign->getName(), bbb->campaign->getName());
+			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		default:
-			return boost::ilexicographical_compare(aaa->campaign->getName(), bbb->campaign->getName());
+			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		}
 	}
 }
@@ -367,7 +367,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 	if(!curItems[py]->isFolder)
 	{
-		std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fullFileURI);
+		std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getNameTranslated() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fullFileURI);
 		if(curItems[py]->date != "")
 			text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 

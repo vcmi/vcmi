@@ -31,6 +31,8 @@ class MainWindow : public QMainWindow
 #ifdef ENABLE_QT_TRANSLATIONS
 	QTranslator translator;
 #endif
+	
+	std::unique_ptr<CMap> openMapInternal(const QString &);
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -117,6 +119,10 @@ private slots:
 
 	void on_actionExport_triggered();
 
+	void on_actionTranslations_triggered();
+	
+	void on_actionh3m_converter_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
@@ -153,7 +159,7 @@ private:
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	
-	QString filename;
+	QString filename, lastSavingDir;
 	bool unsaved = false;
 
 	QStandardItemModel objectsModel;

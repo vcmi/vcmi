@@ -243,7 +243,7 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
 			for(int i : getObjectIndexes<const CGTownInstance>(*controller->map()))
-				loseTypeWidget->addItem(tr(getTownName(*controller->map(), i).c_str()), QVariant::fromValue(i));
+				loseTypeWidget->addItem(QString::fromStdString(getTownName(*controller->map(), i).c_str()), QVariant::fromValue(i));
 			pickObjectButton = new QToolButton;
 			connect(pickObjectButton, &QToolButton::clicked, this, &LoseConditions::onObjectSelect);
 			ui->loseParamsLayout->addWidget(pickObjectButton);
@@ -254,7 +254,7 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
 			for(int i : getObjectIndexes<const CGHeroInstance>(*controller->map()))
-				loseTypeWidget->addItem(tr(getHeroName(*controller->map(), i).c_str()), QVariant::fromValue(i));
+				loseTypeWidget->addItem(QString::fromStdString(getHeroName(*controller->map(), i).c_str()), QVariant::fromValue(i));
 			pickObjectButton = new QToolButton;
 			connect(pickObjectButton, &QToolButton::clicked, this, &LoseConditions::onObjectSelect);
 			ui->loseParamsLayout->addWidget(pickObjectButton);

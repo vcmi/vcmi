@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CMapHeader.h"
+#include "../MetaString.h"
 #include "../mapObjects/MiscObjects.h" // To serialize static props
 #include "../mapObjects/CQuest.h" // To serialize static props
 #include "../mapObjects/CGTownInstance.h" // To serialize static props
@@ -36,7 +37,7 @@ struct TeleportChannel;
 struct DLL_LINKAGE Rumor
 {
 	std::string name;
-	std::string text;
+	MetaString text;
 
 	Rumor() = default;
 	~Rumor() = default;

@@ -35,7 +35,7 @@ void CGPandoraBox::init()
 	{
 		i.reward.removeObject = true;
 		if(!message.empty() && i.message.empty())
-			i.message = MetaString::createFromRawString(message);
+			i.message = message;
 	}
 }
 
@@ -209,7 +209,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CRewardableObject::serializeJsonOptions(handler);
 	
-	handler.serializeString("guardMessage", message);
+	handler.serializeStruct("guardMessage", message);
 	
 	if(!handler.saving)
 	{
@@ -297,7 +297,7 @@ void CGEvent::init()
 	{
 		i.reward.removeObject = removeAfterVisit;
 		if(!message.empty() && i.message.empty())
-			i.message = MetaString::createFromRawString(message);
+			i.message = message;
 	}
 }
 
@@ -327,7 +327,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		if(!message.empty())
-			iw.text.appendRawString(message);
+			iw.text = message;
 		else
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);

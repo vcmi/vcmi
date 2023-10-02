@@ -22,7 +22,7 @@ class RewardsWidget : public QDialog
 
 public:
 	
-	explicit RewardsWidget(const CMap &, CRewardableObject &, QWidget *parent = nullptr);
+	explicit RewardsWidget(CMap &, CRewardableObject &, QWidget *parent = nullptr);
 	~RewardsWidget();
 	
 	void obtainData();
@@ -64,14 +64,14 @@ private:
 	
 	Ui::RewardsWidget *ui;
 	CRewardableObject & object;
-	const CMap & map;
+	CMap & map;
 };
 
 class RewardsDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
-	RewardsDelegate(const CMap &, CRewardableObject &);
+	RewardsDelegate(CMap &, CRewardableObject &);
 
 	using QStyledItemDelegate::QStyledItemDelegate;
 	
@@ -82,5 +82,5 @@ public:
 
 private:
 	CRewardableObject & object;
-	const CMap & map;
+	CMap & map;
 };

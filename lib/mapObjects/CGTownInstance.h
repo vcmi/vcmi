@@ -44,7 +44,7 @@ struct DLL_LINKAGE GrowthInfo
 
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
 {
-	std::string name; // name of town
+	std::string nameTextId; // name of town
 public:
 	using CGDwelling::getPosition;
 
@@ -73,7 +73,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGDwelling&>(*this);
-		h & name;
+		h & nameTextId;
 		h & builded;
 		h & destroyed;
 		h & identifier;
@@ -102,7 +102,7 @@ public:
 			{
 				if(!town->buildings.count(building) || !town->buildings.at(building))
 				{
-					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", name, pos.toString(), building);
+					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", nameTextId, pos.toString(), building);
 					return true;
 				}
 				return false;
@@ -126,7 +126,7 @@ public:
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 
 	std::string getNameTranslated() const;
-	void setNameTranslated(const std::string & newName);
+	void setNameTextId(const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
 

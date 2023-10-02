@@ -11,6 +11,7 @@
 
 #include "CRewardableObject.h"
 #include "../ResourceSet.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -70,7 +71,7 @@ public:
 	std::string heroName; //backup of hero name
 	si32 heroPortrait;
 
-	std::string firstVisitText, nextVisitText, completedText;
+	MetaString firstVisitText, nextVisitText, completedText;
 	bool isCustomFirst;
 	bool isCustomNext;
 	bool isCustomComplete;

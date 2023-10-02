@@ -102,7 +102,7 @@ void MetaString::clear()
 
 bool MetaString::empty() const
 {
-	return message.empty();
+	return message.empty() || toString().empty();
 }
 
 std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) const

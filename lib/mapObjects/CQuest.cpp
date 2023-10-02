@@ -181,20 +181,20 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 
 void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool isCustom, bool firstVisit, const CGHeroInstance * h) const
 {
-	std::string text;
+	MetaString text;
 	bool failRequirements = (h ? !checkQuest(h) : true);
 
 	if(firstVisit)
 	{
 		isCustom = isCustomFirst;
 		text = firstVisitText;
-		iwText.appendRawString(text);
+		iwText.appendRawString(text.toString());
 	}
 	else if(failRequirements)
 	{
 		isCustom = isCustomNext;
 		text = nextVisitText;
-		iwText.appendRawString(text);
+		iwText.appendRawString(text.toString());
 	}
 	switch (missionType)
 	{
@@ -223,7 +223,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		case MISSION_KILL_HERO:
 			components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
 			if(!isCustom)
-				addReplacements(iwText, text);
+				addReplacements(iwText, text.toString());
 			break;
 		case MISSION_HERO:
 			//FIXME: portrait may not match hero, if custom portrait was set in map editor
@@ -236,7 +236,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 				components.emplace_back(stackToKill);
 				if(!isCustom)
 				{
-					addReplacements(iwText, text);
+					addReplacements(iwText, text.toString());
 				}
 			}
 			break;
@@ -286,7 +286,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		case MISSION_PLAYER:
 			components.emplace_back(Component::EComponentType::FLAG, m13489val, 0, 0);
 			if(!isCustom)
-				iwText.replaceRawString(VLC->generaltexth->colors[m13489val]);
+				iwText.replaceLocalString(EMetaText::COLOR, m13489val);
 			break;
 	}
 }
@@ -380,7 +380,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 
 void CQuest::getCompletionText(MetaString &iwText) const
 {
-	iwText.appendRawString(completedText);
+	iwText.appendRawString(completedText.toString());
 	switch(missionType)
 	{
 		case CQuest::MISSION_LEVEL:
@@ -388,22 +388,22 @@ void CQuest::getCompletionText(MetaString &iwText) const
 				iwText.replaceNumber(m13489val);
 			break;
 		case CQuest::MISSION_PRIMARY_STAT:
-			if (vstd::contains (completedText,'%')) //there's one case when there's nothing to replace
+		{
+			MetaString loot;
+			assert(m2stats.size() <= 4);
+			for (int i = 0; i < m2stats.size(); ++i)
 			{
-				MetaString loot;
-				for (int i = 0; i < 4; ++i)
+				if (m2stats[i])
 				{
-					if (m2stats[i])
-					{
-						loot.appendRawString("%d %s");
-						loot.replaceNumber(m2stats[i]);
-						loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
-					}
+					loot.appendRawString("%d %s");
+					loot.replaceNumber(m2stats[i]);
+					loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
 				}
-				if (!isCustomComplete)
-					iwText.replaceRawString(loot.buildList());
 			}
+			if (!isCustomComplete)
+				iwText.replaceRawString(loot.buildList());
 			break;
+		}
 		case CQuest::MISSION_ART:
 		{
 			MetaString loot;
@@ -447,7 +447,7 @@ void CQuest::getCompletionText(MetaString &iwText) const
 		case MISSION_KILL_HERO:
 		case MISSION_KILL_CREATURE:
 			if (!isCustomComplete)
-				addReplacements(iwText, completedText);
+				addReplacements(iwText, completedText.toString());
 			break;
 		case MISSION_HERO:
 			if (!isCustomComplete)
@@ -470,9 +470,9 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 {
 	auto q = handler.enterStruct(fieldName);
 
-	handler.serializeString("firstVisitText", firstVisitText);
-	handler.serializeString("nextVisitText", nextVisitText);
-	handler.serializeString("completedText", completedText);
+	handler.serializeStruct("firstVisitText", firstVisitText);
+	handler.serializeStruct("nextVisitText", nextVisitText);
+	handler.serializeStruct("completedText", completedText);
 
 	if(!handler.saving)
 	{
@@ -589,16 +589,16 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 		std::string questName  = quest->missionName(quest->missionType);
 
 		if(!quest->isCustomFirst)
-			quest->firstVisitText = VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + quest->missionState(0), quest->textOption);
+			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(0), quest->textOption).get());
 		if(!quest->isCustomNext)
-			quest->nextVisitText = VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + quest->missionState(1), quest->textOption);
+			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(1), quest->textOption).get());
 		if(!quest->isCustomComplete)
-			quest->completedText = VLC->generaltexth->translate("core.seerhut.quest." + questName + "." + quest->missionState(2), quest->textOption);
+			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(2), quest->textOption).get());
 	}
 	else
 	{
 		quest->progress = CQuest::COMPLETE;
-		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->completedOption];
+		quest->firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", quest->completedOption).get());
 	}
 }
 
@@ -632,14 +632,17 @@ void CQuest::addReplacements(MetaString &out, const std::string &base) const
 	switch(missionType)
 	{
 	case MISSION_KILL_CREATURE:
-		out.replaceCreatureName(stackToKill);
-		if (std::count(base.begin(), base.end(), '%') == 2) //say where is placed monster
+		if(stackToKill.type)
 		{
-			out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
+			out.replaceCreatureName(stackToKill);
+			if (std::count(base.begin(), base.end(), '%') == 2) //say where is placed monster
+			{
+				out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
+			}
 		}
 		break;
 	case MISSION_KILL_HERO:
-		out.replaceRawString(heroName);
+		out.replaceTextID(heroName);
 		break;
 	}
 }

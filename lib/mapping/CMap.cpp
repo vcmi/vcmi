@@ -32,7 +32,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 void Rumor::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
-	handler.serializeString("text", text);
+	handler.serializeStruct("text", text);
 }
 
 DisposedHero::DisposedHero() : heroId(0), portrait(255)
@@ -59,7 +59,7 @@ bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
 void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
-	handler.serializeString("message", message);
+	handler.serializeStruct("message", message);
 	handler.serializeInt("players", players);
 	handler.serializeInt("humanAffected", humanAffected);
 	handler.serializeInt("computerAffected", computerAffected);

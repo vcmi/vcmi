@@ -134,7 +134,7 @@ std::string CampaignHandler::readLocalizedString(CBinaryReader & reader, std::st
 		return "";
 
 	VLC->generaltexth->registerString(modName, stringID, input);
-	return VLC->generaltexth->translate(stringID.get());
+	return stringID.get();
 }
 
 void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, std::string filename, std::string modName, std::string encoding)
@@ -149,8 +149,8 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.version = CampaignVersion::VCMI;
 	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
-	ret.name = reader["name"].String();
-	ret.description = reader["description"].String();
+	ret.name.appendTextID(reader["name"].String());
+	ret.description.appendTextID(reader["description"].String());
 	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
 	ret.music = AudioPath::fromJson(reader["music"]);
 	ret.filename = filename;
@@ -169,7 +169,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 			ret.prologVideo = VideoPath::fromJson(identifier["video"]);
 			ret.prologMusic = AudioPath::fromJson(identifier["music"]);
 			ret.prologVoice = AudioPath::fromJson(identifier["voice"]);
-			ret.prologText = identifier["text"].String();
+			ret.prologText.jsonDeserialize(identifier["text"]);
 		}
 		return ret;
 	};
@@ -181,7 +181,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 
 	ret.regionColor = reader["color"].Integer();
 	ret.difficulty = reader["difficulty"].Integer();
-	ret.regionText = reader["regionText"].String();
+	ret.regionText.jsonDeserialize(reader["regionText"]);
 	ret.prolog = prologEpilogReader(reader["prolog"]);
 	ret.epilog = prologEpilogReader(reader["epilog"]);
 
@@ -383,8 +383,8 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
 	ret.loadLegacyData(campId);
-	ret.name = readLocalizedString(reader, filename, modName, encoding, "name");
-	ret.description = readLocalizedString(reader, filename, modName, encoding, "description");
+	ret.name.appendTextID(readLocalizedString(reader, filename, modName, encoding, "name"));
+	ret.description.appendTextID(readLocalizedString(reader, filename, modName, encoding, "description"));
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
@@ -410,7 +410,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 			ret.prologVideo = CampaignHandler::prologVideoName(index);
 			ret.prologMusic = CampaignHandler::prologMusicName(reader.readUInt8());
 			ret.prologVoice = isOriginalCampaign ? CampaignHandler::prologVoiceName(index) : AudioPath();
-			ret.prologText = readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier);
+			ret.prologText.appendTextID(readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier));
 		}
 		return ret;
 	};
@@ -428,7 +428,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
-	ret.regionText = readLocalizedString(reader, header.filename, header.modName, header.encoding, ret.mapName + ".region");
+	ret.regionText.appendTextID(readLocalizedString(reader, header.filename, header.modName, header.encoding, ret.mapName + ".region"));
 	ret.prolog = prologEpilogReader(ret.mapName + ".prolog");
 	ret.epilog = prologEpilogReader(ret.mapName + ".epilog");
 

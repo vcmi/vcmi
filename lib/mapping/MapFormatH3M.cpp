@@ -180,8 +180,8 @@ void CMapLoaderH3M::readHeader()
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readInt32();
 	mapHeader->twoLevel = reader->readBool();
-	mapHeader->name = readLocalizedString("header.name");
-	mapHeader->description = readLocalizedString("header.description");
+	mapHeader->name.appendTextID(readLocalizedString("header.name"));
+	mapHeader->description.appendTextID(readLocalizedString("header.description"));
 	mapHeader->difficulty = reader->readInt8();
 
 	if(features.levelAB)
@@ -253,7 +253,7 @@ void CMapLoaderH3M::readPlayerInfo()
 		if(playerInfo.mainCustomHeroId != -1)
 		{
 			playerInfo.mainCustomHeroPortrait = reader->readHeroPortrait();
-			playerInfo.mainCustomHeroName = readLocalizedString(TextIdentifier("header", "player", i, "mainHeroName"));
+			playerInfo.mainCustomHeroNameTextId = readLocalizedString(TextIdentifier("header", "player", i, "mainHeroName"));
 		}
 
 		if(features.levelAB)
@@ -807,7 +807,7 @@ void CMapLoaderH3M::readRumors()
 	{
 		Rumor ourRumor;
 		ourRumor.name = readBasicString();
-		ourRumor.text = readLocalizedString(TextIdentifier("header", "rumor", it, "text"));
+		ourRumor.text.appendTextID(readLocalizedString(TextIdentifier("header", "rumor", it, "text")));
 		map->rumors.push_back(ourRumor);
 	}
 }
@@ -860,7 +860,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 		bool hasCustomBio = reader->readBool();
 		if(hasCustomBio)
-			hero->biographyCustom = readLocalizedString(TextIdentifier("heroes", heroID, "biography"));
+			hero->biographyCustomTextId = readLocalizedString(TextIdentifier("heroes", heroID, "biography"));
 
 		// 0xFF is default, 00 male, 01 female
 		hero->gender = static_cast<EHeroGender>(reader->readUInt8());
@@ -1099,7 +1099,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
 	{
-		object->message = readLocalizedString(TextIdentifier("monster", mapPosition.x, mapPosition.y, mapPosition.z, "message"));
+		object->message.appendTextID(readLocalizedString(TextIdentifier("monster", mapPosition.x, mapPosition.y, mapPosition.z, "message")));
 		reader->readResourses(object->resources);
 		object->gainedArtifact = reader->readArtifact();
 	}
@@ -1135,7 +1135,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 CGObjectInstance * CMapLoaderH3M::readSign(const int3 & mapPosition)
 {
 	auto * object = new CGSignBottle();
-	object->message = readLocalizedString(TextIdentifier("sign", mapPosition.x, mapPosition.y, mapPosition.z, "message"));
+	object->message.appendTextID(readLocalizedString(TextIdentifier("sign", mapPosition.x, mapPosition.y, mapPosition.z, "message")));
 	reader->skipZero(4);
 	return object;
 }
@@ -1685,7 +1685,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	{
 		if(elem.heroId.getNum() == object->subID)
 		{
-			object->nameCustom = elem.name;
+			object->nameCustomTextId = elem.name;
 			object->portrait = elem.portrait;
 			break;
 		}
@@ -1693,7 +1693,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->nameCustom = readLocalizedString(TextIdentifier("heroes", object->subID, "name"));
+		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "name"));
 
 	if(features.levelSOD)
 	{
@@ -1748,7 +1748,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	{
 		bool hasCustomBiography = reader->readBool();
 		if(hasCustomBiography)
-			object->biographyCustom = readLocalizedString(TextIdentifier("heroes", object->subID, "biography"));
+			object->biographyCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "biography"));
 
 		object->gender = static_cast<EHeroGender>(reader->readUInt8());
 		assert(object->gender == EHeroGender::MALE || object->gender == EHeroGender::FEMALE || object->gender == EHeroGender::DEFAULT);
@@ -2072,9 +2072,9 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 	}
 
 	guard->quest->lastDay = reader->readInt32();
-	guard->quest->firstVisitText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit"));
-	guard->quest->nextVisitText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit"));
-	guard->quest->completedText = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed"));
+	guard->quest->firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
+	guard->quest->nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
+	guard->quest->completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
 	guard->quest->isCustomFirst = !guard->quest->firstVisitText.empty();
 	guard->quest->isCustomNext = !guard->quest->nextVisitText.empty();
 	guard->quest->isCustomComplete = !guard->quest->completedText.empty();
@@ -2094,7 +2094,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
+		object->setNameTextId(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
 
 	bool hasGarrison = reader->readBool();
 	if(hasGarrison)
@@ -2155,7 +2155,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	{
 		CCastleEvent event;
 		event.name = readBasicString();
-		event.message = readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"));
+		event.message.appendTextID(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description")));
 
 		reader->readResourses(event.resources);
 
@@ -2225,7 +2225,7 @@ void CMapLoaderH3M::readEvents()
 	{
 		CMapEvent event;
 		event.name = readBasicString();
-		event.message = readLocalizedString(TextIdentifier("event", eventID, "description"));
+		event.message.appendTextID(readLocalizedString(TextIdentifier("event", eventID, "description")));
 
 		reader->readResourses(event.resources);
 		event.players = reader->readUInt8();
@@ -2247,12 +2247,12 @@ void CMapLoaderH3M::readEvents()
 	}
 }
 
-void CMapLoaderH3M::readMessageAndGuards(std::string & message, CCreatureSet * guards, const int3 & position)
+void CMapLoaderH3M::readMessageAndGuards(MetaString & message, CCreatureSet * guards, const int3 & position)
 {
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
 	{
-		message = readLocalizedString(TextIdentifier("guards", position.x, position.y, position.z, "message"));
+		message.appendTextID(readLocalizedString(TextIdentifier("guards", position.x, position.y, position.z, "message")));
 		bool hasGuards = reader->readBool();
 		if(hasGuards)
 			readCreatureSet(guards, 7);
@@ -2274,8 +2274,7 @@ std::string CMapLoaderH3M::readLocalizedString(const TextIdentifier & stringIden
 	if(mapString.empty())
 		return "";
 
-	VLC->generaltexth->registerString(modName, fullIdentifier, mapString);
-	return VLC->generaltexth->translate(fullIdentifier.get());
+	return mapRegisterLocalizedString(modName, *mapHeader, fullIdentifier, mapString);
 }
 
 void CMapLoaderH3M::afterRead()
