@@ -145,7 +145,7 @@ struct DLL_LINKAGE StartInfo
 	}
 
 	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), startTimeFormatted(vstd::getDateTimeFormatted(std::time(0)))), fileURI("")
+		mapfileChecksum(0), startTimeFormatted(vstd::getDateTimeFormatted(std::time(0))), fileURI("")
 	{
 
 	}

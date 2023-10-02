@@ -193,7 +193,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		if(p.date.empty())
 		{
 			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
-			w->setText(vstd::getFormattedDateTime(time));
+			w->setText(vstd::getDateTimeFormatted(time));
 		}
 		else
 			w->setText(p.date);

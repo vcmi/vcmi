@@ -257,8 +257,8 @@ void CPlayerInterface::performAutosave()
 	std::string saveName = "";
 	std::string loadedSaveFileName = ""; // TODO: krs - fix getting loaded save name from cb->getStartInfo()->mapname;
 
-	std::string mapName = cb->getMapHeader()->name;
-	std::string mapDescription = cb->getMapHeader()->description;
+	std::string mapName = cb->getMapHeader()->name.toString();
+	std::string mapDescription = cb->getMapHeader()->description.toString();
 
 	std::string turn = std::to_string(cb->getDate(Date::MONTH)) + std::to_string(cb->getDate(Date::WEEK)) + std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
