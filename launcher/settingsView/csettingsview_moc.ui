@@ -107,7 +107,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-46</y>
+        <y>0</y>
         <width>602</width>
         <height>848</height>
        </rect>
@@ -244,6 +244,9 @@
        </item>
        <item row="8" column="1" colspan="4">
         <widget class="QSpinBox" name="spinBoxAutosaveFrequency">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval (in-game days) between autosaves.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="minimum">
           <number>1</number>
          </property>
@@ -407,7 +410,11 @@
         </widget>
        </item>
        <item row="9" column="1" colspan="4">
-        <widget class="QSpinBox" name="spinBoxAutosaveCountLimit"/>
+        <widget class="QSpinBox" name="spinBoxAutosaveCountLimit">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Applicable solely in the context of Autosave Mode set to &amp;quot;Using Counter&amp;quot;.&lt;/p&gt;&lt;p&gt;This option defines the maximum number of autosaves to retain. Once the specified count is reached, new autosaves will be named starting from 0 (effectively overwriting the oldest saves).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
        </item>
        <item row="26" column="0">
         <widget class="QLabel" name="labelFriendlyAI">
@@ -542,6 +549,9 @@
        </item>
        <item row="7" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxAutosaveMode">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Off&lt;/span&gt; - No autosaves&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Counter&lt;/span&gt; - Autosaves will be named incrementally unsing Autosave# format. Once Autosave Count Limit is reached, counter will start again from 0 overwriting existing (oldest) autosaves.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Turn Info&lt;/span&gt; - Autosaves will be named using Turn info. EG: Autosave112. Autosave Count limit will be disabled when this option is used.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Schema&lt;/span&gt; - Autosaves will follow a predefined schema.EG: %mapName%/%timestamp%/%turn%. For more details check documentation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="currentIndex">
           <number>0</number>
          </property>
