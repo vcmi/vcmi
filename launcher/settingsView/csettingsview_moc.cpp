@@ -40,13 +40,25 @@ static const std::string cursorTypesList[] =
 	"software"
 };
 
-static const std::string autosaveModeList[] =
+int findComboBoxItemByInternalName(QComboBox* comboBox, const std::string& targetInternalName)
 {
-	"Off",
-	"Using Counter",
-	"Using Turn Info",
-	"Using Schema"
-};
+    int itemCount = comboBox->count();
+    int foundIndex = -1;
+
+    for (int index = 0; index < itemCount; ++index)
+    {
+        QVariant itemData = comboBox->itemData(index, Qt::UserRole);
+        if (itemData.toString().toStdString() == targetInternalName)
+        {
+            foundIndex = index;
+            break;
+        }
+    }
+
+	assert(foundIndex != -1);
+
+    return foundIndex;
+}
 
 }
 
@@ -114,7 +126,7 @@ void CSettingsView::loadSettings()
 	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
 	std::string autosaveMode = settings["general"]["autosaveMode"].String();
-	size_t autosaveModeIndex = boost::range::find(autosaveModeList, autosaveMode) - autosaveModeList;
+	int autosaveModeIndex = findComboBoxItemByInternalName(ui->comboBoxAutosaveMode, autosaveMode);
 	ui->comboBoxAutosaveMode->setCurrentIndex((int)autosaveModeIndex);
 
     ui->spinBoxAutosaveFrequency->setValue(settings["general"]["autosaveFrequency"].Integer());
@@ -256,6 +268,8 @@ CSettingsView::CSettingsView(QWidget * parent)
 {
 	ui->setupUi(this);
 
+	addUnlocalizedIdentifiersToControls();
+
 	loadSettings();
 }
 
@@ -333,12 +347,16 @@ void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
 
 void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 {
+	QVariant itemData = ui->comboBoxAutosaveMode->itemData(index, Qt::UserRole);
+	std::string selectedEntry = itemData.toString().toStdString();
+
 	Settings node = settings.write["general"]["autosaveMode"];
-	node->String() = autosaveModeList[index];
+	node->String() = selectedEntry;
 
 	// disable count limit and frequency when autosave is off
 	bool autosaveEnabled = false;
-	if(autosaveModeList[index] != "Off")
+	
+	if(selectedEntry != "Off")
 		autosaveEnabled = true;
 
 	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveEnabled);
@@ -347,7 +365,7 @@ void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 
 	// disable count limit when autosame mode is not Simple
 	bool autosaveUsingCounter = false;
-	if(autosaveModeList[index] == "Using Counter")
+	if(selectedEntry == "Using Counter")
 		autosaveUsingCounter = true;
 
 	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveUsingCounter);
@@ -572,3 +590,10 @@ void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
 	node->Float() = float(arg1) / 100; // percentage -> ratio
 }
 
+void CSettingsView::addUnlocalizedIdentifiersToControls()
+{
+	ui->comboBoxAutosaveMode->setItemData(0, "Off", Qt::UserRole);
+	ui->comboBoxAutosaveMode->setItemData(1, "Using Counter", Qt::UserRole);
+	ui->comboBoxAutosaveMode->setItemData(2, "Using Turn Info", Qt::UserRole);
+	ui->comboBoxAutosaveMode->setItemData(3, "Using Schema", Qt::UserRole);
+}

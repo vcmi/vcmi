@@ -234,7 +234,7 @@ void CPlayerInterface::performAutosave()
 		Campaign,
 		Scenario,
 		RandomMap,
-		Undefined = 255
+		Undefined
 	};
 	MapType mapType{ Scenario };
 
