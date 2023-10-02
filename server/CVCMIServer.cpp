@@ -211,21 +211,20 @@ void CVCMIServer::establishRemoteConnections()
 	
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
     int numOfConnections = cmdLineOptions["connections"].as<ui16>();
-	auto address = cmdLineOptions["lobby"].as<std::string>();
-	int port = cmdLineOptions["lobby-port"].as<ui16>();
-	logGlobal->info("Server is connecting to remote at %s:%d with uuid %s %d times", address, port, uuid, numOfConnections);
-	
 	for(int i = 0; i < numOfConnections; ++i)
-		connectToRemote(address, port);
+		connectToRemote();
 }
 
-void CVCMIServer::connectToRemote(const std::string & addr, int port)
+void CVCMIServer::connectToRemote()
 {
 	std::shared_ptr<CConnection> c;
 	try
 	{
-		logNetwork->info("Establishing connection...");
-		c = std::make_shared<CConnection>(addr, port, SERVER_NAME, uuid);
+		auto address = cmdLineOptions["lobby"].as<std::string>();
+		int port = cmdLineOptions["lobby-port"].as<ui16>();
+		
+		logNetwork->info("Establishing connection to remote at %s:%d with uuid %s", address, port, uuid);
+		c = std::make_shared<CConnection>(address, port, SERVER_NAME, uuid);
 	}
 	catch(...)
 	{
@@ -235,6 +234,7 @@ void CVCMIServer::connectToRemote(const std::string & addr, int port)
 	if(c)
 	{
 		connections.insert(c);
+		remoteConnections.insert(c);
 		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
 	}
 }
@@ -732,7 +732,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 			if(pset.hero.getNum() != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
 			{
 				pset.hero = pinfo.mainCustomHeroId;
-				pset.heroName = pinfo.mainCustomHeroName;
+				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
 				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
 			}
 

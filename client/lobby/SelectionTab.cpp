@@ -108,11 +108,11 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->victoryIconIndex < b->victoryIconIndex);
 			break;
 		case _name: //by name
-			return boost::ilexicographical_compare(a->name, b->name);
+			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
 		case _fileName: //by filename
 			return boost::ilexicographical_compare(aaa->fileURI, bbb->fileURI);
 		default:
-			return boost::ilexicographical_compare(a->name, b->name);
+			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
 		}
 	}
 	else //if we are sorting campaigns
@@ -122,9 +122,9 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _numOfMaps: //by number of maps in campaign
 			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
 		case _name: //by name
-			return boost::ilexicographical_compare(aaa->campaign->getName(), bbb->campaign->getName());
+			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		default:
-			return boost::ilexicographical_compare(aaa->campaign->getName(), bbb->campaign->getName());
+			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		}
 	}
 }
@@ -363,7 +363,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	if(!curItems[py]->isFolder)
-		GH.windows().createAndPushWindow<CMapOverview>(curItems[py]->getName(), curItems[py]->fullFileURI, curItems[py]->date, ResourcePath(curItems[py]->fileURI), tabType);
+		GH.windows().createAndPushWindow<CMapOverview>(curItems[py]->getNameTranslated(), curItems[py]->fullFileURI, curItems[py]->date, ResourcePath(curItems[py]->fileURI), tabType);
 	else
 		CRClickPopup::createAndPush(curItems[py]->folderName);
 }

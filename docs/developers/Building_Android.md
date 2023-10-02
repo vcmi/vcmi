@@ -10,17 +10,17 @@ The following instructions apply to **v1.2 and later**. For earlier versions the
 2. JDK 11, not necessarily from Oracle
 3. Android command line tools or Android Studio for your OS: https://developer.android.com/studio/
 4. Android NDK version **r25c (25.2.9519653)**, there're multiple ways to obtain it:
-- - install with Android Studio
-- - install with `sdkmanager` command line tool
-- - download from https://developer.android.com/ndk/downloads
-- - download with Conan, see [#NDK and Conan](#ndk-and-conan)
-5.  (optional) Ninja: download from your package manager or from https://github.com/ninja-build/ninja/releases
+    - install with Android Studio
+    - install with `sdkmanager` command line tool
+    - download from https://developer.android.com/ndk/downloads
+    - download with Conan, see [#NDK and Conan](#ndk-and-conan)
+5. (optional) Ninja: download from your package manager or from https://github.com/ninja-build/ninja/releases
 
 ## Obtaining source code
 
 Clone https://github.com/vcmi/vcmi with submodules. Example for command line:
 
-```sh
+```
 git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 ```
 
@@ -30,24 +30,24 @@ We use Conan package manager to build/consume dependencies, find detailed usage 
 branch](https://github.com/vcmi/vcmi/tree/master/docs/conan.md).
 
 On the step where you need to replace **PROFILE**, choose:
--   `android-32` to build for 32-bit architecture (armeabi-v7a)
--   `android-64` to build for 64-bit architecture (aarch64-v8a)
+- `android-32` to build for 32-bit architecture (armeabi-v7a)
+- `android-64` to build for 64-bit architecture (aarch64-v8a)
 
 ### NDK and Conan
 
 Conan must be aware of the NDK location when you execute `conan install`. There're multiple ways to achieve that as written in the [Conan docs](https://docs.conan.io/1/integrations/cross_platform/android.html):
 
--   the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically. You need to create your own Conan profile that imports our Android profile and adds 2 new lines (you can of course just copy everything from our profile into yours without including) and then pass this new profile to `conan install`:
+- the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically. You need to create your own Conan profile that imports our Android profile and adds 2 new lines (you can of course just copy everything from our profile into yours without including) and then pass this new profile to `conan install`:
 
-```sh
+```
 include(/path/to/vcmi/CI/conan/android-64)
 [tool_requires]
 android-ndk/r25c
 ```
 
--   to use an already installed NDK, you can simply pass it on the command line to `conan install`:
+- to use an already installed NDK, you can simply pass it on the command line to `conan install`:
 
-```sh
+```
 conan install -c tools.android:ndk_path=/path/to/ndk ...
 ```
 
@@ -59,7 +59,7 @@ Building for Android is a 2-step process. First, native C++ code is compiled to 
 
 This is a traditional CMake project, you can build it from command line or some IDE. You're not required to pass any custom options (except Conan toolchain file), defaults are already good. If you wish to use your own CMake presets, inherit them from our `build-with-conan` preset. Example:
 
-```sh
+```
 cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug --toolchain ...
 cmake --build ../build
 ```

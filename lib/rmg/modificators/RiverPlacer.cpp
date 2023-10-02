@@ -397,7 +397,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 				{
 					auto * obj = handler->create(templ);
 					rmg::Object deltaObj(*obj, deltaPositions[pos]);
-					deltaObj.finalize(map);
+					deltaObj.finalize(map, zone.getRand());
 				}
 			}
 		}

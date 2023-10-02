@@ -108,7 +108,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
-		iw.text.appendRawString(message);
+		iw.text = message;
 		iw.type = EInfoWindowMode::MODAL;
 		cb->showInfoDialog(&iw);
 	}
@@ -578,7 +578,7 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	handler.serializeBool("noGrowing", notGrowingTeam);
 	handler.serializeBool("neverFlees", neverFlees);
-	handler.serializeString("rewardMessage", message);
+	handler.serializeStruct("rewardMessage", message);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -35,7 +35,7 @@ void CGPandoraBox::init()
 	{
 		i.reward.removeObject = true;
 		if(!message.empty() && i.message.empty())
-			i.message = MetaString::createFromRawString(message);
+			i.message = message;
 	}
 }
 
@@ -101,7 +101,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		}
 	}
 	
-	if(vi.reward.manaDiff || vi.reward.manaPercentage)
+	if(vi.reward.manaDiff || vi.reward.manaPercentage >= 0)
 		txt = setText(temp.manaDiff > 0, 177, 176, h);
 	
 	for(auto b : vi.reward.bonuses)
@@ -155,7 +155,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	temp.resources.amin(0);
 	temp.resources.amax(0);
 	temp.manaDiff = 0;
-	temp.manaPercentage = 0;
+	temp.manaPercentage = -1;
 	temp.spells.clear();
 	temp.creatures.clear();
 	temp.bonuses.clear();
@@ -209,7 +209,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CRewardableObject::serializeJsonOptions(handler);
 	
-	handler.serializeString("guardMessage", message);
+	handler.serializeStruct("guardMessage", message);
 	
 	if(!handler.saving)
 	{
@@ -297,7 +297,7 @@ void CGEvent::init()
 	{
 		i.reward.removeObject = removeAfterVisit;
 		if(!message.empty() && i.message.empty())
-			i.message = MetaString::createFromRawString(message);
+			i.message = message;
 	}
 }
 
@@ -327,7 +327,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		if(!message.empty())
-			iw.text.appendRawString(message);
+			iw.text = message;
 		else
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);

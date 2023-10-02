@@ -27,8 +27,8 @@ GeneralSettings::~GeneralSettings()
 void GeneralSettings::initialize(MapController & c)
 {
 	AbstractSettings::initialize(c);
-	ui->mapNameEdit->setText(tr(controller->map()->name.c_str()));
-	ui->mapDescriptionEdit->setPlainText(tr(controller->map()->description.c_str()));
+	ui->mapNameEdit->setText(QString::fromStdString(controller->map()->name.toString()));
+	ui->mapDescriptionEdit->setPlainText(QString::fromStdString(controller->map()->description.toString()));
 	ui->heroLevelLimit->setValue(controller->map()->levelLimit);
 	ui->heroLevelLimitCheck->setChecked(controller->map()->levelLimit);
 
@@ -59,8 +59,8 @@ void GeneralSettings::initialize(MapController & c)
 
 void GeneralSettings::update()
 {
-	controller->map()->name = ui->mapNameEdit->text().toStdString();
-	controller->map()->description = ui->mapDescriptionEdit->toPlainText().toStdString();
+	controller->map()->name = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "name"),  ui->mapNameEdit->text().toStdString()));
+	controller->map()->description = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "description"), ui->mapDescriptionEdit->toPlainText().toStdString()));
 	if(ui->heroLevelLimitCheck->isChecked())
 		controller->map()->levelLimit = ui->heroLevelLimit->value();
 	else

@@ -14,20 +14,20 @@
    <string>VCMI Map Editor</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_12">
     <property name="leftMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="topMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
-    <item row="0" column="0">
+    <item>
      <widget class="MapView" name="mapView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -51,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>37</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -63,6 +63,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionExport"/>
+    <addaction name="actionh3m_converter"/>
    </widget>
    <widget class="QMenu" name="menuMap">
     <property name="title">
@@ -70,6 +71,7 @@
     </property>
     <addaction name="actionMapSettings"/>
     <addaction name="actionPlayers_settings"/>
+    <addaction name="actionTranslations"/>
     <addaction name="actionValidate"/>
     <addaction name="actionUpdate_appearance"/>
     <addaction name="actionRecreate_obstacles"/>
@@ -140,6 +142,7 @@
    <addaction name="actionPaste"/>
    <addaction name="separator"/>
    <addaction name="actionFill"/>
+   <addaction name="actionTranslations"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
    <property name="sizePolicy">
@@ -156,7 +159,7 @@
    </property>
    <property name="maximumSize">
     <size>
-     <width>192</width>
+     <width>524287</width>
      <height>214</height>
     </size>
    </property>
@@ -219,7 +222,7 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_3">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -244,7 +247,7 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3">
     <property name="sizePolicy">
-     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -271,7 +274,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab_2">
         <property name="sizePolicy">
@@ -429,11 +432,17 @@
    <property name="minimumSize">
     <size>
      <width>128</width>
-     <height>496</height>
+     <height>192</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>524287</width>
+     <height>192</height>
     </size>
    </property>
    <property name="windowTitle">
-    <string>Terrains View</string>
+    <string>Tools</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -473,7 +482,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -488,6 +497,18 @@
         <string>Brush</string>
        </property>
        <layout class="QFormLayout" name="formLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="QPushButton" name="toolBrush">
           <property name="sizePolicy">
@@ -731,6 +752,36 @@
        </layout>
       </widget>
      </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_4">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>Painting</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_6">
+    <layout class="QVBoxLayout" name="verticalLayout_9">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QToolBox" name="toolBox">
        <property name="sizePolicy">
@@ -754,7 +805,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>251</height>
+          <height>192</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -797,7 +848,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>251</height>
+          <height>192</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -833,7 +884,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>251</height>
+          <height>192</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -865,6 +916,36 @@
        </widget>
       </widget>
      </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_5">
+   <property name="maximumSize">
+    <size>
+     <width>524287</width>
+     <height>150</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Preview</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_7">
+    <layout class="QVBoxLayout" name="verticalLayout_11">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QGraphicsView" name="objectPreview">
        <property name="minimumSize">
@@ -1235,6 +1316,29 @@
   <action name="actionExport">
    <property name="text">
     <string>Export as...</string>
+   </property>
+  </action>
+  <action name="actionTranslations">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:translations.png</normaloff>icons:translations.png</iconset>
+   </property>
+   <property name="text">
+    <string>Translations</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionh3m_converter">
+   <property name="text">
+    <string>h3m converter</string>
+   </property>
+   <property name="toolTip">
+    <string>h3m converter</string>
    </property>
   </action>
  </widget>

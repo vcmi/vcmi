@@ -140,7 +140,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 {
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
-	rmgObject.setTemplate(zone.getTerrainType());
+	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 
 	int3 position(-1, -1, -1);
 	{

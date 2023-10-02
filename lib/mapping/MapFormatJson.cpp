@@ -35,6 +35,7 @@
 #include "../constants/StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
+#include "../Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -341,11 +342,12 @@ namespace TerrainDetail
 }
 
 ///CMapFormatJson
-const int CMapFormatJson::VERSION_MAJOR = 1;
-const int CMapFormatJson::VERSION_MINOR = 3;
+const int CMapFormatJson::VERSION_MAJOR = 2;
+const int CMapFormatJson::VERSION_MINOR = 0;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
+const std::string CMapFormatJson::TERRAIN_FILE_NAMES[2] = {"surface_terrain.json", "underground_terrain.json"};
 
 CMapFormatJson::CMapFormatJson():
 	fileVersionMajor(0), fileVersionMinor(0),
@@ -413,8 +415,8 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 
 void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 {
-	handler.serializeString("name", mapHeader->name);
-	handler.serializeString("description", mapHeader->description);
+	handler.serializeStruct("name", mapHeader->name);
+	handler.serializeStruct("description", mapHeader->description);
 	handler.serializeInt("heroLevelLimit", mapHeader->levelLimit, 0);
 
 	//todo: support arbitrary percentage
@@ -424,10 +426,10 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 
 	handler.serializeLIC("allowedHeroes", &HeroTypeID::decode, &HeroTypeID::encode, VLC->heroh->getDefaultAllowed(), mapHeader->allowedHeroes);
 
-//	handler.serializeString("victoryString", mapHeader->victoryMessage);
+	handler.serializeStruct("victoryMessage", mapHeader->victoryMessage);
 	handler.serializeInt("victoryIconIndex", mapHeader->victoryIconIndex);
 
-//	handler.serializeString("defeatString", mapHeader->defeatMessage);
+	handler.serializeStruct("defeatMessage", mapHeader->defeatMessage);
 	handler.serializeInt("defeatIconIndex", mapHeader->defeatIconIndex);
 }
 
@@ -529,7 +531,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 					if(hero)
 					{
 						auto heroData = handler.enterStruct(hero->instanceName);
-						heroData->serializeString("name", hero->nameCustom);
+						heroData->serializeString("name", hero->nameCustomTextId);
 
 						if(hero->ID == Obj::HERO)
 						{
@@ -571,7 +573,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 				if(instanceName == info.mainHeroInstance)
 				{
 					//this is main hero
-					info.mainCustomHeroName = hname.heroName;
+					info.mainCustomHeroNameTextId = hname.heroName;
 					info.hasRandomHero = (hname.heroId == -1);
 					info.mainCustomHeroId = hname.heroId;
 					info.mainCustomHeroPortrait = -1;
@@ -905,6 +907,11 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 	return result;
 }
 
+bool CMapLoaderJson::isExistArchive(const std::string & archiveFilename)
+{
+	return loader.existsResource(JsonPath::builtin(archiveFilename));
+}
+
 JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 {
 	JsonPath resource = JsonPath::builtin(archiveFilename);
@@ -937,7 +944,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	fileVersionMajor = static_cast<int>(header["versionMajor"].Integer());
 
-	if(fileVersionMajor != VERSION_MAJOR)
+	if(fileVersionMajor > VERSION_MAJOR)
 	{
 		logGlobal->error("Unsupported map format version: %d", fileVersionMajor);
 		throw std::runtime_error("Unsupported map format version");
@@ -997,6 +1004,8 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	if(complete)
 		readOptions(handler);
+	
+	readTranslations();
 }
 
 void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile)
@@ -1122,12 +1131,12 @@ void CMapLoaderJson::readTerrainLevel(const JsonNode & src, const int index)
 void CMapLoaderJson::readTerrain()
 {
 	{
-		const JsonNode surface = getFromArchive("surface_terrain.json");
+		const JsonNode surface = getFromArchive(TERRAIN_FILE_NAMES[0]);
 		readTerrainLevel(surface, 0);
 	}
 	if(map->twoLevel)
 	{
-		const JsonNode underground = getFromArchive("underground_terrain.json");
+		const JsonNode underground = getFromArchive(TERRAIN_FILE_NAMES[1]);
 		readTerrainLevel(underground, 1);
 	}
 
@@ -1258,6 +1267,18 @@ void CMapLoaderJson::readObjects()
 	});
 }
 
+void CMapLoaderJson::readTranslations()
+{
+	std::list<Languages::Options> languages{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
+	for(auto & language : Languages::getLanguageList())
+	{
+		if(isExistArchive(language.identifier + ".json"))
+			mapHeader->translations.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
+	}
+	mapHeader->registerMapStrings();
+}
+
+
 ///CMapSaverJson
 CMapSaverJson::CMapSaverJson(CInputOutputStream * stream)
 	: buffer(stream)
@@ -1340,6 +1361,8 @@ void CMapSaverJson::writeHeader()
 
 	writeOptions(handler);
 
+	writeTranslations();
+
 	addToArchive(header, HEADER_FILE_NAME);
 }
 
@@ -1388,12 +1411,12 @@ void CMapSaverJson::writeTerrain()
 	//todo: multilevel map save support
 
 	JsonNode surface = writeTerrainLevel(0);
-	addToArchive(surface, "surface_terrain.json");
+	addToArchive(surface, TERRAIN_FILE_NAMES[0]);
 
 	if(map->twoLevel)
 	{
 		JsonNode underground = writeTerrainLevel(1);
-		addToArchive(underground, "underground_terrain.json");
+		addToArchive(underground, TERRAIN_FILE_NAMES[1]);
 	}
 }
 
@@ -1439,5 +1462,19 @@ void CMapSaverJson::writeObjects()
 	addToArchive(data, OBJECTS_FILE_NAME);
 }
 
+void CMapSaverJson::writeTranslations()
+{
+	for(auto & s : mapHeader->translations.Struct())
+	{
+		auto & language = s.first;
+		if(Languages::getLanguageOptions(language).identifier.empty())
+		{
+			logGlobal->error("Serializing of unsupported language %s is not permitted", language);
+			continue;;
+		}
+		logGlobal->trace("Saving translations, language: %s", language);
+		addToArchive(s.second, language + ".json");
+	}
+}
 
 VCMI_LIB_NAMESPACE_END

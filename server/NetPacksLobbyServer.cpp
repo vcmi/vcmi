@@ -189,6 +189,12 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 		srv.addToAnnounceQueue(std::move(ph));
 	}
 	srv.updateAndPropagateLobbyState();
+	
+	if(srv.getState() != EServerState::SHUTDOWN && srv.remoteConnections.count(pack.c))
+	{
+		srv.remoteConnections -= pack.c;
+		srv.connectToRemote();
+	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)

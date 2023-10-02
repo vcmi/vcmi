@@ -105,7 +105,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 	status = CCampaignScreen::ENABLED;
 
 	auto header = CampaignHandler::getHeader(campFile);
-	hoverText = header->getName();
+	hoverText = header->getNameTranslated();
 
 	if(persistentStorage["completedCampaigns"][header->getFilename()].Bool())
 		status = CCampaignScreen::COMPLETED;

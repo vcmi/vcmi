@@ -30,7 +30,7 @@ void RumorSettings::initialize(MapController & c)
 	for(auto & rumor : controller->map()->rumors)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(rumor.name));
-		item->setData(Qt::UserRole, QVariant(QString::fromStdString(rumor.text)));
+		item->setData(Qt::UserRole, QVariant(QString::fromStdString(rumor.text.toString())));
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 		ui->rumors->addItem(item);
 	}
@@ -43,7 +43,7 @@ void RumorSettings::update()
 	{
 		Rumor rumor;
 		rumor.name = ui->rumors->item(i)->text().toStdString();
-		rumor.text = ui->rumors->item(i)->data(Qt::UserRole).toString().toStdString();
+		rumor.text.appendTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "rumor", i, "text"), ui->rumors->item(i)->data(Qt::UserRole).toString().toStdString()));
 		controller->map()->rumors.push_back(rumor);
 	}
 }

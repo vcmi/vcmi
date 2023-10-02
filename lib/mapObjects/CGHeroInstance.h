@@ -74,8 +74,8 @@ public:
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	EHeroGender gender;
 
-	std::string nameCustom;
-	std::string biographyCustom;
+	std::string nameCustomTextId;
+	std::string biographyCustomTextId;
 
 	bool inTownGarrison; // if hero is in town garrison
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
@@ -319,8 +319,8 @@ public:
 		h & static_cast<CArtifactSet&>(*this);
 		h & exp;
 		h & level;
-		h & nameCustom;
-		h & biographyCustom;
+		h & nameCustomTextId;
+		h & biographyCustomTextId;
 		h & portrait;
 		h & mana;
 		h & secSkills;

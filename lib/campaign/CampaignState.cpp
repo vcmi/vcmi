@@ -134,14 +134,14 @@ bool CampaignHeader::formatVCMI() const
 	return version == CampaignVersion::VCMI;
 }
 
-std::string CampaignHeader::getDescription() const
+std::string CampaignHeader::getDescriptionTranslated() const
 {
-	return description;
+	return description.toString();
 }
 
-std::string CampaignHeader::getName() const
+std::string CampaignHeader::getNameTranslated() const
 {
-	return name;
+	return name.toString();
 }
 
 std::string CampaignHeader::getFilename() const
@@ -267,7 +267,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return a->getHeroStrength() > b->getHeroStrength();
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getName());
+	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getNameTranslated());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();

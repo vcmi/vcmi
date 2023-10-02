@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class MapReaderH3M;
+class MetaString;
 class CArtifactInstance;
 class CGObjectInstance;
 class CGSeerHut;
@@ -215,7 +216,7 @@ private:
 	/**
 	* read optional message and optional guards
 	*/
-	void readMessageAndGuards(std::string & message, CCreatureSet * guards, const int3 & position);
+	void readMessageAndGuards(MetaString & message, CCreatureSet * guards, const int3 & position);
 
 	/// reads string from input stream and converts it to unicode
 	std::string readBasicString();

@@ -42,6 +42,7 @@
 #include "objectbrowser.h"
 #include "inspector/inspector.h"
 #include "mapsettings/mapsettings.h"
+#include "mapsettings/translations.h"
 #include "playersettings.h"
 #include "validator.h"
 
@@ -300,6 +301,7 @@ void MainWindow::initializeMap(bool isNew)
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
+	ui->actionTranslations->setEnabled(true);
 	
 	//set minimal players count
 	if(isNew)
@@ -311,7 +313,7 @@ void MainWindow::initializeMap(bool isNew)
 	onPlayersChanged();
 }
 
-bool MainWindow::openMap(const QString & filenameSelect)
+std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect)
 {
 	QFileInfo fi(filenameSelect);
 	std::string fname = fi.fileName().toStdString();
@@ -325,26 +327,30 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
 	
 	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-	{
-		QMessageBox::warning(this, tr("Failed to open map"), tr("Cannot open map from this folder"));
-		return false;
-	}
+		throw std::runtime_error("Cannot open map from this folder");
 	
 	CMapService mapService;
+	if(auto header = mapService.loadMapHeader(resId))
+	{
+		auto missingMods = CMapService::verifyMapHeaderMods(*header);
+		ModIncompatibility::ModListWithVersion modList;
+		for(const auto & m : missingMods)
+			modList.push_back({m.second.name, m.second.version.toString()});
+		
+		if(!modList.empty())
+			throw ModIncompatibility(modList);
+		
+		return mapService.loadMap(resId);
+	}
+	else
+		throw std::runtime_error("Corrupted map");
+}
+
+bool MainWindow::openMap(const QString & filenameSelect)
+{
 	try
 	{
-		if(auto header = mapService.loadMapHeader(resId))
-		{
-			auto missingMods = CMapService::verifyMapHeaderMods(*header);
-			ModIncompatibility::ModListWithVersion modList;
-			for(const auto & m : missingMods)
-				modList.push_back({m.second.name, m.second.version.toString()});
-			
-			if(!modList.empty())
-				throw ModIncompatibility(modList);
-			
-			controller.setMap(mapService.loadMap(resId));
-		}
+		controller.setMap(openMapInternal(filenameSelect));
 	}
 	catch(const ModIncompatibility & e)
 	{
@@ -354,7 +360,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	}
 	catch(const std::exception & e)
 	{
-		QMessageBox::critical(this, "Failed to open map", e.what());
+		QMessageBox::critical(this, "Failed to open map", tr(e.what()));
 		return false;
 	}
 	
@@ -398,6 +404,8 @@ void MainWindow::saveMap()
 		else
 			QMessageBox::information(this, "Map validation", "Map has some errors. Open Validator from the Map menu to see issues found");
 	}
+	
+	Translations::cleanupRemovedItems(*controller.map());
 
 	CMapService mapService;
 	try
@@ -419,7 +427,7 @@ void MainWindow::on_actionSave_as_triggered()
 	if(!controller.map())
 		return;
 
-	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), "", tr("VCMI maps (*.vmap)"));
+	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), lastSavingDir, tr("VCMI maps (*.vmap)"));
 
 	if(filenameSelect.isNull())
 		return;
@@ -428,6 +436,7 @@ void MainWindow::on_actionSave_as_triggered()
 		return;
 
 	filename = filenameSelect;
+	lastSavingDir = filenameSelect.remove(QUrl(filenameSelect).fileName());
 
 	saveMap();
 }
@@ -445,16 +454,9 @@ void MainWindow::on_actionSave_triggered()
 		return;
 
 	if(filename.isNull())
-	{
-		auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), "", tr("VCMI maps (*.vmap)"));
-
-		if(filenameSelect.isNull())
-			return;
-
-		filename = filenameSelect;
-	}
-
-	saveMap();
+		on_actionSave_as_triggered();
+	else
+		saveMap();
 }
 
 void MainWindow::terrainButtonClicked(TerrainId terrain)
@@ -1229,13 +1231,49 @@ void MainWindow::on_actionPaste_triggered()
 
 void MainWindow::on_actionExport_triggered()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), QCoreApplication::applicationDirPath(), "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), lastSavingDir, "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
 	if(!fileName.isNull())
 	{
 		QImage image(ui->mapView->scene()->sceneRect().size().toSize(), QImage::Format_RGB888);
 		QPainter painter(&image);
 		ui->mapView->scene()->render(&painter);
 		image.save(fileName);
+	}
+}
+
+
+void MainWindow::on_actionTranslations_triggered()
+{
+	auto translationsDialog = new Translations(*controller.map(), this);
+	translationsDialog->show();
+}
+
+void MainWindow::on_actionh3m_converter_triggered()
+{
+	auto mapFiles = QFileDialog::getOpenFileNames(this, tr("Select maps to convert"),
+		QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()),
+		tr("HoMM3 maps(*.h3m)"));
+	if(mapFiles.empty())
+		return;
+	
+	auto saveDirectory = QFileDialog::getExistingDirectory(this, tr("Choose directory to save converted maps"), QCoreApplication::applicationDirPath());
+	if(saveDirectory.isEmpty())
+		return;
+	
+	try
+	{
+		for(auto & m : mapFiles)
+		{
+			CMapService mapService;
+			auto map = openMapInternal(m);
+			controller.repairMap(map.get());
+			mapService.saveMap(map, (saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap").toStdString());
+		}
+		QMessageBox::information(this, tr("Operation completed"), tr("Successfully converted %1 maps").arg(mapFiles.size()));
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(this, tr("Failed to convert the map. Abort operation"), tr(e.what()));
 	}
 }
 

@@ -405,8 +405,8 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 			return CGI->generaltexth->allTexts[522];
 		default:
 		{
-			if(!playerSettings.heroName.empty())
-				return playerSettings.heroName;
+			if(!playerSettings.heroNameTextId.empty())
+				return playerSettings.heroNameTextId;
 			auto index = playerSettings.hero.getNum() >= CGI->heroh->size() ? 0 : playerSettings.hero.getNum();
 			return (*CGI->heroh)[index]->getNameTranslated();
 		}
@@ -927,7 +927,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 			if(!doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
-				if(settings["general"]["enableUiEnhancements"].Bool() && helper.playerSettings.hero.getNum() > PlayerSettings::RANDOM && helper.playerSettings.heroName.empty())
+				if(settings["general"]["enableUiEnhancements"].Bool() && helper.playerSettings.hero.getNum() > PlayerSettings::RANDOM && helper.playerSettings.heroNameTextId.empty())
 					GH.windows().createAndPushWindow<CHeroOverview>(helper.playerSettings.hero);
 				else
 					GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
@@ -1013,7 +1013,7 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 	if(playerSettings.hero.getNum() == PlayerSettings::NONE && !SEL->getPlayerInfo(playerSettings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 		return;
 
-	if(settings["general"]["enableUiEnhancements"].Bool() && CPlayerSettingsHelper::type == HERO && playerSettings.hero.getNum() > PlayerSettings::RANDOM && playerSettings.heroName.empty())
+	if(settings["general"]["enableUiEnhancements"].Bool() && CPlayerSettingsHelper::type == HERO && playerSettings.hero.getNum() > PlayerSettings::RANDOM && playerSettings.heroNameTextId.empty())
 		GH.windows().createAndPushWindow<CHeroOverview>(playerSettings.hero);
 	else
 		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);

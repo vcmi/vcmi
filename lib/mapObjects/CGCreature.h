@@ -11,6 +11,7 @@
 
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,7 @@ public:
 
 	ui32 identifier; //unique code for this monster (used in missions)
 	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
-	std::string message; //message printed for attacking hero
+	MetaString message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters
 	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
 	bool neverFlees; //if true, the troops will never flee

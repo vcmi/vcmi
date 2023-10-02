@@ -11,6 +11,7 @@
 #include "CGeneralTextHandler.h"
 
 #include "filesystem/Filesystem.h"
+#include "serializer/JsonSerializeFormat.h"
 #include "CConfigHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/CQuest.h"
@@ -247,67 +248,7 @@ bool CLegacyConfigParser::endLine()
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
-{
-	CLegacyConfigParser parser(TextPath::builtin(sourceName));
-	size_t index = 0;
-	do
-	{
-		registerString( "core", {sourceID, index}, parser.readString());
-		index += 1;
-	}
-	while (parser.endLine());
-}
-
-const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & identifier) const
-{
-	if(stringsLocalizations.count(identifier.get()) == 0)
-	{
-		logGlobal->error("Unable to find localization for string '%s'", identifier.get());
-		return identifier.get();
-	}
-
-	const auto & entry = stringsLocalizations.at(identifier.get());
-
-	if (!entry.overrideValue.empty())
-		return entry.overrideValue;
-	return entry.baseValue;
-}
-
-void CGeneralTextHandler::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
-{
-	assert(!modContext.empty());
-	assert(!getModLanguage(modContext).empty());
-	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-	//assert(stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
-
-	if(stringsLocalizations.count(UID.get()) > 0)
-	{
-		auto & value = stringsLocalizations[UID.get()];
-
-		if(value.baseLanguage.empty())
-		{
-			value.baseLanguage = getModLanguage(modContext);
-			value.baseValue = localized;
-		}
-		else
-		{
-			if(value.baseValue != localized)
-				logMod->warn("Duplicate registered string '%s' found! Old value: '%s', new value: '%s'", UID.get(), value.baseValue, localized);
-		}
-	}
-	else
-	{
-		StringState result;
-		result.baseLanguage = getModLanguage(modContext);
-		result.baseValue = localized;
-		result.modContext = modContext;
-
-		stringsLocalizations[UID.get()] = result;
-	}
-}
-
-void CGeneralTextHandler::registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized)
+void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized)
 {
 	assert(!modContext.empty());
 	assert(!language.empty());
@@ -321,7 +262,66 @@ void CGeneralTextHandler::registerStringOverride(const std::string & modContext,
 		entry.modContext = modContext;
 }
 
-bool CGeneralTextHandler::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
+void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
+{
+	subContainers.insert(&container);
+}
+
+void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
+{
+	subContainers.erase(&container);
+}
+
+const std::string & TextLocalizationContainer::deserialize(const TextIdentifier & identifier) const
+{
+	if(stringsLocalizations.count(identifier.get()) == 0)
+	{
+		for(const auto * container : subContainers)
+			if(container->identifierExists(identifier))
+				return container->deserialize(identifier);
+		
+		logGlobal->error("Unable to find localization for string '%s'", identifier.get());
+		return identifier.get();
+	}
+
+	const auto & entry = stringsLocalizations.at(identifier.get());
+
+	if (!entry.overrideValue.empty())
+		return entry.overrideValue;
+	return entry.baseValue;
+}
+
+void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
+{
+	assert(!modContext.empty());
+	assert(!Languages::getLanguageOptions(language).identifier.empty());
+	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
+	//assert(stringsLocalizations.count(UID.get()) == 0); // registering already registered string?
+
+	if(stringsLocalizations.count(UID.get()) > 0)
+	{
+		auto & value = stringsLocalizations[UID.get()];
+		value.baseLanguage = language;
+		value.baseValue = localized;
+	}
+	else
+	{
+		StringState value;
+		value.baseLanguage = language;
+		value.baseValue = localized;
+		value.modContext = modContext;
+
+		stringsLocalizations[UID.get()] = value;
+	}
+}
+
+void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized)
+{
+	assert(!getModLanguage(modContext).empty());
+	registerString(modContext, UID, localized, getModLanguage(modContext));
+}
+
+bool TextLocalizationContainer::validateTranslation(const std::string & language, const std::string & modContext, const JsonNode & config) const
 {
 	bool allPresent = true;
 
@@ -372,10 +372,58 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 	return allPresent && allFound;
 }
 
-void CGeneralTextHandler::loadTranslationOverrides(const std::string & language, const std::string & modContext, const JsonNode & config)
+void TextLocalizationContainer::loadTranslationOverrides(const std::string & language, const std::string & modContext, const JsonNode & config)
 {
 	for(const auto & node : config.Struct())
 		registerStringOverride(modContext, language, node.first, node.second.String());
+}
+
+bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) const
+{
+	return stringsLocalizations.count(UID.get());
+}
+
+void TextLocalizationContainer::dumpAllTexts()
+{
+	logGlobal->info("BEGIN TEXT EXPORT");
+	for(const auto & entry : stringsLocalizations)
+	{
+		if (!entry.second.overrideValue.empty())
+			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.overrideValue));
+		else
+			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.baseValue));
+	}
+
+	logGlobal->info("END TEXT EXPORT");
+}
+
+std::string TextLocalizationContainer::getModLanguage(const std::string & modContext)
+{
+	if (modContext == "core")
+		return CGeneralTextHandler::getInstalledLanguage();
+	return VLC->modh->getModLanguage(modContext);
+}
+
+void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
+{
+	for(auto & s : stringsLocalizations)
+	{
+		dest.Struct()[s.first].String() = s.second.baseValue;
+		if(!s.second.overrideValue.empty())
+			dest.Struct()[s.first].String() = s.second.overrideValue;
+	}
+}
+
+void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
+{
+	CLegacyConfigParser parser(TextPath::builtin(sourceName));
+	size_t index = 0;
+	do
+	{
+		registerString( "core", {sourceID, index}, parser.readString());
+		index += 1;
+	}
+	while (parser.endLine());
 }
 
 CGeneralTextHandler::CGeneralTextHandler():
@@ -591,20 +639,6 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 	return textIndex + 1;
 }
 
-void CGeneralTextHandler::dumpAllTexts()
-{
-	logGlobal->info("BEGIN TEXT EXPORT");
-	for(const auto & entry : stringsLocalizations)
-	{
-		if (!entry.second.overrideValue.empty())
-			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.overrideValue));
-		else
-			logGlobal->info(R"("%s" : "%s",)", entry.first, TextOperations::escapeString(entry.second.baseValue));
-	}
-
-	logGlobal->info("END TEXT EXPORT");
-}
-
 size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
 {
 	assert(campaignID < scenariosCountPerCampaign.size());
@@ -612,13 +646,6 @@ size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
 	if(campaignID < scenariosCountPerCampaign.size())
 		return scenariosCountPerCampaign[campaignID];
 	return 0;
-}
-
-std::string CGeneralTextHandler::getModLanguage(const std::string & modContext)
-{
-	if (modContext == "core")
-		return getInstalledLanguage();
-	return VLC->modh->getModLanguage(modContext);
 }
 
 std::string CGeneralTextHandler::getPreferredLanguage()

@@ -64,6 +64,7 @@ public:
 
 	boost::program_options::variables_map cmdLineOptions;
 	std::set<std::shared_ptr<CConnection>> connections;
+	std::set<std::shared_ptr<CConnection>> remoteConnections;
 	std::set<std::shared_ptr<CConnection>> hangingConnections; //keep connections of players disconnected during the game
 	
 	std::atomic<int> currentClientId;
@@ -78,7 +79,7 @@ public:
 	void startGameImmidiately();
 
 	void establishRemoteConnections();
-	void connectToRemote(const std::string & addr, int port);
+	void connectToRemote();
 	void startAsyncAccept();
 	void connectionAccepted(const boost::system::error_code & ec);
 	void threadHandleClient(std::shared_ptr<CConnection> c);

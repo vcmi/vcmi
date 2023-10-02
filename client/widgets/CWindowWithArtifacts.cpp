@@ -254,7 +254,7 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
 {
-	updateSlots(artLoc.slot);
+	updateSlots();
 }
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
@@ -329,26 +329,23 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 
 void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation & artLoc)
 {
-	updateSlots(artLoc.slot);
+	updateSlots();
 }
 
 void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
 {
 	markPossibleSlots();
-	updateSlots(artLoc.slot);
+	updateSlots();
 }
 
-void CWindowWithArtifacts::updateSlots(const ArtifactPosition & slot)
+void CWindowWithArtifacts::updateSlots()
 {
-	auto updateSlotBody = [slot](auto artSetWeak) -> void
+	auto updateSlotBody = [](auto artSetWeak) -> void
 	{
 		if(const auto artSetPtr = artSetWeak.lock())
 		{
-			if(ArtifactUtils::isSlotEquipment(slot))
-				artSetPtr->updateWornSlots();
-			else if(ArtifactUtils::isSlotBackpack(slot))
-				artSetPtr->updateBackpackSlots();
-
+			artSetPtr->updateWornSlots();
+			artSetPtr->updateBackpackSlots();
 			artSetPtr->redraw();
 		}
 	};
