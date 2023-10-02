@@ -22,16 +22,14 @@ class CRandomGenerator;
 
 struct ObjectInfo
 {
-	std::shared_ptr<const ObjectTemplate> templ;
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 	ui32 value = 0;
 	ui16 probability = 0;
 	ui32 maxPerZone = 1;
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	
-	void setTemplate(si32 type, si32 subtype, TerrainId terrain);
-
-	bool operator==(const ObjectInfo& oi) const { return (templ == oi.templ); }
+	void setTemplates(si32 type, si32 subtype, TerrainId terrain);
 };
 
 class TreasurePlacer: public Modificator

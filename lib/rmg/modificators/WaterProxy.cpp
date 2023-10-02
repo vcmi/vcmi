@@ -254,7 +254,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(sailingBoatTypes, zone.getRand()))->create());
 
 	rmg::Object rmgObject(*boat);
-	rmgObject.setTemplate(zone.getTerrainType());
+	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 
 	auto waterAvailable = zone.areaPossible() + zone.freePaths();
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
@@ -319,7 +319,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	rmg::Object rmgObject(*shipyard);
-	rmgObject.setTemplate(land.getTerrainType());
+	rmgObject.setTemplate(land.getTerrainType(), zone.getRand());
 	bool guarded = manager->addGuard(rmgObject, guard);
 	
 	auto waterAvailable = zone.areaPossible() + zone.freePaths();
