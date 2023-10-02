@@ -229,6 +229,8 @@
 		<Unit filename="windows/CCreatureWindow.h" />
 		<Unit filename="windows/CHeroOverview.cpp" />
 		<Unit filename="windows/CHeroOverview.h" />
+		<Unit filename="windows/CMapOverview.cpp" />
+		<Unit filename="windows/CMapOverview.h" />
 		<Unit filename="windows/CHeroWindow.cpp" />
 		<Unit filename="windows/CHeroWindow.h" />
 		<Unit filename="windows/CKingdomInterface.cpp" />

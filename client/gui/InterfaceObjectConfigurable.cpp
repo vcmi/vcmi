@@ -56,6 +56,8 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
 	REGISTER_BUILDER("comboBox", &InterfaceObjectConfigurable::buildComboBox);
 	REGISTER_BUILDER("textInput", &InterfaceObjectConfigurable::buildTextInput);
+	REGISTER_BUILDER("transparentFilledRectangle", &InterfaceObjectConfigurable::buildTransparentFilledRectangle);
+	REGISTER_BUILDER("textBox", &InterfaceObjectConfigurable::buildTextBox);
 }
 
 void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
@@ -682,6 +684,33 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 		anim->set(group, b, e);
 	}
 	return anim;
+}
+
+std::shared_ptr<TransparentFilledRectangle> InterfaceObjectConfigurable::buildTransparentFilledRectangle(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget TransparentFilledRectangle");
+
+	auto rect = readRect(config["rect"]);
+	auto color = readColor(config["color"]);
+	if(!config["colorLine"].isNull())
+	{
+		auto colorLine = readColor(config["colorLine"]);
+		return std::make_shared<TransparentFilledRectangle>(rect, color, colorLine);
+	}
+	return std::make_shared<TransparentFilledRectangle>(rect, color);
+}
+
+std::shared_ptr<CTextBox> InterfaceObjectConfigurable::buildTextBox(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget CTextBox");
+
+	auto rect = readRect(config["rect"]);
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+	auto text = readText(config["text"]);
+
+	return std::make_shared<CTextBox>(text, rect, 0, font, alignment, color);
 }
 
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode config) const

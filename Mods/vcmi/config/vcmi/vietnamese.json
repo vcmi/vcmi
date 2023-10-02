@@ -50,7 +50,7 @@
   "vcmi.mainMenu.joinTCP": "Tham gia TCP/IP",
   "vcmi.mainMenu.playerName": "Người chơi",
 
-  "vcmi.lobby.filename": "Tên tập tin",
+  "vcmi.lobby.filepath": "Tên tập tin",
   "vcmi.lobby.creationDate": "Ngày tạo",
 
   "vcmi.server.errors.existingProcess": "1 chương trình VCMI khác đang chạy. Tắt nó trước khi mở cái mới",

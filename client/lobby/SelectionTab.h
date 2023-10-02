@@ -67,25 +67,6 @@ class SelectionTab : public CIntObject
 	// FIXME: CSelectionBase use them too!
 	std::shared_ptr<CAnimation> iconsVictoryCondition;
 	std::shared_ptr<CAnimation> iconsLossCondition;
-
-	class CMapInfoTooltipBox : public CWindowObject
-	{
-		const int IMAGE_SIZE = 169;
-		const int BORDER = 30;
-
-		bool drawPlayerElements;
-		bool renderImage;
-
-		std::shared_ptr<CFilledTexture> backgroundTexture;
-		std::shared_ptr<CTextBox> label;
-		std::shared_ptr<CPicture> image1;
-		std::shared_ptr<CPicture> image2;
-
-		Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer);
-		std::vector<std::shared_ptr<IImage>> createMinimaps(ResourcePath resource, int size);
-	public:
-		CMapInfoTooltipBox(std::string text, ResourcePath resource, ESelectionScreen tabType);
-	};
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;

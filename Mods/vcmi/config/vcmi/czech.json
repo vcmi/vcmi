@@ -44,7 +44,7 @@
 	"vcmi.mainMenu.joinTCP" : "Připojit se do hry TCP/IP",
 	"vcmi.mainMenu.playerName" : "Hráč",
 	
-	"vcmi.lobby.filename" : "Název souboru",
+	"vcmi.lobby.filepath" : "Název souboru",
 	"vcmi.lobby.creationDate" : "Datum vytvoření",
 
 	"vcmi.server.errors.existingProcess" : "Již běží jiný server VCMI. Prosím, ukončete ho před startem nové hry.",
