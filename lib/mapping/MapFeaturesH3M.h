@@ -21,6 +21,7 @@ public:
 	static MapFormatFeaturesH3M getFeaturesROE();
 	static MapFormatFeaturesH3M getFeaturesAB();
 	static MapFormatFeaturesH3M getFeaturesSOD();
+	static MapFormatFeaturesH3M getFeaturesCHR();
 	static MapFormatFeaturesH3M getFeaturesWOG();
 	static MapFormatFeaturesH3M getFeaturesHOTA(uint32_t hotaVersion);
 

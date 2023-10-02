@@ -81,13 +81,14 @@ ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, 
 {
 	auto const & region = regions[static_cast<int>(which)];
 
-	static const std::string colors[2][8] =
+	static const std::string colors[3][8] =
 	{
+		{"", "", "", "", "", "", "", ""},
 		{"R", "B", "N", "G", "O", "V", "T", "P"},
 		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
 	};
 
-	std::string color = colors[colorSuffixLength - 1][colorIndex];
+	std::string color = colors[colorSuffixLength][colorIndex];
 
 	return ImagePath::builtin(campPrefix + region.infix + "_" + type + color + ".BMP");
 }
@@ -107,6 +108,11 @@ ImagePath CampaignRegions::getConqueredName(CampaignScenarioID which, int color)
 	return getNameFor(which, color, "Co");
 }
 
+int CampaignRegions::getRegionCount() const
+{
+	return regions.size();
+}
+
 
 bool CampaignBonus::isBonusForHero() const
 {
@@ -121,7 +127,7 @@ bool CampaignBonus::isBonusForHero() const
 void CampaignHeader::loadLegacyData(ui8 campId)
 {
 	campaignRegions = CampaignRegions::getLegacy(campId);
-	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
+	numberOfScenarios = campaignRegions.getRegionCount();
 }
 
 bool CampaignHeader::playerSelectedDifficulty() const
@@ -132,6 +138,12 @@ bool CampaignHeader::playerSelectedDifficulty() const
 bool CampaignHeader::formatVCMI() const
 {
 	return version == CampaignVersion::VCMI;
+}
+
+
+CampaignVersion CampaignHeader::formatVersion() const
+{
+	return version;
 }
 
 std::string CampaignHeader::getDescriptionTranslated() const

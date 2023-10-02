@@ -381,7 +381,27 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
 {
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
-	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
+	ui8 campId = reader.readUInt8();
+	if (ret.version != CampaignVersion::Chr)
+	{
+		campId--; //change range of it from [1, 20] to [0, 19]
+	}
+	else
+	{
+		std::vector<int> chroniclesCampaigns = {0, 3, 6, 9, 12, 13, 14, 17};
+
+		auto it = std::find(chroniclesCampaigns.begin(), chroniclesCampaigns.end(), campId);
+		if (it != chroniclesCampaigns.end())
+		{
+			auto index = std::distance(chroniclesCampaigns.begin(), it);
+			campId = 20 + index;
+		}
+		else
+		{
+			logGlobal->error("Unknown chronicles campaign: %s with ID %d", filename, campId);
+		}
+	}
+
 	ret.loadLegacyData(campId);
 	ret.name.appendTextID(readLocalizedString(reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(reader, filename, modName, encoding, "description"));

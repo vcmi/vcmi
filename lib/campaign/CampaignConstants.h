@@ -18,7 +18,7 @@ enum class CampaignVersion : uint8_t
 	AB = 5,
 	SoD = 6,
 	WoG = 6,
-	//		Chr = 7, // Heroes Chronicles, likely identical to SoD, untested
+	Chr = 7,
 
 	VCMI = 1,
 	VCMI_MIN = 1,

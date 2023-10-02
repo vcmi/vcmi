@@ -229,6 +229,120 @@
 				{ "infix": "C", "x": 141, "y": 21 },
 				{ "infix": "D", "x": 243, "y": 156 }
 			]
+		},
+		
+		{
+			"prefix": "Hc1",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 },
+				{ "infix": "F", "x": 225, "y": 303 },
+				{ "infix": "G", "x": 27, "y": 433 },
+				{ "infix": "H", "x": 225, "y": 433 }
+			]
+		},
+		
+		{
+			"prefix": "Hc2",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 },
+				{ "infix": "F", "x": 225, "y": 303 },
+				{ "infix": "G", "x": 27, "y": 433 },
+				{ "infix": "H", "x": 225, "y": 433 }
+			]
+		},
+		
+		{
+			"prefix": "Hc3",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 },
+				{ "infix": "F", "x": 225, "y": 303 },
+				{ "infix": "G", "x": 27, "y": 433 },
+				{ "infix": "H", "x": 225, "y": 433 }
+			]
+		},
+		
+		{
+			"prefix": "Hc4",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 },
+				{ "infix": "F", "x": 225, "y": 303 },
+				{ "infix": "G", "x": 27, "y": 433 },
+				{ "infix": "H", "x": 225, "y": 433 }
+			]
+		},
+		
+		{
+			"prefix": "Hc5",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 }
+			]
+		},
+		
+		{
+			"prefix": "Hc6",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 }
+			]
+		},
+		
+		{
+			"prefix": "Hc7",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 },
+				{ "infix": "F", "x": 225, "y": 303 },
+				{ "infix": "G", "x": 27, "y": 433 },
+				{ "infix": "H", "x": 225, "y": 433 }
+			]
+		},
+		
+		{
+			"prefix": "Hc8",
+			"color_suffix_length": 0,
+			"desc": [
+				{ "infix": "A", "x": 27, "y": 43 },
+				{ "infix": "B", "x": 225, "y": 43 },
+				{ "infix": "C", "x": 27, "y": 173 },
+				{ "infix": "D", "x": 225, "y": 173 },
+				{ "infix": "E", "x": 27, "y": 303 },
+				{ "infix": "F", "x": 225, "y": 303 },
+				{ "infix": "G", "x": 27, "y": 433 },
+				{ "infix": "H", "x": 225, "y": 433 }
+			]
 		}
 	]
 }
