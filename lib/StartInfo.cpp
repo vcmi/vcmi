@@ -67,7 +67,7 @@ std::vector<std::string> StartInfo::getPlayerNames() const
 			continue;
 
 		auto playerInfo = playerInfos.at(player);
-		if(playerInfos.at(player).isControlledByHuman())
+		if(playerInfo.isControlledByHuman())
 		{
 			playerNames.push_back(playerInfo.name);
 		}
