@@ -296,7 +296,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Install additional files</string>
+        <string>Install chronicles files</string>
        </property>
       </widget>
      </item>

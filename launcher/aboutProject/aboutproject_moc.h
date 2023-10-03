@@ -17,6 +17,9 @@ class AboutProjectView;
 
 class CModListView;
 
+struct ArchiveEntry;
+class CArchiveLoader;
+
 class AboutProjectView : public QWidget
 {
 	Q_OBJECT
@@ -53,4 +56,6 @@ private slots:
 private:
 	Ui::AboutProjectView * ui;
 
+	void extractChronicles(int chronicleId, QDir sourceRoot);
+	void extractFile(std::function<void(ArchiveEntry, CArchiveLoader, std::string)> cb, QWidget * parent, QDir src, std::string srcFile, std::string dstFolder);
 };
