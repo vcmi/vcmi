@@ -113,7 +113,19 @@ void AboutProjectView::on_pushInstallAdditional_clicked()
 		return;
 	}
 
-	int chronicle = 1;
+	int chronicle = -1;
+	std::vector<std::string> names = { "Warlords.exe", "Underworld.exe", "Elements.exe", "Dragons.exe", "WorldTree.exe", "FieryMoon.exe", "Beastmaster.exe", "Sword.exe" };
+	for (int i = 0; i < names.size(); i++)
+	{
+		if(file.fileName().toStdString() == names[i])
+			chronicle = i + 1;
+	}
+	if(chronicle == -1)
+	{
+		QMessageBox::critical(this, "Chronicles data not found!", "Unknown or unsupported Chronicles found.\nPlease select directory with Heroes Chronicles.");
+		return;
+	}
+
 	std::string dest = VCMIDirs::get().userDataPath().append("Data").string();
 	std::string src = QFileInfo(sourceData, files[0]).absoluteFilePath().toStdString();
 	CArchiveLoader archive("/DATA", src, false);
@@ -140,6 +152,30 @@ void AboutProjectView::on_pushInstallAdditional_clicked()
 			std::string tmp = dest + "/" + elem.second.name;
 			QFile f(QString::fromUtf8(tmp.data(), int(tmp.size())));
 			tmp = dest + "/" + "Hc" + std::to_string(chronicle) + "_BG.pcx";
+			f.rename(QString::fromUtf8(tmp.data(), int(tmp.size())));
+		}
+	}
+
+
+
+	dest = VCMIDirs::get().userDataPath().append("Maps").string();
+	files = sourceData.entryList({"xlBitmap.lod"}, QDir::Filter::Files);
+
+	if(files.empty())
+	{
+		QMessageBox::critical(this, "Chronicles data not found!", "Unknown or unsupported Chronicles found.\nPlease select directory with Heroes Chronicles.");
+		return;
+	}
+
+	src = QFileInfo(sourceData, files[0]).absoluteFilePath().toStdString();
+	archive = CArchiveLoader("/DATA", src, false);
+	for (const auto& elem: archive.getEntries()) {
+		if(!elem.second.name.find("Main"))
+		{
+			archive.extractToFolder(dest, "/DATA", elem.second, true);
+			std::string tmp = dest + "/" + elem.second.name;
+			QFile f(QString::fromUtf8(tmp.data(), int(tmp.size())));
+			tmp = dest + "/" + "Hc" + std::to_string(chronicle) + ".h3c";
 			f.rename(QString::fromUtf8(tmp.data(), int(tmp.size())));
 		}
 	}
