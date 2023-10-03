@@ -93,8 +93,8 @@ public:
 	bool formatVCMI() const;
 	CampaignVersion formatVersion() const;
 
-	MetaString getDescription() const;
-	MetaString getName() const;
+	std::string getDescription() const;
+	std::string getName() const;
 	std::string getFilename() const;
 	std::string getModName() const;
 	std::string getEncoding() const;
