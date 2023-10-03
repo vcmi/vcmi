@@ -150,7 +150,7 @@ void AboutProjectView::extractChronicles(int chronicleId, QDir sourceRoot)
 			QFile::remove(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + "_BG.pcx"));
 			QFile(QString::fromStdString(dest + sep + entry.name)).rename(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + "_BG.pcx"));
 		}
-	}, this, sourceData, "xBitmap.lod", "Data");
+	}, this, sourceData, "xBitmap.lod", "HcData");
 
 
 	extractFile([chronicleId, sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
@@ -160,36 +160,30 @@ void AboutProjectView::extractChronicles(int chronicleId, QDir sourceRoot)
 			QFile::remove(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + ".h3c"));
 			QFile(QString::fromStdString(dest + sep + entry.name)).rename(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + ".h3c"));
 		}
-	}, this, sourceData, "xlBitmap.lod", "Maps");
+	}, this, sourceData, "xlBitmap.lod", "HcMaps");
 	if(chronicleId == 5) // special case "The World Tree"
 	{
 		QDir sourceMaps = sourceRoot.filePath(sourceRoot.entryList({"maps"}, QDir::Filter::Dirs).front());
-		QFile(QDir::cleanPath(sourceMaps.absolutePath() + QDir::separator() + "Main.h3c")).copy(QString::fromStdString(VCMIDirs::get().userDataPath().append("Maps").string() + sep + "Hc" + std::to_string(chronicleId) + ".h3c"));
+		QFile(QDir::cleanPath(sourceMaps.absolutePath() + QDir::separator() + "Main.h3c")).copy(QString::fromStdString(VCMIDirs::get().userDataPath().append("HcMaps").string() + sep + "Hc" + std::to_string(chronicleId) + ".h3c"));
 	}
 
-	extractFile([chronicleId, sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
+	extractFile([sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
 		if(!boost::algorithm::to_lower_copy(entry.name).find("gamselbk") || !boost::algorithm::to_lower_copy(entry.name).find("loadbar"))
 		{
 			archive.extractToFolder(dest, "", entry, true);
-			QFile::remove(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + entry.name));
-			QFile(QString::fromStdString(dest + sep + entry.name)).rename(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + entry.name));
 		}
-	}, this, sourceData, "xlBitmap.lod", "Data");
+	}, this, sourceData, "xlBitmap.lod", "Hc" + std::to_string(chronicleId) + "Data");
 
-	extractFile([chronicleId, sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
+	extractFile([sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
 		archive.extractToFolder(dest, "", entry, true);
-		QFile::remove(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + entry.name));
-		QFile(QString::fromStdString(dest + sep + entry.name)).rename(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + entry.name));
-	}, this, sourceData, "xSound.snd", "Data");
+	}, this, sourceData, "xSound.snd", "Hc" + std::to_string(chronicleId) + "Data");
 
-	extractFile([chronicleId, sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
+	extractFile([sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
 		if(!boost::algorithm::to_lower_copy(entry.name).find("intro"))
 		{
 			archive.extractToFolder(dest, "", entry, true);
-			QFile::remove(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + entry.name));
-			QFile(QString::fromStdString(dest + sep + entry.name)).rename(QString::fromStdString(dest + sep + "Hc" + std::to_string(chronicleId) + entry.name));
 		}
-	}, this, sourceData, "xVideo.vid", "Data");
+	}, this, sourceData, "xVideo.vid", "Hc" + std::to_string(chronicleId) + "Data");
 
 	extractFile([sep](ArchiveEntry entry, CArchiveLoader archive, std::string dest){
 		for(auto & item : std::vector<std::string>{"HPL003sh", "HPL102br", "HPL139", "HPS006kn", "HPS137", "HPS141", "HPL004sh", "hpl112bs", "HPL140", "hps007sh", "HPS138", "HPS142", "HPL006kn", "HPL137", "HPS003sh", "HPS102br", "HPS139", "HPS143", "hpl007sh", "HPL138", "HPS004sh", "hps112bs", "HPS140"})
@@ -197,11 +191,9 @@ void AboutProjectView::extractChronicles(int chronicleId, QDir sourceRoot)
 			if(!boost::algorithm::to_lower_copy(entry.name).find(boost::algorithm::to_lower_copy(item)))
 			{
 				archive.extractToFolder(dest, "", entry, true);
-				QFile::remove(QString::fromStdString(dest + sep + "Hc" + entry.name));
-				QFile(QString::fromStdString(dest + sep + entry.name)).rename(QString::fromStdString(dest + sep + "Hc" + entry.name));
 			}
 		}
-	}, this, sourceDataParent, "bitmap.lod", "Data");
+	}, this, sourceDataParent, "bitmap.lod", "Hc" + std::to_string(chronicleId) + "Data");
 }
 
 void AboutProjectView::extractFile(std::function<void(ArchiveEntry, CArchiveLoader, std::string)> cb, QWidget * parent, QDir src, std::string srcFile, std::string dstFolder)

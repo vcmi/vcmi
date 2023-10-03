@@ -13,7 +13,8 @@
 			{"type" : "lod", "path" : "Data/h3abp_bm.lod"}, // Localized versions only, contains H3:AB patch data
 			{"type" : "lod", "path" : "Data/H3bitmap.lod"}, // Contains H3:SoD data (overrides H3:AB data)
 			{"type" : "lod", "path" : "Data/H3pbitma.lod"}, // Localized versions only, contains H3:SoD patch data
-			{"type" : "dir",  "path" : "Data"}
+			{"type" : "dir",  "path" : "Data"},
+			{"type" : "dir",  "path" : "HcData"} // Chronicles
 		],
 		"SPRITES/":
 		[
@@ -47,7 +48,8 @@
 		],
 		"MAPS/":
 		[
-			{"type" : "dir",  "path" : "Maps"}
+			{"type" : "dir",  "path" : "Maps"},
+			{"type" : "dir",  "path" : "HcMaps"} // Chronicles
 		],
 		"MODS/":
 		[
