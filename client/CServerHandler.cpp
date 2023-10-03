@@ -418,6 +418,9 @@ void CServerHandler::sendClientDisconnecting()
 		logNetwork->info("Sent leaving signal to the server");
 	}
 	sendLobbyPack(lcd);
+	
+	c->close();
+	c.reset();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
@@ -658,7 +661,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
 {
-	if(si->campState->formatVersion() == CampaignVersion::Chr)
+if(si->campState->formatVersion() == CampaignVersion::Chr)
 		CResourceHandler::removeFilesystem("data", "Hc" + std::to_string(si->campState->getCampId()) + "Data");
 
 	client->endGame();
@@ -705,7 +708,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		highScoreCalc->isCampaign = true;
 		highScoreCalc->parameters.clear();
 	}
-	param.campaignName = cs->getName();
+	param.campaignName = cs->getNameTranslated();
 	highScoreCalc->parameters.push_back(param);
 
 	GH.dispatchMainThread([ourCampaign, this]()

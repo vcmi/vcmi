@@ -83,7 +83,7 @@ ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, 
 
 	static const std::string colors[3][8] =
 	{
-		{"", "", "", "", "", "", "", ""},
+{"", "", "", "", "", "", "", ""},
 		{"R", "B", "N", "G", "O", "V", "T", "P"},
 		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
 	};
@@ -146,14 +146,14 @@ CampaignVersion CampaignHeader::formatVersion() const
 	return version;
 }
 
-std::string CampaignHeader::getDescription() const
+std::string CampaignHeader::getDescriptionTranslated() const
 {
-	return description;
+	return description.toString();
 }
 
-std::string CampaignHeader::getName() const
+std::string CampaignHeader::getNameTranslated() const
 {
-	return name;
+	return name.toString();
 }
 
 std::string CampaignHeader::getFilename() const
@@ -284,7 +284,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return a->getHeroStrength() > b->getHeroStrength();
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getName());
+	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getNameTranslated());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();
