@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../StdInc.h"
+#include "../../lib/filesystem/CArchiveLoader.h"
 
 namespace Ui
 {
@@ -16,9 +17,6 @@ class AboutProjectView;
 }
 
 class CModListView;
-
-struct ArchiveEntry;
-class CArchiveLoader;
 
 class AboutProjectView : public QWidget
 {
