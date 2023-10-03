@@ -662,7 +662,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
 {
 if(si->campState->formatVersion() == CampaignVersion::Chr)
-		CResourceHandler::removeFilesystem("data", "Hc" + std::to_string(si->campState->getCampId()) + "Data");
+		CResourceHandler::removeFilesystem("data", "Hc" + std::to_string(si->campState->getCampId() - 20) + "Data");
 
 	client->endGame();
 	vstd::clear_pointer(client);

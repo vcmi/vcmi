@@ -390,8 +390,8 @@ void CBonusSelection::startMap()
 {
 	if(getCampaign()->formatVersion() == CampaignVersion::Chr)
 	{
-		auto * chFilesystem = new CFilesystemLoader("DATA/", VCMIDirs::get().userDataPath() / ("Hc" + std::to_string(1) + "Data"), 0);
-		CResourceHandler::addFilesystem("data", "Hc" + std::to_string(getCampaign()->getCampId()) + "Data", chFilesystem);
+		auto * chFilesystem = new CFilesystemLoader("DATA/", VCMIDirs::get().userDataPath() / ("Hc" + std::to_string(getCampaign()->getCampId() - 20) + "Data"), 0);
+		CResourceHandler::addFilesystem("data", "Hc" + std::to_string(getCampaign()->getCampId() - 20) + "Data", chFilesystem);
 	}
 
 	if (!CSH->validateGameStart())
