@@ -18,10 +18,8 @@ AttackerValue::AttackerValue()
 }
 
 MoveTarget::MoveTarget()
-	: positions(), cachedAttack()
+	: positions(), cachedAttack(), score(EvaluationResult::INEFFECTIVE_SCORE), scorePerTurn(EvaluationResult::INEFFECTIVE_SCORE)
 {
-	score = EvaluationResult::INEFFECTIVE_SCORE;
-	scorePerTurn = EvaluationResult::INEFFECTIVE_SCORE;
 	turnsToRich = 1;
 }
 
@@ -58,7 +56,7 @@ float BattleExchangeVariant::trackAttack(
 				auto attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), unitToUpdate.get(), retaliationDamage, damageCache, hb);
 
 				attackValue -= attackerDamageReduce;
-				dpsScore -= attackerDamageReduce * negativeEffectMultiplier;
+				dpsScore.ourDamageReduce += attackerDamageReduce;
 				attackerValue[unitToUpdate->unitId()].isRetalitated = true;
 
 				unitToUpdate->damage(retaliationDamage);
@@ -80,7 +78,7 @@ float BattleExchangeVariant::trackAttack(
 				auto collateralDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), unitToUpdate.get(), collateralDamage, damageCache, hb);
 
 				attackValue -= collateralDamageReduce;
-				dpsScore -= collateralDamageReduce * negativeEffectMultiplier;
+				dpsScore.ourDamageReduce += collateralDamageReduce;
 
 				unitToUpdate->damage(collateralDamage);
 
@@ -101,7 +99,7 @@ float BattleExchangeVariant::trackAttack(
 			float defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), unitToUpdate.get(), attackDamage, damageCache, hb);
 
 			attackValue += defenderDamageReduce;
-			dpsScore += defenderDamageReduce * positiveEffectMultiplier;
+			dpsScore.enemyDamageReduce += defenderDamageReduce;
 			attackerValue[attacker->unitId()].value += defenderDamageReduce;
 
 			unitToUpdate->damage(attackDamage);
@@ -119,7 +117,7 @@ float BattleExchangeVariant::trackAttack(
 	}
 
 	attackValue += ap.shootersBlockedDmg;
-	dpsScore += ap.shootersBlockedDmg * positiveEffectMultiplier;
+	dpsScore.enemyDamageReduce += ap.shootersBlockedDmg;
 	attacker->afterAttack(ap.attack.shooting, false);
 
 	return attackValue;
@@ -156,11 +154,11 @@ float BattleExchangeVariant::trackAttack(
 
 		if(isOurAttack)
 		{
-			dpsScore += defenderDamageReduce * positiveEffectMultiplier;
+			dpsScore.enemyDamageReduce += defenderDamageReduce;
 			attackerValue[attacker->unitId()].value += defenderDamageReduce;
 		}
 		else
-			dpsScore -= defenderDamageReduce * negativeEffectMultiplier;
+			dpsScore.ourDamageReduce += defenderDamageReduce;
 
 		defender->damage(attackDamage);
 		attacker->afterAttack(shooting, false);
@@ -182,12 +180,12 @@ float BattleExchangeVariant::trackAttack(
 
 		if(isOurAttack)
 		{
-			dpsScore -= attackerDamageReduce * negativeEffectMultiplier;
+			dpsScore.ourDamageReduce += attackerDamageReduce;
 			attackerValue[attacker->unitId()].isRetalitated = true;
 		}
 		else
 		{
-			dpsScore += attackerDamageReduce * positiveEffectMultiplier;
+			dpsScore.enemyDamageReduce += attackerDamageReduce;
 			attackerValue[defender->unitId()].value += attackerDamageReduce;
 		}
 
@@ -200,11 +198,16 @@ float BattleExchangeVariant::trackAttack(
 #if BATTLE_TRACE_LEVEL>=1
 	if(!score)
 	{
-		logAi->trace("Attack has zero score d:%2f a:%2f", defenderDamageReduce, attackerDamageReduce);
+		logAi->trace("Attack has zero score def:%2f att:%2f", defenderDamageReduce, attackerDamageReduce);
 	}
 #endif
 
 	return score;
+}
+
+float BattleExchangeEvaluator::scoreValue(const BattleScore & score) const
+{
+	return score.enemyDamageReduce * getPositiveEffectMultiplier() - score.ourDamageReduce * getNegativeEffectMultiplier();
 }
 
 EvaluationResult BattleExchangeEvaluator::findBestTarget(
@@ -215,7 +218,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 {
 	EvaluationResult result(targets.bestAction());
 
-	if(!activeStack->waited())
+	if(!activeStack->waited() && !activeStack->acquireState()->hadMorale)
 	{
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace("Evaluating waited attack for %s", activeStack->getDescription());
@@ -230,7 +233,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 		for(auto & ap : targets.possibleAttacks)
 		{
-			float score = calculateExchange(ap, targets, damageCache, hbWaited);
+			float score = evaluateExchange(ap, targets, damageCache, hbWaited);
 
 			if(score > result.score)
 			{
@@ -247,9 +250,15 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 	updateReachabilityMap(hb);
 
+	if(result.bestAttack.attack.shooting && hb->battleHasShootingPenalty(activeStack, result.bestAttack.dest))
+	{
+		if(!canBeHitThisTurn(result.bestAttack))
+			return result; // lets wait
+	}
+
 	for(auto & ap : targets.possibleAttacks)
 	{
-		float score = calculateExchange(ap, targets, damageCache, hb);
+		float score = evaluateExchange(ap, targets, damageCache, hb);
 
 		if(score >= result.score)
 		{
@@ -269,7 +278,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 	std::shared_ptr<HypotheticBattle> hb)
 {
 	MoveTarget result;
-	BattleExchangeVariant ev(getPositiveEffectMultiplier(), getNegativeEffectMultiplier());
+	BattleExchangeVariant ev;
 
 	if(targets.unreachableEnemies.empty())
 		return result;
@@ -301,6 +310,9 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 		auto turnsToRich = (distance - 1) / speed + 1;
 		auto hexes = closestStack->getSurroundingHexes();
+		auto enemySpeed = closestStack->speed();
+		auto speedRatio = speed / static_cast<float>(enemySpeed);
+		auto penalty = speedRatio > 1 ? 1 : speedRatio;
 
 		for(auto hex : hexes)
 		{
@@ -310,13 +322,13 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 			attack.shootersBlockedDmg = 0; // we do not want to count on it, it is not for sure
 
-			auto score = calculateExchange(attack, targets, damageCache, hb);
-			auto scorePerTurn = score / turnsToRich;
+			auto score = calculateExchange(attack, turnsToRich, targets, damageCache, hb);
+			auto scorePerTurn = BattleScore(score.enemyDamageReduce * std::sqrt(penalty / turnsToRich), score.ourDamageReduce);
 
-			if(result.scorePerTurn < scorePerTurn)
+			if(result.scorePerTurn < scoreValue(scorePerTurn))
 			{
-				result.scorePerTurn = scorePerTurn;
-				result.score = score;
+				result.scorePerTurn = scoreValue(scorePerTurn);
+				result.score = scoreValue(score);
 				result.positions = closestStack->getAttackableHexes(activeStack);
 				result.cachedAttack = attack;
 				result.turnsToRich = turnsToRich;
@@ -357,16 +369,17 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(cons
 	return checkedStacks;
 }
 
-std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
+ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 	const AttackPossibility & ap,
 	PotentialTargets & targets,
 	std::shared_ptr<HypotheticBattle> hb)
 {
+	ReachabilityData result;
+
 	auto hexes = ap.attack.defender->getHexes();
 
 	if(!ap.attack.shooting) hexes.push_back(ap.from);
 
-	std::vector<const battle::Unit *> exchangeUnits;
 	std::vector<const battle::Unit *> allReachableUnits;
 
 	for(auto hex : hexes)
@@ -404,7 +417,28 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 		logAi->trace("Reachability map contains only %d stacks", allReachableUnits.size());
 #endif
 
-		return exchangeUnits;
+		return result;
+	}
+
+	for(auto unit : allReachableUnits)
+	{
+		auto accessible = !unit->canShoot();
+
+		if(!accessible)
+		{
+			for(auto hex : unit->getSurroundingHexes())
+			{
+				if(ap.attack.defender->coversPos(hex))
+				{
+					accessible = true;
+				}
+			}
+		}
+
+		if(accessible)
+			result.melleeAccessible.push_back(unit);
+		else
+			result.shooters.push_back(unit);
 	}
 
 	for(int turn = 0; turn < turnOrder.size(); turn++)
@@ -412,19 +446,30 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 		for(auto unit : turnOrder[turn])
 		{
 			if(vstd::contains(allReachableUnits, unit))
-				exchangeUnits.push_back(unit);
+				result.units.push_back(unit);
 		}
 	}
 
-	vstd::erase_if(exchangeUnits, [&](const battle::Unit * u) -> bool
+	vstd::erase_if(result.units, [&](const battle::Unit * u) -> bool
 		{
 			return !hb->battleGetUnitByID(u->unitId())->alive();
 		});
 
-	return exchangeUnits;
+	return result;
 }
 
-float BattleExchangeEvaluator::calculateExchange(
+float BattleExchangeEvaluator::evaluateExchange(
+	const AttackPossibility & ap,
+	PotentialTargets & targets,
+	DamageCache & damageCache,
+	std::shared_ptr<HypotheticBattle> hb)
+{
+	BattleScore score = calculateExchange(ap, targets, damageCache, hb);
+
+	return scoreValue(score);
+}
+
+BattleScore BattleExchangeEvaluator::calculateExchange(
 	const AttackPossibility & ap,
 	PotentialTargets & targets,
 	DamageCache & damageCache,
@@ -438,7 +483,7 @@ float BattleExchangeEvaluator::calculateExchange(
 		&& cb->battleGetGateState() == EGateState::BLOCKED
 		&& ap.attack.defender->coversPos(BattleHex::GATE_BRIDGE))
 	{
-		return EvaluationResult::INEFFECTIVE_SCORE;
+		return BattleScore(EvaluationResult::INEFFECTIVE_SCORE, 0);
 	}
 
 	std::vector<const battle::Unit *> ourStacks;
@@ -447,17 +492,19 @@ float BattleExchangeEvaluator::calculateExchange(
 	if(hb->battleGetUnitByID(ap.attack.defender->unitId())->alive())
 		enemyStacks.push_back(ap.attack.defender);
 
-	std::vector<const battle::Unit *> exchangeUnits = getExchangeUnits(ap, targets, hb);
+	vstd::amin(turn, reachabilityMapByTurns.size() - 1);
 
-	if(exchangeUnits.empty())
+	ReachabilityData exchangeUnits = getExchangeUnits(ap, turn, targets, hb);
+
+	if(exchangeUnits.units.empty())
 	{
-		return 0;
+		return BattleScore();
 	}
 
 	auto exchangeBattle = std::make_shared<HypotheticBattle>(env.get(), hb);
-	BattleExchangeVariant v(getPositiveEffectMultiplier(), getNegativeEffectMultiplier());
+	BattleExchangeVariant v;
 
-	for(auto unit : exchangeUnits)
+	for(auto unit : exchangeUnits.units)
 	{
 		if(unit->isTurret())
 			continue;
@@ -481,7 +528,7 @@ float BattleExchangeEvaluator::calculateExchange(
 
 	bool canUseAp = true;
 
-	for(auto activeUnit : exchangeUnits)
+	for(auto activeUnit : exchangeUnits.units)
 	{
 		bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, activeUnit, true);
 		battle::Units & attackerQueue = isOur ? ourStacks : enemyStacks;
@@ -521,9 +568,16 @@ float BattleExchangeEvaluator::calculateExchange(
 				return score;
 			};
 
-			if(!oppositeQueue.empty())
+			auto unitsInOppositeQueueExceptInaccessible = oppositeQueue;
+
+			vstd::erase_if(unitsInOppositeQueueExceptInaccessible, [&](const battle::Unit * u)->bool
+				{
+					return vstd::contains(exchangeUnits.shooters, u);
+				});
+
+			if(!unitsInOppositeQueueExceptInaccessible.empty())
 			{
-				targetUnit = *vstd::maxElementByFun(oppositeQueue, estimateAttack);
+				targetUnit = *vstd::maxElementByFun(unitsInOppositeQueueExceptInaccessible, estimateAttack);
 			}
 			else
 			{
@@ -594,7 +648,7 @@ float BattleExchangeEvaluator::calculateExchange(
 	v.adjustPositions(melleeAttackers, ap, reachabilityMap);
 
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Exchange score: %2f", v.getScore());
+	logAi->trace("Exchange score: enemy: %2f, our -%2f", v.getScore().enemyDamageReduce, v.getScore().ourDamageReduce);
 #endif
 
 	return v.getScore();
@@ -662,8 +716,24 @@ void BattleExchangeVariant::adjustPositions(
 
 	if(notRealizedDamage > ap.attackValue() && notRealizedDamage > attackerValue[ap.attack.attacker->unitId()].value)
 	{
-		dpsScore = EvaluationResult::INEFFECTIVE_SCORE;
+		dpsScore = BattleScore(EvaluationResult::INEFFECTIVE_SCORE, 0);
 	}
+}
+
+bool BattleExchangeEvaluator::canBeHitThisTurn(const AttackPossibility & ap)
+{
+	for(auto pos : ap.attack.attacker->getSurroundingHexes())
+	{
+		for(auto u : reachabilityMap[pos])
+		{
+			if(u->unitSide() != ap.attack.attacker->unitSide())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 void BattleExchangeEvaluator::updateReachabilityMap(	std::shared_ptr<HypotheticBattle> hb)

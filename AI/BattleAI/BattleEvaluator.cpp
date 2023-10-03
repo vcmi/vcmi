@@ -190,6 +190,14 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 		if(stack->waited())
 		{
+			logAi->debug(
+				"Moving %s towards hex %s[%d], score: %2f/%2f",
+				stack->getDescription(),
+				moveTarget.cachedAttack->attack.defender->getDescription(),
+				moveTarget.cachedAttack->attack.defender->getPosition().hex,
+				moveTarget.score,
+				moveTarget.scorePerTurn);
+
 			return goTowardsNearest(stack, moveTarget.positions);
 		}
 		else
@@ -572,7 +580,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				}
 				else
 				{
-					ps.value = scoreEvaluator.calculateExchange(*cachedAttack, *targets, innerCache, state);
+					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, *targets, innerCache, state);
 				}
 
 				for(auto unit : allUnits)
