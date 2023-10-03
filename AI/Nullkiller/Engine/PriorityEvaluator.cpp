@@ -22,6 +22,7 @@
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/BuildThis.h"
+#include "../Goals/StayAtTown.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../Goals/DismissHero.h"
 #include "../Markers/UnlockCluster.h"
@@ -309,6 +310,9 @@ uint64_t RewardEvaluator::getArmyReward(
 			: 0;
 	case Obj::PANDORAS_BOX:
 		return 5000;
+	case Obj::MAGIC_WELL:
+	case Obj::MAGIC_SPRING:
+		return getManaRecoveryArmyReward(hero);
 	default:
 		return 0;
 	}
@@ -448,6 +452,11 @@ uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
 	}
 
 	return result;
+}
+
+uint64_t RewardEvaluator::getManaRecoveryArmyReward(const CGHeroInstance * hero) const
+{
+	return ai->heroManager->getMagicStrength(hero) * 10000 * (1.0f - std::sqrt(static_cast<float>(hero->mana) / hero->manaLimit()));
 }
 
 float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) const
@@ -690,6 +699,22 @@ public:
 
 		evaluationContext.armyReward += upgradeValue;
 		evaluationContext.addNonCriticalStrategicalValue(upgradeValue / (float)armyUpgrade.hero->getArmyStrength());
+	}
+};
+
+class StayAtTownManaRecoveryEvaluator : public IEvaluationContextBuilder
+{
+public:
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::STAY_AT_TOWN)
+			return;
+
+		Goals::StayAtTown & stayAtTown = dynamic_cast<Goals::StayAtTown &>(*task);
+
+		evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero().get());
+		evaluationContext.movementCostByRole[evaluationContext.heroRole] += stayAtTown.getMovementWasted();
+		evaluationContext.movementCost += stayAtTown.getMovementWasted();
 	}
 };
 
@@ -998,6 +1023,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<DismissHeroContextBuilder>(ai));
+	evaluationContextBuilders.push_back(std::make_shared<StayAtTownManaRecoveryEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const

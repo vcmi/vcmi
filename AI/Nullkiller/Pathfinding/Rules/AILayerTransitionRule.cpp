@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "AILayerTransitionRule.h"
 #include "../../Engine/Nullkiller.h"
+#include "../../../../lib/pathfinder/CPathfinder.h"
+#include "../../../../lib/pathfinder/TurnInfo.h"
 
 namespace NKAI
 {
@@ -31,23 +33,79 @@ namespace AIPathfinding
 
 		if(!destination.blocked)
 		{
-			return;
+			if(source.node->layer == EPathfindingLayer::LAND
+				&& (destination.node->layer == EPathfindingLayer::AIR || destination.node->layer == EPathfindingLayer::WATER))
+			{
+				if(pathfinderHelper->getTurnInfo()->isLayerAvailable(destination.node->layer))
+					return;
+				else
+					destination.blocked = true;
+			}
+			else
+			{
+				return;
+			}
 		}
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::SAIL)
 		{
 			std::shared_ptr<const VirtualBoatAction> virtualBoat = findVirtualBoat(destination, source);
 
-			if(virtualBoat && tryEmbarkVirtualBoat(destination, source, virtualBoat))
+			if(virtualBoat && tryUseSpecialAction(destination, source, virtualBoat, EPathNodeAction::EMBARK))
 			{
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 				logAi->trace("Embarking to virtual boat while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
 #endif
 			}
 		}
+
+		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::WATER)
+		{
+			auto action = waterWalkingActions.find(nodeStorage->getHero(source.node));
+
+			if(action != waterWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
+			{
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+				logAi->trace("Casting water walk while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
+#endif
+			}
+		}
+
+		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::AIR)
+		{
+			auto action = airWalkingActions.find(nodeStorage->getHero(source.node));
+
+			if(action != airWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
+			{
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+				logAi->trace("Casting fly while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
+#endif
+			}
+		}
 	}
 
 	void AILayerTransitionRule::setup()
+	{
+		SpellID waterWalk = SpellID::WATER_WALK;
+		SpellID airWalk = SpellID::FLY;
+
+		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
+		{
+			if(hero->canCastThisSpell(waterWalk.toSpell()))
+			{
+				waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero);
+			}
+
+			if(hero->canCastThisSpell(airWalk.toSpell()))
+			{
+				airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero);
+			}
+		}
+
+		collectVirtualBoats();
+	}
+
+	void AILayerTransitionRule::collectVirtualBoats()
 	{
 		std::vector<const IShipyard *> shipyards;
 
@@ -113,50 +171,56 @@ namespace AIPathfinding
 		return virtualBoat;
 	}
 
-	bool AILayerTransitionRule::tryEmbarkVirtualBoat(
+	bool AILayerTransitionRule::tryUseSpecialAction(
 		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
-		std::shared_ptr<const VirtualBoatAction> virtualBoat) const
+		std::shared_ptr<const SpecialAction> specialAction,
+		EPathNodeAction targetAction) const
 	{
 		bool result = false;
 
-		nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
+		if(!specialAction->canAct(nodeStorage->getAINode(source.node)))
 		{
-			auto boatNodeOptional = nodeStorage->getOrCreateNode(
-				node->coord,
-				node->layer,
-				virtualBoat->getActor(node->actor));
+			return false;
+		}
 
-			if(boatNodeOptional)
+		nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
-				AIPathNode * boatNode = boatNodeOptional.value();
+				auto castNodeOptional = nodeStorage->getOrCreateNode(
+					node->coord,
+					node->layer,
+					specialAction->getActor(node->actor));
 
-				if(boatNode->action == EPathNodeAction::UNKNOWN)
+				if(castNodeOptional)
 				{
-					boatNode->addSpecialAction(virtualBoat);
-					destination.blocked = false;
-					destination.action = EPathNodeAction::EMBARK;
-					destination.node = boatNode;
-					result = true;
+					AIPathNode * castNode = castNodeOptional.value();
+
+					if(castNode->action == EPathNodeAction::UNKNOWN)
+					{
+						castNode->addSpecialAction(specialAction);
+						destination.blocked = false;
+						destination.action = targetAction;
+						destination.node = castNode;
+						result = true;
+					}
+					else
+					{
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
+						logAi->trace(
+							"Special transition node already allocated. Blocked moving %s -> %s",
+							source.coord.toString(),
+							destination.coord.toString());
+#endif
+					}
 				}
 				else
 				{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
-					logAi->trace(
-						"Special transition node already allocated. Blocked moving %s -> %s",
+					logAi->debug(
+						"Can not allocate special transition node while moving %s -> %s",
 						source.coord.toString(),
 						destination.coord.toString());
-#endif
 				}
-			}
-			else
-			{
-				logAi->debug(
-					"Can not allocate special transition node while moving %s -> %s",
-					source.coord.toString(),
-					destination.coord.toString());
-			}
-		});
+			});
 
 		return result;
 	}

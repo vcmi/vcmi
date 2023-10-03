@@ -49,6 +49,7 @@ public:
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
 	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
 	uint64_t townArmyGrowth(const CGTownInstance * town) const;
+	uint64_t getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
 };
 
 struct DLL_EXPORT EvaluationContext

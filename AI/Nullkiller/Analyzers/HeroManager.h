@@ -34,6 +34,7 @@ public:
 	virtual bool heroCapReached() const = 0;
 	virtual const CGHeroInstance * findHeroWithGrail() const = 0;
 	virtual const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const = 0;
+	virtual float getMagicStrength(const CGHeroInstance * hero) const = 0;
 };
 
 class DLL_EXPORT ISecondarySkillRule
@@ -76,6 +77,7 @@ public:
 	bool heroCapReached() const override;
 	const CGHeroInstance * findHeroWithGrail() const override;
 	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const override;
+	float getMagicStrength(const CGHeroInstance * hero) const override;
 
 private:
 	float evaluateFightingStrength(const CGHeroInstance * hero) const;

@@ -71,6 +71,11 @@ struct DLL_LINKAGE PathfinderOptions
 	/// Max number of turns to compute. Default = infinite
 	uint8_t turnLimit;
 
+	/// <summary>
+	/// For AI. Allows water walk and fly layers if hero can cast appropriate spells
+	/// </summary>
+	bool canUseCast;
+
 	PathfinderOptions();
 };
 

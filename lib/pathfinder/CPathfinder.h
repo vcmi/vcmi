@@ -72,6 +72,8 @@ public:
 	const CGHeroInstance * hero;
 	std::vector<TurnInfo *> turnsInfo;
 	const PathfinderOptions & options;
+	bool canCastFly;
+	bool canCastWaterWalk;
 
 	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	virtual ~CPathfinderHelper();

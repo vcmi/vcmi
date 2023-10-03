@@ -18,6 +18,7 @@
 #include "../Behaviors/BuildingBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
+#include "../Behaviors/StayAtTownBehavior.h"
 #include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
 
@@ -262,7 +263,8 @@ void Nullkiller::makeTurn()
 			choseBestTask(sptr(CaptureObjectsBehavior()), 1),
 			choseBestTask(sptr(ClusterBehavior()), MAX_DEPTH),
 			choseBestTask(sptr(DefenceBehavior()), MAX_DEPTH),
-			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH)
+			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH),
+			choseBestTask(sptr(StayAtTownBehavior()), MAX_DEPTH)
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
