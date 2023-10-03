@@ -82,6 +82,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+	int campId;
 
 	int numberOfScenarios = 0;
 	bool difficultyChoosenByPlayer = false;
