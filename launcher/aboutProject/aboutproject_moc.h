@@ -48,6 +48,8 @@ private slots:
 
 	void on_pushButtonBugreport_clicked();
 
+	void on_pushInstallAdditional_clicked();
+
 private:
 	Ui::AboutProjectView * ui;
 
