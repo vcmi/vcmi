@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../lib/GameConstants.h"
-#include "../lib/MetaString.h"
 #include "../lib/filesystem/ResourcePath.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
@@ -76,12 +75,13 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
-	MetaString name;
-	MetaString description;
+	std::string name;
+	std::string description;
 	AudioPath music;
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+	int campId;
 
 	int numberOfScenarios = 0;
 	bool difficultyChoosenByPlayer = false;
@@ -93,12 +93,13 @@ public:
 	bool formatVCMI() const;
 	CampaignVersion formatVersion() const;
 
-	std::string getDescriptionTranslated() const;
-	std::string getNameTranslated() const;
+	std::string getDescription() const;
+	std::string getName() const;
 	std::string getFilename() const;
 	std::string getModName() const;
 	std::string getEncoding() const;
 	AudioPath getMusic() const;
+	int getCampId() const;
 
 	const CampaignRegions & getRegions() const;
 
@@ -114,6 +115,7 @@ public:
 		h & modName;
 		h & music;
 		h & encoding;
+		h & campId;
 	}
 };
 
@@ -179,12 +181,12 @@ struct DLL_LINKAGE CampaignTravel
 struct DLL_LINKAGE CampaignScenario
 {
 	std::string mapName; //*.h3m
-	MetaString scenarioName; //from header
+	std::string scenarioName; //from header. human-readble
 	std::set<CampaignScenarioID> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
 	ui8 regionColor = 0;
 	ui8 difficulty = 0;
 
-	MetaString regionText;
+	std::string regionText;
 	CampaignScenarioPrologEpilog prolog;
 	CampaignScenarioPrologEpilog epilog;
 

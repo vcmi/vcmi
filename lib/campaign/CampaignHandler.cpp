@@ -134,7 +134,7 @@ std::string CampaignHandler::readLocalizedString(CBinaryReader & reader, std::st
 		return "";
 
 	VLC->generaltexth->registerString(modName, stringID, input);
-	return stringID.get();
+	return VLC->generaltexth->translate(stringID.get());
 }
 
 void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, std::string filename, std::string modName, std::string encoding)
@@ -149,8 +149,8 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.version = CampaignVersion::VCMI;
 	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
-	ret.name.appendTextID(reader["name"].String());
-	ret.description.appendTextID(reader["description"].String());
+	ret.name = reader["name"].String();
+	ret.description = reader["description"].String();
 	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
 	ret.music = AudioPath::fromJson(reader["music"]);
 	ret.filename = filename;
@@ -169,7 +169,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 			ret.prologVideo = VideoPath::fromJson(identifier["video"]);
 			ret.prologMusic = AudioPath::fromJson(identifier["music"]);
 			ret.prologVoice = AudioPath::fromJson(identifier["voice"]);
-			ret.prologText.jsonDeserialize(identifier["text"]);
+			ret.prologText = identifier["text"].String();
 		}
 		return ret;
 	};
@@ -181,7 +181,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 
 	ret.regionColor = reader["color"].Integer();
 	ret.difficulty = reader["difficulty"].Integer();
-	ret.regionText.jsonDeserialize(reader["regionText"]);
+	ret.regionText = reader["regionText"].String();
 	ret.prolog = prologEpilogReader(reader["prolog"]);
 	ret.epilog = prologEpilogReader(reader["epilog"]);
 
@@ -403,8 +403,8 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	}
 
 	ret.loadLegacyData(campId);
-	ret.name.appendTextID(readLocalizedString(reader, filename, modName, encoding, "name"));
-	ret.description.appendTextID(readLocalizedString(reader, filename, modName, encoding, "description"));
+	ret.name = readLocalizedString(reader, filename, modName, encoding, "name");
+	ret.description = readLocalizedString(reader, filename, modName, encoding, "description");
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
@@ -414,6 +414,7 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
+	ret.campId = campId;
 }
 
 CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader, const CampaignHeader & header)
@@ -430,7 +431,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 			ret.prologVideo = CampaignHandler::prologVideoName(index);
 			ret.prologMusic = CampaignHandler::prologMusicName(reader.readUInt8());
 			ret.prologVoice = isOriginalCampaign ? CampaignHandler::prologVoiceName(index) : AudioPath();
-			ret.prologText.appendTextID(readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier));
+			ret.prologText = readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier);
 		}
 		return ret;
 	};
@@ -448,11 +449,14 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
-	ret.regionText.appendTextID(readLocalizedString(reader, header.filename, header.modName, header.encoding, ret.mapName + ".region"));
+	ret.regionText = readLocalizedString(reader, header.filename, header.modName, header.encoding, ret.mapName + ".region");
 	ret.prolog = prologEpilogReader(ret.mapName + ".prolog");
 	ret.epilog = prologEpilogReader(ret.mapName + ".epilog");
 
 	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version);
+
+	//volatile CampaignScenario ret_ = ret;
+	//std::cout << const_cast<std::string&>(ret_.mapName);
 
 	return ret;
 }

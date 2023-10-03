@@ -146,14 +146,14 @@ CampaignVersion CampaignHeader::formatVersion() const
 	return version;
 }
 
-std::string CampaignHeader::getDescriptionTranslated() const
+std::string CampaignHeader::getDescription() const
 {
-	return description.toString();
+	return description;
 }
 
-std::string CampaignHeader::getNameTranslated() const
+std::string CampaignHeader::getName() const
 {
-	return name.toString();
+	return name;
 }
 
 std::string CampaignHeader::getFilename() const
@@ -174,6 +174,11 @@ std::string CampaignHeader::getEncoding() const
 AudioPath CampaignHeader::getMusic() const
 {
 	return music;
+}
+
+int CampaignHeader::getCampId() const
+{
+	return campId;
 }
 
 const CampaignRegions & CampaignHeader::getRegions() const
@@ -279,7 +284,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return a->getHeroStrength() > b->getHeroStrength();
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getNameTranslated());
+	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getName());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();

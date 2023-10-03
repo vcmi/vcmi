@@ -48,6 +48,7 @@
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/CFilesystemLoader.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CMemorySerializer.h"
@@ -417,9 +418,6 @@ void CServerHandler::sendClientDisconnecting()
 		logNetwork->info("Sent leaving signal to the server");
 	}
 	sendLobbyPack(lcd);
-	
-	c->close();
-	c.reset();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
@@ -660,6 +658,9 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
 {
+	if(si->campState->formatVersion() == CampaignVersion::Chr)
+		CResourceHandler::removeFilesystem("data", "Hc" + std::to_string(si->campState->getCampId()) + "Data");
+
 	client->endGame();
 	vstd::clear_pointer(client);
 
@@ -704,7 +705,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		highScoreCalc->isCampaign = true;
 		highScoreCalc->parameters.clear();
 	}
-	param.campaignName = cs->getNameTranslated();
+	param.campaignName = cs->getName();
 	highScoreCalc->parameters.push_back(param);
 
 	GH.dispatchMainThread([ourCampaign, this]()
