@@ -425,7 +425,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 		ret.hasPrologEpilog = reader.readUInt8();
 		if(ret.hasPrologEpilog)
 		{
-			bool isOriginalCampaign = boost::starts_with(header.getFilename(), "DATA/");
+			bool isOriginalCampaign = boost::starts_with(header.getFilename(), "DATA/") || header.formatVersion() == CampaignVersion::Chr;
 
 			ui8 index = reader.readUInt8();
 			ret.prologVideo = CampaignHandler::prologVideoName(index);
