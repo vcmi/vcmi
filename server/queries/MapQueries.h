@@ -61,7 +61,6 @@ public:
 	virtual void onRemoval(PlayerColor color) override;
 };
 
-
 class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
 {
 public:
@@ -81,6 +80,16 @@ public:
 	CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog &bd);
 
 	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+};
+
+class OpenWindowQuery : public CDialogQuery
+{
+	EOpenWindowMode mode;
+public:
+	OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode);
+
+	bool blocksPack(const CPack *pack) const override;
+	void onExposure(QueryPtr topQuery) override;
 };
 
 class CTeleportDialogQuery : public CDialogQuery

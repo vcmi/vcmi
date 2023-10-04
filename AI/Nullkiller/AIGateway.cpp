@@ -154,10 +154,13 @@ void AIGateway::artifactAssembled(const ArtifactLocation & al)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showTavernWindow(const CGObjectInstance * townOrTavern)
+void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "TavernWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -321,10 +324,17 @@ void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkil
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
+void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "RecruitmentDialog");
+
+	requestActionASAP([=](){
+		recruitCreatures(dwelling, dst);
+		answerQuery(queryID, 0);
+	});
 }
 
 void AIGateway::heroMovePointsChanged(const CGHeroInstance * hero)
@@ -425,10 +435,13 @@ void AIGateway::receivedResource()
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "UniversityWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -498,10 +511,13 @@ void AIGateway::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonu
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "MarketWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -833,9 +849,6 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
-	case Obj::CREATURE_GENERATOR1:
-		recruitCreatures(dynamic_cast<const CGDwelling *>(obj), h.get());
-		break;
 	case Obj::TOWN:
 		if(h->visitedTown) //we are inside, not just attacking
 		{

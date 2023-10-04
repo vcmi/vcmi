@@ -786,19 +786,20 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE OpenWindow : public CPackForClient
+struct DLL_LINKAGE OpenWindow : public Query
 {
 	EOpenWindowMode window;
-	si32 id1 = -1;
-	si32 id2 = -1;
+	ObjectInstanceID object;
+	ObjectInstanceID visitor;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & queryID;
 		h & window;
-		h & id1;
-		h & id2;
+		h & object;
+		h & visitor;
 	}
 };
 

@@ -674,7 +674,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 				break;
 
 		case BuildingID::TAVERN:
-				LOCPLINT->showTavernWindow(town);
+				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 				break;
 
 		case BuildingID::SHIPYARD:
@@ -700,7 +700,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 		case BuildingID::MARKETPLACE:
 				// can't use allied marketplace
 				if (town->getOwner() == LOCPLINT->playerID)
-					GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero);
+					GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero, nullptr, EMarketMode::RESOURCE_RESOURCE);
 				else
 					enterBuilding(building);
 				break;
@@ -728,7 +728,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::ARTIFACT_MERCHANT:
 						if(town->visitingHero)
-							GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
+							GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero, nullptr, EMarketMode::RESOURCE_ARTIFACT);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
@@ -739,21 +739,21 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::FREELANCERS_GUILD:
 						if(getHero())
-							GH.windows().createAndPushWindow<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
+							GH.windows().createAndPushWindow<CMarketplaceWindow>(town, getHero(), nullptr, EMarketMode::CREATURE_RESOURCE);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				case BuildingSubID::MAGIC_UNIVERSITY:
 						if (getHero())
-							GH.windows().createAndPushWindow<CUniversityWindow>(getHero(), town);
+							GH.windows().createAndPushWindow<CUniversityWindow>(getHero(), town, nullptr);
 						else
 							enterBuilding(building);
 						break;
 
 				case BuildingSubID::BROTHERHOOD_OF_SWORD:
 						if(upgrades == BuildingID::TAVERN)
-							LOCPLINT->showTavernWindow(town);
+							LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 						else
 						enterBuilding(building);
 						break;
@@ -763,7 +763,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
-						GH.windows().createAndPushWindow<CTransformerWindow>(town, getHero());
+						GH.windows().createAndPushWindow<CTransformerWindow>(town, getHero(), nullptr);
 						break;
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:
@@ -864,7 +864,7 @@ void CCastleBuildings::enterDwelling(int level)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, -87);
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, nullptr, -87);
 }
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
@@ -1073,7 +1073,7 @@ void CCreaInfo::clickPressed(const Point & cursorPosition)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, offset);
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, nullptr, offset);
 }
 
 std::string CCreaInfo::genGrowthText()
@@ -1319,7 +1319,7 @@ void CCastleInterface::keyPressed(EShortcut key)
 		break;
 	case EShortcut::TOWN_OPEN_TAVERN:
 		if(town->hasBuilt(BuildingID::TAVERN))
-			LOCPLINT->showTavernWindow(town);
+			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 		break;
 	default:
 		break;

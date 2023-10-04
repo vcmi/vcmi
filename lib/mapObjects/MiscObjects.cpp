@@ -1399,7 +1399,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		openWindow(EOpenWindowMode::SHIPYARD_WINDOW,id.getNum(),h->id.getNum());
+		cb->showObjectWindow(this, EOpenWindowMode::SHIPYARD_WINDOW, h, false);
 	}
 }
 
@@ -1488,7 +1488,7 @@ void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answ
 
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 {
-	cb->showThievesGuildWindow(h->tempOwner, id);
+	cb->showObjectWindow(this, EOpenWindowMode::THIEVES_GUILD, h, false);
 }
 
 void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
@@ -1507,8 +1507,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 		// increment general visited obelisks counter
 		cb->setObjProperty(id, CGObelisk::OBJPROP_INC, team.getNum());
-
-		openWindow(EOpenWindowMode::PUZZLE_MAP, h->tempOwner.getNum());
+		cb->showObjectWindow(this, EOpenWindowMode::PUZZLE_MAP, h, false);
 
 		// mark that particular obelisk as visited for all players in the team
 		for(const auto & color : ts->players)
@@ -1619,7 +1618,7 @@ void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
 
 void HillFort::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(EOpenWindowMode::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
+	cb->showObjectWindow(this, EOpenWindowMode::HILL_FORT_WINDOW, h, false);
 }
 
 void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

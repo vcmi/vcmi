@@ -22,16 +22,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 IGameCallback * IObjectInterface::cb = nullptr;
 
-///helpers
-void IObjectInterface::openWindow(const EOpenWindowMode type, const int id1, const int id2)
-{
-	OpenWindow ow;
-	ow.window = type;
-	ow.id1 = id1;
-	ow.id2 = id2;
-	IObjectInterface::cb->sendAndApply(&ow);
-}
-
 void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;

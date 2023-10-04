@@ -83,9 +83,10 @@ public:
 	std::shared_ptr<CSlider> slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
-	CTradeWindow(const ImagePath & bgName, const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode); //c
+	CTradeWindow(const ImagePath & bgName, const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode); //c
 
 	void showAll(Canvas & to) override;
+	void close();
 
 	void initSubs(bool Left);
 	void initTypes();
@@ -106,6 +107,7 @@ public:
 	virtual void garrisonChanged() = 0;
 	virtual void artifactsChanged(bool left) = 0;
 protected:
+	std::function<void()> onWindowClosed;
 	std::shared_ptr<CGStatusBar> statusBar;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CPicture>> images;
@@ -130,7 +132,7 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side) override; //true == left
-	CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero = nullptr, EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE);
+	CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode);
 	~CMarketplaceWindow();
 
 	Point selectionOffset(bool Left) const override;
@@ -157,7 +159,7 @@ public:
 	std::shared_ptr<CLabel> expOnAltar;
 	std::shared_ptr<CArtifactsOfHeroAltar> arts;
 
-	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode);
+	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode);
 	~CAltarWindow();
 
 	void getExpValues();

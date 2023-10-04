@@ -117,13 +117,13 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
 	void receivedResource() override;
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
-	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
+	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID) override;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
-	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
+	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
+	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
 	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell
 	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
@@ -179,7 +179,7 @@ public: // public interface for use by client via LOCPLINT access
 	void viewWorldMap() override;
 	void showQuestLog() override;
 	void showThievesGuildWindow (const CGObjectInstance * obj) override;
-	void showTavernWindow(const CGObjectInstance *townOrTavern) override;
+	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 
 	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);

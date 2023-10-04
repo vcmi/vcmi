@@ -317,9 +317,10 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 		setID(-1);
 }
 
-CTradeWindow::CTradeWindow(const ImagePath & bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode):
+CTradeWindow::CTradeWindow(const ImagePath & bgName, const IMarket *Market, const CGHeroInstance *Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode):
 	CWindowObject(PLAYER_COLORED, bgName),
 	market(Market),
+	onWindowClosed(onWindowClosed),
 	hero(Hero),
 	readyToTrade(false)
 {
@@ -561,6 +562,14 @@ void CTradeWindow::showAll(Canvas & to)
 	}
 }
 
+void CTradeWindow::close()
+{
+	if (onWindowClosed)
+		onWindowClosed();
+
+	CWindowObject::close();
+}
+
 void CTradeWindow::removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove)
 {
 	for(auto item : toRemove)
@@ -589,17 +598,19 @@ void CTradeWindow::setMode(EMarketMode Mode)
 {
 	const IMarket *m = market;
 	const CGHeroInstance *h = hero;
+	const auto functor = onWindowClosed;
 
+	onWindowClosed = nullptr; // don't call on closing of this window - pass it to next window
 	close();
 
 	switch(Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		GH.windows().createAndPushWindow<CAltarWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CAltarWindow>(m, h, functor, Mode);
 		break;
 	default:
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, functor, Mode);
 		break;
 	}
 }
@@ -635,8 +646,8 @@ ImagePath CMarketplaceWindow::getBackgroundForMode(EMarketMode mode)
 	return {};
 }
 
-CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode)
-	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode)
+CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode)
+	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, onWindowClosed, Mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -1093,8 +1104,8 @@ void CMarketplaceWindow::updateTraderText()
 	traderText->setText(CGI->generaltexth->allTexts[gnrtxtnr]);
 }
 
-CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode)
-	: CTradeWindow(ImagePath::builtin(Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp"), Market, Hero, Mode)
+CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode)
+	: CTradeWindow(ImagePath::builtin(Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp"), Market, Hero, onWindowClosed, Mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 

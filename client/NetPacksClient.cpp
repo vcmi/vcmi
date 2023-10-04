@@ -936,58 +936,66 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::RECRUITMENT_FIRST:
 	case EOpenWindowMode::RECRUITMENT_ALL:
 		{
-			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl.getObj(ObjectInstanceID(pack.id1)));
-			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl.getObj(ObjectInstanceID(pack.id2)));
-			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == EOpenWindowMode::RECRUITMENT_FIRST ? 0 : -1);
+			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl.getObj(ObjectInstanceID(pack.object)));
+			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl.getObj(ObjectInstanceID(pack.visitor)));
+			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == EOpenWindowMode::RECRUITMENT_FIRST ? 0 : -1, pack.queryID);
 		}
 		break;
 	case EOpenWindowMode::SHIPYARD_WINDOW:
 		{
-			const IShipyard *sy = IShipyard::castFrom(cl.getObj(ObjectInstanceID(pack.id1)));
+			assert(pack.queryID == QueryID::NONE);
+			const IShipyard *sy = IShipyard::castFrom(cl.getObj(ObjectInstanceID(pack.object)));
 			callInterfaceIfPresent(cl, sy->getObject()->getOwner(), &IGameEventsReceiver::showShipyardDialog, sy);
 		}
 		break;
 	case EOpenWindowMode::THIEVES_GUILD:
 		{
+			assert(pack.queryID == QueryID::NONE);
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
-			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.id2));
-			callInterfaceIfPresent(cl, PlayerColor(pack.id1), &IGameEventsReceiver::showThievesGuildWindow, obj);
+			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
+			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
+			callInterfaceIfPresent(cl, hero->getOwner(), &IGameEventsReceiver::showThievesGuildWindow, obj);
 		}
 		break;
 	case EOpenWindowMode::UNIVERSITY_WINDOW:
 		{
 			//displays University window (when hero enters University on adventure map)
-			const IMarket *market = IMarket::castFrom(cl.getObj(ObjectInstanceID(pack.id1)));
-			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.id2));
-			callInterfaceIfPresent(cl, hero->tempOwner, &IGameEventsReceiver::showUniversityWindow, market, hero);
+			const IMarket *market = IMarket::castFrom(cl.getObj(ObjectInstanceID(pack.object)));
+			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
+			callInterfaceIfPresent(cl, hero->tempOwner, &IGameEventsReceiver::showUniversityWindow, market, hero, pack.queryID);
 		}
 		break;
 	case EOpenWindowMode::MARKET_WINDOW:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
-			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.id1));
-			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.id2));
+			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
+			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
 			const IMarket *market = IMarket::castFrom(obj);
-			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero);
+			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero, pack.queryID);
 		}
 		break;
 	case EOpenWindowMode::HILL_FORT_WINDOW:
 		{
+			assert(pack.queryID == QueryID::NONE);
 			//displays Hill fort window
-			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.id1));
-			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.id2));
+			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
+			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
 			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showHillFortWindow, obj, hero);
 		}
 		break;
 	case EOpenWindowMode::PUZZLE_MAP:
 		{
-			callInterfaceIfPresent(cl, PlayerColor(pack.id1), &IGameEventsReceiver::showPuzzleMap);
+			assert(pack.queryID == QueryID::NONE);
+			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
+			callInterfaceIfPresent(cl, hero->getOwner(), &IGameEventsReceiver::showPuzzleMap);
 		}
 		break;
 	case EOpenWindowMode::TAVERN_WINDOW:
-		const CGObjectInstance *obj1 = cl.getObj(ObjectInstanceID(pack.id1)),
-								*obj2 = cl.getObj(ObjectInstanceID(pack.id2));
-		callInterfaceIfPresent(cl, obj1->tempOwner, &IGameEventsReceiver::showTavernWindow, obj2);
+		{
+			const CGObjectInstance *obj1 = cl.getObj(ObjectInstanceID(pack.object));
+			const CGHeroInstance * hero = cl.getHero(ObjectInstanceID(pack.visitor));
+			callInterfaceIfPresent(cl, hero->tempOwner, &IGameEventsReceiver::showTavernWindow, obj1, hero, pack.queryID);
+		}
 		break;
 	}
 }

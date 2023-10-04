@@ -157,6 +157,60 @@ CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const BlockingD
 	addPlayer(bd.player);
 }
 
+OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode):
+	CDialogQuery(owner),
+	mode(mode)
+{
+	addPlayer(hero->getOwner());
+}
+
+void OpenWindowQuery::onExposure(QueryPtr topQuery)
+{
+	//do nothing - wait for reply
+}
+
+bool OpenWindowQuery::blocksPack(const CPack *pack) const
+{
+	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
+	{
+		if(dynamic_ptr_cast<RecruitCreatures>(pack) != nullptr)
+			return false;
+
+		// If hero has no free slots, he might get some stacks merged automatically
+		if(dynamic_ptr_cast<ArrangeStacks>(pack) != nullptr)
+			return false;
+	}
+
+	if (mode == EOpenWindowMode::TAVERN_WINDOW)
+	{
+		if(dynamic_ptr_cast<HireHero>(pack) != nullptr)
+			return false;
+	}
+
+	if (mode == EOpenWindowMode::UNIVERSITY_WINDOW)
+	{
+		if(dynamic_ptr_cast<TradeOnMarketplace>(pack) != nullptr)
+			return false;
+	}
+
+	if (mode == EOpenWindowMode::MARKET_WINDOW)
+	{
+		if(dynamic_ptr_cast<ExchangeArtifacts>(pack) != nullptr)
+			return false;
+
+		if(dynamic_ptr_cast<AssembleArtifacts>(pack))
+			return false;
+
+		if(dynamic_ptr_cast<EraseArtifactByClient>(pack))
+			return false;
+
+		if(dynamic_ptr_cast<TradeOnMarketplace>(pack) != nullptr)
+			return false;
+	}
+
+	return CDialogQuery::blocksPack(pack);
+}
+
 void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	// do not change to dynamic_ptr_cast - SIGSEGV!

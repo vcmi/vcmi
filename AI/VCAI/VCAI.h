@@ -163,7 +163,7 @@ public:
 	void tileHidden(const std::unordered_set<int3> & pos) override;
 	void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	void artifactAssembled(const ArtifactLocation & al) override;
-	void showTavernWindow(const CGObjectInstance * townOrTavern) override;
+	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showThievesGuildWindow(const CGObjectInstance * obj) override;
 	void playerBlocked(int reason, bool start) override;
 	void showPuzzleMap() override;
@@ -178,7 +178,7 @@ public:
 	void tileRevealed(const std::unordered_set<int3> & pos) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
-	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level) override;
+	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
 	void newObject(const CGObjectInstance * obj) override;
@@ -190,7 +190,7 @@ public:
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;
 	void objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator) override;
-	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor) override;
+	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void battleResultsApplied() override;
@@ -198,7 +198,7 @@ public:
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
-	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;

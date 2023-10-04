@@ -105,16 +105,16 @@ public:
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
 	virtual void receivedResource(){};
 	virtual void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID){};
-	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level){}
+	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID){}
 	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 
 	virtual void showPuzzleMap(){};
 	virtual void viewWorldMap(){};
-	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor){};
-	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor){};
+	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
+	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID){};
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
-	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};
+	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) {};
 	virtual void showQuestLog(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const std::unordered_set<int3> &pos){};

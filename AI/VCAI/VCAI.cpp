@@ -165,10 +165,13 @@ void VCAI::artifactAssembled(const ArtifactLocation & al)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showTavernWindow(const CGObjectInstance * townOrTavern)
+void VCAI::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "TavernWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -357,10 +360,17 @@ void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill whi
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
+void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "RecruitmentDialog");
+	requestActionASAP([=](){
+		recruitCreatures(dwelling, dst);
+		checkHeroArmy(dynamic_cast<const CGHeroInstance*>(dst));
+		answerQuery(queryID, 0);
+	});
 }
 
 void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)
@@ -512,10 +522,13 @@ void VCAI::receivedResource()
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
+void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "UniversityWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -577,10 +590,13 @@ void VCAI::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bo
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
+void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "MarketWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -1044,10 +1060,6 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
-	case Obj::CREATURE_GENERATOR1:
-		recruitCreatures(dynamic_cast<const CGDwelling *>(obj), h.get());
-		checkHeroArmy(h);
-		break;
 	case Obj::TOWN:
 		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
 		if(h->visitedTown) //we are inside, not just attacking
