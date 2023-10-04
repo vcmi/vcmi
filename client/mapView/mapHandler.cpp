@@ -15,6 +15,7 @@
 #include "../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
@@ -37,7 +38,7 @@ void CMapHandler::waitForOngoingAnimations()
 {
 	while(CGI->mh->hasOngoingAnimations())
 	{
-		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
 	}
 }

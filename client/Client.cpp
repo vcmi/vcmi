@@ -367,7 +367,6 @@ void CClient::endGame()
 
 	GH.curInt = nullptr;
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
@@ -499,8 +498,6 @@ std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman)
 
 void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-
 	playerint[color] = gameInterface;
 
 	logGlobal->trace("\tInitializing the interface for player %s", color.toString());
@@ -513,8 +510,6 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 
 void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-
 	battleints[color] = battleInterface;
 
 	if(needCallback)
@@ -531,7 +526,7 @@ void CClient::handlePack(CPack * pack)
 	CBaseForCLApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 	if(apply)
 	{
-		boost::unique_lock<boost::recursive_mutex> guiLock(*CPlayerInterface::pim);
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		apply->applyOnClBefore(this, pack);
 		logNetwork->trace("\tMade first apply on cl: %s", typeList.getTypeInfo(pack)->name());
 		gs->apply(pack);
@@ -614,7 +609,6 @@ void CClient::battleStarted(const BattleInfo * info)
 	{
 		if(att || def)
 		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
@@ -622,7 +616,6 @@ void CClient::battleStarted(const BattleInfo * info)
 			//TODO: This certainly need improvement
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->onBattleStarted(info);
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
@@ -648,15 +641,17 @@ void CClient::battleFinished(const BattleID & battleID)
 
 void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor color)
 {
-	assert(vstd::contains(battleints, color));
+	auto battleint = battleints.at(color);
 
-	if(vstd::contains(battleints, color))
+	if (!battleint->human)
 	{
 		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
-		auto unlock = vstd::makeUnlockGuardIf(*CPlayerInterface::pim, !battleints[color]->human);
-
-		assert(vstd::contains(battleints, color));
-		battleints[color]->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		battleint->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
+	}
+	else
+	{
+		battleint->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
 	}
 }
 

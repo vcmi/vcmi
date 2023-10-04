@@ -95,8 +95,6 @@ void CGuiHandler::handleEvents()
 void CGuiHandler::fakeMouseMove()
 {
 	dispatchMainThread([](){
-		assert(CPlayerInterface::pim);
-		boost::unique_lock lock(*CPlayerInterface::pim);
 		GH.events().dispatchMouseMoved(Point(0, 0), GH.getCursorPosition());
 	});
 }
@@ -114,7 +112,7 @@ void CGuiHandler::stopTextInput()
 void CGuiHandler::renderFrame()
 {
 	{
-		boost::recursive_mutex::scoped_lock un(*CPlayerInterface::pim);
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 		if(nullptr != curInt)
 			curInt->update();

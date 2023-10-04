@@ -106,7 +106,6 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 {
 	auto onIntroPlayed = [this]()
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		if(LOCPLINT->battleInt)
 			onIntroSoundPlayed();
 	};
@@ -781,7 +780,7 @@ void BattleInterface::onAnimationsFinished()
 void BattleInterface::waitForAnimations()
 {
 	{
-		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 		ongoingAnimationsState.waitUntil(false);
 	}
 

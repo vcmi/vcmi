@@ -104,7 +104,7 @@
 #include "../lib/spells/CSpellHandler.h"
 
 // The macro below is used to mark functions that are called by client when game state changes.
-// They all assume that CPlayerInterface::pim mutex is locked.
+// They all assume that interface mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT
 
 #define BATTLE_EVENT_POSSIBLE_RETURN	\
@@ -112,8 +112,6 @@
 		return;							\
 	if (isAutoFightOn && !battleInt)	\
 		return;
-
-boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
@@ -532,7 +530,6 @@ void CPlayerInterface::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID i
 
 void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	for (auto object : objs)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(object);
@@ -752,7 +749,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 		{
 			//FIXME: we want client rendering to proceed while AI is making actions
 			// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
-			auto unlockPim = vstd::makeUnlockGuard(*pim);
+			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 			autofightingAI->activeStack(battleID, stack);
 			return;
 		}
@@ -768,11 +765,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 		cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 	}
 
-	{
-		boost::unique_lock<boost::recursive_mutex> un(*pim);
-		battleInt->stackActivated(stack);
-		//Regeneration & mana drain go there
-	}
+	battleInt->stackActivated(stack);
 }
 
 void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID)
@@ -1015,8 +1008,6 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-
 	movementController->requestMovementAbort();
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
@@ -1114,7 +1105,6 @@ void CPlayerInterface::tileHidden(const std::unordered_set<int3> &pos)
 
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	GH.windows().createAndPushWindow<CHeroWindow>(hero);
 }
 
@@ -1339,7 +1329,7 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 	GH.windows().createAndPushWindow<CRecruitmentWindow>(dwelling, level, dst, recruitCb);
 }
 
-void CPlayerInterface::waitWhileDialog(bool unlockPim)
+void CPlayerInterface::waitWhileDialog()
 {
 	if (GH.amIGuiThread())
 	{
@@ -1347,7 +1337,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim)
 		return;
 	}
 
-	auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
+	auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 	boost::unique_lock<boost::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
 		showingDialog->cond.wait(un);
@@ -1385,8 +1375,8 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	{
 		GH.windows().totalRedraw();
 		{
-			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
+			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
 		}
 	}
@@ -1819,14 +1809,14 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 		artWin->artifactDisassembled(al);
 }
 
-void CPlayerInterface::waitForAllDialogs(bool unlockPim)
+void CPlayerInterface::waitForAllDialogs()
 {
 	while(!dialogs.empty())
 	{
-		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
-	waitWhileDialog(unlockPim);
+	waitWhileDialog();
 }
 
 void CPlayerInterface::proposeLoadingGame()
