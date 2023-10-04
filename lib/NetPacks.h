@@ -344,11 +344,17 @@ struct DLL_LINKAGE SetMovePoints : public CPackForClient
 
 struct DLL_LINKAGE FoWChange : public CPackForClient
 {
+	enum class Mode : uint8_t
+	{
+		HIDE,
+		REVEAL
+	};
+
 	void applyGs(CGameState * gs);
 
 	std::unordered_set<int3> tiles;
 	PlayerColor player;
-	ui8 mode = 0; //mode==0 - hide, mode==1 - reveal
+	Mode mode;
 	bool waitForDialogs = false;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;

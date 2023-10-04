@@ -346,7 +346,7 @@ void PlayerMessageProcessor::cheatDefeat(PlayerColor player)
 void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 {
 	FoWChange fc;
-	fc.mode = reveal;
+	fc.mode = reveal ? FoWChange::Mode::REVEAL : FoWChange::Mode::HIDE;
 	fc.player = player;
 	const auto & fowMap = gameHandler->gameState()->getPlayerTeam(player)->fogOfWarMap;
 	const auto & mapSize = gameHandler->gameState()->getMapSize();
@@ -356,7 +356,7 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 	for(int z = 0; z < mapSize.z; z++)
 		for(int x = 0; x < mapSize.x; x++)
 			for(int y = 0; y < mapSize.y; y++)
-				if(!(*fowMap)[z][x][y] || !fc.mode)
+				if(!(*fowMap)[z][x][y] || fc.mode == FoWChange::Mode::HIDE)
 					hlp_tab[lastUnc++] = int3(x, y, z);
 
 	fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);

@@ -924,8 +924,9 @@ void FoWChange::applyGs(CGameState *gs)
 	TeamState * team = gs->getPlayerTeam(player);
 	auto fogOfWarMap = team->fogOfWarMap;
 	for(const int3 & t : tiles)
-		(*fogOfWarMap)[t.z][t.x][t.y] = mode;
-	if (mode == 0) //do not hide too much
+		(*fogOfWarMap)[t.z][t.x][t.y] = mode != Mode::HIDE;
+
+	if (mode == Mode::HIDE) //do not hide too much
 	{
 		std::unordered_set<int3> tilesRevealed;
 		for (auto & elem : gs->map->objects)

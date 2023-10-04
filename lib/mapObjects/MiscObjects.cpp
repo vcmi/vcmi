@@ -842,40 +842,6 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 	}
 }
 
-void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
-{
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.player = h->tempOwner;
-	switch (ID)
-	{
-	case Obj::REDWOOD_OBSERVATORY:
-	case Obj::PILLAR_OF_FIRE:
-	{
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT,98 + (ID==Obj::PILLAR_OF_FIRE));
-
-		FoWChange fw;
-		fw.player = h->tempOwner;
-		fw.mode = 1;
-		cb->getTilesInRange (fw.tiles, pos, 20, h->tempOwner, 1);
-		cb->sendAndApply (&fw);
-		break;
-	}
-	case Obj::COVER_OF_DARKNESS:
-	{
-		iw.text.appendLocalString (EMetaText::ADVOB_TXT, 31);
-		for (auto & player : cb->gameState()->players)
-		{
-			if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
-				cb->getPlayerRelations(player.first, h->tempOwner) == PlayerRelations::ENEMIES)
-				cb->changeFogOfWar(visitablePos(), 20, player.first, true);
-		}
-		break;
-	}
-	}
-	cb->showInfoDialog(&iw);
-}
-
 void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(spell == SpellID::NONE)
@@ -1175,7 +1141,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 			FoWChange fw;
 			fw.player = h->tempOwner;
-			fw.mode = 1;
+			fw.mode = FoWChange::Mode::REVEAL;
 			fw.waitForDialogs = true;
 
 			for(const auto & it : eyelist[subID])
@@ -1319,79 +1285,6 @@ void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 BoatId CGShipyard::getBoatType() const
 {
 	return createdBoat;
-}
-
-void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
-{
-	//if player has not bought map of this subtype yet and underground exist for stalagmite cartographer
-	if (!wasVisited(h->getOwner()) && (subID != 2 || cb->gameState()->map->twoLevel))
-	{
-		if (cb->getResource(h->tempOwner, EGameResID::GOLD) >= 1000) //if he can afford a map
-		{
-			//ask if he wants to buy one
-			int text=0;
-			switch (subID)
-			{
-				case 0:
-					text = 25;
-					break;
-				case 1:
-					text = 26;
-					break;
-				case 2:
-					text = 27;
-					break;
-				default:
-					logGlobal->warn("Unrecognized subtype of cartographer");
-			}
-			assert(text);
-			BlockingDialog bd (true, false);
-			bd.player = h->getOwner();
-			bd.text.appendLocalString (EMetaText::ADVOB_TXT, text);
-			cb->showBlockingDialog (&bd);
-		}
-		else //if he cannot afford
-		{
-			h->showInfoDialog(28);
-		}
-	}
-	else //if he already visited carographer
-	{
-		h->showInfoDialog(24);
-	}
-}
-
-void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
-{
-	if(answer) //if hero wants to buy map
-	{
-		cb->giveResource(hero->tempOwner, EGameResID::GOLD, -1000);
-		FoWChange fw;
-		fw.mode = 1;
-		fw.player = hero->tempOwner;
-
-		//subIDs of different types of cartographers:
-		//water = 0; land = 1; underground = 2;
-
-		IGameCallback::MapTerrainFilterMode tileFilterMode = IGameCallback::MapTerrainFilterMode::NONE;
-
-		switch(subID)
-		{
-			case 0:
-				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::WATER;
-				break;
-			case 1:
-				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::LAND_CARTOGRAPHER;
-				break;
-			case 2:
-				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::UNDERGROUND_CARTOGRAPHER;
-				break;
-		}
-
-		cb->getAllTiles(fw.tiles, hero->tempOwner, -1, tileFilterMode); //reveal appropriate tiles
-		cb->sendAndApply(&fw);
-		cb->setObjProperty(id, CCartographer::OBJPROP_VISITED, hero->tempOwner.getNum());
-	}
 }
 
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const

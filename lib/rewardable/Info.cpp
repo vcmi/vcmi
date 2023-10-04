@@ -161,6 +161,20 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 		reward.spellCast.second = source["spellCast"]["schoolLevel"].Integer();
 	}
 
+	if (!source["revealTiles"].isNull())
+	{
+		auto const & entry = source["revealTiles"];
+
+		reward.revealTiles = RewardRevealTiles();
+		reward.revealTiles->radius = JsonRandom::loadValue(entry["radius"], rng, variables);
+		reward.revealTiles->hide = entry["hide"].Bool();
+
+		reward.revealTiles->scoreSurface = JsonRandom::loadValue(entry["surface"], rng, variables);
+		reward.revealTiles->scoreSubterra = JsonRandom::loadValue(entry["subterra"], rng, variables);
+		reward.revealTiles->scoreWater = JsonRandom::loadValue(entry["water"], rng, variables);
+		reward.revealTiles->scoreRock = JsonRandom::loadValue(entry["rock"], rng, variables);
+	}
+
 	for ( auto node : source["changeCreatures"].Struct() )
 	{
 		CreatureID from(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.first).value());

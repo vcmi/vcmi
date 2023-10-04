@@ -314,17 +314,6 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGObservatory : public CGObjectInstance //Redwood observatory
-{
-public:
-	void onHeroVisit(const CGHeroInstance * h) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
 class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
 public:
@@ -393,19 +382,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
-class DLL_LINKAGE CCartographer : public CTeamVisited
-{
-///behaviour varies depending on surface and  floor
-public:
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CTeamVisited&>(*this);
 	}
 };
 

@@ -88,7 +88,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 		return;
 	}
 	if(radious == CBuilding::HEIGHT_SKYSHIP) //reveal entire map
-		getAllTiles (tiles, player, -1, MapTerrainFilterMode::NONE);
+		getAllTiles (tiles, player, -1, [](auto * tile){return true;});
 	else
 	{
 		const TeamState * team = !player ? nullptr : gs->getPlayerTeam(*player);
@@ -112,7 +112,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 	}
 }
 
-void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
+void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, std::function<bool(const TerrainTile *)> filter) const
 {
 	if(!!Player && !Player->isValidPlayer())
 	{
@@ -137,29 +137,9 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 		{
 			for(int yd = 0; yd < gs->map->height; yd++)
 			{
-				bool isTileEligible = false;
-
-				switch(tileFilterMode)
-				{
-					case MapTerrainFilterMode::NONE:
-						isTileEligible = true;
-						break;
-					case MapTerrainFilterMode::WATER:
-						isTileEligible = getTile(int3(xd, yd, zd))->terType->isWater();
-						break;
-					case MapTerrainFilterMode::LAND:
-						isTileEligible = getTile(int3(xd, yd, zd))->terType->isLand();
-						break;
-					case MapTerrainFilterMode::LAND_CARTOGRAPHER:
-						isTileEligible = getTile(int3(xd, yd, zd))->terType->isSurfaceCartographerCompatible();
-						break;
-					case MapTerrainFilterMode::UNDERGROUND_CARTOGRAPHER:
-						isTileEligible = getTile(int3(xd, yd, zd))->terType->isUndergroundCartographerCompatible();
-						break;
-				}
-
-				if(isTileEligible)
-					tiles.insert(int3(xd, yd, zd));
+				int3 coordinates(xd, yd, zd);
+				if (filter(getTile(coordinates)))
+					tiles.insert(coordinates);
 			}
 		}
 	}

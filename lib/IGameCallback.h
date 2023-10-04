@@ -43,15 +43,6 @@ namespace scripting
 class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
 public:
-	enum class MapTerrainFilterMode
-	{
-		NONE = 0,
-		LAND = 1,
-		WATER = 2,
-		LAND_CARTOGRAPHER = 3,
-		UNDERGROUND_CARTOGRAPHER = 4
-	};
-
 	CGameState *gameState();
 
 	//used for random spawns
@@ -66,8 +57,7 @@ public:
 						 int3::EDistanceFormula formula = int3::DIST_2D) const;
 
 	//returns all tiles on given level (-1 - both levels, otherwise number of level)
-	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player = std::optional<PlayerColor>(),
-					 int level = -1, MapTerrainFilterMode tileFilterMode = MapTerrainFilterMode::NONE) const;
+	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const; 

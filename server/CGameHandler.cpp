@@ -858,7 +858,7 @@ void CGameHandler::onNewTurn()
 			if (player != PlayerColor::NEUTRAL) //do not reveal fow for neutral player
 			{
 				FoWChange fw;
-				fw.mode = 1;
+				fw.mode = FoWChange::Mode::REVEAL;
 				fw.player = player;
 				// find all hidden tiles
 				const auto fow = getPlayerTeam(player)->fogOfWarMap;
@@ -2389,7 +2389,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	// now when everything is built - reveal tiles for lookout tower
 	FoWChange fw;
 	fw.player = t->tempOwner;
-	fw.mode = 1;
+	fw.mode = FoWChange::Mode::REVEAL;
 	getTilesInRange(fw.tiles, t->getSightCenter(), t->getSightRadius(), t->tempOwner, 1);
 	sendAndApply(&fw);
 
@@ -4135,7 +4135,7 @@ void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor p
 	FoWChange fow;
 	fow.tiles = tiles;
 	fow.player = player;
-	fow.mode = hide? 0 : 1;
+	fow.mode = hide ? FoWChange::Mode::HIDE : FoWChange::Mode::REVEAL;
 	sendAndApply(&fow);
 }
 

@@ -255,23 +255,6 @@
 		}
 	},
 
-	// subtype: different revealed areas
-	"cartographer" : {
-		"index" :13,
-		"handler": "cartographer",
-		"lastReservedIndex" : 2,
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"water" : { "index" : 0, "aiValue" : 5000, "rmg" : { "zoneLimit" : 1,  "value" : 5000, "rarity" : 20 } },
-			"land" : { "index" : 1, "aiValue": 10000, "rmg" : { "zoneLimit" : 1,  "value" : 10000, "rarity" : 20 } },
-			"subterra" : { "index" : 2, "aiValue" : 7500, "rmg" : { "zoneLimit" : 1,  "value" : 7500, "rarity" : 20 } }
-		}
-	},
-
 	// subtype: resource ID
 	"mine" : {
 		"index" :53,

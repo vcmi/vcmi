@@ -56,7 +56,6 @@ void registerTypesMapObjects1(Serializer &s)
 			s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
 	s.template registerType<CGObjectInstance, CGScholar>();
-	s.template registerType<CGObjectInstance, CGObservatory>();
 	s.template registerType<CGObjectInstance, CGKeys>();
 		s.template registerType<CGKeys, CGKeymasterTent>();
 		s.template registerType<CGKeys, CGBorderGuard>(); s.template registerType<IQuestObject, CGBorderGuard>();
@@ -112,7 +111,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
-	REGISTER_GENERIC_HANDLER(CCartographer);
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);
 	REGISTER_GENERIC_HANDLER(CGBoat);
@@ -132,7 +130,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CGMine);
 	REGISTER_GENERIC_HANDLER(CGObelisk);
-	REGISTER_GENERIC_HANDLER(CGObservatory);
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
@@ -177,7 +174,6 @@ void registerTypesMapObjects2(Serializer &s)
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
 		s.template registerType<CTeamVisited, CGShrine>();
-		s.template registerType<CTeamVisited, CCartographer>();
 		s.template registerType<CTeamVisited, CGObelisk>();
 
 	//s.template registerType<CQuest>();

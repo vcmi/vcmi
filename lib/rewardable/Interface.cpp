@@ -12,6 +12,7 @@
 #include "Interface.h"
 
 #include "../CHeroHandler.h"
+#include "../TerrainHandler.h"
 #include "../CSoundBase.h"
 #include "../NetPacks.h"
 #include "../spells/CSpellHandler.h"
@@ -45,6 +46,52 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 	assert(info.reward.creatures.size() <= GameConstants::ARMY_SIZE);
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
+
+	if (info.reward.revealTiles)
+	{
+		auto const & props = *info.reward.revealTiles;
+		FoWChange fw;
+
+		if (props.hide)
+			fw.mode = FoWChange::Mode::HIDE;
+		else
+			fw.mode = FoWChange::Mode::REVEAL;
+
+		fw.player = hero->tempOwner;
+
+		auto const functor = [&props](const TerrainTile * tile)
+		{
+			int score = 0;
+			if (tile->terType->isSurface())
+				score += props.scoreSurface;
+
+			if (tile->terType->isUnderground())
+				score += props.scoreSubterra;
+
+			if (tile->terType->isWater())
+				score += props.scoreWater;
+
+			if (tile->terType->isRock())
+				score += props.scoreRock;
+
+			return score > 0;
+		};
+
+		if (props.radius > 0)
+		{
+			cb->getTilesInRange(fw.tiles, hero->getSightCenter(), props.radius, hero->tempOwner, 1);
+			vstd::erase_if(fw.tiles, [&](const int3 & coord){
+				return functor(cb->getTile(coord));
+			});
+		}
+		else
+		{
+			cb->getAllTiles(fw.tiles, hero->tempOwner, -1, functor);
+		}
+
+		cb->sendAndApply(&fw);
+
+	}
 
 	for(const auto & entry : info.reward.secondary)
 	{

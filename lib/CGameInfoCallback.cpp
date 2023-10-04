@@ -607,7 +607,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 
-		if(!tile || tile->terType->isLand())
+		if(!tile || !tile->terType->isWater())
 			return EBuildingState::NO_WATER; //lack of water
 	}
 

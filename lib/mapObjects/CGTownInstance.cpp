@@ -1068,7 +1068,7 @@ void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
 	setOwner(winner);
 	FoWChange fw;
 	fw.player = winner;
-	fw.mode = 1;
+	fw.mode = FoWChange::Mode::REVEAL;
 	cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), winner, 1);
 	cb->sendAndApply(& fw);
 }

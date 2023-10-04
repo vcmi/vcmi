@@ -18,6 +18,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+void Rewardable::RewardRevealTiles::serializeJson(JsonSerializeFormat & handler)
+{
+	// TODO
+}
+
 Rewardable::Reward::Reward()
 	: heroExperience(0)
 	, heroLevel(0)

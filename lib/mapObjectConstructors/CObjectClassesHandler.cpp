@@ -71,7 +71,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("randomDwelling", CGDwelling);
 
 	SET_HANDLER("generic", CGObjectInstance);
-	SET_HANDLER("cartographer", CCartographer);
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("borderGate", CGBorderGate);
 	SET_HANDLER("borderGuard", CGBorderGuard);
@@ -84,7 +83,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("magi", CGMagi);
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
-	SET_HANDLER("observatory", CGObservatory);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
