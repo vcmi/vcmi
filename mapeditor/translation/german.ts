@@ -305,6 +305,16 @@
         <translation>Öffnen der Karte fehlgeschlagen</translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Confirmation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Unsaved changes will be lost, are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Cannot open map from this folder</source>
         <translation>Kann keine Karte aus diesem Ordner öffnen</translation>

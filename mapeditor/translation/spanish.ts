@@ -292,22 +292,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmación</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Los cambios no guardados se perderán. Está usted seguro ?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Failed to open map</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo abrir el mapa</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Cannot open map from this folder</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede abrir el mapa de esta carpeta</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="370"/>

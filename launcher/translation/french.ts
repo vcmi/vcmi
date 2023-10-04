@@ -175,7 +175,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
         <source>Artifacts</source>
-        <translation>Artéfacts</translation>
+        <translation>Artefacts</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
