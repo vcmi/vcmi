@@ -158,7 +158,6 @@ void Initializer::initialize(CGHeroInstance * o)
 		//	o->type = VLC->heroh->objects.at(o->subID);
 		
 		o->gender = o->type->gender;
-		o->portrait = o->type->imageIndex;
 		o->randomizeArmy(o->type->heroClass->faction);
 	}
 }
@@ -279,7 +278,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	}
 	addProperty("Name", o->getNameTranslated(), false);
 	addProperty("Biography", o->getBiographyTranslated(), new MessageDelegate, false);
-	addProperty("Portrait", o->portrait, false);
+	addProperty("Portrait", o->customPortraitSource, false);
 	
 	auto * delegate = new HeroSkillsDelegate(*o);
 	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);
@@ -622,7 +621,6 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 				o->type = t.get();
 		}
 		o->gender = o->type->gender;
-		o->portrait = o->type->imageIndex;
 		o->randomizeArmy(o->type->heroClass->faction);
 		updateProperties(); //updating other properties after change
 	}

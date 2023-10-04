@@ -38,60 +38,60 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const BattleID BattleID::NONE = BattleID(-1);
-const QueryID QueryID::NONE = QueryID(-1);
-const HeroTypeID HeroTypeID::NONE = HeroTypeID(-1);
-const ObjectInstanceID ObjectInstanceID::NONE = ObjectInstanceID(-1);
+const BattleID BattleID::NONE(-1);
+const QueryID QueryID::NONE(-1);
+const HeroTypeID HeroTypeID::NONE(-1);
+const HeroTypeID HeroTypeID::RANDOM(-2);
+const ObjectInstanceID ObjectInstanceID::NONE(-1);
 
-const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
-const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
-const SlotID SlotID::WAR_MACHINES_SLOT = SlotID(-4);
-const SlotID SlotID::ARROW_TOWERS_SLOT = SlotID(-5);
+const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER(-2);
+const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER(-3);
+const SlotID SlotID::WAR_MACHINES_SLOT(-4);
+const SlotID SlotID::ARROW_TOWERS_SLOT(-5);
 
-const PlayerColor PlayerColor::SPECTATOR = PlayerColor(-4);
-const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(-3);
-const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(-2);
-const PlayerColor PlayerColor::NEUTRAL = PlayerColor(-1);
-const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
-const TeamID TeamID::NO_TEAM = TeamID(-1);
+const PlayerColor PlayerColor::SPECTATOR(-4);
+const PlayerColor PlayerColor::CANNOT_DETERMINE(-3);
+const PlayerColor PlayerColor::UNFLAGGABLE(-2);
+const PlayerColor PlayerColor::NEUTRAL(-1);
+const PlayerColor PlayerColor::PLAYER_LIMIT(PLAYER_LIMIT_I);
+const TeamID TeamID::NO_TEAM(-1);
 
-const SpellSchool SpellSchool::ANY = -1;
-const SpellSchool SpellSchool::AIR = 0;
-const SpellSchool SpellSchool::FIRE = 1;
-const SpellSchool SpellSchool::WATER = 2;
-const SpellSchool SpellSchool::EARTH = 3;
+const SpellSchool SpellSchool::ANY(-1);
+const SpellSchool SpellSchool::AIR(0);
+const SpellSchool SpellSchool::FIRE(1);
+const SpellSchool SpellSchool::WATER(2);
+const SpellSchool SpellSchool::EARTH(3);
 
-const FactionID FactionID::NONE = -2;
-const FactionID FactionID::DEFAULT = -1;
-const FactionID FactionID::RANDOM = -1;
-const FactionID FactionID::ANY = -1;
-const FactionID FactionID::CASTLE = 0;
-const FactionID FactionID::RAMPART = 1;
-const FactionID FactionID::TOWER = 2;
-const FactionID FactionID::INFERNO = 3;
-const FactionID FactionID::NECROPOLIS = 4;
-const FactionID FactionID::DUNGEON = 5;
-const FactionID FactionID::STRONGHOLD = 6;
-const FactionID FactionID::FORTRESS = 7;
-const FactionID FactionID::CONFLUX = 8;
-const FactionID FactionID::NEUTRAL = 9;
+const FactionID FactionID::NONE(-2);
+const FactionID FactionID::DEFAULT(-1);
+const FactionID FactionID::RANDOM(-1);
+const FactionID FactionID::ANY(-1);
+const FactionID FactionID::CASTLE(0);
+const FactionID FactionID::RAMPART(1);
+const FactionID FactionID::TOWER(2);
+const FactionID FactionID::INFERNO(3);
+const FactionID FactionID::NECROPOLIS(4);
+const FactionID FactionID::DUNGEON(5);
+const FactionID FactionID::STRONGHOLD(6);
+const FactionID FactionID::FORTRESS(7);
+const FactionID FactionID::CONFLUX(8);
+const FactionID FactionID::NEUTRAL(9);
 
-const BoatId BoatId::NONE = -1;
-const BoatId BoatId::NECROPOLIS = 0;
-const BoatId BoatId::CASTLE = 1;
-const BoatId BoatId::FORTRESS = 2;
+const BoatId BoatId::NONE(-1);
+const BoatId BoatId::NECROPOLIS(0);
+const BoatId BoatId::CASTLE(1);
+const BoatId BoatId::FORTRESS(2);
 
-const RiverId RiverId::NO_RIVER = 0;
-const RiverId RiverId::WATER_RIVER = 1;
-const RiverId RiverId::ICY_RIVER = 2;
-const RiverId RiverId::MUD_RIVER = 3;
-const RiverId RiverId::LAVA_RIVER = 4;
+const RiverId RiverId::NO_RIVER(0);
+const RiverId RiverId::WATER_RIVER(1);
+const RiverId RiverId::ICY_RIVER(2);
+const RiverId RiverId::MUD_RIVER(3);
+const RiverId RiverId::LAVA_RIVER(4);
 
-const RoadId RoadId::NO_ROAD = 0;
-const RoadId RoadId::DIRT_ROAD = 1;
-const RoadId RoadId::GRAVEL_ROAD = 2;
-const RoadId RoadId::COBBLESTONE_ROAD = 3;
-
+const RoadId RoadId::NO_ROAD(0);
+const RoadId RoadId::DIRT_ROAD(1);
+const RoadId RoadId::GRAVEL_ROAD(2);
+const RoadId RoadId::COBBLESTONE_ROAD(3);
 
 namespace GameConstants
 {

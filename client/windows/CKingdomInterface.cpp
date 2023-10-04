@@ -915,7 +915,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 
 	garr = std::make_shared<CGarrisonInt>(Point(6, 78), 4, Point(), hero, nullptr, true, true);
 
-	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->portrait, 0, 5, 6);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex(), 0, 5, 6);
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);
 
 	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());

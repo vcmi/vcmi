@@ -106,20 +106,20 @@ HeroTypeID MapReaderH3M::readHero()
 	return remapIdentifier(result);
 }
 
-int32_t MapReaderH3M::readHeroPortrait()
+HeroTypeID MapReaderH3M::readHeroPortrait()
 {
 	HeroTypeID result(reader->readUInt8());
 
 	if(result.getNum() == features.heroIdentifierInvalid)
-		return int32_t(-1);
+		return HeroTypeID::NONE;
 
 	if (result.getNum() >= features.heroesPortraitsCount)
 	{
 		logGlobal->warn("Map contains invalid hero portrait ID %d. Will be reset!", result.getNum() );
-		return int32_t(-1);
+		return HeroTypeID::NONE;
 	}
 
-	return remapper.remapPortrrait(result);
+	return remapper.remapPortrait(result);
 }
 
 CreatureID MapReaderH3M::readCreature()

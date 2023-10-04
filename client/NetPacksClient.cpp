@@ -403,7 +403,7 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 			if (cl.gameState()->isPlayerMakingTurn(player))
 			{
 				callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
-				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn, -1);
+				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn, QueryID::NONE);
 			}
 		}
 	};

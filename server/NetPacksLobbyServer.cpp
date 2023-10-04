@@ -369,19 +369,19 @@ void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayer
 	switch(pack.what)
 	{
 	case LobbyChangePlayerOption::TOWN_ID:
-		srv.optionSetCastle(pack.color, pack.value);
+		srv.optionSetCastle(pack.color, FactionID(pack.value));
 		break;
 	case LobbyChangePlayerOption::TOWN:
 		srv.optionNextCastle(pack.color, pack.value);
 		break;
 	case LobbyChangePlayerOption::HERO_ID:
-		srv.optionSetHero(pack.color, pack.value);
+		srv.optionSetHero(pack.color, HeroTypeID(pack.value));
 		break;
 	case LobbyChangePlayerOption::HERO:
 		srv.optionNextHero(pack.color, pack.value);
 		break;
 	case LobbyChangePlayerOption::BONUS_ID:
-		srv.optionSetBonus(pack.color, pack.value);
+		srv.optionSetBonus(pack.color, PlayerStartingBonus(pack.value));
 		break;
 	case LobbyChangePlayerOption::BONUS:
 		srv.optionNextBonus(pack.color, pack.value);

@@ -277,7 +277,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		gameHandler->queries->addQuery(battleDialogQuery);
 	}
 	else
-		battleResult->queryID = -1;
+		battleResult->queryID = QueryID::NONE;
 
 	//set same battle result for all gameHandler->queries
 	for(auto q : gameHandler->queries->allQueries())

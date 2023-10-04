@@ -44,7 +44,6 @@ CQuest::CQuest():
 	textOption(0),
 	completedOption(0),
 	stackDirection(0),
-	heroPortrait(-1),
 	isCustomFirst(false),
 	isCustomNext(false),
 	isCustomComplete(false)
@@ -555,7 +554,7 @@ void CGSeerHut::setObjToKill()
 	else if(quest->missionType == CQuest::MISSION_KILL_HERO)
 	{
 		quest->heroName = getHeroToKill(false)->getNameTranslated();
-		quest->heroPortrait = getHeroToKill(false)->portrait;
+		quest->heroPortrait = getHeroToKill(false)->getPortraitSource();
 	}
 
 	quest->getCompletionText(configuration.onSelect);

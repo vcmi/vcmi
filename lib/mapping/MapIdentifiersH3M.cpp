@@ -87,15 +87,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 	}
 
-	for (auto entry : mapping["portraits"].Struct())
-	{
-		int32_t sourceID = entry.second.Integer();
-		int32_t targetID = *VLC->identifiers()->getIdentifier(entry.second.meta, "hero", entry.first);
-		int32_t iconID = VLC->heroTypes()->getByIndex(targetID)->getIconIndex();
-
-		mappingHeroPortrait[sourceID] = iconID;
-	}
-
+	loadMapping(mappingHeroPortrait, mapping["portraits"], "hero");
 	loadMapping(mappingBuilding, mapping["buildingsCommon"], "building.core:random");
 	loadMapping(mappingFaction, mapping["factions"], "faction");
 	loadMapping(mappingCreature, mapping["creatures"], "creature");
@@ -168,7 +160,7 @@ HeroTypeID MapIdentifiersH3M::remap(HeroTypeID input) const
 	return input;
 }
 
-int32_t MapIdentifiersH3M::remapPortrrait(int32_t input) const
+HeroTypeID MapIdentifiersH3M::remapPortrait(HeroTypeID input) const
 {
 	if (mappingHeroPortrait.count(input))
 		return mappingHeroPortrait.at(input);

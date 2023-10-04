@@ -167,11 +167,11 @@ public:
 			pset.castle = pinfo.defaultCastle();
 			pset.hero = pinfo.defaultHero();
 
-			if(pset.hero.getNum() != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
+			if(pset.hero != HeroTypeID::RANDOM && pinfo.hasCustomMainHero())
 			{
 				pset.hero = pinfo.mainCustomHeroId;
 				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
-				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
+				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
 			}
 
 			pset.handicap = PlayerSettings::NO_HANDICAP;

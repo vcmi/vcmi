@@ -27,7 +27,7 @@ struct DLL_LINKAGE SHeroName
 {
 	SHeroName();
 
-	int heroId;
+	HeroTypeID heroId;
 	std::string heroName;
 
 	template <typename Handler>
@@ -45,9 +45,9 @@ struct DLL_LINKAGE PlayerInfo
 	PlayerInfo();
 
 	/// Gets the default faction id or -1 for a random faction.
-	si8 defaultCastle() const;
+	FactionID defaultCastle() const;
 	/// Gets the default hero id or -1 for a random hero.
-	si8 defaultHero() const;
+	HeroTypeID defaultHero() const;
 	bool canAnyonePlay() const;
 	bool hasCustomMainHero() const;
 
@@ -63,10 +63,10 @@ struct DLL_LINKAGE PlayerInfo
 	/// Player has a random main hero
 	bool hasRandomHero;
 	/// The default value is -1.
-	si32 mainCustomHeroPortrait;
+	HeroTypeID mainCustomHeroPortrait;
 	std::string mainCustomHeroNameTextId;
 	/// ID of custom hero (only if portrait and hero name are set, otherwise unpredicted value), -1 if none (not always -1)
-	si32 mainCustomHeroId;
+	HeroTypeID mainCustomHeroId;
 
 	std::vector<SHeroName> heroesNames; /// list of placed heroes on the map
 	bool hasMainTown; /// The default value is false.

@@ -64,7 +64,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos += pos_;
 
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->portrait);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex());
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
 }
@@ -202,7 +202,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated()));
 	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated());
 	portraitArea->text = curHero->getBiographyTranslated();
-	portraitImage->setFrame(curHero->portrait);
+	portraitImage->setFrame(curHero->getIconIndex());
 
 	{
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);

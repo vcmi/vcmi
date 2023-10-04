@@ -32,29 +32,29 @@ PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	allowedFactions = VLC->townh->getAllowedFactions();
 }
 
-si8 PlayerInfo::defaultCastle() const
+FactionID PlayerInfo::defaultCastle() const
 {
 	//if random allowed set it as default
 	if(isFactionRandom)
-		return -1;
+		return FactionID::RANDOM;
 
 	if(!allowedFactions.empty())
 		return *allowedFactions.begin();
 
 	// fall back to random
-	return -1;
+	return FactionID::RANDOM;
 }
 
-si8 PlayerInfo::defaultHero() const
+HeroTypeID PlayerInfo::defaultHero() const
 {
 	// we will generate hero in front of main town
 	if((generateHeroAtMainTown && hasMainTown) || hasRandomHero)
 	{
 		//random hero
-		return -1;
+		return HeroTypeID::RANDOM;
 	}
 
-	return -2;
+	return HeroTypeID::NONE;
 }
 
 bool PlayerInfo::canAnyonePlay() const
@@ -64,7 +64,7 @@ bool PlayerInfo::canAnyonePlay() const
 
 bool PlayerInfo::hasCustomMainHero() const
 {
-	return !mainCustomHeroNameTextId.empty() && mainCustomHeroPortrait != -1;
+	return mainCustomHeroId.isValid();
 }
 
 EventCondition::EventCondition(EWinLoseType condition):

@@ -41,20 +41,20 @@ struct DLL_LINKAGE SimturnsInfo
 	}
 };
 
+enum class PlayerStartingBonus : int8_t
+{
+	RANDOM   = -1,
+	ARTIFACT =  0,
+	GOLD     =  1,
+	RESOURCE =  2
+};
+
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings
 {
 	enum { PLAYER_AI = 0 }; // for use in playerID
 
-	enum Ebonus {
-		NONE     = -2,
-		RANDOM   = -1,
-		ARTIFACT =  0,
-		GOLD     =  1,
-		RESOURCE =  2
-	};
-
-	Ebonus bonus;
+	PlayerStartingBonus bonus;
 	FactionID castle;
 	HeroTypeID hero;
 	HeroTypeID heroPortrait; //-1 if default, else ID
@@ -85,6 +85,9 @@ struct DLL_LINKAGE PlayerSettings
 	PlayerSettings();
 	bool isControlledByAI() const;
 	bool isControlledByHuman() const;
+
+	FactionID getCastleValidated() const;
+	HeroTypeID getHeroValidated() const;
 };
 
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
@@ -197,7 +200,7 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	PlayerColor clientFirstColor(int clientId) const;
 	bool isClientColor(int clientId, const PlayerColor & color) const;
 	ui8 clientFirstId(int clientId) const; // Used by chat only!
-	PlayerInfo & getPlayerInfo(int color);
+	PlayerInfo & getPlayerInfo(PlayerColor color);
 	TeamID getPlayerTeamId(const PlayerColor & color);
 };
 

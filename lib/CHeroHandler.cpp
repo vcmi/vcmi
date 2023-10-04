@@ -298,7 +298,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	VLC->identifiers()->requestIdentifier("faction", node["faction"],
 	[=](si32 factionID)
 	{
-		heroClass->faction = factionID;
+		heroClass->faction.setNum(factionID);
 	});
 
 	VLC->identifiers()->requestIdentifier(scope, "object", "hero", [=](si32 index)
@@ -722,8 +722,9 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	size_t index = objects.size();
+	static const int specialFramesCount = 2; // reserved for 2 special frames
 	auto * object = loadFromJson(scope, data, name, index);
-	object->imageIndex = static_cast<si32>(index) + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
+	object->imageIndex = static_cast<si32>(index) + specialFramesCount;
 
 	objects.emplace_back(object);
 

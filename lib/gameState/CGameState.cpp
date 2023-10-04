@@ -824,7 +824,7 @@ void CGameState::placeStartingHeroes()
 			if (campaign && campaign->playerHasStartingHero(playerColor))
 				continue;
 
-			int heroTypeId = pickNextHeroType(playerColor);
+			HeroTypeID heroTypeId = pickNextHeroType(playerColor);
 			if(playerSettingPair.second.hero == HeroTypeID::NONE)
 				playerSettingPair.second.hero = heroTypeId;
 
@@ -959,14 +959,15 @@ void CGameState::initStartingBonus()
 	for(auto & elem : players)
 	{
 		//starting bonus
-		if(scenarioOps->playerInfos[elem.first].bonus==PlayerSettings::RANDOM)
-			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerSettings::Ebonus>(getRandomGenerator().nextInt(2));
+		if(scenarioOps->playerInfos[elem.first].bonus == PlayerStartingBonus::RANDOM)
+			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerStartingBonus>(getRandomGenerator().nextInt(2));
+
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
-		case PlayerSettings::GOLD:
+		case PlayerStartingBonus::GOLD:
 			elem.second.resources[EGameResID::GOLD] += getRandomGenerator().nextInt(5, 10) * 100;
 			break;
-		case PlayerSettings::RESOURCE:
+		case PlayerStartingBonus::RESOURCE:
 			{
 				auto res = (*VLC->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == EGameResID::WOOD_AND_ORE)
@@ -981,7 +982,7 @@ void CGameState::initStartingBonus()
 				}
 				break;
 			}
-		case PlayerSettings::ARTIFACT:
+		case PlayerStartingBonus::ARTIFACT:
 			{
 				if(elem.second.heroes.empty())
 				{
@@ -2117,7 +2118,7 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 
 	for(const auto & playerSettingPair : scenarioOps->playerInfos) //remove uninitialized yet heroes picked for start by other players
 	{
-		if(playerSettingPair.second.hero.getNum() != PlayerSettings::RANDOM)
+		if(playerSettingPair.second.hero != HeroTypeID::RANDOM)
 			ret -= HeroTypeID(playerSettingPair.second.hero);
 	}
 

@@ -68,9 +68,9 @@ int ISelectionScreenInfo::getCurrentDifficulty()
 	return getStartInfo()->difficulty;
 }
 
-PlayerInfo ISelectionScreenInfo::getPlayerInfo(int color)
+PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 {
-	return getMapInfo()->mapHeader->players[color];
+	return getMapInfo()->mapHeader->players[color.getNum()];
 }
 
 CSelectionBase::CSelectionBase(ESelectionScreen type)
@@ -403,8 +403,9 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
 	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	std::vector<std::set<ui8>> teams(PlayerColor::PLAYER_LIMIT_I);
-	for(ui8 j = 0; j < PlayerColor::PLAYER_LIMIT_I; j++)
+	std::vector<std::set<PlayerColor>> teams(PlayerColor::PLAYER_LIMIT_I);
+
+	for(PlayerColor j(0); j < PlayerColor::PLAYER_LIMIT; j++)
 	{
 		if(SEL->getPlayerInfo(j).canHumanPlay || SEL->getPlayerInfo(j).canComputerPlay)
 		{

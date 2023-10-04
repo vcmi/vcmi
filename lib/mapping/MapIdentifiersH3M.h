@@ -38,7 +38,7 @@ class MapIdentifiersH3M
 	std::map<FactionID, FactionID> mappingFaction;
 	std::map<CreatureID, CreatureID> mappingCreature;
 	std::map<HeroTypeID, HeroTypeID> mappingHeroType;
-	std::map<int32_t, int32_t> mappingHeroPortrait;
+	std::map<HeroTypeID, HeroTypeID> mappingHeroPortrait;
 	std::map<HeroClassID, HeroClassID> mappingHeroClass;
 	std::map<TerrainId, TerrainId> mappingTerrain;
 	std::map<ArtifactID, ArtifactID> mappingArtifact;
@@ -55,7 +55,7 @@ public:
 	void remapTemplate(ObjectTemplate & objectTemplate);
 
 	BuildingID remapBuilding(std::optional<FactionID> owner, BuildingID input) const;
-	int32_t remapPortrrait(int32_t input) const;
+	HeroTypeID remapPortrait(HeroTypeID input) const;
 	FactionID remap(FactionID input) const;
 	CreatureID remap(CreatureID input) const;
 	HeroTypeID remap(HeroTypeID input) const;

@@ -156,13 +156,6 @@
 		{ "frame" : 152, "file" : "HPL009SH.bmp"},
 		{ "frame" : 153, "file" : "HPL008SH.bmp"},
 		{ "frame" : 154, "file" : "HPL001SH.bmp"},
-		{ "frame" : 155, "file" : "HPL131DM.bmp"},
-		{ "frame" : 156, "file" : "HPL129MK.bmp"},
-		{ "frame" : 157, "file" : "HPL002SH.bmp"},
-		{ "frame" : 158, "file" : "HPL132Wl.bmp"},
-		{ "frame" : 159, "file" : "HPL133Nc.bmp"},
-		{ "frame" : 160, "file" : "HPL134Nc.bmp"},
-		{ "frame" : 161, "file" : "HPL135Wi.bmp"},
-		{ "frame" : 162, "file" : "HPL136Wi.bmp"}
+		{ "frame" : 155, "file" : "HPL131DM.bmp"}
 	]
 }

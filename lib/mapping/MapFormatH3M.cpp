@@ -248,9 +248,9 @@ void CMapLoaderH3M::readPlayerInfo()
 		}
 
 		playerInfo.hasRandomHero = reader->readBool();
-		playerInfo.mainCustomHeroId = reader->readHero().getNum();
+		playerInfo.mainCustomHeroId = reader->readHero();
 
-		if(playerInfo.mainCustomHeroId != -1)
+		if(playerInfo.mainCustomHeroId != HeroTypeID::NONE)
 		{
 			playerInfo.mainCustomHeroPortrait = reader->readHeroPortrait();
 			playerInfo.mainCustomHeroNameTextId = readLocalizedString(TextIdentifier("header", "player", i, "mainHeroName"));
@@ -263,7 +263,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			for(int pp = 0; pp < heroCount; ++pp)
 			{
 				SHeroName vv;
-				vv.heroId = reader->readUInt8();
+				vv.heroId = reader->readHero();
 				vv.heroName = readLocalizedString(TextIdentifier("header", "heroNames", vv.heroId));
 
 				playerInfo.heroesNames.push_back(vv);
@@ -547,7 +547,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				}
 			);
 
-			assert(playersOnMap > 1);
 			if(playersOnMap == 1)
 			{
 				logGlobal->warn("Map %s: Only one player exists, but normal victory allowed!", mapName);
@@ -703,8 +702,8 @@ void CMapLoaderH3M::readDisposedHeroes()
 		map->disposedHeroes.resize(disp);
 		for(int g = 0; g < disp; ++g)
 		{
-			map->disposedHeroes[g].heroId = reader->readHero().getNum();
-			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
+			map->disposedHeroes[g].heroId = reader->readHero();
+			map->disposedHeroes[g].portrait.setNum(reader->readHeroPortrait());
 			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId));
 			reader->readBitmaskPlayers(map->disposedHeroes[g].players, false);
 		}
@@ -1679,14 +1678,13 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	}
 
 	setOwnerAndValidate(mapPosition, object, owner);
-	object->portrait = CGHeroInstance::UNINITIALIZED_PORTRAIT;
 
 	for(auto & elem : map->disposedHeroes)
 	{
 		if(elem.heroId.getNum() == object->subID)
 		{
 			object->nameCustomTextId = elem.name;
-			object->portrait = elem.portrait;
+			object->customPortraitSource = elem.portrait;
 			break;
 		}
 	}
@@ -1712,7 +1710,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasPortrait = reader->readBool();
 	if(hasPortrait)
-		object->portrait = reader->readHeroPortrait();
+		object->customPortraitSource = reader->readHeroPortrait();
 
 	bool hasSecSkills = reader->readBool();
 	if(hasSecSkills)

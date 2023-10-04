@@ -172,7 +172,7 @@ void PlayerParams::on_mainTown_currentIndexChanged(int index)
 
 void PlayerParams::on_teamId_activated(int index)
 {
-	playerInfo.team = ui->teamId->currentData().toInt();
+	playerInfo.team.setNum(ui->teamId->currentData().toInt());
 }
 
 
