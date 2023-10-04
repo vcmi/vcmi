@@ -305,6 +305,16 @@
         <translation>Nie udało się otworzyć mapy</translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Confirmation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Unsaved changes will be lost, are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Cannot open map from this folder</source>
         <translation>Nie można otworzyć mapy z tego folderu</translation>

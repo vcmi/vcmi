@@ -310,6 +310,16 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Confirmation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Unsaved changes will be lost, are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="370"/>
         <source>Open map</source>
         <translation>Відкрити мапу</translation>
