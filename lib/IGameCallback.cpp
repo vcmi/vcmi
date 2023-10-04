@@ -78,8 +78,8 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 											  const int3 & pos,
 											  int radious,
+											  ETileVisibility mode,
 											  std::optional<PlayerColor> player,
-											  int mode,
 											  int3::EDistanceFormula distanceFormula) const
 {
 	if(!!player && !player->isValidPlayer())
@@ -102,8 +102,8 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 				if(distance <= radious)
 				{
 					if(!player
-						|| (mode == 1  && (*team->fogOfWarMap)[pos.z][xd][yd] == 0)
-						|| (mode == -1 && (*team->fogOfWarMap)[pos.z][xd][yd] == 1)
+						|| (mode == ETileVisibility::HIDDEN  && (*team->fogOfWarMap)[pos.z][xd][yd] == 0)
+						|| (mode == ETileVisibility::REVEALED && (*team->fogOfWarMap)[pos.z][xd][yd] == 1)
 					)
 						tiles.insert(int3(xd,yd,pos.z));
 				}

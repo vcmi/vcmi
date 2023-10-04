@@ -939,7 +939,7 @@ void CGameState::initFogOfWar()
 			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
 
 			std::unordered_set<int3> tiles;
-			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
+			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
 			for(const int3 & tile : tiles)
 			{
 				(*elem.second.fogOfWarMap)[tile.z][tile.x][tile.y] = 1;

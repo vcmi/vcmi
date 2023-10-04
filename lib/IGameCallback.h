@@ -51,9 +51,9 @@ public:
 	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
 	void getTilesInRange(std::unordered_set<int3> & tiles,
 						 const int3 & pos,
-						 int radious,
+						 int radius,
+						 ETileVisibility mode,
 						 std::optional<PlayerColor> player = std::optional<PlayerColor>(),
-						 int mode = 0,
 						 int3::EDistanceFormula formula = int3::DIST_2D) const;
 
 	//returns all tiles on given level (-1 - both levels, otherwise number of level)
@@ -125,8 +125,8 @@ public:
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)=0;
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
-	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
-	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide) = 0;
+	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
+	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
 	
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 };

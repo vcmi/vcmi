@@ -942,7 +942,7 @@ bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 
 void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
 {
-	gs->getTilesInRange(tiles, pos, radious, *getPlayerID(), -1, distanceFormula);
+	gs->getTilesInRange(tiles, pos, radious, ETileVisibility::REVEALED, *getPlayerID(),  distanceFormula);
 }
 
 void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> & config)
@@ -954,7 +954,6 @@ void CGameInfoCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &
 {
 	gs->calculatePaths(hero, out);
 }
-
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {

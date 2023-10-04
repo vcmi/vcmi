@@ -1141,14 +1141,14 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 			FoWChange fw;
 			fw.player = h->tempOwner;
-			fw.mode = FoWChange::Mode::REVEAL;
+			fw.mode = ETileVisibility::REVEALED;
 			fw.waitForDialogs = true;
 
 			for(const auto & it : eyelist[subID])
 			{
 				const CGObjectInstance *eye = cb->getObj(it);
 
-				cb->getTilesInRange (fw.tiles, eye->pos, 10, h->tempOwner, 1);
+				cb->getTilesInRange (fw.tiles, eye->pos, 10, ETileVisibility::HIDDEN, h->tempOwner);
 				cb->sendAndApply(&fw);
 				cv.pos = eye->pos;
 

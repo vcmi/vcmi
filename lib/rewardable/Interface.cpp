@@ -49,17 +49,17 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 
 	if (info.reward.revealTiles)
 	{
-		auto const & props = *info.reward.revealTiles;
+		const auto & props = *info.reward.revealTiles;
 		FoWChange fw;
 
 		if (props.hide)
-			fw.mode = FoWChange::Mode::HIDE;
+			fw.mode = ETileVisibility::HIDDEN;
 		else
-			fw.mode = FoWChange::Mode::REVEAL;
+			fw.mode = ETileVisibility::REVEALED;
 
 		fw.player = hero->tempOwner;
 
-		auto const functor = [&props](const TerrainTile * tile)
+		const auto functor = [&props](const TerrainTile * tile)
 		{
 			int score = 0;
 			if (tile->terType->isSurface())
@@ -79,9 +79,9 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 
 		if (props.radius > 0)
 		{
-			cb->getTilesInRange(fw.tiles, hero->getSightCenter(), props.radius, hero->tempOwner, 1);
+			cb->getTilesInRange(fw.tiles, hero->getSightCenter(), props.radius, ETileVisibility::HIDDEN, hero->tempOwner);
 			vstd::erase_if(fw.tiles, [&](const int3 & coord){
-				return functor(cb->getTile(coord));
+				return !functor(cb->getTile(coord));
 			});
 		}
 		else

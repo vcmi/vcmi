@@ -924,9 +924,9 @@ void FoWChange::applyGs(CGameState *gs)
 	TeamState * team = gs->getPlayerTeam(player);
 	auto fogOfWarMap = team->fogOfWarMap;
 	for(const int3 & t : tiles)
-		(*fogOfWarMap)[t.z][t.x][t.y] = mode != Mode::HIDE;
+		(*fogOfWarMap)[t.z][t.x][t.y] = mode != ETileVisibility::HIDDEN;
 
-	if (mode == Mode::HIDE) //do not hide too much
+	if (mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
 		std::unordered_set<int3> tilesRevealed;
 		for (auto & elem : gs->map->objects)
@@ -941,7 +941,7 @@ void FoWChange::applyGs(CGameState *gs)
 				case Obj::TOWN:
 				case Obj::ABANDONED_MINE:
 					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), o->tempOwner, 1);
+						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), ETileVisibility::HIDDEN, o->tempOwner);
 					break;
 				}
 			}

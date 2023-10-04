@@ -250,4 +250,10 @@ enum class EBattleResult : int8_t
 	SURRENDER = 2,
 };
 
+enum class ETileVisibility : int8_t // Fog of war change
+{
+	HIDDEN,
+	REVEALED
+};
+
 VCMI_LIB_NAMESPACE_END

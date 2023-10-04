@@ -858,7 +858,7 @@ void CGameHandler::onNewTurn()
 			if (player != PlayerColor::NEUTRAL) //do not reveal fow for neutral player
 			{
 				FoWChange fw;
-				fw.mode = FoWChange::Mode::REVEAL;
+				fw.mode = ETileVisibility::REVEALED;
 				fw.player = player;
 				// find all hidden tiles
 				const auto fow = getPlayerTeam(player)->fogOfWarMap;
@@ -879,7 +879,7 @@ void CGameHandler::onNewTurn()
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
-					changeFogOfWar(t->visitablePos(), t->getBonusLocalFirst(Selector::type()(BonusType::DARKNESS))->val, player.first, true);
+					changeFogOfWar(t->visitablePos(), t->getBonusLocalFirst(Selector::type()(BonusType::DARKNESS))->val, player.first, ETileVisibility::HIDDEN);
 			}
 		}
 	}
@@ -1174,7 +1174,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		{
 			obj->onHeroLeave(h);
 		}
-		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadius(), h->tempOwner, 1);
+		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadius(), ETileVisibility::HIDDEN, h->tempOwner);
 	};
 
 	auto doMove = [&](TryMoveHero::EResult result, EGuardLook lookForGuards,
@@ -1523,7 +1523,7 @@ void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player, ObjectInsta
 
 	//Reveal fow around new hero, especially released from Prison
 	auto h = getHero(id);
-	changeFogOfWar(h->pos, h->getSightRadius(), player, false);
+	changeFogOfWar(h->pos, h->getSightRadius(), player, ETileVisibility::REVEALED);
 }
 
 void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)
@@ -2387,11 +2387,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		processAfterBuiltStructure(builtID);
 
 	// now when everything is built - reveal tiles for lookout tower
-	FoWChange fw;
-	fw.player = t->tempOwner;
-	fw.mode = FoWChange::Mode::REVEAL;
-	getTilesInRange(fw.tiles, t->getSightCenter(), t->getSightRadius(), t->tempOwner, 1);
-	sendAndApply(&fw);
+	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
 	if(t->visitingHero)
 		visitCastleObjects(t, t->visitingHero);
@@ -4108,34 +4104,40 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 	assert("This function needs to be called during the object visit!");
 }
 
-void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide)
+void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode)
 {
 	std::unordered_set<int3> tiles;
-	getTilesInRange(tiles, center, radius, player, hide? -1 : 1);
-	if (hide)
+
+	if (mode == ETileVisibility::HIDDEN)
 	{
+		getTilesInRange(tiles, center, radius, ETileVisibility::REVEALED, player);
+
 		std::unordered_set<int3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
 		auto p = getPlayerState(player);
 		for (auto h : p->heroes)
 		{
-			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), h->tempOwner, -1);
+			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), ETileVisibility::REVEALED, h->tempOwner);
 		}
 		for (auto t : p->towns)
 		{
-			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadius(), t->tempOwner, -1);
+			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadius(), ETileVisibility::REVEALED, t->tempOwner);
 		}
 		for (auto tile : observedTiles)
 			vstd::erase_if_present (tiles, tile);
 	}
-	changeFogOfWar(tiles, player, hide);
+	else
+	{
+		getTilesInRange(tiles, center, radius, ETileVisibility::HIDDEN, player);
+	}
+	changeFogOfWar(tiles, player, mode);
 }
 
-void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide)
+void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
 {
 	FoWChange fow;
 	fow.tiles = tiles;
 	fow.player = player;
-	fow.mode = hide ? FoWChange::Mode::HIDE : FoWChange::Mode::REVEAL;
+	fow.mode = mode;
 	sendAndApply(&fow);
 }
 
