@@ -1318,15 +1318,19 @@ void CPlayerInterface::initializeHeroTownList()
 		adventureInt->onHeroChanged(nullptr);
 }
 
-void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level)
+void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	auto recruitCb = [=](CreatureID id, int count)
 	{
-		LOCPLINT->cb->recruitCreatures(dwelling, dst, id, count, -1);
+		cb->recruitCreatures(dwelling, dst, id, count, -1);
 	};
-	GH.windows().createAndPushWindow<CRecruitmentWindow>(dwelling, level, dst, recruitCb);
+	auto closeCb = [=]()
+	{
+		cb->selectionMade(0, queryID);
+	};
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(dwelling, level, dst, recruitCb, closeCb);
 }
 
 void CPlayerInterface::waitWhileDialog()

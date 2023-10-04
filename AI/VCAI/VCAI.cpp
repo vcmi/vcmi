@@ -360,10 +360,13 @@ void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill whi
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
+void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "RecruitmentDialog");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)

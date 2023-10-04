@@ -864,7 +864,7 @@ void CCastleBuildings::enterDwelling(int level)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, -87);
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, nullptr, -87);
 }
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
@@ -1073,7 +1073,7 @@ void CCreaInfo::clickPressed(const Point & cursorPosition)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, offset);
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, nullptr, offset);
 }
 
 std::string CCreaInfo::genGrowthText()

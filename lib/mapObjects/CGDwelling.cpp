@@ -394,7 +394,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 		}
 
 		auto windowMode = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP) ? EOpenWindowMode::RECRUITMENT_FIRST : EOpenWindowMode::RECRUITMENT_ALL;
-		cb->showObjectWindow(this, windowMode, h, false);
+		cb->showObjectWindow(this, windowMode, h, true);
 	}
 }
 

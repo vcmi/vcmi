@@ -61,6 +61,7 @@ class CRecruitmentWindow : public CStatusbarWindow
 	};
 
 	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
+	std::function<void()> onClose;
 
 	int level;
 	const CArmedInstance * dst;
@@ -87,8 +88,9 @@ class CRecruitmentWindow : public CStatusbarWindow
 	void showAll(Canvas & to) override;
 public:
 	const CGDwelling * const dwelling;
-	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0);
+	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, const std::function<void()> & onClose, int y_offset = 0);
 	void availableCreaturesChanged();
+	void close();
 };
 
 /// Split window where creatures can be split up into two single unit stacks

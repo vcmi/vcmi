@@ -324,10 +324,13 @@ void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkil
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
+void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "RecruitmentDialog");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::heroMovePointsChanged(const CGHeroInstance * hero)

@@ -171,6 +171,16 @@ void OpenWindowQuery::onExposure(QueryPtr topQuery)
 
 bool OpenWindowQuery::blocksPack(const CPack *pack) const
 {
+	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
+	{
+		if(dynamic_ptr_cast<RecruitCreatures>(pack) != nullptr)
+			return false;
+
+		// If hero has no free slots, he might get some stacks merged automatically
+		if(dynamic_ptr_cast<ArrangeStacks>(pack) != nullptr)
+			return false;
+	}
+
 	if (mode == EOpenWindowMode::TAVERN_WINDOW)
 	{
 		if(dynamic_ptr_cast<HireHero>(pack) != nullptr)

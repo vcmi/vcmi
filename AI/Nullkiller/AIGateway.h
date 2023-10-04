@@ -145,7 +145,7 @@ public:
 	void tileRevealed(const std::unordered_set<int3> & pos) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
-	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level) override;
+	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
 	void newObject(const CGObjectInstance * obj) override;

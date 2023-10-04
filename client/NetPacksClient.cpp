@@ -936,10 +936,9 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::RECRUITMENT_FIRST:
 	case EOpenWindowMode::RECRUITMENT_ALL:
 		{
-			assert(pack.queryID == QueryID::NONE);
 			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl.getObj(ObjectInstanceID(pack.object)));
 			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl.getObj(ObjectInstanceID(pack.visitor)));
-			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == EOpenWindowMode::RECRUITMENT_FIRST ? 0 : -1);
+			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == EOpenWindowMode::RECRUITMENT_FIRST ? 0 : -1, pack.queryID);
 		}
 		break;
 	case EOpenWindowMode::SHIPYARD_WINDOW:

@@ -135,6 +135,13 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 	}
 }
 
+void CRecruitmentWindow::close()
+{
+	if (onClose)
+		onClose();
+	CStatusbarWindow::close();
+}
+
 void CRecruitmentWindow::buy()
 {
 	CreatureID crid =  selected->creature->getId();
@@ -192,9 +199,10 @@ void CRecruitmentWindow::showAll(Canvas & to)
 	to.drawBorder(Rect(289, 312, 66, 34) + pos.topLeft(), Colors::METALLIC_GOLD);
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset):
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, const std::function<void()> & onClose, int y_offset):
 	CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPRCRT")),
 	onRecruit(Recruit),
+	onClose(onClose),
 	level(Level),
 	dst(Dst),
 	selected(nullptr),
