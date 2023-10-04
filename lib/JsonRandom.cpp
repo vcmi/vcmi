@@ -280,8 +280,19 @@ namespace JsonRandom
 		return ret;
 	}
 
+	PrimarySkill loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	{
+		std::set<PrimarySkill> defaultSkills{
+			PrimarySkill::ATTACK,
+			PrimarySkill::DEFENSE,
+			PrimarySkill::SPELL_POWER,
+			PrimarySkill::KNOWLEDGE
+		};
+		std::set<PrimarySkill> potentialPicks = filterKeys(value, defaultSkills, variables);
+		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+	}
 
-	std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<si32> loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::vector<si32> ret;
 		if(value.isStruct())

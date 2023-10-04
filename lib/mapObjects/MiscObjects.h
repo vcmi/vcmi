@@ -57,26 +57,6 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGScholar : public CGObjectInstance
-{
-public:
-	enum EBonusType {PRIM_SKILL, SECONDARY_SKILL, SPELL, RANDOM = 255};
-	EBonusType bonusType;
-	ui16 bonusID; //ID of skill/spell
-
-	CGScholar() : bonusType(EBonusType::RANDOM),bonusID(0){};
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(CRandomGenerator & rand) override;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-		h & bonusType;
-		h & bonusID;
-	}
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
 class DLL_LINKAGE CGGarrison : public CArmedInstance
 {
 public:

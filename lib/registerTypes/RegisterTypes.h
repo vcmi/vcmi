@@ -54,7 +54,6 @@ void registerTypesMapObjects1(Serializer &s)
 			s.template registerType<CGMonolith, CGSubterraneanGate>();
 			s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
-	s.template registerType<CGObjectInstance, CGScholar>();
 	s.template registerType<CGObjectInstance, CGKeys>();
 		s.template registerType<CGKeys, CGKeymasterTent>();
 		s.template registerType<CGKeys, CGBorderGuard>(); s.template registerType<IQuestObject, CGBorderGuard>();
@@ -131,7 +130,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
-	REGISTER_GENERIC_HANDLER(CGScholar);
 	REGISTER_GENERIC_HANDLER(CGSeerHut);
 	REGISTER_GENERIC_HANDLER(CGShipyard);
 	REGISTER_GENERIC_HANDLER(CGSignBottle);

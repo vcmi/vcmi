@@ -37,7 +37,8 @@ namespace JsonRandom
 
 	DLL_LINKAGE TResources loadResources(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
 	DLL_LINKAGE TResources loadResource(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	DLL_LINKAGE PrimarySkill loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	DLL_LINKAGE std::vector<si32> loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
 	DLL_LINKAGE SecondarySkill loadSecondary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
 	DLL_LINKAGE std::map<SecondarySkill, si32> loadSecondaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
 

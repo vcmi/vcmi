@@ -115,7 +115,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 
 	limiter.resources = JsonRandom::loadResources(source["resources"], rng, variables);
 
-	limiter.primary = JsonRandom::loadPrimary(source["primary"], rng, variables);
+	limiter.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
 	limiter.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
 	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
 	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, variables);
@@ -150,7 +150,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 	reward.removeObject = source["removeObject"].Bool();
 	reward.bonuses = JsonRandom::loadBonuses(source["bonuses"]);
 
-	reward.primary = JsonRandom::loadPrimary(source["primary"], rng, variables);
+	reward.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
 	reward.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
 
 	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
@@ -221,9 +221,8 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 			//	if (category.first == "resource")
 			//		value = JsonRandom::loadResource(input, rng, object.variables.values).getNum();
 
-			// TODO
-			//	if (category.first == "primarySkill")
-			//		value = JsonRandom::loadCreature(input, rng, object.variables.values).getNum();
+			if (category.first == "primarySkill")
+				value = static_cast<int>(JsonRandom::loadPrimary(input, rng, object.variables.values));
 
 			if (category.first == "secondarySkill")
 				value = JsonRandom::loadSecondary(input, rng, object.variables.values).getNum();

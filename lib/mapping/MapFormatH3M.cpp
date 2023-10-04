@@ -1179,11 +1179,21 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readScholar()
+CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGScholar();
-	object->bonusType = static_cast<CGScholar::EBonusType>(reader->readUInt8());
-	object->bonusID = reader->readUInt8();
+	enum class ScholarBonusType : uint8_t {
+		PRIM_SKILL = 0,
+		SECONDARY_SKILL = 1,
+		SPELL = 2,
+		RANDOM = 255
+	};
+
+	auto * object = readGeneric(position, objectTemplate);
+	//auto * rewardable = dynamic_cast<CRewardableObject*>(object);
+
+	/*uint8_t bonusTypeRaw =*/ reader->readUInt8();
+	/*auto bonusType = static_cast<ScholarBonusType>(bonusTypeRaw);*/
+	/*auto bonusID =*/ reader->readUInt8();
 	reader->skipZero(6);
 	return object;
 }
@@ -1491,7 +1501,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 		case Obj::WITCH_HUT:
 			return readWitchHut(mapPosition, objectTemplate);
 		case Obj::SCHOLAR:
-			return readScholar();
+			return readScholar(mapPosition, objectTemplate);
 
 		case Obj::GARRISON:
 		case Obj::GARRISON2:
