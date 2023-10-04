@@ -55,6 +55,7 @@
 		"config/objects/rewardableObservatories.json",
 		"config/objects/rewardableWitchHut.json",
 		"config/objects/rewardableShrine.json",
+		"config/objects/rewardableScholar.json",
 		"config/objects/rewardableOncePerWeek.json",
 		"config/objects/rewardablePickable.json",
 		"config/objects/rewardableOnceVisitable.json",

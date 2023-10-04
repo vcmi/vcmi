@@ -318,26 +318,6 @@
 			}
 		}
 	},
-	"scholar" : {
-		"index" :81,
-		"handler" : "scholar",
-		"base" : {
-			"sounds" : {
-				"visit" : ["GAZEBO"],
-				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 1500,
-				"rmg" : {
-					"value"		: 1500,
-					"rarity"	: 100
-				}
-			}
-		}
-	},
 	"shipyard" : {
 		"index" :87,
 		"handler" : "shipyard",

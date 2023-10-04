@@ -1,0 +1,197 @@
+{
+	"shrineOfMagicLevel1" : {//incantation
+		"index" :88,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSHRIN"],
+				"visit" : ["TEMPLE"]
+			}
+		},
+		"types" : {
+			"shrineOfMagicLevel1" : {
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+					"value"		: 500,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+				
+				"visitMode" : "limiter",
+
+				"variables" : {
+					"spell" : {
+						"gainedSpell" : { // Note: this variable name is used by engine for H3M loading
+							"level": 1
+						}
+					}
+				},
+				"visitLimiter" : {
+					"spells" : [
+						"@gainedSpell"
+					]
+				},
+				"rewards" : [
+					{
+						"limiter" : {
+							"canLearnSpells" : [
+								"@gainedSpell"
+							]
+						},
+						"spells" : [
+							"@gainedSpell"
+						],
+						"message" : 127 // You learn new spell
+					}
+				],
+				"onVisitedMessage" : 174, // You already known this spell
+				"onEmpty" : [
+					{
+						"limiter" : {
+							"artifacts" : [
+								{
+									"type" : "spellbook"
+								}
+							]
+						},
+						"message" : 130 // No Wisdom
+					},
+					{
+						"message" : 131 // No spellbook
+					}
+				]
+			}
+		}
+	},
+	"shrineOfMagicLevel2" : {//gesture
+		"index" :89,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSHRIN"],
+				"visit" : ["TEMPLE"]
+			}
+		},
+		"types" : {
+			"shrineOfMagicLevel2" : {
+				"index" : 0,
+				"aiValue" : 2000,
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+				
+				"visitMode" : "limiter",
+
+				"variables" : {
+					"spell" : {
+						"gainedSpell" : { // Note: this variable name is used by engine for H3M loading
+							"level": 2
+						}
+					}
+				},
+				"visitLimiter" : {
+					"spells" : [
+						"@gainedSpell"
+					]
+				},
+				"rewards" : [
+					{
+						"limiter" : {
+							"canLearnSpells" : [
+								"@gainedSpell"
+							]
+						},
+						"spells" : [
+							"@gainedSpell"
+						],
+						"message" : 128 // You learn new spell
+					}
+				],
+				"onVisitedMessage" : 174, // You already known this spell
+				"onEmpty" : [
+					{
+						"limiter" : {
+							"artifacts" : [
+								{
+									"type" : "spellbook"
+								}
+							]
+						},
+						"message" : 130 // No Wisdom
+					},
+					{
+						"message" : 131 // No spellbook
+					}
+				]
+			}
+		}
+	},
+	"shrineOfMagicLevel3" : {//thinking
+		"index" :90,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSHRIN"],
+				"visit" : ["TEMPLE"]
+			}
+		},
+		"types" : {
+			"shrineOfMagicLevel3" : {
+				"index" : 0,
+				"aiValue" : 3000,
+				"rmg" : {
+					"value"		: 3000,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+				
+				"visitMode" : "limiter",
+
+				"variables" : {
+					"spell" : {
+						"gainedSpell" : { // Note: this variable name is used by engine for H3M loading
+							"level": 3
+						}
+					}
+				},
+				"visitLimiter" : {
+					"spells" : [
+						"@gainedSpell"
+					]
+				},
+				"rewards" : [
+					{
+						"limiter" : {
+							"canLearnSpells" : [
+								"@gainedSpell"
+							]
+						},
+						"spells" : [
+							"@gainedSpell"
+						],
+						"message" : 129 // You learn new spell
+					}
+				],
+				"onVisitedMessage" : 174, // You already known this spell
+				"onEmpty" : [
+					{
+						"limiter" : {
+							"artifacts" : [
+								{
+									"type" : "spellbook"
+								}
+							]
+						},
+						"message" : 130 // No Wisdom
+					},
+					{
+						"message" : 131 // No spellbook
+					}
+				]
+			}
+		}
+	}
+}
