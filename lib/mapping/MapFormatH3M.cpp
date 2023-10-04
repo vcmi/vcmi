@@ -1325,10 +1325,22 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readShrine()
+CGObjectInstance * CMapLoaderH3M::readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGShrine();
-	object->spell = reader->readSpell32();
+	auto * object = readGeneric(position, objectTemplate);
+	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
+
+	assert(rewardable);
+
+	SpellID spell = reader->readSpell32();
+
+	if(spell != SpellID::NONE)
+	{
+		JsonNode variable;
+		variable.String() = VLC->spells()->getById(spell)->getJsonKey();
+		variable.setMeta(ModScope::scopeGame()); // list may include spells from all mods
+		rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+	}
 	return object;
 }
 
@@ -1514,7 +1526,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 		case Obj::SHRINE_OF_MAGIC_INCANTATION:
 		case Obj::SHRINE_OF_MAGIC_GESTURE:
 		case Obj::SHRINE_OF_MAGIC_THOUGHT:
-			return readShrine();
+			return readShrine(mapPosition, objectTemplate);
 
 		case Obj::PANDORAS_BOX:
 			return readPandora(mapPosition, objectInstanceID);

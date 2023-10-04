@@ -119,6 +119,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 	limiter.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
 	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
 	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, variables);
+	limiter.canLearnSpells  = JsonRandom::loadSpells(source["canLearnSpells"], rng, variables);
 	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
 	
 	limiter.players = JsonRandom::loadColors(source["colors"], rng);

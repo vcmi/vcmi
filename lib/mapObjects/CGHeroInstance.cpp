@@ -772,7 +772,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 
 bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
 {
-    if(!hasSpellbook())
+	if(!hasSpellbook())
 		return false;
 
 	if(spell->getLevel() > maxSpellLevel()) //not enough wisdom

@@ -61,6 +61,9 @@ struct DLL_LINKAGE Limiter final
 	/// Spells that hero must have in the spellbook
 	std::vector<SpellID> spells;
 
+	/// Spells that hero must be able to learn
+	std::vector<SpellID> canLearnSpells;
+
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
 	
@@ -97,10 +100,13 @@ struct DLL_LINKAGE Limiter final
 		h & heroLevel;
 		h & manaPoints;
 		h & manaPercentage;
+		h & canLearnSkills;
 		h & resources;
 		h & primary;
 		h & secondary;
 		h & artifacts;
+		h & spells;
+		h & canLearnSpells;
 		h & creatures;
 		h & heroes;
 		h & heroClasses;

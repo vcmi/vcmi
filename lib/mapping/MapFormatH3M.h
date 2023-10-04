@@ -174,7 +174,7 @@ private:
 	CGObjectInstance * readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
 	CGObjectInstance * readDwelling(const int3 & position);
 	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readShrine();
+	CGObjectInstance * readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readHeroPlaceholder(const int3 & position);
 	CGObjectInstance * readGrail(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);

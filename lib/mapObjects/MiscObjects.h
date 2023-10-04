@@ -149,27 +149,6 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGShrine : public CTeamVisited
-{
-public:
-	MetaString visitText;
-	SpellID spell; //id of spell or NONE if random
-
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(CRandomGenerator & rand) override;
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CTeamVisited&>(*this);;
-		h & spell;
-		h & visitText;
-	}
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
 class DLL_LINKAGE CGMine : public CArmedInstance
 {
 public:

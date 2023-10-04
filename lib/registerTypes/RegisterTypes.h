@@ -23,7 +23,6 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
-#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGTownBuilding.h"
@@ -102,7 +101,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
-	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CreatureInstanceConstructor>();
@@ -136,7 +134,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGScholar);
 	REGISTER_GENERIC_HANDLER(CGSeerHut);
 	REGISTER_GENERIC_HANDLER(CGShipyard);
-	REGISTER_GENERIC_HANDLER(CGShrine);
 	REGISTER_GENERIC_HANDLER(CGSignBottle);
 	REGISTER_GENERIC_HANDLER(CGSirens);
 	REGISTER_GENERIC_HANDLER(CGMonolith);
@@ -173,7 +170,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
-		s.template registerType<CTeamVisited, CGShrine>();
 		s.template registerType<CTeamVisited, CGObelisk>();
 
 	//s.template registerType<CQuest>();

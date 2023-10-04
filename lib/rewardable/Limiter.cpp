@@ -125,6 +125,12 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
+	for(const auto & spell : canLearnSpells)
+	{
+		if (!hero->canLearnSpell(spell.toSpell(VLC->spells())))
+			return false;
+	}
+
 	{
 		std::unordered_map<ArtifactID, unsigned int, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
 		for(const auto & art : artifacts)
