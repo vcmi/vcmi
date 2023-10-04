@@ -237,6 +237,8 @@
 				},
 				
 				"portraits" : {
+					"pasis" : 128,
+					"thunar" : 129,
 					"portraitGeneralKendal" : 156,
 					"portraitYoungCristian" : 157,
 					"portraitOrdwald" : 158
