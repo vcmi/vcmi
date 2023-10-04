@@ -330,7 +330,11 @@ void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedI
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "RecruitmentDialog");
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+
+	requestActionASAP([=](){
+		recruitCreatures(dwelling, dst);
+		answerQuery(queryID, 0);
+	});
 }
 
 void AIGateway::heroMovePointsChanged(const CGHeroInstance * hero)
@@ -845,9 +849,6 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
-	case Obj::CREATURE_GENERATOR1:
-		recruitCreatures(dynamic_cast<const CGDwelling *>(obj), h.get());
-		break;
 	case Obj::TOWN:
 		if(h->visitedTown) //we are inside, not just attacking
 		{

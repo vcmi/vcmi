@@ -366,7 +366,11 @@ void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstan
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "RecruitmentDialog");
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+	requestActionASAP([=](){
+		recruitCreatures(dwelling, dst);
+		checkHeroArmy(dynamic_cast<const CGHeroInstance*>(dst));
+		answerQuery(queryID, 0);
+	});
 }
 
 void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)
@@ -1056,10 +1060,6 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
-	case Obj::CREATURE_GENERATOR1:
-		recruitCreatures(dynamic_cast<const CGDwelling *>(obj), h.get());
-		checkHeroArmy(h);
-		break;
 	case Obj::TOWN:
 		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
 		if(h->visitedTown) //we are inside, not just attacking
