@@ -179,7 +179,7 @@ void VictoryConditions::initialize(MapController & c)
 void VictoryConditions::update()
 {
 	//victory messages
-	controller->map()->victoryMessage = MetaString::createFromRawString(ui->victoryMessageEdit->text().toStdString());
+	controller->map()->victoryMessage = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "victoryMessage"), ui->victoryMessageEdit->text().toStdString()));
 
 	//victory conditions
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);

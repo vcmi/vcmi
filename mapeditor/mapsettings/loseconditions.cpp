@@ -117,7 +117,7 @@ void LoseConditions::initialize(MapController & c)
 void LoseConditions::update()
 {
 	//loss messages
-	controller->map()->defeatMessage = MetaString::createFromRawString(ui->defeatMessageEdit->text().toStdString());
+	controller->map()->defeatMessage = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "defeatMessage"), ui->defeatMessageEdit->text().toStdString()));
 
 	//loss conditions
 	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
