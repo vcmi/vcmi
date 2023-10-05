@@ -46,7 +46,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName;
-	if(hero->hasVisions(this, 0))
+	if(hero->hasVisions(this, BonusSubtypes::visionsMonsters))
 	{
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);

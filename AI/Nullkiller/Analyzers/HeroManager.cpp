@@ -313,7 +313,7 @@ void ExistingSkillRule::evaluateScore(const CGHeroInstance * hero, SecondarySkil
 		if(heroSkill.first == skill)
 			return;
 
-		upgradesLeft += SecSkillLevel::EXPERT - heroSkill.second;
+		upgradesLeft += MasteryLevel::EXPERT - heroSkill.second;
 	}
 
 	if(score >= 2 || (score >= 1 && upgradesLeft <= 1))
@@ -327,7 +327,7 @@ void WisdomRule::evaluateScore(const CGHeroInstance * hero, SecondarySkill skill
 
 	auto wisdomLevel = hero->getSecSkillLevel(SecondarySkill::WISDOM);
 
-	if(hero->level > 10 && wisdomLevel == SecSkillLevel::NONE)
+	if(hero->level > 10 && wisdomLevel == MasteryLevel::NONE)
 		score += 1.5;
 }
 
@@ -345,7 +345,7 @@ void AtLeastOneMagicRule::evaluateScore(const CGHeroInstance * hero, SecondarySk
 	
 	bool heroHasAnyMagic = vstd::contains_if(magicSchools, [&](SecondarySkill skill) -> bool
 	{
-		return hero->getSecSkillLevel(skill) > SecSkillLevel::NONE;
+		return hero->getSecSkillLevel(skill) > MasteryLevel::NONE;
 	});
 
 	if(!heroHasAnyMagic)

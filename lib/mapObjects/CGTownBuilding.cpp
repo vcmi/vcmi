@@ -146,7 +146,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 			if(!h->hasBonusFrom(BonusSource::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
 			{
 				GiveBonus gb;
-				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100], 1);
+				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, Obj::STABLES, BonusSubtypes::heroMovementLand, VLC->generaltexth->arraytxt[100]);
 				gb.id = heroID.getNum();
 				cb->giveHeroBonus(&gb);
 

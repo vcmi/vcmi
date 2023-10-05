@@ -984,7 +984,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 struct TowmPortalFinder
 {
 	const std::vector<CGPathNode *> & initialNodes;
-	SecSkillLevel::SecSkillLevel townPortalSkillLevel;
+	MasteryLevel townPortalSkillLevel;
 	uint64_t movementNeeded;
 	const ChainActor * actor;
 	const CGHeroInstance * hero;
@@ -1006,8 +1006,8 @@ struct TowmPortalFinder
 		townPortal = spellID.toSpell();
 
 		// TODO: Copy/Paste from TownPortalMechanics
-		townPortalSkillLevel = SecSkillLevel::SecSkillLevel(hero->getSpellSchoolLevel(townPortal));
-		movementNeeded = GameConstants::BASE_MOVEMENT_COST * (townPortalSkillLevel >= SecSkillLevel::EXPERT ? 2 : 3);
+		townPortalSkillLevel = MasteryLevel(hero->getSpellSchoolLevel(townPortal));
+		movementNeeded = GameConstants::BASE_MOVEMENT_COST * (townPortalSkillLevel >= MasteryLevel::EXPERT ? 2 : 3);
 	}
 
 	bool actorCanCastTownPortal()
@@ -1028,7 +1028,7 @@ struct TowmPortalFinder
 				continue;
 			}
 
-			if(townPortalSkillLevel < SecSkillLevel::ADVANCED)
+			if(townPortalSkillLevel < MasteryLevel::ADVANCED)
 			{
 				const CGTownInstance * nearestTown = *vstd::minElementByFun(targetTowns, [&](const CGTownInstance * t) -> int
 				{

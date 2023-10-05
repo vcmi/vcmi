@@ -417,13 +417,31 @@ std::string JsonNode::toJson(bool compact) const
 
 ///JsonUtils
 
-void JsonUtils::parseTypedBonusShort(const JsonVector & source, const std::shared_ptr<Bonus> & dest)
+static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const JsonNode & node)
 {
-	dest->val = static_cast<si32>(source[1].Float());
-	resolveIdentifier(source[2],dest->subtype);
-	dest->additionalInfo = static_cast<si32>(source[3].Float());
-	dest->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
-	dest->turnsRemain = 0;
+	if (node.isNull())
+	{
+		subtype = TBonusSubtype::NONE;
+		return;
+	}
+
+	if (!node.isString())
+	{
+		logMod->warn("Bonus subtype must be string!");
+		subtype = TBonusSubtype::NONE;
+		return;
+	}
+
+	VLC->identifiers()->requestIdentifier(node, [&subtype, node](int32_t identifier)
+	{
+		assert(0); //TODO
+		subtype = TBonusSubtype("type", node.String(), identifier);
+	});
+}
+
+static void loadBonusSourceInstance(int32_t & sourceInstance, BonusSource sourceType, const JsonNode & node)
+{
+
 }
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
@@ -438,7 +456,11 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	}
 	b->type = it->second;
 
-	parseTypedBonusShort(ability_vec, b);
+	b->val = static_cast<si32>(ability_vec[1].Float());
+	loadBonusSubtype(b->subtype, b->type, ability_vec[2]);
+	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
+	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
+	b->turnsRemain = 0;
 	return b;
 }
 
@@ -471,31 +493,6 @@ const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, 
 		return static_cast<T>(val->Integer());
 	else
 		return parseByMap<T>(map, val, err);
-}
-
-void JsonUtils::resolveIdentifier(si32 & var, const JsonNode & node, const std::string & name)
-{
-	const JsonNode &value = node[name];
-	if (!value.isNull())
-	{
-		switch (value.getType())
-		{
-			case JsonNode::JsonType::DATA_INTEGER:
-				var = static_cast<si32>(value.Integer());
-				break;
-			case JsonNode::JsonType::DATA_FLOAT:
-				var = static_cast<si32>(value.Float());
-				break;
-			case JsonNode::JsonType::DATA_STRING:
-				VLC->identifiers()->requestIdentifier(value, [&](si32 identifier)
-				{
-					var = identifier;
-				});
-				break;
-			default:
-				logMod->error("Error! Wrong identifier used for value of %s.", name);
-		}
-	}
 }
 
 void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
@@ -546,27 +543,6 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 		default:
 			logMod->error("Error! Wrong identifier used for value of addInfo.");
 		}
-	}
-}
-
-void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
-{
-	switch (node.getType())
-	{
-		case JsonNode::JsonType::DATA_INTEGER:
-			var = static_cast<si32>(node.Integer());
-			break;
-		case JsonNode::JsonType::DATA_FLOAT:
-			var = static_cast<si32>(node.Float());
-			break;
-		case JsonNode::JsonType::DATA_STRING:
-			VLC->identifiers()->requestIdentifier(node, [&](si32 identifier)
-			{
-				var = identifier;
-			});
-			break;
-		default:
-			logMod->error("Error! Wrong identifier used for identifier!");
 	}
 }
 
@@ -660,7 +636,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 								bonusLimiter->source = sourceIt->second;
 								bonusLimiter->isSourceRelevant = true;
 								if(!parameter["id"].isNull()) {
-									resolveIdentifier(parameter["id"], bonusLimiter->sid);
+									loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, parameter["id"]);
 									bonusLimiter->isSourceIDRelevant = true;
 								}
 							}
@@ -673,7 +649,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 							return bonusLimiter;
 						else
 						{
-							resolveIdentifier(parameters[1], bonusLimiter->subtype);
+							loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, parameters[1]);
 							bonusLimiter->isSubtypeRelevant = true;
 							if(parameters.size() > 2)
 								findSource(parameters[2]);
@@ -765,7 +741,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, c
 		source = BonusSource::TOWN_STRUCTURE
 		bonusType, val, subtype - get from json
 	*/
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, building, description, -1);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, building, description);
 
 	if(!parseBonus(ability, b.get()))
 		return nullptr;
@@ -865,7 +841,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	else
 		b->type = it->second;
 
-	resolveIdentifier(b->subtype, params->isConverted ? params->toJson() : ability, "subtype");
+	loadBonusSubtype(b->subtype, b->type, params->isConverted ? params->toJson() : ability);
 
 	if(!params->isConverted)
 	{
@@ -996,7 +972,8 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	if(!value->isNull())
 	{
 		TBonusSubtype subtype;
-		resolveIdentifier(subtype, ability, "subtype");
+		assert(0); //TODO
+		loadBonusSubtype(subtype, BonusType::NONE, ability);
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];
@@ -1010,10 +987,9 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	}
 
 	value = &ability["sourceID"];
-	if(!value->isNull())
+	if(!value->isNull() && src.has_value())
 	{
-		id = -1;
-		resolveIdentifier(*id, ability, "sourceID");
+		loadBonusSourceInstance(*id, *src, ability);
 	}
 
 	if(src && id)

@@ -77,10 +77,10 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 
 	if (text.find("${subtype.creature}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${subtype.creature}", CreatureID(bonus->subtype).toCreature()->getNamePluralTranslated());
+		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
 
 	if (text.find("${subtype.spell}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${subtype.spell}", SpellID(bonus->subtype).toSpell()->getNameTranslated());
+		boost::algorithm::replace_all(text, "${subtype.spell}", bonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
 
 	return text;
 }
@@ -95,57 +95,57 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 	case BonusType::SPELL_IMMUNITY:
 	{
 		fullPath = true;
-		const CSpell * sp = SpellID(bonus->subtype).toSpell();
+		const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
 		fileName = sp->getIconImmune();
 		break;
 	}
 	case BonusType::SPELL_DAMAGE_REDUCTION: //Spell damage reduction for all schools
 	{
-		if (bonus->subtype == SpellSchool::ANY.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::ANY)
 			fileName = "E_GOLEM.bmp";
 
-		if (bonus->subtype == SpellSchool::AIR.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
 			fileName = "E_LIGHT.bmp";
 
-		if (bonus->subtype == SpellSchool::FIRE.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
 			fileName = "E_FIRE.bmp";
 
-		if (bonus->subtype == SpellSchool::WATER.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
 			fileName = "E_COLD.bmp";
 
-		if (bonus->subtype == SpellSchool::EARTH.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
 			fileName = "E_SPEATH1.bmp"; //No separate icon for earth damage
 
 		break;
 	}
 	case BonusType::SPELL_SCHOOL_IMMUNITY: //for all school
 	{
-		if (bonus->subtype == SpellSchool::AIR.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
 			fileName = "E_SPAIR.bmp";
 
-		if (bonus->subtype == SpellSchool::FIRE.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
 			fileName = "E_SPFIRE.bmp";
 
-		if (bonus->subtype == SpellSchool::WATER.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
 			fileName = "E_SPWATER.bmp";
 
-		if (bonus->subtype == SpellSchool::EARTH.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
 			fileName = "E_SPEATH.bmp";
 
 		break;
 	}
 	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
 	{
-		if (bonus->subtype == SpellSchool::AIR.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
 			fileName = "E_SPAIR1.bmp";
 
-		if (bonus->subtype == SpellSchool::FIRE.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
 			fileName = "E_SPFIRE1.bmp";
 
-		if (bonus->subtype == SpellSchool::WATER.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
 			fileName = "E_SPWATER1.bmp";
 
-		if (bonus->subtype == SpellSchool::EARTH.getNum())
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
 			fileName = "E_SPEATH1.bmp";
 
 		break;
@@ -168,15 +168,12 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 	}
 	case BonusType::GENERAL_DAMAGE_REDUCTION:
 	{
-		switch(bonus->subtype)
-		{
-		case 0:
+		if (bonus->subtype == BonusSubtypes::damageTypeMelee)
 			fileName = "DamageReductionMelee.bmp";
-			break;
-		case 1:
+
+		if (bonus->subtype == BonusSubtypes::damageTypeRanged)
 			fileName = "DamageReductionRanged.bmp";
-			break;
-		}
+
 		break;
 	}
 

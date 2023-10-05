@@ -527,16 +527,16 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		b = createBonus(building, BonusType::LUCK, +2);
 		break;
 	case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::SPELL_POWER));
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, TBonusSubtype(PrimarySkill::SPELL_POWER));
 		break;
 	case BuildingSubID::ATTACK_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::ATTACK));
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, TBonusSubtype(PrimarySkill::ATTACK));
 		break;
 	case BuildingSubID::DEFENSE_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::DEFENSE));
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, TBonusSubtype(PrimarySkill::DEFENSE));
 		break;
 	case BuildingSubID::LIGHTHOUSE:
-		b = createBonus(building, BonusType::MOVEMENT, +500, playerPropagator, 0);
+		b = createBonus(building, BonusType::MOVEMENT, +500, BonusSubtypes::heroMovementSea, playerPropagator);
 		break;
 	}
 
@@ -544,12 +544,12 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		building->addNewBonus(b, building->buildingBonuses);
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, int subtype) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype) const
 {
-	return createBonus(build, type, val, emptyPropagator(), subtype);
+	return createBonus(build, type, val, subtype, emptyPropagator());
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, TPropagatorPtr & prop, int subtype) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype, TPropagatorPtr & prop) const
 {
 	std::ostringstream descr;
 	descr << build->getNameTranslated();
@@ -561,9 +561,9 @@ std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building
 													 int val,
 													 TPropagatorPtr & prop,
 													 const std::string & description,
-													 int subtype) const
+													 TBonusSubtype subtype) const
 {
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, building, description, subtype);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, building, subtype, description);
 
 	if(prop)
 		b->addPropagator(prop);

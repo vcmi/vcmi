@@ -349,6 +349,27 @@ public:
 	static std::string entityType();
 };
 
+class DLL_LINKAGE PrimarySkill : public Identifier<PrimarySkill>
+{
+public:
+	using Identifier<PrimarySkill>::Identifier;
+
+	static const PrimarySkill NONE;
+	static const PrimarySkill ATTACK;
+	static const PrimarySkill DEFENSE;
+	static const PrimarySkill SPELL_POWER;
+	static const PrimarySkill KNOWLEDGE;
+
+	static const PrimarySkill BEGIN;
+	static const PrimarySkill END;
+
+	static const PrimarySkill EXPERIENCE;
+
+	static si32 decode(const std::string& identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
+};
+
 class DLL_LINKAGE FactionID : public Identifier<FactionID>
 {
 public:
@@ -919,6 +940,10 @@ public:
 	static const SpellSchool FIRE;
 	static const SpellSchool WATER;
 	static const SpellSchool EARTH;
+
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class GameResIDBase : public IdentifierBase
@@ -946,6 +971,8 @@ class GameResID : public IdentifierWithEnum<GameResID, GameResIDBase>
 public:
 	using IdentifierWithEnum<GameResID, GameResIDBase>::IdentifierWithEnum;
 
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
@@ -957,5 +984,86 @@ using EGameResID = GameResID;
 using River = RiverId;
 using Road = RoadId;
 using ETerrainId = TerrainId;
+
+/// This class represents field that may contain value of multiple different identifer types
+class MetaIdentifier
+{
+	std::string entityType;
+	std::string stringForm;
+	int32_t integerForm;
+
+	void onDeserialized();
+public:
+
+	static const MetaIdentifier NONE;
+
+	MetaIdentifier():
+		integerForm(-1)
+	{}
+
+	explicit MetaIdentifier(const std::string & entityType, const std::string & identifier)
+		: entityType(entityType)
+		, stringForm(identifier)
+		, integerForm(-1)
+	{
+		onDeserialized();
+	}
+
+	explicit MetaIdentifier(const std::string & entityType, const std::string & identifier, int32_t value)
+		: entityType(entityType)
+		, stringForm(identifier)
+		, integerForm(value)
+	{
+	}
+
+	template<typename IdentifierType>
+	explicit MetaIdentifier(const IdentifierType & identifier )
+		: entityType(IdentifierType::entityType())
+		, integerForm(identifier.getNum())
+		, stringForm(IdentifierType::encode(identifier.getNum()))
+	{
+		static_assert(std::is_base_of<IdentifierBase, IdentifierType>::value, "MetaIdentifier can only be constructed from Identifer class");
+	}
+
+	int32_t getNum() const
+	{
+		return integerForm;
+	}
+
+	std::string toString() const
+	{
+		return stringForm;
+	}
+
+	template<typename IdentifierType>
+	IdentifierType as() const
+	{
+		IdentifierType result(integerForm);
+		return result;
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stringForm;
+
+		if (!h.saving)
+			onDeserialized();
+	}
+
+	bool operator == (const MetaIdentifier & other) const
+	{
+		assert( (stringForm == other.stringForm) ? (integerForm == other.integerForm) : true );
+
+		return stringForm == other.stringForm;
+	}
+
+	bool operator != (const MetaIdentifier & other) const
+	{
+		return !(*this == other);
+	}
+
+	bool operator < (const MetaIdentifier & other) const;
+};
+
 
 VCMI_LIB_NAMESPACE_END

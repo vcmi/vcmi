@@ -836,7 +836,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
 		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
-		SpellID spellId(b->subtype);
+		SpellID spellId(b->subtype.as<SpellID>());
 
 		handler.serializeId("spell", spellId, SpellID::NONE);
 	}
@@ -1204,7 +1204,7 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	gb.bonus.duration = BonusDuration::PERMANENT;
 	gb.bonus.source = BonusSource::OBJECT;
 	gb.bonus.sid = id.getNum();
-	gb.bonus.subtype = 0;
+	gb.bonus.subtype = BonusSubtypes::heroMovementSea;
 
 	// FIXME: This is really dirty hack
 	// Proper fix would be to make CGLighthouse into bonus system node

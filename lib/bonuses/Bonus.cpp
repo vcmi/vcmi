@@ -134,29 +134,6 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 	return str.str();
 }
 
-static JsonNode subtypeToJson(BonusType type, int subtype)
-{
-	switch(type)
-	{
-	case BonusType::PRIMARY_SKILL:
-		return JsonUtils::stringNode("primSkill." + NPrimarySkill::names[subtype]);
-	case BonusType::SPECIAL_SPELL_LEV:
-	case BonusType::SPECIFIC_SPELL_DAMAGE:
-	case BonusType::SPELL:
-	case BonusType::SPECIAL_PECULIAR_ENCHANT:
-	case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
-	case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "spell", SpellID::encode(subtype)));
-	case BonusType::IMPROVED_NECROMANCY:
-	case BonusType::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(subtype)));
-	case BonusType::GENERATE_RESOURCE:
-		return JsonUtils::stringNode("resource." + GameConstants::RESOURCE_NAMES[subtype]);
-	default:
-		return JsonUtils::intNode(subtype);
-	}
-}
-
 static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 {
 	switch(type)
@@ -173,8 +150,8 @@ JsonNode Bonus::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
-	if(subtype != -1)
-		root["subtype"] = subtypeToJson(type, subtype);
+	if(subtype != TBonusSubtype::NONE)
+		root["subtype"].String() = subtype.toString();
 	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
 	if(source != BonusSource::OTHER)
@@ -206,7 +183,7 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, TBonusSubtype Subtype, std::string Desc):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -219,7 +196,7 @@ Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32
 	targetSourceType = BonusSource::OTHER;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, BonusValueType ValType):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, TBonusSubtype Subtype, BonusValueType ValType):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -247,7 +224,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
-	printField(subtype);
+	out << "\tSubtype: " << bonus.subtype.toString() << "\n";
 	printField(duration.to_ulong());
 	printField(source);
 	printField(sid);

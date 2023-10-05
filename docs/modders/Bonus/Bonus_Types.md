@@ -294,8 +294,9 @@ Heroes affected by this bonus can not retreat or surrender in battle
 
 ### NEGATE_ALL_NATURAL_IMMUNITIES
 
-- subtype: TODO
-Orb of Vulnerability
+Negates all natural immunities for affected stacks. (Orb of Vulnerability)
+
+- subtype: 0 - battle-wide immunity negation, 1 - negation only for enemy stacks
 
 ### OPENING_BATTLE_SPELL
 
@@ -878,13 +879,14 @@ Affected unit will deal more damage in all attacks (Adela specialty)
 
 Affected heroes will be under effect of Disguise spell, hiding some of their information from opposing players
 
-- subtype: spell mastery level
+- val: spell mastery level
 
 ### VISIONS
 
 Affected heroes will be under effect of Visions spell, revealing information of enemy objects in specific range
 
 - val: multiplier to effect range. Information is revealed within (val \* hero spell power) range
+- subtype: 0 - reveal information on monsters, 1 - reveal information on heroes, 2 - reveal information on towns
 
 ### BLOCK_MAGIC_BELOW
 

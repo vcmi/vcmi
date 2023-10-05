@@ -1755,7 +1755,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 		return SpellID::NONE;
 
 	if(bl->size() == 1)
-		return SpellID(bl->front()->subtype);
+		return bl->front()->subtype.as<SpellID>();
 
 	int totalWeight = 0;
 	for(const auto & b : *bl)
@@ -1772,7 +1772,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 		randomPos -= std::max(b->additionalInfo[0], 0);
 		if(randomPos < 0)
 		{
-			return SpellID(b->subtype);
+			return b->subtype.as<SpellID>();
 		}
 	}
 

@@ -84,10 +84,10 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 		//trimming prim skills
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
-			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
+			for(auto g = PrimarySkill::BEGIN; g < PrimarySkill::END; ++g)
 			{
 				auto sel = Selector::type()(BonusType::PRIMARY_SKILL)
-					.And(Selector::subtype()(g))
+					.And(Selector::subtype()(TBonusSubtype(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
 				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
@@ -118,7 +118,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 		//trimming artifacts
 		for(CGHeroInstance * hero : crossoverHeroes)
 		{
-			auto const & checkAndRemoveArtifact = [&](const ArtifactPosition & artifactPosition )
+			const auto & checkAndRemoveArtifact = [&](const ArtifactPosition & artifactPosition)
 			{
 				if(artifactPosition == ArtifactPosition::SPELLBOOK)
 					return; // do not handle spellbook this way
@@ -141,7 +141,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 
 			// process on copy - removal of artifact will invalidate container
 			auto artifactsWorn = hero->artifactsWorn;
-			for (auto const & art : artifactsWorn)
+			for(const auto & art : artifactsWorn)
 				checkAndRemoveArtifact(art.first);
 
 			// process in reverse - removal of artifact will shift all artifacts after this one
@@ -308,16 +308,14 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 		case CampaignBonusType::PRIMARY_SKILL:
 		{
 			const ui8 * ptr = reinterpret_cast<const ui8 *>(&curBonus->info2);
-			for(int g = 0; g < GameConstants::PRIMARY_SKILLS; ++g)
+			for(auto g = PrimarySkill::BEGIN; g < PrimarySkill::END; ++g)
 			{
-				int val = ptr[g];
+				int val = ptr[g.getNum()];
 				if(val == 0)
-				{
 					continue;
-				}
-				auto bb = std::make_shared<Bonus>(
-					BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, static_cast<int>(*gameState->scenarioOps->campState->currentScenario()), g
-				);
+
+				int currentScenario = static_cast<int>(*gameState->scenarioOps->campState->currentScenario());
+				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, currentScenario, TBonusSubtype(g) );
 				hero->addNewBonus(bb);
 			}
 			break;
@@ -386,9 +384,9 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 	}
 
 	//selecting heroes by type
-	for (auto const * placeholder : placeholdersByType)
+	for(const auto * placeholder : placeholdersByType)
 	{
-		auto const & node = campaignState->getHeroByType(*placeholder->heroType);
+		const auto & node = campaignState->getHeroByType(*placeholder->heroType);
 		if (node.isNull())
 		{
 			logGlobal->info("Hero crossover: Unable to replace placeholder for %d (%s)!", placeholder->heroType->getNum(), VLC->heroTypes()->getById(*placeholder->heroType)->getNameTranslated());
@@ -412,10 +410,10 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 			return *a->powerRank > *b->powerRank;
 		});
 
-		auto const & nodeList = campaignState->getHeroesByPower(lastScenario.value());
+		const auto & nodeList = campaignState->getHeroesByPower(lastScenario.value());
 		auto nodeListIter = nodeList.begin();
 
-		for (auto const * placeholder : placeholdersByPower)
+		for(const auto * placeholder : placeholdersByPower)
 		{
 			if (nodeListIter == nodeList.end())
 				break;

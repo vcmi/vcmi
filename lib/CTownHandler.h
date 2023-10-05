@@ -392,14 +392,15 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
 
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, int subtype = -1) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, TPropagatorPtr & prop, int subtype = -1) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype, TPropagatorPtr & prop) const;
 	std::shared_ptr<Bonus> createBonusImpl(const BuildingID & building,
 												  BonusType type,
 												  int val,
 												  TPropagatorPtr & prop,
 												  const std::string & description,
-												  int subtype = -1) const;
+												  TBonusSubtype subtype) const;
 
 	/// loads CStructure's into town
 	void loadStructure(CTown & town, const std::string & stringID, const JsonNode & source) const;

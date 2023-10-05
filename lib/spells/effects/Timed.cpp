@@ -48,7 +48,7 @@ static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, c
 		{
 		case BonusType::NOT_ACTIVE:
 			{
-				switch(bonus.subtype)
+				switch(bonus.subtype.as<SpellID>().toEnum())
 				{
 				case SpellID::STONE_GAZE:
 					addLogLine(558, boost::logic::indeterminate);
@@ -109,9 +109,9 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	const auto *casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
 	{ 
-		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));
-		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, m->getSpellIndex()));
-		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, m->getSpellIndex()));
+		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, TBonusSubtype(m->getSpellId())));
+		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, TBonusSubtype(m->getSpellId())));
+		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, TBonusSubtype(m->getSpellId())));
 	}	
 	//TODO: does hero specialty should affects his stack casting spells?
 

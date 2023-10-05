@@ -157,7 +157,7 @@ protected:
 	{
 		std::stringstream cachingStr;
 		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
+		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, TBonusSubtype(m->getSpellId()), 1), cachingStr.str());
 	}
 };
 
@@ -179,14 +179,14 @@ protected:
 
 		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop) 
 		{
-			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, cnf))
+			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, TBonusSubtype(cnf)))
 			{
 				elementalImmune = true;
 				stop = true; //only bonus from one school is used
 			}
 			else if(!m->isPositiveSpell()) //negative or indifferent
 			{
-				if (bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, cnf))
+				if (bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, TBonusSubtype(cnf)))
 				{
 					elementalImmune = true;
 					stop = true; //only bonus from one school is used
@@ -231,7 +231,7 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return !target->hasBonusOfType(BonusType::SPELL_IMMUNITY, m->getSpellIndex());
+		return !target->hasBonusOfType(BonusType::SPELL_IMMUNITY, TBonusSubtype(m->getSpellId()));
 	}
 };
 
@@ -292,8 +292,8 @@ class ImmunityNegationCondition : public TargetConditionItemBase
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
-		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSubtypes::immunityBattleWide);
+		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSubtypes::immunityEnemyHero);
 		//Non-magical effects is not affected by orb of vulnerability
 		if(!m->isMagicalEffect())
 			return false;

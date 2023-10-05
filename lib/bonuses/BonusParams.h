@@ -20,7 +20,6 @@ struct DLL_LINKAGE BonusParams {
 	bool isConverted;
 	BonusType type = BonusType::NONE;
 	std::optional<TBonusSubtype> subtype = std::nullopt;
-	std::optional<std::string> subtypeStr = std::nullopt;
 	std::optional<BonusValueType> valueType = std::nullopt;
 	std::optional<si32> val = std::nullopt;
 	std::optional<BonusSource> targetType = std::nullopt;

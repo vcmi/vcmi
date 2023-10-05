@@ -538,7 +538,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 	if(!hut->wasVisited(hero->tempOwner))
 		return role == HeroRole::SCOUT ? 2 : 0;
 
-	if(hero->getSecSkillLevel(skill) != SecSkillLevel::NONE
+	if(hero->getSecSkillLevel(skill) != MasteryLevel::NONE
 		|| hero->secSkills.size() >= GameConstants::SKILL_PER_HERO)
 		return 0;
 

@@ -127,21 +127,12 @@ public:
 
 namespace JsonUtils
 {
-	/**
-	 * @brief parse short bonus format, excluding type
-	 * @note sets duration to Permament
-	 */
-	DLL_LINKAGE void parseTypedBonusShort(const JsonVector & source, const std::shared_ptr<Bonus> & dest);
-
-	///
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode & ability);
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode & ability, const BuildingID & building, const std::string & description);
 	DLL_LINKAGE bool parseBonus(const JsonNode & ability, Bonus * placement);
 	DLL_LINKAGE std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
 	DLL_LINKAGE CSelector parseSelector(const JsonNode &ability);
-	DLL_LINKAGE void resolveIdentifier(si32 & var, const JsonNode & node, const std::string & name);
-	DLL_LINKAGE void resolveIdentifier(const JsonNode & node, si32 & var);
 	DLL_LINKAGE void resolveAddInfo(CAddInfo & var, const JsonNode & node);
 
 	/**

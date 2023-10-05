@@ -10,6 +10,7 @@
 #pragma once
 
 #include "BonusEnum.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,12 +23,47 @@ class IUpdater;
 class BonusList;
 class CSelector;
 
-using TBonusSubtype = int32_t;
+using TBonusSubtype = MetaIdentifier;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TLimiterPtr = std::shared_ptr<ILimiter>;
 using TPropagatorPtr = std::shared_ptr<IPropagator>;
 using TUpdaterPtr = std::shared_ptr<IUpdater>;
+
+namespace BonusSubtypes
+{
+
+static const TBonusSubtype creatureDamageBoth; // 0
+static const TBonusSubtype creatureDamageMin;  // 1
+static const TBonusSubtype creatureDamageMax;  // 2
+
+static const TBonusSubtype damageTypeAll;    // -1
+static const TBonusSubtype damageTypeMelee;  // 0
+static const TBonusSubtype damageTypeRanged; // 1
+
+static const TBonusSubtype heroMovementLand; // 1
+static const TBonusSubtype heroMovementSea; // 0
+
+static const TBonusSubtype heroMovementPenalty; // 2
+static const TBonusSubtype heroMovementFull; // 1
+
+static const TBonusSubtype deathStareGorgon; // 0
+static const TBonusSubtype deathStareCommander;
+
+static const TBonusSubtype rebirthRegular; // 0
+static const TBonusSubtype rebirthSpecial; // 1
+
+static const TBonusSubtype visionsMonsters; // 0
+static const TBonusSubtype visionsHeroes;  // 1
+static const TBonusSubtype visionsTowns;  // 2
+
+static const TBonusSubtype immunityBattleWide; // 0
+static const TBonusSubtype immunityEnemyHero; // 1
+
+TBonusSubtype spellLevel(int level);
+TBonusSubtype creatureLevel(int level);
+
+}
 
 class DLL_LINKAGE CAddInfo : public std::vector<si32>
 {
@@ -56,7 +92,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
-	TBonusSubtype subtype = -1; //-1 if not applicable - 4 bytes
+	TBonusSubtype subtype;
 
 	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus
 	BonusSource targetSourceType;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE.
@@ -75,8 +111,11 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	std::string description;
 
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, BonusValueType ValType = BonusValueType::ADDITIVE_VALUE);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, std::string Desc);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, TBonusSubtype subtype);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, TBonusSubtype subtype, std::string Desc);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, TBonusSubtype subtype, BonusValueType ValType);
 	Bonus() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

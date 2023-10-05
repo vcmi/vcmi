@@ -136,7 +136,7 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 }
 
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus )
-	: type(bonus), subtype(0), isSubtypeRelevant(false), isSourceRelevant(false), isSourceIDRelevant(false)
+	: type(bonus), isSubtypeRelevant(false), isSourceRelevant(false), isSourceIDRelevant(false)
 {
 }
 
@@ -184,8 +184,8 @@ std::string HasAnotherBonusLimiter::toString() const
 	std::string typeName = vstd::findKey(bonusNameMap, type);
 	if(isSubtypeRelevant)
 	{
-		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%d)");
-		fmt % typeName % subtype;
+		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%s)");
+		fmt % typeName % subtype.toString();
 		return fmt.str();
 	}
 	else
@@ -205,7 +205,7 @@ JsonNode HasAnotherBonusLimiter::toJsonNode() const
 	root["type"].String() = "HAS_ANOTHER_BONUS_LIMITER";
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(typeName));
 	if(isSubtypeRelevant)
-		root["parameters"].Vector().push_back(JsonUtils::intNode(subtype));
+		root["parameters"].Vector().push_back(JsonUtils::stringNode(subtype.toString()));
 	if(isSourceRelevant)
 		root["parameters"].Vector().push_back(JsonUtils::stringNode(sourceTypeName));
 
