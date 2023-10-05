@@ -122,7 +122,8 @@
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON"
+                "FORCE_BUNDLED_MINIZIP": "ON",
+                "ENABLE_CCACHE": "ON"
             }
         },
         {
@@ -228,7 +229,8 @@
             "description": "VCMI iOS release using Conan and ccache",
             "inherits": "ios-release-conan",
             "cacheVariables": {
-                "ENABLE_PCH" : "OFF"
+                "ENABLE_PCH" : "OFF",
+                "ENABLE_CCACHE": "ON"
             }
         },
         {

@@ -79,6 +79,12 @@ if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 endif()
 
+# On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
+# The iOS and MSVC builds each require some configuration, which is enabled by the following option:
+if(APPLE_IOS OR MSVC)
+  option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+endif()
+
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
@@ -223,7 +229,7 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUNDLE_IDENTIFIER_PREFIX}.$(PRODUCT_NAME)")
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
 
-	if(CMAKE_CXX_COMPILER_LAUNCHER)
+	if(ENABLE_CCACHE)
 		find_program(CCACHE "ccache")
 		if(CCACHE)
 			# https://stackoverflow.com/a/36515503/2278742
@@ -255,12 +261,12 @@ if(MINGW OR MSVC)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 	if(MSVC)
-		if(CMAKE_CXX_COMPILER_LAUNCHER)
+		if(ENABLE_CCACHE)
 			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
-			find_program(ccache_exe ccache)
-			if (ccache_exe)
+			find_program(CCACHE ccache)
+			if (CCACHE)
 				file(COPY_FILE
-					${ccache_exe} ${CMAKE_BINARY_DIR}/cl.exe
+					${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
 					ONLY_IF_DIFFERENT)
 
 				set(CMAKE_VS_GLOBALS
