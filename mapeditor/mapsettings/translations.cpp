@@ -17,7 +17,7 @@
 
 void Translations::cleanupRemovedItems(CMap & map)
 {
-	std::set<std::string> existingObjects{"core", "map", "header"};
+	std::set<std::string> existingObjects{"map", "header"};
 	for(auto object : map.objects)
 		existingObjects.insert(object->instanceName);
 	
