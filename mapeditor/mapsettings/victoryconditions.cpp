@@ -179,7 +179,7 @@ void VictoryConditions::initialize(MapController & c)
 void VictoryConditions::update()
 {
 	//victory messages
-	controller->map()->victoryMessage = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "victoryMessage"), ui->victoryMessageEdit->text().toStdString()));
+	bool customMessage = true;
 
 	//victory conditions
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
@@ -199,6 +199,7 @@ void VictoryConditions::update()
 		controller->map()->triggeredEvents.push_back(standardVictory);
 		controller->map()->victoryIconIndex = 11;
 		controller->map()->victoryMessage = MetaString::createFromTextID("core.vcdesc.0");
+		customMessage = false;
 	}
 	else
 	{
@@ -211,6 +212,7 @@ void VictoryConditions::update()
 
 		controller->map()->victoryIconIndex = vicCondition;
 		controller->map()->victoryMessage = MetaString::createFromTextID("core.vcdesc." + std::to_string(vicCondition + 1));
+		customMessage = false;
 
 		switch(vicCondition)
 		{
@@ -327,8 +329,14 @@ void VictoryConditions::update()
 			controller->map()->victoryMessage.appendRawString(" / ");
 			controller->map()->victoryMessage.appendTextID("core.vcdesc.0");
 			controller->map()->triggeredEvents.push_back(standardVictory);
+			customMessage = false;
 		}
 		controller->map()->triggeredEvents.push_back(specialVictory);
+	}
+	
+	if(customMessage)
+	{
+		controller->map()->victoryMessage = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller->map(), TextIdentifier("header", "victoryMessage"), ui->victoryMessageEdit->text().toStdString()));
 	}
 }
 
