@@ -61,7 +61,7 @@ The highlighted parts can be adjusted:
 
 - ***conan-generated***: directory (absolute or relative) where the generated files will appear. This value is used in CMake presets from VCMI, but you can actually use any directory and override it in your local CMake presets.
 - ***never***: use this value to avoid building any dependency from source. You can also use `missing` to build recipes, that are not present in your local cache, from source.
-- ***CI/conan/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](../CI/conan) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile).
+- ***CI/conan/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](../../CI/conan) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile).
 - ***note for Windows x86***: use profile mingw32-linux.jinja for building instead of mingw64-linux.jinja
 
 If you use `--build=never` and this command fails, then it means that you can't use prebuilt binaries out of the box. For example, try using `--build=missing` instead.
@@ -99,7 +99,7 @@ Android has issues loading self-built shared Zlib library because binary name is
 ##### Using recipes for system libraries
 
 1. Clone/download https://github.com/kambala-decapitator/conan-system-libs
-2. Execute `conan create PACKAGE vcmi/apple`, where `PACKAGE` is a directory path in that repository. Do it for each library you need.
+2. Execute `conan create PACKAGE vcmi/CHANNEL`, where `PACKAGE` is a directory path in that repository and `CHANNEL` is **apple** for macOS/iOS and **android** for Android.. Do it for each library you need.
 3. Now you can execute `conan install` to build all dependencies.
 
 ## Configure project for building
