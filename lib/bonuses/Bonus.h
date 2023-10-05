@@ -10,7 +10,7 @@
 #pragma once
 
 #include "BonusEnum.h"
-#include "../constants/EntityIdentifiers.h"
+#include "../constants/MetaIdentifier.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,50 +29,6 @@ using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TLimiterPtr = std::shared_ptr<ILimiter>;
 using TPropagatorPtr = std::shared_ptr<IPropagator>;
 using TUpdaterPtr = std::shared_ptr<IUpdater>;
-
-namespace BonusSubtypes
-{
-
-static const TBonusSubtype creatureDamageBoth; // 0
-static const TBonusSubtype creatureDamageMin;  // 1
-static const TBonusSubtype creatureDamageMax;  // 2
-
-static const TBonusSubtype damageTypeAll;    // -1
-static const TBonusSubtype damageTypeMelee;  // 0
-static const TBonusSubtype damageTypeRanged; // 1
-
-static const TBonusSubtype heroMovementLand; // 1
-static const TBonusSubtype heroMovementSea; // 0
-
-static const TBonusSubtype heroMovementPenalty; // 2
-static const TBonusSubtype heroMovementFull; // 1
-
-static const TBonusSubtype deathStareGorgon; // 0
-static const TBonusSubtype deathStareCommander;
-
-static const TBonusSubtype rebirthRegular; // 0
-static const TBonusSubtype rebirthSpecial; // 1
-
-static const TBonusSubtype visionsMonsters; // 0
-static const TBonusSubtype visionsHeroes;  // 1
-static const TBonusSubtype visionsTowns;  // 2
-
-static const TBonusSubtype immunityBattleWide; // 0
-static const TBonusSubtype immunityEnemyHero; // 1
-
-static const TBonusSubtype transmutationPerHealth; // 0
-static const TBonusSubtype transmutationPerUnit; // 1
-
-static const TBonusSubtype destructionKillPercentage; // 0
-static const TBonusSubtype destructionKillAmount; // 1
-
-static const TBonusSubtype soulStealPermanent; // 0
-static const TBonusSubtype soulStealBattle; // 1
-
-TBonusSubtype spellLevel(int level);
-TBonusSubtype creatureLevel(int level);
-
-}
 
 class DLL_LINKAGE CAddInfo : public std::vector<si32>
 {

@@ -13,6 +13,7 @@
 #include "CGTownBuilding.h"
 #include "../spells/CSpellHandler.h"
 #include "../bonuses/Bonus.h"
+#include "../bonuses/BonusSubtypes.h"
 #include "../battle/IBattleInfoCallback.h"
 #include "../NetPacks.h"
 #include "../CConfigHandler.h"

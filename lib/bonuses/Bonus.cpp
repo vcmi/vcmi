@@ -183,6 +183,18 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID)
+	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype::NONE, std::string())
+{}
+
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc)
+	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype::NONE, Desc)
+{}
+
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, TBonusSubtype Subtype)
+	: Bonus(Duration, Type, Src, Val, ID, Subtype, std::string())
+{}
+
 Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, TBonusSubtype Subtype, std::string Desc):
 	duration(Duration),
 	type(Type),

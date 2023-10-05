@@ -14,6 +14,7 @@
 #include "Unit.h"
 
 #include "../bonuses/Bonus.h"
+#include "../bonuses/BonusSubtypes.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../GameSettings.h"

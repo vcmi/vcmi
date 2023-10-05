@@ -20,6 +20,7 @@
 #include "CCreatureHandler.h"
 #include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
+#include "bonuses/BonusSubtypes.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
 

@@ -17,6 +17,7 @@
 
 #include "CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
+#include "bonuses/BonusSubtypes.h"
 #include "spells/CSpellHandler.h"
 #include "NetPacks.h"
 

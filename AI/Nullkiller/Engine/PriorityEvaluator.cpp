@@ -11,6 +11,7 @@
 #include <limits>
 
 #include "Nullkiller.h"
+#include "../../../lib/bonuses/BonusSubtypes.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"

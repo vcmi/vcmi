@@ -16,6 +16,7 @@
 #include "../../lib/serializer/Connection.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/bonuses/BonusSubtypes.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/GameConstants.h"
@@ -23,8 +24,8 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../lib/modding/IdentifierStorage.h"
-#include "../lib/modding/ModScope.h"
+#include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/modding/ModScope.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor()
 	:gameHandler(nullptr)

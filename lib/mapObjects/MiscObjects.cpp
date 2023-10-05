@@ -25,6 +25,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../modding/ModScope.h"
+#include "../bonuses/BonusSubtypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

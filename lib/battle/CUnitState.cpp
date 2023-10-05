@@ -16,6 +16,8 @@
 #include "../NetPacks.h"
 #include "../CCreatureHandler.h"
 
+#include "../bonuses/BonusSubtypes.h"
+
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 

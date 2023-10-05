@@ -23,6 +23,7 @@
 #include "filesystem/Filesystem.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/Propagators.h"
+#include "bonuses/BonusSubtypes.h"
 #include "ResourceSet.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -542,6 +543,11 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 
 	if(b)
 		building->addNewBonus(b, building->buildingBonuses);
+}
+
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val) const
+{
+	return createBonus(build, type, val, TBonusSubtype::NONE, emptyPropagator());
 }
 
 std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype) const

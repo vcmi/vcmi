@@ -13,6 +13,7 @@
 #include "BonusEnum.h"
 #include "BonusParams.h"
 #include "BonusSelector.h"
+#include "BonusSubtypes.h"
 
 #include "../ResourceSet.h"
 

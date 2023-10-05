@@ -37,6 +37,7 @@
 #include "../modding/ModScope.h"
 #include "../constants/StringConstants.h"
 #include "../battle/Unit.h"
+#include "../bonuses/BonusSubtypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "TargetConditionItemFixture.h"
+#include "../../../lib/bonuses/BonusSubtypes.h"
 
 //FIXME: Orb of vulnerability mechanics is not such trivial (mantis issue 1791)
 //TODO: NEGATE_ALL_NATURAL_IMMUNITIES special cases: dispel, chain lightning

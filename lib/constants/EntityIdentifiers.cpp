@@ -80,6 +80,15 @@ const FactionID FactionID::FORTRESS(7);
 const FactionID FactionID::CONFLUX(8);
 const FactionID FactionID::NEUTRAL(9);
 
+const PrimarySkill PrimarySkill::NONE(-1);
+const PrimarySkill PrimarySkill::ATTACK(0);
+const PrimarySkill PrimarySkill::DEFENSE(1);
+const PrimarySkill PrimarySkill::SPELL_POWER(2);
+const PrimarySkill PrimarySkill::KNOWLEDGE(3);
+const PrimarySkill PrimarySkill::BEGIN(0);
+const PrimarySkill PrimarySkill::END(4);
+const PrimarySkill PrimarySkill::EXPERIENCE(4);
+
 const BoatId BoatId::NONE(-1);
 const BoatId BoatId::NECROPOLIS(0);
 const BoatId BoatId::CASTLE(1);
@@ -273,6 +282,21 @@ std::string PlayerColor::entityType()
 	return "playerColor";
 }
 
+si32 PrimarySkill::decode(const std::string& identifier)
+{
+	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+}
+
+std::string PrimarySkill::encode(const si32 index)
+{
+	return NPrimarySkill::names[index];
+}
+
+std::string PrimarySkill::entityType()
+{
+	return "primarySkill";
+}
+
 si32 FactionID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
@@ -321,6 +345,36 @@ const BattleFieldInfo * BattleField::getInfo() const
 const ObstacleInfo * Obstacle::getInfo() const
 {
 	return VLC->obstacles()->getById(*this);
+}
+
+si32 SpellSchool::decode(const std::string & identifier)
+{
+	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+}
+
+std::string SpellSchool::encode(const si32 index)
+{
+	return SpellConfig::SCHOOL[index].jsonName;
+}
+
+std::string SpellSchool::entityType()
+{
+	return "spellSchool";
+}
+
+si32 GameResID::decode(const std::string & identifier)
+{
+	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+}
+
+std::string GameResID::encode(const si32 index)
+{
+	return GameConstants::RESOURCE_NAMES[index];
+}
+
+std::string GameResID::entityType()
+{
+	return "resource";
 }
 
 std::string GameResID::entityType()

@@ -19,6 +19,7 @@
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
+#include "bonuses/BonusSubtypes.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
@@ -289,6 +290,11 @@ CCreature::CCreature()
 {
 	setNodeType(CBonusSystemNode::CREATURE);
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
+}
+
+void CCreature::addBonus(int val, BonusType type)
+{
+	addBonus(val, type, TBonusSubtype::NONE);
 }
 
 void CCreature::addBonus(int val, BonusType type, TBonusSubtype subtype)

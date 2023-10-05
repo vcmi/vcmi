@@ -17,6 +17,7 @@
 #include "../battle/Unit.h"
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
+#include "../bonuses/BonusSubtypes.h"
 
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"

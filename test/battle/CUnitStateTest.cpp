@@ -12,6 +12,7 @@
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_UnitInfo.h"
 #include "mock/mock_UnitEnvironment.h"
+#include "../../lib/bonuses/BonusSubtypes.h"
 #include "../../lib/battle/CUnitState.h"
 #include "../../lib/CCreatureHandler.h"
 

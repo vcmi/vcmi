@@ -71,6 +71,11 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	return true;
 }
 
+bool TurnInfo::hasBonusOfType(BonusType type) const
+{
+	return hasBonusOfType(type, TBonusSubtype::NONE);
+}
+
 bool TurnInfo::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
 {
 	switch(type)
@@ -87,6 +92,11 @@ bool TurnInfo::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
 
 	return static_cast<bool>(
 			bonuses->getFirst(Selector::type()(type).And(Selector::subtype()(subtype))));
+}
+
+int TurnInfo::valOfBonuses(BonusType type) const
+{
+	return valOfBonuses(type, TBonusSubtype::NONE);
 }
 
 int TurnInfo::valOfBonuses(BonusType type, TBonusSubtype subtype) const

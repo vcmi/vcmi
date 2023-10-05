@@ -15,6 +15,7 @@
 #include "../NetPacks.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
+#include "../bonuses/BonusSubtypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -17,6 +17,7 @@
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
+#include "bonuses/BonusSubtypes.h"
 #include "NetPacks.h" // for InfoWindow
 #include "GameSettings.h"
 #include "TerrainHandler.h"

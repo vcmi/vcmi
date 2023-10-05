@@ -16,6 +16,7 @@
 #include "../CConfigHandler.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../bonuses/BonusSubtypes.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

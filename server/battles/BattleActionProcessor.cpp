@@ -20,6 +20,7 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/bonuses/BonusSubtypes.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/spells/AbilityCaster.h"

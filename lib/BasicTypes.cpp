@@ -17,6 +17,7 @@
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
+#include "bonuses/BonusSubtypes.h"
 
 #include <vcmi/Creature.h>
 #include <vcmi/Faction.h>
