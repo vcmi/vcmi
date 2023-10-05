@@ -984,7 +984,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 struct TowmPortalFinder
 {
 	const std::vector<CGPathNode *> & initialNodes;
-	MasteryLevel townPortalSkillLevel;
+	MasteryLevel::Type townPortalSkillLevel;
 	uint64_t movementNeeded;
 	const ChainActor * actor;
 	const CGHeroInstance * hero;
@@ -1006,7 +1006,7 @@ struct TowmPortalFinder
 		townPortal = spellID.toSpell();
 
 		// TODO: Copy/Paste from TownPortalMechanics
-		townPortalSkillLevel = MasteryLevel(hero->getSpellSchoolLevel(townPortal));
+		townPortalSkillLevel = MasteryLevel::Type(hero->getSpellSchoolLevel(townPortal));
 		movementNeeded = GameConstants::BASE_MOVEMENT_COST * (townPortalSkillLevel >= MasteryLevel::EXPERT ? 2 : 3);
 	}
 

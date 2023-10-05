@@ -316,9 +316,9 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	if(!finishingBattle->isDraw() && finishingBattle->winnerHero)
 	{
-		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT, -1))
+		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT))
 		{
-			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE, 0);
+			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE);
 			for(auto & spellId : battle.getBattle()->getUsedSpells(battle.otherSide(battleResult->winner)))
 			{
 				auto spell = spellId.toSpell(VLC->spells());

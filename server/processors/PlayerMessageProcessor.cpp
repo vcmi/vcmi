@@ -144,7 +144,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	//start with level 0 to skip abilities
 	for (int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
 	{
-		giveBonus.bonus.subtype = level;
+		giveBonus.bonus.subtype = BonusSubtypes::spellLevel(level);
 		gameHandler->sendAndApply(&giveBonus);
 	}
 

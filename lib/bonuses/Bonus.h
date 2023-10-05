@@ -60,6 +60,15 @@ static const TBonusSubtype visionsTowns;  // 2
 static const TBonusSubtype immunityBattleWide; // 0
 static const TBonusSubtype immunityEnemyHero; // 1
 
+static const TBonusSubtype transmutationPerHealth; // 0
+static const TBonusSubtype transmutationPerUnit; // 1
+
+static const TBonusSubtype destructionKillPercentage; // 0
+static const TBonusSubtype destructionKillAmount; // 1
+
+static const TBonusSubtype soulStealPermanent; // 0
+static const TBonusSubtype soulStealBattle; // 1
+
 TBonusSubtype spellLevel(int level);
 TBonusSubtype creatureLevel(int level);
 

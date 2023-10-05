@@ -56,7 +56,7 @@ TEST_F(AbilityCasterTest, MagicAbilityAffectedByGenericBonus)
 {
 	EXPECT_CALL(spellMock, getLevel()).WillRepeatedly(Return(1));
 
-	casterBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MAGIC_SCHOOL_SKILL, BonusSource::OTHER, 2, 0, SpellSchool(ESpellSchool::ANY)));
+	casterBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MAGIC_SCHOOL_SKILL, BonusSource::OTHER, 2, 0, TBonusSubtype(SpellSchool::ANY)));
 
 	EXPECT_CALL(actualCaster, getAllBonuses(_, _, _, _)).Times(AtLeast(1));
 	EXPECT_CALL(actualCaster, getTreeVersion()).Times(AtLeast(0));
@@ -70,7 +70,7 @@ TEST_F(AbilityCasterTest, MagicAbilityIngoresSchoolBonus)
 {
 	EXPECT_CALL(spellMock, getLevel()).WillRepeatedly(Return(1));
 
-	casterBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MAGIC_SCHOOL_SKILL, BonusSource::OTHER, 2, 0, SpellSchool(ESpellSchool::AIR)));
+	casterBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MAGIC_SCHOOL_SKILL, BonusSource::OTHER, 2, 0, TBonusSubtype(SpellSchool::AIR)));
 
 	EXPECT_CALL(actualCaster, getAllBonuses(_, _, _, _)).Times(AtLeast(1));
 	EXPECT_CALL(actualCaster, getTreeVersion()).Times(AtLeast(0));

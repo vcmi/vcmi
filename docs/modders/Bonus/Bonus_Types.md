@@ -118,14 +118,12 @@ Determines chance for affected heroes to learn spell casted by enemy hero after 
 
 Allows affected heroes to learn spell casted by enemy hero after battle
 
-- subtype: must be set to -1
 - val: maximal level of spell that can be learned
 
 ### LEARN_MEETING_SPELL_LIMIT
 
 Allows affected heroes to learn spells from each other during hero exchange
 
-- subtype: must be set to -1
 - val: maximal level of spell that can be learned
 
 ### ROUGH_TERRAIN_DISCOUNT

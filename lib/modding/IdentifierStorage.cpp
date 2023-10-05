@@ -28,7 +28,7 @@ CIdentifierStorage::CIdentifierStorage()
 	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
 		registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
 
-	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
+	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(SpellSchool::ANY));
 
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 		registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);

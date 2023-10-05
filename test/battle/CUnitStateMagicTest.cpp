@@ -55,7 +55,7 @@ public:
 
 	void makeNormalCaster()
 	{
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELLCASTER, BonusSource::CREATURE_ABILITY, DEFAULT_SCHOOL_LEVEL, 0, DEFAULT_SPELL_INDEX));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELLCASTER, BonusSource::CREATURE_ABILITY, DEFAULT_SCHOOL_LEVEL, 0, TBonusSubtype(SpellID(DEFAULT_SPELL_INDEX))));
 	}
 };
 
@@ -171,7 +171,7 @@ TEST_F(UnitStateMagicTest, effectValue)
 
 	const int32_t EFFECT_VALUE = 456;
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPECIFIC_SPELL_POWER, BonusSource::CREATURE_ABILITY, EFFECT_VALUE, 0, DEFAULT_SPELL_INDEX));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPECIFIC_SPELL_POWER, BonusSource::CREATURE_ABILITY, EFFECT_VALUE, 0, TBonusSubtype(SpellID(DEFAULT_SPELL_INDEX))));
 
 	makeNormalCaster();
 	EXPECT_EQ(subject.getEffectValue(&spellMock), EFFECT_VALUE * DEFAULT_AMOUNT);

@@ -978,7 +978,6 @@ public:
 
 // Deprecated
 // TODO: remove
-using ESpellSchool = SpellSchool;
 using ETownType = FactionID;
 using EGameResID = GameResID;
 using River = RiverId;

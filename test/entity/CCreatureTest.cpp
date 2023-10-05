@@ -107,7 +107,7 @@ TEST_F(CCreatureTest, JsonAddBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, 43, BonusValueType::BASE_NUMBER);
+	std::shared_ptr<Bonus> b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, TBonusSubtype(CreatureID(43)), BonusValueType::BASE_NUMBER);
 
 	JsonNode & toAdd = data["bonuses"]["toAdd"];
 
@@ -122,7 +122,7 @@ TEST_F(CCreatureTest, JsonAddBonus)
 			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 17)
 			&& (bonus->sid == 42)
-			&& (bonus->subtype == 43)
+			&& (bonus->subtype.as<CreatureID>().getNum() == 43)
 			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 
@@ -133,10 +133,10 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, 43, BonusValueType::BASE_NUMBER);
+	std::shared_ptr<Bonus> b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, TBonusSubtype(CreatureID(43)), BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b1);
 
-	std::shared_ptr<Bonus> b2 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 18, 42, 43, BonusValueType::BASE_NUMBER);
+	std::shared_ptr<Bonus> b2 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 18, 42, TBonusSubtype(CreatureID(43)), BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b2);
 
 
@@ -153,7 +153,7 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 17)
 			&& (bonus->sid == 42)
-			&& (bonus->subtype == 43)
+			&& (bonus->subtype.as<CreatureID>().getNum() == 43)
 			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 
@@ -166,7 +166,6 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 18)
 			&& (bonus->sid == 42)
-			&& (bonus->subtype == 43)
 			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 

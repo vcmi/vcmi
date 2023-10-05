@@ -229,7 +229,6 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		return;
 	}
 
-	scp.accumulatedBonus.subtype = 0;
 	scp.accumulatedBonus.additionalInfo = 0;
 	scp.accumulatedBonus.duration = BonusDuration::PERMANENT;
 	scp.accumulatedBonus.turnsRemain = 0;
@@ -249,11 +248,11 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		{
 			case ECommander::ATTACK:
 				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = static_cast<int>(PrimarySkill::ATTACK);
+				scp.accumulatedBonus.subtype = TBonusSubtype(PrimarySkill::ATTACK);
 				break;
 			case ECommander::DEFENSE:
 				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = static_cast<int>(PrimarySkill::DEFENSE);
+				scp.accumulatedBonus.subtype = TBonusSubtype(PrimarySkill::DEFENSE);
 				break;
 			case ECommander::HEALTH:
 				scp.accumulatedBonus.type = BonusType::STACK_HEALTH;
@@ -261,7 +260,6 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				break;
 			case ECommander::DAMAGE:
 				scp.accumulatedBonus.type = BonusType::CREATURE_DAMAGE;
-				scp.accumulatedBonus.subtype = 0;
 				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_BASE;
 				break;
 			case ECommander::SPEED:
@@ -788,9 +786,9 @@ void CGameHandler::onNewTurn()
 
 			if (!firstTurn) //not first day
 			{
-				for (int k = 0; k < GameConstants::RESOURCE_QUANTITY; k++)
+				for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
 				{
-					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, k);
+					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, TBonusSubtype(k));
 				}
 			}
 		}
@@ -1539,8 +1537,8 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 {
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
-	int h1_scholarSpellLevel = h1->valOfBonuses(BonusType::LEARN_MEETING_SPELL_LIMIT, -1);
-	int h2_scholarSpellLevel = h2->valOfBonuses(BonusType::LEARN_MEETING_SPELL_LIMIT, -1);
+	int h1_scholarSpellLevel = h1->valOfBonuses(BonusType::LEARN_MEETING_SPELL_LIMIT);
+	int h2_scholarSpellLevel = h2->valOfBonuses(BonusType::LEARN_MEETING_SPELL_LIMIT);
 
 	if (h1_scholarSpellLevel < h2_scholarSpellLevel)
 	{

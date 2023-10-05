@@ -42,19 +42,19 @@ static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"}
 const spells::SchoolInfo SCHOOL[4] =
 {
 	{
-		ESpellSchool::AIR,
+		SpellSchool::AIR,
 		"air"
 	},
 	{
-		ESpellSchool::FIRE,
+		SpellSchool::FIRE,
 		"fire"
 	},
 	{
-		ESpellSchool::WATER,
+		SpellSchool::WATER,
 		"water"
 	},
 	{
-		ESpellSchool::EARTH,
+		SpellSchool::EARTH,
 		"earth"
 	}
 };
@@ -62,10 +62,10 @@ const spells::SchoolInfo SCHOOL[4] =
 //order as described in http://bugs.vcmi.eu/view.php?id=91
 static const SpellSchool SCHOOL_ORDER[4] =
 {
-	ESpellSchool::AIR,  //=0
-	ESpellSchool::FIRE, //=1
-	ESpellSchool::EARTH,//=3(!)
-	ESpellSchool::WATER //=2(!)
+	SpellSchool::AIR,  //=0
+	SpellSchool::FIRE, //=1
+	SpellSchool::EARTH,//=3(!)
+	SpellSchool::WATER //=2(!)
 };
 } //namespace SpellConfig
 

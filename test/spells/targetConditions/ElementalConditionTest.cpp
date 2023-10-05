@@ -30,8 +30,8 @@ public:
 		EXPECT_CALL(spellMock, forEachSchool(NotNull())).Times(AtLeast(1)).WillRepeatedly([](const spells::Spell::SchoolCallback & cb)
 		{
 			bool stop = false;
-			cb(SpellSchool(ESpellSchool::AIR), stop);
-			cb(SpellSchool(ESpellSchool::FIRE), stop);
+			cb(SpellSchool(SpellSchool::AIR), stop);
+			cb(SpellSchool(SpellSchool::FIRE), stop);
 		});
 
 		EXPECT_CALL(mechanicsMock, isPositiveSpell()).WillRepeatedly(Return(isPositive));
@@ -56,7 +56,7 @@ TEST_P(ElementalConditionTest, ReceptiveIfNoBonus)
 TEST_P(ElementalConditionTest, ImmuneIfBonusMatches)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, SpellSchool(ESpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, TBonusSubtype(SpellSchool::AIR)));
 
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -64,7 +64,7 @@ TEST_P(ElementalConditionTest, ImmuneIfBonusMatches)
 TEST_P(ElementalConditionTest, NotImmuneIfBonusMismatches)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, SpellSchool(ESpellSchool::WATER)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, TBonusSubtype(SpellSchool::WATER)));
 
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -72,7 +72,7 @@ TEST_P(ElementalConditionTest, NotImmuneIfBonusMismatches)
 TEST_P(ElementalConditionTest, DependsOnPositivness)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, SpellSchool(ESpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, TBonusSubtype(SpellSchool::AIR)));
 
 	EXPECT_EQ(isPositive, subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -80,8 +80,8 @@ TEST_P(ElementalConditionTest, DependsOnPositivness)
 TEST_P(ElementalConditionTest, ImmuneIfBothBonusesPresent)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, SpellSchool(ESpellSchool::AIR)));
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, SpellSchool(ESpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, TBonusSubtype(SpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, TBonusSubtype(SpellSchool::AIR)));
 
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }

@@ -81,7 +81,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if(deprecatedSubtype == SecondarySkill::SORCERY || deprecatedSubtypeStr == "skill.sorcery")
 		{
 			type = BonusType::SPELL_DAMAGE;
-			subtype = TBonusSubtype(ESpellSchool::ANY);
+			subtype = TBonusSubtype(SpellSchool::ANY);
 		}
 		else if(deprecatedSubtype == SecondarySkill::SCHOLAR || deprecatedSubtypeStr == "skill.scholar")
 			type = BonusType::LEARN_MEETING_SPELL_LIMIT;
@@ -120,22 +120,22 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if(deprecatedSubtype == SecondarySkill::AIR_MAGIC || deprecatedSubtypeStr == "skill.airMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = TBonusSubtype(ESpellSchool::AIR);
+			subtype = TBonusSubtype(SpellSchool::AIR);
 		}
 		else if(deprecatedSubtype == SecondarySkill::WATER_MAGIC || deprecatedSubtypeStr == "skill.waterMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = TBonusSubtype(ESpellSchool::WATER);
+			subtype = TBonusSubtype(SpellSchool::WATER);
 		}
 		else if(deprecatedSubtype == SecondarySkill::FIRE_MAGIC || deprecatedSubtypeStr == "skill.fireMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = TBonusSubtype(ESpellSchool::FIRE);
+			subtype = TBonusSubtype(SpellSchool::FIRE);
 		}
 		else if(deprecatedSubtype == SecondarySkill::EARTH_MAGIC || deprecatedSubtypeStr == "skill.earthMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = TBonusSubtype(ESpellSchool::EARTH);
+			subtype = TBonusSubtype(SpellSchool::EARTH);
 		}
 		else if (deprecatedSubtype == SecondarySkill::ARTILLERY || deprecatedSubtypeStr == "skill.artillery")
 		{
