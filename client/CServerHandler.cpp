@@ -183,7 +183,7 @@ void CServerHandler::startLocalServerAndConnect()
 	
 #if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
-	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPort())};
+	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPortFromSettings())};
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
 	{
 		args.push_back("--lobby=" + settings["session"]["address"].String());
