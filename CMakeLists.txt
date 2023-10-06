@@ -90,16 +90,16 @@ if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
 	if(CCACHE)
 		# https://stackoverflow.com/a/36515503/2278742
 		# Set up wrapper scripts
-		configure_file(ios/launch-c.in   ios/launch-c)
-		configure_file(ios/launch-cxx.in ios/launch-cxx)
+		configure_file(xcode/launch-c.in   xcode/launch-c)
+		configure_file(xcode/launch-cxx.in xcode/launch-cxx)
 		execute_process(COMMAND chmod a+rx
-												"${CMAKE_BINARY_DIR}/ios/launch-c"
-												"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+												"${CMAKE_BINARY_DIR}/xcode/launch-c"
+												"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
 		# Set Xcode project attributes to route compilation through our scripts
-		set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/ios/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
-		set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/ios/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+		set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+		set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+		set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+		set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
 	endif()
 endif()
 
