@@ -82,5 +82,5 @@ private:
 	void fillValidResolutionsForScreen(int screenIndex);
 	void fillValidScalingRange();
 	QSize getPreferredRenderingResolution();
-	void addUnlocalizedIdentifiersToControls();
+	void addItemsToControls();
 };

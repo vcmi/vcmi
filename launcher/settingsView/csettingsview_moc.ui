@@ -553,28 +553,8 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Off&lt;/span&gt; - No autosaves&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Counter&lt;/span&gt; - Autosaves will be named incrementally unsing Autosave# format. Once Autosave Count Limit is reached, counter will start again from 0 overwriting existing (oldest) autosaves.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Turn Info&lt;/span&gt; - Autosaves will be named using Turn info. EG: Autosave112. Autosave Count limit will be disabled when this option is used.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Using Schema&lt;/span&gt; - Autosaves will follow a predefined schema.EG: %mapName%/%timestamp%/%turn%. For more details check documentation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>-1</number>
          </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Using Counter</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Using Turn Info</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Using Schema</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="13" column="1" colspan="4">

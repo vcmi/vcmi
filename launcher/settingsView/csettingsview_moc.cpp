@@ -268,7 +268,7 @@ CSettingsView::CSettingsView(QWidget * parent)
 {
 	ui->setupUi(this);
 
-	addUnlocalizedIdentifiersToControls();
+	addItemsToControls();
 
 	loadSettings();
 }
@@ -349,6 +349,9 @@ void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 {
 	QVariant itemData = ui->comboBoxAutosaveMode->itemData(index, Qt::UserRole);
 	std::string selectedEntry = itemData.toString().toStdString();
+
+	if(selectedEntry.empty()) // EG: when settings is not red yet
+		return;
 
 	Settings node = settings.write["general"]["autosaveMode"];
 	node->String() = selectedEntry;
@@ -590,10 +593,17 @@ void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
 	node->Float() = float(arg1) / 100; // percentage -> ratio
 }
 
-void CSettingsView::addUnlocalizedIdentifiersToControls()
+void CSettingsView::addItemsToControls()
 {
+	ui->comboBoxAutosaveMode->addItem("Off");
 	ui->comboBoxAutosaveMode->setItemData(0, "Off", Qt::UserRole);
+
+	ui->comboBoxAutosaveMode->addItem("Using Counter");
 	ui->comboBoxAutosaveMode->setItemData(1, "Using Counter", Qt::UserRole);
+
+	ui->comboBoxAutosaveMode->addItem("Using Turn Info");
 	ui->comboBoxAutosaveMode->setItemData(2, "Using Turn Info", Qt::UserRole);
+
+	ui->comboBoxAutosaveMode->addItem("Using Schema");
 	ui->comboBoxAutosaveMode->setItemData(3, "Using Schema", Qt::UserRole);
 }
