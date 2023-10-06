@@ -81,11 +81,11 @@ endif()
 
 # On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
 # The iOS and MSVC builds each require some configuration, which is enabled by the following option:
-if(CMAKE_GENERATOR MATCHES "Xcode" OR "Visual Studio")
+if(MSVC OR (CMAKE_GENERATOR STREQUAL "Xcode"))
   option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" ON)
 endif()
 
-if(ENABLE_CCACHE)
+if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
 	find_program(CCACHE ccache REQUIRED)
 	if(CCACHE)
 		# https://stackoverflow.com/a/36515503/2278742
