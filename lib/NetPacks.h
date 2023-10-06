@@ -2093,6 +2093,16 @@ protected:
 
 /***********************************************************************************************************/
 
+struct DLL_LINKAGE GamePause : public CPackForServer
+{
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer &>(*this);
+	}
+};
+
 struct DLL_LINKAGE EndTurn : public CPackForServer
 {
 	virtual void visitTyped(ICPackVisitor & visitor) override;

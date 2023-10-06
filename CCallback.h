@@ -98,6 +98,7 @@ public:
 
 	virtual void save(const std::string &fname) = 0;
 	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
+	virtual void gamePause(bool pause) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;
 
 	// To implement high-level army management bulk actions
@@ -186,6 +187,7 @@ public:
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero) override;
 	void save(const std::string &fname) override;
 	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) override;
+	void gamePause(bool pause) override;
 	void buildBoat(const IShipyard *obj) override;
 	void dig(const CGObjectInstance *hero) override;
 	void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1)) override;

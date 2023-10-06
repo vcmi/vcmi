@@ -90,7 +90,7 @@ public:
 	const CGDwelling * const dwelling;
 	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, const std::function<void()> & onClose, int y_offset = 0);
 	void availableCreaturesChanged();
-	void close();
+	void close() override;
 };
 
 /// Split window where creatures can be split up into two single unit stacks
@@ -240,7 +240,7 @@ public:
 	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
 	~CTavernWindow();
 
-	void close();
+	void close() override;
 	void recruitb();
 	void thievesguildb();
 	void show(Canvas & to) override;
@@ -360,7 +360,7 @@ public:
 
 	void makeDeal();
 	void addAll();
-	void close();
+	void close() override;
 	void updateGarrisons() override;
 	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed);
 };

@@ -265,6 +265,11 @@ void CPlayerInterface::performAutosave()
 	}
 }
 
+void CPlayerInterface::gamePause(bool pause)
+{
+	cb->gamePause(pause);
+}
+
 void CPlayerInterface::yourTurn(QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;

@@ -40,6 +40,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const BattleID BattleID::NONE(-1);
 const QueryID QueryID::NONE(-1);
+const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
 const ObjectInstanceID ObjectInstanceID::NONE(-1);

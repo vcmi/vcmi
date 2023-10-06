@@ -41,6 +41,8 @@ CSavingScreen::CSavingScreen()
 	curTab = tabSel;
 		
 	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	
+	LOCPLINT->gamePause(true);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -63,6 +65,12 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 	localMi = to;
 	card->changeSelection();
 	card->redraw();
+}
+
+void CSavingScreen::close()
+{
+	LOCPLINT->gamePause(false);
+	CSelectionBase::close();
 }
 
 void CSavingScreen::saveGame()

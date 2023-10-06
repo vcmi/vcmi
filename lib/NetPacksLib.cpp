@@ -520,6 +520,11 @@ void EndTurn::visitTyped(ICPackVisitor & visitor)
 	visitor.visitEndTurn(*this);
 }
 
+void GamePause::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGamePause(*this);
+}
+
 void DismissHero::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitDismissHero(*this);

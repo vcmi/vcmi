@@ -216,7 +216,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	awaitingPlayers.erase(which);
 	gameHandler->onPlayerTurnStarted(which);
 
-	auto turnQuery = std::make_shared<PlayerStartsTurnQuery>(gameHandler, which);
+	auto turnQuery = std::make_shared<TimerPauseQuery>(gameHandler, which);
 	gameHandler->queries->addQuery(turnQuery);
 
 	PlayerStartsTurn pst;

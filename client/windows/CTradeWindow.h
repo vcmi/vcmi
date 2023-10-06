@@ -86,7 +86,7 @@ public:
 	CTradeWindow(const ImagePath & bgName, const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode); //c
 
 	void showAll(Canvas & to) override;
-	void close();
+	void close() override;
 
 	void initSubs(bool Left);
 	void initTypes();
