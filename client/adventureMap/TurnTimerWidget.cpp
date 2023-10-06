@@ -150,10 +150,15 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 	}
 	else
 	{
-		for(PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
+		if(LOCPLINT->makingTurn)
+			updateTimer(LOCPLINT->playerID, msPassed);
+		else
 		{
-			if(LOCPLINT->cb->isPlayerMakingTurn(p))
-				updateTimer(p, msPassed);
+			for(PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
+			{
+				if(LOCPLINT->cb->isPlayerMakingTurn(p))
+					updateTimer(p, msPassed);
+			}
 		}
 	}
 }
