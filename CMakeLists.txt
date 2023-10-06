@@ -82,7 +82,7 @@ endif()
 # On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
 # The iOS and MSVC builds each require some configuration, which is enabled by the following option:
 if(APPLE_IOS OR MSVC)
-  option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+  option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" ON)
 endif()
 
 # Allow to pass package name from Travis CI
@@ -230,7 +230,7 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
 
 	if(ENABLE_CCACHE)
-		find_program(CCACHE "ccache")
+		find_program(CCACHE ccache REQUIRED)
 		if(CCACHE)
 			# https://stackoverflow.com/a/36515503/2278742
 			# Set up wrapper scripts
@@ -263,7 +263,7 @@ if(MINGW OR MSVC)
 	if(MSVC)
 		if(ENABLE_CCACHE)
 			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
-			find_program(CCACHE ccache)
+			find_program(CCACHE ccache REQUIRED)
 			if (CCACHE)
 				file(COPY_FILE
 					${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
