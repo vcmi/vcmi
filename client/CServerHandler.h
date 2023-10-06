@@ -121,8 +121,8 @@ public:
 
 	CServerHandler();
 	
-	std::string getHostAddress() const;
-	ui16 getHostPort() const;
+	std::string getHostAddressFromSettings() const;
+	ui16 getHostPortFromSettings() const;
 
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
 	void startLocalServerAndConnect();
