@@ -157,7 +157,10 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 			for(PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
 			{
 				if(LOCPLINT->cb->isPlayerMakingTurn(p))
+				{
 					updateTimer(p, msPassed);
+					break;
+				}
 			}
 		}
 	}
