@@ -81,8 +81,26 @@ endif()
 
 # On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
 # The iOS and MSVC builds each require some configuration, which is enabled by the following option:
-if(APPLE_IOS OR MSVC)
+if(CMAKE_GENERATOR MATCHES "Xcode" OR "Visual Studio")
   option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" ON)
+endif()
+
+if(ENABLE_CCACHE)
+	find_program(CCACHE ccache REQUIRED)
+	if(CCACHE)
+		# https://stackoverflow.com/a/36515503/2278742
+		# Set up wrapper scripts
+		configure_file(ios/launch-c.in   ios/launch-c)
+		configure_file(ios/launch-cxx.in ios/launch-cxx)
+		execute_process(COMMAND chmod a+rx
+												"${CMAKE_BINARY_DIR}/ios/launch-c"
+												"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+		# Set Xcode project attributes to route compilation through our scripts
+		set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/ios/launch-c")
+		set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+		set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/ios/launch-c")
+		set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
+	endif()
 endif()
 
 # Allow to pass package name from Travis CI
@@ -228,24 +246,6 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED_FOR_APPS YES)
 	set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUNDLE_IDENTIFIER_PREFIX}.$(PRODUCT_NAME)")
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
-
-	if(ENABLE_CCACHE)
-		find_program(CCACHE ccache REQUIRED)
-		if(CCACHE)
-			# https://stackoverflow.com/a/36515503/2278742
-			# Set up wrapper scripts
-			configure_file(ios/launch-c.in   ios/launch-c)
-			configure_file(ios/launch-cxx.in ios/launch-cxx)
-			execute_process(COMMAND chmod a+rx
-													"${CMAKE_BINARY_DIR}/ios/launch-c"
-													"${CMAKE_BINARY_DIR}/ios/launch-cxx")
-			# Set Xcode project attributes to route compilation through our scripts
-			set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/ios/launch-c")
-			set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
-			set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/ios/launch-c")
-			set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/ios/launch-cxx")
-		endif()
-	endif()
 endif()
 
 if(APPLE_MACOS)
