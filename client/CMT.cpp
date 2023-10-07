@@ -423,6 +423,8 @@ int main(int argc, char * argv[])
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
+	auto audioData = CCS->videoh->getAudio(VideoPath::builtin("3DOLOGO.SMK"));
+	CCS->soundh->playSound(audioData);
 	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, true, true))
 	{
 		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, true, true))

@@ -37,6 +37,7 @@ public:
 	{
 		return false;
 	}
+	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) { return std::pair<std::unique_ptr<ui8 []>, si64>(std::make_pair(std::make_unique<ui8[]>(0), 0)); };
 };
 
 class CEmptyVideoPlayer : public IMainVideoPlayer
@@ -68,14 +69,10 @@ VCMI_LIB_NAMESPACE_END
 class CVideoPlayer : public IMainVideoPlayer
 {
 	int stream;					// stream index in video
-	int streamAudio;			// stream index in audio
 	AVFormatContext *format;
 	AVCodecContext *codecContext; // codec context for stream
-	AVCodecContext *codecContextAudio; // codec context for stream
 	const AVCodec *codec;
-	const AVCodec *codecAudio;
 	AVFrame *frame;
-	AVFrame *frameAudio;
 	struct SwsContext *sws;
 
 	AVIOContext * context;
@@ -95,8 +92,6 @@ class CVideoPlayer : public IMainVideoPlayer
 
 	bool playVideo(int x, int y, bool stopOnKey);
 	bool open(const VideoPath & fname, bool loop, bool useOverlay = false, bool scale = false);
-
-	void playVideoAudio();
 public:
 	CVideoPlayer();
 	~CVideoPlayer();
@@ -113,6 +108,8 @@ public:
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
 	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false) override;
 
+	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) override;
+
 	VideoPath videoName() override {return fname;};
 
 	//TODO:
@@ -122,6 +119,7 @@ public:
 
 	// public to allow access from ffmpeg IO functions
 	std::unique_ptr<CInputStream> data;
+	std::unique_ptr<CInputStream> dataAudio;
 };
 
 #endif

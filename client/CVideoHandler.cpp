@@ -55,6 +55,24 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 	return video->data->seek(pos);
 }
 
+// Define a set of functions to read data
+static int lodReadAudio(void* opaque, uint8_t* buf, int size)
+{
+	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+
+	return static_cast<int>(video->dataAudio->read(buf, size));
+}
+
+static si64 lodSeekAudio(void * opaque, si64 pos, int whence)
+{
+	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+
+	if (whence & AVSEEK_SIZE)
+		return video->dataAudio->getSize();
+
+	return video->dataAudio->seek(pos);
+}
+
 CVideoPlayer::CVideoPlayer()
 	: stream(-1)
 	, format (nullptr)
@@ -127,29 +145,12 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 		}
 	}
 
-	// Find the first audio stream
-	streamAudio = -1;
-	for(ui32 i=0; i<format->nb_streams; i++)
-	{
-		if (format->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
-		{
-			streamAudio = i;
-			break;
-		}
-	}
-
 	if (stream < 0)
 		// No video stream in that file
 		return false;
 
 	// Find the decoder for the video stream
 	codec = avcodec_find_decoder(format->streams[stream]->codecpar->codec_id);
-
-	if(streamAudio > -1)
-	{
-		// Find the decoder for the audio stream
-		codecAudio = avcodec_find_decoder(format->streams[streamAudio]->codecpar->codec_id);
-	}
 
 	if (codec == nullptr)
 	{
@@ -160,10 +161,6 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 	codecContext = avcodec_alloc_context3(codec);
 	if(!codecContext)
 		return false;
-
-	if (codecAudio != nullptr)
-		codecContextAudio = avcodec_alloc_context3(codecAudio);
-
 	// Get a pointer to the codec context for the video stream
 	int ret = avcodec_parameters_to_context(codecContext, format->streams[stream]->codecpar);
 	if (ret < 0)
@@ -171,17 +168,6 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 		//We cannot get codec from parameters
 		avcodec_free_context(&codecContext);
 		return false;
-	}
-
-	// Get a pointer to the codec context for the audio stream
-	if (streamAudio > -1)
-	{
-		ret = avcodec_parameters_to_context(codecContextAudio, format->streams[streamAudio]->codecpar);
-		if (ret < 0)
-		{
-			//We cannot get codec from parameters
-			avcodec_free_context(&codecContextAudio);
-		}
 	}
 
 	// Open codec
@@ -193,18 +179,6 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 	}
 	// Allocate video frame
 	frame = av_frame_alloc();
-
-	// Open codec
-	if (codecAudio != nullptr)
-	{
-		if ( avcodec_open2(codecContextAudio, codecAudio, nullptr) < 0 )
-		{
-			// Could not open codec
-			codecAudio = nullptr;
-		}
-		// Allocate audio frame
-		frameAudio = av_frame_alloc();
-	}
 
 	//setup scaling
 	if(scale)
@@ -274,8 +248,6 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 
 	if (sws == nullptr)
 		return false;
-
-	playVideoAudio();
 
 	return true;
 }
@@ -481,28 +453,128 @@ void CVideoPlayer::close()
 	}
 }
 
-void CVideoPlayer::playVideoAudio()
+std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
 {
-	AVPacket packet;
-	std::pair<std::unique_ptr<ui8 []>, si64> data;
+	std::pair<std::unique_ptr<ui8 []>, si64> dat(std::make_pair(std::make_unique<ui8[]>(0), 0));
 
-	std::vector<double> samples;
-	while (av_read_frame(format, &packet) >= 0)
+	VideoPath fnameAudio;
+
+	if (CResourceHandler::get()->existsResource(videoToOpen))
+		fnameAudio = videoToOpen;
+	else
+		fnameAudio = videoToOpen.addPrefix("VIDEO/");
+
+	if (!CResourceHandler::get()->existsResource(fnameAudio))
+	{
+		logGlobal->error("Error: video %s was not found", fnameAudio.getName());
+		return dat;
+	}
+
+	dataAudio = CResourceHandler::get()->load(fnameAudio);
+
+	static const int BUFFER_SIZE = 4096;
+
+	unsigned char * bufferAudio  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
+	AVIOContext * contextAudio = avio_alloc_context( bufferAudio, BUFFER_SIZE, 0, (void *)this, lodReadAudio, nullptr, lodSeekAudio);
+
+	AVFormatContext * formatAudio = avformat_alloc_context();
+	formatAudio->pb = contextAudio;
+	// filename is not needed - file was already open and stored in this->data;
+	int avfopen = avformat_open_input(&formatAudio, "dummyFilename", nullptr, nullptr);
+
+	if (avfopen != 0)
+	{
+		return dat;
+	}
+	// Retrieve stream information
+	if (avformat_find_stream_info(formatAudio, nullptr) < 0)
+		return dat;
+
+	// Find the first audio stream
+	int streamAudio = -1;
+	for(ui32 i=0; i<formatAudio->nb_streams; i++)
+	{
+		if (formatAudio->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+		{
+			streamAudio = i;
+			break;
+		}
+	}
+
+	if(streamAudio < 0)
+		return dat;
+
+	const AVCodec *codecAudio = avcodec_find_decoder(formatAudio->streams[streamAudio]->codecpar->codec_id);
+		
+	AVCodecContext *codecContextAudio;
+	if (codecAudio != nullptr)
+		codecContextAudio = avcodec_alloc_context3(codecAudio);
+
+	// Get a pointer to the codec context for the audio stream
+	if (streamAudio > -1)
+	{
+		int ret = 0;
+		ret = avcodec_parameters_to_context(codecContextAudio, formatAudio->streams[streamAudio]->codecpar);
+		if (ret < 0)
+		{
+			//We cannot get codec from parameters
+			avcodec_free_context(&codecContextAudio);
+		}
+	}
+	
+	// Open codec
+	AVFrame *frameAudio;
+	if (codecAudio != nullptr)
+	{
+		if ( avcodec_open2(codecContextAudio, codecAudio, nullptr) < 0 )
+		{
+			// Could not open codec
+			codecAudio = nullptr;
+		}
+		// Allocate audio frame
+		frameAudio = av_frame_alloc();
+	}
+		
+	AVPacket packet;
+
+	std::vector<ui8> samples;
+	while (av_read_frame(formatAudio, &packet) >= 0)
 	{
 		avcodec_send_packet(codecContextAudio, &packet);
 		avcodec_receive_frame(codecContextAudio, frameAudio);
-
-		data.second = frameAudio->linesize[0];
-		data.first = (new ui8[data.second]);
 
 		for (int s = 0; s < frameAudio->linesize[0]; s+=sizeof(ui8))
 		{
 			ui8 value;
 			memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
 			samples.push_back(value);
-			data.first.
 		}
 	}
+
+	dat = std::pair<std::unique_ptr<ui8 []>, si64>(std::make_pair(std::make_unique<ui8[]>(samples.size()), samples.size()));
+	std::copy(samples.begin(), samples.end(), dat.first.get());
+
+	if (frameAudio)
+		av_frame_free(&frameAudio);
+
+	if (codecAudio)
+	{
+		avcodec_close(codecContextAudio);
+		codecAudio = nullptr;
+	}
+	if (codecContextAudio)
+		avcodec_free_context(&codecContextAudio);
+
+	if (formatAudio)
+		avformat_close_input(&formatAudio);
+
+	if (contextAudio)
+	{
+		av_free(contextAudio);
+		contextAudio = nullptr;
+	}
+
+	return dat;
 }
 
 // Plays a video. Only works for overlays.
