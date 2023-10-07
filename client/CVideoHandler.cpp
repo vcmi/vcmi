@@ -538,6 +538,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 	AVPacket packet;
 
 	std::vector<ui8> samples;
+
 	while (av_read_frame(formatAudio, &packet) >= 0)
 	{
 		avcodec_send_packet(codecContextAudio, &packet);
@@ -551,8 +552,30 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 		}
 	}
 
-	dat = std::pair<std::unique_ptr<ui8 []>, si64>(std::make_pair(std::make_unique<ui8[]>(samples.size()), samples.size()));
-	std::copy(samples.begin(), samples.end(), dat.first.get());
+	typedef struct WAV_HEADER {
+		ui8 RIFF[4] = {'R', 'I', 'F', 'F'};
+		ui32 ChunkSize;
+		ui8 WAVE[4] = {'W', 'A', 'V', 'E'};
+		ui8 fmt[4] = {'f', 'm', 't', ' '};
+		ui32 Subchunk1Size = 16;
+		ui16 AudioFormat = 1;
+		ui16 NumOfChan = 2;
+		ui32 SamplesPerSec = 22050;
+		ui32 bytesPerSec = 22050 * 2;
+		ui16 blockAlign = 2;
+		ui16 bitsPerSample = 16;
+		ui8 Subchunk2ID[4] = {'d', 'a', 't', 'a'};
+		ui32 Subchunk2Size;
+	} wav_hdr;
+
+	wav_hdr wav;
+	wav.ChunkSize = samples.size() + sizeof(wav_hdr) - 8;
+  	wav.Subchunk2Size = samples.size() + sizeof(wav_hdr) - 44;
+	auto wavPtr = reinterpret_cast<ui8*>(&wav);
+
+	dat = std::pair<std::unique_ptr<ui8 []>, si64>(std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(wav_hdr)), samples.size() + sizeof(wav_hdr)));
+	std::copy(wavPtr, wavPtr + sizeof(wav_hdr), dat.first.get());
+	std::copy(samples.begin(), samples.end(), dat.first.get() + sizeof(wav_hdr));
 
 	if (frameAudio)
 		av_frame_free(&frameAudio);
