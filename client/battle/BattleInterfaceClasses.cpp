@@ -566,9 +566,16 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 	{
 		int text = 304;
+		AudioPath musicName = AudioPath::builtin("Music/Win Battle");
+		VideoPath videoName = VideoPath::builtin("WIN3.BIK");
 		switch(br.result)
 		{
 		case EBattleResult::NORMAL:
+			if(owner.cb->getBattle(br.battleID)->battleGetDefendedTown() && !weAreAttacker)
+			{
+				musicName = AudioPath::builtin("Music/Defend Castle");
+				videoName = VideoPath::builtin("DEFENDALL.BIK");	
+			}
 			break;
 		case EBattleResult::ESCAPE:
 			text = 303;
@@ -581,8 +588,8 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			break;
 		}
 
-		CCS->musich->playMusic(AudioPath::builtin("Music/Win Battle"), false, true);
-		CCS->videoh->open(VideoPath::builtin("WIN3.BIK"));
+		CCS->musich->playMusic(musicName, false, true);
+		CCS->videoh->open(videoName);
 		std::string str = CGI->generaltexth->allTexts[text];
 
 		const CGHeroInstance * ourHero = owner.cb->getBattle(br.battleID)->battleGetMyHero();
@@ -603,6 +610,11 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		switch(br.result)
 		{
 		case EBattleResult::NORMAL:
+			if(owner.cb->getBattle(br.battleID)->battleGetDefendedTown() && !weAreAttacker)
+			{
+				musicName = AudioPath::builtin("Music/LoseCastle");
+				videoName = VideoPath::builtin("LOSECSTL.BIK");	
+			}
 			break;
 		case EBattleResult::ESCAPE:
 			musicName = AudioPath::builtin("Music/Retreat Battle");
@@ -634,7 +646,30 @@ void BattleResultWindow::activate()
 void BattleResultWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
-	CCS->videoh->update(pos.x + 107, pos.y + 70, to.getInternalSurface(), true, false);
+	CCS->videoh->update(pos.x + 107, pos.y + 70, to.getInternalSurface(), true, false,
+	[&]()
+	{
+		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/LBSTART"))
+		{
+			CCS->videoh->close();
+			CCS->videoh->open(VideoPath::builtin("VIDEO/LBLOOP"));
+		}
+		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/RTSTART"))
+		{
+			CCS->videoh->close();
+			CCS->videoh->open(VideoPath::builtin("VIDEO/RTLOOP"));
+		}
+		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/LOSECSTL"))
+		{
+			CCS->videoh->close();
+			CCS->videoh->open(VideoPath::builtin("VIDEO/LOSECSLP"));
+		}
+		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/DEFENDALL"))
+		{
+			CCS->videoh->close();
+			CCS->videoh->open(VideoPath::builtin("VIDEO/DEFENDLOOP"));
+		}
+	});
 }
 
 void BattleResultWindow::buttonPressed(int button)
