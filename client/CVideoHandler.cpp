@@ -127,12 +127,29 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 		}
 	}
 
+	// Find the first audio stream
+	streamAudio = -1;
+	for(ui32 i=0; i<format->nb_streams; i++)
+	{
+		if (format->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+		{
+			streamAudio = i;
+			break;
+		}
+	}
+
 	if (stream < 0)
 		// No video stream in that file
 		return false;
 
 	// Find the decoder for the video stream
 	codec = avcodec_find_decoder(format->streams[stream]->codecpar->codec_id);
+
+	if(streamAudio > -1)
+	{
+		// Find the decoder for the audio stream
+		codecAudio = avcodec_find_decoder(format->streams[streamAudio]->codecpar->codec_id);
+	}
 
 	if (codec == nullptr)
 	{
@@ -143,6 +160,10 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 	codecContext = avcodec_alloc_context3(codec);
 	if(!codecContext)
 		return false;
+
+	if (codecAudio != nullptr)
+		codecContextAudio = avcodec_alloc_context3(codecAudio);
+
 	// Get a pointer to the codec context for the video stream
 	int ret = avcodec_parameters_to_context(codecContext, format->streams[stream]->codecpar);
 	if (ret < 0)
@@ -150,6 +171,17 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 		//We cannot get codec from parameters
 		avcodec_free_context(&codecContext);
 		return false;
+	}
+
+	// Get a pointer to the codec context for the audio stream
+	if (streamAudio > -1)
+	{
+		ret = avcodec_parameters_to_context(codecContextAudio, format->streams[streamAudio]->codecpar);
+		if (ret < 0)
+		{
+			//We cannot get codec from parameters
+			avcodec_free_context(&codecContextAudio);
+		}
 	}
 
 	// Open codec
@@ -161,6 +193,18 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 	}
 	// Allocate video frame
 	frame = av_frame_alloc();
+
+	// Open codec
+	if (codecAudio != nullptr)
+	{
+		if ( avcodec_open2(codecContextAudio, codecAudio, nullptr) < 0 )
+		{
+			// Could not open codec
+			codecAudio = nullptr;
+		}
+		// Allocate audio frame
+		frameAudio = av_frame_alloc();
+	}
 
 	//setup scaling
 	if(scale)
@@ -230,6 +274,8 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 
 	if (sws == nullptr)
 		return false;
+
+	playVideoAudio();
 
 	return true;
 }
@@ -432,6 +478,30 @@ void CVideoPlayer::close()
 	{
 		av_free(context);
 		context = nullptr;
+	}
+}
+
+void CVideoPlayer::playVideoAudio()
+{
+	AVPacket packet;
+	std::pair<std::unique_ptr<ui8 []>, si64> data;
+
+	std::vector<double> samples;
+	while (av_read_frame(format, &packet) >= 0)
+	{
+		avcodec_send_packet(codecContextAudio, &packet);
+		avcodec_receive_frame(codecContextAudio, frameAudio);
+
+		data.second = frameAudio->linesize[0];
+		data.first = (new ui8[data.second]);
+
+		for (int s = 0; s < frameAudio->linesize[0]; s+=sizeof(ui8))
+		{
+			ui8 value;
+			memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
+			samples.push_back(value);
+			data.first.
+		}
 	}
 }
 

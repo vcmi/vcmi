@@ -23,6 +23,7 @@ public:
 	virtual bool nextFrame()=0;
 	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
 	virtual void redraw(int x, int y, SDL_Surface *dst, bool update = true)=0; //reblits buffer
+	virtual VideoPath videoName()=0;
 	virtual bool wait()=0;
 	virtual int curFrame() const =0;
 	virtual int frameCount() const =0;
@@ -46,6 +47,7 @@ public:
 	void redraw( int x, int y, SDL_Surface *dst, bool update = true ) override {};
 	void show( int x, int y, SDL_Surface *dst, bool update = true ) override {};
 	bool nextFrame() override {return false;};
+	VideoPath videoName() override {return VideoPath();};
 	void close() override {};
 	bool wait() override {return false;};
 	bool open(const VideoPath & name, bool scale = false) override {return false;};
@@ -66,10 +68,14 @@ VCMI_LIB_NAMESPACE_END
 class CVideoPlayer : public IMainVideoPlayer
 {
 	int stream;					// stream index in video
+	int streamAudio;			// stream index in audio
 	AVFormatContext *format;
 	AVCodecContext *codecContext; // codec context for stream
+	AVCodecContext *codecContextAudio; // codec context for stream
 	const AVCodec *codec;
+	const AVCodec *codecAudio;
 	AVFrame *frame;
+	AVFrame *frameAudio;
 	struct SwsContext *sws;
 
 	AVIOContext * context;
@@ -90,6 +96,7 @@ class CVideoPlayer : public IMainVideoPlayer
 	bool playVideo(int x, int y, bool stopOnKey);
 	bool open(const VideoPath & fname, bool loop, bool useOverlay = false, bool scale = false);
 
+	void playVideoAudio();
 public:
 	CVideoPlayer();
 	~CVideoPlayer();
@@ -105,6 +112,8 @@ public:
 
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
 	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false) override;
+
+	VideoPath videoName() override {return fname;};
 
 	//TODO:
 	bool wait() override {return false;};
