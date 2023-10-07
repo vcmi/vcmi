@@ -151,7 +151,8 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::pair<std::unique_ptr<ui8 []>, si64>
 		if (cache && soundChunksRaw.find(startBytes) != soundChunksRaw.end())
 			return soundChunksRaw[startBytes].first;
 
-		Mix_Chunk *chunk = Mix_QuickLoad_RAW(data.first.get(), (int)data.second);
+		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), (int)data.second);
+		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
 		if (cache)
 			soundChunksRaw.insert({startBytes, std::make_pair (chunk, std::move (data.first))});

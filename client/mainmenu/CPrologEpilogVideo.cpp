@@ -27,6 +27,8 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
+	auto audioData = CCS->videoh->getAudio(spe.prologVideo);
+	sound = CCS->soundh->playSound(audioData);
 	CCS->videoh->open(spe.prologVideo);
 	CCS->musich->playMusic(spe.prologMusic, true, true);
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
@@ -62,6 +64,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
 	close();
+	CCS->soundh->stopSound(sound);
 	CCS->soundh->stopSound(voiceSoundHandle);
 	exitCb();
 }

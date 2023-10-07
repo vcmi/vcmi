@@ -23,6 +23,7 @@ class CPrologEpilogVideo : public CWindowObject
 
 	std::shared_ptr<CMultiLineLabel> text;
 
+	int sound = 0;
 	bool voiceStopped = false;
 
 public:

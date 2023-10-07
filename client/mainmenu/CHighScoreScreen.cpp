@@ -295,6 +295,8 @@ void CHighScoreInputScreen::show(Canvas & to)
 		{
 			CCS->videoh->close();
 			video = "HSLOOP.SMK";
+			auto audioData = CCS->videoh->getAudio(VideoPath::builtin(video));
+			sound = CCS->soundh->playSound(audioData);
 			CCS->videoh->open(VideoPath::builtin(video));
 		}
 		else
@@ -307,6 +309,8 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::activate()
 {
+	auto audioData = CCS->videoh->getAudio(VideoPath::builtin(video));
+	sound = CCS->soundh->playSound(audioData);
 	if(!CCS->videoh->open(VideoPath::builtin(video)))
 	{
 		if(!won)
@@ -320,6 +324,7 @@ void CHighScoreInputScreen::activate()
 void CHighScoreInputScreen::deactivate()
 {
 	CCS->videoh->close();
+	CCS->soundh->stopSound(sound);
 	CIntObject::deactivate();
 }
 

@@ -571,6 +571,8 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 	wav_hdr wav;
 	wav.ChunkSize = samples.size() + sizeof(wav_hdr) - 8;
   	wav.Subchunk2Size = samples.size() + sizeof(wav_hdr) - 44;
+	wav.SamplesPerSec = formatAudio->streams[streamAudio]->codecpar->sample_rate;
+	wav.bitsPerSample = formatAudio->streams[streamAudio]->codecpar->bits_per_coded_sample;
 	auto wavPtr = reinterpret_cast<ui8*>(&wav);
 
 	dat = std::pair<std::unique_ptr<ui8 []>, si64>(std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(wav_hdr)), samples.size() + sizeof(wav_hdr)));
