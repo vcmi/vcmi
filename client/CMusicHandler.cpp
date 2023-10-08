@@ -146,7 +146,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::pair<std::unique_ptr<ui8 []>, si64>
 {
 	try
 	{
-		std::vector<ui8> startBytes = std::vector<ui8>(data.first.get(), data.first.get() + 100);
+		std::vector<ui8> startBytes = std::vector<ui8>(data.first.get(), data.first.get() + std::min((si64)100, data.second));
 
 		if (cache && soundChunksRaw.find(startBytes) != soundChunksRaw.end())
 			return soundChunksRaw[startBytes].first;
@@ -223,10 +223,8 @@ int CSoundHandler::playSound(const AudioPath & sound, int repeats, bool cache)
 
 int CSoundHandler::playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, int repeats, bool cache)
 {
-	int channel;
-	Mix_Chunk *chunk = GetSoundChunk(data, cache);
-
-	if (chunk)
+	int channel = -1;
+	if (Mix_Chunk *chunk = GetSoundChunk(data, cache))
 	{
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
@@ -240,9 +238,6 @@ int CSoundHandler::playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, in
 		else
 			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
 	}
-	else
-		channel = -1;
-
 	return channel;
 }
 

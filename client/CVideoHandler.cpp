@@ -492,7 +492,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 
 	// Find the first audio stream
 	int streamAudio = -1;
-	for(ui32 i=0; i<formatAudio->nb_streams; i++)
+	for(ui32 i = 0; i < formatAudio->nb_streams; i++)
 	{
 		if (formatAudio->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
 		{
@@ -513,8 +513,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 	// Get a pointer to the codec context for the audio stream
 	if (streamAudio > -1)
 	{
-		int ret = 0;
-		ret = avcodec_parameters_to_context(codecContextAudio, formatAudio->streams[streamAudio]->codecpar);
+		int ret = avcodec_parameters_to_context(codecContextAudio, formatAudio->streams[streamAudio]->codecpar);
 		if (ret < 0)
 		{
 			//We cannot get codec from parameters
@@ -549,7 +548,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 			rc = avcodec_receive_frame(codecContextAudio, frameAudio);
 			int bytesToRead = (frameAudio->nb_samples * 2 * (formatAudio->streams[streamAudio]->codecpar->bits_per_coded_sample / 8));
 			if (rc >= 0)
-				for (int s = 0; s < bytesToRead; s+=sizeof(ui8))
+				for (int s = 0; s < bytesToRead; s += sizeof(ui8))
 				{
 					ui8 value;
 					memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
@@ -583,7 +582,7 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 	wav.bitsPerSample = formatAudio->streams[streamAudio]->codecpar->bits_per_coded_sample;
 	auto wavPtr = reinterpret_cast<ui8*>(&wav);
 
-	dat = std::pair<std::unique_ptr<ui8 []>, si64>(std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(wav_hdr)), samples.size() + sizeof(wav_hdr)));
+	dat = std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(wav_hdr)), samples.size() + sizeof(wav_hdr));
 	std::copy(wavPtr, wavPtr + sizeof(wav_hdr), dat.first.get());
 	std::copy(samples.begin(), samples.end(), dat.first.get() + sizeof(wav_hdr));
 

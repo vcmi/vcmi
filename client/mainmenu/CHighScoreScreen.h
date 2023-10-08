@@ -95,7 +95,7 @@ class CHighScoreInputScreen : public CWindowObject
 	std::shared_ptr<TransparentFilledRectangle> background;
 
 	std::string video;
-	int sound;
+	int videoSoundHandle;
 	bool won;
 	HighScoreCalculation calc;
 public:

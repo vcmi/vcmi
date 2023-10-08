@@ -36,7 +36,7 @@ public:
 	{
 		return false;
 	}
-	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) { return std::pair<std::unique_ptr<ui8 []>, si64>(std::make_pair(std::make_unique<ui8[]>(0), 0)); };
+	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) { return std::make_pair(std::make_unique<ui8[]>(0), 0); };
 };
 
 class CEmptyVideoPlayer : public IMainVideoPlayer
