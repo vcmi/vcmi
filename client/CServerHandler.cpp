@@ -924,7 +924,7 @@ void CServerHandler::threadHandleConnection()
 	try
 	{
 		sendClientConnecting();
-		while(c->connected)
+		while(c && c->connected)
 		{
 			while(state == EClientState::STARTING)
 				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
