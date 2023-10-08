@@ -547,8 +547,9 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 			if (rc >= 0)
 				packet.size = 0;
 			rc = avcodec_receive_frame(codecContextAudio, frameAudio);
+			int bytesToRead = (frameAudio->nb_samples * formatAudio->streams[streamAudio]->codecpar->ch_layout.nb_channels * (formatAudio->streams[streamAudio]->codecpar->bits_per_coded_sample/8));
 			if (rc >= 0)
-				for (int s = 0; s < frameAudio->linesize[0]; s+=sizeof(ui8))
+				for (int s = 0; s < bytesToRead; s+=sizeof(ui8))
 				{
 					ui8 value;
 					memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
