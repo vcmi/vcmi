@@ -541,15 +541,22 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 
 	while (av_read_frame(formatAudio, &packet) >= 0)
 	{
-		avcodec_send_packet(codecContextAudio, &packet);
-		avcodec_receive_frame(codecContextAudio, frameAudio);
-
-		for (int s = 0; s < frameAudio->linesize[0]; s+=sizeof(ui8))
+		if(packet.stream_index == streamAudio)
 		{
-			ui8 value;
-			memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
-			samples.push_back(value);
+			int rc = avcodec_send_packet(codecContextAudio, &packet);
+			if (rc >= 0)
+				packet.size = 0;
+			rc = avcodec_receive_frame(codecContextAudio, frameAudio);
+			if (rc >= 0)
+				for (int s = 0; s < frameAudio->linesize[0]; s+=sizeof(ui8))
+				{
+					ui8 value;
+					memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
+					samples.push_back(value);
+				}
 		}
+
+		av_packet_unref(&packet);
 	}
 
 	typedef struct WAV_HEADER {
