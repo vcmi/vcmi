@@ -681,8 +681,11 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 		}
 	}
 	
-	c->enterLobbyConnectionMode();
-	c->disableStackSendingByID();
+	if(c)
+	{
+		c->enterLobbyConnectionMode();
+		c->disableStackSendingByID();
+	}
 	
 	//reset settings
 	Settings saveSession = settings.write["server"]["reconnect"];

@@ -157,7 +157,7 @@ void CMapHeader::registerMapStrings()
 		mapLanguages.insert(translation.first);
 	}
 	
-	if(maxStrings == 0 || mapBaseLanguages.empty())
+	if(maxStrings == 0 || mapLanguages.empty())
 	{
 		logGlobal->info("Map %s doesn't have any supported translation", name.toString());
 		return;

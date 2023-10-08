@@ -17,7 +17,7 @@
 
 void Translations::cleanupRemovedItems(CMap & map)
 {
-	std::set<std::string> existingObjects;
+	std::set<std::string> existingObjects{"map", "header"};
 	for(auto object : map.objects)
 		existingObjects.insert(object->instanceName);
 	
@@ -28,7 +28,7 @@ void Translations::cleanupRemovedItems(CMap & map)
 		{
 			for(auto part : QString::fromStdString(s.first).split('.'))
 			{
-				if(part == "map" || existingObjects.count(part.toStdString()))
+				if(existingObjects.count(part.toStdString()))
 				{
 					updateTranslations.Struct()[s.first] = s.second;
 					break;
