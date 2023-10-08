@@ -713,12 +713,22 @@ if(WIN32)
 	endif()
 	if(ENABLE_LAUNCHER)
 		set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
-		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
+		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+			CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"
+			ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
+		")
 	else()
 		set(CPACK_PACKAGE_EXECUTABLES "VCMI_client;VCMI")
-		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_client.exe\\\"")
+		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+			CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_client.exe\\\"
+			ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
+		")
+
 	endif()
-	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
+	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+		Delete \\\"$DESKTOP\\\\VCMI.lnk\\\"
+		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_server' SW_HIDE
+	")
 
 	# Strip MinGW CPack target if build configuration without debug info
 	if(MINGW)
