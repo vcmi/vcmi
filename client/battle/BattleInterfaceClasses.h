@@ -163,6 +163,24 @@ private:
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 	std::shared_ptr<CTextBox> description;
 	CPlayerInterface & owner;
+
+	enum BattleResultVideo
+	{
+		NONE,
+		WIN,
+		SURRENDER,
+		RETREAT,
+		RETREAT_LOOP,
+		DEFEAT,
+		DEFEAT_LOOP,
+		DEFEAT_SIEGE,
+		DEFEAT_SIEGE_LOOP,
+		WIN_SIEGE,
+		WIN_SIEGE_LOOP,
+	};
+	BattleResultVideo currentVideo;
+
+	void playVideo(bool startLoop = false);
 	
 	void buttonPressed(int button); //internal function for button callbacks
 public:

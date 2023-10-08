@@ -459,7 +459,7 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 }
 
 BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay)
-	: owner(_owner)
+	: owner(_owner), currentVideo(BattleResultVideo::NONE)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -566,16 +566,12 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 	{
 		int text = 304;
-		AudioPath musicName = AudioPath::builtin("Music/Win Battle");
-		VideoPath videoName = VideoPath::builtin("WIN3.BIK");
+		currentVideo = BattleResultVideo::WIN;
 		switch(br.result)
 		{
 		case EBattleResult::NORMAL:
 			if(owner.cb->getBattle(br.battleID)->battleGetDefendedTown() && !weAreAttacker)
-			{
-				musicName = AudioPath::builtin("Music/Defend Castle");
-				videoName = VideoPath::builtin("DEFENDALL.BIK");	
-			}
+				currentVideo = BattleResultVideo::WIN_SIEGE;
 			break;
 		case EBattleResult::ESCAPE:
 			text = 303;
@@ -587,9 +583,8 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			logGlobal->error("Invalid battle result code %d. Assumed normal.", static_cast<int>(br.result));
 			break;
 		}
+		playVideo();
 
-		CCS->musich->playMusic(musicName, false, true);
-		CCS->videoh->open(videoName);
 		std::string str = CGI->generaltexth->allTexts[text];
 
 		const CGHeroInstance * ourHero = owner.cb->getBattle(br.battleID)->battleGetMyHero();
@@ -605,33 +600,26 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	else // we lose
 	{
 		int text = 311;
-		AudioPath musicName = AudioPath::builtin("Music/LoseCombat");
-		VideoPath videoName = VideoPath::builtin("LBSTART.BIK");
+		currentVideo = BattleResultVideo::DEFEAT;
 		switch(br.result)
 		{
 		case EBattleResult::NORMAL:
 			if(owner.cb->getBattle(br.battleID)->battleGetDefendedTown() && !weAreAttacker)
-			{
-				musicName = AudioPath::builtin("Music/LoseCastle");
-				videoName = VideoPath::builtin("LOSECSTL.BIK");	
-			}
+				currentVideo = BattleResultVideo::DEFEAT_SIEGE;
 			break;
 		case EBattleResult::ESCAPE:
-			musicName = AudioPath::builtin("Music/Retreat Battle");
-			videoName = VideoPath::builtin("RTSTART.BIK");
+			currentVideo = BattleResultVideo::RETREAT;
 			text = 310;
 			break;
 		case EBattleResult::SURRENDER:
-			musicName = AudioPath::builtin("Music/Surrender Battle");
-			videoName = VideoPath::builtin("SURRENDER.BIK");
+			currentVideo = BattleResultVideo::SURRENDER;
 			text = 309;
 			break;
 		default:
 			logGlobal->error("Invalid battle result code %d. Assumed normal.", static_cast<int>(br.result));
 			break;
 		}
-		CCS->musich->playMusic(musicName, false, true);
-		CCS->videoh->open(videoName);
+		playVideo();
 
 		labels.push_back(std::make_shared<CLabel>(235, 235, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[text]));
 	}
@@ -649,27 +637,73 @@ void BattleResultWindow::show(Canvas & to)
 	CCS->videoh->update(pos.x + 107, pos.y + 70, to.getInternalSurface(), true, false,
 	[&]()
 	{
-		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/LBSTART"))
-		{
-			CCS->videoh->close();
-			CCS->videoh->open(VideoPath::builtin("VIDEO/LBLOOP"));
-		}
-		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/RTSTART"))
-		{
-			CCS->videoh->close();
-			CCS->videoh->open(VideoPath::builtin("VIDEO/RTLOOP"));
-		}
-		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/LOSECSTL"))
-		{
-			CCS->videoh->close();
-			CCS->videoh->open(VideoPath::builtin("VIDEO/LOSECSLP"));
-		}
-		if(CCS->videoh->videoName() == VideoPath::builtin("VIDEO/DEFENDALL"))
-		{
-			CCS->videoh->close();
-			CCS->videoh->open(VideoPath::builtin("VIDEO/DEFENDLOOP"));
-		}
+		playVideo(true);
 	});
+}
+
+void BattleResultWindow::playVideo(bool startLoop)
+{
+	AudioPath musicName = AudioPath();
+	VideoPath videoName = VideoPath();
+
+	if(!startLoop)
+	{
+		switch(currentVideo)
+		{
+			case BattleResultVideo::WIN:
+				musicName = AudioPath::builtin("Music/Win Battle");
+				videoName = VideoPath::builtin("WIN3.BIK");
+				break;
+			case BattleResultVideo::SURRENDER:
+				musicName = AudioPath::builtin("Music/Surrender Battle");
+				videoName = VideoPath::builtin("SURRENDER.BIK");
+				break;
+			case BattleResultVideo::RETREAT:
+				musicName = AudioPath::builtin("Music/Retreat Battle");
+				videoName = VideoPath::builtin("RTSTART.BIK");
+				break;
+			case BattleResultVideo::DEFEAT:
+				musicName = AudioPath::builtin("Music/LoseCombat");
+				videoName = VideoPath::builtin("LBSTART.BIK");
+				break;
+			case BattleResultVideo::DEFEAT_SIEGE:
+				musicName = AudioPath::builtin("Music/LoseCastle");
+				videoName = VideoPath::builtin("LOSECSTL.BIK");	
+				break;
+			case BattleResultVideo::WIN_SIEGE:
+				musicName = AudioPath::builtin("Music/Defend Castle");
+				videoName = VideoPath::builtin("DEFENDALL.BIK");	
+				break;
+		}
+	}
+	else
+	{
+		switch(currentVideo)
+		{
+			case BattleResultVideo::RETREAT:
+				currentVideo = BattleResultVideo::RETREAT_LOOP;
+				videoName = VideoPath::builtin("RTLOOP.BIK");
+				break;
+			case BattleResultVideo::DEFEAT:
+				currentVideo = BattleResultVideo::DEFEAT_LOOP;
+				videoName = VideoPath::builtin("LBLOOP.BIK");
+				break;
+			case BattleResultVideo::DEFEAT_SIEGE:
+				currentVideo = BattleResultVideo::DEFEAT_SIEGE_LOOP;
+				videoName = VideoPath::builtin("LOSECSLP.BIK");	
+				break;
+			case BattleResultVideo::WIN_SIEGE:
+				currentVideo = BattleResultVideo::WIN_SIEGE_LOOP;
+				videoName = VideoPath::builtin("DEFENDLOOP.BIK");	
+				break;
+		}	
+	}
+
+	if(musicName != AudioPath())
+		CCS->musich->playMusic(musicName, false, true);
+	
+	if(videoName != VideoPath())
+		CCS->videoh->open(videoName);
 }
 
 void BattleResultWindow::buttonPressed(int button)
