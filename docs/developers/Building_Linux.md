@@ -71,12 +71,12 @@ cmake ../vcmi
 # Additional options that you may want to use:
 
 ## To enable debugging:
-`cmake ../vcmi -DCMAKE_BUILD_TYPE=Debug`
+`cmake ../vcmi -D CMAKE_BUILD_TYPE=Debug`
 
 **Notice**: The ../vcmi/ is not a typo, it will place makefile scripts into the build dir as the build dir is your working dir when calling CMake.
 
 ## To use ccache:
-`cmake ../vcmi -DCMAKE_COMPILER_LAUNCHER=ccache`
+`cmake ../vcmi -D CMAKE_COMPILER_LAUNCHER=ccache`
 
 ## Trigger build
 

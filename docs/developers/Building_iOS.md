@@ -5,6 +5,8 @@
 1. **macOS**
 2. Xcode: <https://developer.apple.com/xcode/>
 3. CMake 3.21+: `brew install --cask cmake` or get from <https://cmake.org/download/>
+4. Optional:
+  - CCache to speed up recompilation: `brew install ccache`
 
 ## Obtaining source code
 
@@ -39,7 +41,9 @@ cmake --preset ios-device-conan \
   -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME
 ```
 
-By default build directory containing Xcode project will appear at `../build-ios-device-conan`, but you can change it with `-B` option. 
+By default build directory containing Xcode project will appear at `../build-ios-device-conan`, but you can change it with `-B` option.
+
+If you want to speed up the recompilation, add `-D ENABLE_CCACHE=ON`
 
 ### Building for device
 
