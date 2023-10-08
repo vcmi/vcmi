@@ -44,6 +44,7 @@
 
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
+	"vcmi.mainMenu.serverConnectionFailed" : "Failed to connect",
 	"vcmi.mainMenu.serverClosing" : "Closing...",
 	"vcmi.mainMenu.hostTCP" : "Host TCP/IP game",
 	"vcmi.mainMenu.joinTCP" : "Join TCP/IP game",

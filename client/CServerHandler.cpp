@@ -251,25 +251,23 @@ void CServerHandler::startLocalServerAndConnect()
 void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
 {
 	state = EClientState::CONNECTING;
-	
-	logNetwork->info("justConnectToServer(%s, %d)", addr, port);
 
 	std::string hostAddressFromSettings = getHostAddressFromSettings();
 	ui16 hostPortFromSettings = getHostPortFromSettings();
 
-	logNetwork->info("Host settings %s:%d", hostAddressFromSettings, hostPortFromSettings);
-	
 	std::string connectionAddress = addr.size() ? addr : hostAddressFromSettings;
 	ui16 connectionPort = port ? port : hostPortFromSettings;
 
+	logNetwork->info("Connecting to %s:%d", connectionAddress, connectionPort);
+
 	boost::chrono::duration<long, boost::ratio<1, 1000>> sleepDuration{};
 	int maxConnectionAttempts;
-	
+
 	if(connectionAddress == "127.0.0.1" || connectionAddress == "localhost")
 	{
 		logNetwork->info("Local server");
 		sleepDuration = boost::chrono::milliseconds(10);
-		maxConnectionAttempts = 1000;
+		maxConnectionAttempts = 100;
 	}
 	else
 	{
@@ -279,14 +277,15 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 	}
 
 	logNetwork->info("Waiting for %d ms between each of the %d attempts to connect", sleepDuration.count(), maxConnectionAttempts);
-	
+
 	ui16 connectionAttemptCount = 0;
 	while(!c && state != EClientState::CONNECTION_CANCELLED)
 	{
 		connectionAttemptCount++;
 		if(connectionAttemptCount > maxConnectionAttempts)
 		{
-			logNetwork->error("\nExceeded maximum of %d connection attempts", maxConnectionAttempts);
+			state = EClientState::CONNECTION_FAILED;
+			logNetwork->error("Exceeded maximum of %d connection attempts", maxConnectionAttempts);
 			return;
 		}
 
