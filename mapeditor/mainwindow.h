@@ -82,6 +82,7 @@ private slots:
 
 	void terrainButtonClicked(TerrainId terrain);
 	void roadOrRiverButtonClicked(ui8 type, bool isRoad);
+	void currentCoordinatesChanged(int x, int y);
 
 	void on_toolErase_clicked();
 

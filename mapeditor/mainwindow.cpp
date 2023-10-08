@@ -213,6 +213,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->mapView->setController(&controller);
 	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
+	connect(ui->mapView, &MapView::currentCoordinates, this, &MainWindow::currentCoordinatesChanged);
 	
 	ui->minimapView->setScene(controller.miniScene(0));
 	ui->minimapView->setController(&controller);
@@ -296,12 +297,11 @@ void MainWindow::initializeMap(bool isNew)
 	ui->minimapView->setScene(controller.miniScene(mapLevel));
 	ui->minimapView->dimensions();
 	
-	setStatusMessage(QString("Scene objects: %1").arg(ui->mapView->scene()->items().size()));
-
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	ui->actionTranslations->setEnabled(true);
+	ui->actionLevel->setEnabled(controller.map()->twoLevel);
 	
 	//set minimal players count
 	if(isNew)
@@ -457,6 +457,11 @@ void MainWindow::on_actionSave_triggered()
 		on_actionSave_as_triggered();
 	else
 		saveMap();
+}
+
+void MainWindow::currentCoordinatesChanged(int x, int y)
+{
+	setStatusMessage(QString("x: %1   y: %2").arg(x).arg(y));
 }
 
 void MainWindow::terrainButtonClicked(TerrainId terrain)
@@ -1103,9 +1108,6 @@ void MainWindow::onSelectionMade(int level, bool anythingSelected)
 {
 	if (level == mapLevel)
 	{
-		auto info = QString::asprintf("Selection on layer %d: %s", level, anythingSelected ? "true" : "false");
-		setStatusMessage(info);
-
 		ui->actionErase->setEnabled(anythingSelected);
 		ui->toolErase->setEnabled(anythingSelected);
 	}

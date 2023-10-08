@@ -111,6 +111,7 @@ public slots:
 	
 signals:
 	void openObjectProperties(CGObjectInstance *, bool switchTab);
+	void currentCoordinates(int, int);
 	//void viewportChanged(const QRectF & rect);
 
 protected:
