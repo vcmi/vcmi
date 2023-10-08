@@ -34,6 +34,7 @@ set(editor_SRCS
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
 		inspector/heroskillswidget.cpp
+		inspector/PickObjectDelegate.cpp
 		resourceExtractor/ResourceConverter.cpp
 )
 
@@ -72,6 +73,7 @@ set(editor_HEADERS
 		inspector/rewardswidget.h
 		inspector/questwidget.h
 		inspector/heroskillswidget.h
+		inspector/PickObjectDelegate.h
 		resourceExtractor/ResourceConverter.h
 )
 

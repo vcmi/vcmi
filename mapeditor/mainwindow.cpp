@@ -998,7 +998,7 @@ void MainWindow::loadInspector(CGObjectInstance * obj, bool switchTab)
 {
 	if(switchTab)
 		ui->tabWidget->setCurrentIndex(1);
-	Inspector inspector(controller.map(), obj, ui->inspectorWidget);
+	Inspector inspector(controller, obj, ui->inspectorWidget);
 	inspector.updateProperties();
 }
 
@@ -1022,7 +1022,7 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 	auto param = tableWidget->item(r, c - 1)->text();
 
 	//set parameter
-	Inspector inspector(controller.map(), obj, tableWidget);
+	Inspector inspector(controller, obj, tableWidget);
 	inspector.setProperty(param, item);
 	controller.commitObjectChange(mapLevel);
 }
