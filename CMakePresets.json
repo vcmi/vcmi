@@ -84,7 +84,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "ENABLE_LUA" : "ON",
-                "ENABLE_PCH" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -224,6 +223,15 @@
             }
         },
         {
+            "name": "ios-release-conan-ccache",
+            "displayName": "iOS+Conan release using ccache",
+            "description": "VCMI iOS release using Conan and ccache",
+            "inherits": "ios-release-conan",
+            "cacheVariables": {
+                "ENABLE_PCH" : "OFF"
+            }
+        },
+        {
             "name": "ios-release-legacy",
             "displayName": "iOS release using legacy dependencies",
             "description": "VCMI iOS release using legacy dependencies",
@@ -330,6 +338,11 @@
             "nativeToolOptions": [
                 "CODE_SIGNING_ALLOWED_FOR_APPS=NO"
             ]
+        },
+        {
+            "name": "ios-release-conan-ccache",
+            "configurePreset": "ios-release-conan-ccache",
+            "inherits": "ios-release-conan"
         },
         {
             "name": "ios-release-legacy",
