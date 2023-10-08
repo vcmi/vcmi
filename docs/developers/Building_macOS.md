@@ -7,7 +7,9 @@
     - Xcode IDE: <https://developer.apple.com/xcode/>
     - (not tested) other C++ compilers, e.g. gcc/clang from [Homebrew](https://brew.sh/)
 2. CMake: `brew install --cask cmake` or get from <https://cmake.org/download/>
-3. (optional) Ninja: `brew install ninja` or get from <https://github.com/ninja-build/ninja/releases>
+3. CCache to speed up recompilation: `brew install ccache`
+4. Optional:
+    * Ninja: `brew install ninja` or get it from <https://github.com/ninja-build/ninja/releases>
 
 # Obtaining source code
 

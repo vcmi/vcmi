@@ -10,7 +10,10 @@ Windows builds can be made in more than one way and with more than one tool. Thi
 - Git or git GUI, for example, SourceTree [download link](http://www.sourcetreeapp.com/download)
 - CMake [download link](https://cmake.org/download/). During install after accepting license agreement make sure to check "Add CMake to the system PATH for all users".
 - To unpack pre-build Vcpkg: [7-zip](http://www.7-zip.org/download.html)
-- Optionally, to create installer: [NSIS](http://nsis.sourceforge.net/Main_Page)
+- To speed up recompilation: [CCache](https://github.com/ccache/ccache/releases)
+- Optional:
+    - To create installer: [NSIS](http://nsis.sourceforge.net/Main_Page)
+
 
 ## Choose an installation directory
 
@@ -74,6 +77,10 @@ From command line use:
 `%VCMI_DIR%/vcpkg/vcpkg.exe install install tbb:x86-windows fuzzylite:x86-windows sdl2:x86-windows sdl2-image:x86-windows sdl2-ttf:x86-windows sdl2-mixer[mpg123]:x86-windows boost:x86-windows qt5-base:x86-windows ffmpeg:x86-windows luajit:x86-windows`
 
 For the list of the packages used you can also consult [vcmi-deps-windows readme](https://github.com/vcmi/vcmi-deps-windows) in case this article gets outdated a bit.
+
+### CCache
+
+Extract `ccache` to a folder of your choosing, add the folder to the `PATH` environment variable and log out and back in.
 
 # Build VCMI
 
