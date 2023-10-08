@@ -711,20 +711,17 @@ if(WIN32)
 	else()
 		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 	endif()
-	if(ENABLE_LAUNCHER)
-		set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
-		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-			CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"
-			ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
-		")
-	else()
-		set(CPACK_PACKAGE_EXECUTABLES "VCMI_client;VCMI")
-		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-			CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_client.exe\\\"
-			ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
-		")
 
+	if(ENABLE_LAUNCHER)
+		set(VCMI_MAIN_EXECUTABLE "VCMI_launcher")
+	else()
+		set(VCMI_MAIN_EXECUTABLE "VCMI_client")
 	endif()
+	set(CPACK_PACKAGE_EXECUTABLES "${VCMI_MAIN_EXECUTABLE};VCMI")
+	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+		CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\${VCMI_MAIN_EXECUTABLE}.exe\\\"
+		ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
+	")
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
 		Delete \\\"$DESKTOP\\\\VCMI.lnk\\\"
 		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_server' SW_HIDE
