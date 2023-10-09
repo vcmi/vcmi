@@ -200,7 +200,7 @@ size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
 	return conv.from_bytes(text).size(); 
 }
 
-std::string TextOperations::shortenUnicodeString(const std::string & input, int maxLength)
+std::string TextOperations::truncateUnicodeString(const std::string & input, int maxLength)
 {
 	int txtlen = getUnicodeCharactersCount(input);
 	std::string trimmedString = input;
