@@ -17,10 +17,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
 
-class DLL_LINKAGE CQuest final
+class DLL_LINKAGE CQuest: public Rewardable::Limiter
 {
-	mutable std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
-
 public:
 	enum Emission {
 		MISSION_NONE = 0,
@@ -54,12 +52,7 @@ public:
 	Emission missionType;
 	Eprogress progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
-
-	ui32 m13489val;
-	std::vector<ui32> m2stats;
-	std::vector<ArtifactID> m5arts; // artifact IDs. Add IDs through addArtifactID(), not directly to the field.
-	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
-	TResources m7resources;
+	int killTarget;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
@@ -85,7 +78,6 @@ public:
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
 	virtual void addReplacements(MetaString &out, const std::string &base) const;
-	void addArtifactID(const ArtifactID & id);
 
 	bool operator== (const CQuest & quest) const
 	{
@@ -98,11 +90,6 @@ public:
 		h & missionType;
 		h & progress;
 		h & lastDay;
-		h & m13489val;
-		h & m2stats;
-		h & m5arts;
-		h & m6creatures;
-		h & m7resources;
 		h & textOption;
 		h & stackToKill;
 		h & stackDirection;
@@ -115,6 +102,7 @@ public:
 		h & isCustomNext;
 		h & isCustomComplete;
 		h & completedOption;
+		h & static_cast<Rewardable::Limiter&>(*this);
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);

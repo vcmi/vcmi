@@ -54,9 +54,6 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 			return missionLevel();
 
 		case CQuest::MISSION_PLAYER:
-			if(ai->playerID.getNum() != q.quest->m13489val)
-				logAi->debug("Can't be player of color %d", q.quest->m13489val);
-
 			break;
 		
 		case CQuest::MISSION_KEYMASTER:
@@ -137,7 +134,7 @@ TGoalVec CompleteQuest::missionArt() const
 	if(!solutions.empty())
 		return solutions;
 
-	for(auto art : q.quest->m5arts)
+	for(auto art : q.quest->artifacts)
 	{
 		solutions.push_back(sptr(GetArtOfType(art))); //TODO: transport?
 	}
@@ -165,7 +162,7 @@ TGoalVec CompleteQuest::missionArmy() const
 	if(!solutions.empty())
 		return solutions;
 
-	for(auto creature : q.quest->m6creatures)
+	for(auto creature : q.quest->creatures)
 	{
 		solutions.push_back(sptr(GatherTroops(creature.type->getId(), creature.count)));
 	}
@@ -179,7 +176,7 @@ TGoalVec CompleteQuest::missionIncreasePrimaryStat() const
 
 	if(solutions.empty())
 	{
-		for(int i = 0; i < q.quest->m2stats.size(); ++i)
+		for(int i = 0; i < q.quest->primary.size(); ++i)
 		{
 			// TODO: library, school and other boost objects
 			logAi->debug("Don't know how to increase primary stat %d", i);
@@ -195,7 +192,7 @@ TGoalVec CompleteQuest::missionLevel() const
 
 	if(solutions.empty())
 	{
-		logAi->debug("Don't know how to reach hero level %d", q.quest->m13489val);
+		logAi->debug("Don't know how to reach hero level %d", q.quest->heroLevel);
 	}
 
 	return solutions;
@@ -227,10 +224,10 @@ TGoalVec CompleteQuest::missionResources() const
 		}
 		else
 		{
-			for(int i = 0; i < q.quest->m7resources.size(); ++i)
+			for(int i = 0; i < q.quest->resources.size(); ++i)
 			{
-				if(q.quest->m7resources[i])
-					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->m7resources[i])));
+				if(q.quest->resources[i])
+					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->resources[i])));
 			}
 		}
 	}
@@ -246,7 +243,7 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 {
 	TGoalVec solutions;
 
-	auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
+	auto obj = cb->getObjByQuestIdentifier(q.quest->killTarget);
 
 	if(!obj)
 		return ai->ah->howToVisitObj(q.obj);

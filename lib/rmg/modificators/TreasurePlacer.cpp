@@ -464,7 +464,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->quest->missionType = CQuest::MISSION_ART;
 				
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->addArtifactID(artid);
+				obj->quest->artifacts.push_back(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
@@ -515,7 +515,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->addArtifactID(artid);
+				obj->quest->artifacts.push_back(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
@@ -540,7 +540,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->addArtifactID(artid);
+				obj->quest->artifacts.push_back(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				

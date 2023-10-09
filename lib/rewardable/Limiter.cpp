@@ -146,6 +146,54 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	return false;
 }
 
+void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
+								 const CGHeroInstance * h) const
+{
+	if (heroExperience)
+	{
+		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
+	}
+	if (heroLevel)
+		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
+
+	if (manaPoints || manaPercentage > 0)
+		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, 0, 0);
+
+	for (size_t i=0; i<primary.size(); i++)
+	{
+		if (primary[i] != 0)
+			comps.emplace_back(Component::EComponentType::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
+	}
+
+	for(const auto & entry : secondary)
+		comps.emplace_back(Component::EComponentType::SEC_SKILL, entry.first, entry.second, 0);
+
+	for(const auto & entry : artifacts)
+		comps.emplace_back(Component::EComponentType::ARTIFACT, entry, 1, 0);
+
+	for(const auto & entry : spells)
+		comps.emplace_back(Component::EComponentType::SPELL, entry, 1, 0);
+
+	for(const auto & entry : creatures)
+		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->getId(), entry.count, 0);
+	
+	for(const auto & entry : players)
+		comps.emplace_back(Component::EComponentType::FLAG, entry, 0, 0);
+	
+	//FIXME: portrait may not match hero, if custom portrait was set in map editor
+	for(const auto & entry : heroes)
+		comps.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroTypes()->getById(entry)->getIconIndex(), 0, 0);
+	
+	for(const auto & entry : heroClasses)
+		comps.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroClasses()->getById(entry)->getIconIndex(), 0, 0);
+
+	for (size_t i=0; i<resources.size(); i++)
+	{
+		if (resources[i] !=0)
+			comps.emplace_back(Component::EComponentType::RESOURCE, static_cast<ui16>(i), resources[i], 0);
+	}
+}
+
 void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("dayOfWeek", dayOfWeek);

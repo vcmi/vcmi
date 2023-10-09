@@ -63,9 +63,6 @@ TGoalVec CompleteQuest::decompose() const
 		return missionLevel();
 
 	case CQuest::MISSION_PLAYER:
-		if(ai->playerID.getNum() != q.quest->m13489val)
-			logAi->debug("Can't be player of color %d", q.quest->m13489val);
-
 		break;
 
 	case CQuest::MISSION_KEYMASTER:
@@ -137,7 +134,7 @@ TGoalVec CompleteQuest::missionArt() const
 
 	CaptureObjectsBehavior findArts;
 
-	for(auto art : q.quest->m5arts)
+	for(auto art : q.quest->artifacts)
 	{
 		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art)));
 	}
@@ -223,7 +220,7 @@ TGoalVec CompleteQuest::missionResources() const
 
 TGoalVec CompleteQuest::missionDestroyObj() const
 {
-	auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
+	auto obj = cb->getObjByQuestIdentifier(q.quest->killTarget);
 
 	if(!obj)
 		return CaptureObjectsBehavior(q.obj).decompose();

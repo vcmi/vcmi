@@ -40,7 +40,7 @@ CQuest::CQuest():
 	missionType(MISSION_NONE),
 	progress(NOT_ACTIVE),
 	lastDay(-1),
-	m13489val(0),
+	killTarget(-1),
 	textOption(0),
 	completedOption(0),
 	stackDirection(0),
@@ -99,7 +99,7 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 	ui32 count = 0;
 	ui32 slotsCount = 0;
 	bool hasExtraCreatures = false;
-	for(cre = q->m6creatures.begin(); cre != q->m6creatures.end(); ++cre)
+	for(cre = q->creatures.begin(); cre != q->creatures.end(); ++cre)
 	{
 		for(count = 0, it = army->Slots().begin(); it != army->Slots().end(); ++it)
 		{
@@ -121,110 +121,53 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 
 bool CQuest::checkQuest(const CGHeroInstance * h) const
 {
-	switch (missionType)
+	if(!heroAllowed(h))
+		return false;
+	
+	if(killTarget >= 0)
 	{
-		case MISSION_NONE:
-			return true;
-		case MISSION_LEVEL:
-			return m13489val <= h->level;
-		case MISSION_PRIMARY_STAT:
-			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-			{
-				if(h->getPrimSkillLevel(static_cast<PrimarySkill>(i)) < static_cast<int>(m2stats[i]))
-					return false;
-			}
-			return true;
-		case MISSION_KILL_HERO:
-		case MISSION_KILL_CREATURE:
-			if(!CGHeroInstance::cb->getObjByQuestIdentifier(m13489val))
-				return true;
-			return false;
-		case MISSION_ART:
-		{
-			// if the object was deserialized
-			if(artifactsRequirements.empty())
-				for(const auto & id : m5arts)
-					++artifactsRequirements[id];
-
-			size_t reqSlots = 0;
-			for(const auto & elem : artifactsRequirements)
-			{
-				// check required amount of artifacts
-				if(h->getArtPosCount(elem.first, false, true, true) < elem.second)
-					return false;
-				if(!h->hasArt(elem.first))
-					reqSlots += h->getAssemblyByConstituent(elem.first)->getPartsInfo().size() - 2;
-			}
-			if(ArtifactUtils::isBackpackFreeSlots(h, reqSlots))
-				return true;
-			else
-				return false;
-		}
-		case MISSION_ARMY:
-			return checkMissionArmy(this, h);
-		case MISSION_RESOURCES:
-			for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i) //including Mithril ?
-			{	//Quest has no direct access to callback
-				if(CGHeroInstance::cb->getResource(h->tempOwner, i) < static_cast<int>(m7resources[i]))
-					return false;
-			}
-			return true;
-		case MISSION_HERO:
-			return m13489val == h->type->getIndex();
-		case MISSION_PLAYER:
-			return m13489val == h->getOwner().getNum();
-		default:
+		if(!CGHeroInstance::cb->getObjByQuestIdentifier(killTarget))
 			return false;
 	}
+	
+	return true;
 }
 
 void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 {
-	switch (missionType)
+	for(auto & elem : artifacts)
 	{
-		case CQuest::MISSION_ART:
-			for(auto & elem : m5arts)
-			{
-				if(h->hasArt(elem))
-				{
-					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
-				}
-				else
-				{
-					const auto * assembly = h->getAssemblyByConstituent(elem);
-					assert(assembly);
-					auto parts = assembly->getPartsInfo();
+		if(h->hasArt(elem))
+		{
+			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
+		}
+		else
+		{
+			const auto * assembly = h->getAssemblyByConstituent(elem);
+			assert(assembly);
+			auto parts = assembly->getPartsInfo();
 
-					// Remove the assembly
-					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+			// Remove the assembly
+			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
 
-					// Disassemble this backpack artifact
-					for(const auto & ci : parts)
-					{
-						if(ci.art->getTypeId() != elem)
-							cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
-					}
-				}
-			}
-			break;
-		case CQuest::MISSION_ARMY:
-				cb->takeCreatures(h->id, m6creatures);
-			break;
-		case CQuest::MISSION_RESOURCES:
-			for (int i = 0; i < 7; ++i)
+			// Disassemble this backpack artifact
+			for(const auto & ci : parts)
 			{
-				cb->giveResource(h->getOwner(), static_cast<EGameResID>(i), -static_cast<int>(m7resources[i]));
+				if(ci.art->getTypeId() != elem)
+					cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
 			}
-			break;
-		default:
-			break;
+		}
 	}
+			
+	cb->takeCreatures(h->id, creatures);
+	cb->giveResources(h->getOwner(), resources);
 }
 
 void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool isCustom, bool firstVisit, const CGHeroInstance * h) const
 {
 	MetaString text;
 	bool failRequirements = (h ? !checkQuest(h) : true);
+	loadComponents(components, h);
 
 	if(firstVisit)
 	{
@@ -241,20 +184,18 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			components.emplace_back(Component::EComponentType::EXPERIENCE, 0, m13489val, 0);
 			if(!isCustom)
-				iwText.replaceNumber(m13489val);
+				iwText.replaceNumber(heroLevel); //TODO: heroLevel
 			break;
 		case MISSION_PRIMARY_STAT:
 		{
 			MetaString loot;
 			for(int i = 0; i < 4; ++i)
 			{
-				if(m2stats[i])
+				if(primary[i])
 				{
-					components.emplace_back(Component::EComponentType::PRIM_SKILL, i, m2stats[i], 0);
 					loot.appendRawString("%d %s");
-					loot.replaceNumber(m2stats[i]);
+					loot.replaceNumber(primary[i]);
 					loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
 				}
 			}
@@ -268,10 +209,8 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 				addReplacements(iwText, text.toString());
 			break;
 		case MISSION_HERO:
-			//FIXME: portrait may not match hero, if custom portrait was set in map editor
-			components.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0);
-			if(!isCustom)
-				iwText.replaceRawString(VLC->heroh->objects[m13489val]->getNameTranslated());
+			if(!isCustom && !heroes.empty())
+				iwText.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
 			break;
 		case MISSION_KILL_CREATURE:
 			{
@@ -285,9 +224,8 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		case MISSION_ART:
 		{
 			MetaString loot;
-			for(const auto & elem : m5arts)
+			for(const auto & elem : artifacts)
 			{
-				components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
 				loot.appendRawString("%s");
 				loot.replaceLocalString(EMetaText::ART_NAMES, elem);
 			}
@@ -298,9 +236,8 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		case MISSION_ARMY:
 		{
 			MetaString loot;
-			for(const auto & elem : m6creatures)
+			for(const auto & elem : creatures)
 			{
-				components.emplace_back(elem);
 				loot.appendRawString("%s");
 				loot.replaceCreatureName(elem);
 			}
@@ -313,11 +250,10 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			MetaString loot;
 			for(int i = 0; i < 7; ++i)
 			{
-				if(m7resources[i])
+				if(resources[i])
 				{
-					components.emplace_back(Component::EComponentType::RESOURCE, i, m7resources[i], 0);
 					loot.appendRawString("%d %s");
-					loot.replaceNumber(m7resources[i]);
+					loot.replaceNumber(resources[i]);
 					loot.replaceLocalString(EMetaText::RES_NAMES, i);
 				}
 			}
@@ -326,9 +262,8 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 		}
 			break;
 		case MISSION_PLAYER:
-			components.emplace_back(Component::EComponentType::FLAG, m13489val, 0, 0);
-			if(!isCustom)
-				iwText.replaceLocalString(EMetaText::COLOR, m13489val);
+			if(!isCustom && !players.empty())
+				iwText.replaceLocalString(EMetaText::COLOR, players.front());
 			break;
 	}
 }
@@ -349,17 +284,17 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	switch(missionType)
 	{
 		case MISSION_LEVEL:
-			ms.replaceNumber(m13489val);
+			ms.replaceNumber(heroLevel);
 			break;
 		case MISSION_PRIMARY_STAT:
 			{
 				MetaString loot;
 				for (int i = 0; i < 4; ++i)
 				{
-					if (m2stats[i])
+					if (primary[i])
 					{
 						loot.appendRawString("%d %s");
-						loot.replaceNumber(m2stats[i]);
+						loot.replaceNumber(primary[i]);
 						loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
 					}
 				}
@@ -375,7 +310,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 		case MISSION_ART:
 			{
 				MetaString loot;
-				for(const auto & elem : m5arts)
+				for(const auto & elem : artifacts)
 				{
 					loot.appendRawString("%s");
 					loot.replaceLocalString(EMetaText::ART_NAMES, elem);
@@ -386,7 +321,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 		case MISSION_ARMY:
 			{
 				MetaString loot;
-				for(const auto & elem : m6creatures)
+				for(const auto & elem : creatures)
 				{
 					loot.appendRawString("%s");
 					loot.replaceCreatureName(elem);
@@ -399,10 +334,10 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 				MetaString loot;
 				for (int i = 0; i < 7; ++i)
 				{
-					if (m7resources[i])
+					if (resources[i])
 					{
 						loot.appendRawString("%d %s");
-						loot.replaceNumber(m7resources[i]);
+						loot.replaceNumber(resources[i]);
 						loot.replaceLocalString(EMetaText::RES_NAMES, i);
 					}
 				}
@@ -410,10 +345,10 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 			}
 			break;
 		case MISSION_HERO:
-			ms.replaceRawString(VLC->heroh->objects[m13489val]->getNameTranslated());
+			ms.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
 			break;
 		case MISSION_PLAYER:
-			ms.replaceRawString(VLC->generaltexth->colors[m13489val]);
+			ms.replaceRawString(VLC->generaltexth->colors[players.front()]);
 			break;
 		default:
 			break;
@@ -427,18 +362,18 @@ void CQuest::getCompletionText(MetaString &iwText) const
 	{
 		case CQuest::MISSION_LEVEL:
 			if (!isCustomComplete)
-				iwText.replaceNumber(m13489val);
+				iwText.replaceNumber(heroLevel);
 			break;
 		case CQuest::MISSION_PRIMARY_STAT:
 		{
 			MetaString loot;
-			assert(m2stats.size() <= 4);
-			for (int i = 0; i < m2stats.size(); ++i)
+			assert(primary.size() <= 4);
+			for (int i = 0; i < primary.size(); ++i)
 			{
-				if (m2stats[i])
+				if (primary[i])
 				{
 					loot.appendRawString("%d %s");
-					loot.replaceNumber(m2stats[i]);
+					loot.replaceNumber(primary[i]);
 					loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
 				}
 			}
@@ -449,7 +384,7 @@ void CQuest::getCompletionText(MetaString &iwText) const
 		case CQuest::MISSION_ART:
 		{
 			MetaString loot;
-			for(const auto & elem : m5arts)
+			for(const auto & elem : artifacts)
 			{
 				loot.appendRawString("%s");
 				loot.replaceLocalString(EMetaText::ART_NAMES, elem);
@@ -461,7 +396,7 @@ void CQuest::getCompletionText(MetaString &iwText) const
 		case CQuest::MISSION_ARMY:
 		{
 			MetaString loot;
-			for(const auto & elem : m6creatures)
+			for(const auto & elem : creatures)
 			{
 				loot.appendRawString("%s");
 				loot.replaceCreatureName(elem);
@@ -475,10 +410,10 @@ void CQuest::getCompletionText(MetaString &iwText) const
 			MetaString loot;
 			for (int i = 0; i < 7; ++i)
 			{
-				if (m7resources[i])
+				if (resources[i])
 				{
 					loot.appendRawString("%d %s");
-					loot.replaceNumber(m7resources[i]);
+					loot.replaceNumber(resources[i]);
 					loot.replaceLocalString(EMetaText::RES_NAMES, i);
 				}
 			}
@@ -492,20 +427,14 @@ void CQuest::getCompletionText(MetaString &iwText) const
 				addReplacements(iwText, completedText.toString());
 			break;
 		case MISSION_HERO:
-			if (!isCustomComplete)
-				iwText.replaceRawString(VLC->heroh->objects[m13489val]->getNameTranslated());
+			if (!isCustomComplete && !heroes.empty())
+				iwText.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
 			break;
 		case MISSION_PLAYER:
-			if (!isCustomComplete)
-				iwText.replaceRawString(VLC->generaltexth->colors[m13489val]);
+			if (!isCustomComplete && !players.empty())
+				iwText.replaceRawString(VLC->generaltexth->colors[players.front()]);
 			break;
 	}
-}
-
-void CQuest::addArtifactID(const ArtifactID & id)
-{
-	m5arts.push_back(id);
-	++artifactsRequirements[id];
 }
 
 void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
@@ -522,6 +451,8 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		isCustomNext = !nextVisitText.empty();
 		isCustomComplete = !completedText.empty();
 	}
+	
+	Rewardable::Limiter::serializeJson(handler);
 
 	static const std::vector<std::string> MISSION_TYPE_JSON =
 	{
@@ -530,57 +461,64 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 
 	handler.serializeEnum("missionType", missionType, Emission::MISSION_NONE, MISSION_TYPE_JSON);
 	handler.serializeInt("timeLimit", lastDay, -1);
+	handler.serializeInstance<int>("killTarget", killTarget, -1);
 
-	switch (missionType)
+	if(!handler.saving)
 	{
-	case MISSION_NONE:
-		break;
-	case MISSION_LEVEL:
-		handler.serializeInt("heroLevel", m13489val, -1);
-		break;
-	case MISSION_PRIMARY_STAT:
+		switch (missionType)
 		{
-			auto primarySkills = handler.enterStruct("primarySkills");
-			if(!handler.saving)
-				m2stats.resize(GameConstants::PRIMARY_SKILLS);
-
-			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-				handler.serializeInt(NPrimarySkill::names[i], m2stats[i], 0);
-		}
-		break;
-	case MISSION_KILL_HERO:
-	case MISSION_KILL_CREATURE:
-		handler.serializeInstance<ui32>("killTarget", m13489val, static_cast<ui32>(-1));
-		break;
-	case MISSION_ART:
-		//todo: ban artifacts
-		handler.serializeIdArray<ArtifactID>("artifacts", m5arts);
-		break;
-	case MISSION_ARMY:
-		{
-			auto a = handler.enterArray("creatures");
-			a.serializeStruct(m6creatures);
-		}
-		break;
-	case MISSION_RESOURCES:
-		{
-			auto r = handler.enterStruct("resources");
-
-			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
+			case MISSION_NONE:
+				break;
+			case MISSION_LEVEL:
+				handler.serializeInt("heroLevel", heroLevel, -1);
+				break;
+			case MISSION_PRIMARY_STAT:
+				{
+					auto primarySkills = handler.enterStruct("primarySkills");
+					for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+						handler.serializeInt(NPrimarySkill::names[i], primary[i], 0);
+				}
+				break;
+			case MISSION_KILL_HERO:
+			case MISSION_KILL_CREATURE:
+				break;
+			case MISSION_ART:
+				handler.serializeIdArray<ArtifactID>("artifacts", artifacts);
+				break;
+			case MISSION_ARMY:
 			{
-				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], m7resources[idx], 0);
+				auto a = handler.enterArray("creatures");
+				a.serializeStruct(creatures);
 			}
+				break;
+			case MISSION_RESOURCES:
+			{
+				auto r = handler.enterStruct("resources");
+
+				for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
+				{
+					handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], resources[idx], 0);
+				}
+			}
+				break;
+			case MISSION_HERO:
+			{
+				ui32 temp;
+				handler.serializeId<ui32, ui32, HeroTypeID>("hero", temp, 0);
+				heroes.emplace_back(temp);
+			}
+				break;
+			case MISSION_PLAYER:
+			{
+				ui32 temp;
+				handler.serializeId<ui32, ui32, PlayerColor>("player", temp, PlayerColor::NEUTRAL);
+				players.emplace_back(temp);
+			}
+				break;
+			default:
+				logGlobal->error("Invalid quest mission type");
+				break;
 		}
-		break;
-	case MISSION_HERO:
-		handler.serializeId<ui32, ui32, HeroTypeID>("hero", m13489val, 0);
-		break;
-	case MISSION_PLAYER:
-		handler.serializeId<ui32, ui32, PlayerColor>("player", m13489val, PlayerColor::NEUTRAL);
-		break;
-	default:
-		logGlobal->error("Invalid quest mission type");
-		break;
 	}
 
 }
@@ -803,7 +741,7 @@ int CGSeerHut::checkDirection() const
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
+	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	assert(o && (o->ID == Obj::HERO  ||  o->ID == Obj::PRISON));
@@ -812,7 +750,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
+	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	assert(o && o->ID == Obj::MONSTER);

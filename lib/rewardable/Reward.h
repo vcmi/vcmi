@@ -86,7 +86,7 @@ struct DLL_LINKAGE Reward
 	si32 calculateManaPoints(const CGHeroInstance * h) const;
 
 	Reward();
-	~Reward();
+	virtual ~Reward();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

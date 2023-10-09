@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class CStackBasicDescriptor;
+struct Component;
 
 namespace Rewardable {
 
@@ -78,9 +79,13 @@ struct DLL_LINKAGE Limiter
 	LimitersList noneOf;
 
 	Limiter();
-	~Limiter();
+	virtual ~Limiter();
 
 	bool heroAllowed(const CGHeroInstance * hero) const;
+	
+	/// Generates list of components that describes reward for a specific hero
+	virtual void loadComponents(std::vector<Component> & comps,
+								const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
