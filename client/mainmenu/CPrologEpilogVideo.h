@@ -19,6 +19,7 @@ class CPrologEpilogVideo : public CWindowObject
 	CampaignScenarioPrologEpilog spe;
 	int positionCounter;
 	int voiceSoundHandle;
+	int videoSoundHandle;
 	std::function<void()> exitCb;
 
 	std::shared_ptr<CMultiLineLabel> text;

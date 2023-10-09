@@ -215,7 +215,7 @@ void CHighScoreScreen::buttonExitClick()
 }
 
 CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc)
-	: CWindowObject(BORDERED), won(won), calc(calc)
+	: CWindowObject(BORDERED), won(won), calc(calc), videoSoundHandle(-1)
 {
 	addUsedEvents(LCLICK | KEYBOARD);
 
@@ -295,6 +295,8 @@ void CHighScoreInputScreen::show(Canvas & to)
 		{
 			CCS->videoh->close();
 			video = "HSLOOP.SMK";
+			auto audioData = CCS->videoh->getAudio(VideoPath::builtin(video));
+			videoSoundHandle = CCS->soundh->playSound(audioData);
 			CCS->videoh->open(VideoPath::builtin(video));
 		}
 		else
@@ -307,6 +309,8 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::activate()
 {
+	auto audioData = CCS->videoh->getAudio(VideoPath::builtin(video));
+	videoSoundHandle = CCS->soundh->playSound(audioData);
 	if(!CCS->videoh->open(VideoPath::builtin(video)))
 	{
 		if(!won)
@@ -320,6 +324,7 @@ void CHighScoreInputScreen::activate()
 void CHighScoreInputScreen::deactivate()
 {
 	CCS->videoh->close();
+	CCS->soundh->stopSound(videoSoundHandle);
 	CIntObject::deactivate();
 }
 

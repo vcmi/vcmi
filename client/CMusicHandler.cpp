@@ -142,6 +142,30 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(const AudioPath & sound, bool cache)
 	}
 }
 
+Mix_Chunk *CSoundHandler::GetSoundChunk(std::pair<std::unique_ptr<ui8 []>, si64> & data, bool cache)
+{
+	try
+	{
+		std::vector<ui8> startBytes = std::vector<ui8>(data.first.get(), data.first.get() + std::min((si64)100, data.second));
+
+		if (cache && soundChunksRaw.find(startBytes) != soundChunksRaw.end())
+			return soundChunksRaw[startBytes].first;
+
+		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), (int)data.second);
+		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
+
+		if (cache)
+			soundChunksRaw.insert({startBytes, std::make_pair (chunk, std::move (data.first))});
+
+		return chunk;
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->warn("Cannot get sound chunk: %s", e.what());
+		return nullptr;
+	}
+}
+
 int CSoundHandler::ambientDistToVolume(int distance) const
 {
 	const auto & distancesVector = ambientConfig["distances"].Vector();
@@ -194,6 +218,26 @@ int CSoundHandler::playSound(const AudioPath & sound, int repeats, bool cache)
 	else
 		channel = -1;
 
+	return channel;
+}
+
+int CSoundHandler::playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, int repeats, bool cache)
+{
+	int channel = -1;
+	if (Mix_Chunk *chunk = GetSoundChunk(data, cache))
+	{
+		channel = Mix_PlayChannel(-1, chunk, repeats);
+		if (channel == -1)
+		{
+			logGlobal->error("Unable to play sound, error %s", Mix_GetError());
+			if (!cache)
+				Mix_FreeChunk(chunk);
+		}
+		else if (cache)
+			initCallback(channel);
+		else
+			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
+	}
 	return channel;
 }
 

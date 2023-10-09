@@ -36,6 +36,7 @@ public:
 	{
 		return false;
 	}
+	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) { return std::make_pair(nullptr, 0); };
 };
 
 class CEmptyVideoPlayer : public IMainVideoPlayer
@@ -89,7 +90,6 @@ class CVideoPlayer : public IMainVideoPlayer
 
 	bool playVideo(int x, int y, bool stopOnKey);
 	bool open(const VideoPath & fname, bool loop, bool useOverlay = false, bool scale = false);
-
 public:
 	CVideoPlayer();
 	~CVideoPlayer();
@@ -106,6 +106,8 @@ public:
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
 	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false) override;
 
+	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) override;
+
 	//TODO:
 	bool wait() override {return false;};
 	int curFrame() const override {return -1;};
@@ -113,6 +115,7 @@ public:
 
 	// public to allow access from ffmpeg IO functions
 	std::unique_ptr<CInputStream> data;
+	std::unique_ptr<CInputStream> dataAudio;
 };
 
 #endif

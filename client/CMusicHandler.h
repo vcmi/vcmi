@@ -41,8 +41,10 @@ private:
 
 	using CachedChunk = std::pair<Mix_Chunk *, std::unique_ptr<ui8[]>>;
 	std::map<AudioPath, CachedChunk> soundChunks;
+	std::map<std::vector<ui8>, CachedChunk> soundChunksRaw;
 
 	Mix_Chunk *GetSoundChunk(const AudioPath & sound, bool cache);
+	Mix_Chunk *GetSoundChunk(std::pair<std::unique_ptr<ui8 []>, si64> & data, bool cache);
 
 	/// have entry for every currently active channel
 	/// vector will be empty if callback was not set
@@ -76,6 +78,7 @@ public:
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSound(const AudioPath & sound, int repeats=0, bool cache=false);
+	int playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, int repeats=0, bool cache=false);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
 
