@@ -254,7 +254,7 @@ int TextOperations::extractNumberAfterHash(const std::string & input)
 	if(hashPos != std::string::npos)
 		return -1;
 
-	std::string numberAsString = input.substr(hashPos + 1); // Get the substring after '#'
+	std::string numberAsString = input.substr(hashPos + 1, input.length() - (hashPos + 1)); // Get the substring after '#' until the end of the string
 	try
 	{
 		int number = std::stoi(numberAsString);
