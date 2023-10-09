@@ -14,7 +14,9 @@ The following instructions apply to **v1.2 and later**. For earlier versions the
     - install with `sdkmanager` command line tool
     - download from https://developer.android.com/ndk/downloads
     - download with Conan, see [#NDK and Conan](#ndk-and-conan)
-5. (optional) Ninja: download from your package manager or from https://github.com/ninja-build/ninja/releases
+5. Optional:
+    - Ninja: download from your package manager or from https://github.com/ninja-build/ninja/releases
+    - Ccache: download from your package manager or from https://github.com/ccache/ccache/releases
 
 ## Obtaining source code
 
@@ -60,7 +62,7 @@ Building for Android is a 2-step process. First, native C++ code is compiled to 
 This is a traditional CMake project, you can build it from command line or some IDE. You're not required to pass any custom options (except Conan toolchain file), defaults are already good. If you wish to use your own CMake presets, inherit them from our `build-with-conan` preset. Example:
 
 ```
-cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug --toolchain ...
+cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D CMAKE_COMPILER_LAUNCHER=ccache --toolchain ...
 cmake --build ../build
 ```
 

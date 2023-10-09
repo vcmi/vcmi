@@ -7,7 +7,9 @@
     - Xcode IDE: <https://developer.apple.com/xcode/>
     - (not tested) other C++ compilers, e.g. gcc/clang from [Homebrew](https://brew.sh/)
 2. CMake: `brew install --cask cmake` or get from <https://cmake.org/download/>
-3. (optional) Ninja: `brew install ninja` or get from <https://github.com/ninja-build/ninja/releases>
+4. Optional:
+    * Ninja: `brew install ninja` or get it from <https://github.com/ninja-build/ninja/releases>
+    * CCache to speed up recompilation: `brew install ccache`
 
 # Obtaining source code
 
@@ -69,7 +71,8 @@ Note that if you wish to use Qt Creator IDE, you should skip this step and confi
         - if you installed Qt 5 from Homebrew, insert:`$(brew --prefix qt@5)`
         - if you installed Qt from Online Installer, insert your path to Qt directory, for example: `/Users/kambala/dev/Qt-libs/5.15.2/Clang64`
         - example for FFmpeg + Qt 5: `-D "CMAKE_PREFIX_PATH=$(brew --prefix ffmpeg@4);$(brew --prefix qt@5)"`
-8.  now press Return
+8. If you want to speed up the recompilation, add `-D ENABLE_CCACHE=ON`
+9. Now press Return
 
 # Building project
 
