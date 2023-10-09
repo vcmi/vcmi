@@ -60,8 +60,8 @@ namespace TextOperations
 	// Concatenate a vector of strings with a specified delimiter
 	std::string DLL_LINKAGE concatenateStringsWithDelimiter(const std::vector<std::string> & strings, const std::string & delimiter);
 
-	// Replace forbidden Path characters with underscores
-	std::string DLL_LINKAGE replaceForbiddenPathChars(const std::string & input);
+	// Replace forbidden Path characters with specified delimiter
+	std::string DLL_LINKAGE replaceForbiddenPathChars(const std::string & input, const std::string & delimiter);
 
 	/// replaces all symbols that normally need escaping with appropriate escape sequences
 	std::string escapeString(std::string input);

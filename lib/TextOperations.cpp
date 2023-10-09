@@ -223,7 +223,7 @@ std::string TextOperations::concatenateStringsWithDelimiter(const std::vector<st
 	return result;
 }
 
-std::string TextOperations::replaceForbiddenPathChars(const std::string & input)
+std::string TextOperations::replaceForbiddenPathChars(const std::string & input, const std::string & delimiter)
 {
 	std::string forbiddenChars = "\\/<>:\"|?*\t\n\v\f\r"; // space is not here since folder and file names can have spaces!
 	std::string result = input;
@@ -231,7 +231,7 @@ std::string TextOperations::replaceForbiddenPathChars(const std::string & input)
 	for(char & c : result)
 	{
 		if(forbiddenChars.find(c) != std::string::npos)
-			c = '_';
+			result.replace(result.find(c), 1, delimiter);
 	}
 
 	return result;
