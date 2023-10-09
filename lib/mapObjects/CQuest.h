@@ -83,7 +83,7 @@ public:
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual void getCompletionText(MetaString &text) const;
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
-	virtual void completeQuest (const CGHeroInstance * h) const {};
+	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
 	virtual void addReplacements(MetaString &out, const std::string &base) const;
 	void addArtifactID(const ArtifactID & id);
 
@@ -156,8 +156,6 @@ public:
 	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
 	const CGCreature *getCreatureToKill(bool allowNull = false) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
-	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
-	virtual void completeQuest() const;
 
 	void afterAddToMap(CMap * map) override;
 

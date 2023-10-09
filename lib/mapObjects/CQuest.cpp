@@ -178,6 +178,49 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 	}
 }
 
+void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
+{
+	switch (missionType)
+	{
+		case CQuest::MISSION_ART:
+			for(auto & elem : m5arts)
+			{
+				if(h->hasArt(elem))
+				{
+					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
+				}
+				else
+				{
+					const auto * assembly = h->getAssemblyByConstituent(elem);
+					assert(assembly);
+					auto parts = assembly->getPartsInfo();
+
+					// Remove the assembly
+					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+
+					// Disassemble this backpack artifact
+					for(const auto & ci : parts)
+					{
+						if(ci.art->getTypeId() != elem)
+							cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
+					}
+				}
+			}
+			break;
+		case CQuest::MISSION_ARMY:
+				cb->takeCreatures(h->id, m6creatures);
+			break;
+		case CQuest::MISSION_RESOURCES:
+			for (int i = 0; i < 7; ++i)
+			{
+				cb->giveResource(h->getOwner(), static_cast<EGameResID>(i), -static_cast<int>(m7resources[i]));
+			}
+			break;
+		default:
+			break;
+	}
+}
+
 void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool isCustom, bool firstVisit, const CGHeroInstance * h) const
 {
 	MetaString text;
@@ -590,9 +633,9 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 		if(!quest->isCustomFirst)
 			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(0), quest->textOption).get());
 		if(!quest->isCustomNext)
-			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(1), quest->textOption).get());
+			quest->nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(1), quest->textOption).get());
 		if(!quest->isCustomComplete)
-			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(2), quest->textOption).get());
+			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(2), quest->textOption).get());
 	}
 	else
 	{
@@ -758,11 +801,6 @@ int CGSeerHut::checkDirection() const
 	}
 }
 
-void CGSeerHut::completeQuest() const //reward
-{
-	cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE); //mission complete
-}
-
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
@@ -785,7 +823,10 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 {
 	CRewardableObject::blockingDialogAnswered(hero, answer);
 	if(answer)
-		completeQuest();
+	{
+		quest->completeQuest(cb, hero);
+		cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE); //mission complete
+	}
 }
 
 void CGSeerHut::afterAddToMap(CMap* map)
