@@ -1476,8 +1476,8 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		{
 			std::string text = std::to_string(building->resources[i]);
 			int resAfterBuy = LOCPLINT->cb->getResourceAmount(GameResID(i)) - building->resources[i];
-			if(resAfterBuy < 0 && settings["general"]["enableUiEnhancements"].Bool())
-				text += " {H3Red|(" + std::to_string(-resAfterBuy) + ")}";
+			if(resAfterBuy < 0 && state != EBuildingState::ALREADY_PRESENT && settings["general"]["enableUiEnhancements"].Bool())
+				text = "{H3Orange|" + std::to_string(LOCPLINT->cb->getResourceAmount(GameResID(i))) + "}" + " / " + text;
 			components.push_back(std::make_shared<CComponent>(CComponent::resource, i, text, CComponent::small));
 		}
 	}
