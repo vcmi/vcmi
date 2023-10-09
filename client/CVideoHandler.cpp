@@ -455,7 +455,7 @@ void CVideoPlayer::close()
 
 std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
 {
-	std::pair<std::unique_ptr<ui8 []>, si64> dat(std::make_pair(std::make_unique<ui8[]>(0), 0));
+	std::pair<std::unique_ptr<ui8 []>, si64> dat(std::make_pair(nullptr, 0));
 
 	VideoPath fnameAudio;
 
