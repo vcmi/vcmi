@@ -571,13 +571,13 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 void CSettingsView::on_spinBoxAutosaveFrequency_valueChanged(int arg1)
 {
 	Settings node = settings.write["general"]["autosaveFrequency"];
-	node->Float() = arg1;
+	node->Integer() = arg1;
 }
 
 void CSettingsView::on_spinBoxAutosaveCountLimit_valueChanged(int arg1)
 {
 	Settings node = settings.write["general"]["autosaveCountLimit"];
-	node->Float() = arg1;
+	node->Integer() = arg1;
 }
 
 void CSettingsView::on_checkBoxAutosaveBeforeBattles_stateChanged(int arg1)
