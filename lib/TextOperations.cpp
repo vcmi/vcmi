@@ -212,13 +212,16 @@ std::string TextOperations::truncateUnicodeString(const std::string & input, int
 std::string TextOperations::concatenateStringsWithDelimiter(const std::vector<std::string> & strings, const std::string & delimiter)
 {
 	std::string result;
+	auto it = strings.begin();
 
-	for(const std::string & str : strings) {
-		result += str + delimiter;
-	}
+	while(it != strings.end())
+	{
+		result += *it;
 
-	if(!result.empty() && result.size() >= delimiter.size()) {
-		result.erase(result.end() - delimiter.size(), result.end());
+		if(it != strings.end()) // Don't add delimiter for last element
+			result += delimiter;
+
+		++it;
 	}
 
 	return result;
