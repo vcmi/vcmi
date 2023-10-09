@@ -519,7 +519,8 @@ void Inspector::setProperty(CGPandoraBox * o, const QString & key, const QVarian
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
+		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 }
 
 void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & value)
@@ -541,7 +542,8 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 	if(!o) return;
 	
 	if(key == "Town name")
-		o->setNameTextId(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("town", o->instanceName, "name"), value.toString().toStdString()));
+		o->setNameTextId(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("town", o->instanceName, "name"), value.toString().toStdString()));
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)
@@ -549,7 +551,8 @@ void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVarian
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("sign", o->instanceName, "message"), value.toString().toStdString()));
+		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("sign", o->instanceName, "message"), value.toString().toStdString()));
 }
 
 void Inspector::setProperty(CGMine * o, const QString & key, const QVariant & value)
@@ -565,7 +568,8 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
+		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 	
 	if(o->storedArtifact && key == "Spell")
 	{
@@ -604,10 +608,12 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		o->gender = EHeroGender(value.toInt());
 	
 	if(key == "Name")
-		o->nameCustomTextId = mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("hero", o->instanceName, "name"), value.toString().toStdString());
+		o->nameCustomTextId = mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("hero", o->instanceName, "name"), value.toString().toStdString());
 	
 	if(key == "Biography")
-		o->biographyCustomTextId = mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("hero", o->instanceName, "biography"), value.toString().toStdString());
+		o->biographyCustomTextId = mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("hero", o->instanceName, "biography"), value.toString().toStdString());
 	
 	if(key == "Experience")
 		o->exp = value.toString().toInt();
@@ -643,7 +649,8 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 	if(!o) return;
 	
 	if(key == "Message")
-		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("monster", o->instanceName, "message"), value.toString().toStdString()));
+		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("monster", o->instanceName, "message"), value.toString().toStdString()));
 	if(key == "Character")
 		o->character = CGCreature::Character(value.toInt());
 	if(key == "Never flees")
@@ -659,11 +666,16 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 	if(!o) return;
 	
 	if(key == "First visit text")
-		o->quest->firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
+		o->quest->firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
 	if(key == "Next visit text")
-		o->quest->nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
+		o->quest->nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
 	if(key == "Completed text")
-		o->quest->completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
+		o->quest->completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+			TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
+	if(key == "Repeat quest")
+		o->quest->repeatedQuest = value.toBool();
 }
 
 

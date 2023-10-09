@@ -56,7 +56,11 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[i]));
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			w->setItem(i, 0, item);
-			w->setCellWidget(i, 1, new QSpinBox);
+			auto * spinBox = new QSpinBox;
+			spinBox->setMaximum(i == GameResID::GOLD ? 999999 : 999);
+			if(w == ui->rResources)
+				spinBox->setMinimum(i == GameResID::GOLD ? -999999 : -999);
+			w->setCellWidget(i, 1, spinBox);
 		}
 	}
 	

@@ -127,7 +127,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 	
 	if(killTarget >= 0)
 	{
-		if(!CGHeroInstance::cb->getObjByQuestIdentifier(killTarget))
+		if(CGHeroInstance::cb->getObjByQuestIdentifier(killTarget))
 			return false;
 	}
 	
@@ -164,7 +164,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	cb->giveResources(h->getOwner(), resources);
 }
 
-void CQuest::addTextReplacements(MetaString & text) const
+void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & components) const
 {
 	if(heroLevel > 0)
 		text.replaceNumber(heroLevel);
@@ -186,13 +186,13 @@ void CQuest::addTextReplacements(MetaString & text) const
 	
 	if(killTarget >= 0 && !heroName.empty())
 	{
-		//components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
+		components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
 		addKillTargetReplacements(text);
 	}
 	
 	if(killTarget >= 0 && stackToKill.type)
 	{
-		//components.emplace_back(stackToKill);
+		components.emplace_back(stackToKill);
 		addKillTargetReplacements(text);
 	}
 	
@@ -250,7 +250,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	else if(failRequirements)
 		iwText.appendRawString(nextVisitText.toString());
 	
-	addTextReplacements(iwText);
+	addTextReplacements(iwText, components);
 }
 
 void CQuest::getRolloverText(MetaString &ms, bool onHover) const
@@ -262,14 +262,16 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 
 	ms.appendRawString(VLC->generaltexth->translate("core.seerhut.quest", questName, questState, textOption));
 
-	addTextReplacements(ms);
+	std::vector<Component> components;
+	addTextReplacements(ms, components);
 }
 
 void CQuest::getCompletionText(MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
 	
-	addTextReplacements(iwText);
+	std::vector<Component> components;
+	addTextReplacements(iwText, components);
 }
 
 void CQuest::defineQuestName()
@@ -379,7 +381,7 @@ bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 
 void IQuestObject::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	quest->getVisitText(text,components, FirstVisit, h);
+	quest->getVisitText(text, components, FirstVisit, h);
 }
 
 void IQuestObject::afterAddToMapCommon(CMap * map) const
@@ -431,9 +433,11 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	
 	quest->defineQuestName();
 	
+	if(quest->empty() && quest->killTarget == -1)
+	   quest->progress = CQuest::COMPLETE;
+	
 	if(quest->questName == quest->missionName(0))
 	{
-		quest->progress = CQuest::COMPLETE;
 		quest->firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", quest->completedOption).get());
 	}
 	else
@@ -568,7 +572,6 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
-	assert(o && (o->ID == Obj::HERO  ||  o->ID == Obj::PRISON));
 	return dynamic_cast<const CGHeroInstance *>(o);
 }
 
@@ -577,7 +580,6 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
-	assert(o && o->ID == Obj::MONSTER);
 	return dynamic_cast<const CGCreature *>(o);
 }
 

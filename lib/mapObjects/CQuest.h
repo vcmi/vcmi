@@ -57,12 +57,12 @@ public:
 	CQuest(); //TODO: Remove constructor
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
-	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	virtual void getVisitText(MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual void getCompletionText(MetaString &text) const;
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
-	virtual void addTextReplacements(MetaString &out) const;
+	virtual void addTextReplacements(MetaString &out, std::vector<Component> & components) const;
 	virtual void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 

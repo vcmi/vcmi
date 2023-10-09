@@ -35,6 +35,37 @@ Rewardable::Limiter::Limiter()
 
 Rewardable::Limiter::~Limiter() = default;
 
+bool Rewardable::Limiter::empty() const
+{
+	if(dayOfWeek != 0
+	   || daysPassed != 0
+	   || heroLevel > 0
+	   || heroExperience > 0
+	   || manaPoints > 0
+	   || manaPercentage > 0
+	   || !secondary.empty()
+	   || !creatures.empty()
+	   || !spells.empty()
+	   || !artifacts.empty()
+	   || !players.empty()
+	   || !heroes.empty()
+	   || !heroClasses.empty()
+	   || resources.nonZero()
+	   || std::find_if(primary.begin(), primary.end(), [](si32 i){return i != 0;}) != primary.end())
+		return false;
+	
+	for(const auto & sub : {noneOf, allOf, anyOf})
+	{
+		for(const auto & sublimiter : sub)
+		{
+			if(!sublimiter->empty())
+				return false;
+		}
+	}
+	
+	return true;
+}
+
 bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if(dayOfWeek != 0)
@@ -150,14 +181,16 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 								 const CGHeroInstance * h) const
 {
 	if (heroExperience)
-	{
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
-	}
+
 	if (heroLevel)
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
 
 	if (manaPoints || manaPercentage > 0)
-		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, 0, 0);
+	{
+		int absoluteMana = h->manaLimit() ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
+		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, absoluteMana + manaPoints, 0);
+	}
 
 	for (size_t i=0; i<primary.size(); i++)
 	{

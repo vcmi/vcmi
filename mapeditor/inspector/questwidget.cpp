@@ -42,7 +42,9 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 		auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[i]));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		ui->lResources->setItem(i, 0, item);
-		ui->lResources->setCellWidget(i, 1, new QSpinBox);
+		auto * spinBox = new QSpinBox;
+		spinBox->setMaximum(i == GameResID::GOLD ? 999999 : 999);
+		ui->lResources->setCellWidget(i, 1, spinBox);
 	}
 	
 	//fill artifacts

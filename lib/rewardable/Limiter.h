@@ -26,7 +26,6 @@ using LimitersList = std::vector<std::shared_ptr<Rewardable::Limiter>>;
 
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
 /// Note: for this is only a test - it won't remove anything from hero (e.g. artifacts or creatures)
-/// NOTE: in future should (partially) replace seer hut/quest guard quests checks
 struct DLL_LINKAGE Limiter
 {
 	/// day of week, unused if 0, 1-7 will test for current day of week
@@ -82,6 +81,7 @@ struct DLL_LINKAGE Limiter
 	virtual ~Limiter();
 
 	bool heroAllowed(const CGHeroInstance * hero) const;
+	bool empty() const;
 	
 	/// Generates list of components that describes reward for a specific hero
 	virtual void loadComponents(std::vector<Component> & comps,
