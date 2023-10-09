@@ -587,15 +587,15 @@ void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
 
 void CSettingsView::addItemsToControls()
 {
-	ui->comboBoxAutosaveMode->addItem("Off");
+	ui->comboBoxAutosaveMode->addItem(tr("Off"));
 	ui->comboBoxAutosaveMode->setItemData(0, "Off", Qt::UserRole);
 
-	ui->comboBoxAutosaveMode->addItem("Using Counter");
+	ui->comboBoxAutosaveMode->addItem(tr("Using Counter"));
 	ui->comboBoxAutosaveMode->setItemData(1, "Using Counter", Qt::UserRole);
 
-	ui->comboBoxAutosaveMode->addItem("Using Turn Info");
+	ui->comboBoxAutosaveMode->addItem(tr("Using Turn Info"));
 	ui->comboBoxAutosaveMode->setItemData(2, "Using Turn Info", Qt::UserRole);
 
-	ui->comboBoxAutosaveMode->addItem("Using Template");
+	ui->comboBoxAutosaveMode->addItem(tr("Using Template"));
 	ui->comboBoxAutosaveMode->setItemData(3, "Using Template", Qt::UserRole);
 }
