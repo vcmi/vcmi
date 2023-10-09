@@ -42,7 +42,13 @@
 CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font):
 	perDay(false)
 {
-	init(Type, Subtype, Val, imageSize, font);
+	init(Type, Subtype, Val, imageSize, font, "");
+}
+
+CComponent::CComponent(Etype Type, int Subtype, std::string Val, ESize imageSize, EFonts font):
+	perDay(false)
+{
+	init(Type, Subtype, 0, imageSize, font, Val);
 }
 
 CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
@@ -54,7 +60,7 @@ CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 	init((Etype)c.id, c.subtype, c.val, imageSize, font);
 }
 
-void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts fnt)
+void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts fnt, std::string ValText)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -63,6 +69,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 	compType = Type;
 	subtype = Subtype;
 	val = Val;
+	valText = ValText;
 	size = imageSize;
 	font = fnt;
 
@@ -86,6 +93,9 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 		max = 40;
 	if (size < small)
 		max = 30;
+
+	if(Type == Etype::resource && !valText.empty())
+		max = 80;
 
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
 	for(auto & line : textLines)
@@ -209,7 +219,7 @@ std::string CComponent::getSubtitleInternal()
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
 	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->getByIndex(subtype)->getNameTranslated();
-	case resource:   return std::to_string(val);
+	case resource:   return valText.empty() ? std::to_string(val) : valText;
 	case creature:
 		{
 			auto creature = CGI->creh->getByIndex(subtype);

@@ -49,7 +49,7 @@ private:
 	void setSurface(const AnimationPath & defName, int imgPos);
 	std::string getSubtitleInternal();
 
-	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL);
+	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL, std::string ValText="");
 
 public:
 	std::shared_ptr<CAnimImage> image;
@@ -59,12 +59,14 @@ public:
 	EFonts font; //Font size of label
 	int subtype; //type-dependant subtype. See getSomething methods for details
 	int val; // value \ strength \ amount of component. See getSomething methods for details
+	std::string valText; // value instead of amount; currently only for resource
 	bool perDay; // add "per day" text to subtitle
 
 	std::string getDescription();
 	std::string getSubtitle();
 
 	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(Etype Type, int Subtype, std::string Val, ESize imageSize=large, EFonts font = FONT_SMALL);
 	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
 	void showPopupWindow(const Point & cursorPosition) override; //call-in

@@ -1473,7 +1473,13 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(building->resources[i])
-			components.push_back(std::make_shared<CComponent>(CComponent::resource, i, building->resources[i], CComponent::small));
+		{
+			std::string text = std::to_string(building->resources[i]);
+			int resAfterBuy = LOCPLINT->cb->getResourceAmount(GameResID(i)) - building->resources[i];
+			if(resAfterBuy < 0 && settings["general"]["enableUiEnhancements"].Bool())
+				text += " {H3Red|(" + std::to_string(-resAfterBuy) + ")}";
+			components.push_back(std::make_shared<CComponent>(CComponent::resource, i, text, CComponent::small));
+		}
 	}
 
 	cost = std::make_shared<CComponentBox>(components, Rect(25, 300, pos.w - 50, 130));
