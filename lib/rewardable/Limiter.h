@@ -52,7 +52,7 @@ struct DLL_LINKAGE Limiter
 	std::map<SecondarySkill, si32> secondary;
 
 	/// artifacts that hero needs to have (equipped or in backpack) to trigger this
-	/// Note: does not checks for multiple copies of the same arts
+	/// checks for artifacts copies if same artifact id is included multiple times
 	std::vector<ArtifactID> artifacts;
 
 	/// Spells that hero must have in the spellbook

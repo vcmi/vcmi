@@ -17,6 +17,7 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
+#include "../ArtifactUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -93,12 +94,24 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	for(const auto & art : artifacts)
 	{
-		if (!hero->hasArt(art))
+		std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
+		for(const auto & art : artifacts)
+			++artifactsRequirements[art];
+		
+		size_t reqSlots = 0;
+		for(const auto & elem : artifactsRequirements)
+		{
+			// check required amount of artifacts
+			if(hero->getArtPosCount(elem.first, false, true, true) < elem.second)
+				return false;
+			if(!hero->hasArt(elem.first))
+				reqSlots += hero->getAssemblyByConstituent(elem.first)->getPartsInfo().size() - 2;
+		}
+		if(!ArtifactUtils::isBackpackFreeSlots(hero, reqSlots))
 			return false;
 	}
-
+	
 	for(const auto & sublimiter : noneOf)
 	{
 		if (sublimiter->heroAllowed(hero))
