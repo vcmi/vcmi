@@ -242,7 +242,7 @@ void Inspector::updateProperties(CGDwelling * o)
 	
 	addProperty("Owner", o->tempOwner, false);
 	
-	if(auto * info = dynamic_cast<CCreGenAsCastleInfo*>(o->info))
+	if(dynamic_cast<CCreGenAsCastleInfo*>(o->info))
 	{
 		auto * delegate = new PickObjectDelegate(controller, PickObjectDelegate::typedFilter<CGTownInstance>);
 		addProperty("Same as town", PropertyEditorPlaceholder(), delegate, false);
