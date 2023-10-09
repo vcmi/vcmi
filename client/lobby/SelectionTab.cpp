@@ -418,8 +418,8 @@ auto SelectionTab::checkSubfolder(std::string path)
 // selMaps with the relevant data.
 void SelectionTab::filter(int size, bool selectFirst)
 {
-	uint8_t mapNameMaxDisplayLength = 25;
-	uint8_t folderNameMaxDisplayLength = 45;
+	uint8_t mapNameMaxDisplayLength = 23;
+	uint8_t folderNameMaxDisplayLength = 43;
 
 	if(size == -1)
 		size = currentMapSizeFilter;
@@ -439,16 +439,19 @@ void SelectionTab::filter(int size, bool selectFirst)
 				folder->isFolder = true;
 				folder->folderName = "..  (" + curFolder + ")";
 				folder->displayName = TextOperations::shortenUnicodeString(folder->folderName, folderNameMaxDisplayLength);
+				folder->displayName += "...";
 				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return boost::starts_with(e->folderName, ".."); });
 				if (itemIt == curItems.end()) {
 					curItems.push_back(folder);
-				}			
+				}
 			}
 
 			std::shared_ptr<ElementInfo> folder = std::make_shared<ElementInfo>();
 			folder->isFolder = true;
 			folder->folderName = folderName;
 			folder->displayName = TextOperations::shortenUnicodeString(folder->folderName, folderNameMaxDisplayLength);
+			folder->displayName += "...";
+
 			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
 			if (itemIt == curItems.end() && folderName != "") {
 				curItems.push_back(folder);
