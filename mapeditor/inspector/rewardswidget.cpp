@@ -347,7 +347,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		int index = ui->lCreatures->item(i, 0)->data(Qt::UserRole).toInt();
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->lCreatures->cellWidget(i, 1)))
 			if(widget->value())
-				vinfo.reward.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
+				vinfo.limiter.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
 	}
 }
 
@@ -445,10 +445,10 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	ui->lHeroExperience->setValue(vinfo.limiter.heroExperience);
 	ui->lManaPoints->setValue(vinfo.limiter.manaPoints);
 	ui->lManaPercentage->setValue(vinfo.limiter.manaPercentage);
-	ui->lAttack->setValue(vinfo.reward.primary[0]);
-	ui->lDefence->setValue(vinfo.reward.primary[1]);
-	ui->lPower->setValue(vinfo.reward.primary[2]);
-	ui->lKnowledge->setValue(vinfo.reward.primary[3]);
+	ui->lAttack->setValue(vinfo.limiter.primary[0]);
+	ui->lDefence->setValue(vinfo.limiter.primary[1]);
+	ui->lPower->setValue(vinfo.limiter.primary[2]);
+	ui->lKnowledge->setValue(vinfo.limiter.primary[3]);
 	for(int i = 0; i < ui->lResources->rowCount(); ++i)
 	{
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->lResources->cellWidget(i, 1)))
