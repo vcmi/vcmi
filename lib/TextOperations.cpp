@@ -12,6 +12,7 @@
 
 #include "CGeneralTextHandler.h"
 
+#include <algorithm>
 #include <boost/locale.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -228,11 +229,8 @@ std::string TextOperations::replaceForbiddenPathChars(const std::string & input,
 	std::string forbiddenChars = "\\/<>:\"|?*\t\n\v\f\r"; // space is not here since folder and file names can have spaces!
 	std::string result = input;
 
-	for(char & c : result)
-	{
-		if(forbiddenChars.find(c) != std::string::npos)
-			result.replace(result.find(c), 1, delimiter);
-	}
+	for(char c : forbiddenChars)
+		std::replace(result.begin(), result.end(), c, delimiter[0]);
 
 	return result;
 }
