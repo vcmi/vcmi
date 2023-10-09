@@ -130,7 +130,7 @@ namespace AIPathfinding
 		auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
 		QuestAction questAction(questInfo);
 
-		if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->questName == CQuest::missionName(0))
+		if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->empty() && questObj->quest->killTarget == -1)
 		{
 			return false;
 		}

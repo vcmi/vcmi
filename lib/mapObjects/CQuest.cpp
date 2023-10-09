@@ -431,6 +431,7 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 
 	quest->progress = CQuest::NOT_ACTIVE;
 	
+	setObjToKill();
 	quest->defineQuestName();
 	
 	if(quest->empty() && quest->killTarget == -1)
@@ -447,7 +448,7 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 		if(!quest->isCustomNext)
 			quest->nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest->questName, quest->missionState(1), quest->textOption).get());
 		if(!quest->isCustomComplete)
-			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest->questName, quest->missionState(2), quest->textOption).get());
+			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest-> questName, quest->missionState(2), quest->textOption).get());
 	}
 }
 

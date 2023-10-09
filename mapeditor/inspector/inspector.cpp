@@ -402,6 +402,7 @@ void Inspector::updateProperties(CGSeerHut * o)
 	addProperty("Next visit text", o->quest->nextVisitText, new MessageDelegate, false);
 	addProperty("Completed text", o->quest->completedText, new MessageDelegate, false);
 	addProperty("Repeat quest", o->quest->repeatedQuest, false);
+	addProperty("Time limit", o->quest->lastDay, false);
 	
 	{ //Quest
 		auto * delegate = new QuestDelegate(controller, *o->quest);
@@ -676,6 +677,8 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 			TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
 	if(key == "Repeat quest")
 		o->quest->repeatedQuest = value.toBool();
+	if(key == "Time limit")
+		o->quest->lastDay = value.toString().toInt();
 }
 
 
