@@ -410,7 +410,7 @@ void Inspector::updateProperties(CGEvent * o)
 
 void Inspector::updateProperties(CGSeerHut * o)
 {
-	if(!o) return;
+	if(!o || !o->quest) return;
 
 	{ //Mission type
 		auto * delegate = new InspectorDelegate;
@@ -421,9 +421,10 @@ void Inspector::updateProperties(CGSeerHut * o)
 	addProperty("First visit text", o->quest->firstVisitText, new MessageDelegate, false);
 	addProperty("Next visit text", o->quest->nextVisitText, new MessageDelegate, false);
 	addProperty("Completed text", o->quest->completedText, new MessageDelegate, false);
+	addProperty("Repeat quest", o->quest->repeatedQuest, false);
 	
 	{ //Quest
-		auto * delegate = new QuestDelegate(*controller.map(), *o);
+		auto * delegate = new QuestDelegate(controller, *o->quest);
 		addProperty("Quest", PropertyEditorPlaceholder(), delegate, false);
 	}
 }

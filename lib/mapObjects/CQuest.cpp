@@ -46,7 +46,8 @@ CQuest::CQuest():
 	stackDirection(0),
 	isCustomFirst(false),
 	isCustomNext(false),
-	isCustomComplete(false)
+	isCustomComplete(false),
+	repeatedQuest(false)
 {
 }
 
@@ -444,6 +445,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 	handler.serializeStruct("firstVisitText", firstVisitText);
 	handler.serializeStruct("nextVisitText", nextVisitText);
 	handler.serializeStruct("completedText", completedText);
+	handler.serializeBool("repeatedQuest", repeatedQuest, false);
 
 	if(!handler.saving)
 	{

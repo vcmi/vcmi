@@ -53,6 +53,7 @@ public:
 	Eprogress progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 	int killTarget;
+	bool repeatedQuest;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info

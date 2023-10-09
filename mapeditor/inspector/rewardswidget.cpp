@@ -13,6 +13,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
+#include "../lib/CHeroHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
@@ -129,6 +130,36 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			w->addItem(QString::fromStdString(creature->getNameSingularTranslated()));
 			w->setItemData(w->count() - 1, creature->getIndex());
 		}
+	}
+	
+	//fill heroes
+	VLC->heroTypes()->forEach([this](const HeroType * hero, bool &)
+	{
+		auto * item = new QListWidgetItem(QString::fromStdString(hero->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(hero->getId().getNum()));
+		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+		item->setCheckState(Qt::Unchecked);
+		ui->lHeroes->addItem(item);
+	});
+	
+	//fill hero classes
+	VLC->heroClasses()->forEach([this](const HeroClass * heroClass, bool &)
+	{
+		auto * item = new QListWidgetItem(QString::fromStdString(heroClass->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(heroClass->getId().getNum()));
+		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+		item->setCheckState(Qt::Unchecked);
+		ui->lHeroClasses->addItem(item);
+	});
+	
+	//fill players
+	for(auto color = PlayerColor(0); color < PlayerColor::PLAYER_LIMIT; ++color)
+	{
+		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[color.getNum()]));
+		item->setData(Qt::UserRole, QVariant::fromValue(color.getNum()));
+		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+		item->setCheckState(Qt::Unchecked);
+		ui->lPlayers->addItem(item);
 	}
 	
 	//fill spell cast
@@ -349,6 +380,27 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 			if(widget->value())
 				vinfo.limiter.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
 	}
+	
+	vinfo.limiter.heroes.clear();
+	for(int i = 0; i < ui->lHeroes->count(); ++i)
+	{
+		if(ui->lHeroes->item(i)->checkState() == Qt::Checked)
+			vinfo.limiter.heroes.emplace_back(ui->lHeroes->item(i)->data(Qt::UserRole).toInt());
+	}
+	
+	vinfo.limiter.heroClasses.clear();
+	for(int i = 0; i < ui->lHeroClasses->count(); ++i)
+	{
+		if(ui->lHeroClasses->item(i)->checkState() == Qt::Checked)
+			vinfo.limiter.heroClasses.emplace_back(ui->lHeroClasses->item(i)->data(Qt::UserRole).toInt());
+	}
+	
+	vinfo.limiter.players.clear();
+	for(int i = 0; i < ui->lPlayers->count(); ++i)
+	{
+		if(ui->lPlayers->item(i)->checkState() == Qt::Checked)
+			vinfo.limiter.players.emplace_back(ui->lPlayers->item(i)->data(Qt::UserRole).toInt());
+	}
 }
 
 void RewardsWidget::loadCurrentVisitInfo(int index)
@@ -471,6 +523,40 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 		ui->lCreatureId->setCurrentIndex(index);
 		ui->lCreatureAmount->setValue(i.count);
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);
+	}
+	
+	for(auto & i : vinfo.limiter.heroes)
+	{
+		for(int e = 0; e < ui->lHeroes->count(); ++e)
+		{
+			if(ui->lHeroes->item(e)->data(Qt::UserRole).toInt() == i.getNum())
+			{
+				ui->lHeroes->item(e)->setCheckState(Qt::Checked);
+				break;
+			}
+		}
+	}
+	for(auto & i : vinfo.limiter.heroClasses)
+	{
+		for(int e = 0; e < ui->lHeroClasses->count(); ++e)
+		{
+			if(ui->lHeroClasses->item(e)->data(Qt::UserRole).toInt() == i.getNum())
+			{
+				ui->lHeroClasses->item(e)->setCheckState(Qt::Checked);
+				break;
+			}
+		}
+	}
+	for(auto & i : vinfo.limiter.players)
+	{
+		for(int e = 0; e < ui->lPlayers->count(); ++e)
+		{
+			if(ui->lPlayers->item(e)->data(Qt::UserRole).toInt() == i.getNum())
+			{
+				ui->lPlayers->item(e)->setCheckState(Qt::Checked);
+				break;
+			}
+		}
 	}
 }
 
