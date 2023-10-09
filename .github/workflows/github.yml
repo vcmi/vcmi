@@ -111,7 +111,7 @@ jobs:
             test: 0
             pack: 1
             extension: exe
-            preset: windows-msvc-release
+            preset: windows-msvc-release-ccache
           - platform: mingw-ubuntu
             os: ubuntu-22.04
             test: 0
