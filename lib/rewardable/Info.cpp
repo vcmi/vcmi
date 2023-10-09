@@ -122,6 +122,10 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
 	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, spells);
 	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+	
+	limiter.players = JsonRandom::loadColors(source["colors"], rng);
+	limiter.heroes = JsonRandom::loadHeroes(source["heroes"], rng);
+	limiter.heroClasses = JsonRandom::loadHeroClasses(source["heroClasses"], rng);
 
 	limiter.allOf  = configureSublimiters(object, rng, source["allOf"] );
 	limiter.anyOf  = configureSublimiters(object, rng, source["anyOf"] );

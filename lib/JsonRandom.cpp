@@ -22,6 +22,7 @@
 #include "CCreatureSet.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
+#include "CHeroHandler.h"
 #include "IGameCallback.h"
 #include "mapObjects/IObjectInterface.h"
 #include "modding/IdentifierStorage.h"
@@ -278,6 +279,46 @@ namespace JsonRandom
 		for (const JsonNode & entry : value.Vector())
 		{
 			ret.push_back(loadSpell(entry, rng, spells));
+		}
+		return ret;
+	}
+
+	std::vector<PlayerColor> loadColors(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<PlayerColor> ret;
+		std::set<std::string> def;
+		
+		for(auto & color : GameConstants::PLAYER_COLOR_NAMES)
+			def.insert(color);
+		
+		for(auto & entry : value.Vector())
+		{
+			auto key = loadKey(entry, rng, def);
+			auto pos = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, key);
+			if(pos < 0)
+				logMod->warn("Unable to determine player color %s", key);
+			else
+				ret.emplace_back(pos);
+		}
+		return ret;
+	}
+
+	std::vector<HeroTypeID> loadHeroes(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<HeroTypeID> ret;
+		for(auto & entry : value.Vector())
+		{
+			ret.push_back(VLC->heroTypes()->getByIndex(VLC->identifiers()->getIdentifier("hero", entry.String()).value())->getId());
+		}
+		return ret;
+	}
+
+	std::vector<HeroClassID> loadHeroClasses(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<HeroClassID> ret;
+		for(auto & entry : value.Vector())
+		{
+			ret.push_back(VLC->heroClasses()->getByIndex(VLC->identifiers()->getIdentifier("heroClass", entry.String()).value())->getId());
 		}
 		return ret;
 	}

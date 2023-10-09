@@ -48,6 +48,10 @@ namespace JsonRandom
 	DLL_LINKAGE std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng);
 	DLL_LINKAGE std::vector<RandomStackInfo> evaluateCreatures(const JsonNode & value);
 
+	DLL_LINKAGE std::vector<PlayerColor> loadColors(const JsonNode & value, CRandomGenerator & rng);
+	DLL_LINKAGE std::vector<HeroTypeID> loadHeroes(const JsonNode & value, CRandomGenerator & rng);
+	DLL_LINKAGE std::vector<HeroClassID> loadHeroClasses(const JsonNode & value, CRandomGenerator & rng);
+
 	DLL_LINKAGE std::vector<Bonus> loadBonuses(const JsonNode & value);
 	//DLL_LINKAGE std::vector<Component> loadComponents(const JsonNode & value);
 }

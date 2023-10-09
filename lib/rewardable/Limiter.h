@@ -60,6 +60,13 @@ struct DLL_LINKAGE Limiter
 
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
+	
+	/// only heroes/hero classes from list could pass limiter
+	std::vector<HeroTypeID> heroes;
+	std::vector<HeroClassID> heroClasses;
+	
+	/// only player colors can pass limiter
+	std::vector<PlayerColor> players;
 
 	/// sub-limiters, all must pass for this limiter to pass
 	LimitersList allOf;
@@ -91,6 +98,9 @@ struct DLL_LINKAGE Limiter
 		h & allOf;
 		h & anyOf;
 		h & noneOf;
+		h & heroes;
+		h & heroClasses;
+		h & players;
 	}
 	
 	void serializeJson(JsonSerializeFormat & handler);

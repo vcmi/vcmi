@@ -16,6 +16,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
+#include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../ArtifactUtils.h"
 
@@ -112,6 +113,16 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 	
+	if(!players.empty() && !vstd::contains(players, hero->getOwner()))
+		return false;
+	
+	if(!heroes.empty() && !vstd::contains(heroes, hero->type->getId()))
+		return false;
+	
+	if(!heroClasses.empty() && !vstd::contains(heroClasses, hero->type->heroClass->getId()))
+		return false;
+		
+	
 	for(const auto & sublimiter : noneOf)
 	{
 		if (sublimiter->heroAllowed(hero))
@@ -143,6 +154,9 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("manaPercentage", manaPercentage);
 	handler.serializeInt("heroExperience", heroExperience);
 	handler.serializeInt("heroLevel", heroLevel);
+	handler.serializeIdArray("hero", heroes);
+	handler.serializeIdArray("heroClass", heroClasses);
+	handler.serializeIdArray("color", players);
 	handler.serializeInt("manaPoints", manaPoints);
 	handler.serializeIdArray("artifacts", artifacts);
 	handler.enterArray("creatures").serializeStruct(creatures);
