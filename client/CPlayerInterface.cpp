@@ -223,7 +223,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 }
 
-void CPlayerInterface::performAutosave() 
+void CPlayerInterface::performAutosave()
 {
 	// ToDo : krs - gather all static info only once at map start / load
 	// ToDo : krs - autosaves before each battle

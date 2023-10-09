@@ -201,40 +201,40 @@ size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
 
 std::string TextOperations::shortenUnicodeString(const std::string & input, int maxLength)
 {
-    int txtlen = getUnicodeCharactersCount(input);
-    std::string trimmedString = input;
-    trimRightUnicode(trimmedString, std::max(0, txtlen-maxLength));
+	int txtlen = getUnicodeCharactersCount(input);
+	std::string trimmedString = input;
+	trimRightUnicode(trimmedString, std::max(0, txtlen - maxLength));
 
-    return trimmedString;
+	return trimmedString;
 }
 
-std::string TextOperations::concatenateStringsWithDelimiter(const std::vector<std::string>& strings, const std::string& delimiter)
+std::string TextOperations::concatenateStringsWithDelimiter(const std::vector<std::string> & strings, const std::string & delimiter)
 {
-    std::string result;
-    
-    for(const std::string& str : strings) {
-        result += str + delimiter;
-    }
+	std::string result;
 
-    if(!result.empty() && result.size() >= delimiter.size()) {
-        result.erase(result.end() - delimiter.size(), result.end());
-    }
+	for(const std::string & str : strings) {
+		result += str + delimiter;
+	}
 
-    return result;
+	if(!result.empty() && result.size() >= delimiter.size()) {
+		result.erase(result.end() - delimiter.size(), result.end());
+	}
+
+	return result;
 }
 
 std::string TextOperations::replaceForbiddenPathChars(const std::string & input)
 {
-    std::string forbiddenChars = "\\/<>:\"|?*\t\n\v\f\r"; // space is not here since folder and file names can have spaces!
-    std::string result = input;
+	std::string forbiddenChars = "\\/<>:\"|?*\t\n\v\f\r"; // space is not here since folder and file names can have spaces!
+	std::string result = input;
 
-    for (char& c : result)
-    {
-        if(forbiddenChars.find(c) != std::string::npos)
-            c = '_';
-    }
+	for(char & c : result)
+	{
+		if(forbiddenChars.find(c) != std::string::npos)
+			c = '_';
+	}
 
-    return result;
+	return result;
 }
 
 std::string TextOperations::escapeString(std::string input)
@@ -250,26 +250,26 @@ std::string TextOperations::escapeString(std::string input)
 
 int TextOperations::extractNumberAfterHash(const std::string & input)
 {
-    size_t hashPos = input.find('#');
+	size_t hashPos = input.find('#');
 	if(hashPos != std::string::npos)
 		return -1;
 
 	std::string numberAsString = input.substr(hashPos + 1); // Get the substring after '#'
-	try 
+	try
 	{
 		int number = std::stoi(numberAsString);
 		return number;
-	} 
+	}
 	catch(const std::invalid_argument &)
 	{
 		logGlobal->error("Invalid number format found in autosave file name :" + input);
-	} 
+	}
 	catch(const std::out_of_range &)
 	{
 		logGlobal->error("Number out of range found in autosave file name :" + input);
 	}
 
-    return -1; // Return -1 if '#' is not found or parsing fails
+	return -1; // Return -1 if '#' is not found or parsing fails
 }
 
 VCMI_LIB_NAMESPACE_END

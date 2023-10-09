@@ -40,24 +40,24 @@ static const std::string cursorTypesList[] =
 	"software"
 };
 
-int findComboBoxItemByInternalName(QComboBox* comboBox, const std::string& targetInternalName)
+int findComboBoxItemByInternalName(QComboBox * comboBox, const std::string & targetInternalName)
 {
-    int itemCount = comboBox->count();
-    int foundIndex = -1;
+	int itemCount = comboBox->count();
+	int foundIndex = -1;
 
-    for (int index = 0; index < itemCount; ++index)
-    {
-        QVariant itemData = comboBox->itemData(index, Qt::UserRole);
-        if (itemData.toString().toStdString() == targetInternalName)
-        {
-            foundIndex = index;
-            break;
-        }
-    }
+	for(int index = 0; index < itemCount; ++index)
+	{
+		QVariant itemData = comboBox->itemData(index, Qt::UserRole);
+		if(itemData.toString().toStdString() == targetInternalName)
+		{
+			foundIndex = index;
+			break;
+		}
+	}
 
 	assert(foundIndex != -1);
 
-    return foundIndex;
+	return foundIndex;
 }
 
 }
@@ -66,7 +66,7 @@ void CSettingsView::setDisplayList()
 {
 	QStringList list;
 
-	for (const auto screen : QGuiApplication::screens())
+	for(const auto screen : QGuiApplication::screens())
 		list << QString{"%1 - %2"}.arg(screen->name(), resolutionToString(screen->size()));
 
 	if(list.count() < 2)
@@ -94,7 +94,7 @@ void CSettingsView::loadSettings()
 #else
 	ui->labelReservedArea->hide();
 	ui->spinBoxReservedArea->hide();
-	if (settings["video"]["realFullscreen"].Bool())
+	if(settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
 		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
@@ -129,10 +129,10 @@ void CSettingsView::loadSettings()
 	int autosaveModeIndex = findComboBoxItemByInternalName(ui->comboBoxAutosaveMode, autosaveMode);
 	ui->comboBoxAutosaveMode->setCurrentIndex((int)autosaveModeIndex);
 
-    ui->spinBoxAutosaveFrequency->setValue(settings["general"]["autosaveFrequency"].Integer());
+	ui->spinBoxAutosaveFrequency->setValue(settings["general"]["autosaveFrequency"].Integer());
 	ui->spinBoxAutosaveFrequency->setEnabled(autosaveMode != "Off");
 
-    ui->spinBoxAutosaveCountLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
+	ui->spinBoxAutosaveCountLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveMode == "Using Counter");
 
 	ui->checkBoxAutosaveBeforeBattles->setChecked(settings["general"]["autosaveBeforeBattles"].Bool());
@@ -140,7 +140,7 @@ void CSettingsView::loadSettings()
 
 	// Reenable when autosave before battles functionality will be implemented
 	ui->labelAutosaveBeforeBattles->setVisible(false);
-	ui->checkBoxAutosaveBeforeBattles->setVisible(false); 
+	ui->checkBoxAutosaveBeforeBattles->setVisible(false);
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
@@ -160,7 +160,7 @@ QSize CSettingsView::getPreferredRenderingResolution()
 	bool fullscreen = settings["video"]["fullscreen"].Bool();
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
-	if (!fullscreen || realFullscreen)
+	if(!fullscreen || realFullscreen)
 	{
 		int resX = settings["video"]["resolution"]["width"].Integer();
 		int resY = settings["video"]["resolution"]["height"].Integer();
@@ -372,7 +372,6 @@ void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 		autosaveUsingCounter = true;
 
 	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveUsingCounter);
-
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -571,14 +570,14 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 
 void CSettingsView::on_spinBoxAutosaveFrequency_valueChanged(int arg1)
 {
-    Settings node = settings.write["general"]["autosaveFrequency"];
-    node->Float() = arg1;
+	Settings node = settings.write["general"]["autosaveFrequency"];
+	node->Float() = arg1;
 }
 
 void CSettingsView::on_spinBoxAutosaveCountLimit_valueChanged(int arg1)
 {
-    Settings node = settings.write["general"]["autosaveCountLimit"];
-    node->Float() = arg1;
+	Settings node = settings.write["general"]["autosaveCountLimit"];
+	node->Float() = arg1;
 }
 
 void CSettingsView::on_checkBoxAutosaveBeforeBattles_stateChanged(int arg1)

@@ -58,7 +58,7 @@ namespace TextOperations
 	inline std::string formatMetric(Arithmetic number, int maxDigits);
 
 	// Concatenate a vector of strings with a specified delimiter
-	std::string DLL_LINKAGE concatenateStringsWithDelimiter(const std::vector<std::string> & strings, const std::string& delimiter);
+	std::string DLL_LINKAGE concatenateStringsWithDelimiter(const std::vector<std::string> & strings, const std::string & delimiter);
 
 	// Replace forbidden Path characters with underscores
 	std::string DLL_LINKAGE replaceForbiddenPathChars(const std::string & input);
