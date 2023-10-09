@@ -603,6 +603,6 @@ void CSettingsView::addItemsToControls()
 	ui->comboBoxAutosaveMode->addItem("Using Turn Info");
 	ui->comboBoxAutosaveMode->setItemData(2, "Using Turn Info", Qt::UserRole);
 
-	ui->comboBoxAutosaveMode->addItem("Using Schema");
-	ui->comboBoxAutosaveMode->setItemData(3, "Using Schema", Qt::UserRole);
+	ui->comboBoxAutosaveMode->addItem("Using Template");
+	ui->comboBoxAutosaveMode->setItemData(3, "Using Template", Qt::UserRole);
 }
