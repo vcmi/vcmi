@@ -40,7 +40,7 @@ static const std::string cursorTypesList[] =
 	"software"
 };
 
-int findComboBoxItemByInternalName(QComboBox * comboBox, const std::string & targetInternalName)
+int findComboBoxItemsIndexByInternalName(QComboBox * comboBox, const std::string & targetInternalName)
 {
 	int itemCount = comboBox->count();
 	int foundIndex = -1;
@@ -126,7 +126,7 @@ void CSettingsView::loadSettings()
 	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
 	std::string autosaveMode = settings["general"]["autosaveMode"].String();
-	int autosaveModeIndex = findComboBoxItemByInternalName(ui->comboBoxAutosaveMode, autosaveMode);
+	int autosaveModeIndex = findComboBoxItemsIndexByInternalName(ui->comboBoxAutosaveMode, autosaveMode);
 	ui->comboBoxAutosaveMode->setCurrentIndex((int)autosaveModeIndex);
 
 	ui->spinBoxAutosaveFrequency->setValue(settings["general"]["autosaveFrequency"].Integer());
