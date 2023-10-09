@@ -42,22 +42,15 @@ static const std::string cursorTypesList[] =
 
 int findComboBoxItemsIndexByInternalName(QComboBox * comboBox, const std::string & targetInternalName)
 {
-	int itemCount = comboBox->count();
-	int foundIndex = -1;
-
-	for(int index = 0; index < itemCount; ++index)
+	for(int index = 0; index < comboBox->count(); ++index)
 	{
 		QVariant itemData = comboBox->itemData(index, Qt::UserRole);
 		if(itemData.toString().toStdString() == targetInternalName)
-		{
-			foundIndex = index;
-			break;
-		}
+			return index;
 	}
+	assert(0);
 
-	assert(foundIndex != -1);
-
-	return foundIndex;
+	return -1;
 }
 
 }
