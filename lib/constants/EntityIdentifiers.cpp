@@ -19,6 +19,8 @@
 #include <vcmi/FactionService.h>
 #include <vcmi/HeroType.h>
 #include <vcmi/HeroTypeService.h>
+#include <vcmi/HeroClass.h>
+#include <vcmi/HeroClassService.h>
 
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
@@ -101,6 +103,25 @@ namespace GameConstants
 #else
 	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING "." + std::string{GIT_SHA1};
 #endif
+}
+
+si32 HeroClassID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "heroClass", identifier);
+	if(rawId)
+		return rawId.value();
+	else
+		return -1;
+}
+
+std::string HeroClassID::encode(const si32 index)
+{
+	return VLC->heroClasses()->getByIndex(index)->getJsonKey();
+}
+
+std::string HeroClassID::entityType()
+{
+	return "heroClass";
 }
 
 si32 HeroTypeID::decode(const std::string & identifier)
