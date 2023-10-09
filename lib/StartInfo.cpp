@@ -78,17 +78,17 @@ std::vector<std::string> StartInfo::getPlayerNames() const
 
 uint8_t StartInfo::getHumanPlayersCount() const
 {
-	uint8_t NoOfHumanPlayers = 0;
+	uint8_t humanPlayersCount = 0;
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{
 		if(!playerInfos.count(player))
 			continue;
 
 		if(playerInfos.at(player).isControlledByHuman())
-			NoOfHumanPlayers++;
+			humanPlayersCount++;
 	}
 
-	return NoOfHumanPlayers;
+	return humanPlayersCount;
 }
 
 PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no)
