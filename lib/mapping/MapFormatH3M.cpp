@@ -1858,11 +1858,30 @@ enum class ESeerHutRewardType : uint8_t
 	CREATURE = 10,
 };
 
+enum class EQuestMission {
+	NONE = 0,
+	LEVEL = 1,
+	PRIMARY_SKILL = 2,
+	KILL_HERO = 3,
+	KILL_CREATURE = 4,
+	ARTIFACT = 5,
+	ARMY = 6,
+	RESOURCES = 7,
+	HERO = 8,
+	PLAYER = 9,
+	HOTA_MULTI = 10,
+	// end of H3 missions
+	KEYMASTER = 100,
+	HOTA_HERO_CLASS = 101,
+	HOTA_REACH_DATE = 102
+};
+
 void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
+	EQuestMission missionType = EQuestMission::NONE;
 	if(features.levelAB)
 	{
-		readQuest(hut, position);
+		missionType = static_cast<EQuestMission>(readQuest(hut, position));
 	}
 	else
 	{
@@ -1872,11 +1891,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 		{
 			//not none quest
 			hut->quest->artifacts.push_back(artID);
-			hut->quest->missionType = CQuest::MISSION_ART;
-		}
-		else
-		{
-			hut->quest->missionType = CQuest::MISSION_NONE;
+			missionType = EQuestMission::ARTIFACT;
 		}
 		hut->quest->lastDay = -1; //no timeout
 		hut->quest->isCustomFirst = false;
@@ -1884,7 +1899,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 		hut->quest->isCustomComplete = false;
 	}
 
-	if(hut->quest->missionType)
+	if(missionType != EQuestMission::NONE)
 	{
 		auto rewardType = static_cast<ESeerHutRewardType>(reader->readUInt8());
 		Rewardable::VisitInfo vinfo;
@@ -1976,15 +1991,15 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 	}
 }
 
-void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
+int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 {
-	guard->quest->missionType = static_cast<CQuest::Emission>(reader->readUInt8());
+	auto missionId = reader->readUInt8();
 
-	switch(guard->quest->missionType)
+	switch(static_cast<EQuestMission>(missionId))
 	{
-		case CQuest::MISSION_NONE:
-			return;
-		case CQuest::MISSION_PRIMARY_STAT:
+		case EQuestMission::NONE:
+			return missionId;
+		case EQuestMission::PRIMARY_SKILL:
 		{
 			for(int x = 0; x < 4; ++x)
 			{
@@ -1992,14 +2007,17 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 		}
 		break;
-		case CQuest::MISSION_LEVEL:
-		case CQuest::MISSION_KILL_HERO:
-		case CQuest::MISSION_KILL_CREATURE:
+		case EQuestMission::LEVEL:
+		{
+			guard->quest->heroLevel = reader->readUInt32();
+		}
+		case EQuestMission::KILL_HERO:
+		case EQuestMission::KILL_CREATURE:
 		{
 			guard->quest->killTarget = reader->readUInt32();
 			break;
 		}
-		case CQuest::MISSION_ART:
+		case EQuestMission::ARTIFACT:
 		{
 			int artNumber = reader->readUInt8();
 			for(int yy = 0; yy < artNumber; ++yy)
@@ -2010,7 +2028,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 			break;
 		}
-		case CQuest::MISSION_ARMY:
+		case EQuestMission::ARMY:
 		{
 			int typeNumber = reader->readUInt8();
 			guard->quest->creatures.resize(typeNumber);
@@ -2021,30 +2039,30 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 			break;
 		}
-		case CQuest::MISSION_RESOURCES:
+		case EQuestMission::RESOURCES:
 		{
 			for(int x = 0; x < 7; ++x)
 				guard->quest->resources[x] = reader->readUInt32();
 
 			break;
 		}
-		case CQuest::MISSION_HERO:
+		case EQuestMission::HERO:
 		{
 			guard->quest->heroes.push_back(reader->readHero());
 			break;
 		}
-		case CQuest::MISSION_PLAYER:
+		case EQuestMission::PLAYER:
 		{
 			guard->quest->players.push_back(reader->readPlayer());
 			break;
 		}
-		case CQuest::MISSION_HOTA_MULTI:
+		case EQuestMission::HOTA_MULTI:
 		{
 			uint32_t missionSubID = reader->readUInt32();
 
 			if(missionSubID == 0)
 			{
-				guard->quest->missionType = CQuest::MISSION_HOTA_HERO_CLASS;
+				missionId = int(EQuestMission::HOTA_HERO_CLASS);
 				std::set<HeroClassID> heroClasses;
 				reader->readBitmaskHeroClassesSized(heroClasses, false);
 				for(auto & hc : heroClasses)
@@ -2053,7 +2071,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 			if(missionSubID == 1)
 			{
-				guard->quest->missionType = CQuest::MISSION_HOTA_REACH_DATE;
+				missionId = int(EQuestMission::HOTA_REACH_DATE);
 				guard->quest->daysPassed = reader->readUInt32();
 				break;
 			}
@@ -2072,6 +2090,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 	guard->quest->isCustomFirst = !guard->quest->firstVisitText.empty();
 	guard->quest->isCustomNext = !guard->quest->nextVisitText.empty();
 	guard->quest->isCustomComplete = !guard->quest->completedText.empty();
+	return missionId;
 }
 
 CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)

@@ -96,7 +96,6 @@ protected:
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);
-	QTableWidgetItem * addProperty(CQuest::Emission value);
 	QTableWidgetItem * addProperty(PropertyEditorPlaceholder value);
 	
 //===============END OF DECLARATION=======================================

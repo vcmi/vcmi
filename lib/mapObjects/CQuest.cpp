@@ -37,7 +37,6 @@ std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 //TODO: Remove constructor
 CQuest::CQuest():
 	qid(-1),
-	missionType(MISSION_NONE),
 	progress(NOT_ACTIVE),
 	lastDay(-1),
 	killTarget(-1),
@@ -47,7 +46,8 @@ CQuest::CQuest():
 	isCustomFirst(false),
 	isCustomNext(false),
 	isCustomComplete(false),
-	repeatedQuest(false)
+	repeatedQuest(false),
+	questName(CQuest::missionName(0))
 {
 }
 
@@ -57,7 +57,7 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-const std::string & CQuest::missionName(CQuest::Emission mission)
+const std::string & CQuest::missionName(int mission)
 {
 	static const std::array<std::string, 11> names = {
 		"empty",
@@ -164,277 +164,137 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	cb->giveResources(h->getOwner(), resources);
 }
 
-void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool isCustom, bool firstVisit, const CGHeroInstance * h) const
+void CQuest::addTextReplacements(MetaString & text) const
 {
-	MetaString text;
+	if(heroLevel > 0)
+		text.replaceNumber(heroLevel);
+	
+	{ //primary skills
+		MetaString loot;
+		for(int i = 0; i < 4; ++i)
+		{
+			if(primary[i])
+			{
+				loot.appendRawString("%d %s");
+				loot.replaceNumber(primary[i]);
+				loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
+			}
+		}
+		if(!loot.empty())
+			text.replaceRawString(loot.buildList());
+	}
+	
+	if(killTarget >= 0 && !heroName.empty())
+	{
+		//components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
+		addKillTargetReplacements(text);
+	}
+	
+	if(killTarget >= 0 && stackToKill.type)
+	{
+		//components.emplace_back(stackToKill);
+		addKillTargetReplacements(text);
+	}
+	
+	if(!heroes.empty())
+		text.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
+	
+	if(!artifacts.empty())
+	{
+		MetaString loot;
+		for(const auto & elem : artifacts)
+		{
+			loot.appendRawString("%s");
+			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
+		}
+		text.replaceRawString(loot.buildList());
+	}
+	
+	if(!creatures.empty())
+	{
+		MetaString loot;
+		for(const auto & elem : creatures)
+		{
+			loot.appendRawString("%s");
+			loot.replaceCreatureName(elem);
+		}
+		text.replaceRawString(loot.buildList());
+	}
+	
+	if(resources.nonZero())
+	{
+		MetaString loot;
+		for(int i = 0; i < 7; ++i)
+		{
+			if(resources[i])
+			{
+				loot.appendRawString("%d %s");
+				loot.replaceNumber(resources[i]);
+				loot.replaceLocalString(EMetaText::RES_NAMES, i);
+			}
+		}
+		text.replaceRawString(loot.buildList());
+	}
+	
+	if(!players.empty())
+		text.replaceLocalString(EMetaText::COLOR, players.front());
+}
+
+void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
+{
 	bool failRequirements = (h ? !checkQuest(h) : true);
 	loadComponents(components, h);
 
 	if(firstVisit)
-	{
-		isCustom = isCustomFirst;
-		text = firstVisitText;
-		iwText.appendRawString(text.toString());
-	}
+		iwText.appendRawString(firstVisitText.toString());
 	else if(failRequirements)
-	{
-		isCustom = isCustomNext;
-		text = nextVisitText;
-		iwText.appendRawString(text.toString());
-	}
-	switch (missionType)
-	{
-		case MISSION_LEVEL:
-			if(!isCustom)
-				iwText.replaceNumber(heroLevel); //TODO: heroLevel
-			break;
-		case MISSION_PRIMARY_STAT:
-		{
-			MetaString loot;
-			for(int i = 0; i < 4; ++i)
-			{
-				if(primary[i])
-				{
-					loot.appendRawString("%d %s");
-					loot.replaceNumber(primary[i]);
-					loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
-				}
-			}
-			if (!isCustom)
-				iwText.replaceRawString(loot.buildList());
-		}
-			break;
-		case MISSION_KILL_HERO:
-			components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
-			if(!isCustom)
-				addReplacements(iwText, text.toString());
-			break;
-		case MISSION_HERO:
-			if(!isCustom && !heroes.empty())
-				iwText.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
-			break;
-		case MISSION_KILL_CREATURE:
-			{
-				components.emplace_back(stackToKill);
-				if(!isCustom)
-				{
-					addReplacements(iwText, text.toString());
-				}
-			}
-			break;
-		case MISSION_ART:
-		{
-			MetaString loot;
-			for(const auto & elem : artifacts)
-			{
-				loot.appendRawString("%s");
-				loot.replaceLocalString(EMetaText::ART_NAMES, elem);
-			}
-			if(!isCustom)
-				iwText.replaceRawString(loot.buildList());
-		}
-			break;
-		case MISSION_ARMY:
-		{
-			MetaString loot;
-			for(const auto & elem : creatures)
-			{
-				loot.appendRawString("%s");
-				loot.replaceCreatureName(elem);
-			}
-			if(!isCustom)
-				iwText.replaceRawString(loot.buildList());
-		}
-			break;
-		case MISSION_RESOURCES:
-		{
-			MetaString loot;
-			for(int i = 0; i < 7; ++i)
-			{
-				if(resources[i])
-				{
-					loot.appendRawString("%d %s");
-					loot.replaceNumber(resources[i]);
-					loot.replaceLocalString(EMetaText::RES_NAMES, i);
-				}
-			}
-			if(!isCustom)
-				iwText.replaceRawString(loot.buildList());
-		}
-			break;
-		case MISSION_PLAYER:
-			if(!isCustom && !players.empty())
-				iwText.replaceLocalString(EMetaText::COLOR, players.front());
-			break;
-	}
+		iwText.appendRawString(nextVisitText.toString());
+	
+	addTextReplacements(iwText);
 }
 
 void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 {
-	// Quests with MISSION_NONE type don't have a text for them
-	assert(missionType != MISSION_NONE);
-
 	if(onHover)
 		ms.appendRawString("\n\n");
 
-	std::string questName = missionName(missionType);
 	std::string questState = missionState(onHover ? 3 : 4);
 
-	ms.appendRawString(VLC->generaltexth->translate("core.seerhut.quest", questName, questState,textOption));
+	ms.appendRawString(VLC->generaltexth->translate("core.seerhut.quest", questName, questState, textOption));
 
-	switch(missionType)
-	{
-		case MISSION_LEVEL:
-			ms.replaceNumber(heroLevel);
-			break;
-		case MISSION_PRIMARY_STAT:
-			{
-				MetaString loot;
-				for (int i = 0; i < 4; ++i)
-				{
-					if (primary[i])
-					{
-						loot.appendRawString("%d %s");
-						loot.replaceNumber(primary[i]);
-						loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
-					}
-				}
-				ms.replaceRawString(loot.buildList());
-			}
-			break;
-		case MISSION_KILL_HERO:
-			ms.replaceRawString(heroName);
-			break;
-		case MISSION_KILL_CREATURE:
-			ms.replaceCreatureName(stackToKill);
-			break;
-		case MISSION_ART:
-			{
-				MetaString loot;
-				for(const auto & elem : artifacts)
-				{
-					loot.appendRawString("%s");
-					loot.replaceLocalString(EMetaText::ART_NAMES, elem);
-				}
-				ms.replaceRawString(loot.buildList());
-			}
-			break;
-		case MISSION_ARMY:
-			{
-				MetaString loot;
-				for(const auto & elem : creatures)
-				{
-					loot.appendRawString("%s");
-					loot.replaceCreatureName(elem);
-				}
-				ms.replaceRawString(loot.buildList());
-			}
-			break;
-		case MISSION_RESOURCES:
-			{
-				MetaString loot;
-				for (int i = 0; i < 7; ++i)
-				{
-					if (resources[i])
-					{
-						loot.appendRawString("%d %s");
-						loot.replaceNumber(resources[i]);
-						loot.replaceLocalString(EMetaText::RES_NAMES, i);
-					}
-				}
-				ms.replaceRawString(loot.buildList());
-			}
-			break;
-		case MISSION_HERO:
-			ms.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
-			break;
-		case MISSION_PLAYER:
-			ms.replaceRawString(VLC->generaltexth->colors[players.front()]);
-			break;
-		default:
-			break;
-	}
+	addTextReplacements(ms);
 }
 
 void CQuest::getCompletionText(MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
-	switch(missionType)
+	
+	addTextReplacements(iwText);
+}
+
+void CQuest::defineQuestName()
+{
+	//standard quests
+	questName = CQuest::missionName(0);
+	if(heroLevel > 0) questName = CQuest::missionName(1);
+	for(auto & s : primary) if(s) questName = CQuest::missionName(2);
+	if(killTarget >= 0 && !heroName.empty()) questName = CQuest::missionName(3);
+	if(killTarget >= 0 && stackToKill.getType()) questName = CQuest::missionName(4);
+	if(!artifacts.empty()) questName = CQuest::missionName(5);
+	if(!creatures.empty()) questName = CQuest::missionName(6);
+	if(resources.nonZero()) questName = CQuest::missionName(7);
+	if(!heroes.empty()) questName = CQuest::missionName(8);
+	if(!players.empty()) questName = CQuest::missionName(9);
+}
+
+void CQuest::addKillTargetReplacements(MetaString &out) const
+{
+	if(!heroName.empty())
+		out.replaceTextID(heroName);
+	if(stackToKill.type)
 	{
-		case CQuest::MISSION_LEVEL:
-			if (!isCustomComplete)
-				iwText.replaceNumber(heroLevel);
-			break;
-		case CQuest::MISSION_PRIMARY_STAT:
-		{
-			MetaString loot;
-			assert(primary.size() <= 4);
-			for (int i = 0; i < primary.size(); ++i)
-			{
-				if (primary[i])
-				{
-					loot.appendRawString("%d %s");
-					loot.replaceNumber(primary[i]);
-					loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
-				}
-			}
-			if (!isCustomComplete)
-				iwText.replaceRawString(loot.buildList());
-			break;
-		}
-		case CQuest::MISSION_ART:
-		{
-			MetaString loot;
-			for(const auto & elem : artifacts)
-			{
-				loot.appendRawString("%s");
-				loot.replaceLocalString(EMetaText::ART_NAMES, elem);
-			}
-			if (!isCustomComplete)
-				iwText.replaceRawString(loot.buildList());
-		}
-			break;
-		case CQuest::MISSION_ARMY:
-		{
-			MetaString loot;
-			for(const auto & elem : creatures)
-			{
-				loot.appendRawString("%s");
-				loot.replaceCreatureName(elem);
-			}
-			if (!isCustomComplete)
-				iwText.replaceRawString(loot.buildList());
-		}
-			break;
-		case CQuest::MISSION_RESOURCES:
-		{
-			MetaString loot;
-			for (int i = 0; i < 7; ++i)
-			{
-				if (resources[i])
-				{
-					loot.appendRawString("%d %s");
-					loot.replaceNumber(resources[i]);
-					loot.replaceLocalString(EMetaText::RES_NAMES, i);
-				}
-			}
-			if (!isCustomComplete)
-				iwText.replaceRawString(loot.buildList());
-		}
-			break;
-		case MISSION_KILL_HERO:
-		case MISSION_KILL_CREATURE:
-			if (!isCustomComplete)
-				addReplacements(iwText, completedText.toString());
-			break;
-		case MISSION_HERO:
-			if (!isCustomComplete && !heroes.empty())
-				iwText.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
-			break;
-		case MISSION_PLAYER:
-			if (!isCustomComplete && !players.empty())
-				iwText.replaceRawString(VLC->generaltexth->colors[players.front()]);
-			break;
+		out.replaceCreatureName(stackToKill);
+		out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
 	}
 }
 
@@ -456,85 +316,87 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 	
 	Rewardable::Limiter::serializeJson(handler);
 
-	static const std::vector<std::string> MISSION_TYPE_JSON =
-	{
-		"None", "Level", "PrimaryStat", "KillHero", "KillCreature", "Artifact", "Army", "Resources", "Hero", "Player"
-	};
-
-	handler.serializeEnum("missionType", missionType, Emission::MISSION_NONE, MISSION_TYPE_JSON);
 	handler.serializeInt("timeLimit", lastDay, -1);
 	handler.serializeInstance<int>("killTarget", killTarget, -1);
 
-	if(!handler.saving)
+	if(!handler.saving) //compatibility with legacy vmaps
 	{
-		switch (missionType)
+		std::string missionType = "None";
+		handler.serializeString("missionType", missionType);
+		if(missionType == "None")
+			return;
+		
+		if(missionType == "Level")
+			handler.serializeInt("heroLevel", heroLevel, -1);
+		
+		if(missionType == "PrimaryStat")
 		{
-			case MISSION_NONE:
-				break;
-			case MISSION_LEVEL:
-				handler.serializeInt("heroLevel", heroLevel, -1);
-				break;
-			case MISSION_PRIMARY_STAT:
-				{
-					auto primarySkills = handler.enterStruct("primarySkills");
-					for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-						handler.serializeInt(NPrimarySkill::names[i], primary[i], 0);
-				}
-				break;
-			case MISSION_KILL_HERO:
-			case MISSION_KILL_CREATURE:
-				break;
-			case MISSION_ART:
-				handler.serializeIdArray<ArtifactID>("artifacts", artifacts);
-				break;
-			case MISSION_ARMY:
-			{
-				auto a = handler.enterArray("creatures");
-				a.serializeStruct(creatures);
-			}
-				break;
-			case MISSION_RESOURCES:
-			{
-				auto r = handler.enterStruct("resources");
+			auto primarySkills = handler.enterStruct("primarySkills");
+			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+				handler.serializeInt(NPrimarySkill::names[i], primary[i], 0);
+		}
+		
+		if(missionType == "Artifact")
+			handler.serializeIdArray<ArtifactID>("artifacts", artifacts);
+		
+		if(missionType == "Army")
+		{
+			auto a = handler.enterArray("creatures");
+			a.serializeStruct(creatures);
+		}
+		
+		if(missionType == "Resources")
+		{
+			auto r = handler.enterStruct("resources");
 
-				for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-				{
-					handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], resources[idx], 0);
-				}
-			}
-				break;
-			case MISSION_HERO:
+			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
 			{
-				ui32 temp;
-				handler.serializeId<ui32, ui32, HeroTypeID>("hero", temp, 0);
-				heroes.emplace_back(temp);
+				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], resources[idx], 0);
 			}
-				break;
-			case MISSION_PLAYER:
-			{
-				ui32 temp;
-				handler.serializeId<ui32, ui32, PlayerColor>("player", temp, PlayerColor::NEUTRAL);
-				players.emplace_back(temp);
-			}
-				break;
-			default:
-				logGlobal->error("Invalid quest mission type");
-				break;
+		}
+		
+		if(missionType == "Hero")
+		{
+			ui32 temp;
+			handler.serializeId<ui32, ui32, HeroTypeID>("hero", temp, 0);
+			heroes.emplace_back(temp);
+		}
+		
+		if(missionType == "Player")
+		{
+			ui32 temp;
+			handler.serializeId<ui32, ui32, PlayerColor>("player", temp, PlayerColor::NEUTRAL);
+			players.emplace_back(temp);
 		}
 	}
 
 }
 
+bool IQuestObject::checkQuest(const CGHeroInstance* h) const
+{
+	return quest->checkQuest(h);
+}
+
+void IQuestObject::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
+{
+	quest->getVisitText(text,components, FirstVisit, h);
+}
+
+void IQuestObject::afterAddToMapCommon(CMap * map) const
+{
+	map->addNewQuestInstance(quest);
+}
+
 void CGSeerHut::setObjToKill()
 {
-	if(quest->missionType == CQuest::MISSION_KILL_CREATURE)
+	if(getCreatureToKill(true))
 	{
 		quest->stackToKill = getCreatureToKill(false)->getStack(SlotID(0)); //FIXME: stacks tend to disappear (desync?) on server :?
 		assert(quest->stackToKill.type);
 		quest->stackToKill.count = 0; //no count in info window
 		quest->stackDirection = checkDirection();
 	}
-	else if(quest->missionType == CQuest::MISSION_KILL_HERO)
+	else if(getHeroToKill(true))
 	{
 		quest->heroName = getHeroToKill(false)->getNameTranslated();
 		quest->heroPortrait = getHeroToKill(false)->getPortraitSource();
@@ -566,27 +428,28 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	CRewardableObject::initObj(rand);
 
 	quest->progress = CQuest::NOT_ACTIVE;
-	if(quest->missionType)
-	{
-		std::string questName  = quest->missionName(quest->missionType);
-
-		if(!quest->isCustomFirst)
-			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(0), quest->textOption).get());
-		if(!quest->isCustomNext)
-			quest->nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(1), quest->textOption).get());
-		if(!quest->isCustomComplete)
-			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, quest->missionState(2), quest->textOption).get());
-	}
-	else
+	
+	quest->defineQuestName();
+	
+	if(quest->questName == quest->missionName(0))
 	{
 		quest->progress = CQuest::COMPLETE;
 		quest->firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", quest->completedOption).get());
+	}
+	else
+	{
+		if(!quest->isCustomFirst)
+			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest->questName, quest->missionState(0), quest->textOption).get());
+		if(!quest->isCustomNext)
+			quest->nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest->questName, quest->missionState(1), quest->textOption).get());
+		if(!quest->isCustomComplete)
+			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest->questName, quest->missionState(2), quest->textOption).get());
 	}
 }
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 {
-	quest->getRolloverText (text, onHover);//TODO: simplify?
+	quest->getRolloverText(text, onHover);//TODO: simplify?
 	if(!onHover)
 		text.replaceRawString(seerName);
 }
@@ -600,7 +463,7 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 		boost::algorithm::replace_first(hoverName, "%s", seerName);
 	}
 
-	if(quest->progress & quest->missionType) //rollover when the quest is active
+	if(quest->progress/* & quest->missionType*/) //rollover when the quest is active
 	{
 		MetaString ms;
 		getRolloverText (ms, true);
@@ -609,47 +472,12 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 	return hoverName;
 }
 
-void CQuest::addReplacements(MetaString &out, const std::string &base) const
-{
-	switch(missionType)
-	{
-	case MISSION_KILL_CREATURE:
-		if(stackToKill.type)
-		{
-			out.replaceCreatureName(stackToKill);
-			if (std::count(base.begin(), base.end(), '%') == 2) //say where is placed monster
-			{
-				out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
-			}
-		}
-		break;
-	case MISSION_KILL_HERO:
-		out.replaceTextID(heroName);
-		break;
-	}
-}
-
-bool IQuestObject::checkQuest(const CGHeroInstance* h) const
-{
-	return quest->checkQuest(h);
-}
-
-void IQuestObject::getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h) const
-{
-	quest->getVisitText (text,components, isCustom, FirstVisit, h);
-}
-
-void IQuestObject::afterAddToMapCommon(CMap * map) const
-{
-	map->addNewQuestInstance(quest);
-}
-
 void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 {
 	switch(what)
 	{
 		case 10:
-			quest->progress = static_cast<CQuest::Eprogress>(val);
+			quest->progress = static_cast<CQuest::EProgress>(val);
 			break;
 	}
 }
@@ -671,11 +499,9 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 	{
 		bool firstVisit = !quest->progress;
 		bool failRequirements = !checkQuest(h);
-		bool isCustom = false;
 
 		if(firstVisit)
 		{
-			isCustom = quest->isCustomFirst;
 			cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::IN_PROGRESS);
 
 			AddQuest aq;
@@ -683,14 +509,10 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 			aq.player = h->tempOwner;
 			cb->sendAndApply(&aq); //TODO: merge with setObjProperty?
 		}
-		else if(failRequirements)
-		{
-			isCustom = quest->isCustomNext;
-		}
 
 		if(firstVisit || failRequirements)
 		{
-			getVisitText (iw.text, iw.components, isCustom, firstVisit, h);
+			getVisitText (iw.text, iw.components, firstVisit, h);
 
 			cb->showInfoDialog(&iw);
 		}
@@ -765,7 +587,10 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 	if(answer)
 	{
 		quest->completeQuest(cb, hero);
-		cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE); //mission complete
+		if(quest && quest->repeatedQuest)
+			cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::NOT_ACTIVE);
+		else
+			cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE); //mission complete
 	}
 }
 
@@ -919,12 +744,12 @@ void CGBorderGuard::initObj(CRandomGenerator & rand)
 	blockVisit = true;
 }
 
-void CGBorderGuard::getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h) const
+void CGBorderGuard::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	text.appendLocalString(EMetaText::ADVOB_TXT,18);
+	text.appendLocalString(EMetaText::ADVOB_TXT, 18);
 }
 
-void CGBorderGuard::getRolloverText (MetaString &text, bool onHover) const
+void CGBorderGuard::getRolloverText(MetaString &text, bool onHover) const
 {
 	if (!onHover)
 	{

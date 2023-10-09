@@ -29,20 +29,6 @@
 #include "PickObjectDelegate.h"
 #include "../mapcontroller.h"
 
-static QList<std::pair<QString, QVariant>> MissionIdentifiers
-{
-	{QObject::tr("None"), QVariant::fromValue(int(CQuest::Emission::MISSION_NONE))},
-	{QObject::tr("Reach level"), QVariant::fromValue(int(CQuest::Emission::MISSION_LEVEL))},
-	{QObject::tr("Stats"), QVariant::fromValue(int(CQuest::Emission::MISSION_PRIMARY_STAT))},
-	{QObject::tr("Kill hero"), QVariant::fromValue(int(CQuest::Emission::MISSION_KILL_HERO))},
-	{QObject::tr("Kill monster"), QVariant::fromValue(int(CQuest::Emission::MISSION_KILL_CREATURE))},
-	{QObject::tr("Artifact"), QVariant::fromValue(int(CQuest::Emission::MISSION_ART))},
-	{QObject::tr("Army"), QVariant::fromValue(int(CQuest::Emission::MISSION_ARMY))},
-	{QObject::tr("Resources"), QVariant::fromValue(int(CQuest::Emission::MISSION_RESOURCES))},
-	{QObject::tr("Hero"), QVariant::fromValue(int(CQuest::Emission::MISSION_HERO))},
-	{QObject::tr("Player"), QVariant::fromValue(int(CQuest::Emission::MISSION_PLAYER))},
-};
-
 static QList<std::pair<QString, QVariant>> CharacterIdentifiers
 {
 	{QObject::tr("Compliant"), QVariant::fromValue(int(CGCreature::Character::COMPLIANT))},
@@ -411,12 +397,6 @@ void Inspector::updateProperties(CGEvent * o)
 void Inspector::updateProperties(CGSeerHut * o)
 {
 	if(!o || !o->quest) return;
-
-	{ //Mission type
-		auto * delegate = new InspectorDelegate;
-		delegate->options = MissionIdentifiers;
-		addProperty<CQuest::Emission>("Mission type", o->quest->missionType, delegate, false);
-	}
 	
 	addProperty("First visit text", o->quest->firstVisitText, new MessageDelegate, false);
 	addProperty("Next visit text", o->quest->nextVisitText, new MessageDelegate, false);
@@ -678,8 +658,6 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 {
 	if(!o) return;
 	
-	if(key == "Mission type")
-		o->quest->missionType = CQuest::Emission(value.toInt());
 	if(key == "First visit text")
 		o->quest->firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(), TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
 	if(key == "Next visit text")
@@ -787,24 +765,6 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
 	
 	for(auto & i : CharacterIdentifiers)
-	{
-		if(i.second.toInt() == value)
-		{
-			item->setText(i.first);
-			break;
-		}
-	}
-	
-	return item;
-}
-
-QTableWidgetItem * Inspector::addProperty(CQuest::Emission value)
-{
-	auto * item = new QTableWidgetItem;
-	item->setFlags(Qt::NoItemFlags);
-	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
-	
-	for(auto & i : MissionIdentifiers)
 	{
 		if(i.second.toInt() == value)
 		{

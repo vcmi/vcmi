@@ -547,7 +547,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 
 		for (size_t i = 0; i < 9; ++i) //9 types of quests
 		{
-			std::string questName = CQuest::missionName(static_cast<CQuest::Emission>(1+i));
+			std::string questName = CQuest::missionName(1+i);
 
 			for (size_t j = 0; j < 5; ++j)
 			{
