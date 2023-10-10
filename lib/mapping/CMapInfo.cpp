@@ -105,7 +105,10 @@ std::string CMapInfo::getNameTranslated() const
 	if(campaign && !campaign->getNameTranslated().empty())
 		return campaign->getNameTranslated();
 	else if(mapHeader && !mapHeader->name.empty())
+	{
+		mapHeader->registerMapStrings();
 		return mapHeader->name.toString();
+	}
 	else
 		return VLC->generaltexth->allTexts[508];
 }

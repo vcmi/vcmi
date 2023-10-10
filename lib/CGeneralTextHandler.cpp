@@ -264,21 +264,21 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 
 void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
 {
-	subContainers.insert(&container);
+	subContainers.push_back(&container);
 }
 
 void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
 {
-	subContainers.erase(&container);
+	std::remove(subContainers.begin(), subContainers.end(), &container);
 }
 
 const std::string & TextLocalizationContainer::deserialize(const TextIdentifier & identifier) const
 {
 	if(stringsLocalizations.count(identifier.get()) == 0)
 	{
-		for(const auto * container : subContainers)
-			if(container->identifierExists(identifier))
-				return container->deserialize(identifier);
+		for(auto containerIter = subContainers.rbegin(); containerIter != subContainers.rend(); ++containerIter)
+			if((*containerIter)->identifierExists(identifier))
+				return (*containerIter)->deserialize(identifier);
 		
 		logGlobal->error("Unable to find localization for string '%s'", identifier.get());
 		return identifier.get();
