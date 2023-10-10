@@ -32,6 +32,7 @@ void setProperty(x*, const QString &, const QVariant &);
 #define SET_PROPERTIES(x) setProperty(dynamic_cast<x*>(obj), key, value)
 
 
+class MapController;
 class Initializer
 {
 public:
@@ -101,7 +102,7 @@ protected:
 //===============END OF DECLARATION=======================================
 	
 public:
-	Inspector(CMap *, CGObjectInstance *, QTableWidget *);
+	Inspector(MapController &, CGObjectInstance *, QTableWidget *);
 
 	void setProperty(const QString & key, const QTableWidgetItem * item);
 	
@@ -154,10 +155,8 @@ protected:
 	QTableWidget * table;
 	CGObjectInstance * obj;
 	QMap<QString, QTableWidgetItem*> keyItems;
-	CMap * map;
+	MapController & controller;
 };
-
-
 
 
 class InspectorDelegate : public QStyledItemDelegate
@@ -172,4 +171,3 @@ public:
 	
 	QList<std::pair<QString, QVariant>> options;
 };
-
