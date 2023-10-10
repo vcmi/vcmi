@@ -462,7 +462,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->configuration.info.push_back(reward);
 								
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->artifacts.push_back(artid);
+				obj->quest->mission.artifacts.push_back(artid);
 				
 				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
@@ -510,7 +510,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->configuration.info.push_back(reward);
 				
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->artifacts.push_back(artid);
+				obj->quest->mission.artifacts.push_back(artid);
 				
 				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
@@ -532,7 +532,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->configuration.info.push_back(reward);
 				
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->artifacts.push_back(artid);
+				obj->quest->mission.artifacts.push_back(artid);
 				
 				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);

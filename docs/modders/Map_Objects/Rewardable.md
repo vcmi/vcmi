@@ -456,7 +456,6 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as limiter
 - Can NOT be used as reward
 - Only players with specific color can pass the limiter
-- If not specified or empty all colors may pass the limiter
 
 ```jsonc
 "colors" : [ "red", "blue", "tan", "green", "orange", "purple", "teal", "pink" ]

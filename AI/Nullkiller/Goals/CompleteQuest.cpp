@@ -38,26 +38,26 @@ TGoalVec CompleteQuest::decompose() const
 
 	logAi->debug("Trying to realize quest: %s", questToString());
 	
-	if(!q.quest->artifacts.empty())
+	if(!q.quest->mission.artifacts.empty())
 		return missionArt();
 
-	if(!q.quest->heroes.empty())
+	if(!q.quest->mission.heroes.empty())
 		return missionHero();
 
-	if(!q.quest->creatures.empty())
+	if(!q.quest->mission.creatures.empty())
 		return missionArmy();
 
-	if(q.quest->resources.nonZero())
+	if(q.quest->mission.resources.nonZero())
 		return missionResources();
 
-	if(q.quest->killTarget >= 0)
+	if(q.quest->killTarget != ObjectInstanceID::NONE)
 		return missionDestroyObj();
 
-	for(auto & s : q.quest->primary)
+	for(auto & s : q.quest->mission.primary)
 		if(s)
 			return missionIncreasePrimaryStat();
 
-	if(q.quest->heroLevel > 0)
+	if(q.quest->mission.heroLevel > 0)
 		return missionLevel();
 	
 	if(q.quest->questName == CQuest::missionName(10))
@@ -127,7 +127,7 @@ TGoalVec CompleteQuest::missionArt() const
 
 	CaptureObjectsBehavior findArts;
 
-	for(auto art : q.quest->artifacts)
+	for(auto art : q.quest->mission.artifacts)
 	{
 		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art)));
 	}

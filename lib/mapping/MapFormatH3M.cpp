@@ -1890,7 +1890,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 		if(artID != ArtifactID::NONE)
 		{
 			//not none quest
-			hut->quest->artifacts.push_back(artID);
+			hut->quest->mission.artifacts.push_back(artID);
 			missionType = EQuestMission::ARTIFACT;
 		}
 		hut->quest->lastDay = -1; //no timeout
@@ -2003,19 +2003,19 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 		{
 			for(int x = 0; x < 4; ++x)
 			{
-				guard->quest->primary[x] = reader->readUInt8();
+				guard->quest->mission.primary[x] = reader->readUInt8();
 			}
 			break;
 		}
 		case EQuestMission::LEVEL:
 		{
-			guard->quest->heroLevel = reader->readUInt32();
+			guard->quest->mission.heroLevel = reader->readUInt32();
 			break;
 		}
 		case EQuestMission::KILL_HERO:
 		case EQuestMission::KILL_CREATURE:
 		{
-			guard->quest->killTarget = reader->readUInt32();
+			guard->quest->killTarget = ObjectInstanceID(reader->readUInt32());
 			break;
 		}
 		case EQuestMission::ARTIFACT:
@@ -2024,7 +2024,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			for(int yy = 0; yy < artNumber; ++yy)
 			{
 				auto artid = reader->readArtifact();
-				guard->quest->artifacts.push_back(artid);
+				guard->quest->mission.artifacts.push_back(artid);
 				map->allowedArtifact[artid] = false; //these are unavailable for random generation
 			}
 			break;
@@ -2032,29 +2032,29 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 		case EQuestMission::ARMY:
 		{
 			int typeNumber = reader->readUInt8();
-			guard->quest->creatures.resize(typeNumber);
+			guard->quest->mission.creatures.resize(typeNumber);
 			for(int hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->quest->creatures[hh].type = VLC->creh->objects[reader->readCreature()];
-				guard->quest->creatures[hh].count = reader->readUInt16();
+				guard->quest->mission.creatures[hh].type = VLC->creh->objects[reader->readCreature()];
+				guard->quest->mission.creatures[hh].count = reader->readUInt16();
 			}
 			break;
 		}
 		case EQuestMission::RESOURCES:
 		{
 			for(int x = 0; x < 7; ++x)
-				guard->quest->resources[x] = reader->readUInt32();
+				guard->quest->mission.resources[x] = reader->readUInt32();
 
 			break;
 		}
 		case EQuestMission::HERO:
 		{
-			guard->quest->heroes.push_back(reader->readHero());
+			guard->quest->mission.heroes.push_back(reader->readHero());
 			break;
 		}
 		case EQuestMission::PLAYER:
 		{
-			guard->quest->players.push_back(reader->readPlayer());
+			guard->quest->mission.players.push_back(reader->readPlayer());
 			break;
 		}
 		case EQuestMission::HOTA_MULTI:
@@ -2067,13 +2067,13 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 				std::set<HeroClassID> heroClasses;
 				reader->readBitmaskHeroClassesSized(heroClasses, false);
 				for(auto & hc : heroClasses)
-					guard->quest->heroClasses.push_back(hc);
+					guard->quest->mission.heroClasses.push_back(hc);
 				break;
 			}
 			if(missionSubID == 1)
 			{
 				missionId = int(EQuestMission::HOTA_REACH_DATE);
-				guard->quest->daysPassed = reader->readUInt32();
+				guard->quest->mission.daysPassed = reader->readUInt32();
 				break;
 			}
 			break;

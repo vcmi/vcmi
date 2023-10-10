@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
 
-class DLL_LINKAGE CQuest: public Rewardable::Limiter
+class DLL_LINKAGE CQuest final
 {
 public:
 
@@ -36,7 +36,8 @@ public:
 
 	EProgress progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
-	int killTarget;
+	ObjectInstanceID killTarget;
+	Rewardable::Limiter mission;
 	bool repeatedQuest;
 
 	// following fields are used only for kill creature/hero missions, the original
@@ -89,7 +90,8 @@ public:
 		h & isCustomComplete;
 		h & completedOption;
 		h & questName;
-		h & static_cast<Rewardable::Limiter&>(*this);
+		h & mission;
+		h & killTarget;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);

@@ -26,7 +26,7 @@ using LimitersList = std::vector<std::shared_ptr<Rewardable::Limiter>>;
 
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
 /// Note: for this is only a test - it won't remove anything from hero (e.g. artifacts or creatures)
-struct DLL_LINKAGE Limiter
+struct DLL_LINKAGE Limiter final
 {
 	/// day of week, unused if 0, 1-7 will test for current day of week
 	si32 dayOfWeek;
@@ -81,7 +81,6 @@ struct DLL_LINKAGE Limiter
 	virtual ~Limiter();
 
 	bool heroAllowed(const CGHeroInstance * hero) const;
-	bool empty() const;
 	
 	/// Generates list of components that describes reward for a specific hero
 	virtual void loadComponents(std::vector<Component> & comps,
@@ -100,17 +99,19 @@ struct DLL_LINKAGE Limiter
 		h & secondary;
 		h & artifacts;
 		h & creatures;
-		h & allOf;
-		h & anyOf;
-		h & noneOf;
 		h & heroes;
 		h & heroClasses;
 		h & players;
+		h & allOf;
+		h & anyOf;
+		h & noneOf;
 	}
 	
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
 }
+
+bool DLL_LINKAGE operator== (const Rewardable::Limiter & l, const Rewardable::Limiter & r);
 
 VCMI_LIB_NAMESPACE_END

@@ -40,7 +40,7 @@ CQuest::CQuest():
 	qid(-1),
 	progress(NOT_ACTIVE),
 	lastDay(-1),
-	killTarget(-1),
+	killTarget(ObjectInstanceID::NONE),
 	textOption(0),
 	completedOption(0),
 	stackDirection(0),
@@ -101,7 +101,7 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 	ui32 count = 0;
 	ui32 slotsCount = 0;
 	bool hasExtraCreatures = false;
-	for(cre = q->creatures.begin(); cre != q->creatures.end(); ++cre)
+	for(cre = q->mission.creatures.begin(); cre != q->mission.creatures.end(); ++cre)
 	{
 		for(count = 0, it = army->Slots().begin(); it != army->Slots().end(); ++it)
 		{
@@ -123,10 +123,10 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 
 bool CQuest::checkQuest(const CGHeroInstance * h) const
 {
-	if(!heroAllowed(h))
+	if(!mission.heroAllowed(h))
 		return false;
 	
-	if(killTarget >= 0)
+	if(killTarget != ObjectInstanceID::NONE)
 	{
 		if(CGHeroInstance::cb->getObjByQuestIdentifier(killTarget))
 			return false;
@@ -137,7 +137,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 
 void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 {
-	for(auto & elem : artifacts)
+	for(auto & elem : mission.artifacts)
 	{
 		if(h->hasArt(elem))
 		{
@@ -161,36 +161,36 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 		}
 	}
 			
-	cb->takeCreatures(h->id, creatures);
-	cb->giveResources(h->getOwner(), resources);
+	cb->takeCreatures(h->id, mission.creatures);
+	cb->giveResources(h->getOwner(), mission.resources);
 }
 
 void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & components) const
 {
-	if(heroLevel > 0)
-		text.replaceNumber(heroLevel);
+	if(mission.heroLevel > 0)
+		text.replaceNumber(mission.heroLevel);
 	
-	if(heroExperience > 0)
-		text.replaceNumber(heroExperience);
+	if(mission.heroExperience > 0)
+		text.replaceNumber(mission.heroExperience);
 	
 	{ //primary skills
 		MetaString loot;
 		for(int i = 0; i < 4; ++i)
 		{
-			if(primary[i])
+			if(mission.primary[i])
 			{
 				loot.appendRawString("%d %s");
-				loot.replaceNumber(primary[i]);
+				loot.replaceNumber(mission.primary[i]);
 				loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
 			}
 		}
 		
-		for(auto & skill : secondary)
+		for(auto & skill : mission.secondary)
 		{
 			loot.appendTextID(VLC->skillh->getById(skill.first)->getNameTextID());
 		}
 		
-		for(auto & spell : spells)
+		for(auto & spell : mission.spells)
 		{
 			loot.appendTextID(VLC->spellh->getById(spell)->getNameTextID());
 		}
@@ -199,25 +199,25 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 			text.replaceRawString(loot.buildList());
 	}
 	
-	if(killTarget >= 0 && !heroName.empty())
+	if(killTarget != ObjectInstanceID::NONE && !heroName.empty())
 	{
 		components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
 		addKillTargetReplacements(text);
 	}
 	
-	if(killTarget >= 0 && stackToKill.type)
+	if(killTarget != ObjectInstanceID::NONE && stackToKill.type)
 	{
 		components.emplace_back(stackToKill);
 		addKillTargetReplacements(text);
 	}
 	
-	if(!heroes.empty())
-		text.replaceRawString(VLC->heroh->getById(heroes.front())->getNameTranslated());
+	if(!mission.heroes.empty())
+		text.replaceRawString(VLC->heroh->getById(mission.heroes.front())->getNameTranslated());
 	
-	if(!artifacts.empty())
+	if(!mission.artifacts.empty())
 	{
 		MetaString loot;
-		for(const auto & elem : artifacts)
+		for(const auto & elem : mission.artifacts)
 		{
 			loot.appendRawString("%s");
 			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
@@ -225,10 +225,10 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		text.replaceRawString(loot.buildList());
 	}
 	
-	if(!creatures.empty())
+	if(!mission.creatures.empty())
 	{
 		MetaString loot;
-		for(const auto & elem : creatures)
+		for(const auto & elem : mission.creatures)
 		{
 			loot.appendRawString("%s");
 			loot.replaceCreatureName(elem);
@@ -236,25 +236,25 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		text.replaceRawString(loot.buildList());
 	}
 	
-	if(resources.nonZero())
+	if(mission.resources.nonZero())
 	{
 		MetaString loot;
 		for(int i = 0; i < 7; ++i)
 		{
-			if(resources[i])
+			if(mission.resources[i])
 			{
 				loot.appendRawString("%d %s");
-				loot.replaceNumber(resources[i]);
+				loot.replaceNumber(mission.resources[i]);
 				loot.replaceLocalString(EMetaText::RES_NAMES, i);
 			}
 		}
 		text.replaceRawString(loot.buildList());
 	}
 	
-	if(!players.empty())
+	if(!mission.players.empty())
 	{
 		MetaString loot;
-		for(auto & p : players)
+		for(auto & p : mission.players)
 			loot.appendLocalString(EMetaText::COLOR, p);
 		
 		text.replaceRawString(loot.buildList());
@@ -264,7 +264,7 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
-	loadComponents(components, h);
+	mission.loadComponents(components, h);
 
 	if(firstVisit)
 		iwText.appendRawString(firstVisitText.toString());
@@ -299,17 +299,17 @@ void CQuest::defineQuestName()
 {
 	//standard quests
 	questName = CQuest::missionName(0);
-	if(heroLevel > 0) questName = CQuest::missionName(1);
-	for(auto & s : primary) if(s) questName = CQuest::missionName(2);
-	if(!spells.empty()) questName = CQuest::missionName(2);
-	if(!secondary.empty()) questName = CQuest::missionName(2);
-	if(killTarget >= 0 && !heroName.empty()) questName = CQuest::missionName(3);
-	if(killTarget >= 0 && stackToKill.getType()) questName = CQuest::missionName(4);
-	if(!artifacts.empty()) questName = CQuest::missionName(5);
-	if(!creatures.empty()) questName = CQuest::missionName(6);
-	if(resources.nonZero()) questName = CQuest::missionName(7);
-	if(!heroes.empty()) questName = CQuest::missionName(8);
-	if(!players.empty()) questName = CQuest::missionName(9);
+	if(mission.heroLevel > 0) questName = CQuest::missionName(1);
+	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(2);
+	if(!mission.spells.empty()) questName = CQuest::missionName(2);
+	if(!mission.secondary.empty()) questName = CQuest::missionName(2);
+	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(3);
+	if(killTarget != ObjectInstanceID::NONE && stackToKill.getType()) questName = CQuest::missionName(4);
+	if(!mission.artifacts.empty()) questName = CQuest::missionName(5);
+	if(!mission.creatures.empty()) questName = CQuest::missionName(6);
+	if(mission.resources.nonZero()) questName = CQuest::missionName(7);
+	if(!mission.heroes.empty()) questName = CQuest::missionName(8);
+	if(!mission.players.empty()) questName = CQuest::missionName(9);
 }
 
 void CQuest::addKillTargetReplacements(MetaString &out) const
@@ -339,10 +339,9 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		isCustomComplete = !completedText.empty();
 	}
 	
-	Rewardable::Limiter::serializeJson(handler);
-
 	handler.serializeInt("timeLimit", lastDay, -1);
-	handler.serializeInstance<int>("killTarget", killTarget, -1);
+	handler.serializeStruct("limiter", mission);
+	handler.serializeInstance("killTarget", killTarget, ObjectInstanceID::NONE);
 
 	if(!handler.saving) //compatibility with legacy vmaps
 	{
@@ -352,22 +351,22 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 			return;
 		
 		if(missionType == "Level")
-			handler.serializeInt("heroLevel", heroLevel, -1);
+			handler.serializeInt("heroLevel", mission.heroLevel, -1);
 		
 		if(missionType == "PrimaryStat")
 		{
 			auto primarySkills = handler.enterStruct("primarySkills");
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-				handler.serializeInt(NPrimarySkill::names[i], primary[i], 0);
+				handler.serializeInt(NPrimarySkill::names[i], mission.primary[i], 0);
 		}
 		
 		if(missionType == "Artifact")
-			handler.serializeIdArray<ArtifactID>("artifacts", artifacts);
+			handler.serializeIdArray<ArtifactID>("artifacts", mission.artifacts);
 		
 		if(missionType == "Army")
 		{
 			auto a = handler.enterArray("creatures");
-			a.serializeStruct(creatures);
+			a.serializeStruct(mission.creatures);
 		}
 		
 		if(missionType == "Resources")
@@ -376,7 +375,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 
 			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
 			{
-				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], resources[idx], 0);
+				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], mission.resources[idx], 0);
 			}
 		}
 		
@@ -384,14 +383,14 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		{
 			ui32 temp;
 			handler.serializeId<ui32, ui32, HeroTypeID>("hero", temp, 0);
-			heroes.emplace_back(temp);
+			mission.heroes.emplace_back(temp);
 		}
 		
 		if(missionType == "Player")
 		{
 			ui32 temp;
 			handler.serializeId<ui32, ui32, PlayerColor>("player", temp, PlayerColor::NEUTRAL);
-			players.emplace_back(temp);
+			mission.players.emplace_back(temp);
 		}
 	}
 
@@ -457,7 +456,7 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	setObjToKill();
 	quest->defineQuestName();
 	
-	if(quest->empty() && quest->killTarget == -1)
+	if(quest->mission == Rewardable::Limiter{} && quest->killTarget == ObjectInstanceID::NONE)
 	   quest->progress = CQuest::COMPLETE;
 	
 	if(quest->questName == quest->missionName(0))
@@ -504,7 +503,7 @@ void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 {
 	switch(what)
 	{
-		case 10:
+		case CGSeerHut::OBJPROP_VISITED:
 			quest->progress = static_cast<CQuest::EProgress>(val);
 			break;
 	}

@@ -112,7 +112,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng)
 					 + JsonRandom::loadValue(source["minLevel"], rng); // VCMI 1.1 compatibilty
 
-	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng);
+	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, -1);
 	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng);
 
 	limiter.resources = JsonRandom::loadResources(source["resources"], rng);

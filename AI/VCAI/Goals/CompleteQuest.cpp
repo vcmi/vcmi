@@ -29,26 +29,26 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 	{
 		logAi->debug("Trying to realize quest: %s", questToString());
 
-		if(!q.quest->artifacts.empty())
+		if(!q.quest->mission.artifacts.empty())
 			return missionArt();
 
-		if(!q.quest->heroes.empty())
+		if(!q.quest->mission.heroes.empty())
 			return missionHero();
 
-		if(!q.quest->creatures.empty())
+		if(!q.quest->mission.creatures.empty())
 			return missionArmy();
 
-		if(q.quest->resources.nonZero())
+		if(q.quest->mission.resources.nonZero())
 			return missionResources();
 
-		if(q.quest->killTarget >= 0)
+		if(q.quest->killTarget != ObjectInstanceID::NONE)
 			return missionDestroyObj();
 
-		for(auto & s : q.quest->primary)
+		for(auto & s : q.quest->mission.primary)
 			if(s)
 				return missionIncreasePrimaryStat();
 
-		if(q.quest->heroLevel > 0)
+		if(q.quest->mission.heroLevel > 0)
 			return missionLevel();
 		
 		if(q.quest->questName == CQuest::missionName(10))
@@ -127,7 +127,7 @@ TGoalVec CompleteQuest::missionArt() const
 	if(!solutions.empty())
 		return solutions;
 
-	for(auto art : q.quest->artifacts)
+	for(auto art : q.quest->mission.artifacts)
 	{
 		solutions.push_back(sptr(GetArtOfType(art))); //TODO: transport?
 	}
@@ -155,7 +155,7 @@ TGoalVec CompleteQuest::missionArmy() const
 	if(!solutions.empty())
 		return solutions;
 
-	for(auto creature : q.quest->creatures)
+	for(auto creature : q.quest->mission.creatures)
 	{
 		solutions.push_back(sptr(GatherTroops(creature.type->getId(), creature.count)));
 	}
@@ -169,7 +169,7 @@ TGoalVec CompleteQuest::missionIncreasePrimaryStat() const
 
 	if(solutions.empty())
 	{
-		for(int i = 0; i < q.quest->primary.size(); ++i)
+		for(int i = 0; i < q.quest->mission.primary.size(); ++i)
 		{
 			// TODO: library, school and other boost objects
 			logAi->debug("Don't know how to increase primary stat %d", i);
@@ -185,7 +185,7 @@ TGoalVec CompleteQuest::missionLevel() const
 
 	if(solutions.empty())
 	{
-		logAi->debug("Don't know how to reach hero level %d", q.quest->heroLevel);
+		logAi->debug("Don't know how to reach hero level %d", q.quest->mission.heroLevel);
 	}
 
 	return solutions;
@@ -217,10 +217,10 @@ TGoalVec CompleteQuest::missionResources() const
 		}
 		else
 		{
-			for(int i = 0; i < q.quest->resources.size(); ++i)
+			for(int i = 0; i < q.quest->mission.resources.size(); ++i)
 			{
-				if(q.quest->resources[i])
-					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->resources[i])));
+				if(q.quest->mission.resources[i])
+					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->mission.resources[i])));
 			}
 		}
 	}

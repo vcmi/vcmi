@@ -27,7 +27,7 @@ Rewardable::Limiter::Limiter()
 	, daysPassed(0)
 	, heroExperience(0)
 	, heroLevel(-1)
-	, manaPercentage(0)
+	, manaPercentage(-1)
 	, manaPoints(0)
 	, primary(GameConstants::PRIMARY_SKILLS, 0)
 {
@@ -35,35 +35,26 @@ Rewardable::Limiter::Limiter()
 
 Rewardable::Limiter::~Limiter() = default;
 
-bool Rewardable::Limiter::empty() const
+bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 {
-	if(dayOfWeek != 0
-	   || daysPassed != 0
-	   || heroLevel > 0
-	   || heroExperience > 0
-	   || manaPoints > 0
-	   || manaPercentage > 0
-	   || !secondary.empty()
-	   || !creatures.empty()
-	   || !spells.empty()
-	   || !artifacts.empty()
-	   || !players.empty()
-	   || !heroes.empty()
-	   || !heroClasses.empty()
-	   || resources.nonZero()
-	   || std::find_if(primary.begin(), primary.end(), [](si32 i){return i != 0;}) != primary.end())
-		return false;
-	
-	for(const auto & sub : {noneOf, allOf, anyOf})
-	{
-		for(const auto & sublimiter : sub)
-		{
-			if(!sublimiter->empty())
-				return false;
-		}
-	}
-	
-	return true;
+	return l.dayOfWeek == r.dayOfWeek
+	&& l.daysPassed == r.daysPassed
+	&& l.heroLevel == r.heroLevel
+	&& l.heroExperience == r.heroExperience
+	&& l.manaPoints == r.manaPoints
+	&& l.manaPercentage == r.manaPercentage
+	&& l.secondary == r.secondary
+	&& l.creatures == r.creatures
+	&& l.spells == r.spells
+	&& l.artifacts == r.artifacts
+	&& l.players == r.players
+	&& l.heroes == r.heroes
+	&& l.heroClasses == r.heroClasses
+	&& l.resources == r.resources
+	&& l.primary == r.primary
+	&& l.noneOf == r.noneOf
+	&& l.allOf == r.allOf
+	&& l.anyOf == r.anyOf;
 }
 
 bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
@@ -127,7 +118,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	}
 
 	{
-		std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
+		std::unordered_map<ArtifactID, unsigned int, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
 		for(const auto & art : artifacts)
 			++artifactsRequirements[art];
 		
@@ -186,9 +177,9 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 	if (heroLevel)
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
 
-	if (manaPoints || manaPercentage > 0)
+	if (manaPoints || manaPercentage >= 0)
 	{
-		int absoluteMana = h->manaLimit() ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
+		int absoluteMana = (h->manaLimit() && manaPercentage >= 0) ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
 		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, absoluteMana + manaPoints, 0);
 	}
 
@@ -232,7 +223,7 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("dayOfWeek", dayOfWeek);
 	handler.serializeInt("daysPassed", daysPassed);
 	resources.serializeJson(handler, "resources");
-	handler.serializeInt("manaPercentage", manaPercentage);
+	handler.serializeInt("manaPercentage", manaPercentage, -1);
 	handler.serializeInt("heroExperience", heroExperience);
 	handler.serializeInt("heroLevel", heroLevel);
 	handler.serializeIdArray("heroes", heroes);

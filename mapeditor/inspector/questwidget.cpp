@@ -137,40 +137,40 @@ QuestWidget::~QuestWidget()
 
 void QuestWidget::obtainData()
 {
-	ui->lDayOfWeek->setCurrentIndex(quest.dayOfWeek);
-	ui->lDaysPassed->setValue(quest.daysPassed);
-	ui->lHeroLevel->setValue(quest.heroLevel);
-	ui->lHeroExperience->setValue(quest.heroExperience);
-	ui->lManaPoints->setValue(quest.manaPoints);
-	ui->lManaPercentage->setValue(quest.manaPercentage);
-	ui->lAttack->setValue(quest.primary[0]);
-	ui->lDefence->setValue(quest.primary[1]);
-	ui->lPower->setValue(quest.primary[2]);
-	ui->lKnowledge->setValue(quest.primary[3]);
+	ui->lDayOfWeek->setCurrentIndex(quest.mission.dayOfWeek);
+	ui->lDaysPassed->setValue(quest.mission.daysPassed);
+	ui->lHeroLevel->setValue(quest.mission.heroLevel);
+	ui->lHeroExperience->setValue(quest.mission.heroExperience);
+	ui->lManaPoints->setValue(quest.mission.manaPoints);
+	ui->lManaPercentage->setValue(quest.mission.manaPercentage);
+	ui->lAttack->setValue(quest.mission.primary[0]);
+	ui->lDefence->setValue(quest.mission.primary[1]);
+	ui->lPower->setValue(quest.mission.primary[2]);
+	ui->lKnowledge->setValue(quest.mission.primary[3]);
 	for(int i = 0; i < ui->lResources->rowCount(); ++i)
 	{
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->lResources->cellWidget(i, 1)))
-			widget->setValue(quest.resources[i]);
+			widget->setValue(quest.mission.resources[i]);
 	}
 	
-	for(auto i : quest.artifacts)
+	for(auto i : quest.mission.artifacts)
 		ui->lArtifacts->item(VLC->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
-	for(auto i : quest.spells)
+	for(auto i : quest.mission.spells)
 		ui->lArtifacts->item(VLC->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
-	for(auto & i : quest.secondary)
+	for(auto & i : quest.mission.secondary)
 	{
 		int index = VLC->skills()->getById(i.first)->getIndex();
 		if(auto * widget = qobject_cast<QComboBox*>(ui->lSkills->cellWidget(index, 1)))
 			widget->setCurrentIndex(i.second);
 	}
-	for(auto & i : quest.creatures)
+	for(auto & i : quest.mission.creatures)
 	{
 		int index = i.type->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
 		ui->lCreatureAmount->setValue(i.count);
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);
 	}
-	for(auto & i : quest.heroes)
+	for(auto & i : quest.mission.heroes)
 	{
 		for(int e = 0; e < ui->lHeroes->count(); ++e)
 		{
@@ -181,7 +181,7 @@ void QuestWidget::obtainData()
 			}
 		}
 	}
-	for(auto & i : quest.heroClasses)
+	for(auto & i : quest.mission.heroClasses)
 	{
 		for(int e = 0; e < ui->lHeroClasses->count(); ++e)
 		{
@@ -192,7 +192,7 @@ void QuestWidget::obtainData()
 			}
 		}
 	}
-	for(auto & i : quest.players)
+	for(auto & i : quest.mission.players)
 	{
 		for(int e = 0; e < ui->lPlayers->count(); ++e)
 		{
@@ -204,81 +204,81 @@ void QuestWidget::obtainData()
 		}
 	}
 	
-	if(quest.killTarget >= 0 && quest.killTarget < controller.map()->objects.size())
+	if(quest.killTarget != ObjectInstanceID::NONE && quest.killTarget < controller.map()->objects.size())
 		ui->lKillTarget->setText(QString::fromStdString(controller.map()->objects[quest.killTarget]->instanceName));
 	else
-		quest.killTarget = -1;
+		quest.killTarget = ObjectInstanceID::NONE;
 }
 
 bool QuestWidget::commitChanges()
 {
-	quest.dayOfWeek = ui->lDayOfWeek->currentIndex();
-	quest.daysPassed = ui->lDaysPassed->value();
-	quest.heroLevel = ui->lHeroLevel->value();
-	quest.heroExperience = ui->lHeroExperience->value();
-	quest.manaPoints = ui->lManaPoints->value();
-	quest.manaPercentage = ui->lManaPercentage->value();
-	quest.primary[0] = ui->lAttack->value();
-	quest.primary[1] = ui->lDefence->value();
-	quest.primary[2] = ui->lPower->value();
-	quest.primary[3] = ui->lKnowledge->value();
+	quest.mission.dayOfWeek = ui->lDayOfWeek->currentIndex();
+	quest.mission.daysPassed = ui->lDaysPassed->value();
+	quest.mission.heroLevel = ui->lHeroLevel->value();
+	quest.mission.heroExperience = ui->lHeroExperience->value();
+	quest.mission.manaPoints = ui->lManaPoints->value();
+	quest.mission.manaPercentage = ui->lManaPercentage->value();
+	quest.mission.primary[0] = ui->lAttack->value();
+	quest.mission.primary[1] = ui->lDefence->value();
+	quest.mission.primary[2] = ui->lPower->value();
+	quest.mission.primary[3] = ui->lKnowledge->value();
 	for(int i = 0; i < ui->lResources->rowCount(); ++i)
 	{
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->lResources->cellWidget(i, 1)))
-			quest.resources[i] = widget->value();
+			quest.mission.resources[i] = widget->value();
 	}
 	
-	quest.artifacts.clear();
+	quest.mission.artifacts.clear();
 	for(int i = 0; i < ui->lArtifacts->count(); ++i)
 	{
 		if(ui->lArtifacts->item(i)->checkState() == Qt::Checked)
-			quest.artifacts.push_back(VLC->artifacts()->getByIndex(i)->getId());
+			quest.mission.artifacts.push_back(VLC->artifacts()->getByIndex(i)->getId());
 	}
-	quest.spells.clear();
+	quest.mission.spells.clear();
 	for(int i = 0; i < ui->lSpells->count(); ++i)
 	{
 		if(ui->lSpells->item(i)->checkState() == Qt::Checked)
-			quest.spells.push_back(VLC->spells()->getByIndex(i)->getId());
+			quest.mission.spells.push_back(VLC->spells()->getByIndex(i)->getId());
 	}
 	
-	quest.secondary.clear();
+	quest.mission.secondary.clear();
 	for(int i = 0; i < ui->lSkills->rowCount(); ++i)
 	{
 		if(auto * widget = qobject_cast<QComboBox*>(ui->lSkills->cellWidget(i, 1)))
 		{
 			if(widget->currentIndex() > 0)
-				quest.secondary[VLC->skills()->getByIndex(i)->getId()] = widget->currentIndex();
+				quest.mission.secondary[VLC->skills()->getByIndex(i)->getId()] = widget->currentIndex();
 		}
 	}
 	
-	quest.creatures.clear();
+	quest.mission.creatures.clear();
 	for(int i = 0; i < ui->lCreatures->rowCount(); ++i)
 	{
 		int index = ui->lCreatures->item(i, 0)->data(Qt::UserRole).toInt();
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->lCreatures->cellWidget(i, 1)))
 			if(widget->value())
-				quest.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
+				quest.mission.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
 	}
 	
-	quest.heroes.clear();
+	quest.mission.heroes.clear();
 	for(int i = 0; i < ui->lHeroes->count(); ++i)
 	{
 		if(ui->lHeroes->item(i)->checkState() == Qt::Checked)
-			quest.heroes.emplace_back(ui->lHeroes->item(i)->data(Qt::UserRole).toInt());
+			quest.mission.heroes.emplace_back(ui->lHeroes->item(i)->data(Qt::UserRole).toInt());
 	}
 	
-	quest.heroClasses.clear();
+	quest.mission.heroClasses.clear();
 	for(int i = 0; i < ui->lHeroClasses->count(); ++i)
 	{
 		if(ui->lHeroClasses->item(i)->checkState() == Qt::Checked)
-			quest.heroClasses.emplace_back(ui->lHeroClasses->item(i)->data(Qt::UserRole).toInt());
+			quest.mission.heroClasses.emplace_back(ui->lHeroClasses->item(i)->data(Qt::UserRole).toInt());
 	}
 	
-	quest.players.clear();
+	quest.mission.players.clear();
 	for(int i = 0; i < ui->lPlayers->count(); ++i)
 	{
 		if(ui->lPlayers->item(i)->checkState() == Qt::Checked)
-			quest.players.emplace_back(ui->lPlayers->item(i)->data(Qt::UserRole).toInt());
+			quest.mission.players.emplace_back(ui->lPlayers->item(i)->data(Qt::UserRole).toInt());
 	}
 	
 	//quest.killTarget is set directly in object picking
@@ -358,7 +358,7 @@ void QuestWidget::onTargetPicked(const CGObjectInstance * obj)
 	
 	if(!obj) //discarded
 	{
-		quest.killTarget = -1;
+		quest.killTarget = ObjectInstanceID::NONE;
 		ui->lKillTarget->setText("");
 		return;
 	}

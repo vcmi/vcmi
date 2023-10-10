@@ -29,7 +29,7 @@ using RewardsList = std::vector<std::shared_ptr<Rewardable::Reward>>;
 
 /// Reward that can be granted to a hero
 /// NOTE: eventually should replace seer hut rewards and events/pandoras
-struct DLL_LINKAGE Reward
+struct DLL_LINKAGE Reward final
 {
 	/// resources that will be given to player
 	TResources resources;
@@ -86,7 +86,7 @@ struct DLL_LINKAGE Reward
 	si32 calculateManaPoints(const CGHeroInstance * h) const;
 
 	Reward();
-	virtual ~Reward();
+	~Reward();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
