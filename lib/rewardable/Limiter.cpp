@@ -27,7 +27,7 @@ Rewardable::Limiter::Limiter()
 	, daysPassed(0)
 	, heroExperience(0)
 	, heroLevel(-1)
-	, manaPercentage(-1)
+	, manaPercentage(0)
 	, manaPoints(0)
 	, primary(GameConstants::PRIMARY_SKILLS, 0)
 {
@@ -177,9 +177,9 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 	if (heroLevel)
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
 
-	if (manaPoints || manaPercentage >= 0)
+	if (manaPoints || manaPercentage > 0)
 	{
-		int absoluteMana = (h->manaLimit() && manaPercentage >= 0) ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
+		int absoluteMana = h->manaLimit() ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
 		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, absoluteMana + manaPoints, 0);
 	}
 
@@ -223,7 +223,7 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("dayOfWeek", dayOfWeek);
 	handler.serializeInt("daysPassed", daysPassed);
 	resources.serializeJson(handler, "resources");
-	handler.serializeInt("manaPercentage", manaPercentage, -1);
+	handler.serializeInt("manaPercentage", manaPercentage);
 	handler.serializeInt("heroExperience", heroExperience);
 	handler.serializeInt("heroLevel", heroLevel);
 	handler.serializeIdArray("heroes", heroes);
