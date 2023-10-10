@@ -328,7 +328,7 @@ void QuestWidget::on_lKillTargetSelect_clicked()
 	{
 		if(auto * o = dynamic_cast<const CGHeroInstance*>(obj))
 			return o->ID != Obj::PRISON;
-		if(auto * o = dynamic_cast<const CGCreature*>(obj))
+		if(dynamic_cast<const CGCreature*>(obj))
 			return true;
 		return false;
 	};
