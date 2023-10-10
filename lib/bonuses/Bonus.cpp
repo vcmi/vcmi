@@ -100,19 +100,19 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			switch(source)
 			{
 			case BonusSource::ARTIFACT:
-				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getNameTranslated();
+				str << sid.as<ArtifactID>().toArtifact(VLC->artifacts())->getNameTranslated();
 				break;
 			case BonusSource::SPELL_EFFECT:
-				str << SpellID(sid).toSpell(VLC->spells())->getNameTranslated();
+				str << sid.as<SpellID>().toSpell(VLC->spells())->getNameTranslated();
 				break;
 			case BonusSource::CREATURE_ABILITY:
-				str << CreatureID(sid).toCreature(VLC->creatures())->getNamePluralTranslated();
+				str << sid.as<CreatureID>().toCreature(VLC->creatures())->getNamePluralTranslated();
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				str << VLC->skills()->getByIndex(sid)->getNameTranslated();
+				str << VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
 				break;
 			case BonusSource::HERO_SPECIAL:
-				str << VLC->heroTypes()->getByIndex(sid)->getNameTranslated();
+				str << VLC->heroTypes()->getById(sid.as<HeroTypeID>())->getNameTranslated();
 				break;
 			default:
 				//todo: handle all possible sources
@@ -158,8 +158,8 @@ JsonNode Bonus::toJsonNode() const
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(targetSourceType != BonusSource::OTHER)
 		root["targetSourceType"].String() = vstd::findKey(bonusSourceMap, targetSourceType);
-	if(sid != 0)
-		root["sourceID"].Integer() = sid;
+	if(sid != TBonusSourceID::NONE)
+		root["sourceID"].String() = sid.toString();
 	if(val != 0)
 		root["val"].Integer() = val;
 	if(valType != BonusValueType::ADDITIVE_VALUE)
@@ -183,19 +183,19 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID)
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID)
 	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype::NONE, std::string())
 {}
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc)
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, std::string Desc)
 	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype::NONE, Desc)
 {}
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, TBonusSubtype Subtype)
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, TBonusSubtype Subtype)
 	: Bonus(Duration, Type, Src, Val, ID, Subtype, std::string())
 {}
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, TBonusSubtype Subtype, std::string Desc):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, TBonusSubtype Subtype, std::string Desc):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -208,7 +208,7 @@ Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32
 	targetSourceType = BonusSource::OTHER;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, TBonusSubtype Subtype, BonusValueType ValType):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, TBonusSubtype Subtype, BonusValueType ValType):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -239,7 +239,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 	out << "\tSubtype: " << bonus.subtype.toString() << "\n";
 	printField(duration.to_ulong());
 	printField(source);
-	printField(sid);
+	out << "\tSource ID: " << bonus.sid.toString() << "\n";
 	if(bonus.additionalInfo != CAddInfo::NONE)
 		out << "\taddInfo: " << bonus.additionalInfo.toString() << "\n";
 	printField(turnsRemain);

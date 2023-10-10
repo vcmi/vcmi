@@ -312,7 +312,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	std::stringstream cachingStr;
 	cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << owner->id.num;
 
-	if(parameters.caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, owner->id), Selector::all, cachingStr.str())->size() >= owner->getLevelPower(schoolLevel)) //limit casts per turn
+	if(parameters.caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, TBonusSourceID(owner->id)), Selector::all, cachingStr.str())->size() >= owner->getLevelPower(schoolLevel)) //limit casts per turn
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
@@ -324,7 +324,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 
 	GiveBonus gb;
 	gb.id = parameters.caster->getCasterUnitId();
-	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, owner->id);
+	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, TBonusSourceID(owner->id));
 	env->apply(&gb);
 
 	if(!dest->isClear(curr)) //wrong dest tile

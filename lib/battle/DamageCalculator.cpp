@@ -314,7 +314,7 @@ double DamageCalculator::getDefenseRangePenaltiesFactor() const
 		auto isAdvancedAirShield = [](const Bonus* bonus)
 		{
 			return bonus->source == BonusSource::SPELL_EFFECT
-					&& bonus->sid == SpellID::AIR_SHIELD
+					&& bonus->sid == TBonusSourceID(SpellID(SpellID::AIR_SHIELD))
 					&& bonus->val >= MasteryLevel::ADVANCED;
 		};
 

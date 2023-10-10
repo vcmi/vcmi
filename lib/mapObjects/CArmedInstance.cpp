@@ -59,7 +59,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
  	if(!b)
 	{
-		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, TBonusSourceID::NONE);
 		addNewBonus(b);
 	}
 
@@ -120,7 +120,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	CBonusSystemNode::treeHasChanged();
 
 	//-1 modifier for any Undead unit in army
-	const ui8 UNDEAD_MODIFIER_ID = -2;
+	const TBonusSourceID UNDEAD_MODIFIER_ID( "", "", -2);
 	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(BonusSource::ARMY, UNDEAD_MODIFIER_ID));
  	if(hasUndead)
 	{

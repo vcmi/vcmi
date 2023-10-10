@@ -213,7 +213,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			gbonus.id = hero->id.getNum();
 			gbonus.bonus.duration = BonusDuration::ONE_BATTLE;
 			gbonus.bonus.source = BonusSource::OBJECT;
-			gbonus.bonus.sid = ID;
+			gbonus.bonus.sid = TBonusSourceID(ID);
 			gbonus.bonus.type = BonusType::MORALE;
 			gbonus.bonus.val = -1;
 			switch (ID)
@@ -239,7 +239,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		case Obj::PYRAMID:
 		{
 			GiveBonus gb;
-			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, -2, id.getNum(), VLC->generaltexth->arraytxt[70]);
+			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, -2, TBonusSourceID(id), VLC->generaltexth->arraytxt[70]);
 			gb.id = hero->id.getNum();
 			cb->giveHeroBonus(&gb);
 			textID = 107;

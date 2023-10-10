@@ -55,7 +55,7 @@ public:
 
 	void makeNormalCaster()
 	{
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELLCASTER, BonusSource::CREATURE_ABILITY, DEFAULT_SCHOOL_LEVEL, 0, TBonusSubtype(SpellID(DEFAULT_SPELL_INDEX))));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELLCASTER, BonusSource::CREATURE_ABILITY, DEFAULT_SCHOOL_LEVEL, TBonusSourceID::NONE, TBonusSubtype(SpellID(DEFAULT_SPELL_INDEX))));
 	}
 };
 
@@ -63,7 +63,7 @@ TEST_F(UnitStateMagicTest, initialNormal)
 {
 	setDefaultExpectations();
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CASTS, BonusSource::CREATURE_ABILITY, 567, 0));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CASTS, BonusSource::CREATURE_ABILITY, 567, TBonusSourceID::NONE));
 
 	initUnit();
 
@@ -125,7 +125,7 @@ TEST_F(UnitStateMagicTest, effectPower)
 
 	const int32_t EFFECT_POWER = 12 * 100;
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_SPELL_POWER, BonusSource::CREATURE_ABILITY, EFFECT_POWER, 0));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_SPELL_POWER, BonusSource::CREATURE_ABILITY, EFFECT_POWER, TBonusSourceID::NONE));
 
 	makeNormalCaster();
 	EXPECT_EQ(subject.getEffectPower(&spellMock), 12 * DEFAULT_AMOUNT);
@@ -148,7 +148,7 @@ TEST_F(UnitStateMagicTest, enchantPower)
 
 	const int32_t ENCHANT_POWER = 42;
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_ENCHANT_POWER, BonusSource::CREATURE_ABILITY, ENCHANT_POWER, 0));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_ENCHANT_POWER, BonusSource::CREATURE_ABILITY, ENCHANT_POWER, TBonusSourceID::NONE));
 
 	makeNormalCaster();
 
@@ -171,7 +171,7 @@ TEST_F(UnitStateMagicTest, effectValue)
 
 	const int32_t EFFECT_VALUE = 456;
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPECIFIC_SPELL_POWER, BonusSource::CREATURE_ABILITY, EFFECT_VALUE, 0, TBonusSubtype(SpellID(DEFAULT_SPELL_INDEX))));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPECIFIC_SPELL_POWER, BonusSource::CREATURE_ABILITY, EFFECT_VALUE, TBonusSourceID::NONE, TBonusSubtype(SpellID(DEFAULT_SPELL_INDEX))));
 
 	makeNormalCaster();
 	EXPECT_EQ(subject.getEffectValue(&spellMock), EFFECT_VALUE * DEFAULT_AMOUNT);
@@ -201,7 +201,7 @@ TEST_F(UnitStateMagicTest, spendMana)
 {
 	setDefaultExpectations();
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CASTS, BonusSource::CREATURE_ABILITY, 1, 0));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CASTS, BonusSource::CREATURE_ABILITY, 1, TBonusSourceID::NONE));
 
 	initUnit();
 

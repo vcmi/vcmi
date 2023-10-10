@@ -655,7 +655,7 @@ void CGameState::initGlobalBonuses()
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
 		bonus->source = BonusSource::GLOBAL;//for all
-		bonus->sid = -1; //there is one global object
+		bonus->sid = TBonusSourceID::NONE; //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
 	VLC->creh->loadCrExpBon(globalEffects);

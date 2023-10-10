@@ -163,9 +163,9 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	SetStackEffect sse;
 	sse.battleID = battle.getBattle()->getBattleID();
 
-	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, -1, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
-	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), -1, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
-	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, -1, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
+	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 
 	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE)));
 	int oldDefenceValue = defence.totalValue();

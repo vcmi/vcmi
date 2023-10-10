@@ -788,7 +788,7 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
 	if(!b)
 	{
-		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, TBonusSourceID::NONE);
 		addNewBonus(b);
 	}
 

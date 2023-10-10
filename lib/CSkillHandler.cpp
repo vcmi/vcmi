@@ -93,7 +93,7 @@ SecondarySkill CSkill::getId() const
 void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 {
 	b->source = BonusSource::SECONDARY_SKILL;
-	b->sid = id;
+	b->sid = TBonusSourceID(id);
 	b->duration = BonusDuration::PERMANENT;
 	b->description = getNameTranslated();
 	levels[level-1].effects.push_back(b);

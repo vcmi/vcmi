@@ -50,6 +50,30 @@ const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
 	{ "skyship", CBuilding::HEIGHT_SKYSHIP }
 };
 
+BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID buildingID ):
+	BuildingTypeUniqueID(factionID.getNum() * 0x10000 + buildingID.getNum())
+{
+	assert(factionID.getNum() >= 0);
+	assert(factionID.getNum() < 0x10000);
+	assert(buildingID.getNum() >= 0);
+	assert(buildingID.getNum() < 0x10000);
+}
+
+BuildingID BuildingTypeUniqueID::getBuilding() const
+{
+	return BuildingID(getNum() % 0x10000);
+}
+
+FactionID BuildingTypeUniqueID::getFaction() const
+{
+	return FactionID(getNum() / 0x10000);
+}
+
+const BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
+{
+	return BuildingTypeUniqueID(town->faction->getId(), bid);
+}
+
 std::string CBuilding::getJsonKey() const
 {
 	return modScope + ':' + identifier;;
@@ -569,7 +593,7 @@ std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building
 													 const std::string & description,
 													 TBonusSubtype subtype) const
 {
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, building, subtype, description);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, TBonusSourceID(building), subtype, description);
 
 	if(prop)
 		b->addPropagator(prop);
@@ -586,7 +610,7 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 		if(bonus == nullptr)
 			continue;
 
-		bonus->sid = Bonus::getSid32(building->town->faction->getIndex(), building->bid);
+		bonus->sid = TBonusSourceID(building->getUniqueTypeID());
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
@@ -650,7 +674,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 				ret->subId = BuildingSubID::CUSTOM_VISITING_BONUS;
 
 			for(auto & bonus : ret->onVisitBonuses)
-				bonus->sid = Bonus::getSid32(ret->town->faction->getIndex(), ret->bid);
+				bonus->sid = TBonusSourceID(ret->getUniqueTypeID());
 		}
 		
 		if(source["type"].String() == "configurable" && ret->subId == BuildingSubID::NONE)

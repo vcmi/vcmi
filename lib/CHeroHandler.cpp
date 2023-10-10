@@ -605,7 +605,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	{
 		bonus->duration = BonusDuration::PERMANENT;
 		bonus->source = BonusSource::HERO_SPECIAL;
-		bonus->sid = hero->getIndex();
+		bonus->sid = TBonusSourceID(hero->getId());
 		return bonus;
 	};
 

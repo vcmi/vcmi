@@ -988,14 +988,14 @@ void CGSirens::initObj(CRandomGenerator & rand)
 
 std::string CGSirens::getHoverText(const CGHeroInstance * hero) const
 {
-	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT,ID));
+	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT, TBonusSourceID(ID)));
 }
 
 void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->tempOwner;
-	if(h->hasBonusFrom(BonusSource::OBJECT,ID)) //has already visited Sirens
+	if(h->hasBonusFrom(BonusSource::OBJECT, TBonusSourceID(ID))) //has already visited Sirens
 	{
 		iw.type = EInfoWindowMode::AUTO;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT,133);
@@ -1180,8 +1180,8 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
 			rb.whoID = oldOwner.getNum();
-			rb.source = vstd::to_underlying(BonusSource::OBJECT);
-			rb.id = id.getNum();
+			rb.source = BonusSource::OBJECT;
+			rb.id = TBonusSourceID(id);
 			cb->sendAndApply(&rb);
 		}
 	}
@@ -1204,7 +1204,7 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	gb.id = player.getNum();
 	gb.bonus.duration = BonusDuration::PERMANENT;
 	gb.bonus.source = BonusSource::OBJECT;
-	gb.bonus.sid = id.getNum();
+	gb.bonus.sid = TBonusSourceID(id);
 	gb.bonus.subtype = BonusSubtypes::heroMovementSea;
 
 	// FIXME: This is really dirty hack

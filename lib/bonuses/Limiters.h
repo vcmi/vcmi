@@ -118,7 +118,7 @@ public:
 	BonusType type;
 	TBonusSubtype subtype;
 	BonusSource source;
-	si32 sid;
+	TBonusSourceID sid;
 	bool isSubtypeRelevant; //check for subtype only if this is true
 	bool isSourceRelevant; //check for bonus source only if this is true
 	bool isSourceIDRelevant; //check for bonus source only if this is true

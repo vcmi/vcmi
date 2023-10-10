@@ -58,7 +58,7 @@ TEST_P(ImmunityNegationConditionTest, WithHeroNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, 0, BonusSubtypes::immunityEnemyHero));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, TBonusSourceID::NONE, BonusSubtypes::immunityEnemyHero));
 
 	EXPECT_EQ(isMagicalEffect, subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -67,7 +67,7 @@ TEST_P(ImmunityNegationConditionTest, WithBattleWideNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, 0, BonusSubtypes::immunityBattleWide));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, TBonusSourceID::NONE, BonusSubtypes::immunityBattleWide));
 
 	//This should return if ownerMatches, because anyone should cast onto owner's stacks, but not on enemyStacks
 	EXPECT_EQ(ownerMatches && isMagicalEffect, subject->isReceptive(&mechanicsMock, &unitMock));

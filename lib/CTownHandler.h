@@ -37,9 +37,6 @@ class JsonSerializeFormat;
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
 /// contains all mechanics-related data about town structures
-
-
-
 class DLL_LINKAGE CBuilding
 {
 	std::string modScope;
@@ -83,6 +80,8 @@ public:
 	static const std::map<std::string, CBuilding::ETowerHeight> TOWER_TYPES;
 
 	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
+
+	const BuildingTypeUniqueID getUniqueTypeID() const;
 
 	std::string getJsonKey() const;
 

@@ -370,7 +370,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
 		bonus->source = BonusSource::HERO_BASE_SKILL;
-		bonus->sid = id.getNum();
+		bonus->sid = TBonusSourceID(id);
 		bonus->duration = BonusDuration::PERMANENT;
 		addNewBonus(bonus);
 	}
@@ -590,7 +590,7 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 
 void CGHeroInstance::updateSkillBonus(const SecondarySkill & which, int val)
 {
-	removeBonuses(Selector::source(BonusSource::SECONDARY_SKILL, which));
+	removeBonuses(Selector::source(BonusSource::SECONDARY_SKILL, TBonusSourceID(which)));
 	auto skillBonus = (*VLC->skillh)[which]->at(val).effects;
 	for(const auto & b : skillBonus)
 		addNewBonus(std::make_shared<Bonus>(*b));
@@ -1014,7 +1014,7 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill which, int val )
 	if(hasBonus(sel))
 		removeBonuses(sel);
 		
-	addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::HERO_BASE_SKILL, val, id.getNum(), TBonusSubtype(which)));
+	addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::HERO_BASE_SKILL, val, TBonusSourceID(id), TBonusSubtype(which)));
 }
 
 EAlignment CGHeroInstance::getAlignment() const

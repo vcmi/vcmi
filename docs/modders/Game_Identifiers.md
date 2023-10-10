@@ -548,7 +548,7 @@ This is a list of all game identifiers available to modders. Note that only iden
 
 ### primSkill
 
-Deprected, please use primarySkill instead
+Deprecated, please use primarySkill instead
 
 - primSkill.attack
 - primSkill.defence
@@ -619,7 +619,7 @@ Deprected, please use primarySkill instead
 
 ### skill
 
-Deprected, please use secondarySkill instead
+Deprecated, please use secondarySkill instead
 
 - skill.airMagic
 - skill.archery

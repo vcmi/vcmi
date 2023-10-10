@@ -314,8 +314,8 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 				if(val == 0)
 					continue;
 
-				int currentScenario = static_cast<int>(*gameState->scenarioOps->campState->currentScenario());
-				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, currentScenario, TBonusSubtype(g) );
+				auto currentScenario = *gameState->scenarioOps->campState->currentScenario();
+				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, TBonusSourceID(currentScenario), TBonusSubtype(g) );
 				hero->addNewBonus(bb);
 			}
 			break;

@@ -299,7 +299,7 @@ void CCreature::addBonus(int val, BonusType type)
 
 void CCreature::addBonus(int val, BonusType type, TBonusSubtype subtype)
 {
-	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(BonusSource::CREATURE_ABILITY, getIndex()));
+	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(BonusSource::CREATURE_ABILITY, TBonusSourceID(getId())));
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
@@ -307,7 +307,7 @@ void CCreature::addBonus(int val, BonusType type, TBonusSubtype subtype)
 
 	if(existing.empty())
 	{
-		auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::CREATURE_ABILITY, val, getIndex(), subtype, BonusValueType::BASE_NUMBER);
+		auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::CREATURE_ABILITY, val, TBonusSourceID(getId()), subtype, BonusValueType::BASE_NUMBER);
 		addNewBonus(added);
 	}
 	else
@@ -791,9 +791,9 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		}
 		do //parse everything that's left
 		{
-			auto sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
+			CreatureID sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
 
-			b.sid = sid;
+			b.sid = TBonusSourceID(sid);
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
@@ -899,7 +899,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			{
 				auto b = JsonUtils::parseBonus(ability.second);
 				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = creature->getIndex();
+				b->sid = TBonusSourceID(creature->getId());
 				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}
@@ -917,7 +917,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			{
 				auto b = JsonUtils::parseBonus(ability);
 				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = creature->getIndex();
+				b->sid = TBonusSourceID(creature->getId());
 				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}

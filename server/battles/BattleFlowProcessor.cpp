@@ -663,7 +663,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 
 		if (st->hasBonusOfType(BonusType::POISON))
 		{
-			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID::POISON).And(Selector::type()(BonusType::STACK_HEALTH)));
+			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, TBonusSourceID(SpellID(SpellID::POISON))).And(Selector::type()(BonusType::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(BonusType::POISON)));

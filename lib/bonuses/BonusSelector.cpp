@@ -66,10 +66,10 @@ namespace Selector
 			.And(CSelectFieldEqual<CAddInfo>(&Bonus::additionalInfo)(info));
 	}
 
-	CSelector DLL_LINKAGE source(BonusSource source, ui32 sourceID)
+	CSelector DLL_LINKAGE source(BonusSource source, TBonusSourceID sourceID)
 	{
 		return CSelectFieldEqual<BonusSource>(&Bonus::source)(source)
-			.And(CSelectFieldEqual<ui32>(&Bonus::sid)(sourceID));
+			.And(CSelectFieldEqual<TBonusSourceID>(&Bonus::sid)(sourceID));
 	}
 
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source)

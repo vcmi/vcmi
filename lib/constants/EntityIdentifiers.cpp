@@ -40,6 +40,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const CampaignScenarioID CampaignScenarioID::NONE(-1);
 const BattleID BattleID::NONE(-1);
 const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);

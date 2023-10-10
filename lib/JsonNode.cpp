@@ -439,9 +439,9 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 	});
 }
 
-static void loadBonusSourceInstance(int32_t & sourceInstance, BonusSource sourceType, const JsonNode & node)
+static void loadBonusSourceInstance(TBonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
 {
-
+	assert(0);
 }
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
@@ -741,7 +741,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, c
 		source = BonusSource::TOWN_STRUCTURE
 		bonusType, val, subtype - get from json
 	*/
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, building, description);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, TBonusSourceID(building), description);
 
 	if(!parseBonus(ability, b.get()))
 		return nullptr;
@@ -858,8 +858,6 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	b->turnsRemain = static_cast<si32>(ability["turns"].Float());
 
-	b->sid = static_cast<si32>(ability["sourceID"].Float());
-
 	if(!ability["description"].isNull())
 	{
 		if (ability["description"].isString())
@@ -896,6 +894,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	value = &ability["sourceType"];
 	if (!value->isNull())
 		b->source = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
+
+	loadBonusSourceInstance(b->sid, b->source, ability["sourceID"]);
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
@@ -978,7 +978,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	}
 	value = &ability["sourceType"];
 	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
-	std::optional<si32> id = std::nullopt;
+	std::optional<TBonusSourceID> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());

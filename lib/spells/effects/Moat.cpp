@@ -84,12 +84,12 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 
 		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 		{
-			nb.sid = Bonus::getSid32(m->battle()->battleGetDefendedTown()->getFaction(), BuildingID::CITADEL);
+			nb.sid = TBonusSourceID(m->battle()->battleGetDefendedTown()->town->buildings.at(BuildingID::CITADEL)->getUniqueTypeID());
 			nb.source = BonusSource::TOWN_STRUCTURE;
 		}
 		else
 		{
-			nb.sid = m->getSpellIndex(); //for all
+			nb.sid = TBonusSourceID(m->getSpellId()); //for all
 			nb.source = BonusSource::SPELL_EFFECT;//for all
 		}
 		std::set<BattleHex> flatMoatHexes;

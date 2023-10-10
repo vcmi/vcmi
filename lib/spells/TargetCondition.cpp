@@ -260,7 +260,7 @@ public:
 		builder << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 		cachingString = builder.str();
 
-		selector = Selector::source(BonusSource::SPELL_EFFECT, spellID.num);
+		selector = Selector::source(BonusSource::SPELL_EFFECT, TBonusSourceID(spellID));
 	}
 
 protected:

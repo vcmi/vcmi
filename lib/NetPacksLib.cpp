@@ -1119,7 +1119,7 @@ void RemoveBonus::applyGs(CGameState *gs)
 
 	for(const auto & b : bonuses)
 	{
-		if(vstd::to_underlying(b->source) == source && b->sid == id)
+		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
 			node->removeBonus(b);
@@ -2201,7 +2201,7 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 	}
 	case BonusType::POISON:
 	{
-		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID::POISON)
+		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, TBonusSubtype(SpellID(SpellID::POISON)))
 				.And(Selector::type()(BonusType::STACK_HEALTH)));
 		if (b)
 			b->val = val;

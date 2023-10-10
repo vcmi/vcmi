@@ -303,10 +303,10 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 		switch(context.b.source)
 		{
 			case BonusSource::CREATURE_ABILITY:
-				return bearer->getFaction() == CreatureID(context.b.sid).toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+				return bearer->getFaction() == context.b.sid.as<CreatureID>().toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 			
 			case BonusSource::TOWN_STRUCTURE:
-				return bearer->getFaction() == FactionID(Bonus::getHighFromSid32(context.b.sid)) ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+				return bearer->getFaction() == context.b.sid.as<BuildingTypeUniqueID>().getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 
 			//TODO: other sources of bonuses
 		}

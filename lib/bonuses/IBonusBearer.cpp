@@ -82,10 +82,10 @@ bool IBonusBearer::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
 	return hasBonus(s, cachingStr);
 }
 
-bool IBonusBearer::hasBonusFrom(BonusSource source, ui32 sourceID) const
+bool IBonusBearer::hasBonusFrom(BonusSource source, TBonusSourceID sourceID) const
 {
-	boost::format fmt("source_%did_%d");
-	fmt % static_cast<int>(source) % sourceID;
+	boost::format fmt("source_%did_%s");
+	fmt % static_cast<int>(source) % sourceID.toString();
 
 	return hasBonus(Selector::source(source,sourceID), fmt.str());
 }

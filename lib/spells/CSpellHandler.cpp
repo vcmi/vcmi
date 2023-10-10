@@ -925,7 +925,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			auto b = JsonUtils::parseBonus(bonusNode);
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
-			b->sid = spell->id; //for all
+			b->sid = TBonusSourceID(spell->id); //for all
 			b->source = BonusSource::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)
@@ -940,7 +940,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			auto b = JsonUtils::parseBonus(bonusNode);
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
-			b->sid = spell->id; //for all
+			b->sid = TBonusSourceID(spell->id); //for all
 			b->source = BonusSource::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)

@@ -16,7 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 /// This class represents field that may contain value of multiple different identifer types
 class DLL_LINKAGE MetaIdentifier
 {
-	std::string entityType;
 	std::string stringForm;
 	int32_t integerForm;
 
@@ -30,10 +29,8 @@ public:
 	MetaIdentifier(const std::string & entityType, const std::string & identifier, int32_t value);
 
 	template<typename IdentifierType>
-	explicit MetaIdentifier(const IdentifierType & identifier )
-		: entityType(IdentifierType::entityType())
-		, integerForm(identifier.getNum())
-		, stringForm(IdentifierType::encode(identifier.getNum()))
+	explicit MetaIdentifier(const IdentifierType & identifier)
+		: integerForm(identifier.getNum())
 	{
 		static_assert(std::is_base_of<IdentifierBase, IdentifierType>::value, "MetaIdentifier can only be constructed from Identifer class");
 	}
@@ -51,7 +48,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stringForm;
+		h & integerForm;
 
 		if (!h.saving)
 			onDeserialized();

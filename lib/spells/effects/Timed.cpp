@@ -222,14 +222,14 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 			nb.turnsRemain = duration;
 		vstd::amax(maxDuration, nb.turnsRemain);
 
-		nb.sid = m->getSpellIndex(); //for all
+		nb.sid = TBonusSourceID(m->getSpellId()); //for all
 		nb.source = BonusSource::SPELL_EFFECT;//for all
 
 		//fix to original config: shield should display damage reduction
-		if((nb.sid == SpellID::SHIELD || nb.sid == SpellID::AIR_SHIELD) && (nb.type == BonusType::GENERAL_DAMAGE_REDUCTION))
+		if((nb.sid.as<SpellID>() == SpellID::SHIELD || nb.sid.as<SpellID>() == SpellID::AIR_SHIELD) && (nb.type == BonusType::GENERAL_DAMAGE_REDUCTION))
 			nb.val = 100 - nb.val;
 		//we need to know who cast Bind
-		else if(nb.sid == SpellID::BIND && nb.type == BonusType::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
+		else if(nb.sid.as<SpellID>() == SpellID::BIND && nb.type == BonusType::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
 			nb.additionalInfo = m->caster->getCasterUnitId();
 
 		converted.push_back(nb);

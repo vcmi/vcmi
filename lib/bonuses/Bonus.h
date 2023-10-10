@@ -24,6 +24,7 @@ class BonusList;
 class CSelector;
 
 using TBonusSubtype = MetaIdentifier;
+using TBonusSourceID = MetaIdentifier;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TLimiterPtr = std::shared_ptr<ILimiter>;
@@ -62,7 +63,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus
 	BonusSource targetSourceType;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE.
 	si32 val = 0;
-	ui32 sid = 0; //source id: id of object/artifact/spell
+	TBonusSourceID sid; //source id: id of object/artifact/spell
 	BonusValueType valType = BonusValueType::ADDITIVE_VALUE;
 	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
@@ -76,11 +77,11 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	std::string description;
 
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, std::string Desc);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, TBonusSubtype subtype);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, TBonusSubtype subtype, std::string Desc);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 sourceID, TBonusSubtype subtype, BonusValueType ValType);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, std::string Desc);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, TBonusSubtype subtype);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, TBonusSubtype subtype, std::string Desc);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, TBonusSubtype subtype, BonusValueType ValType);
 	Bonus() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -166,20 +167,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	inline void operator += (const ui32 Val) //no return
 	{
 		val += Val;
-	}
-	STRONG_INLINE static ui32 getSid32(ui32 high, ui32 low)
-	{
-		return (high << 16) + low;
-	}
-
-	STRONG_INLINE static ui32 getHighFromSid32(ui32 sid)
-	{
-		return sid >> 16;
-	}
-
-	STRONG_INLINE static ui32 getLowFromSid32(ui32 sid)
-	{
-		return sid & 0x0000FFFF;
 	}
 
 	std::string Description(std::optional<si32> customValue = {}) const;

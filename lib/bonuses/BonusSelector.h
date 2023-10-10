@@ -136,7 +136,7 @@ namespace Selector
 
 	CSelector DLL_LINKAGE typeSubtype(BonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, TBonusSubtype subtype, const CAddInfo & info);
-	CSelector DLL_LINKAGE source(BonusSource source, ui32 sourceID);
+	CSelector DLL_LINKAGE source(BonusSource source, TBonusSourceID sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source);
 	CSelector DLL_LINKAGE valueType(BonusValueType valType);
 

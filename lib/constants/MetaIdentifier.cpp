@@ -20,16 +20,14 @@ MetaIdentifier::MetaIdentifier():
 {}
 
 MetaIdentifier::MetaIdentifier(const std::string & entityType, const std::string & identifier)
-	: entityType(entityType)
-	, stringForm(identifier)
+	: stringForm(identifier)
 	, integerForm(-1)
 {
 	onDeserialized();
 }
 
 MetaIdentifier::MetaIdentifier(const std::string & entityType, const std::string & identifier, int32_t value)
-	: entityType(entityType)
-	, stringForm(identifier)
+	: stringForm(identifier)
 	, integerForm(value)
 {
 }

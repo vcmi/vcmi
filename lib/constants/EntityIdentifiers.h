@@ -157,11 +157,14 @@ public:
 	using Identifier<BattleID>::Identifier;
 	DLL_LINKAGE static const BattleID NONE;
 };
-class ObjectInstanceID : public Identifier<ObjectInstanceID>
+class DLL_LINKAGE ObjectInstanceID : public Identifier<ObjectInstanceID>
 {
 public:
 	using Identifier<ObjectInstanceID>::Identifier;
-	DLL_LINKAGE static const ObjectInstanceID NONE;
+	static const ObjectInstanceID NONE;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 };
 
 class HeroClassID : public Identifier<HeroClassID>
@@ -292,6 +295,8 @@ class SecondarySkill : public IdentifierWithEnum<SecondarySkill, SecondarySkillB
 public:
 	using IdentifierWithEnum<SecondarySkill, SecondarySkillBase>::IdentifierWithEnum;
 	static std::string entityType();
+	static si32 decode(const std::string& identifier);
+	static std::string encode(const si32 index);
 };
 
 class DLL_LINKAGE PrimarySkill : public Identifier<PrimarySkill>
@@ -396,6 +401,10 @@ class BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
 {
 public:
 	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
+
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class ObjBase : public IdentifierBase
@@ -814,13 +823,13 @@ public:
 };
 
 class BattleFieldInfo;
-class BattleField : public Identifier<BattleField>
+class DLL_LINKAGE BattleField : public Identifier<BattleField>
 {
 public:
 	using Identifier<BattleField>::Identifier;
 
-	DLL_LINKAGE static const BattleField NONE;
-	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
+	static const BattleField NONE;
+	const BattleFieldInfo * getInfo() const;
 };
 
 class DLL_LINKAGE BoatId : public Identifier<BoatId>
@@ -919,6 +928,25 @@ public:
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
+};
+
+class BuildingTypeUniqueID : public Identifier<BuildingTypeUniqueID>
+{
+public:
+	BuildingTypeUniqueID(FactionID faction, BuildingID building );
+
+	BuildingID getBuilding() const;
+	FactionID getFaction() const;
+
+	using Identifier<BuildingTypeUniqueID>::Identifier;
+};
+
+class DLL_LINKAGE CampaignScenarioID : public Identifier<CampaignScenarioID>
+{
+public:
+	using Identifier<CampaignScenarioID>::Identifier;
+
+	static const CampaignScenarioID NONE;
 };
 
 // Deprecated

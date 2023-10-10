@@ -90,7 +90,7 @@ std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const b
 	{
 		if(bonus->source == BonusSource::SPELL_EFFECT)
 		{
-			const Spell * sourceSpell = SpellID(bonus->sid).toSpell(m->spells());
+			const Spell * sourceSpell = bonus->sid.as<SpellID>().toSpell(m->spells());
 			if(!sourceSpell)
 				return false;//error
 

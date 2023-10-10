@@ -144,10 +144,10 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 		switch (this->bType)
 		{
 		case BuildingSubID::STABLES:
-			if(!h->hasBonusFrom(BonusSource::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
+			if(!h->hasBonusFrom(BonusSource::OBJECT, TBonusSourceID(Obj(Obj::STABLES)))) //does not stack with advMap Stables
 			{
 				GiveBonus gb;
-				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, Obj::STABLES, BonusSubtypes::heroMovementLand, VLC->generaltexth->arraytxt[100]);
+				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, TBonusSourceID(Obj(Obj::STABLES)), BonusSubtypes::heroMovementLand, VLC->generaltexth->arraytxt[100]);
 				gb.id = heroID.getNum();
 				cb->giveHeroBonus(&gb);
 
@@ -236,7 +236,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
 			const auto building = town->getTown()->buildings.at(bID);
-			if(!h->hasBonusFrom(BonusSource::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->getIndex(), building->bid)))
+			if(!h->hasBonusFrom(BonusSource::TOWN_STRUCTURE, TBonusSourceID(building->getUniqueTypeID())))
 			{
 				const auto & bonuses = building->onVisitBonuses;
 				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
@@ -307,7 +307,7 @@ void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 		for (auto & bonus : rewardInfo.reward.bonuses)
 		{
 			bonus.source = BonusSource::TOWN_STRUCTURE;
-			bonus.sid = bID;
+			bonus.sid = TBonusSourceID(building->getUniqueTypeID());
 		}
 	}
 }
@@ -394,7 +394,10 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 		case Rewardable::VISIT_PLAYER:
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
-			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, Bonus::getSid32(town->town->faction->getIndex(), bID));
+		{
+			const auto building = town->getTown()->buildings.at(bID);
+			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, TBonusSourceID(building->getUniqueTypeID()));
+		}
 		case Rewardable::VISIT_HERO:
 			return visitors.find(contextHero->id) != visitors.end();
 		case Rewardable::VISIT_LIMITER:

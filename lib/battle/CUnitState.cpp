@@ -347,7 +347,7 @@ CUnitState::CUnitState():
 	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK)), 0),
 	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE)), 0),
 	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),
-	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, SpellID::CLONE))),
+	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, TBonusSourceID(SpellID(SpellID::CLONE))))),
 	cloneID(-1)
 {
 
@@ -513,7 +513,7 @@ bool CUnitState::isGhost() const
 
 bool CUnitState::isFrozen() const
 {
-	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
+	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, TBonusSourceID(SpellID(SpellID::STONE_GAZE))), Selector::all);
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const
