@@ -28,6 +28,7 @@
 #include "../mapping/CMap.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
+#include "../spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -59,7 +60,7 @@ static std::string visitedTxt(const bool visited)
 
 const std::string & CQuest::missionName(int mission)
 {
-	static const std::array<std::string, 11> names = {
+	static const std::array<std::string, 14> names = {
 		"empty",
 		"heroLevel",
 		"primarySkill",
@@ -169,6 +170,9 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	if(heroLevel > 0)
 		text.replaceNumber(heroLevel);
 	
+	if(heroExperience > 0)
+		text.replaceNumber(heroExperience);
+	
 	{ //primary skills
 		MetaString loot;
 		for(int i = 0; i < 4; ++i)
@@ -180,6 +184,17 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 				loot.replaceRawString(VLC->generaltexth->primarySkillNames[i]);
 			}
 		}
+		
+		for(auto & skill : secondary)
+		{
+			loot.appendTextID(VLC->skillh->getById(skill.first)->getNameTextID());
+		}
+		
+		for(auto & spell : spells)
+		{
+			loot.appendTextID(VLC->spellh->getById(spell)->getNameTextID());
+		}
+		
 		if(!loot.empty())
 			text.replaceRawString(loot.buildList());
 	}
@@ -237,7 +252,13 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	}
 	
 	if(!players.empty())
-		text.replaceLocalString(EMetaText::COLOR, players.front());
+	{
+		MetaString loot;
+		for(auto & p : players)
+			loot.appendLocalString(EMetaText::COLOR, p);
+		
+		text.replaceRawString(loot.buildList());
+	}
 }
 
 void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
@@ -280,6 +301,8 @@ void CQuest::defineQuestName()
 	questName = CQuest::missionName(0);
 	if(heroLevel > 0) questName = CQuest::missionName(1);
 	for(auto & s : primary) if(s) questName = CQuest::missionName(2);
+	if(!spells.empty()) questName = CQuest::missionName(2);
+	if(!secondary.empty()) questName = CQuest::missionName(2);
 	if(killTarget >= 0 && !heroName.empty()) questName = CQuest::missionName(3);
 	if(killTarget >= 0 && stackToKill.getType()) questName = CQuest::missionName(4);
 	if(!artifacts.empty()) questName = CQuest::missionName(5);
