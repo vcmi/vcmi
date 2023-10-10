@@ -29,7 +29,7 @@
 #include <SDL.h>
 
 // TODO: should be made into a private members of ScreenHandler
-static SDL_Window * mainWindow = nullptr;
+SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
 SDL_Surface * screen = nullptr; //main screen surface

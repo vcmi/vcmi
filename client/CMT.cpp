@@ -382,15 +382,17 @@ void playIntro()
 {
 	auto audioData = CCS->videoh->getAudio(VideoPath::builtin("3DOLOGO.SMK"));
 	int sound = CCS->soundh->playSound(audioData);
-	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, EVideoType::INTRO))
+	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 0, EVideoType::INTRO_WITHOUT_FRAME))
 	{
 		audioData = CCS->videoh->getAudio(VideoPath::builtin("NWCLOGO.SMK"));
 		sound = CCS->soundh->playSound(audioData);
-		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, EVideoType::INTRO))
+		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 0, EVideoType::INTRO_WITHOUT_FRAME))
 		{
 			audioData = CCS->videoh->getAudio(VideoPath::builtin("H3INTRO.SMK"));
 			sound = CCS->soundh->playSound(audioData);
-			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, EVideoType::INTRO);
+			int introRimOffsetX = 80;
+			int introRimOffsetY = 188;
+			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), introRimOffsetX, introRimOffsetY, EVideoType::INTRO_WITH_FRAME);
 		}
 	}
 	CCS->soundh->stopSound(sound);

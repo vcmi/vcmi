@@ -14,8 +14,10 @@
 #include "gui/CGuiHandler.h"
 #include "eventsSDL/InputHandler.h"
 #include "gui/FramerateManager.h"
+#include "render/CBitmapHandler.h"
 #include "renderSDL/SDL_Extensions.h"
 #include "CPlayerInterface.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CInputStream.h"
 
@@ -87,7 +89,8 @@ CVideoPlayer::CVideoPlayer()
 	, frame(nullptr)
 	, sws(nullptr)
 	, context(nullptr)
-	, texture(nullptr)
+	, backgroundTexture(nullptr)
+	, videoTexture(nullptr)
 	, dest(nullptr)
 	, destRect(0,0,0,0)
 	, pos(0,0,0,0)
@@ -201,7 +204,7 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool overlay, 
 	// Allocate a place to put our YUV image on that screen
 	if (overlay)
 	{
-		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
+		videoTexture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
 	}
 	else
 	{
@@ -211,15 +214,15 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool overlay, 
 		destRect.h = pos.h;
 	}
 
-	if (texture == nullptr && dest == nullptr)
+	if (videoTexture == nullptr && dest == nullptr)
 		return false;
 
-	if (texture)
+	if (videoTexture)
 	{ // Convert the image into YUV format that SDL uses
 		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt,
 							 pos.w, pos.h,
 							 AV_PIX_FMT_YUV420P,
-							 SWS_BICUBIC, nullptr, nullptr, nullptr);
+							 SWS_SPLINE, nullptr, nullptr, nullptr);
 	}
 	else
 	{
@@ -249,7 +252,7 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool overlay, 
 
 		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt,
 							 pos.w, pos.h, screenFormat,
-							 SWS_BICUBIC, nullptr, nullptr, nullptr);
+							 SWS_SPLINE, nullptr, nullptr, nullptr);
 	}
 
 	if (sws == nullptr)
@@ -305,15 +308,18 @@ bool CVideoPlayer::nextFrame()
 					uint8_t *data[4];
 					int linesize[4];
 
-					if (texture) {
+
+					if (videoTexture) {
 						av_image_alloc(data, linesize, pos.w, pos.h, AV_PIX_FMT_YUV420P, 1);
 
 						sws_scale(sws, frame->data, frame->linesize,
 								  0, codecContext->height, data, linesize);
 
-						SDL_UpdateYUVTexture(texture, nullptr, data[0], linesize[0],
-								data[1], linesize[1],
-								data[2], linesize[2]);
+						SDL_UpdateYUVTexture(videoTexture, nullptr,
+											 data[0], linesize[0],  // Y
+											 data[1], linesize[1],  // U
+											 data[2], linesize[2]); // V
+
 						av_freep(&data[0]);
 					}
 					else
@@ -420,10 +426,16 @@ void CVideoPlayer::close()
 		sws = nullptr;
 	}
 
-	if (texture)
+	if (backgroundTexture)
 	{
-		SDL_DestroyTexture(texture);
-		texture = nullptr;
+		SDL_DestroyTexture(backgroundTexture);
+		backgroundTexture = nullptr;
+	}
+
+	if (videoTexture)
+	{
+		SDL_DestroyTexture(videoTexture);
+		videoTexture = nullptr;
 	}
 
 	if (dest)
@@ -624,7 +636,7 @@ Point CVideoPlayer::size()
 }
 
 // Plays a video. Only works for overlays.
-bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay)
+bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay, bool showFrame)
 {
 	// Note: either the windows player or the linux player is
 	// broken. Compensate here until the bug is found.
@@ -636,8 +648,58 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay)
 
 	auto lastTimePoint = boost::chrono::steady_clock::now();
 
+	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
+	float resX = settings["video"]["resolution"]["width"].Float(); // Float, since we do some floating point calculations
+	float resY = settings["video"]["resolution"]["height"].Float();
+	int originalH3ResX = 800;
+	int originalH3ResY = 600;
+	float aspectRatio_OH3 = (float) originalH3ResX/originalH3ResY;
+	float resYRatioVCMI_OH3 = resY/originalH3ResY; // 0..1
+	int correctedResX = originalH3ResX*resYRatioVCMI_OH3;
+	int correctedResY = originalH3ResY*resYRatioVCMI_OH3;
+
+	SDL_Surface *image;
+	SDL_Texture *backgroundTexture = nullptr;
+	SDL_Rect backgroundRect;
+	SDL_Rect videoRect;
+
+	int H3INTROResX = 640;
+	int H3INTROResY = 360;
+
+	if(showFrame)
+	{
+		ImagePath imageToOpen = ImagePath::builtin("INTRORIM.bmp");
+		ImagePath iname;
+
+		if (CResourceHandler::get()->existsResource(imageToOpen))
+			iname = imageToOpen;
+		else
+			iname = imageToOpen.addPrefix("DATA/");
+
+		if (!CResourceHandler::get()->existsResource(iname))
+		{
+			logGlobal->error("Error: image %s was not found", iname.getName());
+			return false;
+		}
+
+		image = BitmapHandler::loadBitmap(iname);
+
+		if (!image) {
+			logGlobal->error("Error: failed to load image at %s: %s\n", iname.getName(), SDL_GetError());
+			return false;
+		}
+
+		int offset = 0;
+		backgroundRect = CSDL_Ext::toSDL(Rect(offset, 0, correctedResX, correctedResY));
+		backgroundTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
+		videoRect = CSDL_Ext::toSDL(Rect(offset+pos.x*correctedResX/originalH3ResX, pos.y*correctedResY/originalH3ResY, H3INTROResX*correctedResX/originalH3ResX, H3INTROResY*correctedResY/originalH3ResY));
+	} else {
+		videoRect = CSDL_Ext::toSDL(Rect(pos.x, pos.y, correctedResX, correctedResY));
+	}
+
 	while(nextFrame())
 	{
+		
 		if(stopOnKey)
 		{
 			GH.input().fetchEvents();
@@ -645,17 +707,33 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay)
 				return false;
 		}
 
-		SDL_Rect rect = CSDL_Ext::toSDL(pos);
-
 		if(overlay)
 		{
+			SDL_Rect rect = CSDL_Ext::toSDL(pos);
 			SDL_RenderFillRect(mainRenderer, &rect);
 		}
 		else
 		{
 			SDL_RenderClear(mainRenderer);
 		}
-		SDL_RenderCopy(mainRenderer, texture, nullptr, &rect);
+
+		correctedResX = aspectRatio_OH3*resY;
+		correctedResY = resY;
+
+		int offsetX = (resX-correctedResX)/2;
+		int offsetY = (resY-correctedResY)/2;
+		if(showFrame)
+		{
+			backgroundRect = CSDL_Ext::toSDL(Rect(offsetX, offsetY, correctedResX, correctedResY));
+			SDL_RenderCopy(mainRenderer, backgroundTexture, nullptr, &backgroundRect);
+			videoRect = CSDL_Ext::toSDL(Rect(	offsetX+pos.x*correctedResX/originalH3ResX,
+												offsetY+pos.y*correctedResY/originalH3ResY,
+												H3INTROResX*correctedResX/originalH3ResX,
+												H3INTROResY*correctedResY/originalH3ResY));
+		} else {
+			videoRect = CSDL_Ext::toSDL(Rect(offsetX+pos.x, offsetY+pos.y, correctedResX, correctedResY));
+		}
+		SDL_RenderCopy(mainRenderer, videoTexture, nullptr, &videoRect);
 		SDL_RenderPresent(mainRenderer);
 
 #if (LIBAVUTIL_VERSION_MAJOR < 58)
@@ -684,22 +762,31 @@ bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, EVideo
 	bool scale;
 	bool stopOnKey;
 	bool overlay;
+	bool showFrame;
 
 	switch(videoType)
 	{
-		case EVideoType::INTRO:
+		case EVideoType::INTRO_WITHOUT_FRAME:
 			stopOnKey = true;
 			scale = true;
 			overlay = false;
+			showFrame = false;
+			break;
+		case EVideoType::INTRO_WITH_FRAME:
+			stopOnKey = true;
+			scale = true;
+			overlay = false;
+			showFrame = true;
 			break;
 		case EVideoType::SPELLBOOK:
 		default:
 			stopOnKey = false;
 			scale = false;
 			overlay = true;
+			showFrame = false;
 	}
 	open(name, false, true, scale);
-	bool ret = playVideo(x, y,  stopOnKey, overlay);
+	bool ret = playVideo(x, y,  stopOnKey, overlay, showFrame);
 	close();
 	return ret;
 }
@@ -710,4 +797,3 @@ CVideoPlayer::~CVideoPlayer()
 }
 
 #endif
-

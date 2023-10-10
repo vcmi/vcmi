@@ -11,10 +11,12 @@
 
 struct SDL_Texture;
 struct SDL_Renderer;
+struct SDL_Window;
 struct SDL_Surface;
 
 extern SDL_Texture * screenTexture;
 extern SDL_Renderer * mainRenderer;
+extern SDL_Window * mainWindow;
 
 extern SDL_Surface *screen;      // main screen surface
 extern SDL_Surface *screen2;     // and hlp surface (used to store not-active interfaces layer)
