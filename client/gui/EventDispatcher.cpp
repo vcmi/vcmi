@@ -218,6 +218,7 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 				i->clickReleased(position);
 
 			i->mouseClickedState = isPressed;
+			return;
 		}
 		else
 		{
