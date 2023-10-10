@@ -75,6 +75,8 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);
+	
+	LOCPLINT->gamePause(true);
 }
 
 std::shared_ptr<CIntObject> SettingsMainWindow::createTab(size_t index)
@@ -108,6 +110,8 @@ void SettingsMainWindow::close()
 {
 	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
+	
+	LOCPLINT->gamePause(false);
 	GH.windows().popWindows(1);
 }
 

@@ -274,6 +274,19 @@ void CCallback::save( const std::string &fname )
 	cl->save(fname);
 }
 
+void CCallback::gamePause(bool pause)
+{
+	if(pause)
+	{
+		GamePause pack;
+		pack.player = *player;
+		sendRequest(&pack);
+	}
+	else
+	{
+		sendQueryReply(0, QueryID::CLIENT);
+	}
+}
 
 void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * currentObject)
 {

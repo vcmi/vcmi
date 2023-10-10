@@ -29,6 +29,7 @@ public:
 	}
 
 	virtual void visitSaveGame(SaveGame & pack) override;
+	virtual void visitGamePause(GamePause & pack) override;
 	virtual void visitEndTurn(EndTurn & pack) override;
 	virtual void visitDismissHero(DismissHero & pack) override;
 	virtual void visitMoveHero(MoveHero & pack) override;

@@ -15,12 +15,12 @@
 
 class TurnTimerHandler;
 
-//Created when player starts turn
-//Removed when player accepts a turn
-class PlayerStartsTurnQuery : public CQuery
+//Created when player starts turn or when player puts game on [ause
+//Removed when player accepts a turn or continur play
+class TimerPauseQuery : public CQuery
 {
 public:	
-	PlayerStartsTurnQuery(CGameHandler * owner, PlayerColor player);
+	TimerPauseQuery(CGameHandler * owner, PlayerColor player);
 	
 	bool blocksPack(const CPack *pack) const override;
 	void onAdding(PlayerColor color) override;

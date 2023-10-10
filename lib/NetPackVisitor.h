@@ -29,6 +29,7 @@ public:
 	virtual void visitPlayerStartsTurn(PlayerStartsTurn & pack) {}
 	virtual void visitDaysWithoutTown(DaysWithoutTown & pack) {}
 	virtual void visitTurnTimeUpdate(TurnTimeUpdate & pack) {}
+	virtual void visitGamePause(GamePause & pack) {}
 	virtual void visitEntitiesChanged(EntitiesChanged & pack) {}
 	virtual void visitSetResources(SetResources & pack) {}
 	virtual void visitSetPrimSkill(SetPrimSkill & pack) {}

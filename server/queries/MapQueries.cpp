@@ -15,28 +15,28 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/serializer/Cast.h"
 
-PlayerStartsTurnQuery::PlayerStartsTurnQuery(CGameHandler * owner, PlayerColor player):
+TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	CQuery(owner)
 {
 	addPlayer(player);
 }
 
-bool PlayerStartsTurnQuery::blocksPack(const CPack *pack) const
+bool TimerPauseQuery::blocksPack(const CPack *pack) const
 {
 	return blockAllButReply(pack);
 }
 
-void PlayerStartsTurnQuery::onAdding(PlayerColor color)
+void TimerPauseQuery::onAdding(PlayerColor color)
 {
 	gh->turnTimerHandler.setTimerEnabled(color, false);
 }
 
-void PlayerStartsTurnQuery::onRemoval(PlayerColor color)
+void TimerPauseQuery::onRemoval(PlayerColor color)
 {
 	gh->turnTimerHandler.setTimerEnabled(color, true);
 }
 
-bool PlayerStartsTurnQuery::endsByPlayerAnswer() const
+bool TimerPauseQuery::endsByPlayerAnswer() const
 {
 	return true;
 }

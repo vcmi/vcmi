@@ -32,4 +32,7 @@ public:
 
 	const CMapInfo * getMapInfo() override;
 	const StartInfo * getStartInfo() override;
+	
+protected:
+	void close() override;
 };

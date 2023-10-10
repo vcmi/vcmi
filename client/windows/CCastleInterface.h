@@ -250,7 +250,7 @@ public:
 	void townChange();
 	void keyPressed(EShortcut key) override;
 
-	void close();
+	void close() override;
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);
 	void recreateIcons();

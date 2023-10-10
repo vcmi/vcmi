@@ -16,6 +16,7 @@
 #include "processors/PlayerMessageProcessor.h"
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
+#include "queries/MapQueries.h"
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -32,6 +33,14 @@ void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
 	gh.save(pack.fname);
 	logGlobal->info("Game has been saved as %s", pack.fname);
+	result = true;
+}
+
+void ApplyGhNetPackVisitor::visitGamePause(GamePause & pack)
+{
+	auto turnQuery = std::make_shared<TimerPauseQuery>(&gh, pack.player);
+	turnQuery->queryID = QueryID::CLIENT;
+	gh.queries->addQuery(turnQuery);
 	result = true;
 }
 
