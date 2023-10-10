@@ -289,13 +289,16 @@ void CInfoBar::tick(uint32_t msPassed)
 	}
 }
 
-void CInfoBar::clickReleased(const Point & cursorPosition)
+void CInfoBar::clickReleased(const Point & cursorPosition, bool lastActivated)
 {
 	timerCounter = 0;
 	removeUsedEvents(TIME); //expiration trigger from just clicked element is not valid anymore
 
 	if(state == HERO || state == TOWN)
-		showGameStatus();
+	{
+		if(lastActivated)
+			showGameStatus();
+	}
 	else if(state == GAME)
 		showDate();
 	else
