@@ -2005,11 +2005,12 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			{
 				guard->quest->primary[x] = reader->readUInt8();
 			}
+			break;
 		}
-		break;
 		case EQuestMission::LEVEL:
 		{
 			guard->quest->heroLevel = reader->readUInt32();
+			break;
 		}
 		case EQuestMission::KILL_HERO:
 		case EQuestMission::KILL_CREATURE:
