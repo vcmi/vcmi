@@ -154,7 +154,6 @@ class CCastleBuildings : public CIntObject
 	void enterCastleGate();
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
 	void enterMagesGuild();
-	void enterTownHall();
 
 	void openMagesGuild();
 	void openTownHall();
@@ -167,6 +166,7 @@ public:
 	~CCastleBuildings();
 
 	void enterDwelling(int level);
+	void enterTownHall();
 	void enterToTheQuickRecruitmentWindow();
 
 	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);
@@ -226,6 +226,7 @@ class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 
 	std::shared_ptr<CButton> exit;
 	std::shared_ptr<CButton> split;
+	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
