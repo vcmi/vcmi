@@ -279,7 +279,7 @@ void CPlayerInterface::performAutosave()
 	if(isMulitplayerGame)
 		playerNames = TextOperations::concatenateStringsWithDelimiter(cb->getStartInfo()->getPlayerNames(), ", ");
 
-	mapName = TextOperations::replaceForbiddenPathChars(mapName);
+	mapName = TextOperations::replaceForbiddenPathChars(mapName, "_");
 
 	// store variable values in map
 	std::unordered_map<std::string, std::string> variables;
