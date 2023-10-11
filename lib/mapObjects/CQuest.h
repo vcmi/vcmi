@@ -21,12 +21,6 @@ class DLL_LINKAGE CQuest final
 {
 public:
 
-	enum EProgress {
-		NOT_ACTIVE,
-		IN_PROGRESS,
-		COMPLETE
-	};
-
 	static const std::string & missionName(int index);
 	static const std::string & missionState(int index);
 	
@@ -34,11 +28,12 @@ public:
 
 	si32 qid; //unique quest id for serialization / identification
 
-	EProgress progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 	ObjectInstanceID killTarget;
 	Rewardable::Limiter mission;
 	bool repeatedQuest;
+	bool isCompleted;
+	std::set<PlayerColor> activeForPlayers;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
@@ -75,7 +70,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & qid;
-		h & progress;
+		h & isCompleted;
+		h & activeForPlayers;
 		h & lastDay;
 		h & textOption;
 		h & stackToKill;
@@ -143,7 +139,8 @@ public:
 		h & seerName;
 	}
 protected:
-	static constexpr int OBJPROP_VISITED = 10;
+	static constexpr int SEERHUT_VISITED = 10;
+	static constexpr int SEERHUT_COMPLETE = 11;
 
 	void setPropertyDer(ui8 what, ui32 val) override;
 

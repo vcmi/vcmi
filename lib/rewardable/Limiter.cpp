@@ -57,6 +57,11 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.anyOf == r.anyOf;
 }
 
+bool operator!=(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
+{
+	return !(l == r);
+}
+
 bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if(dayOfWeek != 0)

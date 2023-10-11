@@ -152,7 +152,7 @@ void CQuestLog::recreateLabelList()
 		if (quests[i].quest->questName == CQuest::missionName(0))
 			continue;
 
-		if (quests[i].quest->progress == CQuest::COMPLETE)
+		if (quests[i].quest->isCompleted)
 		{
 			completeMissing = false;
 			if (hideComplete)
@@ -180,7 +180,7 @@ void CQuestLog::recreateLabelList()
 		labels.push_back(label);
 
 		// Select latest active quest
-		if (quests[i].quest->progress != CQuest::COMPLETE)
+		if(!quests[i].quest->isCompleted)
 			selectQuest(i, currentLabel);
 
 		currentLabel = static_cast<int>(labels.size());

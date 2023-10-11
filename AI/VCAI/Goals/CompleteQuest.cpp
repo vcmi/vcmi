@@ -25,7 +25,7 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 {
 	TGoalVec solutions;
 
-	if(q.quest->progress != CQuest::COMPLETE)
+	if(!q.quest->isCompleted)
 	{
 		logAi->debug("Trying to realize quest: %s", questToString());
 

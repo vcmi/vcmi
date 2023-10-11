@@ -38,7 +38,7 @@ std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 //TODO: Remove constructor
 CQuest::CQuest():
 	qid(-1),
-	progress(NOT_ACTIVE),
+	isCompleted(false),
 	lastDay(-1),
 	killTarget(ObjectInstanceID::NONE),
 	textOption(0),
@@ -450,14 +450,12 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 	init(rand);
 	
 	CRewardableObject::initObj(rand);
-
-	quest->progress = CQuest::NOT_ACTIVE;
 	
 	setObjToKill();
 	quest->defineQuestName();
 	
 	if(quest->mission == Rewardable::Limiter{} && quest->killTarget == ObjectInstanceID::NONE)
-	   quest->progress = CQuest::COMPLETE;
+		quest->isCompleted = true;
 	
 	if(quest->questName == quest->missionName(0))
 	{
@@ -484,13 +482,15 @@ void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 std::string CGSeerHut::getHoverText(PlayerColor player) const
 {
 	std::string hoverName = getObjectName();
-	if(ID == Obj::SEER_HUT && quest->progress != CQuest::NOT_ACTIVE)
+	if(ID == Obj::SEER_HUT && quest->activeForPlayers.count(player))
 	{
 		hoverName = VLC->generaltexth->allTexts[347];
 		boost::algorithm::replace_first(hoverName, "%s", seerName);
 	}
 
-	if(quest->progress/* & quest->missionType*/) //rollover when the quest is active
+	if(quest->activeForPlayers.count(player)
+	   && (quest->mission != Rewardable::Limiter{}
+		   || quest->killTarget != ObjectInstanceID::NONE)) //rollover when the quest is active
 	{
 		MetaString ms;
 		getRolloverText (ms, true);
@@ -499,13 +499,21 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 	return hoverName;
 }
 
-void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
+void CGSeerHut::setPropertyDer(ui8 what, ui32 val)
 {
 	switch(what)
 	{
-		case CGSeerHut::OBJPROP_VISITED:
-			quest->progress = static_cast<CQuest::EProgress>(val);
+		case CGSeerHut::SEERHUT_VISITED:
+		{
+			quest->activeForPlayers.emplace(val);
 			break;
+		}
+		case CGSeerHut::SEERHUT_COMPLETE:
+		{
+			quest->isCompleted = val;
+			quest->activeForPlayers.clear();
+			break;
+		}
 	}
 }
 
@@ -514,7 +522,7 @@ void CGSeerHut::newTurn(CRandomGenerator & rand) const
 	CRewardableObject::newTurn(rand);
 	if(quest->lastDay >= 0 && quest->lastDay <= cb->getDate() - 1) //time is up
 	{
-		cb->setObjProperty (id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE);
+		cb->setObjProperty (id, CGSeerHut::SEERHUT_COMPLETE, true);
 	}
 }
 
@@ -522,14 +530,14 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	if(quest->progress < CQuest::COMPLETE)
+	if(!quest->isCompleted)
 	{
-		bool firstVisit = !quest->progress;
+		bool firstVisit = !quest->activeForPlayers.count(h->getOwner());
 		bool failRequirements = !checkQuest(h);
 
 		if(firstVisit)
 		{
-			cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::IN_PROGRESS);
+			cb->setObjProperty(id, CGSeerHut::SEERHUT_VISITED, h->getOwner());
 
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
@@ -612,10 +620,7 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 	if(answer)
 	{
 		quest->completeQuest(cb, hero);
-		if(quest && quest->repeatedQuest)
-			cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::NOT_ACTIVE);
-		else
-			cb->setObjProperty(id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE); //mission complete
+		cb->setObjProperty(id, CGSeerHut::SEERHUT_COMPLETE, !quest->repeatedQuest); //mission complete
 	}
 }
 
