@@ -269,7 +269,7 @@ void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer 
 
 void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
 {
-	std::remove(subContainers.begin(), subContainers.end(), &container);
+	subContainers.erase(std::remove(subContainers.begin(), subContainers.end(), &container), subContainers.end());
 }
 
 const std::string & TextLocalizationContainer::deserialize(const TextIdentifier & identifier) const
