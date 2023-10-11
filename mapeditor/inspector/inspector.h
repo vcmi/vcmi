@@ -82,6 +82,7 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CGPandoraBox);
 	DECLARE_OBJ_PROPERTY_METHODS(CGEvent);
 	DECLARE_OBJ_PROPERTY_METHODS(CGSeerHut);
+	DECLARE_OBJ_PROPERTY_METHODS(CGQuestGuard);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);

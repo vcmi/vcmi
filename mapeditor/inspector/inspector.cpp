@@ -410,6 +410,14 @@ void Inspector::updateProperties(CGSeerHut * o)
 	}
 }
 
+void Inspector::updateProperties(CGQuestGuard * o)
+{
+	if(!o || !o->quest) return;
+	
+	addProperty("Reward", PropertyEditorPlaceholder(), nullptr, true);
+	addProperty("Repeat quest", o->quest->repeatedQuest, true);
+}
+
 void Inspector::updateProperties()
 {
 	if(!obj)
@@ -452,6 +460,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	UPDATE_OBJ_PROPERTIES(CGEvent);
 	UPDATE_OBJ_PROPERTIES(CGSeerHut);
+	UPDATE_OBJ_PROPERTIES(CGQuestGuard);
 	
 	table->show();
 }
@@ -498,6 +507,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGPandoraBox);
 	SET_PROPERTIES(CGEvent);
 	SET_PROPERTIES(CGSeerHut);
+	SET_PROPERTIES(CGQuestGuard);
 }
 
 void Inspector::setProperty(CArmedInstance * o, const QString & key, const QVariant & value)
@@ -679,6 +689,11 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 		o->quest->repeatedQuest = value.toBool();
 	if(key == "Time limit")
 		o->quest->lastDay = value.toString().toInt();
+}
+
+void Inspector::setProperty(CGQuestGuard * o, const QString & key, const QVariant & value)
+{
+	if(!o) return;
 }
 
 
