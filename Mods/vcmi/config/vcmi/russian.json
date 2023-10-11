@@ -44,6 +44,7 @@
 
 	"vcmi.mainMenu.serverConnecting" : "Подключение...",
 	"vcmi.mainMenu.serverAddressEnter" : "Введите адрес:",
+	"vcmi.mainMenu.serverConnectionFailed" : "Ошибка соединения",
 	"vcmi.mainMenu.serverClosing" : "Завершение...",
 	"vcmi.mainMenu.hostTCP" : "Создать игру по TCP/IP",
 	"vcmi.mainMenu.joinTCP" : "Присединиться к игре по TCP/IP",

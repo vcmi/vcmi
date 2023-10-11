@@ -589,6 +589,15 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 
 	// async call to prevent thread race
 	GH.dispatchMainThread([this](){
+		if(CSH->state == EClientState::CONNECTION_FAILED)
+		{
+			CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
+
+			textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
+			GH.startTextInput(inputAddress->pos);
+			buttonOk->block(false);
+		}
+
 		if(GH.windows().isTopWindow(this))
 		{
 			close();

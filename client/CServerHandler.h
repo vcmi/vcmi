@@ -48,7 +48,8 @@ enum class EClientState : ui8
 	LOBBY_CAMPAIGN, // Client is on scenario bonus selection screen
 	STARTING, // Gameplay interfaces being created, we pause netpacks retrieving
 	GAMEPLAY, // In-game, used by some UI
-	DISCONNECTING // We disconnecting, drop all netpacks
+	DISCONNECTING, // We disconnecting, drop all netpacks
+	CONNECTION_FAILED // We could not connect to server
 };
 
 class IServerAPI
