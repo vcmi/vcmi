@@ -710,8 +710,21 @@ void CGQuestGuard::init(CRandomGenerator & rand)
 	
 	configuration.info.push_back({});
 	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-	configuration.info.back().reward.removeObject = true;
+	configuration.info.back().reward.removeObject = subID == 0 ? true : false;
 	configuration.canRefuse = true;
+}
+
+void CGQuestGuard::onHeroVisit(const CGHeroInstance * h) const
+{
+	if(!quest->isCompleted)
+		CGSeerHut::onHeroVisit(h);
+	else
+		cb->setObjProperty(id, CGSeerHut::SEERHUT_COMPLETE, false);
+}
+
+bool CGQuestGuard::passableFor(PlayerColor color) const
+{
+	return quest->isCompleted;
 }
 
 void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)

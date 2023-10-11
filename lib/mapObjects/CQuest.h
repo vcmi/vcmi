@@ -151,6 +151,9 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	void init(CRandomGenerator & rand) override;
+	
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
