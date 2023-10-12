@@ -163,6 +163,9 @@
      <height>214</height>
     </size>
    </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
     <string>Minimap</string>
    </property>
@@ -203,12 +206,6 @@
          <height>192</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>192</width>
-         <height>192</height>
-        </size>
-       </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
@@ -238,6 +235,9 @@
      <width>524287</width>
      <height>524287</height>
     </size>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
     <string>Map Objects View</string>
@@ -435,11 +435,8 @@
      <height>192</height>
     </size>
    </property>
-   <property name="maximumSize">
-    <size>
-     <width>524287</width>
-     <height>192</height>
-    </size>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
     <string>Tools</string>
@@ -762,6 +759,9 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
     <string>Painting</string>
    </property>
@@ -920,11 +920,8 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_5">
-   <property name="maximumSize">
-    <size>
-     <width>524287</width>
-     <height>150</height>
-    </size>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
     <string>Preview</string>
@@ -949,12 +946,6 @@
      <item>
       <widget class="QGraphicsView" name="objectPreview">
        <property name="minimumSize">
-        <size>
-         <width>128</width>
-         <height>128</height>
-        </size>
-       </property>
-       <property name="maximumSize">
         <size>
          <width>128</width>
          <height>128</height>

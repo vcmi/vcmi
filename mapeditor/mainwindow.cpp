@@ -939,6 +939,8 @@ void MainWindow::preparePreview(const QModelIndex &index)
 			scenePreview->addPixmap(objPreview);
 		}
 	}
+
+	ui->objectPreview->fitInView(scenePreview->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 
