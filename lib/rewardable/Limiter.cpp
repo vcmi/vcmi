@@ -179,7 +179,7 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 	if (heroExperience)
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
 
-	if (heroLevel)
+	if (heroLevel > 0)
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
 
 	if (manaPoints || manaPercentage > 0)

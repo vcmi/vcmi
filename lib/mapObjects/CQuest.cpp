@@ -60,7 +60,7 @@ static std::string visitedTxt(const bool visited)
 
 const std::string & CQuest::missionName(int mission)
 {
-	static const std::array<std::string, 14> names = {
+	static const std::array<std::string, 11> names = {
 		"empty",
 		"heroLevel",
 		"primarySkill",
@@ -351,7 +351,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 			return;
 		
 		if(missionType == "Level")
-			handler.serializeInt("heroLevel", mission.heroLevel, -1);
+			handler.serializeInt("heroLevel", mission.heroLevel);
 		
 		if(missionType == "PrimaryStat")
 		{
