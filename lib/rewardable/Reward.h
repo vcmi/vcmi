@@ -78,7 +78,7 @@ struct DLL_LINKAGE Reward final
 	bool removeObject;
 
 	/// Generates list of components that describes reward for a specific hero
-	virtual void loadComponents(std::vector<Component> & comps,
+	void loadComponents(std::vector<Component> & comps,
 								const CGHeroInstance * h) const;
 	
 	Component getDisplayedComponent(const CGHeroInstance * h) const;

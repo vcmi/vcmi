@@ -78,12 +78,12 @@ struct DLL_LINKAGE Limiter final
 	LimitersList noneOf;
 
 	Limiter();
-	virtual ~Limiter();
+	~Limiter();
 
 	bool heroAllowed(const CGHeroInstance * hero) const;
 	
 	/// Generates list of components that describes reward for a specific hero
-	virtual void loadComponents(std::vector<Component> & comps,
+	void loadComponents(std::vector<Component> & comps,
 								const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
