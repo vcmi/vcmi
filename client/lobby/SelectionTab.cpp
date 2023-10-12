@@ -439,7 +439,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 				folder->isFolder = true;
 				folder->folderName = "..  (" + curFolder + ")";
 				folder->displayName = TextOperations::truncateUnicodeString(folder->folderName, folderNameMaxDisplayLength);
-				folder->displayName += "...";
+				folder->displayName = TextOperations::appendEllipsisIfNeeded(folder->displayName, folderNameMaxDisplayLength);
 				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return boost::starts_with(e->folderName, ".."); });
 				if (itemIt == curItems.end()) {
 					curItems.push_back(folder);
@@ -450,7 +450,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 			folder->isFolder = true;
 			folder->folderName = folderName;
 			folder->displayName = TextOperations::truncateUnicodeString(folder->folderName, folderNameMaxDisplayLength);
-			folder->displayName += "...";
+			folder->displayName = TextOperations::appendEllipsisIfNeeded(folder->displayName, folderNameMaxDisplayLength);
 
 			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
 			if (itemIt == curItems.end() && folderName != "") {
@@ -460,6 +460,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 			if(fileInFolder)
 			{
 				elem->displayName = TextOperations::truncateUnicodeString(elem->getNameForList(), mapNameMaxDisplayLength);
+				elem->displayName = TextOperations::appendEllipsisIfNeeded(elem->displayName, mapNameMaxDisplayLength);
 				curItems.push_back(elem);
 			}
 		}

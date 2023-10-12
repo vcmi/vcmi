@@ -238,6 +238,16 @@ std::string TextOperations::replaceForbiddenPathChars(const std::string & input,
 	return result;
 }
 
+std::string TextOperations::appendEllipsisIfNeeded(const std::string & input, const size_t maxLength)
+{
+	std::string result = input;
+
+	if(input.length() >= maxLength)
+		result = input + "...";
+
+	return result;
+}
+
 std::string TextOperations::escapeString(std::string input)
 {
 	boost::replace_all(input, "\\", "\\\\");

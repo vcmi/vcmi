@@ -63,6 +63,9 @@ namespace TextOperations
 	// Replace forbidden Path characters with specified delimiter
 	std::string DLL_LINKAGE replaceForbiddenPathChars(const std::string & input, const std::string & delimiter);
 
+	// If string length exceeds a max length append ... to it
+	std::string DLL_LINKAGE appendEllipsisIfNeeded(const std::string& input, const size_t maxLength);
+
 	/// replaces all symbols that normally need escaping with appropriate escape sequences
 	std::string escapeString(std::string input);
 
