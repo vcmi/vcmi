@@ -489,7 +489,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(false)));
 		recruit->block(true);
 	}
-	else if(LOCPLINT->castleInt && LOCPLINT->castleInt->town->visitingHero)
+	else if((LOCPLINT->castleInt && LOCPLINT->castleInt->town->visitingHero) || (dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->visitingHero))
 	{
 		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
 		recruit->block(true);
@@ -501,6 +501,8 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	if(LOCPLINT->castleInt)
 		CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
+	else if(dynamic_cast<const CGTownInstance *>(TavernObj))
+		CCS->videoh->open(dynamic_cast<const CGTownInstance *>(TavernObj)->town->clientInfo.tavernVideo);
 	else
 		CCS->videoh->open(VideoPath::builtin("TAVERN.BIK"));
 }

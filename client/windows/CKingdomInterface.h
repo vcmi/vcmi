@@ -233,7 +233,6 @@ private:
 
 	std::shared_ptr<CHoverableArea> incomeArea;
 	std::shared_ptr<CLabel> incomeAmount;
-	std::shared_ptr<LRClickableArea> fastMarket;
 
 	std::shared_ptr<CGStatusBar> statusbar;
 	std::shared_ptr<CResDataBar> resdatabar;
@@ -280,6 +279,8 @@ class CTownItem : public CIntObject, public IGarrisonHolder
 
 	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
+	std::shared_ptr<LRClickableArea> fastMarket;
+	std::shared_ptr<LRClickableArea> fastTavern;
 
 public:
 	const CGTownInstance * town;

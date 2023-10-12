@@ -599,20 +599,6 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
 	incomeAmount = std::make_shared<CLabel>(628, footerPos + 70, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, std::to_string(totalIncome));
-
-	fastMarket = std::make_shared<LRClickableArea>(Rect(20, 31 + footerPos, 716, 68), []()
-	{
-		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
-		for(auto & town : towns)
-		{
-			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
-			{
-				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
-				return;
-			}
-		}
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
-	});
 }
 
 void CKingdomInterface::generateButtons()
@@ -793,13 +779,6 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
 	fort = std::make_shared<CTownInfo>(111, 31, town, false);
 
-	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
-	fastTownHall->setImageOrder(town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1);
-	fastTownHall->setAnimateLonelyFrame(true);
-	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
-	fastArmyPurchase->setImageOrder(town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1);
-	fastArmyPurchase->setAnimateLonelyFrame(true);
-
 	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
@@ -813,6 +792,31 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		growth.push_back(std::make_shared<CCreaInfo>(Point(401+37*(int)i, 78), town, (int)i, true, true));
 		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*(int)i, 78), town, (int)i, true, false));
 	}
+
+	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
+	fastTownHall->setImageOrder(town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1);
+	fastTownHall->setAnimateLonelyFrame(true);
+	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
+	fastArmyPurchase->setImageOrder(town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1);
+	fastArmyPurchase->setAnimateLonelyFrame(true);
+	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
+	{
+		if(town->builtBuildings.count(BuildingID::TAVERN))
+			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+	});
+	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
+	{
+		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		for(auto & town : towns)
+		{
+			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			{
+				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				return;
+			}
+		}
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+	});
 }
 
 void CTownItem::updateGarrisons()
