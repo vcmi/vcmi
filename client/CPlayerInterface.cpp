@@ -351,7 +351,7 @@ void CPlayerInterface::performAutosave()
 			boost::replace_all(saveName, entry.first, entry.second);
 	}
 
-	cb->save("Saves/" + saveName); 
+	cb->save("Saves/" + saveName);
 }
 
 void CPlayerInterface::gamePause(bool pause)
