@@ -18,6 +18,8 @@
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 #include "../PlayerLocalState.h"
+#include "../gui/WindowHandler.h"
+#include "../windows/CTradeWindow.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../windows/CCastleInterface.h"
@@ -173,6 +175,24 @@ void LRClickableAreaOpenTown::clickPressed(const Point & cursorPosition)
 LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town)
 	: LRClickableAreaWTextComp(Pos, -1), town(Town)
 {
+}
+
+void LRClickableArea::clickPressed(const Point & cursorPosition)
+{
+	if(onClick)
+		onClick();
+}
+
+void LRClickableArea::showPopupWindow(const Point & cursorPosition)
+{
+	if(onPopup)
+		onPopup();
+}
+
+LRClickableArea::LRClickableArea(const Rect & Pos, std::function<void()> onClick, std::function<void()> onPopup)
+	: CIntObject(LCLICK | SHOW_POPUP), onClick(onClick), onPopup(onPopup)
+{
+	pos = Pos + pos.topLeft();
 }
 
 void CMinorResDataBar::show(Canvas & to)
@@ -401,50 +421,84 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town)
 
 CInteractableTownTooltip::CInteractableTownTooltip(Point pos, const CGTownInstance * town)
 {
-	init(InfoAboutTown(town, true));
+	init(town);
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	garrison = std::make_shared<CGarrisonInt>(pos + Point(0, 73), 4, Point(0, 0), town->getUpperArmy(), nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS);
 }
 
-void CInteractableTownTooltip::init(const InfoAboutTown & town)
+void CInteractableTownTooltip::init(const CGTownInstance * town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
+	const InfoAboutTown townInfo = InfoAboutTown(town, true);
+	int townId = town->id;
+
 	//order of icons in def: fort, citadel, castle, no fort
-	size_t fortIndex = town.fortLevel ? town.fortLevel - 1 : 3;
+	size_t fortIndex = townInfo.fortLevel ? townInfo.fortLevel - 1 : 3;
 
 	fort = std::make_shared<CAnimImage>(AnimationPath::builtin("ITMCLS"), fortIndex, 0, 105, 31);
+	fastArmyPurchase = std::make_shared<LRClickableArea>(Rect(105, 31, 34, 34), [townId]()
+	{
+		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		for(auto & town : towns)
+		{
+			if(town->id == townId)
+				std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow();
+		}
+	});
+	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), [townId]()
+	{
+		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		for(auto & town : towns)
+		{
+			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			{
+				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				return;
+			}
+		}
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+	});
 
-	assert(town.tType);
+	assert(townInfo.tType);
 
-	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+	size_t iconIndex = townInfo.tType->clientInfo.icons[townInfo.fortLevel > 0][townInfo.built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	build = std::make_shared<CAnimImage>(AnimationPath::builtin("itpt"), iconIndex, 0, 3, 2);
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town.name);
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, townInfo.name);
 
-	if(town.details)
+	if(townInfo.details)
 	{
-		hall = std::make_shared<CAnimImage>(AnimationPath::builtin("ITMTLS"), town.details->hallLevel, 0, 67, 31);
+		hall = std::make_shared<CAnimImage>(AnimationPath::builtin("ITMTLS"), townInfo.details->hallLevel, 0, 67, 31);
+		fastTownHall = std::make_shared<LRClickableArea>(Rect(67, 31, 34, 34), [townId]()
+		{
+			std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+			for(auto & town : towns)
+			{
+				if(town->id == townId)
+					std::make_shared<CCastleBuildings>(town)->enterTownHall();
+			}
+		});
 
-		if(town.details->goldIncome)
+		if(townInfo.details->goldIncome)
 		{
 			income = std::make_shared<CLabel>(157, 58, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE,
-											  std::to_string(town.details->goldIncome));
+											  std::to_string(townInfo.details->goldIncome));
 		}
-		if(town.details->garrisonedHero) //garrisoned hero icon
+		if(townInfo.details->garrisonedHero) //garrisoned hero icon
 			garrisonedHero = std::make_shared<CPicture>(ImagePath::builtin("TOWNQKGH"), 149, 76);
 
-		if(town.details->customRes)//silo is built
+		if(townInfo.details->customRes)//silo is built
 		{
-			if(town.tType->primaryRes == EGameResID::WOOD_AND_ORE )// wood & ore
+			if(townInfo.tType->primaryRes == EGameResID::WOOD_AND_ORE )// wood & ore
 			{
 				res1 = std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(EGameResID::WOOD), 0, 7, 75);
 				res2 = std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(EGameResID::ORE), 0, 7, 88);
 			}
 			else
 			{
-				res1 = std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), town.tType->primaryRes, 0, 7, 81);
+				res1 = std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), townInfo.tType->primaryRes, 0, 7, 81);
 			}
 		}
 	}
