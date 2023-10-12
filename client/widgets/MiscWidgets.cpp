@@ -447,7 +447,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 				std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow();
 		}
 	});
-	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), [townId]()
+	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), []()
 	{
 		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 		for(auto & town : towns)
