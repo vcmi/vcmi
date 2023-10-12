@@ -59,9 +59,6 @@ TGoalVec CompleteQuest::decompose() const
 
 	if(q.quest->mission.heroLevel > 0)
 		return missionLevel();
-	
-	if(q.quest->questName == CQuest::missionName(10))
-		return missionKeymaster();
 
 	return TGoalVec();
 }

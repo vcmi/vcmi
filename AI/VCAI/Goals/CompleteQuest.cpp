@@ -21,6 +21,11 @@ bool CompleteQuest::operator==(const CompleteQuest & other) const
 	return q.quest->qid == other.q.quest->qid;
 }
 
+bool isKeyMaster(const QuestInfo & q)
+{
+	return q.obj && (q.obj->ID == Obj::BORDER_GATE || q.obj->ID == Obj::BORDERGUARD);
+}
+
 TGoalVec CompleteQuest::getAllPossibleSubgoals()
 {
 	TGoalVec solutions;
@@ -28,6 +33,9 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 	if(!q.quest->isCompleted)
 	{
 		logAi->debug("Trying to realize quest: %s", questToString());
+		
+		if(isKeyMaster(q))
+			return missionKeymaster();
 
 		if(!q.quest->mission.artifacts.empty())
 			return missionArt();
@@ -50,9 +58,6 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 
 		if(q.quest->mission.heroLevel > 0)
 			return missionLevel();
-		
-		if(q.quest->questName == CQuest::missionName(10))
-			return missionKeymaster();
 	}
 
 	return TGoalVec();
@@ -60,7 +65,7 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 
 TSubgoal CompleteQuest::whatToDoToAchieve()
 {
-	if(q.quest->questName == CQuest::missionName(0))
+	if(q.quest->mission == Rewardable::Limiter{})
 	{
 		throw cannotFulfillGoalException("Can not complete inactive quest");
 	}

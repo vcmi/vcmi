@@ -148,8 +148,8 @@ void CQuestLog::recreateLabelList()
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
-		// Quests with MISSION_NONE type don't have text for them and can't be displayed
-		if (quests[i].quest->questName == CQuest::missionName(0))
+		// Quests without mision don't have text for them and can't be displayed
+		if (quests[i].quest->mission == Rewardable::Limiter{})
 			continue;
 
 		if (quests[i].quest->isCompleted)
