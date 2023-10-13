@@ -149,7 +149,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 
 	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
 
-	if(settings["lobby"]["mapPreview"].Bool())
+	if(settings["lobby"]["mapPreview"].Bool() && p.tabType != ESelectionScreen::campaignList)
 	{
 		ResourcePath res = ResourcePath(p.resource.getName(), EResType::MAP);
 		std::unique_ptr<CMap> campaignMap = nullptr;
@@ -192,7 +192,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 	{
 		if(p.date.empty())
 		{
-			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::MAP)));
+			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
 			w->setText(vstd::getFormattedDateTime(time));
 		}
 		else
