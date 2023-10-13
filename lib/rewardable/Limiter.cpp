@@ -72,7 +72,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 
 	if(daysPassed != 0)
 	{
-		if (IObjectInterface::cb->getDate(Date::DAY) < daysPassed)
+		if (IObjectInterface::cb->getDate(Date::DAY) <= daysPassed)
 			return false;
 	}
 

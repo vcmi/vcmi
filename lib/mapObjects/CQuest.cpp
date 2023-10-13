@@ -60,7 +60,7 @@ static std::string visitedTxt(const bool visited)
 
 const std::string & CQuest::missionName(int mission)
 {
-	static const std::array<std::string, 11> names = {
+	static const std::array<std::string, 13> names = {
 		"empty",
 		"heroLevel",
 		"primarySkill",
@@ -71,7 +71,9 @@ const std::string & CQuest::missionName(int mission)
 		"bringResources",
 		"bringHero",
 		"bringPlayer",
-		"keymaster"
+		"keymaster",
+		"hota",
+		"other"
 	};
 
 	if(static_cast<size_t>(mission) < names.size())
@@ -299,6 +301,7 @@ void CQuest::defineQuestName()
 {
 	//standard quests
 	questName = CQuest::missionName(0);
+	if(mission != Rewardable::Limiter{}) questName = CQuest::missionName(12);
 	if(mission.heroLevel > 0) questName = CQuest::missionName(1);
 	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(2);
 	if(!mission.spells.empty()) questName = CQuest::missionName(2);
@@ -310,6 +313,7 @@ void CQuest::defineQuestName()
 	if(mission.resources.nonZero()) questName = CQuest::missionName(7);
 	if(!mission.heroes.empty()) questName = CQuest::missionName(8);
 	if(!mission.players.empty()) questName = CQuest::missionName(9);
+	if(mission.daysPassed > 0 || !mission.heroClasses.empty()) questName = CQuest::missionName(11);
 }
 
 void CQuest::addKillTargetReplacements(MetaString &out) const
@@ -425,10 +429,6 @@ void CGSeerHut::setObjToKill()
 		quest->heroName = getHeroToKill(false)->getNameTranslated();
 		quest->heroPortrait = getHeroToKill(false)->getPortraitSource();
 	}
-
-	quest->getCompletionText(configuration.onSelect);
-	for(auto & i : configuration.info)
-		quest->getCompletionText(i.message);
 }
 
 void CGSeerHut::init(CRandomGenerator & rand)
@@ -470,6 +470,10 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 		if(!quest->isCustomComplete)
 			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest-> questName, quest->missionState(2), quest->textOption).get());
 	}
+	
+	quest->getCompletionText(configuration.onSelect);
+	for(auto & i : configuration.info)
+		quest->getCompletionText(i.message);
 }
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const

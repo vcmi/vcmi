@@ -1830,6 +1830,7 @@ CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position, const Objec
 	if(features.levelHOTA3)
 	{
 		uint32_t repeateableQuestsCount = reader->readUInt32();
+		hut->quest->repeatedQuest = repeateableQuestsCount != 0;
 
 		if(repeateableQuestsCount != 0)
 			logGlobal->warn("Map '%s': Seer Hut at %s - %d repeatable quests are not implemented!", mapName, position.toString(), repeateableQuestsCount);
