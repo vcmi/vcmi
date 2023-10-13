@@ -501,8 +501,8 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 	}
 	if(LOCPLINT->castleInt)
 		CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
-	else if(dynamic_cast<const CGTownInstance *>(TavernObj))
-		CCS->videoh->open(dynamic_cast<const CGTownInstance *>(TavernObj)->town->clientInfo.tavernVideo);
+	else if(const auto * townObj = dynamic_cast<const CGTownInstance *>(TavernObj))
+		CCS->videoh->open(townObj->town->clientInfo.tavernVideo);
 	else
 		CCS->videoh->open(VideoPath::builtin("TAVERN.BIK"));
 }
