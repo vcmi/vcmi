@@ -203,6 +203,7 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 	// POSSIBLE SOLUTION: make EventReceivers inherit from create_shared_from this and store weak_ptr's in lists
 	AEventsReceiver * nearestElement = findElementInToleranceRange(lclickable, position, AEventsReceiver::LCLICK, tolerance);
 	auto hlp = lclickable;
+	bool lastActivated = true;
 
 	for(auto & i : hlp)
 	{
@@ -212,12 +213,19 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 		if( i->receiveEvent(position, AEventsReceiver::LCLICK) || i == nearestElement)
 		{
 			if(isPressed)
+			{
 				i->clickPressed(position);
+				i->clickPressed(position, lastActivated);
+			}
 
 			if (i->mouseClickedState && !isPressed)
+			{
 				i->clickReleased(position);
+				i->clickReleased(position, lastActivated);
+			}
 
 			i->mouseClickedState = isPressed;
+			lastActivated = false;
 		}
 		else
 		{

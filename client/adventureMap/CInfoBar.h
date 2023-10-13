@@ -159,7 +159,7 @@ private:
 
 	void tick(uint32_t msPassed) override;
 
-	void clickReleased(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition, bool lastActivated) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 

@@ -24,6 +24,7 @@
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
 #include "../windows/InfoWindows.h"
+#include "../widgets/RadialMenu.h"
 #include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
@@ -169,8 +170,7 @@ void AdventureMapInterface::dim(Canvas & to)
 {
 	for (auto window : GH.windows().findWindows<IShowActivatable>())
 	{
-		std::shared_ptr<AdventureMapInterface> casted = std::dynamic_pointer_cast<AdventureMapInterface>(window);
-		if (!casted && !window->isPopupWindow())
+		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow())
 		{
 			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
