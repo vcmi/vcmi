@@ -1356,6 +1356,9 @@
    <property name="toolTip">
     <string>Lock objects on map to avoid unnecessary changes</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
   </action>
   <action name="actionUnlock">
    <property name="icon">
@@ -1368,6 +1371,9 @@
    <property name="toolTip">
     <string>Unlock all objects on the map</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+L</string>
+   </property>
   </action>
   <action name="actionZoom_in">
    <property name="icon">
@@ -1376,6 +1382,9 @@
    </property>
    <property name="text">
     <string>Zoom in</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
    </property>
   </action>
   <action name="actionZoom_out">
@@ -1386,6 +1395,9 @@
    <property name="text">
     <string>Zoom out</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
   </action>
   <action name="actionZoom_reset">
    <property name="icon">
@@ -1394,6 +1406,9 @@
    </property>
    <property name="text">
     <string>Zoom reset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+=</string>
    </property>
   </action>
  </widget>
