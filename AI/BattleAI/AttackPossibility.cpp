@@ -157,13 +157,9 @@ float AttackPossibility::calculateDamageReduce(
 	auto enemyDamageBeforeAttack = damageCache.getOriginalDamage(defender, attackerUnitForMeasurement, state);
 	auto enemiesKilled = damageDealt / maxHealth + (damageDealt % maxHealth >= defender->getFirstHPleft() ? 1 : 0);
 	auto damagePerEnemy = enemyDamageBeforeAttack / (double)defender->getCount();
-	
-	// lets use cached maxHealth here instead of getAvailableHealth
-	auto firstUnitHpLeft = (availableHealth - damageDealt) % maxHealth;
-	auto firstUnitHealthRatio = firstUnitHpLeft == 0 ? 1 : static_cast<float>(firstUnitHpLeft) / maxHealth;
-	auto firstUnitKillValue = (1 - firstUnitHealthRatio) * (1 - firstUnitHealthRatio);
+	auto lastUnitKillValue = (damageDealt % maxHealth) / (double)maxHealth;;
 
-	return damagePerEnemy * (enemiesKilled + firstUnitKillValue * HEALTH_BOUNTY);
+	return damagePerEnemy * (enemiesKilled + lastUnitKillValue * HEALTH_BOUNTY);
 }
 
 int64_t AttackPossibility::evaluateBlockedShootersDmg(

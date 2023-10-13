@@ -149,7 +149,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				bestAttack.attack.attacker->speed(0, true),
 				bestAttack.defenderDamageReduce,
 				bestAttack.attackerDamageReduce,
-				bestAttack.attackValue()
+				score
 			);
 
 			if (moveTarget.scorePerTurn <= score)
@@ -580,7 +580,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				}
 				else
 				{
-					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, *targets, innerCache, state);
+					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, 0, *targets, innerCache, state);
 				}
 
 				for(auto unit : allUnits)

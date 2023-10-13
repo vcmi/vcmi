@@ -132,6 +132,7 @@ class BattleExchangeEvaluator
 private:
 	std::shared_ptr<CBattleInfoCallback> cb;
 	std::shared_ptr<Environment> env;
+	std::map<uint32_t, ReachabilityInfo> reachabilityCache;
 	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
 	std::vector<battle::Units> turnOrder;
 	float negativeEffectMultiplier;
@@ -140,6 +141,7 @@ private:
 
 	BattleScore calculateExchange(
 		const AttackPossibility & ap,
+		uint8_t turn,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
@@ -151,7 +153,7 @@ public:
 		std::shared_ptr<CBattleInfoCallback> cb,
 		std::shared_ptr<Environment> env,
 		float strengthRatio): cb(cb), env(env) {
-		negativeEffectMultiplier = std::sqrt(strengthRatio);
+		negativeEffectMultiplier = strengthRatio >= 1 ? 1 : strengthRatio;
 	}
 
 	EvaluationResult findBestTarget(
@@ -162,10 +164,12 @@ public:
 
 	float evaluateExchange(
 		const AttackPossibility & ap,
+		uint8_t turn,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
 
+	std::vector<const battle::Unit *> getOneTurnReachableUnits(uint8_t turn, BattleHex hex);
 	void updateReachabilityMap(std::shared_ptr<HypotheticBattle> hb);
 
 	ReachabilityData getExchangeUnits(
