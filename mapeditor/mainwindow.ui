@@ -86,6 +86,8 @@
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
     <addaction name="actionErase"/>
+    <addaction name="actionLock"/>
+    <addaction name="actionUnlock"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -94,6 +96,10 @@
     <addaction name="actionLevel"/>
     <addaction name="actionGrid"/>
     <addaction name="actionPass"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoom_in"/>
+    <addaction name="actionZoom_out"/>
+    <addaction name="actionZoom_reset"/>
    </widget>
    <widget class="QMenu" name="menuPlayer">
     <property name="title">
@@ -143,6 +149,13 @@
    <addaction name="separator"/>
    <addaction name="actionFill"/>
    <addaction name="actionTranslations"/>
+   <addaction name="separator"/>
+   <addaction name="actionLock"/>
+   <addaction name="actionUnlock"/>
+   <addaction name="separator"/>
+   <addaction name="actionZoom_in"/>
+   <addaction name="actionZoom_out"/>
+   <addaction name="actionZoom_reset"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
    <property name="sizePolicy">
@@ -804,8 +817,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>128</width>
-          <height>192</height>
+          <width>256</width>
+          <height>90</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -847,8 +860,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>128</width>
-          <height>192</height>
+          <width>256</width>
+          <height>90</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -883,8 +896,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>128</width>
-          <height>192</height>
+          <width>256</width>
+          <height>90</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1330,6 +1343,57 @@
    </property>
    <property name="toolTip">
     <string>h3m converter</string>
+   </property>
+  </action>
+  <action name="actionLock">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:lock-closed.png</normaloff>icons:lock-closed.png</iconset>
+   </property>
+   <property name="text">
+    <string>Lock</string>
+   </property>
+   <property name="toolTip">
+    <string>Lock objects on map to avoid unnecessary changes</string>
+   </property>
+  </action>
+  <action name="actionUnlock">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:lock-open.png</normaloff>icons:lock-open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Unlock</string>
+   </property>
+   <property name="toolTip">
+    <string>Unlock all objects on the map</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:zoom_plus.png</normaloff>icons:zoom_plus.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:zoom_minus.png</normaloff>icons:zoom_minus.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+  </action>
+  <action name="actionZoom_reset">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:zoom_zero.png</normaloff>icons:zoom_zero.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom reset</string>
    </property>
   </action>
  </widget>

@@ -124,6 +124,16 @@ private slots:
 	
 	void on_actionh3m_converter_triggered();
 
+	void on_actionLock_triggered();
+
+	void on_actionUnlock_triggered();
+
+	void on_actionZoom_in_triggered();
+
+	void on_actionZoom_out_triggered();
+
+	void on_actionZoom_reset_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
@@ -166,6 +176,7 @@ private:
 	QStandardItemModel objectsModel;
 
 	int mapLevel = 0;
+	QRectF initialScale;
 
 	std::set<int> catalog;
 

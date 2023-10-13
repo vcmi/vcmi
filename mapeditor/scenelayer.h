@@ -120,9 +120,13 @@ public:
 	
 	void setDirty(int x, int y);
 	void setDirty(const CGObjectInstance * object);
+
+	void setLockObject(const CGObjectInstance * object, bool lock);
+	void unlockAll();
 	
 private:
 	std::set<const CGObjectInstance *> objDirty;
+	std::set<const CGObjectInstance *> lockedObjects;
 	std::set<int3> dirty;
 };
 
@@ -180,6 +184,9 @@ public:
 	bool isSelected(const CGObjectInstance *) const;
 	std::set<CGObjectInstance*> getSelection() const;
 	void clear();
+
+	void setLockObject(const CGObjectInstance * object, bool lock);
+	void unlockAll();
 		
 	QPoint shift;
 	CGObjectInstance * newObject;
@@ -191,6 +198,7 @@ signals:
 	
 private:
 	std::set<CGObjectInstance *> selectedObjects;
+	std::set<const CGObjectInstance *> lockedObjects;
 
 	void onSelection();
 };

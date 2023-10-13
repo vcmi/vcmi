@@ -44,15 +44,9 @@ void MinimapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	if(!sc)
 		return;
 	
-	int w = sc->viewport.viewportWidth();
-	int h = sc->viewport.viewportHeight();
 	auto pos = mapToScene(mouseEvent->pos());
-	pos.setX(pos.x() - w / 2);
-	pos.setY(pos.y() - h / 2);
-	
-	QPointF point = pos * 32;
-			
-	emit cameraPositionChanged(point);
+	pos *= 32;
+	emit cameraPositionChanged(pos);
 }
 
 void MinimapView::mousePressEvent(QMouseEvent* event)
@@ -68,8 +62,7 @@ MapView::MapView(QWidget * parent):
 
 void MapView::cameraChanged(const QPointF & pos)
 {
-	horizontalScrollBar()->setValue(pos.x());
-	verticalScrollBar()->setValue(pos.y());
+	centerOn(pos);
 }
 
 void MapView::setController(MapController * ctrl)

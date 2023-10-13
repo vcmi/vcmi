@@ -222,6 +222,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
 
+	initialScale = ui->mapView->viewport()->geometry();
+
 	//loading objects
 	loadObjectsTree();
 	
@@ -296,6 +298,7 @@ void MainWindow::initializeMap(bool isNew)
 	ui->mapView->setScene(controller.scene(mapLevel));
 	ui->minimapView->setScene(controller.miniScene(mapLevel));
 	ui->minimapView->dimensions();
+	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
 	
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
@@ -1279,5 +1282,67 @@ void MainWindow::on_actionh3m_converter_triggered()
 	{
 		QMessageBox::critical(this, tr("Failed to convert the map. Abort operation"), tr(e.what()));
 	}
+}
+
+
+void MainWindow::on_actionLock_triggered()
+{
+	if(controller.map())
+	{
+		if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
+		{
+			for(auto obj : controller.map()->objects)
+			{
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+			}
+		}
+		else
+		{
+			for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
+			{
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+			}
+			controller.scene(mapLevel)->selectionObjectsView.clear();
+		}
+		controller.scene(mapLevel)->objectsView.update();
+		controller.scene(mapLevel)->selectionObjectsView.update();
+	}
+}
+
+
+void MainWindow::on_actionUnlock_triggered()
+{
+	if(controller.map())
+	{
+		controller.scene(mapLevel)->selectionObjectsView.unlockAll();
+		controller.scene(mapLevel)->objectsView.unlockAll();
+	}
+	controller.scene(mapLevel)->objectsView.update();
+}
+
+
+void MainWindow::on_actionZoom_in_triggered()
+{
+	auto rect = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
+	rect -= QMargins{32 + 1, 32 + 1, 32 + 2, 32 + 2}; //compensate bounding box
+	ui->mapView->fitInView(rect, Qt::KeepAspectRatioByExpanding);
+}
+
+
+void MainWindow::on_actionZoom_out_triggered()
+{
+	auto rect = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
+	rect += QMargins{32 - 1, 32 - 1, 32 - 2, 32 - 2}; //compensate bounding box
+	ui->mapView->fitInView(rect, Qt::KeepAspectRatioByExpanding);
+}
+
+
+void MainWindow::on_actionZoom_reset_triggered()
+{
+	auto center = ui->mapView->mapToScene(ui->mapView->viewport()->geometry().center());
+	ui->mapView->fitInView(initialScale, Qt::KeepAspectRatioByExpanding);
+	ui->mapView->centerOn(center);
 }
 
