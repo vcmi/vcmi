@@ -340,7 +340,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 	{
 		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size()-1, -nextStackMorale);
+		size_t diceIndex = std::min<size_t>(diceSize.size(), -nextStackMorale) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 		{
@@ -492,7 +492,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		&& nextStackMorale > 0)
 	{
 		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size()-1, nextStackMorale);
+		size_t diceIndex = std::min<size_t>(diceSize.size(), nextStackMorale) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 		{
