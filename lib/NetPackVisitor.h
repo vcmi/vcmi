@@ -159,6 +159,7 @@ public:
 	virtual void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) {}
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
+	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) {}
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) {}
 	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) {}

@@ -1041,7 +1041,8 @@ void OptionsTab::SelectedBox::scrollBy(int distance)
 }
 
 OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parent)
-	: pi(std::make_unique<PlayerInfo>(SEL->getPlayerInfo(S.color)))
+	: CIntObject(KEYBOARD | TEXTINPUT)
+	, pi(std::make_unique<PlayerInfo>(SEL->getPlayerInfo(S.color)))
 	, s(std::make_unique<PlayerSettings>(S))
 	, parentTab(parent)
 {
@@ -1081,7 +1082,13 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}};
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(bgs[s->color]), 0, 0);
-	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s->name);
+	if(!CSH->isMyColor(s->color) || CSH->isGuest())
+		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s->name);
+	else
+	{
+		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, nullptr, false);
+		labelPlayerNameEdit->setText(s->name);
+	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	if(SEL->screenType == ESelectionScreen::newGame)
@@ -1113,6 +1120,24 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	town = std::make_shared<SelectedBox>(Point(119, 2), *s, TOWN);
 	hero = std::make_shared<SelectedBox>(Point(195, 2), *s, HERO);
 	bonus = std::make_shared<SelectedBox>(Point(271, 2), *s, BONUS);
+}
+
+bool OptionsTab::PlayerOptionsEntry::captureThisKey(EShortcut key)
+{
+	return labelPlayerNameEdit && labelPlayerNameEdit->hasFocus() && key == EShortcut::GLOBAL_ACCEPT;
+}
+
+void OptionsTab::PlayerOptionsEntry::keyPressed(EShortcut key)
+{
+	if(labelPlayerNameEdit)
+	{
+		if(key == EShortcut::GLOBAL_ACCEPT)
+		{
+			CSH->setPlayerName(s->color, labelPlayerNameEdit->getText());
+			Settings name = settings.write["general"]["playerName"];
+			name->String() = labelPlayerNameEdit->getText();
+		}
+	}
 }
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
