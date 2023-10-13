@@ -2074,7 +2074,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			if(missionSubID == 1)
 			{
 				missionId = int(EQuestMission::HOTA_REACH_DATE);
-				guard->quest->mission.daysPassed = reader->readUInt32();
+				guard->quest->mission.daysPassed = reader->readUInt32() + 1;
 				break;
 			}
 			break;

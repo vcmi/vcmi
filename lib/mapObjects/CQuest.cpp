@@ -261,6 +261,9 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		
 		text.replaceRawString(loot.buildList());
 	}
+	
+	if(lastDay >= 0)
+		text.replaceNumber(lastDay - IObjectInterface::cb->getDate(Date::DAY));
 }
 
 void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
@@ -273,6 +276,9 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	else if(failRequirements)
 		iwText.appendRawString(nextVisitText.toString());
 	
+	if(lastDay >= 0)
+		iwText.appendTextID(TextIdentifier("core", "seerhut", "time", textOption).get());
+	
 	addTextReplacements(iwText, components);
 }
 
@@ -283,7 +289,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 
 	std::string questState = missionState(onHover ? 3 : 4);
 
-	ms.appendRawString(VLC->generaltexth->translate("core.seerhut.quest", questName, questState, textOption));
+	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, questState, textOption).get());
 
 	std::vector<Component> components;
 	addTextReplacements(ms, components);
