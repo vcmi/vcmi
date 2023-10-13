@@ -19,6 +19,7 @@
 #include "../CGameInfo.h"
 #include "../PlayerLocalState.h"
 #include "../gui/WindowHandler.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../windows/CTradeWindow.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/CGarrisonInt.h"
@@ -180,7 +181,10 @@ LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownI
 void LRClickableArea::clickPressed(const Point & cursorPosition)
 {
 	if(onClick)
+	{
 		onClick();
+		GH.input().hapticFeedback();
+	}
 }
 
 void LRClickableArea::showPopupWindow(const Point & cursorPosition)
@@ -445,6 +449,15 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		{
 			if(town->id == townId)
 				std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow();
+		}
+	});
+	fastTavern = std::make_shared<LRClickableArea>(Rect(3, 2, 58, 64), [townId]()
+	{
+		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		for(auto & town : towns)
+		{
+			if(town->id == townId && town->builtBuildings.count(BuildingID::TAVERN))
+				LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
 		}
 	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(143, 31, 30, 34), []()
