@@ -148,11 +148,11 @@ void CQuestLog::recreateLabelList()
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
-		// Quests with MISSION_NONE type don't have text for them and can't be displayed
-		if (quests[i].quest->missionType == CQuest::MISSION_NONE)
+		// Quests without mision don't have text for them and can't be displayed
+		if (quests[i].quest->mission == Rewardable::Limiter{})
 			continue;
 
-		if (quests[i].quest->progress == CQuest::COMPLETE)
+		if (quests[i].quest->isCompleted)
 		{
 			completeMissing = false;
 			if (hideComplete)
@@ -180,7 +180,7 @@ void CQuestLog::recreateLabelList()
 		labels.push_back(label);
 
 		// Select latest active quest
-		if (quests[i].quest->progress != CQuest::COMPLETE)
+		if(!quests[i].quest->isCompleted)
 			selectQuest(i, currentLabel);
 
 		currentLabel = static_cast<int>(labels.size());
@@ -236,7 +236,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 	MetaString text;
 	std::vector<Component> components;
-	currentQuest->quest->getVisitText (text, components, currentQuest->quest->isCustomFirst, true);
+	currentQuest->quest->getVisitText(text, components, true);
 	if(description->slider)
 		description->slider->scrollToMin(); // scroll text to start position
 	description->setText(text.toString()); //TODO: use special log entry text
@@ -247,9 +247,15 @@ void CQuestLog::selectQuest(int which, int labelId)
 	int descriptionHeight = DESCRIPTION_HEIGHT_MAX;
 	if(componentsSize)
 	{
-		descriptionHeight -= 15;
 		CComponent::ESize imageSize = CComponent::large;
-		switch (currentQuest->quest->missionType)
+		if (componentsSize > 4)
+		{
+			imageSize = CComponent::small; // Only small icons can be used for resources as 4+ icons take too much space
+			descriptionHeight -= 155;
+		}
+		else
+			descriptionHeight -= 130;
+		/*switch (currentQuest->quest->missionType)
 		{
 			case CQuest::MISSION_ARMY:
 			{
@@ -285,7 +291,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 			default:
 				descriptionHeight -= 115;
 				break;
-		}
+		}*/
 
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 

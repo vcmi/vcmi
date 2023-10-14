@@ -42,6 +42,8 @@ public:
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
+	
+	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

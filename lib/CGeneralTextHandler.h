@@ -146,7 +146,7 @@ protected:
 	/// map identifier -> localization
 	std::unordered_map<std::string, StringState> stringsLocalizations;
 	
-	std::set<const TextLocalizationContainer *> subContainers;
+	std::vector<const TextLocalizationContainer *> subContainers;
 	
 	/// add selected string to internal storage as high-priority strings
 	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);

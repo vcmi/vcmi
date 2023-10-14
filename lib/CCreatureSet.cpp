@@ -1029,6 +1029,14 @@ void CStackBasicDescriptor::setType(const CCreature * c)
 	type = c;
 }
 
+bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
+{
+	return (!l.type && !r.type)
+	|| (l.type && r.type
+		&& l.type->getId() == r.type->getId()
+		&& l.count == r.count);
+}
+
 void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("amount", count);

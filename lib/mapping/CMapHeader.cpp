@@ -144,6 +144,9 @@ ui8 CMapHeader::levels() const
 
 void CMapHeader::registerMapStrings()
 {
+	VLC->generaltexth->removeSubContainer(*this);
+	VLC->generaltexth->addSubContainer(*this);
+	
 	//get supported languages. Assuming that translation containing most strings is the base language
 	std::set<std::string> mapLanguages, mapBaseLanguages;
 	int maxStrings = 0;

@@ -460,13 +460,9 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
-				
-				obj->quest->missionType = CQuest::MISSION_ART;
-				
+								
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->addArtifactID(artid);
-				obj->quest->lastDay = -1;
-				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+				obj->quest->mission.artifacts.push_back(artid);
 				
 				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
@@ -513,11 +509,8 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 				
-				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->addArtifactID(artid);
-				obj->quest->lastDay = -1;
-				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+				obj->quest->mission.artifacts.push_back(artid);
 				
 				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
@@ -538,11 +531,8 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 				
-				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->addArtifactID(artid);
-				obj->quest->lastDay = -1;
-				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+				obj->quest->mission.artifacts.push_back(artid);
 				
 				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);

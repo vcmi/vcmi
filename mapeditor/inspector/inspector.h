@@ -82,6 +82,7 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CGPandoraBox);
 	DECLARE_OBJ_PROPERTY_METHODS(CGEvent);
 	DECLARE_OBJ_PROPERTY_METHODS(CGSeerHut);
+	DECLARE_OBJ_PROPERTY_METHODS(CGQuestGuard);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);
@@ -96,7 +97,6 @@ protected:
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);
-	QTableWidgetItem * addProperty(CQuest::Emission value);
 	QTableWidgetItem * addProperty(PropertyEditorPlaceholder value);
 	
 //===============END OF DECLARATION=======================================

@@ -29,7 +29,7 @@ using RewardsList = std::vector<std::shared_ptr<Rewardable::Reward>>;
 
 /// Reward that can be granted to a hero
 /// NOTE: eventually should replace seer hut rewards and events/pandoras
-struct DLL_LINKAGE Reward
+struct DLL_LINKAGE Reward final
 {
 	/// resources that will be given to player
 	TResources resources;
@@ -78,7 +78,7 @@ struct DLL_LINKAGE Reward
 	bool removeObject;
 
 	/// Generates list of components that describes reward for a specific hero
-	virtual void loadComponents(std::vector<Component> & comps,
+	void loadComponents(std::vector<Component> & comps,
 								const CGHeroInstance * h) const;
 	
 	Component getDisplayedComponent(const CGHeroInstance * h) const;

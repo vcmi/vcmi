@@ -264,21 +264,21 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 
 void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
 {
-	subContainers.insert(&container);
+	subContainers.push_back(&container);
 }
 
 void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
 {
-	subContainers.erase(&container);
+	subContainers.erase(std::remove(subContainers.begin(), subContainers.end(), &container), subContainers.end());
 }
 
 const std::string & TextLocalizationContainer::deserialize(const TextIdentifier & identifier) const
 {
 	if(stringsLocalizations.count(identifier.get()) == 0)
 	{
-		for(const auto * container : subContainers)
-			if(container->identifierExists(identifier))
-				return container->deserialize(identifier);
+		for(auto containerIter = subContainers.rbegin(); containerIter != subContainers.rend(); ++containerIter)
+			if((*containerIter)->identifierExists(identifier))
+				return (*containerIter)->deserialize(identifier);
 		
 		logGlobal->error("Unable to find localization for string '%s'", identifier.get());
 		return identifier.get();
@@ -547,7 +547,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 
 		for (size_t i = 0; i < 9; ++i) //9 types of quests
 		{
-			std::string questName = CQuest::missionName(static_cast<CQuest::Emission>(1+i));
+			std::string questName = CQuest::missionName(1+i);
 
 			for (size_t j = 0; j < 5; ++j)
 			{

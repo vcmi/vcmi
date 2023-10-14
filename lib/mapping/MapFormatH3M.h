@@ -204,7 +204,7 @@ private:
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	void readQuest(IQuestObject * guard, const int3 & position);
+	int readQuest(IQuestObject * guard, const int3 & position);
 
 	void readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven);
 

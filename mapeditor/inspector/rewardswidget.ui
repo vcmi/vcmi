@@ -487,6 +487,12 @@
             <property name="currentIndex">
              <number>0</number>
             </property>
+            <property name="elideMode">
+             <enum>Qt::ElideNone</enum>
+            </property>
+            <property name="usesScrollButtons">
+             <bool>true</bool>
+            </property>
             <property name="tabBarAutoHide">
              <bool>true</bool>
             </property>
@@ -843,7 +849,7 @@
                  <bool>false</bool>
                 </attribute>
                 <attribute name="verticalHeaderDefaultSectionSize">
-                 <number>21</number>
+                 <number>24</number>
                 </attribute>
                 <column>
                  <property name="text">
@@ -1185,6 +1191,12 @@
             <property name="currentIndex">
              <number>0</number>
             </property>
+            <property name="elideMode">
+             <enum>Qt::ElideNone</enum>
+            </property>
+            <property name="usesScrollButtons">
+             <bool>true</bool>
+            </property>
             <property name="tabBarAutoHide">
              <bool>true</bool>
             </property>
@@ -1229,7 +1241,7 @@
                  <bool>false</bool>
                 </attribute>
                 <attribute name="verticalHeaderDefaultSectionSize">
-                 <number>21</number>
+                 <number>24</number>
                 </attribute>
                 <column/>
                 <column/>
@@ -1333,7 +1345,7 @@
                  <bool>false</bool>
                 </attribute>
                 <attribute name="verticalHeaderDefaultSectionSize">
-                 <number>21</number>
+                 <number>24</number>
                 </attribute>
                 <column/>
                 <column/>
@@ -1429,10 +1441,106 @@
                  <bool>false</bool>
                 </attribute>
                 <attribute name="verticalHeaderDefaultSectionSize">
-                 <number>21</number>
+                 <number>24</number>
                 </attribute>
                 <column/>
                 <column/>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab">
+             <attribute name="title">
+              <string>Heroes</string>
+             </attribute>
+             <layout class="QHBoxLayout" name="horizontalLayout_29">
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
+              <item>
+               <widget class="QListWidget" name="lHeroes">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::NoSelection</enum>
+                </property>
+                <property name="isWrapping" stdset="0">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_2">
+             <attribute name="title">
+              <string>Hero classes</string>
+             </attribute>
+             <layout class="QHBoxLayout" name="horizontalLayout_30">
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
+              <item>
+               <widget class="QListWidget" name="lHeroClasses">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::NoSelection</enum>
+                </property>
+                <property name="isWrapping" stdset="0">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_15">
+             <attribute name="title">
+              <string>Players</string>
+             </attribute>
+             <layout class="QHBoxLayout" name="horizontalLayout_31">
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
+              <item>
+               <widget class="QListWidget" name="lPlayers">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::NoSelection</enum>
+                </property>
+                <property name="isWrapping" stdset="0">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
              </layout>

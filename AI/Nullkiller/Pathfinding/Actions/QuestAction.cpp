@@ -25,7 +25,7 @@ namespace AIPathfinding
 			return dynamic_cast<const IQuestObject *>(questInfo.obj)->checkQuest(node->actor->hero);
 		}
 
-		return questInfo.quest->progress == CQuest::NOT_ACTIVE 
+		return questInfo.quest->activeForPlayers.count(node->actor->hero->getOwner())
 			|| questInfo.quest->checkQuest(node->actor->hero);
 	}
 

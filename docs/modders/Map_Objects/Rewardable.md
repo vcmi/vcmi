@@ -72,7 +72,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
       // additional list of conditions. Limiter will be valid if any of these conditions are true
       "anyOf" : [
         {
-          // See "Configurable Properties" section for additiona parameters
+          // See "Configurable Properties" section for additional parameters
           <additional properties>
         }
       ]
@@ -80,12 +80,12 @@ Rewardable object is defined similarly to other objects, with key difference bei
       // additional list of conditions. Limiter will be valid only if none of these conditions are true
       "noneOf" : [
         {
-          // See "Configurable Properties" section for additiona parameters
+          // See "Configurable Properties" section for additional parameters
           <additional properties>
         }
       ]
 
-      // See "Configurable Properties" section for additiona parameters
+      // See "Configurable Properties" section for additional parameters
       <additional properties>
     }
     
@@ -95,7 +95,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
     // object will be disappeared after taking reward is set to true
     "removeObject": false
 
-    // See "Configurable Properties" section for additiona parameters
+    // See "Configurable Properties" section for additional parameters
     <additional properties>
   }
 ],
@@ -450,4 +450,31 @@ Keep in mind, that all randomization is performed on map load and on object rese
     "spell" : "townPortal",
     "schoolLevel": 3
 }
+```
+
+### Player color
+- Can be used as limiter
+- Can NOT be used as reward
+- Only players with specific color can pass the limiter
+
+```jsonc
+"colors" : [ "red", "blue", "tan", "green", "orange", "purple", "teal", "pink" ]
+```
+
+### Hero types
+- Can be used as limiter
+- Can NOT be used as reward
+- Only specific heroes can pass the limiter
+
+```jsonc
+"heroes" : [ "orrin" ]
+```
+
+### Hero classes
+- Can be used as limiter
+- Can NOT be used as reward
+- Only heroes belonging to specific classes can pass the limiter
+
+```jsonc
+"heroClasses" : [ "battlemage" ]
 ```

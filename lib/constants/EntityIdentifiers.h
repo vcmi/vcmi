@@ -223,6 +223,10 @@ class HeroClassID : public Identifier<HeroClassID>
 {
 public:
 	using Identifier<HeroClassID>::Identifier;
+	///json serialization helpers
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class HeroTypeID : public Identifier<HeroTypeID>

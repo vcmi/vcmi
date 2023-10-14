@@ -1095,8 +1095,6 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	if (isInTheMap(guardPos))
 		guardian = getTile(guardPos)->visitableObjects.back();
 
-	assert(guardian == nullptr || dynamic_cast<CGCreature*>(guardian) != nullptr);
-
 	const bool embarking = !h->boat && objectToVisit && objectToVisit->ID == Obj::BOAT;
 	const bool disembarking = h->boat
 		&& t.terType->isLand()

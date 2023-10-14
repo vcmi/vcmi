@@ -19,47 +19,21 @@ class CGCreature;
 
 class DLL_LINKAGE CQuest final
 {
-	mutable std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
-
 public:
-	enum Emission {
-		MISSION_NONE = 0,
-		MISSION_LEVEL = 1,
-		MISSION_PRIMARY_STAT = 2,
-		MISSION_KILL_HERO = 3,
-		MISSION_KILL_CREATURE = 4,
-		MISSION_ART = 5,
-		MISSION_ARMY = 6,
-		MISSION_RESOURCES = 7,
-		MISSION_HERO = 8,
-		MISSION_PLAYER = 9,
-		MISSION_HOTA_MULTI = 10,
-		// end of H3 missions
-		MISSION_KEYMASTER = 100,
-		MISSION_HOTA_HERO_CLASS = 101,
-		MISSION_HOTA_REACH_DATE = 102
-	};
 
-	enum Eprogress {
-		NOT_ACTIVE,
-		IN_PROGRESS,
-		COMPLETE
-	};
-
-	static const std::string  & missionName(Emission mission);
-	static const std::string  & missionState(int index);
+	static const std::string & missionName(int index);
+	static const std::string & missionState(int index);
+	
+	std::string questName;
 
 	si32 qid; //unique quest id for serialization / identification
 
-	Emission missionType;
-	Eprogress progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
-
-	ui32 m13489val;
-	std::vector<ui32> m2stats;
-	std::vector<ArtifactID> m5arts; // artifact IDs. Add IDs through addArtifactID(), not directly to the field.
-	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
-	TResources m7resources;
+	ObjectInstanceID killTarget;
+	Rewardable::Limiter mission;
+	bool repeatedQuest;
+	bool isCompleted;
+	std::set<PlayerColor> activeForPlayers;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
@@ -79,13 +53,14 @@ public:
 	CQuest(); //TODO: Remove constructor
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
-	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	virtual void getVisitText(MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual void getCompletionText(MetaString &text) const;
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
-	virtual void completeQuest (const CGHeroInstance * h) const {};
-	virtual void addReplacements(MetaString &out, const std::string &base) const;
-	void addArtifactID(const ArtifactID & id);
+	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
+	virtual void addTextReplacements(MetaString &out, std::vector<Component> & components) const;
+	virtual void addKillTargetReplacements(MetaString &out) const;
+	void defineQuestName();
 
 	bool operator== (const CQuest & quest) const
 	{
@@ -95,14 +70,9 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & qid;
-		h & missionType;
-		h & progress;
+		h & isCompleted;
+		h & activeForPlayers;
 		h & lastDay;
-		h & m13489val;
-		h & m2stats;
-		h & m5arts;
-		h & m6creatures;
-		h & m7resources;
 		h & textOption;
 		h & stackToKill;
 		h & stackDirection;
@@ -115,6 +85,9 @@ public:
 		h & isCustomNext;
 		h & isCustomComplete;
 		h & completedOption;
+		h & questName;
+		h & mission;
+		h & killTarget;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
@@ -128,7 +101,7 @@ public:
 	///Information about quest should remain accessible even if IQuestObject removed from map
 	///All CQuest objects are freed in CMap destructor
 	virtual ~IQuestObject() = default;
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -156,8 +129,6 @@ public:
 	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
 	const CGCreature *getCreatureToKill(bool allowNull = false) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
-	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
-	virtual void completeQuest() const;
 
 	void afterAddToMap(CMap * map) override;
 
@@ -168,7 +139,8 @@ public:
 		h & seerName;
 	}
 protected:
-	static constexpr int OBJPROP_VISITED = 10;
+	static constexpr int SEERHUT_VISITED = 10;
+	static constexpr int SEERHUT_COMPLETE = 11;
 
 	void setPropertyDer(ui8 what, ui32 val) override;
 
@@ -179,6 +151,9 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	void init(CRandomGenerator & rand) override;
+	
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -228,7 +203,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
+	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 	void getRolloverText (MetaString &text, bool onHover) const;
 	bool checkQuest (const CGHeroInstance * h) const override;
 
