@@ -1041,7 +1041,7 @@ void OptionsTab::SelectedBox::scrollBy(int distance)
 }
 
 OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parent)
-	: CIntObject(KEYBOARD | TEXTINPUT)
+	: CIntObject(LCLICK | KEYBOARD | TEXTINPUT)
 	, pi(std::make_unique<PlayerInfo>(SEL->getPlayerInfo(S.color)))
 	, s(std::make_unique<PlayerSettings>(S))
 	, parentTab(parent)
@@ -1132,12 +1132,32 @@ void OptionsTab::PlayerOptionsEntry::keyPressed(EShortcut key)
 	if(labelPlayerNameEdit)
 	{
 		if(key == EShortcut::GLOBAL_ACCEPT)
-		{
-			CSH->setPlayerName(s->color, labelPlayerNameEdit->getText());
-			Settings name = settings.write["general"]["playerName"];
-			name->String() = labelPlayerNameEdit->getText();
-		}
+			changeName();
 	}
+}
+
+bool OptionsTab::PlayerOptionsEntry::receiveEvent(const Point & position, int eventType) const
+{
+	return eventType == AEventsReceiver::LCLICK; // capture all left clicks (not only within control)
+}
+
+void OptionsTab::PlayerOptionsEntry::clickReleased(const Point & cursorPosition)
+{
+	if(labelPlayerNameEdit && !labelPlayerNameEdit->pos.isInside(cursorPosition) && labelPlayerNameEdit->hasFocus())
+	{
+		changeName();
+	}
+}
+
+void OptionsTab::PlayerOptionsEntry::changeName() {
+	if(settings["general"]["playerName"].String() != labelPlayerNameEdit->getText())
+	{
+		CSH->setPlayerName(s->color, labelPlayerNameEdit->getText());
+		Settings set = settings.write["general"]["playerName"];
+		set->String() = labelPlayerNameEdit->getText();
+	}
+
+	labelPlayerNameEdit->removeFocus();
 }
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const

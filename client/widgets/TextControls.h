@@ -184,6 +184,7 @@ public:
 
 	void giveFocus(); //captures focus
 	void moveFocus(); //moves focus to next active control (may be used for tab switching)
+	void removeFocus(); //remove focus
 	bool hasFocus() const;
 
 	static std::list<CFocusable *> focusables; //all existing objs

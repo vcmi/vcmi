@@ -189,8 +189,12 @@ private:
 		void hideUnavailableButtons();
 		bool captureThisKey(EShortcut key) override;
 		void keyPressed(EShortcut key) override;
+		void clickReleased(const Point & cursorPosition) override;
+		bool receiveEvent(const Point & position, int eventType) const override;
 
 	private:
 		const OptionsTab & parentTab;
+
+		void changeName();
 	};
 };
