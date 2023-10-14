@@ -593,7 +593,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 	}
 
 	for (auto cgh : GH.windows().findWindows<ITownHolder>())
-		cgh->buildChanged(town);
+		cgh->buildChanged();
 }
 
 void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
