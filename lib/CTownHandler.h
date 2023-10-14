@@ -395,6 +395,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype) const;
 	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype, TPropagatorPtr & prop) const;
 	std::shared_ptr<Bonus> createBonusImpl(const BuildingID & building,
+										   const FactionID & faction,
 												  BonusType type,
 												  int val,
 												  TPropagatorPtr & prop,

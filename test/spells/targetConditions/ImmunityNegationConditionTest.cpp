@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include "TargetConditionItemFixture.h"
-#include "../../../lib/bonuses/BonusSubtypes.h"
 
 //FIXME: Orb of vulnerability mechanics is not such trivial (mantis issue 1791)
 //TODO: NEGATE_ALL_NATURAL_IMMUNITIES special cases: dispel, chain lightning
@@ -58,7 +57,7 @@ TEST_P(ImmunityNegationConditionTest, WithHeroNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, TBonusSourceID::NONE, BonusSubtypes::immunityEnemyHero));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, TBonusSourceID(), BonusSubtypeID::immunityEnemyHero));
 
 	EXPECT_EQ(isMagicalEffect, subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -67,7 +66,7 @@ TEST_P(ImmunityNegationConditionTest, WithBattleWideNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, TBonusSourceID::NONE, BonusSubtypes::immunityBattleWide));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, TBonusSourceID(), BonusSubtypeID::immunityBattleWide));
 
 	//This should return if ownerMatches, because anyone should cast onto owner's stacks, but not on enemyStacks
 	EXPECT_EQ(ownerMatches && isMagicalEffect, subject->isReceptive(&mechanicsMock, &unitMock));

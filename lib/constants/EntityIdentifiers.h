@@ -552,10 +552,13 @@ public:
 	};
 };
 
-class Obj : public IdentifierWithEnum<Obj, ObjBase>
+class DLL_LINKAGE Obj : public IdentifierWithEnum<Obj, ObjBase>
 {
 public:
 	using IdentifierWithEnum<Obj, ObjBase>::IdentifierWithEnum;
+
+	static std::string encode(int32_t index);
+	static si32 decode(const std::string & identifier);
 };
 
 class DLL_LINKAGE RoadId : public Identifier<RoadId>
@@ -830,6 +833,9 @@ public:
 
 	static const BattleField NONE;
 	const BattleFieldInfo * getInfo() const;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 };
 
 class DLL_LINKAGE BoatId : public Identifier<BoatId>
@@ -935,6 +941,9 @@ class BuildingTypeUniqueID : public Identifier<BuildingTypeUniqueID>
 public:
 	BuildingTypeUniqueID(FactionID faction, BuildingID building );
 
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+
 	BuildingID getBuilding() const;
 	FactionID getFaction() const;
 
@@ -945,6 +954,9 @@ class DLL_LINKAGE CampaignScenarioID : public Identifier<CampaignScenarioID>
 {
 public:
 	using Identifier<CampaignScenarioID>::Identifier;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(int32_t index);
 
 	static const CampaignScenarioID NONE;
 };

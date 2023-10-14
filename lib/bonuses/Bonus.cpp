@@ -150,7 +150,7 @@ JsonNode Bonus::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
-	if(subtype != TBonusSubtype::NONE)
+	if(subtype != TBonusSubtype())
 		root["subtype"].String() = subtype.toString();
 	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
@@ -158,7 +158,7 @@ JsonNode Bonus::toJsonNode() const
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(targetSourceType != BonusSource::OTHER)
 		root["targetSourceType"].String() = vstd::findKey(bonusSourceMap, targetSourceType);
-	if(sid != TBonusSourceID::NONE)
+	if(sid != TBonusSourceID())
 		root["sourceID"].String() = sid.toString();
 	if(val != 0)
 		root["val"].Integer() = val;
@@ -184,11 +184,11 @@ JsonNode Bonus::toJsonNode() const
 }
 
 Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID)
-	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype::NONE, std::string())
+	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype(), std::string())
 {}
 
 Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, std::string Desc)
-	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype::NONE, Desc)
+	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype(), Desc)
 {}
 
 Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, TBonusSubtype Subtype)

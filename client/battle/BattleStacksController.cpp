@@ -34,7 +34,6 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
-#include "../../lib/bonuses/BonusSubtypes.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/TextOperations.h"
@@ -535,7 +534,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 		addNewAnim(new MovementStartAnimation(owner, stack));
 	});
 
-	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusSubtypes::movementFlying)))
+	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusSubtypeID::movementFlying)))
 	{
 		owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [&]()
 		{

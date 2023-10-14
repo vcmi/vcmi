@@ -14,7 +14,6 @@
 #include "Unit.h"
 
 #include "../bonuses/Bonus.h"
-#include "../bonuses/BonusSubtypes.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../GameSettings.h"
@@ -207,11 +206,11 @@ double DamageCalculator::getAttackOffenseArcheryFactor() const
 	if(info.shooting)
 	{
 		const std::string cachingStrArchery = "type_PERCENTAGE_DAMAGE_BOOSTs_1";
-		static const auto selectorArchery = Selector::typeSubtype(BonusType::PERCENTAGE_DAMAGE_BOOST, BonusSubtypes::damageTypeRanged);
+		static const auto selectorArchery = Selector::typeSubtype(BonusType::PERCENTAGE_DAMAGE_BOOST, BonusSubtypeID::damageTypeRanged);
 		return info.attacker->valOfBonuses(selectorArchery, cachingStrArchery) / 100.0;
 	}
 	const std::string cachingStrOffence = "type_PERCENTAGE_DAMAGE_BOOSTs_0";
-	static const auto selectorOffence = Selector::typeSubtype(BonusType::PERCENTAGE_DAMAGE_BOOST, BonusSubtypes::damageTypeMelee);
+	static const auto selectorOffence = Selector::typeSubtype(BonusType::PERCENTAGE_DAMAGE_BOOST, BonusSubtypeID::damageTypeMelee);
 	return info.attacker->valOfBonuses(selectorOffence, cachingStrOffence) / 100.0;
 }
 
@@ -283,7 +282,7 @@ double DamageCalculator::getDefenseSkillFactor() const
 double DamageCalculator::getDefenseArmorerFactor() const
 {
 	const std::string cachingStrArmorer = "type_GENERAL_DAMAGE_REDUCTIONs_N1_NsrcSPELL_EFFECT";
-	static const auto selectorArmorer = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypes::damageTypeAll).And(Selector::sourceTypeSel(BonusSource::SPELL_EFFECT).Not());
+	static const auto selectorArmorer = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypeID::damageTypeAll).And(Selector::sourceTypeSel(BonusSource::SPELL_EFFECT).Not());
 	return info.defender->valOfBonuses(selectorArmorer, cachingStrArmorer) / 100.0;
 
 }
@@ -291,10 +290,10 @@ double DamageCalculator::getDefenseArmorerFactor() const
 double DamageCalculator::getDefenseMagicShieldFactor() const
 {
 	const std::string cachingStrMeleeReduction = "type_GENERAL_DAMAGE_REDUCTIONs_0";
-	static const auto selectorMeleeReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypes::damageTypeMelee);
+	static const auto selectorMeleeReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypeID::damageTypeMelee);
 
 	const std::string cachingStrRangedReduction = "type_GENERAL_DAMAGE_REDUCTIONs_1";
-	static const auto selectorRangedReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypes::damageTypeRanged);
+	static const auto selectorRangedReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypeID::damageTypeRanged);
 
 	//handling spell effects - shield and air shield
 	if(info.shooting)
@@ -388,7 +387,7 @@ double DamageCalculator::getDefensePetrificationFactor() const
 {
 	// Creatures that are petrified by a Basilisk's Petrifying attack or a Medusa's Stone gaze take 50% damage (R8 = 0.50) from ranged and melee attacks. Taking damage also deactivates the effect.
 	const std::string cachingStrAllReduction = "type_GENERAL_DAMAGE_REDUCTIONs_N1_srcSPELL_EFFECT";
-	static const auto selectorAllReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypes::damageTypeAll).And(Selector::sourceTypeSel(BonusSource::SPELL_EFFECT));
+	static const auto selectorAllReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypeID::damageTypeAll).And(Selector::sourceTypeSel(BonusSource::SPELL_EFFECT));
 
 	return info.defender->valOfBonuses(selectorAllReduction, cachingStrAllReduction) / 100.0;
 }

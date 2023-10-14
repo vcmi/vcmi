@@ -16,8 +16,6 @@
 #include "../NetPacks.h"
 #include "../CCreatureHandler.h"
 
-#include "../bonuses/BonusSubtypes.h"
-
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
@@ -342,8 +340,8 @@ CUnitState::CUnitState():
 	health(this),
 	shots(this),
 	totalAttacks(this, Selector::type()(BonusType::ADDITIONAL_ATTACK), 1),
-	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMin)), 0),
-	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMax)), 0),
+	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin)), 0),
+	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax)), 0),
 	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK)), 0),
 	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE)), 0),
 	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),

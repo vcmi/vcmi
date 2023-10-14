@@ -15,7 +15,6 @@
 #include "../NetPacks.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
-#include "../bonuses/BonusSubtypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -147,7 +146,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 			if(!h->hasBonusFrom(BonusSource::OBJECT, TBonusSourceID(Obj(Obj::STABLES)))) //does not stack with advMap Stables
 			{
 				GiveBonus gb;
-				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, TBonusSourceID(Obj(Obj::STABLES)), BonusSubtypes::heroMovementLand, VLC->generaltexth->arraytxt[100]);
+				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, TBonusSourceID(Obj(Obj::STABLES)), BonusSubtypeID::heroMovementLand, VLC->generaltexth->arraytxt[100]);
 				gb.id = heroID.getNum();
 				cb->giveHeroBonus(&gb);
 

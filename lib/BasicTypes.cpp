@@ -17,7 +17,6 @@
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
-#include "bonuses/BonusSubtypes.h"
 
 #include <vcmi/Creature.h>
 #include <vcmi/Faction.h>
@@ -72,14 +71,14 @@ int AFactionMember::getDefense(bool ranged) const
 int AFactionMember::getMinDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_1";
-	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMin));
+	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin));
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
 int AFactionMember::getMaxDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_2";
-	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMax));
+	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax));
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 

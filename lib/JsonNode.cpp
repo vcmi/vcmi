@@ -421,21 +421,21 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 {
 	if (node.isNull())
 	{
-		subtype = TBonusSubtype::NONE;
+		subtype = TBonusSubtype();
 		return;
 	}
 
 	if (!node.isString())
 	{
 		logMod->warn("Bonus subtype must be string!");
-		subtype = TBonusSubtype::NONE;
+		subtype = TBonusSubtype();
 		return;
 	}
 
 	VLC->identifiers()->requestIdentifier(node, [&subtype, node](int32_t identifier)
 	{
 		assert(0); //TODO
-		subtype = TBonusSubtype("type", node.String(), identifier);
+		subtype = BonusSubtypeID(identifier);
 	});
 }
 
@@ -735,13 +735,13 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	return b;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const BuildingID & building, const std::string & description)
+std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const FactionID & faction, const BuildingID & building, const std::string & description)
 {
 	/*	duration = BonusDuration::PERMANENT
 		source = BonusSource::TOWN_STRUCTURE
 		bonusType, val, subtype - get from json
 	*/
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, TBonusSourceID(building), description);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BuildingTypeUniqueID(faction, building), description);
 
 	if(!parseBonus(ability, b.get()))
 		return nullptr;

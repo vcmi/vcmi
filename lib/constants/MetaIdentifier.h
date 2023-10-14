@@ -14,49 +14,69 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 /// This class represents field that may contain value of multiple different identifer types
+template<typename... Types>
 class DLL_LINKAGE MetaIdentifier
 {
-	std::string stringForm;
-	int32_t integerForm;
-
-	void onDeserialized();
+	std::variant<Types...> value;
 public:
 
-	static const MetaIdentifier NONE;
-
-	MetaIdentifier();
-	MetaIdentifier(const std::string & entityType, const std::string & identifier);
-	MetaIdentifier(const std::string & entityType, const std::string & identifier, int32_t value);
+	MetaIdentifier()
+	{}
 
 	template<typename IdentifierType>
-	explicit MetaIdentifier(const IdentifierType & identifier)
-		: integerForm(identifier.getNum())
+	MetaIdentifier(const IdentifierType & identifier)
+		: value(identifier)
+	{}
+
+	int32_t getNum() const
 	{
-		static_assert(std::is_base_of<IdentifierBase, IdentifierType>::value, "MetaIdentifier can only be constructed from Identifer class");
+		std::optional<int32_t> result;
+
+		std::visit([&result] (const auto& v) { result = v.getNum(); }, value);
+
+		assert(result.has_value());
+		return result.value_or(-1);
 	}
 
-	int32_t getNum() const;
-	std::string toString() const;
+	std::string toString() const
+	{
+		std::optional<std::string> result;
+
+		std::visit([&result] (const auto& v) { result = v.encode(v.getNum()); }, value);
+
+		assert(result.has_value());
+		return result.value_or("");
+	}
 
 	template<typename IdentifierType>
 	IdentifierType as() const
 	{
-		static_assert(std::is_base_of<IdentifierBase, IdentifierType>::value, "MetaIdentifier can only be converted to Identifer class");
-		IdentifierType result(integerForm);
-		return result;
+		auto * result = std::get_if<IdentifierType>(&value);
+		assert(result);
+
+		if (result)
+			return *result;
+		else
+			return IdentifierType();
 	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & integerForm;
-
-		if (!h.saving)
-			onDeserialized();
+		h & value;
 	}
 
-	bool operator == (const MetaIdentifier & other) const;
-	bool operator != (const MetaIdentifier & other) const;
-	bool operator < (const MetaIdentifier & other) const;
+	bool operator == (const MetaIdentifier & other) const
+	{
+		return value == other.value;
+	}
+	bool operator != (const MetaIdentifier & other) const
+	{
+		return value != other.value;
+	}
+	bool operator < (const MetaIdentifier & other) const
+	{
+		return value < other.value;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

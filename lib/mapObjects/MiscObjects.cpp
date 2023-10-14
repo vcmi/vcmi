@@ -25,7 +25,6 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../modding/ModScope.h"
-#include "../bonuses/BonusSubtypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1205,7 +1204,7 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	gb.bonus.duration = BonusDuration::PERMANENT;
 	gb.bonus.source = BonusSource::OBJECT;
 	gb.bonus.sid = TBonusSourceID(id);
-	gb.bonus.subtype = BonusSubtypes::heroMovementSea;
+	gb.bonus.subtype = BonusSubtypeID::heroMovementSea;
 
 	// FIXME: This is really dirty hack
 	// Proper fix would be to make CGLighthouse into bonus system node

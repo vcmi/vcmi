@@ -12,7 +12,6 @@
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_UnitInfo.h"
 #include "mock/mock_UnitEnvironment.h"
-#include "../../lib/bonuses/BonusSubtypes.h"
 #include "../../lib/battle/CUnitState.h"
 #include "../../lib/CCreatureHandler.h"
 
@@ -52,12 +51,12 @@ public:
 
 	void setDefaultExpectations()
 	{
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::CREATURE_ABILITY, DEFAULT_SPEED, TBonusSourceID::NONE));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::CREATURE_ABILITY, DEFAULT_SPEED, TBonusSourceID()));
 
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CREATURE_ABILITY, DEFAULT_ATTACK, TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::ATTACK)));
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CREATURE_ABILITY, DEFAULT_DEFENCE, TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::DEFENSE)));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CREATURE_ABILITY, DEFAULT_ATTACK, TBonusSourceID(), TBonusSubtype(PrimarySkill::ATTACK)));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CREATURE_ABILITY, DEFAULT_DEFENCE, TBonusSourceID(), TBonusSubtype(PrimarySkill::DEFENSE)));
 
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, DEFAULT_HP, TBonusSourceID::NONE));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, DEFAULT_HP, TBonusSourceID()));
 
 		EXPECT_CALL(infoMock, unitBaseAmount()).WillRepeatedly(Return(DEFAULT_AMOUNT));
 		EXPECT_CALL(infoMock, unitType()).WillRepeatedly(Return(pikeman));
@@ -67,8 +66,8 @@ public:
 
 	void makeShooter(int32_t ammo)
 	{
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SHOOTER, BonusSource::CREATURE_ABILITY, 1, TBonusSourceID::NONE));
-		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SHOTS, BonusSource::CREATURE_ABILITY, ammo, TBonusSourceID::NONE));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SHOOTER, BonusSource::CREATURE_ABILITY, 1, TBonusSourceID()));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SHOTS, BonusSource::CREATURE_ABILITY, ammo, TBonusSourceID()));
 	}
 
 	void initUnit()
@@ -180,7 +179,7 @@ TEST_F(UnitStateTest, attackWithFrenzy)
 {
 	setDefaultExpectations();
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::IN_FRENZY, BonusSource::SPELL_EFFECT, 50, TBonusSourceID::NONE));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::IN_FRENZY, BonusSource::SPELL_EFFECT, 50, TBonusSourceID()));
 
 	int expectedAttack = static_cast<int>(DEFAULT_ATTACK + 0.5 * DEFAULT_DEFENCE);
 
@@ -192,7 +191,7 @@ TEST_F(UnitStateTest, defenceWithFrenzy)
 {
 	setDefaultExpectations();
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::IN_FRENZY, BonusSource::SPELL_EFFECT, 50, TBonusSourceID::NONE));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::IN_FRENZY, BonusSource::SPELL_EFFECT, 50, TBonusSourceID()));
 
 	int expectedDefence = 0;
 
@@ -205,7 +204,7 @@ TEST_F(UnitStateTest, additionalAttack)
 	setDefaultExpectations();
 
 	{
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::SPELL_EFFECT, 41, TBonusSourceID::NONE);
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::SPELL_EFFECT, 41, TBonusSourceID());
 
 		bonusMock.addNewBonus(bonus);
 	}
@@ -219,7 +218,7 @@ TEST_F(UnitStateTest, additionalMeleeAttack)
 	setDefaultExpectations();
 
 	{
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::SPELL_EFFECT, 41, TBonusSourceID::NONE);
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::SPELL_EFFECT, 41, TBonusSourceID());
 		bonus->effectRange = BonusLimitEffect::ONLY_MELEE_FIGHT;
 
 		bonusMock.addNewBonus(bonus);
@@ -234,7 +233,7 @@ TEST_F(UnitStateTest, additionalRangedAttack)
 	setDefaultExpectations();
 
 	{
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::SPELL_EFFECT, 41, TBonusSourceID::NONE);
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ADDITIONAL_ATTACK, BonusSource::SPELL_EFFECT, 41, TBonusSourceID());
 		bonus->effectRange = BonusLimitEffect::ONLY_DISTANCE_FIGHT;
 
 		bonusMock.addNewBonus(bonus);
@@ -249,10 +248,10 @@ TEST_F(UnitStateTest, getMinDamage)
 	setDefaultExpectations();
 
 	{
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, 30, TBonusSourceID::NONE, BonusSubtypes::creatureDamageBoth);
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, 30, TBonusSourceID(), BonusSubtypeID::creatureDamageBoth);
 		bonusMock.addNewBonus(bonus);
 
-		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -20, TBonusSourceID::NONE, BonusSubtypes::creatureDamageMin);
+		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -20, TBonusSourceID(), BonusSubtypeID::creatureDamageMin);
 		bonusMock.addNewBonus(bonus);
 	}
 
@@ -265,10 +264,10 @@ TEST_F(UnitStateTest, getMaxDamage)
 	setDefaultExpectations();
 
 	{
-		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, 30, TBonusSourceID::NONE, BonusSubtypes::creatureDamageBoth);
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, 30, TBonusSourceID(), BonusSubtypeID::creatureDamageBoth);
 		bonusMock.addNewBonus(bonus);
 
-		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -20, TBonusSourceID::NONE, BonusSubtypes::creatureDamageMax);
+		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, -20, TBonusSourceID(), BonusSubtypeID::creatureDamageMax);
 		bonusMock.addNewBonus(bonus);
 	}
 

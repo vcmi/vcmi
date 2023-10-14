@@ -11,7 +11,6 @@
 #include <limits>
 
 #include "Nullkiller.h"
-#include "../../../lib/bonuses/BonusSubtypes.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
@@ -243,7 +242,7 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 		return 1500;
 
 	auto statsValue =
-		10 * art->valOfBonuses(BonusType::MOVEMENT, BonusSubtypes::heroMovementLand)
+		10 * art->valOfBonuses(BonusType::MOVEMENT, BonusSubtypeID::heroMovementLand)
 		+ 1200 * art->valOfBonuses(BonusType::STACKS_SPEED)
 		+ 700 * art->valOfBonuses(BonusType::MORALE)
 		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK))

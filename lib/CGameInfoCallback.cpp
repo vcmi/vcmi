@@ -17,7 +17,6 @@
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
-#include "bonuses/BonusSubtypes.h"
 #include "NetPacks.h" // for InfoWindow
 #include "GameSettings.h"
 #include "TerrainHandler.h"
@@ -269,7 +268,7 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 		{
 			const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 			if(nullptr != selectedHero)
-				detailed = selectedHero->hasVisions(town, BonusSubtypes::visionsTowns);
+				detailed = selectedHero->hasVisions(town, BonusSubtypeID::visionsTowns);
 		}
 
 		dest.initFromTown(dynamic_cast<const CGTownInstance *>(town), detailed);
@@ -323,7 +322,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	{
 		const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
-			if(selectedHero->hasVisions(hero, BonusSubtypes::visionsHeroes))
+			if(selectedHero->hasVisions(hero, BonusSubtypeID::visionsHeroes))
 				infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
 	}
 

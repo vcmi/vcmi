@@ -31,7 +31,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/BonusList.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusParams.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.cpp
-		${MAIN_LIB_DIR}/bonuses/BonusSubtypes.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusSubtypeID.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.cpp
 		${MAIN_LIB_DIR}/bonuses/IBonusBearer.cpp
@@ -43,7 +43,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/campaign/CampaignState.cpp
 
 		${MAIN_LIB_DIR}/constants/EntityIdentifiers.cpp
-		${MAIN_LIB_DIR}/constants/MetaIdentifier.cpp
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
@@ -359,7 +358,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/BonusList.h
 		${MAIN_LIB_DIR}/bonuses/BonusParams.h
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.h
-		${MAIN_LIB_DIR}/bonuses/BonusSubtypes.h
+		${MAIN_LIB_DIR}/bonuses/BonusSubtypeID.h
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.h
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.h
 		${MAIN_LIB_DIR}/bonuses/IBonusBearer.h

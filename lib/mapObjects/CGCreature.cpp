@@ -16,7 +16,6 @@
 #include "../CConfigHandler.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
-#include "../bonuses/BonusSubtypes.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -47,7 +46,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName;
-	if(hero->hasVisions(this, BonusSubtypes::visionsMonsters))
+	if(hero->hasVisions(this, BonusSubtypeID::visionsMonsters))
 	{
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);

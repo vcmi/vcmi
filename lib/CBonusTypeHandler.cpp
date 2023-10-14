@@ -20,7 +20,6 @@
 #include "CCreatureHandler.h"
 #include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
-#include "bonuses/BonusSubtypes.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
 
@@ -169,10 +168,10 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 	}
 	case BonusType::GENERAL_DAMAGE_REDUCTION:
 	{
-		if (bonus->subtype == BonusSubtypes::damageTypeMelee)
+		if (bonus->subtype == BonusSubtypeID::damageTypeMelee)
 			fileName = "DamageReductionMelee.bmp";
 
-		if (bonus->subtype == BonusSubtypes::damageTypeRanged)
+		if (bonus->subtype == BonusSubtypeID::damageTypeRanged)
 			fileName = "DamageReductionRanged.bmp";
 
 		break;

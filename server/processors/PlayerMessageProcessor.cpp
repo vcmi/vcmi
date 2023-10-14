@@ -16,7 +16,6 @@
 #include "../../lib/serializer/Connection.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/bonuses/BonusSubtypes.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/GameConstants.h"
@@ -141,11 +140,11 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	///Give all spells with bonus (to allow banned spells)
 	GiveBonus giveBonus(GiveBonus::ETarget::HERO);
 	giveBonus.id = hero->id.getNum();
-	giveBonus.bonus = Bonus(BonusDuration::PERMANENT, BonusType::SPELLS_OF_LEVEL, BonusSource::OTHER, 0, TBonusSourceID::NONE);
+	giveBonus.bonus = Bonus(BonusDuration::PERMANENT, BonusType::SPELLS_OF_LEVEL, BonusSource::OTHER, 0, TBonusSourceID());
 	//start with level 0 to skip abilities
 	for (int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
 	{
-		giveBonus.bonus.subtype = BonusSubtypes::spellLevel(level);
+		giveBonus.bonus.subtype = BonusSubtypeID::spellLevel(level);
 		gameHandler->sendAndApply(&giveBonus);
 	}
 

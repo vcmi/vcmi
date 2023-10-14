@@ -19,7 +19,6 @@
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
-#include "bonuses/BonusSubtypes.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
@@ -126,13 +125,13 @@ int32_t CCreature::getBaseDefense() const
 
 int32_t CCreature::getBaseDamageMin() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMin).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDamageMax() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMax).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
@@ -294,7 +293,7 @@ CCreature::CCreature()
 
 void CCreature::addBonus(int val, BonusType type)
 {
-	addBonus(val, type, TBonusSubtype::NONE);
+	addBonus(val, type, TBonusSubtype());
 }
 
 void CCreature::addBonus(int val, BonusType type, TBonusSubtype subtype)
@@ -357,10 +356,10 @@ void CCreature::updateFrom(const JsonNode & data)
 			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE));
 
 		if(!configNode["damage"]["min"].isNull())
-			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMin);
+			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin);
 
 		if(!configNode["damage"]["max"].isNull())
-			addBonus(configNode["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMax);
+			addBonus(configNode["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax);
 
 		if(!configNode["shots"].isNull())
 			addBonus(configNode["shots"].Integer(), BonusType::SHOTS);
@@ -613,8 +612,8 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK));
 	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE));
 
-	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMin);
-	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypes::creatureDamageMax);
+	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin);
+	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax);
 
 	assert(node["damage"]["min"].Integer() <= node["damage"]["max"].Integer());
 
@@ -1039,11 +1038,11 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		break;
 	case 'M': //Max damage
 		b.type = BonusType::CREATURE_DAMAGE;
-		b.subtype = BonusSubtypes::creatureDamageMax;
+		b.subtype = BonusSubtypeID::creatureDamageMax;
 		break;
 	case 'm': //Min damage
 		b.type = BonusType::CREATURE_DAMAGE;
-		b.subtype = BonusSubtypes::creatureDamageMin;
+		b.subtype = BonusSubtypeID::creatureDamageMin;
 		break;
 	case 'S':
 		b.type = BonusType::STACKS_SPEED; break;
@@ -1060,7 +1059,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		break;
 	case 'E':
 		b.type = BonusType::DEATH_STARE;
-		b.subtype = BonusSubtypes::deathStareGorgon;
+		b.subtype = BonusSubtypeID::deathStareGorgon;
 		break;
 	case 'F':
 		b.type = BonusType::FEAR; break;
@@ -1107,7 +1106,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = BonusType::MIND_IMMUNITY; break;
 			case 'r':
 				b.type = BonusType::REBIRTH; //on/off? makes sense?
-				b.subtype = BonusSubtypes::rebirthRegular;
+				b.subtype = BonusSubtypeID::rebirthRegular;
 				b.val = 20; //arbitrary value
 				break;
 			case 'R':

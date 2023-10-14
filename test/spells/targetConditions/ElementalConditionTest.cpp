@@ -56,7 +56,7 @@ TEST_P(ElementalConditionTest, ReceptiveIfNoBonus)
 TEST_P(ElementalConditionTest, ImmuneIfBonusMatches)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID::NONE, TBonusSubtype(SpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID(), TBonusSubtype(SpellSchool::AIR)));
 
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -64,7 +64,7 @@ TEST_P(ElementalConditionTest, ImmuneIfBonusMatches)
 TEST_P(ElementalConditionTest, NotImmuneIfBonusMismatches)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID::NONE, TBonusSubtype(SpellSchool::WATER)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID(), TBonusSubtype(SpellSchool::WATER)));
 
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -72,7 +72,7 @@ TEST_P(ElementalConditionTest, NotImmuneIfBonusMismatches)
 TEST_P(ElementalConditionTest, DependsOnPositivness)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID::NONE, TBonusSubtype(SpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID(), TBonusSubtype(SpellSchool::AIR)));
 
 	EXPECT_EQ(isPositive, subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -80,8 +80,8 @@ TEST_P(ElementalConditionTest, DependsOnPositivness)
 TEST_P(ElementalConditionTest, ImmuneIfBothBonusesPresent)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID::NONE, TBonusSubtype(SpellSchool::AIR)));
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID::NONE, TBonusSubtype(SpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID(), TBonusSubtype(SpellSchool::AIR)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, TBonusSourceID(), TBonusSubtype(SpellSchool::AIR)));
 
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }

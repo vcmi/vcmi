@@ -13,9 +13,11 @@
 #include "BonusEnum.h"
 #include "BonusParams.h"
 #include "BonusSelector.h"
-#include "BonusSubtypes.h"
 
 #include "../ResourceSet.h"
+#include "../VCMI_Lib.h"
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -88,28 +90,28 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 			type = BonusType::LEARN_MEETING_SPELL_LIMIT;
 		else if(deprecatedSubtype == SecondarySkill::ARCHERY|| deprecatedSubtypeStr == "skill.archery")
 		{
-			subtype = BonusSubtypes::damageTypeRanged;
+			subtype = BonusSubtypeID::damageTypeRanged;
 			type = BonusType::PERCENTAGE_DAMAGE_BOOST;
 		}
 		else if(deprecatedSubtype == SecondarySkill::OFFENCE || deprecatedSubtypeStr == "skill.offence")
 		{
-			subtype = BonusSubtypes::damageTypeMelee;
+			subtype = BonusSubtypeID::damageTypeMelee;
 			type = BonusType::PERCENTAGE_DAMAGE_BOOST;
 		}
 		else if(deprecatedSubtype == SecondarySkill::ARMORER || deprecatedSubtypeStr == "skill.armorer")
 		{
-			subtype = BonusSubtypes::damageTypeAll;
+			subtype = BonusSubtypeID::damageTypeAll;
 			type = BonusType::GENERAL_DAMAGE_REDUCTION;
 		}
 		else if(deprecatedSubtype == SecondarySkill::NAVIGATION || deprecatedSubtypeStr == "skill.navigation")
 		{
-			subtype = BonusSubtypes::heroMovementSea;
+			subtype = BonusSubtypeID::heroMovementSea;
 			valueType = BonusValueType::PERCENT_TO_BASE;
 			type = BonusType::MOVEMENT;
 		}
 		else if(deprecatedSubtype == SecondarySkill::LOGISTICS || deprecatedSubtypeStr == "skill.logistics")
 		{
-			subtype = BonusSubtypes::heroMovementLand;
+			subtype = BonusSubtypeID::heroMovementLand;
 			valueType = BonusValueType::PERCENT_TO_BASE;
 			type = BonusType::MOVEMENT;
 		}
@@ -146,12 +148,12 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if (deprecatedSubtype == SecondarySkill::FIRST_AID || deprecatedSubtypeStr == "skill.firstAid")
 		{
 			type = BonusType::SPECIFIC_SPELL_POWER;
-			subtype = TBonusSubtype("spell", "firstAid");
+			subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "firstAid"));
 		}
 		else if (deprecatedSubtype == SecondarySkill::BALLISTICS || deprecatedSubtypeStr == "skill.ballistics")
 		{
 			type = BonusType::CATAPULT_EXTRA_SHOTS;
-			subtype = TBonusSubtype("spell", "catapultShot");
+			subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "catapultShot"));
 		}
 		else
 			isConverted = false;
@@ -170,20 +172,20 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "SEA_MOVEMENT")
 	{
-		subtype = BonusSubtypes::heroMovementSea;
+		subtype = BonusSubtypeID::heroMovementSea;
 		valueType = BonusValueType::ADDITIVE_VALUE;
 		type = BonusType::MOVEMENT;
 	}
 	else if (deprecatedTypeStr == "LAND_MOVEMENT")
 	{
-		subtype = BonusSubtypes::heroMovementLand;
+		subtype = BonusSubtypeID::heroMovementLand;
 		valueType = BonusValueType::ADDITIVE_VALUE;
 		type = BonusType::MOVEMENT;
 	}
 	else if (deprecatedTypeStr == "MAXED_SPELL")
 	{
 		type = BonusType::SPELL;
-		subtype = TBonusSubtype("spell", deprecatedSubtypeStr);
+		subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", deprecatedSubtypeStr));
 		valueType = BonusValueType::INDEPENDENT_MAX;
 		val = 3;
 	}
@@ -224,52 +226,52 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	else if (deprecatedTypeStr == "DIRECT_DAMAGE_IMMUNITY")
 	{
 		type = BonusType::SPELL_DAMAGE_REDUCTION;
-		subtype = MetaIdentifier(SpellSchool::ANY);
+		subtype = TBonusSubtype(SpellSchool::ANY);
 		val = 100;
 	}
 	else if (deprecatedTypeStr == "AIR_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = MetaIdentifier(SpellSchool::AIR);
+		subtype = TBonusSubtype(SpellSchool::AIR);
 	}
 	else if (deprecatedTypeStr == "FIRE_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = MetaIdentifier(SpellSchool::FIRE);
+		subtype = TBonusSubtype(SpellSchool::FIRE);
 	}
 	else if (deprecatedTypeStr == "WATER_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = MetaIdentifier(SpellSchool::WATER);
+		subtype = TBonusSubtype(SpellSchool::WATER);
 	}
 	else if (deprecatedTypeStr == "EARTH_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = MetaIdentifier(SpellSchool::EARTH);
+		subtype = TBonusSubtype(SpellSchool::EARTH);
 	}
 	else if (deprecatedTypeStr == "AIR_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = MetaIdentifier(SpellSchool::AIR);
+		subtype = TBonusSubtype(SpellSchool::AIR);
 	}
 	else if (deprecatedTypeStr == "FIRE_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = MetaIdentifier(SpellSchool::FIRE);
+		subtype = TBonusSubtype(SpellSchool::FIRE);
 	}
 	else if (deprecatedTypeStr == "WATER_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = MetaIdentifier(SpellSchool::WATER);
+		subtype = TBonusSubtype(SpellSchool::WATER);
 	}
 	else if (deprecatedTypeStr == "EARTH_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = MetaIdentifier(SpellSchool::EARTH);
+		subtype = TBonusSubtype(SpellSchool::EARTH);
 	}
 	else if (deprecatedTypeStr == "AIR_IMMUNITY")
 	{
-		subtype = MetaIdentifier(SpellSchool::AIR);
+		subtype = TBonusSubtype(SpellSchool::AIR);
 		switch(deprecatedSubtype)
 		{
 			case 0:
@@ -285,7 +287,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "FIRE_IMMUNITY")
 	{
-		subtype = MetaIdentifier(SpellSchool::FIRE);
+		subtype = TBonusSubtype(SpellSchool::FIRE);
 		switch(deprecatedSubtype)
 		{
 			case 0:
@@ -301,7 +303,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "WATER_IMMUNITY")
 	{
-		subtype = MetaIdentifier(SpellSchool::WATER);
+		subtype = TBonusSubtype(SpellSchool::WATER);
 		switch(deprecatedSubtype)
 		{
 			case 0:
@@ -317,7 +319,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "EARTH_IMMUNITY")
 	{
-		subtype = MetaIdentifier(SpellSchool::EARTH);
+		subtype = TBonusSubtype(SpellSchool::EARTH);
 		switch(deprecatedSubtype)
 		{
 			case 0:

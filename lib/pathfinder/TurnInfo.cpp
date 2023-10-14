@@ -73,7 +73,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 
 bool TurnInfo::hasBonusOfType(BonusType type) const
 {
-	return hasBonusOfType(type, TBonusSubtype::NONE);
+	return hasBonusOfType(type, TBonusSubtype());
 }
 
 bool TurnInfo::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
@@ -96,7 +96,7 @@ bool TurnInfo::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
 
 int TurnInfo::valOfBonuses(BonusType type) const
 {
-	return valOfBonuses(type, TBonusSubtype::NONE);
+	return valOfBonuses(type, TBonusSubtype());
 }
 
 int TurnInfo::valOfBonuses(BonusType type, TBonusSubtype subtype) const

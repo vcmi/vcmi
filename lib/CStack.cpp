@@ -17,7 +17,6 @@
 
 #include "CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
-#include "bonuses/BonusSubtypes.h"
 #include "spells/CSpellHandler.h"
 #include "NetPacks.h"
 
@@ -221,7 +220,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 					resurrectedCount += 1;
 			}
 
-			if(customState->hasBonusOfType(BonusType::REBIRTH, BonusSubtypes::rebirthSpecial))
+			if(customState->hasBonusOfType(BonusType::REBIRTH, BonusSubtypeID::rebirthSpecial))
 			{
 				// resurrect at least one Sacred Phoenix
 				vstd::amax(resurrectedCount, 1);

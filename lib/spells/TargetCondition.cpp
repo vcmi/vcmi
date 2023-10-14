@@ -17,7 +17,6 @@
 #include "../battle/Unit.h"
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
-#include "../bonuses/BonusSubtypes.h"
 
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
@@ -293,8 +292,8 @@ class ImmunityNegationCondition : public TargetConditionItemBase
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSubtypes::immunityBattleWide);
-		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSubtypes::immunityEnemyHero);
+		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSubtypeID::immunityBattleWide);
+		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSubtypeID::immunityEnemyHero);
 		//Non-magical effects is not affected by orb of vulnerability
 		if(!m->isMagicalEffect())
 			return false;

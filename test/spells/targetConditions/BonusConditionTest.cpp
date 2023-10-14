@@ -42,14 +42,14 @@ TEST_F(BonusConditionTest, ImmuneByDefault)
 TEST_F(BonusConditionTest, ReceptiveIfMatchesType)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_DAMAGE_REDUCTION, BonusSource::OTHER, 100, TBonusSourceID::NONE));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_DAMAGE_REDUCTION, BonusSource::OTHER, 100, TBonusSourceID()));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
 TEST_F(BonusConditionTest, ImmuneIfTypeMismatch)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::OTHER, 0, TBonusSourceID(SpellSchool::FIRE)));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::OTHER, 0, TBonusSourceID(), TBonusSubtype(SpellSchool::FIRE)));
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 

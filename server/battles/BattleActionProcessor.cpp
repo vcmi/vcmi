@@ -20,7 +20,6 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
-#include "../../lib/bonuses/BonusSubtypes.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/spells/AbilityCaster.h"
@@ -163,9 +162,9 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	SetStackEffect sse;
 	sse.battleID = battle.getBattle()->getBattleID();
 
-	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
-	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
-	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, TBonusSourceID::NONE, TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, TBonusSourceID(), TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
+	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), TBonusSourceID(), TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, TBonusSourceID(), TBonusSubtype(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 
 	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE)));
 	int oldDefenceValue = defence.totalValue();
@@ -383,7 +382,7 @@ bool BattleActionProcessor::doCatapultAction(const CBattleInfoCallback & battle,
 		return false;
 
 	std::shared_ptr<const Bonus> catapultAbility = stack->getBonusLocalFirst(Selector::type()(BonusType::CATAPULT));
-	if(!catapultAbility || catapultAbility->subtype == TBonusSubtype::NONE)
+	if(!catapultAbility || catapultAbility->subtype == TBonusSubtype())
 	{
 		gameHandler->complain("We do not know how to shoot :P");
 	}
@@ -453,7 +452,7 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	else
 		destStack = battle.battleGetUnitByPos(target.at(0).hexValue);
 
-	if(stack == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype == TBonusSubtype::NONE)
+	if(stack == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype == TBonusSubtype())
 	{
 		gameHandler->complain("There is either no healer, no destination, or healer cannot heal :P");
 	}
@@ -1169,7 +1168,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
 		//original formula x = min(x, (gorgons_count + 9)/10);
 
-		double chanceToKill = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusSubtypes::deathStareGorgon) / 100.0f;
+		double chanceToKill = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusSubtypeID::deathStareGorgon) / 100.0f;
 		vstd::amin(chanceToKill, 1); //cap at 100%
 
 		std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
@@ -1180,7 +1179,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		int maxToKill = static_cast<int>((attacker->getCount() + cap - 1) / cap); //not much more than chance * count
 		vstd::amin(staredCreatures, maxToKill);
 
-		staredCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusSubtypes::deathStareCommander)) / defender->level();
+		staredCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusSubtypeID::deathStareCommander)) / defender->level();
 		if(staredCreatures)
 		{
 			//TODO: death stare was not originally available for multiple-hex attacks, but...
@@ -1250,9 +1249,9 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		else
 			resurrectInfo.type = attacker->creatureId();
 
-		if(attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusSubtypes::transmutationPerHealth))
+		if(attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusSubtypeID::transmutationPerHealth))
 			resurrectInfo.count = std::max((defender->getCount() * defender->getMaxHealth()) / resurrectInfo.type.toCreature()->getMaxHealth(), 1u);
-		else if (attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusSubtypes::transmutationPerUnit))
+		else if (attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusSubtypeID::transmutationPerUnit))
 			resurrectInfo.count = defender->getCount();
 		else
 			return; //wrong subtype
@@ -1274,21 +1273,21 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		gameHandler->sendAndApply(&fakeEvent);
 	}
 
-	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypes::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypes::destructionKillAmount))
+	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypeID::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypeID::destructionKillAmount))
 	{
 		double chanceToTrigger = 0;
 		int amountToDie = 0;
 
-		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypes::destructionKillPercentage)) //killing by percentage
+		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypeID::destructionKillPercentage)) //killing by percentage
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusSubtypes::destructionKillPercentage) / 100.0f;
-			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusSubtypes::destructionKillPercentage)))->additionalInfo[0];
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusSubtypeID::destructionKillPercentage) / 100.0f;
+			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusSubtypeID::destructionKillPercentage)))->additionalInfo[0];
 			amountToDie = static_cast<int>(defender->getCount() * percentageToDie * 0.01f);
 		}
-		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypes::destructionKillAmount)) //killing by count
+		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusSubtypeID::destructionKillAmount)) //killing by count
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusSubtypes::destructionKillAmount) / 100.0f;
-			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusSubtypes::destructionKillAmount)))->additionalInfo[0];
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusSubtypeID::destructionKillAmount) / 100.0f;
+			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusSubtypeID::destructionKillAmount)))->additionalInfo[0];
 		}
 
 		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
@@ -1349,12 +1348,12 @@ int64_t BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & ba
 	{
 		//we can have two bonuses - one with subtype 0 and another with subtype 1
 		//try to use permanent first, use only one of two
-		for(const auto & subtype : { BonusSubtypes::soulStealBattle, BonusSubtypes::soulStealPermanent})
+		for(const auto & subtype : { BonusSubtypeID::soulStealBattle, BonusSubtypeID::soulStealPermanent})
 		{
 			if(attackerState->hasBonusOfType(BonusType::SOUL_STEAL, subtype))
 			{
 				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(BonusType::SOUL_STEAL, subtype) * attackerState->getMaxHealth();
-				bool permanent = subtype == BonusSubtypes::soulStealPermanent;
+				bool permanent = subtype == BonusSubtypeID::soulStealPermanent;
 				attackerState->heal(toHeal, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 				drainedLife += toHeal;
 				break;

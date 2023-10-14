@@ -37,7 +37,6 @@
 #include "../modding/ModScope.h"
 #include "../constants/StringConstants.h"
 #include "../battle/Unit.h"
-#include "../bonuses/BonusSubtypes.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -250,14 +249,14 @@ void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) c
 		lowestCreatureSpeed = realLowestSpeed;
 		//Let updaters run again
 		treeHasChanged();
-		ti->updateHeroBonuses(BonusType::MOVEMENT, Selector::subtype()(onLand ? BonusSubtypes::heroMovementLand : BonusSubtypes::heroMovementSea));
+		ti->updateHeroBonuses(BonusType::MOVEMENT, Selector::subtype()(onLand ? BonusSubtypeID::heroMovementLand : BonusSubtypeID::heroMovementSea));
 	}
 }
 
 int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) const
 {
 	updateArmyMovementBonus(onLand, ti);
-	return ti->valOfBonuses(BonusType::MOVEMENT, onLand ? BonusSubtypes::heroMovementLand : BonusSubtypes::heroMovementSea);
+	return ti->valOfBonuses(BonusType::MOVEMENT, onLand ? BonusSubtypeID::heroMovementLand : BonusSubtypeID::heroMovementSea);
 }
 
 CGHeroInstance::CGHeroInstance():
@@ -764,7 +763,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		}
 	});
 
-	const bool levelBonus = hasBonusOfType(BonusType::SPELLS_OF_LEVEL, BonusSubtypes::spellLevel(spell->getLevel()));
+	const bool levelBonus = hasBonusOfType(BonusType::SPELLS_OF_LEVEL, BonusSubtypeID::spellLevel(spell->getLevel()));
 
 	if(spell->isSpecial())
 	{

@@ -23,7 +23,6 @@
 #include "filesystem/Filesystem.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/Propagators.h"
-#include "bonuses/BonusSubtypes.h"
 #include "ResourceSet.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -561,7 +560,7 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, TBonusSubtype(PrimarySkill::DEFENSE));
 		break;
 	case BuildingSubID::LIGHTHOUSE:
-		b = createBonus(building, BonusType::MOVEMENT, +500, BonusSubtypes::heroMovementSea, playerPropagator);
+		b = createBonus(building, BonusType::MOVEMENT, +500, BonusSubtypeID::heroMovementSea, playerPropagator);
 		break;
 	}
 
@@ -571,7 +570,7 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 
 std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val) const
 {
-	return createBonus(build, type, val, TBonusSubtype::NONE, emptyPropagator());
+	return createBonus(build, type, val, TBonusSubtype(), emptyPropagator());
 }
 
 std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, TBonusSubtype subtype) const
@@ -583,17 +582,18 @@ std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType ty
 {
 	std::ostringstream descr;
 	descr << build->getNameTranslated();
-	return createBonusImpl(build->bid, type, val, prop, descr.str(), subtype);
+	return createBonusImpl(build->bid, build->town->faction->getId(), type, val, prop, descr.str(), subtype);
 }
 
 std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building,
+													 const FactionID & faction,
 													 BonusType type,
 													 int val,
 													 TPropagatorPtr & prop,
 													 const std::string & description,
 													 TBonusSubtype subtype) const
 {
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, TBonusSourceID(building), subtype, description);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, BuildingTypeUniqueID(faction, building), subtype, description);
 
 	if(prop)
 		b->addPropagator(prop);
@@ -605,7 +605,7 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 {
 	for(const auto & b : source.Vector())
 	{
-		auto bonus = JsonUtils::parseBuildingBonus(b, building->bid, building->getNameTranslated());
+		auto bonus = JsonUtils::parseBuildingBonus(b, building->town->faction->getId(), building->bid, building->getNameTranslated());
 
 		if(bonus == nullptr)
 			continue;

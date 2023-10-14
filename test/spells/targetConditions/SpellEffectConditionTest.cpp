@@ -60,7 +60,7 @@ TEST_F(SpellEffectConditionTest, ImmuneIfHasEffectFromOtherSpell)
 TEST_F(SpellEffectConditionTest, ImmuneIfHasNoSpellEffects)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 3, TBonusSourceID::NONE));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 3, TBonusSourceID()));
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
