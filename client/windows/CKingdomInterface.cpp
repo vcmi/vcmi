@@ -822,6 +822,10 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		}
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 	});
+	fastTown = std::make_shared<LRClickableArea>(Rect(67, 6, 165, 20), [&]()
+	{
+		GH.windows().createAndPushWindow<CCastleInterface>(town);
+	});
 }
 
 void CTownItem::updateGarrisons()
