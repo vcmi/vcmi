@@ -134,9 +134,9 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 
 				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
 
-				ArtifactLocation al(hero, artifactPosition);
-				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
-					al.removeArtifact();
+				ArtifactLocation al(hero->id, artifactPosition);
+				if(!takeable && !hero->getSlot(al.slot)->locked)  //don't try removing locked artifacts -> it crashes #1719
+					hero->getArt(al.slot)->removeFrom(*hero, al.slot);
 			};
 
 			// process on copy - removal of artifact will invalidate container
@@ -300,7 +300,7 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 			CArtifactInstance * scroll = ArtifactUtils::createScroll(SpellID(curBonus->info2));
 			const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 			if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-				scroll->putAt(ArtifactLocation(hero, slot));
+				scroll->putAt(*hero, slot);
 			else
 				logGlobal->error("Cannot give starting scroll - no free slots!");
 			break;

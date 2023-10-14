@@ -13,6 +13,7 @@
 #include "Buttons.h"
 
 #include "../CPlayerInterface.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 #include "../../CCallback.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
@@ -56,7 +57,7 @@ void CArtifactsOfHeroKingdom::swapArtifacts(const ArtifactLocation & srcLoc, con
 
 void CArtifactsOfHeroKingdom::pickUpArtifact(CHeroArtPlace & artPlace)
 {
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, artPlace.slot),
-		ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
+		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 }
 

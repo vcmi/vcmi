@@ -974,11 +974,12 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 	const auto slot = ArtifactUtils::getArtBackpackPosition(info->owner, art->getTypeId());
 	if(slot != ArtifactPosition::PRE_FIRST)
 	{
-		LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos), ArtifactLocation(info->owner, slot));
+		//LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos), ArtifactLocation(info->owner->id, slot));
 		stackArtifactButton.reset();
 		stackArtifactHelp.reset();
 		stackArtifactIcon.reset();
 		redraw();
 	}
 }
+
 

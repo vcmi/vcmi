@@ -1574,67 +1574,6 @@ struct GetBase
 	}
 };
 
-
-void ArtifactLocation::removeArtifact()
-{
-	CArtifactInstance *a = getArt();
-	assert(a);
-	a->removeFrom(*this);
-}
-
-const CArmedInstance * ArtifactLocation::relatedObj() const
-{
-	return std::visit(ObjectRetriever(), artHolder);
-}
-
-PlayerColor ArtifactLocation::owningPlayer() const
-{
-	const auto * obj = relatedObj();
-	return obj ? obj->tempOwner : PlayerColor::NEUTRAL;
-}
-
-CArtifactSet *ArtifactLocation::getHolderArtSet()
-{
-	return std::visit(GetBase<CArtifactSet>(), artHolder);
-}
-
-CBonusSystemNode *ArtifactLocation::getHolderNode()
-{
-	return std::visit(GetBase<CBonusSystemNode>(), artHolder);
-}
-
-const CArtifactInstance *ArtifactLocation::getArt() const
-{
-	const auto * s = getSlot();
-	if(s)
-		return s->getArt();
-	else
-		return nullptr;
-}
-
-CArtifactSet * ArtifactLocation::getHolderArtSet() const
-{
-	auto * t = const_cast<ArtifactLocation *>(this);
-	return t->getHolderArtSet();
-}
-
-const CBonusSystemNode * ArtifactLocation::getHolderNode() const
-{
-	auto * t = const_cast<ArtifactLocation *>(this);
-	return t->getHolderNode();
-}
-
-CArtifactInstance *ArtifactLocation::getArt()
-{
-	const ArtifactLocation *t = this;
-	return const_cast<CArtifactInstance*>(t->getArt());
-}
-
-const ArtSlotInfo *ArtifactLocation::getSlot() const
-{
-	return getHolderArtSet()->getSlot(slot);
-}
-
 void ChangeStackCount::applyGs(CGameState * gs)
 {
 	auto * srcObj = gs->getArmyInstance(army);
@@ -1709,41 +1648,43 @@ void RebalanceStacks::applyGs(CGameState * gs)
 
 	if(srcCount == count) //moving whole stack
 	{
-		[[maybe_unused]] const CCreature *c = dst.army->getCreature(dst.slot);
+		const auto c = dst.army->getCreature(dst.slot);
 
 		if(c) //stack at dest -> merge
 		{
 			assert(c == srcType);
-			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
-			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
-			auto * artHere = alHere.getArt();
-			auto * artDest = alDest.getArt();
-			if (artHere)
+			
+			const auto srcHero = dynamic_cast<CGHeroInstance*>(src.army.get());
+			const auto dstHero = dynamic_cast<CGHeroInstance*>(dst.army.get());
+			auto srcLoc = ArtifactLocation(srcHero->id, ArtifactPosition::CREATURE_SLOT);
+			auto dstLoc = ArtifactLocation(dstHero->id, ArtifactPosition::CREATURE_SLOT);
+			// TODO set creature id !!!
+			/*if (auto artHere = srcLoc.getArt())
 			{
-				if (alDest.getArt())
+				if (dstLoc.getArt())
 				{
-					auto * hero = dynamic_cast<CGHeroInstance *>(src.army.get());
-					auto dstSlot = ArtifactUtils::getArtBackpackPosition(hero, alDest.getArt()->getTypeId());
-					if(hero && dstSlot != ArtifactPosition::PRE_FIRST)
+					
+					auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstLoc.getArt()->getTypeId());
+					if(srcHero && dstSlot != ArtifactPosition::PRE_FIRST)
 					{
-						artDest->move (alDest, ArtifactLocation (hero, dstSlot));
+						dstLoc.getArt()->move (dstLoc, ArtifactLocation (srcHero, dstSlot));
 					}
 					//else - artifact cna be lost :/
 					else
 					{
 						EraseArtifact ea;
-						ea.al = alDest;
+						ea.al = dstLoc;
 						ea.applyGs(gs);
 						logNetwork->warn("Cannot move artifact! No free slots");
 					}
-					artHere->move (alHere, alDest);
+					artHere->move (srcLoc, dstLoc);
 					//TODO: choose from dialog
 				}
 				else //just move to the other slot before stack gets erased
 				{
-					artHere->move (alHere, alDest);
+					artHere->move (srcLoc, dstLoc);
 				}
-			}
+			}*/
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
@@ -1811,53 +1752,57 @@ void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
 
 void PutArtifact::applyGs(CGameState *gs)
 {
-	assert(art->canBePutAt(al));
 	// Ensure that artifact has been correctly added via NewArtifact pack
 	assert(vstd::contains(gs->map->artInstances, art));
 	assert(!art->getParentNodes().empty());
-	art->putAt(al);
+	auto hero = gs->getHero(al.artHolder);
+	assert(hero);
+	assert(art->canBePutAt(hero, al.slot));
+	art->putAt(*hero, al.slot);
 }
 
 void EraseArtifact::applyGs(CGameState *gs)
 {
-	const auto * slot = al.getSlot();
+	const auto hero = gs->getHero(al.artHolder);
+	assert(hero);
+	const auto slot = hero->getSlot(al.slot);
 	if(slot->locked)
 	{
 		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
-		auto * aset = al.getHolderArtSet();
-		#ifndef NDEBUG
-		bool found = false;
-		#endif
-		for(auto& p : aset->artifactsWorn)
+		
+		for(auto & slotInfo : hero->artifactsWorn)
 		{
-			auto art = p.second.artifact;
+			auto art = slotInfo.second.artifact;
 			if(art->isCombined() && art->isPart(slot->artifact))
 			{
-				dis.al.slot = aset->getArtPos(art);
-				#ifndef NDEBUG
-				found = true;
-				#endif
+				dis.al.slot = hero->getArtPos(art);
 				break;
 			}
 		}
-		assert(found && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->getNameTranslated());
+		assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
+		logGlobal->debug("Found the corresponding assembly: %s", hero->getArt(dis.al.slot)->artType->getNameTranslated());
 		dis.applyGs(gs);
 	}
 	else
 	{
 		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
 	}
-	al.removeArtifact();
+	auto art = hero->getArt(al.slot);
+	assert(art);
+	art->removeFrom(*hero, al.slot);
 }
 
 void MoveArtifact::applyGs(CGameState * gs)
 {
-	CArtifactInstance * art = src.getArt();
+	auto srcHero = gs->getHero(src.artHolder);
+	auto dstHero = gs->getHero(dst.artHolder);
+	assert(srcHero);
+	assert(dstHero);
+	auto art = srcHero->getArt(src.slot);
 	assert(!ArtifactUtils::isSlotEquipment(dst.slot) || !dst.getArt());
-	art->move(src, dst);
+	art->move(*srcHero, src.slot, *dstHero, dst.slot);
 }
 
 void BulkMoveArtifacts::applyGs(CGameState * gs)
@@ -1887,7 +1832,7 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 			assert(slotInfo);
 			auto * art = const_cast<CArtifactInstance *>(slotInfo->getArt());
 			assert(art);
-			switch(operation)
+			/*switch(operation)
 			{
 			case EBulkArtsOp::BULK_MOVE:
 				const_cast<CArtifactInstance*>(art)->move(
@@ -1901,7 +1846,7 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 				break;
 			default:
 				break;
-			}
+			}*/
 
 			if(srcPos >= ArtifactPosition::BACKPACK_START)
 			{
@@ -1932,15 +1877,16 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 
 void AssembledArtifact::applyGs(CGameState *gs)
 {
-	CArtifactSet * artSet = al.getHolderArtSet();
-	const CArtifactInstance * transformedArt = al.getArt();
+	auto hero = gs->getHero(al.artHolder);
+	assert(hero);
+	const auto transformedArt = hero->getArt(al.slot);
 	assert(transformedArt);
-	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(hero, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));
 
-	const auto transformedArtSlot = artSet->getSlotByInstance(transformedArt);
+	const auto transformedArtSlot = hero->getSlotByInstance(transformedArt);
 	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 
@@ -1952,7 +1898,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 		if(transformedArt->getTypeId() == constituent->getId())
 			slot = transformedArtSlot;
 		else
-			slot = artSet->getArtPos(constituent->getId(), false, false);
+			slot = hero->getArtPos(constituent->getId(), false, false);
 
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		slotsInvolved.emplace_back(slot);
@@ -1972,8 +1918,8 @@ void AssembledArtifact::applyGs(CGameState *gs)
 				break;
 			}
 
-			if(!vstd::contains(combinedArt->artType->getPossibleSlots().at(artSet->bearerType()), al.slot)
-				&& vstd::contains(combinedArt->artType->getPossibleSlots().at(artSet->bearerType()), slot))
+			if(!vstd::contains(combinedArt->artType->getPossibleSlots().at(hero->bearerType()), al.slot)
+				&& vstd::contains(combinedArt->artType->getPossibleSlots().at(hero->bearerType()), slot))
 				al.slot = slot;
 		}
 		else
@@ -1986,8 +1932,8 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	// Delete parts from hero
 	for(const auto slot : slotsInvolved)
 	{
-		const auto constituentInstance = artSet->getArt(slot);
-		constituentInstance->removeFrom(ArtifactLocation(al.artHolder, slot));
+		const auto constituentInstance = hero->getArt(slot);
+		constituentInstance->removeFrom(*hero, slot);
 
 		if(ArtifactUtils::isSlotEquipment(al.slot) && slot != al.slot)
 			combinedArt->addPart(constituentInstance, slot);
@@ -1996,25 +1942,26 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	}
 
 	// Put new combined artifacts
-	combinedArt->putAt(al);
+	combinedArt->putAt(*hero, al.slot);
 }
 
 void DisassembledArtifact::applyGs(CGameState *gs)
 {
-	auto * disassembled = al.getArt();
-	assert(disassembled);
+	auto hero = gs->getHero(al.artHolder);
+	assert(hero);
+	auto disassembledArt = hero->getArt(al.slot);
+	assert(disassembledArt);
 
-	auto parts = disassembled->getPartsInfo();
-	disassembled->removeFrom(al);
+	auto parts = disassembledArt->getPartsInfo();
+	disassembledArt->removeFrom(*hero, al.slot);
 	for(auto & part : parts)
 	{
-		ArtifactLocation partLoc = al;
 		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
-		partLoc.slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
-		disassembled->detachFrom(*part.art);
-		part.art->putAt(partLoc);
+		auto slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
+		disassembledArt->detachFrom(*part.art);
+		part.art->putAt(*hero, slot);
 	}
-	gs->map->eraseArtifactInstance(disassembled);
+	gs->map->eraseArtifactInstance(disassembledArt);
 }
 
 void HeroVisit::applyGs(CGameState *gs)

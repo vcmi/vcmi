@@ -122,8 +122,8 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 
 				if(pickedArtInst)
 				{
-					auto srcLoc = ArtifactLocation(heroPickedArt, ArtifactPosition::TRANSITION_POS);
-					auto dstLoc = ArtifactLocation(hero, artPlace.slot);
+					auto srcLoc = ArtifactLocation(heroPickedArt->id, ArtifactPosition::TRANSITION_POS);
+					auto dstLoc = ArtifactLocation(hero->id, artPlace.slot);
 
 					if(ArtifactUtils::isSlotBackpack(artPlace.slot))
 					{
@@ -141,7 +141,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 						}
 					}
 					// Check if artifact transfer is possible
-					else if(pickedArtInst->canBePutAt(dstLoc, true) && (!artPlace.getArt() || hero->tempOwner == LOCPLINT->playerID))
+					else if(pickedArtInst->canBePutAt(hero, artPlace.slot, true) && (!artPlace.getArt() || hero->tempOwner == LOCPLINT->playerID))
 					{
 						isTransferAllowed = true;
 					}
@@ -270,7 +270,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 	// we have a different artifact may look surprising... but it's valid.
 
 	auto pickedArtInst = std::get<const CArtifactInstance*>(curState.value());
-	assert(!pickedArtInst || destLoc.isHolder(std::get<const CGHeroInstance*>(curState.value())));
+	assert(!pickedArtInst || destLoc.artHolder == std::get<const CGHeroInstance*>(curState.value())->id);
 
 	auto artifactMovedBody = [this, withRedraw, &destLoc, &pickedArtInst](auto artSetWeak) -> void
 	{
@@ -316,7 +316,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			}
 
 			// Make sure the status bar is updated so it does not display old text
-			if(destLoc.getHolderArtSet() == hero)
+			if(destLoc.artHolder == hero->id)
 			{
 				if(auto artPlace = artSetPtr->getArtPlace(destLoc.slot))
 					artPlace->hover(true);

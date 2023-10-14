@@ -267,14 +267,14 @@ void ApplyClientNetPackVisitor::visitBulkSmartRebalanceStacks(BulkSmartRebalance
 
 void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 {
-	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactPut, pack.al);
+	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactPut, pack.al);
 	if(pack.askAssemble)
-		callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::askToAssembleArtifact, pack.al);
+		callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::askToAssembleArtifact, pack.al);
 }
 
 void ApplyClientNetPackVisitor::visitEraseArtifact(EraseArtifact & pack)
 {
-	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactRemoved, pack.al);
+	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactRemoved, pack.al);
 }
 
 void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
@@ -286,16 +286,16 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::askToAssembleArtifact, pack.dst);
 	};
 
-	moveArtifact(pack.src.owningPlayer());
-	if(pack.src.owningPlayer() != pack.dst.owningPlayer())
-		moveArtifact(pack.dst.owningPlayer());
+	moveArtifact(cl.getOwner(pack.src.artHolder));
+	if(cl.getOwner(pack.src.artHolder) != cl.getOwner(pack.dst.artHolder))
+		moveArtifact(cl.getOwner(pack.dst.artHolder));
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 {
-	auto applyMove = [this, &pack](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack) -> void
+	/*auto applyMove = [this, &pack](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack) -> void
 	{
 		for(auto & slotToMove : artsPack)
 		{
@@ -316,19 +316,19 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 
 	applyMove(pack.artsPack0);
 	if(pack.swap)
-		applyMove(pack.artsPack1);
+		applyMove(pack.artsPack1);*/
 }
 
 void ApplyClientNetPackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 {
-	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactAssembled, pack.al);
+	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactAssembled, pack.al);
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack)
 {
-	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactDisassembled, pack.al);
+	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactDisassembled, pack.al);
 
 	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 }

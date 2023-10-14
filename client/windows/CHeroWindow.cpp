@@ -336,10 +336,10 @@ void CHeroWindow::commanderWindow()
 		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, pickedArtInst->getTypeId());
 		if(vstd::contains(ArtifactUtils::commanderSlots(), freeSlot)) // We don't want to put it in commander's backpack!
 		{
-			ArtifactLocation src(hero, ArtifactPosition::TRANSITION_POS);
-			ArtifactLocation dst(curHero->commander.get(), freeSlot);
-
-			if(pickedArtInst->canBePutAt(dst, true))
+			ArtifactLocation src(hero->id, ArtifactPosition::TRANSITION_POS);
+			ArtifactLocation dst(curHero->id, freeSlot);
+			// TODO add ->commander.get() !!!
+			/*if(pickedArtInst->canBePutAt(dst, true))
 			{	//equip clicked stack
 				if(dst.getArt())
 				{
@@ -347,7 +347,7 @@ void CHeroWindow::commanderWindow()
 						ArtifactUtils::getArtBackpackPosition(hero, pickedArtInst->getTypeId())));
 				}
 				LOCPLINT->cb->swapArtifacts(src, dst);
-			}
+			}*/
 		}
 	}
 	else

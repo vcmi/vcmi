@@ -196,7 +196,7 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 			artSelected = true;
 			if (myStack) // try dropping the artifact only if the slot isn't empty
 			{
-				ArtifactLocation src(srcHero, ArtifactPosition::TRANSITION_POS);
+				/*ArtifactLocation src(srcHero, ArtifactPosition::TRANSITION_POS);
 				ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
 				if(pickedArtInst->canBePutAt(dst, true))
 				{	//equip clicked stack
@@ -208,7 +208,7 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 							ArtifactUtils::getArtBackpackPosition(srcHero, dst.getArt()->getTypeId())));
 					}
 					LOCPLINT->cb->swapArtifacts(src, dst);
-				}
+				}*/
 			}
 		}
 	}
