@@ -591,6 +591,9 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 		// Perform totalRedraw in order to force redraw of updated town list icon from adventure map
 		GH.windows().totalRedraw();
 	}
+
+	for (auto cgh : GH.windows().findWindows<ITownHolder>())
+		cgh->buildChanged(town);
 }
 
 void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)

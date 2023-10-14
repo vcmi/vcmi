@@ -200,7 +200,7 @@ public:
 };
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder
+class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder, public ITownHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -257,6 +257,7 @@ public:
 	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
 	void artifactDisassembled(const ArtifactLocation &artLoc) override;
 	void artifactAssembled(const ArtifactLocation &artLoc) override;
+	void buildChanged() override;
 };
 
 /// List item with town

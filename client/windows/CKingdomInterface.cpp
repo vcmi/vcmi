@@ -640,6 +640,11 @@ void CKingdomInterface::activateTab(size_t which)
 	tabArea->setActive(which);
 }
 
+void CKingdomInterface::buildChanged()
+{
+	tabArea->reset();
+}
+
 void CKingdomInterface::townChanged(const CGTownInstance *town)
 {
 	if(auto townList = std::dynamic_pointer_cast<CKingdTownList>(tabArea->getItem()))
