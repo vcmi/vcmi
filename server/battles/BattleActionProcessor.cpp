@@ -884,7 +884,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	if(attackerLuck > 0)
 	{
 		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size() - 1, attackerLuck);
+		size_t diceIndex = std::min<size_t>(diceSize.size(), attackerLuck) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 			bat.flags |= BattleAttack::LUCKY;
@@ -893,7 +893,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	if(attackerLuck < 0)
 	{
 		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size() - 1, -attackerLuck);
+		size_t diceIndex = std::min<size_t>(diceSize.size(), -attackerLuck) - 1; // array index, so 0-indexed
 
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 			bat.flags |= BattleAttack::UNLUCKY;
