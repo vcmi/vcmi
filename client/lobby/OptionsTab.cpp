@@ -1045,6 +1045,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	, pi(std::make_unique<PlayerInfo>(SEL->getPlayerInfo(S.color)))
 	, s(std::make_unique<PlayerSettings>(S))
 	, parentTab(parent)
+	, name(S.name)
 {
 	OBJ_CONSTRUCTION;
 	defActions |= SHARE_POS;
@@ -1082,12 +1083,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}};
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(bgs[s->color]), 0, 0);
-	if(!CSH->isMyColor(s->color) || CSH->isGuest())
-		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s->name);
+	if(s->isControlledByAI() || CSH->isGuest())
+		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name);
 	else
 	{
 		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, nullptr, false);
-		labelPlayerNameEdit->setText(s->name);
+		labelPlayerNameEdit->setText(name);
 	}
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
@@ -1129,11 +1130,8 @@ bool OptionsTab::PlayerOptionsEntry::captureThisKey(EShortcut key)
 
 void OptionsTab::PlayerOptionsEntry::keyPressed(EShortcut key)
 {
-	if(labelPlayerNameEdit)
-	{
-		if(key == EShortcut::GLOBAL_ACCEPT)
-			changeName();
-	}
+	if(labelPlayerNameEdit && key == EShortcut::GLOBAL_ACCEPT)
+		changeName();
 }
 
 bool OptionsTab::PlayerOptionsEntry::receiveEvent(const Point & position, int eventType) const
@@ -1143,21 +1141,23 @@ bool OptionsTab::PlayerOptionsEntry::receiveEvent(const Point & position, int ev
 
 void OptionsTab::PlayerOptionsEntry::clickReleased(const Point & cursorPosition)
 {
-	if(labelPlayerNameEdit && !labelPlayerNameEdit->pos.isInside(cursorPosition) && labelPlayerNameEdit->hasFocus())
-	{
+	if(labelPlayerNameEdit && !labelPlayerNameEdit->pos.isInside(cursorPosition))
 		changeName();
-	}
 }
 
 void OptionsTab::PlayerOptionsEntry::changeName() {
-	if(settings["general"]["playerName"].String() != labelPlayerNameEdit->getText())
+	if(labelPlayerNameEdit->getText() != name)
 	{
 		CSH->setPlayerName(s->color, labelPlayerNameEdit->getText());
-		Settings set = settings.write["general"]["playerName"];
-		set->String() = labelPlayerNameEdit->getText();
+		if(CSH->isMyColor(s->color))
+		{
+			Settings set = settings.write["general"]["playerName"];
+			set->String() = labelPlayerNameEdit->getText();
+		}
 	}
 
 	labelPlayerNameEdit->removeFocus();
+	name = labelPlayerNameEdit->getText();
 }
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const

@@ -167,6 +167,7 @@ private:
 
 	struct PlayerOptionsEntry : public CIntObject
 	{
+		std::string name;
 		std::unique_ptr<PlayerInfo> pi;
 		std::unique_ptr<PlayerSettings> s;
 		std::shared_ptr<CLabel> labelPlayerName;
