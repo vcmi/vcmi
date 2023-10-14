@@ -539,19 +539,21 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 				painter.scale(scale, scale);
 				painter.drawImage(QPoint(0, 0), *picture);
 			}
-
+			
+			//create object to extract name
+			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
+			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
+			itemType->setText(translated);
+			
 			//add parameters
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
 							 {"template", QJsonValue(templateId)},
 							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile.getOriginalName())},
 							 {"animation", QString::fromStdString(templ->animationFile.getOriginalName())},
-							 {"preview", jsonFromPixmap(preview)}};
-			
-			//create object to extract name
-			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
-			QString translated = useCustomName ? tr(temporaryObj->getObjectName().c_str()) : subGroupName;
-			itemType->setText(translated);
+							 {"preview", jsonFromPixmap(preview)},
+							 {"typeName", QString::fromStdString(factory->getJsonKey())}
+			};
 
 			//do not have extra level
 			if(singleTemplate)
