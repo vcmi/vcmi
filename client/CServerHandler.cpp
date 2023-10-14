@@ -183,7 +183,7 @@ void CServerHandler::startLocalServerAndConnect()
 	
 #if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
-	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPortFromSettings())};
+	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPort())};
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
 	{
 		args.push_back("--lobby=" + settings["session"]["address"].String());
@@ -251,54 +251,20 @@ void CServerHandler::startLocalServerAndConnect()
 void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
 {
 	state = EClientState::CONNECTING;
-
-	std::string hostAddressFromSettings = getHostAddressFromSettings();
-	ui16 hostPortFromSettings = getHostPortFromSettings();
-
-	std::string connectionAddress = addr.size() ? addr : hostAddressFromSettings;
-	ui16 connectionPort = port ? port : hostPortFromSettings;
-
-	logNetwork->info("Connecting to %s:%d", connectionAddress, connectionPort);
-
-	boost::chrono::duration<long, boost::ratio<1, 1000>> sleepDuration{};
-	int maxConnectionAttempts;
-
-	if(connectionAddress == "127.0.0.1" || connectionAddress == "localhost")
-	{
-		logNetwork->info("Local server");
-		sleepDuration = boost::chrono::milliseconds(10);
-		maxConnectionAttempts = 100;
-	}
-	else
-	{
-		logNetwork->info("Remote server");
-		sleepDuration = boost::chrono::seconds(2);
-		maxConnectionAttempts = 10;
-	}
-
-	logNetwork->info("Waiting for %d ms between each of the %d attempts to connect", sleepDuration.count(), maxConnectionAttempts);
-
-	ui16 connectionAttemptCount = 0;
 	while(!c && state != EClientState::CONNECTION_CANCELLED)
 	{
-		connectionAttemptCount++;
-		if(connectionAttemptCount > maxConnectionAttempts)
-		{
-			state = EClientState::CONNECTION_FAILED;
-			logNetwork->error("Exceeded maximum of %d connection attempts", maxConnectionAttempts);
-			return;
-		}
-
 		try
 		{
+			logNetwork->info("Establishing connection...");
 			c = std::make_shared<CConnection>(
-					connectionAddress,
-					connectionPort,
+					addr.size() ? addr : getHostAddress(),
+					port ? port : getHostPort(),
 					NAME, uuid);
 		}
 		catch(std::runtime_error & error)
 		{
-			boost::this_thread::sleep_for(sleepDuration);
+			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 		}
 	}
 
@@ -310,12 +276,12 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 
 	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
-	if(!addr.empty() && addr != getHostAddressFromSettings())
+	if(!addr.empty() && addr != getHostAddress())
 	{
 		Settings serverAddress = settings.write["server"]["server"];
 		serverAddress->String() = addr;
 	}
-	if(port && port != getHostPortFromSettings())
+	if(port && port != getHostPort())
 	{
 		Settings serverPort = settings.write["server"]["port"];
 		serverPort->Integer() = port;
@@ -399,7 +365,7 @@ std::string CServerHandler::getDefaultPortStr()
 	return std::to_string(getDefaultPort());
 }
 
-std::string CServerHandler::getHostAddressFromSettings() const
+std::string CServerHandler::getHostAddress() const
 {
 	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
 		return settings["server"]["server"].String();
@@ -410,7 +376,7 @@ std::string CServerHandler::getHostAddressFromSettings() const
 	return settings["session"]["address"].String();
 }
 
-ui16 CServerHandler::getHostPortFromSettings() const
+ui16 CServerHandler::getHostPort() const
 {
 	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
 		return getDefaultPort();
@@ -1001,7 +967,7 @@ void CServerHandler::threadRunServer()
 	setThreadName("runServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
-		+ " --port=" + std::to_string(getHostPortFromSettings())
+		+ " --port=" + std::to_string(getHostPort())
 		+ " --run-by-client"
 		+ " --uuid=" + uuid;
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
