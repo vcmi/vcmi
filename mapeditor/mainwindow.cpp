@@ -833,99 +833,12 @@ void MainWindow::changeBrushState(int idx)
 
 }
 
-void MainWindow::on_toolBrush_clicked(bool checked)
-{
-	//ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolBrush2_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	//ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-
-void MainWindow::on_toolBrush4_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	//ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolArea_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	//ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Area;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolLasso_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	//ui->toolLasso->setChecked(false);
-	
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Lasso;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
 void MainWindow::on_actionErase_triggered()
-{
-	on_toolErase_clicked();
-}
-
-void MainWindow::on_toolErase_clicked()
 {
 	if(controller.map())
 	{
 		controller.commitObjectErase(mapLevel);
 	}
-	ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::preparePreview(const QModelIndex &index)
@@ -949,11 +862,7 @@ void MainWindow::preparePreview(const QModelIndex &index)
 
 void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
 {
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
+	ui->toolSelect->setChecked(true);
 	ui->mapView->selectionTool = MapView::SelectionTool::None;
 	
 	preparePreview(index);
@@ -1114,7 +1023,6 @@ void MainWindow::onSelectionMade(int level, bool anythingSelected)
 	if (level == mapLevel)
 	{
 		ui->actionErase->setEnabled(anythingSelected);
-		ui->toolErase->setEnabled(anythingSelected);
 	}
 }
 void MainWindow::displayStatus(const QString& message, int timeout /* = 2000 */)
@@ -1344,5 +1252,85 @@ void MainWindow::on_actionZoom_reset_triggered()
 	auto center = ui->mapView->mapToScene(ui->mapView->viewport()->geometry().center());
 	ui->mapView->fitInView(initialScale, Qt::KeepAspectRatioByExpanding);
 	ui->mapView->centerOn(center);
+}
+
+
+void MainWindow::on_toolLine_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Line;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush2_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush4_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolLasso_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Lasso;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolArea_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Area;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolFill_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Fill;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolSelect_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+		ui->tabWidget->setCurrentIndex(0);
+	}
 }
 

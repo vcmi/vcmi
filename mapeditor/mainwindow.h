@@ -76,27 +76,15 @@ private slots:
 
 	void on_actionGrid_triggered(bool checked);
 
-	void on_toolBrush_clicked(bool checked);
-
-	void on_toolArea_clicked(bool checked);
-
 	void terrainButtonClicked(TerrainId terrain);
 	void roadOrRiverButtonClicked(ui8 type, bool isRoad);
 	void currentCoordinatesChanged(int x, int y);
-
-	void on_toolErase_clicked();
 
 	void on_terrainFilterCombo_currentIndexChanged(int index);
 
 	void on_filter_textChanged(const QString &arg1);
 
 	void on_actionFill_triggered();
-
-	void on_toolBrush2_clicked(bool checked);
-
-	void on_toolBrush4_clicked(bool checked);
-	
-	void on_toolLasso_clicked(bool checked);
 
 	void on_inspectorWidget_itemChanged(QTableWidgetItem *item);
 
@@ -133,6 +121,22 @@ private slots:
 	void on_actionZoom_out_triggered();
 
 	void on_actionZoom_reset_triggered();
+
+	void on_toolLine_toggled(bool checked);
+
+	void on_toolBrush2_toggled(bool checked);
+
+	void on_toolBrush_toggled(bool checked);
+
+	void on_toolBrush4_toggled(bool checked);
+
+	void on_toolLasso_toggled(bool checked);
+
+	void on_toolArea_toggled(bool checked);
+
+	void on_toolFill_toggled(bool checked);
+
+	void on_toolSelect_toggled(bool checked);
 
 public slots:
 
