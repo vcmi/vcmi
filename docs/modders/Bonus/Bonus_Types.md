@@ -39,20 +39,22 @@ On each turn, hides area in fog of war around affected town for all players othe
 
 Increases amount of movement points available to affected hero on new turn
 
-- subtype: 0 - sea, subtype 1 - land
+- subtype: 
+- - heroMovementLand: only land movement will be affected
+- - heroMovementSea: only sea movement will be affected
 - val: number of movement points (100 points for a tile)
 
 ### WATER_WALKING
 
 Allows movement over water for affected heroes
 
-- subtype: 1 - without penalty, 2 - with penalty
+- val: TODO
 
 ### FLYING_MOVEMENT
 
 Allows flying movement for affected heroes
 
-- subtype: 1 - without penalty, 2 - with penalty
+- val: TODO
 
 ### NO_TERRAIN_PENALTY
 
@@ -298,7 +300,9 @@ Heroes affected by this bonus can not retreat or surrender in battle
 
 Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
-- subtype: 0 - battle-wide immunity negation, 1 - negation only for enemy stacks
+- subtype:
+- - immunityBattleWide: Entire battle will be affected by bonus
+- - immunityEnemyHero: Only enemy hero will be affected by bonus
 
 ### OPENING_BATTLE_SPELL
 
@@ -333,7 +337,10 @@ Increases movement speed of units in battle
 
 Increases base damage of creature in battle
 
-- subtype: 0 = both min and max, 1 = min, 2 = max
+- subtype:
+- - creatureDamageMin: increases only minimal damage 
+- - creatureDamageMax: increases only maximal damage
+- - creatureDamageBoth: increases both minimal and maximal damage
 - val: additional damage points
 
 ### SHOTS
@@ -390,7 +397,9 @@ Affected units can not receive good or bad morale
 
 Affected unit can fly on the battlefield
 
-- subtype: 0 - flying unit, 1 - teleporting unit
+- subtype:
+- - movementFlying: creature will fly (slowly move across battlefield)
+- - movementTeleporting: creature will instantly teleport to destination
 
 ### SHOOTER
 
@@ -426,7 +435,7 @@ Affected unit will deal more damage based on movement distance (Champions)
 
 Affected unit will deal more damage when attacking specific creature
 
-- subtype - identifier of hated creature,
+- subtype - identifier of hated creature
 - val - additional damage, percentage
 
 ### SPELL_LIKE_ATTACK
@@ -463,14 +472,19 @@ Affected unit will ignore specified percentage of attacked unit defence (Behemot
 Affected units will receive reduced damage from attacks by other units
 
 - val: damage reduction, percentage
-- subtype: 0 - melee damage (Shield spell), 1 - ranged damage (Air Shield), -1 - all damage (Armorer skill)
+- subtype: 
+- - damageTypeMelee: only melee damage will be reduced
+- - damageTypeRanged: only ranged damage will be reduced
+- - damageTypeAll: all damage will be reduced
 
 ### PERCENTAGE_DAMAGE_BOOST
 
 Affected units will deal increased damage when attacking other units
 
 - val: damage increase, percentage
-- subtype: 0 - melee damage (Offense skill), 1 - ranged damage (Archery skill)
+- subtype: 
+- - damageTypeMelee: only melee damage will increased
+- - damageTypeRanged: only ranged damage will increased
 
 ### GENERAL_ATTACK_REDUCTION
 
@@ -509,14 +523,18 @@ Affected unit will never receive retaliations when attacking
 Affected unit will gain new creatures for each enemy killed by this unit
 
 - val: number of units gained per enemy killed
-- subtype: 0 - gained units disappear after battle, 1 - gained units are permanent
+- subtype: 
+- - soulStealPermanent: creature will stay after the battle
+- - soulStealBattle: creature will be lost after the battle
 
 ### TRANSMUTATION
 
 Affected units have chance to transform attacked unit to other creature type
 
 - val: chance for ability to trigger, percentage
-- subtype: 0 - transformed unit will have same HP pool as original stack, 1 - transformed unit will have same number of units as original stack
+- subtype: 
+- - transmutationPerHealth: transformed unit will have same HP pool as original stack, 
+- - transmutationPerUnit: transformed unit will have same number of units as original stack
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
 
 ### SUMMON_GUARDIANS
@@ -551,7 +569,9 @@ Affected unit will attack units on all hexes that surround attacked hex in range
 Affected unit will kills additional units after attack
 
 - val: chance to trigger, percentage
-- subtype: 0 - kill percentage of units, 1 - kill amount
+- subtype: 
+- - destructionKillPercentage: kill percentage of units, 
+- - destructionKillAmount: kill amount
 - addInfo: amount or percentage to kill
 
 ### LIMITED_SHOOTING_RANGE
@@ -663,10 +683,12 @@ Affected unit will deal additional damage after attack
 
 Affected unit will kill additional units after attack
 
-- subtype: 0 - random amount (Gorgons), 1 - fixed amount (Commanders)
+- subtype: 
+- - deathStareGorgon: random amount
+- - deathStareCommander: fixed amount
 - val: 
-- - for subtype 0: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once. TODO: recheck formula
-- - for subtype 1: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
+- - for deathStareGorgon: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once. TODO: recheck formula
+- - for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
 
 ### SPECIAL_CRYSTAL_GENERATION
 
@@ -752,7 +774,9 @@ Affected stack will resurrect after death
 TODO: recheck math
 
 - val - percent of total stack HP restored
-- subtype = 0 - regular, 1 - at least one unit (sacred Phoenix)
+- subtype:
+- - rebirthRegular: (Phoenix)
+- - rebirthSpecial: at least one unit will always resurrect (sacred Phoenix)
 
 ### ENCHANTED
 
@@ -896,7 +920,10 @@ Affected heroes will be under effect of Disguise spell, hiding some of their inf
 Affected heroes will be under effect of Visions spell, revealing information of enemy objects in specific range
 
 - val: multiplier to effect range. Information is revealed within (val \* hero spell power) range
-- subtype: 0 - reveal information on monsters, 1 - reveal information on heroes, 2 - reveal information on towns
+- subtype:
+- - visionsMonsters: reveal information on monsters, 
+- - visionsHeroes: reveal information on heroes, 
+- - visionsTowns: reveal information on towns
 
 ### BLOCK_MAGIC_BELOW
 

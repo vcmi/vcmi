@@ -21,8 +21,6 @@ const BonusSubtypeID BonusSubtypeID::damageTypeMelee(0);
 const BonusSubtypeID BonusSubtypeID::damageTypeRanged(1);
 const BonusSubtypeID BonusSubtypeID::heroMovementLand(1);
 const BonusSubtypeID BonusSubtypeID::heroMovementSea(0);
-const BonusSubtypeID BonusSubtypeID::heroMovementPenalty(2);
-const BonusSubtypeID BonusSubtypeID::heroMovementFull(1);
 const BonusSubtypeID BonusSubtypeID::deathStareGorgon(0);
 const BonusSubtypeID BonusSubtypeID::deathStareCommander(1);
 const BonusSubtypeID BonusSubtypeID::rebirthRegular(0);

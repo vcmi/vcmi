@@ -43,9 +43,6 @@ public:
 	static const BonusSubtypeID heroMovementLand; // 1
 	static const BonusSubtypeID heroMovementSea; // 0
 
-	static const BonusSubtypeID heroMovementPenalty; // 2
-	static const BonusSubtypeID heroMovementFull; // 1
-
 	static const BonusSubtypeID deathStareGorgon; // 0
 	static const BonusSubtypeID deathStareCommander;
 
