@@ -1294,6 +1294,21 @@ void CCastleInterface::recreateIcons()
 	fastArmyPurchase->setImageOrder(town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1);
 	fastArmyPurchase->setAnimateLonelyFrame(true);
 
+	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [&]()
+	{
+		if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+		{
+			if (town->getOwner() == LOCPLINT->playerID)
+				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero, nullptr, EMarketMode::RESOURCE_RESOURCE);
+		}
+	});
+	
+	fastTavern = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [&]()
+	{
+		if(town->builtBuildings.count(BuildingID::TAVERN))
+			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+	});
+
 	creainfo.clear();
 
 	bool compactCreatureInfo = useCompactCreatureBox();

@@ -36,6 +36,7 @@ class CTownList;
 class CGarrisonInt;
 class CComponent;
 class CComponentBox;
+class LRClickableArea;
 
 /// Building "button"
 class CBuildingRect : public CShowableAnim
@@ -154,7 +155,7 @@ class CCastleBuildings : public CIntObject
 	void enterCastleGate();
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
 	void enterMagesGuild();
-
+	
 	void openMagesGuild();
 	void openTownHall();
 
@@ -228,6 +229,8 @@ class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 	std::shared_ptr<CButton> split;
 	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
+	std::shared_ptr<LRClickableArea> fastMarket;
+	std::shared_ptr<LRClickableArea> fastTavern;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
 

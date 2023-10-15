@@ -200,7 +200,7 @@ public:
 };
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder
+class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder, public ITownHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -257,6 +257,7 @@ public:
 	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
 	void artifactDisassembled(const ArtifactLocation &artLoc) override;
 	void artifactAssembled(const ArtifactLocation &artLoc) override;
+	void buildChanged() override;
 };
 
 /// List item with town
@@ -276,6 +277,12 @@ class CTownItem : public CIntObject, public IGarrisonHolder
 	std::vector<std::shared_ptr<CCreaInfo>> growth;
 
 	std::shared_ptr<LRClickableAreaOpenTown> openTown;
+
+	std::shared_ptr<CButton> fastTownHall;
+	std::shared_ptr<CButton> fastArmyPurchase;
+	std::shared_ptr<LRClickableArea> fastMarket;
+	std::shared_ptr<LRClickableArea> fastTavern;
+	std::shared_ptr<LRClickableArea> fastTown;
 
 public:
 	const CGTownInstance * town;

@@ -153,6 +153,12 @@ public:
 	virtual void updateGarrisons() = 0;
 };
 
+class ITownHolder
+{
+public:
+	virtual void buildChanged() = 0;
+};
+
 class IStatusBar
 {
 public:

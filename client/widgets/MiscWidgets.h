@@ -31,6 +31,7 @@ class CGarrisonInt;
 class CCreatureAnim;
 class CComponent;
 class CAnimImage;
+class LRClickableArea;
 
 /// Shows a text by moving the mouse cursor over the object
 class CHoverableArea: public virtual CIntObject
@@ -133,8 +134,13 @@ class CInteractableTownTooltip : public CIntObject
 	std::shared_ptr<CAnimImage> res1;
 	std::shared_ptr<CAnimImage> res2;
 	std::shared_ptr<CGarrisonInt> garrison;
+	
+	std::shared_ptr<LRClickableArea> fastTavern;
+	std::shared_ptr<LRClickableArea> fastMarket;
+	std::shared_ptr<LRClickableArea> fastTownHall;
+	std::shared_ptr<LRClickableArea> fastArmyPurchase;
 
-	void init(const InfoAboutTown & town);
+	void init(const CGTownInstance * town);
 public:
 	CInteractableTownTooltip(Point pos, const CGTownInstance * town);
 };
@@ -213,6 +219,17 @@ public:
 	const CGTownInstance * town;
 	void clickPressed(const Point & cursorPosition) override;
 	LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town);
+};
+
+/// Can do action on click
+class LRClickableArea: public CIntObject
+{
+	std::function<void()> onClick;
+	std::function<void()> onPopup;
+public:
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	LRClickableArea(const Rect & Pos, std::function<void()> onClick = nullptr, std::function<void()> onPopup = nullptr);
 };
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
