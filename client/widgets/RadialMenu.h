@@ -51,7 +51,7 @@ class RadialMenuItem : public CIntObject
 	std::string hoverText;
 
 public:
-	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool altLayout);
+	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout);
 
 	void setSelected(bool selected);
 };
@@ -68,9 +68,9 @@ class RadialMenu : public CIntObject
 
 	std::shared_ptr<RadialMenuItem> findNearestItem(const Point & cursorPosition) const;
 
-	bool altLayout;
+	bool alternativeLayout;
 public:
-	RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig, bool altLayout = false);
+	RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig, bool alternativeLayout = false);
 
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;

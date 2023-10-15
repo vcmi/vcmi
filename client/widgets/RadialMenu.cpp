@@ -21,14 +21,14 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 
-RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool altLayout)
+RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout)
 	: callback(callback)
 	, hoverText(hoverText)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	inactiveImage = std::make_shared<CPicture>(ImagePath::builtin(altLayout ? "radialMenu/itemInactiveAlt" : "radialMenu/itemInactive"), Point(0, 0));
-	selectedImage = std::make_shared<CPicture>(ImagePath::builtin(altLayout ? "radialMenu/itemEmptyAlt" : "radialMenu/itemEmpty"), Point(0, 0));
+	inactiveImage = std::make_shared<CPicture>(ImagePath::builtin(alternativeLayout ? "radialMenu/itemInactiveAlt" : "radialMenu/itemInactive"), Point(0, 0));
+	selectedImage = std::make_shared<CPicture>(ImagePath::builtin(alternativeLayout ? "radialMenu/itemEmptyAlt" : "radialMenu/itemEmpty"), Point(0, 0));
 
 	iconImage = std::make_shared<CPicture>(ImagePath::builtin("radialMenu/" + imageName), Point(0, 0));
 
@@ -42,13 +42,13 @@ void RadialMenuItem::setSelected(bool selected)
 	inactiveImage->setEnabled(!selected);
 }
 
-RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig, bool altLayout):
-	centerPosition(positionToCenter), altLayout(altLayout)
+RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig, bool alternativeLayout):
+	centerPosition(positionToCenter), alternativeLayout(alternativeLayout)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += positionToCenter;
 
-	Point itemSize = altLayout ? Point(80, 70) : Point(70, 80);
+	Point itemSize = alternativeLayout ? Point(80, 70) : Point(70, 80);
 	moveBy(-itemSize / 2);
 	pos.w = itemSize.x;
 	pos.h = itemSize.y;
@@ -72,7 +72,7 @@ void RadialMenu::addItem(const Point & offset, bool enabled, const std::string &
 	if (!enabled)
 		return;
 
-	auto item = std::make_shared<RadialMenuItem>(path, CGI->generaltexth->translate(hoverText), callback, altLayout);
+	auto item = std::make_shared<RadialMenuItem>(path, CGI->generaltexth->translate(hoverText), callback, alternativeLayout);
 
 	item->moveBy(offset);
 
