@@ -222,15 +222,19 @@ Gives additional bonus to effect of specific spell
 
 TODO: blesses and curses with id = val dependent on unit's level
 
-- subtype: 0 or 1 for Coronius
+- subtype: affected spell identifier
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
 TODO: specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add
 
+- subtype: affected spell identifier
+
 ### SPECIAL_FIXED_VALUE_ENCHANT
 
 TODO: specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.
+
+- subtype: affected spell identifier
 
 ### SPECIAL_UPGRADE
 
@@ -575,7 +579,7 @@ Defines spell mastery level for spell used by CATAPULT bonus
 
 Hero can control war machine affected by this bonus
 
-- id: creature identifier of affected war machine
+- subtype: creature identifier of affected war machine
 - val: chance to control unit, percentage
 
 ### CHANGES_SPELL_COST_FOR_ALLY
@@ -795,7 +799,13 @@ Affected creature is immune to all mind spells and receives reduced damage from 
 
 Affected unit is completely immune to effects of specific spell
 
-- subid: identifier of spell to which unit is immune
+- subtype: identifier of spell to which unit is immune
+
+### SPELL_SCHOOL_IMMUNITY
+
+Affected unit is immune to all spells of a specified spell school
+
+- subtype: spell school to which this unit is immune to
 
 ### RECEPTIVE
 
@@ -824,6 +834,8 @@ Affected unit has its ranged attack power reduced (Forgetfulness)
 ### NOT_ACTIVE
 
 Affected unit can not act and is excluded from turn order (Blind, Stone Gaze, Paralyze)
+
+- subtype: spell that caused this effect, optional
 
 ### ALWAYS_MINIMUM_DAMAGE
 

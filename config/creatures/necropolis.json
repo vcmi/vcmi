@@ -151,8 +151,7 @@
 		{
 			"noRetalitation" : 
 			{
-				"type" : "BLOCKS_RETALIATION",
-				"subtype" : 1
+				"type" : "BLOCKS_RETALIATION"
 			}
 		},
 		"upgrades": ["vampireLord"],
@@ -180,8 +179,7 @@
 		{
 			"noRetalitation" : 
 			{
-				"type" : "BLOCKS_RETALIATION",
-				"subtype" : 1
+				"type" : "BLOCKS_RETALIATION"
 			},
 			"drainsLife" :
 			{

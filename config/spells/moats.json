@@ -72,7 +72,7 @@
                             "primarySkill" : {
                                 "val" : -3,
                                 "type" : "PRIMARY_SKILL",
-                                "subtype" : "primSkill.defence",
+                                "subtype" : "primarySkill.defence",
                                 "valueType" : "ADDITIVE_VALUE"
                             }
                         }
@@ -169,7 +169,7 @@
                             "primarySkill" : {
                                 "val" : -3,
                                 "type" : "PRIMARY_SKILL",
-                                "subtype" : "primSkill.defence",
+                                "subtype" : "primarySkill.defence",
                                 "valueType" : "ADDITIVE_VALUE"
                             }
                         }
@@ -317,7 +317,7 @@
                             "primarySkill" : {
                                 "val" : -3,
                                 "type" : "PRIMARY_SKILL",
-                                "subtype" : "primSkill.defence",
+                                "subtype" : "primarySkill.defence",
                                 "valueType" : "ADDITIVE_VALUE"
                             }
                         }
@@ -414,7 +414,7 @@
                             "primarySkill" : {
                                 "val" : -3,
                                 "type" : "PRIMARY_SKILL",
-                                "subtype" : "primSkill.defence",
+                                "subtype" : "primarySkill.defence",
                                 "valueType" : "ADDITIVE_VALUE"
                             }
                         }
@@ -511,7 +511,7 @@
                             "primarySkill" : {
                                 "val" : -3,
                                 "type" : "PRIMARY_SKILL",
-                                "subtype" : "primSkill.defence",
+                                "subtype" : "primarySkill.defence",
                                 "valueType" : "ADDITIVE_VALUE"
                             }
                         }
@@ -608,7 +608,7 @@
                             "primarySkill" : {
                                 "val" : -3,
                                 "type" : "PRIMARY_SKILL",
-                                "subtype" : "primSkill.defence",
+                                "subtype" : "primarySkill.defence",
                                 "valueType" : "ADDITIVE_VALUE"
                             }
                         }
@@ -705,7 +705,7 @@
                             "primarySkill" : {
                                 "val" : -3,
                                 "type" : "PRIMARY_SKILL",
-                                "subtype" : "primSkill.defence",
+                                "subtype" : "primarySkill.defence",
                                 "valueType" : "ADDITIVE_VALUE"
                             }
                         }

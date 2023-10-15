@@ -31,7 +31,7 @@
 			"effects" : {
 				"main" : {
 					"type" : "PERCENTAGE_DAMAGE_BOOST",
-					"subtype" : 1,
+					"subtype" : "damageTypeRanged",
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -57,7 +57,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 1,
+					"subtype" : "heroMovementLand",
 					"type" : "MOVEMENT",
 					"valueType" : "PERCENT_TO_BASE"
 				}
@@ -144,7 +144,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 0,
+					"subtype" : "heroMovementSea",
 					"type" : "MOVEMENT",
 					"valueType" : "PERCENT_TO_BASE"
 				}
@@ -310,12 +310,10 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 0,
 					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"valueType" : "BASE_NUMBER"
 				},
 				"val2" : {
-					"subtype" : -1,
 					"type" : "LEARN_BATTLE_SPELL_LEVEL_LIMIT",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -518,7 +516,6 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : -1,
 					"type" : "LEARN_MEETING_SPELL_LIMIT",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -657,7 +654,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 0,
+					"subtype" : "damageTypeMelee",
 					"type" : "PERCENTAGE_DAMAGE_BOOST",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -685,7 +682,7 @@
 			"effects" : {
 				"main" : {
 					"type" : "GENERAL_DAMAGE_REDUCTION",
-					"subtype" : -1,
+					"subtype" : "damageTypeAll",
 					"valueType" : "BASE_NUMBER"
 				}
 			}

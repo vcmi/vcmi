@@ -445,6 +445,7 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 		case BonusType::SPELL_DAMAGE:
 		case BonusType::SPELLS_OF_SCHOOL:
 		case BonusType::SPELL_DAMAGE_REDUCTION:
+		case BonusType::SPELL_SCHOOL_IMMUNITY:
 		{
 			VLC->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
 			{
@@ -475,6 +476,7 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 		case BonusType::SPECIAL_UPGRADE:
 		case BonusType::HATE:
 		case BonusType::SUMMON_GUARDIANS:
+		case BonusType::MANUAL_CONTROL:
 		{
 			VLC->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
 			{
@@ -482,6 +484,10 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 			});
 			break;
 		}
+		case BonusType::SPELL_IMMUNITY:
+		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
+		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::SPECIAL_SPELL_LEV:
 		case BonusType::SPECIFIC_SPELL_DAMAGE:
 		case BonusType::SPELL:
@@ -497,6 +503,7 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 		case BonusType::SPECIFIC_SPELL_POWER:
 		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
+		case BonusType::NOT_ACTIVE:
 		{
 			VLC->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
 			{
@@ -515,7 +522,6 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 		case BonusType::MOVEMENT:
 		case BonusType::WATER_WALKING:
 		case BonusType::FLYING_MOVEMENT:
-		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
 		case BonusType::CREATURE_DAMAGE:
 		case BonusType::FLYING:
@@ -548,21 +554,21 @@ static void loadBonusSourceInstance(TBonusSourceID & sourceInstance, BonusSource
 {
 	if (node.isNull())
 	{
-		sourceInstance = TBonusSourceID();
+		sourceInstance = BonusSourceID();
 		return;
 	}
 
 	if (node.isNumber()) // Compatibility code for 1.3 or older
 	{
 		logMod->warn("Bonus source must be string!");
-		sourceInstance = TBonusSourceID(node.Integer());
+		sourceInstance = BonusSourceID(node.Integer());
 		return;
 	}
 
 	if (!node.isString())
 	{
 		logMod->warn("Bonus source must be string!");
-		sourceInstance = TBonusSourceID();
+		sourceInstance = BonusSourceID();
 		return;
 	}
 
@@ -1039,7 +1045,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	else
 		b->type = it->second;
 
-	loadBonusSubtype(b->subtype, b->type, params->isConverted ? params->toJson() : ability);
+	loadBonusSubtype(b->subtype, b->type, params->isConverted ? params->toJson()["subtype"] : ability["subtype"]);
 
 	if(!params->isConverted)
 	{
