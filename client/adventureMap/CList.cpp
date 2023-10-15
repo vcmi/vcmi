@@ -374,10 +374,10 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	if(!on)
 		return;
 
-	if(!LOCPLINT->localState->getOwnedTowns()[townPos])
-		return;
-
 	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
+	
+	if(townPos < 0 || townPos > towns.size() - 1 || !towns[townPos])
+		return;
 
 	if(towns.size() < 2)
 		return;
