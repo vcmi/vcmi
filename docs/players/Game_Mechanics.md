@@ -41,6 +41,14 @@ Some of H3 mechanics can't be straight considered as bug, but default VCMI behav
 - [Alt] + [LCtrl] + LClick - move all units of selected stack to the city's garrison or to the met hero 
 - [Alt] + [LShift] + LClick - dismiss selected stack`
 
+## Interface Shourtcuts
+
+It's now possible to open Tavern (click on town icon), Townhall, Quick Recruitment and Marketplace (click on gold) from various places:
+
+- Town screen (left bottom)
+- Kingdom overview for each town
+- Infobox (only if info box army management is enabled)
+
 ## Quick Recruitment
 
 Mouse click on castle icon in the town screen open quick recruitment window, where we can purhase in fast way units.
