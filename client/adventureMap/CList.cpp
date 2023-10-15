@@ -16,11 +16,13 @@
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/RadialMenu.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 
@@ -293,7 +295,7 @@ void CHeroList::updateWidget()
 
 	for (size_t i = 0; i < heroes.size(); ++i)
 	{
-		auto item =  std::dynamic_pointer_cast<CHeroItem>(listBox->getItem(i));
+		auto item = std::dynamic_pointer_cast<CHeroItem>(listBox->getItem(i));
 
 		if (!item)
 			continue;
@@ -324,12 +326,15 @@ std::shared_ptr<CIntObject> CTownList::createItem(size_t index)
 
 CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	CListItem(parent),
+	parentList(parent),
 	town(Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 0);
 	pos = picture->pos;
 	update();
+
+	addUsedEvents(GESTURE);
 }
 
 std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
@@ -359,6 +364,31 @@ void CTownList::CTownItem::open()
 void CTownList::CTownItem::showTooltip()
 {
 	CRClickPopup::createAndPush(town, GH.getCursorPosition());
+}
+
+void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if(!on)
+		return;
+
+	if(!town)
+		return;
+
+	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
+
+	if(towns.size() < 2)
+		return;
+
+	int listPos = std::distance(towns.begin(), std::find(towns.begin(), towns.end(), town));
+	int townUpperPos = (listPos < 1) ? -1 : listPos - 1;
+	int townLowerPos = (listPos > towns.size() - 2) ? -1 : listPos + 1;
+
+	std::vector<RadialMenuConfig> menuElements = {
+		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.townUp", [this, listPos, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(listPos, townUpperPos); parentList->updateWidget(); } },
+		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.townDown", [this, listPos, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(listPos, townLowerPos); parentList->updateWidget(); } },
+	};
+
+	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
 }
 
 std::string CTownList::CTownItem::getHoverText()

@@ -42,6 +42,9 @@
 	"vcmi.radialWheel.moveUnit" : "Move creatures to another army",
 	"vcmi.radialWheel.splitUnit" : "Split creature to another slot",
 
+	"vcmi.radialWheel.townUp" : "Move town up",
+	"vcmi.radialWheel.townDown" : "Move town down",
+
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Failed to connect",

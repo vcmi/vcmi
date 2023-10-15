@@ -66,6 +66,7 @@ public:
 	const CGTownInstance * getOwnedTown(size_t index);
 	void addOwnedTown(const CGTownInstance * hero);
 	void removeOwnedTown(const CGTownInstance * hero);
+	void swapOwnedTowns(int pos1, int pos2);
 
 	const std::vector<const CGHeroInstance *> & getWanderingHeroes();
 	const CGHeroInstance * getWanderingHero(size_t index);

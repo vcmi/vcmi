@@ -150,6 +150,7 @@ class CTownList	: public CList
 	class CTownItem : public CListItem
 	{
 		std::shared_ptr<CAnimImage> picture;
+		CTownList *parentList;
 	public:
 		const CGTownInstance * const town;
 
@@ -160,6 +161,7 @@ class CTownList	: public CList
 		void select(bool on) override;
 		void open() override;
 		void showTooltip() override;
+		void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 		std::string getHoverText() override;
 	};
 

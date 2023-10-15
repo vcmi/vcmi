@@ -269,3 +269,9 @@ void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
 	if (currentSelection == nullptr && !ownedTowns.empty())
 		setSelection(ownedTowns.front());
 }
+
+void PlayerLocalState::swapOwnedTowns(int pos1, int pos2)
+{
+	assert(ownedTowns[pos1] && ownedTowns[pos2]);
+	std::swap(ownedTowns[pos1], ownedTowns[pos2]);
+}
