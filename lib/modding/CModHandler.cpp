@@ -169,15 +169,15 @@ std::vector<std::string> CModHandler::getModList(const std::string & path) const
 void CModHandler::loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, bool enableMods)
 {
 	for(const std::string & modName : getModList(path))
-		loadOneMod(modName, parent, modSettings, enableMods);
+		loadMod(modName, parent, modSettings, enableMods);
 }
 
-void CModHandler::loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods)
+void CModHandler::loadMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods)
 {
 	boost::to_lower(modName);
 	std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
 
-	if ( ModScope::isScopeReserved(modFullName))
+	if(ModScope::isScopeReserved(modFullName))
 	{
 		logMod->error("Can not load mod %s - this name is reserved for internal use!", modFullName);
 		return;
@@ -199,19 +199,19 @@ void CModHandler::loadOneMod(std::string modName, const std::string & parent, co
 
 void CModHandler::loadMods(bool onlyEssential)
 {
-	JsonNode modConfig;
+	JsonNode modsConfig;
 
 	if(onlyEssential)
 	{
-		loadOneMod("vcmi", "", modConfig, true);//only vcmi and submods
+		loadMod("vcmi", "", modsConfig, true);//only vcmi and submods
 	}
 	else
 	{
-		modConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
-		loadMods("", "", modConfig["activeMods"], true);
+		modsConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
+		loadMods("", "", modsConfig["activeMods"], true);
 	}
 
-	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")));
+	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modsConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")));
 }
 
 std::vector<std::string> CModHandler::getAllMods()
@@ -455,20 +455,20 @@ void CModHandler::load()
 
 void CModHandler::afterLoad(bool onlyEssential)
 {
-	JsonNode modSettings;
+	JsonNode modSettingsEntry;
 	for (auto & modEntry : allMods)
 	{
 		std::string pointer = "/" + boost::algorithm::replace_all_copy(modEntry.first, ".", "/mods/");
 
-		modSettings["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
+		modSettingsEntry["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
 	}
-	modSettings[ModScope::scopeBuiltin()] = coreMod->saveLocalData();
-	modSettings[ModScope::scopeBuiltin()]["name"].String() = "Original game files";
+	modSettingsEntry[ModScope::scopeBuiltin()] = coreMod->saveLocalData();
+	modSettingsEntry[ModScope::scopeBuiltin()]["name"].String() = "Original game files";
 
 	if(!onlyEssential)
 	{
 		std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
-		file << modSettings.toJson();
+		file << modSettingsEntry.toJson();
 	}
 
 }

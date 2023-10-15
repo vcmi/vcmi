@@ -43,7 +43,7 @@ class DLL_LINKAGE CModHandler : boost::noncopyable
 
 	std::vector<std::string> getModList(const std::string & path) const;
 	void loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, bool enableMods);
-	void loadOneMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods);
+	void loadMod(std::string modName, const std::string & parent, const JsonNode & modSettings, bool enableMods);
 	void loadTranslation(const TModID & modName);
 
 	bool validateTranslations(TModID modName) const;
@@ -81,7 +81,7 @@ public:
 	CModHandler();
 	virtual ~CModHandler();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		if(h.saving)
 		{
@@ -95,14 +95,14 @@ public:
 			std::vector<TModID> saveActiveMods;
 			h & saveActiveMods;
 			
-			std::vector<std::pair<TModID, CModInfo::VerificationInfo>> saveModInfos(saveActiveMods.size());
+			std::vector<std::pair<TModID, CModInfo::VerificationInfo>> saveModsInfos(saveActiveMods.size());
 			for(int i = 0; i < saveActiveMods.size(); ++i)
 			{
-				saveModInfos[i].first = saveActiveMods[i];
-				h & saveModInfos[i].second;
+				saveModsInfos[i].first = saveActiveMods[i];
+				h & saveModsInfos[i].second;
 			}
 
-			trySetActiveMods(saveModInfos);
+			trySetActiveMods(saveModsInfos);
 		}
 	}
 };
