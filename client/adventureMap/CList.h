@@ -152,7 +152,7 @@ class CTownList	: public CList
 		std::shared_ptr<CAnimImage> picture;
 		CTownList *parentList;
 	public:
-		const CGTownInstance * const town;
+		int townPos;
 
 		CTownItem(CTownList *parent, const CGTownInstance * town);
 

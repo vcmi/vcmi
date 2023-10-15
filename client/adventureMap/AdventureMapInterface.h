@@ -146,6 +146,9 @@ public:
 	/// Called when currently selected object changes
 	void onSelectionChanged(const CArmedInstance *sel);
 
+	/// Called when town order changes
+	void onTownOrderChanged();
+
 	/// Called when map audio should be paused, e.g. on combat or town screen access
 	void onAudioPaused();
 

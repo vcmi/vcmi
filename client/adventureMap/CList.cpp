@@ -326,9 +326,11 @@ std::shared_ptr<CIntObject> CTownList::createItem(size_t index)
 
 CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	CListItem(parent),
-	parentList(parent),
-	town(Town)
+	parentList(parent)
 {
+	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
+	townPos = std::distance(towns.begin(), std::find(towns.begin(), towns.end(), Town));
+
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 0);
 	pos = picture->pos;
@@ -344,6 +346,7 @@ std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
 
 void CTownList::CTownItem::update()
 {
+	const CGTownInstance * town = LOCPLINT->localState->getOwnedTowns()[townPos];
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
 	picture->setFrame(iconIndex + 2);
@@ -353,17 +356,17 @@ void CTownList::CTownItem::update()
 void CTownList::CTownItem::select(bool on)
 {
 	if(on)
-		LOCPLINT->localState->setSelection(town);
+		LOCPLINT->localState->setSelection(LOCPLINT->localState->getOwnedTowns()[townPos]);
 }
 
 void CTownList::CTownItem::open()
 {
-	LOCPLINT->openTownWindow(town);
+	LOCPLINT->openTownWindow(LOCPLINT->localState->getOwnedTowns()[townPos]);
 }
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, GH.getCursorPosition());
+	CRClickPopup::createAndPush(LOCPLINT->localState->getOwnedTowns()[townPos], GH.getCursorPosition());
 }
 
 void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
@@ -371,7 +374,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	if(!on)
 		return;
 
-	if(!town)
+	if(!LOCPLINT->localState->getOwnedTowns()[townPos])
 		return;
 
 	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
@@ -379,13 +382,12 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	if(towns.size() < 2)
 		return;
 
-	int listPos = std::distance(towns.begin(), std::find(towns.begin(), towns.end(), town));
-	int townUpperPos = (listPos < 1) ? -1 : listPos - 1;
-	int townLowerPos = (listPos > towns.size() - 2) ? -1 : listPos + 1;
+	int townUpperPos = (townPos < 1) ? -1 : townPos - 1;
+	int townLowerPos = (townPos > towns.size() - 2) ? -1 : townPos + 1;
 
 	std::vector<RadialMenuConfig> menuElements = {
-		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.townUp", [this, listPos, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(listPos, townUpperPos); parentList->updateWidget(); } },
-		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.townDown", [this, listPos, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(listPos, townLowerPos); parentList->updateWidget(); } },
+		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.townUp", [this, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(townPos, townUpperPos); parentList->updateWidget(); } },
+		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.townDown", [this, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(townPos, townLowerPos); parentList->updateWidget(); } },
 	};
 
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements, true);
@@ -393,7 +395,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 
 std::string CTownList::CTownItem::getHoverText()
 {
-	return town->getObjectName();
+	return LOCPLINT->localState->getOwnedTowns()[townPos]->getObjectName();
 }
 
 CTownList::CTownList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount)
@@ -420,20 +422,12 @@ void CTownList::updateWidget()
 
 	for (size_t i = 0; i < towns.size(); ++i)
 	{
-		auto item =  std::dynamic_pointer_cast<CTownItem>(listBox->getItem(i));
+		auto item = std::dynamic_pointer_cast<CTownItem>(listBox->getItem(i));
 
 		if (!item)
 			continue;
 
-		if (item->town == towns[i])
-		{
-			item->update();
-		}
-		else
-		{
-			listBox->reset();
-			break;
-		}
+		listBox->reset();
 	}
 
 	if (LOCPLINT->localState->getCurrentTown())
