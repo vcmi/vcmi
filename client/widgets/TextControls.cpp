@@ -809,9 +809,12 @@ void CFocusable::moveFocus()
 
 void CFocusable::removeFocus()
 {
-	focus = false;
-	focusListener->focusLost();
-	redraw();
+	if(this == inputWithFocus)
+	{
+		focus = false;
+		focusListener->focusLost();
+		redraw();
 
-	inputWithFocus = nullptr;
+		inputWithFocus = nullptr;
+	}
 }
