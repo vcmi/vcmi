@@ -359,9 +359,9 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 			ony += [=](){ LOCPLINT->cb->dismissHero(hero); };
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
 		} },
-		};
+	};
 
-		GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
+	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
 
 void CHeroGSlot::hover(bool on)
