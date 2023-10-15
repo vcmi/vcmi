@@ -427,10 +427,9 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 
 	if (node.isNumber()) // Compatibility code for 1.3 or older
 	{
-		VLC->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
-		{
-			subtype = BonusSubtypeID(identifier);
-		});
+		logMod->warn("Bonus subtype must be string!");
+		subtype = BonusSubtypeID(node.Integer());
+		return;
 	}
 
 	if (!node.isString())
@@ -547,7 +546,100 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 
 static void loadBonusSourceInstance(TBonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
 {
-	assert(0);//TODO
+	if (node.isNull())
+	{
+		sourceInstance = TBonusSourceID();
+		return;
+	}
+
+	if (node.isNumber()) // Compatibility code for 1.3 or older
+	{
+		logMod->warn("Bonus source must be string!");
+		sourceInstance = TBonusSourceID(node.Integer());
+		return;
+	}
+
+	if (!node.isString())
+	{
+		logMod->warn("Bonus source must be string!");
+		sourceInstance = TBonusSourceID();
+		return;
+	}
+
+	switch (sourceType)
+	{
+		case BonusSource::ARTIFACT:
+		case BonusSource::ARTIFACT_INSTANCE:
+		{
+			VLC->identifiers()->requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = ArtifactID(identifier);
+			});
+			break;
+		}
+		case BonusSource::OBJECT:
+		case BonusSource::HERO_BASE_SKILL:
+			assert(0); // TODO
+			sourceInstance = ObjectInstanceID();
+			break;
+		case BonusSource::CREATURE_ABILITY:
+		{
+			VLC->identifiers()->requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = CreatureID(identifier);
+			});
+			break;
+		}
+		case BonusSource::TERRAIN_OVERLAY:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = BattleField(identifier);
+			});
+			break;
+		}
+		case BonusSource::SPELL_EFFECT:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = SpellID(identifier);
+			});
+			break;
+		}
+		case BonusSource::TOWN_STRUCTURE:
+			assert(0); // TODO
+			sourceInstance = BuildingTypeUniqueID();
+			break;
+		case BonusSource::SECONDARY_SKILL:
+		{
+			VLC->identifiers()->requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = SecondarySkill(identifier);
+			});
+			break;
+		}
+		case BonusSource::HERO_SPECIAL:
+		{
+			VLC->identifiers()->requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = HeroTypeID(identifier);
+			});
+			break;
+		}
+		case BonusSource::CAMPAIGN_BONUS:
+			assert(0); // TODO
+			sourceInstance = CampaignScenarioID();
+			break;
+		case BonusSource::ARMY:
+		case BonusSource::STACK_EXPERIENCE:
+		case BonusSource::COMMANDER:
+		case BonusSource::GLOBAL:
+		case BonusSource::TERRAIN_NATIVE:
+		case BonusSource::OTHER:
+		default:
+			sourceInstance = TBonusSourceID();
+			break;
+	}
 }
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)

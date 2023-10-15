@@ -186,7 +186,6 @@ class JsonNode;
 	BONUS_SOURCE(HERO_SPECIAL)\
 	BONUS_SOURCE(ARMY)\
 	BONUS_SOURCE(CAMPAIGN_BONUS)\
-	BONUS_SOURCE(SPECIAL_WEEK)\
 	BONUS_SOURCE(STACK_EXPERIENCE)\
 	BONUS_SOURCE(COMMANDER) /*TODO: consider using simply STACK_INSTANCE */\
 	BONUS_SOURCE(GLOBAL) /*used for base bonuses which all heroes or all stacks should have*/\
