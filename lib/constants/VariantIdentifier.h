@@ -1,5 +1,5 @@
 /*
- * MetaIdentifier.h, part of VCMI engine
+ * VariantIdentifier.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -15,37 +15,35 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 /// This class represents field that may contain value of multiple different identifer types
 template<typename... Types>
-class DLL_LINKAGE MetaIdentifier
+class DLL_LINKAGE VariantIdentifier
 {
 	std::variant<Types...> value;
 public:
 
-	MetaIdentifier()
+	VariantIdentifier()
 	{}
 
 	template<typename IdentifierType>
-	MetaIdentifier(const IdentifierType & identifier)
+	VariantIdentifier(const IdentifierType & identifier)
 		: value(identifier)
 	{}
 
 	int32_t getNum() const
 	{
-		std::optional<int32_t> result;
+		int32_t result;
 
 		std::visit([&result] (const auto& v) { result = v.getNum(); }, value);
 
-		assert(result.has_value());
-		return result.value_or(-1);
+		return result;
 	}
 
 	std::string toString() const
 	{
-		std::optional<std::string> result;
+		std::string result;
 
 		std::visit([&result] (const auto& v) { result = v.encode(v.getNum()); }, value);
 
-		assert(result.has_value());
-		return result.value_or("");
+		return result;
 	}
 
 	template<typename IdentifierType>
@@ -65,15 +63,15 @@ public:
 		h & value;
 	}
 
-	bool operator == (const MetaIdentifier & other) const
+	bool operator == (const VariantIdentifier & other) const
 	{
 		return value == other.value;
 	}
-	bool operator != (const MetaIdentifier & other) const
+	bool operator != (const VariantIdentifier & other) const
 	{
 		return value != other.value;
 	}
-	bool operator < (const MetaIdentifier & other) const
+	bool operator < (const VariantIdentifier & other) const
 	{
 		return value < other.value;
 	}

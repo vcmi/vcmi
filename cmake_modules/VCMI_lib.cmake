@@ -374,7 +374,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/constants/EntityIdentifiers.h
 		${MAIN_LIB_DIR}/constants/Enumerations.h
 		${MAIN_LIB_DIR}/constants/IdentifierBase.h
-		${MAIN_LIB_DIR}/constants/MetaIdentifier.h
+		${MAIN_LIB_DIR}/constants/VariantIdentifier.h
 		${MAIN_LIB_DIR}/constants/NumericConstants.h
 		${MAIN_LIB_DIR}/constants/StringConstants.h
 

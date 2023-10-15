@@ -425,6 +425,14 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 		return;
 	}
 
+	if (node.isNumber()) // Compatibility code for 1.3 or older
+	{
+		VLC->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
+		{
+			subtype = BonusSubtypeID(identifier);
+		});
+	}
+
 	if (!node.isString())
 	{
 		logMod->warn("Bonus subtype must be string!");
@@ -432,16 +440,114 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 		return;
 	}
 
-	VLC->identifiers()->requestIdentifier(node, [&subtype, node](int32_t identifier)
+	switch (type)
 	{
-		assert(0); //TODO
-		subtype = BonusSubtypeID(identifier);
-	});
+		case BonusType::MAGIC_SCHOOL_SKILL:
+		case BonusType::SPELL_DAMAGE:
+		case BonusType::SPELLS_OF_SCHOOL:
+		case BonusType::SPELL_DAMAGE_REDUCTION:
+		{
+			VLC->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
+			{
+				subtype = SpellSchool(identifier);
+			});
+			break;
+		}
+		case BonusType::NO_TERRAIN_PENALTY:
+		{
+			VLC->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)
+			{
+				subtype = TerrainId(identifier);
+			});
+			break;
+		}
+		case BonusType::PRIMARY_SKILL:
+		{
+			VLC->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
+			{
+				subtype = PrimarySkill(identifier);
+			});
+			break;
+		}
+		case BonusType::IMPROVED_NECROMANCY:
+		case BonusType::HERO_GRANTS_ATTACKS:
+		case BonusType::BONUS_DAMAGE_CHANCE:
+		case BonusType::BONUS_DAMAGE_PERCENTAGE:
+		case BonusType::SPECIAL_UPGRADE:
+		case BonusType::HATE:
+		case BonusType::SUMMON_GUARDIANS:
+		{
+			VLC->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
+			{
+				subtype = CreatureID(identifier);
+			});
+			break;
+		}
+		case BonusType::SPECIAL_SPELL_LEV:
+		case BonusType::SPECIFIC_SPELL_DAMAGE:
+		case BonusType::SPELL:
+		case BonusType::OPENING_BATTLE_SPELL:
+		case BonusType::SPELL_LIKE_ATTACK:
+		case BonusType::CATAPULT:
+		case BonusType::CATAPULT_EXTRA_SHOTS:
+		case BonusType::HEALER:
+		case BonusType::SPELLCASTER:
+		case BonusType::ENCHANTER:
+		case BonusType::SPELL_AFTER_ATTACK:
+		case BonusType::SPELL_BEFORE_ATTACK:
+		case BonusType::SPECIFIC_SPELL_POWER:
+		case BonusType::ENCHANTED:
+		case BonusType::MORE_DAMAGE_FROM_SPELL:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
+			{
+				subtype = SpellID(identifier);
+			});
+			break;
+		}
+		case BonusType::GENERATE_RESOURCE:
+		{
+			VLC->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
+			{
+				subtype = GameResID(identifier);
+			});
+			break;
+		}
+		case BonusType::MOVEMENT:
+		case BonusType::WATER_WALKING:
+		case BonusType::FLYING_MOVEMENT:
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
+		case BonusType::CREATURE_DAMAGE:
+		case BonusType::FLYING:
+		case BonusType::GENERAL_DAMAGE_REDUCTION:
+		case BonusType::PERCENTAGE_DAMAGE_BOOST:
+		case BonusType::SOUL_STEAL:
+		case BonusType::TRANSMUTATION:
+		case BonusType::DESTRUCTION:
+		case BonusType::DEATH_STARE:
+		case BonusType::REBIRTH:
+		case BonusType::VISIONS:
+		case BonusType::SPELLS_OF_LEVEL: // spell level
+		case BonusType::CREATURE_GROWTH: // creature level
+		{
+			VLC->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
+			{
+				subtype = BonusSubtypeID(identifier);
+			});
+			break;
+		}
+		default:
+			for(const auto & i : bonusNameMap)
+				if(i.second == type)
+					logMod->warn("Bonus type %s does not supports subtypes!", i.first );
+			subtype =  TBonusSubtype();
+	}
 }
 
 static void loadBonusSourceInstance(TBonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
 {
-	assert(0);
+	assert(0);//TODO
 }
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
@@ -895,7 +1001,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	if (!value->isNull())
 		b->source = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
 
-	loadBonusSourceInstance(b->sid, b->source, ability["sourceID"]);
+	if (!ability["sourceID"].isNull())
+		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"]);
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
@@ -960,20 +1067,24 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		ret = ret.And(base.Not());
 	}
 
+	BonusType type = BonusType::NONE;
+
 	// Actual selector parser
 	value = &ability["type"];
 	if(value->isString())
 	{
 		auto it = bonusNameMap.find(value->String());
 		if(it != bonusNameMap.end())
+		{
+			type = it->second;
 			ret = ret.And(Selector::type()(it->second));
+		}
 	}
 	value = &ability["subtype"];
-	if(!value->isNull())
+	if(!value->isNull() && type != BonusType::NONE)
 	{
 		TBonusSubtype subtype;
-		assert(0); //TODO
-		loadBonusSubtype(subtype, BonusType::NONE, ability);
+		loadBonusSubtype(subtype, type, ability);
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];

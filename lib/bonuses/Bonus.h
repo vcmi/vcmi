@@ -11,7 +11,7 @@
 
 #include "BonusEnum.h"
 #include "BonusSubtypeID.h"
-#include "../constants/MetaIdentifier.h"
+#include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,8 +25,8 @@ class IUpdater;
 class BonusList;
 class CSelector;
 
-using TBonusSubtype = MetaIdentifier<BonusSubtypeID, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
-using TBonusSourceID = MetaIdentifier<BonusSourceID, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
+using TBonusSubtype = VariantIdentifier<BonusSubtypeID, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
+using TBonusSourceID = VariantIdentifier<BonusSourceID, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TLimiterPtr = std::shared_ptr<ILimiter>;
