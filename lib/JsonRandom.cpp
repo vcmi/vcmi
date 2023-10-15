@@ -96,6 +96,12 @@ namespace JsonRandom
 	}
 
 	template<>
+	PlayerColor decodeKey(const JsonNode & value, const Variables & variables)
+	{
+		return PlayerColor(*VLC->identifiers()->getIdentifier("playerColor", value));
+	}
+
+	template<>
 	PrimarySkill decodeKey(const JsonNode & value, const Variables & variables)
 	{
 		return PrimarySkill(*VLC->identifiers()->getIdentifier("primarySkill", value));
@@ -414,23 +420,19 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<PlayerColor> loadColors(const JsonNode & value, CRandomGenerator & rng)
+	std::vector<PlayerColor> loadColors(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::vector<PlayerColor> ret;
-		std::set<std::string> def;
-		
-		for(auto & color : GameConstants::PLAYER_COLOR_NAMES)
-			def.insert(color);
-		
+		std::set<PlayerColor> defaultPlayers;
+		for(size_t i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+			defaultPlayers.insert(PlayerColor(i));
+
 		for(auto & entry : value.Vector())
 		{
-			auto key = loadKey(entry, rng, def);
-			auto pos = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, key);
-			if(pos < 0)
-				logMod->warn("Unable to determine player color %s", key);
-			else
-				ret.emplace_back(pos);
+			std::set<PlayerColor> potentialPicks = filterKeys(entry, defaultPlayers, variables);
+			ret.push_back(*RandomGeneratorUtil::nextItem(potentialPicks, rng));
 		}
+
 		return ret;
 	}
 
