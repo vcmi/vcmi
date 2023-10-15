@@ -26,6 +26,7 @@
 #include "rewardswidget.h"
 #include "questwidget.h"
 #include "heroskillswidget.h"
+#include "portraitwidget.h"
 #include "PickObjectDelegate.h"
 #include "../mapcontroller.h"
 
@@ -272,7 +273,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	}
 	addProperty("Name", o->getNameTranslated(), false);
 	addProperty("Biography", o->getBiographyTranslated(), new MessageDelegate, false);
-	addProperty("Portrait", o->customPortraitSource, false);
+	addProperty("Portrait", PropertyEditorPlaceholder(), new PortraitDelegate(*o), false);
 	
 	auto * delegate = new HeroSkillsDelegate(*o);
 	addProperty("Skills", PropertyEditorPlaceholder(), delegate, false);

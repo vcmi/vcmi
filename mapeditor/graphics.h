@@ -11,6 +11,7 @@
 //code is copied from vcmiclient/Graphics.h with minimal changes
 
 #include "../lib/GameConstants.h"
+#include "../lib/filesystem/ResourcePath.h"
 #include <QImage>
 
 VCMI_LIB_NAMESPACE_BEGIN

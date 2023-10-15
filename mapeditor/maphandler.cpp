@@ -322,8 +322,11 @@ std::vector<TileObject> & MapHandler::getObjects(int x, int y, int z)
 	return ttiles[index(x, y, z)];
 }
 
-void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
+void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std::set<const CGObjectInstance *> & locked)
 {
+	painter.setRenderHint(QPainter::Antialiasing, false);
+	painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
+
 	for(auto & object : getObjects(x, y, z))
 	{
 		const CGObjectInstance * obj = object.obj;
@@ -343,8 +346,15 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 		{
 			auto pos = obj->getPosition();
 
-			painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.objBitmap, object.rect);
-			
+			painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.objBitmap, object.rect, Qt::AutoColor | Qt::NoOpaqueDetection);
+
+			if(locked.count(obj))
+			{
+				painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+				painter.fillRect(x * tileSize, y * tileSize, object.rect.width(), object.rect.height(), Qt::Dense4Pattern);
+				painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+			}
+
 			if(objData.flagBitmap)
 			{
 				if(x == pos.x && y == pos.y)

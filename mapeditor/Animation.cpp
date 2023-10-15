@@ -14,6 +14,7 @@
 #include "Animation.h"
 
 #include "BitmapHandler.h"
+#include "graphics.h"
 
 #include "../lib/vcmi_endian.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -585,8 +586,8 @@ void Animation::init()
 
 	JsonPath resID = JsonPath::builtin("SPRITES/" + name);
 
-	//if(vstd::contains(graphics->imageLists, resID.getName()))
-		//initFromJson(graphics->imageLists[resID.getName()]);
+	if(vstd::contains(graphics->imageLists, resID.getName()))
+		initFromJson(graphics->imageLists[resID.getName()]);
 
 	auto configList = CResourceHandler::get()->getResourcesWithName(resID);
 

@@ -1066,9 +1066,8 @@ std::string CGHeroInstance::getBiographyTextID() const
 		return biographyCustomTextId;
 	if (type)
 		return type->getBiographyTextID();
-
-	assert(0);
-	return "";
+	
+	return ""; //for random hero
 }
 
 CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)

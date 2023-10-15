@@ -222,6 +222,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
 
+	initialScale = ui->mapView->viewport()->geometry();
+
 	//loading objects
 	loadObjectsTree();
 	
@@ -296,6 +298,7 @@ void MainWindow::initializeMap(bool isNew)
 	ui->mapView->setScene(controller.scene(mapLevel));
 	ui->minimapView->setScene(controller.miniScene(mapLevel));
 	ui->minimapView->dimensions();
+	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
 	
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
@@ -536,19 +539,21 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 				painter.scale(scale, scale);
 				painter.drawImage(QPoint(0, 0), *picture);
 			}
-
+			
+			//create object to extract name
+			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
+			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
+			itemType->setText(translated);
+			
 			//add parameters
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
 							 {"template", QJsonValue(templateId)},
 							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile.getOriginalName())},
 							 {"animation", QString::fromStdString(templ->animationFile.getOriginalName())},
-							 {"preview", jsonFromPixmap(preview)}};
-			
-			//create object to extract name
-			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
-			QString translated = useCustomName ? tr(temporaryObj->getObjectName().c_str()) : subGroupName;
-			itemType->setText(translated);
+							 {"preview", jsonFromPixmap(preview)},
+							 {"typeName", QString::fromStdString(factory->getJsonKey())}
+			};
 
 			//do not have extra level
 			if(singleTemplate)
@@ -830,99 +835,12 @@ void MainWindow::changeBrushState(int idx)
 
 }
 
-void MainWindow::on_toolBrush_clicked(bool checked)
-{
-	//ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolBrush2_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	//ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-
-void MainWindow::on_toolBrush4_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	//ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolArea_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	//ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Area;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolLasso_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	//ui->toolLasso->setChecked(false);
-	
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Lasso;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
 void MainWindow::on_actionErase_triggered()
-{
-	on_toolErase_clicked();
-}
-
-void MainWindow::on_toolErase_clicked()
 {
 	if(controller.map())
 	{
 		controller.commitObjectErase(mapLevel);
 	}
-	ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::preparePreview(const QModelIndex &index)
@@ -939,16 +857,14 @@ void MainWindow::preparePreview(const QModelIndex &index)
 			scenePreview->addPixmap(objPreview);
 		}
 	}
+
+	ui->objectPreview->fitInView(scenePreview->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 
 void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
 {
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
+	ui->toolSelect->setChecked(true);
 	ui->mapView->selectionTool = MapView::SelectionTool::None;
 	
 	preparePreview(index);
@@ -1109,7 +1025,6 @@ void MainWindow::onSelectionMade(int level, bool anythingSelected)
 	if (level == mapLevel)
 	{
 		ui->actionErase->setEnabled(anythingSelected);
-		ui->toolErase->setEnabled(anythingSelected);
 	}
 }
 void MainWindow::displayStatus(const QString& message, int timeout /* = 2000 */)
@@ -1276,6 +1191,148 @@ void MainWindow::on_actionh3m_converter_triggered()
 	catch(const std::exception & e)
 	{
 		QMessageBox::critical(this, tr("Failed to convert the map. Abort operation"), tr(e.what()));
+	}
+}
+
+
+void MainWindow::on_actionLock_triggered()
+{
+	if(controller.map())
+	{
+		if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
+		{
+			for(auto obj : controller.map()->objects)
+			{
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+			}
+		}
+		else
+		{
+			for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
+			{
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+			}
+			controller.scene(mapLevel)->selectionObjectsView.clear();
+		}
+		controller.scene(mapLevel)->objectsView.update();
+		controller.scene(mapLevel)->selectionObjectsView.update();
+	}
+}
+
+
+void MainWindow::on_actionUnlock_triggered()
+{
+	if(controller.map())
+	{
+		controller.scene(mapLevel)->selectionObjectsView.unlockAll();
+		controller.scene(mapLevel)->objectsView.unlockAll();
+	}
+	controller.scene(mapLevel)->objectsView.update();
+}
+
+
+void MainWindow::on_actionZoom_in_triggered()
+{
+	auto rect = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
+	rect -= QMargins{32 + 1, 32 + 1, 32 + 2, 32 + 2}; //compensate bounding box
+	ui->mapView->fitInView(rect, Qt::KeepAspectRatioByExpanding);
+}
+
+
+void MainWindow::on_actionZoom_out_triggered()
+{
+	auto rect = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
+	rect += QMargins{32 - 1, 32 - 1, 32 - 2, 32 - 2}; //compensate bounding box
+	ui->mapView->fitInView(rect, Qt::KeepAspectRatioByExpanding);
+}
+
+
+void MainWindow::on_actionZoom_reset_triggered()
+{
+	auto center = ui->mapView->mapToScene(ui->mapView->viewport()->geometry().center());
+	ui->mapView->fitInView(initialScale, Qt::KeepAspectRatioByExpanding);
+	ui->mapView->centerOn(center);
+}
+
+
+void MainWindow::on_toolLine_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Line;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush2_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush4_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolLasso_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Lasso;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolArea_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Area;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolFill_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Fill;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolSelect_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+		ui->tabWidget->setCurrentIndex(0);
 	}
 }
 

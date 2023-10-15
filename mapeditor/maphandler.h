@@ -88,6 +88,8 @@ private:
 	void initObjectRects();
 	void initTerrainGraphics();
 	QRgb getTileColor(int x, int y, int z);
+
+	QPolygon lockBitMask;
 		
 public:
 	MapHandler();
@@ -110,7 +112,7 @@ public:
 	std::vector<int3> getTilesUnderObject(CGObjectInstance *) const;
 	
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
-	void drawObjects(QPainter & painter, int x, int y, int z);
+	void drawObjects(QPainter & painter, int x, int y, int z, const std::set<const CGObjectInstance *> & locked);
 	void drawObject(QPainter & painter, const TileObject & object);
 	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y);
 	std::vector<TileObject> & getObjects(int x, int y, int z);
