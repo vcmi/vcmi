@@ -112,6 +112,7 @@ public:
 	void set(const CGHeroInstance * newHero);
 
 	void hover (bool on) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void deactivate() override;
@@ -154,7 +155,7 @@ class CCastleBuildings : public CIntObject
 	void enterCastleGate();
 	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
 	void enterMagesGuild();
-
+	
 	void openMagesGuild();
 	void openTownHall();
 
@@ -228,7 +229,7 @@ class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 	std::shared_ptr<CButton> split;
 	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
-
+	
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
 
 public:

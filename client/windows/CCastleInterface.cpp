@@ -29,6 +29,8 @@
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/RadialMenu.h"
+#include "../widgets/CExchangeController.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
@@ -322,10 +324,45 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroS
 
 	set(h);
 
-	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | GESTURE | HOVER);
 }
 
 CHeroGSlot::~CHeroGSlot() = default;
+
+void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if(!on)
+		return;
+
+	if(!hero)
+		return;
+
+	if (!settings["input"]["radialWheelGarrisonSwipe"].Bool())
+		return;
+
+	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
+
+	bool twoHeroes = hero && other->hero;
+
+	ObjectInstanceID heroId = hero->id;
+	ObjectInstanceID heroOtherId = twoHeroes ? other->hero->id : ObjectInstanceID::NONE;
+
+	std::vector<RadialMenuConfig> menuElements = {
+		{ RadialMenuConfig::ITEM_NW, twoHeroes, "stackMerge", "vcmi.radialWheel.heroGetArmy", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).moveArmy(false, std::nullopt);} },
+		{ RadialMenuConfig::ITEM_NE, twoHeroes, "stackSplitDialog", "vcmi.radialWheel.heroSwapArmy", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArmy();} },
+		{ RadialMenuConfig::ITEM_EE, twoHeroes, "trade", "vcmi.radialWheel.heroExchange", [heroId, heroOtherId](){LOCPLINT->showHeroExchange(heroId, heroOtherId);} },
+		{ RadialMenuConfig::ITEM_SW, twoHeroes, "getArtifacts", "vcmi.radialWheel.heroGetArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).moveArtifacts(false, true, true);} },
+		{ RadialMenuConfig::ITEM_SE, twoHeroes, "swapArtifacts", "vcmi.radialWheel.heroSwapArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArtifacts(true, true);} },
+		{ RadialMenuConfig::ITEM_WW, true, "remove", "vcmi.radialWheel.heroDismiss", [this]()
+		{
+			CFunctionList<void()> ony = [=](){ };
+			ony += [=](){ LOCPLINT->cb->dismissHero(hero); };
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+		} },
+		};
+
+		GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
+}
 
 void CHeroGSlot::hover(bool on)
 {
