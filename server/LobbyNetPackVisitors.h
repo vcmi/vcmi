@@ -86,6 +86,7 @@ public:
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) override;
+	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) override;
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) override;
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) override;
 	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) override;

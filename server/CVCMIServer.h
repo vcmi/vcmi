@@ -107,6 +107,7 @@ public:
 
 	// Work with LobbyInfo
 	void setPlayer(PlayerColor clickedColor);
+	void setPlayerName(PlayerColor player, std::string name);
 	void optionNextHero(PlayerColor player, int dir); //dir == -1 or +1
 	void optionSetHero(PlayerColor player, HeroTypeID id);
 	HeroTypeID nextAllowedHero(PlayerColor player, HeroTypeID id, int direction);

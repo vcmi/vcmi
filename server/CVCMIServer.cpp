@@ -835,6 +835,25 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	}
 }
 
+void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
+{
+	if(color == PlayerColor::CANNOT_DETERMINE)
+		return;
+
+	PlayerSettings & player = si->playerInfos.at(color);
+
+	if(!player.isControlledByHuman())
+		return;
+
+	if(player.connectedPlayerIDs.empty())
+		return;
+
+	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+
+	playerNames[nameID].name = name;
+	setPlayerConnectedId(player, nameID);
+}
+
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 {
 	PlayerSettings & s = si->playerInfos[player];

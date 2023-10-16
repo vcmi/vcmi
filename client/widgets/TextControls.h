@@ -184,6 +184,7 @@ public:
 
 	void giveFocus(); //captures focus
 	void moveFocus(); //moves focus to next active control (may be used for tab switching)
+	void removeFocus(); //remove focus
 	bool hasFocus() const;
 
 	static std::list<CFocusable *> focusables; //all existing objs
@@ -224,7 +225,7 @@ public:
 	void setText(const std::string & nText, bool callCb);
 	void setHelpText(const std::string &);
 
-	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
+	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, bool giveFocusToInput = true);
 	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 

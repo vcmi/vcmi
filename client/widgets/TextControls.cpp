@@ -532,7 +532,7 @@ Point CGStatusBar::getBorderSize()
 	return Point();
 }
 
-CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB)
+CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, bool giveFocusToInput)
 	: CLabel(Pos.x, Pos.y, font, ETextAlignment::CENTER),
 	cb(CB),
 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
@@ -544,7 +544,8 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	addUsedEvents(LCLICK | SHOW_POPUP | KEYBOARD | TEXTINPUT);
 
 #if !defined(VCMI_MOBILE)
-	giveFocus();
+	if(giveFocusToInput)
+		giveFocus();
 #endif
 }
 
@@ -803,5 +804,17 @@ void CFocusable::moveFocus()
 			(*i)->giveFocus();
 			break;
 		}
+	}
+}
+
+void CFocusable::removeFocus()
+{
+	if(this == inputWithFocus)
+	{
+		focus = false;
+		focusListener->focusLost();
+		redraw();
+
+		inputWithFocus = nullptr;
 	}
 }

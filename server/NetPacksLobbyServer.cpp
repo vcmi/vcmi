@@ -397,6 +397,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetPlayer(LobbySetPlayer & pack)
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbySetPlayerName(LobbySetPlayerName & pack)
+{
+	srv.setPlayerName(pack.color, pack.name);
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetSimturns(LobbySetSimturns & pack)
 {
 	srv.si->simturnsInfo = pack.simturnsInfo;

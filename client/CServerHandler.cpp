@@ -465,6 +465,14 @@ void CServerHandler::setPlayer(PlayerColor color) const
 	sendLobbyPack(lsp);
 }
 
+void CServerHandler::setPlayerName(PlayerColor color, const std::string & name) const
+{
+	LobbySetPlayerName lspn;
+	lspn.color = color;
+	lspn.name = name;
+	sendLobbyPack(lspn);
+}
+
 void CServerHandler::setPlayerOption(ui8 what, int32_t value, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
