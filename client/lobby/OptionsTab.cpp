@@ -1131,7 +1131,7 @@ bool OptionsTab::PlayerOptionsEntry::captureThisKey(EShortcut key)
 void OptionsTab::PlayerOptionsEntry::keyPressed(EShortcut key)
 {
 	if(labelPlayerNameEdit && key == EShortcut::GLOBAL_ACCEPT)
-		changeName();
+		updateName();
 }
 
 bool OptionsTab::PlayerOptionsEntry::receiveEvent(const Point & position, int eventType) const
@@ -1142,7 +1142,7 @@ bool OptionsTab::PlayerOptionsEntry::receiveEvent(const Point & position, int ev
 void OptionsTab::PlayerOptionsEntry::clickReleased(const Point & cursorPosition)
 {
 	if(labelPlayerNameEdit && !labelPlayerNameEdit->pos.isInside(cursorPosition))
-		changeName();
+		updateName();
 }
 
 void OptionsTab::PlayerOptionsEntry::updateName() {
