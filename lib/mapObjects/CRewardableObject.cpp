@@ -21,13 +21,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-// FIXME: copy-pasted from CObjectHandler
-static std::string visitedTxt(const bool visited)
-{
-	int id = visited ? 352 : 353;
-	return VLC->generaltexth->allTexts[id];
-}
-
 void CRewardableObject::grantRewardWithMessage(const CGHeroInstance * contextHero, int index, bool markAsVisit) const
 {
 	auto vi = configuration.info.at(index);
@@ -124,6 +117,12 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	{
 		logGlobal->debug("Revisiting already visited object");
 
+		if (!wasVisited(h->getOwner()))
+		{
+			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+			cb->sendAndApply(&cov);
+		}
+
 		auto visitedRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_ALREADY_VISITED);
 		if (!visitedRewards.empty())
 			grantRewardWithMessage(h, visitedRewards[0], false);
@@ -212,6 +211,11 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 	}
 }
 
+bool CRewardableObject::wasScouted(PlayerColor player) const
+{
+	return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
+}
+
 bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 {
 	switch (configuration.visitMode)
@@ -221,24 +225,34 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 		case Rewardable::VISIT_HERO:
 			return h->visitedObjects.count(ObjectInstanceID(id));
 		case Rewardable::VISIT_LIMITER:
-			return configuration.visitLimiter.heroAllowed(h);
+			return wasScouted(h->getOwner()) && configuration.visitLimiter.heroAllowed(h);
 		default:
-			return wasVisited(h->tempOwner);
+			return wasVisited(h->getOwner());
 	}
 }
 
 std::string CRewardableObject::getHoverText(PlayerColor player) const
 {
 	if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE)
-		return getObjectName() + " " + visitedTxt(wasVisited(player));
-	return getObjectName();
+	{
+		if (wasVisited(player))
+			return getObjectName() + "\n" + configuration.visitedTooltip.toString() + "\n\n" + configuration.description.toString();
+		else
+			return getObjectName() + "\n" + configuration.notVisitedTooltip.toString() + "\n\n" + configuration.description.toString();
+	}
+	return getObjectName() + "\n\n" + configuration.description.toString();
 }
 
 std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
 {
 	if(configuration.visitMode != Rewardable::VISIT_UNLIMITED)
-		return getObjectName() + " " + visitedTxt(wasVisited(hero));
-	return getObjectName();
+	{
+		if (wasVisited(hero))
+			return getObjectName() + "\n" + configuration.visitedTooltip.toString() + "\n\n" + configuration.description.toString();
+		else
+			return getObjectName() + "\n" + configuration.notVisitedTooltip.toString() + "\n\n" + configuration.description.toString();
+	}
+	return getObjectName() + "\n\n" + configuration.description.toString();
 }
 
 void CRewardableObject::setPropertyDer(ui8 what, ui32 val)

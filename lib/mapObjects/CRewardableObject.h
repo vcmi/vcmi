@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CRewardableObject : public CArmedInstance, public Rewardable::Interface
 {
 protected:
-	
+
 	bool onceVisitableObjectCleared = false;
 	
 	/// reward selected by player, no serialize
@@ -41,6 +41,9 @@ public:
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(const CGHeroInstance * h) const override;
+
+	/// Returns true if object was scouted by player and he is aware of its internal state
+	bool wasScouted(PlayerColor player) const;
 	
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
@@ -74,10 +77,6 @@ public:
 //TODO:
 
 // MAX
-// class DLL_LINKAGE CGPandoraBox : public CArmedInstance
-// class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
-// class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
-// class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 // class DLL_LINKAGE CBank : public CArmedInstance
 // class DLL_LINKAGE CGPyramid : public CBank
 

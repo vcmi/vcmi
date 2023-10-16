@@ -24,12 +24,25 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace {
-	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier )
+	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier, EMetaText textSource = EMetaText::ADVOB_TXT )
 	{
 		MetaString ret;
+
+		if (value.isVector())
+		{
+			for(const auto & entry : value.Vector())
+			{
+				if (entry.isNumber())
+					ret.appendLocalString(textSource, static_cast<ui32>(entry.Float()));
+				if (entry.isString())
+					ret.appendRawString(entry.String());
+			}
+			return ret;
+		}
+
 		if (value.isNumber())
 		{
-			ret.appendLocalString(EMetaText::ADVOB_TXT, static_cast<ui32>(value.Float()));
+			ret.appendLocalString(textSource, static_cast<ui32>(value.Float()));
 			return ret;
 		}
 
@@ -81,6 +94,9 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	}
 
 	loadString(parameters["onSelectMessage"], TextIdentifier(objectName, "onSelect"));
+	loadString(parameters["description"], TextIdentifier(objectName, "description"));
+	loadString(parameters["notVisitedTooltip"], TextIdentifier(objectName, "notVisitedText"));
+	loadString(parameters["visitedTooltip"], TextIdentifier(objectName, "visitedTooltip"));
 	loadString(parameters["onVisitedMessage"], TextIdentifier(objectName, "onVisited"));
 	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
 }
@@ -277,6 +293,7 @@ void Rewardable::Info::configureRewards(
 
 		info.visitType = event;
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
+		info.description = loadMessage(reward["description"], TextIdentifier(objectTextID, "description", modeName, i));
 
 		for (const auto & artifact : info.reward.artifacts )
 			info.message.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
@@ -298,7 +315,16 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 	configureRewards(object, rng, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
 	configureRewards(object, rng, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
 
-	object.onSelect   = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
+	object.onSelect = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
+	object.description = loadMessage(parameters["description"], TextIdentifier(objectTextID, "description"));
+	object.notVisitedTooltip = loadMessage(parameters["notVisitedTooltip"], TextIdentifier(objectTextID, "notVisitedTooltip"), EMetaText::GENERAL_TXT);
+	object.visitedTooltip = loadMessage(parameters["visitedTooltip"], TextIdentifier(objectTextID, "visitedTooltip"), EMetaText::GENERAL_TXT);
+
+	if (object.notVisitedTooltip.empty())
+		object.notVisitedTooltip.appendTextID("core.genrltxt.353");
+
+	if (object.visitedTooltip.empty())
+		object.visitedTooltip.appendTextID("core.genrltxt.352");
 
 	if (!parameters["onVisitedMessage"].isNull())
 	{

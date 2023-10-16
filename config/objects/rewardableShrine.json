@@ -19,6 +19,8 @@
 				"compatibilityIdentifiers" : [ "object" ],
 				
 				"visitMode" : "limiter",
+				"visitedTooltip" : 354,
+				"description" : "(Learn 1st level spell)",
 
 				"variables" : {
 					"spell" : {
@@ -42,10 +44,11 @@
 						"spells" : [
 							"@gainedSpell"
 						],
-						"message" : 127 // You learn new spell
+						"description" : 355,
+						"message" : [ 127, "%s." ] // You learn new spell
 					}
 				],
-				"onVisitedMessage" : 174, // You already known this spell
+				"onVisitedMessage" : [ 127, "%s.", 174 ], // You already known this spell
 				"onEmpty" : [
 					{
 						"limiter" : {
@@ -55,10 +58,10 @@
 								}
 							]
 						},
-						"message" : 130 // No Wisdom
+						"message" : [ 127, "%s.", 130 ] // No Wisdom
 					},
 					{
-						"message" : 131 // No spellbook
+						"message" : [ 127, "%s.", 131 ] // No spellbook
 					}
 				]
 			}
@@ -84,6 +87,8 @@
 				"compatibilityIdentifiers" : [ "object" ],
 				
 				"visitMode" : "limiter",
+				"visitedTooltip" : 354,
+				"description" : "(Learn 2nd level spell)",
 
 				"variables" : {
 					"spell" : {
@@ -107,10 +112,11 @@
 						"spells" : [
 							"@gainedSpell"
 						],
-						"message" : 128 // You learn new spell
+						"description" : 355,
+						"message" : [ 128, "%s." ] // You learn new spell
 					}
 				],
-				"onVisitedMessage" : 174, // You already known this spell
+				"onVisitedMessage" : [ 128, "%s.", 174 ], // You already known this spell
 				"onEmpty" : [
 					{
 						"limiter" : {
@@ -120,10 +126,10 @@
 								}
 							]
 						},
-						"message" : 130 // No Wisdom
+						"message" : [ 128, "%s.", 130 ] // No Wisdom
 					},
 					{
-						"message" : 131 // No spellbook
+						"message" : [ 128, "%s.", 131 ] // No spellbook
 					}
 				]
 			}
@@ -149,6 +155,8 @@
 				"compatibilityIdentifiers" : [ "object" ],
 				
 				"visitMode" : "limiter",
+				"visitedTooltip" : 354,
+				"description" : "(Learn 3rd level spell)",
 
 				"variables" : {
 					"spell" : {
@@ -172,10 +180,11 @@
 						"spells" : [
 							"@gainedSpell"
 						],
-						"message" : 129 // You learn new spell
+						"description" : 355,
+						"message" : [ 129, "%s." ] // You learn new spell
 					}
 				],
-				"onVisitedMessage" : 174, // You already known this spell
+				"onVisitedMessage" : [ 129, "%s.", 174 ], // You already known this spell
 				"onEmpty" : [
 					{
 						"limiter" : {
@@ -185,10 +194,10 @@
 								}
 							]
 						},
-						"message" : 130 // No Wisdom
+						"message" : [ 129, "%s.", 130 ] // No Wisdom
 					},
 					{
-						"message" : 131 // No spellbook
+						"message" : [ 129, "%s.", 131 ] // No spellbook
 					}
 				]
 			}

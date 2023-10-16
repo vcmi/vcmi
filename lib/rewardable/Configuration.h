@@ -84,6 +84,10 @@ struct DLL_LINKAGE VisitInfo
 	/// Message that will be displayed on granting of this reward, if not empty
 	MetaString message;
 
+	/// Object description that will be shown on right-click, after object name
+	/// Used only after player have "scouted" object and knows internal state of an object
+	MetaString description;
+
 	/// Event to which this reward is assigned
 	EEventType visitType;
 
@@ -94,6 +98,7 @@ struct DLL_LINKAGE VisitInfo
 		h & limiter;
 		h & reward;
 		h & message;
+		h & description;
 		h & visitType;
 	}
 };
@@ -120,6 +125,16 @@ struct DLL_LINKAGE Configuration
 {
 	/// Message that will be shown if player needs to select one of multiple rewards
 	MetaString onSelect;
+
+	/// Object description that will be shown on right-click, after object name
+	/// Used only if player is not aware of object internal state, e.g. have never visited it
+	MetaString description;
+
+	/// Text that will be shown if hero has not visited this object
+	MetaString notVisitedTooltip;
+
+	/// Text that will be shown after hero has visited this object
+	MetaString visitedTooltip;
 
 	/// Rewards that can be applied by an object
 	std::vector<Rewardable::VisitInfo> info;
@@ -161,6 +176,9 @@ struct DLL_LINKAGE Configuration
 		h & canRefuse;
 		h & resetParameters;
 		h & onSelect;
+		h & description;
+		h & notVisitedTooltip;
+		h & visitedTooltip;
 		h & visitMode;
 		h & selectMode;
 		h & infoWindowType;
