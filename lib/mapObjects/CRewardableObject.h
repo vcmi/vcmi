@@ -37,6 +37,8 @@ protected:
 	virtual void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const;
 	virtual void selectRewardWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, const MetaString & dialog) const;
 
+	std::vector<Component> loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const;
+
 public:
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited(PlayerColor player) const override;
@@ -65,6 +67,9 @@ public:
 	
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
+
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
+	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

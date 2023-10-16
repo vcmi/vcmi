@@ -271,6 +271,16 @@ std::string CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
 	return getHoverText(hero->tempOwner);
 }
 
+std::vector<Component> CGObjectInstance::getPopupComponents(PlayerColor player) const
+{
+	return {};
+}
+
+std::vector<Component> CGObjectInstance::getPopupComponents(const CGHeroInstance * hero) const
+{
+	return {};
+}
+
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
 	switch(ID)

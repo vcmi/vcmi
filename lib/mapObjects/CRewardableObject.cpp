@@ -47,15 +47,22 @@ void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHer
 	BlockingDialog sd(configuration.canRefuse, rewardIndices.size() > 1);
 	sd.player = contextHero->tempOwner;
 	sd.text = dialog;
+	sd.components = loadComponents(contextHero, rewardIndices);
+	cb->showBlockingDialog(&sd);
+}
+
+std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const
+{
+	std::vector<Component> result;
 
 	if (rewardIndices.size() > 1)
 		for (auto index : rewardIndices)
-			sd.components.push_back(configuration.info.at(index).reward.getDisplayedComponent(contextHero));
+			result.push_back(configuration.info.at(index).reward.getDisplayedComponent(contextHero));
 
 	if (rewardIndices.size() == 1)
-		configuration.info.at(rewardIndices.front()).reward.loadComponents(sd.components, contextHero);
+		configuration.info.at(rewardIndices.front()).reward.loadComponents(result, contextHero);
 
-	cb->showBlockingDialog(&sd);
+	return result;
 }
 
 void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
@@ -233,26 +240,68 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 
 std::string CRewardableObject::getHoverText(PlayerColor player) const
 {
+	std::string result = getObjectName();
+
+	if (!configuration.description.empty())
+		result += "\n" + configuration.description.toString();
+
 	if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE)
 	{
 		if (wasVisited(player))
-			return getObjectName() + "\n" + configuration.visitedTooltip.toString() + "\n\n" + configuration.description.toString();
+			result += "\n\n" + configuration.visitedTooltip.toString();
 		else
-			return getObjectName() + "\n" + configuration.notVisitedTooltip.toString() + "\n\n" + configuration.description.toString();
+			result += "\n\n" + configuration.notVisitedTooltip.toString();
 	}
-	return getObjectName() + "\n\n" + configuration.description.toString();
+	return result;
 }
 
 std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
 {
+	std::string result = getObjectName();
+
+	if (!configuration.description.empty())
+		result += "\n" + configuration.description.toString();
+
 	if(configuration.visitMode != Rewardable::VISIT_UNLIMITED)
 	{
 		if (wasVisited(hero))
-			return getObjectName() + "\n" + configuration.visitedTooltip.toString() + "\n\n" + configuration.description.toString();
+			result += "\n\n" + configuration.visitedTooltip.toString();
 		else
-			return getObjectName() + "\n" + configuration.notVisitedTooltip.toString() + "\n\n" + configuration.description.toString();
+			result += "\n\n" + configuration.notVisitedTooltip.toString();
 	}
-	return getObjectName() + "\n\n" + configuration.description.toString();
+	return result;
+}
+
+std::vector<Component> CRewardableObject::getPopupComponents(PlayerColor player) const
+{
+	if (!wasScouted(player))
+		return {};
+
+	auto rewardIndices = getAvailableRewards(nullptr, Rewardable::EEventType::EVENT_FIRST_VISIT);
+
+	if (rewardIndices.empty() && !configuration.info.empty())
+		rewardIndices.push_back(0);
+
+	if (rewardIndices.empty())
+		return {};
+
+	return loadComponents(nullptr, rewardIndices);
+}
+
+std::vector<Component> CRewardableObject::getPopupComponents(const CGHeroInstance * hero) const
+{
+	if (!wasScouted(hero->getOwner()))
+		return {};
+
+	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+
+	if (rewardIndices.empty() && !configuration.info.empty())
+		rewardIndices.push_back(0);
+
+	if (rewardIndices.empty())
+		return {};
+
+	return loadComponents(nullptr, rewardIndices);
 }
 
 void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
