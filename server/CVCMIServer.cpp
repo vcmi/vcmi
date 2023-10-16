@@ -845,7 +845,7 @@ void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
 	if(!player.isControlledByHuman())
 		return;
 
-	if(!player.connectedPlayerIDs.size())
+	if(player.connectedPlayerIDs.empty())
 		return;
 
 	int nameID = *(player.connectedPlayerIDs.begin()); //if not AI - set appropiate ID

@@ -1145,7 +1145,7 @@ void OptionsTab::PlayerOptionsEntry::clickReleased(const Point & cursorPosition)
 		changeName();
 }
 
-void OptionsTab::PlayerOptionsEntry::changeName() {
+void OptionsTab::PlayerOptionsEntry::updateName() {
 	if(labelPlayerNameEdit->getText() != name)
 	{
 		CSH->setPlayerName(s->color, labelPlayerNameEdit->getText());

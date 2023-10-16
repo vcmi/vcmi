@@ -196,6 +196,6 @@ private:
 	private:
 		const OptionsTab & parentTab;
 
-		void changeName();
+		void updateName();
 	};
 };
