@@ -22,6 +22,7 @@ PortraitWidget::PortraitWidget(CGHeroInstance & h, QWidget *parent):
 	ui->setupUi(this);
 	ui->portraitView->setScene(&scene);
 	ui->portraitView->fitInView(scene.itemsBoundingRect(), Qt::KeepAspectRatio);
+	show();
 }
 
 PortraitWidget::~PortraitWidget()

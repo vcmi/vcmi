@@ -40,6 +40,25 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	bool isHeroType = heroType.has_value();
+	handler.serializeBool("placeholderType", isHeroType, false);
+	
+	if(!handler.saving)
+	{
+		if(isHeroType)
+			heroType = HeroTypeID::NONE;
+		else
+			powerRank = 0;
+	}
+	
+	if(isHeroType)
+		handler.serializeId("heroType", heroType.value(), HeroTypeID::NONE);
+	else
+		handler.serializeInt("powerRank", powerRank.value());
+}
+
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	static const CSelector selectorSTACKS_SPEED = Selector::type()(BonusType::STACKS_SPEED);
