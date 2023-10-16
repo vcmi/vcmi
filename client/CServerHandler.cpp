@@ -499,7 +499,7 @@ void CServerHandler::setPlayer(PlayerColor color) const
 	sendLobbyPack(lsp);
 }
 
-void CServerHandler::setPlayerName(PlayerColor color, std::string name) const
+void CServerHandler::setPlayerName(PlayerColor color, const std::string & name) const
 {
 	LobbySetPlayerName lspn;
 	lspn.color = color;
