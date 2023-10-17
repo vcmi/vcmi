@@ -426,7 +426,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 	int townLowerPos = (townIndex > towns.size() - 2) ? -1 : townIndex + 1;
 
 	std::vector<RadialMenuConfig> menuElements = {
-		{ RadialMenuConfig::ITEM_ALT_NN, townUpperPos > -1, "altUpTop", "vcmi.radialWheel.moveTop", [this, townUpperPos]()
+		{ RadialMenuConfig::ITEM_ALT_NN, townUpperPos > -1, "altUpTop", "vcmi.radialWheel.moveTop", [this]()
 		{
 			for (int i = townIndex; i > 0; i--)
 				LOCPLINT->localState->swapOwnedTowns(i, i - 1);
@@ -434,7 +434,7 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 		} },
 		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.moveUp", [this, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos); parentList->updateWidget(); } },
 		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.moveDown", [this, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos); parentList->updateWidget(); } },
-		{ RadialMenuConfig::ITEM_ALT_SS, townLowerPos > -1, "altDownBottom", "vcmi.radialWheel.moveBottom", [this, townLowerPos, towns]()
+		{ RadialMenuConfig::ITEM_ALT_SS, townLowerPos > -1, "altDownBottom", "vcmi.radialWheel.moveBottom", [this, towns]()
 		{
 			for (int i = townIndex; i < towns.size() - 1; i++)
 				LOCPLINT->localState->swapOwnedTowns(i, i + 1);
