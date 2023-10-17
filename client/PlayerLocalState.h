@@ -73,6 +73,7 @@ public:
 	const CGHeroInstance * getNextWanderingHero(const CGHeroInstance * hero);
 	void addWanderingHero(const CGHeroInstance * hero);
 	void removeWanderingHero(const CGHeroInstance * hero);
+	void swapWanderingHero(int pos1, int pos2);
 
 	void setPath(const CGHeroInstance * h, const CGPath & path);
 	bool setPath(const CGHeroInstance * h, const int3 & destination);

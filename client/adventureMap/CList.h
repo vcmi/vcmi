@@ -117,6 +117,7 @@ class CHeroList	: public CList
 		std::shared_ptr<CAnimImage> movement;
 		std::shared_ptr<CAnimImage> mana;
 		std::shared_ptr<CAnimImage> portrait;
+		CHeroList *parentList;
 	public:
 		const CGHeroInstance * const hero;
 
@@ -127,6 +128,7 @@ class CHeroList	: public CList
 		void select(bool on) override;
 		void open() override;
 		void showTooltip() override;
+		void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 		std::string getHoverText() override;
 	};
 
@@ -152,7 +154,7 @@ class CTownList	: public CList
 		std::shared_ptr<CAnimImage> picture;
 		CTownList *parentList;
 	public:
-		int townIndex;
+		int townPos;
 
 		CTownItem(CTownList *parent, const CGTownInstance * town);
 

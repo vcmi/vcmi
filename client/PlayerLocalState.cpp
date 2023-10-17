@@ -235,6 +235,12 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 		setSelection(ownedTowns.front());
 }
 
+void PlayerLocalState::swapWanderingHero(int pos1, int pos2)
+{
+	assert(wanderingHeroes[pos1] && wanderingHeroes[pos2]);
+	std::swap(wanderingHeroes[pos1], wanderingHeroes[pos2]);
+}
+
 const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
 {
 	return ownedTowns;
