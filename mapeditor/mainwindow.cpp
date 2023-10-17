@@ -105,7 +105,7 @@ void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 		{"e", QCoreApplication::translate("main", "Extract original H3 archives into a separate folder.")},
 		{"s", QCoreApplication::translate("main", "From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's.")},
 		{"c", QCoreApplication::translate("main", "From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.")},
-		{"d", QCoreApplication::translate("main", "Delete original files, for the ones splitted / converted.")},
+		{"d", QCoreApplication::translate("main", "Delete original files, for the ones split / converted.")},
 		});
 
 	parser.process(qApp->arguments());
@@ -358,7 +358,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	catch(const ModIncompatibility & e)
 	{
 		assert(e.whatExcessive().empty());
-		QMessageBox::warning(this, "Mods are requiered", QString::fromStdString(e.whatMissing()));
+		QMessageBox::warning(this, "Mods are required", QString::fromStdString(e.whatMissing()));
 		return false;
 	}
 	catch(const std::exception & e)
@@ -1108,7 +1108,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	
 	
 	if(errors)
-		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occured. %1 objects were not updated")).arg(errors));
+		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occurred. %1 objects were not updated")).arg(errors));
 }
 
 

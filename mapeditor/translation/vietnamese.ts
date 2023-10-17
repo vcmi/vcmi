@@ -353,7 +353,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1191"/>
-        <source>Errors occured. %1 objects were not updated</source>
+        <source>Errors occurred. %1 objects were not updated</source>
         <translation>Xảy ra lỗi. %1 mục tiêu không được cập nhật</translation>
     </message>
     <message>
@@ -1011,7 +1011,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="107"/>
-        <source>Delete original files, for the ones splitted / converted.</source>
+        <source>Delete original files, for the ones split / converted.</source>
         <translation>Xóa các tập tin gốc đã được phân chia / chuyển đổi.</translation>
     </message>
 </context>
