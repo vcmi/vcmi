@@ -48,6 +48,7 @@
 								}
 							]
 						},
+						"description" : 355,
 						"secondary" : {
 							"@gainedSkill" : 1
 						},

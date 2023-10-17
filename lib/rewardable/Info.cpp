@@ -307,12 +307,23 @@ void Rewardable::Info::configureRewards(
 			info.description.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
 		}
 
+		for (const auto & secondary : info.reward.secondary )
+		{
+			info.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, secondary.first.getNum());
+			info.description.replaceLocalString(EMetaText::SEC_SKILL_NAME, secondary.first.getNum());
+		}
+
 		for (const auto & variable : object.variables.values )
 		{
 			if( boost::algorithm::starts_with(variable.first, "spell"))
 			{
 				info.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
 				info.description.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+			}
+			if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
+			{
+				info.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
+				info.description.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
 			}
 		}
 
@@ -347,8 +358,12 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
 		onVisited.message = loadMessage(parameters["onVisitedMessage"], TextIdentifier(objectTextID, "onVisited"));
 		for (const auto & variable : object.variables.values )
+		{
 			if( boost::algorithm::starts_with(variable.first, "spell"))
 				onVisited.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+			if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
+				onVisited.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
+		}
 
 		object.info.push_back(onVisited);
 	}
@@ -359,8 +374,12 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
 		onEmpty.message = loadMessage(parameters["onEmptyMessage"], TextIdentifier(objectTextID, "onEmpty"));
 		for (const auto & variable : object.variables.values )
+		{
 			if( boost::algorithm::starts_with(variable.first, "spell"))
 				onEmpty.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+			if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
+				onEmpty.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
+		}
 
 		object.info.push_back(onEmpty);
 	}
