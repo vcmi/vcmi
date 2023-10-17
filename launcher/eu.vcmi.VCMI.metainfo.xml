@@ -17,7 +17,6 @@
 			<li>Random map generator that supports objects added by mods</li>
 		</ul>
 		<p>Note: In order to play the game using VCMI you need to own data files for Heroes of Might and Magic III: The Shadow of Death.</p>
-		<p>VCMI is an open-source project released under the GNU General Public License version 2 or later.</p>
 		<p>If you want help, please check our forum, bug tracker or GitHub page.</p>
 	</description>
 	<screenshots>
@@ -57,7 +56,7 @@
 	<url type="faq">https://vcmi.eu/faq/</url>
 	<url type="help">https://github.com/vcmi/vcmi/blob/master/docs/Readme.md</url>
 	<url type="translate">https://github.com/vcmi/vcmi/blob/master/docs/modders/Translations.md</url>
-	<url type="contact">https://slack.vcmi.eu/</url>
+	<url type="contact">https://discord.gg/chBT42V</url>
 	<url type="vcs-browser">https://github.com/vcmi/vcmi</url>
 	<recommends>
 		<control>keyboard</control>
