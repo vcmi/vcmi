@@ -172,15 +172,17 @@ struct DLL_LINKAGE Configuration
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & info;
-		h & canRefuse;
-		h & resetParameters;
 		h & onSelect;
 		h & description;
 		h & notVisitedTooltip;
 		h & visitedTooltip;
-		h & visitMode;
+		h & info;
 		h & selectMode;
+		h & visitMode;
+		h & resetParameters;
+		h & variables;
+		h & visitLimiter;
+		h & canRefuse;
 		h & infoWindowType;
 	}
 };

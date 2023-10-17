@@ -293,13 +293,28 @@ void Rewardable::Info::configureRewards(
 
 		info.visitType = event;
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
-		info.description = loadMessage(reward["description"], TextIdentifier(objectTextID, "description", modeName, i));
+		info.description = loadMessage(reward["description"], TextIdentifier(objectTextID, "description", modeName, i), EMetaText::GENERAL_TXT);
 
 		for (const auto & artifact : info.reward.artifacts )
+		{
 			info.message.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
+			info.description.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
+		}
 
 		for (const auto & artifact : info.reward.spells )
+		{
 			info.message.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
+			info.description.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
+		}
+
+		for (const auto & variable : object.variables.values )
+		{
+			if( boost::algorithm::starts_with(variable.first, "spell"))
+			{
+				info.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+				info.description.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+			}
+		}
 
 		object.info.push_back(info);
 	}
@@ -331,6 +346,10 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		Rewardable::VisitInfo onVisited;
 		onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
 		onVisited.message = loadMessage(parameters["onVisitedMessage"], TextIdentifier(objectTextID, "onVisited"));
+		for (const auto & variable : object.variables.values )
+			if( boost::algorithm::starts_with(variable.first, "spell"))
+				onVisited.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+
 		object.info.push_back(onVisited);
 	}
 
@@ -339,6 +358,10 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		Rewardable::VisitInfo onEmpty;
 		onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
 		onEmpty.message = loadMessage(parameters["onEmptyMessage"], TextIdentifier(objectTextID, "onEmpty"));
+		for (const auto & variable : object.variables.values )
+			if( boost::algorithm::starts_with(variable.first, "spell"))
+				onEmpty.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+
 		object.info.push_back(onEmpty);
 	}
 
@@ -371,7 +394,8 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		}
 	}
 
-	configureLimiter(object, rng, object.visitLimiter, parameters["visitLimiter"]);
+	if (object.visitMode == Rewardable::VISIT_LIMITER)
+		configureLimiter(object, rng, object.visitLimiter, parameters["visitLimiter"]);
 
 }
 

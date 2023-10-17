@@ -20,7 +20,6 @@
 				
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
-				"description" : "(Learn 1st level spell)",
 
 				"variables" : {
 					"spell" : {
@@ -54,7 +53,7 @@
 						"limiter" : {
 							"artifacts" : [
 								{
-									"type" : "spellbook"
+									"type" : "spellBook"
 								}
 							]
 						},
@@ -88,7 +87,6 @@
 				
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
-				"description" : "(Learn 2nd level spell)",
 
 				"variables" : {
 					"spell" : {
@@ -122,7 +120,7 @@
 						"limiter" : {
 							"artifacts" : [
 								{
-									"type" : "spellbook"
+									"type" : "spellBook"
 								}
 							]
 						},
@@ -156,7 +154,6 @@
 				
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
-				"description" : "(Learn 3rd level spell)",
 
 				"variables" : {
 					"spell" : {
@@ -190,7 +187,7 @@
 						"limiter" : {
 							"artifacts" : [
 								{
-									"type" : "spellbook"
+									"type" : "spellBook"
 								}
 							]
 						},

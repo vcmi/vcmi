@@ -242,8 +242,8 @@ std::string CRewardableObject::getHoverText(PlayerColor player) const
 {
 	std::string result = getObjectName();
 
-	if (!configuration.description.empty())
-		result += "\n" + configuration.description.toString();
+	if (!getDescriptionMessage(player).empty())
+		result += "\n" + getDescriptionMessage(player);
 
 	if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE)
 	{
@@ -259,8 +259,8 @@ std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string result = getObjectName();
 
-	if (!configuration.description.empty())
-		result += "\n" + configuration.description.toString();
+	if (!getDescriptionMessage(hero).empty())
+		result += "\n" + getDescriptionMessage(hero);
 
 	if(configuration.visitMode != Rewardable::VISIT_UNLIMITED)
 	{
@@ -272,13 +272,36 @@ std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
 	return result;
 }
 
+std::string CRewardableObject::getDescriptionMessage(PlayerColor player) const
+{
+	if (!wasScouted(player) || configuration.info.empty())
+		return configuration.description.toString();
+
+	auto rewardIndices = getAvailableRewards(nullptr, Rewardable::EEventType::EVENT_FIRST_VISIT);
+	if (rewardIndices.empty())
+		return configuration.info[0].description.toString();
+
+	return configuration.info[rewardIndices.front()].description.toString();
+}
+
+std::string CRewardableObject::getDescriptionMessage(const CGHeroInstance * hero) const
+{
+	if (!wasScouted(hero->getOwner()) || configuration.info.empty())
+		return configuration.description.toString();
+
+	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+	if (rewardIndices.empty())
+		return configuration.info[0].description.toString();
+
+	return configuration.info[rewardIndices.front()].description.toString();
+}
+
 std::vector<Component> CRewardableObject::getPopupComponents(PlayerColor player) const
 {
 	if (!wasScouted(player))
 		return {};
 
 	auto rewardIndices = getAvailableRewards(nullptr, Rewardable::EEventType::EVENT_FIRST_VISIT);
-
 	if (rewardIndices.empty() && !configuration.info.empty())
 		rewardIndices.push_back(0);
 
@@ -294,7 +317,6 @@ std::vector<Component> CRewardableObject::getPopupComponents(const CGHeroInstanc
 		return {};
 
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-
 	if (rewardIndices.empty() && !configuration.info.empty())
 		rewardIndices.push_back(0);
 

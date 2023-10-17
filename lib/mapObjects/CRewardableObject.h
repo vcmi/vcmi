@@ -68,6 +68,9 @@ public:
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 
+	std::string getDescriptionMessage(PlayerColor player) const;
+	std::string getDescriptionMessage(const CGHeroInstance * hero) const;
+
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
 
