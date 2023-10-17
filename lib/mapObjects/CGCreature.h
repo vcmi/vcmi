@@ -23,7 +23,7 @@ public:
 	};
 
 	enum Character {
-		COMPLIANT = 0, FRIENDLY = 1, AGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
+		COMPLIANT = 0, FRIENDLY = 1, AGGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
 	};
 
 	ui32 identifier; //unique code for this monster (used in missions)

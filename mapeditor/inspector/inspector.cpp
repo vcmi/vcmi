@@ -34,7 +34,7 @@ static QList<std::pair<QString, QVariant>> CharacterIdentifiers
 {
 	{QObject::tr("Compliant"), QVariant::fromValue(int(CGCreature::Character::COMPLIANT))},
 	{QObject::tr("Friendly"), QVariant::fromValue(int(CGCreature::Character::FRIENDLY))},
-	{QObject::tr("Agressive"), QVariant::fromValue(int(CGCreature::Character::AGRESSIVE))},
+	{QObject::tr("Aggressive"), QVariant::fromValue(int(CGCreature::Character::AGGRESSIVE))},
 	{QObject::tr("Hostile"), QVariant::fromValue(int(CGCreature::Character::HOSTILE))},
 	{QObject::tr("Savage"), QVariant::fromValue(int(CGCreature::Character::SAVAGE))},
 };

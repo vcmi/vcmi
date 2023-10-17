@@ -358,7 +358,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	catch(const ModIncompatibility & e)
 	{
 		assert(e.whatExcessive().empty());
-		QMessageBox::warning(this, "Mods are requiered", QString::fromStdString(e.whatMissing()));
+		QMessageBox::warning(this, "Mods are required", QString::fromStdString(e.whatMissing()));
 		return false;
 	}
 	catch(const std::exception & e)
@@ -1108,7 +1108,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	
 	
 	if(errors)
-		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occured. %1 objects were not updated")).arg(errors));
+		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occurred. %1 objects were not updated")).arg(errors));
 }
 
 

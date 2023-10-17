@@ -860,7 +860,7 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 				params.targetType = BonusSource::SECONDARY_SKILL;
 			}
 
-			logMod->warn("Please, use this bonus:\n%s\nConverted sucessfully!", params.toJson().toJson());
+			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toJson());
 			return params;
 		}
 		else
