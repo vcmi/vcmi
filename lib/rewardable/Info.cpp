@@ -268,7 +268,12 @@ void Rewardable::Info::configureRewards(
 
 			if (!diceValue.has_value())
 			{
-				object.initVariable("dice", diceID, rng.getIntRange(0, 99)());
+				const JsonNode & preset = object.getPresetVariable("dice", diceID);
+				if (preset.isNull())
+					object.initVariable("dice", diceID, rng.getIntRange(0, 99)());
+				else
+					object.initVariable("dice", diceID, preset.Integer());
+
 				diceValue = object.getVariable("dice", diceID);
 			}
 			assert(diceValue.has_value());

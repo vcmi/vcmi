@@ -107,6 +107,15 @@ namespace JsonRandom
 		return PrimarySkill(*VLC->identifiers()->getIdentifier("primarySkill", value));
 	}
 
+	template<>
+	PrimarySkill decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
+	{
+		if (value.empty() || value[0] != '@')
+			return PrimarySkill(*VLC->identifiers()->getIdentifier(modScope, "primarySkill", value));
+		else
+			return PrimarySkill(loadVariable("primarySkill", value, variables, static_cast<int>(PrimarySkill::NONE)));
+	}
+
 	/// Method that allows type-specific object filtering
 	/// Default implementation is to accept all input objects
 	template<typename IdentifierType>
@@ -300,25 +309,24 @@ namespace JsonRandom
 
 	std::vector<si32> loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
-		std::vector<si32> ret;
+		std::vector<si32> ret(GameConstants::PRIMARY_SKILLS, 0);
+		std::set<PrimarySkill> defaultSkills{
+			PrimarySkill::ATTACK,
+			PrimarySkill::DEFENSE,
+			PrimarySkill::SPELL_POWER,
+			PrimarySkill::KNOWLEDGE
+		};
+
 		if(value.isStruct())
 		{
-			for(const auto & name : NPrimarySkill::names)
+			for(const auto & pair : value.Struct())
 			{
-				ret.push_back(loadValue(value[name], rng, variables));
+				PrimarySkill id = decodeKey<PrimarySkill>(pair.second.meta, pair.first, variables);
+				ret[static_cast<int>(id)] += loadValue(pair.second, rng, variables);
 			}
 		}
 		if(value.isVector())
 		{
-			std::set<PrimarySkill> defaultSkills{
-				PrimarySkill::ATTACK,
-				PrimarySkill::DEFENSE,
-				PrimarySkill::SPELL_POWER,
-				PrimarySkill::KNOWLEDGE
-			};
-
-			ret.resize(GameConstants::PRIMARY_SKILLS, 0);
-
 			for(const auto & element : value.Vector())
 			{
 				std::set<PrimarySkill> potentialPicks = filterKeys(element, defaultSkills, variables);

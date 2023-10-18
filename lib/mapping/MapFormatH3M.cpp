@@ -27,6 +27,7 @@
 #include "../TerrainHandler.h"
 #include "../TextOperations.h"
 #include "../VCMI_Lib.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -1189,11 +1190,53 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared
 	};
 
 	auto * object = readGeneric(position, objectTemplate);
-	//auto * rewardable = dynamic_cast<CRewardableObject*>(object);
+	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
 
-	/*uint8_t bonusTypeRaw =*/ reader->readUInt8();
-	/*auto bonusType = static_cast<ScholarBonusType>(bonusTypeRaw);*/
-	/*auto bonusID =*/ reader->readUInt8();
+	uint8_t bonusTypeRaw = reader->readUInt8();
+	auto bonusType = static_cast<ScholarBonusType>(bonusTypeRaw);
+	auto bonusID = reader->readUInt8();
+
+	switch (bonusType)
+	{
+		case ScholarBonusType::PRIM_SKILL:
+		{
+			JsonNode variable;
+			JsonNode dice;
+			variable.String() = NPrimarySkill::names[bonusID];
+			variable.setMeta(ModScope::scopeGame());
+			dice.Integer() = 80;
+			rewardable->configuration.presetVariable("primarySkill", "gainedStat", variable);
+			rewardable->configuration.presetVariable("dice", "0", dice);
+			break;
+		}
+		case ScholarBonusType::SECONDARY_SKILL:
+		{
+			JsonNode variable;
+			JsonNode dice;
+			variable.String() = VLC->skills()->getByIndex(bonusID)->getJsonKey();
+			variable.setMeta(ModScope::scopeGame());
+			dice.Integer() = 50;
+			rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
+			rewardable->configuration.presetVariable("dice", "0", dice);
+			break;
+		}
+		case ScholarBonusType::SPELL:
+		{
+			JsonNode variable;
+			JsonNode dice;
+			variable.String() = VLC->spells()->getByIndex(bonusID)->getJsonKey();
+			variable.setMeta(ModScope::scopeGame());
+			dice.Integer() = 20;
+			rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+			rewardable->configuration.presetVariable("dice", "0", dice);
+			break;
+		}
+		case ScholarBonusType::RANDOM:
+			break;// No-op
+		default:
+			logGlobal->warn("Map '%s': Invalid Scholar settings! Ignoring...", mapName);
+	}
+
 	reader->skipZero(6);
 	return object;
 }

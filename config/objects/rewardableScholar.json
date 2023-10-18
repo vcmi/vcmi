@@ -41,7 +41,7 @@
 						"appearChance" : { "min" : 0, "max" : 33 },
 						"message" : 115,
 						"limiter" : {
-							"canLearnSpell" : [
+							"canLearnSpells" : [
 								"@gainedSpell"
 							]
 						},
@@ -57,7 +57,7 @@
 							// Hero does not have this skill at expert
 							"noneOf" : [
 									{
-									"secondarySkill" : {
+									"secondary" : {
 										"@gainedSkill" : 3
 									}
 								}
@@ -68,13 +68,9 @@
 									"canLearnSkills" : true
 								},
 								{
-									"noneOf" : [
-										{
-											"secondarySkill" : {
-												"@gainedSkill" : 1
-											}
-										}
-									]
+									"secondary" : {
+										"@gainedSkill" : 1
+									}
 								}
 							]
 						},
