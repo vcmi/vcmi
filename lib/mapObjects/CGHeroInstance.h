@@ -172,7 +172,7 @@ public:
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int32_t getSpellCost(const spells::Spell * sp) const; //do not use during battles -> bonuses from army would be ignored
 
-	bool canLearnSpell(const spells::Spell * spell) const;
+	bool canLearnSpell(const spells::Spell * spell,  bool allowBanned = false) const;
 	bool canCastThisSpell(const spells::Spell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 
 	/// convert given position between map position (CGObjectInstance::pos) and visitable position used for hero interactions

@@ -770,7 +770,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 	}
 }
 
-bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
+bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned) const
 {
 	if(!hasSpellbook())
 		return false;
@@ -793,7 +793,7 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
 		return false;//creature abilities can not be learned
 	}
 
-	if(!IObjectInterface::cb->isAllowed(0, spell->getIndex()))
+	if(!allowBanned && !IObjectInterface::cb->isAllowed(0, spell->getIndex()))
 	{
 		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned
