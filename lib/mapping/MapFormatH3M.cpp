@@ -1117,7 +1117,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 
 		if(agressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1 || stacksCount != -1)
 			logGlobal->warn(
-				"Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemeted!",
+				"Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemented!",
 				mapName,
 				mapPosition.toString(),
 				agressionExact,

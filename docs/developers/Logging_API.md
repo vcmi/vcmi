@@ -104,7 +104,7 @@ Don't include a '\n' or std::endl at the end of your log message, a new line wil
 
 The following list shows several log levels from the highest one to the lowest one:
 
--   error -\> for errors, e.g. if resource is not available, if a initialization fault has occured, if a exception has been thrown (can result in program termination)
+-   error -\> for errors, e.g. if resource is not available, if a initialization fault has occurred, if a exception has been thrown (can result in program termination)
 -   warn -\> for warnings, e.g. if sth. is wrong, but the program can continue execution "normally"
 -   info -\> informational messages, e.g. Filesystem initialized, Map loaded, Server started, etc...
 -   debug -\> for debugging, e.g. hero moved to (12,3,0), direction 3', 'following artifacts influence X: .. or pattern detected at pos (10,15,0), p-nr. 30, flip 1, repl. 'D'

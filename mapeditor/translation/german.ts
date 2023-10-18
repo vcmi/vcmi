@@ -363,7 +363,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1191"/>
-        <source>Errors occured. %1 objects were not updated</source>
+        <source>Errors occurred. %1 objects were not updated</source>
         <translation>Fehler sind aufgetreten. %1 Objekte konnten nicht aktualisiert werden</translation>
     </message>
     <message>

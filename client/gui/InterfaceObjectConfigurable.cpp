@@ -198,7 +198,7 @@ ETextAlignment InterfaceObjectConfigurable::readTextAlignment(const JsonNode & c
 		if(config.String() == "right")
 			return ETextAlignment::BOTTOMRIGHT;
 	}
-	logGlobal->debug("Uknown text alignment attribute");
+	logGlobal->debug("Unknown text alignment attribute");
 	return ETextAlignment::CENTER;
 }
 
@@ -231,7 +231,7 @@ ColorRGBA InterfaceObjectConfigurable::readColor(const JsonNode & config) const
 				return ColorRGBA(asVector[0].Integer(), asVector[1].Integer(), asVector[2].Integer());
 		}
 	}
-	logGlobal->debug("Uknown color attribute");
+	logGlobal->debug("Unknown color attribute");
 	return Colors::DEFAULT_KEY_COLOR;
 
 }
@@ -262,7 +262,7 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 		if(config.String() == "calisto")
 			return EFonts::FONT_CALLI;
 	}
-	logGlobal->debug("Uknown font attribute");
+	logGlobal->debug("Unknown font attribute");
 	return EFonts::FONT_TIMES;
 }
 

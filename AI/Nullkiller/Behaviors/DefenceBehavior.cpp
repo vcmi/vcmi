@@ -111,7 +111,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 	if(ai->nullkiller->isHeroLocked(town->garrisonHero.get()))
 	{
 		logAi->trace(
-			"Hero %s in garrison of town %s is suposed to defend the town",
+			"Hero %s in garrison of town %s is supposed to defend the town",
 			town->garrisonHero->getNameTranslated(),
 			town->getNameTranslated());
 

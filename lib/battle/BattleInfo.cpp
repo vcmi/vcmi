@@ -253,7 +253,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
 				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
-				logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place absolute obstacle");
+				logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occurred - cannot place absolute obstacle");
 			}
 		}
 
@@ -306,7 +306,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		}
 		catch(RangeGenerator::ExhaustedPossibilities &)
 		{
-			logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place usual obstacle");
+			logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occurred - cannot place usual obstacle");
 		}
 	}
 
