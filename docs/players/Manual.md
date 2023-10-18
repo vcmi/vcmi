@@ -24,7 +24,7 @@ A number of enchancements had been introduced thorough new versions of VCMI. In 
 ## High resolutions
 
 VCMI supports resolutions higher than original 800x600.
-Switching resolution may not only change visible area of map, but also alters some interface features such as [Stack Queue.](#Stack_Queue)
+Switching resolution may not only change visible area of map, but also alters some interface features such as [Stack Queue.](#stack-queue)
 To change resolution or full screen mode use System Options menu when in game. Fullscreen mode can be toggled anytime using F4 hotkey.
 
 ## Stack Experience
@@ -89,7 +89,7 @@ interface.
 
 -   Numbers for components in selection window - for example Treasure Chest, skill choice dialog and more yet to come.
 -   Type numbers in the Split Stack screen (for example 25 will split the stacks as such that there are 25 creatures in the second stack).
--   'Q' - Toggles the [Stack Queue](#Stack_Queue) display (so it can be enabled/disabled with single key press).
+-   'Q' - Toggles the [Stack Queue](#stack-queue) display (so it can be enabled/disabled with single key press).
 -   During Tactics phase, click on any of your stack to instantly activate it. No need to scroll trough entire army anymore.
 
 ## Cheat codes
