@@ -423,6 +423,9 @@ void IQuestObject::afterAddToMapCommon(CMap * map) const
 
 void CGSeerHut::setObjToKill()
 {
+	if(quest->killTarget == ObjectInstanceID::NONE)
+		return;
+	
 	if(getCreatureToKill(true))
 	{
 		quest->stackToKill = getCreatureToKill(false)->getStack(SlotID(0)); //FIXME: stacks tend to disappear (desync?) on server :?
