@@ -41,6 +41,13 @@
 	"vcmi.radialWheel.splitUnitEqually" : "Split creatures equally",
 	"vcmi.radialWheel.moveUnit" : "Move creatures to another army",
 	"vcmi.radialWheel.splitUnit" : "Split creature to another slot",
+	
+	"vcmi.radialWheel.heroGetArmy" : "Get army from other hero",
+	"vcmi.radialWheel.heroSwapArmy" : "Swap army with other hero",
+	"vcmi.radialWheel.heroExchange" : "Open hero exchange",
+	"vcmi.radialWheel.heroGetArtifacts" : "Get artifacts from other hero",
+	"vcmi.radialWheel.heroSwapArtifacts" : "Swap artifacts with other hero",
+	"vcmi.radialWheel.heroDismiss" : "Dismiss hero",
 
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",

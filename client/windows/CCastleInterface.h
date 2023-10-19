@@ -113,6 +113,7 @@ public:
 	void set(const CGHeroInstance * newHero);
 
 	void hover (bool on) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void deactivate() override;
