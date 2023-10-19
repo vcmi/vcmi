@@ -58,6 +58,9 @@ std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * 
 	if (rewardIndices.empty())
 		return result;
 
+	if (!configuration.showScoutedPreview)
+		return result;
+
 	if (configuration.selectMode != Rewardable::SELECT_FIRST)
 	{
 		for (auto index : rewardIndices)
@@ -300,10 +303,13 @@ std::string CRewardableObject::getDescriptionMessage(PlayerColor player, const C
 		return configuration.description.toString();
 
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-	if (rewardIndices.empty())
+	if (rewardIndices.empty() && !configuration.info[0].description.empty())
 		return configuration.info[0].description.toString();
 
-	return configuration.info[rewardIndices.front()].description.toString();
+	if (!configuration.info[rewardIndices.front()].description.empty())
+		return configuration.info[rewardIndices.front()].description.toString();
+
+	return configuration.description.toString();
 }
 
 std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const

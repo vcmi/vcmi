@@ -396,6 +396,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 	configureResetInfo(object, rng, object.resetParameters, parameters["resetParameters"]);
 
 	object.canRefuse = parameters["canRefuse"].Bool();
+	object.showScoutedPreview = parameters["showScoutedPreview"].Bool();
 
 	if(parameters["showInInfobox"].isNull())
 		object.infoWindowType = EInfoWindowMode::AUTO;

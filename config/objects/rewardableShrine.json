@@ -21,6 +21,7 @@
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
 				"description" : "@core.xtrainfo.19",
+				"showScoutedPreview" : true,
 
 				"variables" : {
 					"spell" : {
@@ -89,6 +90,7 @@
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
 				"description" : "@core.xtrainfo.20",
+				"showScoutedPreview" : true,
 
 				"variables" : {
 					"spell" : {
@@ -157,6 +159,7 @@
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
 				"description" : "@core.xtrainfo.21",
+				"showScoutedPreview" : true,
 
 				"variables" : {
 					"spell" : {

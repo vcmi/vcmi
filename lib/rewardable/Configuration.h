@@ -157,6 +157,9 @@ struct DLL_LINKAGE Configuration
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse = false;
 
+	/// if true - right-clicking object will show preview of object rewards
+	bool showScoutedPreview = false;
+
 	/// if true - object info will shown in infobox (like resource pickup)
 	EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
 	
@@ -183,6 +186,7 @@ struct DLL_LINKAGE Configuration
 		h & variables;
 		h & visitLimiter;
 		h & canRefuse;
+		h & showScoutedPreview;
 		h & infoWindowType;
 	}
 };

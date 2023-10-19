@@ -21,6 +21,7 @@
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
 				"description" : "@core.xtrainfo.12",
+				"showScoutedPreview" : true,
 
 				"variables" : {
 					"secondarySkill" : {

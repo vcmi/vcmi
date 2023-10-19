@@ -242,6 +242,8 @@
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"canRefuse" : true,
+				"showScoutedPreview" : true,
+
 				"rewards" : [
 					{
 						"description" : "@core.arraytxt.202",

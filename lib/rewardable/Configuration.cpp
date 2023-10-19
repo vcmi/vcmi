@@ -84,6 +84,7 @@ void Rewardable::Configuration::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeEnum("visitMode", visitMode, std::vector<std::string>{VisitModeString.begin(), VisitModeString.end()});
 	handler.serializeStruct("resetParameters", resetParameters);
 	handler.serializeBool("canRefuse", canRefuse);
+	handler.serializeBool("showScoutedPreview", showScoutedPreview);
 	handler.serializeInt("infoWindowType", infoWindowType);
 }
 
