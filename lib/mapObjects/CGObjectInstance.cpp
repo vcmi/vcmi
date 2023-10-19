@@ -287,7 +287,7 @@ std::vector<Component> CGObjectInstance::getPopupComponents(PlayerColor player) 
 
 std::vector<Component> CGObjectInstance::getPopupComponents(const CGHeroInstance * hero) const
 {
-	return {};
+	return getPopupComponents(hero->getOwner());
 }
 
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
