@@ -275,6 +275,18 @@ void CAnimImage::showAll(Canvas & to)
 	}
 }
 
+void CAnimImage::setAnimationPath(const AnimationPath & name, size_t frame)
+{
+	this->frame = frame;
+	anim = GH.renderHandler().loadAnimation(name);
+	init();
+}
+
+void CAnimImage::setScale(Point scale)
+{
+	scaledSize = scale;
+}
+
 void CAnimImage::setFrame(size_t Frame, size_t Group)
 {
 	if (frame == Frame && group==Group)

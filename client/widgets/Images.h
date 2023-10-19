@@ -95,7 +95,7 @@ private:
 	size_t frame;
 	size_t group;
 	ui8 flags;
-	const Point scaledSize;
+	Point scaledSize;
 
 	/// If set, then image is colored using player-specific palette
 	std::optional<PlayerColor> player;
@@ -124,6 +124,10 @@ public:
 	bool isPlayerColored() const;
 
 	void showAll(Canvas & to) override;
+
+	void setAnimationPath(const AnimationPath & name, size_t frame);
+
+	void setScale(Point scale);
 };
 
 /// Base class for displaying animation, used as superclass for different animations

@@ -30,46 +30,48 @@
 
 void CArtPlace::setInternals(const CArtifactInstance * artInst)
 {
-	baseType = -1; // By default we don't store any component
 	ourArt = artInst;
 	if(!artInst)
 	{
 		image->disable();
-		imageSpell->disable();
 		text.clear();
 		hoverText = CGI->generaltexth->allTexts[507];
 		return;
 	}
 
-	image->enable();
-	imageSpell->disable();
-	image->setFrame(artInst->artType->getIconIndex());
-	
+	imageIndex = artInst->artType->getIconIndex();
 	if(artInst->getTypeId() == ArtifactID::SPELL_SCROLL)
 	{
 		auto spellID = artInst->getScrollSpellID();
-		if(spellID.num >= 0)
-		{
-			// Add spell component info (used to provide a pic in r-click popup)
-			baseType = CComponent::spell;
-			type = spellID;
-			bonusValue = 0;
+		assert(spellID.num >= 0);
 
-			if(settings["general"]["enableUiEnhancements"].Bool())
+		if(settings["general"]["enableUiEnhancements"].Bool())
+		{
+			imageIndex = spellID.num;
+			if(baseType != CComponent::spell)
 			{
-				imageSpell->enable();
-				image->disable();
-				imageSpell->setFrame(spellID.num);
+				image->setScale(Point(pos.w, 34));
+				image->setAnimationPath(AnimationPath::builtin("spellscr"), imageIndex);
+				image->moveTo(Point(pos.x, pos.y + 4));
 			}
 		}
+		// Add spell component info (used to provide a pic in r-click popup)
+		baseType = CComponent::spell;
+		type = spellID;
 	}
 	else
 	{
+		if(settings["general"]["enableUiEnhancements"].Bool() && baseType != CComponent::artifact)
+		{
+			image->setScale(Point());
+			image->setAnimationPath(AnimationPath::builtin("artifact"), imageIndex);
+			image->moveTo(Point(pos.x, pos.y));
+		}
 		baseType = CComponent::artifact;
 		type = artInst->getTypeId();
-		bonusValue = 0;
 	}
-
+	bonusValue = 0;
+	image->enable();
 	text = artInst->getDescription();
 }
 
@@ -99,7 +101,7 @@ void CCommanderArtPlace::createImage()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	int imageIndex = 0;
+	imageIndex = 0;
 	if(ourArt)
 		imageIndex = ourArt->artType->getIconIndex();
 
@@ -165,7 +167,7 @@ void CHeroArtPlace::lockSlot(bool on)
 	if(on)
 		image->setFrame(ArtifactID::ART_LOCK);
 	else if(ourArt)
-		image->setFrame(ourArt->artType->getIconIndex());
+		image->setFrame(imageIndex);
 	else
 		image->setFrame(0);
 }
@@ -220,7 +222,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance * art)
 	setInternals(art);
 	if(art)
 	{
-		image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->getIconIndex());
+		image->setFrame(locked ? static_cast<int>(ArtifactID::ART_LOCK) : imageIndex);
 
 		if(locked) // Locks should appear as empty.
 			hoverText = CGI->generaltexth->allTexts[507];
@@ -261,13 +263,8 @@ void CHeroArtPlace::createImage()
 	else if(ourArt)
 		imageIndex = ourArt->artType->getIconIndex();
 
-	imageSpell = std::make_shared<CAnimImage>(GH.renderHandler().loadAnimation(AnimationPath::builtin("spellscr")), 0, Rect(0, 5, 44, 34));
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
-	if(!ourArt)
-	{
-		image->disable();
-		imageSpell->disable();
-	}
+	image->disable();
 
 	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION);
 	selection->disable();
