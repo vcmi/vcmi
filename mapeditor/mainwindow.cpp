@@ -222,8 +222,6 @@ MainWindow::MainWindow(QWidget* parent) :
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
 
-	initialScale = ui->mapView->viewport()->geometry();
-
 	//loading objects
 	loadObjectsTree();
 	
@@ -298,6 +296,8 @@ void MainWindow::initializeMap(bool isNew)
 	ui->mapView->setScene(controller.scene(mapLevel));
 	ui->minimapView->setScene(controller.miniScene(mapLevel));
 	ui->minimapView->dimensions();
+	if(initialScale.isValid())
+		on_actionZoom_reset_triggered();
 	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
 	
 	//enable settings

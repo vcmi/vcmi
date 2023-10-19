@@ -25,7 +25,7 @@ struct TerrainTile;
 struct TurnInfo;
 enum class EHeroGender : uint8_t;
 
-class CGHeroPlaceholder : public CGObjectInstance
+class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
 public:
 	/// if this is placeholder by power, then power rank of desired hero
@@ -40,6 +40,9 @@ public:
 		h & powerRank;
 		h & heroType;
 	}
+	
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 

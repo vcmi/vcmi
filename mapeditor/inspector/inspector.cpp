@@ -53,6 +53,7 @@ Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : default
 	INIT_OBJ_TYPE(CGDwelling);
 	INIT_OBJ_TYPE(CGTownInstance);
 	INIT_OBJ_TYPE(CGCreature);
+	INIT_OBJ_TYPE(CGHeroPlaceholder);
 	INIT_OBJ_TYPE(CGHeroInstance);
 	INIT_OBJ_TYPE(CGSignBottle);
 	INIT_OBJ_TYPE(CGLighthouse);
@@ -116,6 +117,17 @@ void Initializer::initialize(CGLighthouse * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
+}
+
+void Initializer::initialize(CGHeroPlaceholder * o)
+{
+	if(!o) return;
+	
+	if(!o->powerRank.has_value() && !o->heroType.has_value())
+		o->powerRank = 0;
+	
+	if(o->powerRank.has_value() && o->heroType.has_value())
+		o->powerRank.reset();
 }
 
 void Initializer::initialize(CGHeroInstance * o)
@@ -256,6 +268,34 @@ void Inspector::updateProperties(CGShipyard * o)
 	if(!o) return;
 	
 	addProperty("Owner", o->tempOwner, false);
+}
+
+void Inspector::updateProperties(CGHeroPlaceholder * o)
+{
+	if(!o) return;
+	
+	bool type = false;
+	if(o->heroType.has_value())
+		type = true;
+	else if(!o->powerRank.has_value())
+		assert(0); //one of values must be initialized
+	
+	{
+		auto * delegate = new InspectorDelegate;
+		delegate->options = {{"POWER RANK", QVariant::fromValue(false)}, {"HERO TYPE", QVariant::fromValue(true)}};
+		addProperty("Placeholder type", delegate->options[type].first, delegate, false);
+	}
+	
+	addProperty("Power rank", o->powerRank.has_value() ? o->powerRank.value() : 0, type);
+	
+	{
+		auto * delegate = new InspectorDelegate;
+		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
+		{
+			delegate->options.push_back({QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(VLC->heroh->objects[i]->getId().getNum())});
+		}
+		addProperty("Hero type", o->heroType.has_value() ? VLC->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
+	}
 }
 
 void Inspector::updateProperties(CGHeroInstance * o)
@@ -454,6 +494,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGDwelling);
 	UPDATE_OBJ_PROPERTIES(CGTownInstance);
 	UPDATE_OBJ_PROPERTIES(CGCreature);
+	UPDATE_OBJ_PROPERTIES(CGHeroPlaceholder);
 	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
 	UPDATE_OBJ_PROPERTIES(CGSignBottle);
 	UPDATE_OBJ_PROPERTIES(CGLighthouse);
@@ -500,6 +541,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGDwelling);
 	SET_PROPERTIES(CGGarrison);
 	SET_PROPERTIES(CGCreature);
+	SET_PROPERTIES(CGHeroPlaceholder);
 	SET_PROPERTIES(CGHeroInstance);
 	SET_PROPERTIES(CGShipyard);
 	SET_PROPERTIES(CGSignBottle);
@@ -612,6 +654,37 @@ void Inspector::setProperty(CGGarrison * o, const QString & key, const QVariant 
 		o->removableUnits = value.toBool();
 }
 
+void Inspector::setProperty(CGHeroPlaceholder * o, const QString & key, const QVariant & value)
+{
+	if(!o) return;
+
+	if(key == "Placeholder type")
+	{
+		if(value.toBool())
+		{
+			if(!o->heroType.has_value())
+				o->heroType = HeroTypeID(0);
+			o->powerRank.reset();
+		}
+		else
+		{
+			if(!o->powerRank.has_value())
+				o->powerRank = 0;
+			o->heroType.reset();
+		}
+		
+		updateProperties();
+	}
+	
+	if(key == "Power rank")
+		o->powerRank = value.toInt();
+	
+	if(key == "Hero type")
+	{
+		o->heroType.value() = HeroTypeID(value.toInt());
+	}
+}
+
 void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
@@ -634,8 +707,11 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	{
 		for(auto t : VLC->heroh->objects)
 		{
-			if(t->getNameTranslated() == value.toString().toStdString())
+			if(t->getId() == value.toInt())
+			{
+				o->subID = value.toInt();
 				o->type = t.get();
+			}
 		}
 		o->gender = o->type->gender;
 		o->randomizeArmy(o->type->heroClass->faction);
