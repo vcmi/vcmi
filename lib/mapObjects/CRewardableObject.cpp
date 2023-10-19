@@ -244,57 +244,61 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 	}
 }
 
-std::string CRewardableObject::getHoverText(PlayerColor player) const
+std::string CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const
 {
 	std::string result = getObjectName();
 
-	if (!getDescriptionMessage(player).empty())
-		result += "\n" + getDescriptionMessage(player);
+	if (includeDescription && !getDescriptionMessage(player, hero).empty())
+		result += "\n" + getDescriptionMessage(player, hero);
 
-	if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE)
+	if (hero)
 	{
-		if (wasVisited(player))
-			result += "\n\n" + configuration.visitedTooltip.toString();
-		else
-			result += "\n\n" + configuration.notVisitedTooltip.toString();
+		if(configuration.visitMode != Rewardable::VISIT_UNLIMITED)
+		{
+			if (wasVisited(hero))
+				result += "\n" + configuration.visitedTooltip.toString();
+			else
+				result += "\n " + configuration.notVisitedTooltip.toString();
+		}
+	}
+	else
+	{
+		if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE)
+		{
+			if (wasVisited(player))
+				result += "\n" + configuration.visitedTooltip.toString();
+			else
+				result += "\n" + configuration.notVisitedTooltip.toString();
+		}
 	}
 	return result;
+}
+
+std::string CRewardableObject::getHoverText(PlayerColor player) const
+{
+	return getDisplayTextImpl(player, nullptr, false);
 }
 
 std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
 {
-	std::string result = getObjectName();
-
-	if (!getDescriptionMessage(hero).empty())
-		result += "\n" + getDescriptionMessage(hero);
-
-	if(configuration.visitMode != Rewardable::VISIT_UNLIMITED)
-	{
-		if (wasVisited(hero))
-			result += "\n\n" + configuration.visitedTooltip.toString();
-		else
-			result += "\n\n" + configuration.notVisitedTooltip.toString();
-	}
-	return result;
+	return getDisplayTextImpl(hero->getOwner(), hero, false);
 }
 
-std::string CRewardableObject::getDescriptionMessage(PlayerColor player) const
+std::string CRewardableObject::getPopupText(PlayerColor player) const
+{
+	return getDisplayTextImpl(player, nullptr, true);
+}
+
+std::string CRewardableObject::getPopupText(const CGHeroInstance * hero) const
+{
+	return getDisplayTextImpl(hero->getOwner(), hero, true);
+}
+
+std::string CRewardableObject::getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const
 {
 	if (!wasScouted(player) || configuration.info.empty())
 		return configuration.description.toString();
 
-	auto rewardIndices = getAvailableRewards(nullptr, Rewardable::EEventType::EVENT_FIRST_VISIT);
-	if (rewardIndices.empty())
-		return configuration.info[0].description.toString();
-
-	return configuration.info[rewardIndices.front()].description.toString();
-}
-
-std::string CRewardableObject::getDescriptionMessage(const CGHeroInstance * hero) const
-{
-	if (!wasScouted(hero->getOwner()) || configuration.info.empty())
-		return configuration.description.toString();
-
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	if (rewardIndices.empty())
 		return configuration.info[0].description.toString();
@@ -302,26 +306,11 @@ std::string CRewardableObject::getDescriptionMessage(const CGHeroInstance * hero
 	return configuration.info[rewardIndices.front()].description.toString();
 }
 
-std::vector<Component> CRewardableObject::getPopupComponents(PlayerColor player) const
+std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const
 {
 	if (!wasScouted(player))
 		return {};
 
-	auto rewardIndices = getAvailableRewards(nullptr, Rewardable::EEventType::EVENT_FIRST_VISIT);
-	if (rewardIndices.empty() && !configuration.info.empty())
-		rewardIndices.push_back(0);
-
-	if (rewardIndices.empty())
-		return {};
-
-	return loadComponents(nullptr, rewardIndices);
-}
-
-std::vector<Component> CRewardableObject::getPopupComponents(const CGHeroInstance * hero) const
-{
-	if (!wasScouted(hero->getOwner()))
-		return {};
-
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	if (rewardIndices.empty() && !configuration.info.empty())
 		rewardIndices.push_back(0);
@@ -329,7 +318,17 @@ std::vector<Component> CRewardableObject::getPopupComponents(const CGHeroInstanc
 	if (rewardIndices.empty())
 		return {};
 
-	return loadComponents(nullptr, rewardIndices);
+	return loadComponents(hero, rewardIndices);
+}
+
+std::vector<Component> CRewardableObject::getPopupComponents(PlayerColor player) const
+{
+	return getPopupComponentsImpl(player, nullptr);
+}
+
+std::vector<Component> CRewardableObject::getPopupComponents(const CGHeroInstance * hero) const
+{
+	return getPopupComponentsImpl(hero->getOwner(), hero);
 }
 
 void CRewardableObject::setPropertyDer(ui8 what, ui32 val)

@@ -365,9 +365,9 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 			guiComponents.push_back(std::make_shared<CComponent>(component));
 
 		if(LOCPLINT->localState->getCurrentHero())
-			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->localState->getCurrentHero()), guiComponents);
+			CRClickPopup::createAndPush(obj->getPopupText(LOCPLINT->localState->getCurrentHero()), guiComponents);
 		else
-			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID), guiComponents);
+			CRClickPopup::createAndPush(obj->getPopupText(LOCPLINT->playerID), guiComponents);
 	}
 }
 
