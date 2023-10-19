@@ -720,7 +720,7 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 	//overrides from variables
 	for(auto & item : config["overrides"].Struct())
 	{
-		logGlobal->debug("Config attribute %s was overriden by variable %s", item.first, item.second.String());
+		logGlobal->debug("Config attribute %s was overridden by variable %s", item.first, item.second.String());
 		config[item.first] = variables[item.second.String()];
 	}
 	

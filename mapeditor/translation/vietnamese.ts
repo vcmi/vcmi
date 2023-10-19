@@ -1011,7 +1011,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="107"/>
-        <source>Delete original files, for the ones splitted / converted.</source>
+        <source>Delete original files, for the ones split / converted.</source>
         <translation>Xóa các tập tin gốc đã được phân chia / chuyển đổi.</translation>
     </message>
 </context>

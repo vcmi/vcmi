@@ -238,6 +238,6 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 
 void PathfindingManager::updatePaths(std::vector<HeroPtr> heroes)
 {
-	logAi->debug("AIPathfinder has been reseted.");
+	logAi->debug("AIPathfinder has been reset.");
 	pathfinder->updatePaths(heroes);
 }

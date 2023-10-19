@@ -1025,7 +1025,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="107"/>
-        <source>Delete original files, for the ones splitted / converted.</source>
+        <source>Delete original files, for the ones split / converted.</source>
         <translation>Löschen Sie die Originaldateien für die gesplitteten/konvertierten Dateien.</translation>
     </message>
 </context>

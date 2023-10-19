@@ -1015,7 +1015,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="107"/>
-        <source>Delete original files, for the ones splitted / converted.</source>
+        <source>Delete original files, for the ones split / converted.</source>
         <translation>Supprimer les fichiers d&apos;origine, pour ceux fractionnés/convertis.</translation>
     </message>
 </context>
