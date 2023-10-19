@@ -475,6 +475,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.cmpmusic", "DATA/CMPMUSIC.TXT" );
 	readToVector("core.minename", "DATA/MINENAME.TXT" );
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
+	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 
 	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
 	if (CResourceHandler::get()->existsResource(TextPath::builtin(QE_MOD_COMMANDS)))

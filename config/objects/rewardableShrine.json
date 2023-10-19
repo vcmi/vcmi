@@ -20,6 +20,7 @@
 				
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
+				"description" : "@core.xtrainfo.19",
 
 				"variables" : {
 					"spell" : {
@@ -43,7 +44,7 @@
 						"spells" : [
 							"@gainedSpell"
 						],
-						"description" : 355,
+						"description" : "@core.genrltxt.355",
 						"message" : [ 127, "%s." ] // You learn new spell
 					}
 				],
@@ -87,6 +88,7 @@
 				
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
+				"description" : "@core.xtrainfo.20",
 
 				"variables" : {
 					"spell" : {
@@ -110,7 +112,7 @@
 						"spells" : [
 							"@gainedSpell"
 						],
-						"description" : 355,
+						"description" : "@core.genrltxt.355",
 						"message" : [ 128, "%s." ] // You learn new spell
 					}
 				],
@@ -154,6 +156,7 @@
 				
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
+				"description" : "@core.xtrainfo.21",
 
 				"variables" : {
 					"spell" : {
@@ -177,7 +180,7 @@
 						"spells" : [
 							"@gainedSpell"
 						],
-						"description" : 355,
+						"description" : "@core.genrltxt.355",
 						"message" : [ 129, "%s." ] // You learn new spell
 					}
 				],

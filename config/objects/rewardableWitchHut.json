@@ -20,6 +20,7 @@
 				
 				"visitMode" : "limiter",
 				"visitedTooltip" : 354,
+				"description" : "@core.xtrainfo.12",
 
 				"variables" : {
 					"secondarySkill" : {

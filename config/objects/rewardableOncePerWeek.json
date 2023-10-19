@@ -21,6 +21,7 @@
 
 				"onEmptyMessage" : 79,
 				"onVisitedMessage" : 78,
+				"description" : "@core.xtrainfo.25",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -59,6 +60,7 @@
 
 				"onEmptyMessage" : 76,
 				"onVisitedMessage" : 75,
+				"description" : "@core.xtrainfo.15",
 				"resetParameters" : {
 					"period" : 7,
 					"visitors" : true

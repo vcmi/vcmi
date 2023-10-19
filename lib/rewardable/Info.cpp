@@ -49,7 +49,11 @@ namespace {
 		if (value.String().empty())
 			return ret;
 
-		ret.appendTextID(textIdentifier.get());
+		if (value.String()[0] == '@')
+			ret.appendTextID(value.String().substr(1));
+		else
+			ret.appendTextID(textIdentifier.get());
+
 		return ret;
 	}
 
@@ -69,7 +73,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	objectTextID = objectName;
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
-		if (entry.isString() && !entry.String().empty())
+		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
 			VLC->generaltexth->registerString(entry.meta, textID, entry.String());
 	};
 
