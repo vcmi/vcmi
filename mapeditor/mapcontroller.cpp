@@ -350,10 +350,10 @@ void MapController::commitObjectErase(int level)
 		return;
 	}
 
-	for (auto obj : selectedObjects)
+	for (auto & obj : selectedObjects)
 	{
 		//invalidate tiles under objects
-		_mapHandler->invalidate(_mapHandler->getTilesUnderObject(obj));
+		_mapHandler->removeObject(obj);
 		_scenes[level]->objectsView.setDirty(obj);
 	}
 
@@ -454,14 +454,16 @@ void MapController::commitObstacleFill(int level)
 	
 	for(auto & sel : _obstaclePainters)
 	{
-		sel.second->placeObstacles(CRandomGenerator::getDefault());
+		for(auto * o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
+		{
+			_mapHandler->invalidate(o);
+			_scenes[level]->objectsView.setDirty(o);
+		}
 	}
-
-	_mapHandler->invalidateObjects();
 	
 	_scenes[level]->selectionTerrainView.clear();
 	_scenes[level]->selectionTerrainView.draw();
-	_scenes[level]->objectsView.draw(false); //TODO: enable smart invalidation (setDirty)
+	_scenes[level]->objectsView.draw();
 	_scenes[level]->passabilityView.update();
 	
 	_miniscenes[level]->updateViews();
@@ -500,10 +502,8 @@ void MapController::commitObjectShift(int level)
 			pos.z = level;
 			pos.x += shift.x(); pos.y += shift.y();
 			
-			auto prevPositions = _mapHandler->getTilesUnderObject(obj);
 			_scenes[level]->objectsView.setDirty(obj); //set dirty before movement
 			_map->getEditManager()->moveObject(obj, pos);
-			_mapHandler->invalidate(prevPositions);
 			_mapHandler->invalidate(obj);
 		}
 	}
