@@ -48,19 +48,23 @@
 
 	"objects" :
 	[
-		"config/objects/generic.json",
-		"config/objects/moddables.json",
+		"config/objects/cartographer.json",
+		"config/objects/coverOfDarkness.json",
 		"config/objects/creatureBanks.json",
 		"config/objects/dwellings.json",
-		"config/objects/rewardableObservatories.json",
-		"config/objects/rewardableWitchHut.json",
-		"config/objects/rewardableShrine.json",
-		"config/objects/rewardableScholar.json",
-		"config/objects/rewardableOncePerWeek.json",
-		"config/objects/rewardablePickable.json",
-		"config/objects/rewardableOnceVisitable.json",
+		"config/objects/generic.json",
+		"config/objects/magicSpring.json",
+		"config/objects/magicWell.json",
+		"config/objects/moddables.json",
+		"config/objects/observatory.json",
+		"config/objects/rewardableBonusing.json",
 		"config/objects/rewardableOncePerHero.json",
-		"config/objects/rewardableBonusing.json"
+		"config/objects/rewardableOncePerWeek.json",
+		"config/objects/rewardableOnceVisitable.json",
+		"config/objects/rewardablePickable.json",
+		"config/objects/scholar.json",
+		"config/objects/shrine.json",
+		"config/objects/witchHut.json"
 	],
 
 	"artifacts" :

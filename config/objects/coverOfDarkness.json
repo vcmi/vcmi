@@ -1,0 +1,35 @@
+{
+	"coverOfDarkness" : {
+		"index" :15,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
+		"types" : {
+			"coverOfDarkness" : {
+				"index" : 0,
+				"aiValue" : 100,
+				"rmg" : {
+				},
+				
+				"compatibilityIdentifiers" : [ "object" ],
+				"visitMode" : "unlimited",
+				"rewards" : [
+					{
+						"message" : 31,
+						"revealTiles" : {
+							"radius" : 20,
+							"surface" : 1,
+							"subterra" : 1,
+							"water" : 1,
+							"rock" : 1,
+							"hide" : true
+						}
+					}
+				]
+			}
+		}
+	}
+}
