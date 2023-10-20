@@ -20,7 +20,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void Rewardable::RewardRevealTiles::serializeJson(JsonSerializeFormat & handler)
 {
-	// TODO
+	handler.serializeBool("hide", hide);
+	handler.serializeInt("scoreSurface", scoreSurface);
+	handler.serializeInt("scoreSubterra", scoreSubterra);
+	handler.serializeInt("scoreWater", scoreWater);
+	handler.serializeInt("scoreRock", scoreRock);
+	handler.serializeInt("radius", radius);
 }
 
 Rewardable::Reward::Reward()

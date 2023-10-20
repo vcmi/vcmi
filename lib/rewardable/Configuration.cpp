@@ -73,7 +73,23 @@ void Rewardable::VisitInfo::serializeJson(JsonSerializeFormat & handler)
 
 void Rewardable::Variables::serializeJson(JsonSerializeFormat & handler)
 {
-	// TODO
+	if (handler.saving)
+	{
+		JsonNode presetNode;
+		for (auto const & entry : preset)
+			presetNode[entry.first] = entry.second;
+
+		handler.serializeRaw("preset", presetNode, {});
+	}
+	else
+	{
+		preset.clear();
+		JsonNode presetNode;
+		handler.serializeRaw("preset", presetNode, {});
+
+		for (auto const & entry : presetNode.Struct())
+			preset[entry.first] = entry.second;
+	}
 }
 
 void Rewardable::Configuration::serializeJson(JsonSerializeFormat & handler)

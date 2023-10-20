@@ -16,6 +16,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CRandomGenerator;
+class MetaString;
 
 namespace Rewardable
 {
@@ -24,6 +25,8 @@ struct Limiter;
 using LimitersList = std::vector<std::shared_ptr<Rewardable::Limiter>>;
 struct Reward;
 struct Configuration;
+struct Variables;
+struct VisitInfo;
 struct ResetInfo;
 enum class EEventType;
 
@@ -31,6 +34,9 @@ class DLL_LINKAGE Info : public IObjectInfo
 {
 	JsonNode parameters;
 	std::string objectTextID;
+
+	void replaceTextPlaceholders(MetaString & target, const Variables & variables) const;
+	void replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const;
 
 	void configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const;
 	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source, Rewardable::EEventType mode, const std::string & textPrefix) const;

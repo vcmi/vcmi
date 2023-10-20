@@ -233,14 +233,6 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 			if (category.first == "spell")
 				value = JsonRandom::loadSpell(input, rng, object.variables.values).getNum();
 
-			// TODO
-			//	if (category.first == "creature")
-			//		value = JsonRandom::loadCreature(input, rng, object.variables.values).type->getId();
-
-			// TODO
-			//	if (category.first == "resource")
-			//		value = JsonRandom::loadResource(input, rng, object.variables.values).getNum();
-
 			if (category.first == "primarySkill")
 				value = static_cast<int>(JsonRandom::loadPrimary(input, rng, object.variables.values));
 
@@ -250,6 +242,32 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 			object.initVariable(category.first, entry.first, value);
 		}
 	}
+}
+
+void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables) const
+{
+	for (const auto & variable : variables.values )
+	{
+		if( boost::algorithm::starts_with(variable.first, "spell"))
+			target.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+
+		if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
+			target.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
+	}
+}
+
+void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const
+{
+	for (const auto & artifact : info.reward.artifacts )
+		target.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
+
+	for (const auto & artifact : info.reward.spells )
+		target.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
+
+	for (const auto & secondary : info.reward.secondary )
+		target.replaceLocalString(EMetaText::SEC_SKILL_NAME, secondary.first.getNum());
+
+	replaceTextPlaceholders(target, variables);
 }
 
 void Rewardable::Info::configureRewards(
@@ -304,37 +322,8 @@ void Rewardable::Info::configureRewards(
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
 		info.description = loadMessage(reward["description"], TextIdentifier(objectTextID, "description", modeName, i), EMetaText::GENERAL_TXT);
 
-		for (const auto & artifact : info.reward.artifacts )
-		{
-			info.message.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
-			info.description.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
-		}
-
-		for (const auto & artifact : info.reward.spells )
-		{
-			info.message.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
-			info.description.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
-		}
-
-		for (const auto & secondary : info.reward.secondary )
-		{
-			info.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, secondary.first.getNum());
-			info.description.replaceLocalString(EMetaText::SEC_SKILL_NAME, secondary.first.getNum());
-		}
-
-		for (const auto & variable : object.variables.values )
-		{
-			if( boost::algorithm::starts_with(variable.first, "spell"))
-			{
-				info.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
-				info.description.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
-			}
-			if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
-			{
-				info.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
-				info.description.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
-			}
-		}
+		replaceTextPlaceholders(info.message, object.variables, info);
+		replaceTextPlaceholders(info.description, object.variables, info);
 
 		object.info.push_back(info);
 	}
@@ -366,13 +355,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		Rewardable::VisitInfo onVisited;
 		onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
 		onVisited.message = loadMessage(parameters["onVisitedMessage"], TextIdentifier(objectTextID, "onVisited"));
-		for (const auto & variable : object.variables.values )
-		{
-			if( boost::algorithm::starts_with(variable.first, "spell"))
-				onVisited.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
-			if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
-				onVisited.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
-		}
+		replaceTextPlaceholders(onVisited.message, object.variables);
 
 		object.info.push_back(onVisited);
 	}
@@ -382,13 +365,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		Rewardable::VisitInfo onEmpty;
 		onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
 		onEmpty.message = loadMessage(parameters["onEmptyMessage"], TextIdentifier(objectTextID, "onEmpty"));
-		for (const auto & variable : object.variables.values )
-		{
-			if( boost::algorithm::starts_with(variable.first, "spell"))
-				onEmpty.message.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
-			if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
-				onEmpty.message.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
-		}
+		replaceTextPlaceholders(onEmpty.message, object.variables);
 
 		object.info.push_back(onEmpty);
 	}
