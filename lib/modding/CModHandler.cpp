@@ -209,7 +209,7 @@ void CModHandler::loadMods(bool onlyEssential)
 	else
 	{
 		auto modSettingsName = settings["launcher"]["modSettingsName"].String();
-		modsConfig = loadModSettings(JsonPath::builtin("config/" + modSettingsName + ".json"));
+		modsConfig = loadModSettings(JsonPath::builtin("config/modSettings/" + modSettingsName + ".json"));
 		loadMods("", "", modsConfig["activeMods"], true);
 	}
 
@@ -470,7 +470,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 	if(!onlyEssential)
 	{
 		auto modSettingsName = settings["launcher"]["modSettingsName"].String();
-		std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/" + modSettingsName + ".json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
+		std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings/" + modSettingsName + ".json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
 		file << modSettingsEntry.toJson();
 	}
 }

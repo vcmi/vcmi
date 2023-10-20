@@ -67,7 +67,7 @@ QString CModManager::getModSettingsName()
 QString CModManager::getModSettingsPath()
 {
 	std::string modSettingsFileName = modSettingsName.toStdString() + ".json";
-	return pathToQString(VCMIDirs::get().userConfigPath() / modSettingsFileName);
+	return pathToQString(VCMIDirs::get().userConfigPath() / "modSettings" / modSettingsFileName);
 }
 
 void CModManager::loadActiveModSettings()
