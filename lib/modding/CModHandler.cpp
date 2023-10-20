@@ -165,8 +165,6 @@ std::vector<std::string> CModHandler::getModList(const std::string & path) const
 	return foundMods;
 }
 
-
-
 void CModHandler::loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, bool enableMods)
 {
 	for(const std::string & modName : getModList(path))

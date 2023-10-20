@@ -26,6 +26,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/modding/CModVersion.h"
+#include "../../lib/VCMIDirs.h"
 
 static double mbToBytes(double mb)
 {
@@ -94,6 +95,37 @@ void CModListView::setupModsView()
 		this, SLOT(dataChanged(QModelIndex,QModelIndex)));
 }
 
+std::vector<std::string> GetFileStemsInFolder(const std::string & folderPath)
+{
+	std::vector<std::string> fileNames;
+
+	if(boost::filesystem::exists(folderPath) && boost::filesystem::is_directory(folderPath))
+	{
+		boost::filesystem::directory_iterator end_iter;
+		for(boost::filesystem::directory_iterator dir_iter(folderPath); dir_iter != end_iter; ++dir_iter)
+		{
+			if(boost::filesystem::is_regular_file(dir_iter->status()))
+				fileNames.push_back(dir_iter->path().stem().string());
+		}
+	}
+
+	return fileNames;
+}
+
+void CModListView::setUpComboBoxModConfiguration()
+{
+	auto modSettingsFolderPath = pathToQString(VCMIDirs::get().userConfigPath() / "modSettings");
+	auto modSettingsNames = GetFileStemsInFolder(modSettingsFolderPath.toStdString());
+
+	// Convert the std::vector of file names to a QStringList
+	QStringList qModSettingsNames;
+	for(const std::string& fileName : modSettingsNames)
+		qModSettingsNames.append(QString::fromStdString(fileName));
+
+	ui->comboBoxModConfiguration->addItems(qModSettingsNames);
+	ui->comboBoxModConfiguration->setCurrentText(QString::fromStdString(settings["launcher"]["modSettingsName"].String()));
+}
+
 CModListView::CModListView(QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::CModListView)
@@ -107,7 +139,7 @@ CModListView::CModListView(QWidget * parent)
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
 
-	ui->comboBoxModConfiguration->setCurrentText(QString::fromStdString(settings["launcher"]["modSettingsName"].String()));
+	setUpComboBoxModConfiguration();
 
 	if(settings["launcher"]["autoCheckRepositories"].Bool())
 	{

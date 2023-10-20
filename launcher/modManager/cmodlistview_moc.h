@@ -64,6 +64,7 @@ signals:
 	void modsChanged();
 
 public:
+	void setUpComboBoxModConfiguration();
 	explicit CModListView(QWidget * parent = 0);
 	~CModListView();
 

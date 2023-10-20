@@ -51,7 +51,6 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 }
 }
 
-
 CModManager::CModManager(CModList * modList)
 	: modList(modList)
 {

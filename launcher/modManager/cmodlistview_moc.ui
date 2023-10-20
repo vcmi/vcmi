@@ -96,23 +96,8 @@
      <item>
       <widget class="QComboBox" name="comboBoxModConfiguration">
        <property name="editable">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
-       <item>
-        <property name="text">
-         <string>modSettings</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>modSettings2</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>modSettings3</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
