@@ -235,6 +235,12 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 		setSelection(ownedTowns.front());
 }
 
+void PlayerLocalState::swapWanderingHero(int pos1, int pos2)
+{
+	assert(wanderingHeroes[pos1] && wanderingHeroes[pos2]);
+	std::swap(wanderingHeroes[pos1], wanderingHeroes[pos2]);
+}
+
 const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
 {
 	return ownedTowns;
@@ -268,4 +274,12 @@ void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
 
 	if (currentSelection == nullptr && !ownedTowns.empty())
 		setSelection(ownedTowns.front());
+}
+
+void PlayerLocalState::swapOwnedTowns(int pos1, int pos2)
+{
+	assert(ownedTowns[pos1] && ownedTowns[pos2]);
+	std::swap(ownedTowns[pos1], ownedTowns[pos2]);
+
+	adventureInt->onTownOrderChanged();
 }

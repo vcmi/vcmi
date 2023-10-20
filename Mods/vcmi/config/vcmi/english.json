@@ -49,6 +49,11 @@
 	"vcmi.radialWheel.heroSwapArtifacts" : "Swap artifacts with other hero",
 	"vcmi.radialWheel.heroDismiss" : "Dismiss hero",
 
+	"vcmi.radialWheel.moveTop" : "Move to top",
+	"vcmi.radialWheel.moveUp" : "Move up",
+	"vcmi.radialWheel.moveDown" : "Move down",
+	"vcmi.radialWheel.moveBottom" : "Move to bottom",
+
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Failed to connect",

@@ -304,6 +304,7 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
 
 		widget->getInfoBar()->showTownSelection(town);
+		widget->getTownList()->updateWidget();;
 		widget->getTownList()->select(town);
 		widget->getHeroList()->select(nullptr);
 		onHeroChanged(nullptr);
@@ -323,6 +324,11 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 	widget->updateActiveState();
 	widget->getHeroList()->redraw();
 	widget->getTownList()->redraw();
+}
+
+void AdventureMapInterface::onTownOrderChanged()
+{
+	widget->getTownList()->updateWidget();
 }
 
 void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
