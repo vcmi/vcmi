@@ -107,6 +107,8 @@ CModListView::CModListView(QWidget * parent)
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
 
+	ui->comboBoxModConfiguration->setCurrentText(QString::fromStdString(settings["launcher"]["modSettingsName"].String()));
+
 	if(settings["launcher"]["autoCheckRepositories"].Bool())
 	{
 		loadRepositories();
@@ -439,6 +441,20 @@ void CModListView::on_comboBox_currentIndexChanged(int index)
 		filterModel->setTypeFilter(ModStatus::INSTALLED, ModStatus::ENABLED | ModStatus::INSTALLED);
 		break;
 	}
+}
+
+void CModListView::on_comboBoxModConfiguration_currentIndexChanged(int index)
+{
+	QComboBox* comboBox = qobject_cast<QComboBox*>(sender());
+	auto modConfigurationName = comboBox->itemText(index);
+
+	Settings modSettingsName = settings.write["launcher"]["modSettingsName"];
+	modSettingsName->String() = modConfigurationName.toStdString();
+
+	manager->setModSettingsName(modConfigurationName);
+	manager->loadActiveModSettings();
+
+	ui->allModsView->doItemsLayout();
 }
 
 QStringList CModListView::findInvalidDependencies(QString mod)

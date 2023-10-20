@@ -106,6 +106,8 @@ private slots:
 
 	void on_comboBox_currentIndexChanged(int index);
 
+	void on_comboBoxModConfiguration_currentIndexChanged(int index);
+
 	void on_enableButton_clicked();
 
 	void on_disableButton_clicked();
