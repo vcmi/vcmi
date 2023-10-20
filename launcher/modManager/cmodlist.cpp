@@ -28,8 +28,8 @@ QString CModEntry::sizeToString(double size)
 	return sizes[index].arg(QString::number(size, 'f', 1));
 }
 
-CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname)
-	: repository(repository), localData(localData), modSettings(modSettings), modname(modname)
+CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettingsEntry, QString modname)
+	: repository(repository), localData(localData), modSettingsEntry(modSettingsEntry), modname(modname)
 {
 }
 
@@ -38,7 +38,7 @@ bool CModEntry::isEnabled() const
 	if(!isInstalled())
 		return false;
 
-	return modSettings["active"].toBool();
+	return modSettingsEntry["active"].toBool();
 }
 
 bool CModEntry::isDisabled() const
@@ -223,16 +223,16 @@ static QVariant getValue(QVariant input, QString path)
 	}
 }
 
-CModEntry CModList::getMod(QString modname) const
+CModEntry CModList::getMod(QString modName) const
 {
-	modname = modname.toLower();
+	modName = modName.toLower();
 	QVariantMap repo;
-	QVariantMap local = localModList[modname].toMap();
+	QVariantMap local = localModList[modName].toMap();
 	QVariantMap settings;
 
-	QString path = modname;
-	path = "/" + path.replace(".", "/mods/");
-	QVariant conf = getValue(modSettings, path);
+	QString modPath = modName;
+	modPath = "/" + modPath.replace(".", "/mods/");
+	QVariant conf = getValue(modSettings, modPath);
 
 	if(conf.isNull())
 	{
@@ -252,8 +252,8 @@ CModEntry CModList::getMod(QString modname) const
 	
 	if(settings["active"].toBool())
 	{
-		QString rootPath = path.section('/', 0, 1);
-		if(path != rootPath)
+		QString rootPath = modPath.section('/', 0, 1);
+		if(modPath != rootPath)
 		{
 			conf = getValue(modSettings, rootPath);
 			const auto confMap = conf.toMap();
@@ -272,7 +272,7 @@ CModEntry CModList::getMod(QString modname) const
 
 	for(auto entry : repositories)
 	{
-		QVariant repoVal = getValue(entry, path);
+		QVariant repoVal = getValue(entry, modPath);
 		if(repoVal.isValid())
 		{
 			auto repoValMap = repoVal.toMap();
@@ -300,7 +300,7 @@ CModEntry CModList::getMod(QString modname) const
 		}
 	}
 
-	return CModEntry(repo, local, settings, modname);
+	return CModEntry(repo, local, settings, modName);
 }
 
 bool CModList::hasMod(QString modname) const

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "cmodlist.h"
+#include "CConfigHandler.h"
 
 class CModManager : public QObject
 {
@@ -17,7 +18,9 @@ class CModManager : public QObject
 
 	CModList * modList;
 
-	QString settingsPath();
+	QString modSettingsName = QString::fromStdString(settings["launcher"]["modSettingsName"].String());
+	QString getModSettingsName();
+	QString getModSettingsPath();
 
 	// check-free version of public method
 	bool doEnableMod(QString mod, bool on);
@@ -36,8 +39,10 @@ public:
 
 	void resetRepositories();
 	void loadRepositories(QVector<QVariantMap> repomap);
-	void loadModSettings();
+	void loadActiveModSettings();
 	void loadMods();
+
+	void setModSettingsName(QString modConfigurationName);
 
 	QStringList getErrors();
 

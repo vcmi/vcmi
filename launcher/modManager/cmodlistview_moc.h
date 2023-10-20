@@ -64,6 +64,7 @@ signals:
 	void modsChanged();
 
 public:
+	void setUpComboBoxModConfiguration();
 	explicit CModListView(QWidget * parent = 0);
 	~CModListView();
 
@@ -105,6 +106,8 @@ private slots:
 	void on_lineEdit_textChanged(const QString & arg1);
 
 	void on_comboBox_currentIndexChanged(int index);
+
+	void on_comboBoxModConfiguration_currentIndexChanged(int index);
 
 	void on_enableButton_clicked();
 

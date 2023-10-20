@@ -51,22 +51,27 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 }
 }
 
-
 CModManager::CModManager(CModList * modList)
 	: modList(modList)
 {
 	loadMods();
-	loadModSettings();
+	loadActiveModSettings();
 }
 
-QString CModManager::settingsPath()
+QString CModManager::getModSettingsName()
 {
-	return pathToQString(VCMIDirs::get().userConfigPath() / "modSettings.json");
+	return modSettingsName;
 }
 
-void CModManager::loadModSettings()
+QString CModManager::getModSettingsPath()
 {
-	modSettings = JsonUtils::JsonFromFile(settingsPath()).toMap();
+	std::string modSettingsFileName = modSettingsName.toStdString() + ".json";
+	return pathToQString(VCMIDirs::get().userConfigPath() / "modSettings" / modSettingsFileName);
+}
+
+void CModManager::loadActiveModSettings()
+{
+	modSettings = JsonUtils::JsonFromFile(getModSettingsPath()).toMap();
 	modList->setModSettings(modSettings["activeMods"]);
 }
 
@@ -115,6 +120,11 @@ void CModManager::loadMods()
 		}
 	}
 	modList->setLocalModList(localMods);
+}
+
+void CModManager::setModSettingsName(QString modSettingsName)
+{
+	this->modSettingsName = modSettingsName;
 }
 
 bool CModManager::addError(QString modname, QString message)
@@ -265,7 +275,7 @@ bool CModManager::doEnableMod(QString mod, bool on)
 	modList->setModSettings(modSettings["activeMods"]);
 	modList->modChanged(mod);
 
-	JsonUtils::JsonToFile(settingsPath(), modSettings);
+	JsonUtils::JsonToFile(getModSettingsPath(), modSettings);
 
 	return true;
 }

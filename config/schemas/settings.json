@@ -484,6 +484,7 @@
 				"defaultRepositoryURL", 
 				"extraRepositoryURL", 
 				"extraRepositoryEnabled", 
+				"modSettingsName",
 				"enableInstalledMods", 
 				"autoCheckRepositories", 
 				"updateOnStartup", 
@@ -513,6 +514,10 @@
 				"setupCompleted" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"modSettingsName" : {
+					"type" : "string",
+					"default" : "modSettings"
 				},
 				"enableInstalledMods" : {
 					"type" : "boolean",
