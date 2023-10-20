@@ -59,6 +59,11 @@ CModManager::CModManager(CModList * modList)
 	loadActiveModSettings();
 }
 
+QString CModManager::getModSettingsName()
+{
+	return modSettingsName;
+}
+
 QString CModManager::getModSettingsPath()
 {
 	std::string modSettingsFileName = modSettingsName.toStdString() + ".json";

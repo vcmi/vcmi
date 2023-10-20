@@ -25,6 +25,7 @@
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "../spells/CSpellHandler.h"
+#include "CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -207,7 +208,8 @@ void CModHandler::loadMods(bool onlyEssential)
 	}
 	else
 	{
-		modsConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
+		auto modSettingsName = settings["launcher"]["modSettingsName"].String();
+		modsConfig = loadModSettings(JsonPath::builtin("config/" + modSettingsName + ".json"));
 		loadMods("", "", modsConfig["activeMods"], true);
 	}
 
@@ -467,10 +469,10 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 	if(!onlyEssential)
 	{
-		std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
+		auto modSettingsName = settings["launcher"]["modSettingsName"].String();
+		std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/" + modSettingsName + ".json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
 		file << modSettingsEntry.toJson();
 	}
-
 }
 
 void CModHandler::trySetActiveMods(const std::vector<std::pair<TModID, CModInfo::VerificationInfo>> & modList)
