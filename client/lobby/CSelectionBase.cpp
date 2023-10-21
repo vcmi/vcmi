@@ -113,9 +113,11 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 	}
 
 	if(tabSel->showRandom)
+	{
 		tabSel->curFolder = "";
-	tabSel->showRandom = false;
-	tabSel->filter(0, true);
+		tabSel->filter(0, true);
+		tabSel->showRandom = false;
+	}
 
 	GH.windows().totalRedraw();
 }
