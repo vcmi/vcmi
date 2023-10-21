@@ -120,80 +120,90 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
+        <source>Maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
         <source>Sounds</source>
         <translation>Âm thanh</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="50"/>
         <source>Skills</source>
         <translation>Kĩ năng</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="50"/>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="67"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="51"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="69"/>
         <source>Other</source>
         <translation>Khác</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="51"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="52"/>
         <source>Objects</source>
         <translation>Đối tượng</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="52"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="53"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="54"/>
         <source>Mechanics</source>
         <translation>Cơ chế</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="54"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="55"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="56"/>
         <source>Interface</source>
         <translation>Giao diện</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="56"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="57"/>
         <source>Heroes</source>
         <translation>Tướng</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="57"/>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="58"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="59"/>
         <source>Graphical</source>
         <translation>Đồ họa</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="59"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="60"/>
         <source>Expansion</source>
         <translation>Bản mở rộng</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="60"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
         <source>Creatures</source>
         <translation>Quái</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
+        <source>Compatibility</source>
+        <translation type="unfinished">Tương thích</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
         <source>Artifacts</source>
         <translation>Vật phẩm</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="64"/>
         <source>AI</source>
         <translation>Trí tuệ nhân tạo</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="170"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="172"/>
         <source>Name</source>
         <translation>Tên</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="173"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="175"/>
         <source>Type</source>
         <translation>Loại</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistmodel_moc.cpp" line="174"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="176"/>
         <source>Version</source>
         <translation>Phiên bản</translation>
     </message>
@@ -241,164 +251,211 @@
         <translation>Tải lại</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="160"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="307"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
         <source>Description</source>
         <translation>Mô tả</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="206"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="209"/>
         <source>Changelog</source>
         <translation>Các thay đổi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="228"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="231"/>
         <source>Screenshots</source>
         <translation>Hình ảnh</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="386"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="389"/>
         <source>Uninstall</source>
         <translation>Gỡ bỏ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="421"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
         <source>Enable</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="456"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <source>Disable</source>
         <translation>Tắt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="491"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="494"/>
         <source>Update</source>
         <translation>Cập nhật</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="526"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="529"/>
         <source>Install</source>
         <translation>Cài đặt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
         <source> %p% (%v KB out of %m KB)</source>
         <translation> %p% (%v KB trong số %m KB)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="337"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
         <source>Abort</source>
         <translation>Hủy</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="242"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
         <source>Mod name</source>
         <translation>Tên bản sửa đổi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="243"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="249"/>
         <source>Installed version</source>
         <translation>Phiên bản cài đặt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="244"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
         <source>Latest version</source>
         <translation>Phiên bản mới nhất</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
+        <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
         <source>Download size</source>
         <translation>Kích thước tải về</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
         <source>Authors</source>
         <translation>Tác giả</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="260"/>
         <source>License</source>
         <translation>Giấy phép</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="263"/>
         <source>Contact</source>
         <translation>Liên hệ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="263"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="272"/>
         <source>Compatibility</source>
         <translation>Tương thích</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="265"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="273"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="274"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
         <source>Required VCMI version</source>
         <translation>Cần phiên bản VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="280"/>
         <source>Supported VCMI version</source>
         <translation>Hỗ trợ phiên bản VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
         <source>Supported VCMI versions</source>
         <translation>Phiên bản VCMI hỗ trợ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="303"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>Languages</source>
         <translation>Ngôn ngữ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="305"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
         <source>Required mods</source>
         <translation>Cần các bản sửa đổi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="306"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Conflicting mods</source>
         <translation>Bản sửa đổi không tương thích</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>Bản sửa đổi này không thể cài đặt hoặc kích hoạt do thiếu các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>Bản sửa đổi này không thể kích hoạt do không tương thích các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>Bản sửa đổi này không thể tắt do cần thiết cho các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>Bản sửa đổi này không thể gỡ bỏ hoặc nâng cấp do cần thiết cho các bản sửa đổi sau</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Đây là bản con, không thể cài đặt hoặc gỡ bỏ tách biệt với bản cha</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="330"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="339"/>
         <source>Notes</source>
         <translation>Ghi chú</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="599"/>
+        <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="618"/>
+        <source>Download failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="619"/>
+        <source>Unable to download all files.
+
+Encountered errors:
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="620"/>
+        <source>
+
+Install successfully downloaded?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="759"/>
+        <source>Installing mod %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="811"/>
+        <source>Operation failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
+        <source>Encountered errors:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="847"/>
         <source>Screenshot %1</source>
         <translation>Hình ảnh %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="243"/>
         <source>Mod is incompatible</source>
         <translation>Bản sửa đổi này không tương thích</translation>
     </message>
@@ -406,123 +463,123 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="302"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="370"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="408"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="276"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="580"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
         <source>Off</source>
         <translation>Tắt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="579"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="78"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
         <source>Artificial Intelligence</source>
         <translation>Trí tuệ nhân tạo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="434"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>Mod Repositories</source>
         <translation>Nguồn bản sửa đổi</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
         <source>Interface Scaling</source>
         <translation>Phóng đại giao diện</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="491"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="624"/>
         <source>Neutral AI in battles</source>
         <translation>Máy hoang dã trong trận đánh</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="289"/>
         <source>Enemy AI in battles</source>
         <translation>Máy đối thủ trong trận đánh</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="239"/>
         <source>Additional repository</source>
         <translation>Nguồn bổ sung</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="566"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
         <source>Adventure Map Allies</source>
         <translation>Máy liên minh ở bản đồ phiêu lưu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="638"/>
         <source>Adventure Map Enemies</source>
         <translation>Máy đối thủ ở bản đồ phiêu lưu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="623"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="353"/>
         <source>Windowed</source>
         <translation>Cửa sổ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="358"/>
         <source>Borderless fullscreen</source>
         <translation>Toàn màn hình không viền</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="633"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="363"/>
         <source>Exclusive fullscreen</source>
         <translation>Toàn màn hình riêng biệt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="170"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="229"/>
         <source>Autosave limit (0 = off)</source>
         <translation>Giới hạn lưu tự động (0 = không giới hạn)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="525"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="436"/>
         <source>Friendly AI in battles</source>
         <translation>Máy liên minh trong trận đánh</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="271"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
         <source>Framerate Limit</source>
         <translation>Giới hạn khung hình</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="328"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
         <source>Autosave prefix</source>
         <translation>Thêm tiền tố vào lưu tự động</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="603"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="202"/>
         <source>empty = map name prefix</source>
         <translation>Rỗng = tên bản đồ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="383"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>Refresh now</source>
         <translation>Làm mới</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="288"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="405"/>
         <source>Default repository</source>
         <translation>Nguồn mặc định</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="307"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="375"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="413"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="585"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="654"/>
         <source>On</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="359"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="525"/>
         <source>Cursor</source>
         <translation>Con trỏ</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="481"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="412"/>
         <source>Heroes III Data Language</source>
         <translation>Ngôn ngữ dữ liệu Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="610"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="340"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -539,101 +596,134 @@ Toàn màn hình không viền - Trò chơi chạy toàn màn hình, dùng chung
 Toàn màn hình riêng biệt - Trò chơi chạy toàn màn hình và dùng độ phân giải được chọn.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="641"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="631"/>
         <source>Reserved screen area</source>
         <translation>Diện tích màn hình dành riêng</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="212"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Hardware</source>
         <translation>Phần cứng</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="217"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="538"/>
         <source>Software</source>
         <translation>Phần mềm</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="397"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="118"/>
         <source>Heroes III Translation</source>
         <translation>Bản dịch Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="542"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="617"/>
         <source>Check on startup</source>
         <translation>Kiểm tra khi khởi động</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="177"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="137"/>
         <source>Fullscreen</source>
         <translation>Toàn màn hình</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="197"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="68"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="130"/>
         <source>General</source>
         <translation>Chung</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="532"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="443"/>
         <source>VCMI Language</source>
         <translation>Ngôn ngữ VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="335"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
         <source>Resolution</source>
         <translation>Độ phân giải</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="204"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="518"/>
         <source>Autosave</source>
         <translation>Tự động lưu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="146"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
+        <source>VSync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="374"/>
         <source>Display index</source>
         <translation>Mục hiện thị</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="184"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="549"/>
         <source>Network port</source>
         <translation>Cổng mạng</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="170"/>
         <source>Video</source>
         <translation>Phim ảnh</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="225"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="265"/>
         <source>Show intro</source>
         <translation>Hiện thị giới thiệu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="405"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
         <source>Active</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="410"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
         <source>Disabled</source>
         <translation>Tắt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="411"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
         <source>Enable</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="416"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="418"/>
         <source>Not Installed</source>
         <translation>Chưa cài đặt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="417"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="419"/>
         <source>Install</source>
         <translation>Cài đặt</translation>
+    </message>
+</context>
+<context>
+    <name>Chat</name>
+    <message>
+        <location filename="../lobby/chat_moc.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../lobby/chat_moc.ui" line="40"/>
+        <source>Users in lobby</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../lobby/chat_moc.ui" line="50"/>
+        <source>Global chat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../lobby/chat_moc.ui" line="104"/>
+        <source>type you message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../lobby/chat_moc.ui" line="111"/>
+        <source>send</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -942,88 +1032,78 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
 <context>
     <name>Lobby</name>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="39"/>
-        <location filename="../lobby/lobby_moc.cpp" line="401"/>
+        <location filename="../lobby/lobby_moc.ui" line="42"/>
+        <location filename="../lobby/lobby_moc.cpp" line="402"/>
         <source>Connect</source>
         <translation>Kết nối</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="26"/>
+        <location filename="../lobby/lobby_moc.ui" line="29"/>
         <source>Username</source>
         <translation>Tên đăng nhập</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="56"/>
+        <location filename="../lobby/lobby_moc.ui" line="59"/>
         <source>Server</source>
         <translation>Máy chủ</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="114"/>
-        <source>Lobby chat</source>
-        <translation>Trò chuyện</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="194"/>
+        <location filename="../lobby/lobby_moc.ui" line="173"/>
         <source>Session</source>
         <translation>Phiên</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="199"/>
+        <location filename="../lobby/lobby_moc.ui" line="178"/>
         <source>Players</source>
         <translation>Người chơi</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="274"/>
+        <location filename="../lobby/lobby_moc.ui" line="268"/>
         <source>Resolve</source>
         <translation>Phân tích</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="286"/>
+        <location filename="../lobby/lobby_moc.ui" line="280"/>
         <source>New game</source>
         <translation>Tạo mới</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="293"/>
+        <location filename="../lobby/lobby_moc.ui" line="287"/>
         <source>Load game</source>
         <translation>Tải lại</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="149"/>
+        <location filename="../lobby/lobby_moc.ui" line="128"/>
         <source>New room</source>
         <translation>Tạo phòng</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="76"/>
-        <source>Players in lobby</source>
-        <translation>Người chơi trong sảnh</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="159"/>
+        <location filename="../lobby/lobby_moc.ui" line="138"/>
         <source>Join room</source>
         <translation>Vào phòng</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="267"/>
+        <location filename="../lobby/lobby_moc.ui" line="261"/>
         <source>Ready</source>
         <translation>Sẵn sàng</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="250"/>
+        <location filename="../lobby/lobby_moc.ui" line="244"/>
         <source>Mods mismatch</source>
         <translation>Bản sửa đổi chưa giống</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="243"/>
+        <location filename="../lobby/lobby_moc.ui" line="237"/>
         <source>Leave</source>
         <translation>Rời khỏi</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="216"/>
+        <location filename="../lobby/lobby_moc.ui" line="210"/>
         <source>Kick player</source>
         <translation>Mời ra</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.ui" line="236"/>
+        <location filename="../lobby/lobby_moc.ui" line="230"/>
         <source>Players in the room</source>
         <translation>Người chơi trong phòng</translation>
     </message>
@@ -1033,7 +1113,7 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
         <translation>Thoát</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="461"/>
+        <location filename="../lobby/lobby_moc.cpp" line="462"/>
         <source>No issues detected</source>
         <translation>Không có vấn đề</translation>
     </message>
@@ -1103,19 +1183,18 @@ Hiện tại chưa hỗ trợ Heroes® of Might and Magic® III HD!</translation
     <name>UpdateDialog</name>
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
-        <source>You have latest version</source>
-        <translation>Bạn đã có phiên bản mới nhất</translation>
+        <source>You have the latest version</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
-        <location filename="../../out/build/linux-clang-release/launcher/ui_updatedialog_moc.h" line="109"/>
         <source>Close</source>
         <translation>Đóng</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
-        <source>Check updates on startup</source>
-        <translation>Cập nhật khi khởi động</translation>
+        <source>Check for updates on startup</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
