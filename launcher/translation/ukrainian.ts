@@ -121,7 +121,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Мапи</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
@@ -180,7 +180,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Сумісність</translation>
+        <translation>Сумісність</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
@@ -319,7 +319,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Розмір</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
@@ -410,12 +410,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="599"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажуємо %s%. %p% (%v МБ з %m Мб) виконано</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="618"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка завантаження</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="619"/>
@@ -424,30 +424,37 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося завантажити усі файли.
+
+Виникли помилки:
+
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="620"/>
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Встановити успішно завантажені?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="759"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановлення модифікації %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="811"/>
         <source>Operation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Операція завершилася невдало</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Виникли помилки:
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="847"/>
@@ -649,7 +656,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translation>Вертикальна синхронізація</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="374"/>
@@ -703,27 +710,27 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../lobby/chat_moc.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="40"/>
         <source>Users in lobby</source>
-        <translation type="unfinished"></translation>
+        <translation>Гравців у лобі</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="50"/>
         <source>Global chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Загальний чат</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="104"/>
         <source>type you message</source>
-        <translation type="unfinished"></translation>
+        <translation>введіть повідомлення</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="111"/>
         <source>send</source>
-        <translation type="unfinished"></translation>
+        <translation>Відправити</translation>
     </message>
 </context>
 <context>
