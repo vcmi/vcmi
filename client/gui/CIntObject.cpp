@@ -258,6 +258,16 @@ void CIntObject::redraw()
 	}
 }
 
+void CIntObject::clickPressed(const Point & cursorPosition, bool lastActivated)
+{
+	AEventsReceiver::clickPressed(cursorPosition);
+}
+
+void CIntObject::clickReleased(const Point & cursorPosition, bool lastActivated)
+{
+	AEventsReceiver::clickReleased(cursorPosition);
+}
+
 bool CIntObject::receiveEvent(const Point & position, int eventType) const
 {
 	return pos.isInside(position);

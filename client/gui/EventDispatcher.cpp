@@ -213,16 +213,10 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 		if( i->receiveEvent(position, AEventsReceiver::LCLICK) || i == nearestElement)
 		{
 			if(isPressed)
-			{
-				i->clickPressed(position);
-				i->clickPressed(position, lastActivated);
-			}
+				i->clickReleased(position, lastActivated);
 
 			if (i->mouseClickedState && !isPressed)
-			{
-				i->clickReleased(position);
 				i->clickReleased(position, lastActivated);
-			}
 
 			i->mouseClickedState = isPressed;
 			lastActivated = false;
