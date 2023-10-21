@@ -176,7 +176,7 @@ void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpda
 
 void CMinimap::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), aiShield->pos);
 	CIntObject::showAll(to);
 
 	if(minimap)
