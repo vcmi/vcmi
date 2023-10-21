@@ -92,8 +92,21 @@ bool CModEntry::isInstalled() const
 
 bool CModEntry::isVisible() const
 {
-	if (getBaseValue("modType").toString() == "Compatibility" && isSubmod())
-		return false;
+	if (getBaseValue("modType").toString() == "Compatibility")
+	{
+		if (isSubmod())
+			return false;
+	}
+
+	if (getBaseValue("modType").toString() == "Translation")
+	{
+		// Do not show not installed translation mods to languages other than player language
+		if (localData.empty() && getBaseValue("language") != QString::fromStdString(settings["general"]["language"].String()) )
+			return false;
+
+		if (isSubmod())
+			return false;
+	}
 
 	return !localData.isEmpty() || !repository.isEmpty();
 }
