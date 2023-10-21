@@ -123,7 +123,7 @@ InfoCard::InfoCard()
 	pos.y += 6;
 
 	labelSaveDate = std::make_shared<CLabel>(310, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
-	labelMapSize = std::make_shared<CLabel>(332, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
+	labelMapSize = std::make_shared<CLabel>(333, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
 	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
