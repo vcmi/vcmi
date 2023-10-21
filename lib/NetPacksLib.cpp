@@ -2553,7 +2553,7 @@ void PlayerCheated::applyGs(CGameState * gs) const
 
 void PlayerStartsTurn::applyGs(CGameState * gs) const
 {
-	assert(gs->actingPlayers.count(player) == 0);
+	//assert(gs->actingPlayers.count(player) == 0);//Legal - may happen after loading of deserialized map state
 	gs->actingPlayers.insert(player);
 }
 

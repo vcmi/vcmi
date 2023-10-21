@@ -455,11 +455,6 @@ std::string GameResID::entityType()
 	return "resource";
 }
 
-std::string GameResID::entityType()
-{
-	return "resource";
-}
-
 std::string SecondarySkill::entityType()
 {
 	return "secondarySkill";

@@ -593,8 +593,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::OBJECT_INSTANCE:
 		case BonusSource::HERO_BASE_SKILL:
-			assert(0); // TODO
-			sourceInstance = ObjectInstanceID();
+			sourceInstance = ObjectInstanceID(ObjectInstanceID::decode(node.String()));
 			break;
 		case BonusSource::CREATURE_ABILITY:
 		{
@@ -641,8 +640,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			break;
 		}
 		case BonusSource::CAMPAIGN_BONUS:
-			assert(0); // TODO
-			sourceInstance = CampaignScenarioID();
+			sourceInstance = CampaignScenarioID(CampaignScenarioID::decode(node.String()));
 			break;
 		case BonusSource::ARMY:
 		case BonusSource::STACK_EXPERIENCE:
