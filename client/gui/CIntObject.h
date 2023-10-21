@@ -98,6 +98,7 @@ public:
 	void showAll(Canvas & to) override;
 	//request complete redraw of this object
 	void redraw() override;
+	
 	/// returns true if this element is a popup window
 	/// called only for windows
 	bool isPopupWindow() const override;
