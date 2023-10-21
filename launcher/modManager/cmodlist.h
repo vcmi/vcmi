@@ -60,10 +60,12 @@ public:
 	bool isEssential() const;
 	// checks if verison is compatible with vcmi
 	bool isCompatible() const;
-	// returns if has any data
-	bool isValid() const;
+	// returns true if mod should be visible in Launcher
+	bool isVisible() const;
 	// installed and enabled
 	bool isTranslation() const;
+	// returns true if this is a submod
+	bool isSubmod() const;
 
 	// see ModStatus enum
 	int getModStatus() const;

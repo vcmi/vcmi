@@ -154,7 +154,7 @@ bool CModManager::canInstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if(mod.getName().contains('.'))
+	if(mod.isSubmod())
 		return addError(modname, "Can not install submod");
 
 	if(mod.isInstalled())
@@ -169,7 +169,7 @@ bool CModManager::canUninstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if(mod.getName().contains('.'))
+	if(mod.isSubmod())
 		return addError(modname, "Can not uninstall submod");
 
 	if(!mod.isInstalled())

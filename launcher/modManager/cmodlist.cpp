@@ -90,14 +90,22 @@ bool CModEntry::isInstalled() const
 	return !localData.isEmpty();
 }
 
-bool CModEntry::isValid() const
+bool CModEntry::isVisible() const
 {
+	if (getBaseValue("modType").toString() == "Compatibility" && isSubmod())
+		return false;
+
 	return !localData.isEmpty() || !repository.isEmpty();
 }
 
 bool CModEntry::isTranslation() const
 {
-	return getBaseValue("modType").toString().toLower() == "translation";
+	return getBaseValue("modType").toString() == "Translation";
+}
+
+bool CModEntry::isSubmod() const
+{
+	return getName().contains('.');
 }
 
 int CModEntry::getModStatus() const
