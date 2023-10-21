@@ -61,7 +61,7 @@ void SettingsStorage::init(const std::string & dataFilename, const std::string &
 
 	JsonPath confName = JsonPath::builtin(dataFilename);
 
-	JsonUtils::assembleFromFiles(confName.getOriginalName()).swap(config);
+	config = JsonUtils::assembleFromFiles(confName.getOriginalName());
 
 	// Probably new install. Create config file to save settings to
 	if (!CResourceHandler::get("local")->existsResource(confName))

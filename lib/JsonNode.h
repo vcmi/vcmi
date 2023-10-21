@@ -37,17 +37,8 @@ public:
 	};
 
 private:
-	union JsonData
-	{
-		bool Bool;
-		double Float;
-		std::string* String;
-		JsonVector* Vector;
-		JsonMap* Struct;
-		si64 Integer;
-	};
+	using JsonData = std::variant<std::monostate, bool, double, std::string, JsonVector, JsonMap, si64>;
 
-	JsonType type;
 	JsonData data;
 
 public:
@@ -64,13 +55,6 @@ public:
 	explicit JsonNode(const JsonPath & fileURI);
 	explicit JsonNode(const std::string & modName, const JsonPath & fileURI);
 	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
-	//Copy c-tor
-	JsonNode(const JsonNode &copy);
-
-	~JsonNode();
-
-	void swap(JsonNode &b);
-	JsonNode& operator =(JsonNode node);
 
 	bool operator == (const JsonNode &other) const;
 	bool operator != (const JsonNode &other) const;
@@ -137,30 +121,7 @@ public:
 	{
 		h & meta;
 		h & flags;
-		h & type;
-		switch(type)
-		{
-		case JsonType::DATA_NULL:
-			break;
-		case JsonType::DATA_BOOL:
-			h & data.Bool;
-			break;
-		case JsonType::DATA_FLOAT:
-			h & data.Float;
-			break;
-		case JsonType::DATA_STRING:
-			h & data.String;
-			break;
-		case JsonType::DATA_VECTOR:
-			h & data.Vector;
-			break;
-		case JsonType::DATA_STRUCT:
-			h & data.Struct;
-			break;
-		case JsonType::DATA_INTEGER:
-			h & data.Integer;
-			break;
-		}
+		h & data;
 	}
 };
 
