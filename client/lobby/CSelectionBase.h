@@ -80,6 +80,7 @@ class InfoCard : public CIntObject
 	std::shared_ptr<CAnimImage> iconsMapSizes;
 
 	std::shared_ptr<CLabel> labelSaveDate;
+	std::shared_ptr<CLabel> labelMapSize;
 	std::shared_ptr<CLabel> labelScenarioName;
 	std::shared_ptr<CLabel> labelScenarioDescription;
 	std::shared_ptr<CLabel> labelVictoryCondition;

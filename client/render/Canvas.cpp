@@ -186,3 +186,8 @@ SDL_Surface * Canvas::getInternalSurface()
 {
 	return surface;
 }
+
+Rect Canvas::getRenderArea() const
+{
+	return renderArea;
+}
