@@ -98,11 +98,6 @@ public:
 	void showAll(Canvas & to) override;
 	//request complete redraw of this object
 	void redraw() override;
-
-	// events are overloaded
-	void clickPressed(const Point & cursorPosition, bool lastActivated) override;
-	void clickReleased(const Point & cursorPosition, bool lastActivated) override;
-
 	/// returns true if this element is a popup window
 	/// called only for windows
 	bool isPopupWindow() const override;
