@@ -11,6 +11,8 @@
 
 #include "RandomMapTab.h"
 #include "CSelectionBase.h"
+#include "CLobbyScreen.h"
+#include "SelectionTab.h"
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
@@ -121,6 +123,16 @@ RandomMapTab::RandomMapTab():
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
 	
+	if(auto w = widget<CButton>("buttonShowRandomMaps"))
+	{
+		w->addCallback([&]()
+		{
+			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
+			(static_cast<CLobbyScreen *>(parent))->tabSel->showRandom = true;
+			(static_cast<CLobbyScreen *>(parent))->tabSel->filter(0, true);
+		});
+	}
+
 	//set combo box callbacks
 	if(auto w = widget<ComboBox>("templateList"))
 	{

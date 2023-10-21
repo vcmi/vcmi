@@ -78,6 +78,7 @@ public:
 	ESortBy generalSortingBy;
 	bool sortModeAscending;
 	int currentMapSizeFilter = 0;
+	bool showRandom;
 
 	std::shared_ptr<CTextInput> inputName;
 
