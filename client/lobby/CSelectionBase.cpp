@@ -112,7 +112,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 		curTab.reset();
 	}
 
-	if(tabSel->showRandom)
+	if(tabSel->showRandom && tab != tabOpt)
 	{
 		tabSel->curFolder = "";
 		tabSel->showRandom = false;
