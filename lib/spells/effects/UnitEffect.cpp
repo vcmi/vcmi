@@ -253,7 +253,7 @@ bool UnitEffect::isReceptive(const Mechanics * m, const battle::Unit * unit) con
 		//SPELL_IMMUNITY absolute case
 		std::stringstream cachingStr;
 		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !unit->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, TBonusSubtype(m->getSpellId()), 1), cachingStr.str());
+		return !unit->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()), 1), cachingStr.str());
 	}
 	else
 	{

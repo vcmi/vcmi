@@ -655,7 +655,7 @@ void CGameState::initGlobalBonuses()
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
 		bonus->source = BonusSource::GLOBAL;//for all
-		bonus->sid = TBonusSourceID(); //there is one global object
+		bonus->sid = BonusSourceID(); //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
 	VLC->creh->loadCrExpBon(globalEffects);
@@ -1871,7 +1871,7 @@ struct statsHLP
 		//Heroes can produce gold as well - skill, specialty or arts
 		for(const auto & h : ps->heroes)
 		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, TBonusSubtype(GameResID(GameResID::GOLD))));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(GameResID::GOLD))));
 
 			if(!heroOrTown)
 				heroOrTown = h;

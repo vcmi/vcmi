@@ -23,7 +23,7 @@ TurnInfo::BonusCache::BonusCache(const TConstBonusListPtr & bl)
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
 		noTerrainPenalty.push_back(static_cast<bool>(
-				bl->getFirst(Selector::type()(BonusType::NO_TERRAIN_PENALTY).And(Selector::subtype()(TBonusSubtype(terrain->getId()))))));
+				bl->getFirst(Selector::type()(BonusType::NO_TERRAIN_PENALTY).And(Selector::subtype()(BonusSubtypeID(terrain->getId()))))));
 	}
 
 	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(BonusType::FREE_SHIP_BOARDING)));
@@ -73,10 +73,10 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 
 bool TurnInfo::hasBonusOfType(BonusType type) const
 {
-	return hasBonusOfType(type, TBonusSubtype());
+	return hasBonusOfType(type, BonusSubtypeID());
 }
 
-bool TurnInfo::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
+bool TurnInfo::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 {
 	switch(type)
 	{
@@ -96,10 +96,10 @@ bool TurnInfo::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
 
 int TurnInfo::valOfBonuses(BonusType type) const
 {
-	return valOfBonuses(type, TBonusSubtype());
+	return valOfBonuses(type, BonusSubtypeID());
 }
 
-int TurnInfo::valOfBonuses(BonusType type, TBonusSubtype subtype) const
+int TurnInfo::valOfBonuses(BonusType type, BonusSubtypeID subtype) const
 {
 	switch(type)
 	{

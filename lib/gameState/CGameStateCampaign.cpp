@@ -87,7 +87,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 			for(auto g = PrimarySkill::BEGIN; g < PrimarySkill::END; ++g)
 			{
 				auto sel = Selector::type()(BonusType::PRIMARY_SKILL)
-					.And(Selector::subtype()(TBonusSubtype(g)))
+					.And(Selector::subtype()(BonusSubtypeID(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
 				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
@@ -315,7 +315,7 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 					continue;
 
 				auto currentScenario = *gameState->scenarioOps->campState->currentScenario();
-				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, TBonusSourceID(currentScenario), TBonusSubtype(g) );
+				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, BonusSourceID(currentScenario), BonusSubtypeID(g) );
 				hero->addNewBonus(bb);
 			}
 			break;

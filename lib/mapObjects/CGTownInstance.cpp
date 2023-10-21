@@ -160,7 +160,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
-	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusSubtypeID::creatureLevel(level)));
+	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level)));
 	for(const auto & b : *bonuses)
 		ret.entries.emplace_back(b->val, b->Description());
 
@@ -787,7 +787,7 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
 	if(!b)
 	{
-		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, TBonusSourceID());
+		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, BonusSourceID());
 		addNewBonus(b);
 	}
 

@@ -168,10 +168,10 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 	}
 	case BonusType::GENERAL_DAMAGE_REDUCTION:
 	{
-		if (bonus->subtype == BonusSubtypeID::damageTypeMelee)
+		if (bonus->subtype == BonusCustomSubtype::damageTypeMelee)
 			fileName = "DamageReductionMelee.bmp";
 
-		if (bonus->subtype == BonusSubtypeID::damageTypeRanged)
+		if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
 			fileName = "DamageReductionRanged.bmp";
 
 		break;

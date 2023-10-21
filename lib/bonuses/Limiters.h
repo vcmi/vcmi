@@ -116,17 +116,17 @@ class DLL_LINKAGE HasAnotherBonusLimiter : public ILimiter //applies only to nod
 {
 public:
 	BonusType type;
-	TBonusSubtype subtype;
+	BonusSubtypeID subtype;
 	BonusSource source;
-	TBonusSourceID sid;
+	BonusSourceID sid;
 	bool isSubtypeRelevant; //check for subtype only if this is true
 	bool isSourceRelevant; //check for bonus source only if this is true
 	bool isSourceIDRelevant; //check for bonus source only if this is true
 
 	HasAnotherBonusLimiter(BonusType bonus = BonusType::NONE);
-	HasAnotherBonusLimiter(BonusType bonus, TBonusSubtype _subtype);
+	HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _subtype);
 	HasAnotherBonusLimiter(BonusType bonus, BonusSource src);
-	HasAnotherBonusLimiter(BonusType bonus, TBonusSubtype _subtype, BonusSource src);
+	HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _subtype, BonusSource src);
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;

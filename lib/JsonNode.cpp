@@ -417,25 +417,25 @@ std::string JsonNode::toJson(bool compact) const
 
 ///JsonUtils
 
-static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const JsonNode & node)
+static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node)
 {
 	if (node.isNull())
 	{
-		subtype = TBonusSubtype();
+		subtype = BonusSubtypeID();
 		return;
 	}
 
 	if (node.isNumber()) // Compatibility code for 1.3 or older
 	{
 		logMod->warn("Bonus subtype must be string!");
-		subtype = BonusSubtypeID(node.Integer());
+		subtype = BonusCustomSubtype(node.Integer());
 		return;
 	}
 
 	if (!node.isString())
 	{
 		logMod->warn("Bonus subtype must be string!");
-		subtype = TBonusSubtype();
+		subtype = BonusSubtypeID();
 		return;
 	}
 
@@ -538,7 +538,7 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 		{
 			VLC->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
 			{
-				subtype = BonusSubtypeID(identifier);
+				subtype = BonusCustomSubtype(identifier);
 			});
 			break;
 		}
@@ -546,29 +546,29 @@ static void loadBonusSubtype(TBonusSubtype & subtype, BonusType type, const Json
 			for(const auto & i : bonusNameMap)
 				if(i.second == type)
 					logMod->warn("Bonus type %s does not supports subtypes!", i.first );
-			subtype =  TBonusSubtype();
+			subtype =  BonusSubtypeID();
 	}
 }
 
-static void loadBonusSourceInstance(TBonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
+static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
 {
 	if (node.isNull())
 	{
-		sourceInstance = BonusSourceID();
+		sourceInstance = BonusCustomSource();
 		return;
 	}
 
 	if (node.isNumber()) // Compatibility code for 1.3 or older
 	{
 		logMod->warn("Bonus source must be string!");
-		sourceInstance = BonusSourceID(node.Integer());
+		sourceInstance = BonusCustomSource(node.Integer());
 		return;
 	}
 
 	if (!node.isString())
 	{
 		logMod->warn("Bonus source must be string!");
-		sourceInstance = BonusSourceID();
+		sourceInstance = BonusCustomSource();
 		return;
 	}
 
@@ -643,7 +643,7 @@ static void loadBonusSourceInstance(TBonusSourceID & sourceInstance, BonusSource
 		case BonusSource::TERRAIN_NATIVE:
 		case BonusSource::OTHER:
 		default:
-			sourceInstance = TBonusSourceID();
+			sourceInstance = BonusSourceID();
 			break;
 	}
 }
@@ -1181,13 +1181,13 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["subtype"];
 	if(!value->isNull() && type != BonusType::NONE)
 	{
-		TBonusSubtype subtype;
+		BonusSubtypeID subtype;
 		loadBonusSubtype(subtype, type, ability);
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];
 	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
-	std::optional<TBonusSourceID> id = std::nullopt;
+	std::optional<BonusSourceID> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());

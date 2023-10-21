@@ -383,15 +383,15 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 		forEachSchool([&](const SpellSchool & cnf, bool & stop)
 		{
-			if(bearer->hasBonusOfType(BonusType::SPELL_DAMAGE_REDUCTION, TBonusSubtype(cnf)))
+			if(bearer->hasBonusOfType(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(cnf)))
 			{
-				ret *= 100 - bearer->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, TBonusSubtype(cnf));
+				ret *= 100 - bearer->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(cnf));
 				ret /= 100;
 				stop = true; //only bonus from one school is used
 			}
 		});
 
-		CSelector selector = Selector::typeSubtype(BonusType::SPELL_DAMAGE_REDUCTION, TBonusSubtype(SpellSchool::ANY));
+		CSelector selector = Selector::typeSubtype(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::ANY));
 		auto cachingStr = "type_SPELL_DAMAGE_REDUCTION_s_ANY";
 
 		//general spell dmg reduction, works only on magical effects
@@ -402,9 +402,9 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		}
 
 		//dmg increasing
-		if(bearer->hasBonusOfType(BonusType::MORE_DAMAGE_FROM_SPELL, TBonusSubtype(id)))
+		if(bearer->hasBonusOfType(BonusType::MORE_DAMAGE_FROM_SPELL, BonusSubtypeID(id)))
 		{
-			ret *= 100 + bearer->valOfBonuses(BonusType::MORE_DAMAGE_FROM_SPELL, TBonusSubtype(id));
+			ret *= 100 + bearer->valOfBonuses(BonusType::MORE_DAMAGE_FROM_SPELL, BonusSubtypeID(id));
 			ret /= 100;
 		}
 	}
@@ -925,7 +925,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			auto b = JsonUtils::parseBonus(bonusNode);
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
-			b->sid = TBonusSourceID(spell->id); //for all
+			b->sid = BonusSourceID(spell->id); //for all
 			b->source = BonusSource::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)
@@ -940,7 +940,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			auto b = JsonUtils::parseBonus(bonusNode);
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
-			b->sid = TBonusSourceID(spell->id); //for all
+			b->sid = BonusSourceID(spell->id); //for all
 			b->source = BonusSource::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)

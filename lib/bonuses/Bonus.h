@@ -10,7 +10,7 @@
 #pragma once
 
 #include "BonusEnum.h"
-#include "BonusSubtypeID.h"
+#include "BonusCustomTypes.h"
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
 
@@ -25,8 +25,8 @@ class IUpdater;
 class BonusList;
 class CSelector;
 
-using TBonusSubtype = VariantIdentifier<BonusSubtypeID, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
-using TBonusSourceID = VariantIdentifier<BonusSourceID, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
+using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
+using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TLimiterPtr = std::shared_ptr<ILimiter>;
@@ -60,12 +60,12 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
-	TBonusSubtype subtype;
+	BonusSubtypeID subtype;
 
 	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus
 	BonusSource targetSourceType;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE.
 	si32 val = 0;
-	TBonusSourceID sid; //source id: id of object/artifact/spell
+	BonusSourceID sid; //source id: id of object/artifact/spell
 	BonusValueType valType = BonusValueType::ADDITIVE_VALUE;
 	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
@@ -79,11 +79,11 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	std::string description;
 
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, std::string Desc);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, TBonusSubtype subtype);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, TBonusSubtype subtype, std::string Desc);
-	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID sourceID, TBonusSubtype subtype, BonusValueType ValType);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, std::string Desc);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, std::string Desc);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, BonusValueType ValType);
 	Bonus() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

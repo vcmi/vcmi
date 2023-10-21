@@ -140,7 +140,7 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus )
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus, TBonusSubtype _subtype )
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus, BonusSubtypeID _subtype )
 	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), isSourceRelevant(false), isSourceIDRelevant(false)
 {
 }
@@ -150,7 +150,7 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSource src)
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, TBonusSubtype _subtype, BonusSource src)
+HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _subtype, BonusSource src)
 	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), source(src), isSourceRelevant(true), isSourceIDRelevant(false)
 {
 }

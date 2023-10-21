@@ -497,7 +497,7 @@ struct DLL_LINKAGE RemoveBonus : public CPackForClient
 
 	//vars to identify bonus: its source
 	BonusSource source;
-	TBonusSourceID id; //source id
+	BonusSourceID id; //source id
 
 	//used locally: copy of removed bonus
 	Bonus bonus;

@@ -242,13 +242,13 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 		return 1500;
 
 	auto statsValue =
-		10 * art->valOfBonuses(BonusType::MOVEMENT, BonusSubtypeID::heroMovementLand)
+		10 * art->valOfBonuses(BonusType::MOVEMENT, BonusCustomSubtype::heroMovementLand)
 		+ 1200 * art->valOfBonuses(BonusType::STACKS_SPEED)
 		+ 700 * art->valOfBonuses(BonusType::MORALE)
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::KNOWLEDGE))
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::SPELL_POWER))
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK))
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE))
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::KNOWLEDGE))
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER))
 		+ 500 * art->valOfBonuses(BonusType::LUCK);
 
 	auto classValue = 0;

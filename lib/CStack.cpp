@@ -220,7 +220,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 					resurrectedCount += 1;
 			}
 
-			if(customState->hasBonusOfType(BonusType::REBIRTH, BonusSubtypeID::rebirthSpecial))
+			if(customState->hasBonusOfType(BonusType::REBIRTH, BonusCustomSubtype::rebirthSpecial))
 			{
 				// resurrect at least one Sacred Phoenix
 				vstd::amax(resurrectedCount, 1);

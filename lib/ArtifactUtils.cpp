@@ -145,7 +145,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & sid)
 {
 	auto ret = new CArtifactInstance(VLC->arth->objects[ArtifactID::SPELL_SCROLL]);
 	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
-		BonusSource::ARTIFACT_INSTANCE, -1, TBonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), TBonusSubtype(sid));
+		BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(sid));
 	ret->addNewBonus(bonus);
 	return ret;
 }

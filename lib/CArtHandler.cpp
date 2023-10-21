@@ -751,7 +751,7 @@ void CArtHandler::afterLoadFinalization()
 		{
 			assert(art == objects[art->id]);
 			assert(bonus->source == BonusSource::ARTIFACT);
-			bonus->sid = TBonusSourceID(art->id);
+			bonus->sid = BonusSourceID(art->id);
 		}
 	}
 	CBonusSystemNode::treeHasChanged();

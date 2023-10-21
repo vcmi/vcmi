@@ -268,7 +268,7 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 		{
 			const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 			if(nullptr != selectedHero)
-				detailed = selectedHero->hasVisions(town, BonusSubtypeID::visionsTowns);
+				detailed = selectedHero->hasVisions(town, BonusCustomSubtype::visionsTowns);
 		}
 
 		dest.initFromTown(dynamic_cast<const CGTownInstance *>(town), detailed);
@@ -322,7 +322,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	{
 		const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
-			if(selectedHero->hasVisions(hero, BonusSubtypeID::visionsHeroes))
+			if(selectedHero->hasVisions(hero, BonusCustomSubtype::visionsHeroes))
 				infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
 	}
 

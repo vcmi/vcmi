@@ -11,8 +11,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-#include "../constants/EntityIdentifiers.h"
-
 enum class CampaignVersion : uint8_t
 {
 	NONE = 0,

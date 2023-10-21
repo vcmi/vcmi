@@ -109,9 +109,9 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	const auto *casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
 	{ 
-		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, TBonusSubtype(m->getSpellId())));
-		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, TBonusSubtype(m->getSpellId())));
-		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, TBonusSubtype(m->getSpellId())));
+		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, BonusSubtypeID(m->getSpellId())));
+		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
+		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
 	}	
 	//TODO: does hero specialty should affects his stack casting spells?
 
@@ -222,7 +222,7 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 			nb.turnsRemain = duration;
 		vstd::amax(maxDuration, nb.turnsRemain);
 
-		nb.sid = TBonusSourceID(m->getSpellId()); //for all
+		nb.sid = BonusSourceID(m->getSpellId()); //for all
 		nb.source = BonusSource::SPELL_EFFECT;//for all
 
 		//fix to original config: shield should display damage reduction

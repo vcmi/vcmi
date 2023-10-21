@@ -222,7 +222,7 @@ void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDura
 	gbonus.id = heroID.getNum();
 	gbonus.bonus.duration = duration;
 	gbonus.bonus.source = BonusSource::OBJECT;
-	gbonus.bonus.sid = TBonusSourceID(ID);
+	gbonus.bonus.sid = BonusSourceID(ID);
 	cb->giveHeroBonus(&gbonus);
 }
 

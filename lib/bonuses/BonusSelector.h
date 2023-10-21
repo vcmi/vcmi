@@ -126,7 +126,7 @@ public:
 namespace Selector
 {
 	extern DLL_LINKAGE CSelectFieldEqual<BonusType> & type();
-	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> & subtype();
+	extern DLL_LINKAGE CSelectFieldEqual<BonusSubtypeID> & subtype();
 	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info();
 	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & sourceType();
 	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & targetSourceType();
@@ -134,9 +134,9 @@ namespace Selector
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
 
-	CSelector DLL_LINKAGE typeSubtype(BonusType Type, TBonusSubtype Subtype);
-	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, TBonusSubtype subtype, const CAddInfo & info);
-	CSelector DLL_LINKAGE source(BonusSource source, TBonusSourceID sourceID);
+	CSelector DLL_LINKAGE typeSubtype(BonusType Type, BonusSubtypeID Subtype);
+	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, BonusSubtypeID subtype, const CAddInfo & info);
+	CSelector DLL_LINKAGE source(BonusSource source, BonusSourceID sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source);
 	CSelector DLL_LINKAGE valueType(BonusValueType valType);
 

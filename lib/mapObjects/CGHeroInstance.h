@@ -248,7 +248,7 @@ public:
 
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 
-	bool hasVisions(const CGObjectInstance * target, TBonusSubtype masteryLevel) const;
+	bool hasVisions(const CGObjectInstance * target, BonusSubtypeID masteryLevel) const;
 	/// If this hero perishes, the scenario is failed
 	bool isMissionCritical() const;
 

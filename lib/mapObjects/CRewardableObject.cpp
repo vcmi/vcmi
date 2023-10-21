@@ -197,7 +197,7 @@ bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) con
 		case Rewardable::VISIT_PLAYER:
 			return vstd::contains(cb->getPlayerState(contextHero->getOwner())->visitedObjects, ObjectInstanceID(id));
 		case Rewardable::VISIT_BONUS:
-			return contextHero->hasBonusFrom(BonusSource::OBJECT, TBonusSourceID(ID));
+			return contextHero->hasBonusFrom(BonusSource::OBJECT, BonusSourceID(ID));
 		case Rewardable::VISIT_HERO:
 			return contextHero->visitedObjects.count(ObjectInstanceID(id));
 		case Rewardable::VISIT_LIMITER:
@@ -234,7 +234,7 @@ bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 	switch (configuration.visitMode)
 	{
 		case Rewardable::VISIT_BONUS:
-			return h->hasBonusFrom(BonusSource::OBJECT, TBonusSourceID(ID));
+			return h->hasBonusFrom(BonusSource::OBJECT, BonusSourceID(ID));
 		case Rewardable::VISIT_HERO:
 			return h->visitedObjects.count(ObjectInstanceID(id));
 		case Rewardable::VISIT_LIMITER:

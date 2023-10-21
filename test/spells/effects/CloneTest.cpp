@@ -138,7 +138,7 @@ public:
 		EXPECT_EQ(marker.duration, BonusDuration::N_TURNS);
 		EXPECT_EQ(marker.turnsRemain, effectDuration);
 		EXPECT_EQ(marker.source, BonusSource::SPELL_EFFECT);
-		EXPECT_EQ(marker.sid, TBonusSourceID(SpellID(SpellID::CLONE)));
+		EXPECT_EQ(marker.sid, BonusSourceID(SpellID(SpellID::CLONE)));
 	}
 
 	void setDefaultExpectations()

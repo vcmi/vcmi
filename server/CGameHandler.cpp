@@ -248,11 +248,11 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		{
 			case ECommander::ATTACK:
 				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = TBonusSubtype(PrimarySkill::ATTACK);
+				scp.accumulatedBonus.subtype = BonusSubtypeID(PrimarySkill::ATTACK);
 				break;
 			case ECommander::DEFENSE:
 				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = TBonusSubtype(PrimarySkill::DEFENSE);
+				scp.accumulatedBonus.subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
 				break;
 			case ECommander::HEALTH:
 				scp.accumulatedBonus.type = BonusType::STACK_HEALTH;
@@ -788,7 +788,7 @@ void CGameHandler::onNewTurn()
 			{
 				for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
 				{
-					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, TBonusSubtype(k));
+					n.res[elem.first][k] += h->valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 				}
 			}
 		}

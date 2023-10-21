@@ -62,7 +62,7 @@ bool IBonusBearer::hasBonusOfType(BonusType type) const
 	return hasBonus(s, cachingStr);
 }
 
-int IBonusBearer::valOfBonuses(BonusType type, TBonusSubtype subtype) const
+int IBonusBearer::valOfBonuses(BonusType type, BonusSubtypeID subtype) const
 {
 	//This part is performance-critical
 	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
@@ -72,7 +72,7 @@ int IBonusBearer::valOfBonuses(BonusType type, TBonusSubtype subtype) const
 	return valOfBonuses(s, cachingStr);
 }
 
-bool IBonusBearer::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
+bool IBonusBearer::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 {
 	//This part is performance-critical
 	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
@@ -82,7 +82,7 @@ bool IBonusBearer::hasBonusOfType(BonusType type, TBonusSubtype subtype) const
 	return hasBonus(s, cachingStr);
 }
 
-bool IBonusBearer::hasBonusFrom(BonusSource source, TBonusSourceID sourceID) const
+bool IBonusBearer::hasBonusFrom(BonusSource source, BonusSourceID sourceID) const
 {
 	boost::format fmt("source_%did_%s");
 	fmt % static_cast<int>(source) % sourceID.toString();

@@ -113,25 +113,25 @@ FactionID CCreature::getFaction() const
 
 int32_t CCreature::getBaseAttack() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK)).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDefense() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE)).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDamageMin() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDamageMax() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
@@ -293,12 +293,12 @@ CCreature::CCreature()
 
 void CCreature::addBonus(int val, BonusType type)
 {
-	addBonus(val, type, TBonusSubtype());
+	addBonus(val, type, BonusSubtypeID());
 }
 
-void CCreature::addBonus(int val, BonusType type, TBonusSubtype subtype)
+void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 {
-	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(BonusSource::CREATURE_ABILITY, TBonusSourceID(getId())));
+	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(BonusSource::CREATURE_ABILITY, BonusSourceID(getId())));
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
@@ -306,7 +306,7 @@ void CCreature::addBonus(int val, BonusType type, TBonusSubtype subtype)
 
 	if(existing.empty())
 	{
-		auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::CREATURE_ABILITY, val, TBonusSourceID(getId()), subtype, BonusValueType::BASE_NUMBER);
+		auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::CREATURE_ABILITY, val, BonusSourceID(getId()), subtype, BonusValueType::BASE_NUMBER);
 		addNewBonus(added);
 	}
 	else
@@ -350,16 +350,16 @@ void CCreature::updateFrom(const JsonNode & data)
 			addBonus(configNode["speed"].Integer(), BonusType::STACKS_SPEED);
 
 		if(!configNode["attack"].isNull())
-			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK));
+			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 
 		if(!configNode["defense"].isNull())
-			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE));
+			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 
 		if(!configNode["damage"]["min"].isNull())
-			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin);
+			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
 
 		if(!configNode["damage"]["max"].isNull())
-			addBonus(configNode["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax);
+			addBonus(configNode["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
 
 		if(!configNode["shots"].isNull())
 			addBonus(configNode["shots"].Integer(), BonusType::SHOTS);
@@ -609,11 +609,11 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
-	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::ATTACK));
-	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, TBonusSubtype(PrimarySkill::DEFENSE));
+	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
+	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 
-	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMin);
-	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusSubtypeID::creatureDamageMax);
+	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
+	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
 
 	assert(node["damage"]["min"].Integer() <= node["damage"]["max"].Integer());
 
@@ -792,7 +792,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		{
 			CreatureID sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
 
-			b.sid = TBonusSourceID(sid);
+			b.sid = BonusSourceID(sid);
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
@@ -898,7 +898,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			{
 				auto b = JsonUtils::parseBonus(ability.second);
 				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = TBonusSourceID(creature->getId());
+				b->sid = BonusSourceID(creature->getId());
 				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}
@@ -916,7 +916,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			{
 				auto b = JsonUtils::parseBonus(ability);
 				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = TBonusSourceID(creature->getId());
+				b->sid = BonusSourceID(creature->getId());
 				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}
@@ -1030,19 +1030,19 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		break;
 	case 'A':
 		b.type = BonusType::PRIMARY_SKILL;
-		b.subtype = TBonusSubtype(PrimarySkill::ATTACK);
+		b.subtype = BonusSubtypeID(PrimarySkill::ATTACK);
 		break;
 	case 'D':
 		b.type = BonusType::PRIMARY_SKILL;
-		b.subtype = TBonusSubtype(PrimarySkill::DEFENSE);
+		b.subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
 		break;
 	case 'M': //Max damage
 		b.type = BonusType::CREATURE_DAMAGE;
-		b.subtype = BonusSubtypeID::creatureDamageMax;
+		b.subtype = BonusCustomSubtype::creatureDamageMax;
 		break;
 	case 'm': //Min damage
 		b.type = BonusType::CREATURE_DAMAGE;
-		b.subtype = BonusSubtypeID::creatureDamageMin;
+		b.subtype = BonusCustomSubtype::creatureDamageMin;
 		break;
 	case 'S':
 		b.type = BonusType::STACKS_SPEED; break;
@@ -1059,13 +1059,13 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		break;
 	case 'E':
 		b.type = BonusType::DEATH_STARE;
-		b.subtype = BonusSubtypeID::deathStareGorgon;
+		b.subtype = BonusCustomSubtype::deathStareGorgon;
 		break;
 	case 'F':
 		b.type = BonusType::FEAR; break;
 	case 'g':
 		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-		b.subtype = TBonusSubtype(SpellSchool::ANY);
+		b.subtype = BonusSubtypeID(SpellSchool::ANY);
 		break;
 	case 'P':
 		b.type = BonusType::CASTS; break;
@@ -1106,7 +1106,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = BonusType::MIND_IMMUNITY; break;
 			case 'r':
 				b.type = BonusType::REBIRTH; //on/off? makes sense?
-				b.subtype = BonusSubtypeID::rebirthRegular;
+				b.subtype = BonusCustomSubtype::rebirthRegular;
 				b.val = 20; //arbitrary value
 				break;
 			case 'R':
@@ -1129,42 +1129,42 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		{
 			case 'B': //Blind
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::BLIND));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::BLIND));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::HYPNOTIZE));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::HYPNOTIZE));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'I': //Implosion
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::IMPLOSION));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::IMPLOSION));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'K': //Berserk
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::BERSERK));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::BERSERK));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::METEOR_SHOWER));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::METEOR_SHOWER));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'N': //dispell beneficial spells
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::DISPEL_HELPFUL_SPELLS));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::DISPEL_HELPFUL_SPELLS));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::ARMAGEDDON));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::ARMAGEDDON));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'S': //Slow
 				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellID(SpellID::SLOW));
+				b.subtype = BonusSubtypeID(SpellID(SpellID::SLOW));
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case '6':
@@ -1180,51 +1180,51 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				break;
 			case 'F':
 				b.type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellSchool::FIRE);
+				b.subtype = BonusSubtypeID(SpellSchool::FIRE);
 				break;
 			case 'O':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = TBonusSubtype(SpellSchool::FIRE);
+				b.subtype = BonusSubtypeID(SpellSchool::FIRE);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'f':
 				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellSchool::FIRE);
+				b.subtype = BonusSubtypeID(SpellSchool::FIRE);
 				break;
 			case 'C':
 				b.type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellSchool::WATER);
+				b.subtype = BonusSubtypeID(SpellSchool::WATER);
 				break;
 			case 'W':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = TBonusSubtype(SpellSchool::WATER);
+				b.subtype = BonusSubtypeID(SpellSchool::WATER);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'w':
 				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellSchool::WATER);
+				b.subtype = BonusSubtypeID(SpellSchool::WATER);
 				break;
 			case 'E':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = TBonusSubtype(SpellSchool::EARTH);
+				b.subtype = BonusSubtypeID(SpellSchool::EARTH);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'e':
 				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellSchool::EARTH);
+				b.subtype = BonusSubtypeID(SpellSchool::EARTH);
 				break;
 			case 'A':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = TBonusSubtype(SpellSchool::AIR);
+				b.subtype = BonusSubtypeID(SpellSchool::AIR);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'a':
 				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = TBonusSubtype(SpellSchool::AIR);
+				b.subtype = BonusSubtypeID(SpellSchool::AIR);
 				break;
 			case 'D':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = TBonusSubtype(SpellSchool::ANY);
+				b.subtype = BonusSubtypeID(SpellSchool::ANY);
 				b.val = 100; //Full damage immunity
 				break;
 			case '0':
@@ -1253,16 +1253,16 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	case 'K':
 	case 'k':
 		b.type = BonusType::SPELL_AFTER_ATTACK;
-		b.subtype = TBonusSubtype(SpellID(stringToNumber(mod)));
+		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
 		break;
 	case 'h':
 		b.type = BonusType::HATE;
-		b.subtype = TBonusSubtype(CreatureID(stringToNumber(mod)));
+		b.subtype = BonusSubtypeID(CreatureID(stringToNumber(mod)));
 		break;
 	case 'p':
 	case 'J':
 		b.type = BonusType::SPELL_BEFORE_ATTACK;
-		b.subtype = TBonusSubtype(SpellID(stringToNumber(mod)));
+		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
 		b.additionalInfo = 3; //always expert?
 		break;
 	case 'r':
@@ -1271,7 +1271,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		break;
 	case 's':
 		b.type = BonusType::ENCHANTED;
-		b.subtype = TBonusSubtype(SpellID(stringToNumber(mod)));
+		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
 		b.valType = BonusValueType::INDEPENDENT_MAX;
 		break;
 	default:

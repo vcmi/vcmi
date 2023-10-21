@@ -150,7 +150,7 @@ JsonNode Bonus::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
-	if(subtype != TBonusSubtype())
+	if(subtype != BonusSubtypeID())
 		root["subtype"].String() = subtype.toString();
 	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
@@ -158,7 +158,7 @@ JsonNode Bonus::toJsonNode() const
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(targetSourceType != BonusSource::OTHER)
 		root["targetSourceType"].String() = vstd::findKey(bonusSourceMap, targetSourceType);
-	if(sid != TBonusSourceID())
+	if(sid != BonusSourceID())
 		root["sourceID"].String() = sid.toString();
 	if(val != 0)
 		root["val"].Integer() = val;
@@ -183,19 +183,19 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID)
-	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype(), std::string())
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID)
+	: Bonus(Duration, Type, Src, Val, ID, BonusSubtypeID(), std::string())
 {}
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, std::string Desc)
-	: Bonus(Duration, Type, Src, Val, ID, TBonusSubtype(), Desc)
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, std::string Desc)
+	: Bonus(Duration, Type, Src, Val, ID, BonusSubtypeID(), Desc)
 {}
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, TBonusSubtype Subtype)
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype)
 	: Bonus(Duration, Type, Src, Val, ID, Subtype, std::string())
 {}
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, TBonusSubtype Subtype, std::string Desc):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype, std::string Desc):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -208,7 +208,7 @@ Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32
 	targetSourceType = BonusSource::OTHER;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, TBonusSourceID ID, TBonusSubtype Subtype, BonusValueType ValType):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype, BonusValueType ValType):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
