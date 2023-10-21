@@ -49,7 +49,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 		{
 			for (auto & bonus : rewardInfo.reward.bonuses)
 			{
-				bonus.source = BonusSource::OBJECT;
+				bonus.source = BonusSource::OBJECT_TYPE;
 				bonus.sid = BonusSourceID(rewardableObject->ID);
 			}
 		}

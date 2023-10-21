@@ -583,7 +583,15 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			});
 			break;
 		}
-		case BonusSource::OBJECT:
+		case BonusSource::OBJECT_TYPE:
+		{
+			VLC->identifiers()->requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = Obj(identifier);
+			});
+			break;
+		}
+		case BonusSource::OBJECT_INSTANCE:
 		case BonusSource::HERO_BASE_SKILL:
 			assert(0); // TODO
 			sourceInstance = ObjectInstanceID();

@@ -333,7 +333,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		auto dur = bonusDurationMap.at(ui->bonuses->item(i, 0)->text().toStdString());
 		auto typ = bonusNameMap.at(ui->bonuses->item(i, 1)->text().toStdString());
 		auto val = ui->bonuses->item(i, 2)->data(Qt::UserRole).toInt();
-		vinfo.reward.bonuses.emplace_back(dur, typ, BonusSource::OBJECT, val, BonusSourceID(object.id));
+		vinfo.reward.bonuses.emplace_back(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id));
 	}
 	
 	vinfo.limiter.dayOfWeek = ui->lDayOfWeek->currentIndex();

@@ -993,7 +993,7 @@ void GiveBonus::applyGs(CGameState *gs)
 
 	if(bdescr.empty() && (bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE))
 	{
-		if (bonus.source == BonusSource::OBJECT)
+		if (bonus.source == BonusSource::OBJECT_TYPE || bonus.source == BonusSource::OBJECT_INSTANCE)
 		{
 			descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		}
