@@ -32,7 +32,6 @@ CModInfo::CModInfo():
 
 CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config):
 	identifier(identifier),
-	description(config["description"].String()),
 	dependencies(config["depends"].convertTo<std::set<std::string>>()),
 	conflicts(config["conflicts"].convertTo<std::set<std::string>>()),
 	explicitlyEnabled(false),
@@ -45,7 +44,7 @@ CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const
 	verificationInfo.parent = identifier.substr(0, identifier.find_last_of('.'));
 	if(verificationInfo.parent == identifier)
 		verificationInfo.parent.clear();
-	
+
 	if(!config["compatibility"].isNull())
 	{
 		vcmiCompatibleMin = CModVersion::fromString(config["compatibility"]["min"].String());
@@ -98,11 +97,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	implicitlyEnabled = true;
 	explicitlyEnabled = !config["keepDisabled"].Bool();
 	verificationInfo.checksum = 0;
-	if (data.getType() == JsonNode::JsonType::DATA_BOOL)
-	{
-		explicitlyEnabled = data.Bool();
-	}
-	if (data.getType() == JsonNode::JsonType::DATA_STRUCT)
+	if (data.isStruct())
 	{
 		explicitlyEnabled = data["active"].Bool();
 		validated = data["validated"].Bool();
@@ -116,20 +111,27 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	if(!implicitlyEnabled)
 		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", verificationInfo.name);
 
-	if (boost::iequals(config["modType"].String(), "translation")) // compatibility code - mods use "Translation" type at the moment
+	if (config["modType"].String() == "Translation")
 	{
 		if (baseLanguage != VLC->generaltexth->getPreferredLanguage())
 		{
-			logGlobal->warn("Translation mod %s was not loaded: language mismatch!", verificationInfo.name);
+			if (identifier.find_last_of('.') == std::string::npos)
+				logGlobal->warn("Translation mod %s was not loaded: language mismatch!", verificationInfo.name);
 			implicitlyEnabled = false;
 		}
+	}
+	if (config["modType"].String() == "Compatibility")
+	{
+		// compatibility mods are always explicitly enabled
+		// however they may be implicitly disabled - if one of their dependencies is missing
+		explicitlyEnabled = true;
 	}
 
 	if (isEnabled())
 		validation = validated ? PASSED : PENDING;
 	else
 		validation = validated ? PASSED : FAILED;
-	
+
 	verificationInfo.impactsGameplay = checkModGameplayAffecting();
 }
 
@@ -183,11 +185,6 @@ const CModInfo::VerificationInfo & CModInfo::getVerificationInfo() const
 bool CModInfo::isEnabled() const
 {
 	return implicitlyEnabled && explicitlyEnabled;
-}
-
-void CModInfo::setEnabled(bool on)
-{
-	explicitlyEnabled = on;
 }
 
 VCMI_LIB_NAMESPACE_END

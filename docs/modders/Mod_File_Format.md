@@ -30,11 +30,13 @@
 	"version" : "1.2.3"
 
 	// Type of mod, list of all possible values:
-	// "Translation", "Town", "Test", "Templates", "Spells", "Music", "Sounds", "Skills", "Other", "Objects", 
-	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Artifacts", "AI"
+	// "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", 
+	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Artifacts", "AI"
 	//
 	// Some mod types have additional effects on your mod:
-	// Translation: mod of this type is only active if player uses base language of this mod. See "language" property.
+	// Translation: mod of this type is only active if player uses base language of this mod. See "language" property. 
+	// Additionally, if such type is used for submod it will be hidden in UI and automatically activated if player uses base language of this mod. This allows to provide locale-specific resources for a mod
+	// Compatibility: mods of this type are hidden in UI and will be automatically activated if all mod dependencies are active. Intended to be used to provide compatibility patches between mods
 	"modType" : "Graphical",
 	
 	// Base language of the mod, before applying localizations. By default vcmi assumes English

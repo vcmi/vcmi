@@ -332,7 +332,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	if(mod.isInstalled())
 		notes += replaceIfNotEmpty(getModNames(findDependentMods(mod.getName(), false)), listTemplate.arg(hasDependentMods));
 
-	if(mod.getName().contains('.'))
+	if(mod.isSubmod())
 		notes += noteTemplate.arg(thisIsSubmod);
 
 	if(notes.size())
@@ -374,8 +374,8 @@ void CModListView::selectMod(const QModelIndex & index)
 
 		ui->disableButton->setVisible(mod.isEnabled());
 		ui->enableButton->setVisible(mod.isDisabled());
-		ui->installButton->setVisible(mod.isAvailable() && !mod.getName().contains('.'));
-		ui->uninstallButton->setVisible(mod.isInstalled() && !mod.getName().contains('.'));
+		ui->installButton->setVisible(mod.isAvailable() && !mod.isSubmod());
+		ui->uninstallButton->setVisible(mod.isInstalled() && !mod.isSubmod());
 		ui->updateButton->setVisible(mod.isUpdateable());
 
 		// Block buttons if action is not allowed at this time
@@ -921,7 +921,7 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 	bool hasBlockingMods = !findBlockingMods(modName).empty();
 	bool hasDependentMods = !findDependentMods(modName, true).empty();
 	
-	if(!hasInvalidDeps && mod.isAvailable() && !mod.getName().contains('.'))
+	if(!hasInvalidDeps && mod.isAvailable() && !mod.isSubmod())
 	{
 		on_installButton_clicked();
 		return;

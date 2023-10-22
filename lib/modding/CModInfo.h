@@ -87,7 +87,6 @@ public:
 	void updateChecksum(ui32 newChecksum);
 
 	bool isEnabled() const;
-	void setEnabled(bool on);
 
 	static std::string getModDir(const std::string & name);
 	static JsonPath getModFile(const std::string & name);

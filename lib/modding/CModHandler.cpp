@@ -128,8 +128,8 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		const CModInfo & brokenMod = allMods.at(brokenModID);
 		for(const TModID & dependency : brokenMod.dependencies)
 		{
-			if(!vstd::contains(resolvedModIDs, dependency))
-				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", brokenMod.getVerificationInfo().name, dependency);
+			if(!vstd::contains(resolvedModIDs, dependency) && brokenMod.config["modType"].String() != "Compatibility")
+				logMod->error("Mod '%s' has been disabled: dependency '%s' is missing.", brokenMod.getVerificationInfo().name, dependency);
 		}
 	}
 	return sortedValidMods;
