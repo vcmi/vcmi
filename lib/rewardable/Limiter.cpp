@@ -101,6 +101,9 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	if(manaPoints > hero->mana)
 		return false;
 
+	if (canLearnSkills && !hero->canLearnSkill())
+		return false;
+
 	if(manaPercentage > 100 * hero->mana / hero->manaLimit())
 		return false;
 
@@ -119,6 +122,12 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	for(const auto & spell : spells)
 	{
 		if (!hero->spellbookContainsSpell(spell))
+			return false;
+	}
+
+	for(const auto & spell : canLearnSpells)
+	{
+		if (!hero->canLearnSpell(spell.toSpell(VLC->spells()), true))
 			return false;
 	}
 

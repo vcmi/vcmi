@@ -18,6 +18,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../GameSettings.h"
+#include "../CPlayerState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../IGameCallback.h"
@@ -51,8 +52,37 @@ bool CBank::isCoastVisitable() const
 
 std::string CBank::getHoverText(PlayerColor player) const
 {
-	// TODO: record visited players
-	return getObjectName() + " " + visitedTxt(bc == nullptr);
+	if (!wasVisited(player))
+		return getObjectName();
+
+	return getObjectName() + "\n" + visitedTxt(bc == nullptr);
+}
+
+std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
+{
+	if (!wasVisited(player))
+		return {};
+
+	if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
+		return {};
+
+	std::map<CreatureID, int> guardsAmounts;
+	std::vector<Component> result;
+
+	for (auto const & slot : Slots())
+		if (slot.second)
+			guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
+
+	for (auto const & guard : guardsAmounts)
+	{
+		Component comp;
+		comp.id = Component::EComponentType::CREATURE;
+		comp.subtype = guard.first.getNum();
+		comp.val = guard.second;
+
+		result.push_back(comp);
+	}
+	return result;
 }
 
 void CBank::setConfig(const BankConfig & config)
@@ -98,11 +128,14 @@ void CBank::newTurn(CRandomGenerator & rand) const
 
 bool CBank::wasVisited (PlayerColor player) const
 {
-	return !bc; //FIXME: player A should not know about visit done by player B
+	return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
 }
 
 void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+	cb->sendAndApply(&cov);
+
 	int banktext = 0;
 	switch (ID)
 	{
@@ -130,27 +163,9 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	bd.player = h->getOwner();
 	bd.soundID = soundBase::invalid; // Sound is handled in json files, else two sounds are played
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, banktext);
+	bd.components = getPopupComponents(h->getOwner());
 	if (banktext == 32)
 		bd.text.replaceRawString(getObjectName());
-
-	if (VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
-	{
-		std::map<CreatureID, int> guardsAmounts;
-
-		for (auto const & slot : Slots())
-			if (slot.second)
-				guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
-
-		for (auto const & guard : guardsAmounts)
-		{
-			Component comp;
-			comp.id = Component::EComponentType::CREATURE;
-			comp.subtype = guard.first.getNum();
-			comp.val = guard.second;
-
-			bd.components.push_back(comp);
-		}
-	}
 
 	cb->showBlockingDialog(&bd);
 }

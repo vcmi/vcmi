@@ -23,7 +23,6 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
-#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGTownBuilding.h"
@@ -55,8 +54,6 @@ void registerTypesMapObjects1(Serializer &s)
 			s.template registerType<CGMonolith, CGSubterraneanGate>();
 			s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
-	s.template registerType<CGObjectInstance, CGScholar>();
-	s.template registerType<CGObjectInstance, CGObservatory>();
 	s.template registerType<CGObjectInstance, CGKeys>();
 		s.template registerType<CGKeys, CGKeymasterTent>();
 		s.template registerType<CGKeys, CGBorderGuard>(); s.template registerType<IQuestObject, CGBorderGuard>();
@@ -103,7 +100,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
-	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CreatureInstanceConstructor>();
@@ -112,7 +108,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
-	REGISTER_GENERIC_HANDLER(CCartographer);
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);
 	REGISTER_GENERIC_HANDLER(CGBoat);
@@ -132,14 +127,11 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CGMine);
 	REGISTER_GENERIC_HANDLER(CGObelisk);
-	REGISTER_GENERIC_HANDLER(CGObservatory);
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
-	REGISTER_GENERIC_HANDLER(CGScholar);
 	REGISTER_GENERIC_HANDLER(CGSeerHut);
 	REGISTER_GENERIC_HANDLER(CGShipyard);
-	REGISTER_GENERIC_HANDLER(CGShrine);
 	REGISTER_GENERIC_HANDLER(CGSignBottle);
 	REGISTER_GENERIC_HANDLER(CGSirens);
 	REGISTER_GENERIC_HANDLER(CGMonolith);
@@ -147,7 +139,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGWhirlpool);
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
-	REGISTER_GENERIC_HANDLER(CGWitchHut);
 	REGISTER_GENERIC_HANDLER(HillFort);
 
 #undef REGISTER_GENERIC_HANDLER
@@ -177,9 +168,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
-		s.template registerType<CTeamVisited, CGWitchHut>();
-		s.template registerType<CTeamVisited, CGShrine>();
-		s.template registerType<CTeamVisited, CCartographer>();
 		s.template registerType<CTeamVisited, CGObelisk>();
 
 	//s.template registerType<CQuest>();

@@ -84,12 +84,13 @@ public:
 
 	bool isLand() const;
 	bool isWater() const;
+	bool isRock() const;
+
 	bool isPassable() const;
+
 	bool isSurface() const;
 	bool isUnderground() const;
 	bool isTransitionRequired() const;
-	bool isSurfaceCartographerCompatible() const;
-	bool isUndergroundCartographerCompatible() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

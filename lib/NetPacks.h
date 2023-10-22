@@ -348,7 +348,7 @@ struct DLL_LINKAGE FoWChange : public CPackForClient
 
 	std::unordered_set<int3> tiles;
 	PlayerColor player;
-	ui8 mode = 0; //mode==0 - hide, mode==1 - reveal
+	ETileVisibility mode;
 	bool waitForDialogs = false;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
@@ -556,17 +556,14 @@ struct DLL_LINKAGE AddQuest : public CPackForClient
 
 struct DLL_LINKAGE UpdateArtHandlerLists : public CPackForClient
 {
-	std::vector<CArtifact *> treasures, minors, majors, relics;
+	std::map<ArtifactID, int> allocatedArtifacts;
 
 	void applyGs(CGameState * gs) const;
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & treasures;
-		h & minors;
-		h & majors;
-		h & relics;
+		h & allocatedArtifacts;
 	}
 };
 

@@ -475,6 +475,19 @@ namespace vstd
 		}
 	}
 
+	template<typename Elem, typename Predicate>
+	void erase_if(std::unordered_set<Elem> &setContainer, Predicate pred)
+	{
+		auto itr = setContainer.begin();
+		auto endItr = setContainer.end();
+		while(itr != endItr)
+		{
+			auto tmpItr = itr++;
+			if(pred(*tmpItr))
+				setContainer.erase(tmpItr);
+		}
+	}
+
 	//works for map and std::map, maybe something else
 	template<typename Key, typename Val, typename Predicate>
 	void erase_if(std::map<Key, Val> &container, Predicate pred)

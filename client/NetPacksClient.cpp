@@ -177,7 +177,7 @@ void ApplyClientNetPackVisitor::visitFoWChange(FoWChange & pack)
 		}
 		if(cl.getPlayerRelations(i.first, pack.player) != PlayerRelations::ENEMIES)
 		{
-			if(pack.mode)
+			if(pack.mode == ETileVisibility::REVEALED)
 				i.second->tileRevealed(pack.tiles);
 			else
 				i.second->tileHidden(pack.tiles);

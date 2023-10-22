@@ -27,6 +27,7 @@
 #include "../TerrainHandler.h"
 #include "../TextOperations.h"
 #include "../VCMI_Lib.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -34,6 +35,7 @@
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
 
 #include <boost/crc.hpp>
@@ -1139,32 +1141,102 @@ CGObjectInstance * CMapLoaderH3M::readSign(const int3 & mapPosition)
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readWitchHut()
+CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGWitchHut();
+	auto * object = readGeneric(position, objectTemplate);
+	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
+
+	assert(rewardable);
 
 	// AB and later maps have allowed abilities defined in H3M
 	if(features.levelAB)
 	{
-		reader->readBitmaskSkills(object->allowedAbilities, false);
+		std::set<SecondarySkill> allowedAbilities;
+		reader->readBitmaskSkills(allowedAbilities, false);
 
-		if(object->allowedAbilities.size() != 1)
+		if(allowedAbilities.size() != 1)
 		{
 			auto defaultAllowed = VLC->skillh->getDefaultAllowed();
 
-			for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
+			for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
 				if(defaultAllowed[skillID])
-					object->allowedAbilities.insert(SecondarySkill(skillID));
+					allowedAbilities.insert(SecondarySkill(skillID));
 		}
+
+		JsonVector anyOfList;
+
+		for (auto const & skill : allowedAbilities)
+		{
+			JsonNode entry;
+			entry.String() = VLC->skills()->getById(skill)->getJsonKey();
+			anyOfList.push_back(entry);
+		}
+		JsonNode variable;
+		variable["anyOf"].Vector() = anyOfList;
+		variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
+
+		rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 	}
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readScholar()
+CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGScholar();
-	object->bonusType = static_cast<CGScholar::EBonusType>(reader->readUInt8());
-	object->bonusID = reader->readUInt8();
+	enum class ScholarBonusType : uint8_t {
+		PRIM_SKILL = 0,
+		SECONDARY_SKILL = 1,
+		SPELL = 2,
+		RANDOM = 255
+	};
+
+	auto * object = readGeneric(position, objectTemplate);
+	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
+
+	uint8_t bonusTypeRaw = reader->readUInt8();
+	auto bonusType = static_cast<ScholarBonusType>(bonusTypeRaw);
+	auto bonusID = reader->readUInt8();
+
+	switch (bonusType)
+	{
+		case ScholarBonusType::PRIM_SKILL:
+		{
+			JsonNode variable;
+			JsonNode dice;
+			variable.String() = NPrimarySkill::names[bonusID];
+			variable.setMeta(ModScope::scopeGame());
+			dice.Integer() = 80;
+			rewardable->configuration.presetVariable("primarySkill", "gainedStat", variable);
+			rewardable->configuration.presetVariable("dice", "0", dice);
+			break;
+		}
+		case ScholarBonusType::SECONDARY_SKILL:
+		{
+			JsonNode variable;
+			JsonNode dice;
+			variable.String() = VLC->skills()->getByIndex(bonusID)->getJsonKey();
+			variable.setMeta(ModScope::scopeGame());
+			dice.Integer() = 50;
+			rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
+			rewardable->configuration.presetVariable("dice", "0", dice);
+			break;
+		}
+		case ScholarBonusType::SPELL:
+		{
+			JsonNode variable;
+			JsonNode dice;
+			variable.String() = VLC->spells()->getByIndex(bonusID)->getJsonKey();
+			variable.setMeta(ModScope::scopeGame());
+			dice.Integer() = 20;
+			rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+			rewardable->configuration.presetVariable("dice", "0", dice);
+			break;
+		}
+		case ScholarBonusType::RANDOM:
+			break;// No-op
+		default:
+			logGlobal->warn("Map '%s': Invalid Scholar settings! Ignoring...", mapName);
+	}
+
 	reader->skipZero(6);
 	return object;
 }
@@ -1306,10 +1378,22 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readShrine()
+CGObjectInstance * CMapLoaderH3M::readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGShrine();
-	object->spell = reader->readSpell32();
+	auto * object = readGeneric(position, objectTemplate);
+	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
+
+	assert(rewardable);
+
+	SpellID spell = reader->readSpell32();
+
+	if(spell != SpellID::NONE)
+	{
+		JsonNode variable;
+		variable.String() = VLC->spells()->getById(spell)->getJsonKey();
+		variable.setMeta(ModScope::scopeGame()); // list may include spells from all mods
+		rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+	}
 	return object;
 }
 
@@ -1458,9 +1542,9 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readSeerHut(mapPosition, objectInstanceID);
 
 		case Obj::WITCH_HUT:
-			return readWitchHut();
+			return readWitchHut(mapPosition, objectTemplate);
 		case Obj::SCHOLAR:
-			return readScholar();
+			return readScholar(mapPosition, objectTemplate);
 
 		case Obj::GARRISON:
 		case Obj::GARRISON2:
@@ -1495,7 +1579,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 		case Obj::SHRINE_OF_MAGIC_INCANTATION:
 		case Obj::SHRINE_OF_MAGIC_GESTURE:
 		case Obj::SHRINE_OF_MAGIC_THOUGHT:
-			return readShrine();
+			return readShrine(mapPosition, objectTemplate);
 
 		case Obj::PANDORAS_BOX:
 			return readPandora(mapPosition, objectInstanceID);
@@ -1717,7 +1801,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	{
 		if(!object->secSkills.empty())
 		{
-			if(object->secSkills[0].first != SecondarySkill::DEFAULT)
+			if(object->secSkills[0].first != SecondarySkill::NONE)
 				logGlobal->debug("Map '%s': Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...", mapName, object->getNameTextID(), object->subID);
 			object->secSkills.clear();
 		}

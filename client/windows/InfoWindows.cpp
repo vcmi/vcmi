@@ -351,10 +351,23 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	}
 	else
 	{
+		std::vector<Component> components;
+		if (settings["general"]["enableUiEnhancements"].Bool())
+		{
+			if(LOCPLINT->localState->getCurrentHero())
+				components = obj->getPopupComponents(LOCPLINT->localState->getCurrentHero());
+			else
+				components = obj->getPopupComponents(LOCPLINT->playerID);
+		}
+
+		std::vector<std::shared_ptr<CComponent>> guiComponents;
+		for (auto & component : components)
+			guiComponents.push_back(std::make_shared<CComponent>(component));
+
 		if(LOCPLINT->localState->getCurrentHero())
-			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->localState->getCurrentHero()));
+			CRClickPopup::createAndPush(obj->getPopupText(LOCPLINT->localState->getCurrentHero()), guiComponents);
 		else
-			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
+			CRClickPopup::createAndPush(obj->getPopupText(LOCPLINT->playerID), guiComponents);
 	}
 }
 

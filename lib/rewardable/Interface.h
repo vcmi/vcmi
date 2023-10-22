@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include "../CCreatureSet.h"
-#include "../ResourceSet.h"
 #include "../spells/ExternalCaster.h"
 #include "Configuration.h"
 

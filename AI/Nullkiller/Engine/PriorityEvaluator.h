@@ -18,8 +18,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CGWitchHut;
-
 VCMI_LIB_NAMESPACE_END
 
 namespace NKAI
@@ -43,7 +41,7 @@ public:
 	float getResourceRequirementStrength(int resType) const;
 	float getStrategicalValue(const CGObjectInstance * target) const;
 	float getTotalResourceRequirementStrength(int resType) const;
-	float evaluateWitchHutSkillScore(const CGWitchHut * hut, const CGHeroInstance * hero, HeroRole role) const;
+	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
 	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
 	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;

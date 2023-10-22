@@ -1066,11 +1066,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance * hero, const BattleRes
 void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
 {
 	setOwner(winner);
-	FoWChange fw;
-	fw.player = winner;
-	fw.mode = 1;
-	cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), winner, 1);
-	cb->sendAndApply(& fw);
+	cb->changeFogOfWar(getSightCenter(), getSightRadius(), winner, ETileVisibility::REVEALED);
 }
 
 void CGTownInstance::afterAddToMap(CMap * map)

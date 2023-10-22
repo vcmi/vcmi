@@ -12,8 +12,11 @@
 #include "Interface.h"
 
 #include "../CHeroHandler.h"
+#include "../TerrainHandler.h"
+#include "../CPlayerState.h"
 #include "../CSoundBase.h"
 #include "../NetPacks.h"
+#include "../gameState/CGameState.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
 #include "../mapObjects/MiscObjects.h"
@@ -45,6 +48,58 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 	assert(info.reward.creatures.size() <= GameConstants::ARMY_SIZE);
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
+
+	if (info.reward.revealTiles)
+	{
+		const auto & props = *info.reward.revealTiles;
+
+		const auto functor = [&props](const TerrainTile * tile)
+		{
+			int score = 0;
+			if (tile->terType->isSurface())
+				score += props.scoreSurface;
+
+			if (tile->terType->isUnderground())
+				score += props.scoreSubterra;
+
+			if (tile->terType->isWater())
+				score += props.scoreWater;
+
+			if (tile->terType->isRock())
+				score += props.scoreRock;
+
+			return score > 0;
+		};
+
+		std::unordered_set<int3> tiles;
+		if (props.radius > 0)
+		{
+			cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::HIDDEN, hero->getOwner());
+			if (props.hide)
+				cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::REVEALED, hero->getOwner());
+
+			vstd::erase_if(tiles, [&](const int3 & coord){
+				return !functor(cb->getTile(coord));
+			});
+		}
+		else
+		{
+			cb->getAllTiles(tiles, hero->tempOwner, -1, functor);
+		}
+
+		if (props.hide)
+		{
+			for (auto & player : cb->gameState()->players)
+			{
+				if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME && cb->getPlayerRelations(player.first, hero->getOwner()) == PlayerRelations::ENEMIES)
+					cb->changeFogOfWar(tiles, player.first, ETileVisibility::HIDDEN);
+			}
+		}
+		else
+		{
+			cb->changeFogOfWar(tiles, hero->getOwner(), ETileVisibility::REVEALED);
+		}
+	}
 
 	for(const auto & entry : info.reward.secondary)
 	{

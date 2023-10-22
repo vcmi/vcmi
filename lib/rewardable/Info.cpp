@@ -24,19 +24,36 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace {
-	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier )
+	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier, EMetaText textSource = EMetaText::ADVOB_TXT )
 	{
 		MetaString ret;
+
+		if (value.isVector())
+		{
+			for(const auto & entry : value.Vector())
+			{
+				if (entry.isNumber())
+					ret.appendLocalString(textSource, static_cast<ui32>(entry.Float()));
+				if (entry.isString())
+					ret.appendRawString(entry.String());
+			}
+			return ret;
+		}
+
 		if (value.isNumber())
 		{
-			ret.appendLocalString(EMetaText::ADVOB_TXT, static_cast<ui32>(value.Float()));
+			ret.appendLocalString(textSource, static_cast<ui32>(value.Float()));
 			return ret;
 		}
 
 		if (value.String().empty())
 			return ret;
 
-		ret.appendTextID(textIdentifier.get());
+		if (value.String()[0] == '@')
+			ret.appendTextID(value.String().substr(1));
+		else
+			ret.appendTextID(textIdentifier.get());
+
 		return ret;
 	}
 
@@ -56,7 +73,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	objectTextID = objectName;
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
-		if (entry.isString() && !entry.String().empty())
+		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
 			VLC->generaltexth->registerString(entry.meta, textID, entry.String());
 	};
 
@@ -81,6 +98,9 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	}
 
 	loadString(parameters["onSelectMessage"], TextIdentifier(objectName, "onSelect"));
+	loadString(parameters["description"], TextIdentifier(objectName, "description"));
+	loadString(parameters["notVisitedTooltip"], TextIdentifier(objectName, "notVisitedText"));
+	loadString(parameters["visitedTooltip"], TextIdentifier(objectName, "visitedTooltip"));
 	loadString(parameters["onVisitedMessage"], TextIdentifier(objectName, "onVisited"));
 	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
 }
@@ -102,28 +122,27 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 
 void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
-	std::vector<SpellID> spells;
-	IObjectInterface::cb->getAllowedSpells(spells);
+	auto const & variables = object.variables.values;
 
+	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng, variables);
+	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng, variables);
+	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
+	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
+	limiter.canLearnSkills = source["canLearnSkills"].Bool();
 
-	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng);
-	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng);
-	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng);
-	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng)
-					 + JsonRandom::loadValue(source["minLevel"], rng); // VCMI 1.1 compatibilty
+	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables);
+	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng, variables);
 
-	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng);
-	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng);
+	limiter.resources = JsonRandom::loadResources(source["resources"], rng, variables);
 
-	limiter.resources = JsonRandom::loadResources(source["resources"], rng);
-
-	limiter.primary = JsonRandom::loadPrimary(source["primary"], rng);
-	limiter.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
-	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
-	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, spells);
-	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+	limiter.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
+	limiter.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
+	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
+	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, variables);
+	limiter.canLearnSpells  = JsonRandom::loadSpells(source["canLearnSpells"], rng, variables);
+	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
 	
-	limiter.players = JsonRandom::loadColors(source["colors"], rng);
+	limiter.players = JsonRandom::loadColors(source["colors"], rng, variables);
 	limiter.heroes = JsonRandom::loadHeroes(source["heroes"], rng);
 	limiter.heroClasses = JsonRandom::loadHeroClasses(source["heroClasses"], rng);
 
@@ -134,37 +153,47 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 
 void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Reward & reward, const JsonNode & source) const
 {
-	reward.resources = JsonRandom::loadResources(source["resources"], rng);
+	auto const & variables = object.variables.values;
 
-	reward.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng)
-						  + JsonRandom::loadValue(source["gainedExp"], rng); // VCMI 1.1 compatibilty
+	reward.resources = JsonRandom::loadResources(source["resources"], rng, variables);
 
-	reward.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng)
-						+ JsonRandom::loadValue(source["gainedLevels"], rng); // VCMI 1.1 compatibilty
+	reward.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
+	reward.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
 
-	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng);
-	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng);
-	reward.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, -1);
+	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng, variables);
+	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng, variables);
+	reward.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables, -1);
 
-	reward.movePoints = JsonRandom::loadValue(source["movePoints"], rng);
-	reward.movePercentage = JsonRandom::loadValue(source["movePercentage"], rng, -1);
+	reward.movePoints = JsonRandom::loadValue(source["movePoints"], rng, variables);
+	reward.movePercentage = JsonRandom::loadValue(source["movePercentage"], rng, variables, -1);
 
 	reward.removeObject = source["removeObject"].Bool();
 	reward.bonuses = JsonRandom::loadBonuses(source["bonuses"]);
 
-	reward.primary = JsonRandom::loadPrimary(source["primary"], rng);
-	reward.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
+	reward.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
+	reward.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
 
-	std::vector<SpellID> spells;
-	IObjectInterface::cb->getAllowedSpells(spells);
-
-	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
-	reward.spells = JsonRandom::loadSpells(source["spells"], rng, spells);
-	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng);
+	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
+	reward.spells = JsonRandom::loadSpells(source["spells"], rng, variables);
+	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
 	{
-		reward.spellCast.first = JsonRandom::loadSpell(source["spellCast"]["spell"], rng);
+		reward.spellCast.first = JsonRandom::loadSpell(source["spellCast"]["spell"], rng, variables);
 		reward.spellCast.second = source["spellCast"]["schoolLevel"].Integer();
+	}
+
+	if (!source["revealTiles"].isNull())
+	{
+		auto const & entry = source["revealTiles"];
+
+		reward.revealTiles = RewardRevealTiles();
+		reward.revealTiles->radius = JsonRandom::loadValue(entry["radius"], rng, variables);
+		reward.revealTiles->hide = entry["hide"].Bool();
+
+		reward.revealTiles->scoreSurface = JsonRandom::loadValue(entry["surface"], rng, variables);
+		reward.revealTiles->scoreSubterra = JsonRandom::loadValue(entry["subterra"], rng, variables);
+		reward.revealTiles->scoreWater = JsonRandom::loadValue(entry["water"], rng, variables);
+		reward.revealTiles->scoreRock = JsonRandom::loadValue(entry["rock"], rng, variables);
 	}
 
 	for ( auto node : source["changeCreatures"].Struct() )
@@ -185,11 +214,66 @@ void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CR
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
+{
+	for(const auto & category : source.Struct())
+	{
+		for(const auto & entry : category.second.Struct())
+		{
+			JsonNode preset = object.getPresetVariable(category.first, entry.first);
+			const JsonNode & input = preset.isNull() ? entry.second : preset;
+			int32_t value = -1;
+
+			if (category.first == "number")
+				value = JsonRandom::loadValue(input, rng, object.variables.values);
+
+			if (category.first == "artifact")
+				value = JsonRandom::loadArtifact(input, rng, object.variables.values).getNum();
+
+			if (category.first == "spell")
+				value = JsonRandom::loadSpell(input, rng, object.variables.values).getNum();
+
+			if (category.first == "primarySkill")
+				value = static_cast<int>(JsonRandom::loadPrimary(input, rng, object.variables.values));
+
+			if (category.first == "secondarySkill")
+				value = JsonRandom::loadSecondary(input, rng, object.variables.values).getNum();
+
+			object.initVariable(category.first, entry.first, value);
+		}
+	}
+}
+
+void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables) const
+{
+	for (const auto & variable : variables.values )
+	{
+		if( boost::algorithm::starts_with(variable.first, "spell"))
+			target.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+
+		if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
+			target.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
+	}
+}
+
+void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const
+{
+	for (const auto & artifact : info.reward.artifacts )
+		target.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
+
+	for (const auto & artifact : info.reward.spells )
+		target.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
+
+	for (const auto & secondary : info.reward.secondary )
+		target.replaceLocalString(EMetaText::SEC_SKILL_NAME, secondary.first.getNum());
+
+	replaceTextPlaceholders(target, variables);
+}
+
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
 		CRandomGenerator & rng, const
 		JsonNode & source,
-		std::map<si32, si32> & thrownDice,
 		Rewardable::EEventType event,
 		const std::string & modeName) const
 {
@@ -200,21 +284,32 @@ void Rewardable::Info::configureRewards(
 		if (!reward["appearChance"].isNull())
 		{
 			JsonNode chance = reward["appearChance"];
-			si32 diceID = static_cast<si32>(chance["dice"].Float());
+			std::string diceID = std::to_string(chance["dice"].Integer());
 
-			if (thrownDice.count(diceID) == 0)
-				thrownDice[diceID] = rng.getIntRange(0, 99)();
+			auto diceValue = object.getVariable("dice", diceID);
+
+			if (!diceValue.has_value())
+			{
+				const JsonNode & preset = object.getPresetVariable("dice", diceID);
+				if (preset.isNull())
+					object.initVariable("dice", diceID, rng.getIntRange(0, 99)());
+				else
+					object.initVariable("dice", diceID, preset.Integer());
+
+				diceValue = object.getVariable("dice", diceID);
+			}
+			assert(diceValue.has_value());
 
 			if (!chance["min"].isNull())
 			{
 				int min = static_cast<int>(chance["min"].Float());
-				if (min > thrownDice[diceID])
+				if (min > *diceValue)
 					continue;
 			}
 			if (!chance["max"].isNull())
 			{
 				int max = static_cast<int>(chance["max"].Float());
-				if (max <= thrownDice[diceID])
+				if (max <= *diceValue)
 					continue;
 			}
 		}
@@ -225,12 +320,10 @@ void Rewardable::Info::configureRewards(
 
 		info.visitType = event;
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
+		info.description = loadMessage(reward["description"], TextIdentifier(objectTextID, "description", modeName, i), EMetaText::GENERAL_TXT);
 
-		for (const auto & artifact : info.reward.artifacts )
-			info.message.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
-
-		for (const auto & artifact : info.reward.spells )
-			info.message.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
+		replaceTextPlaceholders(info.message, object.variables, info);
+		replaceTextPlaceholders(info.description, object.variables, info);
 
 		object.info.push_back(info);
 	}
@@ -240,19 +333,30 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 {
 	object.info.clear();
 
-	std::map<si32, si32> thrownDice;
+	configureVariables(object, rng, parameters["variables"]);
 
-	configureRewards(object, rng, parameters["rewards"], thrownDice, Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
-	configureRewards(object, rng, parameters["onVisited"], thrownDice, Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
-	configureRewards(object, rng, parameters["onEmpty"], thrownDice, Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
+	configureRewards(object, rng, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
+	configureRewards(object, rng, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
+	configureRewards(object, rng, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
 
-	object.onSelect   = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
+	object.onSelect = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
+	object.description = loadMessage(parameters["description"], TextIdentifier(objectTextID, "description"));
+	object.notVisitedTooltip = loadMessage(parameters["notVisitedTooltip"], TextIdentifier(objectTextID, "notVisitedTooltip"), EMetaText::GENERAL_TXT);
+	object.visitedTooltip = loadMessage(parameters["visitedTooltip"], TextIdentifier(objectTextID, "visitedTooltip"), EMetaText::GENERAL_TXT);
+
+	if (object.notVisitedTooltip.empty())
+		object.notVisitedTooltip.appendTextID("core.genrltxt.353");
+
+	if (object.visitedTooltip.empty())
+		object.visitedTooltip.appendTextID("core.genrltxt.352");
 
 	if (!parameters["onVisitedMessage"].isNull())
 	{
 		Rewardable::VisitInfo onVisited;
 		onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
 		onVisited.message = loadMessage(parameters["onVisitedMessage"], TextIdentifier(objectTextID, "onVisited"));
+		replaceTextPlaceholders(onVisited.message, object.variables);
+
 		object.info.push_back(onVisited);
 	}
 
@@ -261,12 +365,15 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 		Rewardable::VisitInfo onEmpty;
 		onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
 		onEmpty.message = loadMessage(parameters["onEmptyMessage"], TextIdentifier(objectTextID, "onEmpty"));
+		replaceTextPlaceholders(onEmpty.message, object.variables);
+
 		object.info.push_back(onEmpty);
 	}
 
 	configureResetInfo(object, rng, object.resetParameters, parameters["resetParameters"]);
 
 	object.canRefuse = parameters["canRefuse"].Bool();
+	object.showScoutedPreview = parameters["showScoutedPreview"].Bool();
 
 	if(parameters["showInInfobox"].isNull())
 		object.infoWindowType = EInfoWindowMode::AUTO;
@@ -292,6 +399,10 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 			break;
 		}
 	}
+
+	if (object.visitMode == Rewardable::VISIT_LIMITER)
+		configureLimiter(object, rng, object.visitLimiter, parameters["visitLimiter"]);
+
 }
 
 bool Rewardable::Info::givesResources() const

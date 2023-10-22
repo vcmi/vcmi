@@ -308,8 +308,7 @@ class SecondarySkillBase : public IdentifierBase
 public:
 	enum Type : int32_t
 	{
-		WRONG = -2,
-		DEFAULT = -1,
+		NONE = -1,
 		PATHFINDING = 0,
 		ARCHERY,
 		LOGISTICS,
@@ -347,6 +346,7 @@ class SecondarySkill : public IdentifierWithEnum<SecondarySkill, SecondarySkillB
 {
 public:
 	using IdentifierWithEnum<SecondarySkill, SecondarySkillBase>::IdentifierWithEnum;
+	static std::string entityType();
 };
 
 class DLL_LINKAGE FactionID : public Identifier<FactionID>
@@ -937,7 +937,7 @@ public:
 		COUNT,
 
 		WOOD_AND_ORE = 127,  // special case for town bonus resource
-		INVALID = -1
+		NONE = -1
 	};
 };
 
@@ -945,6 +945,8 @@ class GameResID : public IdentifierWithEnum<GameResID, GameResIDBase>
 {
 public:
 	using IdentifierWithEnum<GameResID, GameResIDBase>::IdentifierWithEnum;
+
+	static std::string entityType();
 };
 
 // Deprecated

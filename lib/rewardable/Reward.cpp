@@ -18,6 +18,16 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+void Rewardable::RewardRevealTiles::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeBool("hide", hide);
+	handler.serializeInt("scoreSurface", scoreSurface);
+	handler.serializeInt("scoreSubterra", scoreSubterra);
+	handler.serializeInt("scoreWater", scoreWater);
+	handler.serializeInt("scoreRock", scoreRock);
+	handler.serializeInt("radius", radius);
+}
+
 Rewardable::Reward::Reward()
 	: heroExperience(0)
 	, heroLevel(0)
@@ -56,8 +66,7 @@ Component Rewardable::Reward::getDisplayedComponent(const CGHeroInstance * h) co
 	return comps.front();
 }
 
-void Rewardable::Reward::loadComponents(std::vector<Component> & comps,
-								 const CGHeroInstance * h) const
+void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CGHeroInstance * h) const
 {
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
@@ -71,14 +80,13 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps,
 	}
 	
 	if (heroExperience)
-	{
-		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
-	}
+		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h ? h->calculateXp(heroExperience) : heroExperience), 0);
+
 	if (heroLevel)
 		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
 
 	if (manaDiff || manaPercentage >= 0)
-		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, calculateManaPoints(h) - h->mana, 0);
+		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, h ? (calculateManaPoints(h) - h->mana) : manaDiff, 0);
 
 	for (size_t i=0; i<primary.size(); i++)
 	{

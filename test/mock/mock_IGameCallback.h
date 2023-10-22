@@ -85,8 +85,8 @@ public:
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {}
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {} //when two heroes meet on adventure map
-	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}
-	void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide) override {}
+	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override {}
+	void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) override {}
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {}
 
 	///useful callback methods

@@ -753,10 +753,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	{
 		// caller code can not handle this case and presumes that returned bonus is always valid
 		logGlobal->error("Failed to parse bonus! Json config was %S ", ability.toJson());
-
 		b->type = BonusType::NONE;
-		assert(0); // or throw? Game *should* work with dummy bonus
-
 		return b;
 	}
 	return b;

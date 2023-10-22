@@ -112,6 +112,12 @@ public:
 	/// Returns hero-specific hover name, including visited/not visited info. Default = player-specific name
 	virtual std::string getHoverText(const CGHeroInstance * hero) const;
 
+	virtual std::string getPopupText(PlayerColor player) const;
+	virtual std::string getPopupText(const CGHeroInstance * hero) const;
+
+	virtual std::vector<Component> getPopupComponents(PlayerColor player) const;
+	virtual std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const;
+
 	/** OVERRIDES OF IObjectInterface **/
 
 	void initObj(CRandomGenerator & rand) override;

@@ -235,7 +235,7 @@
 					},
 					{
 						"appearChance" : { "max" : 33 },
-						"gainedExp" : 1500,
+						"heroExperience" : 1500,
 						"removeObject" : true,
 					},
 					{
@@ -245,7 +245,7 @@
 					},
 					{
 						"appearChance" : { "min" : 33, "max" : 65 },
-						"gainedExp" : 1000,
+						"heroExperience" : 1000,
 						"removeObject" : true,
 					},
 					{
@@ -255,7 +255,7 @@
 					},
 					{
 						"appearChance" : { "min" : 65, "max" : 95 },
-						"gainedExp" : 500,
+						"heroExperience" : 500,
 						"removeObject" : true,
 					},
 					{

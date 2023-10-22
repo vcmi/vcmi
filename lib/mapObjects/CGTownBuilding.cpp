@@ -396,6 +396,8 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, Bonus::getSid32(town->town->faction->getIndex(), bID));
 		case Rewardable::VISIT_HERO:
 			return visitors.find(contextHero->id) != visitors.end();
+		case Rewardable::VISIT_LIMITER:
+			return configuration.visitLimiter.heroAllowed(contextHero);
 		default:
 			return false;
 	}

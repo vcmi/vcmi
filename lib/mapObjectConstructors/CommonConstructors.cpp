@@ -256,9 +256,11 @@ void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 
 void MarketInstanceConstructor::randomizeObject(CGMarket * object, CRandomGenerator & rng) const
 {
+	JsonRandom::Variables emptyVariables;
+
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{
-		for(auto skill : JsonRandom::loadSecondary(predefinedOffer, rng))
+		for(auto skill : JsonRandom::loadSecondaries(predefinedOffer, rng, emptyVariables))
 			university->skills.push_back(skill.first.getNum());
 	}
 }
