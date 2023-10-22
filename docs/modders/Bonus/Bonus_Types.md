@@ -264,7 +264,7 @@ Allows affected heroes to cast specified spell, even if this spell is banned in 
 
 Allows affected heroes to cast any spell of specified level. Does not grant spells banned in map options.
 
-- subtype: spell level
+- subtype: spell level, in form "spellLevelX" where X is desired level (1-5)
 
 ### SPELLS_OF_SCHOOL
 
@@ -284,7 +284,7 @@ Affected heroes will add specified resources amounts to player treasure on new d
 Increases weekly growth of creatures in affected towns (Legion artifacts)
 
 - value: number of additional weekly creatures
-- subtype: level of affected dwellings
+- subtype: dwelling level, in form "creatureLevelX" where X is desired level (1-7)
 
 ### CREATURE_GROWTH_PERCENT
 
