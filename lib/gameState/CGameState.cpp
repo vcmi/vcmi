@@ -566,16 +566,19 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		{
 			try
 			{
-				auto path = VCMIDirs::get().userCachePath() / "RandomMaps";
+				auto path = VCMIDirs::get().userDataPath() / "Maps" / "RandomMaps";
 				boost::filesystem::create_directories(path);
 
 				std::shared_ptr<CMapGenOptions> options = scenarioOps->mapGenOptions;
 
 				const std::string templateName = options->getMapTemplate()->getName();
 				const ui32 seed = scenarioOps->seedToBeUsed;
+				const std::string dt = vstd::getDateTimeISO8601Basic(std::time(0));
 
-				const std::string fileName = boost::str(boost::format("%s_%d.vmap") % templateName % seed );
+				const std::string fileName = boost::str(boost::format("%s_%s_%d.vmap") % dt % templateName % seed );
 				const auto fullPath = path / fileName;
+
+				randomMap->name.appendRawString(boost::str(boost::format(" %s") % dt));
 
 				mapService->saveMap(randomMap, fullPath);
 
