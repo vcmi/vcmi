@@ -122,7 +122,7 @@ RandomMapTab::RandomMapTab():
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
-
+	
 	if(auto w = widget<CButton>("buttonShowRandomMaps"))
 	{
 		w->addCallback([&]()
@@ -132,7 +132,7 @@ RandomMapTab::RandomMapTab():
 			(static_cast<CLobbyScreen *>(parent))->tabSel->filter(0, true);
 		});
 	}
-	
+
 	//set combo box callbacks
 	if(auto w = widget<ComboBox>("templateList"))
 	{
