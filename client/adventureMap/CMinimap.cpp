@@ -91,10 +91,19 @@ CMinimap::CMinimap(const Rect & position)
 	level(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	pos.w = position.w;
-	pos.h = position.h;
 
-	aiShield = std::make_shared<CPicture>(ImagePath::builtin("AIShield"));
+	double maxSideLenghtSrc = std::max(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y);
+	double maxSideLenghtDst = std::max(position.w, position.h);
+	double resize = maxSideLenghtSrc / maxSideLenghtDst;
+	Point newMinimapSize = Point(LOCPLINT->cb->getMapSize().x/ resize, LOCPLINT->cb->getMapSize().y / resize);
+	Point offset = Point((std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.x) / 2, (std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.y) / 2);
+
+	pos.x += offset.x;
+	pos.y += offset.y;
+	pos.w = newMinimapSize.x;
+	pos.h = newMinimapSize.y;
+
+	aiShield = std::make_shared<CPicture>(ImagePath::builtin("AIShield"), -offset);
 	aiShield->disable();
 }
 
@@ -167,7 +176,7 @@ void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpda
 
 void CMinimap::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), aiShield->pos);
 	CIntObject::showAll(to);
 
 	if(minimap)
@@ -238,4 +247,3 @@ void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
 	}
 	redraw();
 }
-

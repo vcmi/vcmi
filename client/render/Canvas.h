@@ -101,4 +101,7 @@ public:
 
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	SDL_Surface * getInternalSurface();
+
+	/// get the render area
+	Rect getRenderArea() const;
 };

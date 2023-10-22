@@ -135,8 +135,14 @@ std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & 
 	if(id >= minimaps.size())
 		return nullptr;
 
+	Rect minimapRect = minimaps[id].getRenderArea();
+	double maxSideLenghtSrc = std::max(minimapRect.w, minimapRect.h);
+	double maxSideLenghtDst = std::max(rect.w, rect.h);
+	double resize = maxSideLenghtSrc / maxSideLenghtDst;
+	Point newMinimapSize = Point(minimapRect.w / resize, minimapRect.h / resize);
+
 	Canvas canvasScaled = Canvas(Point(rect.w, rect.h));
-	canvasScaled.drawScaled(minimaps[id], Point(0, 0), Point(rect.w, rect.h));
+	canvasScaled.drawScaled(minimaps[id], Point((rect.w - newMinimapSize.x) / 2, (rect.h - newMinimapSize.y) / 2), newMinimapSize);
 	std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
 
 	return std::make_shared<CPicture>(img, Point(rect.x, rect.y));
