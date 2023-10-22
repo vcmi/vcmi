@@ -67,7 +67,7 @@ public:
 
 	bool isInTheMap(const int3& tile) override;
 
-	void placeObstacles(CRandomGenerator& rand);
+	std::set<CGObjectInstance*> placeObstacles(CRandomGenerator& rand);
 
 private:
 	CMap* map;

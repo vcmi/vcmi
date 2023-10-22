@@ -518,7 +518,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGO
 		
 		if(object.obj->visitableAt(x, y))
 		{
-			return object.obj;
+			return const_cast<CGObjectInstance*>(object.obj);
 		}
 	}
 	
@@ -530,7 +530,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGO
 		
 		if(object.obj->blockingAt(x, y))
 		{
-			return object.obj;
+			return const_cast<CGObjectInstance*>(object.obj);
 		}
 	}
 	
@@ -542,7 +542,7 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGO
 		
 		if(object.obj->coveringAt(x, y))
 		{
-			return object.obj;
+			return const_cast<CGObjectInstance*>(object.obj);
 		}
 	}
 	
@@ -568,7 +568,7 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 			{
 				for(auto & o : handler->getObjects(i, j, scene->level))
 					if(!lockedObjects.count(o.obj))
-						selectObject(o.obj, false); //do not inform about each object added
+						selectObject(const_cast<CGObjectInstance*>(o.obj), false); //do not inform about each object added
 			}
 		}
 	}

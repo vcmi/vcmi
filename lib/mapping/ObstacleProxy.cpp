@@ -208,10 +208,11 @@ bool EditorObstaclePlacer::isInTheMap(const int3& tile)
 	return map->isInTheMap(tile);
 }
 
-void EditorObstaclePlacer::placeObstacles(CRandomGenerator & rand)
+std::set<CGObjectInstance*> EditorObstaclePlacer::placeObstacles(CRandomGenerator & rand)
 {
 	auto obstacles = createObstacles(rand);
 	finalInsertion(map->getEditManager(), obstacles);
+	return obstacles;
 }
 
 VCMI_LIB_NAMESPACE_END

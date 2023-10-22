@@ -1095,9 +1095,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 				}
 				app = templates.front();
 			}
-			auto tiles = controller.mapHandler()->getTilesUnderObject(obj);
 			obj->appearance = app;
-			controller.mapHandler()->invalidate(tiles);
 			controller.mapHandler()->invalidate(obj);
 			controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 		}
