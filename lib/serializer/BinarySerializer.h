@@ -238,6 +238,11 @@ public:
 		const_cast<T&>(data).serialize(*this, SERIALIZATION_VERSION);
 	}
 
+	void save(const std::monostate & data)
+	{
+		// no-op
+	}
+
 	template <typename T>
 	void save(const std::shared_ptr<T> &data)
 	{

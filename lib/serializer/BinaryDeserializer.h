@@ -404,6 +404,11 @@ public:
 			data.reset();
 	}
 
+	void load(std::monostate & data)
+	{
+		// no-op
+	}
+
 	template <typename T>
 	void load(std::shared_ptr<const T> & data)
 	{

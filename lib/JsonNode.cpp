@@ -67,21 +67,18 @@ class CModHandler;
 
 static const JsonNode nullNode;
 
-JsonNode::JsonNode(JsonType Type):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(JsonType Type)
 {
 	setType(Type);
 }
 
-JsonNode::JsonNode(const char *data, size_t datasize):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const char *data, size_t datasize)
 {
 	JsonParser parser(data, datasize);
 	*this = parser.parse("<unknown>");
 }
 
-JsonNode::JsonNode(const JsonPath & fileURI):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const JsonPath & fileURI)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
@@ -89,8 +86,7 @@ JsonNode::JsonNode(const JsonPath & fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const std::string & idx, const JsonPath & fileURI):
-type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const std::string & idx, const JsonPath & fileURI)
 {
 	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
 	
@@ -98,8 +94,7 @@ type(JsonType::DATA_NULL)
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const JsonPath & fileURI, bool &isValidSyntax):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const JsonPath & fileURI, bool &isValidSyntax)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
@@ -108,60 +103,9 @@ JsonNode::JsonNode(const JsonPath & fileURI, bool &isValidSyntax):
 	isValidSyntax = parser.isValid();
 }
 
-JsonNode::JsonNode(const JsonNode &copy):
-	type(JsonType::DATA_NULL),
-	meta(copy.meta),
-	flags(copy.flags)
-{
-	setType(copy.getType());
-	switch(type)
-	{
-		break; case JsonType::DATA_NULL:
-		break; case JsonType::DATA_BOOL:   Bool()    = copy.Bool();
-		break; case JsonType::DATA_FLOAT:  Float()   = copy.Float();
-		break; case JsonType::DATA_STRING: String()  = copy.String();
-		break; case JsonType::DATA_VECTOR: Vector()  = copy.Vector();
-		break; case JsonType::DATA_STRUCT: Struct()  = copy.Struct();
-		break; case JsonType::DATA_INTEGER:Integer() = copy.Integer();
-	}
-}
-
-JsonNode::~JsonNode()
-{
-	setType(JsonType::DATA_NULL);
-}
-
-void JsonNode::swap(JsonNode &b)
-{
-	using std::swap;
-	swap(meta, b.meta);
-	swap(data, b.data);
-	swap(type, b.type);
-	swap(flags, b.flags);
-}
-
-JsonNode & JsonNode::operator =(JsonNode node)
-{
-	swap(node);
-	return *this;
-}
-
 bool JsonNode::operator == (const JsonNode &other) const
 {
-	if (getType() == other.getType())
-	{
-		switch(type)
-		{
-			case JsonType::DATA_NULL:   return true;
-			case JsonType::DATA_BOOL:   return Bool() == other.Bool();
-			case JsonType::DATA_FLOAT:  return Float() == other.Float();
-			case JsonType::DATA_STRING: return String() == other.String();
-			case JsonType::DATA_VECTOR: return Vector() == other.Vector();
-			case JsonType::DATA_STRUCT: return Struct() == other.Struct();
-			case JsonType::DATA_INTEGER:return Integer()== other.Integer();
-		}
-	}
-	return false;
+	return data == other.data;
 }
 
 bool JsonNode::operator != (const JsonNode &other) const
@@ -171,7 +115,7 @@ bool JsonNode::operator != (const JsonNode &other) const
 
 JsonNode::JsonType JsonNode::getType() const
 {
-	return type;
+	return static_cast<JsonType>(data.index());
 }
 
 void JsonNode::setMeta(const std::string & metadata, bool recursive)
@@ -179,7 +123,7 @@ void JsonNode::setMeta(const std::string & metadata, bool recursive)
 	meta = metadata;
 	if (recursive)
 	{
-		switch (type)
+		switch (getType())
 		{
 			break; case JsonType::DATA_VECTOR:
 			{
@@ -201,84 +145,69 @@ void JsonNode::setMeta(const std::string & metadata, bool recursive)
 
 void JsonNode::setType(JsonType Type)
 {
-	if (type == Type)
+	if (getType() == Type)
 		return;
 
 	//float<->int conversion
-	if(type == JsonType::DATA_FLOAT && Type == JsonType::DATA_INTEGER)
+	if(getType() == JsonType::DATA_FLOAT && Type == JsonType::DATA_INTEGER)
 	{
-		si64 converted = static_cast<si64>(data.Float);
-		type = Type;
-		data.Integer = converted;
+		si64 converted = static_cast<si64>(std::get<double>(data));
+		data = JsonData(converted);
 		return;
 	}
-	else if(type == JsonType::DATA_INTEGER && Type == JsonType::DATA_FLOAT)
+	else if(getType() == JsonType::DATA_INTEGER && Type == JsonType::DATA_FLOAT)
 	{
-		auto converted = static_cast<double>(data.Integer);
-		type = Type;
-		data.Float = converted;
+		double converted = static_cast<double>(std::get<si64>(data));
+		data = JsonData(converted);
 		return;
 	}
 
-	//Reset node to nullptr
-	if (Type != JsonType::DATA_NULL)
-		setType(JsonType::DATA_NULL);
-
-	switch (type)
-	{
-		break; case JsonType::DATA_STRING:  delete data.String;
-		break; case JsonType::DATA_VECTOR:  delete data.Vector;
-		break; case JsonType::DATA_STRUCT:  delete data.Struct;
-		break; default:
-		break;
-	}
 	//Set new node type
-	type = Type;
-	switch(type)
+	switch(Type)
 	{
-		break; case JsonType::DATA_NULL:
-		break; case JsonType::DATA_BOOL:   data.Bool = false;
-		break; case JsonType::DATA_FLOAT:  data.Float = 0;
-		break; case JsonType::DATA_STRING: data.String = new std::string();
-		break; case JsonType::DATA_VECTOR: data.Vector = new JsonVector();
-		break; case JsonType::DATA_STRUCT: data.Struct = new JsonMap();
-		break; case JsonType::DATA_INTEGER: data.Integer = 0;
+		break; case JsonType::DATA_NULL:    data = JsonData();
+		break; case JsonType::DATA_BOOL:    data = JsonData(false);
+		break; case JsonType::DATA_FLOAT:   data = JsonData(static_cast<double>(0.0));
+		break; case JsonType::DATA_STRING:  data = JsonData(std::string());
+		break; case JsonType::DATA_VECTOR:  data = JsonData(JsonVector());
+		break; case JsonType::DATA_STRUCT:  data = JsonData(JsonMap());
+		break; case JsonType::DATA_INTEGER: data = JsonData(static_cast<si64>(0));
 	}
 }
 
 bool JsonNode::isNull() const
 {
-	return type == JsonType::DATA_NULL;
+	return getType() == JsonType::DATA_NULL;
 }
 
 bool JsonNode::isNumber() const
 {
-	return type == JsonType::DATA_INTEGER || type == JsonType::DATA_FLOAT;
+	return getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT;
 }
 
 bool JsonNode::isString() const
 {
-	return type == JsonType::DATA_STRING;
+	return getType() == JsonType::DATA_STRING;
 }
 
 bool JsonNode::isVector() const
 {
-	return type == JsonType::DATA_VECTOR;
+	return getType() == JsonType::DATA_VECTOR;
 }
 
 bool JsonNode::isStruct() const
 {
-	return type == JsonType::DATA_STRUCT;
+	return getType() == JsonType::DATA_STRUCT;
 }
 
 bool JsonNode::containsBaseData() const
 {
-	switch(type)
+	switch(getType())
 	{
 	case JsonType::DATA_NULL:
 		return false;
 	case JsonType::DATA_STRUCT:
-		for(const auto & elem : *data.Struct)
+		for(const auto & elem : Struct())
 		{
 			if(elem.second.containsBaseData())
 				return true;
@@ -292,10 +221,10 @@ bool JsonNode::containsBaseData() const
 
 bool JsonNode::isCompact() const
 {
-	switch(type)
+	switch(getType())
 	{
 	case JsonType::DATA_VECTOR:
-		for(JsonNode & elem : *data.Vector)
+		for(const JsonNode & elem : Vector())
 		{
 			if(!elem.isCompact())
 				return false;
@@ -303,11 +232,11 @@ bool JsonNode::isCompact() const
 		return true;
 	case JsonType::DATA_STRUCT:
 		{
-			auto propertyCount = data.Struct->size();
+			auto propertyCount = Struct().size();
 			if(propertyCount == 0)
 				return true;
 			else if(propertyCount == 1)
-				return data.Struct->begin()->second.isCompact();
+				return Struct().begin()->second.isCompact();
 		}
 		return false;
 	default:
@@ -318,10 +247,10 @@ bool JsonNode::isCompact() const
 bool JsonNode::TryBoolFromString(bool & success) const
 {
 	success = true;
-	if(type == JsonNode::JsonType::DATA_BOOL)
+	if(getType() == JsonNode::JsonType::DATA_BOOL)
 		return Bool();
 
-	success = type == JsonNode::JsonType::DATA_STRING;
+	success = getType() == JsonNode::JsonType::DATA_STRING;
 	if(success)
 	{
 		auto boolParamStr = String();
@@ -345,97 +274,99 @@ void JsonNode::clear()
 bool & JsonNode::Bool()
 {
 	setType(JsonType::DATA_BOOL);
-	return data.Bool;
+	return std::get<bool>(data);
 }
 
 double & JsonNode::Float()
 {
 	setType(JsonType::DATA_FLOAT);
-	return data.Float;
+	return std::get<double>(data);
 }
 
 si64 & JsonNode::Integer()
 {
 	setType(JsonType::DATA_INTEGER);
-	return data.Integer;
+	return std::get<si64>(data);
 }
 
 std::string & JsonNode::String()
 {
 	setType(JsonType::DATA_STRING);
-	return *data.String;
+	return std::get<std::string>(data);
 }
 
 JsonVector & JsonNode::Vector()
 {
 	setType(JsonType::DATA_VECTOR);
-	return *data.Vector;
+	return std::get<JsonVector>(data);
 }
 
 JsonMap & JsonNode::Struct()
 {
 	setType(JsonType::DATA_STRUCT);
-	return *data.Struct;
+	return std::get<JsonMap>(data);
 }
 
 const bool boolDefault = false;
 bool JsonNode::Bool() const
 {
-	if (type == JsonType::DATA_NULL)
+	if (getType() == JsonType::DATA_NULL)
 		return boolDefault;
-	assert(type == JsonType::DATA_BOOL);
-	return data.Bool;
+	assert(getType() == JsonType::DATA_BOOL);
+	return std::get<bool>(data);
 }
 
 const double floatDefault = 0;
 double JsonNode::Float() const
 {
-	if(type == JsonType::DATA_NULL)
+	if(getType() == JsonType::DATA_NULL)
 		return floatDefault;
-	else if(type == JsonType::DATA_INTEGER)
-		return static_cast<double>(data.Integer);
 
-	assert(type == JsonType::DATA_FLOAT);
-	return data.Float;
+	if(getType() == JsonType::DATA_INTEGER)
+		return static_cast<double>(std::get<si64>(data));
+
+	assert(getType() == JsonType::DATA_FLOAT);
+	return std::get<double>(data);
 }
 
 const si64 integetDefault = 0;
 si64 JsonNode::Integer() const
 {
-	if(type == JsonType::DATA_NULL)
+	if(getType() == JsonType::DATA_NULL)
 		return integetDefault;
-	else if(type == JsonType::DATA_FLOAT)
-		return static_cast<si64>(data.Float);
 
-	assert(type == JsonType::DATA_INTEGER);
-	return data.Integer;
+	if(getType() == JsonType::DATA_FLOAT)
+		return static_cast<si64>(std::get<double>(data));
+
+	assert(getType() == JsonType::DATA_INTEGER);
+	return std::get<si64>(data);
 }
 
 const std::string stringDefault = std::string();
 const std::string & JsonNode::String() const
 {
-	if (type == JsonType::DATA_NULL)
+	if (getType() == JsonType::DATA_NULL)
 		return stringDefault;
-	assert(type == JsonType::DATA_STRING);
-	return *data.String;
+	assert(getType() == JsonType::DATA_STRING);
+	return std::get<std::string>(data);
 }
 
 const JsonVector vectorDefault = JsonVector();
 const JsonVector & JsonNode::Vector() const
 {
-	if (type == JsonType::DATA_NULL)
+	if (getType() == JsonType::DATA_NULL)
 		return vectorDefault;
-	assert(type == JsonType::DATA_VECTOR);
-	return *data.Vector;
+	assert(getType() == JsonType::DATA_VECTOR);
+	return std::get<JsonVector>(data);
 }
 
 const JsonMap mapDefault = JsonMap();
 const JsonMap & JsonNode::Struct() const
 {
-	if (type == JsonType::DATA_NULL)
+	if (getType() == JsonType::DATA_NULL)
 		return mapDefault;
-	assert(type == JsonType::DATA_STRUCT);
-	return *data.Struct;
+	assert(getType() == JsonType::DATA_STRUCT);
+	return std::get<JsonMap>(data);
 }
 
 JsonNode & JsonNode::operator[](const std::string & child)
@@ -1347,7 +1278,7 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 {
 	JsonNode inheritedNode(base);
 	merge(inheritedNode, descendant, true, true);
-	descendant.swap(inheritedNode);
+	std::swap(descendant, inheritedNode);
 }
 
 JsonNode JsonUtils::intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty)

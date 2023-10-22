@@ -63,7 +63,7 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const std::
 		if (colon == std::string::npos)
 		{
 			// normal object, local to this mod
-			modInfo.modData[entry.first].swap(entry.second);
+			std::swap(modInfo.modData[entry.first], entry.second);
 		}
 		else
 		{
