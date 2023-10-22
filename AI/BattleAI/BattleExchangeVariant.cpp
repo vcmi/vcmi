@@ -268,7 +268,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	{
 		float score = evaluateExchange(ap, 0, targets, damageCache, hb);
 
-		if(score > result.score || score == result.score && result.wait)
+		if(score > result.score || (score == result.score && result.wait))
 		{
 			result.score = score;
 			result.bestAttack = ap;
@@ -558,7 +558,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	vstd::removeDuplicates(melleeAttackers);
 	vstd::erase_if(melleeAttackers, [&](const battle::Unit * u) -> bool
 		{
-			return !cb->battleCanShoot(u);
+			return cb->battleCanShoot(u);
 		});
 
 	bool canUseAp = true;
@@ -687,7 +687,10 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	for(auto hex : hexes)
 		reachabilityMap[hex] = getOneTurnReachableUnits(turn, hex);
 
-	v.adjustPositions(melleeAttackers, ap, reachabilityMap);
+	if(!ap.attack.shooting)
+	{
+		v.adjustPositions(melleeAttackers, ap, reachabilityMap);
+	}
 
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Exchange score: enemy: %2f, our -%2f", v.getScore().enemyDamageReduce, v.getScore().ourDamageReduce);
@@ -714,11 +717,8 @@ void BattleExchangeVariant::adjustPositions(
 			return attackerValue[u1->unitId()].value > attackerValue[u2->unitId()].value;
 		});
 
-	if(!ap.attack.shooting)
-	{
-		vstd::erase_if_present(hexes, ap.from);
-		vstd::erase_if_present(hexes, ap.attack.attacker->occupiedHex(ap.attack.attackerPos));
-	}
+	vstd::erase_if_present(hexes, ap.from);
+	vstd::erase_if_present(hexes, ap.attack.attacker->occupiedHex(ap.attack.attackerPos));
 
 	float notRealizedDamage = 0;
 
