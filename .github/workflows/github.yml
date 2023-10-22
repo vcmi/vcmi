@@ -151,7 +151,7 @@ jobs:
         find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./android -prune \
         -o -path ./osx -prune -o -path ./test/googletest -prune -o -type f \
         -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' \
-        -not -name '*.wav' -not -name '*.ico' -print0 | ( ! xargs -0 grep -l -z -P '\r\n' )
+        -not -name '*.wav' -not -name '*.ico' -print0 | { ! xargs -0 grep -l -z -P '\r\n'; }
 
     - name: Validate JSON
       # the Python yaml module doesn't seem to work on mac-arm
