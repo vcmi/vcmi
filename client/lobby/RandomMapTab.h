@@ -27,6 +27,7 @@ class CLabel;
 class CLabelGroup;
 class CSlider;
 class CPicture;
+class FilledTexturePlayerColored;
 
 class RandomMapTab : public InterfaceObjectConfigurable
 {
@@ -62,4 +63,12 @@ private:
 	std::shared_ptr<CButton> buttonOk, buttonCancel;
 	std::vector<std::shared_ptr<CToggleGroup>> players;
 	std::vector<std::shared_ptr<CIntObject>> placeholders;
+};
+
+class TeamAlignments: public CWindowObject
+{
+	std::shared_ptr<TeamAlignmentsWidget> widget;
+	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+public:
+	TeamAlignments(RandomMapTab & randomMapTab);
 };

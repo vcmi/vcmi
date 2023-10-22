@@ -107,7 +107,7 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
+		GH.windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
 	for(auto road : VLC->roadTypeHandler->objects)
@@ -122,7 +122,7 @@ RandomMapTab::RandomMapTab():
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
-	
+
 	if(auto w = widget<CButton>("buttonShowRandomMaps"))
 	{
 		w->addCallback([&]()
@@ -132,7 +132,7 @@ RandomMapTab::RandomMapTab():
 			(static_cast<CLobbyScreen *>(parent))->tabSel->filter(0, true);
 		});
 	}
-
+	
 	//set combo box callbacks
 	if(auto w = widget<ComboBox>("templateList"))
 	{
@@ -397,6 +397,25 @@ std::vector<int> RandomMapTab::getPossibleMapSizes()
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }
 
+TeamAlignments::TeamAlignments(RandomMapTab & randomMapTab)
+	: CWindowObject(BORDERED)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	widget = std::make_shared<TeamAlignmentsWidget>(randomMapTab);
+
+	pos = widget->pos;
+
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	backgroundTexture->playerColored(PlayerColor(1));
+
+	std::swap(GH.createdObj.front()->children.end()[-1], GH.createdObj.front()->children.end()[-2]); // widget to top
+	
+	updateShadow();
+
+	center();
+}
+
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	InterfaceObjectConfigurable()
 {
@@ -413,10 +432,6 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
 	pos.h = variables["windowSize"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
-	variables["backgroundRect"]["x"].Integer() = pos.x;
-	variables["backgroundRect"]["y"].Integer() = pos.y;
-	variables["backgroundRect"]["w"].Integer() = pos.w;
-	variables["backgroundRect"]["h"].Integer() = pos.h;
 	variables["okButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["ok"]["x"].Integer();
 	variables["okButtonPosition"]["y"].Integer() = variables["buttonsOffset"]["ok"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
 	variables["cancelButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["cancel"]["x"].Integer();
@@ -429,14 +444,15 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
 		}
 		randomMapTab.updateMapInfoByHost();
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
+
+		for(auto & window : GH.windows().findWindows<TeamAlignments>())
+			GH.windows().popWindow(window);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
+		for(auto & window : GH.windows().findWindows<TeamAlignments>())
+			GH.windows().popWindow(window);
 	});
 	
 	build(config);
