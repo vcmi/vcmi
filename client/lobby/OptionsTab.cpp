@@ -1001,6 +1001,9 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 
 void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 {
+	if(SEL->screenType != ESelectionScreen::newGame)
+		return;
+	
 	PlayerInfo pi = SEL->getPlayerInfo(playerSettings.color);
 	const bool foreignPlayer = CSH->isGuest() && !CSH->isMyColor(playerSettings.color);
 
