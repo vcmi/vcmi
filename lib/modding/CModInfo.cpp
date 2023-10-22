@@ -119,10 +119,6 @@ void CModInfo::loadLocalData(const JsonNode & data)
 				logGlobal->warn("Translation mod %s was not loaded: language mismatch!", verificationInfo.name);
 			implicitlyEnabled = false;
 		}
-
-		// Translation submods are always explicitly enabled
-		if (identifier.find_last_of('.') != std::string::npos)
-			explicitlyEnabled = true;
 	}
 	if (config["modType"].String() == "Compatibility")
 	{
