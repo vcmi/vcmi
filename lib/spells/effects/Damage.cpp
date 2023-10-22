@@ -89,11 +89,11 @@ bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 	if(!UnitEffect::isReceptive(m, unit))
 		return false;
 
-	bool isImmune = m->getSpell()->isMagical() && (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(ESpellSchool::ANY)) >= 100); //General spell damage immunity
+	bool isImmune = m->getSpell()->isMagical() && (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::ANY)) >= 100); //General spell damage immunity
 	//elemental immunity for damage
 	m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop)
 	{
-		isImmune |= (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, cnf) >= 100); //100% reduction is immunity
+		isImmune |= (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(cnf)) >= 100); //100% reduction is immunity
 	});
 
 	return !isImmune;

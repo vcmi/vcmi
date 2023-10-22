@@ -548,7 +548,7 @@ void BattleWindow::bSpellf()
 
 		if (blockingBonus->source == BonusSource::ARTIFACT)
 		{
-			const auto artID = ArtifactID(blockingBonus->sid);
+			const auto artID = blockingBonus->sid.as<ArtifactID>();
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
 			std::string heroName = myHero->hasArt(artID) ? myHero->getNameTranslated() : owner.enemyHero().name;

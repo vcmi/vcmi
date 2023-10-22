@@ -488,4 +488,9 @@ std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
 	return objects.at(type)->handlerName;
 }
 
+std::string CObjectClassesHandler::getJsonKey(si32 type) const
+{
+	return objects.at(type)->getJsonKey();
+}
+
 VCMI_LIB_NAMESPACE_END

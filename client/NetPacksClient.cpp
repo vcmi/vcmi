@@ -433,14 +433,14 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 	{
 	case GiveBonus::ETarget::HERO:
 		{
-			const CGHeroInstance *h = gs.getHero(ObjectInstanceID(pack.id));
+			const CGHeroInstance *h = gs.getHero(ObjectInstanceID(pack.whoID));
 			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, false);
 		}
 		break;
 	case GiveBonus::ETarget::PLAYER:
 		{
 			//const PlayerState *p = gs.getPlayerState(pack.id);
-			callInterfaceIfPresent(cl, PlayerColor(pack.id), &IGameEventsReceiver::playerBonusChanged, pack.bonus, false);
+			callInterfaceIfPresent(cl, PlayerColor(pack.whoID), &IGameEventsReceiver::playerBonusChanged, pack.bonus, false);
 		}
 		break;
 	}

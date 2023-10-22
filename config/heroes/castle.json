@@ -13,7 +13,7 @@
 			"bonuses" : {
 				"archery" : {
 					"type" : "PERCENTAGE_DAMAGE_BOOST",
-					"subtype" : 1,
+					"subtype" : "damageTypeRanged",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
 					"valueType" : "PERCENT_TO_TARGET_TYPE",
@@ -64,7 +64,7 @@
 			"bonuses" : {
 				"navigation" : {
 					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : 0,
+					"subtype" : "heroMovementSea",
 					"type" : "MOVEMENT",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
@@ -183,7 +183,7 @@
 							"type" : "HAS_ANOTHER_BONUS_LIMITER",
 							"parameters" : [
 								"GENERAL_DAMAGE_PREMY",
-								1,
+								null,
 								{
 									"type" : "SPELL_EFFECT",
 									"id" : "spell.bless"
@@ -268,7 +268,6 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : 0,
 					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,

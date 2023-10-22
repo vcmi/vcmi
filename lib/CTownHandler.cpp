@@ -49,6 +49,30 @@ const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
 	{ "skyship", CBuilding::HEIGHT_SKYSHIP }
 };
 
+BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID buildingID ):
+	BuildingTypeUniqueID(factionID.getNum() * 0x10000 + buildingID.getNum())
+{
+	assert(factionID.getNum() >= 0);
+	assert(factionID.getNum() < 0x10000);
+	assert(buildingID.getNum() >= 0);
+	assert(buildingID.getNum() < 0x10000);
+}
+
+BuildingID BuildingTypeUniqueID::getBuilding() const
+{
+	return BuildingID(getNum() % 0x10000);
+}
+
+FactionID BuildingTypeUniqueID::getFaction() const
+{
+	return FactionID(getNum() / 0x10000);
+}
+
+const BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
+{
+	return BuildingTypeUniqueID(town->faction->getId(), bid);
+}
+
 std::string CBuilding::getJsonKey() const
 {
 	return modScope + ':' + identifier;;
@@ -527,16 +551,16 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		b = createBonus(building, BonusType::LUCK, +2);
 		break;
 	case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::SPELL_POWER));
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::SPELL_POWER));
 		break;
 	case BuildingSubID::ATTACK_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::ATTACK));
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::ATTACK));
 		break;
 	case BuildingSubID::DEFENSE_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::DEFENSE));
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, BonusSubtypeID(PrimarySkill::DEFENSE));
 		break;
 	case BuildingSubID::LIGHTHOUSE:
-		b = createBonus(building, BonusType::MOVEMENT, +500, playerPropagator, 0);
+		b = createBonus(building, BonusType::MOVEMENT, +500, BonusCustomSubtype::heroMovementSea, playerPropagator);
 		break;
 	}
 
@@ -544,26 +568,32 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		building->addNewBonus(b, building->buildingBonuses);
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, int subtype) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val) const
 {
-	return createBonus(build, type, val, emptyPropagator(), subtype);
+	return createBonus(build, type, val, BonusSubtypeID(), emptyPropagator());
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, TPropagatorPtr & prop, int subtype) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const
+{
+	return createBonus(build, type, val, subtype, emptyPropagator());
+}
+
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, TPropagatorPtr & prop) const
 {
 	std::ostringstream descr;
 	descr << build->getNameTranslated();
-	return createBonusImpl(build->bid, type, val, prop, descr.str(), subtype);
+	return createBonusImpl(build->bid, build->town->faction->getId(), type, val, prop, descr.str(), subtype);
 }
 
 std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building,
+													 const FactionID & faction,
 													 BonusType type,
 													 int val,
 													 TPropagatorPtr & prop,
 													 const std::string & description,
-													 int subtype) const
+													 BonusSubtypeID subtype) const
 {
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, building, description, subtype);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, BuildingTypeUniqueID(faction, building), subtype, description);
 
 	if(prop)
 		b->addPropagator(prop);
@@ -575,12 +605,12 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 {
 	for(const auto & b : source.Vector())
 	{
-		auto bonus = JsonUtils::parseBuildingBonus(b, building->bid, building->getNameTranslated());
+		auto bonus = JsonUtils::parseBuildingBonus(b, building->town->faction->getId(), building->bid, building->getNameTranslated());
 
 		if(bonus == nullptr)
 			continue;
 
-		bonus->sid = Bonus::getSid32(building->town->faction->getIndex(), building->bid);
+		bonus->sid = BonusSourceID(building->getUniqueTypeID());
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
@@ -644,7 +674,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 				ret->subId = BuildingSubID::CUSTOM_VISITING_BONUS;
 
 			for(auto & bonus : ret->onVisitBonuses)
-				bonus->sid = Bonus::getSid32(ret->town->faction->getIndex(), ret->bid);
+				bonus->sid = BonusSourceID(ret->getUniqueTypeID());
 		}
 		
 		if(source["type"].String() == "configurable" && ret->subId == BuildingSubID::NONE)

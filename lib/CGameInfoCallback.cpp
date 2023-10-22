@@ -268,7 +268,7 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 		{
 			const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 			if(nullptr != selectedHero)
-				detailed = selectedHero->hasVisions(town, 1);
+				detailed = selectedHero->hasVisions(town, BonusCustomSubtype::visionsTowns);
 		}
 
 		dest.initFromTown(dynamic_cast<const CGTownInstance *>(town), detailed);
@@ -322,7 +322,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	{
 		const auto * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
-			if(selectedHero->hasVisions(hero, 1))
+			if(selectedHero->hasVisions(hero, BonusCustomSubtype::visionsHeroes))
 				infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
 	}
 
@@ -332,7 +332,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	if(getPlayerRelations(*getPlayerID(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
-		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(BonusType::DISGUISED, 0));
+		int disguiseLevel = h->valOfBonuses(BonusType::DISGUISED);
 
 		auto doBasicDisguise = [](InfoAboutHero & info)
 		{

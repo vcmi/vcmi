@@ -1040,9 +1040,9 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
 	if(auto val = reader->readUInt8())
-		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, val, idToBeGiven);
+		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
 	if(auto val = reader->readUInt8())
-		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, val, idToBeGiven);
+		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
 
 	reader->readResourses(reward.resources);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
@@ -2008,12 +2008,12 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::MORALE:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, reader->readUInt8(), idToBeGiven);
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, reader->readUInt8(), BonusSourceID(idToBeGiven));
 				break;
 			}
 			case ESeerHutRewardType::LUCK:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, reader->readUInt8(), idToBeGiven);
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, reader->readUInt8(), BonusSourceID(idToBeGiven));
 				break;
 			}
 			case ESeerHutRewardType::RESOURCES:

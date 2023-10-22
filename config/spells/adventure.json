@@ -46,7 +46,7 @@
 				"effects" : {
 					"visionsMonsters" : {
 						"type" : "VISIONS",
-						"subtype" : 0,
+						"subtype" : "visionsMonsters",
 						"duration" : "ONE_DAY",
 						"val" : 1,
 						"valueType" : "INDEPENDENT_MAX"
@@ -60,10 +60,10 @@
 					},
 					"visionsHeroes" :{
 						"type" : "VISIONS",
-						"subtype" : 1,
+						"subtype" : "visionsHeroes",
 						"duration" : "ONE_DAY",
 						"val" : 2,
-						"valueType" : "INDEPENDENT_MAX"					
+						"valueType" : "INDEPENDENT_MAX"
 					}
 					
 				}			
@@ -75,17 +75,17 @@
 					},
 					"visionsHeroes" :{
 						"type" : "VISIONS",
-						"subtype" : 1,
+						"subtype" : "visionsHeroes",
 						"duration" : "ONE_DAY",
 						"val" : 3,
-						"valueType" : "INDEPENDENT_MAX"					
+						"valueType" : "INDEPENDENT_MAX"
 					},
 					"visionsTowns" :{
 						"type" : "VISIONS",
-						"subtype" : 2,
+						"subtype" : "visionsTowns",
 						"duration" : "ONE_DAY",
 						"val" : 3,
-						"valueType" : "INDEPENDENT_MAX"					
+						"valueType" : "INDEPENDENT_MAX"
 					}
 				}			
 			}
@@ -123,7 +123,6 @@
 				"effects" : {
 					"stealth" : {
 						"type" : "DISGUISED",
-						"subtype" : 0, //required
 						"duration" : "ONE_DAY",
 						"val" : 1,
 						"valueType" : "INDEPENDENT_MAX"

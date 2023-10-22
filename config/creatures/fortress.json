@@ -114,7 +114,7 @@
 			"deathStare" : 
 			{
 				"type" : "DEATH_STARE",
-				"subtype" : 0,
+				"subtype" : "deathStareGorgon",
 				"val" : 10
 			}
 		},

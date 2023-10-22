@@ -11,16 +11,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-enum class PrimarySkill : int8_t
-{
-	NONE = -1,
-	ATTACK,
-	DEFENSE,
-	SPELL_POWER,
-	KNOWLEDGE,
-	EXPERIENCE = 4 //for some reason changePrimSkill uses it
-};
-
 enum class EAlignment : int8_t
 {
 	GOOD,
@@ -143,9 +133,9 @@ enum class ETeleportChannelType : int8_t
 	MIXED
 };
 
-namespace SecSkillLevel
+namespace MasteryLevel
 {
-	enum SecSkillLevel
+	enum Type
 	{
 		NONE,
 		BASIC,

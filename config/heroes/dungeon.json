@@ -88,7 +88,7 @@
 			"bonuses" : {
 				"logistics" : {
 					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : 1,
+					"subtype" : "heroMovementLand",
 					"type" : "MOVEMENT",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
@@ -229,7 +229,6 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : 0,
 					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,

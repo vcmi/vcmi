@@ -264,7 +264,7 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 
 std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack * stack)
 {
-	std::vector<si32> activeSpells = stack->activeSpells();
+	std::vector<SpellID> activeSpells = stack->activeSpells();
 
 	if ( activeSpells.empty())
 		return amountNormal;
@@ -534,7 +534,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 		addNewAnim(new MovementStartAnimation(owner, stack));
 	});
 
-	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, 1)))
+	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementFlying)))
 	{
 		owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [&]()
 		{
@@ -797,7 +797,7 @@ void BattleStacksController::removeExpiredColorFilters()
 	{
 		if (!filter.persistent)
 		{
-			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, filter.source->id), Selector::all))
+			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(filter.source->id)), Selector::all))
 				return true;
 			if (filter.effect == ColorFilter::genEmptyShifter())
 				return true;

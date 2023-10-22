@@ -476,7 +476,7 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 
 	for(const SpellID & id : owner->counteredSpells)
 	{
-		if(bonus->sid == id.toEnum())
+		if(bonus->sid.as<SpellID>() == id)
 			return true;
 	}
 

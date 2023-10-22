@@ -361,7 +361,7 @@
 			"FLYING_ARMY" :
 			{
 				// type loaded from crtraits
-				"subtype" : 1 // teleports
+				"subtype" : "movementTeleporting"
 			},
 			"descreaseLuck" :
 			{
@@ -415,7 +415,7 @@
 			"FLYING_ARMY" :
 			{
 				// type loaded from crtraits
-				"subtype" : 1 // teleports
+				"subtype" : "movementTeleporting"
 			},
 			"descreaseLuck" :
 			{

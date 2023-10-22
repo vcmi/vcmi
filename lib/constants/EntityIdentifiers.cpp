@@ -37,9 +37,12 @@
 #include "TerrainHandler.h" //TODO: remove
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "CTownHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const CampaignScenarioID CampaignScenarioID::NONE(-1);
 const BattleID BattleID::NONE(-1);
 const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
@@ -79,6 +82,15 @@ const FactionID FactionID::STRONGHOLD(6);
 const FactionID FactionID::FORTRESS(7);
 const FactionID FactionID::CONFLUX(8);
 const FactionID FactionID::NEUTRAL(9);
+
+const PrimarySkill PrimarySkill::NONE(-1);
+const PrimarySkill PrimarySkill::ATTACK(0);
+const PrimarySkill PrimarySkill::DEFENSE(1);
+const PrimarySkill PrimarySkill::SPELL_POWER(2);
+const PrimarySkill PrimarySkill::KNOWLEDGE(3);
+const PrimarySkill PrimarySkill::BEGIN(0);
+const PrimarySkill PrimarySkill::END(4);
+const PrimarySkill PrimarySkill::EXPERIENCE(4);
 
 const BoatId BoatId::NONE(-1);
 const BoatId BoatId::NECROPOLIS(0);
@@ -122,6 +134,40 @@ std::string HeroClassID::encode(const si32 index)
 std::string HeroClassID::entityType()
 {
 	return "heroClass";
+}
+
+si32 ObjectInstanceID::decode(const std::string & identifier)
+{
+	return std::stoi(identifier);
+}
+
+std::string ObjectInstanceID::encode(const si32 index)
+{
+	return std::to_string(index);
+}
+
+si32 CampaignScenarioID::decode(const std::string & identifier)
+{
+	return std::stoi(identifier);
+}
+
+std::string CampaignScenarioID::encode(const si32 index)
+{
+	return std::to_string(index);
+}
+
+std::string Obj::encode(int32_t index)
+{
+	return VLC->objtypeh->getObjectHandlerName(index);
+}
+
+si32 Obj::decode(const std::string & identifier)
+{
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
+	if(rawId)
+		return rawId.value();
+	else
+		return -1;
 }
 
 si32 HeroTypeID::decode(const std::string & identifier)
@@ -170,6 +216,20 @@ std::string ArtifactID::encode(const si32 index)
 std::string ArtifactID::entityType()
 {
 	return "artifact";
+}
+
+si32 SecondarySkill::decode(const std::string& identifier)
+{
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "secondarySkill", identifier);
+	if(rawId)
+		return rawId.value();
+	else
+		return -1;
+}
+
+std::string SecondarySkill::encode(const si32 index)
+{
+	return VLC->skills()->getById(SecondarySkill(index))->getJsonKey();
 }
 
 const CCreature * CreatureIDBase::toCreature() const
@@ -230,6 +290,20 @@ std::string SpellID::encode(const si32 index)
 	return VLC->spells()->getByIndex(index)->getJsonKey();
 }
 
+si32 BattleField::decode(const std::string & identifier)
+{
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
+	if(rawId)
+		return rawId.value();
+	else
+		return -1;
+}
+
+std::string BattleField::encode(const si32 index)
+{
+	return VLC->spells()->getByIndex(index)->getJsonKey();
+}
+
 std::string SpellID::entityType()
 {
 	return "spell";
@@ -247,8 +321,6 @@ bool PlayerColor::isSpectator() const
 
 std::string PlayerColor::toString() const
 {
-	if (num == -1)
-		return "neutral";
 	return encode(num);
 }
 
@@ -259,6 +331,9 @@ si32 PlayerColor::decode(const std::string & identifier)
 
 std::string PlayerColor::encode(const si32 index)
 {
+	if (index == -1)
+		return "neutral";
+
 	if (index < 0 || index >= std::size(GameConstants::PLAYER_COLOR_NAMES))
 	{
 		assert(0);
@@ -271,6 +346,21 @@ std::string PlayerColor::encode(const si32 index)
 std::string PlayerColor::entityType()
 {
 	return "playerColor";
+}
+
+si32 PrimarySkill::decode(const std::string& identifier)
+{
+	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+}
+
+std::string PrimarySkill::encode(const si32 index)
+{
+	return NPrimarySkill::names[index];
+}
+
+std::string PrimarySkill::entityType()
+{
+	return "primarySkill";
 }
 
 si32 FactionID::decode(const std::string & identifier)
@@ -321,6 +411,43 @@ const BattleFieldInfo * BattleField::getInfo() const
 const ObstacleInfo * Obstacle::getInfo() const
 {
 	return VLC->obstacles()->getById(*this);
+}
+
+si32 SpellSchool::decode(const std::string & identifier)
+{
+	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+}
+
+std::string SpellSchool::encode(const si32 index)
+{
+	return SpellConfig::SCHOOL[index].jsonName;
+}
+
+std::string SpellSchool::entityType()
+{
+	return "spellSchool";
+}
+
+si32 GameResID::decode(const std::string & identifier)
+{
+	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+}
+
+std::string GameResID::encode(const si32 index)
+{
+	return GameConstants::RESOURCE_NAMES[index];
+}
+
+si32 BuildingTypeUniqueID::decode(const std::string & identifier)
+{
+	assert(0); //TODO
+	return -1;
+}
+
+std::string BuildingTypeUniqueID::encode(const si32 index)
+{
+	assert(0); // TODO
+	return "";
 }
 
 std::string GameResID::entityType()

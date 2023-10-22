@@ -531,9 +531,9 @@ const TurnInfo * CPathfinderHelper::getTurnInfo() const
 	return turnsInfo[turn];
 }
 
-bool CPathfinderHelper::hasBonusOfType(const BonusType type, const int subtype) const
+bool CPathfinderHelper::hasBonusOfType(const BonusType type) const
 {
-	return turnsInfo[turn]->hasBonusOfType(type, subtype);
+	return turnsInfo[turn]->hasBonusOfType(type);
 }
 
 int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer & layer) const

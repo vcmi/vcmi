@@ -31,6 +31,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/BonusList.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusParams.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusCustomTypes.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.cpp
 		${MAIN_LIB_DIR}/bonuses/IBonusBearer.cpp
@@ -357,6 +358,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/BonusList.h
 		${MAIN_LIB_DIR}/bonuses/BonusParams.h
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.h
+		${MAIN_LIB_DIR}/bonuses/BonusCustomTypes.h
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.h
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.h
 		${MAIN_LIB_DIR}/bonuses/IBonusBearer.h
@@ -371,6 +373,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/constants/EntityIdentifiers.h
 		${MAIN_LIB_DIR}/constants/Enumerations.h
+		${MAIN_LIB_DIR}/constants/IdentifierBase.h
+		${MAIN_LIB_DIR}/constants/VariantIdentifier.h
 		${MAIN_LIB_DIR}/constants/NumericConstants.h
 		${MAIN_LIB_DIR}/constants/StringConstants.h
 

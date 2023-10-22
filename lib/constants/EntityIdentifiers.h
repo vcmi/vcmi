@@ -10,6 +10,7 @@
 #pragma once
 
 #include "NumericConstants.h"
+#include "IdentifierBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,62 +33,6 @@ class CSpell;
 class CSkill;
 class CGameInfoCallback;
 class CNonConstInfoCallback;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class IdentifierBase
-{
-protected:
-	constexpr IdentifierBase():
-		num(-1)
-	{}
-
-	explicit constexpr IdentifierBase(int32_t value):
-		num(value)
-	{}
-
-	~IdentifierBase() = default;
-public:
-	int32_t num;
-
-	constexpr int32_t getNum() const
-	{
-		return num;
-	}
-
-	constexpr void setNum(int32_t value)
-	{
-		num = value;
-	}
-
-	struct hash
-	{
-		size_t operator()(const IdentifierBase & id) const
-		{
-			return std::hash<int>()(id.num);
-		}
-	};
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & num;
-	}
-
-	constexpr void advance(int change)
-	{
-		num += change;
-	}
-
-	constexpr operator int32_t () const
-	{
-		return num;
-	}
-
-	friend std::ostream& operator<<(std::ostream& os, const IdentifierBase& dt)
-	{
-		return os << dt.num;
-	}
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -212,11 +157,14 @@ public:
 	using Identifier<BattleID>::Identifier;
 	DLL_LINKAGE static const BattleID NONE;
 };
-class ObjectInstanceID : public Identifier<ObjectInstanceID>
+class DLL_LINKAGE ObjectInstanceID : public Identifier<ObjectInstanceID>
 {
 public:
 	using Identifier<ObjectInstanceID>::Identifier;
-	DLL_LINKAGE static const ObjectInstanceID NONE;
+	static const ObjectInstanceID NONE;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 };
 
 class HeroClassID : public Identifier<HeroClassID>
@@ -347,6 +295,29 @@ class SecondarySkill : public IdentifierWithEnum<SecondarySkill, SecondarySkillB
 public:
 	using IdentifierWithEnum<SecondarySkill, SecondarySkillBase>::IdentifierWithEnum;
 	static std::string entityType();
+	static si32 decode(const std::string& identifier);
+	static std::string encode(const si32 index);
+};
+
+class DLL_LINKAGE PrimarySkill : public Identifier<PrimarySkill>
+{
+public:
+	using Identifier<PrimarySkill>::Identifier;
+
+	static const PrimarySkill NONE;
+	static const PrimarySkill ATTACK;
+	static const PrimarySkill DEFENSE;
+	static const PrimarySkill SPELL_POWER;
+	static const PrimarySkill KNOWLEDGE;
+
+	static const PrimarySkill BEGIN;
+	static const PrimarySkill END;
+
+	static const PrimarySkill EXPERIENCE;
+
+	static si32 decode(const std::string& identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class DLL_LINKAGE FactionID : public Identifier<FactionID>
@@ -430,6 +401,10 @@ class BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
 {
 public:
 	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
+
+	DLL_LINKAGE static si32 decode(const std::string & identifier);
+	DLL_LINKAGE static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class ObjBase : public IdentifierBase
@@ -577,10 +552,13 @@ public:
 	};
 };
 
-class Obj : public IdentifierWithEnum<Obj, ObjBase>
+class DLL_LINKAGE Obj : public IdentifierWithEnum<Obj, ObjBase>
 {
 public:
 	using IdentifierWithEnum<Obj, ObjBase>::IdentifierWithEnum;
+
+	static std::string encode(int32_t index);
+	static si32 decode(const std::string & identifier);
 };
 
 class DLL_LINKAGE RoadId : public Identifier<RoadId>
@@ -718,18 +696,18 @@ public:
 	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatures) const;
 };
 
-class CreatureID : public IdentifierWithEnum<CreatureID, CreatureIDBase>
+class DLL_LINKAGE CreatureID : public IdentifierWithEnum<CreatureID, CreatureIDBase>
 {
 public:
 	using IdentifierWithEnum<CreatureID, CreatureIDBase>::IdentifierWithEnum;
 
 	///json serialization helpers
-	DLL_LINKAGE static si32 decode(const std::string & identifier);
-	DLL_LINKAGE static std::string encode(const si32 index);
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
-class SpellIDBase : public IdentifierBase
+class DLL_LINKAGE SpellIDBase : public IdentifierBase
 {
 public:
 	enum Type
@@ -832,29 +810,32 @@ public:
 		AFTER_LAST = 82
 	};
 
-	DLL_LINKAGE const CSpell * toSpell() const; //deprecated
-	DLL_LINKAGE const spells::Spell * toSpell(const spells::Service * service) const;
+	const CSpell * toSpell() const; //deprecated
+	const spells::Spell * toSpell(const spells::Service * service) const;
 };
 
-class SpellID : public IdentifierWithEnum<SpellID, SpellIDBase>
+class DLL_LINKAGE SpellID : public IdentifierWithEnum<SpellID, SpellIDBase>
 {
 public:
 	using IdentifierWithEnum<SpellID, SpellIDBase>::IdentifierWithEnum;
 
 	///json serialization helpers
-	DLL_LINKAGE static si32 decode(const std::string & identifier);
-	DLL_LINKAGE static std::string encode(const si32 index);
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 	static std::string entityType();
 };
 
 class BattleFieldInfo;
-class BattleField : public Identifier<BattleField>
+class DLL_LINKAGE BattleField : public Identifier<BattleField>
 {
 public:
 	using Identifier<BattleField>::Identifier;
 
-	DLL_LINKAGE static const BattleField NONE;
-	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
+	static const BattleField NONE;
+	const BattleFieldInfo * getInfo() const;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 };
 
 class DLL_LINKAGE BoatId : public Identifier<BoatId>
@@ -919,6 +900,10 @@ public:
 	static const SpellSchool FIRE;
 	static const SpellSchool WATER;
 	static const SpellSchool EARTH;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class GameResIDBase : public IdentifierBase
@@ -941,17 +926,43 @@ public:
 	};
 };
 
-class GameResID : public IdentifierWithEnum<GameResID, GameResIDBase>
+class DLL_LINKAGE GameResID : public IdentifierWithEnum<GameResID, GameResIDBase>
 {
 public:
 	using IdentifierWithEnum<GameResID, GameResIDBase>::IdentifierWithEnum;
 
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 	static std::string entityType();
+};
+
+class BuildingTypeUniqueID : public Identifier<BuildingTypeUniqueID>
+{
+public:
+	BuildingTypeUniqueID(FactionID faction, BuildingID building );
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+
+	BuildingID getBuilding() const;
+	FactionID getFaction() const;
+
+	using Identifier<BuildingTypeUniqueID>::Identifier;
+};
+
+class DLL_LINKAGE CampaignScenarioID : public Identifier<CampaignScenarioID>
+{
+public:
+	using Identifier<CampaignScenarioID>::Identifier;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(int32_t index);
+
+	static const CampaignScenarioID NONE;
 };
 
 // Deprecated
 // TODO: remove
-using ESpellSchool = SpellSchool;
 using ETownType = FactionID;
 using EGameResID = GameResID;
 using River = RiverId;

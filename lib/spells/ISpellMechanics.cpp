@@ -490,11 +490,11 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
 				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
-				text.replaceLocalString(EMetaText::ART_NAMES, b->sid);
+				text.replaceLocalString(EMetaText::ART_NAMES, b->sid.as<ArtifactID>());
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
+			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
 			{
 				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);

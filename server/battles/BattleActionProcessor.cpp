@@ -162,11 +162,11 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	SetStackEffect sse;
 	sse.battleID = battle.getBattle()->getBattleID();
 
-	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
-	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
-	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
+	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 
-	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int32_t>(PrimarySkill::DEFENSE)));
+	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)));
 	int oldDefenceValue = defence.totalValue();
 
 	defence.push_back(std::make_shared<Bonus>(defenseBonusToAdd));
@@ -263,7 +263,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	const auto * attackingHero = battle.battleGetFightingHero(ba.side);
 	if(attackingHero)
 	{
-		totalAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, stack->creatureIndex());
+		totalAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
 	}
 
 	const bool firstStrike = destinationStack->hasBonusOfType(BonusType::FIRST_STRIKE);
@@ -355,7 +355,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	const auto * attackingHero = battle.battleGetFightingHero(ba.side);
 	if(attackingHero)
 	{
-		totalRangedAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, stack->creatureIndex());
+		totalRangedAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
 	}
 
 	for(int i = 1; i < totalRangedAttacks; ++i)
@@ -382,13 +382,13 @@ bool BattleActionProcessor::doCatapultAction(const CBattleInfoCallback & battle,
 		return false;
 
 	std::shared_ptr<const Bonus> catapultAbility = stack->getBonusLocalFirst(Selector::type()(BonusType::CATAPULT));
-	if(!catapultAbility || catapultAbility->subtype < 0)
+	if(!catapultAbility || catapultAbility->subtype == BonusSubtypeID())
 	{
 		gameHandler->complain("We do not know how to shoot :P");
 	}
 	else
 	{
-		const CSpell * spell = SpellID(catapultAbility->subtype).toSpell();
+		const CSpell * spell = catapultAbility->subtype.as<SpellID>().toSpell();
 		spells::BattleCast parameters(&battle, stack, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can shot infinitely by catapult
 		auto shotLevel = stack->valOfBonuses(Selector::typeSubtype(BonusType::CATAPULT_EXTRA_SHOTS, catapultAbility->subtype));
 		parameters.setSpellLevel(shotLevel);
@@ -407,7 +407,7 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 		return false;
 
 	std::shared_ptr<const Bonus> randSpellcaster = stack->getBonus(Selector::type()(BonusType::RANDOM_SPELLCASTER));
-	std::shared_ptr<const Bonus> spellcaster = stack->getBonus(Selector::typeSubtype(BonusType::SPELLCASTER, spellID));
+	std::shared_ptr<const Bonus> spellcaster = stack->getBonus(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spellID)));
 
 	//TODO special bonus for genies ability
 	if (randSpellcaster && battle.battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) == SpellID::NONE)
@@ -452,13 +452,13 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	else
 		destStack = battle.battleGetUnitByPos(target.at(0).hexValue);
 
-	if(stack == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype < 0)
+	if(stack == nullptr || destStack == nullptr || !healerAbility || healerAbility->subtype == BonusSubtypeID())
 	{
 		gameHandler->complain("There is either no healer, no destination, or healer cannot heal :P");
 	}
 	else
 	{
-		const CSpell * spell = SpellID(healerAbility->subtype).toSpell();
+		const CSpell * spell = healerAbility->subtype.as<SpellID>().toSpell();
 		spells::BattleCast parameters(&battle, stack, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can heal infinitely by first aid tent
 		auto dest = battle::Destination(destStack, target.at(0).hexValue);
 		parameters.setSpellLevel(0);
@@ -907,7 +907,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	const auto * owner = battle.battleGetFightingHero(attacker->unitSide());
 	if(owner)
 	{
-		int chance = owner->valOfBonuses(BonusType::BONUS_DAMAGE_CHANCE, attacker->creatureIndex());
+		int chance = owner->valOfBonuses(BonusType::BONUS_DAMAGE_CHANCE, BonusSubtypeID(attacker->creatureId()));
 		if (chance > gameHandler->getRandomGenerator().nextInt(99))
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 	}
@@ -931,7 +931,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	{
 		//this is need for displaying hit animation
 		bat.flags |= BattleAttack::SPELL_LIKE;
-		bat.spellID = SpellID(bonus->subtype);
+		bat.spellID = bonus->subtype.as<SpellID>();
 
 		//TODO: should spell override creature`s projectile?
 
@@ -962,7 +962,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			{
 				//this is need for displaying affect animation
 				bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
-				bsa.spellID = SpellID(bonus->subtype);
+				bsa.spellID = bonus->subtype.as<SpellID>();
 			}
 		}
 	}
@@ -1084,7 +1084,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
 		for(const auto & sf : *spells)
 		{
-			spellsToCast.insert(SpellID(sf->subtype));
+			spellsToCast.insert(sf->subtype.as<SpellID>());
 		}
 		for(SpellID spellID : spellsToCast)
 		{
@@ -1095,7 +1095,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 				return;
 			}
 			int32_t spellLevel = 0;
-			TConstBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
+			TConstBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, BonusSubtypeID(spellID)));
 			for(const auto & sf : *spellsByType)
 			{
 				int meleeRanged;
@@ -1113,7 +1113,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 				if (meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
 			}
-			int chance = attacker->valOfBonuses((Selector::typeSubtype(attackMode, spellID)));
+			int chance = attacker->valOfBonuses((Selector::typeSubtype(attackMode, BonusSubtypeID(spellID))));
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
@@ -1168,7 +1168,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
 		//original formula x = min(x, (gorgons_count + 9)/10);
 
-		double chanceToKill = attacker->valOfBonuses(BonusType::DEATH_STARE, 0) / 100.0f;
+		double chanceToKill = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon) / 100.0f;
 		vstd::amin(chanceToKill, 1); //cap at 100%
 
 		std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
@@ -1179,7 +1179,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		int maxToKill = static_cast<int>((attacker->getCount() + cap - 1) / cap); //not much more than chance * count
 		vstd::amin(staredCreatures, maxToKill);
 
-		staredCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, 1)) / defender->level();
+		staredCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
 		if(staredCreatures)
 		{
 			//TODO: death stare was not originally available for multiple-hex attacks, but...
@@ -1249,9 +1249,9 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		else
 			resurrectInfo.type = attacker->creatureId();
 
-		if(attacker->hasBonusOfType((BonusType::TRANSMUTATION), 0))
+		if(attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusCustomSubtype::transmutationPerHealth))
 			resurrectInfo.count = std::max((defender->getCount() * defender->getMaxHealth()) / resurrectInfo.type.toCreature()->getMaxHealth(), 1u);
-		else if (attacker->hasBonusOfType((BonusType::TRANSMUTATION), 1))
+		else if (attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusCustomSubtype::transmutationPerUnit))
 			resurrectInfo.count = defender->getCount();
 		else
 			return; //wrong subtype
@@ -1273,21 +1273,21 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		gameHandler->sendAndApply(&fakeEvent);
 	}
 
-	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, 0) || attacker->hasBonusOfType(BonusType::DESTRUCTION, 1))
+	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount))
 	{
 		double chanceToTrigger = 0;
 		int amountToDie = 0;
 
-		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, 0)) //killing by percentage
+		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage)) //killing by percentage
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, 0) / 100.0f;
-			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(0)))->additionalInfo[0];
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) / 100.0f;
+			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)))->additionalInfo[0];
 			amountToDie = static_cast<int>(defender->getCount() * percentageToDie * 0.01f);
 		}
-		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, 1)) //killing by count
+		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount)) //killing by count
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, 1) / 100.0f;
-			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(1)))->additionalInfo[0];
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount) / 100.0f;
+			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)))->additionalInfo[0];
 		}
 
 		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
@@ -1348,12 +1348,13 @@ int64_t BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & ba
 	{
 		//we can have two bonuses - one with subtype 0 and another with subtype 1
 		//try to use permanent first, use only one of two
-		for(si32 subtype = 1; subtype >= 0; subtype--)
+		for(const auto & subtype : { BonusCustomSubtype::soulStealBattle, BonusCustomSubtype::soulStealPermanent})
 		{
 			if(attackerState->hasBonusOfType(BonusType::SOUL_STEAL, subtype))
 			{
 				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(BonusType::SOUL_STEAL, subtype) * attackerState->getMaxHealth();
-				attackerState->heal(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
+				bool permanent = subtype == BonusCustomSubtype::soulStealPermanent;
+				attackerState->heal(toHeal, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 				drainedLife += toHeal;
 				break;
 			}
@@ -1365,9 +1366,9 @@ int64_t BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & ba
 	if(!bat.shot() &&
 		!def->isClone() &&
 		def->hasBonusOfType(BonusType::FIRE_SHIELD) &&
-		!attackerState->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, SpellSchool(ESpellSchool::FIRE)) &&
-		!attackerState->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, SpellSchool(ESpellSchool::FIRE)) &&
-		attackerState->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(ESpellSchool::FIRE)) < 100 &&
+		!attackerState->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
+		!attackerState->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(SpellSchool::FIRE)) &&
+		attackerState->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::FIRE)) < 100 &&
 		CStack::isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
 			)
 	{

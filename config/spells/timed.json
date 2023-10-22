@@ -17,7 +17,7 @@
 				"effects" : {
 					"generalDamageReduction" : {
 						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 0,
+						"subtype" : "damageTypeMelee",
 						"duration" : "N_TURNS"
 					}
 				}
@@ -48,7 +48,7 @@
 				"effects" : {
 					"generalDamageReduction" : {
 						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 1,
+						"subtype" : "damageTypeRanged",
 						"duration" : "N_TURNS"
 					}
 				}
@@ -367,7 +367,6 @@
 					"alwaysMaximumDamage" : {
 						"val" : 0,
 						"type" : "ALWAYS_MAXIMUM_DAMAGE",
-						"subtype" : -1,
 						"valueType" : "INDEPENDENT_MAX",
 						"duration" : "N_TURNS"
 					}
@@ -421,7 +420,6 @@
 						"addInfo" : 0,
 						"val" : 0,
 						"type" : "ALWAYS_MINIMUM_DAMAGE",
-						"subtype" : -1,
 						"valueType" : "INDEPENDENT_MAX",
 						"duration" : "N_TURNS"
 					}
@@ -476,7 +474,7 @@
 					"primarySkill" : {
 						"val" : 3,
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"effectRange" : "ONLY_MELEE_FIGHT",
 						"duration" : "N_TURNS"
 					}
@@ -527,7 +525,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"val" : 3,
 						"effectRange" : "ONLY_DISTANCE_FIGHT",
 						"duration" : "N_TURNS"
@@ -576,7 +574,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"val" : -3,
 						"duration" : "N_TURNS"
 					}
@@ -623,7 +621,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"subtype" : "primarySkill.defence",
 						"val" : 3,
 						"duration" : "N_TURNS"
 					}
@@ -667,7 +665,7 @@
 				"cumulativeEffects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"subtype" : "primarySkill.defence",
 						"val" : -3,
 						"valueType" : "ADDITIVE_VALUE",
 						"duration" : "PERMANENT"
@@ -710,13 +708,13 @@
 				"effects" : {
 					"attack" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"val" : 2,
 						"duration" : "N_TURNS"
 					},
 					"defence" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"subtype" : "primarySkill.defence",
 						"val" : 2,
 						"duration" : "N_TURNS"
 					},
@@ -1401,7 +1399,7 @@
 					"notActive" : {
 						"val" : 0,
 						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
+						"subtype" : "blind",
 						"duration" : [
 							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"

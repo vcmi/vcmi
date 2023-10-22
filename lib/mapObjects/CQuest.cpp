@@ -676,9 +676,9 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(metaTypeName == "mana")
 			reward.manaDiff = val;
 		if(metaTypeName == "morale")
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT, val, id);
+			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
 		if(metaTypeName == "luck")
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, val, id);
+			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
 		if(metaTypeName == "resource")
 		{
 			auto rawId = *VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);

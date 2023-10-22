@@ -28,7 +28,7 @@ CIdentifierStorage::CIdentifierStorage()
 	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
 		registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
 
-	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
+	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(SpellSchool::ANY));
 
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 		registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
@@ -42,6 +42,44 @@ CIdentifierStorage::CIdentifierStorage()
 		registerObject(ModScope::scopeBuiltin(), "primSkill", NPrimarySkill::names[i], i);
 		registerObject(ModScope::scopeBuiltin(), "primarySkill", NPrimarySkill::names[i], i);
 	}
+
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureDamageBoth", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureDamageMin", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureDamageMax", 2);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "damageTypeAll", -1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "damageTypeMelee", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "damageTypeRanged", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementLand", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementSea", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareGorgon", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareCommander", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthRegular", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthSpecial", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsMonsters", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsHeroes", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsTowns", 2);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "immunityBattleWide", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "immunityEnemyHero", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "transmutationPerHealth", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "transmutationPerUnit", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "destructionKillPercentage", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "destructionKillAmount", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealPermanent", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealBattle", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementFlying", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementTeleporting", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel1", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel2", 2);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel3", 3);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel4", 4);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel5", 5);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel1", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel2", 2);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel3", 3);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel4", 4);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel5", 5);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel6", 6);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel7", 7);
 }
 
 void CIdentifierStorage::checkIdentifier(std::string & ID)
@@ -107,7 +145,7 @@ CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameA
 	if(!typeAndName.first.empty())
 	{
 		if (typeAndName.first != type)
-			logMod->error("Identifier '%s' from mod '%s' requested with different type! Type '%s' expected!", fullName, scope, type);
+			logMod->warn("Identifier '%s' from mod '%s' requested with different type! Type '%s' expected!", fullName, scope, type);
 		else
 			logMod->debug("Target type for identifier '%s' defined in mod '%s' is redundant!", fullName, scope);
 	}

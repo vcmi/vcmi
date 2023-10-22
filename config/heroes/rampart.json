@@ -13,7 +13,7 @@
 			"bonuses" : {
 				"armorer" : {
 					"type" : "GENERAL_DAMAGE_REDUCTION",
-					"subtype" : -1,
+					"subtype" : "damageTypeAll",
 					"targetSourceType" : "SECONDARY_SKILL",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
@@ -132,7 +132,7 @@
 			"bonuses" : {
 				"logistics" : {
 					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : 1,
+					"subtype" : "heroMovementLand",
 					"type" : "MOVEMENT",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
@@ -245,7 +245,6 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : 0,
 					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,

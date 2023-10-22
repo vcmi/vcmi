@@ -993,7 +993,7 @@ void GiveBonus::applyGs(CGameState *gs)
 
 	if(bdescr.empty() && (bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE))
 	{
-		if (bonus.source == BonusSource::OBJECT)
+		if (bonus.source == BonusSource::OBJECT_TYPE || bonus.source == BonusSource::OBJECT_INSTANCE)
 		{
 			descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		}
@@ -1119,7 +1119,7 @@ void RemoveBonus::applyGs(CGameState *gs)
 
 	for(const auto & b : bonuses)
 	{
-		if(vstd::to_underlying(b->source) == source && b->sid == id)
+		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
 			node->removeBonus(b);
@@ -2201,7 +2201,7 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 	}
 	case BonusType::POISON:
 	{
-		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID::POISON)
+		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID(SpellID::POISON))
 				.And(Selector::type()(BonusType::STACK_HEALTH)));
 		if (b)
 			b->val = val;
@@ -2553,7 +2553,7 @@ void PlayerCheated::applyGs(CGameState * gs) const
 
 void PlayerStartsTurn::applyGs(CGameState * gs) const
 {
-	assert(gs->actingPlayers.count(player) == 0);
+	//assert(gs->actingPlayers.count(player) == 0);//Legal - may happen after loading of deserialized map state
 	gs->actingPlayers.insert(player);
 }
 

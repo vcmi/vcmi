@@ -340,12 +340,12 @@ CUnitState::CUnitState():
 	health(this),
 	shots(this),
 	totalAttacks(this, Selector::type()(BonusType::ADDITIONAL_ATTACK), 1),
-	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1)), 0),
-	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2)), 0),
-	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::ATTACK)), 0),
-	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::DEFENSE)), 0),
+	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin)), 0),
+	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax)), 0),
+	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)), 0),
+	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)), 0),
 	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),
-	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, SpellID::CLONE))),
+	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE))))),
 	cloneID(-1)
 {
 
@@ -430,7 +430,7 @@ const CGHeroInstance * CUnitState::getHeroCaster() const
 
 int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
 {
-	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, spell->getIndex()));
+	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spell->getId())));
 	vstd::abetween(skill, 0, 3);
 	return skill;
 }
@@ -466,7 +466,7 @@ int32_t CUnitState::getEnchantPower(const spells::Spell * spell) const
 
 int64_t CUnitState::getEffectValue(const spells::Spell * spell) const
 {
-	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, spell->getIndex());
+	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, BonusSubtypeID(spell->getId()));
 }
 
 PlayerColor CUnitState::getCasterOwner() const
@@ -511,7 +511,7 @@ bool CUnitState::isGhost() const
 
 bool CUnitState::isFrozen() const
 {
-	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
+	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::STONE_GAZE))), Selector::all);
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const

@@ -83,7 +83,7 @@ public:
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	const TurnInfo * getTurnInfo() const;
-	bool hasBonusOfType(const BonusType type, const int subtype = -1) const;
+	bool hasBonusOfType(BonusType type) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
 	std::vector<int3> getCastleGates(const PathNodeInfo & source) const;

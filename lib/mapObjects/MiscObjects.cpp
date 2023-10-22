@@ -836,7 +836,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
 		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
-		SpellID spellId(b->subtype);
+		SpellID spellId(b->subtype.as<SpellID>());
 
 		handler.serializeId("spell", spellId, SpellID::NONE);
 	}
@@ -987,14 +987,14 @@ void CGSirens::initObj(CRandomGenerator & rand)
 
 std::string CGSirens::getHoverText(const CGHeroInstance * hero) const
 {
-	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT,ID));
+	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID)));
 }
 
 void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->tempOwner;
-	if(h->hasBonusFrom(BonusSource::OBJECT,ID)) //has already visited Sirens
+	if(h->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID))) //has already visited Sirens
 	{
 		iw.type = EInfoWindowMode::AUTO;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT,133);
@@ -1179,8 +1179,8 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
 			rb.whoID = oldOwner.getNum();
-			rb.source = vstd::to_underlying(BonusSource::OBJECT);
-			rb.id = id.getNum();
+			rb.source = BonusSource::OBJECT_INSTANCE;
+			rb.id = BonusSourceID(id);
 			cb->sendAndApply(&rb);
 		}
 	}
@@ -1202,9 +1202,9 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	gb.bonus.val = 500;
 	gb.id = player.getNum();
 	gb.bonus.duration = BonusDuration::PERMANENT;
-	gb.bonus.source = BonusSource::OBJECT;
-	gb.bonus.sid = id.getNum();
-	gb.bonus.subtype = 0;
+	gb.bonus.source = BonusSource::OBJECT_INSTANCE;
+	gb.bonus.sid = BonusSourceID(id);
+	gb.bonus.subtype = BonusCustomSubtype::heroMovementSea;
 
 	// FIXME: This is really dirty hack
 	// Proper fix would be to make CGLighthouse into bonus system node

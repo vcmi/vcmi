@@ -68,7 +68,7 @@ SpellID CScrollArtifactInstance::getScrollSpellID() const
 		logMod->warn("Warning: %s doesn't bear any spell!", artInst->nodeName());
 		return SpellID::NONE;
 	}
-	return SpellID(bonus->subtype);
+	return bonus->subtype.as<SpellID>();
 }
 
 void CGrowingArtifactInstance::growingUp()

@@ -579,7 +579,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(auto & heroe : heroes)
 	{
-		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
+		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
 	}
 
 	//Add town income of all towns

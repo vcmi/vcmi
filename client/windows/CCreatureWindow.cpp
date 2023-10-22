@@ -208,10 +208,10 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 
 	//spell effects
 	int printed=0; //how many effect pics have been printed
-	std::vector<si32> spells = battleStack->activeSpells();
-	for(si32 effect : spells)
+	std::vector<SpellID> spells = battleStack->activeSpells();
+	for(SpellID effect : spells)
 	{
-		const spells::Spell * spell = CGI->spells()->getByIndex(effect);
+		const spells::Spell * spell = CGI->spells()->getById(effect);
 
 		std::string spellText;
 
@@ -224,7 +224,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
-			int duration = battleStack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT,effect))->turnsRemain;
+			int duration = battleStack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
 			boost::replace_first(spellText, "%d", std::to_string(duration));
 
 			spellIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));

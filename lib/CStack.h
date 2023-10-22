@@ -58,7 +58,7 @@ public:
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
-	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
+	std::vector<SpellID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 
 	static std::vector<BattleHex> meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);

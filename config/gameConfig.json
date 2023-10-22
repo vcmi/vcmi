@@ -430,7 +430,7 @@
 				"landMovement" :
 				{
 					"type" : "MOVEMENT", //Basic land movement
-					"subtype" : 1,
+					"subtype" : "heroMovementLand",
 					"val" : 1300,
 					"valueType" : "BASE_NUMBER",
 					"updater" : {
@@ -446,7 +446,7 @@
 				"seaMovement" :
 				{
 					"type" : "MOVEMENT", //Basic sea movement
-					"subtype" : 0,
+					"subtype" : "heroMovementSea",
 					"val" : 1500,
 					"valueType" : "BASE_NUMBER"
 				}

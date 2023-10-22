@@ -21,9 +21,9 @@ namespace Selector
 		return stype;
 	}
 
-	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> & subtype()
+	DLL_LINKAGE CSelectFieldEqual<BonusSubtypeID> & subtype()
 	{
-		static CSelectFieldEqual<TBonusSubtype> ssubtype(&Bonus::subtype);
+		static CSelectFieldEqual<BonusSubtypeID> ssubtype(&Bonus::subtype);
 		return ssubtype;
 	}
 
@@ -54,22 +54,22 @@ namespace Selector
 	DLL_LINKAGE CWillLastTurns turns;
 	DLL_LINKAGE CWillLastDays days;
 
-	CSelector DLL_LINKAGE typeSubtype(BonusType Type, TBonusSubtype Subtype)
+	CSelector DLL_LINKAGE typeSubtype(BonusType Type, BonusSubtypeID Subtype)
 	{
 		return type()(Type).And(subtype()(Subtype));
 	}
 
-	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, TBonusSubtype subtype, const CAddInfo & info)
+	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, BonusSubtypeID subtype, const CAddInfo & info)
 	{
 		return CSelectFieldEqual<BonusType>(&Bonus::type)(type)
-			.And(CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype)(subtype))
+			.And(CSelectFieldEqual<BonusSubtypeID>(&Bonus::subtype)(subtype))
 			.And(CSelectFieldEqual<CAddInfo>(&Bonus::additionalInfo)(info));
 	}
 
-	CSelector DLL_LINKAGE source(BonusSource source, ui32 sourceID)
+	CSelector DLL_LINKAGE source(BonusSource source, BonusSourceID sourceID)
 	{
 		return CSelectFieldEqual<BonusSource>(&Bonus::source)(source)
-			.And(CSelectFieldEqual<ui32>(&Bonus::sid)(sourceID));
+			.And(CSelectFieldEqual<BonusSourceID>(&Bonus::sid)(sourceID));
 	}
 
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source)

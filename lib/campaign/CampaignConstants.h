@@ -48,10 +48,4 @@ enum class CampaignBonusType : int8_t
 	HERO
 };
 
-enum class CampaignScenarioID : int8_t
-{
-	NONE = -1,
-	// no members - fake enum to create integer type that is not implicitly convertible to int
-};
-
 VCMI_LIB_NAMESPACE_END

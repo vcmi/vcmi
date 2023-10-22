@@ -23,8 +23,8 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../lib/modding/IdentifierStorage.h"
-#include "../lib/modding/ModScope.h"
+#include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/modding/ModScope.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor()
 	:gameHandler(nullptr)
@@ -140,11 +140,11 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	///Give all spells with bonus (to allow banned spells)
 	GiveBonus giveBonus(GiveBonus::ETarget::HERO);
 	giveBonus.id = hero->id.getNum();
-	giveBonus.bonus = Bonus(BonusDuration::PERMANENT, BonusType::SPELLS_OF_LEVEL, BonusSource::OTHER, 0, 0);
+	giveBonus.bonus = Bonus(BonusDuration::PERMANENT, BonusType::SPELLS_OF_LEVEL, BonusSource::OTHER, 0, BonusSourceID());
 	//start with level 0 to skip abilities
 	for (int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
 	{
-		giveBonus.bonus.subtype = level;
+		giveBonus.bonus.subtype = BonusCustomSubtype::spellLevel(level);
 		gameHandler->sendAndApply(&giveBonus);
 	}
 

@@ -496,8 +496,8 @@ struct DLL_LINKAGE RemoveBonus : public CPackForClient
 	ui32 whoID = 0; //hero, town or player id - whoever loses bonus
 
 	//vars to identify bonus: its source
-	ui8 source = 0;
-	ui32 id = 0; //source id
+	BonusSource source;
+	BonusSourceID id; //source id
 
 	//used locally: copy of removed bonus
 	Bonus bonus;

@@ -417,13 +417,241 @@ std::string JsonNode::toJson(bool compact) const
 
 ///JsonUtils
 
-void JsonUtils::parseTypedBonusShort(const JsonVector & source, const std::shared_ptr<Bonus> & dest)
+static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node)
 {
-	dest->val = static_cast<si32>(source[1].Float());
-	resolveIdentifier(source[2],dest->subtype);
-	dest->additionalInfo = static_cast<si32>(source[3].Float());
-	dest->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
-	dest->turnsRemain = 0;
+	if (node.isNull())
+	{
+		subtype = BonusSubtypeID();
+		return;
+	}
+
+	if (node.isNumber()) // Compatibility code for 1.3 or older
+	{
+		logMod->warn("Bonus subtype must be string!");
+		subtype = BonusCustomSubtype(node.Integer());
+		return;
+	}
+
+	if (!node.isString())
+	{
+		logMod->warn("Bonus subtype must be string!");
+		subtype = BonusSubtypeID();
+		return;
+	}
+
+	switch (type)
+	{
+		case BonusType::MAGIC_SCHOOL_SKILL:
+		case BonusType::SPELL_DAMAGE:
+		case BonusType::SPELLS_OF_SCHOOL:
+		case BonusType::SPELL_DAMAGE_REDUCTION:
+		case BonusType::SPELL_SCHOOL_IMMUNITY:
+		{
+			VLC->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
+			{
+				subtype = SpellSchool(identifier);
+			});
+			break;
+		}
+		case BonusType::NO_TERRAIN_PENALTY:
+		{
+			VLC->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)
+			{
+				subtype = TerrainId(identifier);
+			});
+			break;
+		}
+		case BonusType::PRIMARY_SKILL:
+		{
+			VLC->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
+			{
+				subtype = PrimarySkill(identifier);
+			});
+			break;
+		}
+		case BonusType::IMPROVED_NECROMANCY:
+		case BonusType::HERO_GRANTS_ATTACKS:
+		case BonusType::BONUS_DAMAGE_CHANCE:
+		case BonusType::BONUS_DAMAGE_PERCENTAGE:
+		case BonusType::SPECIAL_UPGRADE:
+		case BonusType::HATE:
+		case BonusType::SUMMON_GUARDIANS:
+		case BonusType::MANUAL_CONTROL:
+		{
+			VLC->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
+			{
+				subtype = CreatureID(identifier);
+			});
+			break;
+		}
+		case BonusType::SPELL_IMMUNITY:
+		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
+		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::SPECIAL_SPELL_LEV:
+		case BonusType::SPECIFIC_SPELL_DAMAGE:
+		case BonusType::SPELL:
+		case BonusType::OPENING_BATTLE_SPELL:
+		case BonusType::SPELL_LIKE_ATTACK:
+		case BonusType::CATAPULT:
+		case BonusType::CATAPULT_EXTRA_SHOTS:
+		case BonusType::HEALER:
+		case BonusType::SPELLCASTER:
+		case BonusType::ENCHANTER:
+		case BonusType::SPELL_AFTER_ATTACK:
+		case BonusType::SPELL_BEFORE_ATTACK:
+		case BonusType::SPECIFIC_SPELL_POWER:
+		case BonusType::ENCHANTED:
+		case BonusType::MORE_DAMAGE_FROM_SPELL:
+		case BonusType::NOT_ACTIVE:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
+			{
+				subtype = SpellID(identifier);
+			});
+			break;
+		}
+		case BonusType::GENERATE_RESOURCE:
+		{
+			VLC->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
+			{
+				subtype = GameResID(identifier);
+			});
+			break;
+		}
+		case BonusType::MOVEMENT:
+		case BonusType::WATER_WALKING:
+		case BonusType::FLYING_MOVEMENT:
+		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
+		case BonusType::CREATURE_DAMAGE:
+		case BonusType::FLYING:
+		case BonusType::GENERAL_DAMAGE_REDUCTION:
+		case BonusType::PERCENTAGE_DAMAGE_BOOST:
+		case BonusType::SOUL_STEAL:
+		case BonusType::TRANSMUTATION:
+		case BonusType::DESTRUCTION:
+		case BonusType::DEATH_STARE:
+		case BonusType::REBIRTH:
+		case BonusType::VISIONS:
+		case BonusType::SPELLS_OF_LEVEL: // spell level
+		case BonusType::CREATURE_GROWTH: // creature level
+		{
+			VLC->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
+			{
+				subtype = BonusCustomSubtype(identifier);
+			});
+			break;
+		}
+		default:
+			for(const auto & i : bonusNameMap)
+				if(i.second == type)
+					logMod->warn("Bonus type %s does not supports subtypes!", i.first );
+			subtype =  BonusSubtypeID();
+	}
+}
+
+static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
+{
+	if (node.isNull())
+	{
+		sourceInstance = BonusCustomSource();
+		return;
+	}
+
+	if (node.isNumber()) // Compatibility code for 1.3 or older
+	{
+		logMod->warn("Bonus source must be string!");
+		sourceInstance = BonusCustomSource(node.Integer());
+		return;
+	}
+
+	if (!node.isString())
+	{
+		logMod->warn("Bonus source must be string!");
+		sourceInstance = BonusCustomSource();
+		return;
+	}
+
+	switch (sourceType)
+	{
+		case BonusSource::ARTIFACT:
+		case BonusSource::ARTIFACT_INSTANCE:
+		{
+			VLC->identifiers()->requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = ArtifactID(identifier);
+			});
+			break;
+		}
+		case BonusSource::OBJECT_TYPE:
+		{
+			VLC->identifiers()->requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = Obj(identifier);
+			});
+			break;
+		}
+		case BonusSource::OBJECT_INSTANCE:
+		case BonusSource::HERO_BASE_SKILL:
+			sourceInstance = ObjectInstanceID(ObjectInstanceID::decode(node.String()));
+			break;
+		case BonusSource::CREATURE_ABILITY:
+		{
+			VLC->identifiers()->requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = CreatureID(identifier);
+			});
+			break;
+		}
+		case BonusSource::TERRAIN_OVERLAY:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = BattleField(identifier);
+			});
+			break;
+		}
+		case BonusSource::SPELL_EFFECT:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = SpellID(identifier);
+			});
+			break;
+		}
+		case BonusSource::TOWN_STRUCTURE:
+			assert(0); // TODO
+			sourceInstance = BuildingTypeUniqueID();
+			break;
+		case BonusSource::SECONDARY_SKILL:
+		{
+			VLC->identifiers()->requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = SecondarySkill(identifier);
+			});
+			break;
+		}
+		case BonusSource::HERO_SPECIAL:
+		{
+			VLC->identifiers()->requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = HeroTypeID(identifier);
+			});
+			break;
+		}
+		case BonusSource::CAMPAIGN_BONUS:
+			sourceInstance = CampaignScenarioID(CampaignScenarioID::decode(node.String()));
+			break;
+		case BonusSource::ARMY:
+		case BonusSource::STACK_EXPERIENCE:
+		case BonusSource::COMMANDER:
+		case BonusSource::GLOBAL:
+		case BonusSource::TERRAIN_NATIVE:
+		case BonusSource::OTHER:
+		default:
+			sourceInstance = BonusSourceID();
+			break;
+	}
 }
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
@@ -438,7 +666,11 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	}
 	b->type = it->second;
 
-	parseTypedBonusShort(ability_vec, b);
+	b->val = static_cast<si32>(ability_vec[1].Float());
+	loadBonusSubtype(b->subtype, b->type, ability_vec[2]);
+	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
+	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
+	b->turnsRemain = 0;
 	return b;
 }
 
@@ -471,31 +703,6 @@ const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, 
 		return static_cast<T>(val->Integer());
 	else
 		return parseByMap<T>(map, val, err);
-}
-
-void JsonUtils::resolveIdentifier(si32 & var, const JsonNode & node, const std::string & name)
-{
-	const JsonNode &value = node[name];
-	if (!value.isNull())
-	{
-		switch (value.getType())
-		{
-			case JsonNode::JsonType::DATA_INTEGER:
-				var = static_cast<si32>(value.Integer());
-				break;
-			case JsonNode::JsonType::DATA_FLOAT:
-				var = static_cast<si32>(value.Float());
-				break;
-			case JsonNode::JsonType::DATA_STRING:
-				VLC->identifiers()->requestIdentifier(value, [&](si32 identifier)
-				{
-					var = identifier;
-				});
-				break;
-			default:
-				logMod->error("Error! Wrong identifier used for value of %s.", name);
-		}
-	}
 }
 
 void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
@@ -546,27 +753,6 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 		default:
 			logMod->error("Error! Wrong identifier used for value of addInfo.");
 		}
-	}
-}
-
-void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
-{
-	switch (node.getType())
-	{
-		case JsonNode::JsonType::DATA_INTEGER:
-			var = static_cast<si32>(node.Integer());
-			break;
-		case JsonNode::JsonType::DATA_FLOAT:
-			var = static_cast<si32>(node.Float());
-			break;
-		case JsonNode::JsonType::DATA_STRING:
-			VLC->identifiers()->requestIdentifier(node, [&](si32 identifier)
-			{
-				var = identifier;
-			});
-			break;
-		default:
-			logMod->error("Error! Wrong identifier used for identifier!");
 	}
 }
 
@@ -660,7 +846,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 								bonusLimiter->source = sourceIt->second;
 								bonusLimiter->isSourceRelevant = true;
 								if(!parameter["id"].isNull()) {
-									resolveIdentifier(parameter["id"], bonusLimiter->sid);
+									loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, parameter["id"]);
 									bonusLimiter->isSourceIDRelevant = true;
 								}
 							}
@@ -673,7 +859,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 							return bonusLimiter;
 						else
 						{
-							resolveIdentifier(parameters[1], bonusLimiter->subtype);
+							loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, parameters[1]);
 							bonusLimiter->isSubtypeRelevant = true;
 							if(parameters.size() > 2)
 								findSource(parameters[2]);
@@ -759,13 +945,13 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	return b;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const BuildingID & building, const std::string & description)
+std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const FactionID & faction, const BuildingID & building, const std::string & description)
 {
 	/*	duration = BonusDuration::PERMANENT
 		source = BonusSource::TOWN_STRUCTURE
 		bonusType, val, subtype - get from json
 	*/
-	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, building, description, -1);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BuildingTypeUniqueID(faction, building), description);
 
 	if(!parseBonus(ability, b.get()))
 		return nullptr;
@@ -865,7 +1051,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	else
 		b->type = it->second;
 
-	resolveIdentifier(b->subtype, params->isConverted ? params->toJson() : ability, "subtype");
+	loadBonusSubtype(b->subtype, b->type, params->isConverted ? params->toJson()["subtype"] : ability["subtype"]);
 
 	if(!params->isConverted)
 	{
@@ -881,8 +1067,6 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	resolveAddInfo(b->additionalInfo, ability);
 
 	b->turnsRemain = static_cast<si32>(ability["turns"].Float());
-
-	b->sid = static_cast<si32>(ability["sourceID"].Float());
 
 	if(!ability["description"].isNull())
 	{
@@ -920,6 +1104,9 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	value = &ability["sourceType"];
 	if (!value->isNull())
 		b->source = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
+
+	if (!ability["sourceID"].isNull())
+		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"]);
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
@@ -984,24 +1171,29 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		ret = ret.And(base.Not());
 	}
 
+	BonusType type = BonusType::NONE;
+
 	// Actual selector parser
 	value = &ability["type"];
 	if(value->isString())
 	{
 		auto it = bonusNameMap.find(value->String());
 		if(it != bonusNameMap.end())
+		{
+			type = it->second;
 			ret = ret.And(Selector::type()(it->second));
+		}
 	}
 	value = &ability["subtype"];
-	if(!value->isNull())
+	if(!value->isNull() && type != BonusType::NONE)
 	{
-		TBonusSubtype subtype;
-		resolveIdentifier(subtype, ability, "subtype");
+		BonusSubtypeID subtype;
+		loadBonusSubtype(subtype, type, ability);
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];
 	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
-	std::optional<si32> id = std::nullopt;
+	std::optional<BonusSourceID> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
@@ -1010,10 +1202,9 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	}
 
 	value = &ability["sourceID"];
-	if(!value->isNull())
+	if(!value->isNull() && src.has_value())
 	{
-		id = -1;
-		resolveIdentifier(*id, ability, "sourceID");
+		loadBonusSourceInstance(*id, *src, ability);
 	}
 
 	if(src && id)

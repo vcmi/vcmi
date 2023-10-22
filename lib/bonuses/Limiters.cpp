@@ -136,11 +136,11 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 }
 
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus )
-	: type(bonus), subtype(0), isSubtypeRelevant(false), isSourceRelevant(false), isSourceIDRelevant(false)
+	: type(bonus), isSubtypeRelevant(false), isSourceRelevant(false), isSourceIDRelevant(false)
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus, TBonusSubtype _subtype )
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus, BonusSubtypeID _subtype )
 	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), isSourceRelevant(false), isSourceIDRelevant(false)
 {
 }
@@ -150,7 +150,7 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSource src)
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, TBonusSubtype _subtype, BonusSource src)
+HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _subtype, BonusSource src)
 	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), source(src), isSourceRelevant(true), isSourceIDRelevant(false)
 {
 }
@@ -184,8 +184,8 @@ std::string HasAnotherBonusLimiter::toString() const
 	std::string typeName = vstd::findKey(bonusNameMap, type);
 	if(isSubtypeRelevant)
 	{
-		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%d)");
-		fmt % typeName % subtype;
+		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%s)");
+		fmt % typeName % subtype.toString();
 		return fmt.str();
 	}
 	else
@@ -205,7 +205,7 @@ JsonNode HasAnotherBonusLimiter::toJsonNode() const
 	root["type"].String() = "HAS_ANOTHER_BONUS_LIMITER";
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(typeName));
 	if(isSubtypeRelevant)
-		root["parameters"].Vector().push_back(JsonUtils::intNode(subtype));
+		root["parameters"].Vector().push_back(JsonUtils::stringNode(subtype.toString()));
 	if(isSourceRelevant)
 		root["parameters"].Vector().push_back(JsonUtils::stringNode(sourceTypeName));
 
@@ -303,10 +303,10 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 		switch(context.b.source)
 		{
 			case BonusSource::CREATURE_ABILITY:
-				return bearer->getFaction() == CreatureID(context.b.sid).toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+				return bearer->getFaction() == context.b.sid.as<CreatureID>().toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 			
 			case BonusSource::TOWN_STRUCTURE:
-				return bearer->getFaction() == FactionID(Bonus::getHighFromSid32(context.b.sid)) ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+				return bearer->getFaction() == context.b.sid.as<BuildingTypeUniqueID>().getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 
 			//TODO: other sources of bonuses
 		}

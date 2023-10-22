@@ -37,9 +37,6 @@ class JsonSerializeFormat;
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
 /// contains all mechanics-related data about town structures
-
-
-
 class DLL_LINKAGE CBuilding
 {
 	std::string modScope;
@@ -83,6 +80,8 @@ public:
 	static const std::map<std::string, CBuilding::ETowerHeight> TOWER_TYPES;
 
 	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
+
+	const BuildingTypeUniqueID getUniqueTypeID() const;
 
 	std::string getJsonKey() const;
 
@@ -392,14 +391,16 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
 
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, int subtype = -1) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, TPropagatorPtr & prop, int subtype = -1) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, TPropagatorPtr & prop) const;
 	std::shared_ptr<Bonus> createBonusImpl(const BuildingID & building,
+										   const FactionID & faction,
 												  BonusType type,
 												  int val,
 												  TPropagatorPtr & prop,
 												  const std::string & description,
-												  int subtype = -1) const;
+												  BonusSubtypeID subtype) const;
 
 	/// loads CStructure's into town
 	void loadStructure(CTown & town, const std::string & stringID, const JsonNode & source) const;

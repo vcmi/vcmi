@@ -15,6 +15,9 @@
 #include "BonusSelector.h"
 
 #include "../ResourceSet.h"
+#include "../VCMI_Lib.h"
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -81,76 +84,76 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if(deprecatedSubtype == SecondarySkill::SORCERY || deprecatedSubtypeStr == "skill.sorcery")
 		{
 			type = BonusType::SPELL_DAMAGE;
-			subtype = SpellSchool(ESpellSchool::ANY);
+			subtype = BonusSubtypeID(SpellSchool::ANY);
 		}
 		else if(deprecatedSubtype == SecondarySkill::SCHOLAR || deprecatedSubtypeStr == "skill.scholar")
 			type = BonusType::LEARN_MEETING_SPELL_LIMIT;
 		else if(deprecatedSubtype == SecondarySkill::ARCHERY|| deprecatedSubtypeStr == "skill.archery")
 		{
-			subtype = 1;
+			subtype = BonusCustomSubtype::damageTypeRanged;
 			type = BonusType::PERCENTAGE_DAMAGE_BOOST;
 		}
 		else if(deprecatedSubtype == SecondarySkill::OFFENCE || deprecatedSubtypeStr == "skill.offence")
 		{
-			subtype = 0;
+			subtype = BonusCustomSubtype::damageTypeMelee;
 			type = BonusType::PERCENTAGE_DAMAGE_BOOST;
 		}
 		else if(deprecatedSubtype == SecondarySkill::ARMORER || deprecatedSubtypeStr == "skill.armorer")
 		{
-			subtype = -1;
+			subtype = BonusCustomSubtype::damageTypeAll;
 			type = BonusType::GENERAL_DAMAGE_REDUCTION;
 		}
 		else if(deprecatedSubtype == SecondarySkill::NAVIGATION || deprecatedSubtypeStr == "skill.navigation")
 		{
-			subtype = 0;
+			subtype = BonusCustomSubtype::heroMovementSea;
 			valueType = BonusValueType::PERCENT_TO_BASE;
 			type = BonusType::MOVEMENT;
 		}
 		else if(deprecatedSubtype == SecondarySkill::LOGISTICS || deprecatedSubtypeStr == "skill.logistics")
 		{
-			subtype = 1;
+			subtype = BonusCustomSubtype::heroMovementLand;
 			valueType = BonusValueType::PERCENT_TO_BASE;
 			type = BonusType::MOVEMENT;
 		}
 		else if(deprecatedSubtype == SecondarySkill::ESTATES || deprecatedSubtypeStr == "skill.estates")
 		{
 			type = BonusType::GENERATE_RESOURCE;
-			subtype = GameResID(EGameResID::GOLD);
+			subtype = BonusSubtypeID(GameResID(EGameResID::GOLD));
 		}
 		else if(deprecatedSubtype == SecondarySkill::AIR_MAGIC || deprecatedSubtypeStr == "skill.airMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = SpellSchool(ESpellSchool::AIR);
+			subtype = BonusSubtypeID(SpellSchool::AIR);
 		}
 		else if(deprecatedSubtype == SecondarySkill::WATER_MAGIC || deprecatedSubtypeStr == "skill.waterMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = SpellSchool(ESpellSchool::WATER);
+			subtype = BonusSubtypeID(SpellSchool::WATER);
 		}
 		else if(deprecatedSubtype == SecondarySkill::FIRE_MAGIC || deprecatedSubtypeStr == "skill.fireMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = SpellSchool(ESpellSchool::FIRE);
+			subtype = BonusSubtypeID(SpellSchool::FIRE);
 		}
 		else if(deprecatedSubtype == SecondarySkill::EARTH_MAGIC || deprecatedSubtypeStr == "skill.earthMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = SpellSchool(ESpellSchool::EARTH);
+			subtype = BonusSubtypeID(SpellSchool::EARTH);
 		}
 		else if (deprecatedSubtype == SecondarySkill::ARTILLERY || deprecatedSubtypeStr == "skill.artillery")
 		{
 			type = BonusType::BONUS_DAMAGE_CHANCE;
-			subtypeStr = "core:creature.ballista";
+			subtype = BonusSubtypeID(CreatureID(CreatureID::BALLISTA));
 		}
 		else if (deprecatedSubtype == SecondarySkill::FIRST_AID || deprecatedSubtypeStr == "skill.firstAid")
 		{
 			type = BonusType::SPECIFIC_SPELL_POWER;
-			subtypeStr = "core:spell.firstAid";
+			subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "firstAid"));
 		}
 		else if (deprecatedSubtype == SecondarySkill::BALLISTICS || deprecatedSubtypeStr == "skill.ballistics")
 		{
 			type = BonusType::CATAPULT_EXTRA_SHOTS;
-			subtypeStr = "core:spell.catapultShot";
+			subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", "catapultShot"));
 		}
 		else
 			isConverted = false;
@@ -162,27 +165,27 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if (deprecatedSubtype == SecondarySkill::ARTILLERY || deprecatedSubtypeStr == "skill.artillery")
 		{
 			type = BonusType::HERO_GRANTS_ATTACKS;
-			subtypeStr = "core:creature.ballista";
+			subtype = BonusSubtypeID(CreatureID(CreatureID::BALLISTA));
 		}
 		else
 			isConverted = false;
 	}
 	else if (deprecatedTypeStr == "SEA_MOVEMENT")
 	{
-		subtype = 0;
+		subtype = BonusCustomSubtype::heroMovementSea;
 		valueType = BonusValueType::ADDITIVE_VALUE;
 		type = BonusType::MOVEMENT;
 	}
 	else if (deprecatedTypeStr == "LAND_MOVEMENT")
 	{
-		subtype = 1;
+		subtype = BonusCustomSubtype::heroMovementLand;
 		valueType = BonusValueType::ADDITIVE_VALUE;
 		type = BonusType::MOVEMENT;
 	}
 	else if (deprecatedTypeStr == "MAXED_SPELL")
 	{
 		type = BonusType::SPELL;
-		subtypeStr = deprecatedSubtypeStr;
+		subtype = SpellID(*VLC->identifiers()->getIdentifier( ModScope::scopeGame(), "spell", deprecatedSubtypeStr));
 		valueType = BonusValueType::INDEPENDENT_MAX;
 		val = 3;
 	}
@@ -223,52 +226,52 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	else if (deprecatedTypeStr == "DIRECT_DAMAGE_IMMUNITY")
 	{
 		type = BonusType::SPELL_DAMAGE_REDUCTION;
-		subtype = SpellSchool(ESpellSchool::ANY);
+		subtype = BonusSubtypeID(SpellSchool::ANY);
 		val = 100;
 	}
 	else if (deprecatedTypeStr == "AIR_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = SpellSchool(ESpellSchool::AIR);
+		subtype = BonusSubtypeID(SpellSchool::AIR);
 	}
 	else if (deprecatedTypeStr == "FIRE_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = SpellSchool(ESpellSchool::FIRE);
+		subtype = BonusSubtypeID(SpellSchool::FIRE);
 	}
 	else if (deprecatedTypeStr == "WATER_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = SpellSchool(ESpellSchool::WATER);
+		subtype = BonusSubtypeID(SpellSchool::WATER);
 	}
 	else if (deprecatedTypeStr == "EARTH_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = SpellSchool(ESpellSchool::EARTH);
+		subtype = BonusSubtypeID(SpellSchool::EARTH);
 	}
 	else if (deprecatedTypeStr == "AIR_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = SpellSchool(ESpellSchool::AIR);
+		subtype = BonusSubtypeID(SpellSchool::AIR);
 	}
 	else if (deprecatedTypeStr == "FIRE_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = SpellSchool(ESpellSchool::FIRE);
+		subtype = BonusSubtypeID(SpellSchool::FIRE);
 	}
 	else if (deprecatedTypeStr == "WATER_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = SpellSchool(ESpellSchool::WATER);
+		subtype = BonusSubtypeID(SpellSchool::WATER);
 	}
 	else if (deprecatedTypeStr == "EARTH_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = SpellSchool(ESpellSchool::EARTH);
+		subtype = BonusSubtypeID(SpellSchool::EARTH);
 	}
 	else if (deprecatedTypeStr == "AIR_IMMUNITY")
 	{
-		subtype = SpellSchool(ESpellSchool::AIR);
+		subtype = BonusSubtypeID(SpellSchool::AIR);
 		switch(deprecatedSubtype)
 		{
 			case 0:
@@ -284,7 +287,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "FIRE_IMMUNITY")
 	{
-		subtype = SpellSchool(ESpellSchool::FIRE);
+		subtype = BonusSubtypeID(SpellSchool::FIRE);
 		switch(deprecatedSubtype)
 		{
 			case 0:
@@ -300,7 +303,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "WATER_IMMUNITY")
 	{
-		subtype = SpellSchool(ESpellSchool::WATER);
+		subtype = BonusSubtypeID(SpellSchool::WATER);
 		switch(deprecatedSubtype)
 		{
 			case 0:
@@ -316,7 +319,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	}
 	else if (deprecatedTypeStr == "EARTH_IMMUNITY")
 	{
-		subtype = SpellSchool(ESpellSchool::EARTH);
+		subtype = BonusSubtypeID(SpellSchool::EARTH);
 		switch(deprecatedSubtype)
 		{
 			case 0:
@@ -340,10 +343,8 @@ const JsonNode & BonusParams::toJson()
 	if(ret.isNull())
 	{
 		ret["type"].String() = vstd::findKey(bonusNameMap, type);
-		if(subtypeStr)
-			ret["subtype"].String() = *subtypeStr;
-		else if(subtype)
-			ret["subtype"].Integer() = *subtype;
+		if(subtype)
+			ret["subtype"].String() = subtype->toString();
 		if(valueType)
 			ret["valueType"].String() = vstd::findKey(bonusValueMap, *valueType);
 		if(val)
@@ -352,17 +353,13 @@ const JsonNode & BonusParams::toJson()
 			ret["targetSourceType"].String() = vstd::findKey(bonusSourceMap, *targetType);
 		jsonCreated = true;
 	}
+	ret.setMeta(ModScope::scopeGame());
 	return ret;
 };
 
 CSelector BonusParams::toSelector()
 {
 	assert(isConverted);
-	if(subtypeStr)
-	{
-		subtype = -1;
-		JsonUtils::resolveIdentifier(*subtype, toJson(), "subtype");
-	}
 
 	auto ret = Selector::type()(type);
 	if(subtype)

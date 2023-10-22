@@ -37,7 +37,7 @@ Rewardable::Reward::Reward()
 	, movePercentage(-1)
 	, primary(4, 0)
 	, removeObject(false)
-	, spellCast(SpellID::NONE, SecSkillLevel::NONE)
+	, spellCast(SpellID::NONE, MasteryLevel::NONE)
 {
 }
 

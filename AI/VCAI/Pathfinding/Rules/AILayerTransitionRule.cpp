@@ -77,7 +77,7 @@ namespace AIPathfinding
 		auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
 
 		if(hero->canCastThisSpell(summonBoatSpell)
-			&& hero->getSpellSchoolLevel(summonBoatSpell) >= SecSkillLevel::ADVANCED)
+			&& hero->getSpellSchoolLevel(summonBoatSpell) >= MasteryLevel::ADVANCED)
 		{
 			// TODO: For lower school level we might need to check the existance of some boat
 			summonableVirtualBoat.reset(new SummonBoatAction());

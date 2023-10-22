@@ -144,7 +144,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 
 	std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
 	auto accessibility = battle.getAccesibility();
-	CreatureID creatureData = CreatureID(summonInfo->subtype);
+	CreatureID creatureData = summonInfo->subtype.as<CreatureID>();
 	std::vector<BattleHex> targetHexes;
 	const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
 	const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
@@ -198,7 +198,7 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 		{
 			spells::BonusCaster caster(h, b);
 
-			const CSpell * spell = SpellID(b->subtype).toSpell();
+			const CSpell * spell = b->subtype.as<SpellID>().toSpell();
 
 			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
 			parameters.setSpellLevel(3);
@@ -380,10 +380,10 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	}
 
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
-	const int stackCreatureId = next->unitType()->getId();
+	const CreatureID stackCreatureId = next->unitType()->getId();
 
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
-		&& (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, stackCreatureId)))
+		&& (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
 	{
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
@@ -428,7 +428,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, CreatureID::CATAPULT))
+		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT))))
 		{
 			BattleAction attack;
 			attack.actionType = EActionType::CATAPULT;
@@ -453,7 +453,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, CreatureID::FIRST_AID_TENT))
+		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT))))
 		{
 			RandomGeneratorUtil::randomShuffle(possibleStacks, gameHandler->getRandomGenerator());
 			const CStack * toBeHealed = possibleStacks.front();
@@ -583,7 +583,7 @@ void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & batt
 	auto bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTED)));
 	for(auto b : bl)
 	{
-		const CSpell * sp = SpellID(b->subtype).toSpell();
+		const CSpell * sp = b->subtype.as<SpellID>().toSpell();
 		if(!sp)
 			continue;
 
@@ -663,7 +663,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 
 		if (st->hasBonusOfType(BonusType::POISON))
 		{
-			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID::POISON).And(Selector::type()(BonusType::STACK_HEALTH)));
+			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::POISON))).And(Selector::type()(BonusType::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(BonusType::POISON)));
@@ -719,7 +719,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			while(!bl.empty() && !cast)
 			{
 				auto bonus = *RandomGeneratorUtil::nextItem(bl, gameHandler->getRandomGenerator());
-				auto spellID = SpellID(bonus->subtype);
+				auto spellID = bonus->subtype.as<SpellID>();
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus * b)
 				{

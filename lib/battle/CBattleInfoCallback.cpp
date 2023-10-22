@@ -1658,7 +1658,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		std::stringstream cachingStr;
 		cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 
-		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, spellID), Selector::all, cachingStr.str())
+		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), Selector::all, cachingStr.str())
 		 //TODO: this ability has special limitations
 		|| !(spellID.toSpell()->canBeCast(this, spells::Mode::CREATURE_ACTIVE, subject)))
 			continue;
@@ -1755,7 +1755,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 		return SpellID::NONE;
 
 	if(bl->size() == 1)
-		return SpellID(bl->front()->subtype);
+		return bl->front()->subtype.as<SpellID>();
 
 	int totalWeight = 0;
 	for(const auto & b : *bl)
@@ -1772,7 +1772,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 		randomPos -= std::max(b->additionalInfo[0], 0);
 		if(randomPos < 0)
 		{
-			return SpellID(b->subtype);
+			return b->subtype.as<SpellID>();
 		}
 	}
 

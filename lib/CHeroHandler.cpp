@@ -480,7 +480,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 	for(const JsonNode &set : node["skills"].Vector())
 	{
 		int skillLevel = static_cast<int>(boost::range::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels));
-		if (skillLevel < SecSkillLevel::LEVELS_SIZE)
+		if (skillLevel < MasteryLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
 			hero->secSkillsInit.emplace_back(SecondarySkill(-1), skillLevel);
@@ -547,7 +547,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = static_cast<int>(PrimarySkill::ATTACK);
+			bonus->subtype = BonusSubtypeID(PrimarySkill::ATTACK);
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
@@ -557,7 +557,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = static_cast<int>(PrimarySkill::DEFENSE);
+			bonus->subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefense(false), stepSize));
@@ -605,7 +605,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	{
 		bonus->duration = BonusDuration::PERMANENT;
 		bonus->source = BonusSource::HERO_SPECIAL;
-		bonus->sid = hero->getIndex();
+		bonus->sid = BonusSourceID(hero->getId());
 		return bonus;
 	};
 
