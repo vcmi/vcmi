@@ -122,6 +122,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 	else
 	{
 		ArtifactLocation src(commanderOwner->id, artifactPos);
+		src.creature = SlotID::COMMANDER_SLOT_PLACEHOLDER;
 		ArtifactLocation dst(commanderOwner->id, freeSlot);
 
 		if(ourArt->canBePutAt(commanderOwner, freeSlot, true))

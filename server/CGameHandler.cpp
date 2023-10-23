@@ -2666,29 +2666,32 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 // Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
 bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLocation & dst)
 {
-	const auto srcHero = getHero(src.artHolder), dstHero = getHero(dst.artHolder);
 	ArtifactLocation srcLoc = src, dstLoc = dst;
+	const auto srcArtSet = getArtSet(srcLoc);
+	const auto dstArtSet = getArtSet(dstLoc);
+	assert(srcArtSet);
+	assert(dstArtSet);
 
 	// Make sure exchange is even possible between the two heroes.
 	if(!isAllowedExchange(srcLoc.artHolder, dstLoc.artHolder))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
-	const auto srcArtifact = srcHero->getArt(srcLoc.slot);
-	const auto dstArtifact = dstHero->getArt(dstLoc.slot);
-	const bool isDstSlotBackpack = ArtifactUtils::isSlotBackpack(dstLoc.slot);
+	const auto srcArtifact = srcArtSet->getArt(srcLoc.slot);
+	const auto dstArtifact = dstArtSet->getArt(dstLoc.slot);
+	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dstLoc.slot) : false;
 
 	if(srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
-	if(dstArtifact && srcHero->getOwner() != dstHero->getOwner() && !isDstSlotBackpack)
+	if(dstArtifact && getHero(src.artHolder)->getOwner() != getHero(dst.artHolder)->getOwner() && !isDstSlotBackpack)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if((!srcArtifact || !isDstSlotBackpack) && srcArtifact && !srcArtifact->canBePutAt(dstHero, dstLoc.slot, true))
+	if((!srcArtifact || !isDstSlotBackpack) && srcArtifact && !srcArtifact->canBePutAt(dstArtSet, dstLoc.slot, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
-	auto srcSlotInfo = srcHero->getSlot(srcLoc.slot);
-	auto dstSlotInfo = dstHero->getSlot(dstLoc.slot);
+	auto srcSlotInfo = srcArtSet->getSlot(srcLoc.slot);
+	auto dstSlotInfo = dstArtSet->getSlot(dstLoc.slot);
 
 	if((srcSlotInfo && srcSlotInfo->locked) || (dstSlotInfo && dstSlotInfo->locked))
 		COMPLAIN_RET("Cannot move artifact locks.");
@@ -2700,9 +2703,9 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 
 	if(isDstSlotBackpack)
 	{
-		if(!ArtifactUtils::isBackpackFreeSlots(dstHero))
+		if(!ArtifactUtils::isBackpackFreeSlots(dstArtSet))
 			COMPLAIN_RET("Backpack is full!");
-		vstd::amin(dstLoc.slot, ArtifactPosition::BACKPACK_START + dstHero->artifactsInBackpack.size());
+		vstd::amin(dstLoc.slot, ArtifactPosition::BACKPACK_START + dstArtSet->artifactsInBackpack.size());
 	}
 
 	if(!(srcLoc.slot == ArtifactPosition::TRANSITION_POS && dstLoc.slot == ArtifactPosition::TRANSITION_POS))
@@ -2719,8 +2722,9 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 
 		try
 		{
-			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, srcArtifact->artType->getId(), dstLoc.slot))
-				giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+			auto hero = getHero(dst.artHolder);
+			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstLoc.slot))
+				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 		catch(const std::bad_variant_access &)
 		{

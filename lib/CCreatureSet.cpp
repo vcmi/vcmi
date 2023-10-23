@@ -458,7 +458,7 @@ const CStackInstance & CCreatureSet::getStack(const SlotID & slot) const
 	return *getStackPtr(slot);
 }
 
-const CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
+CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
 {
 	if(hasStackAtSlot(slot))
 		return stacks.find(slot)->second;

@@ -1656,35 +1656,34 @@ void RebalanceStacks::applyGs(CGameState * gs)
 			
 			const auto srcHero = dynamic_cast<CGHeroInstance*>(src.army.get());
 			const auto dstHero = dynamic_cast<CGHeroInstance*>(dst.army.get());
-			auto srcLoc = ArtifactLocation(srcHero->id, ArtifactPosition::CREATURE_SLOT);
-			auto dstLoc = ArtifactLocation(dstHero->id, ArtifactPosition::CREATURE_SLOT);
-			// TODO set creature id !!!
-			/*if (auto artHere = srcLoc.getArt())
+			auto srcStack = const_cast<CStackInstance*>(src.getStack());
+			auto dstStack = const_cast<CStackInstance*>(dst.getStack());
+			if(auto srcArt = srcStack->getArt(ArtifactPosition::CREATURE_SLOT))
 			{
-				if (dstLoc.getArt())
+				if(auto dstArt = dstStack->getArt(ArtifactPosition::CREATURE_SLOT))
 				{
-					
-					auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstLoc.getArt()->getTypeId());
+					auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId());
 					if(srcHero && dstSlot != ArtifactPosition::PRE_FIRST)
 					{
-						dstLoc.getArt()->move (dstLoc, ArtifactLocation (srcHero, dstSlot));
+						dstArt->move(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
 					}
 					//else - artifact cna be lost :/
 					else
 					{
 						EraseArtifact ea;
-						ea.al = dstLoc;
+						ea.al = ArtifactLocation(dstHero->id, ArtifactPosition::CREATURE_SLOT);
+						ea.al.creature = dst.slot;
 						ea.applyGs(gs);
 						logNetwork->warn("Cannot move artifact! No free slots");
 					}
-					artHere->move (srcLoc, dstLoc);
+					srcArt->move(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 					//TODO: choose from dialog
 				}
 				else //just move to the other slot before stack gets erased
 				{
-					artHere->move (srcLoc, dstLoc);
+					srcArt->move(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 				}
-			}*/
+			}
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
@@ -1757,7 +1756,7 @@ void PutArtifact::applyGs(CGameState *gs)
 	assert(!art->getParentNodes().empty());
 	auto hero = gs->getHero(al.artHolder);
 	assert(hero);
-	assert(art->canBePutAt(hero, al.slot));
+	assert(art && art->canBePutAt(hero, al.slot));
 	art->putAt(*hero, al.slot);
 }
 
@@ -1796,12 +1795,12 @@ void EraseArtifact::applyGs(CGameState *gs)
 
 void MoveArtifact::applyGs(CGameState * gs)
 {
-	auto srcHero = gs->getHero(src.artHolder);
-	auto dstHero = gs->getHero(dst.artHolder);
+	auto srcHero = gs->getArtSet(src);
+	auto dstHero = gs->getArtSet(dst);
 	assert(srcHero);
 	assert(dstHero);
 	auto art = srcHero->getArt(src.slot);
-	assert(!ArtifactUtils::isSlotEquipment(dst.slot) || !dst.getArt());
+	assert(art && art->canBePutAt(dstHero, dst.slot));
 	art->move(*srcHero, src.slot, *dstHero, dst.slot);
 }
 

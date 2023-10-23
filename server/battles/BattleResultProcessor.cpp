@@ -381,12 +381,12 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 				{
 					MoveArtifact ma;
 					ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
-					// TODO add ->commander.get() !!!
-					/*const CArtifactInstance* art = ma.src.getArt();
+					ma.src.creature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
+					const auto art = finishingBattle->loserHero->commander->getArt(artSlot.first);
 					if (art && !art->artType->isBig())
 					{
 						sendMoveArtifact(art, &ma);
-					}*/
+					}
 				}
 			}
 		}
@@ -396,17 +396,17 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		for (auto armySlot : battle.battleGetArmyObject(loser)->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
-			/*for (auto artSlot : artifactsWorn)
+			for(auto & artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
-				ma.src = ArtifactLocation(armySlot.second, artSlot.first);
-				const CArtifactInstance* art = ma.src.getArt();
+				ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
+				ma.src.creature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
+				const auto art = finishingBattle->loserHero->commander->getArt(artSlot.first);
 				if (art && !art->artType->isBig())
 				{
 					sendMoveArtifact(art, &ma);
 				}
-				// TODO add stack !!!
-			}*/
+			}
 		}
 	}
 
