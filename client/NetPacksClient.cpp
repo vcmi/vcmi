@@ -295,7 +295,7 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 {
-	/*auto applyMove = [this, &pack](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack) -> void
+	auto applyMove = [this, &pack](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack) -> void
 	{
 		for(auto & slotToMove : artsPack)
 		{
@@ -306,8 +306,8 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		}
 	};
 
-	auto srcOwner = std::get<ConstTransitivePtr<CGHeroInstance>>(pack.srcArtHolder)->tempOwner;
-	auto dstOwner = std::get<ConstTransitivePtr<CGHeroInstance>>(pack.dstArtHolder)->tempOwner;
+	auto srcOwner = cl.getOwner(pack.srcArtHolder);
+	auto dstOwner = cl.getOwner(pack.dstArtHolder);
 
 	// Begin a session of bulk movement of arts. It is not necessary but useful for the client optimization.
 	callInterfaceIfPresent(cl, srcOwner, &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
@@ -316,7 +316,7 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 
 	applyMove(pack.artsPack0);
 	if(pack.swap)
-		applyMove(pack.artsPack1);*/
+		applyMove(pack.artsPack1);
 }
 
 void ApplyClientNetPackVisitor::visitAssembledArtifact(AssembledArtifact & pack)

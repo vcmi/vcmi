@@ -2750,8 +2750,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	if((!psrcHero) || (!pdstHero))
 		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
 
-	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(psrcHero),
-		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero), swap);
+	BulkMoveArtifacts ma(srcHero, dstHero, swap);
 	auto & slotsSrcDst = ma.artsPack0;
 	auto & slotsDstSrc = ma.artsPack1;
 

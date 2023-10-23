@@ -1813,8 +1813,8 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 		BULK_PUT
 	};
 
-	auto bulkArtsOperation = [this](std::vector<LinkedSlots> & artsPack, 
-		CArtifactSet * artSet, EBulkArtsOp operation) -> void
+	auto bulkArtsOperation = [this, gs](std::vector<LinkedSlots> & artsPack, 
+		CArtifactSet & artSet, EBulkArtsOp operation) -> void
 	{
 		int numBackpackArtifactsMoved = 0;
 		for(auto & slot : artsPack)
@@ -1827,25 +1827,22 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 			{
 				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
 			}
-			const auto * slotInfo = artSet->getSlot(srcPos);
-			assert(slotInfo);
-			auto * art = const_cast<CArtifactInstance *>(slotInfo->getArt());
+			auto * art = artSet.getArt(srcPos);
 			assert(art);
-			/*switch(operation)
+			switch(operation)
 			{
 			case EBulkArtsOp::BULK_MOVE:
-				const_cast<CArtifactInstance*>(art)->move(
-					ArtifactLocation(srcArtHolder, srcPos), ArtifactLocation(dstArtHolder, slot.dstPos));
+				art->move(artSet, srcPos, *gs->getHero(dstArtHolder), slot.dstPos);
 				break;
 			case EBulkArtsOp::BULK_REMOVE:
-				art->removeFrom(ArtifactLocation(dstArtHolder, srcPos));
+				art->removeFrom(artSet, srcPos);
 				break;
 			case EBulkArtsOp::BULK_PUT:
-				art->putAt(ArtifactLocation(srcArtHolder, slot.dstPos));
+				art->putAt(*gs->getHero(srcArtHolder), slot.dstPos);
 				break;
 			default:
 				break;
-			}*/
+			}
 
 			if(srcPos >= ArtifactPosition::BACKPACK_START)
 			{
@@ -1854,23 +1851,23 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 		}
 	};
 	
+	auto * leftSet = gs->getArtSet(ArtifactLocation(srcArtHolder));
 	if(swap)
 	{
 		// Swap
-		auto * leftSet = getSrcHolderArtSet();
-		auto * rightSet = getDstHolderArtSet();
+		auto * rightSet = gs->getArtSet(ArtifactLocation(dstArtHolder));
 		CArtifactFittingSet artFittingSet(leftSet->bearerType());
 
 		artFittingSet.artifactsWorn = rightSet->artifactsWorn;
 		artFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
 
-		bulkArtsOperation(artsPack1, rightSet, EBulkArtsOp::BULK_REMOVE);
-		bulkArtsOperation(artsPack0, leftSet, EBulkArtsOp::BULK_MOVE);
-		bulkArtsOperation(artsPack1, &artFittingSet, EBulkArtsOp::BULK_PUT);
+		bulkArtsOperation(artsPack1, *rightSet, EBulkArtsOp::BULK_REMOVE);
+		bulkArtsOperation(artsPack0, *leftSet, EBulkArtsOp::BULK_MOVE);
+		bulkArtsOperation(artsPack1, artFittingSet, EBulkArtsOp::BULK_PUT);
 	}
 	else
 	{
-		bulkArtsOperation(artsPack0, getSrcHolderArtSet(), EBulkArtsOp::BULK_MOVE);
+		bulkArtsOperation(artsPack0, *leftSet, EBulkArtsOp::BULK_MOVE);
 	}
 }
 
@@ -2547,16 +2544,6 @@ const CArtifactInstance * ArtSlotInfo::getArt() const
 		return nullptr;
 	}
 	return artifact;
-}
-
-CArtifactSet * BulkMoveArtifacts::getSrcHolderArtSet()
-{
-	return std::visit(GetBase<CArtifactSet>(), srcArtHolder);
-}
-
-CArtifactSet * BulkMoveArtifacts::getDstHolderArtSet()
-{
-	return std::visit(GetBase<CArtifactSet>(), dstArtHolder);
 }
 
 VCMI_LIB_NAMESPACE_END
