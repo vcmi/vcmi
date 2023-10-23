@@ -12,7 +12,6 @@
 #include "mock/mock_battle_Unit.h"
 #include "mock/mock_BonusBearer.h"
 #include "../../lib/battle/CUnitState.h"
-#include "../../lib/NetPacksBase.h"
 
 using namespace testing;
 using namespace battle;

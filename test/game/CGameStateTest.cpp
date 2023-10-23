@@ -16,7 +16,8 @@
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/gameState/CGameState.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
 
