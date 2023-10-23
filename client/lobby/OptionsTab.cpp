@@ -34,7 +34,7 @@
 #include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/networkPacks/NetPacksLobby.h"
+#include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"

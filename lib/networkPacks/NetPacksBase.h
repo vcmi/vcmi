@@ -9,26 +9,12 @@
  */
 #pragma once
 
-#include "../ConstTransitivePtr.h"
-#include "../GameConstants.h"
-
-class CClient;
-class CGameHandler;
-class CLobbyScreen;
-class CServerHandler;
-class CVCMIServer;
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGameState;
 class CConnection;
-class CStackBasicDescriptor;
-class CGHeroInstance;
-class CStackInstance;
-class CArmedInstance;
-class CArtifactSet;
-class CBonusSystemNode;
-struct ArtSlotInfo;
 
 class ICPackVisitor;
 
@@ -65,7 +51,7 @@ protected:
 struct DLL_LINKAGE CPackForClient : public CPack
 {
 protected:
-	virtual void visitBasic(ICPackVisitor & cpackVisitor) override;
+	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
 
 struct DLL_LINKAGE Query : public CPackForClient
@@ -85,7 +71,7 @@ struct DLL_LINKAGE CPackForServer : public CPack
 	}
 
 protected:
-	virtual void visitBasic(ICPackVisitor & cpackVisitor) override;
+	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
 
 struct DLL_LINKAGE CPackForLobby : public CPack
@@ -93,59 +79,7 @@ struct DLL_LINKAGE CPackForLobby : public CPack
 	virtual bool isForServer() const;
 
 protected:
-	virtual void visitBasic(ICPackVisitor & cpackVisitor) override;
-};
-
-using TArtHolder = std::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance>>;
-
-struct ArtifactLocation
-{
-	TArtHolder artHolder;//TODO: identify holder by id
-	ArtifactPosition slot = ArtifactPosition::PRE_FIRST;
-
-	ArtifactLocation()
-		: artHolder(ConstTransitivePtr<CGHeroInstance>())
-	{
-	}
-	template<typename T>
-	ArtifactLocation(const T * ArtHolder, ArtifactPosition Slot)
-		: artHolder(const_cast<T *>(ArtHolder)) //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
-		, slot(Slot)
-	{
-	}
-	ArtifactLocation(TArtHolder ArtHolder, const ArtifactPosition & Slot)
-		: artHolder(std::move(std::move(ArtHolder)))
-		, slot(Slot)
-	{
-	}
-
-	template <typename T>
-	bool isHolder(const T *t) const
-	{
-		if(auto ptrToT = std::get<ConstTransitivePtr<T>>(artHolder))
-		{
-			return ptrToT == t;
-		}
-		return false;
-	}
-
-	DLL_LINKAGE void removeArtifact(); // BE CAREFUL, this operation modifies holder (gs)
-
-	DLL_LINKAGE const CArmedInstance *relatedObj() const; //hero or the stack owner
-	DLL_LINKAGE PlayerColor owningPlayer() const;
-	DLL_LINKAGE CArtifactSet *getHolderArtSet();
-	DLL_LINKAGE CBonusSystemNode *getHolderNode();
-	DLL_LINKAGE CArtifactSet *getHolderArtSet() const;
-	DLL_LINKAGE const CBonusSystemNode *getHolderNode() const;
-
-	DLL_LINKAGE const CArtifactInstance *getArt() const;
-	DLL_LINKAGE CArtifactInstance *getArt();
-	DLL_LINKAGE const ArtSlotInfo *getSlot() const;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & artHolder;
-		h & slot;
-	}
+	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -22,7 +22,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/networkPacks/NetPacksBase.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 	: backpackPos(0),

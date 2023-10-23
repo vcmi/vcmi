@@ -35,7 +35,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGMarket.h"
-#include "../../lib/networkPacks/NetPacksBase.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
 	: CIntObject(LCLICK | HOVER | SHOW_POPUP, pos),

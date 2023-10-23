@@ -10,8 +10,10 @@
 #pragma once
 
 #include "../lib/networkPacks/NetPackVisitor.h"
+#include "../lib/networkPacks/PacksForLobby.h"
 
 class CClient;
+class CLobbyScreen;
 VCMI_LIB_NAMESPACE_BEGIN
 class CGameState;
 VCMI_LIB_NAMESPACE_END

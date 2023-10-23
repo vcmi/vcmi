@@ -1,5 +1,5 @@
 /*
- * NetPacks.h, part of VCMI engine
+ * PacksForServer.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,9 @@
  */
 #pragma once
 
+#include "ArtifactLocation.h"
 #include "NetPacksBase.h"
+
 #include "../int3.h"
 #include "../battle/BattleAction.h"
 

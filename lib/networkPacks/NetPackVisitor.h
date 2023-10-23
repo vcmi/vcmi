@@ -12,7 +12,7 @@
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
-#include "NetPacksLobby.h"
+#include "PacksForLobby.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

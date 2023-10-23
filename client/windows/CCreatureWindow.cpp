@@ -33,7 +33,7 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
-#include "../../lib/networkPacks/NetPacksBase.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/TextOperations.h"
 
 class CCreatureArtifactInstance;

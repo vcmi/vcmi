@@ -37,7 +37,7 @@
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/ModScope.h"
 #include "../networkPacks/Component.h"
-#include "../networkPacks/NetPacksBase.h"
+#include "../networkPacks/ArtifactLocation.h"
 #include "../spells/CSpellHandler.h"
 
 #include <boost/crc.hpp>

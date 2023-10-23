@@ -11,7 +11,7 @@
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/networkPacks/StackLocation.h"
-#include "../../lib/networkPacks/NetPacksBase.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct SideInBattle;

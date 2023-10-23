@@ -13,7 +13,7 @@
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
 #include "StackLocation.h"
-#include "NetPacksLobby.h"
+#include "PacksForLobby.h"
 #include "NetPackVisitor.h"
 #include "CGeneralTextHandler.h"
 #include "CArtHandler.h"

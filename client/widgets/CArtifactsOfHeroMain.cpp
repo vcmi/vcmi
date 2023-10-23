@@ -13,7 +13,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/networkPacks/NetPacksBase.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
 {

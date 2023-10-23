@@ -476,16 +476,17 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/ModScope.h
 		${MAIN_LIB_DIR}/modding/ModUtility.h
 
+		${MAIN_LIB_DIR}/networkPacks/ArtifactLocation.h
 		${MAIN_LIB_DIR}/networkPacks/BattleChanges.h
 		${MAIN_LIB_DIR}/networkPacks/Component.h
 		${MAIN_LIB_DIR}/networkPacks/EInfoWindowMode.h
 		${MAIN_LIB_DIR}/networkPacks/EntityChanges.h
 		${MAIN_LIB_DIR}/networkPacks/EOpenWindowMode.h
 		${MAIN_LIB_DIR}/networkPacks/NetPacksBase.h
-		${MAIN_LIB_DIR}/networkPacks/NetPacksLobby.h
 		${MAIN_LIB_DIR}/networkPacks/NetPackVisitor.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForClient.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForClientBattle.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForLobby.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForServer.h
 		${MAIN_LIB_DIR}/networkPacks/StackLocation.h
 

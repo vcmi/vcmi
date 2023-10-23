@@ -1,5 +1,5 @@
 /*
- * NetPacks.h, part of VCMI engine
+ * PacksForClientBattle.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -14,8 +14,12 @@
 #include "../MetaString.h"
 #include "../battle/BattleAction.h"
 
+class CClient;
+
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGHeroInstance;
+class CArmedInstance;
 class IBattleState;
 class BattleInfo;
 

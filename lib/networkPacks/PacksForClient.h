@@ -1,5 +1,5 @@
 /*
- * NetPacks.h, part of VCMI engine
+ * PacksForClient.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,11 +9,12 @@
  */
 #pragma once
 
-#include "NetPacksBase.h"
+#include "ArtifactLocation.h"
 #include "Component.h"
-#include "EOpenWindowMode.h"
 #include "EInfoWindowMode.h"
+#include "EOpenWindowMode.h"
 #include "EntityChanges.h"
+#include "NetPacksBase.h"
 
 #include "../CCreatureSet.h"
 #include "../MetaString.h"

@@ -12,7 +12,7 @@
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/PacksForServer.h"
-#include "../networkPacks/NetPacksLobby.h"
+#include "../networkPacks/PacksForLobby.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
 #include "../CCreatureSet.h"
