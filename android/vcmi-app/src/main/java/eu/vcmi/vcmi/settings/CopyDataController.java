@@ -140,7 +140,7 @@ public class CopyDataController extends LauncherSettingController<Void, Void>
                         }
                     }
                     
-                    if (fileAllowed)
+                    if (!fileAllowed)
                         continue;
                 }
 
