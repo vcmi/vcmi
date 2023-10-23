@@ -420,6 +420,9 @@ si32 SpellSchool::decode(const std::string & identifier)
 
 std::string SpellSchool::encode(const si32 index)
 {
+	if (index == ANY.getNum())
+		return "any";
+
 	return SpellConfig::SCHOOL[index].jsonName;
 }
 
