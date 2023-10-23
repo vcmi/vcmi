@@ -398,28 +398,6 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE SetStackEffect : public CPackForClient
-{
-	void applyGs(CGameState * gs);
-	void applyBattle(IBattleState * battleState);
-
-	BattleID battleID = BattleID::NONE;
-	std::vector<std::pair<ui32, std::vector<Bonus>>> toAdd;
-	std::vector<std::pair<ui32, std::vector<Bonus>>> toUpdate;
-	std::vector<std::pair<ui32, std::vector<Bonus>>> toRemove;
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & battleID;
-		h & toAdd;
-		h & toUpdate;
-		h & toRemove;
-		assert(battleID != BattleID::NONE);
-	}
-};
-
 struct DLL_LINKAGE StacksInjured : public CPackForClient
 {
 	void applyGs(CGameState * gs);

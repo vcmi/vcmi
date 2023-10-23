@@ -13,6 +13,7 @@
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
 #include "PacksForLobby.h"
+#include "SetStackEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

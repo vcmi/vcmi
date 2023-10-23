@@ -14,6 +14,7 @@
 #include "PacksForServer.h"
 #include "StackLocation.h"
 #include "PacksForLobby.h"
+#include "SetStackEffect.h"
 #include "NetPackVisitor.h"
 #include "CGeneralTextHandler.h"
 #include "CArtHandler.h"

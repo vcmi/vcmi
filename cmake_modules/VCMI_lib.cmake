@@ -488,6 +488,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/networkPacks/PacksForClientBattle.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForLobby.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForServer.h
+		${MAIN_LIB_DIR}/networkPacks/SetStackEffect.h
 		${MAIN_LIB_DIR}/networkPacks/StackLocation.h
 
 		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h

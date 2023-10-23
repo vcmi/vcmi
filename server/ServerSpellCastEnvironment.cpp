@@ -16,6 +16,7 @@
 
 #include "../lib/gameState/CGameState.h"
 #include "../lib/networkPacks/PacksForClientBattle.h"
+#include "../lib/networkPacks/SetStackEffect.h"
 
 ///ServerSpellCastEnvironment
 ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh)

@@ -15,6 +15,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/networkPacks/SetStackEffect.h"
 
 #if SCRIPTING_ENABLED
 using scripting::Pool;

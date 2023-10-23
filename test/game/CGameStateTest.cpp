@@ -18,6 +18,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/networkPacks/SetStackEffect.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
 
