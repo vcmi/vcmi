@@ -14,10 +14,11 @@
 #include "gameState/InfoAboutArmy.h"
 #include "gameState/SThievesGuildInfo.h"
 #include "gameState/TavernHeroesPool.h"
+#include "gameState/QuestInfo.h"
+#include "mapObjects/CGHeroInstance.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
-#include "NetPacks.h" // for InfoWindow
 #include "GameSettings.h"
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"

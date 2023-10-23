@@ -14,7 +14,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
-#include "../NetPacks.h"
 #include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
@@ -24,7 +23,11 @@
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../modding/ModScope.h"
+#include "../networkPacks/StackLocation.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

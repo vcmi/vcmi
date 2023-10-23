@@ -20,10 +20,14 @@
 
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CPlayerState.h"
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)

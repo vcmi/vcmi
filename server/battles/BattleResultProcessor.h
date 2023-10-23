@@ -10,10 +10,14 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/StackLocation.h"
+#include "../../lib/networkPacks/NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct SideInBattle;
+struct BattleResult;
+class CBattleInfoCallback;
+class CGHeroInstance;
 VCMI_LIB_NAMESPACE_END
 
 class CBattleQuery;
@@ -24,7 +28,6 @@ struct CasualtiesAfterBattle
 {
 	using TStackAndItsNewCount = std::pair<StackLocation, int>;
 	using TSummoned = std::map<CreatureID, TQuantity>;
-	//	enum {ERASE = -1};
 	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;
 	std::vector<ArtifactLocation> removedWarMachines;
@@ -37,7 +40,6 @@ struct CasualtiesAfterBattle
 
 struct FinishingBattleHelper
 {
-//	FinishingBattleHelper();
 	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleQueriesCount);
 
 	inline bool isDraw() const {return winnerSide == 2;}

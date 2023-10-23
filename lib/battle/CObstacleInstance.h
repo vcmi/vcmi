@@ -9,8 +9,9 @@
  */
 #pragma once
 #include "BattleHex.h"
-#include "NetPacksBase.h"
 #include "../filesystem/ResourcePath.h"
+#include "../networkPacks/BattleChanges.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

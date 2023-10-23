@@ -12,9 +12,9 @@
 
 #include <vcmi/events/EventBus.h>
 
-#include "../../lib/NetPacks.h"
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 
 #if SCRIPTING_ENABLED
 using scripting::Pool;

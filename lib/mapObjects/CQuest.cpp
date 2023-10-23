@@ -14,7 +14,6 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../ArtifactUtils.h"
-#include "../NetPacks.h"
 #include "../CSoundBase.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
@@ -26,8 +25,10 @@
 #include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
+#include "../networkPacks/PacksForClient.h"
 #include "../spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

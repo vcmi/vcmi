@@ -25,7 +25,7 @@
 #include "../../CCallback.h"
 
 #include "../CGameInfo.h"
-#include "../../lib/NetPacksLobby.h"
+#include "../../lib/networkPacks/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"

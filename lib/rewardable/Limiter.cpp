@@ -14,6 +14,7 @@
 #include "../IGameCallback.h"
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
 #include "../CHeroHandler.h"

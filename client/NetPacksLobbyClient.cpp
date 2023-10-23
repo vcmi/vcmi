@@ -27,7 +27,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/NetPacksLobby.h"
 #include "../lib/serializer/Connection.h"
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)

@@ -13,8 +13,8 @@
 
 #include <vcmi/spells/Spell.h>
 
-#include "../NetPacks.h"
 #include "../CCreatureHandler.h"
+#include "../MetaString.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"

@@ -13,7 +13,23 @@
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/Cast.h"
+
+struct GetEngagedHeroIds
+{
+	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> & h) const
+	{
+		return h->id;
+	}
+	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CStackInstance> & s) const
+	{
+		if(s->armyObj && s->armyObj->ID == Obj::HERO)
+			return s->armyObj->id;
+		return std::optional<ObjectInstanceID>();
+	}
+};
 
 TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	CQuery(owner)

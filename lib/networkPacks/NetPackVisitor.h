@@ -9,7 +9,9 @@
  */
 #pragma once
 
-#include "NetPacks.h"
+#include "PacksForClient.h"
+#include "PacksForClientBattle.h"
+#include "PacksForServer.h"
 #include "NetPacksLobby.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

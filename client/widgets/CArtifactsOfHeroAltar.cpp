@@ -16,6 +16,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/NetPacksBase.h"
 
 CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 	: visibleArtSet(ArtBearer::ArtBearer::HERO)

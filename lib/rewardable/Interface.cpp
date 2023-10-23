@@ -15,11 +15,14 @@
 #include "../TerrainHandler.h"
 #include "../CPlayerState.h"
 #include "../CSoundBase.h"
-#include "../NetPacks.h"
 #include "../gameState/CGameState.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
+#include "../mapping/CMapDefines.h"
+#include "../networkPacks/StackLocation.h"
+#include "../networkPacks/PacksForClient.h"
 #include "../IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

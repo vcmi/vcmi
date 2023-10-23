@@ -9,7 +9,6 @@
  */
 
 #include "ProxyCaster.h"
-#include "../lib/NetPacksBase.h"
 #include "../battle/BattleHex.h"
 #include "../battle/CObstacleInstance.h"
 

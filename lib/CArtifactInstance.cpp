@@ -13,7 +13,7 @@
 
 #include "ArtifactUtils.h"
 #include "CArtHandler.h"
-#include "NetPacksBase.h"
+#include "networkPacks/NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

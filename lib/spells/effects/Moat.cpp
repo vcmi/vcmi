@@ -14,12 +14,13 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../networkPacks/PacksForClient.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

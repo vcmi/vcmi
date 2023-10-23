@@ -13,6 +13,7 @@
 #include "../ResourceSet.h"
 #include "../bonuses/Bonus.h"
 #include "../CCreatureSet.h"
+#include "../networkPacks/Component.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

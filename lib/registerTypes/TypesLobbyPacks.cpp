@@ -27,7 +27,6 @@
 #include "../RiverHandler.h"
 #include "../TerrainHandler.h"
 #include "../campaign/CampaignState.h"
-#include "../NetPacks.h"
 #include "../rmg/CMapGenOptions.h"
 
 #include "../serializer/BinaryDeserializer.h"

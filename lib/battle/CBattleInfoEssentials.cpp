@@ -11,9 +11,10 @@
 #include "CBattleInfoEssentials.h"
 #include "../CStack.h"
 #include "BattleInfo.h"
-#include "../NetPacks.h"
+#include "CObstacleInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../gameState/InfoAboutArmy.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

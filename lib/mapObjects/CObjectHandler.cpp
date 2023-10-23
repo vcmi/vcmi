@@ -13,6 +13,7 @@
 
 #include "CGObjectInstance.h"
 #include "../filesystem/ResourcePath.h"
+#include "../JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/NetPackVisitor.h"
+#include "../lib/networkPacks/NetPackVisitor.h"
 
 class CClient;
 VCMI_LIB_NAMESPACE_BEGIN

@@ -10,12 +10,15 @@
 
 #include "StdInc.h"
 #include "CGCreature.h"
+#include "CGHeroInstance.h"
 
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
 #include "../GameSettings.h"
 #include "../IGameCallback.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

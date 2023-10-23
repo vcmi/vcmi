@@ -39,7 +39,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/NetPacksBase.h"
+#include "../../lib/networkPacks/NetPacksBase.h"
 
 void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {

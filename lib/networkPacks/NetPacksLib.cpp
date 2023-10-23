@@ -9,7 +9,11 @@
  */
 #include "StdInc.h"
 #include "ArtifactUtils.h"
-#include "NetPacks.h"
+#include "PacksForClient.h"
+#include "PacksForClientBattle.h"
+#include "PacksForServer.h"
+#include "StackLocation.h"
+#include "NetPacksLobby.h"
 #include "NetPackVisitor.h"
 #include "CGeneralTextHandler.h"
 #include "CArtHandler.h"

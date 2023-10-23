@@ -26,9 +26,9 @@
 #include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/CStack.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 
 ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const
 {

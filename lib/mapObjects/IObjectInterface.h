@@ -9,18 +9,22 @@
  */
 #pragma once
 
-#include "../NetPacksBase.h"
+#include "../networkPacks/EInfoWindowMode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleResult;
 struct UpgradeInfo;
+class BoatId;
 class CGObjectInstance;
 class CRandomGenerator;
+class CStackInstance;
+class CGHeroInstance;
 class IGameCallback;
 class ResourceSet;
 class int3;
 class MetaString;
+class PlayerColor;
 
 class DLL_LINKAGE IObjectInterface
 {

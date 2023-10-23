@@ -48,10 +48,10 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/TextOperations.h"
 
 void BattleConsole::showAll(Canvas & to)

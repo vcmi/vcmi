@@ -123,6 +123,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/IdentifierStorage.cpp
 		${MAIN_LIB_DIR}/modding/ModUtility.cpp
 
+		${MAIN_LIB_DIR}/networkPacks/NetPacksLib.cpp
+
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
 		${MAIN_LIB_DIR}/pathfinder/CPathfinder.cpp
 		${MAIN_LIB_DIR}/pathfinder/NodeStorage.cpp
@@ -255,7 +257,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/JsonRandom.cpp
 		${MAIN_LIB_DIR}/LoadProgress.cpp
 		${MAIN_LIB_DIR}/LogicalExpression.cpp
-		${MAIN_LIB_DIR}/NetPacksLib.cpp
 		${MAIN_LIB_DIR}/MetaString.cpp
 		${MAIN_LIB_DIR}/ObstacleHandler.cpp
 		${MAIN_LIB_DIR}/StartInfo.cpp
@@ -475,6 +476,19 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/ModScope.h
 		${MAIN_LIB_DIR}/modding/ModUtility.h
 
+		${MAIN_LIB_DIR}/networkPacks/BattleChanges.h
+		${MAIN_LIB_DIR}/networkPacks/Component.h
+		${MAIN_LIB_DIR}/networkPacks/EInfoWindowMode.h
+		${MAIN_LIB_DIR}/networkPacks/EntityChanges.h
+		${MAIN_LIB_DIR}/networkPacks/EOpenWindowMode.h
+		${MAIN_LIB_DIR}/networkPacks/NetPacksBase.h
+		${MAIN_LIB_DIR}/networkPacks/NetPacksLobby.h
+		${MAIN_LIB_DIR}/networkPacks/NetPackVisitor.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForClient.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForClientBattle.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForServer.h
+		${MAIN_LIB_DIR}/networkPacks/StackLocation.h
+
 		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.h
 		${MAIN_LIB_DIR}/pathfinder/CPathfinder.h
@@ -615,10 +629,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h
 		${MAIN_LIB_DIR}/MetaString.h
-		${MAIN_LIB_DIR}/NetPacksBase.h
-		${MAIN_LIB_DIR}/NetPacks.h
-		${MAIN_LIB_DIR}/NetPacksLobby.h
-		${MAIN_LIB_DIR}/NetPackVisitor.h
 		${MAIN_LIB_DIR}/ObstacleHandler.h
 		${MAIN_LIB_DIR}/Point.h
 		${MAIN_LIB_DIR}/Rect.h

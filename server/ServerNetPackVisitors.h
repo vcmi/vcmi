@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/NetPackVisitor.h"
+#include "../lib/networkPacks/NetPackVisitor.h"
 
 class ApplyGhNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {

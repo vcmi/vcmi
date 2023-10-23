@@ -38,7 +38,6 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/NetPackVisitor.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TurnTimerInfo.h"
 #include "../lib/VCMIDirs.h"

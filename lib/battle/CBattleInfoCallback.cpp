@@ -17,12 +17,12 @@
 #include "CObstacleInstance.h"
 #include "DamageCalculator.h"
 #include "PossiblePlayerBattleAction.h"
-#include "../NetPacks.h"
 #include "../spells/ObstacleCasterProxy.h"
 #include "../spells/ISpellMechanics.h"
 #include "../spells/Problem.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
 
