@@ -396,7 +396,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		for (auto armySlot : battle.battleGetArmyObject(loser)->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
-			for(auto & artSlot : artifactsWorn)
+			for(const auto & artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
 				ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);

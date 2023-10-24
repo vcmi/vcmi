@@ -16,6 +16,7 @@
 #include "gameState/TavernHeroesPool.h"
 #include "gameState/QuestInfo.h"
 #include "mapObjects/CGHeroInstance.h"
+#include "networkPacks/ArtifactLocation.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo

@@ -693,7 +693,7 @@ void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 		a->possibleSlots[ArtBearer::HERO].clear();
 		a->possibleSlots[ArtBearer::CREATURE].clear();
 	}
-	for(auto & slot : ArtifactUtils::commanderSlots())
+	for(const auto & slot : ArtifactUtils::commanderSlots())
 		a->possibleSlots[ArtBearer::COMMANDER].push_back(ArtifactPosition(slot));
 }
 
@@ -1080,7 +1080,7 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 
 void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 {
-	for(auto & slot : ArtifactUtils::allWornSlots())
+	for(const auto & slot : ArtifactUtils::allWornSlots())
 	{
 		serializeJsonSlot(handler, slot, map);
 	}
