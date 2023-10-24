@@ -42,6 +42,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 {
+	serializeJsonOwner(handler);
+	
 	bool isHeroType = heroType.has_value();
 	handler.serializeBool("placeholderType", isHeroType, false);
 	
