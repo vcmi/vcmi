@@ -68,7 +68,6 @@ private:
 class TeamAlignments: public CWindowObject
 {
 	std::shared_ptr<TeamAlignmentsWidget> widget;
-	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 public:
 	TeamAlignments(RandomMapTab & randomMapTab);
 };

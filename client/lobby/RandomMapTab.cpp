@@ -403,16 +403,9 @@ TeamAlignments::TeamAlignments(RandomMapTab & randomMapTab)
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	widget = std::make_shared<TeamAlignmentsWidget>(randomMapTab);
-
 	pos = widget->pos;
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
-	backgroundTexture->playerColored(PlayerColor(1));
-
-	std::swap(GH.createdObj.front()->children.end()[-1], GH.createdObj.front()->children.end()[-2]); // widget to top
-	
 	updateShadow();
-
 	center();
 }
 
@@ -432,6 +425,10 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
 	pos.h = variables["windowSize"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
+	variables["backgroundRect"]["x"].Integer() = 0;
+	variables["backgroundRect"]["y"].Integer() = 0;
+	variables["backgroundRect"]["w"].Integer() = pos.w;
+	variables["backgroundRect"]["h"].Integer() = pos.h;
 	variables["okButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["ok"]["x"].Integer();
 	variables["okButtonPosition"]["y"].Integer() = variables["buttonsOffset"]["ok"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
 	variables["cancelButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["cancel"]["x"].Integer();

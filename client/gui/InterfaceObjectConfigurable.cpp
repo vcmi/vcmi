@@ -540,6 +540,7 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	{
 		auto result = std::make_shared<FilledTexturePlayerColored>(image, rect);
 		result->playerColored(playerColor);
+		return result;
 	}
 	return std::make_shared<CFilledTexture>(image, rect);
 }
