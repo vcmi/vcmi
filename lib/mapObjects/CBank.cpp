@@ -46,7 +46,7 @@ void CBank::initObj(CRandomGenerator & rand)
 {
 	daycounter = 0;
 	resetDuration = 0;
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, rand);
 }
 
 bool CBank::isCoastVisitable() const

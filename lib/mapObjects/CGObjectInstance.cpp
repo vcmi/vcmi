@@ -40,12 +40,12 @@ CGObjectInstance::CGObjectInstance():
 //must be instantiated in .cpp file for access to complete types of all member fields
 CGObjectInstance::~CGObjectInstance() = default;
 
-int32_t CGObjectInstance::getObjGroupIndex() const
+MapObjectID CGObjectInstance::getObjGroupIndex() const
 {
-	return ID.num;
+	return ID;
 }
 
-int32_t CGObjectInstance::getObjTypeIndex() const
+MapObjectSubID CGObjectInstance::getObjTypeIndex() const
 {
 	return subID;
 }
@@ -195,6 +195,11 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 		subID = val;
 		break;
 	}
+}
+
+TObjectTypeHandler CGObjectInstance::getObjectHandler() const
+{
+	return VLC->objtypeh->getHandlerFor(ID, subID);
 }
 
 void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )

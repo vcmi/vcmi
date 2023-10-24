@@ -95,7 +95,7 @@ void CGDwelling::initObj(CRandomGenerator & rand)
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
 		{
-			VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+			getObjectHandler()->configureObject(this, rand);
 
 			if (getOwner() != PlayerColor::NEUTRAL)
 				cb->gameState()->players[getOwner()].dwellings.emplace_back(this);

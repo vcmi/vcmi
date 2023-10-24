@@ -1229,7 +1229,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		else if(art->ID  == Obj::ARTIFACT)
 		{
 			//specific artifact
-			artID = ArtifactID(art->subID);
+			artID = art->getArtifact();
 		}
 
 		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID.getNum());

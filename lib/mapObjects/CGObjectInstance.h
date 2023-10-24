@@ -21,6 +21,8 @@ struct Component;
 class JsonSerializeFormat;
 class ObjectTemplate;
 class CMap;
+class AObjectTypeHandler;
+using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 {
@@ -28,9 +30,9 @@ public:
 	/// Position of bottom-right corner of object on map
 	int3 pos;
 	/// Type of object, e.g. town, hero, creature.
-	Obj ID;
+	MapObjectID ID;
 	/// Subtype of object, depends on type
-	si32 subID;
+	MapObjectSubID subID;
 	/// Current owner of an object (when below PLAYER_LIMIT)
 	PlayerColor tempOwner;
 	/// Index of object in map's list of objects
@@ -45,8 +47,8 @@ public:
 	CGObjectInstance(); //TODO: remove constructor
 	~CGObjectInstance() override;
 
-	int32_t getObjGroupIndex() const override;
-	int32_t getObjTypeIndex() const override;
+	MapObjectID getObjGroupIndex() const override;
+	MapObjectSubID getObjTypeIndex() const override;
 
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
@@ -93,6 +95,8 @@ public:
 	std::optional<AudioPath> getAmbientSound() const;
 	std::optional<AudioPath> getVisitSound() const;
 	std::optional<AudioPath> getRemovalSound() const;
+
+	TObjectTypeHandler getObjectHandler() const;
 
 	/** VIRTUAL METHODS **/
 

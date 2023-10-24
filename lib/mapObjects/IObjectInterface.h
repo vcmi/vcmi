@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../networkPacks/EInfoWindowMode.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -33,8 +34,8 @@ public:
 
 	virtual ~IObjectInterface() = default;
 
-	virtual int32_t getObjGroupIndex() const = 0;
-	virtual int32_t getObjTypeIndex() const = 0;
+	virtual MapObjectID getObjGroupIndex() const = 0;
+	virtual MapObjectSubID getObjTypeIndex() const = 0;
 
 	virtual PlayerColor getOwner() const = 0;
 	virtual int3 visitablePos() const = 0;

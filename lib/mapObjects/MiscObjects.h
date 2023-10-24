@@ -93,6 +93,8 @@ public:
 	void afterAddToMap(CMap * map) override;
 	BattleField getBattlefield() const override;
 
+	ArtifactID getArtifact() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
@@ -118,6 +120,7 @@ public:
 	std::string getHoverText(PlayerColor player) const override;
 
 	void collectRes(const PlayerColor & player) const;
+	GameResID resourceID() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

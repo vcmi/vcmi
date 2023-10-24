@@ -231,6 +231,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+	HeroTypeID getHeroType() const;
 	void setType(si32 ID, si32 subID) override;
 
 	void initHero(CRandomGenerator & rand);

@@ -77,7 +77,7 @@ public:
 	}
 };
 
-static CGObjectInstance * createObject(const Obj & id, int subid, const int3 & pos, const PlayerColor & owner)
+static CGObjectInstance * createObject(MapObjectID id, MapObjectSubID subid, const int3 & pos, const PlayerColor & owner)
 {
 	CGObjectInstance * nobj;
 	switch(id)
@@ -810,7 +810,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		}
 	}
 
-	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor);
+	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId, townPos, playerColor);
 	hero->pos += hero->getVisitableOffset();
 	map->getEditManager()->insertObject(hero);
 }
@@ -880,8 +880,6 @@ void CGameState::initHeroes()
 			CGBoat * boat = dynamic_cast<CGBoat*>(handler->create());
 			handler->configureObject(boat, gs->getRandomGenerator());
 
-			boat->ID = Obj::BOAT;
-			boat->subID = hero->getBoatType().getNum();
 			boat->pos = hero->pos;
 			boat->appearance = handler->getTemplates().front();
 			boat->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));

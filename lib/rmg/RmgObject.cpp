@@ -113,7 +113,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 
 void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
 {
-	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates();
+	auto templates = dObject.getObjectHandler()->getTemplates();
 	if(templates.empty())
 		throw rmgException(boost::str(boost::format("Did not find any graphics for object (%d,%d)") % dObject.ID % dObject.subID));
 
@@ -124,7 +124,7 @@ void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
 
 void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
 {
-	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
+	auto templates = dObject.getObjectHandler()->getTemplates(terrain);
 	if (templates.empty())
 	{
 		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
@@ -335,7 +335,7 @@ void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 	if (!dObject.appearance)
 	{
 		const auto * terrainType = map.getTile(getPosition(true)).terType;
-		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->getId());
+		auto templates = dObject.getObjectHandler()->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
 			throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));

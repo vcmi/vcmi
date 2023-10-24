@@ -250,10 +250,10 @@ void CMap::calculateGuardingGreaturePositions()
 	}
 }
 
-CGHeroInstance * CMap::getHero(int heroID)
+CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 {
 	for(auto & elem : heroesOnMap)
-		if(elem->subID == heroID)
+		if(elem->getObjTypeIndex() == heroID.getNum())
 			return elem;
 	return nullptr;
 }

@@ -285,6 +285,11 @@ PlayerColor CGHeroInstance::getOwner() const
 	return tempOwner;
 }
 
+HeroTypeID CGHeroInstance::getHeroType() const
+{
+	return HeroTypeID(getObjTypeIndex().getNum());
+}
+
 void CGHeroInstance::initHero(CRandomGenerator & rand, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
@@ -305,7 +310,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
 	if(!type)
-		type = VLC->heroh->objects[subID];
+		type = VLC->heroh->objects[getHeroType().getNum()];
 
 	if (ID == Obj::HERO)
 		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -1050,7 +1055,7 @@ HeroTypeID CGHeroInstance::getPortraitSource() const
 	if (customPortraitSource.isValid())
 		return customPortraitSource;
 	else
-		return HeroTypeID(subID);
+		return getHeroType();
 }
 
 int32_t CGHeroInstance::getIconIndex() const
@@ -1502,7 +1507,7 @@ std::string CGHeroInstance::getHeroTypeName() const
 		}
 		else
 		{
-			return VLC->heroh->objects[subID]->getJsonKey();
+			return VLC->heroh->objects[getHeroType()]->getJsonKey();
 		}
 	}
 	return "";
@@ -1736,7 +1741,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(!appearance)
 			{
 				// crossoverDeserialize
-				type = VLC->heroh->objects[subID];
+				type = VLC->heroh->objects[getHeroType()];
 				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			}
 

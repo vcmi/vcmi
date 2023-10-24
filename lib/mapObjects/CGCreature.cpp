@@ -28,7 +28,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	if(stacks.empty())
 	{
 		//should not happen...
-		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", pos.toString(), subID, id.getNum());
+		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", pos.toString(), getCreature(), id.getNum());
 		return "INVALID_STACK";
 	}
 
@@ -41,7 +41,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	else
 		ms.appendLocalString(EMetaText::ARRAY_TXT, quantityTextIndex);
 	ms.appendRawString(" ");
-	ms.appendLocalString(EMetaText::CRE_PL_NAMES,subID);
+	ms.appendLocalString(EMetaText::CRE_PL_NAMES, getCreature());
 	hoverName = ms.toString();
 	return hoverName;
 }
@@ -54,7 +54,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);
 		ms.appendRawString(" ");
-		ms.appendLocalString(EMetaText::CRE_PL_NAMES,subID);
+		ms.appendLocalString(EMetaText::CRE_PL_NAMES, getCreature());
 
 		ms.appendRawString("\n\n");
 
@@ -132,7 +132,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
-			ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, subID);
+			ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, getCreature());
 			cb->showBlockingDialog(&ynd);
 			break;
 		}
@@ -146,13 +146,18 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			std::string tmp = VLC->generaltexth->advobtxt[90];
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
-			boost::algorithm::replace_first(tmp,"%s",VLC->creh->objects[subID]->getNamePluralTranslated());
+			boost::algorithm::replace_first(tmp,"%s",VLC->creatures()->getById(getCreature())->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
 			cb->showBlockingDialog(&ynd);
 			break;
 		}
 	}
 
+}
+
+CreatureID CGCreature::getCreature() const
+{
+	return CreatureID(getObjTypeIndex().getNum());
 }
 
 void CGCreature::initObj(CRandomGenerator & rand)
@@ -177,16 +182,16 @@ void CGCreature::initObj(CRandomGenerator & rand)
 		break;
 	}
 
-	stacks[SlotID(0)]->setType(CreatureID(subID));
+	stacks[SlotID(0)]->setType(getCreature());
 	TQuantity &amount = stacks[SlotID(0)]->count;
-	CCreature &c = *VLC->creh->objects[subID];
+	const Creature * c = VLC->creatures()->getById(getCreature());
 	if(amount == 0)
 	{
-		amount = rand.nextInt(c.ammMin, c.ammMax);
+		amount = rand.nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax());
 
 		if(amount == 0) //armies with 0 creatures are illegal
 		{
-			logGlobal->warn("Stack %s cannot have 0 creatures. Check properties of %s", nodeName(), c.nodeName());
+			logGlobal->warn("Stack cannot have 0 creatures. Check properties of %s", c->getJsonKey());
 			amount = 1;
 		}
 	}
@@ -252,7 +257,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		powerFactor = -3;
 
 	std::set<CreatureID> myKindCres; //what creatures are the same kind as we
-	const CCreature * myCreature = VLC->creh->objects[subID];
+	const CCreature * myCreature = VLC->creh->objects[getCreature().getNum()];
 	myKindCres.insert(myCreature->getId()); //we
 	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
 
@@ -290,7 +295,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 			return JOIN_FOR_FREE;
 
 		else if(diplomacy * 2  +  sympathy  +  1 >= character)
-			return VLC->creatures()->getByIndex(subID)->getRecruitCost(EGameResID::GOLD) * getStackCount(SlotID(0)); //join for gold
+			return VLC->creatures()->getById(getCreature())->getRecruitCost(EGameResID::GOLD) * getStackCount(SlotID(0)); //join for gold
 	}
 
 	//we are still here - creatures have not joined hero, flee or fight
@@ -404,7 +409,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
 	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
-	ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, subID);
+	ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, getCreature());
 	cb->showBlockingDialog(&ynd);
 }
 
