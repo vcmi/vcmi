@@ -27,7 +27,6 @@ class CLabel;
 class CLabelGroup;
 class CSlider;
 class CPicture;
-class FilledTexturePlayerColored;
 
 class RandomMapTab : public InterfaceObjectConfigurable
 {
