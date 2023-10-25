@@ -17,12 +17,18 @@ When you call unit->getAttack() it summarizes all these bonuses and returns the 
 
 One important class is HypotheticBattle. It is used to evaluate the effects of an action without changing the actual gamestate. It is a wrapper around CPlayerSpecificCallback or another HypotheticBattle so it can provide you data, Internally it has a set of modified unit states and intercepts some calls to underlying callback and returns these internal states instead. These states in turn are wrappers around original units and contain modified bonuses (CStackWithBonuses). So if you need to emulate an attack you can call hypotheticbattle.getforupdate() and it will return the CStackWithBonuses which you can safely change.  
 
-Now about BattleAI. All possible attacks are measured using value I called damage reduce. It is how much damage enemy will loose after our attack. Also for negative effects we have our damage reduce. We get a difference and this value is used as attack score.  
+# BattleAI  
 
-AttackPossibility - one particular way to attack on battlefield.
-PotentialTargets - a set of all AttackPossibility
-BattleExchangeVariant - it is extension of AttackPossibility, a result of a set of units attacking each other fixed amount of turns according to turn order. Kind of oversimplified battle simulation. A set of units is restricted according to AttackPossibility which particular exchange extends. Exchanges can be waited (when stacks/units wait better time to attack) and non-waited (when stack acts right away). For non-waited exchanges the first attack score is taken from AttackPossibility (together with various effects like 2hex breath, shooters blocking and so on). All the other attacks are simplified, only respect retaliations. At the end we have a final score.  
+BattleAI's most important classes are the following:
 
-BattleExchangeEvaluator - calculates all possible BattleExchangeVariant and select the best  
-BattleEvaluator - is top level logic layer also adds spellcasts and movement to unreachable targets  
-BattleAI itself handles all the rest and issue actual commands
+- AttackPossibility - one particular way to attack on the battlefield. Each AttackPossibility instance has multiple ...DamageReduce attributes. These represent how much damage an enemy will lose after our attack. Effects can reduce this damage. We add them up and this value is used as attack score.
+
+- PotentialTargets - a set of all AttackPossibility instances
+
+- BattleExchangeVariant - it is an extension of AttackPossibility, a result of a set of units attacking each other for a fixed number of turns according to the turn order. It is kind of an oversimplified battle simulation. A set of units is restricted according to AttackPossibility which particular exchange extends. Exchanges can be waited (when stacks/units wait for a better time to attack) and non-waited (when stack acts right away). For non-waited exchanges the first attack score is taken from AttackPossibility (together with various effects like 2 hex breath, shooters blocking and so on). All the other attacks are simplified, only respect retaliations. At the end we have a final score.
+
+- BattleExchangeEvaluator - calculates all possible BattleExchangeVariants and selects the best
+
+- BattleEvaluator - is a top level logic layer which also adds spellcasts and movement to unreachable targets
+
+BattleAI itself handles all the rest and issues actual commands
