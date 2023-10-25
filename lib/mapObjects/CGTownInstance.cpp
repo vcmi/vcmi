@@ -486,6 +486,12 @@ void CGTownInstance::pickRandomObject(CRandomGenerator & rand)
 		ID = MapObjectID::TOWN;
 		subID = randomizeFaction(rand);
 	}
+
+	assert(ID == Obj::TOWN); // just in case
+	setType(ID, subID);
+	town = (*VLC->townh)[subID]->town;
+	randomizeArmy(subID);
+	updateAppearance();
 }
 
 void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structures
@@ -777,15 +783,6 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 	}
 	else
 		return IMarket::availableItemsIds(mode);
-}
-
-void CGTownInstance::setType(si32 ID, si32 subID)
-{
-	assert(ID == Obj::TOWN); // just in case
-	CGObjectInstance::setType(ID, subID);
-	town = (*VLC->townh)[subID]->town;
-	randomizeArmy(subID);
-	updateAppearance();
 }
 
 void CGTownInstance::updateAppearance()

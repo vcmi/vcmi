@@ -77,34 +77,6 @@ public:
 	}
 };
 
-static CGObjectInstance * createObject(MapObjectID id, MapObjectSubID subid, const int3 & pos, const PlayerColor & owner)
-{
-	CGObjectInstance * nobj;
-	switch(id)
-	{
-	case Obj::HERO:
-		{
-			auto handler = VLC->objtypeh->getHandlerFor(id, VLC->heroh->objects[subid]->heroClass->getIndex());
-			nobj = handler->create(handler->getTemplates().front());
-			break;
-		}
-	case Obj::TOWN:
-		nobj = new CGTownInstance();
-		break;
-	default: //rest of objects
-		nobj = new CGObjectInstance();
-		break;
-	}
-	nobj->ID = id;
-	nobj->subID = subid;
-	nobj->pos = pos;
-	nobj->tempOwner = owner;
-	if (id != Obj::HERO)
-		nobj->appearance = VLC->objtypeh->getHandlerFor(id, subid)->getTemplates().front();
-
-	return nobj;
-}
-
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
@@ -547,44 +519,30 @@ void CGameState::initRandomFactionsForPlayers()
 void CGameState::randomizeMapObjects()
 {
 	logGlobal->debug("\tRandomizing objects");
-	for(CGObjectInstance *obj : map->objects)
+	for(CGObjectInstance *object : map->objects)
 	{
-		if(!obj)
+		if(!object)
 			continue;
 
-		{
-			std::pair<Obj,int> ran = pickObject(obj);
-			if(ran.first == Obj::NO_OBJ || ran.second<0) //this is not a random object, or we couldn't find anything
-			{
-				if(obj->ID==Obj::TOWN || obj->ID==Obj::MONSTER)
-					obj->setType(obj->ID, obj->subID); // update def, if necessary
-			}
-			else if(ran.first==Obj::HERO)//special code for hero
-			{
-				auto * h = dynamic_cast<CGHeroInstance *>(obj);
-				obj->setType(ran.first, ran.second);
-				map->heroesOnMap.emplace_back(h);
-			}
-			else if(ran.first==Obj::TOWN)//special code for town
-			{
-				auto * t = dynamic_cast<CGTownInstance *>(obj);
-				obj->setType(ran.first, ran.second);
-				map->towns.emplace_back(t);
-			}
-			else
-			{
-				obj->setType(ran.first, ran.second);
-			}
-		}
+		object->pickRandomObject(getRandomGenerator());
+
+		auto * hero = dynamic_cast<CGHeroInstance *>(object);
+		auto * town = dynamic_cast<CGTownInstance *>(object);
+
+		if (hero)
+			map->heroesOnMap.emplace_back(hero);
+
+		if (town)
+			map->towns.emplace_back(town);
 
 		//handle Favouring Winds - mark tiles under it
-		if(obj->ID == Obj::FAVORABLE_WINDS)
+		if(object->ID == Obj::FAVORABLE_WINDS)
 		{
-			for (int i = 0; i < obj->getWidth() ; i++)
+			for (int i = 0; i < object->getWidth() ; i++)
 			{
-				for (int j = 0; j < obj->getHeight() ; j++)
+				for (int j = 0; j < object->getHeight() ; j++)
 				{
-					int3 pos = obj->pos - int3(i,j,0);
+					int3 pos = object->pos - int3(i,j,0);
 					if(map->isInTheMap(pos)) map->getTile(pos).extTileFlags |= 128;
 				}
 			}
@@ -617,7 +575,14 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		}
 	}
 
-	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId, townPos, playerColor);
+	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, VLC->heroh->objects[heroTypeId]->heroClass->getIndex());
+	CGObjectInstance * hero = handler->create(handler->getTemplates().front());
+
+	hero->ID = Obj::HERO;
+	hero->subID = VLC->heroh->objects[heroTypeId]->heroClass->getIndex();
+	hero->tempOwner = playerColor;
+
+	hero->pos = townPos;
 	hero->pos += hero->getVisitableOffset();
 	map->getEditManager()->insertObject(hero);
 }

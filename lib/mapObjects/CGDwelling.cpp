@@ -48,6 +48,10 @@ CGDwelling::~CGDwelling() = default;
 
 FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 {
+	if (ID == Obj::RANDOM_DWELLING_FACTION)
+		return FactionID(subID);
+
+	assert(ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL);
 	assert(randomizationInfo.has_value());
 	if (!randomizationInfo)
 		return FactionID::CASTLE;
@@ -102,6 +106,10 @@ FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 
 int CGDwelling::randomizeLevel(CRandomGenerator & rand)
 {
+	if (ID == Obj::RANDOM_DWELLING_LVL)
+		return subID.getNum();
+
+	assert(ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_FACTION);
 	assert(randomizationInfo.has_value());
 
 	if (!randomizationInfo)

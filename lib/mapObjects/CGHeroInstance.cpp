@@ -296,16 +296,6 @@ void CGHeroInstance::initHero(CRandomGenerator & rand, const HeroTypeID & SUBID)
 	initHero(rand);
 }
 
-void CGHeroInstance::setType(si32 ID, si32 subID)
-{
-	assert(ID == Obj::HERO); // just in case
-	type = VLC->heroh->objects[subID];
-
-	CGObjectInstance::setType(ID, type->heroClass->getIndex()); // to find object handler we must use heroClass->id
-	this->subID = subID; // after setType subID used to store unique hero identify id. Check issue 2277 for details
-	randomizeArmy(type->heroClass->faction);
-}
-
 void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
@@ -580,6 +570,14 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 		ID = Obj::HERO;
 		subID = cb->gameState()->pickNextHeroType(getOwner());
 	}
+	type = VLC->heroh->objects[subID];
+
+	// to find object handler we must use heroClass->id
+	// after setType subID used to store unique hero identify id. Check issue 2277 for details
+	setType(ID, type->heroClass->getIndex());
+	this->subID = subID;
+
+	randomizeArmy(type->heroClass->faction);
 }
 
 void CGHeroInstance::initObj(CRandomGenerator & rand)

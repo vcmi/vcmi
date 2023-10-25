@@ -141,7 +141,6 @@ public:
 	bool allowsTrade(EMarketMode mode) const override;
 	std::vector<int> availableItemsIds(EMarketMode mode) const override;
 
-	void setType(si32 ID, si32 subID) override;
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////

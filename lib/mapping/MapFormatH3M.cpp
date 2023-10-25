@@ -1336,11 +1336,18 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 		if(object->randomizationInfo->identifier != 0)
 			reader->readBitmaskFactions(object->randomizationInfo->allowedFactions, false);
 	}
+	else
+		object->randomizationInfo->allowedFactions.insert(FactionID(objectTemplate->subid));
 
 	if(hasLevelInfo)
 	{
 		object->randomizationInfo->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(0)) + 1;
 		object->randomizationInfo->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(6)) + 1;
+	}
+	else
+	{
+		object->randomizationInfo->minLevel = objectTemplate->subid;
+		object->randomizationInfo->maxLevel = objectTemplate->subid;
 	}
 
 	return object;

@@ -152,7 +152,6 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			break;
 		}
 	}
-
 }
 
 CreatureID CGCreature::getCreature() const

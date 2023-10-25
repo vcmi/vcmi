@@ -106,10 +106,6 @@ public:
 	virtual int getSightRadius() const;
 	/// returns (x,y,0) offset to a visitable tile of object
 	virtual int3 getVisitableOffset() const;
-	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
-	virtual void setType(si32 ID, si32 subID);
-
-	/// returns text visible in status bar with specific hero/player active.
 
 	/// Returns generic name of object, without any player-specific info
 	virtual std::string getObjectName() const;
@@ -159,6 +155,9 @@ public:
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ui8 what, ui32 val);
+
+	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
+	void setType(si32 ID, si32 subID);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;

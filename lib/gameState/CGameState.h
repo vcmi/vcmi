@@ -115,6 +115,8 @@ public:
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
 	bool giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid);
+	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
+	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
 	void apply(CPack *pack);
 	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
@@ -214,7 +216,6 @@ private:
 	bool isUsedHero(const HeroTypeID & hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	HeroTypeID pickUnusedHeroTypeRandomly(const PlayerColor & owner); // picks a unused hero type randomly
-	HeroTypeID pickNextHeroType(const PlayerColor & owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
