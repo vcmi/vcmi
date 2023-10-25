@@ -567,7 +567,7 @@ public:
 	constexpr MapObjectSubID(const IdentifierBase & value):
 		Identifier<MapObjectSubID>(value.getNum())
 	{}
-	constexpr MapObjectSubID(int32_t value):
+	constexpr MapObjectSubID(int32_t value = -1):
 		Identifier<MapObjectSubID>(value)
 	{}
 

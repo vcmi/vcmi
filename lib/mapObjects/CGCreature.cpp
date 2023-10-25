@@ -160,6 +160,38 @@ CreatureID CGCreature::getCreature() const
 	return CreatureID(getObjTypeIndex().getNum());
 }
 
+void CGCreature::pickRandomObject(CRandomGenerator & rand)
+{
+	switch(ID)
+	{
+		case MapObjectID::RANDOM_MONSTER:
+			subID = VLC->creh->pickRandomMonster(rand);
+			break;
+		case MapObjectID::RANDOM_MONSTER_L1:
+			subID = VLC->creh->pickRandomMonster(rand, 1);
+			break;
+		case MapObjectID::RANDOM_MONSTER_L2:
+			subID = VLC->creh->pickRandomMonster(rand, 2);
+			break;
+		case MapObjectID::RANDOM_MONSTER_L3:
+			subID = VLC->creh->pickRandomMonster(rand, 3);
+			break;
+		case MapObjectID::RANDOM_MONSTER_L4:
+			subID = VLC->creh->pickRandomMonster(rand, 4);
+			break;
+		case MapObjectID::RANDOM_MONSTER_L5:
+			subID = VLC->creh->pickRandomMonster(rand, 5);
+			break;
+		case MapObjectID::RANDOM_MONSTER_L6:
+			subID = VLC->creh->pickRandomMonster(rand, 6);
+			break;
+		case MapObjectID::RANDOM_MONSTER_L7:
+			subID = VLC->creh->pickRandomMonster(rand, 7);
+			break;
+	}
+	ID = MapObjectID::MONSTER;
+}
+
 void CGCreature::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;

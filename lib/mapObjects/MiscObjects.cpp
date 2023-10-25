@@ -247,6 +247,17 @@ std::string CGResource::getHoverText(PlayerColor player) const
 	return VLC->generaltexth->restypes[resourceID()];
 }
 
+void CGResource::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == Obj::RESOURCE || ID == Obj::RANDOM_RESOURCE);
+
+	if (ID == Obj::RANDOM_RESOURCE)
+	{
+		ID = Obj::RESOURCE;
+		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
+	}
+}
+
 void CGResource::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
@@ -699,6 +710,31 @@ ArtifactID CGArtifact::getArtifact() const
 		return ArtifactID::SPELL_SCROLL;
 	else
 		return getObjTypeIndex().getNum();
+}
+
+void CGArtifact::pickRandomObject(CRandomGenerator & rand)
+{
+	switch(ID)
+	{
+		case MapObjectID::RANDOM_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
+			break;
+		case MapObjectID::RANDOM_TREASURE_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE);
+			break;
+		case MapObjectID::RANDOM_MINOR_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR);
+			break;
+		case MapObjectID::RANDOM_MAJOR_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR);
+			break;
+		case MapObjectID::RANDOM_RELIC_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_RELIC);
+			break;
+	}
+
+	if (ID != Obj::SPELL_SCROLL)
+		ID = MapObjectID::ARTIFACT;
 }
 
 void CGArtifact::initObj(CRandomGenerator & rand)

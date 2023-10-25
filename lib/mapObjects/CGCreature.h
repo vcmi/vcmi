@@ -41,6 +41,7 @@ public:
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void newTurn(CRandomGenerator & rand) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;

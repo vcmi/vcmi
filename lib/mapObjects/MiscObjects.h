@@ -89,6 +89,7 @@ public:
 
 	void pick( const CGHeroInstance * h ) const;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 
 	void afterAddToMap(CMap * map) override;
 	BattleField getBattlefield() const override;
@@ -115,6 +116,7 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	std::string getHoverText(PlayerColor player) const override;

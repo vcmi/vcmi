@@ -571,6 +571,17 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 	wisdomCounter = 1;
 }
 
+void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == Obj::HERO || ID == Obj::PRISON || ID == Obj::RANDOM_HERO);
+
+	if (ID == Obj::RANDOM_HERO)
+	{
+		ID = Obj::HERO;
+		subID = cb->gameState()->pickNextHeroType(getOwner());
+	}
+}
+
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
 	if(!type)

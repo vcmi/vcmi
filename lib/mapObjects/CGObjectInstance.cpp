@@ -166,6 +166,11 @@ void CGObjectInstance::setType(si32 newID, si32 newSubID)
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 
+void CGObjectInstance::pickRandomObject(CRandomGenerator & rand)
+{
+	// no-op
+}
+
 void CGObjectInstance::initObj(CRandomGenerator & rand)
 {
 	switch(ID)

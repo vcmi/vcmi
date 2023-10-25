@@ -11,8 +11,10 @@
 #include "StdInc.h"
 #include "CGDwelling.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
@@ -26,41 +28,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CSpecObjInfo::CSpecObjInfo():
-	owner(nullptr)
-{
-
-}
-
-void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
+void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("sameAsTown", instanceId);
-
-	if(!handler.saving)
-	{
-		asCastle = !instanceId.empty();
-		allowedFactions.clear();
-	}
-
-	if(!asCastle)
-	{
-		std::vector<bool> standard;
-		standard.resize(VLC->townh->size(), true);
-
-		JsonSerializeFormat::LIC allowedLIC(standard, &FactionID::decode, &FactionID::encode);
-		allowedLIC.any = allowedFactions;
-
-		handler.serializeLIC("allowedFactions", allowedLIC);
-
-		if(!handler.saving)
-		{
-			allowedFactions = allowedLIC.any;
-		}
-	}
-}
-
-void CCreGenLeveledInfo::serializeJson(JsonSerializeFormat & handler)
-{
+	handler.serializeIdArray("allowedFactions", allowedFactions);
 	handler.serializeInt("minLevel", minLevel, static_cast<uint8_t>(1));
 	handler.serializeInt("maxLevel", maxLevel, static_cast<uint8_t>(7));
 
@@ -72,20 +43,119 @@ void CCreGenLeveledInfo::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-void CCreGenLeveledCastleInfo::serializeJson(JsonSerializeFormat & handler)
+CGDwelling::CGDwelling() = default;
+CGDwelling::~CGDwelling() = default;
+
+FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 {
-	CCreGenAsCastleInfo::serializeJson(handler);
-	CCreGenLeveledInfo::serializeJson(handler);
+	assert(randomizationInfo.has_value());
+	if (!randomizationInfo)
+		return FactionID::CASTLE;
+
+	CGTownInstance * linkedTown = nullptr;
+
+	if (!randomizationInfo->instanceId.empty())
+	{
+		auto iter = cb->gameState()->map->instanceNames.find(randomizationInfo->instanceId);
+
+		if(iter == cb->gameState()->map->instanceNames.end())
+			logGlobal->error("Map object not found: %s", randomizationInfo->instanceId);
+		linkedTown = dynamic_cast<CGTownInstance *>(iter->second.get());
+	}
+
+	if (randomizationInfo->identifier != 0)
+	{
+		for(auto & elem : cb->gameState()->map->objects)
+		{
+			auto town = dynamic_cast<CGTownInstance*>(elem.get());
+			if(town && town->identifier == randomizationInfo->identifier)
+			{
+				linkedTown = town;
+				break;
+			}
+		}
+	}
+
+	if (linkedTown)
+	{
+		if(linkedTown->ID==Obj::RANDOM_TOWN)
+			linkedTown->pickRandomObject(rand); //we have to randomize the castle first
+
+		assert(linkedTown->ID == Obj::TOWN);
+		if(linkedTown->ID==Obj::TOWN)
+			return linkedTown->getFaction();
+	}
+
+	if(!randomizationInfo->allowedFactions.empty())
+		return *RandomGeneratorUtil::nextItem(randomizationInfo->allowedFactions, rand);
+
+
+	std::vector<FactionID> potentialPicks;
+
+	for (FactionID faction(0); faction < VLC->townh->size(); ++faction)
+		if (VLC->factions()->getById(faction)->hasTown())
+			potentialPicks.push_back(faction);
+
+	assert(!potentialPicks.empty());
+	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
 }
 
-CGDwelling::CGDwelling()
-	: info(nullptr)
+int CGDwelling::randomizeLevel(CRandomGenerator & rand)
 {
+	assert(randomizationInfo.has_value());
+
+	if (!randomizationInfo)
+		return rand.nextInt(1, 7) - 1;
+
+	if(randomizationInfo->minLevel == randomizationInfo->maxLevel)
+		return randomizationInfo->minLevel - 1;
+
+	return rand.nextInt(randomizationInfo->minLevel, randomizationInfo->maxLevel) - 1;
 }
 
-CGDwelling::~CGDwelling()
+void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 {
-	vstd::clear_pointer(info);
+	if (ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL || ID == Obj::RANDOM_DWELLING_FACTION)
+	{
+		FactionID faction = randomizeFaction(rand);
+		int level = randomizeLevel(rand);
+		assert(faction != FactionID::NONE && faction != FactionID::NEUTRAL);
+		assert(level >= 1 && level <= 7);
+		randomizationInfo.reset();
+
+		CreatureID cid = (*VLC->townh)[faction]->town->creatures[level][0];
+
+		//NOTE: this will pick last dwelling with this creature (Mantis #900)
+		//check for block map equality is better but more complex solution
+		auto testID = [&](const Obj & primaryID) -> MapObjectSubID
+		{
+			auto dwellingIDs = VLC->objtypeh->knownSubObjects(primaryID);
+			for (si32 entry : dwellingIDs)
+			{
+				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
+
+				if (handler->producesCreature(VLC->creh->objects[cid]))
+					return MapObjectSubID(entry);
+			}
+			return MapObjectSubID();
+		};
+
+		ID = Obj::CREATURE_GENERATOR1;
+		subID = testID(Obj::CREATURE_GENERATOR1);
+
+		if (subID == MapObjectSubID())
+		{
+			ID = Obj::CREATURE_GENERATOR4;
+			subID = testID(Obj::CREATURE_GENERATOR4);
+		}
+
+		if (subID == MapObjectSubID())
+		{
+			logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->getNameTranslated(), int(level));
+			ID = Obj::CREATURE_GENERATOR4;
+			subID = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand);
+		}
+	}
 }
 
 void CGDwelling::initObj(CRandomGenerator & rand)
@@ -119,23 +189,6 @@ void CGDwelling::initObj(CRandomGenerator & rand)
 		assert(0);
 		break;
 	}
-}
-
-void CGDwelling::initRandomObjectInfo()
-{
-	vstd::clear_pointer(info);
-	switch(ID)
-	{
-		case Obj::RANDOM_DWELLING: info = new CCreGenLeveledCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_LVL: info = new CCreGenAsCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_FACTION: info = new CCreGenLeveledInfo();
-			break;
-	}
-
-	if(info)
-		info->owner = this;
 }
 
 void CGDwelling::setPropertyDer(ui8 what, ui32 val)
@@ -425,9 +478,6 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	if(!handler.saving)
-		initRandomObjectInfo();
-
 	switch (ID)
 	{
 	case Obj::WAR_MACHINE_FACTORY:
@@ -437,8 +487,10 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 	case Obj::RANDOM_DWELLING:
 	case Obj::RANDOM_DWELLING_LVL:
 	case Obj::RANDOM_DWELLING_FACTION:
-		info->serializeJson(handler);
-		//fall through
+		if (!handler.saving)
+			randomizationInfo = CGDwellingRandomizationInfo();
+		randomizationInfo->serializeJson(handler);
+		[[fallthrough]];
 	default:
 		serializeJsonOwner(handler);
 		break;

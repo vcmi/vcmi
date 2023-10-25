@@ -45,6 +45,7 @@ public:
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
 	virtual void newTurn(CRandomGenerator & rand) const;
 	virtual void initObj(CRandomGenerator & rand); //synchr
+	virtual void pickRandomObject(CRandomGenerator & rand);
 	virtual void setProperty(ui8 what, ui32 val);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved

@@ -1322,60 +1322,27 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 {
 	auto * object = new CGDwelling();
 
-	CSpecObjInfo * spec = nullptr;
-	switch(objectTemplate->id)
-	{
-		case Obj::RANDOM_DWELLING:
-			spec = new CCreGenLeveledCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_LVL:
-			spec = new CCreGenAsCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_FACTION:
-			spec = new CCreGenLeveledInfo();
-			break;
-		default:
-			throw std::runtime_error("Invalid random dwelling format");
-	}
-	spec->owner = object;
-
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 
-	//216 and 217
-	if(auto * castleSpec = dynamic_cast<CCreGenAsCastleInfo *>(spec))
+	object->randomizationInfo = CGDwellingRandomizationInfo();
+
+	bool hasFactionInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_FACTION;
+	bool hasLevelInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_LVL;
+
+	if (hasFactionInfo)
 	{
-		castleSpec->instanceId = "";
-		castleSpec->identifier = reader->readUInt32();
-		if(!castleSpec->identifier)
-		{
-			castleSpec->asCastle = false;
-			const int MASK_SIZE = 8;
-			ui8 mask[2];
-			mask[0] = reader->readUInt8();
-			mask[1] = reader->readUInt8();
+		object->randomizationInfo->identifier = reader->readUInt32();
 
-			castleSpec->allowedFactions.clear();
-			castleSpec->allowedFactions.resize(VLC->townh->size(), false);
-
-			for(int i = 0; i < MASK_SIZE; i++)
-				castleSpec->allowedFactions[i] = ((mask[0] & (1 << i)) > 0);
-
-			for(int i = 0; i < (GameConstants::F_NUMBER - MASK_SIZE); i++)
-				castleSpec->allowedFactions[i + MASK_SIZE] = ((mask[1] & (1 << i)) > 0);
-		}
-		else
-		{
-			castleSpec->asCastle = true;
-		}
+		if(object->randomizationInfo->identifier != 0)
+			reader->readBitmaskFactions(object->randomizationInfo->allowedFactions, false);
 	}
 
-	//216 and 218
-	if(auto * lvlSpec = dynamic_cast<CCreGenLeveledInfo *>(spec))
+	if(hasLevelInfo)
 	{
-		lvlSpec->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(0)) + 1;
-		lvlSpec->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(6)) + 1;
+		object->randomizationInfo->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(0)) + 1;
+		object->randomizationInfo->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(6)) + 1;
 	}
-	object->info = spec;
+
 	return object;
 }
 

@@ -128,6 +128,7 @@ public:
 	/** OVERRIDES OF IObjectInterface **/
 
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ui8 what, ui32 val) final;

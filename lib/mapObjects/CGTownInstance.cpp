@@ -20,6 +20,7 @@
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../StartInfo.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -457,6 +458,34 @@ void CGTownInstance::deleteTownBonus(BuildingID bid)
 	bonusingBuildings.erase(bonusingBuildings.begin() + i);
 
 	delete freeIt;
+}
+
+FactionID CGTownInstance::randomizeFaction(CRandomGenerator & rand)
+{
+	if(getOwner().isValidPlayer())
+		return cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner()).castle;
+
+	if(alignmentToPlayer.isValidPlayer())
+		return cb->gameState()->scenarioOps->getIthPlayersSettings(alignmentToPlayer).castle;
+
+	std::vector<FactionID> potentialPicks;
+
+	for (FactionID faction(0); faction < VLC->townh->size(); ++faction)
+		if (VLC->factions()->getById(faction)->hasTown())
+			potentialPicks.push_back(faction);
+
+	assert(!potentialPicks.empty());
+	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
+}
+
+void CGTownInstance::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == MapObjectID::TOWN || ID == MapObjectID::RANDOM_TOWN);
+	if (ID == MapObjectID::RANDOM_TOWN)
+	{
+		ID = MapObjectID::TOWN;
+		subID = randomizeFaction(rand);
+	}
 }
 
 void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structures
