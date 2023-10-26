@@ -122,7 +122,7 @@ std::set<int3> CGObjectInstance::getBlockedOffsets() const
 	return appearance->getBlockedOffsets();
 }
 
-void CGObjectInstance::setType(si32 newID, si32 newSubID)
+void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 {
 	auto position = visitablePos();
 	auto oldOffset = getVisitableOffset();

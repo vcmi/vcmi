@@ -529,7 +529,7 @@ void CGameState::randomizeMapObjects()
 		auto * hero = dynamic_cast<CGHeroInstance *>(object);
 		auto * town = dynamic_cast<CGTownInstance *>(object);
 
-		if (hero)
+		if (hero && hero->ID != Obj::PRISON)
 			map->heroesOnMap.emplace_back(hero);
 
 		if (town)
@@ -579,7 +579,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	CGObjectInstance * hero = handler->create(handler->getTemplates().front());
 
 	hero->ID = Obj::HERO;
-	hero->subID = VLC->heroh->objects[heroTypeId]->heroClass->getIndex();
+	hero->subID = heroTypeId;
 	hero->tempOwner = playerColor;
 
 	hero->pos = townPos;
@@ -1826,10 +1826,10 @@ void CGameState::buildBonusSystemTree()
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
 
-	for(CGTownInstance *t : map->towns)
-	{
-		t->deserializationFix();
-	}
+//	for(CGTownInstance *t : map->towns)
+//	{
+//		t->deserializationFix();
+//	}
 	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact
 	// are provided on initializing / deserializing
 

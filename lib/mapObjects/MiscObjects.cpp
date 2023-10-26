@@ -255,6 +255,7 @@ void CGResource::pickRandomObject(CRandomGenerator & rand)
 	{
 		ID = Obj::RESOURCE;
 		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
+		setType(ID, subID);
 	}
 }
 
@@ -735,6 +736,8 @@ void CGArtifact::pickRandomObject(CRandomGenerator & rand)
 
 	if (ID != Obj::SPELL_SCROLL)
 		ID = MapObjectID::ARTIFACT;
+
+	setType(ID, subID);
 }
 
 void CGArtifact::initObj(CRandomGenerator & rand)

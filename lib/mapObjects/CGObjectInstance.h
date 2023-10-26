@@ -157,7 +157,7 @@ protected:
 	virtual void setPropertyDer(ui8 what, ui32 val);
 
 	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
-	void setType(si32 ID, si32 subID);
+	void setType(MapObjectID ID, MapObjectSubID subID);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;

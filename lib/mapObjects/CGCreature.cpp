@@ -189,6 +189,7 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 			break;
 	}
 	ID = MapObjectID::MONSTER;
+	setType(ID, subID);
 }
 
 void CGCreature::initObj(CRandomGenerator & rand)

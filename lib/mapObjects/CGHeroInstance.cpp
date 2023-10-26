@@ -569,15 +569,17 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 	{
 		ID = Obj::HERO;
 		subID = cb->gameState()->pickNextHeroType(getOwner());
+		type = VLC->heroh->objects[subID];
+		randomizeArmy(type->heroClass->faction);
 	}
-	type = VLC->heroh->objects[subID];
 
-	// to find object handler we must use heroClass->id
-	// after setType subID used to store unique hero identify id. Check issue 2277 for details
-	setType(ID, type->heroClass->getIndex());
+	if (ID != Obj::PRISON)
+	{
+		// to find object handler we must use heroClass->id
+		// after setType subID used to store unique hero identify id. Check issue 2277 for details
+		setType(ID, type->heroClass->getIndex());
+	}
 	this->subID = subID;
-
-	randomizeArmy(type->heroClass->faction);
 }
 
 void CGHeroInstance::initObj(CRandomGenerator & rand)
