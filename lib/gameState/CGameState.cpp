@@ -638,7 +638,7 @@ void CGameState::initHeroes()
 
 		hero->initHero(getRandomGenerator());
 		getPlayerState(hero->getOwner())->heroes.push_back(hero);
-		map->allHeroes[hero->type->getIndex()] = hero;
+		map->allHeroes[hero->getHeroType()] = hero;
 	}
 
 	// generate boats for all heroes on water
@@ -666,7 +666,10 @@ void CGameState::initHeroes()
 	for(auto obj : map->objects) //prisons
 	{
 		if(obj && obj->ID == Obj::PRISON)
-			map->allHeroes[obj->subID] = dynamic_cast<CGHeroInstance*>(obj.get());
+		{
+			auto * hero = dynamic_cast<CGHeroInstance*>(obj.get());
+			map->allHeroes[hero->getHeroType()] = hero;
+		}
 	}
 
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
@@ -678,7 +681,7 @@ void CGameState::initHeroes()
 		heroesPool->addHeroToPool(ph);
 		heroesToCreate.erase(ph->type->getId());
 
-		map->allHeroes[ph->subID] = ph;
+		map->allHeroes[ph->getHeroType()] = ph;
 	}
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
@@ -789,6 +792,7 @@ void CGameState::initTowns()
 	for (auto & elem : map->towns)
 	{
 		CGTownInstance * vti =(elem);
+		assert(vti->town);
 		if(!vti->town)
 		{
 			vti->town = (*VLC->townh)[vti->subID]->town;
