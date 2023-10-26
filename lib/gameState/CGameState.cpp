@@ -576,7 +576,8 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	}
 
 	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, VLC->heroh->objects[heroTypeId]->heroClass->getIndex());
-	CGObjectInstance * hero = handler->create(handler->getTemplates().front());
+	CGObjectInstance * obj = handler->create(handler->getTemplates().front());
+	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
 
 	hero->ID = Obj::HERO;
 	hero->subID = heroTypeId;
@@ -668,6 +669,7 @@ void CGameState::initHeroes()
 		if(obj && obj->ID == Obj::PRISON)
 		{
 			auto * hero = dynamic_cast<CGHeroInstance*>(obj.get());
+			hero->initHero(getRandomGenerator());
 			map->allHeroes[hero->getHeroType()] = hero;
 		}
 	}
@@ -675,7 +677,7 @@ void CGameState::initHeroes()
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
 	for(auto ph : map->predefinedHeroes)
 	{
-		if(!vstd::contains(heroesToCreate, HeroTypeID(ph->subID)))
+		if(!vstd::contains(heroesToCreate, ph->getHeroType()))
 			continue;
 		ph->initHero(getRandomGenerator());
 		heroesPool->addHeroToPool(ph);
@@ -793,10 +795,7 @@ void CGameState::initTowns()
 	{
 		CGTownInstance * vti =(elem);
 		assert(vti->town);
-		if(!vti->town)
-		{
-			vti->town = (*VLC->townh)[vti->subID]->town;
-		}
+
 		if(vti->getNameTranslated().empty())
 		{
 			size_t nameID = getRandomGenerator().nextInt(vti->getTown()->getRandomNamesCount() - 1);
@@ -1906,12 +1905,15 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 		if(hero->type)
 			ret -= hero->type->getId();
 		else
-			ret -= HeroTypeID(hero->subID);
+			ret -= hero->getHeroType();
 	}
 
 	for(auto obj : map->objects) //prisons
-		if(obj && obj->ID == Obj::PRISON)
-			ret -= HeroTypeID(obj->subID);
+	{
+		auto * hero = dynamic_cast<const CGHeroInstance *>(obj.get());
+		if(hero && hero->ID == Obj::PRISON)
+			ret -= hero->getHeroType();
+	}
 
 	return ret;
 }
@@ -1923,23 +1925,19 @@ bool CGameState::isUsedHero(const HeroTypeID & hid) const
 
 CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 {
-	for(auto hero : map->heroesOnMap)  //heroes instances initialization
-	{
-		if(hero->type && hero->type->getId() == hid)
-		{
-			return hero;
-		}
-	}
-
 	for(auto obj : map->objects) //prisons
 	{
-		if(obj && obj->ID == Obj::PRISON )
-		{
-			auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
-			assert(hero);
-			if ( hero->type && hero->type->getId() == hid )
-				return hero;
-		}
+		if (!obj)
+			continue;
+
+		if ( obj->ID !=Obj::PRISON && obj->ID != Obj::HERO)
+			continue;
+
+		auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
+		assert(hero);
+
+		if (hero->getHeroType() == hid)
+			return hero;
 	}
 
 	return nullptr;

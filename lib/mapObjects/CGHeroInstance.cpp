@@ -572,28 +572,24 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 		type = VLC->heroh->objects[subID];
 		randomizeArmy(type->heroClass->faction);
 	}
+	else
+		type = VLC->heroh->objects[subID];
 
+	auto oldSubID = subID;
+
+	// to find object handler we must use heroClass->id
+	// after setType subID used to store unique hero identify id. Check issue 2277 for details
 	if (ID != Obj::PRISON)
-	{
-		// to find object handler we must use heroClass->id
-		// after setType subID used to store unique hero identify id. Check issue 2277 for details
 		setType(ID, type->heroClass->getIndex());
-	}
-	this->subID = subID;
+	else
+		setType(ID, 0);
+
+	this->subID = oldSubID;
 }
 
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
-	if(!type)
-		initHero(rand); //TODO: set up everything for prison before specialties are configured
 
-	if (ID != Obj::PRISON)
-	{
-		auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
-		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
-		if (customApp)
-			appearance = customApp;
-	}
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
