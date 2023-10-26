@@ -336,7 +336,8 @@ void CGameStateCampaign::replaceHeroesPlaceholders(const std::vector<CampaignHer
 
 		CGHeroInstance *heroToPlace = campaignHeroReplacement.hero;
 		heroToPlace->id = campaignHeroReplacement.heroPlaceholderId;
-		heroToPlace->tempOwner = heroPlaceholder->tempOwner;
+		if(heroPlaceholder->tempOwner.isValidPlayer())
+			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->pos = heroPlaceholder->pos;
 		heroToPlace->type = VLC->heroh->objects[heroToPlace->subID];
 		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
