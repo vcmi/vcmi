@@ -107,7 +107,7 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
+		GH.windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
 	for(auto road : VLC->roadTypeHandler->objects)
@@ -397,6 +397,18 @@ std::vector<int> RandomMapTab::getPossibleMapSizes()
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }
 
+TeamAlignments::TeamAlignments(RandomMapTab & randomMapTab)
+	: CWindowObject(BORDERED)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	widget = std::make_shared<TeamAlignmentsWidget>(randomMapTab);
+	pos = widget->pos;
+
+	updateShadow();
+	center();
+}
+
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	InterfaceObjectConfigurable()
 {
@@ -413,8 +425,8 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
 	pos.h = variables["windowSize"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
-	variables["backgroundRect"]["x"].Integer() = pos.x;
-	variables["backgroundRect"]["y"].Integer() = pos.y;
+	variables["backgroundRect"]["x"].Integer() = 0;
+	variables["backgroundRect"]["y"].Integer() = 0;
 	variables["backgroundRect"]["w"].Integer() = pos.w;
 	variables["backgroundRect"]["h"].Integer() = pos.h;
 	variables["okButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["ok"]["x"].Integer();
@@ -429,14 +441,15 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
 		}
 		randomMapTab.updateMapInfoByHost();
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
+
+		for(auto & window : GH.windows().findWindows<TeamAlignments>())
+			GH.windows().popWindow(window);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
+		for(auto & window : GH.windows().findWindows<TeamAlignments>())
+			GH.windows().popWindow(window);
 	});
 	
 	build(config);
