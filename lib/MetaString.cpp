@@ -19,6 +19,7 @@
 #include "VCMI_Lib.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "spells/CSpellHandler.h"
+#include "serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -101,7 +102,7 @@ void MetaString::clear()
 
 bool MetaString::empty() const
 {
-	return message.empty();
+	return message.empty() || toString().empty();
 }
 
 std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) const
@@ -383,6 +384,15 @@ void MetaString::jsonDeserialize(const JsonNode & source)
 
 	for (const auto & entry : source["numbers"].Vector() )
 		numbers.push_back(entry.Integer());
+}
+
+void MetaString::serializeJson(JsonSerializeFormat & handler)
+{
+	if(handler.saving)
+		jsonSerialize(const_cast<JsonNode&>(handler.getCurrent()));
+
+	if(!handler.saving)
+		jsonDeserialize(handler.getCurrent());
 }
 
 VCMI_LIB_NAMESPACE_END

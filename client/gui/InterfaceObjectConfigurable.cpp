@@ -17,7 +17,10 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
@@ -26,8 +29,9 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
+#include "../../lib//constants/StringConstants.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -43,12 +47,17 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("texture", &InterfaceObjectConfigurable::buildTexture);
 	REGISTER_BUILDER("animation", &InterfaceObjectConfigurable::buildAnimation);
 	REGISTER_BUILDER("label", &InterfaceObjectConfigurable::buildLabel);
+	REGISTER_BUILDER("multiLineLabel", &InterfaceObjectConfigurable::buildMultiLineLabel);
 	REGISTER_BUILDER("toggleGroup", &InterfaceObjectConfigurable::buildToggleGroup);
 	REGISTER_BUILDER("toggleButton", &InterfaceObjectConfigurable::buildToggleButton);
 	REGISTER_BUILDER("button", &InterfaceObjectConfigurable::buildButton);
 	REGISTER_BUILDER("labelGroup", &InterfaceObjectConfigurable::buildLabelGroup);
 	REGISTER_BUILDER("slider", &InterfaceObjectConfigurable::buildSlider);
 	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
+	REGISTER_BUILDER("comboBox", &InterfaceObjectConfigurable::buildComboBox);
+	REGISTER_BUILDER("textInput", &InterfaceObjectConfigurable::buildTextInput);
+	REGISTER_BUILDER("transparentFilledRectangle", &InterfaceObjectConfigurable::buildTransparentFilledRectangle);
+	REGISTER_BUILDER("textBox", &InterfaceObjectConfigurable::buildTextBox);
 }
 
 void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
@@ -58,8 +67,14 @@ void InterfaceObjectConfigurable::registerBuilder(const std::string & type, Buil
 
 void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, std::function<void(int)> callback)
 {
-	callbacks[callbackName] = callback;
+	callbacks_int[callbackName] = callback;
 }
+
+void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, std::function<void(std::string)> callback)
+{
+	callbacks_string[callbackName] = callback;
+}
+
 
 void InterfaceObjectConfigurable::deleteWidget(const std::string & name)
 {
@@ -97,7 +112,7 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 	{
 		if (!config["library"].isNull())
 		{
-			const JsonNode library(ResourceID(config["library"].String()));
+			const JsonNode library(JsonPath::fromJson(config["library"]));
 			loadCustomBuilders(library);
 		}
 
@@ -145,6 +160,8 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 		return "";
 	
 	std::string s = config.String();
+	if(s.empty())
+		return s;
 	logGlobal->debug("Reading text from translations by key: %s", s);
 	return CGI->generaltexth->translate(s);
 }
@@ -181,32 +198,54 @@ ETextAlignment InterfaceObjectConfigurable::readTextAlignment(const JsonNode & c
 		if(config.String() == "right")
 			return ETextAlignment::BOTTOMRIGHT;
 	}
-	logGlobal->debug("Uknown text alignment attribute");
+	logGlobal->debug("Unknown text alignment attribute");
 	return ETextAlignment::CENTER;
 }
 
-SDL_Color InterfaceObjectConfigurable::readColor(const JsonNode & config) const
+ColorRGBA InterfaceObjectConfigurable::readColor(const JsonNode & config) const
 {
 	logGlobal->debug("Reading color");
 	if(!config.isNull())
 	{
-		if(config.String() == "yellow")
-			return Colors::YELLOW;
-		if(config.String() == "white")
-			return Colors::WHITE;
-		if(config.String() == "gold")
-			return Colors::METALLIC_GOLD;
-		if(config.String() == "green")
-			return Colors::GREEN;
-		if(config.String() == "orange")
-			return Colors::ORANGE;
-		if(config.String() == "bright-yellow")
-			return Colors::BRIGHT_YELLOW;
+		if(config.isString())
+		{
+			if(config.String() == "yellow")
+				return Colors::YELLOW;
+			if(config.String() == "white")
+				return Colors::WHITE;
+			if(config.String() == "gold")
+				return Colors::METALLIC_GOLD;
+			if(config.String() == "green")
+				return Colors::GREEN;
+			if(config.String() == "orange")
+				return Colors::ORANGE;
+			if(config.String() == "bright-yellow")
+				return Colors::BRIGHT_YELLOW;
+		}
+		if(config.isVector())
+		{
+			const auto & asVector = config.Vector();
+			if(asVector.size() == 4)
+				return ColorRGBA(asVector[0].Integer(), asVector[1].Integer(), asVector[2].Integer(), asVector[3].Integer());
+			if(asVector.size() == 3)
+				return ColorRGBA(asVector[0].Integer(), asVector[1].Integer(), asVector[2].Integer());
+		}
 	}
-	logGlobal->debug("Uknown color attribute");
+	logGlobal->debug("Unknown color attribute");
 	return Colors::DEFAULT_KEY_COLOR;
-	
+
 }
+
+PlayerColor InterfaceObjectConfigurable::readPlayerColor(const JsonNode & config) const
+{
+	logGlobal->debug("Reading PlayerColor");
+	if(!config.isNull() && config.isString())
+		return PlayerColor(PlayerColor::decode(config.String()));
+	
+	logGlobal->debug("Unknown PlayerColor attribute");
+	return PlayerColor::CANNOT_DETERMINE;
+}
+
 EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 {
 	logGlobal->debug("Reading font");
@@ -223,7 +262,7 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 		if(config.String() == "calisto")
 			return EFonts::FONT_CALLI;
 	}
-	logGlobal->debug("Uknown font attribute");
+	logGlobal->debug("Unknown font attribute");
 	return EFonts::FONT_TIMES;
 }
 
@@ -268,7 +307,7 @@ EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CPicture");
-	auto image = config["image"].String();
+	auto image = ImagePath::fromJson(config["image"]);
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 	if(!config["visible"].isNull())
@@ -290,6 +329,20 @@ std::shared_ptr<CLabel> InterfaceObjectConfigurable::buildLabel(const JsonNode &
 	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text);
 }
 
+std::shared_ptr<CMultiLineLabel> InterfaceObjectConfigurable::buildMultiLineLabel(const JsonNode & config) const
+{	
+	logGlobal->debug("Building widget CMultiLineLabel");
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+	auto text = readText(config["text"]);
+	Rect rect = readRect(config["rect"]);
+	if(!config["adoptHeight"].isNull() && config["adoptHeight"].Bool())
+		rect.h = graphics->fonts[font]->getLineHeight() * 2;
+	return std::make_shared<CMultiLineLabel>(rect, font, alignment, color, text);
+}
+
+
 std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CToggleGroup");
@@ -310,7 +363,7 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 	if(!config["selected"].isNull())
 		group->setSelected(config["selected"].Integer());
 	if(!config["callback"].isNull())
-		group->addCallback(callbacks.at(config["callback"].String()));
+		group->addCallback(callbacks_int.at(config["callback"].String()));
 	return group;
 }
 
@@ -318,7 +371,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 {
 	logGlobal->debug("Building widget CToggleButton");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
 	auto button = std::make_shared<CToggleButton>(position, image, help);
 	if(!config["items"].isNull())
@@ -344,7 +397,7 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 {
 	logGlobal->debug("Building widget CButton");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
 	auto button = std::make_shared<CButton>(position, image, help);
 	if(!config["items"].isNull())
@@ -383,8 +436,8 @@ void InterfaceObjectConfigurable::loadToggleButtonCallback(std::shared_ptr<CTogg
 
 	std::string callbackName = config.String();
 
-	if (callbacks.count(callbackName) > 0)
-		button->addCallback(callbacks.at(callbackName));
+	if (callbacks_int.count(callbackName) > 0)
+		button->addCallback(callbacks_int.at(callbackName));
 	else
 		logGlobal->error("Invalid callback '%s' in widget", callbackName );
 }
@@ -396,8 +449,8 @@ void InterfaceObjectConfigurable::loadButtonCallback(std::shared_ptr<CButton> bu
 
 	std::string callbackName = config.String();
 
-	if (callbacks.count(callbackName) > 0)
-		button->addCallback(std::bind(callbacks.at(callbackName), 0));
+	if (callbacks_int.count(callbackName) > 0)
+		button->addCallback(std::bind(callbacks_int.at(callbackName), 0));
 	else
 		logGlobal->error("Invalid callback '%s' in widget", callbackName );
 }
@@ -453,13 +506,16 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
 	const auto & result =
-		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
+		std::make_shared<CSlider>(position, length, callbacks_int.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
 
-	if (!config["scrollBounds"].isNull())
+	if(!config["scrollBounds"].isNull())
 	{
 		Rect bounds = readRect(config["scrollBounds"]);
 		result->setScrollBounds(bounds);
 	}
+	
+	if(!config["panningStep"].isNull())
+		result->setPanningStep(config["panningStep"].Integer());
 
 	return result;
 }
@@ -468,7 +524,7 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 {
 	logGlobal->debug("Building widget CAnimImage");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	int group = config["group"].isNull() ? 0 : config["group"].Integer();
 	int frame = config["frame"].isNull() ? 0 : config["frame"].Integer();
 	return std::make_shared<CAnimImage>(image, frame, group, position.x, position.y);
@@ -477,9 +533,63 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CFilledTexture");
-	auto image = config["image"].String();
+	auto image = ImagePath::fromJson(config["image"]);
 	auto rect = readRect(config["rect"]);
+	auto playerColor = readPlayerColor(config["color"]);
+	if(playerColor.isValidPlayer())
+	{
+		auto result = std::make_shared<FilledTexturePlayerColored>(image, rect);
+		result->playerColored(playerColor);
+	}
 	return std::make_shared<CFilledTexture>(image, rect);
+}
+
+std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonNode & config)
+{
+	logGlobal->debug("Building widget ComboBox");
+	auto position = readPosition(config["position"]);
+	auto image = AnimationPath::fromJson(config["image"]);
+	auto help = readHintText(config["help"]);
+	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"]);
+	if(!config["items"].isNull())
+	{
+		for(const auto & item : config["items"].Vector())
+		{
+			result->addOverlay(buildWidget(item));
+		}
+	}
+	if(!config["imageOrder"].isNull())
+	{
+		auto imgOrder = config["imageOrder"].Vector();
+		assert(imgOrder.size() >= 4);
+		result->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
+	}
+
+	loadButtonBorderColor(result, config["borderColor"]);
+	loadButtonHotkey(result, config["hotkey"]);
+	return result;
+}
+
+std::shared_ptr<CTextInput> InterfaceObjectConfigurable::buildTextInput(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget CTextInput");
+	auto rect = readRect(config["rect"]);
+	auto offset = readPosition(config["backgroundOffset"]);
+	auto bgName = ImagePath::fromJson(config["background"]);
+	auto result = std::make_shared<CTextInput>(rect, offset, bgName, 0);
+	if(!config["alignment"].isNull())
+		result->alignment = readTextAlignment(config["alignment"]);
+	if(!config["font"].isNull())
+		result->font = readFont(config["font"]);
+	if(!config["color"].isNull())
+		result->setColor(readColor(config["color"]));
+	if(!config["text"].isNull() && config["text"].isString())
+		result->setText(config["text"].String()); //for input field raw string is taken
+	if(!config["callback"].isNull())
+		result->cb += callbacks_string.at(config["callback"].String());
+	if(!config["help"].isNull())
+		result->setHelpText(readText(config["help"]));
+	return result;
 }
 
 /// Small helper class that provides ownership for shared_ptr's of child elements
@@ -556,7 +666,7 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 {
 	logGlobal->debug("Building widget CShowableAnim");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	ui8 flags = 0;
 	if(!config["repeat"].Bool())
 		flags |= CShowableAnim::EFlags::PLAY_ONCE;
@@ -566,7 +676,7 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 	if(!config["alpha"].isNull())
 		anim->setAlpha(config["alpha"].Integer());
 	if(!config["callback"].isNull())
-		anim->callback = std::bind(callbacks.at(config["callback"].String()), 0);
+		anim->callback = std::bind(callbacks_int.at(config["callback"].String()), 0);
 	if(!config["frames"].isNull())
 	{
 		auto b = config["frames"]["start"].Integer();
@@ -576,6 +686,33 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 	return anim;
 }
 
+std::shared_ptr<TransparentFilledRectangle> InterfaceObjectConfigurable::buildTransparentFilledRectangle(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget TransparentFilledRectangle");
+
+	auto rect = readRect(config["rect"]);
+	auto color = readColor(config["color"]);
+	if(!config["colorLine"].isNull())
+	{
+		auto colorLine = readColor(config["colorLine"]);
+		return std::make_shared<TransparentFilledRectangle>(rect, color, colorLine);
+	}
+	return std::make_shared<TransparentFilledRectangle>(rect, color);
+}
+
+std::shared_ptr<CTextBox> InterfaceObjectConfigurable::buildTextBox(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget CTextBox");
+
+	auto rect = readRect(config["rect"]);
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+	auto text = readText(config["text"]);
+
+	return std::make_shared<CTextBox>(text, rect, 0, font, alignment, color);
+}
+
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode config) const
 {
 	assert(!config.isNull());
@@ -583,7 +720,7 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 	//overrides from variables
 	for(auto & item : config["overrides"].Struct())
 	{
-		logGlobal->debug("Config attribute %s was overriden by variable %s", item.first, item.second.String());
+		logGlobal->debug("Config attribute %s was overridden by variable %s", item.first, item.second.String());
 		config[item.first] = variables[item.second.String()];
 	}
 	

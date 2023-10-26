@@ -11,6 +11,7 @@
 
 #include "../windows/CWindowObject.h"
 #include "../../lib/JsonNode.h"
+#include "../../lib/LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,9 +23,11 @@ class CTextInput;
 class CGStatusBar;
 class CTextBox;
 class CTabbedInt;
+class CAnimImage;
 class CAnimation;
 class CButton;
 class CFilledTexture;
+class CLabel;
 
 
 // TODO: Find new location for these enums
@@ -34,7 +37,7 @@ enum ESelectionScreen : ui8 {
 
 enum ELoadMode : ui8
 {
-	NONE = 0, SINGLE, MULTI, CAMPAIGN
+	NONE = 0, SINGLE, MULTI, CAMPAIGN, TUTORIAL
 };
 
 /// The main menu screens listed in the EState enum
@@ -146,8 +149,10 @@ public:
 	void onScreenResize() override;
 	void update() override;
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode);
-	static void openCampaignLobby(const std::string & campaignFileName);
+	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
 	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
+	static void startTutorial();
+	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);
 
 	static std::shared_ptr<CMainMenu> create();
@@ -177,17 +182,17 @@ public:
 	CSimpleJoinScreen(bool host = true);
 };
 
-class CLoadingScreen : public CWindowObject
+class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progress
 {
-	boost::thread loadingThread;
+	std::vector<std::shared_ptr<CAnimImage>> progressBlocks;
+	
+	ImagePath getBackground();
 
-	std::string getBackground();
-
-public:
-	CLoadingScreen(std::function<void()> loader);
+public:	
+	CLoadingScreen();
 	~CLoadingScreen();
 
-	void showAll(Canvas & to) override;
+	void tick(uint32_t msPassed) override;
 };
 
 extern std::shared_ptr<CMainMenu> CMM;

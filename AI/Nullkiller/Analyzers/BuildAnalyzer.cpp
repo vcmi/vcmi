@@ -24,7 +24,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 
 	for(auto &pair : townInfo->buildings)
 	{
-		if(pair.second->upgrade != -1)
+		if(pair.second->upgrade != BuildingID::NONE)
 		{
 			parentMap[pair.second->upgrade] = pair.first;
 		}
@@ -160,7 +160,7 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	if(ai->cb->getDate(Date::EDateType::DAY) == 1)
+	if(ai->cb->getDate(Date::DAY) == 1)
 	{
 		goldPreasure = 1;
 	}
@@ -256,7 +256,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			{
 				logAi->trace("cant build. Need other dwelling");
 			}
-			else
+			else if(missingBuildings[0] != toBuild)
 			{
 				logAi->trace("cant build. Need %d", missingBuildings[0].num);
 
@@ -273,6 +273,12 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				prerequisite.dailyIncome = info.dailyIncome;
 
 				return prerequisite;
+			}
+			else
+			{
+				logAi->trace("Cant build. The building requires itself as prerequisite");
+
+				return info;
 			}
 		}
 	}

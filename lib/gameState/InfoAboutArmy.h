@@ -55,7 +55,7 @@ public:
 	Details * details = nullptr;
 
 	const CHeroClass *hclass;
-	int portrait;
+	HeroTypeID portraitSource;
 
 	enum EInfoLevel
 	{
@@ -72,6 +72,7 @@ public:
 	InfoAboutHero & operator=(const InfoAboutHero & iah);
 
 	void initFromHero(const CGHeroInstance *h, EInfoLevel infoLevel);
+	int32_t getIconIndex() const;
 };
 
 /// Struct which holds a int information about a town

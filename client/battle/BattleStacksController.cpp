@@ -28,9 +28,11 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
@@ -75,10 +77,10 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	animIDhelper(0)
 {
 	//preparing graphics for displaying amounts of creatures
-	amountNormal     = IImage::createFromFile("CMNUMWIN.BMP", EImageBlitMode::COLORKEY);
-	amountPositive   = IImage::createFromFile("CMNUMWIN.BMP", EImageBlitMode::COLORKEY);
-	amountNegative   = IImage::createFromFile("CMNUMWIN.BMP", EImageBlitMode::COLORKEY);
-	amountEffNeutral = IImage::createFromFile("CMNUMWIN.BMP", EImageBlitMode::COLORKEY);
+	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
+	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
+	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
+	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
 
 	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
 	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );
@@ -93,7 +95,7 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	amountNegative->adjustPalette(shifterNegative, ignoredMask);
 	amountEffNeutral->adjustPalette(shifterNeutral, ignoredMask);
 
-	std::vector<const CStack*> stacks = owner.curInt->cb->battleGetAllStacks(true);
+	std::vector<const CStack*> stacks = owner.getBattle()->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
 	{
 		stackAdded(s, true);
@@ -125,7 +127,7 @@ BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack) 
 
 void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 {
-	auto stacks = owner.curInt->cb->battleGetAllStacks(false);
+	auto stacks = owner.getBattle()->battleGetAllStacks(false);
 
 	for (auto stack : stacks)
 	{
@@ -262,7 +264,7 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 
 std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack * stack)
 {
-	std::vector<si32> activeSpells = stack->activeSpells();
+	std::vector<SpellID> activeSpells = stack->activeSpells();
 
 	if ( activeSpells.empty())
 		return amountNormal;
@@ -270,7 +272,16 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 	int effectsPositivness = 0;
 
 	for(const auto & spellID : activeSpells)
-		effectsPositivness += CGI->spellh->objects.at(spellID)->positiveness;
+	{
+		auto positiveness = CGI->spells()->getByIndex(spellID)->getPositiveness();
+		if(!boost::logic::indeterminate(positiveness))
+		{
+			if(positiveness)
+				effectsPositivness++;
+			else
+				effectsPositivness--;
+		}
+	}
 
 	if (effectsPositivness > 0)
 		return amountPositive;
@@ -349,7 +360,7 @@ void BattleStacksController::initializeBattleAnimations()
 
 void BattleStacksController::tickFrameBattleAnimations(uint32_t msPassed)
 {
-	for (auto stack : owner.curInt->cb->battleGetAllStacks(true))
+	for (auto stack : owner.getBattle()->battleGetAllStacks(true))
 	{
 		if (stackAnimation.find(stack->unitId()) == stackAnimation.end()) //e.g. for summoned but not yet handled stacks
 			continue;
@@ -398,15 +409,7 @@ void BattleStacksController::addNewAnim(BattleAnimation *anim)
 void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
-	{
-		BattleAction action;
-		action.side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-		action.actionType = EActionType::CANCEL;
-		action.stackNumber = getActiveStack()->unitId();
-
-		LOCPLINT->cb->battleMakeUnitAction(action);
 		setActiveStack(nullptr);
-	}
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
@@ -460,7 +463,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 				addNewAnim(new HittedAnimation(owner, attackedInfo.defender));
 
 			if (attackedInfo.fireShield)
-				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, "FIRESHIE", attackedInfo.attacker->getPosition());
+				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, AudioPath::builtin("FIRESHIE"), attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
 			{
@@ -479,7 +482,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.rebirth)
 		{
 			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
-				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, "RESURECT", attackedInfo.defender->getPosition());
+				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, AudioPath::builtin("RESURECT"), attackedInfo.defender->getPosition());
 				addNewAnim(new ResurrectionAnimation(owner, attackedInfo.defender));
 			});
 		}
@@ -531,7 +534,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 		addNewAnim(new MovementStartAnimation(owner, stack));
 	});
 
-	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, 1)))
+	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementFlying)))
 	{
 		owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [&]()
 		{
@@ -550,9 +553,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 
 bool BattleStacksController::shouldAttackFacingRight(const CStack * attacker, const CStack * defender)
 {
-	bool mustReverse = owner.curInt->cb->isToReverse(
-				attacker,
-				defender);
+	bool mustReverse = owner.getBattle()->isToReverse(attacker, defender);
 
 	if (attacker->unitSide() == BattleSide::ATTACKER)
 		return !mustReverse;
@@ -592,7 +593,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45));
-			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, "GOODLUCK", attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, AudioPath::builtin("GOODLUCK"), attacker->getPosition());
 		});
 	}
 
@@ -600,7 +601,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44));
-			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, "BADLUCK", attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, AudioPath::builtin("BADLUCK"), attacker->getPosition());
 		});
 	}
 
@@ -608,7 +609,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(365));
-			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, "DEATHBLO", defender->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, AudioPath::builtin("DEATHBLO"), defender->getPosition());
 		});
 
 		for(auto elem : info.secondaryDefender)
@@ -643,7 +644,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=]()
 		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, "DRAINLIF", attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition());
 		});
 	}
 
@@ -663,12 +664,12 @@ bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex 
 	return false;
 }
 
-void BattleStacksController::endAction(const BattleAction* action)
+void BattleStacksController::endAction(const BattleAction & action)
 {
 	owner.checkForAnimations();
 
 	//check if we should reverse stacks
-	TStacks stacks = owner.curInt->cb->battleGetStacks(CBattleCallback::MINE_AND_ENEMY);
+	TStacks stacks = owner.getBattle()->battleGetStacks(CPlayerBattleCallback::MINE_AND_ENEMY);
 
 	for (const CStack *s : stacks)
 	{
@@ -688,7 +689,7 @@ void BattleStacksController::endAction(const BattleAction* action)
 	removeExpiredColorFilters();
 }
 
-void BattleStacksController::startAction(const BattleAction* action)
+void BattleStacksController::startAction(const BattleAction & action)
 {
 	removeExpiredColorFilters();
 }
@@ -796,7 +797,7 @@ void BattleStacksController::removeExpiredColorFilters()
 	{
 		if (!filter.persistent)
 		{
-			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, filter.source->id), Selector::all))
+			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(filter.source->id)), Selector::all))
 				return true;
 			if (filter.effect == ColorFilter::genEmptyShifter())
 				return true;
@@ -845,7 +846,7 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	auto hoveredQueueUnitId = owner.windowObject->getQueueHoveredUnitId();
 	if(hoveredQueueUnitId.has_value())
 	{
-		return { owner.curInt->cb->battleGetStackByID(hoveredQueueUnitId.value(), true) };
+		return { owner.getBattle()->battleGetStackByID(hoveredQueueUnitId.value(), true) };
 	}
 
 	auto hoveredHex = owner.fieldController->getHoveredHex();
@@ -865,14 +866,14 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 		spells::Target target;
 		target.emplace_back(hoveredHex);
 
-		spells::BattleCast event(owner.curInt->cb.get(), caster, mode, spell);
+		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
 		auto mechanics = spell->battleMechanics(&event);
 		return mechanics->getAffectedStacks(target);
 	}
 
 	if(hoveredHex.isValid())
 	{
-		const CStack * const stack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+		const CStack * const stack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
 		if (stack)
 			return {stack};

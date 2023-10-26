@@ -11,6 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
+class Rect;
 VCMI_LIB_NAMESPACE_END
 
 class EventDispatcher;
@@ -39,9 +40,13 @@ protected:
 	/// If true, event of selected type in selected position will be processed by this element
 	virtual bool receiveEvent(const Point & position, int eventType) const= 0;
 
+	virtual const Rect & getPosition() const= 0;
+
 public:
 	virtual void clickPressed(const Point & cursorPosition) {}
 	virtual void clickReleased(const Point & cursorPosition) {}
+	virtual void clickPressed(const Point & cursorPosition, bool lastActivated);
+	virtual void clickReleased(const Point & cursorPosition, bool lastActivated);
 	virtual void clickCancel(const Point & cursorPosition) {}
 	virtual void showPopupWindow(const Point & cursorPosition) {}
 	virtual void clickDouble(const Point & cursorPosition) {}

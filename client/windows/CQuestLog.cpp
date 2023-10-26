@@ -49,7 +49,7 @@ void CQuestLabel::showAll(Canvas & to)
 	CMultiLineLabel::showAll (to);
 }
 
-CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
+CQuestIcon::CQuestIcon (const AnimationPath &defname, int index, int x, int y) :
 	CAnimImage(defname, index, 0, x, y)
 {
 	addUsedEvents(LCLICK);
@@ -87,7 +87,7 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 
 	onMapViewMoved(Rect(), tile.z);
 
-	auto pic = std::make_shared<CQuestIcon>("VwSymbol.def", 3, offset.x, offset.y);
+	auto pic = std::make_shared<CQuestIcon>(AnimationPath::builtin("VwSymbol.def"), 3, offset.x, offset.y);
 
 	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
 	pic->callback = std::bind (&CQuestMinimap::iconClicked, this);
@@ -117,7 +117,7 @@ void CQuestMinimap::showAll(Canvas & to)
 }
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
-	: CWindowObject(PLAYER_COLORED | BORDERED, "questDialog"),
+	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("questDialog")),
 	questIndex(0),
 	currentQuest(nullptr),
 	hideComplete(false),
@@ -128,9 +128,9 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
-	ok = std::make_shared<CButton>(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_ACCEPT);
+	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_ACCEPT);
 	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
-	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), "sysopchk.def", CButton::tooltipLocalized("vcmi.questLog.hideComplete"), std::bind(&CQuestLog::toggleComplete, this, _1));
+	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), AnimationPath::builtin("sysopchk.def"), CButton::tooltipLocalized("vcmi.questLog.hideComplete"), std::bind(&CQuestLog::toggleComplete, this, _1));
 	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.questLog.hideComplete.hover"));
 	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
 	slider->setPanningStep(32);
@@ -148,11 +148,11 @@ void CQuestLog::recreateLabelList()
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
-		// Quests with MISSION_NONE type don't have text for them and can't be displayed
-		if (quests[i].quest->missionType == CQuest::MISSION_NONE)
+		// Quests without mision don't have text for them and can't be displayed
+		if (quests[i].quest->mission == Rewardable::Limiter{})
 			continue;
 
-		if (quests[i].quest->progress == CQuest::COMPLETE)
+		if (quests[i].quest->isCompleted)
 		{
 			completeMissing = false;
 			if (hideComplete)
@@ -180,7 +180,7 @@ void CQuestLog::recreateLabelList()
 		labels.push_back(label);
 
 		// Select latest active quest
-		if (quests[i].quest->progress != CQuest::COMPLETE)
+		if(!quests[i].quest->isCompleted)
 			selectQuest(i, currentLabel);
 
 		currentLabel = static_cast<int>(labels.size());
@@ -236,7 +236,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 	MetaString text;
 	std::vector<Component> components;
-	currentQuest->quest->getVisitText (text, components, currentQuest->quest->isCustomFirst, true);
+	currentQuest->quest->getVisitText(text, components, true);
 	if(description->slider)
 		description->slider->scrollToMin(); // scroll text to start position
 	description->setText(text.toString()); //TODO: use special log entry text
@@ -247,9 +247,15 @@ void CQuestLog::selectQuest(int which, int labelId)
 	int descriptionHeight = DESCRIPTION_HEIGHT_MAX;
 	if(componentsSize)
 	{
-		descriptionHeight -= 15;
 		CComponent::ESize imageSize = CComponent::large;
-		switch (currentQuest->quest->missionType)
+		if (componentsSize > 4)
+		{
+			imageSize = CComponent::small; // Only small icons can be used for resources as 4+ icons take too much space
+			descriptionHeight -= 155;
+		}
+		else
+			descriptionHeight -= 130;
+		/*switch (currentQuest->quest->missionType)
 		{
 			case CQuest::MISSION_ARMY:
 			{
@@ -285,7 +291,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 			default:
 				descriptionHeight -= 115;
 				break;
-		}
+		}*/
 
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 

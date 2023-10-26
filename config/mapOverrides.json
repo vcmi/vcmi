@@ -75,6 +75,46 @@
 		"victoryIconIndex" : 11,
 		"victoryString" : "core.vcdesc.0"
 	},
+	"data/evil2:0" : { // A Gryphon's Heart
+		"defeatIconIndex" : 2,
+		"defeatString" : "core.lcdesc.3",
+		"triggeredEvents" : {
+			"specialDefeat" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "daysPassed", { "value" : 84 } ]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.254"
+			},
+			"specialVictory" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "transport", { "position" : [ 16, 23, 0 ], "type" : 84 } ]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.293",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.292"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 10,
+		"victoryString" : "core.vcdesc.11"
+	},
 	"data/secret1:0" : { // The Grail
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",

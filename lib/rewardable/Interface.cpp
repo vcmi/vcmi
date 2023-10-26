@@ -12,8 +12,11 @@
 #include "Interface.h"
 
 #include "../CHeroHandler.h"
+#include "../TerrainHandler.h"
+#include "../CPlayerState.h"
 #include "../CSoundBase.h"
 #include "../NetPacks.h"
+#include "../gameState/CGameState.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
 #include "../mapObjects/MiscObjects.h"
@@ -46,6 +49,58 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
 
+	if (info.reward.revealTiles)
+	{
+		const auto & props = *info.reward.revealTiles;
+
+		const auto functor = [&props](const TerrainTile * tile)
+		{
+			int score = 0;
+			if (tile->terType->isSurface())
+				score += props.scoreSurface;
+
+			if (tile->terType->isUnderground())
+				score += props.scoreSubterra;
+
+			if (tile->terType->isWater())
+				score += props.scoreWater;
+
+			if (tile->terType->isRock())
+				score += props.scoreRock;
+
+			return score > 0;
+		};
+
+		std::unordered_set<int3> tiles;
+		if (props.radius > 0)
+		{
+			cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::HIDDEN, hero->getOwner());
+			if (props.hide)
+				cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::REVEALED, hero->getOwner());
+
+			vstd::erase_if(tiles, [&](const int3 & coord){
+				return !functor(cb->getTile(coord));
+			});
+		}
+		else
+		{
+			cb->getAllTiles(tiles, hero->tempOwner, -1, functor);
+		}
+
+		if (props.hide)
+		{
+			for (auto & player : cb->gameState()->players)
+			{
+				if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME && cb->getPlayerRelations(player.first, hero->getOwner()) == PlayerRelations::ENEMIES)
+					cb->changeFogOfWar(tiles, player.first, ETileVisibility::HIDDEN);
+			}
+		}
+		else
+		{
+			cb->changeFogOfWar(tiles, hero->getOwner(), ETileVisibility::REVEALED);
+		}
+	}
+
 	for(const auto & entry : info.reward.secondary)
 	{
 		int current = hero->getSecSkillLevel(entry.first);
@@ -57,7 +112,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
-		cb->changePrimSkill(hero, static_cast<PrimarySkill::PrimarySkill>(i), info.reward.primary[i], false);
+		cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
 
 	si64 expToGive = 0;
 
@@ -140,13 +195,16 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 		caster.setActualCaster(hero);
 		caster.setSpellSchoolLevel(info.reward.spellCast.second);
 		cb->castSpell(&caster, info.reward.spellCast.first, int3{-1, -1, -1});
-		
-		if(info.reward.removeObject)
-			logMod->warn("Removal of object with spell casts is not supported!");
 	}
-	else if(info.reward.removeObject) //FIXME: object can't track spell cancel or finish, so removeObject leads to crash
+
+	if(info.reward.removeObject)
 		if(auto * instance = dynamic_cast<const CGObjectInstance*>(this))
-			cb->removeObject(instance);
+			cb->removeAfterVisit(instance);
+}
+
+void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
+{
+	configuration.serializeJson(handler);
 }
 
 VCMI_LIB_NAMESPACE_END

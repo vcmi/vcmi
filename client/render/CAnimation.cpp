@@ -22,7 +22,7 @@ std::shared_ptr<IImage> CAnimation::getFromExtraDef(std::string filename)
 	size_t pos = filename.find(':');
 	if (pos == -1)
 		return nullptr;
-	CAnimation anim(filename.substr(0, pos));
+	CAnimation anim(AnimationPath::builtinTODO(filename.substr(0, pos)));
 	pos++;
 	size_t frame = atoi(filename.c_str()+pos);
 	size_t group = 0;
@@ -69,7 +69,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		// still here? image is missing
 
 		printError(frame, group, "LoadFrame");
-		images[group][frame] = std::make_shared<SDLImage>("DEFAULT", EImageBlitMode::ALPHA);
+		images[group][frame] = std::make_shared<SDLImage>(ImagePath::builtin("DEFAULT"), EImageBlitMode::ALPHA);
 	}
 	else //load from separate file
 	{
@@ -144,7 +144,7 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 		return;
 	}
 
-	boost::filesystem::path actualPath = path / "SPRITES" / name;
+	boost::filesystem::path actualPath = path / "SPRITES" / name.getName();
 	boost::filesystem::create_directories(actualPath);
 
 	size_t counter = 0;
@@ -179,16 +179,15 @@ void CAnimation::init()
 			source[defEntry.first].resize(defEntry.second);
 	}
 
-	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
+	if (vstd::contains(graphics->imageLists, name.getName()))
+		initFromJson(graphics->imageLists[name.getName()]);
 
-	if (vstd::contains(graphics->imageLists, resID.getName()))
-		initFromJson(graphics->imageLists[resID.getName()]);
-
-	auto configList = CResourceHandler::get()->getResourcesWithName(resID);
+	auto jsonResource = name.toType<EResType::JSON>();
+	auto configList = CResourceHandler::get()->getResourcesWithName(jsonResource);
 
 	for(auto & loader : configList)
 	{
-		auto stream = loader->load(resID);
+		auto stream = loader->load(jsonResource);
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
@@ -200,34 +199,25 @@ void CAnimation::init()
 
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
 {
-	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name, group, frame);
+	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name.getOriginalName(), group, frame);
 }
 
-CAnimation::CAnimation(std::string Name):
-	name(Name),
+CAnimation::CAnimation(const AnimationPath & Name):
+	name(boost::starts_with(Name.getName(), "SPRITES") ? Name : Name.addPrefix("SPRITES/")),
 	preloaded(false),
 	defFile()
 {
-	size_t dotPos = name.find_last_of('.');
-	if ( dotPos!=-1 )
-		name.erase(dotPos);
-	std::transform(name.begin(), name.end(), name.begin(), toupper);
-
-	ResourceID resource(std::string("SPRITES/") + name, EResType::ANIMATION);
-
-	if(CResourceHandler::get()->existsResource(resource))
+	if(CResourceHandler::get()->existsResource(name))
 		defFile = std::make_shared<CDefFile>(name);
 
 	init();
 
 	if(source.empty())
-		logAnim->error("Animation %s failed to load", Name);
+		logAnim->error("Animation %s failed to load", Name.getOriginalName());
 }
 
 CAnimation::CAnimation():
-	name(""),
-	preloaded(false),
-	defFile()
+	preloaded(false)
 {
 	init();
 }
@@ -238,13 +228,13 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 {
 	if(!source.count(sourceGroup))
 	{
-		logAnim->error("Group %d missing in %s", sourceGroup, name);
+		logAnim->error("Group %d missing in %s", sourceGroup, name.getName());
 		return;
 	}
 
 	if(source[sourceGroup].size() <= sourceFrame)
 	{
-		logAnim->error("Frame [%d %d] missing in %s", sourceGroup, sourceFrame, name);
+		logAnim->error("Frame [%d %d] missing in %s", sourceGroup, sourceFrame, name.getName());
 		return;
 	}
 
@@ -253,7 +243,7 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
-		std::string temp =  name+":"+std::to_string(sourceGroup)+":"+std::to_string(sourceFrame);
+		std::string temp =  name.getName()+":"+std::to_string(sourceGroup)+":"+std::to_string(sourceFrame);
 		clone["file"].String() = temp;
 	}
 

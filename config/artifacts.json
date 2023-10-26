@@ -42,7 +42,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
@@ -55,7 +55,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -68,7 +68,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
@@ -81,7 +81,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
@@ -94,7 +94,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
@@ -107,13 +107,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 12,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : -3,
 				"valueType" : "BASE_NUMBER"
@@ -126,7 +126,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
@@ -139,7 +139,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -152,7 +152,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
@@ -165,7 +165,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
@@ -178,7 +178,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
@@ -191,13 +191,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 12,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : 0,
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : -3,
 				"valueType" : "BASE_NUMBER"
@@ -210,7 +210,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
@@ -223,7 +223,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
@@ -236,7 +236,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -249,7 +249,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
@@ -262,7 +262,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
@@ -275,13 +275,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : -2,
 				"valueType" : "BASE_NUMBER"
@@ -294,7 +294,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
@@ -307,7 +307,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
@@ -320,7 +320,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -333,7 +333,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
@@ -346,7 +346,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
@@ -359,13 +359,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : -2,
 				"valueType" : "BASE_NUMBER"
@@ -378,25 +378,25 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
@@ -409,25 +409,25 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
@@ -440,25 +440,25 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -471,25 +471,25 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
@@ -502,25 +502,25 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
@@ -533,25 +533,25 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
@@ -564,13 +564,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
@@ -583,13 +583,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
@@ -602,13 +602,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -621,13 +621,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
@@ -640,13 +640,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
@@ -659,13 +659,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
@@ -678,13 +678,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -697,13 +697,13 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
@@ -870,7 +870,6 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 0,
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
@@ -883,7 +882,6 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 0,
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
@@ -896,7 +894,6 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 0,
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 15,
 				"valueType" : "BASE_NUMBER"
@@ -910,7 +907,7 @@
 		"bonuses" : [
 			{
 				"type" : "PERCENTAGE_DAMAGE_BOOST",
-				"subtype" : 1,
+				"subtype" : "damageTypeRanged",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE",
 				"limiters" : [
@@ -918,10 +915,10 @@
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
 						"parameters" : [
 							"PERCENTAGE_DAMAGE_BOOST",
-							1,
+							"damageTypeRanged",
 							{
 								"type" : "SECONDARY_SKILL",
-								"id" : "skill.archery"
+								"id" : "secondarySkill.archery"
 							}
 						]
 					}
@@ -936,7 +933,7 @@
 		"bonuses" : [
 			{
 				"type" : "PERCENTAGE_DAMAGE_BOOST",
-				"subtype" : 1,
+				"subtype" : "damageTypeRanged",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE",
 				"limiters" : [
@@ -944,10 +941,10 @@
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
 						"parameters" : [
 							"PERCENTAGE_DAMAGE_BOOST",
-							1,
+							"damageTypeRanged",
 							{
 								"type" : "SECONDARY_SKILL",
-								"id" : "skill.archery"
+								"id" : "secondarySkill.archery"
 							}
 						]
 					}
@@ -962,7 +959,7 @@
 		"bonuses" : [
 			{
 				"type" : "PERCENTAGE_DAMAGE_BOOST",
-				"subtype" : 1,
+				"subtype" : "damageTypeRanged",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE",
 				"limiters" : [
@@ -970,10 +967,10 @@
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
 						"parameters" : [
 							"PERCENTAGE_DAMAGE_BOOST",
-							1,
+							"damageTypeRanged",
 							{
 								"type" : "SECONDARY_SKILL",
-								"id" : "skill.archery"
+								"id" : "secondarySkill.archery"
 							}
 						]
 					}
@@ -987,7 +984,6 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 0,
 				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE"
@@ -1000,7 +996,6 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 0,
 				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE"
@@ -1013,7 +1008,6 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 0,
 				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE"
@@ -1075,7 +1069,7 @@
 		"bonuses" : [
 			{
 				"type" : "MOVEMENT",
-				"subtype" : 1,
+				"subtype" : "heroMovementLand",
 				"val" : 300,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -1089,7 +1083,7 @@
 		"bonuses" : [
 			{
 				"type" : "MOVEMENT",
-				"subtype" : 0,
+				"subtype" : "heroMovementSea",
 				"val" : 1000,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -1277,7 +1271,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELLS_OF_SCHOOL",
-				"subtype" : 1,
+				"subtype" : "fire",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1290,7 +1284,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELLS_OF_SCHOOL",
-				"subtype" : 0,
+				"subtype" : "air",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1303,7 +1297,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELLS_OF_SCHOOL",
-				"subtype" : 2,
+				"subtype" : "water",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1316,7 +1310,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELLS_OF_SCHOOL",
-				"subtype" : 3,
+				"subtype" : "earth",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1342,14 +1336,12 @@
 		"bonuses" : [
 			{
 				"limiters" : ["SHOOTER_ONLY"],
-				"subtype" : 0,
 				"type" : "NO_DISTANCE_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			},
 			{
 				"limiters" : ["SHOOTER_ONLY"],
-				"subtype" : 0,
 				"type" : "NO_WALL_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
@@ -1362,7 +1354,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 35,
+				"subtype" : "dispel",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER",
@@ -1377,14 +1369,14 @@
 		"bonuses" : [
 			{
 				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
-				"subtype" : 0,
+				"subtype" : "immunityBattleWide",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER",
 				"propagator": "BATTLE_WIDE"
 			},
 			{
 				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
-				"subtype" : 1,
+				"subtype" : "immunityEnemyHero",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
@@ -1457,7 +1449,7 @@
 		"bonuses" : [
 			{
 				"type" : "MOVEMENT",
-				"subtype" : 1,
+				"subtype" : "heroMovementLand",
 				"val" : 600,
 				"valueType" : "ADDITIVE_VALUE"
 			}
@@ -1738,7 +1730,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 1,
+				"subtype" : "creatureLevel1",
 				"val" : 5,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1751,7 +1743,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 2,
+				"subtype" : "creatureLevel2",
 				"val" : 4,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1764,7 +1756,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 3,
+				"subtype" : "creatureLevel3",
 				"val" : 3,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1777,7 +1769,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 4,
+				"subtype" : "creatureLevel4",
 				"val" : 2,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1790,7 +1782,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 5,
+				"subtype" : "creatureLevel5",
 				"val" : 1,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1807,7 +1799,7 @@
 			},
 			{
 				"type" : "MOVEMENT",
-				"subtype" : 0,
+				"subtype" : "heroMovementSea",
 				"val" : 500,
 				"valueType" : "ADDITIVE_VALUE"
 			},
@@ -1831,7 +1823,7 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 5,
+				"subtype" : "spellLevel5",
 				"type" : "SPELLS_OF_LEVEL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
@@ -1867,14 +1859,14 @@
 		"bonuses" : [
 			{
 				"limiters" : ["DRAGON_NATURE"],
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
 				"limiters" : ["DRAGON_NATURE"],
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
@@ -1900,25 +1892,25 @@
 				"addInfo" : 1
 			},
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
@@ -2103,25 +2095,25 @@
 				"valueType" : "INDEPENDENT_MAX"
 			},
 			{
-				"subtype" : "primSkill.attack",
+				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.defence",
+				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.spellpower",
+				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"subtype" : "primSkill.knowledge",
+				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
@@ -2183,21 +2175,18 @@
 		"bonuses" : [
 			{
 				"limiters" : ["SHOOTER_ONLY"],
-				"subtype" : 0,
 				"type" : "NO_DISTANCE_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			},
 			{
 				"limiters" : ["SHOOTER_ONLY"],
-				"subtype" : 0,
 				"type" : "NO_WALL_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			},
 			{
 				"limiters" : ["SHOOTER_ONLY"],
-				"subtype" : 0,
 				"type" : "FREE_SHOOTING",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
@@ -2286,171 +2275,23 @@
 			"eversmokingRingOfSulfur"
 		]
 	},
-	"magicWand":
+	// Misiokles: not having these 3 artifacts could lead to crashes. RMG will try to place them in some randoms maps (and crash the game)
+	"unusedArtifact1":
 	{
-		"bonuses" : [
-			{
-				"type" : "CASTS",
-				"val" : 10,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : "spell.implosion",
-				"type" : "SPELLCASTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : "spell.fireball",
-				"type" : "SPELLCASTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "RANDOM_SPELLCASTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 2,
-				"subtype" : "spell.lightningBolt",
-				"type" : "ENCHANTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : 1,
-				"type" : "REBIRTH",
-				"val" : 1,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "MANA_DRAIN",
-				"val" : 10,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "HEALER",
-				"val" : 25,
-				"valueType" : "BASE_NUMBER"
-			}
-		],
 		"index" : 141,
+		"class" : "SPECIAL",
 		"type" : ["CREATURE"]
 	},
-	"goldTowerArrow":
+	"unusedArtifact2":
 	{
-		"bonuses" : [
-			{
-				"type" : "NO_DISTANCE_PENALTY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "ADDITIONAL_ATTACK",
-				"val" : 2,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : 22,
-				"type" : "SPELL_LIKE_ATTACK",
-				"val" : 1,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "CATAPULT",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "ACID_BREATH",
-				"val" : 20,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : 0,
-				"type" : "SHOTS",
-				"val" : 200,
-				"valueType" : "PERCENT_TO_BASE"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.age",
-				"type" : "SPELL_BEFORE_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.berserk",
-				"type" : "SPELL_AFTER_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.poison",
-				"type" : "SPELL_AFTER_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.disruptingRay",
-				"type" : "SPELL_AFTER_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			}
-		],
 		"index" : 142,
+		"class" : "SPECIAL",
 		"type" : ["CREATURE"]
 	},
-	"monstersPower":
+	"unusedArtifact3":
 	{
-		"bonuses" : [
-			{
-				"type" : "STACK_HEALTH",
-				"val" : 100,
-				"valueType" : "PERCENT_TO_BASE"
-			},
-			{
-				"subtype" : 2,
-				"type" : "CREATURE_DAMAGE",
-				"val" : 100,
-				"valueType" : "PERCENT_TO_ALL"
-			},
-			{
-				"type" : "HP_REGENERATION",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "NO_RETALIATION",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "RETURN_AFTER_STRIKE",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "ATTACKS_ALL_ADJACENT",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "SPELL_RESISTANCE_AURA",
-				"val" : 100,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "SPELL_DAMAGE_REDUCTION",
-				"val" : 100,
-				"valueType" : "BASE_NUMBER"
-			}
-		],
 		"index" : 143,
+		"class" : "SPECIAL",
 		"type" : ["CREATURE"]
 	}
 }

@@ -24,7 +24,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
-#include "../CModHandler.h"
 #include "../Rect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -94,7 +93,7 @@ static BattleHex WallPartToHex(EWallPart part)
 
 using namespace SiegeStuffThatShouldBeMovedToHandlers;
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const
+ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	if(caster == nullptr)
@@ -135,6 +134,27 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	}
 
 	return ESpellCastProblem::OK;
+}
+
+std::pair< std::vector<BattleHex>, int > CBattleInfoCallback::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack) const
+{
+	auto reachability = getReachability(stack);
+
+	if(reachability.predecessors[dest] == -1) //cannot reach destination
+	{
+		return std::make_pair(std::vector<BattleHex>(), 0);
+	}
+
+	//making the Path
+	std::vector<BattleHex> path;
+	BattleHex curElem = dest;
+	while(curElem != start)
+	{
+		path.push_back(curElem);
+		curElem = reachability.predecessors[curElem];
+	}
+
+	return std::make_pair(path, reachability.distances[dest]);
 }
 
 bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
@@ -188,7 +208,7 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 
 		auto obstacles = battleGetAllObstaclesOnPos(hex, false);
 
-		if(hex != ESiegeHex::GATE_BRIDGE || (battleIsGatePassable()))
+		if(hex != BattleHex::GATE_BRIDGE || (battleIsGatePassable()))
 			for(const auto & obst : obstacles)
 				if(obst->obstacleType ==  CObstacleInstance::MOAT)
 					pathHasMoat |= true;
@@ -822,7 +842,7 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 						affectedObstacles.push_back(i);
 		}
 		for(auto hex : unit->getHexes())
-			if(hex == ESiegeHex::GATE_BRIDGE && battleIsGatePassable())
+			if(hex == BattleHex::GATE_BRIDGE && battleIsGatePassable())
 				for(int i=0; i<affectedObstacles.size(); i++)
 					if(affectedObstacles.at(i)->obstacleType == CObstacleInstance::MOAT)
 						affectedObstacles.erase(affectedObstacles.begin()+i);
@@ -854,6 +874,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 				changedObstacle.revealed = true;
 
 				BattleObstaclesChanged bocp;
+				bocp.battleID = getBattle()->getBattleID();
 				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
 				changedObstacle.toInfo(bocp.changes.back(), operation);
 				spellEnv.apply(&bocp);
@@ -927,7 +948,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			accessability = EAccessibility::UNAVAILABLE;
 			break;
 		}
-		ret[ESiegeHex::GATE_OUTER] = ret[ESiegeHex::GATE_INNER] = accessability;
+		ret[BattleHex::GATE_OUTER] = ret[BattleHex::GATE_INNER] = accessability;
 	}
 
 	//tiles occupied by standing stacks
@@ -956,10 +977,10 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 		static const std::pair<EWallPart, BattleHex> lockedIfNotDestroyed[] =
 		{
 			//which part of wall, which hex is blocked if this part of wall is not destroyed
-			std::make_pair(EWallPart::BOTTOM_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
-			std::make_pair(EWallPart::BELOW_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
-			std::make_pair(EWallPart::OVER_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
-			std::make_pair(EWallPart::UPPER_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
+			std::make_pair(EWallPart::BOTTOM_WALL, BattleHex(BattleHex::DESTRUCTIBLE_WALL_4)),
+			std::make_pair(EWallPart::BELOW_GATE, BattleHex(BattleHex::DESTRUCTIBLE_WALL_3)),
+			std::make_pair(EWallPart::OVER_GATE, BattleHex(BattleHex::DESTRUCTIBLE_WALL_2)),
+			std::make_pair(EWallPart::UPPER_WALL, BattleHex(BattleHex::DESTRUCTIBLE_WALL_1))
 		};
 
 		for(const auto & elem : lockedIfNotDestroyed)
@@ -1056,7 +1077,7 @@ bool CBattleInfoCallback::isInObstacle(
 
 		if(vstd::contains(obstacles, occupiedHex))
 		{
-			if(occupiedHex == ESiegeHex::GATE_BRIDGE)
+			if(occupiedHex == BattleHex::GATE_BRIDGE)
 			{
 				if(battleGetGateState() != EGateState::DESTROYED && params.side == BattleSide::ATTACKER)
 					return true;
@@ -1081,7 +1102,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 
 		for(const auto & hex : oi->getStoppingTile())
 		{
-			if(hex == ESiegeHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
+			if(hex == BattleHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
 			{
 				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
 					continue; // this tile is disabled by drawbridge on top of it
@@ -1552,7 +1573,7 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 		}
 	}
 
-	return ret - manaReduction + manaIncrease;
+	return std::max(0, ret - manaReduction + manaIncrease);
 }
 
 bool CBattleInfoCallback::battleHasShootingPenalty(const battle::Unit * shooter, BattleHex destHex) const
@@ -1637,7 +1658,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		std::stringstream cachingStr;
 		cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 
-		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, spellID), Selector::all, cachingStr.str())
+		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), Selector::all, cachingStr.str())
 		 //TODO: this ability has special limitations
 		|| !(spellID.toSpell()->canBeCast(this, spells::Mode::CREATURE_ACTIVE, subject)))
 			continue;
@@ -1732,6 +1753,10 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	TConstBonusListPtr bl = caster->getBonuses(Selector::type()(BonusType::SPELLCASTER));
 	if (!bl->size())
 		return SpellID::NONE;
+
+	if(bl->size() == 1)
+		return bl->front()->subtype.as<SpellID>();
+
 	int totalWeight = 0;
 	for(const auto & b : *bl)
 	{
@@ -1747,7 +1772,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 		randomPos -= std::max(b->additionalInfo[0], 0);
 		if(randomPos < 0)
 		{
-			return SpellID(b->subtype);
+			return b->subtype.as<SpellID>();
 		}
 	}
 

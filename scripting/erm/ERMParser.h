@@ -10,6 +10,7 @@
 #pragma once
 
 #include <boost/spirit/home/support/unused.hpp>
+#include <boost/variant/recursive_wrapper.hpp>
 
 namespace spirit = boost::spirit;
 

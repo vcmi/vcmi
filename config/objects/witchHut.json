@@ -1,0 +1,65 @@
+{
+	"witchHut" : {
+		"index" :113,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"]
+			}
+		},
+		"types" : {
+			"witchHut" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"zoneLimit"	: 3,
+					"value"		: 1500,
+					"rarity"	: 80
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+				
+				"visitMode" : "limiter",
+				"visitedTooltip" : 354,
+				"description" : "@core.xtrainfo.12",
+				"showScoutedPreview" : true,
+
+				"variables" : {
+					"secondarySkill" : {
+						"gainedSkill" : { // Note: this variable name is used by engine for H3M loading and by AI
+							"noneOf" : [
+								"leadership",
+								"necromancy"
+							]
+						}
+					}
+				},
+				"visitLimiter" : {
+					"secondary" : {
+						"@gainedSkill" : 1
+					}
+				},
+				"rewards" : [
+					{
+						"limiter" : {
+							"canLearnSkills" : true,
+							"noneOf" : [
+								{
+									"secondary" : {
+										"@gainedSkill" : 1
+									}
+								}
+							]
+						},
+						"description" : 355,
+						"secondary" : {
+							"@gainedSkill" : 1
+						},
+						"message" : 171 // Witch teaches you skill
+					}
+				],
+				"onVisitedMessage" : 172, // You already known this skill
+				"onEmptyMessage" : 173 // You know too much (no free slots)
+			}
+		}
+	}
+}

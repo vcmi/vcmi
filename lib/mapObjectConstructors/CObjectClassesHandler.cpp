@@ -14,9 +14,8 @@
 #include "../filesystem/CBinaryReader.h"
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
 #include "../GameSettings.h"
 #include "../JsonNode.h"
 #include "../CSoundBase.h"
@@ -27,7 +26,6 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
-#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CQuest.h"
@@ -36,7 +34,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-
+#include "../modding/IdentifierStorage.h"
+#include "../modding/CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -54,7 +53,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
-	SET_HANDLER_CLASS("shrine", ShrineInstanceConstructor);
 	SET_HANDLER_CLASS("hillFort", HillFortInstanceConstructor);
 	SET_HANDLER_CLASS("shipyard", ShipyardInstanceConstructor);
 	SET_HANDLER_CLASS("monster", CreatureInstanceConstructor);
@@ -71,7 +69,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("randomDwelling", CGDwelling);
 
 	SET_HANDLER("generic", CGObjectInstance);
-	SET_HANDLER("cartographer", CCartographer);
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("borderGate", CGBorderGate);
 	SET_HANDLER("borderGuard", CGBorderGuard);
@@ -84,18 +81,15 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("magi", CGMagi);
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
-	SET_HANDLER("observatory", CGObservatory);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
-	SET_HANDLER("scholar", CGScholar);
 	SET_HANDLER("seerHut", CGSeerHut);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
 	SET_HANDLER("monolith", CGMonolith);
 	SET_HANDLER("subterraneanGate", CGSubterraneanGate);
 	SET_HANDLER("whirlpool", CGWhirlpool);
-	SET_HANDLER("witch", CGWitchHut);
 	SET_HANDLER("terrain", CGTerrainPatch);
 
 #undef SET_HANDLER_CLASS
@@ -112,7 +106,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
-	CLegacyConfigParser parser("Data/Objects.txt");
+	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
@@ -132,7 +126,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 	assert(dataSize == 256);
 
-	CLegacyConfigParser namesParser("Data/ObjNames.txt");
+	CLegacyConfigParser namesParser(TextPath::builtin("Data/ObjNames.txt"));
 	for (size_t i=0; i<256; i++)
 	{
 		ret[i]["name"].String() = namesParser.readString();
@@ -142,7 +136,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	JsonNode cregen1;
 	JsonNode cregen4;
 
-	CLegacyConfigParser cregen1Parser("data/crgen1");
+	CLegacyConfigParser cregen1Parser(TextPath::builtin("data/crgen1"));
 	do
 	{
 		JsonNode subObject;
@@ -151,7 +145,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	}
 	while(cregen1Parser.endLine());
 
-	CLegacyConfigParser cregen4Parser("data/crgen4");
+	CLegacyConfigParser cregen4Parser(TextPath::builtin("data/crgen4"));
 	do
 	{
 		JsonNode subObject;
@@ -277,7 +271,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 {
 	auto * object = loadFromJson(scope, data, name, objects.size());
 	objects.push_back(object);
-	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
+	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -285,7 +279,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 	auto * object = loadFromJson(scope, data, name, index);
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
 	objects[static_cast<si32>(index)] = object;
-	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
+	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, si32 subID)
@@ -335,11 +329,11 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
 {
-	std::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type);
+	std::optional<si32> id = VLC->identifiers()->getIdentifier(scope, "object", type);
 	if(id)
 	{
 		auto * object = objects[id.value()];
-		std::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
+		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
 			return object->objects[subID.value()];
@@ -492,6 +486,11 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) co
 std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
 {
 	return objects.at(type)->handlerName;
+}
+
+std::string CObjectClassesHandler::getJsonKey(si32 type) const
+{
+	return objects.at(type)->getJsonKey();
 }
 
 VCMI_LIB_NAMESPACE_END

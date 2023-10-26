@@ -49,7 +49,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesROE()
 
 	result.factionsCount = 8;
 	result.heroesCount = 128;
-	result.heroesPortraitsCount = 128;
+	result.heroesPortraitsCount = 130; // +General Kendal, +Catherine (portrait-only in RoE)
 	result.artifactsCount = 127;
 	result.resourcesCount = 7;
 	result.creaturesCount = 118;
@@ -58,6 +58,8 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesROE()
 	result.terrainsCount = 10;
 	result.artifactSlotsCount = 18;
 	result.buildingsCount = 41;
+	result.roadsCount = 3;
+	result.riversCount = 4;
 
 	result.heroIdentifierInvalid = 0xff;
 	result.artifactIdentifierInvalid = 0xff;
@@ -78,7 +80,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesAB()
 	result.creaturesCount = 145; // + Conflux and new neutrals
 
 	result.heroesCount = 156; // + Conflux and campaign heroes
-	result.heroesPortraitsCount = 163;
+	result.heroesPortraitsCount = 159; // +Kendal, +young Cristian, +Ordwald
 	result.heroesBytes = 20;
 
 	result.artifactsCount = 129; // + Armaggedon Blade and Vial of Dragon Blood
@@ -97,6 +99,8 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesSOD()
 
 	result.artifactsCount = 141; // + Combined artifacts
 	result.artifactsBytes = 18;
+
+	result.heroesPortraitsCount = 163; // +Finneas +young Gem +young Sandro +young Yog
 
 	result.artifactSlotsCount = 19; // + MISC_5 slot
 

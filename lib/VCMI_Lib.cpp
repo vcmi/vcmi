@@ -25,7 +25,10 @@
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"
+#include "modding/CModHandler.h"
+#include "modding/CModInfo.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/CModVersion.h"
 #include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
@@ -49,7 +52,8 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool 
 	console = Console;
 	VLC = new LibClasses();
 	VLC->loadFilesystem(extractArchives);
-	settings.init();
+	settings.init("config/settings.json", "vcmi:settings");
+	persistentStorage.init("config/persistentStorage.json", "");
 	VLC->loadModFilesystem(onlyEssential);
 
 }
@@ -104,6 +108,11 @@ const SkillService * LibClasses::skills() const
 const IBonusTypeHandler * LibClasses::getBth() const
 {
 	return bth;
+}
+
+const CIdentifierStorage * LibClasses::identifiers() const
+{
+	return identifiersHandler;
 }
 
 const spells::effects::Registry * LibClasses::spellEffects() const
@@ -177,6 +186,7 @@ void LibClasses::loadModFilesystem(bool onlyEssential)
 {
 	CStopWatch loadTime;
 	modh = new CModHandler();
+	identifiersHandler = new CIdentifierStorage();
 	modh->loadMods(onlyEssential);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
@@ -204,49 +214,29 @@ void LibClasses::init(bool onlyEssential)
 	modh->initializeConfig();
 
 	createHandler(generaltexth, "General text", pomtime);
-
 	createHandler(bth, "Bonus type", pomtime);
-
 	createHandler(roadTypeHandler, "Road", pomtime);
 	createHandler(riverTypeHandler, "River", pomtime);
 	createHandler(terrainTypeHandler, "Terrain", pomtime);
-
 	createHandler(heroh, "Hero", pomtime);
-
 	createHandler(arth, "Artifact", pomtime);
-
 	createHandler(creh, "Creature", pomtime);
-
 	createHandler(townh, "Town", pomtime);
-
 	createHandler(objh, "Object", pomtime);
-
 	createHandler(objtypeh, "Object types information", pomtime);
-
 	createHandler(spellh, "Spell", pomtime);
-
 	createHandler(skillh, "Skill", pomtime);
-
 	createHandler(terviewh, "Terrain view pattern", pomtime);
-
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
-
 #if SCRIPTING_ENABLED
 	createHandler(scriptHandler, "Script", pomtime);
 #endif
-
 	createHandler(battlefieldsHandler, "Battlefields", pomtime);
-	
 	createHandler(obstacleHandler, "Obstacles", pomtime);
-
 	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 
 	modh->load();
-
 	modh->afterLoad(onlyEssential);
-
-	//FIXME: make sure that everything is ok after game restart
-	//TODO: This should be done every time mod config changes
 }
 
 void LibClasses::clear()
@@ -268,6 +258,7 @@ void LibClasses::clear()
 #endif
 	delete battlefieldsHandler;
 	delete generaltexth;
+	delete identifiersHandler;
 	makeNull();
 }
 
@@ -290,6 +281,7 @@ void LibClasses::makeNull()
 	scriptHandler = nullptr;
 #endif
 	battlefieldsHandler = nullptr;
+	identifiersHandler = nullptr;
 }
 
 LibClasses::LibClasses()

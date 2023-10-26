@@ -15,15 +15,15 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class FactionID;
-enum class EAlignment : uint8_t;
-enum class EBoatId : int32_t;
+enum class EAlignment : int8_t;
+class BoatId;
 
 class DLL_LINKAGE Faction : public EntityT<FactionID>, public INativeTerrainProvider
 {
 public:
 	virtual bool hasTown() const = 0;
 	virtual EAlignment getAlignment() const = 0;
-	virtual EBoatId getBoatType() const = 0;
+	virtual BoatId getBoatType() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

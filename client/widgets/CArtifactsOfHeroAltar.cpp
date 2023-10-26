@@ -58,7 +58,7 @@ void CArtifactsOfHeroAltar::updateBackpackSlots()
 void CArtifactsOfHeroAltar::scrollBackpack(int offset)
 {
 	CArtifactsOfHeroBase::scrollBackpackForArtSet(offset, visibleArtSet);
-	safeRedraw();
+	redraw();
 }
 
 void CArtifactsOfHeroAltar::pickUpArtifact(CHeroArtPlace & artPlace)

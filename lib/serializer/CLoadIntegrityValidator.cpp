@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "CLoadIntegrityValidator.h"
-#include "../filesystem/FileStream.h"
 
 #include "../registerTypes/RegisterTypes.h"
 

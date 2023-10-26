@@ -12,6 +12,7 @@ set(client_SRCS
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
 	adventureMap/MapAudioPlayer.cpp
+	adventureMap/TurnTimerWidget.cpp
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
@@ -58,6 +59,7 @@ set(client_SRCS
 	mainmenu/CMainMenu.cpp
 	mainmenu/CPrologEpilogVideo.cpp
 	mainmenu/CreditsScreen.cpp
+	mainmenu/CHighScoreScreen.cpp
 
 	mapView/MapRenderer.cpp
 	mapView/MapRendererContext.cpp
@@ -83,6 +85,7 @@ set(client_SRCS
 	renderSDL/CTrueTypeFont.cpp
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
+	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
@@ -92,8 +95,10 @@ set(client_SRCS
 	widgets/Buttons.cpp
 	widgets/CArtifactHolder.cpp
 	widgets/CComponent.cpp
+	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
+	widgets/ComboBox.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
@@ -111,8 +116,10 @@ set(client_SRCS
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
+	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
+	windows/CMapOverview.cpp
 	windows/CMessage.cpp
 	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
@@ -139,6 +146,7 @@ set(client_SRCS
 	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
+	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
 )
@@ -157,6 +165,7 @@ set(client_HEADERS
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
 	adventureMap/MapAudioPlayer.h
+	adventureMap/TurnTimerWidget.h
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
@@ -207,6 +216,7 @@ set(client_HEADERS
 	mainmenu/CMainMenu.h
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
+	mainmenu/CHighScoreScreen.h
 
 	mapView/IMapRendererContext.h
 	mapView/IMapRendererObserver.h
@@ -226,11 +236,13 @@ set(client_HEADERS
 	render/Canvas.h
 	render/ColorFilter.h
 	render/Colors.h
+	render/EFont.h
 	render/Graphics.h
 	render/ICursor.h
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/IRenderHandler.h
 	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
@@ -238,6 +250,7 @@ set(client_HEADERS
 	renderSDL/CTrueTypeFont.h
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
+	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h
@@ -248,8 +261,10 @@ set(client_HEADERS
 	widgets/Buttons.h
 	widgets/CArtifactHolder.h
 	widgets/CComponent.h
+	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
+	widgets/ComboBox.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
@@ -267,9 +282,11 @@ set(client_HEADERS
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
+	windows/CHeroOverview.h
 	windows/CHeroWindow.h
 	windows/CKingdomInterface.h
 	windows/CMessage.h
+	windows/CMapOverview.h
 	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
@@ -296,6 +313,7 @@ set(client_HEADERS
 	Client.h
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
+	HeroMovementController.h
 	LobbyClientNetPackVisitors.h
 	resource.h
 )
@@ -457,6 +475,7 @@ endif()
 if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
 	#FIXME: move to client makefile?
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.16x16.png"     DESTINATION share/icons/hicolor/16x16/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.22x22.png"     DESTINATION share/icons/hicolor/22x22/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"     DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"     DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"     DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)

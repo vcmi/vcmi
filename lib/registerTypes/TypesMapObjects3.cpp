@@ -11,7 +11,6 @@
 #include "RegisterTypes.h"
 
 #include "../StartInfo.h"
-#include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
 #include "../VCMI_Lib.h"

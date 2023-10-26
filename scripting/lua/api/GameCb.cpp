@@ -30,7 +30,6 @@ const std::vector<GameCbProxy::CustomRegType> GameCbProxy::REGISTER_CUSTOM =
 {
 	{"getDate", LuaMethodWrapper<GameCb, decltype(&GameCb::getDate), &GameCb::getDate>::invoke, false},
 	{"isAllowed", LuaMethodWrapper<GameCb, decltype(&GameCb::isAllowed), &GameCb::isAllowed>::invoke, false},
-	{"getCurrentPlayer", LuaMethodWrapper<GameCb, decltype(&GameCb::getLocalPlayer), &GameCb::getLocalPlayer>::invoke, false},
 	{"getPlayer", LuaMethodWrapper<GameCb, decltype(&GameCb::getPlayer), &GameCb::getPlayer>::invoke, false},
 
 	{"getHero", LuaMethodWrapper<GameCb, decltype(&GameCb::getHero), &GameCb::getHero>::invoke, false},

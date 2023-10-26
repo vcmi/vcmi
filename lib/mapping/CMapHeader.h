@@ -10,23 +10,24 @@
 
 #pragma once
 
-#include "../CModVersion.h"
+#include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
 #include "../MetaString.h"
+#include "../CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
-using ModCompatibilityInfo = std::map<std::string, CModVersion>;
+using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName
 {
 	SHeroName();
 
-	int heroId;
+	HeroTypeID heroId;
 	std::string heroName;
 
 	template <typename Handler>
@@ -44,15 +45,15 @@ struct DLL_LINKAGE PlayerInfo
 	PlayerInfo();
 
 	/// Gets the default faction id or -1 for a random faction.
-	si8 defaultCastle() const;
+	FactionID defaultCastle() const;
 	/// Gets the default hero id or -1 for a random hero.
-	si8 defaultHero() const;
+	HeroTypeID defaultHero() const;
 	bool canAnyonePlay() const;
 	bool hasCustomMainHero() const;
 
 	bool canHumanPlay;
 	bool canComputerPlay;
-	EAiTactic::EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
+	EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
 
 	std::set<FactionID> allowedFactions;
 	bool isFactionRandom;
@@ -62,10 +63,10 @@ struct DLL_LINKAGE PlayerInfo
 	/// Player has a random main hero
 	bool hasRandomHero;
 	/// The default value is -1.
-	si32 mainCustomHeroPortrait;
-	std::string mainCustomHeroName;
+	HeroTypeID mainCustomHeroPortrait;
+	std::string mainCustomHeroNameTextId;
 	/// ID of custom hero (only if portrait and hero name are set, otherwise unpredicted value), -1 if none (not always -1)
-	si32 mainCustomHeroId;
+	HeroTypeID mainCustomHeroId;
 
 	std::vector<SHeroName> heroesNames; /// list of placed heroes on the map
 	bool hasMainTown; /// The default value is false.
@@ -84,7 +85,7 @@ struct DLL_LINKAGE PlayerInfo
 		h & allowedFactions;
 		h & isFactionRandom;
 		h & mainCustomHeroPortrait;
-		h & mainCustomHeroName;
+		h & mainCustomHeroNameTextId;
 		h & heroesNames;
 		h & hasMainTown;
 		h & generateHeroAtMainTown;
@@ -199,7 +200,7 @@ struct DLL_LINKAGE TriggeredEvent
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
-class DLL_LINKAGE CMapHeader
+class DLL_LINKAGE CMapHeader: public TextLocalizationContainer
 {
 	void setupEvents();
 public:
@@ -213,7 +214,7 @@ public:
 	static const int MAP_SIZE_GIANT = 252;
 
 	CMapHeader();
-	virtual ~CMapHeader() = default;
+	virtual ~CMapHeader();
 
 	ui8 levels() const;
 
@@ -223,8 +224,8 @@ public:
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
 	bool twoLevel; /// The default value is true.
-	std::string name;
-	std::string description;
+	MetaString name;
+	MetaString description;
 	ui8 difficulty; /// The default value is 1 representing a normal map difficulty.
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
@@ -244,13 +245,18 @@ public:
 
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
+	
+	/// translations for map to be transferred over network
+	JsonNode translations;
+	
+	void registerMapStrings();
 
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)
 	{
+		h & static_cast<TextLocalizationContainer&>(*this);
 		h & version;
-		if(Version >= 821)
-			h & mods;
+		h & mods;
 		h & name;
 		h & description;
 		h & width;
@@ -268,7 +274,14 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
+		h & translations;
+		if(!h.saving)
+			registerMapStrings();
 	}
 };
+
+/// wrapper functions to register string into the map and stores its translation
+std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized);
+std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language);
 
 VCMI_LIB_NAMESPACE_END

@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -38,7 +38,8 @@
 				"autosaveCountLimit",
 				"useSavePrefix",
 				"savePrefix",
-				"startTurnAutosave"
+				"startTurnAutosave",
+				"enableUiEnhancements"
 			],
 			"properties" : {
 				"playerName" : {
@@ -117,7 +118,7 @@
 				},
 				"useSavePrefix" : {
 					"type": "boolean",
-					"default": false
+					"default": true
 				},
 				"savePrefix" : {
 					"type": "string",
@@ -126,6 +127,10 @@
 				"startTurnAutosave" : {
 					"type": "boolean",
 					"default": false
+				},
+				"enableUiEnhancements" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
@@ -144,7 +149,8 @@
 				"driver",
 				"displayIndex",
 				"showfps",
-				"targetfps"
+				"targetfps",
+				"vsync"
 			],
 			"properties" : {
 				"resolution" : {
@@ -202,6 +208,10 @@
 				"targetfps" : {
 					"type" : "number",
 					"default" : 60
+				},
+				"vsync" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
@@ -209,11 +219,15 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "radialWheelGarrisonSwipe" ],
+			"required" : [ "radialWheelGarrisonSwipe", "touchToleranceDistance" ],
 			"properties" : {
 				"radialWheelGarrisonSwipe" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"touchToleranceDistance" : {
+					"type" : "number",
+					"default" : 20
 				}
 			}
 		},
@@ -221,7 +235,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -241,7 +255,7 @@
 				},
 				"quickCombat" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"objectAnimation" : {
 					"type" : "boolean",
@@ -265,14 +279,22 @@
 				"leftButtonDrag" : {
 					"type" : "boolean",
 					"default" : false
-				}
+				},
+				"smoothDragging" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"backgroundDimLevel" : {
+					"type" : "number",
+					"default" : 128
+				},
 			}
 		},
 		"battle" : {
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -314,6 +336,10 @@
 				"stickyHeroInfoWindows" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"enableAutocombatSpells" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
@@ -474,7 +500,7 @@
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.3.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.4.json",
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",
@@ -523,6 +549,18 @@
 					"type" : "number",
 					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
 					"default" : 2000
+				}
+			}
+		},
+		"lobby" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "mapPreview" ],
+			"properties" : {
+				"mapPreview" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},

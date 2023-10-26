@@ -32,10 +32,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 void Rumor::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
-	handler.serializeString("text", text);
+	handler.serializeStruct("text", text);
 }
 
-DisposedHero::DisposedHero() : heroId(0), portrait(255), players(0)
+DisposedHero::DisposedHero() : heroId(0), portrait(255)
 {
 
 }
@@ -56,9 +56,37 @@ bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
 	return firstOccurence <= other.firstOccurence;
 }
 
-CCastleEvent::CCastleEvent() : town(nullptr)
+void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 {
+	handler.serializeString("name", name);
+	handler.serializeStruct("message", message);
+	handler.serializeInt("players", players);
+	handler.serializeInt("humanAffected", humanAffected);
+	handler.serializeInt("computerAffected", computerAffected);
+	handler.serializeInt("firstOccurence", firstOccurence);
+	handler.serializeInt("nextOccurence", nextOccurence);
+	resources.serializeJson(handler, "resources");
+}
 
+void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
+{
+	CMapEvent::serializeJson(handler);
+	{
+		std::vector<BuildingID> temp(buildings.begin(), buildings.end());
+		auto a = handler.enterArray("buildings");
+		a.syncSize(temp);
+		for(int i = 0; i < temp.size(); ++i)
+		{
+			a.serializeInt(i, temp[i]);
+			buildings.insert(temp[i]);
+		}
+	}
+	{
+		auto a = handler.enterArray("creatures");
+		a.syncSize(creatures);
+		for(int i = 0; i < creatures.size(); ++i)
+			a.serializeInt(i, creatures[i]);
+	}
 }
 
 TerrainTile::TerrainTile():
@@ -355,7 +383,7 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	return int3(-1, -1, -1);
 }
 
-const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj::EObj type)
+const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type)
 {
 	for (CGObjectInstance * object : getTile(pos).visitableObjects)
 	{
@@ -418,7 +446,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::CONTROL:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj::EObj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
 
 					if (cond.object)
 					{
@@ -433,7 +461,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::DESTROY:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj::EObj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
 
 					if (cond.object)
 					{
@@ -464,7 +492,7 @@ void CMap::checkForObjectives()
 	}
 }
 
-void CMap::addNewArtifactInstance(CArtifactInstance * art)
+void CMap::addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art)
 {
 	art->setId(static_cast<ArtifactInstanceID>(artInstances.size()));
 	artInstances.emplace_back(art);

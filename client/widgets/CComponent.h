@@ -10,6 +10,8 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../render/EFont.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,11 +45,11 @@ private:
 	std::vector<std::shared_ptr<CLabel>> lines;
 
 	size_t getIndex();
-	const std::vector<std::string> getFileName();
-	void setSurface(std::string defName, int imgPos);
+	std::vector<AnimationPath> getFileName();
+	void setSurface(const AnimationPath & defName, int imgPos);
 	std::string getSubtitleInternal();
 
-	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL);
+	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL, std::string ValText="");
 
 public:
 	std::shared_ptr<CAnimImage> image;
@@ -57,12 +59,14 @@ public:
 	EFonts font; //Font size of label
 	int subtype; //type-dependant subtype. See getSomething methods for details
 	int val; // value \ strength \ amount of component. See getSomething methods for details
+	std::string valText; // value instead of amount; currently only for resource
 	bool perDay; // add "per day" text to subtitle
 
 	std::string getDescription();
 	std::string getSubtitle();
 
 	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(Etype Type, int Subtype, std::string Val, ESize imageSize=large, EFonts font = FONT_SMALL);
 	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
 	void showPopupWindow(const Point & cursorPosition) override; //call-in
@@ -75,11 +79,13 @@ class CSelectableComponent : public CComponent, public CKeyShortcut
 public:
 	bool selected; //if true, this component is selected
 	std::function<void()> onSelect; //function called on selection change
+	std::function<void()> onChoose; //function called on doubleclick
 
 	void showAll(Canvas & to) override;
 	void select(bool on);
 
 	void clickPressed(const Point & cursorPosition) override; //call-in
+	void clickDouble(const Point & cursorPosition) override; //call-in
 	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
 	CSelectableComponent(const Component & c, std::function<void()> OnSelect = nullptr);
 };

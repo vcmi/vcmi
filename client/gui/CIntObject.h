@@ -9,9 +9,11 @@
  */
 #pragma once
 
-#include "../render/Graphics.h"
-#include "../../lib/Rect.h"
 #include "EventsReceiver.h"
+
+#include "../../lib/Rect.h"
+#include "../../lib/Color.h"
+#include "../../lib/GameConstants.h"
 
 class CGuiHandler;
 class CPicture;
@@ -109,6 +111,8 @@ public:
 	/// by default, usedEvents inside UI elements are always handled
 	bool receiveEvent(const Point & position, int eventType) const override;
 
+	const Rect & getPosition() const override;
+
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
@@ -140,13 +144,19 @@ class WindowBase : public CIntObject
 public:
 	WindowBase(int used_ = 0, Point pos_ = Point());
 protected:
-	void close();
+	virtual void close();
 };
 
 class IGarrisonHolder
 {
 public:
 	virtual void updateGarrisons() = 0;
+};
+
+class ITownHolder
+{
+public:
+	virtual void buildChanged() = 0;
 };
 
 class IStatusBar

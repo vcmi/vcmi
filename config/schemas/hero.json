@@ -16,19 +16,19 @@
 	"properties" : {
 		"special" : {
 			"type" : "boolean",
-			"description" : "Marks this object as special and not available by default"
+			"description" : "If set to true hero will be unavailable on start and won't appear in taverns (campaign heroes)"
 		},
 		"class" : {
 			"type" : "string",
-			"description" : "Hero class, e.g. knight or battleMage"
+			"description" : "Identifier of class this hero belongs to. Such as knight or battleMage"
 		},
 		"female" : {
 			"type" : "boolean",
-			"description" : "This hero is female (changeable via editor)"
+			"description" : "Set to true if the hero is female by default (can be changed in map editor)"
 		},
 		"battleImage" : {
 			"type" : "string",
-			"description" : "Custom def used on battle",
+			"description" : "Custom animation to be used on battle, overrides hero class property",
 			"format" : "defFile"
 		},
 		"images" : {
@@ -114,16 +114,17 @@
 			"properties" : { 
 				"base" : {
 					"type" : "object",
-					"description" : "Will be merged with all bonuses."
+					"additionalProperties" : true,
+					"description" : "Section that will be added into every bonus instance, for use in specialties with multiple similar bonuses."
 				},
 				"bonuses" : {
 					"type" : "object",
-					"description" : "Set of bonuses",
+					"description" : "List of bonuses added by this specialty. See bonus format for more details",
 					"additionalProperties" : { "$ref" : "bonus.json" }
 				},
 				"creature" : {
 					"type" : "string",
-					"description" : "Name of base creature to grant standard specialty to."
+					"description" : "Shortcut for defining creature specialty, using standard H3 rules."
 				}
 			}
 		},
@@ -174,11 +175,11 @@
 		},
 		"onlyOnWaterMap" : {
 			"type" : "boolean",
-			"description" : "It true, hero won't show up on a map with water"
+			"description" : "If set to true, hero won't show up on a map with water"
 		},
 		"onlyOnMapWithoutWater" : {
 			"type" : "boolean",
-			"description" : "It true, hero will show up only if the map contains no water"
+			"description" : "If set to true, hero will show up only if the map contains no water"
 		}
 	}
 }

@@ -24,10 +24,13 @@
 #include "../renderSDL/CTrueTypeFont.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
-#include "../lib/CModHandler.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModScope.h"
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
@@ -43,27 +46,25 @@ Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
 {
-	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/PLAYERS.PAL"))->readAll();
+	auto textFile = CResourceHandler::get()->load(ResourcePath("DATA/PLAYERS.PAL"))->readAll();
 	std::string pals((char*)textFile.first.get(), textFile.second);
 
-	playerColorPalette = new SDL_Color[256];
-	neutralColor = new SDL_Color;
-	playerColors = new SDL_Color[PlayerColor::PLAYER_LIMIT_I];
 	int startPoint = 24; //beginning byte; used to read
-	for(int i=0; i<256; ++i)
+	for(int i=0; i<8; ++i)
 	{
-		SDL_Color col;
-		col.r = pals[startPoint++];
-		col.g = pals[startPoint++];
-		col.b = pals[startPoint++];
-		col.a = SDL_ALPHA_OPAQUE;
-		startPoint++;
-		playerColorPalette[i] = col;
+		for(int j=0; j<32; ++j)
+		{
+			ColorRGBA col;
+			col.r = pals[startPoint++];
+			col.g = pals[startPoint++];
+			col.b = pals[startPoint++];
+			col.a = SDL_ALPHA_OPAQUE;
+			startPoint++;
+			playerColorPalette[i][j] = col;
+		}
 	}
 
-	neutralColorPalette = new SDL_Color[32];
-
-	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
+	auto stream = CResourceHandler::get()->load(ResourcePath("config/NEUTRAL.PAL"));
 	CBinaryReader reader(stream.get());
 
 	for(int i=0; i<32; ++i)
@@ -75,7 +76,7 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	//colors initialization
-	SDL_Color colors[]  = {
+	ColorRGBA colors[]  = {
 		{0xff,0,  0,    SDL_ALPHA_OPAQUE},
 		{0x31,0x52,0xff,SDL_ALPHA_OPAQUE},
 		{0x9c,0x73,0x52,SDL_ALPHA_OPAQUE},
@@ -91,22 +92,22 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i] = colors[i];
 	}
 	//gray
-	neutralColor->r = 0x84;
-	neutralColor->g = 0x84;
-	neutralColor->b = 0x84;
-	neutralColor->a = SDL_ALPHA_OPAQUE;
+	neutralColor.r = 0x84;
+	neutralColor.g = 0x84;
+	neutralColor.b = 0x84;
+	neutralColor.a = SDL_ALPHA_OPAQUE;
 }
 
 void Graphics::initializeBattleGraphics()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), CModHandler::scopeBuiltin());
+	allConfigs.insert(allConfigs.begin(), ModScope::scopeBuiltin());
 	for(auto & mod : allConfigs)
 	{
-		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))
+		if(!CResourceHandler::get(mod)->existsResource(ResourcePath("config/battles_graphics.json")))
 			continue;
 			
-		const JsonNode config(mod, ResourceID("config/battles_graphics.json"));
+		const JsonNode config(mod, JsonPath::builtin("config/battles_graphics.json"));
 
 		//initialization of AC->def name mapping
 		if(!config["ac_mapping"].isNull())
@@ -135,35 +136,28 @@ Graphics::Graphics()
 	//(!) do not load any CAnimation here
 }
 
-Graphics::~Graphics()
-{
-	delete[] playerColors;
-	delete neutralColor;
-	delete[] playerColorPalette;
-	delete[] neutralColorPalette;
-}
-
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 {
 	if(sur->format->palette)
 	{
-		SDL_Color * palette = nullptr;
-		if(player < PlayerColor::PLAYER_LIMIT)
+		SDL_Color palette[32];
+		if(player.isValidPlayer())
 		{
-			palette = playerColorPalette + 32*player.getNum();
+			for(int i=0; i<32; ++i)
+				palette[i] = CSDL_Ext::toSDL(playerColorPalette[player][i]);
 		}
 		else if(player == PlayerColor::NEUTRAL)
 		{
-			palette = neutralColorPalette;
+			for(int i=0; i<32; ++i)
+				palette[i] = CSDL_Ext::toSDL(neutralColorPalette[i]);
 		}
 		else
 		{
-			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.getStr());
+			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.toString());
 			return;
 		}
 //FIXME: not all player colored images have player palette at last 32 indexes
 //NOTE: following code is much more correct but still not perfect (bugged with status bar)
-
 		CSDL_Ext::setColors(sur, palette, 224, 32);
 
 
@@ -212,7 +206,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 
 void Graphics::loadFonts()
 {
-	const JsonNode config(ResourceID("config/fonts.json"));
+	const JsonNode config(JsonPath::builtin("config/fonts.json"));
 
 	const JsonVector & bmpConf = config["bitmap"].Vector();
 	const JsonNode   & ttfConf = config["trueType"];
@@ -236,7 +230,7 @@ void Graphics::loadFonts()
 void Graphics::loadErmuToPicture()
 {
 	//loading ERMU to picture
-	const JsonNode config(ResourceID("config/ERMU_to_picture.json"));
+	const JsonNode config(JsonPath::builtin("config/ERMU_to_picture.json"));
 	int etp_idx = 0;
 	for(const JsonNode &etp : config["ERMU_to_picture"].Vector()) {
 		int idx = 0;
@@ -287,16 +281,14 @@ void Graphics::initializeImageLists()
 	addImageListEntries(CGI->skills());
 }
 
-std::shared_ptr<CAnimation> Graphics::getAnimation(const std::string & path)
+std::shared_ptr<CAnimation> Graphics::getAnimation(const AnimationPath & path)
 {
-	ResourceID animationPath(path, EResType::ANIMATION);
+	if (cachedAnimations.count(path) != 0)
+		return cachedAnimations.at(path);
 
-	if (cachedAnimations.count(animationPath.getName()) != 0)
-		return cachedAnimations.at(animationPath.getName());
-
-	auto newAnimation = std::make_shared<CAnimation>(animationPath.getName());
+	auto newAnimation = GH.renderHandler().loadAnimation(path);
 
 	newAnimation->preload();
-	cachedAnimations[animationPath.getName()] = newAnimation;
+	cachedAnimations[path] = newAnimation;
 	return newAnimation;
 }

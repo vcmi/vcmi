@@ -58,7 +58,7 @@
 			"bonuses" : {
 				"armorer" : {
 					"type" : "GENERAL_DAMAGE_REDUCTION",
-					"subtype" : -1,
+					"subtype" : "damageTypeAll",
 					"targetSourceType" : "SECONDARY_SKILL",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
@@ -67,7 +67,7 @@
 			}
 		}
 	},
-	"torosar ":
+	"torosar":
 	{
 		"index": 36,
 		"class" : "alchemist",
@@ -191,7 +191,6 @@
 		"specialty" : {
 			"bonuses" : {
 				"eagleEye" : {
-					"subtype" : 0,
 					"type" : "LEARN_BATTLE_SPELL_CHANCE",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,

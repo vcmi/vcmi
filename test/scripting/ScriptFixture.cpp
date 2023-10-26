@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "lib/CModHandler.h"
+#include "lib/modding/ModScope.h"
 
 #include "ScriptFixture.h"
 
@@ -30,7 +30,7 @@ void ScriptFixture::loadScriptFromFile(const std::string & path)
 
 void ScriptFixture::loadScript(const JsonNode & scriptConfig)
 {
-	subject = VLC->scriptHandler->loadFromJson(&loggerMock, CModHandler::scopeBuiltin(), scriptConfig, "test");
+	subject = VLC->scriptHandler->loadFromJson(&loggerMock, ModScope::scopeBuiltin(), scriptConfig, "test");
 
 	GTEST_ASSERT_NE(subject, nullptr);
 
@@ -64,7 +64,6 @@ void ScriptFixture::setUp()
 {
 	pool = std::make_shared<PoolMock>();
 
-	EXPECT_CALL(environmentMock, battle()).WillRepeatedly(Return(&binfoMock));
 	EXPECT_CALL(environmentMock, game()).WillRepeatedly(Return(&infoMock));
 	EXPECT_CALL(environmentMock, logger()).WillRepeatedly(Return(&loggerMock));
 	EXPECT_CALL(environmentMock, eventBus()).WillRepeatedly(Return(&eventBus));

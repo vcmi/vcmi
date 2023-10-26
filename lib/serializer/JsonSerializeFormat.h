@@ -10,7 +10,8 @@
 #pragma once
 
 #include "../JsonNode.h"
-#include "../CModHandler.h"
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 #include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -73,17 +74,43 @@ public:
 	///String <-> Json string
 	void serializeString(const size_t index, std::string & value);
 
-	///vector of serializable <-> Json vector of structs
+	///vector of anything int-convertible <-> Json vector of integers
+	template<typename T>
+	void serializeArray(std::vector<T> & value)
+	{
+		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
+
+		for(size_t idx = 0; idx < size(); idx++)
+			serializeInt(idx, value[idx]);
+	}
+	
+	///vector of strings <-> Json vector of strings
+	void serializeArray(std::vector<std::string> & value)
+	{
+		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
+
+		for(size_t idx = 0; idx < size(); idx++)
+			serializeString(idx, value[idx]);
+	}
+	
+	///vector of anything with custom serializing function <-> Json vector of structs
 	template <typename Element>
-	void serializeStruct(std::vector<Element> & value)
+	void serializeStruct(std::vector<Element> & value, std::function<void(JsonSerializeFormat&, Element&)> serializer)
 	{
 		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
 
 		for(size_t idx = 0; idx < size(); idx++)
 		{
 			auto s = enterStruct(idx);
-			value[idx].serializeJson(*owner);
+			serializer(*owner, value[idx]);
 		}
+	}
+	
+	///vector of serializable <-> Json vector of structs
+	template <typename Element>
+	void serializeStruct(std::vector<Element> & value)
+	{
+		serializeStruct<Element>(value, [](JsonSerializeFormat & h, Element & e){e.serializeJson(h);});
 	}
 
 	void resize(const size_t newSize);
@@ -271,36 +298,57 @@ public:
 	template <typename T, typename U, typename E = T>
 	void serializeId(const std::string & fieldName, T & value, const U & defaultValue)
 	{
-		doSerializeInternal<T, U, si32>(fieldName, value, defaultValue, &E::decode, &E::encode);
+		if (saving)
+		{
+			if (value != defaultValue)
+			{
+				std::string fieldValue = E::encode(value);
+				serializeString(fieldName, fieldValue);
+			}
+		}
+		else
+		{
+			std::string fieldValue;
+			serializeString(fieldName, fieldValue);
+
+			if (!fieldValue.empty())
+			{
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue, [&value](int32_t index){
+					value = T(index);
+				});
+			}
+			else
+			{
+				value = T(defaultValue);
+			}
+		}
 	}
 
 	///si32-convertible identifier vector <-> Json array of string
 	template <typename T, typename E = T>
 	void serializeIdArray(const std::string & fieldName, std::vector<T> & value)
 	{
-		std::vector<si32> temp;
-
-		if(saving)
+		if (saving)
 		{
-			temp.reserve(value.size());
+			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
+				fieldValue.push_back(E::encode(vitem));
+
+			serializeInternal(fieldName, fieldValue);
 		}
-
-		serializeInternal(fieldName, temp, &E::decode, &E::encode);
-		if(!saving)
+		else
 		{
-			value.clear();
-			value.reserve(temp.size());
+			std::vector<std::string> fieldValue;
+			serializeInternal(fieldName, fieldValue);
 
-			for(const si32 item : temp)
+			value.resize(fieldValue.size());
+
+			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				T vitem = static_cast<T>(item);
-				value.push_back(vitem);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue[i], [&value, i](int32_t index){
+					value[i] = T(index);
+				});
 			}
 		}
 	}
@@ -309,103 +357,25 @@ public:
 	template <typename T, typename U = T>
 	void serializeIdArray(const std::string & fieldName, std::set<T> & value)
 	{
-		std::vector<si32> temp;
-
-		if(saving)
+		if (saving)
 		{
-			temp.reserve(value.size());
+			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
+				fieldValue.push_back(U::encode(vitem));
+
+			serializeInternal(fieldName, fieldValue);
 		}
-
-		serializeInternal(fieldName, temp, &U::decode, &U::encode);
-		if(!saving)
+		else
 		{
-			value.clear();
+			std::vector<std::string> fieldValue;
+			serializeInternal(fieldName, fieldValue);
 
-			for(const si32 item : temp)
+			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				T vitem = static_cast<T>(item);
-				value.insert(vitem);
-			}
-		}
-	}
-
-	///si32-convertible identifier set <-> Json array of string
-	///Type U is only used for code & decode
-	///TODO: Auto deduce U based on T?
-	template <typename T, typename U = T>
-	void serializeIdArray(const std::string & fieldName, std::set<T> & value, const std::set<T> & defaultValue)
-	{
-		std::vector<si32> temp;
-
-		if(saving && value != defaultValue)
-		{
-			temp.reserve(value.size());
-
-			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
-			serializeInternal(fieldName, temp, &U::decode, &U::encode);
-		}
-
-		if(!saving)
-		{
-			JsonNode node;
-			serializeRaw(fieldName, node, std::nullopt);
-			if(node.Vector().empty())
-			{
-				value = defaultValue;
-			}
-			else
-			{
-				value.clear();
-
-				for(const auto & id : node.Vector())
-				{
-					VLC->modh->identifiers.requestIdentifier(U::entityType(), id, [&value](int32_t identifier)
-					{
-						value.emplace(identifier);
-					});
-				}
-			}
-		}
-	}
-
-	///bitmask <-> Json array of string
-	template <typename T, int Size>
-	void serializeIdArray(const std::string & fieldName, T & value, const T & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
-	{
-		static_assert(8 * sizeof(T) >= Size, "Mask size too small");
-
-		std::vector<si32> temp;
-		temp.reserve(Size);
-
-		if(saving && value != defaultValue)
-		{
-			for(si32 i = 0; i < Size; i++)
-				if(value & (1 << i))
-					temp.push_back(i);
-			serializeInternal(fieldName, temp, decoder, encoder);
-		}
-
-		if(!saving)
-		{
-			serializeInternal(fieldName, temp, decoder, encoder);
-
-			if(temp.empty())
-				value = defaultValue;
-			else
-			{
-				value = 0;
-				for(auto i : temp)
-					value |= (1 << i);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), U::entityType(), fieldValue[i], [&value](int32_t index){
+					value.insert(T(index));
+				});
 			}
 		}
 	}
@@ -415,9 +385,9 @@ public:
 	void serializeInstance(const std::string & fieldName, T & value, const T & defaultValue)
 	{
 		const TDecoder decoder = std::bind(&IInstanceResolver::decode, instanceResolver, _1);
-		const TEncoder endoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
+		const TEncoder encoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
 
-		serializeId<T>(fieldName, value, defaultValue, decoder, endoder);
+		serializeId<T>(fieldName, value, defaultValue, decoder, encoder);
 	}
 
 	///any serializable object <-> Json struct
@@ -450,6 +420,9 @@ protected:
 
 	///Enum/Numeric <-> Json string enum
 	virtual void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) = 0;
+
+	///String vector <-> Json string vector
+	virtual void serializeInternal(const std::string & fieldName, std::vector<std::string> & value) = 0;
 
 	virtual void pop() = 0;
 	virtual void pushStruct(const std::string & fieldName) = 0;

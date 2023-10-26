@@ -62,7 +62,7 @@ int BonusProxy::getSubtype(lua_State * L)
 	std::shared_ptr<const Bonus> object;
 	if(!S.tryGet(1, object))
 		return S.retNil();
-	return LuaStack::quickRetInt(L, object->subtype);
+	return LuaStack::quickRetInt(L, object->subtype.getNum());
 }
 
 int BonusProxy::getDuration(lua_State * L)
@@ -116,7 +116,7 @@ int BonusProxy::getSourceID(lua_State * L)
 	std::shared_ptr<const Bonus> object;
 	if(!S.tryGet(1, object))
 		return S.retNil();
-	return LuaStack::quickRetInt(L, object->sid);
+	return LuaStack::quickRetInt(L, object->sid.getNum());
 }
 
 int BonusProxy::getEffectRange(lua_State * L)

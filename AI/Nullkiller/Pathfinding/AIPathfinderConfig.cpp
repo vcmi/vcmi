@@ -44,6 +44,7 @@ namespace AIPathfinding
 		std::shared_ptr<AINodeStorage> nodeStorage)
 		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), aiNodeStorage(nodeStorage)
 	{
+		options.canUseCast = true;
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;

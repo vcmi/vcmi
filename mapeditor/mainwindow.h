@@ -31,6 +31,8 @@ class MainWindow : public QMainWindow
 #ifdef ENABLE_QT_TRANSLATIONS
 	QTranslator translator;
 #endif
+	
+	std::unique_ptr<CMap> openMapInternal(const QString &);
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -74,26 +76,15 @@ private slots:
 
 	void on_actionGrid_triggered(bool checked);
 
-	void on_toolBrush_clicked(bool checked);
-
-	void on_toolArea_clicked(bool checked);
-
 	void terrainButtonClicked(TerrainId terrain);
 	void roadOrRiverButtonClicked(ui8 type, bool isRoad);
-
-	void on_toolErase_clicked();
+	void currentCoordinatesChanged(int x, int y);
 
 	void on_terrainFilterCombo_currentIndexChanged(int index);
 
 	void on_filter_textChanged(const QString &arg1);
 
 	void on_actionFill_triggered();
-
-	void on_toolBrush2_clicked(bool checked);
-
-	void on_toolBrush4_clicked(bool checked);
-	
-	void on_toolLasso_clicked(bool checked);
 
 	void on_inspectorWidget_itemChanged(QTableWidgetItem *item);
 
@@ -116,6 +107,36 @@ private slots:
 	void on_actionPaste_triggered();
 
 	void on_actionExport_triggered();
+
+	void on_actionTranslations_triggered();
+	
+	void on_actionh3m_converter_triggered();
+
+	void on_actionLock_triggered();
+
+	void on_actionUnlock_triggered();
+
+	void on_actionZoom_in_triggered();
+
+	void on_actionZoom_out_triggered();
+
+	void on_actionZoom_reset_triggered();
+
+	void on_toolLine_toggled(bool checked);
+
+	void on_toolBrush2_toggled(bool checked);
+
+	void on_toolBrush_toggled(bool checked);
+
+	void on_toolBrush4_toggled(bool checked);
+
+	void on_toolLasso_toggled(bool checked);
+
+	void on_toolArea_toggled(bool checked);
+
+	void on_toolFill_toggled(bool checked);
+
+	void on_toolSelect_toggled(bool checked);
 
 public slots:
 
@@ -153,12 +174,13 @@ private:
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	
-	QString filename;
+	QString filename, lastSavingDir;
 	bool unsaved = false;
 
 	QStandardItemModel objectsModel;
 
 	int mapLevel = 0;
+	QRectF initialScale;
 
 	std::set<int> catalog;
 

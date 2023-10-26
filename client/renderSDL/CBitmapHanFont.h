@@ -30,8 +30,8 @@ class CBitmapHanFont : public IFont
 	size_t getCharacterDataOffset(size_t index) const;
 	size_t getCharacterIndex(ui8 first, ui8 second) const;
 
-	void renderCharacter(SDL_Surface * surface, int characterIndex, const SDL_Color & color, int &posX, int &posY) const;
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
+	void renderCharacter(SDL_Surface * surface, int characterIndex, const ColorRGBA & color, int &posX, int &posY) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 public:
 	CBitmapHanFont(const JsonNode & config);
 

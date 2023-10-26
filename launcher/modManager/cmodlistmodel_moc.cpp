@@ -45,6 +45,7 @@ QString CModListModel::modTypeName(QString modTypeID) const
 		{"Templates",   tr("Templates")  },
 		{"Spells",      tr("Spells")     },
 		{"Music",       tr("Music")      },
+		{"Maps",        tr("Maps")       },
 		{"Sounds",      tr("Sounds")     },
 		{"Skills",      tr("Skills")     },
 		{"Other",       tr("Other")      },
@@ -58,6 +59,7 @@ QString CModListModel::modTypeName(QString modTypeID) const
 		{"Graphical",   tr("Graphical")  },
 		{"Expansion",   tr("Expansion")  },
 		{"Creatures",   tr("Creatures")  },
+		{"Compatibility", tr("Compatibility") },
 		{"Artifacts",   tr("Artifacts")  },
 		{"AI",          tr("AI")         },
 	};
@@ -192,13 +194,6 @@ void CModListModel::resetRepositories()
 	endResetModel();
 }
 
-void CModListModel::addRepository(QVariantMap data)
-{
-	beginResetModel();
-	CModList::addRepository(data);
-	endResetModel();
-}
-
 void CModListModel::modChanged(QString modID)
 {
 	int index = modNameToID.indexOf(modID);
@@ -264,13 +259,16 @@ bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
 	CModEntry mod = base->getMod(source.data(ModRoles::ModNameRole).toString());
 	return (mod.getModStatus() & filterMask) == filteredType &&
-			mod.isValid() &&
 	       QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
 	QModelIndex index = base->index(source_row, 0, source_parent);
+
+	CModEntry mod = base->getMod(index.data(ModRoles::ModNameRole).toString());
+	if (!mod.isVisible())
+		return false;
 
 	if(filterMatchesThis(index))
 	{

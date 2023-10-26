@@ -136,4 +136,12 @@ Rect Rect::intersect(const Rect & other) const
 	}
 }
 
+int Rect::distanceTo(const Point & target) const
+{
+	int distanceX = std::max({left() - target.x, 0, target.x - right()});
+	int distanceY = std::max({top() - target.y, 0, target.y - bottom()});
+
+	return Point(distanceX, distanceY).length();
+}
+
 VCMI_LIB_NAMESPACE_END

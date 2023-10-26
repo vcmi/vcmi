@@ -17,6 +17,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
+#include "../render/Graphics.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../CGameInfo.h"
@@ -163,7 +164,7 @@ bool CGarrisonSlot::viewInfo()
 	UpgradeInfo pom;
 	LOCPLINT->cb->fillUpgradeInfo(getObj(), ID, pom);
 
-	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
+	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID != CreatureID::NONE; //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
 	auto dism = getDismiss();
 	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
@@ -368,14 +369,15 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 
 	std::vector<RadialMenuConfig> menuElements = {
 		{ RadialMenuConfig::ITEM_NW, hasSameUnit, "stackMerge", "vcmi.radialWheel.mergeSameUnit", [this](){owner->bulkMergeStacks(this);} },
-		{ RadialMenuConfig::ITEM_NE, stackExists, "stackInfo", "vcmi.radialWheel.showUnitInformation", [this](){viewInfo();} },
+		{ RadialMenuConfig::ITEM_NE, hasOwnEmptySlots, "stackFillOne", "vcmi.radialWheel.fillSingleUnit", [this](){owner->bulkSplitStack(this);} },
 		{ RadialMenuConfig::ITEM_WW, hasOwnEmptySlots, "stackSplitOne", "vcmi.radialWheel.splitSingleUnit", [this](){splitIntoParts(this->getGarrison(), 1); } },
 		{ RadialMenuConfig::ITEM_EE, hasOwnEmptySlots, "stackSplitEqual", "vcmi.radialWheel.splitUnitEqually", [this](){owner->bulkSmartSplitStack(this);} },
 		{ RadialMenuConfig::ITEM_SW, hasOtherEmptySlots, "heroMove", "vcmi.radialWheel.moveUnit", [this](){owner->moveStackToAnotherArmy(this);} },
 		{ RadialMenuConfig::ITEM_SE, hasAnyEmptySlots, "heroSwap", "vcmi.radialWheel.splitUnit", [this](){ owner->selectSlot(this); owner->splitClick();} },
 	};
 
-	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
+	if (hasAnyEmptySlots || hasSameUnit)
+		GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
 
 void CGarrisonSlot::update()
@@ -420,7 +422,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 	pos.x += x;
 	pos.y += y;
 
-	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
+	AnimationPath imgName = AnimationPath::builtin(owner->smallIcons ? "cprsmall" : "TWCRPORT");
 
 	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 0);
 	creatureImage->disable();

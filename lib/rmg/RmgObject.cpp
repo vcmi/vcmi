@@ -111,26 +111,27 @@ void Object::Instance::setPositionRaw(const int3 & position)
 	dObject.pos = dPosition + dParent.getPosition();
 }
 
-void Object::Instance::setAnyTemplate()
+void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
 {
 	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates();
 	if(templates.empty())
-		throw rmgException(boost::to_string(boost::format("Did not find any graphics for object (%d,%d)") % dObject.ID % dObject.subID));
+		throw rmgException(boost::str(boost::format("Did not find any graphics for object (%d,%d)") % dObject.ID % dObject.subID));
 
-	dObject.appearance = templates.front();
+	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }
 
-void Object::Instance::setTemplate(TerrainId terrain)
+void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
 {
 	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
 	if (templates.empty())
 	{
 		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
-		throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrainName));
+		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrainName));
 	}
-	dObject.appearance = templates.front();
+	
+	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }
@@ -280,10 +281,10 @@ void Object::setPosition(const int3 & position)
 		i.setPositionRaw(i.getPosition());
 }
 
-void Object::setTemplate(const TerrainId & terrain)
+void Object::setTemplate(const TerrainId & terrain, CRandomGenerator & rng)
 {
 	for(auto& i : dInstances)
-		i.setTemplate(terrain);
+		i.setTemplate(terrain, rng);
 }
 
 const Area & Object::getArea() const
@@ -325,10 +326,10 @@ void rmg::Object::setGuardedIfMonster(const Instance& object)
 	}
 }
 
-void Object::Instance::finalize(RmgMap & map)
+void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 {
 	if(!map.isOnMap(getPosition(true)))
-		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
+		throw rmgException(boost::str(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
 	
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
@@ -337,39 +338,39 @@ void Object::Instance::finalize(RmgMap & map)
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
+			throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
 		}
 		else
 		{
-			setTemplate(terrainType->getId());
+			setTemplate(terrainType->getId(), rng);
 		}
 	}
 
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
-		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
+		throw rmgException(boost::str(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
 
 	for(const auto & tile : dObject.getBlockedPos())
 	{
 		if(!map.isOnMap(tile))
-			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
+			throw rmgException(boost::str(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
 	}
 
 	for(const auto & tile : getBlockedArea().getTilesVector())
 	{
-		map.setOccupied(tile, ETileType::ETileType::USED);
+		map.setOccupied(tile, ETileType::USED);
 	}
 	
 	map.getMapProxy()->insertObject(&dObject);
 }
 
-void Object::finalize(RmgMap & map)
+void Object::finalize(RmgMap & map, CRandomGenerator & rng)
 {
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");
 
 	for(auto & dInstance : dInstances)
 	{
-		dInstance.finalize(map);
+		dInstance.finalize(map, rng);
 	}
 }
 

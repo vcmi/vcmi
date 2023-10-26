@@ -9,7 +9,9 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
+#include "../lib/GameConstants.h"
+#include "../lib/MetaString.h"
+#include "../lib/filesystem/ResourcePath.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
 
@@ -47,14 +49,14 @@ class DLL_LINKAGE CampaignRegions
 
 	std::vector<RegionDescription> regions;
 
-	std::string getNameFor(CampaignScenarioID which, int color, std::string type) const;
+	ImagePath getNameFor(CampaignScenarioID which, int color, std::string type) const;
 
 public:
-	std::string getBackgroundName() const;
+	ImagePath getBackgroundName() const;
 	Point getPosition(CampaignScenarioID which) const;
-	std::string getAvailableName(CampaignScenarioID which, int color) const;
-	std::string getSelectedName(CampaignScenarioID which, int color) const;
-	std::string getConqueredName(CampaignScenarioID which, int color) const;
+	ImagePath getAvailableName(CampaignScenarioID which, int color) const;
+	ImagePath getSelectedName(CampaignScenarioID which, int color) const;
+	ImagePath getConqueredName(CampaignScenarioID which, int color) const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -73,9 +75,9 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
-	std::string name;
-	std::string description;
-	std::string music;
+	MetaString name;
+	MetaString description;
+	AudioPath music;
 	std::string filename;
 	std::string modName;
 	std::string encoding;
@@ -89,12 +91,12 @@ public:
 	bool playerSelectedDifficulty() const;
 	bool formatVCMI() const;
 
-	std::string getDescription() const;
-	std::string getName() const;
+	std::string getDescriptionTranslated() const;
+	std::string getNameTranslated() const;
 	std::string getFilename() const;
 	std::string getModName() const;
 	std::string getEncoding() const;
-	std::string getMusic() const;
+	AudioPath getMusic() const;
 
 	const CampaignRegions & getRegions() const;
 
@@ -175,12 +177,12 @@ struct DLL_LINKAGE CampaignTravel
 struct DLL_LINKAGE CampaignScenario
 {
 	std::string mapName; //*.h3m
-	std::string scenarioName; //from header. human-readble
+	MetaString scenarioName; //from header
 	std::set<CampaignScenarioID> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
 	ui8 regionColor = 0;
 	ui8 difficulty = 0;
 
-	std::string regionText;
+	MetaString regionText;
 	CampaignScenarioPrologEpilog prolog;
 	CampaignScenarioPrologEpilog epilog;
 
@@ -292,6 +294,8 @@ public:
 	static JsonNode crossoverSerialize(CGHeroInstance * hero);
 	static CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map);
 
+	std::string campaignSet;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<Campaign&>(*this);
@@ -301,6 +305,7 @@ public:
 		h & mapsConquered;
 		h & currentMap;
 		h & chosenCampaignBonuses;
+		h & campaignSet;
 	}
 };
 

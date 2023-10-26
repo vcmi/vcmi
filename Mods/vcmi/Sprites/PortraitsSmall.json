@@ -155,16 +155,9 @@
 		{ "frame" : 151, "file" : "HPS007SH.bmp"},
 		{ "frame" : 152, "file" : "HPS009SH.bmp"},
 		{ "frame" : 153, "file" : "HPS008SH.bmp"},
-		{ "frame" : 154, "file" : "HPS001SH.bmp"},
-		{ "frame" : 155, "file" : "HPS131DM.bmp"},
-		{ "frame" : 156, "file" : "HPS129MK.bmp"},
-		{ "frame" : 157, "file" : "HPS002SH.bmp"},
-		{ "frame" : 158, "file" : "HPS132Wl.bmp"},
-		{ "frame" : 159, "file" : "HPS133Nc.bmp"},
-		{ "frame" : 160, "file" : "HPS134Nc.bmp"},
-		{ "frame" : 161, "file" : "HPS135Wi.bmp"},
-		{ "frame" : 162, "file" : "HPS136Wi.bmp"},
-		{ "frame" : 163, "file" : "HPSRAND1.bmp"}, //random hero
-		{ "frame" : 164, "file" : "HPSRAND6.bmp"} //no hero
+		{ "frame" : 154, "file" : "HPS001SH.bmp"}, 
+		{ "frame" : 155, "file" : "HPS131DM.bmp"}, 
+		{ "frame" : 156, "file" : "HPSRAND1.bmp"}, // random hero
+		{ "frame" : 157, "file" : "HPSRAND6.bmp"}  // no hero
 	]
 }

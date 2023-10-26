@@ -26,7 +26,10 @@ public:
 	virtual void visitSystemMessage(SystemMessage & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
 	virtual void visitPlayerCheated(PlayerCheated & pack) {}
-	virtual void visitYourTurn(YourTurn & pack) {}
+	virtual void visitPlayerStartsTurn(PlayerStartsTurn & pack) {}
+	virtual void visitDaysWithoutTown(DaysWithoutTown & pack) {}
+	virtual void visitTurnTimeUpdate(TurnTimeUpdate & pack) {}
+	virtual void visitGamePause(GamePause & pack) {}
 	virtual void visitEntitiesChanged(EntitiesChanged & pack) {}
 	virtual void visitSetResources(SetResources & pack) {}
 	virtual void visitSetPrimSkill(SetPrimSkill & pack) {}
@@ -39,6 +42,7 @@ public:
 	virtual void visitSetAvailableHeroes(SetAvailableHero & pack) {}
 	virtual void visitGiveBonus(GiveBonus & pack) {}
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
+	virtual void visitPlayerEndsTurn(PlayerEndsTurn & pack) {};
 	virtual void visitPlayerEndsGame(PlayerEndsGame & pack) {}
 	virtual void visitPlayerReinitInterface(PlayerReinitInterface & pack) {}
 	virtual void visitRemoveBonus(RemoveBonus & pack) {}
@@ -134,7 +138,6 @@ public:
 	virtual void visitBuildBoat(BuildBoat & pack) {}
 	virtual void visitQueryReply(QueryReply & pack) {}
 	virtual void visitMakeAction(MakeAction & pack) {}
-	virtual void visitMakeCustomAction(MakeCustomAction & pack) {}
 	virtual void visitDigWithHero(DigWithHero & pack) {}
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) {}
 	virtual void visitSaveGame(SaveGame & pack) {}
@@ -145,6 +148,7 @@ public:
 	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) {}
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) {}
 	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) {}
+	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) {}
 	virtual void visitLobbyEndGame(LobbyEndGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}
@@ -155,6 +159,8 @@ public:
 	virtual void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) {}
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
+	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
+	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) {}
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) {}
 	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) {}
 	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) {}

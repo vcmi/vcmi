@@ -1,0 +1,94 @@
+{
+	"scholar" : {
+		"index" :81,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
+		"types" : {
+			"scholar" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+				
+				"visitMode" : "unlimited",
+				"blockedVisitable" : true,
+				
+				"variables" : {
+					"spell" : {
+						"gainedSpell" : { // Note: this variable name is used by engine for H3M loading
+						}
+					},
+					"secondarySkill" : {
+						"gainedSkill" : { // Note: this variable name is used by engine for H3M loading
+						}
+					},
+					"primarySkill" : {
+						"gainedStat" : { // Note: this variable name is used by engine for H3M loading
+						}
+					}
+				},
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"appearChance" : { "min" : 0, "max" : 33 },
+						"message" : 115,
+						"limiter" : {
+							"canLearnSpells" : [
+								"@gainedSpell"
+							]
+						},
+						"spells" : [
+							"@gainedSpell"
+						],
+						"removeObject" : true
+					},
+					{
+						"appearChance" : { "min" : 33, "max" : 66 },
+						"message" : 115,
+						"limiter" : {
+							// Hero does not have this skill at expert
+							"noneOf" : [
+									{
+									"secondary" : {
+										"@gainedSkill" : 3
+									}
+								}
+							],
+							// And have either free skill slot or this skill
+							"anyOf" : [
+								{
+									"canLearnSkills" : true
+								},
+								{
+									"secondary" : {
+										"@gainedSkill" : 1
+									}
+								}
+							]
+						},
+						"secondary" : {
+							"@gainedSkill" : 1
+						},
+						"removeObject" : true
+					},
+					{
+						// Always present - fallback if hero can't learn secondary / spell
+						"message" : 115,
+						"primary" : {
+							"@gainedStat" : 1
+						},
+						"removeObject" : true
+					}
+				]
+			}
+		}
+	}
+}

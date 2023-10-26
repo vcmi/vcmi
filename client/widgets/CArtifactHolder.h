@@ -35,6 +35,7 @@ class CArtPlace : public LRClickableAreaWTextComp
 protected:
 	std::shared_ptr<CAnimImage> image;
 	const CArtifactInstance * ourArt;
+	int imageIndex;
 
 	void setInternals(const CArtifactInstance * artInst);
 	virtual void createImage()=0;
@@ -65,11 +66,11 @@ public:
 class CHeroArtPlace: public CArtPlace
 {
 public:
-	using ClickHandler = std::function<void(CHeroArtPlace&)>;
+	using ClickFunctor = std::function<void(CHeroArtPlace&)>;
 
 	ArtifactPosition slot;
-	ClickHandler leftClickCallback;
-	ClickHandler rightClickCallback;
+	ClickFunctor leftClickCallback;
+	ClickFunctor showPopupCallback;
 
 	CHeroArtPlace(Point position, const CArtifactInstance * Art = nullptr);
 	void lockSlot(bool on);

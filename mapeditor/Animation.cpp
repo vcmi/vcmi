@@ -14,6 +14,7 @@
 #include "Animation.h"
 
 #include "BitmapHandler.h"
+#include "graphics.h"
 
 #include "../lib/vcmi_endian.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -81,7 +82,7 @@ class FileCache
 	static const int cacheSize = 50; //Max number of cached files
 	struct FileData
 	{
-		ResourceID             name;
+		ResourcePath             name;
 		size_t                 size;
 		std::unique_ptr<ui8[]> data;
 
@@ -91,7 +92,7 @@ class FileCache
 			std::copy(data.get(), data.get() + size, ret.get());
 			return ret;
 		}
-		FileData(ResourceID name_, size_t size_, std::unique_ptr<ui8[]> data_):
+		FileData(ResourcePath name_, size_t size_, std::unique_ptr<ui8[]> data_):
 			name{std::move(name_)},
 			size{size_},
 			data{std::move(data_)}
@@ -100,7 +101,7 @@ class FileCache
 
 	std::deque<FileData> cache;
 public:
-	std::unique_ptr<ui8[]> getCachedFile(ResourceID rid)
+	std::unique_ptr<ui8[]> getCachedFile(ResourcePath rid)
 	{
 		for(auto & file : cache)
 		{
@@ -169,7 +170,7 @@ DefFile::DefFile(std::string Name):
 		qRgba(0, 0, 0, 128), //  50% - shadow body   below selection
 		qRgba(0, 0, 0,  64)  // 75% - shadow border below selection
 	};
-	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
+	data = animationCache.getCachedFile(AnimationPath::builtin("SPRITES/" + Name));
 
 	palette = std::make_unique<QVector<QRgb>>(256);
 	int it = 0;
@@ -583,10 +584,10 @@ void Animation::init()
 			source[defEntry.first].resize(defEntry.second);
 	}
 
-	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
+	JsonPath resID = JsonPath::builtin("SPRITES/" + name);
 
-	//if(vstd::contains(graphics->imageLists, resID.getName()))
-		//initFromJson(graphics->imageLists[resID.getName()]);
+	if(vstd::contains(graphics->imageLists, resID.getName()))
+		initFromJson(graphics->imageLists[resID.getName()]);
 
 	auto configList = CResourceHandler::get()->getResourcesWithName(resID);
 
@@ -656,7 +657,7 @@ Animation::Animation(std::string Name):
 		name.erase(dotPos);
 	std::transform(name.begin(), name.end(), name.begin(), toupper);
 
-	ResourceID resource(std::string("SPRITES/") + name, EResType::ANIMATION);
+	auto resource = AnimationPath::builtin("SPRITES/" + name);
 
 	if(CResourceHandler::get()->existsResource(resource))
 		defFile = std::make_shared<DefFile>(name);

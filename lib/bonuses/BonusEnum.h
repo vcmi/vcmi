@@ -74,10 +74,6 @@ class JsonNode;
 	BONUS_NAME(SPELL_LIKE_ATTACK) /*subtype - spell, value - spell level; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
 	BONUS_NAME(GENERAL_DAMAGE_PREMY)						\
-	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive*/						\
-	BONUS_NAME(WATER_IMMUNITY)							\
-	BONUS_NAME(EARTH_IMMUNITY)							\
-	BONUS_NAME(AIR_IMMUNITY)							\
 	BONUS_NAME(MIND_IMMUNITY)							\
 	BONUS_NAME(FIRE_SHIELD)								\
 	BONUS_NAME(UNDEAD)									\
@@ -121,7 +117,6 @@ class JsonNode;
 	BONUS_NAME(SPECIAL_UPGRADE) /*subtype = base, additionalInfo = target */\
 	BONUS_NAME(DRAGON_NATURE) \
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
-	BONUS_NAME(EXP_MULTIPLIER)/* val - percent of additional exp gained by stack/commander (base value 100)*/\
 	BONUS_NAME(SHOTS)\
 	BONUS_NAME(DEATH_STARE) /*subtype 0 - gorgon, 1 - commander*/\
 	BONUS_NAME(POISON) /*val - max health penalty from poison possible*/\
@@ -134,9 +129,6 @@ class JsonNode;
 	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells cast by creature */ \
 	BONUS_NAME(ENCHANTED) /* permanently enchanted with spell subID of level = val, if val > 3 then spell is mass and has level of val-3*/ \
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
-	BONUS_NAME(ADDITIONAL_UNITS) /*val of units with id = subtype will be added to hero's army at the beginning of battle */\
-	BONUS_NAME(SPOILS_OF_WAR) /*val * 10^-6 * gained exp resources of subtype will be given to hero after battle*/\
-	BONUS_NAME(BLOCK)\
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
 	BONUS_NAME(VISIONS) /* subtype - spell level */\
 	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
@@ -175,13 +167,16 @@ class JsonNode;
 	BONUS_NAME(BONUS_DAMAGE_PERCENTAGE) /*If hero can grant conditional damage to creature, value is percentage, subtype is creatureID*/\
 	BONUS_NAME(BONUS_DAMAGE_CHANCE) /*If hero can grant additional damage to creature, value is chance, subtype is creatureID*/\
 	BONUS_NAME(MAX_LEARNABLE_SPELL_LEVEL) /*This can work as wisdom before. val = max learnable spell level*/\
+	BONUS_NAME(SPELL_SCHOOL_IMMUNITY) /*This bonus will work as spell school immunity for all spells, subtype - spell school: 0 - air, 1 - fire, 2 - water, 3 - earth. Any is not handled for reducing overlap from LEVEL_SPELL_IMMUNITY*/\
+	BONUS_NAME(NEGATIVE_EFFECTS_IMMUNITY) /*This bonus will work as spell school immunity for negative effects from spells of school, subtype - spell school: -1 - any, 0 - air, 1 - fire, 2 - water, 3 - earth*/\
 	/* end of list */
 
 
 #define BONUS_SOURCE_LIST \
 	BONUS_SOURCE(ARTIFACT)\
 	BONUS_SOURCE(ARTIFACT_INSTANCE)\
-	BONUS_SOURCE(OBJECT)\
+	BONUS_SOURCE(OBJECT_TYPE)\
+	BONUS_SOURCE(OBJECT_INSTANCE)\
 	BONUS_SOURCE(CREATURE_ABILITY)\
 	BONUS_SOURCE(TERRAIN_NATIVE)\
 	BONUS_SOURCE(TERRAIN_OVERLAY)\
@@ -192,7 +187,6 @@ class JsonNode;
 	BONUS_SOURCE(HERO_SPECIAL)\
 	BONUS_SOURCE(ARMY)\
 	BONUS_SOURCE(CAMPAIGN_BONUS)\
-	BONUS_SOURCE(SPECIAL_WEEK)\
 	BONUS_SOURCE(STACK_EXPERIENCE)\
 	BONUS_SOURCE(COMMANDER) /*TODO: consider using simply STACK_INSTANCE */\
 	BONUS_SOURCE(GLOBAL) /*used for base bonuses which all heroes or all stacks should have*/\

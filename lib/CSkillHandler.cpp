@@ -16,11 +16,13 @@
 
 #include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/ModUtility.h"
+#include "modding/ModScope.h"
 
 #include "JsonNode.h"
 
-#include "CModHandler.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -91,7 +93,7 @@ SecondarySkill CSkill::getId() const
 void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 {
 	b->source = BonusSource::SECONDARY_SKILL;
-	b->sid = id;
+	b->sid = BonusSourceID(id);
 	b->duration = BonusDuration::PERMANENT;
 	b->description = getNameTranslated();
 	levels[level-1].effects.push_back(b);
@@ -144,7 +146,7 @@ void CSkill::serializeJson(JsonSerializeFormat & handler)
 ///CSkillHandler
 std::vector<JsonNode> CSkillHandler::loadLegacyData()
 {
-	CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SSTRAITS.TXT"));
 
 	//skip header
 	parser.endLine();
@@ -262,7 +264,7 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 
 si32 CSkillHandler::decodeSkill(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "skill", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "skill", identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -276,7 +278,7 @@ std::string CSkillHandler::encodeSkill(const si32 index)
 
 std::string CSkillHandler::encodeSkillWithType(const si32 index)
 {
-	return CModHandler::makeFullIdentifier("", "skill", encodeSkill(index));
+	return ModUtility::makeFullIdentifier("", "skill", encodeSkill(index));
 }
 
 VCMI_LIB_NAMESPACE_END

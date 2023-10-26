@@ -14,6 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 class CreatureID;
 class CStackBasicDescriptor;
+class JsonSerializeFormat;
 using TQuantity = si32;
 
 /// Strings classes that can be used as replacement in MetaString
@@ -113,6 +114,8 @@ public:
 
 	void jsonSerialize(JsonNode & dest) const;
 	void jsonDeserialize(const JsonNode & dest);
+	
+	void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

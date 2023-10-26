@@ -46,14 +46,14 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName;
-	if(hero->hasVisions(this, 0))
+	if(hero->hasVisions(this, BonusCustomSubtype::visionsMonsters))
 	{
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);
 		ms.appendRawString(" ");
 		ms.appendLocalString(EMetaText::CRE_PL_NAMES,subID);
 
-		ms.appendRawString("\n");
+		ms.appendRawString("\n\n");
 
 		int decision = takenAction(hero, true);
 
@@ -69,7 +69,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			ms.appendLocalString(EMetaText::GENERAL_TXT,243);
 			break;
 		default: //decision = cost in gold
-			ms.appendRawString(boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision));
+			ms.appendRawString(boost::str(boost::format(VLC->generaltexth->allTexts[244]) % decision));
 			break;
 		}
 
@@ -103,6 +103,16 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 {
+	//show message
+	if(!message.empty())
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text = message;
+		iw.type = EInfoWindowMode::MODAL;
+		cb->showInfoDialog(&iw);
+	}
+	
 	int action = takenAction(h);
 	switch( action ) //decide what we do...
 	{
@@ -299,7 +309,7 @@ void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
 	}
 	else
 	{
-		cb->removeObject(this);
+		cb->removeObject(this, h->getOwner());
 	}
 }
 
@@ -400,12 +410,12 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	if(result.winner == 0)
 	{
 		giveReward(hero);
-		cb->removeObject(this);
+		cb->removeObject(this, hero->getOwner());
 	}
 	else if(result.winner > 1) // draw
 	{
 		// guarded reward is lost forever on draw
-		cb->removeObject(this);
+		cb->removeObject(this, hero->getOwner());
 	}
 	else
 	{
@@ -568,7 +578,7 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	handler.serializeBool("noGrowing", notGrowingTeam);
 	handler.serializeBool("neverFlees", neverFlees);
-	handler.serializeString("rewardMessage", message);
+	handler.serializeStruct("rewardMessage", message);
 }
 
 VCMI_LIB_NAMESPACE_END

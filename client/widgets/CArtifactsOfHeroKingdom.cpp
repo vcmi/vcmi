@@ -29,16 +29,18 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
 		artPlace.second->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace.second->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace.second->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 	}
 	leftBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, -1));
 	rightBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, +1));
+
+	setRedrawParent(true);
 }
 
 CArtifactsOfHeroKingdom::~CArtifactsOfHeroKingdom()

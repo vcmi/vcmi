@@ -15,15 +15,15 @@ class CArtifactsOfHeroBase : public CIntObject
 {
 protected:
 	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;
-	using BpackScrollHandler = std::function<void(int)>;
+	using BpackScrollFunctor = std::function<void(int)>;
 
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
-	using ClickHandler = std::function<void(CArtifactsOfHeroBase&, CHeroArtPlace&)>;
+	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CHeroArtPlace&)>;
 	using PutBackPickedArtCallback = std::function<void()>;
 
-	ClickHandler leftClickCallback;
-	ClickHandler rightClickCallback;
+	ClickFunctor leftClickCallback;
+	ClickFunctor showPopupCallback;
 	
 	CArtifactsOfHeroBase();
 	virtual void putBackPickedArtifact();
@@ -33,7 +33,6 @@ public:
 	virtual void setHero(const CGHeroInstance * hero);
 	virtual const CGHeroInstance * getHero() const;
 	virtual void scrollBackpack(int offset);
-	virtual void safeRedraw();
 	virtual void markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved = true);
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
@@ -62,8 +61,8 @@ protected:
 		Point(381,296) //18
 	};
 
-	virtual void init(CHeroArtPlace::ClickHandler lClickCallback, CHeroArtPlace::ClickHandler rClickCallback,
-		const Point & position, BpackScrollHandler scrollHandler);
+	virtual void init(CHeroArtPlace::ClickFunctor lClickCallback, CHeroArtPlace::ClickFunctor showPopupCallback,
+		const Point & position, BpackScrollFunctor scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
 	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet);
 	virtual void scrollBackpackForArtSet(int offset, const CArtifactSet & artSet);

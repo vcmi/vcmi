@@ -26,6 +26,13 @@ struct RadialMenuConfig
 	static constexpr Point ITEM_SW = Point(-40, +70);
 	static constexpr Point ITEM_SE = Point(+40, +70);
 
+	static constexpr Point ITEM_ALT_NN = Point(0,   -80);
+	static constexpr Point ITEM_ALT_SS = Point(0,   +80);
+	static constexpr Point ITEM_ALT_NW = Point(-70, -40);
+	static constexpr Point ITEM_ALT_SW = Point(-70, +40);
+	static constexpr Point ITEM_ALT_NE = Point(+70, -40);
+	static constexpr Point ITEM_ALT_SE = Point(+70, +40);
+
 	Point itemPosition;
 	bool enabled;
 	std::string imageName;
@@ -44,7 +51,7 @@ class RadialMenuItem : public CIntObject
 	std::string hoverText;
 
 public:
-	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback);
+	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout);
 
 	void setSelected(bool selected);
 };
@@ -60,8 +67,10 @@ class RadialMenu : public CIntObject
 	void addItem(const Point & offset, bool enabled, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
 
 	std::shared_ptr<RadialMenuItem> findNearestItem(const Point & cursorPosition) const;
+
+	bool alternativeLayout;
 public:
-	RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig);
+	RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig, bool alternativeLayout = false);
 
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;

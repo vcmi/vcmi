@@ -292,22 +292,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmación</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Los cambios no guardados se perderán. Está usted seguro ?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Failed to open map</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo abrir el mapa</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Cannot open map from this folder</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede abrir el mapa de esta carpeta</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="370"/>
@@ -353,7 +353,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1191"/>
-        <source>Errors occured. %1 objects were not updated</source>
+        <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1015,7 +1015,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="107"/>
-        <source>Delete original files, for the ones splitted / converted.</source>
+        <source>Delete original files, for the ones split / converted.</source>
         <translation>Eliminar archivos originales, por los que se han separado / convertido.</translation>
     </message>
 </context>

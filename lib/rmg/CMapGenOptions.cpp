@@ -195,11 +195,11 @@ void CMapGenOptions::resetPlayersMap()
 	}
 
 	//Remove players who have undefined properties
-	boost::remove_if(players, [](std::pair<PlayerColor, CPlayerSettings> & player)
+	vstd::erase_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & p)
 	{
-		return player.second.getPlayerType() != EPlayerType::AI && player.second.getStartingTown() == CPlayerSettings::RANDOM_TOWN;
+		return p.second.getPlayerType() != EPlayerType::AI && p.second.getStartingTown() == CPlayerSettings::RANDOM_TOWN;
 	});
-	
+
 	int realPlayersCnt = getPlayerCount();
 	if (realPlayersCnt != RANDOM_SIZE)
 	{
@@ -610,7 +610,7 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 	return *RandomGeneratorUtil::nextItem(templates, rand);
 }
 
-CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
+CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(FactionID::RANDOM), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
 {
 
 }

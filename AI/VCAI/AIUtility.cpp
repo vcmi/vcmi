@@ -21,11 +21,7 @@
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapping/CMapDefines.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh;
-
-//extern static const int3 dirs[8];
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
@@ -228,7 +224,7 @@ creInfo infoFromDC(const dwellingContent & dc)
 	creInfo ci;
 	ci.count = dc.first;
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
-	if (ci.creID != -1)
+	if (ci.creID != CreatureID::NONE)
 	{
 		ci.cre = VLC->creatures()->getById(ci.creID);
 		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.

@@ -42,7 +42,7 @@ public:
 class DLL_LINKAGE CCreGenLeveledInfo : public virtual CSpecObjInfo
 {
 public:
-	ui8 minLevel = 0;
+	ui8 minLevel = 1;
 	ui8 maxLevel = 7; //minimal and maximal level of creature in dwelling: <1, 7>
 
 	void serializeJson(JsonSerializeFormat & handler) override;

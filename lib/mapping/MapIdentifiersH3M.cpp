@@ -13,13 +13,13 @@
 
 #include "../JsonNode.h"
 #include "../VCMI_Lib.h"
-#include "../CModHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,7 +29,7 @@ void MapIdentifiersH3M::loadMapping(std::map<IdentifierID, IdentifierID> & resul
 	for (auto entry : mapping.Struct())
 	{
 		IdentifierID sourceID (entry.second.Integer());
-		IdentifierID targetID (*VLC->modh->identifiers.getIdentifier(entry.second.meta, identifierName, entry.first));
+		IdentifierID targetID (*VLC->identifiers()->getIdentifier(entry.second.meta, identifierName, entry.first));
 
 		result[sourceID] = targetID;
 	}
@@ -39,13 +39,13 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 {
 	for (auto entryFaction : mapping["buildings"].Struct())
 	{
-		FactionID factionID (*VLC->modh->identifiers.getIdentifier(entryFaction.second.meta, "faction", entryFaction.first));
+		FactionID factionID (*VLC->identifiers()->getIdentifier(entryFaction.second.meta, "faction", entryFaction.first));
 		auto buildingMap = entryFaction.second;
 
 		for (auto entryBuilding : buildingMap.Struct())
 		{
 			BuildingID sourceID (entryBuilding.second.Integer());
-			BuildingID targetID (*VLC->modh->identifiers.getIdentifier(entryBuilding.second.meta, "building." + VLC->factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
+			BuildingID targetID (*VLC->identifiers()->getIdentifier(entryBuilding.second.meta, "building." + VLC->factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
 
 			mappingFactionBuilding[factionID][sourceID] = targetID;
 		}
@@ -53,11 +53,11 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 
 	for (auto entryTemplate : mapping["templates"].Struct())
 	{
-		std::string h3mName = boost::to_lower_copy(entryTemplate.second.String());
-		std::string vcmiName = boost::to_lower_copy(entryTemplate.first);
+		AnimationPath h3mName = AnimationPath::builtinTODO(entryTemplate.second.String());
+		AnimationPath vcmiName = AnimationPath::builtinTODO(entryTemplate.first);
 
-		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + vcmiName, EResType::ANIMATION)))
-			logMod->warn("Template animation file %s was not found!", vcmiName);
+		if (!CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/")))
+			logMod->warn("Template animation file %s was not found!", vcmiName.getOriginalName());
 
 		mappingObjectTemplate[h3mName] = vcmiName;
 	}
@@ -87,15 +87,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 	}
 
-	for (auto entry : mapping["portraits"].Struct())
-	{
-		int32_t sourceID = entry.second.Integer();
-		int32_t targetID = *VLC->modh->identifiers.getIdentifier(entry.second.meta, "hero", entry.first);
-		int32_t iconID = VLC->heroTypes()->getByIndex(targetID)->getIconIndex();
-
-		mappingHeroPortrait[sourceID] = iconID;
-	}
-
+	loadMapping(mappingHeroPortrait, mapping["portraits"], "hero");
 	loadMapping(mappingBuilding, mapping["buildingsCommon"], "building.core:random");
 	loadMapping(mappingFaction, mapping["factions"], "faction");
 	loadMapping(mappingCreature, mapping["creatures"], "creature");
@@ -108,7 +100,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 
 void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 {
-	std::string name = boost::to_lower_copy(objectTemplate.animationFile);
+	auto name = objectTemplate.animationFile;
 
 	if (mappingObjectTemplate.count(name))
 		objectTemplate.animationFile = mappingObjectTemplate.at(name);
@@ -168,7 +160,7 @@ HeroTypeID MapIdentifiersH3M::remap(HeroTypeID input) const
 	return input;
 }
 
-int32_t MapIdentifiersH3M::remapPortrrait(int32_t input) const
+HeroTypeID MapIdentifiersH3M::remapPortrait(HeroTypeID input) const
 {
 	if (mappingHeroPortrait.count(input))
 		return mappingHeroPortrait.at(input);

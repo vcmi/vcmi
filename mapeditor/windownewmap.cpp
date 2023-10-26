@@ -90,6 +90,11 @@ void WindowNewMap::loadUserSettings()
 	{
 		ui->heightTxt->setText(height.toString());
 	}
+	for(auto & sz : mapSizes)
+	{
+		if(sz.second.first == width.toInt() && sz.second.second == height.toInt())
+			ui->sizeCombo->setCurrentIndex(sz.first);
+	}
 	auto twoLevel = s.value(newMapTwoLevel);
 	if (twoLevel.isValid())
 	{

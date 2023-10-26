@@ -102,7 +102,7 @@ int SetResourcesProxy::getAmount(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	auto type = EGameResID::INVALID;
+	auto type = EGameResID::NONE;
 
 	if(!S.tryGet(2, type))
 		return S.retVoid();
@@ -122,7 +122,7 @@ int SetResourcesProxy::setAmount(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	auto type = EGameResID::INVALID;
+	auto type = EGameResID::NONE;
 
 	if(!S.tryGet(2, type))
 		return S.retVoid();

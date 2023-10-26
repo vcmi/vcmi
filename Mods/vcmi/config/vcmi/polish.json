@@ -31,14 +31,11 @@
 	"vcmi.capitalColors.7" : "Różowy",
 
 	"vcmi.radialWheel.mergeSameUnit" : "Złącz takie same stworzenia",
-	"vcmi.radialWheel.showUnitInformation" : "Pokaż informacje o stworzeniu",
 	"vcmi.radialWheel.splitSingleUnit" : "Wydziel pojedyncze stworzenie",
 	"vcmi.radialWheel.splitUnitEqually" : "Podziel stworzenia równo",
 	"vcmi.radialWheel.moveUnit" : "Przenieś stworzenia do innej armii",
 	"vcmi.radialWheel.splitUnit" : "Podziel jednostkę do wybranego miejsca",
 
-	"vcmi.mainMenu.tutorialNotImplemented" : "Przepraszamy, trening nie został jeszcze zaimplementowany\n",
-	"vcmi.mainMenu.highscoresNotImplemented" : "Przepraszamy, najlepsze wyniki nie zostały jeszcze zaimplementowane\n",
 	"vcmi.mainMenu.serverConnecting" : "Łączenie...",
 	"vcmi.mainMenu.serverAddressEnter" : "Wprowadź adres:",
 	"vcmi.mainMenu.serverClosing" : "Zamykanie...",
@@ -46,12 +43,12 @@
 	"vcmi.mainMenu.joinTCP" : "Dołącz do gry TCP/IP",
 	"vcmi.mainMenu.playerName" : "Gracz",
 
-	"vcmi.lobby.filename" : "Nazwa pliku",
+	"vcmi.lobby.filepath" : "Nazwa pliku",
 	"vcmi.lobby.creationDate" : "Data utworzenia",
 
-	"vcmi.server.errors.existingProcess"     : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
-	"vcmi.server.errors.modsIncompatibility" : "Następujące mody są wymagane do wczytania gry:",
-	"vcmi.server.confirmReconnect"           : "Połączyć ponownie z ostatnią sesją?",
+	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
+	"vcmi.server.errors.modsToEnable"    : "{Następujące mody są wymagane do wczytania gry}",
+	"vcmi.server.confirmReconnect"       : "Połączyć ponownie z ostatnią sesją?",
 
 	"vcmi.settingsMainWindow.generalTab.hover"   : "Ogólne",
 	"vcmi.settingsMainWindow.generalTab.help"    : "Przełącza do zakładki opcji ogólnych, która zawiera ustawienia związane z ogólnym działaniem gry",
@@ -173,6 +170,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Otwórz okno dowódcy",
 	"vcmi.heroWindow.openCommander.help"  : "Wyświetla informacje o dowódcy przynależącym do tego bohatera",
+	"vcmi.heroWindow.openBackpack.hover" : "Otwórz okno sakwy",
+	"vcmi.heroWindow.openBackpack.help"  : "Otwiera okno pozwalające łatwiej zarządzać artefaktami w sakwie",
 
 	"vcmi.commanderWindow.artifactMessage" : "Czy chcesz zwrócić ten artefakt bohaterowi?",
 

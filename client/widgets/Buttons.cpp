@@ -25,6 +25,7 @@
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -60,21 +61,9 @@ void CButton::update()
 		redraw();
 }
 
-void CButton::setBorderColor(std::optional<SDL_Color> borderColor)
+void CButton::setBorderColor(std::optional<ColorRGBA> newBorderColor)
 {
-	setBorderColor(borderColor, borderColor, borderColor, borderColor);
-}
-
-void CButton::setBorderColor(std::optional<SDL_Color> normalBorderColor,
-							 std::optional<SDL_Color> pressedBorderColor,
-							 std::optional<SDL_Color> blockedBorderColor,
-							 std::optional<SDL_Color> highlightedBorderColor)
-{
-	stateToBorderColor[NORMAL] = normalBorderColor;
-	stateToBorderColor[PRESSED] = pressedBorderColor;
-	stateToBorderColor[BLOCKED] = blockedBorderColor;
-	stateToBorderColor[HIGHLIGHTED] = highlightedBorderColor;
-	update();
+	borderColor = newBorderColor;
 }
 
 void CButton::addCallback(std::function<void()> callback)
@@ -82,7 +71,7 @@ void CButton::addCallback(std::function<void()> callback)
 	this->callback += callback;
 }
 
-void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color color)
+void CButton::addTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
@@ -101,7 +90,7 @@ void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 	update();
 }
 
-void CButton::addImage(std::string filename)
+void CButton::addImage(const AnimationPath & filename)
 {
 	imageNames.push_back(filename);
 }
@@ -128,6 +117,13 @@ void CButton::setState(ButtonState newState)
 {
 	if (state == newState)
 		return;
+
+	if (newState == BLOCKED)
+		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+	else
+		addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+
+
 	state = newState;
 	update();
 }
@@ -244,7 +240,7 @@ void CButton::hover (bool on)
 	}
 }
 
-CButton::CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
+CButton::CButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
     CKeyShortcut(key),
     callback(Callback)
 {
@@ -280,7 +276,7 @@ void CButton::setIndex(size_t index)
 	if (index == currentImage || index>=imageNames.size())
 		return;
 	currentImage = index;
-	auto anim = std::make_shared<CAnimation>(imageNames[index]);
+	auto anim = GH.renderHandler().loadAnimation(imageNames[index]);
 	setImage(anim);
 }
 
@@ -302,7 +298,6 @@ void CButton::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
-	auto borderColor = stateToBorderColor[getState()];
 	if (borderColor)
 		to.drawBorder(Rect::createAround(pos, 1), *borderColor);
 }
@@ -370,7 +365,7 @@ void CToggleBase::addCallback(std::function<void(bool)> function)
 	callback += function;
 }
 
-CToggleButton::CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
 							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton):
   CButton(position, defName, help, 0, key, playerColoredButton),
   CToggleBase(callback)

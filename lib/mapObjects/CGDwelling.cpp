@@ -173,12 +173,12 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	PlayerRelations::PlayerRelations relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
+	PlayerRelations relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
 
 	if ( relations == PlayerRelations::ALLIES )
 		return;//do not allow recruiting or capturing
 
-	if( !relations  &&  stacksCount() > 0) //object is guarded, owned by enemy
+	if(relations == PlayerRelations::ENEMIES && stacksCount() > 0) //object is guarded, owned by enemy
 	{
 		BlockingDialog bd(true,false);
 		bd.player = h->tempOwner;
@@ -194,7 +194,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	// TODO this shouldn't be hardcoded
-	if(!relations && ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
+	if(relations == PlayerRelations::ENEMIES && ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
 	{
 		cb->setOwner(this, h->tempOwner);
 	}
@@ -393,13 +393,8 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			cb->sendAndApply(&sac);
 		}
 
-		OpenWindow ow;
-		ow.id1 = id.getNum();
-		ow.id2 = h->id.getNum();
-		ow.window = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP)
-			? EOpenWindowMode::RECRUITMENT_FIRST
-			: EOpenWindowMode::RECRUITMENT_ALL;
-		cb->sendAndApply(&ow);
+		auto windowMode = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP) ? EOpenWindowMode::RECRUITMENT_FIRST : EOpenWindowMode::RECRUITMENT_ALL;
+		cb->showObjectWindow(this, windowMode, h, true);
 	}
 }
 

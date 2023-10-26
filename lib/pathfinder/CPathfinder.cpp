@@ -20,6 +20,7 @@
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/CMap.h"
+#include "spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -120,6 +121,8 @@ void CPathfinder::calculatePaths()
 			hlp->updateTurnInfo(++turn);
 			movement = hlp->getMaxMovePoints(source.node->layer);
 			if(!hlp->passOneTurnLimitCheck(source))
+				continue;
+			if(turn >= hlp->options.turnLimit)
 				continue;
 		}
 
@@ -365,7 +368,7 @@ void CPathfinderHelper::initializePatrol()
 		if(hero->patrol.patrolRadius)
 		{
 			state = PATROL_RADIUS;
-			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadius, std::optional<PlayerColor>(), 0, int3::DIST_MANHATTAN);
+			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadius, ETileVisibility::REVEALED, std::optional<PlayerColor>(), int3::DIST_MANHATTAN);
 		}
 		else
 			state = PATROL_LOCKED;
@@ -455,8 +458,13 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 	return true;
 }
 
+int CPathfinderHelper::getGuardiansCount(int3 tile) const
+{
+	return getGuardingCreatures(tile).size();
+}
+
 CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
-	CGameInfoCallback(gs, std::optional<PlayerColor>()),
+	CGameInfoCallback(gs),
 	turn(-1),
 	hero(Hero),
 	options(Options),
@@ -465,6 +473,12 @@ CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Her
 	turnsInfo.reserve(16);
 	updateTurnInfo();
 	initializePatrol();
+
+	SpellID flySpell = SpellID::FLY;
+	canCastFly = Hero->canCastThisSpell(flySpell.toSpell());
+
+	SpellID waterWalk = SpellID::WATER_WALK;
+	canCastWaterWalk = Hero->canCastThisSpell(waterWalk.toSpell());
 }
 
 CPathfinderHelper::~CPathfinderHelper()
@@ -494,11 +508,17 @@ bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer & layer) const
 		if(!options.useFlying)
 			return false;
 
+		if(canCastFly && options.canUseCast)
+			return true;
+
 		break;
 
 	case EPathfindingLayer::WATER:
 		if(!options.useWaterWalking)
 			return false;
+
+		if(canCastWaterWalk && options.canUseCast)
+			return true;
 
 		break;
 	}
@@ -511,9 +531,9 @@ const TurnInfo * CPathfinderHelper::getTurnInfo() const
 	return turnsInfo[turn];
 }
 
-bool CPathfinderHelper::hasBonusOfType(const BonusType type, const int subtype) const
+bool CPathfinderHelper::hasBonusOfType(const BonusType type) const
 {
-	return turnsInfo[turn]->hasBonusOfType(type, subtype);
+	return turnsInfo[turn]->hasBonusOfType(type);
 }
 
 int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer & layer) const

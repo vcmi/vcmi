@@ -32,7 +32,7 @@ class CTrueTypeFont : public IFont
 	TTF_Font * loadFont(const JsonNode & config);
 	int getFontStyle(const JsonNode & config);
 
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
+	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 public:
 	CTrueTypeFont(const JsonNode & fontConfig);
 	~CTrueTypeFont();

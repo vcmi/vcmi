@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CreatureID;
 class ResourceSet;
-enum class EGameResID : int8_t;
+class GameResID;
 
 /// Base class for creatures and battle stacks
 class DLL_LINKAGE ACreature: public AFactionMember
@@ -63,7 +63,7 @@ public:
 	virtual int32_t getBaseSpeed() const = 0;
 	virtual int32_t getBaseShots() const = 0;
 
-	virtual int32_t getRecruitCost(Identifier<EGameResID> resIndex) const = 0;
+	virtual int32_t getRecruitCost(GameResID resIndex) const = 0;
 	virtual ResourceSet getFullRecruitCost() const = 0;
 	
 	virtual bool hasUpgrades() const = 0;

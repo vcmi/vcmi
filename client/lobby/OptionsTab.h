@@ -10,15 +10,15 @@
 #pragma once
 
 #include "../windows/CWindowObject.h"
+#include "../widgets/Scrollable.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerSettings;
 struct PlayerInfo;
+enum class PlayerStartingBonus : int8_t;
 VCMI_LIB_NAMESPACE_END
 
-#include "../widgets/Scrollable.h"
-
-class CSlider;
 class CLabel;
 class CMultiLineLabel;
 class CFilledTexture;
@@ -27,22 +27,22 @@ class CComponentBox;
 class CTextBox;
 class CButton;
 
+class FilledTexturePlayerColored;
+
 /// The options tab which is shown at the map selection phase.
-class OptionsTab : public CIntObject
+class OptionsTab : public InterfaceObjectConfigurable
 {
-	std::shared_ptr<CPicture> background;
-	std::shared_ptr<CLabel> labelTitle;
-	std::shared_ptr<CMultiLineLabel> labelSubTitle;
-	std::shared_ptr<CMultiLineLabel> labelPlayerNameAndHandicap;
-	std::shared_ptr<CMultiLineLabel> labelStartingTown;
-	std::shared_ptr<CMultiLineLabel> labelStartingHero;
-	std::shared_ptr<CMultiLineLabel> labelStartingBonus;
-
-	std::shared_ptr<CLabel> labelPlayerTurnDuration;
-	std::shared_ptr<CLabel> labelTurnDurationValue;
+	struct PlayerOptionsEntry;
+	
 	ui8 humanPlayers;
-
+	std::map<PlayerColor, std::shared_ptr<PlayerOptionsEntry>> entries;
+	
 public:
+	
+	OptionsTab();
+	void recreate();
+	void onSetPlayerClicked(const PlayerSettings & ps) const;
+	
 	enum SelType
 	{
 		TOWN,
@@ -50,18 +50,20 @@ public:
 		BONUS
 	};
 
+private:
+	
 	struct CPlayerSettingsHelper
 	{
-		const PlayerSettings & settings;
-		const SelType type;
+		const PlayerSettings & playerSettings;
+		const SelType selectionType;
 
-		CPlayerSettingsHelper(const PlayerSettings & settings, SelType type)
-			: settings(settings), type(type)
+		CPlayerSettingsHelper(const PlayerSettings & playerSettings, SelType type)
+			: playerSettings(playerSettings), selectionType(type)
 		{}
 
 		/// visible image settings
-		size_t getImageIndex();
-		std::string getImageName();
+		size_t getImageIndex(bool big = false);
+		AnimationPath getImageName(bool big = false);
 
 		std::string getName(); /// name visible in options dialog
 		std::string getTitle(); /// title in popup box
@@ -94,14 +96,70 @@ public:
 		CPlayerOptionTooltipBox(CPlayerSettingsHelper & helper);
 	};
 
+	class SelectionWindow : public CWindowObject
+	{
+		//const int ICON_SMALL_WIDTH = 48;
+		const int ICON_SMALL_HEIGHT = 32;
+		const int ICON_BIG_WIDTH = 58;
+		const int ICON_BIG_HEIGHT = 64;
+		const int TEXT_POS_X = 29;
+		const int TEXT_POS_Y = 56;
+
+		int elementsPerLine;
+
+		PlayerColor color;
+		SelType type;
+
+		std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+		std::vector<std::shared_ptr<CIntObject>> components;
+
+		std::vector<FactionID> factions;
+		std::vector<HeroTypeID> heroes;
+		std::set<HeroTypeID> unusableHeroes;
+
+		FactionID initialFaction;
+		HeroTypeID initialHero;
+		PlayerStartingBonus initialBonus;
+		FactionID selectedFaction;
+		HeroTypeID selectedHero;
+		PlayerStartingBonus selectedBonus;
+
+		std::set<FactionID> allowedFactions;
+		std::set<HeroTypeID> allowedHeroes;
+		std::vector<PlayerStartingBonus> allowedBonus;
+
+		void genContentGrid(int lines);
+		void genContentFactions();
+		void genContentHeroes();
+		void genContentBonus();
+
+		void drawOutlinedText(int x, int y, ColorRGBA color, std::string text);
+		int calcLines(FactionID faction);
+		void apply();
+		void recreate();
+		void setSelection();
+		int getElement(const Point & cursorPosition);
+		void setElement(int element, bool doApply);
+
+		bool receiveEvent(const Point & position, int eventType) const override;
+		void clickReleased(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+
+	public:
+		void reopen();
+
+		SelectionWindow(PlayerColor _color, SelType _type);
+	};
+
 	/// Image with current town/hero/bonus
 	struct SelectedBox : public Scrollable, public CPlayerSettingsHelper
 	{
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
 
-		SelectedBox(Point position, PlayerSettings & settings, SelType type);
+		SelectedBox(Point position, PlayerSettings & playerSettings, SelType type);
 		void showPopupWindow(const Point & cursorPosition) override;
+		void clickReleased(const Point & cursorPosition) override;
 		void scrollBy(int distance) override;
 
 		void update();
@@ -109,9 +167,11 @@ public:
 
 	struct PlayerOptionsEntry : public CIntObject
 	{
+		std::string name;
 		std::unique_ptr<PlayerInfo> pi;
 		std::unique_ptr<PlayerSettings> s;
 		std::shared_ptr<CLabel> labelPlayerName;
+		std::shared_ptr<CTextInput> labelPlayerNameEdit;
 		std::shared_ptr<CMultiLineLabel> labelWhoCanPlay;
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CButton> buttonTownLeft;
@@ -128,15 +188,14 @@ public:
 
 		PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parentTab);
 		void hideUnavailableButtons();
+		bool captureThisKey(EShortcut key) override;
+		void keyPressed(EShortcut key) override;
+		void clickReleased(const Point & cursorPosition) override;
+		bool receiveEvent(const Point & position, int eventType) const override;
 
 	private:
 		const OptionsTab & parentTab;
+
+		void updateName();
 	};
-
-	std::shared_ptr<CSlider> sliderTurnDuration;
-	std::map<PlayerColor, std::shared_ptr<PlayerOptionsEntry>> entries;
-
-	OptionsTab();
-	void recreate();
-	void onSetPlayerClicked(const PlayerSettings & ps) const;
 };

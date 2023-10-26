@@ -103,7 +103,7 @@ jobs:
             test: 0
             pack: 1
             extension: ipa
-            preset: ios-release-conan
+            preset: ios-release-conan-ccache
             conan_profile: ios-arm64
             conan_options: --options with_apple_system_libs=True
           - platform: msvc
@@ -111,7 +111,7 @@ jobs:
             test: 0
             pack: 1
             extension: exe
-            preset: windows-msvc-release
+            preset: windows-msvc-release-ccache
           - platform: mingw-ubuntu
             os: ubuntu-22.04
             test: 0
@@ -145,10 +145,26 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Validate JSON
+      # the Python yaml module doesn't seem to work on mac-arm
+      # also, running it on multiple presets is redundant and slightly increases already long CI built times
+      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
+      run: |
+        pip3 install json5 jstyleson
+        python3 CI/linux-qt6/validate_json.py
+
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
         VCMI_BUILD_PLATFORM: x64
+
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+          key: ${{ matrix.preset }}
+          # actual cache takes up less space, at most ~1 GB
+          max-size: "5G"
+          verbose: 2
 
     - uses: actions/setup-python@v4
       if: "${{ matrix.conan_profile != '' }}"
@@ -185,9 +201,9 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: CMake Preset
+    - name: CMake Preset with ccache
       run: |
-        cmake --preset ${{ matrix.preset }}
+        cmake -DCMAKE_CXX_COMPILER_LAUNCHER=ccache --preset ${{ matrix.preset }}
 
     - name: Build Preset
       run: |

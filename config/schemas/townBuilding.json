@@ -17,7 +17,7 @@
 			"additionalItems" :
 			{
 				"description" : "Following items that contain expression elements",
-				"$ref" : "#/definitions/buidingRequirement"				
+				"$ref" : "#/definitions/buildingRequirement"				
 			}
 		} 
 	},
@@ -27,11 +27,11 @@
 			"description" : "Numeric identifier of this building"
 		},
 		"name" : {
-			"description" : "Name of this building",
+			"description" : "Localizable name of this building",
 			"type" : "string"
 		},
 		"description" : {
-			"description" : "Full decsription of this building",
+			"description" : "Localizable decsription of this building",
 			"type" : "string"
 		},
 		"type" : {
@@ -53,13 +53,13 @@
 			"description" : "List of town buildings that must be built before this one"
 		},
 		"upgrades" : {
-			"description" : "If this building is upgrade, identifier of base building",
+			"description" : "Optional, indicates that this building upgrades another base building",
 			"type" : "string"
 		},
 		"cost" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"description" : "Cost to build this building",
+			"description" : "Resources needed to build building",
 			"properties" : {
 				"gold" :    { "type" : "number"},
 				"wood" :    { "type" : "number"},
@@ -69,11 +69,11 @@
 				"crystal" : { "type" : "number"},
 				"gems" :    { "type" : "number"}
 			}
-	    },		
+		},
 		"produce" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"description" : "Resources this building produce each day",
+			"description" : "Resources produced each day by this building",
 			"properties" : {
 				"gold" :    { "type" : "number"},
 				"wood" :    { "type" : "number"},

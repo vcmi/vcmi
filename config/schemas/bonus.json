@@ -44,10 +44,7 @@
 			"description" : "type"
 		},
 		"subtype" : {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" }
-			],
+			"type" : "string",
 			"description" : "subtype"
 		},
 		"sourceID" : {
@@ -158,10 +155,10 @@
 			"description" : "addInfo"
 		},
 		"duration" : {
-                        "anyOf" : [
-                                { "type" : "string"},
-                                { "type" : "array", "items" : {"type" : "string"} }
-                        ],
+			"anyOf" : [
+				{ "type" : "string"},
+				{ "type" : "array", "items" : {"type" : "string"} }
+			],
 			"description" : "duration"
 		},
 		"turns" : {

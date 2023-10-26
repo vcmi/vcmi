@@ -16,7 +16,7 @@
 		},
 		"faction" : {
 			"type" : "string",
-			"description" : "Faction this hero class belongs to"
+			"description" : "Identifier of faction this class belongs to"
 		},
 		"affinity" : {
 			"type" : "string",
@@ -54,10 +54,15 @@
 			}
 		},
 		"mapObject" : {
+			// TODO: this entry should be merged with corresponding base entry in hero object type and validated as objectType
+			// "$ref" : "objectType.json",
+			"type" : "object",
 			"properties" : {
 				"filters" : {
 					"type" : "object",
-					"additionalProperties" : { "type" : "array" }
+					"additionalProperties" : { 
+						"type" : "array" 
+					}
 				}
 			}
 		},

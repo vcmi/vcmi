@@ -51,43 +51,6 @@ private:
 	std::set<int> playerCountAllowed, playerTeamsAllowed, compCountAllowed, compTeamsAllowed;
 };
 
-class TemplatesDropBox : public InterfaceObjectConfigurable
-{
-	struct ListItem : public InterfaceObjectConfigurable
-	{
-		TemplatesDropBox & dropBox;
-		const CRmgTemplate * item = nullptr;
-		
-		ListItem(const JsonNode &, TemplatesDropBox &, Point position);
-		void updateItem(int index, const CRmgTemplate * item = nullptr);
-		
-		void hover(bool on) override;
-		void clickPressed(const Point & cursorPosition) override;
-		void clickReleased(const Point & cursorPosition) override;
-	};
-	
-	friend struct ListItem;
-	
-public:
-	TemplatesDropBox(RandomMapTab & randomMapTab, int3 size);
-	
-	bool receiveEvent(const Point & position, int eventType) const override;
-	void clickPressed(const Point & cursorPosition) override;
-	void setTemplate(const CRmgTemplate *);
-	
-private:
-	std::shared_ptr<CIntObject> buildListItem(const JsonNode & config);
-	
-	void sliderMove(int slidPos);
-	void updateListItems();
-	
-	RandomMapTab & randomMapTab;
-	std::vector<std::shared_ptr<ListItem>> listItems;
-	
-	std::vector<const CRmgTemplate *> curItems;
-	
-};
-
 class TeamAlignmentsWidget: public InterfaceObjectConfigurable
 {
 public:

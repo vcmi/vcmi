@@ -11,11 +11,10 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
-#include "../CModHandler.h"
 #include "../CSkillHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
@@ -25,6 +24,7 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -68,14 +68,14 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 //CGMine
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
 
-	if(relations == 2) //we're visiting our mine
+	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
 		cb->showGarrisonDialog(id,h->id,true);
 		return;
 	}
-	else if (relations == 1)//ally
+	else if (relations == PlayerRelations::ALLIES)//ally
 		return;
 
 	if(stacksCount()) //Mine is guarded
@@ -196,7 +196,7 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::serializeJson(handler, "army", 7);
+	CArmedInstance::serializeJsonOptions(handler);
 
 	if(isAbandoned())
 	{
@@ -268,7 +268,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
-			ynd.text.appendRawString(message);
+			ynd.text = message;
 			cb->showBlockingDialog(&ynd);
 		}
 		else
@@ -288,7 +288,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 	if(!message.empty())
 	{
 		sii.type = EInfoWindowMode::AUTO;
-		sii.text.appendRawString(message);
+		sii.text = message;
 	}
 	else
 	{
@@ -299,7 +299,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 	sii.components.emplace_back(Component::EComponentType::RESOURCE,subID,amount,0);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
 	cb->showInfoDialog(&sii);
-	cb->removeObject(this);
+	cb->removeObject(this, player);
 }
 
 void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
@@ -316,9 +316,11 @@ void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::serializeJson(handler, "guards", 7);
+	CArmedInstance::serializeJsonOptions(handler);
+	if(!handler.saving && !handler.getCurrent()["guards"].Vector().empty())
+		CCreatureSet::serializeJson(handler, "guards", 7);
 	handler.serializeInt("amount", amount, 0);
-	handler.serializeString("guardMessage", message);
+	handler.serializeStruct("guardMessage", message);
 }
 
 bool CGTeleport::isEntrance() const
@@ -370,7 +372,7 @@ ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 
 bool CGTeleport::isTeleport(const CGObjectInstance * obj)
 {
-	return ((dynamic_cast<const CGTeleport *>(obj)));
+	return dynamic_cast<const CGTeleport *>(obj) != nullptr;
 }
 
 bool CGTeleport::isConnected(const CGTeleport * src, const CGTeleport * dst)
@@ -453,7 +455,7 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, int Su
 
 void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 {
-	TeleportDialog td(h->tempOwner, channel);
+	TeleportDialog td(h->id, channel);
 	if(isEntrance())
 	{
 		if(cb->isTeleportChannelBidirectional(channel) && 1 < cb->getTeleportChannelExits(channel).size())
@@ -527,7 +529,7 @@ void CGMonolith::initObj(CRandomGenerator & rand)
 
 void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 {
-	TeleportDialog td(h->tempOwner, channel);
+	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
 		h->showInfoDialog(153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
@@ -611,7 +613,7 @@ void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
 
 void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 {
-	TeleportDialog td(h->tempOwner, channel);
+	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
 		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), pos.toString());
@@ -726,8 +728,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			case Obj::ARTIFACT:
 			{
 				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
-				if(message.length())
-					iw.text.appendRawString(message);
+				if(!message.empty())
+					iw.text = message;
 				else
 					iw.text.appendLocalString(EMetaText::ART_EVNTS, subID);
 			}
@@ -736,8 +738,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 				int spellID = storedArtifact->getScrollSpellID();
 				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
-				if(message.length())
-					iw.text.appendRawString(message);
+				if(!message.empty())
+					iw.text = message;
 				else
 				{
 					iw.text.appendLocalString(EMetaText::ADVOB_TXT,135);
@@ -762,8 +764,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 				BlockingDialog ynd(true,false);
 				ynd.player = h->getOwner();
-				if(message.length())
-					ynd.text.appendRawString(message);
+				if(!message.empty())
+					ynd.text = message;
 				else
 				{
 					// TODO: Guard text is more complex in H3, see mantis issue 2325 for details
@@ -777,11 +779,11 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			break;
 		case Obj::SPELL_SCROLL:
 			{
-				if(message.length())
+				if(!message.empty())
 				{
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
-					ynd.text.appendRawString(message);
+					ynd.text = message;
 					cb->showBlockingDialog(&ynd);
 				}
 				else
@@ -795,7 +797,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
 	if(cb->giveHeroArtifact(h, storedArtifact, ArtifactPosition::FIRST_AVAILABLE))
-		cb->removeObject(this);
+		cb->removeObject(this, h->getOwner());
 }
 
 BattleField CGArtifact::getBattlefield() const
@@ -826,213 +828,18 @@ void CGArtifact::afterAddToMap(CMap * map)
 
 void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	handler.serializeString("guardMessage", message);
-	CCreatureSet::serializeJson(handler, "guards" ,7);
+	handler.serializeStruct("guardMessage", message);
+	CArmedInstance::serializeJsonOptions(handler);
+	if(!handler.saving && !handler.getCurrent()["guards"].Vector().empty())
+		CCreatureSet::serializeJson(handler, "guards", 7);
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
 		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
-		SpellID spellId(b->subtype);
+		SpellID spellId(b->subtype.as<SpellID>());
 
 		handler.serializeId("spell", spellId, SpellID::NONE);
 	}
-}
-
-void CGWitchHut::initObj(CRandomGenerator & rand)
-{
-	if (allowedAbilities.empty()) //this can happen for RMG and RoE maps.
-	{
-		auto defaultAllowed = VLC->skillh->getDefaultAllowed();
-
-		// Necromancy and Leadership can't be learned by default
-		defaultAllowed[SecondarySkill::NECROMANCY] = false;
-		defaultAllowed[SecondarySkill::LEADERSHIP] = false;
-
-		for(int i = 0; i < defaultAllowed.size(); i++)
-			if (defaultAllowed[i] && cb->isAllowed(2, i))
-				allowedAbilities.insert(SecondarySkill(i));
-	}
-	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
-}
-
-void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
-{
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.player = h->getOwner();
-	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id, CGWitchHut::OBJPROP_VISITED, h->tempOwner.getNum());
-	ui32 txt_id;
-	if(h->getSecSkillLevel(SecondarySkill(ability))) //you already know this skill
-	{
-		txt_id =172;
-	}
-	else if(!h->canLearnSkill()) //already all skills slots used
-	{
-		txt_id = 173;
-	}
-	else //give sec skill
-	{
-		iw.components.emplace_back(Component::EComponentType::SEC_SKILL, ability, 1, 0);
-		txt_id = 171;
-		cb->changeSecSkill(h, SecondarySkill(ability), 1, true);
-	}
-
-	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txt_id);
-	iw.text.replaceLocalString(EMetaText::SEC_SKILL_NAME, ability);
-	cb->showInfoDialog(&iw);
-}
-
-std::string CGWitchHut::getHoverText(PlayerColor player) const
-{
-	std::string hoverName = getObjectName();
-	if(wasVisited(player))
-	{
-		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName, "%s", VLC->skillh->getByIndex(ability)->getNameTranslated());
-	}
-	return hoverName;
-}
-
-std::string CGWitchHut::getHoverText(const CGHeroInstance * hero) const
-{
-	std::string hoverName = getHoverText(hero->tempOwner);
-	if(wasVisited(hero->tempOwner) && hero->getSecSkillLevel(SecondarySkill(ability))) //hero knows that ability
-		hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
-	return hoverName;
-}
-
-void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
-{
-	//TODO: unify allowed abilities with others - make them std::vector<bool>
-
-	std::vector<bool> temp;
-	size_t skillCount = VLC->skillh->size();
-	temp.resize(skillCount, false);
-
-	auto standard = VLC->skillh->getDefaultAllowed(); //todo: for WitchHut default is all except Leadership and Necromancy
-
-	if(handler.saving)
-	{
-		for(si32 i = 0; i < skillCount; ++i)
-			if(vstd::contains(allowedAbilities, i))
-				temp[i] = true;
-	}
-
-	handler.serializeLIC("allowedSkills", &CSkillHandler::decodeSkill, &CSkillHandler::encodeSkill, standard, temp);
-
-	if(!handler.saving)
-	{
-		allowedAbilities.clear();
-		for(si32 i = 0; i < skillCount; ++i)
-			if(temp[i])
-				allowedAbilities.insert(SecondarySkill(i));
-	}
-}
-
-void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
-{
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.player = h->tempOwner;
-	switch (ID)
-	{
-	case Obj::REDWOOD_OBSERVATORY:
-	case Obj::PILLAR_OF_FIRE:
-	{
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT,98 + (ID==Obj::PILLAR_OF_FIRE));
-
-		FoWChange fw;
-		fw.player = h->tempOwner;
-		fw.mode = 1;
-		cb->getTilesInRange (fw.tiles, pos, 20, h->tempOwner, 1);
-		cb->sendAndApply (&fw);
-		break;
-	}
-	case Obj::COVER_OF_DARKNESS:
-	{
-		iw.text.appendLocalString (EMetaText::ADVOB_TXT, 31);
-		for (auto & player : cb->gameState()->players)
-		{
-			if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
-				cb->getPlayerRelations(player.first, h->tempOwner) == PlayerRelations::ENEMIES)
-				cb->changeFogOfWar(visitablePos(), 20, player.first, true);
-		}
-		break;
-	}
-	}
-	cb->showInfoDialog(&iw);
-}
-
-void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
-{
-	if(spell == SpellID::NONE)
-	{
-		logGlobal->error("Not initialized shrine visited!");
-		return;
-	}
-
-	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id, CGShrine::OBJPROP_VISITED, h->tempOwner.getNum());
-
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.player = h->getOwner();
-	iw.text = visitText;
-	iw.text.appendLocalString(EMetaText::SPELL_NAME,spell);
-	iw.text.appendRawString(".");
-
-	if(!h->getArt(ArtifactPosition::SPELLBOOK))
-	{
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT,131);
-	}
-	else if(h->spellbookContainsSpell(spell))//hero already knows the spell
-	{
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT,174);
-	}
-	else if(spell.toSpell()->getLevel() > h->maxSpellLevel()) //it's third level spell and hero doesn't have wisdom
-	{
-		iw.text.appendLocalString(EMetaText::ADVOB_TXT,130);
-	}
-	else //give spell
-	{
-		std::set<SpellID> spells;
-		spells.insert(spell);
-		cb->changeSpells(h, true, spells);
-
-		iw.components.emplace_back(Component::EComponentType::SPELL, spell, 0, 0);
-	}
-
-	cb->showInfoDialog(&iw);
-}
-
-void CGShrine::initObj(CRandomGenerator & rand)
-{
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
-}
-
-std::string CGShrine::getHoverText(PlayerColor player) const
-{
-	std::string hoverName = getObjectName();
-	if(wasVisited(player))
-	{
-		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName,"%s", spell.toSpell()->getNameTranslated());
-	}
-	return hoverName;
-}
-
-std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
-{
-	std::string hoverName = getHoverText(hero->tempOwner);
-	if(wasVisited(hero->tempOwner) && hero->spellbookContainsSpell(spell)) //know what spell there is and hero knows that spell
-		hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
-	return hoverName;
-}
-
-void CGShrine::serializeJsonOptions(JsonSerializeFormat & handler)
-{
-	handler.serializeId("spell", spell, SpellID::NONE);
 }
 
 void CGSignBottle::initObj(CRandomGenerator & rand)
@@ -1042,7 +849,7 @@ void CGSignBottle::initObj(CRandomGenerator & rand)
 	{
 		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
 		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
-		message = VLC->generaltexth->translate(messageIdentifier);
+		message.appendTextID(TextIdentifier("core", "randsign", messageIdentifier).get());
 	}
 
 	if(ID == Obj::OCEAN_BOTTLE)
@@ -1055,155 +862,29 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	iw.text.appendRawString(message);
+	iw.text = message;
 	cb->showInfoDialog(&iw);
 
 	if(ID == Obj::OCEAN_BOTTLE)
-		cb->removeObject(this);
+		cb->removeObject(this, h->getOwner());
 }
 
 void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	handler.serializeString("text", message);
-}
-
-void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
-{
-	EBonusType type = bonusType;
-	int bid = bonusID;
-	//check if the bonus if applicable, if not - give primary skill (always possible)
-	int ssl = h->getSecSkillLevel(SecondarySkill(bid)); //current sec skill level, used if bonusType == 1
-	if((type == SECONDARY_SKILL	&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == SPELL && !h->canLearnSpell(SpellID(bid).toSpell())))
-	{
-		type = PRIM_SKILL;
-		bid = CRandomGenerator::getDefault().nextInt(GameConstants::PRIMARY_SKILLS - 1);
-	}
-
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.player = h->getOwner();
-	iw.text.appendLocalString(EMetaText::ADVOB_TXT,115);
-
-	switch (type)
-	{
-	case PRIM_SKILL:
-		cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(bid),+1);
-		iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, bid, +1, 0);
-		break;
-	case SECONDARY_SKILL:
-		cb->changeSecSkill(h,SecondarySkill(bid),+1);
-		iw.components.emplace_back(Component::EComponentType::SEC_SKILL, bid, ssl + 1, 0);
-		break;
-	case SPELL:
-		{
-			std::set<SpellID> hlp;
-			hlp.insert(SpellID(bid));
-			cb->changeSpells(h,true,hlp);
-			iw.components.emplace_back(Component::EComponentType::SPELL, bid, 0, 0);
-		}
-		break;
-	default:
-		logGlobal->error("Error: wrong bonus type (%d) for Scholar!\n", static_cast<int>(type));
-		return;
-	}
-
-	cb->showInfoDialog(&iw);
-	cb->removeObject(this);
-}
-
-void CGScholar::initObj(CRandomGenerator & rand)
-{
-	blockVisit = true;
-	if(bonusType == RANDOM)
-	{
-		bonusType = static_cast<EBonusType>(rand.nextInt(2));
-		switch(bonusType)
-		{
-		case PRIM_SKILL:
-			bonusID = rand.nextInt(GameConstants::PRIMARY_SKILLS -1);
-			break;
-		case SECONDARY_SKILL:
-			bonusID = rand.nextInt(static_cast<int>(VLC->skillh->size()) - 1);
-			break;
-		case SPELL:
-			std::vector<SpellID> possibilities;
-			cb->getAllowedSpells (possibilities);
-			bonusID = *RandomGeneratorUtil::nextItem(possibilities, rand);
-			break;
-		}
-	}
-}
-
-void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
-{
-	if(handler.saving)
-	{
-		std::string value;
-		switch(bonusType)
-		{
-		case PRIM_SKILL:
-			value = PrimarySkill::names[bonusID];
-			handler.serializeString("rewardPrimSkill", value);
-			break;
-		case SECONDARY_SKILL:
-			value = CSkillHandler::encodeSkill(bonusID);
-			handler.serializeString("rewardSkill", value);
-			break;
-		case SPELL:
-			value = SpellID::encode(bonusID);
-			handler.serializeString("rewardSpell", value);
-			break;
-		case RANDOM:
-			break;
-		}
-	}
-	else
-	{
-		//TODO: unify
-		const JsonNode & json = handler.getCurrent();
-		bonusType = RANDOM;
-		if(!json["rewardPrimSkill"].String().empty())
-		{
-			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "primSkill", json["rewardPrimSkill"].String());
-			if(raw)
-			{
-				bonusType = PRIM_SKILL;
-				bonusID = raw.value();
-			}
-		}
-		else if(!json["rewardSkill"].String().empty())
-		{
-			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "skill", json["rewardSkill"].String());
-			if(raw)
-			{
-				bonusType = SECONDARY_SKILL;
-				bonusID = raw.value();
-			}
-		}
-		else if(!json["rewardSpell"].String().empty())
-		{
-			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", json["rewardSpell"].String());
-			if(raw)
-			{
-				bonusType = SPELL;
-				bonusID = raw.value();
-			}
-		}
-	}
+	handler.serializeStruct("text", message);
 }
 
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
-	int ally = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
-	if (!ally && stacksCount() > 0) {
+	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
+	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		cb->startBattleI(h, this);
 		return;
 	}
 
 	//New owner.
-	if (!ally)
+	if (relations == PlayerRelations::ENEMIES)
 		cb->setOwner(this, h->tempOwner);
 
 	cb->showGarrisonDialog(id, h->id, removableUnits);
@@ -1233,7 +914,7 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	handler.serializeBool("removableUnits", removableUnits);
 	serializeJsonOwner(handler);
-	CCreatureSet::serializeJson(handler, "army", 7);
+	CArmedInstance::serializeJsonOptions(handler);
 }
 
 void CGMagi::reset()
@@ -1263,14 +944,14 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 			FoWChange fw;
 			fw.player = h->tempOwner;
-			fw.mode = 1;
+			fw.mode = ETileVisibility::REVEALED;
 			fw.waitForDialogs = true;
 
 			for(const auto & it : eyelist[subID])
 			{
 				const CGObjectInstance *eye = cb->getObj(it);
 
-				cb->getTilesInRange (fw.tiles, eye->pos, 10, h->tempOwner, 1);
+				cb->getTilesInRange (fw.tiles, eye->pos, 10, ETileVisibility::HIDDEN, h->tempOwner);
 				cb->sendAndApply(&fw);
 				cv.pos = eye->pos;
 
@@ -1291,7 +972,7 @@ CGBoat::CGBoat()
 {
 	hero = nullptr;
 	direction = 4;
-	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
+	layer = EPathfindingLayer::SAIL;
 }
 
 bool CGBoat::isCoastVisitable() const
@@ -1306,14 +987,14 @@ void CGSirens::initObj(CRandomGenerator & rand)
 
 std::string CGSirens::getHoverText(const CGHeroInstance * hero) const
 {
-	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT,ID));
+	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID)));
 }
 
 void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->tempOwner;
-	if(h->hasBonusFrom(BonusSource::OBJECT,ID)) //has already visited Sirens
+	if(h->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID))) //has already visited Sirens
 	{
 		iw.type = EInfoWindowMode::AUTO;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT,133);
@@ -1395,7 +1076,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		openWindow(EOpenWindowMode::SHIPYARD_WINDOW,id.getNum(),h->id.getNum());
+		cb->showObjectWindow(this, EOpenWindowMode::SHIPYARD_WINDOW, h, false);
 	}
 }
 
@@ -1409,82 +1090,9 @@ BoatId CGShipyard::getBoatType() const
 	return createdBoat;
 }
 
-void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
-{
-	//if player has not bought map of this subtype yet and underground exist for stalagmite cartographer
-	if (!wasVisited(h->getOwner()) && (subID != 2 || cb->gameState()->map->twoLevel))
-	{
-		if (cb->getResource(h->tempOwner, EGameResID::GOLD) >= 1000) //if he can afford a map
-		{
-			//ask if he wants to buy one
-			int text=0;
-			switch (subID)
-			{
-				case 0:
-					text = 25;
-					break;
-				case 1:
-					text = 26;
-					break;
-				case 2:
-					text = 27;
-					break;
-				default:
-					logGlobal->warn("Unrecognized subtype of cartographer");
-			}
-			assert(text);
-			BlockingDialog bd (true, false);
-			bd.player = h->getOwner();
-			bd.text.appendLocalString (EMetaText::ADVOB_TXT, text);
-			cb->showBlockingDialog (&bd);
-		}
-		else //if he cannot afford
-		{
-			h->showInfoDialog(28);
-		}
-	}
-	else //if he already visited carographer
-	{
-		h->showInfoDialog(24);
-	}
-}
-
-void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
-{
-	if(answer) //if hero wants to buy map
-	{
-		cb->giveResource(hero->tempOwner, EGameResID::GOLD, -1000);
-		FoWChange fw;
-		fw.mode = 1;
-		fw.player = hero->tempOwner;
-
-		//subIDs of different types of cartographers:
-		//water = 0; land = 1; underground = 2;
-
-		IGameCallback::MapTerrainFilterMode tileFilterMode = IGameCallback::MapTerrainFilterMode::NONE;
-
-		switch(subID)
-		{
-			case 0:
-				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::WATER;
-				break;
-			case 1:
-				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::LAND_CARTOGRAPHER;
-				break;
-			case 2:
-				tileFilterMode = CPrivilegedInfoCallback::MapTerrainFilterMode::UNDERGROUND_CARTOGRAPHER;
-				break;
-		}
-
-		cb->getAllTiles(fw.tiles, hero->tempOwner, -1, tileFilterMode); //reveal appropriate tiles
-		cb->sendAndApply(&fw);
-		cb->setObjProperty(id, CCartographer::OBJPROP_VISITED, hero->tempOwner.getNum());
-	}
-}
-
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 {
-	cb->showThievesGuildWindow(h->tempOwner, id);
+	cb->showObjectWindow(this, EOpenWindowMode::THIEVES_GUILD, h, false);
 }
 
 void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
@@ -1503,8 +1111,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 		// increment general visited obelisks counter
 		cb->setObjProperty(id, CGObelisk::OBJPROP_INC, team.getNum());
-
-		openWindow(EOpenWindowMode::PUZZLE_MAP, h->tempOwner.getNum());
+		cb->showObjectWindow(this, EOpenWindowMode::PUZZLE_MAP, h, false);
 
 		// mark that particular obelisk as visited for all players in the team
 		for(const auto & color : ts->players)
@@ -1568,12 +1175,12 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 		h->showInfoDialog(69);
 		giveBonusTo(h->tempOwner);
 
-		if(oldOwner < PlayerColor::PLAYER_LIMIT) //remove bonus from old owner
+		if(oldOwner.isValidPlayer()) //remove bonus from old owner
 		{
 			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
 			rb.whoID = oldOwner.getNum();
-			rb.source = vstd::to_underlying(BonusSource::OBJECT);
-			rb.id = id.getNum();
+			rb.source = BonusSource::OBJECT_INSTANCE;
+			rb.id = BonusSourceID(id);
 			cb->sendAndApply(&rb);
 		}
 	}
@@ -1581,7 +1188,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGLighthouse::initObj(CRandomGenerator & rand)
 {
-	if(tempOwner < PlayerColor::PLAYER_LIMIT)
+	if(tempOwner.isValidPlayer())
 	{
 		// FIXME: This is dirty hack
 		giveBonusTo(tempOwner, true);
@@ -1595,9 +1202,9 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	gb.bonus.val = 500;
 	gb.id = player.getNum();
 	gb.bonus.duration = BonusDuration::PERMANENT;
-	gb.bonus.source = BonusSource::OBJECT;
-	gb.bonus.sid = id.getNum();
-	gb.bonus.subtype = 0;
+	gb.bonus.source = BonusSource::OBJECT_INSTANCE;
+	gb.bonus.sid = BonusSourceID(id);
+	gb.bonus.subtype = BonusCustomSubtype::heroMovementSea;
 
 	// FIXME: This is really dirty hack
 	// Proper fix would be to make CGLighthouse into bonus system node
@@ -1615,7 +1222,7 @@ void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
 
 void HillFort::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(EOpenWindowMode::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
+	cb->showObjectWindow(this, EOpenWindowMode::HILL_FORT_WINDOW, h, false);
 }
 
 void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

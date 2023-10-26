@@ -11,6 +11,8 @@
 
 #include "RandomMapTab.h"
 #include "CSelectionBase.h"
+#include "CLobbyScreen.h"
+#include "SelectionTab.h"
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
@@ -18,6 +20,7 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
@@ -31,7 +34,6 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"
@@ -42,7 +44,6 @@ RandomMapTab::RandomMapTab():
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
 	
-	const JsonNode config(ResourceID("config/widgets/randomMapTab.json"));
 	addCallback("toggleMapSize", [&](int btnId)
 	{
 		auto mapSizeVal = getPossibleMapSizes();
@@ -104,11 +105,6 @@ RandomMapTab::RandomMapTab():
 	});
 	
 	//new callbacks available only from mod
-	addCallback("templateSelection", [&](int)
-	{
-		GH.windows().createAndPushWindow<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
-	});
-	
 	addCallback("teamAlignments", [&](int)
 	{
 		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
@@ -124,7 +120,47 @@ RandomMapTab::RandomMapTab():
 		});
 	}
 	
+	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
+	
+	if(auto w = widget<CButton>("buttonShowRandomMaps"))
+	{
+		w->addCallback([&]()
+		{
+			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
+			(static_cast<CLobbyScreen *>(parent))->tabSel->showRandom = true;
+			(static_cast<CLobbyScreen *>(parent))->tabSel->filter(0, true);
+		});
+	}
+
+	//set combo box callbacks
+	if(auto w = widget<ComboBox>("templateList"))
+	{
+		w->onConstructItems = [](std::vector<const void *> & curItems){
+			auto templates = VLC->tplh->getTemplates();
+		
+			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
+				return a->getName() < b->getName();
+			});
+
+			curItems.push_back(nullptr); //default template
+			
+			for(auto & t : templates)
+				curItems.push_back(t);
+		};
+		
+		w->onSetItem = [&](const void * item){
+			this->setTemplate(reinterpret_cast<const CRmgTemplate *>(item));
+		};
+		
+		w->getItemText = [this](int idx, const void * item){
+			if(item)
+				return reinterpret_cast<const CRmgTemplate *>(item)->getName();
+			if(idx == 0)
+				return readText(variables["randomTemplate"]);
+			return std::string("");
+		};
+	}
 	
 	updateMapInfoByHost();
 }
@@ -139,8 +175,8 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
-	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];
+	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 	mapInfo->mapHeader->difficulty = 1; // Normal
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
@@ -319,9 +355,9 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	for(auto r : VLC->roadTypeHandler->objects)
 	{
@@ -339,9 +375,9 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	updateMapInfoByHost();
 }
@@ -551,7 +587,7 @@ void TeamAlignmentsWidget::checkTeamCount()
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	InterfaceObjectConfigurable()
 {
-	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];
 	
 	int humanPlayers = randomMapTab.obtainMapGenOptions().getPlayerCount();

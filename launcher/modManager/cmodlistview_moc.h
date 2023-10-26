@@ -51,7 +51,7 @@ class CModListView : public QWidget
 	// find mods that depend on this one
 	QStringList findDependentMods(QString mod, bool excludeDisabled);
 
-	void downloadFile(QString file, QString url, QString description);
+	void downloadFile(QString file, QString url, QString description, qint64 size = 0);
 
 	void installMods(QStringList archives);
 	void installFiles(QStringList mods);
@@ -125,6 +125,8 @@ private slots:
 	void on_tabWidget_currentChanged(int index);
 
 	void on_screenshotsList_clicked(const QModelIndex & index);
+
+	void on_allModsView_doubleClicked(const QModelIndex &index);
 
 private:
 	Ui::CModListView * ui;

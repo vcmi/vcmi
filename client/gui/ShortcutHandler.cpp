@@ -120,7 +120,7 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
 		{SDLK_KP_MINUS,  EShortcut::ADVENTURE_ZOOM_OUT        },
 		{SDLK_BACKSPACE, EShortcut::ADVENTURE_ZOOM_RESET      },
 		{SDLK_q,         EShortcut::BATTLE_TOGGLE_QUEUE       },
-		{SDLK_c,         EShortcut::BATTLE_USE_CREATURE_SPELL },
+		{SDLK_f,         EShortcut::BATTLE_USE_CREATURE_SPELL },
 		{SDLK_s,         EShortcut::BATTLE_SURRENDER          },
 		{SDLK_r,         EShortcut::BATTLE_RETREAT            },
 		{SDLK_a,         EShortcut::BATTLE_AUTOCOMBAT         },

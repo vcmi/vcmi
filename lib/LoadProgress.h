@@ -18,6 +18,8 @@ namespace Load
 
 using Type = unsigned char;
 
+class ProgressAccumulator;
+
 /*
  * Purpose of that class is to track progress of computations
  * Derive from this class if you want to translate user or system
@@ -29,8 +31,9 @@ class DLL_LINKAGE Progress
 public:
 	
 	//Sets current state to 0.
-	//Amount of steps to finish progress will be equal to 100
+	//Amount of steps to finish progress will be equal to 100 for default constructor
 	Progress();
+	Progress(int steps);
 	virtual ~Progress() = default;
 
 	//Returns current state of the progress
@@ -67,5 +70,25 @@ public:
 private:
 	std::atomic<Type> _progress, _target;
 	std::atomic<int> _step, _maxSteps;
+	
+	friend class ProgressAccumulator;
 };
+
+class DLL_LINKAGE ProgressAccumulator
+{
+public:
+	ProgressAccumulator() = default;
+	
+	void include(const Progress &);
+	void exclude(const Progress &);
+	
+	bool finished() const;
+	Type get() const;
+	
+private:
+	mutable boost::mutex _mx;
+	long long _accumulated = 0, _steps = 0;
+	std::vector<std::reference_wrapper<const Progress>> _progress;
+};
+
 }

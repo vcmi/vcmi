@@ -54,12 +54,12 @@ bool TileInfo::isUsed() const
 {
 	return occupied == ETileType::USED;
 }
-void TileInfo::setOccupied(ETileType::ETileType value)
+void TileInfo::setOccupied(ETileType value)
 {
 	occupied = value;
 }
 
-ETileType::ETileType TileInfo::getTileType() const
+ETileType TileInfo::getTileType() const
 {
 	return occupied;
 }

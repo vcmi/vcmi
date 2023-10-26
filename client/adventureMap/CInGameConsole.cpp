@@ -22,11 +22,13 @@
 #include "../gui/TextAlignment.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CThreadHelper.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 
@@ -104,7 +106,13 @@ void CInGameConsole::print(const std::string & txt)
 	}
 
 	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
-	CCS->soundh->playSound("CHAT");
+
+	int volume = CCS->soundh->getVolume();
+	if(volume == 0)
+		CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+	int handle = CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+	if(volume == 0)
+		CCS->soundh->setCallback(handle, [&]() { if(!GH.screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
 }
 
 bool CInGameConsole::captureThisKey(EShortcut key)
@@ -255,6 +263,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			//some commands like gosolo don't work when executed from GUI thread
 			auto threadFunction = [=]()
 			{
+				setThreadName("processCommand");
 				ClientCommandManager commandController;
 				commandController.processCommand(txt.substr(1), true);
 			};

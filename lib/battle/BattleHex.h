@@ -47,6 +47,14 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static constexpr si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
 	static constexpr si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();
 
+	static constexpr si16 DESTRUCTIBLE_WALL_1 = 29;
+	static constexpr si16 DESTRUCTIBLE_WALL_2 = 78;
+	static constexpr si16 DESTRUCTIBLE_WALL_3 = 130;
+	static constexpr si16 DESTRUCTIBLE_WALL_4 = 182;
+	static constexpr si16 GATE_BRIDGE = 94;
+	static constexpr si16 GATE_OUTER = 95;
+	static constexpr si16 GATE_INNER = 96;
+
 	si16 hex;
 	static constexpr si16 INVALID = -1;
 	enum EDir

@@ -71,7 +71,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_GAME_OPTIONS,     optionInMapView(),      [this]() { this->adventureOptions(); } },
 		{ EShortcut::GLOBAL_OPTIONS,             optionInMapView(),      [this]() { this->systemOptions(); } },
 		{ EShortcut::ADVENTURE_NEXT_HERO,        optionHasNextHero(),    [this]() { this->nextHero(); } },
-		{ EShortcut::GAME_END_TURN,              optionInMapView(),      [this]() { this->endTurn(); } },
+		{ EShortcut::GAME_END_TURN,              optionCanEndTurn(),     [this]() { this->endTurn(); } },
 		{ EShortcut::ADVENTURE_THIEVES_GUILD,    optionInMapView(),      [this]() { this->showThievesGuild(); } },
 		{ EShortcut::ADVENTURE_VIEW_SCENARIO,    optionInMapView(),      [this]() { this->showScenarioInfo(); } },
 		{ EShortcut::GAME_SAVE_GAME,             optionInMapView(),      [this]() { this->saveGame(); } },
@@ -79,7 +79,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroSelected(),   [this]() { this->digGrail(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
 		{ EShortcut::GAME_RESTART_GAME,          optionInMapView(),      [this]() { this->restartGame(); } },
-		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionHeroSelected(),   [this]() { this->visitObject(); } },
+		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
 		{ EShortcut::GAME_OPEN_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
 		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+1); } },
@@ -314,7 +314,7 @@ void AdventureMapShortcuts::visitObject()
 	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
 
 	if(h)
-		LOCPLINT->cb->moveHero(h,h->pos);
+		LOCPLINT->cb->moveHero(h, h->pos);
 }
 
 void AdventureMapShortcuts::openObject()
@@ -342,7 +342,7 @@ void AdventureMapShortcuts::showMarketplace()
 	}
 
 	if(townWithMarket) //if any town has marketplace, open window
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(townWithMarket);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(townWithMarket, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
 	else //if not - complain
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }
@@ -397,12 +397,12 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 
 bool AdventureMapShortcuts::optionCanViewQuests()
 {
-	return optionInMapView() && CGI->mh->getMap()->quests.empty();
+	return optionInMapView() && !CGI->mh->getMap()->quests.empty();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()
 {
-	return optionInMapView() && LOCPLINT->cb->getMapSize().z > 1;
+	return optionSidePanelActive() && LOCPLINT->cb->getMapSize().z > 1;
 }
 
 bool AdventureMapShortcuts::optionMapLevelSurface()
@@ -422,6 +422,18 @@ bool AdventureMapShortcuts::optionHeroAwake()
 	return optionInMapView() && hero && !LOCPLINT->localState->isHeroSleeping(hero);
 }
 
+bool AdventureMapShortcuts::optionCanVisitObject()
+{
+	if (!optionHeroSelected())
+		return false;
+
+	auto * hero = LOCPLINT->localState->getCurrentHero();
+	auto objects = LOCPLINT->cb->getVisitableObjs(hero->visitablePos());
+
+	assert(vstd::contains(objects,hero));
+	return objects.size() > 1; // there is object other than our hero
+}
+
 bool AdventureMapShortcuts::optionHeroSelected()
 {
 	return optionInMapView() && LOCPLINT->localState->getCurrentHero() != nullptr;
@@ -439,6 +451,11 @@ bool AdventureMapShortcuts::optionHasNextHero()
 	const auto * nextSuitableHero = LOCPLINT->localState->getNextWanderingHero(hero);
 
 	return optionInMapView() && nextSuitableHero != nullptr;
+}
+
+bool AdventureMapShortcuts::optionCanEndTurn()
+{
+	return optionInMapView() && LOCPLINT->makingTurn;
 }
 
 bool AdventureMapShortcuts::optionSpellcasting()

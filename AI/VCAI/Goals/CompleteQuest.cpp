@@ -14,10 +14,6 @@
 #include "../AIhelper.h"
 #include "../../../lib/mapObjects/CQuest.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
-
 using namespace Goals;
 
 bool CompleteQuest::operator==(const CompleteQuest & other) const
@@ -25,48 +21,43 @@ bool CompleteQuest::operator==(const CompleteQuest & other) const
 	return q.quest->qid == other.q.quest->qid;
 }
 
+bool isKeyMaster(const QuestInfo & q)
+{
+	return q.obj && (q.obj->ID == Obj::BORDER_GATE || q.obj->ID == Obj::BORDERGUARD);
+}
+
 TGoalVec CompleteQuest::getAllPossibleSubgoals()
 {
 	TGoalVec solutions;
 
-	if(q.quest->missionType && q.quest->progress != CQuest::COMPLETE)
+	if(!q.quest->isCompleted)
 	{
 		logAi->debug("Trying to realize quest: %s", questToString());
-
-		switch(q.quest->missionType)
-		{
-		case CQuest::MISSION_ART:
-			return missionArt();
-
-		case CQuest::MISSION_HERO:
-			return missionHero();
-
-		case CQuest::MISSION_ARMY:
-			return missionArmy();
-
-		case CQuest::MISSION_RESOURCES:
-			return missionResources();
-
-		case CQuest::MISSION_KILL_HERO:
-		case CQuest::MISSION_KILL_CREATURE:
-			return missionDestroyObj();
-
-		case CQuest::MISSION_PRIMARY_STAT:
-			return missionIncreasePrimaryStat();
-
-		case CQuest::MISSION_LEVEL:
-			return missionLevel();
-
-		case CQuest::MISSION_PLAYER:
-			if(ai->playerID.getNum() != q.quest->m13489val)
-				logAi->debug("Can't be player of color %d", q.quest->m13489val);
-
-			break;
 		
-		case CQuest::MISSION_KEYMASTER:
+		if(isKeyMaster(q))
 			return missionKeymaster();
 
-		} //end of switch
+		if(!q.quest->mission.artifacts.empty())
+			return missionArt();
+
+		if(!q.quest->mission.heroes.empty())
+			return missionHero();
+
+		if(!q.quest->mission.creatures.empty())
+			return missionArmy();
+
+		if(q.quest->mission.resources.nonZero())
+			return missionResources();
+
+		if(q.quest->killTarget != ObjectInstanceID::NONE)
+			return missionDestroyObj();
+
+		for(auto & s : q.quest->mission.primary)
+			if(s)
+				return missionIncreasePrimaryStat();
+
+		if(q.quest->mission.heroLevel > 0)
+			return missionLevel();
 	}
 
 	return TGoalVec();
@@ -74,7 +65,7 @@ TGoalVec CompleteQuest::getAllPossibleSubgoals()
 
 TSubgoal CompleteQuest::whatToDoToAchieve()
 {
-	if(q.quest->missionType == CQuest::MISSION_NONE)
+	if(q.quest->mission == Rewardable::Limiter{})
 	{
 		throw cannotFulfillGoalException("Can not complete inactive quest");
 	}
@@ -108,7 +99,7 @@ std::string CompleteQuest::completeMessage() const
 
 std::string CompleteQuest::questToString() const
 {
-	if(q.quest->missionType == CQuest::MISSION_NONE)
+	if(q.quest->questName == CQuest::missionName(0))
 		return "inactive quest";
 
 	MetaString ms;
@@ -141,7 +132,7 @@ TGoalVec CompleteQuest::missionArt() const
 	if(!solutions.empty())
 		return solutions;
 
-	for(auto art : q.quest->m5arts)
+	for(auto art : q.quest->mission.artifacts)
 	{
 		solutions.push_back(sptr(GetArtOfType(art))); //TODO: transport?
 	}
@@ -169,7 +160,7 @@ TGoalVec CompleteQuest::missionArmy() const
 	if(!solutions.empty())
 		return solutions;
 
-	for(auto creature : q.quest->m6creatures)
+	for(auto creature : q.quest->mission.creatures)
 	{
 		solutions.push_back(sptr(GatherTroops(creature.type->getId(), creature.count)));
 	}
@@ -183,7 +174,7 @@ TGoalVec CompleteQuest::missionIncreasePrimaryStat() const
 
 	if(solutions.empty())
 	{
-		for(int i = 0; i < q.quest->m2stats.size(); ++i)
+		for(int i = 0; i < q.quest->mission.primary.size(); ++i)
 		{
 			// TODO: library, school and other boost objects
 			logAi->debug("Don't know how to increase primary stat %d", i);
@@ -199,7 +190,7 @@ TGoalVec CompleteQuest::missionLevel() const
 
 	if(solutions.empty())
 	{
-		logAi->debug("Don't know how to reach hero level %d", q.quest->m13489val);
+		logAi->debug("Don't know how to reach hero level %d", q.quest->mission.heroLevel);
 	}
 
 	return solutions;
@@ -231,10 +222,10 @@ TGoalVec CompleteQuest::missionResources() const
 		}
 		else
 		{
-			for(int i = 0; i < q.quest->m7resources.size(); ++i)
+			for(int i = 0; i < q.quest->mission.resources.size(); ++i)
 			{
-				if(q.quest->m7resources[i])
-					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->m7resources[i])));
+				if(q.quest->mission.resources[i])
+					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->mission.resources[i])));
 			}
 		}
 	}
@@ -250,7 +241,7 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 {
 	TGoalVec solutions;
 
-	auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
+	auto obj = cb->getObjByQuestIdentifier(q.quest->killTarget);
 
 	if(!obj)
 		return ai->ah->howToVisitObj(q.obj);

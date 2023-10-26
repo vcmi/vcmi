@@ -20,11 +20,11 @@
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
+#include "../render/Colors.h"
 
 #include "../../CCallback.h"
 
 #include "../CGameInfo.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
@@ -42,18 +42,18 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	{
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
 
-		buttonSelect = std::make_shared<CButton>(Point(411, 80), "GSPBUTT.DEF", CGI->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
+		buttonSelect = std::make_shared<CButton>(Point(411, 80), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
 		buttonSelect->addCallback([&]()
 		{
 			toggleTab(tabSel);
 			CSH->setMapInfo(tabSel->getSelectedMapInfo());
 		});
 
-		buttonOptions = std::make_shared<CButton>(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
+		buttonOptions = std::make_shared<CButton>(Point(411, 510), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
 	};
 
-	buttonChat = std::make_shared<CButton>(Point(619, 80), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
-	buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL);
+	buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
+	buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
 
 	switch(screenType)
 	{
@@ -62,7 +62,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		tabOpt = std::make_shared<OptionsTab>();
 		tabRand = std::make_shared<RandomMapTab>();
 		tabRand->mapInfoChanged += std::bind(&IServerAPI::setMapInfo, CSH, _1, _2);
-		buttonRMG = std::make_shared<CButton>(Point(411, 105), "GSPBUTT.DEF", CGI->generaltexth->zelp[47], 0, EShortcut::LOBBY_RANDOM_MAP);
+		buttonRMG = std::make_shared<CButton>(Point(411, 105), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[47], 0, EShortcut::LOBBY_RANDOM_MAP);
 		buttonRMG->addCallback([&]()
 		{
 			toggleTab(tabRand);
@@ -71,24 +71,26 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 
 		card->iconDifficulty->addCallback(std::bind(&IServerAPI::setDifficulty, CSH, _1));
 
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_BEGIN_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRBEG.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_BEGIN_GAME);
 		initLobby();
 		break;
 	}
 	case ESelectionScreen::loadGame:
 	{
 		tabOpt = std::make_shared<OptionsTab>();
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_LOAD_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_LOAD_GAME);
 		initLobby();
 		break;
 	}
 	case ESelectionScreen::campaignList:
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), EShortcut::LOBBY_BEGIN_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), EShortcut::LOBBY_BEGIN_GAME);
 		break;
 	}
 
-	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [&]()
+	buttonStart->block(true); // to be unblocked after map list is ready
+
+	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [&]()
 	{
 		CSH->sendClientDisconnecting();
 		close();
@@ -126,33 +128,10 @@ void CLobbyScreen::startCampaign()
 
 void CLobbyScreen::startScenario(bool allowOnlyAI)
 {
-	try
+	if (CSH->validateGameStart(allowOnlyAI))
 	{
 		CSH->sendStartGame(allowOnlyAI);
 		buttonStart->block(true);
-	}
-	catch(CModHandler::Incompatibility & e)
-	{
-		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
-		
-		auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
-		errorMsg += e.what();
-		
-		CInfoWindow::showInfoDialog(errorMsg, CInfoWindow::TCompsInfo(), PlayerColor(1));
-	}
-	catch(std::exception & e)
-	{
-		logGlobal->error("Exception during startScenario: %s", e.what());
-		
-		if(std::string(e.what()) == "ExceptionNoHuman")
-			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[530], CInfoWindow::TCompsInfo(), PlayerColor(1));
-		
-		if(std::string(e.what()) == "ExceptionNoTemplate")
-			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[751], CInfoWindow::TCompsInfo(), PlayerColor(1));
-	}
-	catch(...)
-	{
-		logGlobal->error("Unknown exception");
 	}
 }
 
@@ -182,15 +161,17 @@ void CLobbyScreen::toggleChat()
 {
 	card->toggleChat();
 	if(card->showChat)
-		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
+		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
 	else
-		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL);
+		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
 }
 
 void CLobbyScreen::updateAfterStateChange()
 {
 	if(CSH->mi && tabOpt)
 		tabOpt->recreate();
+
+	buttonStart->block(CSH->mi == nullptr || CSH->isGuest());
 
 	card->changeSelection();
 	if (card->iconDifficulty)

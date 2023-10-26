@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/Point.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class ICursor;
 class IImage;
@@ -113,7 +114,7 @@ class CursorHandler final
 {
 	std::shared_ptr<IImage> dndObject; //if set, overrides currentCursor
 
-	std::array<std::unique_ptr<CAnimation>, 4> cursors;
+	std::array<std::shared_ptr<CAnimation>, 4> cursors;
 
 	bool showing;
 
@@ -125,7 +126,6 @@ class CursorHandler final
 
 	void changeGraphic(Cursor::Type type, size_t index);
 
-	Point getPivotOffsetSpellcast();
 	Point getPivotOffset();
 
 	void updateSpellcastCursor();
@@ -143,7 +143,7 @@ public:
 	/// @param image Image to replace cursor with or nullptr to use the normal cursor.
 	void dragAndDropCursor(std::shared_ptr<IImage> image);
 
-	void dragAndDropCursor(std::string path, size_t index);
+	void dragAndDropCursor(const AnimationPath & path, size_t index);
 
 	/// Changes cursor to specified index
 	void set(Cursor::Default index);
@@ -153,7 +153,7 @@ public:
 
 	/// Returns current index of cursor
 	template<typename Index>
-	Index get()
+	std::optional<Index> get()
 	{
 		bool typeValid = true;
 
@@ -164,9 +164,10 @@ public:
 
 		if (typeValid)
 			return static_cast<Index>(frame);
-		return Index::POINTER;
+		return std::nullopt;
 	}
 
+	Point getPivotOffsetSpellcast();
 	Point getPivotOffsetDefault(size_t index);
 	Point getPivotOffsetMap(size_t index);
 	Point getPivotOffsetCombat(size_t index);

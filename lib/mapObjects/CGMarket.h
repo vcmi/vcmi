@@ -18,7 +18,7 @@ class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
 public:
 	
-	std::set<EMarketMode::EMarketMode> marketModes;
+	std::set<EMarketMode> marketModes;
 	int marketEfficiency;
 	
 	//window variables
@@ -32,9 +32,9 @@ public:
 
 	///IMarket
 	int getMarketEfficiency() const override;
-	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
-	int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
+	bool allowsTrade(EMarketMode mode) const override;
+	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
+	std::vector<int> availableItemsIds(EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -52,7 +52,7 @@ public:
 	std::vector<const CArtifact *> artifacts; //available artifacts
 
 	void newTurn(CRandomGenerator & rand) const override; //reset artifacts for black market every month
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
+	std::vector<int> availableItemsIds(EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -66,7 +66,7 @@ class DLL_LINKAGE CGUniversity : public CGMarket
 public:
 	std::vector<int> skills; //available skills
 
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
+	std::vector<int> availableItemsIds(EMarketMode mode) const override;
 	void initObj(CRandomGenerator & rand) override;//set skills for trade
 	void onHeroVisit(const CGHeroInstance * h) const override; //open window
 

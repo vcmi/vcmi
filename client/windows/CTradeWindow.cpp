@@ -87,22 +87,22 @@ void CTradeWindow::CTradeableItem::setID(int newID)
 	}
 }
 
-std::string CTradeWindow::CTradeableItem::getFilename()
+AnimationPath CTradeWindow::CTradeableItem::getFilename()
 {
 	switch(type)
 	{
 	case RESOURCE:
-		return "RESOURCE";
+		return AnimationPath::builtin("RESOURCE");
 	case PLAYER:
-		return "CREST58";
+		return AnimationPath::builtin("CREST58");
 	case ARTIFACT_TYPE:
 	case ARTIFACT_PLACEHOLDER:
 	case ARTIFACT_INSTANCE:
-		return "artifact";
+		return AnimationPath::builtin("artifact");
 	case CREATURE:
-		return "TWCRPORT";
+		return AnimationPath::builtin("TWCRPORT");
 	default:
-		return "";
+		return {};
 	}
 }
 
@@ -317,9 +317,10 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 		setID(-1);
 }
 
-CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode):
+CTradeWindow::CTradeWindow(const ImagePath & bgName, const IMarket *Market, const CGHeroInstance *Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode):
 	CWindowObject(PLAYER_COLORED, bgName),
 	market(Market),
+	onWindowClosed(onWindowClosed),
 	hero(Hero),
 	readyToTrade(false)
 {
@@ -561,6 +562,14 @@ void CTradeWindow::showAll(Canvas & to)
 	}
 }
 
+void CTradeWindow::close()
+{
+	if (onWindowClosed)
+		onWindowClosed();
+
+	CWindowObject::close();
+}
+
 void CTradeWindow::removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove)
 {
 	for(auto item : toRemove)
@@ -585,21 +594,23 @@ void CTradeWindow::getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toR
 			toRemove.insert(item);
 }
 
-void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
+void CTradeWindow::setMode(EMarketMode Mode)
 {
 	const IMarket *m = market;
 	const CGHeroInstance *h = hero;
+	const auto functor = onWindowClosed;
 
+	onWindowClosed = nullptr; // don't call on closing of this window - pass it to next window
 	close();
 
 	switch(Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		GH.windows().createAndPushWindow<CAltarWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CAltarWindow>(m, h, functor, Mode);
 		break;
 	default:
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, functor, Mode);
 		break;
 	}
 }
@@ -616,27 +627,27 @@ void CTradeWindow::artifactSelected(CHeroArtPlace *slot)
 	selectionChanged(true);
 }
 
-std::string CMarketplaceWindow::getBackgroundForMode(EMarketMode::EMarketMode mode)
+ImagePath CMarketplaceWindow::getBackgroundForMode(EMarketMode mode)
 {
 	switch(mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
-		return "TPMRKRES.bmp";
+		return ImagePath::builtin("TPMRKRES.bmp");
 	case EMarketMode::RESOURCE_PLAYER:
-		return "TPMRKPTS.bmp";
+		return ImagePath::builtin("TPMRKPTS.bmp");
 	case EMarketMode::CREATURE_RESOURCE:
-		return "TPMRKCRS.bmp";
+		return ImagePath::builtin("TPMRKCRS.bmp");
 	case EMarketMode::RESOURCE_ARTIFACT:
-		return "TPMRKABS.bmp";
+		return ImagePath::builtin("TPMRKABS.bmp");
 	case EMarketMode::ARTIFACT_RESOURCE:
-		return "TPMRKASS.bmp";
+		return ImagePath::builtin("TPMRKASS.bmp");
 	}
 	assert(0);
-	return "";
+	return {};
 }
 
-CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode)
-	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode)
+CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode)
+	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, onWindowClosed, Mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -680,19 +691,19 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		arts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46));
 		arts->selectArtCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
 		arts->setHero(hero);
-		addSet(arts);
+		addSetAndCallbacks(arts);
 	}
 	initItems(false);
 	initItems(true);
 
-	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[600], [&](){ close(); }, EShortcut::GLOBAL_RETURN);
-	deal = std::make_shared<CButton>(Point(307, 520), "TPMRKB.DEF", CGI->generaltexth->zelp[595], [&](){ makeDeal(); } );
+	ok = std::make_shared<CButton>(Point(516, 520), AnimationPath::builtin("IOK6432.DEF"), CGI->generaltexth->zelp[600], [&](){ close(); }, EShortcut::GLOBAL_RETURN);
+	deal = std::make_shared<CButton>(Point(307, 520), AnimationPath::builtin("TPMRKB.DEF"), CGI->generaltexth->zelp[595], [&](){ makeDeal(); } );
 	deal->block(true);
 
 	if(sliderNeeded)
 	{
 		slider = std::make_shared<CSlider>(Point(231, 490), 137, std::bind(&CMarketplaceWindow::sliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
-		max = std::make_shared<CButton>(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&](){ setMax(); });
+		max = std::make_shared<CButton>(Point(229, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596], [&](){ setMax(); });
 		max->block(true);
 	}
 	else
@@ -740,15 +751,15 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	int specialOffset = mode == EMarketMode::ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
 
 	if(printButtonFor(EMarketMode::RESOURCE_PLAYER))
-		buttons.push_back(std::make_shared<CButton>(Point(18, 520),"TPMRKBU1.DEF", CGI->generaltexth->zelp[612], [&](){ setMode(EMarketMode::RESOURCE_PLAYER);}));
+		buttons.push_back(std::make_shared<CButton>(Point(18, 520),AnimationPath::builtin("TPMRKBU1.DEF"), CGI->generaltexth->zelp[612], [&](){ setMode(EMarketMode::RESOURCE_PLAYER);}));
 	if(printButtonFor(EMarketMode::RESOURCE_RESOURCE))
-		buttons.push_back(std::make_shared<CButton>(Point(516, 450 + specialOffset),"TPMRKBU5.DEF", CGI->generaltexth->zelp[605], [&](){ setMode(EMarketMode::RESOURCE_RESOURCE);}));
+		buttons.push_back(std::make_shared<CButton>(Point(516, 450 + specialOffset),AnimationPath::builtin("TPMRKBU5.DEF"), CGI->generaltexth->zelp[605], [&](){ setMode(EMarketMode::RESOURCE_RESOURCE);}));
 	if(printButtonFor(EMarketMode::CREATURE_RESOURCE))
-		buttons.push_back(std::make_shared<CButton>(Point(516, 485),"TPMRKBU4.DEF", CGI->generaltexth->zelp[599], [&](){ setMode(EMarketMode::CREATURE_RESOURCE);}));
+		buttons.push_back(std::make_shared<CButton>(Point(516, 485),AnimationPath::builtin("TPMRKBU4.DEF"), CGI->generaltexth->zelp[599], [&](){ setMode(EMarketMode::CREATURE_RESOURCE);}));
 	if(printButtonFor(EMarketMode::RESOURCE_ARTIFACT))
-		buttons.push_back(std::make_shared<CButton>(Point(18, 450 + specialOffset),"TPMRKBU2.DEF", CGI->generaltexth->zelp[598], [&](){ setMode(EMarketMode::RESOURCE_ARTIFACT);}));
+		buttons.push_back(std::make_shared<CButton>(Point(18, 450 + specialOffset),AnimationPath::builtin("TPMRKBU2.DEF"), CGI->generaltexth->zelp[598], [&](){ setMode(EMarketMode::RESOURCE_ARTIFACT);}));
 	if(printButtonFor(EMarketMode::ARTIFACT_RESOURCE))
-		buttons.push_back(std::make_shared<CButton>(Point(18, 485),"TPMRKBU3.DEF", CGI->generaltexth->zelp[613], [&](){ setMode(EMarketMode::ARTIFACT_RESOURCE);}));
+		buttons.push_back(std::make_shared<CButton>(Point(18, 485),AnimationPath::builtin("TPMRKBU3.DEF"), CGI->generaltexth->zelp[613], [&](){ setMode(EMarketMode::ARTIFACT_RESOURCE);}));
 
 	updateTraderText();
 }
@@ -870,9 +881,27 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	redraw();
 }
 
-bool CMarketplaceWindow::printButtonFor(EMarketMode::EMarketMode M) const
+bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
 {
-	return market->allowsTrade(M) && M != mode && (hero || ( M != EMarketMode::CREATURE_RESOURCE && M != EMarketMode::RESOURCE_ARTIFACT && M != EMarketMode::ARTIFACT_RESOURCE ));
+	if (!market->allowsTrade(M))
+		return false;
+
+	if (M == mode)
+		return false;
+
+	if ( M == EMarketMode::RESOURCE_RESOURCE || M == EMarketMode::RESOURCE_PLAYER)
+	{
+		auto * town = dynamic_cast<const CGTownInstance *>(market);
+
+		if (town)
+			return town->getOwner() == LOCPLINT->playerID;
+		else
+			return true;
+	}
+	else
+	{
+		return hero != nullptr;
+	}
 }
 
 void CMarketplaceWindow::garrisonChanged()
@@ -1075,8 +1104,8 @@ void CMarketplaceWindow::updateTraderText()
 	traderText->setText(CGI->generaltexth->allTexts[gnrtxtnr]);
 }
 
-CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode)
-	: CTradeWindow((Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp"), Market, Hero, Mode)
+CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode)
+	: CTradeWindow(ImagePath::builtin(Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp"), Market, Hero, onWindowClosed, Mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -1093,10 +1122,10 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW);
 
 		slider = std::make_shared<CSlider>(Point(231, 481), 137, std::bind(&CAltarWindow::sliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
-		max = std::make_shared<CButton>(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, slider));
+		max = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, slider));
 
 		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);
-		sacrificeAll = std::make_shared<CButton>(Point(393, 520), "ALTARMY.DEF", CGI->generaltexth->zelp[579], std::bind(&CAltarWindow::SacrificeAll,this));
+		sacrificeAll = std::make_shared<CButton>(Point(393, 520), AnimationPath::builtin("ALTARMY.DEF"), CGI->generaltexth->zelp[579], std::bind(&CAltarWindow::SacrificeAll,this));
 
 		initItems(true);
 		mimicCres();
@@ -1108,18 +1137,18 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 		//%s's Creatures
 		labels.push_back(std::make_shared<CLabel>(302, 423, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
 
-		sacrificeAll = std::make_shared<CButton>(Point(393, 520), "ALTFILL.DEF", CGI->generaltexth->zelp[571], std::bind(&CAltarWindow::SacrificeAll,this));
+		sacrificeAll = std::make_shared<CButton>(Point(393, 520), AnimationPath::builtin("ALTFILL.DEF"), CGI->generaltexth->zelp[571], std::bind(&CAltarWindow::SacrificeAll,this));
 		sacrificeAll->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
-		sacrificeBackpack = std::make_shared<CButton>(Point(147, 520), "ALTEMBK.DEF", CGI->generaltexth->zelp[570], std::bind(&CAltarWindow::SacrificeBackpack,this));
+		sacrificeBackpack = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("ALTEMBK.DEF"), CGI->generaltexth->zelp[570], std::bind(&CAltarWindow::SacrificeBackpack,this));
 		sacrificeBackpack->block(hero->artifactsInBackpack.empty());
 
 		arts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -12));
 		arts->setHero(hero);
-		addSet(arts);
+		addSetAndCallbacks(arts);
 
 		initItems(true);
 		initItems(false);
-		artIcon = std::make_shared<CAnimImage>("ARTIFACT", 0, 0, 281, 442);
+		artIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("ARTIFACT"), 0, 0, 281, 442);
 		artIcon->disable();
 	}
 
@@ -1130,20 +1159,20 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&](){ close();}, EShortcut::GLOBAL_RETURN);
+	ok = std::make_shared<CButton>(Point(516, 520), AnimationPath::builtin("IOK6432.DEF"), CGI->generaltexth->zelp[568], [&](){ close();}, EShortcut::GLOBAL_RETURN);
 
-	deal = std::make_shared<CButton>(Point(269, 520), "ALTSACR.DEF", CGI->generaltexth->zelp[585], std::bind(&CAltarWindow::makeDeal,this));
+	deal = std::make_shared<CButton>(Point(269, 520), AnimationPath::builtin("ALTSACR.DEF"), CGI->generaltexth->zelp[585], std::bind(&CAltarWindow::makeDeal,this));
 
 	if(Mode == EMarketMode::CREATURE_EXP)
 	{
-		auto changeMode = std::make_shared<CButton>(Point(516, 421), "ALTART.DEF", CGI->generaltexth->zelp[580], std::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP));
+		auto changeMode = std::make_shared<CButton>(Point(516, 421), AnimationPath::builtin("ALTART.DEF"), CGI->generaltexth->zelp[580], std::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP));
 		if(Hero->getAlignment() == ::EAlignment::EVIL)
 			changeMode->block(true);
 		buttons.push_back(changeMode);
 	}
 	else if(Mode == EMarketMode::ARTIFACT_EXP)
 	{
-		auto changeMode = std::make_shared<CButton>(Point(516, 421), "ALTSACC.DEF", CGI->generaltexth->zelp[572], std::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP));
+		auto changeMode = std::make_shared<CButton>(Point(516, 421), AnimationPath::builtin("ALTSACC.DEF"), CGI->generaltexth->zelp[572], std::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP));
 		if(Hero->getAlignment() == ::EAlignment::GOOD)
 			changeMode->block(true);
 		buttons.push_back(changeMode);

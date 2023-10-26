@@ -353,7 +353,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1191"/>
-        <source>Errors occured. %1 objects were not updated</source>
+        <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1015,7 +1015,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="107"/>
-        <source>Delete original files, for the ones splitted / converted.</source>
+        <source>Delete original files, for the ones split / converted.</source>
         <translation>Удалить оригиналы для преобразованных файлов.</translation>
     </message>
 </context>

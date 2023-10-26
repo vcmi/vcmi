@@ -14,11 +14,10 @@
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "GameSettings.h"
-#include "CModHandler.h"
 #include "CTownHandler.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
@@ -26,6 +25,7 @@
 #include "bonuses/Updaters.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -207,9 +207,9 @@ CHeroClass::CHeroClass():
 {
 }
 
-void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill) const
+void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const
 {
-	const auto & skillName = PrimarySkill::names[pSkill];
+	const auto & skillName = NPrimarySkill::names[static_cast<int>(pSkill)];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
 	//minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	auto primarySkillLegalMinimum = (pSkill == PrimarySkill::ATTACK || pSkill == PrimarySkill::DEFENSE) ? 0 : 1;
@@ -243,8 +243,8 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	heroClass->id = HeroClassID(index);
 	heroClass->identifier = identifier;
 	heroClass->modScope = scope;
-	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
-	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
+	heroClass->imageBattleFemale = AnimationPath::fromJson(node["animation"]["battle"]["female"]);
+	heroClass->imageBattleMale   = AnimationPath::fromJson(node["animation"]["battle"]["male"]);
 	//MODS COMPATIBILITY FOR 0.96
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
@@ -269,7 +269,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
 		int probability = static_cast<int>(skillPair.second.Integer());
-		VLC->modh->identifiers.requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
+		VLC->identifiers()->requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
 		{
 			if(heroClass->secSkillProbability.size() <= skillID)
 				heroClass->secSkillProbability.resize(skillID + 1, -1); // -1 = override with default later
@@ -277,7 +277,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 		});
 	}
 
-	VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
+	VLC->identifiers()->requestIdentifier ("creature", node["commander"],
 	[=](si32 commanderID)
 	{
 		heroClass->commander = VLC->creh->objects[commanderID];
@@ -288,20 +288,20 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	{
 		int value = static_cast<int>(tavern.second.Float());
 
-		VLC->modh->identifiers.requestIdentifier(tavern.second.meta, "faction", tavern.first,
+		VLC->identifiers()->requestIdentifier(tavern.second.meta, "faction", tavern.first,
 		[=](si32 factionID)
 		{
 			heroClass->selectionProbability[FactionID(factionID)] = value;
 		});
 	}
 
-	VLC->modh->identifiers.requestIdentifier("faction", node["faction"],
+	VLC->identifiers()->requestIdentifier("faction", node["faction"],
 	[=](si32 factionID)
 	{
-		heroClass->faction = factionID;
+		heroClass->faction.setNum(factionID);
 	});
 
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
+	VLC->identifiers()->requestIdentifier(scope, "object", "hero", [=](si32 index)
 	{
 		JsonNode classConf = node["mapObject"];
 		classConf["heroClass"].String() = identifier;
@@ -320,7 +320,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser parser("DATA/HCTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/HCTRAITS.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -333,19 +333,19 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 
 		parser.readNumber(); // unused aggression
 
-		for(const auto & name : PrimarySkill::names)
+		for(const auto & name : NPrimarySkill::names)
 			entry["primarySkills"][name].Float() = parser.readNumber();
 
-		for(const auto & name : PrimarySkill::names)
+		for(const auto & name : NPrimarySkill::names)
 			entry["lowLevelChance"][name].Float() = parser.readNumber();
 
-		for(const auto & name : PrimarySkill::names)
+		for(const auto & name : NPrimarySkill::names)
 			entry["highLevelChance"][name].Float() = parser.readNumber();
 
 		for(const auto & name : NSecondarySkill::names)
 			entry["secondarySkills"][name].Float() = parser.readNumber();
 
-		for(const auto & name : ETownType::names)
+		for(const auto & name : NFaction::names)
 			entry["tavern"][name].Float() = parser.readNumber();
 
 		parser.endLine();
@@ -438,13 +438,13 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
 	hero->portraitSmall = node["images"]["small"].String();
 	hero->portraitLarge = node["images"]["large"].String();
-	hero->battleImage = node["battleImage"].String();
+	hero->battleImage = AnimationPath::fromJson(node["battleImage"]);
 
 	loadHeroArmy(hero, node);
 	loadHeroSkills(hero, node);
 	loadHeroSpecialty(hero, node);
 
-	VLC->modh->identifiers.requestIdentifier("heroClass", node["class"],
+	VLC->identifiers()->requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
 		hero->heroClass = classes[HeroClassID(classID)];
@@ -468,7 +468,7 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
 
 		assert(hero->initialArmy[i].minAmount <= hero->initialArmy[i].maxAmount);
 
-		VLC->modh->identifiers.requestIdentifier("creature", source["creature"], [=](si32 creature)
+		VLC->identifiers()->requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
 			hero->initialArmy[i].creature = CreatureID(creature);
 		});
@@ -480,12 +480,12 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 	for(const JsonNode &set : node["skills"].Vector())
 	{
 		int skillLevel = static_cast<int>(boost::range::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels));
-		if (skillLevel < SecSkillLevel::LEVELS_SIZE)
+		if (skillLevel < MasteryLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
 			hero->secSkillsInit.emplace_back(SecondarySkill(-1), skillLevel);
 
-			VLC->modh->identifiers.requestIdentifier("skill", set["skill"], [=](si32 id)
+			VLC->identifiers()->requestIdentifier("skill", set["skill"], [=](si32 id)
 			{
 				hero->secSkillsInit[currentIndex].first = SecondarySkill(id);
 			});
@@ -501,7 +501,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 
 	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("spell", spell,
+		VLC->identifiers()->requestIdentifier("spell", spell,
 		[=](si32 spellID)
 		{
 			hero->spells.insert(SpellID(spellID));
@@ -547,7 +547,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = PrimarySkill::ATTACK;
+			bonus->subtype = BonusSubtypeID(PrimarySkill::ATTACK);
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
@@ -557,7 +557,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = PrimarySkill::DEFENSE;
+			bonus->subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefense(false), stepSize));
@@ -605,7 +605,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	{
 		bonus->duration = BonusDuration::PERMANENT;
 		bonus->source = BonusSource::HERO_SPECIAL;
-		bonus->sid = hero->getIndex();
+		bonus->sid = BonusSourceID(hero->getId());
 		return bonus;
 	};
 
@@ -624,7 +624,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 
 		std::function<void()> specialtyLoader = [creatureNode, hero, prepSpec]
 		{
-			VLC->modh->identifiers.requestIdentifier("creature", creatureNode, [hero, prepSpec](si32 creature)
+			VLC->identifiers()->requestIdentifier("creature", creatureNode, [hero, prepSpec](si32 creature)
 			{
 				for (const auto & bonus : createCreatureSpecialty(CreatureID(creature)))
 					hero->specialty.push_back(prepSpec(bonus));
@@ -681,9 +681,9 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser specParser("DATA/HEROSPEC.TXT");
-	CLegacyConfigParser bioParser("DATA/HEROBIOS.TXT");
-	CLegacyConfigParser parser("DATA/HOTRAITS.TXT");
+	CLegacyConfigParser specParser(TextPath::builtin("DATA/HEROSPEC.TXT"));
+	CLegacyConfigParser bioParser(TextPath::builtin("DATA/HEROBIOS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/HOTRAITS.TXT"));
 
 	parser.endLine(); //ignore header
 	parser.endLine();
@@ -722,8 +722,9 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	size_t index = objects.size();
+	static const int specialFramesCount = 2; // reserved for 2 special frames
 	auto * object = loadFromJson(scope, data, name, index);
-	object->imageIndex = static_cast<si32>(index) + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
+	object->imageIndex = static_cast<si32>(index) + specialFramesCount;
 
 	objects.emplace_back(object);
 

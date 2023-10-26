@@ -13,22 +13,24 @@
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
-#include "../../lib/CModHandler.h"
+#include "../../lib/modding/CModHandler.h"
+#include "../../lib/modding/CModInfo.h"
+#include "../../lib/modding/IdentifierStorage.h"
 
 #include "../jsonutils.h"
 #include "../launcherdirs.h"
 
 namespace
 {
-QString detectModArchive(QString path, QString modName)
+QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
 {
-	auto files = ZipArchive::listFiles(qstringToPath(path));
+	filesToExtract = ZipArchive::listFiles(qstringToPath(path));
 
 	QString modDirName;
 
 	for(int folderLevel : {0, 1}) //search in subfolder if there is no mod.json in the root
 	{
-		for(auto file : files)
+		for(auto file : filesToExtract)
 		{
 			QString filename = QString::fromUtf8(file.c_str());
 			modDirName = filename.section('/', 0, folderLevel);
@@ -39,6 +41,11 @@ QString detectModArchive(QString path, QString modName)
 			}
 		}
 	}
+
+	logGlobal->error("Failed to detect mod path in archive!");
+	logGlobal->debug("List of file in archive:");
+	for(auto file : filesToExtract)
+		logGlobal->debug("%s", file.c_str());
 	
 	return "";
 }
@@ -68,9 +75,11 @@ void CModManager::resetRepositories()
 	modList->resetRepositories();
 }
 
-void CModManager::loadRepository(QVariantMap repomap)
+void CModManager::loadRepositories(QVector<QVariantMap> repomap)
 {
-	modList->addRepository(repomap);
+	for (auto const & entry : repomap)
+		modList->addRepository(entry);
+	modList->reloadRepositories();
 }
 
 void CModManager::loadMods()
@@ -82,18 +91,26 @@ void CModManager::loadMods()
 
 	for(auto modname : installedMods)
 	{
-		ResourceID resID(CModInfo::getModFile(modname));
+		auto resID = CModInfo::getModFile(modname);
 		if(CResourceHandler::get()->existsResource(resID))
 		{
-			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
-			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
-			if(!name.is_absolute())
+			//calculate mod size
+			qint64 total = 0;
+			ResourcePath resDir(CModInfo::getModDir(modname), EResType::DIRECTORY);
+			if(CResourceHandler::get()->existsResource(resDir))
 			{
-				auto json = JsonUtils::toJson(mod);
-				json["storedLocaly"].Bool() = true;
-				mod = JsonUtils::toVariant(json);
+				for(QDirIterator iter(QString::fromStdString(CResourceHandler::get()->getResourceName(resDir)->string()), QDirIterator::Subdirectories); iter.hasNext(); iter.next())
+					total += iter.fileInfo().size();
 			}
 			
+			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
+			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
+			auto json = JsonUtils::toJson(mod);
+			json["localSizeBytes"].Float() = total;
+			if(!name.is_absolute())
+				json["storedLocaly"].Bool() = true;
+
+			mod = JsonUtils::toVariant(json);
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 		}
 	}
@@ -137,7 +154,7 @@ bool CModManager::canInstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if(mod.getName().contains('.'))
+	if(mod.isSubmod())
 		return addError(modname, "Can not install submod");
 
 	if(mod.isInstalled())
@@ -152,7 +169,7 @@ bool CModManager::canUninstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if(mod.getName().contains('.'))
+	if(mod.isSubmod())
 		return addError(modname, "Can not uninstall submod");
 
 	if(!mod.isInstalled())
@@ -263,11 +280,23 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(localMods.contains(modname))
 		return addError(modname, "Mod with such name is already installed");
 
-	QString modDirName = ::detectModArchive(archivePath, modname);
+	std::vector<std::string> filesToExtract;
+	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
 	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
-
-	if(!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir)))
+	
+	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesToExtract]()
+	{
+		return ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir), filesToExtract);
+	});
+	
+	while(futureExtract.wait_for(std::chrono::milliseconds(50)) != std::future_status::ready)
+	{
+		emit extractionProgress(0, 0);
+		qApp->processEvents();
+	}
+	
+	if(!futureExtract.get())
 	{
 		removeModDir(destDir + modDirName);
 		return addError(modname, "Failed to extract mod data");
@@ -293,7 +322,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 
 bool CModManager::doUninstallMod(QString modname)
 {
-	ResourceID resID(std::string("Mods/") + modname.toStdString(), EResType::DIRECTORY);
+	ResourcePath resID(std::string("Mods/") + modname.toStdString(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 

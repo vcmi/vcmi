@@ -14,8 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const ui32 SERIALIZATION_VERSION = 825;
-const ui32 MINIMAL_SERIALIZATION_VERSION = 824;
+const ui32 SERIALIZATION_VERSION = 828;
+const ui32 MINIMAL_SERIALIZATION_VERSION = 828;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 class CHero;
@@ -60,7 +60,7 @@ class DLL_LINKAGE CSerializer
 	}
 
 	template<typename T, typename NT>
-	static NT idToNumber(const BaseForID<T, NT> &t)
+	static NT idToNumber(const IdentifierBase &t)
 	{
 		return t.getNum();
 	}

@@ -143,10 +143,10 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 		switch (this->bType)
 		{
 		case BuildingSubID::STABLES:
-			if(!h->hasBonusFrom(BonusSource::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
+			if(!h->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(Obj(Obj::STABLES)))) //does not stack with advMap Stables
 			{
 				GiveBonus gb;
-				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100], 1);
+				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT_TYPE, 600, BonusSourceID(Obj(Obj::STABLES)), BonusCustomSubtype::heroMovementLand, VLC->generaltexth->arraytxt[100]);
 				gb.id = heroID.getNum();
 				cb->giveHeroBonus(&gb);
 
@@ -199,7 +199,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 	{
 		si64 val = 0;
 		InfoWindow iw;
-		PrimarySkill::PrimarySkill what = PrimarySkill::NONE;
+		PrimarySkill what = PrimarySkill::NONE;
 
 		switch(bType)
 		{
@@ -235,7 +235,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
 			const auto building = town->getTown()->buildings.at(bID);
-			if(!h->hasBonusFrom(BonusSource::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->getIndex(), building->bid)))
+			if(!h->hasBonusFrom(BonusSource::TOWN_STRUCTURE, BonusSourceID(building->getUniqueTypeID())))
 			{
 				const auto & bonuses = building->onVisitBonuses;
 				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
@@ -306,11 +306,7 @@ void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 		for (auto & bonus : rewardInfo.reward.bonuses)
 		{
 			bonus.source = BonusSource::TOWN_STRUCTURE;
-			bonus.sid = bID;
-			if (bonus.type == BonusType::MORALE)
-				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
-			if (bonus.type == BonusType::LUCK)
-				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
+			bonus.sid = BonusSourceID(building->getUniqueTypeID());
 		}
 	}
 }
@@ -397,9 +393,14 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 		case Rewardable::VISIT_PLAYER:
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
-			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, Bonus::getSid32(town->town->faction->getIndex(), bID));
+		{
+			const auto building = town->getTown()->buildings.at(bID);
+			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, BonusSourceID(building->getUniqueTypeID()));
+		}
 		case Rewardable::VISIT_HERO:
 			return visitors.find(contextHero->id) != visitors.end();
+		case Rewardable::VISIT_LIMITER:
+			return configuration.visitLimiter.heroAllowed(contextHero);
 		default:
 			return false;
 	}

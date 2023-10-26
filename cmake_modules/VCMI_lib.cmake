@@ -15,7 +15,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleStateInfoForRetreat.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.cpp
-		${MAIN_LIB_DIR}/battle/CCallbackBase.cpp
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.cpp
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.cpp
 		${MAIN_LIB_DIR}/battle/CUnitState.cpp
@@ -32,6 +31,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/BonusList.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusParams.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusCustomTypes.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.cpp
 		${MAIN_LIB_DIR}/bonuses/IBonusBearer.cpp
@@ -41,6 +41,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/campaign/CampaignHandler.cpp
 		${MAIN_LIB_DIR}/campaign/CampaignState.cpp
+
+		${MAIN_LIB_DIR}/constants/EntityIdentifiers.cpp
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
@@ -60,10 +62,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/CZipLoader.cpp
 		${MAIN_LIB_DIR}/filesystem/CZipSaver.cpp
 		${MAIN_LIB_DIR}/filesystem/FileInfo.cpp
-		${MAIN_LIB_DIR}/filesystem/FileStream.cpp
 		${MAIN_LIB_DIR}/filesystem/Filesystem.cpp
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.cpp
-		${MAIN_LIB_DIR}/filesystem/ResourceID.cpp
+		${MAIN_LIB_DIR}/filesystem/ResourcePath.cpp
 
 		${MAIN_LIB_DIR}/gameState/CGameState.cpp
 		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.cpp
@@ -81,7 +82,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjectConstructors/DwellingInstanceConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/HillFortInstanceConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/ShipyardInstanceConstructor.cpp
-		${MAIN_LIB_DIR}/mapObjectConstructors/ShrineInstanceConstructor.cpp
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
@@ -115,6 +115,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapReaderH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
+
+		${MAIN_LIB_DIR}/modding/CModHandler.cpp
+		${MAIN_LIB_DIR}/modding/CModInfo.cpp
+		${MAIN_LIB_DIR}/modding/CModVersion.cpp
+		${MAIN_LIB_DIR}/modding/ContentTypeHandler.cpp
+		${MAIN_LIB_DIR}/modding/IdentifierStorage.cpp
+		${MAIN_LIB_DIR}/modding/ModUtility.cpp
 
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
 		${MAIN_LIB_DIR}/pathfinder/CPathfinder.cpp
@@ -214,6 +221,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/RemoveObstacle.cpp
 		${MAIN_LIB_DIR}/spells/effects/Sacrifice.cpp
 
+		${MAIN_LIB_DIR}/vstd/DateUtils.cpp
 		${MAIN_LIB_DIR}/vstd/StringUtils.cpp
 
 		${MAIN_LIB_DIR}/ArtifactUtils.cpp
@@ -232,8 +240,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CGameInterface.cpp
 		${MAIN_LIB_DIR}/CGeneralTextHandler.cpp
 		${MAIN_LIB_DIR}/CHeroHandler.cpp
-		${MAIN_LIB_DIR}/CModHandler.cpp
-		${MAIN_LIB_DIR}/CModVersion.cpp
 		${MAIN_LIB_DIR}/CPlayerState.cpp
 		${MAIN_LIB_DIR}/CRandomGenerator.cpp
 		${MAIN_LIB_DIR}/CScriptingModule.cpp
@@ -241,7 +247,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CStack.cpp
 		${MAIN_LIB_DIR}/CThreadHelper.cpp
 		${MAIN_LIB_DIR}/CTownHandler.cpp
-		${MAIN_LIB_DIR}/GameConstants.cpp
 		${MAIN_LIB_DIR}/GameSettings.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
 		${MAIN_LIB_DIR}/IHandlerBase.cpp
@@ -260,6 +265,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ScriptHandler.cpp
 		${MAIN_LIB_DIR}/TerrainHandler.cpp
 		${MAIN_LIB_DIR}/TextOperations.cpp
+		${MAIN_LIB_DIR}/TurnTimerInfo.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
 	)
@@ -275,10 +281,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	set(lib_HEADERS
 		${MAIN_LIB_DIR}/../include/vstd/CLoggerBase.h
 		${MAIN_LIB_DIR}/../Global.h
+		${MAIN_LIB_DIR}/../AUTHORS.h
 		${MAIN_LIB_DIR}/StdInc.h
 
 		${MAIN_LIB_DIR}/../include/vstd/ContainerUtils.h
 		${MAIN_LIB_DIR}/../include/vstd/RNG.h
+		${MAIN_LIB_DIR}/../include/vstd/DateUtils.h
 		${MAIN_LIB_DIR}/../include/vstd/StringUtils.h
 
 		${MAIN_LIB_DIR}/../include/vcmi/events/AdventureEvents.h
@@ -322,6 +330,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/Team.h
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
+		${MAIN_LIB_DIR}/battle/AutocombatPreferences.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.h
 		${MAIN_LIB_DIR}/battle/BattleHex.h
@@ -330,7 +339,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleProxy.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.h
-		${MAIN_LIB_DIR}/battle/CCallbackBase.h
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.h
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.h
 		${MAIN_LIB_DIR}/battle/CUnitState.h
@@ -350,6 +358,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/BonusList.h
 		${MAIN_LIB_DIR}/bonuses/BonusParams.h
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.h
+		${MAIN_LIB_DIR}/bonuses/BonusCustomTypes.h
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.h
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.h
 		${MAIN_LIB_DIR}/bonuses/IBonusBearer.h
@@ -361,6 +370,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/campaign/CampaignHandler.h
 		${MAIN_LIB_DIR}/campaign/CampaignScenarioPrologEpilog.h
 		${MAIN_LIB_DIR}/campaign/CampaignState.h
+
+		${MAIN_LIB_DIR}/constants/EntityIdentifiers.h
+		${MAIN_LIB_DIR}/constants/Enumerations.h
+		${MAIN_LIB_DIR}/constants/IdentifierBase.h
+		${MAIN_LIB_DIR}/constants/VariantIdentifier.h
+		${MAIN_LIB_DIR}/constants/NumericConstants.h
+		${MAIN_LIB_DIR}/constants/StringConstants.h
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.h
 		${MAIN_LIB_DIR}/events/GameResumed.h
@@ -384,11 +400,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/CZipLoader.h
 		${MAIN_LIB_DIR}/filesystem/CZipSaver.h
 		${MAIN_LIB_DIR}/filesystem/FileInfo.h
-		${MAIN_LIB_DIR}/filesystem/FileStream.h
 		${MAIN_LIB_DIR}/filesystem/Filesystem.h
 		${MAIN_LIB_DIR}/filesystem/ISimpleResourceLoader.h
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.h
-		${MAIN_LIB_DIR}/filesystem/ResourceID.h
+		${MAIN_LIB_DIR}/filesystem/ResourcePath.h
 
 		${MAIN_LIB_DIR}/gameState/CGameState.h
 		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.h
@@ -413,7 +428,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjectConstructors/IObjectInfo.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/RandomMapInfo.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/ShipyardInstanceConstructor.h
-		${MAIN_LIB_DIR}/mapObjectConstructors/ShrineInstanceConstructor.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/SObjectSounds.h
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h
@@ -451,6 +465,15 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapReaderH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
+
+		${MAIN_LIB_DIR}/modding/CModHandler.h
+		${MAIN_LIB_DIR}/modding/CModInfo.h
+		${MAIN_LIB_DIR}/modding/CModVersion.h
+		${MAIN_LIB_DIR}/modding/ContentTypeHandler.h
+		${MAIN_LIB_DIR}/modding/IdentifierStorage.h
+		${MAIN_LIB_DIR}/modding/ModIncompatibility.h
+		${MAIN_LIB_DIR}/modding/ModScope.h
+		${MAIN_LIB_DIR}/modding/ModUtility.h
 
 		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.h
@@ -565,8 +588,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CGameInterface.h
 		${MAIN_LIB_DIR}/CGeneralTextHandler.h
 		${MAIN_LIB_DIR}/CHeroHandler.h
-		${MAIN_LIB_DIR}/CModHandler.h
-		${MAIN_LIB_DIR}/CModVersion.h
 		${MAIN_LIB_DIR}/CondSh.h
 		${MAIN_LIB_DIR}/ConstTransitivePtr.h
 		${MAIN_LIB_DIR}/Color.h
@@ -587,7 +608,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/IGameEventsReceiver.h
 		${MAIN_LIB_DIR}/IHandlerBase.h
 		${MAIN_LIB_DIR}/int3.h
-		${MAIN_LIB_DIR}/Interprocess.h
 		${MAIN_LIB_DIR}/JsonDetail.h
 		${MAIN_LIB_DIR}/JsonNode.h
 		${MAIN_LIB_DIR}/JsonRandom.h
@@ -609,9 +629,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ScriptHandler.h
 		${MAIN_LIB_DIR}/ScopeGuard.h
 		${MAIN_LIB_DIR}/StartInfo.h
-		${MAIN_LIB_DIR}/StringConstants.h
 		${MAIN_LIB_DIR}/TerrainHandler.h
 		${MAIN_LIB_DIR}/TextOperations.h
+		${MAIN_LIB_DIR}/TurnTimerInfo.h
 		${MAIN_LIB_DIR}/UnlockGuard.h
 		${MAIN_LIB_DIR}/VCMIDirs.h
 		${MAIN_LIB_DIR}/vcmi_endian.h

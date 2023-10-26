@@ -99,7 +99,7 @@ TEST_F(CCreatureTest, JsonUpdate)
 
 	EXPECT_EQ(subject->getFightValue(), 2420);
 	EXPECT_EQ(subject->getLevel(), 6);
-	EXPECT_EQ(subject->getFaction(), 55);
+	EXPECT_EQ(subject->getFaction().getNum(), 55);
 	EXPECT_TRUE(subject->isDoubleWide());
 }
 
@@ -107,7 +107,7 @@ TEST_F(CCreatureTest, JsonAddBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, 43, BonusValueType::BASE_NUMBER);
+	std::shared_ptr<Bonus> b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 
 	JsonNode & toAdd = data["bonuses"]["toAdd"];
 
@@ -121,8 +121,8 @@ TEST_F(CCreatureTest, JsonAddBonus)
 			&& (bonus->type == BonusType::BLOCKS_RETALIATION)
 			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 17)
-			&& (bonus->sid == 42)
-			&& (bonus->subtype == 43)
+			&& (bonus->sid.as<CreatureID>().getNum() == 42)
+			&& (bonus->subtype.as<CreatureID>().getNum() == 43)
 			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 
@@ -133,10 +133,10 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, 43, BonusValueType::BASE_NUMBER);
+	std::shared_ptr<Bonus> b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b1);
 
-	std::shared_ptr<Bonus> b2 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 18, 42, 43, BonusValueType::BASE_NUMBER);
+	std::shared_ptr<Bonus> b2 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 18, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b2);
 
 
@@ -152,8 +152,8 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 			&& (bonus->type == BonusType::BLOCKS_RETALIATION)
 			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 17)
-			&& (bonus->sid == 42)
-			&& (bonus->subtype == 43)
+			&& (bonus->sid.as<CreatureID>().getNum() == 42)
+			&& (bonus->subtype.as<CreatureID>().getNum() == 43)
 			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 
@@ -165,8 +165,7 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 			&& (bonus->type == BonusType::BLOCKS_RETALIATION)
 			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 18)
-			&& (bonus->sid == 42)
-			&& (bonus->subtype == 43)
+			&& (bonus->sid.as<CreatureID>().getNum() == 42)
 			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 

@@ -21,6 +21,7 @@
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
+#include "../../lib/battle/BattleInfo.h"
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
@@ -34,26 +35,26 @@ const float RETREAT_THRESHOLD = 0.3f;
 const double RETREAT_ABSOLUTE_THRESHOLD = 10000.;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
-boost::thread_specific_ptr<CCallback> cb;
-boost::thread_specific_ptr<AIGateway> ai;
+thread_local CCallback * cb = nullptr;
+thread_local AIGateway * ai = nullptr;
 
 //helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
 {
 	SetGlobalState(AIGateway * AI)
 	{
-		assert(!ai.get());
-		assert(!cb.get());
+		assert(!ai);
+		assert(!cb);
 
-		ai.reset(AI);
-		cb.reset(AI->myCb.get());
+		ai = AI;
+		cb = AI->myCb.get();
 	}
 	~SetGlobalState()
 	{
 		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
 		//TODO: to ensure that, make rm unique_ptr
-		ai.release();
-		cb.release();
+		ai = nullptr;
+		cb = nullptr;
 	}
 };
 
@@ -153,10 +154,13 @@ void AIGateway::artifactAssembled(const ArtifactLocation & al)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showTavernWindow(const CGObjectInstance * townOrTavern)
+void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "TavernWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -192,7 +196,7 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf.toString());
 	NET_EVENT_HANDLER;
-	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(), (victoryLossCheckResult.victory() ? "won" : "lost"));
+	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.toString(), player, player.toString(), (victoryLossCheckResult.victory() ? "won" : "lost"));
 
 	// some whitespace to flush stream
 	logAi->debug(std::string(200, ' '));
@@ -201,12 +205,12 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 	{
 		if(victoryLossCheckResult.victory())
 		{
-			logAi->debug("AIGateway: Player %d (%s) won. I won! Incredible!", player, player.getStr());
+			logAi->debug("AIGateway: Player %d (%s) won. I won! Incredible!", player, player.toString());
 			logAi->debug("Turn nr %d", myCb->getDate());
 		}
 		else
 		{
-			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
+			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
 		// some whitespace to flush stream
@@ -314,16 +318,23 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	});
 }
 
-void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
+void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", static_cast<int>(which) % val);
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
+void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "RecruitmentDialog");
+
+	requestActionASAP([=](){
+		recruitCreatures(dwelling, dst);
+		answerQuery(queryID, 0);
+	});
 }
 
 void AIGateway::heroMovePointsChanged(const CGHeroInstance * hero)
@@ -348,7 +359,7 @@ void AIGateway::newObject(const CGObjectInstance * obj)
 
 //to prevent AI from accessing objects that got deleted while they became invisible (Cover of Darkness, enemy hero moved etc.) below code allows AI to know deletion of objects out of sight
 //see: RemoveObject::applyFirstCl, to keep AI "not cheating" do not use advantage of this and use this function just to prevent crashes
-void AIGateway::objectRemoved(const CGObjectInstance * obj)
+void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -387,7 +398,7 @@ void AIGateway::heroCreated(const CGHeroInstance * h)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::advmapSpellCast(const CGHeroInstance * caster, int spellID)
+void AIGateway::advmapSpellCast(const CGHeroInstance * caster, SpellID spellID)
 {
 	LOG_TRACE_PARAMS(logAi, "spellID '%i", spellID);
 	NET_EVENT_HANDLER;
@@ -424,10 +435,13 @@ void AIGateway::receivedResource()
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "UniversityWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -497,10 +511,13 @@ void AIGateway::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonu
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "MarketWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -510,7 +527,7 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 	NET_EVENT_HANDLER;
 }
 
-std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -535,7 +552,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cbc = CB;
 
 	NET_EVENT_HANDLER;
-	playerID = *myCb->getMyColor();
+	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 
@@ -544,15 +561,17 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	retrieveVisitableObjs();
 }
 
-void AIGateway::yourTurn()
+void AIGateway::yourTurn(QueryID queryID)
 {
-	LOG_TRACE(logAi);
+	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
+	status.addQuery(queryID, "YourTurn");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 	status.startedTurn();
 	makingTurn = std::make_unique<boost::thread>(&AIGateway::makeTurn, this);
 }
 
-void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
+void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -651,7 +670,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 	});
 }
 
-void AIGateway::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits") % exits.size()));
@@ -699,8 +718,8 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	NET_EVENT_HANDLER;
 
-	std::string s1 = up ? up->nodeName() : "NONE";
-	std::string s2 = down ? down->nodeName() : "NONE";
+	std::string s1 = up->nodeName();
+	std::string s2 = down->nodeName();
 
 	status.addQuery(queryID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
@@ -708,7 +727,9 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	requestActionASAP([=]()
 	{
 		if(removableUnits && up->tempOwner == down->tempOwner)
+		{
 			pickBestCreatures(down, up);
+		}
 
 		answerQuery(queryID, 0);
 	});
@@ -757,7 +778,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 		{
 			UpgradeInfo ui;
 			myCb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID >= 0 && nullkiller->getFreeResources().canAfford(ui.cost[0] * s->count))
+			if(ui.oldID != CreatureID::NONE && nullkiller->getFreeResources().canAfford(ui.cost[0] * s->count))
 			{
 				myCb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 				upgraded = true;
@@ -773,8 +794,8 @@ void AIGateway::makeTurn()
 {
 	MAKING_TURN;
 
-	auto day = cb->getDate(Date::EDateType::DAY);
-	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
+	auto day = cb->getDate(Date::DAY);
+	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("AIGateway::makeTurn");
@@ -828,9 +849,6 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
-	case Obj::CREATURE_GENERATOR1:
-		recruitCreatures(dynamic_cast<const CGDwelling *>(obj), h.get());
-		break;
 	case Obj::TOWN:
 		if(h->visitedTown) //we are inside, not just attacking
 		{
@@ -1078,26 +1096,26 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 	}
 }
 
-void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
-	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
+	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
-	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
+	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
+void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
-	bool won = br->winner == myCb->battleGetMySide();
-	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
+	bool won = br->winner == myCb->getBattle(battleID)->battleGetMySide();
+	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != -1)
+	if (queryID != QueryID::NONE)
 	{
 		status.addQuery(queryID, "Combat result dialog");
 		const int confirmAction = 0;
@@ -1106,7 +1124,7 @@ void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
 			answerQuery(queryID, confirmAction);
 		});
 	}
-	CAdventureAI::battleEnd(br, queryID);
+	CAdventureAI::battleEnd(battleID, br, queryID);
 }
 
 void AIGateway::waitTillFree()
@@ -1419,7 +1437,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 
 void AIGateway::endTurn()
 {
-	logAi->info("Player %d (%s) ends turn", playerID, playerID.getStr());
+	logAi->info("Player %d (%s) ends turn", playerID, playerID.toString());
 	if(!status.haveTurn())
 	{
 		logAi->error("Not having turn at the end of turn???");
@@ -1439,7 +1457,7 @@ void AIGateway::endTurn()
 	}
 	while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.getStr());
+	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.toString());
 }
 
 void AIGateway::buildArmyIn(const CGTownInstance * t)
@@ -1472,6 +1490,8 @@ void AIGateway::requestActionASAP(std::function<void()> whatToDo)
 		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 		whatToDo();
 	});
+
+	newThread.detach();
 }
 
 void AIGateway::lostHero(HeroPtr h)
@@ -1605,7 +1625,7 @@ void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-		cv.timed_wait(lock, boost::posix_time::milliseconds(10));
+		cv.wait_for(lock, boost::chrono::milliseconds(10));
 }
 
 bool AIStatus::haveTurn()

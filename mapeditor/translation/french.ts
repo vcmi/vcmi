@@ -292,13 +292,13 @@
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmation</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
+        <translation>Des modifications non sauvegardées vont être perdues. Êtes-vous sûr ?</translation>
+        </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Failed to open map</source>
@@ -353,7 +353,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1191"/>
-        <source>Errors occured. %1 objects were not updated</source>
+        <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1015,7 +1015,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="107"/>
-        <source>Delete original files, for the ones splitted / converted.</source>
+        <source>Delete original files, for the ones split / converted.</source>
         <translation>Supprimer les fichiers d&apos;origine, pour ceux fractionnés/convertis.</translation>
     </message>
 </context>

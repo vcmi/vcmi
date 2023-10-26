@@ -15,6 +15,7 @@
 
 #include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
+#include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -47,7 +48,7 @@ static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, c
 		{
 		case BonusType::NOT_ACTIVE:
 			{
-				switch(bonus.subtype)
+				switch(bonus.subtype.as<SpellID>().toEnum())
 				{
 				case SpellID::STONE_GAZE:
 					addLogLine(558, boost::logic::indeterminate);
@@ -108,14 +109,16 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	const auto *casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
 	{ 
-		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));
-		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, m->getSpellIndex()));
-		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, m->getSpellIndex()));
+		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, BonusSubtypeID(m->getSpellId())));
+		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
+		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
 	}	
 	//TODO: does hero specialty should affects his stack casting spells?
 
 	SetStackEffect sse;
 	BattleLogMessage blm;
+	blm.battleID = m->battle()->getBattle()->getBattleID();
+	sse.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & t : target)
 	{
@@ -219,14 +222,14 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 			nb.turnsRemain = duration;
 		vstd::amax(maxDuration, nb.turnsRemain);
 
-		nb.sid = m->getSpellIndex(); //for all
+		nb.sid = BonusSourceID(m->getSpellId()); //for all
 		nb.source = BonusSource::SPELL_EFFECT;//for all
 
 		//fix to original config: shield should display damage reduction
-		if((nb.sid == SpellID::SHIELD || nb.sid == SpellID::AIR_SHIELD) && (nb.type == BonusType::GENERAL_DAMAGE_REDUCTION))
+		if((nb.sid.as<SpellID>() == SpellID::SHIELD || nb.sid.as<SpellID>() == SpellID::AIR_SHIELD) && (nb.type == BonusType::GENERAL_DAMAGE_REDUCTION))
 			nb.val = 100 - nb.val;
 		//we need to know who cast Bind
-		else if(nb.sid == SpellID::BIND && nb.type == BonusType::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
+		else if(nb.sid.as<SpellID>() == SpellID::BIND && nb.type == BonusType::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
 			nb.additionalInfo = m->caster->getCasterUnitId();
 
 		converted.push_back(nb);

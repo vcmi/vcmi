@@ -43,7 +43,7 @@ class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 public:
 	std::function<void()> callback;
 
-	CQuestLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
+	CQuestLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA &Color = Colors::WHITE, const std::string &Text =  "")
 		: CMultiLineLabel (position, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, Text){};
 	void clickPressed(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;
@@ -54,7 +54,7 @@ class CQuestIcon : public CAnimImage
 public:
 	std::function<void()> callback; //TODO: merge with other similar classes?
 
-	CQuestIcon(const std::string &defname, int index, int x=0, int y=0);
+	CQuestIcon(const AnimationPath & defname, int index, int x=0, int y=0);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;

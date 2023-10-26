@@ -18,6 +18,7 @@
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
 #include "Color.h"
+#include "filesystem/ResourcePath.h"
 
 #include <vcmi/Creature.h>
 #include <vcmi/CreatureService.h>
@@ -57,7 +58,7 @@ public:
 
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
-	std::string animDefName; // creature animation used during battles
+	AnimationPath animDefName; // creature animation used during battles
 
 	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
@@ -95,9 +96,9 @@ public:
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
 		std::vector<double> missleFrameAngles;
-		int troopCountLocationOffset, attackClimaxFrame;
+		int attackClimaxFrame;
 
-		std::string projectileImageName;
+		AnimationPath projectileImageName;
 		std::vector<RayColor> projectileRay;
 		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 
@@ -107,13 +108,6 @@ public:
 			h & idleAnimationTime;
 			h & walkAnimationTime;
 			h & attackAnimationTime;
-
-			if (version < 814)
-			{
-				float unused = 0.f;
-				h & unused;
-			}
-
 			h & upperRightMissleOffsetX;
 			h & rightMissleOffsetX;
 			h & lowerRightMissleOffsetX;
@@ -121,7 +115,6 @@ public:
 			h & rightMissleOffsetY;
 			h & lowerRightMissleOffsetY;
 			h & missleFrameAngles;
-			h & troopCountLocationOffset;
 			h & attackClimaxFrame;
 			h & projectileImageName;
 			h & projectileRay;
@@ -131,14 +124,14 @@ public:
 	//sound info
 	struct CreatureBattleSounds
 	{
-		std::string attack;
-		std::string defend;
-		std::string killed; // was killed or died
-		std::string move;
-		std::string shoot; // range attack
-		std::string wince; // attacked but did not die
-		std::string startMoving;
-		std::string endMoving;
+		AudioPath attack;
+		AudioPath defend;
+		AudioPath killed; // was killed or died
+		AudioPath move;
+		AudioPath shoot; // range attack
+		AudioPath wince; // attacked but did not die
+		AudioPath startMoving;
+		AudioPath endMoving;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -201,7 +194,8 @@ public:
 
 	bool valid() const;
 
-	void addBonus(int val, BonusType type, int subtype = -1);
+	void addBonus(int val, BonusType type);
+	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;
 
 	template<typename RanGen>

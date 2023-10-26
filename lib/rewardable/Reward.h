@@ -27,9 +27,37 @@ namespace Rewardable
 struct Reward;
 using RewardsList = std::vector<std::shared_ptr<Rewardable::Reward>>;
 
+struct RewardRevealTiles
+{
+	/// Reveal distance, if not positive - reveal entire map
+	int radius;
+	/// Reveal score of terrains with "surface" flag set
+	int scoreSurface;
+	/// Reveal score of terrains with "subterra" flag set
+	int scoreSubterra;
+	/// Reveal score of terrains with "water" flag set
+	int scoreWater;
+	/// Reveal score of terrains with "rock" flag set
+	int scoreRock;
+	/// If set, then terrain will be instead hidden for all enemies (Cover of Darkness)
+	bool hide;
+
+	void serializeJson(JsonSerializeFormat & handler);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & radius;
+		h & scoreSurface;
+		h & scoreSubterra;
+		h & scoreWater;
+		h & scoreRock;
+		h & hide;
+	}
+};
+
 /// Reward that can be granted to a hero
 /// NOTE: eventually should replace seer hut rewards and events/pandoras
-struct DLL_LINKAGE Reward
+struct DLL_LINKAGE Reward final
 {
 	/// resources that will be given to player
 	TResources resources;
@@ -74,12 +102,14 @@ struct DLL_LINKAGE Reward
 	/// list of components that will be added to reward description. First entry in list will override displayed component
 	std::vector<Component> extraComponents;
 
+	std::optional<RewardRevealTiles> revealTiles;
+
 	/// if set to true, object will be removed after granting reward
 	bool removeObject;
 
 	/// Generates list of components that describes reward for a specific hero
-	virtual void loadComponents(std::vector<Component> & comps,
-								const CGHeroInstance * h) const;
+	/// If hero is nullptr, then rewards will be generated without accounting for hero
+	void loadComponents(std::vector<Component> & comps, const CGHeroInstance * h) const;
 	
 	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
@@ -107,9 +137,11 @@ struct DLL_LINKAGE Reward
 		h & spells;
 		h & creatures;
 		h & creaturesChange;
-		if(version >= 821)
-			h & spellCast;
+		h & revealTiles;
+		h & spellCast;
 	}
+	
+	void serializeJson(JsonSerializeFormat & handler);
 };
 }
 

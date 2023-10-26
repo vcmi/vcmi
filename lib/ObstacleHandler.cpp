@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "ObstacleHandler.h"
 #include "BattleFieldHandler.h"
-#include "CModHandler.h"
+#include "modding/IdentifierStorage.h"
+#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -89,12 +90,12 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 
 	auto * info = new ObstacleInfo(Obstacle(index), identifier);
 	
-	info->animation = json["animation"].String();
+	info->animation = AnimationPath::fromJson(json["animation"]);
 	info->width = json["width"].Integer();
 	info->height = json["height"].Integer();
 	for(const auto & t : json["allowedTerrains"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier){
+		VLC->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier){
 			info->allowedTerrains.emplace_back(identifier);
 		});
 	}

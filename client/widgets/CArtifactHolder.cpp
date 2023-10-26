@@ -18,6 +18,7 @@
 #include "../windows/GUIClasses.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
+#include "../render/IRenderHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 
@@ -25,10 +26,10 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/CConfigHandler.h"
 
 void CArtPlace::setInternals(const CArtifactInstance * artInst)
 {
-	baseType = -1; // By default we don't store any component
 	ourArt = artInst;
 	if(!artInst)
 	{
@@ -37,25 +38,40 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 		hoverText = CGI->generaltexth->allTexts[507];
 		return;
 	}
-	image->enable();
-	image->setFrame(artInst->artType->getIconIndex());
+
+	imageIndex = artInst->artType->getIconIndex();
 	if(artInst->getTypeId() == ArtifactID::SPELL_SCROLL)
 	{
 		auto spellID = artInst->getScrollSpellID();
-		if(spellID.num >= 0)
+		assert(spellID.num >= 0);
+
+		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
-			// Add spell component info (used to provide a pic in r-click popup)
-			baseType = CComponent::spell;
-			type = spellID;
-			bonusValue = 0;
+			imageIndex = spellID.num;
+			if(baseType != CComponent::spell)
+			{
+				image->setScale(Point(pos.w, 34));
+				image->setAnimationPath(AnimationPath::builtin("spellscr"), imageIndex);
+				image->moveTo(Point(pos.x, pos.y + 4));
+			}
 		}
+		// Add spell component info (used to provide a pic in r-click popup)
+		baseType = CComponent::spell;
+		type = spellID;
 	}
 	else
 	{
+		if(settings["general"]["enableUiEnhancements"].Bool() && baseType != CComponent::artifact)
+		{
+			image->setScale(Point());
+			image->setAnimationPath(AnimationPath::builtin("artifact"), imageIndex);
+			image->moveTo(Point(pos.x, pos.y));
+		}
 		baseType = CComponent::artifact;
 		type = artInst->getTypeId();
-		bonusValue = 0;
 	}
+	bonusValue = 0;
+	image->enable();
 	text = artInst->getDescription();
 }
 
@@ -85,11 +101,11 @@ void CCommanderArtPlace::createImage()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	int imageIndex = 0;
+	imageIndex = 0;
 	if(ourArt)
 		imageIndex = ourArt->artType->getIconIndex();
 
-	image = std::make_shared<CAnimImage>("artifact", imageIndex);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	if(!ourArt)
 		image->disable();
 }
@@ -151,7 +167,7 @@ void CHeroArtPlace::lockSlot(bool on)
 	if(on)
 		image->setFrame(ArtifactID::ART_LOCK);
 	else if(ourArt)
-		image->setFrame(ourArt->artType->getIconIndex());
+		image->setFrame(imageIndex);
 	else
 		image->setFrame(0);
 }
@@ -186,8 +202,8 @@ void CHeroArtPlace::clickPressed(const Point & cursorPosition)
 
 void CHeroArtPlace::showPopupWindow(const Point & cursorPosition)
 {
-	if(rightClickCallback)
-		rightClickCallback(*this);
+	if(showPopupCallback)
+		showPopupCallback(*this);
 }
 
 void CHeroArtPlace::showAll(Canvas & to)
@@ -206,7 +222,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance * art)
 	setInternals(art);
 	if(art)
 	{
-		image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->getIconIndex());
+		image->setFrame(locked ? static_cast<int>(ArtifactID::ART_LOCK) : imageIndex);
 
 		if(locked) // Locks should appear as empty.
 			hoverText = CGI->generaltexth->allTexts[507];
@@ -247,11 +263,10 @@ void CHeroArtPlace::createImage()
 	else if(ourArt)
 		imageIndex = ourArt->artType->getIconIndex();
 
-	image = std::make_shared<CAnimImage>("artifact", imageIndex);
-	if(!ourArt)
-		image->disable();
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
+	image->disable();
 
-	selection = std::make_shared<CAnimImage>("artifact", ArtifactID::ART_SELECTION);
+	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION);
 	selection->disable();
 }
 
@@ -260,17 +275,29 @@ bool ArtifactUtilsClient::askToAssemble(const CGHeroInstance * hero, const Artif
 	assert(hero);
 	const auto art = hero->getArt(slot);
 	assert(art);
-	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), ArtifactUtils::isSlotEquipment(slot));
 
-	for(const auto combinedArt : assemblyPossibilities)
+	if(hero->tempOwner != LOCPLINT->playerID)
+		return false;
+
+	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId());
+	if(!assemblyPossibilities.empty())
 	{
-		LOCPLINT->showArtifactAssemblyDialog(
-			art->artType,
-			combinedArt,
-			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combinedArt->getId()));
+		auto askThread = new boost::thread([hero, art, slot, assemblyPossibilities]() -> void
+			{
+				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+				for(const auto combinedArt : assemblyPossibilities)
+				{
+					bool assembleConfirmed = false;
+					CFunctionList<void()> onYesHandlers([&assembleConfirmed]() -> void {assembleConfirmed = true; });
+					onYesHandlers += std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combinedArt->getId());
 
-		if(assemblyPossibilities.size() > 2)
-			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getNameTranslated());
+					LOCPLINT->showArtifactAssemblyDialog(art->artType, combinedArt, onYesHandlers);
+					LOCPLINT->waitWhileDialog();
+					if(assembleConfirmed)
+						break;
+				}
+			});
+		askThread->detach();
 		return true;
 	}
 	return false;
@@ -281,6 +308,9 @@ bool ArtifactUtilsClient::askToDisassemble(const CGHeroInstance * hero, const Ar
 	assert(hero);
 	const auto art = hero->getArt(slot);
 	assert(art);
+
+	if(hero->tempOwner != LOCPLINT->playerID)
+		return false;
 
 	if(art->isCombined())
 	{

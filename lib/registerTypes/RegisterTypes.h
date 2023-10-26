@@ -17,14 +17,12 @@
 #include "../CPlayerState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
-#include "../CModHandler.h" //needed?
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
-#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGTownBuilding.h"
@@ -56,8 +54,6 @@ void registerTypesMapObjects1(Serializer &s)
 			s.template registerType<CGMonolith, CGSubterraneanGate>();
 			s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
-	s.template registerType<CGObjectInstance, CGScholar>();
-	s.template registerType<CGObjectInstance, CGObservatory>();
 	s.template registerType<CGObjectInstance, CGKeys>();
 		s.template registerType<CGKeys, CGKeymasterTent>();
 		s.template registerType<CGKeys, CGBorderGuard>(); s.template registerType<IQuestObject, CGBorderGuard>();
@@ -104,7 +100,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
-	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CreatureInstanceConstructor>();
@@ -113,7 +108,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
-	REGISTER_GENERIC_HANDLER(CCartographer);
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);
 	REGISTER_GENERIC_HANDLER(CGBoat);
@@ -133,14 +127,11 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CGMine);
 	REGISTER_GENERIC_HANDLER(CGObelisk);
-	REGISTER_GENERIC_HANDLER(CGObservatory);
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
-	REGISTER_GENERIC_HANDLER(CGScholar);
 	REGISTER_GENERIC_HANDLER(CGSeerHut);
 	REGISTER_GENERIC_HANDLER(CGShipyard);
-	REGISTER_GENERIC_HANDLER(CGShrine);
 	REGISTER_GENERIC_HANDLER(CGSignBottle);
 	REGISTER_GENERIC_HANDLER(CGSirens);
 	REGISTER_GENERIC_HANDLER(CGMonolith);
@@ -148,7 +139,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGWhirlpool);
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
-	REGISTER_GENERIC_HANDLER(CGWitchHut);
 	REGISTER_GENERIC_HANDLER(HillFort);
 
 #undef REGISTER_GENERIC_HANDLER
@@ -178,9 +168,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
-		s.template registerType<CTeamVisited, CGWitchHut>();
-		s.template registerType<CTeamVisited, CGShrine>();
-		s.template registerType<CTeamVisited, CCartographer>();
 		s.template registerType<CTeamVisited, CGObelisk>();
 
 	//s.template registerType<CQuest>();
@@ -232,7 +219,9 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SystemMessage>();
 	s.template registerType<CPackForClient, PlayerBlocked>();
 	s.template registerType<CPackForClient, PlayerCheated>();
-	s.template registerType<CPackForClient, YourTurn>();
+	s.template registerType<CPackForClient, PlayerStartsTurn>();
+	s.template registerType<CPackForClient, DaysWithoutTown>();
+	s.template registerType<CPackForClient, TurnTimeUpdate>();
 	s.template registerType<CPackForClient, SetResources>();
 	s.template registerType<CPackForClient, SetPrimSkill>();
 	s.template registerType<CPackForClient, SetSecSkill>();
@@ -244,6 +233,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SetAvailableHero>();
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
+	s.template registerType<CPackForClient, PlayerEndsTurn>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();
 	s.template registerType<CPackForClient, PlayerReinitInterface>();
 	s.template registerType<CPackForClient, RemoveBonus>();
@@ -285,6 +275,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CPackForClient, BattleSetActiveStack>();
 	s.template registerType<CPackForClient, BattleResult>();
 	s.template registerType<CPackForClient, BattleResultAccepted>();
+	s.template registerType<CPackForClient, BattleCancelled>();
 	s.template registerType<CPackForClient, BattleLogMessage>();
 	s.template registerType<CPackForClient, BattleStackMoved>();
 	s.template registerType<CPackForClient, BattleAttack>();
@@ -353,7 +344,6 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BuildBoat>();
 	s.template registerType<CPackForServer, QueryReply>();
 	s.template registerType<CPackForServer, MakeAction>();
-	s.template registerType<CPackForServer, MakeCustomAction>();
 	s.template registerType<CPackForServer, DigWithHero>();
 	s.template registerType<CPackForServer, CastAdvSpell>();
 	s.template registerType<CPackForServer, CastleTeleportHero>();
@@ -365,6 +355,7 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BulkMoveArmy>();
 	s.template registerType<CPackForServer, BulkExchangeArtifacts>();
 	s.template registerType<CPackForServer, EraseArtifactByClient>();
+	s.template registerType<CPackForServer, GamePause>();
 }
 
 template<typename Serializer>
@@ -380,6 +371,7 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToPropagate, LobbyChatMessage>();
 	// Only host client send
 	s.template registerType<CLobbyPackToPropagate, LobbyGuiAction>();
+	s.template registerType<CLobbyPackToPropagate, LobbyLoadProgress>();
 	s.template registerType<CLobbyPackToPropagate, LobbyEndGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyStartGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyChangeHost>();
@@ -395,7 +387,9 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToServer, LobbySetCampaignMap>();
 	s.template registerType<CLobbyPackToServer, LobbySetCampaignBonus>();
 	s.template registerType<CLobbyPackToServer, LobbySetPlayer>();
+	s.template registerType<CLobbyPackToServer, LobbySetPlayerName>();
 	s.template registerType<CLobbyPackToServer, LobbySetTurnTime>();
+	s.template registerType<CLobbyPackToServer, LobbySetSimturns>();
 	s.template registerType<CLobbyPackToServer, LobbySetDifficulty>();
 	s.template registerType<CLobbyPackToServer, LobbyForceSetPlayer>();
 }

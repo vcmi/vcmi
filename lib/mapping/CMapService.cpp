@@ -15,7 +15,9 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CMemoryBuffer.h"
-#include "../CModHandler.h"
+#include "../modding/CModHandler.h"
+#include "../modding/ModScope.h"
+#include "../modding/CModInfo.h"
 #include "../Languages.h"
 #include "../VCMI_Lib.h"
 
@@ -28,7 +30,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name) const
+std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name) const
 {
 	std::string modName = VLC->modh->findResourceOrigin(name);
 	std::string language = VLC->modh->getModLanguage(modName);
@@ -38,7 +40,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name) const
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMap();
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourceID & name) const
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name) const
 {
 	std::string modName = VLC->modh->findResourceOrigin(name);
 	std::string language = VLC->modh->getModLanguage(modName);
@@ -80,7 +82,7 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 	}
 	{
 		boost::filesystem::remove(fullPath);
-		boost::filesystem::ofstream tmp(fullPath, boost::filesystem::ofstream::binary);
+		std::ofstream tmp(fullPath.c_str(), std::ofstream::binary);
 
 		tmp.write(reinterpret_cast<const char *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());
 		tmp.flush();
@@ -90,23 +92,32 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 
 ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 {
-	ModCompatibilityInfo modCompatibilityInfo;
 	const auto & activeMods = VLC->modh->getActiveMods();
+	
+	ModCompatibilityInfo missingMods, missingModsFiltered;
 	for(const auto & mapMod : map.mods)
 	{
 		if(vstd::contains(activeMods, mapMod.first))
 		{
 			const auto & modInfo = VLC->modh->getModInfo(mapMod.first);
-			if(modInfo.version.compatible(mapMod.second))
+			if(modInfo.getVerificationInfo().version.compatible(mapMod.second.version))
 				continue;
 		}
-		
-		modCompatibilityInfo[mapMod.first] = mapMod.second;
-	}	
-	return modCompatibilityInfo;
+		missingMods[mapMod.first] = mapMod.second;
+	}
+	
+	//filter child mods
+	for(const auto & mapMod : missingMods)
+	{
+		if(!mapMod.second.parent.empty() && missingMods.count(mapMod.second.parent))
+			continue;
+		missingModsFiltered.insert(mapMod);
+	}
+	
+	return missingModsFiltered;
 }
 
-std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourceID & name)
+std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourcePath & name)
 {
 	return CResourceHandler::get()->load(name);
 }
@@ -152,13 +163,13 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 	}
 }
 
-static JsonNode loadPatches(std::string path)
+static JsonNode loadPatches(const std::string & path)
 {
-	JsonNode node = JsonUtils::assembleFromFiles(std::move(path));
+	JsonNode node = JsonUtils::assembleFromFiles(path);
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 
-	node.setMeta(CModHandler::scopeMap());
+	node.setMeta(ModScope::scopeMap());
 	return node;
 }
 

@@ -85,9 +85,9 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	serializeRelativeShape(handler, "shape", shape);
 	serializeRelativeShape(handler, "range", range);
 
-	handler.serializeString("appearSound", appearSound);
-	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("animation", animation);
+	handler.serializeStruct("appearSound", appearSound);
+	handler.serializeStruct("appearAnimation", appearAnimation);
+	handler.serializeStruct("animation", animation);
 
 	handler.serializeInt("offsetY", offsetY);
 }
@@ -270,6 +270,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 

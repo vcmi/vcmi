@@ -78,9 +78,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// set <command> <on/off> - sets special temporary settings that reset on game quit.
 	void handleSetCommand(std::istringstream& singleWordBuffer);
 
-	// Unlocks specific mutex known in VCMI code as "pim"
-	void handleUnlockCommand(std::istringstream& singleWordBuffer);
-
 	// Crashes the game forcing an exception
 	void handleCrashCommand();
 

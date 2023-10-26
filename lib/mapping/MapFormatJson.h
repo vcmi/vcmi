@@ -42,6 +42,7 @@ public:
 
 	static const std::string HEADER_FILE_NAME;
 	static const std::string OBJECTS_FILE_NAME;
+	static const std::string TERRAIN_FILE_NAMES[2];
 
 	int fileVersionMajor;
 	int fileVersionMinor;
@@ -109,6 +110,8 @@ protected:
 	void serializePredefinedHeroes(JsonSerializeFormat & handler);
 
 	void serializeRumors(JsonSerializeFormat & handler);
+	
+	void serializeTimedEvents(JsonSerializeFormat & handler);
 
 	///common part of map attributes saving/loading
 	void serializeOptions(JsonSerializeFormat & handler);
@@ -199,6 +202,11 @@ public:
 	 * Reads complete map.
 	 */
 	void readMap();
+	
+	/**
+	 * Reads texts and translations
+	 */
+	void readTranslations();
 
 	static void readTerrainTile(const std::string & src, TerrainTile & tile);
 
@@ -211,6 +219,7 @@ public:
 	 */
 	void readObjects();
 
+	bool isExistArchive(const std::string & archiveFilename);
 	JsonNode getFromArchive(const std::string & archiveFilename);
 
 private:
@@ -246,6 +255,11 @@ public:
 	 * Saves header to zip archive
 	 */
 	void writeHeader();
+	
+	/**
+	 * Saves texts and translations to zip archive
+	 */
+	void writeTranslations();
 
 	/**
 	 * Encodes one tile into string

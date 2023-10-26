@@ -18,14 +18,12 @@
 #include "../Behaviors/BuildingBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
+#include "../Behaviors/StayAtTownBehavior.h"
 #include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -141,8 +139,8 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	{
 		memory->removeInvisibleObjects(cb.get());
 
-		dangerHitMap->calculateTileOwners();
 		dangerHitMap->updateHitMap();
+		dangerHitMap->calculateTileOwners();
 
 		boost::this_thread::interruption_point();
 
@@ -265,7 +263,8 @@ void Nullkiller::makeTurn()
 			choseBestTask(sptr(CaptureObjectsBehavior()), 1),
 			choseBestTask(sptr(ClusterBehavior()), MAX_DEPTH),
 			choseBestTask(sptr(DefenceBehavior()), MAX_DEPTH),
-			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH)
+			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH),
+			choseBestTask(sptr(StayAtTownBehavior()), MAX_DEPTH)
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
@@ -341,7 +340,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 
 	try
 	{
-		task->accept(ai.get());
+		task->accept(ai);
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)

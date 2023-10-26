@@ -120,23 +120,23 @@ BattleHex::EDir CStack::destShiftDir() const
 	}
 }
 
-std::vector<si32> CStack::activeSpells() const
+std::vector<SpellID> CStack::activeSpells() const
 {
-	std::vector<si32> ret;
+	std::vector<SpellID> ret;
 
 	std::stringstream cachingStr;
 	cachingStr << "!type_" << vstd::to_underlying(BonusType::NONE) << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT);
 	CSelector selector = Selector::sourceType()(BonusSource::SPELL_EFFECT)
 						 .And(CSelector([](const Bonus * b)->bool
 	{
-		return b->type != BonusType::NONE && SpellID(b->sid).toSpell() && !SpellID(b->sid).toSpell()->isAdventure();
+		return b->type != BonusType::NONE && b->sid.as<SpellID>().toSpell() && !b->sid.as<SpellID>().toSpell()->isAdventure();
 	}));
 
 	TConstBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
 	for(const auto & it : *spellEffects)
 	{
-		if(!vstd::contains(ret, it->sid))  //do not duplicate spells with multiple effects
-			ret.push_back(it->sid);
+		if(!vstd::contains(ret, it->sid.as<SpellID>()))  //do not duplicate spells with multiple effects
+			ret.push_back(it->sid.as<SpellID>());
 	}
 
 	return ret;
@@ -162,7 +162,7 @@ const CGHeroInstance * CStack::getMyHero() const
 std::string CStack::nodeName() const
 {
 	std::ostringstream oss;
-	oss << owner.getStr();
+	oss << owner.toString();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(type)
 		oss << type->getNamePluralTextID();
@@ -220,7 +220,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 					resurrectedCount += 1;
 			}
 
-			if(customState->hasBonusOfType(BonusType::REBIRTH, 1))
+			if(customState->hasBonusOfType(BonusType::REBIRTH, BonusCustomSubtype::rebirthSpecial))
 			{
 				// resurrect at least one Sacred Phoenix
 				vstd::amax(resurrectedCount, 1);
@@ -395,6 +395,7 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 		logGlobal->warn("Unexpected spell cost %d for creature", spellCost);
 
 	BattleSetStackProperty ssp;
+	ssp.battleID = battle->battleID;
 	ssp.stackID = unitId();
 	ssp.which = BattleSetStackProperty::CASTS;
 	ssp.val = -spellCost;

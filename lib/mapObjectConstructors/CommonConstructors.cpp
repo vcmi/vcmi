@@ -12,11 +12,10 @@
 
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
-#include "../CModHandler.h"
 #include "../CTownHandler.h"
 #include "../IGameCallback.h"
 #include "../JsonRandom.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
 
@@ -25,6 +24,8 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
+
+#include "../modding/IdentifierStorage.h"
 
 #include "../mapping/CMapDefines.h"
 
@@ -57,7 +58,7 @@ std::string ResourceInstanceConstructor::getNameTextID() const
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	VLC->modh->identifiers.requestIdentifier("faction", input["faction"], [&](si32 index)
+	VLC->identifiers()->requestIdentifier("faction", input["faction"], [&](si32 index)
 	{
 		faction = (*VLC->townh)[index];
 	});
@@ -76,7 +77,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
-			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value());
+			return BuildingID(VLC->identifiers()->getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value());
 		});
 	}
 }
@@ -118,7 +119,7 @@ std::string CTownInstanceConstructor::getNameTextID() const
 
 void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	VLC->modh->identifiers.requestIdentifier(
+	VLC->identifiers()->requestIdentifier(
 		"heroClass",
 		input["heroClass"],
 		[&](si32 index) { heroClass = VLC->heroh->classes[index]; });
@@ -132,7 +133,7 @@ void CHeroInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [](const JsonNode & node)
 		{
-			return HeroTypeID(VLC->modh->identifiers.getIdentifier("hero", node.Vector()[0]).value());
+			return HeroTypeID(VLC->identifiers()->getIdentifier("hero", node.Vector()[0]).value());
 		});
 	}
 }
@@ -179,12 +180,15 @@ void BoatInstanceConstructor::initTypeData(const JsonNode & input)
 	int pos = vstd::find_pos(NPathfindingLayer::names, input["layer"].String());
 	if(pos != -1)
 		layer = EPathfindingLayer(pos);
+	else
+		logMod->error("Unknown layer %s found in boat!", input["layer"].String());
+
 	onboardAssaultAllowed = input["onboardAssaultAllowed"].Bool();
 	onboardVisitAllowed = input["onboardVisitAllowed"].Bool();
-	actualAnimation = input["actualAnimation"].String();
-	overlayAnimation = input["overlayAnimation"].String();
+	actualAnimation = AnimationPath::fromJson(input["actualAnimation"]);
+	overlayAnimation = AnimationPath::fromJson(input["overlayAnimation"]);
 	for(int i = 0; i < flagAnimations.size() && i < input["flagAnimations"].Vector().size(); ++i)
-		flagAnimations[i] = input["flagAnimations"].Vector()[i].String();
+		flagAnimations[i] = AnimationPath::fromJson(input["flagAnimations"].Vector()[i]);
 	bonuses = JsonRandom::loadBonuses(input["bonuses"]);
 }
 
@@ -200,7 +204,7 @@ void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 		boat->addNewBonus(std::make_shared<Bonus>(b));
 }
 
-std::string BoatInstanceConstructor::getBoatAnimationName() const
+AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 {
 	return actualAnimation;
 }
@@ -252,9 +256,11 @@ void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 
 void MarketInstanceConstructor::randomizeObject(CGMarket * object, CRandomGenerator & rng) const
 {
+	JsonRandom::Variables emptyVariables;
+
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{
-		for(auto skill : JsonRandom::loadSecondary(predefinedOffer, rng))
+		for(auto skill : JsonRandom::loadSecondaries(predefinedOffer, rng, emptyVariables))
 			university->skills.push_back(skill.first.getNum());
 	}
 }

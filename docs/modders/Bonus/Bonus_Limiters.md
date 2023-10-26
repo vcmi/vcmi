@@ -1,0 +1,124 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Limiters
+
+## Predefined Limiters
+
+The limiters take no parameters:
+
+- SHOOTER_ONLY
+- DRAGON_NATURE
+- IS_UNDEAD
+- CREATURE_NATIVE_TERRAIN
+- CREATURE_FACTION
+- SAME_FACTION
+- CREATURES_ONLY
+- OPPOSITE_SIDE
+
+Example:
+
+``` javascript
+"limiters" : [ "SHOOTER_ONLY" ]
+```
+
+## Customizable Limiters
+
+### HAS_ANOTHER_BONUS_LIMITER
+
+Parameters:
+
+-   Bonus type
+-   (optional) bonus subtype
+-   (optional) bonus sourceType and sourceId in struct
+-   example: (from Adele's bless):
+
+``` javascript
+	"limiters" : [
+		{
+			"type" : "HAS_ANOTHER_BONUS_LIMITER",
+			"parameters" : [
+				"GENERAL_DAMAGE_PREMY",
+				1,
+				{
+					"type" : "SPELL_EFFECT",
+					"id" : "spell.bless"
+				}
+				]
+		}
+	],
+```
+
+### CREATURE_TYPE_LIMITER
+
+Parameters:
+
+-   Creature id (string)
+-   (optional) include upgrades - default is false
+
+### CREATURE_ALIGNMENT_LIMITER
+
+Parameters:
+
+-   Alignment identifier
+
+### CREATURE_LEVEL_LIMITER
+
+If parameters is empty, level limiter works as CREATURES_ONLY limiter
+
+Parameters:
+- Minimal level
+- Maximal level
+
+### FACTION_LIMITER
+
+Parameters:
+
+-   Faction identifier
+
+### CREATURE_TERRAIN_LIMITER
+
+Parameters:
+
+-   Terrain identifier
+
+Example:
+
+``` javascript
+"limiters": [ {
+	"type":"CREATURE_TYPE_LIMITER",
+	"parameters": [ "angel", true ]
+} ],
+```
+
+``` javascript
+"limiters" : [ {
+	"type" : "CREATURE_TERRAIN_LIMITER",
+	"parameters" : ["sand"]
+} ]
+```
+
+### UNIT_ON_HEXES
+
+Parameters:
+
+- List of affected battlefield hexes
+
+## Aggregate Limiters
+
+The following limiters must be specified as the first element of a list,
+and operate on the remaining limiters in that list:
+
+-   allOf (default when no aggregate limiter is specified)
+-   anyOf
+-   noneOf
+
+Example:
+
+``` javascript
+"limiters" : [
+    "noneOf",
+    "IS_UNDEAD",
+    {
+        "type" : "HAS_ANOTHER_BONUS_LIMITER",
+        "parameters" : [ "SIEGE_WEAPON" ]
+    }
+]
+```

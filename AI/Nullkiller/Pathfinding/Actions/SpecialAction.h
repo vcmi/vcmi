@@ -22,6 +22,7 @@ namespace NKAI
 {
 
 struct AIPathNode;
+class ChainActor;
 
 class SpecialAction
 {
@@ -53,6 +54,11 @@ public:
 	virtual std::vector<std::shared_ptr<const SpecialAction>> getParts() const
 	{
 		return {};
+	}
+
+	virtual const ChainActor * getActor(const ChainActor * sourceActor) const
+	{
+		return sourceActor;
 	}
 };
 

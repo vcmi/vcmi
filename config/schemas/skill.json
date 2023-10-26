@@ -15,7 +15,7 @@
 				},
 				"images" : {
 					"type" : "object",
-					"description" : "skill icons of varying size",
+					"description" : "Skill icons of varying size",
 					"properties" : {
 						"small" : {
 							"type" : "string",
@@ -47,11 +47,11 @@
 	"properties" : {
 		"name" : {
 			"type" : "string",
-			"description" : "localizable skill name"
+			"description" : "Mandatory, localizable skill name"
 		},
 		"index" : {
 			"type" : "number",
-			"description" : "numeric id of skill, required for existing skills"
+			"description" : "Internal, numeric id of skill, required for existing skills"
 		},
 		"obligatoryMajor" : {
 			"type" : "boolean",
@@ -63,25 +63,18 @@
 		},
 		"gainChance" : {
 			"description" : "Chance for the skill to be offered on level-up (heroClass may override)",
-			"anyOf" : [
-				{
-					"type" : "number"
+			"type" : "object",
+			"required" : ["might", "magic"],
+			"properties" : {
+				"might" : {
+					"type" : "number",
+					"description" : "Chance for hero classes with might affinity"
 				},
-				{
-					"type" : "object",
-					"required" : ["might", "magic"],
-					"properties" : {
-						"might" : {
-							"type" : "number",
-							"description" : "Chance for hero classes with might affinity"
-						},
-						"magic" : {
-							"type" : "number",
-							"description" : "Chance for hero classes with magic affinity"
-						}
-					}
+				"magic" : {
+					"type" : "number",
+					"description" : "Chance for hero classes with magic affinity"
 				}
-			]
+			}
 		},
 		"base" : {
 			"type" : "object",

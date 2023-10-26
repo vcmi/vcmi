@@ -99,6 +99,18 @@ struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 	}
 };
 
+struct DLL_LINKAGE LobbyLoadProgress : public CLobbyPackToPropagate
+{
+	unsigned char progress;
+	
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & progress;
+	}
+};
+
 struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
 {
 	bool closeConnection = false, restart = false;
@@ -211,9 +223,9 @@ struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 {
-	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS};
+	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS, TOWN_ID, HERO_ID, BONUS_ID};
 	ui8 what = UNKNOWN;
-	si8 direction = 0; //-1 or +1
+	int32_t value = 0;
 	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
@@ -221,7 +233,7 @@ struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & what;
-		h & direction;
+		h & value;
 		h & color;
 	}
 };
@@ -238,15 +250,41 @@ struct DLL_LINKAGE LobbySetPlayer : public CLobbyPackToServer
 	}
 };
 
-struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetPlayerName : public CLobbyPackToServer
 {
-	ui8 turnTime = 0;
+	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
+	std::string name = "";
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & turnTime;
+		h & color;
+		h & name;
+	}
+};
+
+struct DLL_LINKAGE LobbySetSimturns : public CLobbyPackToServer
+{
+	SimturnsInfo simturnsInfo;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & simturnsInfo;
+	}
+};
+
+struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
+{
+	TurnTimerInfo turnTimerInfo;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & turnTimerInfo;
 	}
 };
 

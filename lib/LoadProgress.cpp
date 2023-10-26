@@ -18,6 +18,11 @@ Progress::Progress(): _progress(std::numeric_limits<Type>::min())
 	setupSteps(100);
 }
 
+Progress::Progress(int steps): _progress(std::numeric_limits<Type>::min())
+{
+	setupSteps(steps);
+}
+
 Type Progress::get() const
 {
 	if(_step >= _maxSteps)
@@ -81,4 +86,50 @@ void Progress::step(int count)
 	{
 		_step += count;
 	}
+}
+
+void ProgressAccumulator::include(const Progress & p)
+{
+	boost::unique_lock<boost::mutex> guard(_mx);
+	_progress.emplace_back(p);
+}
+
+void ProgressAccumulator::exclude(const Progress & p)
+{
+	boost::unique_lock<boost::mutex> guard(_mx);
+	for(auto i = _progress.begin(); i != _progress.end(); ++i)
+	{
+		if(&i->get() == &p)
+		{
+			_accumulated += static_cast<long long>(p.get()) * p._maxSteps;
+			_steps += p._maxSteps;
+			_progress.erase(i);
+			return;
+		}
+	}
+}
+
+bool ProgressAccumulator::finished() const
+{
+	boost::unique_lock<boost::mutex> guard(_mx);
+	for(auto i : _progress)
+		if(!i.get().finished())
+			return false;
+	return true;
+}
+
+Type ProgressAccumulator::get() const
+{
+	boost::unique_lock<boost::mutex> guard(_mx);
+	auto sum = _accumulated;
+	auto totalSteps = _steps;
+	for(auto p : _progress)
+	{
+		sum += static_cast<long long>(p.get().get()) * p.get()._maxSteps;
+		totalSteps += p.get()._maxSteps;
+	}
+	
+	if(totalSteps)
+		sum /= totalSteps;
+	return static_cast<Type>(sum);
 }

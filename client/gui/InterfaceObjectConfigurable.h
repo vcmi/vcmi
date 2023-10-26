@@ -12,11 +12,13 @@
 
 #include "CIntObject.h"
 #include "TextAlignment.h"
+#include "../render/EFont.h"
 
 #include "../../lib/JsonNode.h"
 
 class CPicture;
 class CLabel;
+class CMultiLineLabel;
 class CToggleGroup;
 class CToggleButton;
 class CButton;
@@ -25,6 +27,10 @@ class CSlider;
 class CAnimImage;
 class CShowableAnim;
 class CFilledTexture;
+class ComboBox;
+class CTextInput;
+class TransparentFilledRectangle;
+class CTextBox;
 
 #define REGISTER_BUILDER(type, method) registerBuilder(type, std::bind(method, this, std::placeholders::_1))
 
@@ -56,6 +62,7 @@ protected:
 	void addWidget(const std::string & name, std::shared_ptr<CIntObject> widget);
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
+	void addCallback(const std::string & callbackName, std::function<void(std::string)> callback);
 	JsonNode variables;
 	
 	template<class T>
@@ -73,11 +80,12 @@ protected:
 	Point readPosition(const JsonNode &) const;
 	Rect readRect(const JsonNode &) const;
 	ETextAlignment readTextAlignment(const JsonNode &) const;
-	SDL_Color readColor(const JsonNode &) const;
+	ColorRGBA readColor(const JsonNode &) const;
 	EFonts readFont(const JsonNode &) const;
 	std::string readText(const JsonNode &) const;
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
 	EShortcut readHotkey(const JsonNode &) const;
+	PlayerColor readPlayerColor(const JsonNode &) const;
 	
 	void loadToggleButtonCallback(std::shared_ptr<CToggleButton> button, const JsonNode & config) const;
 	void loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const;
@@ -87,6 +95,7 @@ protected:
 	//basic widgets
 	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;
 	std::shared_ptr<CLabel> buildLabel(const JsonNode &) const;
+	std::shared_ptr<CMultiLineLabel> buildMultiLineLabel(const JsonNode &) const;
 	std::shared_ptr<CToggleGroup> buildToggleGroup(const JsonNode &) const;
 	std::shared_ptr<CToggleButton> buildToggleButton(const JsonNode &) const;
 	std::shared_ptr<CButton> buildButton(const JsonNode &) const;
@@ -96,6 +105,10 @@ protected:
 	std::shared_ptr<CShowableAnim> buildAnimation(const JsonNode &) const;
 	std::shared_ptr<CFilledTexture> buildTexture(const JsonNode &) const;
 	std::shared_ptr<CIntObject> buildLayout(const JsonNode &);
+	std::shared_ptr<ComboBox> buildComboBox(const JsonNode &);
+	std::shared_ptr<CTextInput> buildTextInput(const JsonNode &) const;
+	std::shared_ptr<TransparentFilledRectangle> buildTransparentFilledRectangle(const JsonNode & config) const;
+	std::shared_ptr<CTextBox> buildTextBox(const JsonNode & config) const;
 		
 	//composite widgets
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
@@ -111,7 +124,8 @@ private:
 	int unnamedObjectId = 0;
 	std::map<std::string, BuilderFunction> builders;
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
-	std::map<std::string, std::function<void(int)>> callbacks;
+	std::map<std::string, std::function<void(int)>> callbacks_int;
+	std::map<std::string, std::function<void(std::string)>> callbacks_string;
 	std::map<std::string, bool> conditionals;
 	std::map<EShortcut, ShortcutState> shortcuts;
 };

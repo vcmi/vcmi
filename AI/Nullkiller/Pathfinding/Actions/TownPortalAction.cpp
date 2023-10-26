@@ -18,9 +18,6 @@ namespace NKAI
 
 using namespace AIPathfinding;
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 void TownPortalAction::execute(const CGHeroInstance * hero) const
 {
 	auto goal = Goals::AdventureSpellCast(hero, SpellID::TOWN_PORTAL);
@@ -28,7 +25,7 @@ void TownPortalAction::execute(const CGHeroInstance * hero) const
 	goal.town = target;
 	goal.tile = target->visitablePos();
 
-	goal.accept(ai.get());
+	goal.accept(ai);
 }
 
 std::string TownPortalAction::toString() const

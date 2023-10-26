@@ -77,15 +77,15 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 
 	if (text.find("${subtype.creature}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${subtype.creature}", CreatureID(bonus->subtype).toCreature()->getNamePluralTranslated());
+		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
 
 	if (text.find("${subtype.spell}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${subtype.spell}", SpellID(bonus->subtype).toSpell()->getNameTranslated());
+		boost::algorithm::replace_all(text, "${subtype.spell}", bonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
 
 	return text;
 }
 
-std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
+ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
 	std::string fileName;
 	bool fullPath = false;
@@ -95,64 +95,61 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 	case BonusType::SPELL_IMMUNITY:
 	{
 		fullPath = true;
-		const CSpell * sp = SpellID(bonus->subtype).toSpell();
+		const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
 		fileName = sp->getIconImmune();
 		break;
 	}
-	case BonusType::FIRE_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
-			fileName = "E_SPFIRE.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPFIRE1.bmp";
-			break;//not positive
-		case 2:
-			fileName = "E_FIRE.bmp";
-			break;//direct damage
-		}
-		break;
-	case BonusType::WATER_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
-			fileName = "E_SPWATER.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPWATER1.bmp";
-			break;//not positive
-		case 2:
-			fileName = "E_SPCOLD.bmp";
-			break;//direct damage
-		}
-		break;
-	case BonusType::AIR_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
-			fileName = "E_SPAIR.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPAIR1.bmp";
-			break;//not positive
-		case 2:
+	case BonusType::SPELL_DAMAGE_REDUCTION: //Spell damage reduction for all schools
+	{
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::ANY)
+			fileName = "E_GOLEM.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
 			fileName = "E_LIGHT.bmp";
-			break;//direct damage
-		}
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
+			fileName = "E_FIRE.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
+			fileName = "E_COLD.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
+			fileName = "E_SPEATH1.bmp"; //No separate icon for earth damage
+
 		break;
-	case BonusType::EARTH_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
+	}
+	case BonusType::SPELL_SCHOOL_IMMUNITY: //for all school
+	{
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
+			fileName = "E_SPAIR.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
+			fileName = "E_SPFIRE.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
+			fileName = "E_SPWATER.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
 			fileName = "E_SPEATH.bmp";
-			break;//all
-		case 1:
-		case 2://no specific icon for direct damage immunity
-			fileName = "E_SPEATH1.bmp";
-			break;//not positive
-		}
+
 		break;
+	}
+	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
+	{
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
+			fileName = "E_SPAIR1.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
+			fileName = "E_SPFIRE1.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
+			fileName = "E_SPWATER1.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
+			fileName = "E_SPEATH1.bmp";
+
+		break;
+	}
 	case BonusType::LEVEL_SPELL_IMMUNITY:
 	{
 		if(vstd::iswithin(bonus->val, 1, 5))
@@ -171,15 +168,12 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 	}
 	case BonusType::GENERAL_DAMAGE_REDUCTION:
 	{
-		switch(bonus->subtype)
-		{
-		case 0:
+		if (bonus->subtype == BonusCustomSubtype::damageTypeMelee)
 			fileName = "DamageReductionMelee.bmp";
-			break;
-		case 1:
+
+		if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
 			fileName = "DamageReductionRanged.bmp";
-			break;
-		}
+
 		break;
 	}
 
@@ -194,12 +188,12 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 
 	if(!fileName.empty() && !fullPath)
 		fileName = "zvs/Lib1.res/" + fileName;
-	return fileName;
+	return ImagePath::builtinTODO(fileName);
 }
 
 void CBonusTypeHandler::load()
 {
-	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
+	const JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
 	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
 	load(config);
 }

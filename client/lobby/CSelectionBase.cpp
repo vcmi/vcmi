@@ -37,6 +37,9 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -65,9 +68,9 @@ int ISelectionScreenInfo::getCurrentDifficulty()
 	return getStartInfo()->difficulty;
 }
 
-PlayerInfo ISelectionScreenInfo::getPlayerInfo(int color)
+PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 {
-	return getMapInfo()->mapHeader->players[color];
+	return getMapInfo()->mapHeader->players[color.getNum()];
 }
 
 CSelectionBase::CSelectionBase(ESelectionScreen type)
@@ -78,16 +81,16 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
 	{
-		setBackground("CamCust.bmp");
+		setBackground(ImagePath::builtin("CamCust.bmp"));
 	}
 	else
 	{
 		const JsonVector & bgNames = CMainMenuConfig::get().getConfig()["game-select"].Vector();
-		setBackground(RandomGeneratorUtil::nextItem(bgNames, CRandomGenerator::getDefault())->String());
+		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgNames, CRandomGenerator::getDefault())));
 	}
 	pos = background->center();
 	card = std::make_shared<InfoCard>();
-	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
@@ -108,6 +111,14 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 	{
 		curTab.reset();
 	}
+
+	if(tabSel->showRandom && tab != tabOpt)
+	{
+		tabSel->curFolder = "";
+		tabSel->showRandom = false;
+		tabSel->filter(0, true);
+	}
+
 	GH.windows().totalRedraw();
 }
 
@@ -119,11 +130,12 @@ InfoCard::InfoCard()
 	pos.x += 393;
 	pos.y += 6;
 
-	labelSaveDate = std::make_shared<CLabel>(158, 19, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	labelSaveDate = std::make_shared<CLabel>(310, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
+	labelMapSize = std::make_shared<CLabel>(333, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
 	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
-	playerListBg = std::make_shared<CPicture>("CHATPLUG.bmp", 16, 276);
+	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(26, 132, 340, 132));
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
@@ -132,14 +144,14 @@ InfoCard::InfoCard()
 	}
 	else
 	{
-		background = std::make_shared<CPicture>("GSELPOP1.bmp", 0, 0);
+		background = std::make_shared<CPicture>(ImagePath::builtin("GSELPOP1.bmp"), 0, 0);
 		parent->addChild(background.get());
 		auto it = vstd::find(parent->children, this); //our position among parent children
 		parent->children.insert(it, background.get()); //put BG before us
 		parent->children.pop_back();
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
-		iconsMapSizes = std::make_shared<CAnimImage>("SCNRMPSZ", 4, 0, 318, 22); //let it be custom size (frame 4) by default
+		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 318, 22); //let it be custom size (frame 4) by default
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
@@ -147,7 +159,7 @@ InfoCard::InfoCard()
 
 			for(int i = 0; i < 5; i++)
 			{
-				auto button = std::make_shared<CToggleButton>(Point(110 + i * 32, 450), difButns[i], CGI->generaltexth->zelp[24 + i]);
+				auto button = std::make_shared<CToggleButton>(Point(110 + i * 32, 450), AnimationPath::builtin(difButns[i]), CGI->generaltexth->zelp[24 + i]);
 
 				iconDifficulty->addToggle(i, button);
 				if(SEL->screenType != ESelectionScreen::newGame)
@@ -163,8 +175,8 @@ InfoCard::InfoCard()
 		labelScenarioDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
 		labelVictoryCondition = std::make_shared<CLabel>(26, 283, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[497]);
 		labelLossCondition = std::make_shared<CLabel>(26, 339, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[498]);
-		iconsVictoryCondition = std::make_shared<CAnimImage>("SCNRVICT", 0, 0, 24, 302);
-		iconsLossCondition = std::make_shared<CAnimImage>("SCNRLOSS", 0, 0, 24, 359);
+		iconsVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT"), 0, 0, 24, 302);
+		iconsLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS"), 0, 0, 24, 359);
 
 		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
@@ -182,6 +194,7 @@ InfoCard::InfoCard()
 void InfoCard::disableLabelRedraws()
 {
 	labelSaveDate->setAutoRedraw(false);
+	labelMapSize->setAutoRedraw(false);
 	mapName->setAutoRedraw(false);
 	mapDescription->label->setAutoRedraw(false);
 	labelVictoryConditionText->setAutoRedraw(false);
@@ -197,8 +210,9 @@ void InfoCard::changeSelection()
 		return;
 
 	labelSaveDate->setText(mapInfo->date);
-	mapName->setText(mapInfo->getName());
-	mapDescription->setText(mapInfo->getDescription());
+	labelMapSize->setText(std::to_string(mapInfo->mapHeader->width) + "x" + std::to_string(mapInfo->mapHeader->height));
+	mapName->setText(mapInfo->getNameTranslated());
+	mapDescription->setText(mapInfo->getDescriptionTranslated());
 
 	mapDescription->label->scrollTextTo(0, false);
 	if(mapDescription->slider)
@@ -216,6 +230,10 @@ void InfoCard::changeSelection()
 	flagbox->recreate();
 	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
+	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
+		for(auto & button : iconDifficulty->buttons)
+			button.second->setEnabled(button.first == SEL->getCurrentDifficulty());
+
 	const std::array<std::string, 5> difficultyPercent = {"80%", "100%", "130%", "160%", "200%"};
 	labelDifficultyPercent->setText(difficultyPercent[SEL->getCurrentDifficulty()]);
 
@@ -234,7 +252,7 @@ void InfoCard::changeSelection()
 		int pid = p.first;
 		if(pset)
 		{
-			auto name = boost::str(boost::format("%s (%d-%d %s)") % p.second.name % p.second.connection % pid % pset->color.getStr());
+			auto name = boost::str(boost::format("%s (%d-%d %s)") % p.second.name % p.second.connection % pid % pset->color.toString());
 			labelGroupPlayersAssigned->add(24, 285 + (int)labelGroupPlayersAssigned->currentSize()*(int)graphics->fonts[FONT_SMALL]->getLineHeight(), name);
 		}
 		else
@@ -320,6 +338,11 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
+bool CChatBox::captureThisKey(EShortcut key)
+{
+	return !inputBox->getText().empty() && key == EShortcut::GLOBAL_ACCEPT;
+}
+
 void CChatBox::keyPressed(EShortcut key)
 {
 	if(key == EShortcut::GLOBAL_ACCEPT && inputBox->getText().size())
@@ -333,7 +356,7 @@ void CChatBox::keyPressed(EShortcut key)
 
 void CChatBox::addNewMessage(const std::string & text)
 {
-	CCS->soundh->playSound("CHAT");
+	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 	chatHistory->setText(chatHistory->label->getText() + text + "\n");
 	if(chatHistory->slider)
 		chatHistory->slider->scrollToMax();
@@ -350,7 +373,7 @@ CFlagBox::CFlagBox(const Rect & rect)
 	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
 	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
-	iconsTeamFlags = std::make_shared<CAnimation>("ITGFLAGS.DEF");
+	iconsTeamFlags = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITGFLAGS.DEF"));
 	iconsTeamFlags->preload();
 }
 
@@ -384,35 +407,41 @@ void CFlagBox::showPopupWindow(const Point & cursorPosition)
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)
-	: CWindowObject(BORDERED | RCLICK_POPUP | SHADOW_DISABLED, "DIBOXBCK")
+	: CWindowObject(BORDERED | RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("DIBOXBCK"))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pos.w = 256;
-	pos.h = 90 + 50 * SEL->getMapInfo()->mapHeader->howManyTeams;
 
 	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
 	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	for(int i = 0; i < SEL->getMapInfo()->mapHeader->howManyTeams; i++)
+
+	std::vector<std::set<PlayerColor>> teams(PlayerColor::PLAYER_LIMIT_I);
+
+	for(PlayerColor j(0); j < PlayerColor::PLAYER_LIMIT; j++)
 	{
-		std::vector<ui8> flags;
-		labelGroupTeams->add(128, 65 + 50 * i, boost::str(boost::format(CGI->generaltexth->allTexts[656]) % (i+1)));
-
-		for(int j = 0; j < PlayerColor::PLAYER_LIMIT_I; j++)
+		if(SEL->getPlayerInfo(j).canHumanPlay || SEL->getPlayerInfo(j).canComputerPlay)
 		{
-			if((SEL->getPlayerInfo(j).canHumanPlay || SEL->getPlayerInfo(j).canComputerPlay)
-				&& SEL->getPlayerInfo(j).team == TeamID(i))
-			{
-				flags.push_back(j);
-			}
-		}
-
-		int curx = 128 - 9 * (int)flags.size();
-		for(auto & flag : flags)
-		{
-			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, flag, 0, curx, 75 + 50 * i));
-			curx += 18;
+			teams[SEL->getPlayerInfo(j).team].insert(j);
 		}
 	}
+
+	auto curIdx = 0;
+	for(const auto & team : teams)
+	{
+		if(team.empty())
+			continue;
+
+		labelGroupTeams->add(128, 65 + 50 * curIdx, boost::str(boost::format(CGI->generaltexth->allTexts[656]) % (curIdx + 1)));
+		int curx = 128 - 9 * team.size();
+		for(const auto & player : team)
+		{
+			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, player, 0, curx, 75 + 50 * curIdx));
+			curx += 18;
+		}
+		++curIdx;
+	}
+	pos.w = 256;
+	pos.h = 90 + 50 * curIdx;
+
 	background->scaleTo(Point(pos.w, pos.h));
 	center();
 }

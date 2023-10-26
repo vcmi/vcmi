@@ -21,7 +21,7 @@
 #include "CGeneralTextHandler.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
-#include "filesystem/ResourceID.h"
+#include "filesystem/ResourcePath.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "render/Canvas.h"
@@ -35,7 +35,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourceID("config/widgets/settings/settingsMainContainer.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/settings/settingsMainContainer.json"));
 	addCallback("activateSettingsTab", [this](int tabId) { openTab(tabId); });
 	addCallback("loadGame", [this](int) { loadGameButtonCallback(); });
 	addCallback("saveGame", [this](int) { saveGameButtonCallback(); });
@@ -75,6 +75,8 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);
+	
+	LOCPLINT->gamePause(true);
 }
 
 std::shared_ptr<CIntObject> SettingsMainWindow::createTab(size_t index)
@@ -108,6 +110,8 @@ void SettingsMainWindow::close()
 {
 	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
+	
+	LOCPLINT->gamePause(false);
 	GH.windows().popWindows(1);
 }
 

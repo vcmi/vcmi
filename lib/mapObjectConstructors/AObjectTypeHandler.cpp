@@ -13,7 +13,7 @@
 
 #include "IObjectInfo.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
+#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -83,13 +83,13 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	}
 
 	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
-		sounds.ambient.push_back(node.String());
+		sounds.ambient.push_back(AudioPath::fromJson(node));
 
 	for(const JsonNode & node : input["sounds"]["visit"].Vector())
-		sounds.visit.push_back(node.String());
+		sounds.visit.push_back(AudioPath::fromJson(node));
 
 	for(const JsonNode & node : input["sounds"]["removal"].Vector())
-		sounds.removal.push_back(node.String());
+		sounds.removal.push_back(AudioPath::fromJson(node));
 
 	if(input["aiValue"].isNull())
 		aiValue = std::nullopt;
@@ -100,7 +100,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 
 	if(!input["battleground"].isNull())
 	{
-		VLC->modh->identifiers.requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
 		{
 			battlefield = BattleField(identifier);
 		});

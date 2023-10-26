@@ -15,6 +15,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../render/Canvas.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CComponent.h"
@@ -29,7 +30,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
@@ -84,7 +84,6 @@ public:
 	{
 	}
 
-
 	std::string getName() const
 	{
 		if(commander)
@@ -96,11 +95,14 @@ private:
 
 };
 
-CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback)
+CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, bool isMasterAbility_, std::function<void()> callback)
 	: object(),
-	callback(callback)
+	  isMasterAbility(isMasterAbility_),
+	  isSelected(false),
+	  callback(callback)
 {
 	pos = object_->pos;
+	this->isMasterAbility = isMasterAbility_;
 	setObject(object_);
 }
 
@@ -117,9 +119,28 @@ void CCommanderSkillIcon::setObject(std::shared_ptr<CIntObject> newObject)
 void CCommanderSkillIcon::clickPressed(const Point & cursorPosition)
 {
 	callback();
+	isSelected = true;
 }
 
-static std::string skillToFile(int skill, int level, bool selected)
+void CCommanderSkillIcon::deselect()
+{
+	isSelected = false;
+}
+
+bool CCommanderSkillIcon::getIsMasterAbility()
+{
+	return isMasterAbility;
+}
+
+void CCommanderSkillIcon::show(Canvas &to)
+{
+	CIntObject::show(to);
+
+	if(isMasterAbility && isSelected)
+		to.drawBorder(pos, Colors::YELLOW, 2);
+}
+
+static ImagePath skillToFile(int skill, int level, bool selected)
 {
 	// FIXME: is this a correct hadling?
 	// level 0 = skill not present, use image with "no" suffix
@@ -157,24 +178,24 @@ static std::string skillToFile(int skill, int level, bool selected)
 	if (selected)
 		sufix += "="; //level-up highlight
 
-	return file + sufix + ".bmp";
+	return ImagePath::builtin(file + sufix + ".bmp");
 }
 
-CStackWindow::CWindowSection::CWindowSection(CStackWindow * parent, std::string backgroundPath, int yOffset)
+CStackWindow::CWindowSection::CWindowSection(CStackWindow * parent, const ImagePath & backgroundPath, int yOffset)
 	: parent(parent)
 {
 	pos.y += yOffset;
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if(!backgroundPath.empty())
 	{
-		background = std::make_shared<CPicture>("stackWindow/" + backgroundPath);
+		background = std::make_shared<CPicture>(backgroundPath);
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
 	}
 }
 
 CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int yOffset)
-	: CWindowSection(owner, "spell-effects", yOffset)
+	: CWindowSection(owner, ImagePath::builtin("stackWindow/spell-effects"), yOffset)
 {
 	static const Point firstPos(6, 2); // position of 1st spell box
 	static const Point offset(54, 0);  // offset of each spell box from previous
@@ -187,10 +208,10 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 
 	//spell effects
 	int printed=0; //how many effect pics have been printed
-	std::vector<si32> spells = battleStack->activeSpells();
-	for(si32 effect : spells)
+	std::vector<SpellID> spells = battleStack->activeSpells();
+	for(SpellID effect : spells)
 	{
-		const spells::Spell * spell = CGI->spells()->getByIndex(effect);
+		const spells::Spell * spell = CGI->spells()->getById(effect);
 
 		std::string spellText;
 
@@ -203,10 +224,10 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
-			int duration = battleStack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT,effect))->turnsRemain;
+			int duration = battleStack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
 			boost::replace_first(spellText, "%d", std::to_string(duration));
 
-			spellIcons.push_back(std::make_shared<CAnimImage>("SpellInt", effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
+			spellIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			clickableAreas.push_back(std::make_shared<LRClickableAreaWText>(Rect(firstPos + offset * printed, Point(50, 38)), spellText, spellText));
 			if(++printed >= 8) // interface limit reached
 				break;
@@ -215,7 +236,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 }
 
 CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t lineIndex)
-	: CWindowSection(owner, "bonus-effects", 0)
+	: CWindowSection(owner, ImagePath::builtin("stackWindow/bonus-effects"), 0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -241,7 +262,7 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 }
 
 CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, std::optional<size_t> preferredSize):
-	CWindowSection(owner, "", yOffset)
+	CWindowSection(owner, {}, yOffset)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -263,7 +284,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 }
 
 CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
-	: CWindowSection(owner, "button-panel", yOffset)
+	: CWindowSection(owner, ImagePath::builtin("stackWindow/button-panel"), yOffset)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -278,7 +299,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[12], onDismiss, nullptr);
 		};
-		dismiss = std::make_shared<CButton>(Point(5, 5),"IVIEWCR2.DEF", CGI->generaltexth->zelp[445], onClick, EShortcut::HERO_DISMISS);
+		dismiss = std::make_shared<CButton>(Point(5, 5),AnimationPath::builtin("IVIEWCR2.DEF"), CGI->generaltexth->zelp[445], onClick, EShortcut::HERO_DISMISS);
 	}
 
 	if(parent->info->upgradeInfo && !parent->info->commander)
@@ -315,9 +336,9 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314], resComps);
 				}
 			};
-			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick);
+			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CGI->generaltexth->zelp[446], onClick);
 
-			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
+			upgradeBtn->addOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->getIconIndex()));
 
 			if(buttonsToCreate == 1) // single upgrade avaialbe
 				upgradeBtn->assignedKey = EShortcut::RECRUITMENT_UPGRADE;
@@ -342,17 +363,17 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 
 			std::string tooltipText = "vcmi.creatureWindow." + btnIDs[buttonIndex];
-			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), "stackWindow/upgradeButton", CButton::tooltipLocalized(tooltipText), onSwitch);
-			parent->switchButtons[buttonIndex]->addOverlay(std::make_shared<CAnimImage>("stackWindow/switchModeIcons", buttonIndex));
+			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
+			parent->switchButtons[buttonIndex]->addOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/switchModeIcons"), buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
 	}
 
-	exit = std::make_shared<CButton>(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[447], [=](){ parent->close(); }, EShortcut::GLOBAL_RETURN);
+	exit = std::make_shared<CButton>(Point(382, 5), AnimationPath::builtin("hsbtns.def"), CGI->generaltexth->zelp[447], [=](){ parent->close(); }, EShortcut::GLOBAL_RETURN);
 }
 
 CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, int yOffset)
-	: CWindowSection(owner, "commander-bg", yOffset)
+	: CWindowSection(owner, ImagePath::builtin("stackWindow/commander-bg"), yOffset)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -361,7 +382,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 		return Point(10 + 80 * (index%3), 20 + 80 * (index/3));
 	};
 
-	auto getSkillImage = [this](int skillIndex) -> std::string
+	auto getSkillImage = [this](int skillIndex)
 	{
 		bool selected = ((parent->selectedSkill == skillIndex) && parent->info->levelupInfo );
 		return skillToFile(skillIndex, parent->info->commander->secondarySkills[skillIndex], selected);
@@ -376,7 +397,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 	{
 		Point skillPos = getSkillPos(index);
 
-		auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(getSkillImage(index), skillPos.x, skillPos.y), [=]()
+		auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(getSkillImage(index), skillPos.x, skillPos.y), false, [=]()
 		{
 			LOCPLINT->showInfoDialog(getSkillDescription(index));
 		});
@@ -414,7 +435,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 	if(parent->info->levelupInfo)
 	{
-		abilitiesBackground = std::make_shared<CPicture>("stackWindow/commander-abilities.png");
+		abilitiesBackground = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/commander-abilities.png"));
 		abilitiesBackground->moveBy(Point(0, pos.h));
 
 		size_t abilitiesCount = boost::range::count_if(parent->info->levelupInfo->skills, [](ui32 skillID)
@@ -430,7 +451,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 				{
 					const auto bonus = CGI->creh->skillRequirements[skillID-100].first;
 					const CStackInstance * stack = parent->info->commander;
-					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonus)), [](){});
+					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonus)), true,  [](){});
 					icon->callback = [=]()
 					{
 						parent->setSelection(skillID, icon);
@@ -447,9 +468,10 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 		};
 
 		abilities = std::make_shared<CListBox>(onCreate, Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
+		abilities->setRedrawParent(true);
 
-		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), "hsbtns3.def", CButton::tooltip(), [=](){ abilities->moveToPrev(); }, EShortcut::MOVE_LEFT);
-		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), "hsbtns5.def", CButton::tooltip(), [=](){ abilities->moveToNext(); }, EShortcut::MOVE_RIGHT);
+		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [=](){ abilities->moveToPrev(); }, EShortcut::MOVE_LEFT);
+		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [=](){ abilities->moveToNext(); }, EShortcut::MOVE_RIGHT);
 
 		if(abilitiesCount <= 6)
 		{
@@ -506,7 +528,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(BonusType::SIEGE_WEAPON))
 		dmgMultiply += parent->info->owner->getPrimSkillLevel(PrimarySkill::ATTACK);
 
-	icons = std::make_shared<CPicture>("stackWindow/icons", 117, 32);
+	icons = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/icons"), 117, 32);
 
 	const CStack * battleStack = parent->info->stack;
 
@@ -557,7 +579,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		if(parent->info->commander)
 		{
 			const CCommanderInstance * commander = parent->info->commander;
-			expRankIcon = std::make_shared<CAnimImage>("PSKIL42", 4, 0, pos.x, pos.y);
+			expRankIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 4, 0, pos.x, pos.y);
 
 			auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(pos.x, pos.y, 44, 44), CComponent::experience);
 			expArea = area;
@@ -569,7 +591,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		}
 		else
 		{
-			expRankIcon = std::make_shared<CAnimImage>("stackWindow/levels", stack->getExpRank(), 0, pos.x, pos.y);
+			expRankIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/levels"), stack->getExpRank(), 0, pos.x, pos.y);
 			expArea = std::make_shared<LRClickableAreaWText>(Rect(pos.x, pos.y, 44, 44));
 			expArea->text = parent->generateStackExpDescription();
 		}
@@ -587,14 +609,14 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		auto art = parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
 		if(art)
 		{
-			parent->stackArtifactIcon = std::make_shared<CAnimImage>("ARTIFACT", art->artType->getIconIndex(), 0, pos.x, pos.y);
+			parent->stackArtifactIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("ARTIFACT"), art->artType->getIconIndex(), 0, pos.x, pos.y);
 			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), CComponent::artifact);
 			parent->stackArtifactHelp->type = art->artType->getId();
 
 			if(parent->info->owner)
 			{
 				parent->stackArtifactButton = std::make_shared<CButton>(
-						Point(pos.x - 2 , pos.y + 46), "stackWindow/cancelButton",
+						Point(pos.x - 2 , pos.y + 46), AnimationPath::builtin("stackWindow/cancelButton"),
 						CButton::tooltipLocalized("vcmi.creatureWindow.returnArtifact"),	[=]()
 				{
 					parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
@@ -605,14 +627,14 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 }
 
 
-std::string CStackWindow::MainSection::getBackgroundName(bool showExp, bool showArt)
+ImagePath CStackWindow::MainSection::getBackgroundName(bool showExp, bool showArt)
 {
 	if(showExp && showArt)
-		return "info-panel-2";
+		return ImagePath::builtin("stackWindow/info-panel-2");
 	else if(showExp || showArt)
-		return "info-panel-1";
+		return ImagePath::builtin("stackWindow/info-panel-1");
 	else
-		return "info-panel-0";
+		return ImagePath::builtin("stackWindow/info-panel-0");
 }
 
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_t value2)
@@ -883,7 +905,7 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 			return CGI->generaltexth->znpc00[152 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
 	};
 
-	auto getSkillImage = [this](int skillIndex) -> std::string
+	auto getSkillImage = [this](int skillIndex)
 	{
 		bool selected = ((selectedSkill == skillIndex) && info->levelupInfo );
 		return skillToFile(skillIndex, info->commander->secondarySkills[skillIndex], selected);
@@ -897,13 +919,22 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 		selectedIcon->setObject(std::make_shared<CPicture>(getSkillImage(oldSelection)));
 
 	if(selectedIcon)
-		selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
+	{
+		if(!selectedIcon->getIsMasterAbility()) //unlike WoG, in VCMI master skill descriptions are taken from bonus descriptions
+		{
+			selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
+		}
+		selectedIcon->deselect();
+	}
 
 	selectedIcon = newIcon; // update new selection
 	if(newSkill < 100)
 	{
 		newIcon->setObject(std::make_shared<CPicture>(getSkillImage(newSkill)));
-		newIcon->text = getSkillDescription(newSkill, true); //update currently selected icon's message to show upgrade description
+		if(!newIcon->getIsMasterAbility())
+		{
+			newIcon->text = getSkillDescription(newSkill, true); //update currently selected icon's message to show upgrade description
+		}
 	}
 }
 

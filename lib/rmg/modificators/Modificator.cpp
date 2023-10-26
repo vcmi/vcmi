@@ -119,7 +119,7 @@ void Modificator::postfunction(Modificator * modificator)
 
 void Modificator::dump()
 {
-	std::ofstream out(boost::to_string(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
+	std::ofstream out(boost::str(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
 	int levels = map.levels();
 	int width =  map.width();
 	int height = map.height();

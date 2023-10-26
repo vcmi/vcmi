@@ -15,12 +15,8 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/CPlayerState.h"
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -41,8 +37,8 @@ namespace Goals
 
 		ExplorationHelper(HeroPtr h, bool gatherArmy)
 		{
-			cbp = cb.get();
-			aip = ai.get();
+			cbp = cb;
+			aip = ai;
 			hero = h;
 			ts = cbp->getPlayerTeam(ai->playerID);
 			sightRadius = hero->getSightRadius();

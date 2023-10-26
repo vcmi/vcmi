@@ -16,12 +16,7 @@
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "../../../lib/StringConstants.h"
-
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 
@@ -139,7 +134,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			{
 				for(auto type : creature.second)
 				{
-					if(type == objid && ai->ah->freeResources().canAfford(VLC->creatures()->getById(type)->getFullRecruitCost()))
+					if(type.getNum() == objid && ai->ah->freeResources().canAfford(VLC->creatures()->getById(type)->getFullRecruitCost()))
 						vstd::concatenate(solutions, ai->ah->howToVisitObj(obj));
 				}
 			}

@@ -14,6 +14,11 @@
 #include "../IGameCallback.h"
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../serializer/JsonSerializeFormat.h"
+#include "../constants/StringConstants.h"
+#include "../CHeroHandler.h"
+#include "../CSkillHandler.h"
+#include "../ArtifactUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +26,7 @@ Rewardable::Limiter::Limiter()
 	: dayOfWeek(0)
 	, daysPassed(0)
 	, heroExperience(0)
-	, heroLevel(0)
+	, heroLevel(-1)
 	, manaPercentage(0)
 	, manaPoints(0)
 	, primary(GameConstants::PRIMARY_SKILLS, 0)
@@ -29,6 +34,33 @@ Rewardable::Limiter::Limiter()
 }
 
 Rewardable::Limiter::~Limiter() = default;
+
+bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
+{
+	return l.dayOfWeek == r.dayOfWeek
+	&& l.daysPassed == r.daysPassed
+	&& l.heroLevel == r.heroLevel
+	&& l.heroExperience == r.heroExperience
+	&& l.manaPoints == r.manaPoints
+	&& l.manaPercentage == r.manaPercentage
+	&& l.secondary == r.secondary
+	&& l.creatures == r.creatures
+	&& l.spells == r.spells
+	&& l.artifacts == r.artifacts
+	&& l.players == r.players
+	&& l.heroes == r.heroes
+	&& l.heroClasses == r.heroClasses
+	&& l.resources == r.resources
+	&& l.primary == r.primary
+	&& l.noneOf == r.noneOf
+	&& l.allOf == r.allOf
+	&& l.anyOf == r.anyOf;
+}
+
+bool operator!=(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
+{
+	return !(l == r);
+}
 
 bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 {
@@ -69,12 +101,15 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	if(manaPoints > hero->mana)
 		return false;
 
+	if (canLearnSkills && !hero->canLearnSkill())
+		return false;
+
 	if(manaPercentage > 100 * hero->mana / hero->manaLimit())
 		return false;
 
 	for(size_t i=0; i<primary.size(); i++)
 	{
-		if(primary[i] > hero->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)))
+		if(primary[i] > hero->getPrimSkillLevel(static_cast<PrimarySkill>(i)))
 			return false;
 	}
 
@@ -90,12 +125,40 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	for(const auto & art : artifacts)
+	for(const auto & spell : canLearnSpells)
 	{
-		if (!hero->hasArt(art))
+		if (!hero->canLearnSpell(spell.toSpell(VLC->spells()), true))
 			return false;
 	}
 
+	{
+		std::unordered_map<ArtifactID, unsigned int, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
+		for(const auto & art : artifacts)
+			++artifactsRequirements[art];
+		
+		size_t reqSlots = 0;
+		for(const auto & elem : artifactsRequirements)
+		{
+			// check required amount of artifacts
+			if(hero->getArtPosCount(elem.first, false, true, true) < elem.second)
+				return false;
+			if(!hero->hasArt(elem.first))
+				reqSlots += hero->getAssemblyByConstituent(elem.first)->getPartsInfo().size() - 2;
+		}
+		if(!ArtifactUtils::isBackpackFreeSlots(hero, reqSlots))
+			return false;
+	}
+	
+	if(!players.empty() && !vstd::contains(players, hero->getOwner()))
+		return false;
+	
+	if(!heroes.empty() && !vstd::contains(heroes, hero->type->getId()))
+		return false;
+	
+	if(!heroClasses.empty() && !vstd::contains(heroClasses, hero->type->heroClass->getId()))
+		return false;
+		
+	
 	for(const auto & sublimiter : noneOf)
 	{
 		if (sublimiter->heroAllowed(hero))
@@ -117,6 +180,100 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return true;
 	}
 	return false;
+}
+
+void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
+								 const CGHeroInstance * h) const
+{
+	if (heroExperience)
+		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
+
+	if (heroLevel > 0)
+		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
+
+	if (manaPoints || manaPercentage > 0)
+	{
+		int absoluteMana = h->manaLimit() ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
+		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, absoluteMana + manaPoints, 0);
+	}
+
+	for (size_t i=0; i<primary.size(); i++)
+	{
+		if (primary[i] != 0)
+			comps.emplace_back(Component::EComponentType::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
+	}
+
+	for(const auto & entry : secondary)
+		comps.emplace_back(Component::EComponentType::SEC_SKILL, entry.first, entry.second, 0);
+
+	for(const auto & entry : artifacts)
+		comps.emplace_back(Component::EComponentType::ARTIFACT, entry, 1, 0);
+
+	for(const auto & entry : spells)
+		comps.emplace_back(Component::EComponentType::SPELL, entry, 1, 0);
+
+	for(const auto & entry : creatures)
+		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->getId(), entry.count, 0);
+	
+	for(const auto & entry : players)
+		comps.emplace_back(Component::EComponentType::FLAG, entry, 0, 0);
+	
+	//FIXME: portrait may not match hero, if custom portrait was set in map editor
+	for(const auto & entry : heroes)
+		comps.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroTypes()->getById(entry)->getIconIndex(), 0, 0);
+	
+	for(const auto & entry : heroClasses)
+		comps.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroClasses()->getById(entry)->getIconIndex(), 0, 0);
+
+	for (size_t i=0; i<resources.size(); i++)
+	{
+		if (resources[i] !=0)
+			comps.emplace_back(Component::EComponentType::RESOURCE, static_cast<ui16>(i), resources[i], 0);
+	}
+}
+
+void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeInt("dayOfWeek", dayOfWeek);
+	handler.serializeInt("daysPassed", daysPassed);
+	resources.serializeJson(handler, "resources");
+	handler.serializeInt("manaPercentage", manaPercentage);
+	handler.serializeInt("heroExperience", heroExperience);
+	handler.serializeInt("heroLevel", heroLevel);
+	handler.serializeIdArray("heroes", heroes);
+	handler.serializeIdArray("heroClasses", heroClasses);
+	handler.serializeIdArray("colors", players);
+	handler.serializeInt("manaPoints", manaPoints);
+	handler.serializeIdArray("artifacts", artifacts);
+	handler.enterArray("creatures").serializeStruct(creatures);
+	handler.enterArray("primary").serializeArray(primary);
+	{
+		auto a = handler.enterArray("secondary");
+		std::vector<std::pair<SecondarySkill, si32>> fieldValue(secondary.begin(), secondary.end());
+		a.serializeStruct<std::pair<SecondarySkill, si32>>(fieldValue, [](JsonSerializeFormat & h, std::pair<SecondarySkill, si32> & e)
+		{
+			h.serializeId("skill", e.first, SecondarySkill{}, VLC->skillh->decodeSkill, VLC->skillh->encodeSkill);
+			h.serializeId("level", e.second, 0, [](const std::string & i){return vstd::find_pos(NSecondarySkill::levels, i);}, [](si32 i){return NSecondarySkill::levels.at(i);});
+		});
+		a.syncSize(fieldValue);
+		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
+	}
+	//sublimiters
+	auto serializeSublimitersList = [&handler](const std::string & field, LimitersList & container)
+	{
+		auto a = handler.enterArray(field);
+		a.syncSize(container);
+		for(int i = 0; i < container.size(); ++i)
+		{
+			if(!handler.saving)
+				container[i] = std::make_shared<Rewardable::Limiter>();
+			auto e = a.enterStruct(i);
+			container[i]->serializeJson(handler);
+		}
+	};
+	serializeSublimitersList("allOf", allOf);
+	serializeSublimitersList("anyOf", anyOf);
+	serializeSublimitersList("noneOf", noneOf);
 }
 
 VCMI_LIB_NAMESPACE_END

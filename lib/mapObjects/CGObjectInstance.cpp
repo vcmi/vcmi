@@ -18,7 +18,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../NetPacks.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -64,15 +64,18 @@ void CGObjectInstance::setOwner(const PlayerColor & ow)
 {
 	tempOwner = ow;
 }
-int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
+
+int CGObjectInstance::getWidth() const
 {
 	return appearance->getWidth();
 }
-int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
+
+int CGObjectInstance::getHeight() const
 {
 	return appearance->getHeight();
 }
-bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
+
+bool CGObjectInstance::visitableAt(int x, int y) const
 {
 	return appearance->isVisitableAt(pos.x - x, pos.y - y);
 }
@@ -84,6 +87,20 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
 	return appearance->isVisibleAt(pos.x - x, pos.y - y);
+}
+
+bool CGObjectInstance::visitableAt(const int3 & testPos) const
+{
+	return pos.z == testPos.z && appearance->isVisitableAt(pos.x - testPos.x, pos.y - testPos.y);
+}
+bool CGObjectInstance::blockingAt(const int3 & testPos) const
+{
+	return pos.z == testPos.z && appearance->isBlockedAt(pos.x - testPos.x, pos.y - testPos.y);
+}
+
+bool CGObjectInstance::coveringAt(const int3 & testPos) const
+{
+	return pos.z == testPos.z && appearance->isVisibleAt(pos.x - testPos.x, pos.y - testPos.y);
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const
@@ -204,8 +221,8 @@ void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDura
 	gbonus.bonus.type = BonusType::NONE;
 	gbonus.id = heroID.getNum();
 	gbonus.bonus.duration = duration;
-	gbonus.bonus.source = BonusSource::OBJECT;
-	gbonus.bonus.sid = ID;
+	gbonus.bonus.source = BonusSource::OBJECT_TYPE;
+	gbonus.bonus.sid = BonusSourceID(ID);
 	cb->giveHeroBonus(&gbonus);
 }
 
@@ -214,7 +231,7 @@ std::string CGObjectInstance::getObjectName() const
 	return VLC->objtypeh->getObjectName(ID, subID);
 }
 
-std::optional<std::string> CGObjectInstance::getAmbientSound() const
+std::optional<AudioPath> CGObjectInstance::getAmbientSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
 	if(!sounds.empty())
@@ -223,7 +240,7 @@ std::optional<std::string> CGObjectInstance::getAmbientSound() const
 	return std::nullopt;
 }
 
-std::optional<std::string> CGObjectInstance::getVisitSound() const
+std::optional<AudioPath> CGObjectInstance::getVisitSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
 	if(!sounds.empty())
@@ -232,7 +249,7 @@ std::optional<std::string> CGObjectInstance::getVisitSound() const
 	return std::nullopt;
 }
 
-std::optional<std::string> CGObjectInstance::getRemovalSound() const
+std::optional<AudioPath> CGObjectInstance::getRemovalSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
 	if(!sounds.empty())
@@ -254,6 +271,25 @@ std::string CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
 	return getHoverText(hero->tempOwner);
 }
 
+std::string CGObjectInstance::getPopupText(PlayerColor player) const
+{
+	return getHoverText(player);
+}
+std::string CGObjectInstance::getPopupText(const CGHeroInstance * hero) const
+{
+	return getHoverText(hero);
+}
+
+std::vector<Component> CGObjectInstance::getPopupComponents(PlayerColor player) const
+{
+	return {};
+}
+
+std::vector<Component> CGObjectInstance::getPopupComponents(const CGHeroInstance * hero) const
+{
+	return getPopupComponents(hero->getOwner());
+}
+
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
 	switch(ID)
@@ -266,7 +302,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case Obj::TAVERN:
 		{
-			openWindow(EOpenWindowMode::TAVERN_WINDOW,h->id.getNum(),id.getNum());
+			cb->showObjectWindow(this, EOpenWindowMode::TAVERN_WINDOW, h, true);
 		}
 		break;
 	}
@@ -341,12 +377,7 @@ void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 {
-	ui8 temp = tempOwner.getNum();
-
-	handler.serializeEnum("owner", temp, PlayerColor::NEUTRAL.getNum(), GameConstants::PLAYER_COLOR_NAMES);
-
-	if(!handler.saving)
-		tempOwner = PlayerColor(temp);
+	handler.serializeId("owner", tempOwner, PlayerColor::NEUTRAL);
 }
 
 BattleField CGObjectInstance::getBattlefield() const

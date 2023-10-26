@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "townbulidingswidget.h"
 #include "ui_townbulidingswidget.h"
-#include "../lib/CModHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 
 std::string defaultBuildingIdConversion(BuildingID bId)
@@ -131,7 +130,7 @@ QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, s
 			for(int i = 0; i < model.rowCount(pindex); ++i)
 			{
 				QModelIndex index = model.index(i, 0, pindex);
-				if(building->upgrade == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
+				if(building->upgrade.getNum() == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
 				{
 					parent = model.itemFromIndex(index);
 					break;
@@ -247,10 +246,6 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 	{
 		town.forbiddenBuildings = ed->getForbiddenBuildings();
 		town.builtBuildings = ed->getBuiltBuildings();
-		
-		auto data = model->itemData(index);
-		model->setData(index, "dummy");
-		model->setItemData(index, data); //dummy change to trigger signal
 	}
 	else
 	{

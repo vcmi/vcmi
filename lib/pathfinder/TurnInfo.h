@@ -42,8 +42,10 @@ struct DLL_LINKAGE TurnInfo
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
-	bool hasBonusOfType(const BonusType type, const int subtype = -1) const;
-	int valOfBonuses(const BonusType type, const int subtype = -1) const;
+	bool hasBonusOfType(const BonusType type) const;
+	bool hasBonusOfType(const BonusType type, const BonusSubtypeID subtype) const;
+	int valOfBonuses(const BonusType type) const;
+	int valOfBonuses(const BonusType type, const BonusSubtypeID subtype) const;
 	void updateHeroBonuses(BonusType type, const CSelector& sel) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };

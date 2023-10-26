@@ -16,7 +16,7 @@
 #include "MouseButton.h"
 #include "WindowHandler.h"
 
-#include "../../lib/Point.h"
+#include "../../lib/Rect.h"
 
 template<typename Functor>
 void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
@@ -116,46 +116,66 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	}
 }
 
-void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
+void EventDispatcher::dispatchMouseDoubleClick(const Point & position, int tolerance)
 {
-	bool doubleClicked = false;
-	auto hlp = doubleClickInterested;
+	handleDoubleButtonClick(position, tolerance);
+}
 
-	for(auto & i : hlp)
+void EventDispatcher::dispatchMouseLeftButtonPressed(const Point & position, int tolerance)
+{
+	handleLeftButtonClick(position, tolerance, true);
+}
+
+void EventDispatcher::dispatchMouseLeftButtonReleased(const Point & position, int tolerance)
+{
+	handleLeftButtonClick(position, tolerance, false);
+}
+
+AEventsReceiver * EventDispatcher::findElementInToleranceRange(const EventReceiversList & list, const Point & position, int eventToTest, int tolerance)
+{
+	AEventsReceiver * bestElement = nullptr;
+	int bestDistance = std::numeric_limits<int>::max();
+
+	for(auto & i : list)
 	{
-		if(!vstd::contains(doubleClickInterested, i))
+		// if there is element that can actually receive event then tolerance clicking is disabled
+		if( i->receiveEvent(position, eventToTest))
+			return nullptr;
+
+		if (i->getPosition().distanceTo(position) > bestDistance)
 			continue;
 
-		if(i->receiveEvent(position, AEventsReceiver::DOUBLECLICK))
-		{
-			i->clickDouble(position);
-			doubleClicked = true;
-		}
+		Point center = i->getPosition().center();
+		Point distance = center - position;
+
+		if (distance.lengthSquared() == 0)
+			continue;
+
+		Point moveDelta = distance * tolerance / distance.length();
+		Point testPosition = position + moveDelta;
+
+		if( !i->receiveEvent(testPosition, eventToTest))
+			continue;
+
+		bestElement = i;
+		bestDistance = i->getPosition().distanceTo(position);
 	}
 
-	if(!doubleClicked)
-		handleLeftButtonClick(position, true);
+	return bestElement;
 }
 
-void EventDispatcher::dispatchMouseLeftButtonPressed(const Point & position)
+void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 {
-	handleLeftButtonClick(position, true);
-}
+	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::LCLICK, tolerance);
 
-void EventDispatcher::dispatchMouseLeftButtonReleased(const Point & position)
-{
-	handleLeftButtonClick(position, false);
-}
-
-void EventDispatcher::dispatchShowPopup(const Point & position)
-{
 	auto hlp = rclickable;
+
 	for(auto & i : hlp)
 	{
 		if(!vstd::contains(rclickable, i))
 			continue;
 
-		if( !i->receiveEvent(position, AEventsReceiver::LCLICK))
+		if( !i->receiveEvent(position, AEventsReceiver::SHOW_POPUP) && i != nearestElement)
 			continue;
 
 		i->showPopupWindow(position);
@@ -170,7 +190,7 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 	assert(!GH.windows().isTopWindowPopup());
 }
 
-void EventDispatcher::handleLeftButtonClick(const Point & position, bool isPressed)
+void EventDispatcher::handleLeftButtonClick(const Point & position, int tolerance, bool isPressed)
 {
 	// WARNING: this approach is NOT SAFE
 	// 1) We allow (un)registering elements when list itself is being processed/iterated
@@ -181,21 +201,25 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, bool isPress
 	// 3) new element is created *with exactly same address(!)
 	// 4) new element is registered and code will incorrectly assume that this element is still registered
 	// POSSIBLE SOLUTION: make EventReceivers inherit from create_shared_from this and store weak_ptr's in lists
+	AEventsReceiver * nearestElement = findElementInToleranceRange(lclickable, position, AEventsReceiver::LCLICK, tolerance);
 	auto hlp = lclickable;
+	bool lastActivated = true;
+
 	for(auto & i : hlp)
 	{
 		if(!vstd::contains(lclickable, i))
 			continue;
 
-		if( i->receiveEvent(position, AEventsReceiver::LCLICK))
+		if( i->receiveEvent(position, AEventsReceiver::LCLICK) || i == nearestElement)
 		{
 			if(isPressed)
-				i->clickPressed(position);
+				i->clickPressed(position, lastActivated);
 
 			if (i->mouseClickedState && !isPressed)
-				i->clickReleased(position);
+				i->clickReleased(position, lastActivated);
 
 			i->mouseClickedState = isPressed;
+			lastActivated = false;
 		}
 		else
 		{
@@ -206,6 +230,38 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, bool isPress
 			}
 		}
 	}
+}
+
+void EventDispatcher::handleDoubleButtonClick(const Point & position, int tolerance)
+{
+	// WARNING: this approach is NOT SAFE
+	// 1) We allow (un)registering elements when list itself is being processed/iterated
+	// 2) To avoid iterator invalidation we create a copy of this list for processing
+	// HOWEVER it is completely possible (as in, actually happen, no just theory) to:
+	// 1) element gets unregistered and deleted from lclickable
+	// 2) element is completely deleted, as in - destructor called, memory freed
+	// 3) new element is created *with exactly same address(!)
+	// 4) new element is registered and code will incorrectly assume that this element is still registered
+	// POSSIBLE SOLUTION: make EventReceivers inherit from create_shared_from this and store weak_ptr's in lists
+
+	AEventsReceiver * nearestElement = findElementInToleranceRange(doubleClickInterested, position, AEventsReceiver::DOUBLECLICK, tolerance);
+	bool doubleClicked = false;
+	auto hlp = doubleClickInterested;
+
+	for(auto & i : hlp)
+	{
+		if(!vstd::contains(doubleClickInterested, i))
+			continue;
+
+		if(i->receiveEvent(position, AEventsReceiver::DOUBLECLICK) || i == nearestElement)
+		{
+			i->clickDouble(position);
+			doubleClicked = true;
+		}
+	}
+
+	if(!doubleClicked)
+		handleLeftButtonClick(position, tolerance, true);
 }
 
 void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)

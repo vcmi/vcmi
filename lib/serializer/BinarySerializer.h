@@ -14,8 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class FileStream;
-
 class DLL_LINKAGE CSaverBase
 {
 protected:
@@ -240,6 +238,11 @@ public:
 		const_cast<T&>(data).serialize(*this, SERIALIZATION_VERSION);
 	}
 
+	void save(const std::monostate & data)
+	{
+		// no-op
+	}
+
 	template <typename T>
 	void save(const std::shared_ptr<T> &data)
 	{
@@ -392,7 +395,7 @@ public:
 	BinarySerializer serializer;
 
 	boost::filesystem::path fName;
-	std::unique_ptr<FileStream> sfile;
+	std::unique_ptr<std::fstream> sfile;
 
 	CSaveFile(const boost::filesystem::path &fname); //throws!
 	~CSaveFile();

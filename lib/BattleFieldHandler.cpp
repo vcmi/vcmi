@@ -21,7 +21,7 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 
 	auto * info = new BattleFieldInfo(BattleField(index), identifier);
 
-	info->graphics = json["graphics"].String();
+	info->graphics = ImagePath::fromJson(json["graphics"]);
 	info->icon = json["icon"].String();
 	info->name = json["name"].String();
 	for(const auto & b : json["bonuses"].Vector())
@@ -29,7 +29,7 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 		auto bonus = JsonUtils::parseBonus(b);
 
 		bonus->source = BonusSource::TERRAIN_OVERLAY;
-		bonus->sid = info->getIndex();
+		bonus->sid = BonusSourceID(info->getId());
 		bonus->duration = BonusDuration::ONE_BATTLE;
 
 		info->bonuses.push_back(bonus);

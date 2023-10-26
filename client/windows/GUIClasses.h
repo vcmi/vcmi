@@ -9,15 +9,14 @@
  */
 #pragma once
 
-#include "CWindowObject.h"
-#include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
-#include "../lib/int3.h"
+#include "../widgets/CExchangeController.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/Images.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGObjectInstance;
 class CGDwelling;
 class IMarket;
 
@@ -27,16 +26,13 @@ class CreatureCostBox;
 class CCreaturePic;
 class MoraleLuckBox;
 class CHeroArea;
-class CMinorResDataBar;
 class CSlider;
 class CComponentBox;
 class CTextInput;
 class CListBox;
 class CLabelGroup;
-class CToggleButton;
 class CGStatusBar;
 class CTextBox;
-class CResDataBar;
 class CGarrisonInt;
 class CGarrisonSlot;
 
@@ -65,6 +61,7 @@ class CRecruitmentWindow : public CStatusbarWindow
 	};
 
 	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
+	std::function<void()> onClose;
 
 	int level;
 	const CArmedInstance * dst;
@@ -91,8 +88,9 @@ class CRecruitmentWindow : public CStatusbarWindow
 	void showAll(Canvas & to) override;
 public:
 	const CGDwelling * const dwelling;
-	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0);
+	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, const std::function<void()> & onClose, int y_offset = 0);
 	void availableCreaturesChanged();
+	void close() override;
 };
 
 /// Split window where creatures can be split up into two single unit stacks
@@ -144,7 +142,7 @@ class CLevelWindow : public CWindowObject
 	void selectionChanged(unsigned to);
 
 public:
-	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
 	~CLevelWindow();
 };
 
@@ -197,6 +195,8 @@ public:
 
 class CTavernWindow : public CStatusbarWindow
 {
+	std::function<void()> onWindowClosed;
+
 public:
 	class HeroPortrait : public CIntObject
 	{
@@ -237,41 +237,13 @@ public:
 
 	std::shared_ptr<CTextBox> rumor;
 
-	CTavernWindow(const CGObjectInstance * TavernObj);
+	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
 	~CTavernWindow();
 
+	void close() override;
 	void recruitb();
 	void thievesguildb();
 	void show(Canvas & to) override;
-};
-
-class CCallback;
-class CExchangeWindow;
-
-class CExchangeController
-{
-private:
-	const CGHeroInstance * left;
-	const CGHeroInstance * right;
-	std::shared_ptr<CCallback> cb;
-	CExchangeWindow * view;
-
-public:
-	CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2);
-	std::function<void()> onMoveArmyToRight();
-	std::function<void()> onSwapArmy();
-	std::function<void()> onMoveArmyToLeft();
-	std::function<void()> onSwapArtifacts();
-	std::function<void()> onMoveArtifactsToLeft();
-	std::function<void()> onMoveArtifactsToRight();
-	std::function<void()> onMoveStackToLeft(SlotID slotID);
-	std::function<void()> onMoveStackToRight(SlotID slotID);
-
-private:
-	void moveArmy(bool leftToRight);
-	void moveArtifacts(bool leftToRight);
-	void moveArtifact(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
-	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
 };
 
 class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
@@ -285,7 +257,6 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::array<std::shared_ptr<CLabel>, 2> expValues;
 	std::array<std::shared_ptr<CAnimImage>, 2> manaImages;
 	std::array<std::shared_ptr<CLabel>, 2> manaValues;
-	std::array<std::shared_ptr<CAnimImage>, 2> portraits;
 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
 	std::array<std::vector<std::shared_ptr<LRClickableAreaWTextComp>>, 2> secSkillAreas;
@@ -303,13 +274,15 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 
 	std::shared_ptr<CGarrisonInt> garr;
 	std::shared_ptr<CButton> moveAllGarrButtonLeft;
-	std::shared_ptr<CButton> echangeGarrButton;
+	std::shared_ptr<CButton> exchangeGarrButton;
 	std::shared_ptr<CButton> moveAllGarrButtonRight;
 	std::shared_ptr<CButton> moveArtifactsButtonLeft;
-	std::shared_ptr<CButton> echangeArtifactsButton;
+	std::shared_ptr<CButton> exchangeArtifactsButton;
 	std::shared_ptr<CButton> moveArtifactsButtonRight;
 	std::vector<std::shared_ptr<CButton>> moveStackLeftButtons;
 	std::vector<std::shared_ptr<CButton>> moveStackRightButtons;
+	std::shared_ptr<CButton> backpackButtonLeft;
+	std::shared_ptr<CButton> backpackButtonRight;
 	CExchangeController controller;
 
 public:
@@ -381,12 +354,15 @@ class CTransformerWindow : public CStatusbarWindow, public IGarrisonHolder
 	std::shared_ptr<CButton> all;
 	std::shared_ptr<CButton> convert;
 	std::shared_ptr<CButton> cancel;
+
+	std::function<void()> onWindowClosed;
 public:
 
 	void makeDeal();
 	void addAll();
+	void close() override;
 	void updateGarrisons() override;
-	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero);
+	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed);
 };
 
 class CUniversityWindow : public CStatusbarWindow
@@ -422,10 +398,13 @@ class CUniversityWindow : public CStatusbarWindow
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CTextBox> clerkSpeech;
 
+	std::function<void()> onWindowClosed;
+
 public:
-	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market);
+	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed);
 
 	void makeDeal(int skill);
+	void close();
 };
 
 /// Confirmation window for University

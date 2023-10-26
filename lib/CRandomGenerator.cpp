@@ -13,8 +13,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-boost::thread_specific_ptr<CRandomGenerator> CRandomGenerator::defaultRand;
-
 CRandomGenerator::CRandomGenerator()
 {
 	resetSeed();
@@ -84,11 +82,8 @@ double CRandomGenerator::nextDouble()
 
 CRandomGenerator & CRandomGenerator::getDefault()
 {
-	if(!defaultRand.get())
-	{
-		defaultRand.reset(new CRandomGenerator());
-	}
-	return *defaultRand;
+	static thread_local CRandomGenerator defaultRand;
+	return defaultRand;
 }
 
 TGenerator & CRandomGenerator::getStdGenerator()

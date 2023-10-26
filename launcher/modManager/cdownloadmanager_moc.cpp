@@ -18,13 +18,13 @@ CDownloadManager::CDownloadManager()
 		SLOT(downloadFinished(QNetworkReply *)));
 }
 
-void CDownloadManager::downloadFile(const QUrl & url, const QString & file)
+void CDownloadManager::downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal)
 {
 	QNetworkRequest request(url);
 	FileEntry entry;
 	entry.file.reset(new QFile(CLauncherDirs::get().downloadsPath() + '/' + file));
 	entry.bytesReceived = 0;
-	entry.totalSize = 0;
+	entry.totalSize = bytesTotal;
 	entry.filename = file;
 
 	if(entry.file->open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -79,7 +79,7 @@ void CDownloadManager::downloadFinished(QNetworkReply * reply)
 				break;
 			}
 		}
-		downloadFile(qurl, filename);
+		downloadFile(qurl, filename, file.totalSize);
 		return;
 	}
 
@@ -131,7 +131,8 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 
 	entry.file->write(entry.reply->readAll());
 	entry.bytesReceived = bytesReceived;
-	entry.totalSize = bytesTotal;
+	if(bytesTotal > entry.totalSize)
+		entry.totalSize = bytesTotal;
 
 	quint64 total = 0;
 	for(auto & entry : currentDownloads)
@@ -140,11 +141,14 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 	quint64 received = 0;
 	for(auto & entry : currentDownloads)
 		received += entry.bytesReceived > 0 ? entry.bytesReceived : 0;
+	
+	if(received > total)
+		total = received;
 
 	emit downloadProgress(received, total);
 }
 
-bool CDownloadManager::downloadInProgress(const QUrl & url)
+bool CDownloadManager::downloadInProgress(const QUrl & url) const
 {
 	for(auto & entry : currentDownloads)
 	{

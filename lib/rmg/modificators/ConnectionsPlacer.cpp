@@ -25,7 +25,6 @@
 #include "WaterAdopter.h"
 #include "WaterProxy.h"
 #include "TownPlacer.h"
-#include <boost/interprocess/sync/scoped_lock.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -317,8 +316,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto * gate2 = factory->create();
 			rmg::Object rmgGate1(*gate1);
 			rmg::Object rmgGate2(*gate2);
-			rmgGate1.setTemplate(zone.getTerrainType());
-			rmgGate2.setTemplate(otherZone->getTerrainType());
+			rmgGate1.setTemplate(zone.getTerrainType(), zone.getRand());
+			rmgGate2.setTemplate(otherZone->getTerrainType(), zone.getRand());
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
 			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
 			int minDist = 3;

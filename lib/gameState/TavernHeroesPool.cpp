@@ -74,7 +74,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 bool TavernHeroesPool::isHeroAvailableFor(HeroTypeID hero, PlayerColor color) const
 {
 	if (perPlayerAvailability.count(hero))
-		return perPlayerAvailability.at(hero) & (1 << color.getNum());
+		return perPlayerAvailability.at(hero).count(color) != 0;
 
 	return true;
 }
@@ -117,21 +117,16 @@ void TavernHeroesPool::onNewDay()
 		if(!hero.second)
 			continue;
 
+		hero.second->removeBonusesRecursive(Bonus::OneDay);
+		hero.second->reduceBonusDurations(Bonus::NDays);
+		hero.second->reduceBonusDurations(Bonus::OneWeek);
+
 		// do not access heroes who are not present in tavern of any players
 		if (vstd::contains(unusedHeroes, hero.first))
 			continue;
 
 		hero.second->setMovementPoints(hero.second->movementPointsLimit(true));
 		hero.second->mana = hero.second->manaLimit();
-	}
-
-	for (auto & slot : currentTavern)
-	{
-		if (slot.role == TavernSlotRole::RETREATED_TODAY)
-			slot.role = TavernSlotRole::RETREATED;
-
-		if (slot.role == TavernSlotRole::SURRENDERED_TODAY)
-			slot.role = TavernSlotRole::SURRENDERED;
 	}
 }
 
@@ -140,7 +135,7 @@ void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
 	heroesPool[HeroTypeID(hero->subID)] = hero;
 }
 
-void TavernHeroesPool::setAvailability(HeroTypeID hero, PlayerColor::Mask mask)
+void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> mask)
 {
 	perPlayerAvailability[hero] = mask;
 }

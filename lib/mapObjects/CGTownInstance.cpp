@@ -17,7 +17,6 @@
 #include "../NetPacks.h"
 #include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
@@ -25,6 +24,7 @@
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../modding/ModScope.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -160,7 +160,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
-	TConstBonusListPtr bonuses = getBonuses(Selector::type()(BonusType::CREATURE_GROWTH).And(Selector::subtype()(level)));
+	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level)));
 	for(const auto & b : *bonuses)
 		ret.entries.emplace_back(b->val, b->Description());
 
@@ -270,7 +270,7 @@ void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, ui32 ans
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if(!cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
+	if(cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
 	{
 		if(armedGarrison() || visitingHero)
 		{
@@ -327,7 +327,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), name);
+		logGlobal->error("%s visits allied town of %s from different pos?", h->getNameTranslated(), getNameTranslated());
 	}
 }
 
@@ -337,15 +337,15 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 	if(visitingHero == h)
 	{
 		cb->stopHeroVisitCastle(this, h);
-		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), name);
+		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), getNameTranslated());
 	}
 	else
-		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), name);
+		logGlobal->warn("Warning, %s tries to leave the town %s but hero is not inside.", h->getNameTranslated(), getNameTranslated());
 }
 
 std::string CGTownInstance::getObjectName() const
 {
-	return name + ", " + town->faction->getNameTranslated();
+	return getNameTranslated() + ", " + town->faction->getNameTranslated();
 }
 
 bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) const
@@ -364,7 +364,7 @@ void CGTownInstance::initOverriddenBids()
 	}
 }
 
-bool CGTownInstance::isBonusingBuildingAdded(BuildingID::EBuildingID bid) const
+bool CGTownInstance::isBonusingBuildingAdded(BuildingID bid) const
 {
 	auto present = std::find_if(bonusingBuildings.begin(), bonusingBuildings.end(), [&](CGTownBuilding* building)
 		{
@@ -428,7 +428,7 @@ DamageRange CGTownInstance::getKeepDamageRange() const
 	};
 }
 
-void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
+void CGTownInstance::deleteTownBonus(BuildingID bid)
 {
 	size_t i = 0;
 	CGTownBuilding * freeIt = nullptr;
@@ -467,7 +467,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 
 	for (int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
 	{
-		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST).advance(level);
+		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST + level);
 		int upgradeNum = 0;
 
 		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(GameConstants::CREATURES_PER_TOWN))
@@ -489,7 +489,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 		//give resources if there's a Mystic Pond
 		if (hasBuilt(BuildingSubID::MYSTIC_POND)
 			&& cb->getDate(Date::DAY) != 1
-			&& (tempOwner < PlayerColor::PLAYER_LIMIT)
+			&& (tempOwner.isValidPlayer())
 			)
 		{
 			int resID = rand.nextInt(2, 5); //bonus to random rare resource
@@ -516,7 +516,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 			std::vector<SlotID> nativeCrits; //slots
 			for(const auto & elem : Slots())
 			{
-				if (elem.second->type->getFaction() == subID) //native
+				if (elem.second->type->getFaction() == getFaction()) //native
 				{
 					nativeCrits.push_back(elem.first); //collect matching slots
 				}
@@ -701,7 +701,7 @@ int CGTownInstance::getMarketEfficiency() const
 	return marketCount;
 }
 
-bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
+bool CGTownInstance::allowsTrade(EMarketMode mode) const
 {
 	switch(mode)
 	{
@@ -727,7 +727,7 @@ bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
 	}
 }
 
-std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode) const
+std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 {
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
@@ -767,7 +767,7 @@ void CGTownInstance::updateAppearance()
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + (town ? town->faction->getNameTranslated() : "unknown") + ") of " +  name;
+	return "Town (" + (town ? town->faction->getNameTranslated() : "unknown") + ") of " + getNameTranslated();
 }
 
 void CGTownInstance::deserializationFix()
@@ -787,7 +787,7 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
 	if(!b)
 	{
-		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, BonusSourceID());
 		addNewBonus(b);
 	}
 
@@ -915,12 +915,12 @@ CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 
 std::string CGTownInstance::getNameTranslated() const
 {
-	return name;
+	return VLC->generaltexth->translate(nameTextId);
 }
 
-void CGTownInstance::setNameTranslated( const std::string & newName )
+void CGTownInstance::setNameTextId( const std::string & newName )
 {
-	name = newName;
+	nameTextId = newName;
 }
 
 const CArmedInstance * CGTownInstance::getUpperArmy() const
@@ -980,7 +980,7 @@ TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 		return town->buildings.at(buildingID)->resources;
 	else
 	{
-		logGlobal->error("Town %s at %s has no possible building %d!", name, pos.toString(), buildingID.toEnum());
+		logGlobal->error("Town %s at %s has no possible building %d!", getNameTranslated(), pos.toString(), buildingID.toEnum());
 		return TResources();
 	}
 
@@ -1066,11 +1066,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance * hero, const BattleRes
 void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
 {
 	setOwner(winner);
-	FoWChange fw;
-	fw.player = winner;
-	fw.mode = 1;
-	cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), winner, 1);
-	cb->sendAndApply(& fw);
+	cb->changeFogOfWar(getSightCenter(), getSightRadius(), winner, ETileVisibility::REVEALED);
 }
 
 void CGTownInstance::afterAddToMap(CMap * map)
@@ -1093,17 +1089,16 @@ void CGTownInstance::reset()
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	static const std::vector<std::string> FORMATIONS  =	{ "wide", "tight" };
-
 	CGObjectInstance::serializeJsonOwner(handler);
-	CCreatureSet::serializeJson(handler, "army", 7);
-	handler.serializeEnum("tightFormation", formation, FORMATIONS);
-	handler.serializeString("name", name);
+	if(!handler.saving)
+		handler.serializeEnum("tightFormation", formation, NArmyFormation::names); //for old format
+	CArmedInstance::serializeJsonOptions(handler);
+	handler.serializeString("name", nameTextId);
 
 	{
 		auto decodeBuilding = [this](const std::string & identifier) -> si32
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), getTown()->getBuildingScope(), identifier);
+			auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), getTown()->getBuildingScope(), identifier);
 
 			if(rawId)
 				return rawId.value();

@@ -15,7 +15,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGObjectInstance;
+class CGTownInstance;
+class CGHeroInstance;
 class CGGarrison;
+class CGCreature;
 class Rect;
 
 VCMI_LIB_NAMESPACE_END
@@ -45,14 +49,14 @@ public:
 class CInfoWindow : public CSimpleWindow
 {
 public:
-	using TButtonsInfo = std::vector<std::pair<std::string, CFunctionList<void()>>>;
+	using TButtonsInfo = std::vector<std::pair<AnimationPath, CFunctionList<void()>>>;
 	using TCompsInfo = std::vector<std::shared_ptr<CComponent>>;
 	QueryID ID; //for identification
 	std::shared_ptr<CTextBox> text;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	TCompsInfo components;
 
-	virtual void close();
+	void close() override;
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
@@ -75,10 +79,10 @@ public:
 class CRClickPopup : public WindowBase
 {
 public:
-	virtual void close();
+	virtual void close() override;
 	bool isPopupWindow() const override;
 
-	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
+	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);
 	static void createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment = ETextAlignment::BOTTOMRIGHT);
@@ -108,15 +112,16 @@ public:
 	~CInfoPopup();
 };
 
-/// popup on adventure map for town\hero objects
+/// popup on adventure map for town\hero and other objects with customized popup content
 class CInfoBoxPopup : public CWindowObject
 {
-	std::shared_ptr<CArmyTooltip> tooltip;
+	std::shared_ptr<CIntObject> tooltip;
 	Point toScreen(Point pos);
 public:
 	CInfoBoxPopup(Point position, const CGTownInstance * town);
 	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
 	CInfoBoxPopup(Point position, const CGGarrison * garr);
+	CInfoBoxPopup(Point position, const CGCreature * creature);
 };
 
 /// component selection window
@@ -125,7 +130,8 @@ class CSelWindow : public CInfoWindow
 public:
 	void selectionChange(unsigned to);
 	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID);
+	void madeChoiceAndClose();
+	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QueryID askID);
 
 	//notification - this class inherits important destructor from CInfoWindow
 };

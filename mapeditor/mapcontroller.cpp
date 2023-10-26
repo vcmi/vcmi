@@ -19,11 +19,12 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/ObstacleProxy.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/CModInfo.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CModHandler.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "mapview.h"
 #include "scenelayer.h"
@@ -85,26 +86,46 @@ MinimapScene * MapController::miniScene(int level)
 
 void MapController::repairMap()
 {
+	repairMap(map());
+}
+
+void MapController::repairMap(CMap * map) const
+{
+	if(!map)
+		return;
+	
 	//there might be extra skills, arts and spells not imported from map
-	if(VLC->skillh->getDefaultAllowed().size() > map()->allowedAbilities.size())
+	if(VLC->skillh->getDefaultAllowed().size() > map->allowedAbilities.size())
 	{
-		map()->allowedAbilities.resize(VLC->skillh->getDefaultAllowed().size());
+		map->allowedAbilities.resize(VLC->skillh->getDefaultAllowed().size());
 	}
-	if(VLC->arth->getDefaultAllowed().size() > map()->allowedArtifact.size())
+	if(VLC->arth->getDefaultAllowed().size() > map->allowedArtifact.size())
 	{
-		map()->allowedArtifact.resize(VLC->arth->getDefaultAllowed().size());
+		map->allowedArtifact.resize(VLC->arth->getDefaultAllowed().size());
 	}
-	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpells.size())
+	if(VLC->spellh->getDefaultAllowed().size() > map->allowedSpells.size())
 	{
-		map()->allowedSpells.resize(VLC->spellh->getDefaultAllowed().size());
+		map->allowedSpells.resize(VLC->spellh->getDefaultAllowed().size());
 	}
-	if(VLC->heroh->getDefaultAllowed().size() > map()->allowedHeroes.size())
+	if(VLC->heroh->getDefaultAllowed().size() > map->allowedHeroes.size())
 	{
-		map()->allowedHeroes.resize(VLC->heroh->getDefaultAllowed().size());
+		map->allowedHeroes.resize(VLC->heroh->getDefaultAllowed().size());
 	}
 	
+	//make sure events/rumors has name to have proper identifiers
+	int emptyNameId = 1;
+	for(auto & e : map->events)
+		if(e.name.empty())
+			e.name = "event_" + std::to_string(emptyNameId++);
+	emptyNameId = 1;
+	for(auto & e : map->rumors)
+		if(e.name.empty())
+			e.name = "rumor_" + std::to_string(emptyNameId++);
+	
 	//fix owners for objects
-	for(auto obj : _map->objects)
+	auto allImpactedObjects(map->objects);
+	allImpactedObjects.insert(allImpactedObjects.end(), map->predefinedHeroes.begin(), map->predefinedHeroes.end());
+	for(auto obj : allImpactedObjects)
 	{
 		//setup proper names (hero name will be fixed later
 		if(obj->ID != Obj::HERO && obj->ID != Obj::PRISON && (obj->typeName.empty() || obj->subTypeName.empty()))
@@ -128,7 +149,7 @@ void MapController::repairMap()
 		//fix hero instance
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
 		{
-			map()->allowedHeroes.at(nih->subID) = true;
+			map->allowedHeroes.at(nih->subID) = true;
 			auto type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name
@@ -141,9 +162,11 @@ void MapController::repairMap()
 			{
 				nih->typeName = "prison";
 				nih->subTypeName = "prison";
+				nih->subID = 0;
 			}
 			
-			nih->type = type;
+			if(obj->ID != Obj::RANDOM_HERO)
+				nih->type = type;
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -151,15 +174,16 @@ void MapController::repairMap()
 			if(nih->spellbookContainsSpell(SpellID::PRESET))
 			{
 				nih->removeSpellFromSpellbook(SpellID::PRESET);
-			}
-			else
-			{
 				for(auto spellID : type->spells)
 					nih->addSpellToSpellbook(spellID);
 			}
-			//fix portrait
-			if(nih->portrait < 0 || nih->portrait == 255)
-				nih->portrait = type->imageIndex;
+			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
+			{
+				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
+				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+			}
+			
 		}
 		//fix town instance
 		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj.get()))
@@ -193,7 +217,7 @@ void MapController::repairMap()
 				art->storedArtifact = a;
 			}
 			else
-				map()->allowedArtifact.at(art->subID) = true;
+				map->allowedArtifact.at(art->subID) = true;
 		}
 	}
 }
@@ -326,10 +350,10 @@ void MapController::commitObjectErase(int level)
 		return;
 	}
 
-	for (auto obj : selectedObjects)
+	for (auto & obj : selectedObjects)
 	{
 		//invalidate tiles under objects
-		_mapHandler->invalidate(_mapHandler->getTilesUnderObject(obj));
+		_mapHandler->removeObject(obj);
 		_scenes[level]->objectsView.setDirty(obj);
 	}
 
@@ -430,14 +454,16 @@ void MapController::commitObstacleFill(int level)
 	
 	for(auto & sel : _obstaclePainters)
 	{
-		sel.second->placeObstacles(CRandomGenerator::getDefault());
+		for(auto * o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
+		{
+			_mapHandler->invalidate(o);
+			_scenes[level]->objectsView.setDirty(o);
+		}
 	}
-
-	_mapHandler->invalidateObjects();
 	
 	_scenes[level]->selectionTerrainView.clear();
 	_scenes[level]->selectionTerrainView.draw();
-	_scenes[level]->objectsView.draw(false); //TODO: enable smart invalidation (setDirty)
+	_scenes[level]->objectsView.draw();
 	_scenes[level]->passabilityView.update();
 	
 	_miniscenes[level]->updateViews();
@@ -476,10 +502,8 @@ void MapController::commitObjectShift(int level)
 			pos.z = level;
 			pos.x += shift.x(); pos.y += shift.y();
 			
-			auto prevPositions = _mapHandler->getTilesUnderObject(obj);
 			_scenes[level]->objectsView.setDirty(obj); //set dirty before movement
 			_map->getEditManager()->moveObject(obj, pos);
-			_mapHandler->invalidate(prevPositions);
 			_mapHandler->invalidate(obj);
 		}
 	}
@@ -585,7 +609,7 @@ ModCompatibilityInfo MapController::modAssessmentAll()
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 			if(modName != "core")
-				result[modName] = VLC->modh->getModInfo(modName).version;
+				result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
 		}
 	}
 	return result;
@@ -602,7 +626,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 		if(modName != "core")
-			result[modName] = VLC->modh->getModInfo(modName).version;
+			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
 	}
 	//TODO: terrains?
 	return result;

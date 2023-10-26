@@ -13,7 +13,6 @@
 #include "../StartInfo.h"
 #include "../CStack.h"
 #include "../battle/BattleInfo.h"
-#include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
 #include "../VCMI_Lib.h"

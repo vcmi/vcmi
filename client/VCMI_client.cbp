@@ -198,6 +198,8 @@
 		<Unit filename="mainmenu/CPrologEpilogVideo.h" />
 		<Unit filename="mainmenu/CreditsScreen.cpp" />
 		<Unit filename="mainmenu/CreditsScreen.h" />
+		<Unit filename="mainmenu/CHighScoreScreen.cpp" />
+		<Unit filename="mainmenu/CHighScoreScreen.h" />
 		<Unit filename="mapHandler.cpp" />
 		<Unit filename="mapHandler.h" />
 		<Unit filename="resource.h" />
@@ -225,6 +227,10 @@
 		<Unit filename="windows/CCastleInterface.h" />
 		<Unit filename="windows/CCreatureWindow.cpp" />
 		<Unit filename="windows/CCreatureWindow.h" />
+		<Unit filename="windows/CHeroOverview.cpp" />
+		<Unit filename="windows/CHeroOverview.h" />
+		<Unit filename="windows/CMapOverview.cpp" />
+		<Unit filename="windows/CMapOverview.h" />
 		<Unit filename="windows/CHeroWindow.cpp" />
 		<Unit filename="windows/CHeroWindow.h" />
 		<Unit filename="windows/CKingdomInterface.cpp" />

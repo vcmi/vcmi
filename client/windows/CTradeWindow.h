@@ -35,7 +35,7 @@ public:
 	class CTradeableItem : public CIntObject, public std::enable_shared_from_this<CTradeableItem>
 	{
 		std::shared_ptr<CAnimImage> image;
-		std::string getFilename();
+		AnimationPath getFilename();
 		int getIndex();
 	public:
 		const CArtifactInstance * hlp; //holds ptr to artifact instance id type artifact
@@ -75,7 +75,7 @@ public:
 	std::shared_ptr<CTradeableItem> hRight;
 	EType itemsType[2];
 
-	EMarketMode::EMarketMode mode;
+	EMarketMode mode;
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CButton> max;
 	std::shared_ptr<CButton> deal;
@@ -83,9 +83,10 @@ public:
 	std::shared_ptr<CSlider> slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
-	CTradeWindow(std::string bgName, const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode); //c
+	CTradeWindow(const ImagePath & bgName, const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode); //c
 
 	void showAll(Canvas & to) override;
+	void close() override;
 
 	void initSubs(bool Left);
 	void initTypes();
@@ -95,7 +96,7 @@ public:
 	void removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove);
 	void removeItem(std::shared_ptr<CTradeableItem> item);
 	void getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRemove);
-	void setMode(EMarketMode::EMarketMode Mode); //mode setter
+	void setMode(EMarketMode Mode); //mode setter
 
 	void artifactSelected(CHeroArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
 
@@ -106,6 +107,7 @@ public:
 	virtual void garrisonChanged() = 0;
 	virtual void artifactsChanged(bool left) = 0;
 protected:
+	std::function<void()> onWindowClosed;
 	std::shared_ptr<CGStatusBar> statusBar;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CPicture>> images;
@@ -118,9 +120,9 @@ class CMarketplaceWindow : public CTradeWindow
 	std::shared_ptr<CLabel> titleLabel;
 	std::shared_ptr<CArtifactsOfHeroMarket> arts;
 
-	bool printButtonFor(EMarketMode::EMarketMode M) const;
+	bool printButtonFor(EMarketMode M) const;
 
-	std::string getBackgroundForMode(EMarketMode::EMarketMode mode);
+	ImagePath getBackgroundForMode(EMarketMode mode);
 public:
 	int r1, r2; //suggested amounts of traded resources
 	bool madeTransaction; //if player made at least one transaction
@@ -130,7 +132,7 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side) override; //true == left
-	CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero = nullptr, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE);
+	CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode);
 	~CMarketplaceWindow();
 
 	Point selectionOffset(bool Left) const override;
@@ -157,7 +159,7 @@ public:
 	std::shared_ptr<CLabel> expOnAltar;
 	std::shared_ptr<CArtifactsOfHeroAltar> arts;
 
-	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode);
+	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode);
 	~CAltarWindow();
 
 	void getExpValues();

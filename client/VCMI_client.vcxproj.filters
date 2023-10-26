@@ -22,6 +22,12 @@
     <ClCompile Include="windows\CCreatureWindow.cpp">
       <Filter>windows</Filter>
     </ClCompile>
+    <ClCompile Include="windows\CHeroOverview.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CMapOverview.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
     <ClCompile Include="windows\CHeroWindow.cpp">
       <Filter>windows</Filter>
     </ClCompile>
@@ -129,6 +135,7 @@
     <ClCompile Include="mainmenu\CMainMenu.cpp" />
     <ClCompile Include="mainmenu\CPrologEpilogVideo.cpp" />
     <ClCompile Include="mainmenu\CreditsScreen.cpp" />
+    <ClCompile Include="mainmenu\CHighScoreScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />
@@ -170,6 +177,12 @@
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="windows\CCreatureWindow.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CHeroOverview.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CMapOverview.h">
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="windows\CHeroWindow.h">
@@ -284,5 +297,6 @@
     <ClInclude Include="mainmenu\CMainMenu.h" />
     <ClInclude Include="mainmenu\CPrologEpilogVideo.h" />
     <ClInclude Include="mainmenu\CreditsScreen.h" />
+    <ClInclude Include="mainmenu\CHighScoreScreen.h" />
   </ItemGroup>
 </Project>

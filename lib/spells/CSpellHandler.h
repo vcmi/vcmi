@@ -20,6 +20,7 @@
 #include "../GameConstants.h"
 #include "../battle/BattleHex.h"
 #include "../bonuses/Bonus.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -44,7 +45,6 @@ class IBattleCast;
 struct SchoolInfo
 {
 	SpellSchool id; //backlink
-	BonusType immunityBonus;
 	std::string jsonName;
 };
 
@@ -66,7 +66,7 @@ public:
 		double minimumAngle;
 
 		///resource name
-		std::string resourceName;
+		AnimationPath resourceName;
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
@@ -77,7 +77,7 @@ public:
 
 	struct AnimationItem
 	{
-		std::string resourceName;
+		AnimationPath resourceName;
 		std::string effectName;
 		VerticalPosition verticalPosition;
 		int pause;
@@ -120,7 +120,7 @@ public:
 			h & affect;
 		}
 
-		std::string selectProjectile(const double angle) const;
+		AnimationPath selectProjectile(const double angle) const;
 	} animationInfo;
 
 public:
@@ -188,17 +188,10 @@ public:
 
 	using BTVector = std::vector<BonusType>;
 
-	si32 level;
 
 	std::map<SpellSchool, bool> school;
-
-	si32 power; //spell's power
-
 	std::map<FactionID, si32> probabilities; //% chance to gain for castles
 
-	bool combat; //is this spell combat (true) or adventure (false)
-	bool creatureAbility; //if true, only creatures can use this spell
-	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 	bool onlyOnWaterMap; //Spell will be banned on maps without water
 	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
@@ -209,14 +202,14 @@ public:
 
 	int64_t calculateDamage(const spells::Caster * caster) const override;
 
-	bool hasSchool(ESpellSchool school) const override;
+	bool hasSchool(SpellSchool school) const override;
 
 	/**
 	 * Calls cb for each school this spell belongs to
 	 *
 	 * Set stop to true to abort looping
 	 */
-	void forEachSchool(const std::function<void(const spells::SchoolInfo &, bool &)> & cb) const override;
+	void forEachSchool(const std::function<void(const SpellSchool &, bool &)> & cb) const override;
 
 	spells::AimType getTargetType() const;
 
@@ -269,7 +262,7 @@ public:
 	const std::string & getIconScenarioBonus() const;
 	const std::string & getIconScroll() const;
 
-	const std::string & getCastSound() const override;
+	const AudioPath & getCastSound() const;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
@@ -361,9 +354,15 @@ private:
 	std::string iconScroll;
 
 	///sound related stuff
-	std::string castSound;
+	AudioPath castSound;
 
 	std::vector<LevelInfo> levels;
+
+	si32 level;
+	si32 power; //spell's power
+	bool combat; //is this spell combat (true) or adventure (false)
+	bool creatureAbility; //if true, only creatures can use this spell
+	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
 	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize

@@ -288,7 +288,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	boost::algorithm::replace_first(message, "%m", record.message);
 	boost::algorithm::replace_first(message, "%c", boost::posix_time::to_simple_string(record.timeStamp));
 
-	//return boost::to_string (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
+	//return boost::str (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
 
 	return message;
 }
@@ -425,7 +425,7 @@ const CColorMapping & CLogConsoleTarget::getColorMapping() const { return colorM
 void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { this->colorMapping = colorMapping; }
 
 CLogFileTarget::CLogFileTarget(const boost::filesystem::path & filePath, bool append):
-	file(filePath, append ? std::ios_base::app : std::ios_base::out)
+	file(filePath.c_str(), append ? std::ios_base::app : std::ios_base::out)
 {
 //	formatter.setPattern("%d %l %n [%t] - %m");
 	formatter.setPattern("%l %n [%t] - %m");

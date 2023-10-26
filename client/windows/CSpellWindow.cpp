@@ -30,6 +30,10 @@
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
+#include "../render/IImage.h"
+#include "../render/IImageLoader.h"
+#include "../render/Canvas.h"
 
 #include "../../CCallback.h"
 
@@ -74,9 +78,9 @@ class SpellbookSpellSorter
 public:
 	bool operator()(const CSpell * A, const CSpell * B)
 	{
-		if(A->level < B->level)
+		if(A->getLevel() < B->getLevel())
 			return true;
-		if(A->level > B->level)
+		if(A->getLevel() > B->getLevel())
 			return false;
 
 
@@ -93,14 +97,35 @@ public:
 } spellsorter;
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
-    CWindowObject(PLAYER_COLORED, "SpelBack"),
+	CWindowObject(PLAYER_COLORED | (settings["general"]["enableUiEnhancements"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
 	myHero(_myHero),
-	myInt(_myInt)
+	myInt(_myInt),
+	isBigSpellbook(settings["general"]["enableUiEnhancements"].Bool()),
+	spellsPerPage(24),
+	offL(-11),
+	offR(195),
+	offRM(110),
+	offT(-37),
+	offB(56)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	if(isBigSpellbook)
+	{
+		background = std::make_shared<CPicture>(createBigSpellBook(), Point(0, 0));
+		updateShadow();
+	}
+	else
+	{
+		background = std::make_shared<CPicture>(ImagePath::builtin("SpelBack"), 0, 0);
+		offL = offR = offT = offB = offRM = 0;
+		spellsPerPage = 12;
+	}
+	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
+
 	//initializing castable spells
 	mySpells.reserve(CGI->spellh->objects.size());
 	for(const CSpell * spell : CGI->spellh->objects)
@@ -122,101 +147,106 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 		++sitesPerOurTab[4];
 
-		spell->forEachSchool([&sitesPerOurTab](const spells::SchoolInfo & school, bool & stop)
+		spell->forEachSchool([&sitesPerOurTab](const SpellSchool & school, bool & stop)
 		{
-			++sitesPerOurTab[(ui8)school.id];
+			++sitesPerOurTab[school];
 		});
 	}
-	if(sitesPerTabAdv[4] % 12 == 0)
-		sitesPerTabAdv[4]/=12;
+	if(sitesPerTabAdv[4] % spellsPerPage == 0)
+		sitesPerTabAdv[4]/=spellsPerPage;
 	else
-		sitesPerTabAdv[4] = sitesPerTabAdv[4]/12 + 1;
+		sitesPerTabAdv[4] = sitesPerTabAdv[4]/spellsPerPage + 1;
 
 	for(int v=0; v<4; ++v)
 	{
-		if(sitesPerTabAdv[v] <= 10)
+		if(sitesPerTabAdv[v] <= spellsPerPage - 2)
 			sitesPerTabAdv[v] = 1;
 		else
 		{
-			if((sitesPerTabAdv[v] - 10) % 12 == 0)
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - 10) / 12 + 1;
+			if((sitesPerTabAdv[v] - spellsPerPage - 2) % spellsPerPage == 0)
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 1;
 			else
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - 10) / 12 + 2;
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 2;
 		}
 	}
 
-	if(sitesPerTabBattle[4] % 12 == 0)
-		sitesPerTabBattle[4]/=12;
+	if(sitesPerTabBattle[4] % spellsPerPage == 0)
+		sitesPerTabBattle[4]/=spellsPerPage;
 	else
-		sitesPerTabBattle[4] = sitesPerTabBattle[4]/12 + 1;
+		sitesPerTabBattle[4] = sitesPerTabBattle[4]/spellsPerPage + 1;
 
 	for(int v=0; v<4; ++v)
 	{
-		if(sitesPerTabBattle[v] <= 10)
+		if(sitesPerTabBattle[v] <= spellsPerPage - 2)
 			sitesPerTabBattle[v] = 1;
 		else
 		{
-			if((sitesPerTabBattle[v] - 10) % 12 == 0)
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - 10) / 12 + 1;
+			if((sitesPerTabBattle[v] - spellsPerPage - 2) % spellsPerPage == 0)
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 1;
 			else
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - 10) / 12 + 2;
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 2;
 		}
 	}
 
 
 	//numbers of spell pages computed
 
-	leftCorner = std::make_shared<CPicture>("SpelTrnL.bmp", 97, 77);
-	rightCorner = std::make_shared<CPicture>("SpelTrnR.bmp", 487, 72);
+	leftCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnL.bmp"), 97 + offL, 77 + offT);
+	rightCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnR.bmp"), 487 + offR, 72 + offT);
 
-	spellIcons = std::make_shared<CAnimation>("Spells");
+	spellIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("Spells"));
 
-	schoolTab = std::make_shared<CAnimImage>("SpelTab", selectedTab, 0, 524, 88);
-	schoolPicture = std::make_shared<CAnimImage>("Schools", 0, 0, 117, 74);
+	schoolTab = std::make_shared<CAnimImage>(AnimationPath::builtin("SpelTab"), selectedTab, 0, 524 + offR, 88);
+	schoolPicture = std::make_shared<CAnimImage>(AnimationPath::builtin("Schools"), 0, 0, 117 + offL, 74 + offT);
 
-	schoolBorders[0] = std::make_shared<CAnimation>("SplevA.def");
-	schoolBorders[1] = std::make_shared<CAnimation>("SplevF.def");
-	schoolBorders[2] = std::make_shared<CAnimation>("SplevW.def");
-	schoolBorders[3] = std::make_shared<CAnimation>("SplevE.def");
+	schoolBorders[0] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevA.def"));
+	schoolBorders[1] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevF.def"));
+	schoolBorders[2] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevW.def"));
+	schoolBorders[3] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevE.def"));
 
 	for(auto item : schoolBorders)
 		item->preload();
-	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
-	statusBar = CGStatusBar::create(7, 569, "Spelroll.bmp");
+	mana = std::make_shared<CLabel>(435 + (isBigSpellbook ? 159 : 0), 426 + offB, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
+	
+	if(isBigSpellbook)
+		statusBar = CGStatusBar::create(400, 587);
+	else
+		statusBar = CGStatusBar::create(7, 569, ImagePath::builtin("Spelroll.bmp"));
 
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x, 405 + pos.y, 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 221 + pos.x, 405 + pos.y, 36, 56), std::bind(&CSpellWindow::fbattleSpellsb, this),    453, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 355 + pos.x, 405 + pos.y, 36, 56), std::bind(&CSpellWindow::fadvSpellsb,    this),    452, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 418 + pos.x, 405 + pos.y, 36, 56), std::bind(&CSpellWindow::fmanaPtsb,      this),    459, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x,  94 + pos.y, 36, 56), std::bind(&CSpellWindow::selectSchool,   this, 0), 454, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x, 151 + pos.y, 45, 35), std::bind(&CSpellWindow::selectSchool,   this, 3), 457, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x, 210 + pos.y, 45, 35), std::bind(&CSpellWindow::selectSchool,   this, 1), 455, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x, 270 + pos.y, 45, 35), std::bind(&CSpellWindow::selectSchool,   this, 2), 456, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 549 + pos.x, 330 + pos.y, 45, 35), std::bind(&CSpellWindow::selectSchool,   this, 4), 458, this));
+	Rect schoolRect( 549 + pos.x + offR, 94 + pos.y, 45, 35);
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x + (isBigSpellbook ? 175 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 221 + pos.x + (isBigSpellbook ? 43 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fbattleSpellsb, this),    453, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 355 + pos.x + (isBigSpellbook ? 110 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fadvSpellsb,    this),    452, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 418 + pos.x + (isBigSpellbook ? 142 : 0), 405 + pos.y + offB, isBigSpellbook ? 60 : 36, 56), std::bind(&CSpellWindow::fmanaPtsb,      this),    459, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 0),   std::bind(&CSpellWindow::selectSchool,   this, 0), 454, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 57),  std::bind(&CSpellWindow::selectSchool,   this, 3), 457, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 116), std::bind(&CSpellWindow::selectSchool,   this, 1), 455, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 176), std::bind(&CSpellWindow::selectSchool,   this, 2), 456, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 236), std::bind(&CSpellWindow::selectSchool,   this, 4), 458, this));
 
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect(  97 + pos.x, 77 + pos.y, leftCorner->pos.h,  leftCorner->pos.w  ), std::bind(&CSpellWindow::fLcornerb, this), 450, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 487 + pos.x, 72 + pos.y, rightCorner->pos.h, rightCorner->pos.w ), std::bind(&CSpellWindow::fRcornerb, this), 451, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect(  97 + offL + pos.x, 77 + offT + pos.y, leftCorner->pos.h,  leftCorner->pos.w  ), std::bind(&CSpellWindow::fLcornerb, this), 450, this));
+	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 487 + offR + pos.x, 72 + offT + pos.y, rightCorner->pos.h, rightCorner->pos.w ), std::bind(&CSpellWindow::fRcornerb, this), 451, this));
 
 	//areas for spells
-	int xpos = 117 + pos.x, ypos = 90 + pos.y;
+	int xpos = 117 + offL + pos.x, ypos = 90 + offT + pos.y;
 
-	for(int v=0; v<12; ++v)
+	for(int v=0; v<spellsPerPage; ++v)
 	{
 		spellAreas[v] = std::make_shared<SpellArea>( Rect(xpos, ypos, 65, 78), this);
 
-		if(v == 5) //to right page
+		if(v == (spellsPerPage / 2) - 1) //to right page
 		{
-			xpos = 336 + pos.x; ypos = 90 + pos.y;
+			xpos = offRM + 336 + pos.x; ypos = 90 + offT + pos.y;
 		}
 		else
 		{
-			if(v%2 == 0)
+			if(v%(isBigSpellbook ? 3 : 2) == 0 || (v%3 == 1 && isBigSpellbook))
 			{
 				xpos+=85;
 			}
 			else
 			{
-				xpos -= 85; ypos+=97;
+				xpos -= (isBigSpellbook ? 2 : 1)*85; ypos+=97;
 			}
 		}
 	}
@@ -233,6 +263,37 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 CSpellWindow::~CSpellWindow()
 {
+}
+
+std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
+{
+	std::shared_ptr<IImage> img = GH.renderHandler().loadImage(ImagePath::builtin("SpelBack"));
+	Canvas canvas = Canvas(Point(800, 600));
+	// edges
+	canvas.draw(img, Point(0, 0), Rect(15, 38, 90, 45));
+	canvas.draw(img, Point(0, 460), Rect(15, 400, 90, 141));
+	canvas.draw(img, Point(705, 0), Rect(509, 38, 95, 45));
+	canvas.draw(img, Point(705, 460), Rect(509, 400, 95, 141));
+	// left / right
+	Canvas tmp1 = Canvas(Point(90, 355 - 45));
+	tmp1.draw(img, Point(0, 0), Rect(15, 38 + 45, 90, 355 - 45));
+	canvas.drawScaled(tmp1, Point(0, 45), Point(90, 415));
+	Canvas tmp2 = Canvas(Point(95, 355 - 45));
+	tmp2.draw(img, Point(0, 0), Rect(509, 38 + 45, 95, 355 - 45));
+	canvas.drawScaled(tmp2, Point(705, 45), Point(95, 415));
+	// top / bottom
+	Canvas tmp3 = Canvas(Point(409, 45));
+	tmp3.draw(img, Point(0, 0), Rect(100, 38, 409, 45));
+	canvas.drawScaled(tmp3, Point(90, 0), Point(615, 45));
+	Canvas tmp4 = Canvas(Point(409, 141));
+	tmp4.draw(img, Point(0, 0), Rect(100, 400, 409, 141));
+	canvas.drawScaled(tmp4, Point(90, 460), Point(615, 141));
+	// middle
+	Canvas tmp5 = Canvas(Point(409, 141));
+	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
+	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
+
+	return GH.renderHandler().createImage(canvas.getInternalSurface());
 }
 
 void CSpellWindow::fexitb()
@@ -325,29 +386,29 @@ void CSpellWindow::computeSpellsPerArea()
 
 	if(selectedTab == 4)
 	{
-		if(spellsCurSite.size() > 12)
+		if(spellsCurSite.size() > spellsPerPage)
 		{
-			spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + currentPage*12, spellsCurSite.end());
-			if(spellsCurSite.size() > 12)
+			spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + currentPage*spellsPerPage, spellsCurSite.end());
+			if(spellsCurSite.size() > spellsPerPage)
 			{
-				spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
+				spellsCurSite.erase(spellsCurSite.begin()+spellsPerPage, spellsCurSite.end());
 			}
 		}
 	}
 	else //selectedTab == 0, 1, 2 or 3
 	{
-		if(spellsCurSite.size() > 10)
+		if(spellsCurSite.size() > spellsPerPage - 2)
 		{
 			if(currentPage == 0)
 			{
-				spellsCurSite.erase(spellsCurSite.begin()+10, spellsCurSite.end());
+				spellsCurSite.erase(spellsCurSite.begin()+spellsPerPage-2, spellsCurSite.end());
 			}
 			else
 			{
-				spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + (currentPage-1)*12 + 10, spellsCurSite.end());
-				if(spellsCurSite.size() > 12)
+				spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + (currentPage-1)*spellsPerPage + spellsPerPage-2, spellsCurSite.end());
+				if(spellsCurSite.size() > spellsPerPage)
 				{
-					spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
+					spellsCurSite.erase(spellsCurSite.begin()+spellsPerPage, spellsCurSite.end());
 				}
 			}
 		}
@@ -355,7 +416,7 @@ void CSpellWindow::computeSpellsPerArea()
 	//applying
 	if(selectedTab == 4 || currentPage != 0)
 	{
-		for(size_t c=0; c<12; ++c)
+		for(size_t c=0; c<spellsPerPage; ++c)
 		{
 			if(c < spellsCurSite.size())
 			{
@@ -371,7 +432,7 @@ void CSpellWindow::computeSpellsPerArea()
 	{
 		spellAreas[0]->setSpell(nullptr);
 		spellAreas[1]->setSpell(nullptr);
-		for(size_t c=0; c<10; ++c)
+		for(size_t c=0; c<spellsPerPage-2; ++c)
 		{
 			if(c < spellsCurSite.size())
 				spellAreas[c+2]->setSpell(spellsCurSite[c]);
@@ -396,14 +457,14 @@ void CSpellWindow::setCurrentPage(int value)
 
 void CSpellWindow::turnPageLeft()
 {
-	if(settings["video"]["spellbookAnimation"].Bool())
-		CCS->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15);
+	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNLFT.SMK"), pos.x+13, pos.y+15);
 }
 
 void CSpellWindow::turnPageRight()
 {
-	if(settings["video"]["spellbookAnimation"].Bool())
-		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
+	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNRGH.SMK"), pos.x+13, pos.y+15);
 }
 
 void CSpellWindow::keyPressed(EShortcut key)
@@ -503,7 +564,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		else if(combatSpell)
 		{
 			spells::detail::ProblemImpl problem;
-			if(mySpell->canBeCast(problem, owner->myInt->cb.get(), spells::Mode::HERO, owner->myHero))
+			if(mySpell->canBeCast(problem, owner->myInt->battleInt->getBattle().get(), spells::Mode::HERO, owner->myHero))
 			{
 				owner->myInt->battleInt->castThisSpell(mySpell->id);
 				owner->fexitb();
@@ -562,7 +623,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	if(mySpell)
 	{
 		if(on)
-			owner->statusBar->write(boost::to_string(boost::format("%s (%s)") % mySpell->getNameTranslated() % CGI->generaltexth->allTexts[171+mySpell->level]));
+			owner->statusBar->write(boost::str(boost::format("%s (%s)") % mySpell->getNameTranslated() % CGI->generaltexth->allTexts[171+mySpell->getLevel()]));
 		else
 			owner->statusBar->clear();
 	}
@@ -590,7 +651,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 			schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab], schoolLevel);
 		}
 
-		SDL_Color firstLineColor, secondLineColor;
+		ColorRGBA firstLineColor, secondLineColor;
 		if(spellCost > owner->myHero->mana) //hero cannot cast this spell
 		{
 			firstLineColor = Colors::WHITE;
@@ -609,12 +670,12 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		if(schoolLevel > 0)
 		{
 			boost::format fmt("%s/%s");
-			fmt % CGI->generaltexth->allTexts[171 + mySpell->level];
+			fmt % CGI->generaltexth->allTexts[171 + mySpell->getLevel()];
 			fmt % CGI->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
 			level->setText(fmt.str());
 		}
 		else
-			level->setText(CGI->generaltexth->allTexts[171 + mySpell->level]);
+			level->setText(CGI->generaltexth->allTexts[171 + mySpell->getLevel()]);
 
 		cost->color = secondLineColor;
 		boost::format costfmt("%s: %d");

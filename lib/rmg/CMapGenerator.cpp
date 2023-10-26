@@ -19,7 +19,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
 #include "TileInfo.h"
@@ -51,8 +51,7 @@ int CMapGenerator::getRandomSeed() const
 
 void CMapGenerator::loadConfig()
 {
-	static const ResourceID path("config/randomMap.json");
-	JsonNode randomMapJson(path);
+	JsonNode randomMapJson(JsonPath::builtin("config/randomMap.json"));
 
 	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
 	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
@@ -174,7 +173,7 @@ std::string CMapGenerator::getMapDescription() const
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
 		}
-		if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+		if(pSettings.getStartingTown() != FactionID::RANDOM)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
 			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->getNameTranslated();
@@ -408,8 +407,8 @@ void CMapGenerator::addHeaderInfo()
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
 	m.twoLevel = mapGenOptions.getHasTwoLevels();
-	m.name = VLC->generaltexth->allTexts[740];
-	m.description = getMapDescription();
+	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	m.description.appendRawString(getMapDescription());
 	m.difficulty = 1;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
@@ -421,7 +420,7 @@ int CMapGenerator::getNextMonlithIndex()
 	while (true)
 	{
 		if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-			throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+			throw rmgException(boost::str(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
 		else
 		{
 			//Skip modded Monoliths which can't beplaced on every terrain

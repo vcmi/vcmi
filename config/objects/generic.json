@@ -156,70 +156,6 @@
 		}
 	},
 
-	"redwoodObservatory" : {
-		"index" :58,
-		"handler" : "observatory",
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 750,
-				"templates" :
-				{
-					"base" : { "animation" : "avxredw.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["grass", "swamp", "dirt", "sand", "lava", "rough"] },
-					"snow" : { "animation" : "avxreds0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["snow"] }
-				},
-				"rmg" : {
-					"zoneLimit"	: 1,
-					"value"		: 750,
-					"rarity"	: 100
-				}
-			}
-		}
-	},
-	"pillarOfFire" : {
-		"index" :60,
-		"handler" : "observatory",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPFIRE"],
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 750,
-				"rmg" : {
-					"zoneLimit"	: 1,
-					"value"		: 750,
-					"rarity"	: 100
-				}
-			}
-		}
-	},
-	"coverOfDarkness" : {
-		"index" :15,
-		"handler" : "observatory",
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 100,
-				"rmg" : {
-				}
-			}
-		}
-	},
-
 	"whirlpool" : {
 		"index" :111,
 		"handler" : "whirlpool",
@@ -290,78 +226,6 @@
 					"zoneLimit"	: 1,
 					"value"		: 1500,
 					"rarity"	: 50
-				}
-			}
-		}
-	},
-	"shrineOfMagicLevel1" : {//incantation
-		"index" :88,
-		"handler" : "shrine",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPSHRIN"],
-				"visit" : ["TEMPLE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 500,
-				"rmg" : {
-					"value"		: 500,
-					"rarity"	: 100
-				},
-				"visitText" : 127,
-				"spell" : {
-					"level" : 1
-				}
-			}
-		}
-	},
-	"shrineOfMagicLevel2" : {//gesture
-		"index" :89,
-		"handler" : "shrine",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPSHRIN"],
-				"visit" : ["TEMPLE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 2000,
-				"rmg" : {
-					"value"		: 2000,
-					"rarity"	: 100
-				},
-				"visitText" : 128,
-				"spell" : {
-					"level" : 2
-				}
-			}
-		}
-	},
-	"shrineOfMagicLevel3" : {//thinking
-		"index" :90,
-		"handler" : "shrine",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPSHRIN"],
-				"visit" : ["TEMPLE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 3000,
-				"rmg" : {
-					"value"		: 3000,
-					"rarity"	: 100
-				},
-				"visitText" : 129,
-				"spell" : {
-					"level" : 3
 				}
 			}
 		}
@@ -454,26 +318,6 @@
 			}
 		}
 	},
-	"scholar" : {
-		"index" :81,
-		"handler" : "scholar",
-		"base" : {
-			"sounds" : {
-				"visit" : ["GAZEBO"],
-				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 1500,
-				"rmg" : {
-					"value"		: 1500,
-					"rarity"	: 100
-				}
-			}
-		}
-	},
 	"shipyard" : {
 		"index" :87,
 		"handler" : "shipyard",
@@ -548,7 +392,7 @@
 				"templates" :
 				{
 					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
-					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] },
+					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] }
 				},
 				"rmg" : {
 					"value"		: 100,
@@ -584,26 +428,6 @@
 					{ "noneOf" : ["necromancy"] },
 					{ "noneOf" : ["necromancy"] }
 				]
-			}
-		}
-	},
-	"witchHut" : {
-		"index" :113,
-		"handler" : "witch",
-		"base" : {
-			"sounds" : {
-				"visit" : ["GAZEBO"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 1500,
-				"rmg" : {
-					"zoneLimit"	: 3,
-					"value"		: 1500,
-					"rarity"	: 80
-				}
 			}
 		}
 	},
@@ -870,7 +694,30 @@
 	},
 	"marketOfTime" : { // Unused/not implemented H3 object present on some RoE maps
 		"index" :50,
-		"handler": "generic"
+		"handler": "generic",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 0,
+				"rmg" : {
+				},
+				"templates" : {
+					"normal" : {
+						"animation" : "AVXMKTT0",
+						"editorAnimation" : "AVXMKTT0",
+						"visitableFrom" : [
+							"---",
+							"--+",
+							"+++"
+						],
+						"mask" : [
+							"VV",
+							"BV"
+						]
+					}
+				}
+			}
+		}
 	},
 	"tavern" : {
 		"index" :95,

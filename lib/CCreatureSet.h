@@ -42,6 +42,8 @@ public:
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
+	
+	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -55,7 +57,7 @@ public:
 			CreatureID idNumber;
 			h & idNumber;
 			if(idNumber != CreatureID::NONE)
-				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getByIndex(idNumber)));
+				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getById(idNumber)));
 			else
 				type = nullptr;
 		}
@@ -96,7 +98,7 @@ public:
 
 	//overrides CBonusSystemNode
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
-	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
+	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
 
 	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
@@ -121,7 +123,7 @@ public:
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
-	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
+	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
 	void removeArtifact(ArtifactPosition pos) override;
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	virtual std::string nodeName() const override; //from CBonusSystemnode
@@ -139,7 +141,7 @@ public:
 	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
 	std::vector <ui8> secondarySkills; //ID -> level
-	std::set <ui8> specialSKills;
+	std::set <ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
 	void init() override;
 	CCommanderInstance();
@@ -161,7 +163,7 @@ public:
 		h & level;
 		h & name;
 		h & secondarySkills;
-		h & specialSKills;
+		h & specialSkills;
 	}
 };
 
@@ -205,6 +207,11 @@ enum class EArmyFormation : uint8_t
 	LOOSE,
 	TIGHT
 };
+
+namespace NArmyFormation
+{
+	static const std::vector<std::string> names{ "wide", "tight" };
+}
 
 class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
@@ -284,7 +291,7 @@ public:
 		h & formation;
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize = std::nullopt);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize = std::nullopt);
 
 	operator bool() const
 	{

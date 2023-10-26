@@ -37,5 +37,5 @@ void CArtifactsOfHeroMarket::scrollBackpack(int offset)
 			}
 		}
 	}
-	safeRedraw();
+	redraw();
 }

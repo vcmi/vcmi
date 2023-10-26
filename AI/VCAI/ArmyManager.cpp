@@ -118,12 +118,12 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDw
 	{
 		creInfo ci = infoFromDC(dc);
 
-		if(!ci.count || ci.creID == -1)
+		if(!ci.count || ci.creID == CreatureID::NONE)
 			continue;
 
 		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
 
-		if(ci.count && ci.creID != -1) //valid creature at this level
+		if(ci.count && ci.creID != CreatureID::NONE) //valid creature at this level
 		{
 			//can be merged with another stack?
 			SlotID dst = h->getSlotFor(ci.creID);

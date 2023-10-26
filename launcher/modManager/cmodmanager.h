@@ -35,7 +35,7 @@ public:
 	CModManager(CModList * modList);
 
 	void resetRepositories();
-	void loadRepository(QVariantMap repomap);
+	void loadRepositories(QVector<QVariantMap> repomap);
 	void loadModSettings();
 	void loadMods();
 
@@ -53,4 +53,7 @@ public:
 	bool canUninstallMod(QString mod);
 	bool canEnableMod(QString mod);
 	bool canDisableMod(QString mod);
+	
+signals:
+	void extractionProgress(qint64 currentAmount, qint64 maxAmount);
 };

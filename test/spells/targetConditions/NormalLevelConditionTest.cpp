@@ -56,7 +56,7 @@ TEST_P(NormalLevelConditionTest, DefaultForNormal)
 TEST_P(NormalLevelConditionTest, ReceptiveNormal)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 3, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 3, BonusSourceID()));
 	if(isMagicalEffect)
 		EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(4));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
@@ -66,7 +66,7 @@ TEST_P(NormalLevelConditionTest, ReceptiveNormal)
 TEST_P(NormalLevelConditionTest, ReceptiveAbility)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 5, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 5, BonusSourceID()));
 	if(isMagicalEffect)
 		EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(0));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
@@ -75,7 +75,7 @@ TEST_P(NormalLevelConditionTest, ReceptiveAbility)
 TEST_P(NormalLevelConditionTest, ImmuneNormal)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 4, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 4, BonusSourceID()));
 	if(isMagicalEffect)
 		EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(2));
 	EXPECT_EQ(!isMagicalEffect, subject->isReceptive(&mechanicsMock, &unitMock));

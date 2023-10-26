@@ -8,6 +8,7 @@
  *
  */
 #import "startSDL.h"
+#include "StdInc.h"
 #import "GameChatKeyboardHandler.h"
 
 #include "../Global.h"

@@ -25,24 +25,24 @@ size_t IFont::getStringWidth(const std::string & data) const
 	return width;
 }
 
-void IFont::renderTextLeft(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLeft(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
 	renderText(surface, data, color, pos);
 }
 
-void IFont::renderTextRight(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextRight(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
 	Point size((int)getStringWidth(data), (int)getLineHeight());
 	renderText(surface, data, color, pos - size);
 }
 
-void IFont::renderTextCenter(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextCenter(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
 	Point size((int)getStringWidth(data), (int)getLineHeight());
 	renderText(surface, data, color, pos - size / 2);
 }
 
-void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::string> & data, const ColorRGBA & color, const Point & pos) const
 {
 	Point currPos = pos;
 
@@ -53,7 +53,7 @@ void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::st
 	}
 }
 
-void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const ColorRGBA & color, const Point & pos) const
 {
 	Point currPos = pos;
 	currPos.y -= (int)data.size() * (int)getLineHeight();
@@ -65,7 +65,7 @@ void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::s
 	}
 }
 
-void IFont::renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const ColorRGBA & color, const Point & pos) const
 {
 	Point currPos = pos;
 	currPos.y -= (int)data.size() * (int)getLineHeight() / 2;

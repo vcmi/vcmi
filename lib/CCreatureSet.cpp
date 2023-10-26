@@ -14,9 +14,9 @@
 #include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/CGHeroInstance.h"
+#include "modding/ModScope.h"
 #include "IGameCallback.h"
 #include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
@@ -624,12 +624,13 @@ void CCreatureSet::armyChanged()
 
 }
 
-void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize)
+void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize)
 {
 	if(handler.saving && stacks.empty())
 		return;
 
-	auto a = handler.enterArray(fieldName);
+	handler.serializeEnum("formation", formation, NArmyFormation::names);
+	auto a = handler.enterArray(armyFieldName);
 
 
 	if(handler.saving)
@@ -752,7 +753,7 @@ void CStackInstance::giveStackExp(TExpType exp)
 
 void CStackInstance::setType(const CreatureID & creID)
 {
-	if(creID >= 0 && creID < VLC->creh->objects.size())
+	if(creID.getNum() >= 0 && creID.getNum() < VLC->creh->objects.size())
 		setType(VLC->creh->objects[creID]);
 	else
 		setType((const CCreature*)nullptr);
@@ -777,7 +778,7 @@ std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, b
 	return VLC->getBth()->bonusToString(bonus, this, description);
 }
 
-std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
+ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
 	return VLC->getBth()->bonusToGraphics(bonus);
 }
@@ -867,14 +868,13 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
-void CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
+CStackInstance::ArtPlacementMap CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
 	assert(!getArt(pos));
 	assert(art->artType->canBePutAt(this, pos));
 
-	CArtifactSet::putArtifact(pos, art);
-	if(ArtifactUtils::isSlotEquipment(pos))
-		attachTo(*art);
+	attachTo(*art);
+	return CArtifactSet::putArtifact(pos, art);
 }
 
 void CStackInstance::removeArtifact(ArtifactPosition pos)
@@ -1029,6 +1029,14 @@ void CStackBasicDescriptor::setType(const CCreature * c)
 	type = c;
 }
 
+bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
+{
+	return (!l.type && !r.type)
+	|| (l.type && r.type
+		&& l.type->getId() == r.type->getId()
+		&& l.count == r.count);
+}
+
 void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("amount", count);
@@ -1046,7 +1054,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		std::string typeName;
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
-			setType(VLC->creh->getCreature(CModHandler::scopeMap(), typeName));
+			setType(VLC->creh->getCreature(ModScope::scopeMap(), typeName));
 	}
 }
 

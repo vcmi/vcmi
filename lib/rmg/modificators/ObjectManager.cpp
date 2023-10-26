@@ -354,7 +354,7 @@ bool ObjectManager::createRequiredObjects()
 	for(const auto & objInfo : requiredObjects)
 	{
 		rmg::Object rmgObject(*objInfo.obj);
-		rmgObject.setTemplate(zone.getTerrainType());
+		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 
 		Zone::Lock lock(zone.areaMutex);
@@ -394,7 +394,7 @@ bool ObjectManager::createRequiredObjects()
 		auto possibleArea = zone.areaPossible();
 
 		rmg::Object rmgObject(*objInfo.obj);
-		rmgObject.setTemplate(zone.getTerrainType());
+		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject,
 										  [this, &rmgObject](const int3 & tile)
@@ -413,23 +413,41 @@ bool ObjectManager::createRequiredObjects()
 		
 		zone.connectPath(path);
 		placeObject(rmgObject, guarded, true);
-		
-		for(const auto & nearby : nearbyObjects)
+	}
+
+	for(const auto & nearby : nearbyObjects)
+	{
+		auto * targetObject = nearby.nearbyTarget;
+		if (!targetObject || !targetObject->appearance)
 		{
-			if(nearby.nearbyTarget != objInfo.obj)
-				continue;
-			
-			rmg::Object rmgNearObject(*nearby.obj);
-			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
-			possibleArea.intersect(zone.areaPossible());
-			if(possibleArea.empty())
+			continue;
+		}
+
+		rmg::Object rmgNearObject(*nearby.obj);
+		rmg::Area possibleArea(rmg::Area(targetObject->getBlockedPos()).getBorderOutside());
+		possibleArea.intersect(zone.areaPossible());
+		if(possibleArea.empty())
+		{
+			rmgNearObject.clear();
+			continue;
+		}
+
+		rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
+		placeObject(rmgNearObject, false, false);
+		auto path = zone.searchPath(rmgNearObject.getVisitablePosition(), false);
+		if (path.valid())
+		{
+			zone.connectPath(path);
+		}
+		else
+		{
+			for (auto* instance : rmgNearObject.instances())
 			{
-				rmgNearObject.clear();
-				continue;
+				logGlobal->error("Failed to connect nearby object %s at %s",
+					instance->object().getObjectName(), instance->getPosition(true).toString());
+				mapProxy->removeObject(&instance->object());
 			}
-			
-			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
-			placeObject(rmgNearObject, false, false);
+			rmgNearObject.clear();
 		}
 	}
 	
@@ -462,7 +480,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		if (!monster->object().appearance)
 		{
 			//Needed to determine visitable offset
-			monster->setAnyTemplate();
+			monster->setAnyTemplate(zone.getRand());
 		}
 		object.getPosition();
 		auto visitableOffset = monster->object().getVisitableOffset();
@@ -474,7 +492,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		int3 parentOffset = monster->getPosition(true) - monster->getPosition(false);
 		monster->setPosition(fixedPos - parentOffset);
 	}
-	object.finalize(map);
+	object.finalize(map, zone.getRand());
 
 	Zone::Lock lock(zone.areaMutex);
 	zone.areaPossible().subtract(object.getArea());
@@ -671,7 +689,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	});
 	
 	auto & instance = object.addInstance(*guard);
-	instance.setAnyTemplate(); //terrain is irrelevant for monsters, but monsters need some template now
+	instance.setAnyTemplate(zone.getRand()); //terrain is irrelevant for monsters, but monsters need some template now
 
 	//Fix HoTA monsters with offset template
 	auto visitableOffset = instance.object().getVisitableOffset();

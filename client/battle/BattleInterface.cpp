@@ -43,8 +43,9 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/CThreadHelper.h"
 
-BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
+BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		std::shared_ptr<CPlayerInterface> att,
 		std::shared_ptr<CPlayerInterface> defen,
@@ -54,6 +55,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
+	, battleID(battleID)
 	, battleOpeningDelayActive(true)
 {
 	if(spectatorInt)
@@ -67,9 +69,9 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	}
 
 	//hot-seat -> check tactics for both players (defender may be local human)
-	if(attackerInt && attackerInt->cb->battleGetTacticDist())
+	if(attackerInt && attackerInt->cb->getBattle(getBattleID())->battleGetTacticDist())
 		tacticianInterface = attackerInt;
-	else if(defenderInt && defenderInt->cb->battleGetTacticDist())
+	else if(defenderInt && defenderInt->cb->getBattle(getBattleID())->battleGetTacticDist())
 		tacticianInterface = defenderInt;
 
 	//if we found interface of player with tactics, then enter tactics mode
@@ -79,7 +81,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	this->army1 = army1;
 	this->army2 = army2;
 
-	const CGTownInstance *town = curInt->cb->battleGetDefendedTown();
+	const CGTownInstance *town = getBattle()->battleGetDefendedTown();
 	if(town && town->hasFort())
 		siegeController.reset(new BattleSiegeController(*this, town));
 
@@ -105,10 +107,7 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	auto onIntroPlayed = [this]()
 	{
 		if(LOCPLINT->battleInt)
-		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			onIntroSoundPlayed();
-		}
 	};
 
 	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
@@ -224,17 +223,17 @@ void BattleInterface::stackAttacking( const StackAttackInfo & attackInfo )
 	stacksController->stackAttacking(attackInfo);
 }
 
-void BattleInterface::newRoundFirst( int round )
+void BattleInterface::newRoundFirst()
 {
 	waitForAnimations();
 }
 
-void BattleInterface::newRound(int number)
+void BattleInterface::newRound()
 {
 	console->addText(CGI->generaltexth->allTexts[412]);
 }
 
-void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 additional)
+void BattleInterface::giveCommand(EActionType action, BattleHex tile, SpellID spell)
 {
 	const CStack * actor = nullptr;
 	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
@@ -242,10 +241,10 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 		actor = stacksController->getActiveStack();
 	}
 
-	auto side = curInt->cb->playerToSide(curInt->playerID);
+	auto side = getBattle()->playerToSide(curInt->playerID);
 	if(!side)
 	{
-		logGlobal->error("Player %s is not in battle", curInt->playerID.getStr());
+		logGlobal->error("Player %s is not in battle", curInt->playerID.toString());
 		return;
 	}
 
@@ -253,7 +252,7 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 	ba.side = side.value();
 	ba.actionType = action;
 	ba.aimToHex(tile);
-	ba.actionSubtype = additional;
+	ba.spell = spell;
 
 	sendCommand(ba, actor);
 }
@@ -266,11 +265,11 @@ void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
 		stacksController->setActiveStack(nullptr);
-		LOCPLINT->cb->battleMakeUnitAction(command);
+		curInt->cb->battleMakeUnitAction(battleID, command);
 	}
 	else
 	{
-		curInt->cb->battleMakeTacticAction(command);
+		curInt->cb->battleMakeTacticAction(battleID, command);
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
@@ -326,7 +325,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 		curInt->cb->selectionMade(selection, queryID);
 	};
 	GH.windows().pushWindow(wnd);
-	
+
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;
 }
@@ -354,7 +353,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if(!spell)
 		return;
 
-	const std::string & castSoundPath = spell->getCastSound();
+	const AudioPath & castSoundPath = spell->getCastSound();
 
 	if (!castSoundPath.empty())
 	{
@@ -369,13 +368,13 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 	if ( sc->activeCast )
 	{
-		const CStack * casterStack = curInt->cb->battleGetStackByID(sc->casterStack);
+		const CStack * casterStack = getBattle()->battleGetStackByID(sc->casterStack);
 
 		if(casterStack != nullptr )
 		{
 			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
 			{
-				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
+				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, getBattle()->battleGetStackByPos(targetedTile), spell));
 				displaySpellCast(spell, casterStack->getPosition());
 			});
 		}
@@ -386,7 +385,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]()
 			{
-				stacksController->addNewAnim(new HeroCastAnimation(*this, hero, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
+				stacksController->addNewAnim(new HeroCastAnimation(*this, hero, targetedTile, getBattle()->battleGetStackByPos(targetedTile), spell));
 			});
 		}
 	}
@@ -398,7 +397,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	//queuing affect animation
 	for(auto & elem : sc->affectedCres)
 	{
-		auto stack = curInt->cb->battleGetStackByID(elem, false);
+		auto stack = getBattle()->battleGetStackByID(elem, false);
 		assert(stack);
 		if(stack)
 		{
@@ -410,7 +409,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 	for(auto & elem : sc->reflectedCres)
 	{
-		auto stack = curInt->cb->battleGetStackByID(elem, false);
+		auto stack = getBattle()->battleGetStackByID(elem, false);
 		assert(stack);
 		addToAnimationStage(EAnimationEvents::HIT, [=](){
 			effectsController->displayEffect(EBattleEffect::MAGIC_MIRROR, stack->getPosition());
@@ -420,13 +419,13 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if (!sc->resistedCres.empty())
 	{
 		addToAnimationStage(EAnimationEvents::HIT, [=](){
-			CCS->soundh->playSound("MAGICRES");
+			CCS->soundh->playSound(AudioPath::builtin("MAGICRES"));
 		});
 	}
 
 	for(auto & elem : sc->resistedCres)
 	{
-		auto stack = curInt->cb->battleGetStackByID(elem, false);
+		auto stack = getBattle()->battleGetStackByID(elem, false);
 		assert(stack);
 		addToAnimationStage(EAnimationEvents::HIT, [=](){
 			effectsController->displayEffect(EBattleEffect::RESISTANCE, stack->getPosition());
@@ -441,8 +440,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		bool side = sc->side;
 
 		addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
-			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
 		});
 	}
 
@@ -488,7 +487,7 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSp
 
 		if (!animation.effectName.empty())
 		{
-			const CStack * destStack = getCurrentPlayerInterface()->cb->battleGetStackByPos(destinationTile, false);
+			const CStack * destStack = getBattle()->battleGetStackByPos(destinationTile, false);
 
 			if (destStack)
 				stacksController->addNewAnim(new ColorTransformAnimation(*this, destStack, animation.effectName, spell ));
@@ -567,12 +566,22 @@ bool BattleInterface::makingTurn() const
 	return stacksController->getActiveStack() != nullptr;
 }
 
-void BattleInterface::endAction(const BattleAction* action)
+BattleID BattleInterface::getBattleID() const
+{
+	return battleID;
+}
+
+std::shared_ptr<CPlayerBattleCallback> BattleInterface::getBattle() const
+{
+	return curInt->cb->getBattle(battleID);
+}
+
+void BattleInterface::endAction(const BattleAction &action)
 {
 	// it is possible that tactics mode ended while opening music is still playing
 	waitForAnimations();
 
-	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = getBattle()->battleGetStackByID(action.stackNumber);
 
 	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast
 	activateStack();
@@ -585,7 +594,7 @@ void BattleInterface::endAction(const BattleAction* action)
 		tacticNextStack(stack);
 
 	//we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
-	if(action->actionType == EActionType::HERO_SPELL)
+	if(action.actionType == EActionType::HERO_SPELL)
 		fieldController->redrawBackgroundWithHexes();
 }
 
@@ -594,36 +603,21 @@ void BattleInterface::appendBattleLog(const std::string & newEntry)
 	console->addText(newEntry);
 }
 
-void BattleInterface::startAction(const BattleAction* action)
+void BattleInterface::startAction(const BattleAction & action)
 {
-	if(action->actionType == EActionType::END_TACTIC_PHASE)
+	if(action.actionType == EActionType::END_TACTIC_PHASE)
 	{
 		windowObject->tacticPhaseEnded();
 		return;
 	}
 
-	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
-
-	if (stack)
-	{
-		windowObject->updateQueue();
-	}
-	else
-	{
-		assert(action->actionType == EActionType::HERO_SPELL); //only cast spell is valid action without acting stack number
-	}
-
 	stacksController->startAction(action);
 
-	if(action->actionType == EActionType::HERO_SPELL) //when hero casts spell
+	if (!action.isUnitAction())
 		return;
 
-	if (!stack)
-	{
-		logGlobal->error("Something wrong with stackNumber in actionStarted. Stack number: %d", action->stackNumber);
-		return;
-	}
-
+	assert(getBattle()->battleGetStackByID(action.stackNumber));
+	windowObject->updateQueue();
 	effectsController->startAction(action);
 }
 
@@ -632,10 +626,10 @@ void BattleInterface::tacticPhaseEnd()
 	stacksController->setActiveStack(nullptr);
 	tacticsMode = false;
 
-	auto side = tacticianInterface->cb->playerToSide(tacticianInterface->playerID);
+	auto side = tacticianInterface->cb->getBattle(battleID)->playerToSide(tacticianInterface->playerID);
 	auto action = BattleAction::makeEndOFTacticPhase(*side);
 
-	tacticianInterface->cb->battleMakeTacticAction(action);
+	tacticianInterface->cb->battleMakeTacticAction(battleID, action);
 }
 
 static bool immobile(const CStack *s)
@@ -651,7 +645,7 @@ void BattleInterface::tacticNextStack(const CStack * current)
 	//no switching stacks when the current one is moving
 	checkForAnimations();
 
-	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
+	TStacks stacksOfMine = tacticianInterface->cb->getBattle(battleID)->battleGetStacks(CPlayerBattleCallback::ONLY_MINE);
 	vstd::erase_if (stacksOfMine, &immobile);
 	if (stacksOfMine.empty())
 	{
@@ -703,7 +697,7 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 {
 	assert(curInt->isAutoFightOn);
 
-	if(curInt->cb->battleIsFinished())
+	if(getBattle()->battleIsFinished())
 	{
 		return; // battle finished with spellcast
 	}
@@ -731,7 +725,8 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
 			boost::thread aiThread([this, activeStack]()
 			{
-				curInt->autofightingAI->activeStack(activeStack);
+				setThreadName("autofightingAI");
+				curInt->autofightingAI->activeStack(battleID, activeStack);
 			});
 			aiThread.detach();
 		}
@@ -785,7 +780,7 @@ void BattleInterface::onAnimationsFinished()
 void BattleInterface::waitForAnimations()
 {
 	{
-		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
 		ongoingAnimationsState.waitUntil(false);
 	}
 

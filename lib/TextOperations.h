@@ -46,6 +46,9 @@ namespace TextOperations
 	///delete specified amount of UTF-8 characters from right
 	DLL_LINKAGE void trimRightUnicode(std::string & text, size_t amount = 1);
 
+	/// give back amount of unicode characters
+	size_t DLL_LINKAGE getUnicodeCharactersCount(const std::string & text);
+
 	/// converts number into string using metric system prefixes, e.g. 'k' or 'M' to keep resulting strings within specified size
 	/// Note that resulting string may have more symbols than digits: minus sign and prefix symbol
 	template<typename Arithmetic>

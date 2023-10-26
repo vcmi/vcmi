@@ -11,6 +11,7 @@
 
 #include "../gui/CIntObject.h"
 #include "CConfigHandler.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -86,7 +87,7 @@ private:
 		std::shared_ptr<CShowableAnim> animation;
 		std::shared_ptr<CLabel> label;
 
-		std::string getNewDayName();
+		AnimationPath getNewDayName();
 	public:
 		VisibleDateInfo();
 	};
@@ -158,7 +159,7 @@ private:
 
 	void tick(uint32_t msPassed) override;
 
-	void clickReleased(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition, bool lastActivated) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 

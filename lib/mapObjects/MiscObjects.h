@@ -43,7 +43,7 @@ public:
 class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
 {
 public:
-	std::string message;
+	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
@@ -52,46 +52,6 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & message;
-	}
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
-class DLL_LINKAGE CGWitchHut : public CTeamVisited
-{
-public:
-	std::set<SecondarySkill> allowedAbilities;
-	SecondarySkill ability;
-
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(CRandomGenerator & rand) override;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CTeamVisited&>(*this);
-		h & allowedAbilities;
-		h & ability;
-	}
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
-class DLL_LINKAGE CGScholar : public CGObjectInstance
-{
-public:
-	enum EBonusType {PRIM_SKILL, SECONDARY_SKILL, SPELL, RANDOM = 255};
-	EBonusType bonusType;
-	ui16 bonusID; //ID of skill/spell
-
-	CGScholar() : bonusType(EBonusType::RANDOM),bonusID(0){};
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(CRandomGenerator & rand) override;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-		h & bonusType;
-		h & bonusID;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -119,7 +79,7 @@ class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
 public:
 	CArtifactInstance * storedArtifact = nullptr;
-	std::string message;
+	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -149,7 +109,7 @@ public:
 	static constexpr ui32 RANDOM_AMOUNT = 0;
 	ui32 amount = RANDOM_AMOUNT; //0 if random
 	
-	std::string message;
+	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
@@ -169,33 +129,14 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGShrine : public CTeamVisited
-{
-public:
-	MetaString visitText;
-	SpellID spell; //id of spell or NONE if random
-
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(CRandomGenerator & rand) override;
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CTeamVisited&>(*this);;
-		h & spell;
-		h & visitText;
-	}
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-};
-
 class DLL_LINKAGE CGMine : public CArmedInstance
 {
 public:
 	GameResID producedResource;
 	ui32 producedQuantity;
 	std::set<GameResID> abandonedMineResources;
+	
+	bool isAbandoned() const;
 
 private:
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -209,7 +150,6 @@ private:
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
 
-	bool isAbandoned() const;
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -333,17 +273,6 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGObservatory : public CGObjectInstance //Redwood observatory
-{
-public:
-	void onHeroVisit(const CGHeroInstance * h) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
 class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
 public:
@@ -351,12 +280,12 @@ public:
 	const CGHeroInstance *hero;  //hero on board
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport
-	EPathfindingLayer::EEPathfindingLayer layer;
+	EPathfindingLayer layer;
 	
 	//animation filenames. If empty - animations won't be used
-	std::string actualAnimation; //for OH3 boats those have actual animations
-	std::string overlayAnimation; //waves animations
-	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
+	AnimationPath actualAnimation; //for OH3 boats those have actual animations
+	AnimationPath overlayAnimation; //waves animations
+	std::array<AnimationPath, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
 	CGBoat();
 	bool isCoastVisitable() const override;
@@ -412,19 +341,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
-class DLL_LINKAGE CCartographer : public CTeamVisited
-{
-///behaviour varies depending on surface and  floor
-public:
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CTeamVisited&>(*this);
 	}
 };
 

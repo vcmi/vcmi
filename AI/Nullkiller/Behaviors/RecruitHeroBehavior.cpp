@@ -17,9 +17,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 using namespace Goals;
 
 std::string RecruitHeroBehavior::toString() const
@@ -84,7 +81,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 				}
 			}
 
-			if(treasureSourcesCount < 5)
+			if(treasureSourcesCount < 5 && (town->garrisonHero || town->getUpperArmy()->getArmyStrength() < 10000))
 				continue;
 
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1

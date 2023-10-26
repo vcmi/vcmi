@@ -24,6 +24,8 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// IBattleInfo
+	const IBattleInfo * getBattle() const override;
+	std::optional<PlayerColor> getPlayerID() const override;
 
 	int32_t getActiveStackID() const override;
 

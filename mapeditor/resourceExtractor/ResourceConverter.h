@@ -9,8 +9,6 @@
  */
 #pragma once
 
-namespace bfs = boost::filesystem;
-
 // Struct for holding all Convertor Options
 struct ConversionOptions
 {
@@ -45,14 +43,14 @@ public:
 private:
 
 	// Converts all .pcx from extractedFolder/Images into .png
-	static void doConvertPcxToPng(const bfs::path & sourceFolder, bool deleteOriginals);
+	static void doConvertPcxToPng(const boost::filesystem::path & sourceFolder, bool deleteOriginals);
 
 	// splits a .def file into individual images and converts the output to PNG format
-	static void splitDefFile(const std::string & fileName, const bfs::path & sourceFolder, bool deleteOriginals);
+	static void splitDefFile(const std::string & fileName, const boost::filesystem::path & sourceFolder, bool deleteOriginals);
 
 	/// <summary>
 	/// Splits the given .def files into individual images.
 	/// For each .def file, the resulting images will be output in the same folder, in a subfolder (named just like the .def file)
 	/// </summary>
-	static void splitDefFiles(const std::vector<std::string> & defFileNames, const bfs::path & sourceFolder, bool deleteOriginals);
+	static void splitDefFiles(const std::vector<std::string> & defFileNames, const boost::filesystem::path & sourceFolder, bool deleteOriginals);
 };

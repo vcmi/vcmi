@@ -9,14 +9,12 @@
  */
 
 #include "StdInc.h"
-#include "CArtHandler.h"
 
 #include "ArtifactUtils.h"
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/MapObjects.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -240,11 +238,11 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 			if(artCanBePutAt(artSet, slot, assumeDestRemoved))
 				return true;
 		}
-		return artCanBePutAt(artSet, GameConstants::BACKPACK_START, assumeDestRemoved);
+		return artCanBePutAt(artSet, ArtifactPosition::BACKPACK_START, assumeDestRemoved);
 	}
 	else if(ArtifactUtils::isSlotBackpack(slot))
 	{
-		return artCanBePutAt(artSet, GameConstants::BACKPACK_START, assumeDestRemoved);
+		return artCanBePutAt(artSet, ArtifactPosition::BACKPACK_START, assumeDestRemoved);
 	}
 	else
 	{
@@ -333,8 +331,8 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	static std::map<char, std::string> classes =
 		{{'S',"SPECIAL"}, {'T',"TREASURE"},{'N',"MINOR"},{'J',"MAJOR"},{'R',"RELIC"},};
 
-	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
-	CLegacyConfigParser events("DATA/ARTEVENT.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/ARTRAITS.TXT"));
+	CLegacyConfigParser events(TextPath::builtin("DATA/ARTEVENT.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -450,7 +448,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	const JsonNode & warMachine = node["warMachine"];
 	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && !warMachine.String().empty())
 	{
-		VLC->modh->identifiers.requestIdentifier("creature", warMachine, [=](si32 id)
+		VLC->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
@@ -459,7 +457,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		});
 	}
 
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	VLC->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
 	{
 		JsonNode conf;
 		conf.setMeta(scope);
@@ -484,17 +482,16 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	return art;
 }
 
-ArtifactPosition::ArtifactPosition(std::string slotName):
-	num(ArtifactPosition::PRE_FIRST)
+int32_t ArtifactPositionBase::decode(const std::string & slotName)
 {
 #define ART_POS(x) { #x, ArtifactPosition::x },
 	static const std::map<std::string, ArtifactPosition> artifactPositionMap = { ART_POS_LIST };
 #undef ART_POS
 	auto it = artifactPositionMap.find (slotName);
 	if (it != artifactPositionMap.end())
-		num = it->second;
+		return it->second;
 	else
-		logMod->warn("Warning! Artifact slot %s not recognized!", slotName);
+		return PRE_FIRST;
 }
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID) const
@@ -519,7 +516,7 @@ void CArtHandler::addSlot(CArtifact * art, const std::string & slotID) const
 	}
 	else
 	{
-		auto slot = ArtifactPosition(slotID);
+		auto slot = ArtifactPosition::decode(slotID);
 		if (slot != ArtifactPosition::PRE_FIRST)
 			art->possibleSlots[ArtBearer::HERO].push_back(slot);
 	}
@@ -599,7 +596,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 	{
 		for(const auto & component : node["components"].Vector())
 		{
-			VLC->modh->identifiers.requestIdentifier("artifact", component, [=](si32 id)
+			VLC->identifiers()->requestIdentifier("artifact", component, [=](si32 id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
@@ -612,49 +609,60 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 
 ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
 {
-	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, CArtifact::EartClass flag)
+	std::set<ArtifactID> potentialPicks;
+
+	// Select artifacts that satisfy provided criterias
+	for (auto const * artifact : allowedArtifacts)
 	{
-		if (arts->empty()) //restock available arts
-			fillList(*arts, flag);
+		assert(artifact->aClass != CArtifact::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
 
-		for (auto & arts_i : *arts)
-		{
-			if (accepts(arts_i->id))
-			{
-				CArtifact *art = arts_i;
-				out.emplace_back(art);
-			}
-		}
-	};
+		if ((flags & CArtifact::ART_TREASURE) == 0 && artifact->aClass == CArtifact::ART_TREASURE)
+			continue;
 
-	auto getAllowed = [&](std::vector<ConstTransitivePtr<CArtifact> > &out)
+		if ((flags & CArtifact::ART_MINOR) == 0 && artifact->aClass == CArtifact::ART_MINOR)
+			continue;
+
+		if ((flags & CArtifact::ART_MAJOR) == 0 && artifact->aClass == CArtifact::ART_MAJOR)
+			continue;
+
+		if ((flags & CArtifact::ART_RELIC) == 0 && artifact->aClass == CArtifact::ART_RELIC)
+			continue;
+
+		if (!accepts(artifact->id))
+			continue;
+
+		potentialPicks.insert(artifact->id);
+	}
+
+	return pickRandomArtifact(rand, potentialPicks);
+}
+
+ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> potentialPicks)
+{
+	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
+	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
+	if (potentialPicks.empty())
 	{
-		if (flags & CArtifact::ART_TREASURE)
-			getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
-		if (flags & CArtifact::ART_MINOR)
-			getAllowedArts (out, &minors, CArtifact::ART_MINOR);
-		if (flags & CArtifact::ART_MAJOR)
-			getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
-		if (flags & CArtifact::ART_RELIC)
-			getAllowedArts (out, &relics, CArtifact::ART_RELIC);
-		if(out.empty()) //no artifact of specified rarity, we need to take another one
-		{
-			getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
-			getAllowedArts (out, &minors, CArtifact::ART_MINOR);
-			getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
-			getAllowedArts (out, &relics, CArtifact::ART_RELIC);
-		}
-		if(out.empty()) //no arts are available at all
-		{
-			out.resize (64);
-			std::fill_n (out.begin(), 64, objects[2]); //Give Grail - this can't be banned (hopefully)
-		}
-	};
+		logGlobal->warn("Failed to find artifact that matches requested parameters!");
+		return ArtifactID::GRAIL;
+	}
 
-	std::vector<ConstTransitivePtr<CArtifact> > out;
-	getAllowed(out);
-	ArtifactID artID = (*RandomGeneratorUtil::nextItem(out, rand))->id;
-	erasePickedArt(artID);
+	// Find how many times least used artifacts were picked by randomizer
+	int leastUsedTimes = std::numeric_limits<int>::max();
+	for (auto const & artifact : potentialPicks)
+		if (allocatedArtifacts[artifact] < leastUsedTimes)
+			leastUsedTimes = allocatedArtifacts[artifact];
+
+	// Pick all artifacts that were used least number of times
+	std::set<ArtifactID> preferredPicks;
+	for (auto const & artifact : potentialPicks)
+		if (allocatedArtifacts[artifact] == leastUsedTimes)
+			preferredPicks.insert(artifact);
+
+	assert(!preferredPicks.empty());
+
+	ArtifactID artID = *RandomGeneratorUtil::nextItem(preferredPicks, rand);
+	allocatedArtifacts[artID] += 1; // record +1 more usage
 	return artID;
 }
 
@@ -715,16 +723,13 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 {
 	allowedArtifacts.clear();
-	treasures.clear();
-	minors.clear();
-	majors.clear();
-	relics.clear();
+	allocatedArtifacts.clear();
 
 	for (ArtifactID i=ArtifactID::SPELLBOOK; i < ArtifactID(static_cast<si32>(objects.size())); i.advance(1))
 	{
 		if (allowed[i] && legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(objects[i]);
-			 //keep im mind that artifact can be worn by more than one type of bearer
+			//keep im mind that artifact can be worn by more than one type of bearer
 	}
 }
 
@@ -737,52 +742,6 @@ std::vector<bool> CArtHandler::getDefaultAllowed() const
 	return allowedArtifacts;
 }
 
-void CArtHandler::erasePickedArt(const ArtifactID & id)
-{
-	CArtifact *art = objects[id];
-
-	std::vector<CArtifact*> * artifactList = nullptr;
-	switch(art->aClass)
-	{
-		case CArtifact::ART_TREASURE:
-			artifactList = &treasures;
-			break;
-		case CArtifact::ART_MINOR:
-			artifactList = &minors;
-			break;
-		case CArtifact::ART_MAJOR:
-			artifactList = &majors;
-			break;
-		case CArtifact::ART_RELIC:
-			artifactList = &relics;
-			break;
-		default:
-			logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
-			return;
-	}
-
-	if(artifactList->empty())
-		fillList(*artifactList, art->aClass);
-
-	auto itr = vstd::find(*artifactList, art);
-	if(itr != artifactList->end())
-	{
-		artifactList->erase(itr);
-	}
-	else
-		logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
-}
-
-void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )
-{
-	assert(listToBeFilled.empty());
-	for (auto & elem : allowedArtifacts)
-	{
-		if (elem->aClass == artifactClass)
-			listToBeFilled.push_back(elem);
-	}
-}
-
 void CArtHandler::afterLoadFinalization()
 {
 	//All artifacts have their id, so we can properly update their bonuses' source ids.
@@ -792,7 +751,7 @@ void CArtHandler::afterLoadFinalization()
 		{
 			assert(art == objects[art->id]);
 			assert(bonus->source == BonusSource::ARTIFACT);
-			bonus->sid = art->id;
+			bonus->sid = BonusSourceID(art->id);
 		}
 	}
 	CBonusSystemNode::treeHasChanged();
@@ -822,12 +781,6 @@ ArtifactPosition CArtifactSet::getArtPos(const ArtifactID & aid, bool onlyWorn, 
 	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
 }
 
-ArtifactPosition CArtifactSet::getArtBackpackPos(const ArtifactID & aid) const
-{
-	const auto result = getBackpackArtPositions(aid);
-	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
-}
-
 std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(const ArtifactID & aid, bool onlyWorn, bool allowLocked, bool getAll) const
 {
 	std::vector<ArtifactPosition> result;
@@ -849,7 +802,7 @@ std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(const Artifa
 {
 	std::vector<ArtifactPosition> result;
 
-	si32 backpackPosition = GameConstants::BACKPACK_START;
+	si32 backpackPosition = ArtifactPosition::BACKPACK_START;
 	for(const auto & artInfo : artifactsInBackpack)
 	{
 		const auto * art = artInfo.getArt();
@@ -868,7 +821,7 @@ ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact == art)
-			return ArtifactPosition(GameConstants::BACKPACK_START + i);
+			return ArtifactPosition::BACKPACK_START + i;
 
 	return ArtifactPosition::PRE_FIRST;
 }
@@ -894,7 +847,7 @@ const ArtifactPosition CArtifactSet::getSlotByInstance(const CArtifactInstance *
 			if(getArt(slot) == artInst)
 				return slot;
 
-		auto backpackSlot = GameConstants::BACKPACK_START;
+		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
 		for(auto & slotInfo : artifactsInBackpack)
 		{
 			if(slotInfo.getArt() == artInst)
@@ -927,8 +880,10 @@ unsigned CArtifactSet::getArtPosCount(const ArtifactID & aid, bool onlyWorn, boo
 	return 0;
 }
 
-void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
+CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 {
+	ArtPlacementMap resArtPlacement;
+
 	setNewArtSlot(slot, art, false);
 	if(art->artType->isCombined() && ArtifactUtils::isSlotEquipment(slot))
 	{
@@ -940,19 +895,26 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 				mainPart = part.art;
 				break;
 			}
-
-		for(auto & part : art->getPartsInfo())
+		
+		for(const auto & part : art->getPartsInfo())
 		{
 			if(part.art != mainPart)
 			{
-				if(!part.art->artType->canBePutAt(this, part.slot))
-					part.slot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
+				auto partSlot = part.slot;
+				if(!part.art->artType->canBePutAt(this, partSlot))
+					partSlot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
 
-				assert(ArtifactUtils::isSlotEquipment(part.slot));
-				setNewArtSlot(part.slot, part.art, true);
+				assert(ArtifactUtils::isSlotEquipment(partSlot));
+				setNewArtSlot(partSlot, part.art, true);
+				resArtPlacement.emplace(std::make_pair(part.art, partSlot));
+			}
+			else
+			{
+				resArtPlacement.emplace(std::make_pair(part.art, part.slot));
 			}
 		}
 	}
+	return resArtPlacement;
 }
 
 void CArtifactSet::removeArtifact(ArtifactPosition slot)
@@ -1015,7 +977,7 @@ const ArtSlotInfo * CArtifactSet::getSlot(const ArtifactPosition & pos) const
 		return &artifactsWorn.at(pos);
 	if(pos >= ArtifactPosition::AFTER_LAST )
 	{
-		int backpackPos = (int)pos - GameConstants::BACKPACK_START;
+		int backpackPos = (int)pos - ArtifactPosition::BACKPACK_START;
 		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
 			return nullptr;
 		else
@@ -1033,7 +995,7 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 	return true; //no slot means not used
 }
 
-void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked)
+void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, ConstTransitivePtr<CArtifactInstance> art, bool locked)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
 
@@ -1050,7 +1012,7 @@ void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, CArtifactInstanc
 	}
 	else
 	{
-		auto position = artifactsInBackpack.begin() + slot - GameConstants::BACKPACK_START;
+		auto position = artifactsInBackpack.begin() + slot - ArtifactPosition::BACKPACK_START;
 		slotInfo = &(*artifactsInBackpack.emplace(position, ArtSlotInfo()));
 	}
 	slotInfo->artifact = art;
@@ -1066,7 +1028,7 @@ void CArtifactSet::eraseArtSlot(const ArtifactPosition & slot)
 	}
 	else if(ArtifactUtils::isSlotBackpack(slot))
 	{
-		auto backpackSlot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
+		auto backpackSlot = ArtifactPosition(slot - ArtifactPosition::BACKPACK_START);
 
 		assert(artifactsInBackpack.begin() + backpackSlot < artifactsInBackpack.end());
 		artifactsInBackpack.erase(artifactsInBackpack.begin() + backpackSlot);
@@ -1136,10 +1098,13 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 	{
 		for(const ArtifactID & artifactID : backpackTemp)
 		{
-			auto * artifact = ArtifactUtils::createArtifact(map, artifactID.toEnum());
-			auto slot = ArtifactPosition(GameConstants::BACKPACK_START + (si32)artifactsInBackpack.size());
+			auto * artifact = ArtifactUtils::createArtifact(map, artifactID);
+			auto slot = ArtifactPosition::BACKPACK_START + artifactsInBackpack.size();
 			if(artifact->artType->canBePutAt(this, slot))
-				putArtifact(slot, artifact);
+			{
+				auto artsMap = putArtifact(slot, artifact);
+				artifact->addPlacementMap(artsMap);
+			}
 		}
 	}
 }
@@ -1178,7 +1143,8 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 
 			if(artifact->artType->canBePutAt(this, slot))
 			{
-				putArtifact(slot, artifact);
+				auto artsMap = putArtifact(slot, artifact);
+				artifact->addPlacementMap(artsMap);
 			}
 			else
 			{

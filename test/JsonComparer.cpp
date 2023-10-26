@@ -116,7 +116,7 @@ void JsonComparer::checkEqualJson(const JsonVector & actual, const JsonVector & 
 
 	for(size_t idx = 0; idx < sz; idx ++)
 	{
-		auto guard = pushName(boost::to_string(idx));
+		auto guard = pushName(std::to_string(idx));
 
 		checkEqualJson(actual.at(idx), expected.at(idx));
 	}

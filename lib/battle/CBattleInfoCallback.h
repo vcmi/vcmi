@@ -11,7 +11,6 @@
 
 #include <vcmi/spells/Magic.h>
 
-#include "CCallbackBase.h"
 #include "ReachabilityInfo.h"
 #include "BattleAttackInfo.h"
 
@@ -89,6 +88,8 @@ public:
 	std::set<BattleHex> battleGetAttackedHexes(const battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool isEnemyUnitWithinSpecifiedRange(BattleHex attackerPosition, const battle::Unit * defenderUnit, unsigned int range) const;
 
+	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const battle::Unit * stack) const;
+
 	bool battleCanAttack(const battle::Unit * stack, const battle::Unit * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
@@ -118,7 +119,7 @@ public:
 	si8 battleMinSpellLevel(ui8 side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	int32_t battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
+	ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
 
 	SpellID battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const;
 	SpellID getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const;

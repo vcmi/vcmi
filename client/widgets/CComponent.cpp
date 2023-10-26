@@ -21,6 +21,8 @@
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../render/Canvas.h"
+#include "../render/IFont.h"
+#include "../render/Graphics.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
@@ -28,6 +30,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/CHeroHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
@@ -39,7 +42,13 @@
 CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font):
 	perDay(false)
 {
-	init(Type, Subtype, Val, imageSize, font);
+	init(Type, Subtype, Val, imageSize, font, "");
+}
+
+CComponent::CComponent(Etype Type, int Subtype, std::string Val, ESize imageSize, EFonts font):
+	perDay(false)
+{
+	init(Type, Subtype, 0, imageSize, font, Val);
 }
 
 CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
@@ -51,7 +60,7 @@ CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 	init((Etype)c.id, c.subtype, c.val, imageSize, font);
 }
 
-void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts fnt)
+void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts fnt, std::string ValText)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -60,6 +69,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 	compType = Type;
 	subtype = Subtype;
 	val = Val;
+	valText = ValText;
 	size = imageSize;
 	font = fnt;
 
@@ -84,6 +94,9 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 	if (size < small)
 		max = 30;
 
+	if(Type == Etype::resource && !valText.empty())
+		max = 80;
+
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
 	for(auto & line : textLines)
 	{
@@ -100,7 +113,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 	}
 }
 
-const std::vector<std::string> CComponent::getFileName()
+std::vector<AnimationPath> CComponent::getFileName()
 {
 	static const std::string  primSkillsArr [] = {"PSKIL32",        "PSKIL32",        "PSKIL42",        "PSKILL"};
 	static const std::string  secSkillsArr [] =  {"SECSK32",        "SECSK32",        "SECSKILL",       "SECSK82"};
@@ -113,9 +126,9 @@ const std::vector<std::string> CComponent::getFileName()
 	static const std::string  heroArr [] =       {"PortraitsSmall", "PortraitsSmall", "PortraitsSmall", "PortraitsLarge"};
 	static const std::string  flagArr [] =       {"CREST58",        "CREST58",        "CREST58",        "CREST58"};
 
-	auto gen = [](const std::string * arr)
+	auto gen = [](const std::string * arr) -> std::vector<AnimationPath>
 	{
-		return std::vector<std::string>(arr, arr + 4);
+		return { AnimationPath::builtin(arr[0]), AnimationPath::builtin(arr[1]), AnimationPath::builtin(arr[2]), AnimationPath::builtin(arr[3]) };
 	};
 
 	switch(compType)
@@ -129,12 +142,12 @@ const std::vector<std::string> CComponent::getFileName()
 	case spell:      return gen(spellsArr);
 	case morale:     return gen(moraleArr);
 	case luck:       return gen(luckArr);
-	case building:   return std::vector<std::string>(4, (*CGI->townh)[subtype]->town->clientInfo.buildingsIcons);
+	case building:   return std::vector<AnimationPath>(4, (*CGI->townh)[subtype]->town->clientInfo.buildingsIcons);
 	case hero:       return gen(heroArr);
 	case flag:       return gen(flagArr);
 	}
 	assert(0);
-	return std::vector<std::string>();
+	return {};
 }
 
 size_t CComponent::getIndex()
@@ -151,7 +164,7 @@ size_t CComponent::getIndex()
 	case morale:     return val+3;
 	case luck:       return val+3;
 	case building:   return val;
-	case hero:       return subtype;
+	case hero:       return CGI->heroTypes()->getByIndex(subtype)->getIconIndex();
 	case flag:       return subtype;
 	}
 	assert(0);
@@ -206,7 +219,7 @@ std::string CComponent::getSubtitleInternal()
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
 	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->getByIndex(subtype)->getNameTranslated();
-	case resource:   return std::to_string(val);
+	case resource:   return valText.empty() ? std::to_string(val) : valText;
 	case creature:
 		{
 			auto creature = CGI->creh->getByIndex(subtype);
@@ -249,7 +262,7 @@ std::string CComponent::getSubtitleInternal()
 	return "";
 }
 
-void CComponent::setSurface(std::string defName, int imgPos)
+void CComponent::setSurface(const AnimationPath & defName, int imgPos)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	image = std::make_shared<CAnimImage>(defName, imgPos);
@@ -267,6 +280,12 @@ void CSelectableComponent::clickPressed(const Point & cursorPosition)
 		onSelect();
 }
 
+void CSelectableComponent::clickDouble(const Point & cursorPosition)
+{
+	if(onChoose)
+		onChoose();
+}
+
 void CSelectableComponent::init()
 {
 	selected = false;
@@ -276,7 +295,7 @@ CSelectableComponent::CSelectableComponent(const Component &c, std::function<voi
 	CComponent(c),onSelect(OnSelect)
 {
 	setRedrawParent(true);
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | DOUBLECLICK | KEYBOARD);
 	init();
 }
 
@@ -284,7 +303,7 @@ CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, ESize i
 	CComponent(Type,Sub,Val, imageSize),onSelect(OnSelect)
 {
 	setRedrawParent(true);
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | DOUBLECLICK | KEYBOARD);
 	init();
 }
 

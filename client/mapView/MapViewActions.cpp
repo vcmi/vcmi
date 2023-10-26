@@ -121,6 +121,8 @@ void MapViewActions::gesturePinch(const Point & centerPosition, double lastUpdat
 
 void MapViewActions::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
+	dragActive = on;
+
 	pinchZoomFactor = 1.0;
 }
 

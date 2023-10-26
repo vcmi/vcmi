@@ -16,14 +16,16 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CBinaryReader.h"
+#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
 #include "../TextOperations.h"
-#include "../CModHandler.h"
 #include "../Languages.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
+#include "../modding/CModHandler.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -57,7 +59,7 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 
 std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 {
-	ResourceID resourceID(name, EResType::CAMPAIGN);
+	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
@@ -73,7 +75,7 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
 {
-	ResourceID resourceID(name, EResType::CAMPAIGN);
+	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
@@ -132,7 +134,7 @@ std::string CampaignHandler::readLocalizedString(CBinaryReader & reader, std::st
 		return "";
 
 	VLC->generaltexth->registerString(modName, stringID, input);
-	return VLC->generaltexth->translate(stringID.get());
+	return stringID.get();
 }
 
 void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, std::string filename, std::string modName, std::string encoding)
@@ -147,10 +149,10 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.version = CampaignVersion::VCMI;
 	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
-	ret.name = reader["name"].String();
-	ret.description = reader["description"].String();
+	ret.name.appendTextID(reader["name"].String());
+	ret.description.appendTextID(reader["description"].String());
 	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
-	ret.music = reader["music"].String();
+	ret.music = AudioPath::fromJson(reader["music"]);
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
@@ -164,9 +166,10 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 		ret.hasPrologEpilog = !identifier.isNull();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = identifier["video"].String();
-			ret.prologMusic = identifier["music"].String();
-			ret.prologText = identifier["text"].String();
+			ret.prologVideo = VideoPath::fromJson(identifier["video"]);
+			ret.prologMusic = AudioPath::fromJson(identifier["music"]);
+			ret.prologVoice = AudioPath::fromJson(identifier["voice"]);
+			ret.prologText.jsonDeserialize(identifier["text"]);
 		}
 		return ret;
 	};
@@ -178,7 +181,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 
 	ret.regionColor = reader["color"].Integer();
 	ret.difficulty = reader["difficulty"].Integer();
-	ret.regionText = reader["regionText"].String();
+	ret.regionText.jsonDeserialize(reader["regionText"]);
 	ret.prolog = prologEpilogReader(reader["prolog"]);
 	ret.epilog = prologEpilogReader(reader["epilog"]);
 
@@ -249,14 +252,14 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	
 	for(auto & k : reader["keepCreatures"].Vector())
 	{
-		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()))
+		if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "creature", k.String()))
 			ret.monstersKeptByHero.insert(CreatureID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepCreatures contains unresolved identifier %s", k.String());
 	}
 	for(auto & k : reader["keepArtifacts"].Vector())
 	{
-		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()))
+		if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "artifact", k.String()))
 			ret.artifactsKeptByHero.insert(ArtifactID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
@@ -270,7 +273,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 		break;
 	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
 		{
-			ret.playerColor = reader["playerColor"].Integer();
+			ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
 			for(auto & bjson : reader["bonuses"].Vector())
 			{
 				CampaignBonus bonus;
@@ -292,7 +295,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 						if(int heroId = heroSpecialMap[bjson["hero"].String()])
 							bonus.info1 = heroId;
 						else
-							if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
+							if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
 								bonus.info1 = identifier.value();
 							else
 								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
@@ -305,14 +308,14 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 							case CampaignBonusType::MONSTER:
 							case CampaignBonusType::SECONDARY_SKILL:
 							case CampaignBonusType::ARTIFACT:
-								if(auto identifier  = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), bjson["what"].String(), bjson["type"].String()))
+								if(auto identifier  = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), bjson["what"].String(), bjson["type"].String()))
 									bonus.info2 = identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved %s identifier %s", bjson["what"].String(), bjson["type"].String());
 								break;
 								
 							case CampaignBonusType::SPELL_SCROLL:
-								if(auto Identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "spell", bjson["type"].String()))
+								if(auto Identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "spell", bjson["type"].String()))
 									bonus.info2 = Identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved spell scroll identifier %s", bjson["type"].String());
@@ -355,7 +358,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 				if(int heroId = heroSpecialMap[bjson["hero"].String()])
 					bonus.info2 = heroId;
 				else
-					if (auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
+					if (auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
 						bonus.info2 = identifier.value();
 					else
 						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
@@ -380,8 +383,8 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
 	ret.loadLegacyData(campId);
-	ret.name = readLocalizedString(reader, filename, modName, encoding, "name");
-	ret.description = readLocalizedString(reader, filename, modName, encoding, "description");
+	ret.name.appendTextID(readLocalizedString(reader, filename, modName, encoding, "name"));
+	ret.description.appendTextID(readLocalizedString(reader, filename, modName, encoding, "description"));
 	if (ret.version > CampaignVersion::RoE)
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
@@ -401,9 +404,13 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 		ret.hasPrologEpilog = reader.readUInt8();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = CampaignHandler::prologVideoName(reader.readUInt8());
+			bool isOriginalCampaign = boost::starts_with(header.getFilename(), "DATA/");
+
+			ui8 index = reader.readUInt8();
+			ret.prologVideo = CampaignHandler::prologVideoName(index);
 			ret.prologMusic = CampaignHandler::prologMusicName(reader.readUInt8());
-			ret.prologText = readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier);
+			ret.prologVoice = isOriginalCampaign ? CampaignHandler::prologVoiceName(index) : AudioPath();
+			ret.prologText.appendTextID(readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier));
 		}
 		return ret;
 	};
@@ -421,7 +428,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
-	ret.regionText = readLocalizedString(reader, header.filename, header.modName, header.encoding, ret.mapName + ".region");
+	ret.regionText.appendTextID(readLocalizedString(reader, header.filename, header.modName, header.encoding, ret.mapName + ".region"));
 	ret.prolog = prologEpilogReader(ret.mapName + ".prolog");
 	ret.epilog = prologEpilogReader(ret.mapName + ".epilog");
 
@@ -465,7 +472,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 		break;
 	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
 		{
-			ret.playerColor = reader.readUInt8();
+			ret.playerColor.setNum(reader.readUInt8());
 			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{
@@ -588,28 +595,28 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 	return ret;
 }
 
-std::string CampaignHandler::prologVideoName(ui8 index)
+VideoPath CampaignHandler::prologVideoName(ui8 index)
 {
-	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
 	auto vids = config["videos"].Vector();
 	if(index < vids.size())
-		return vids[index].String();
-	return "";
+		return VideoPath::fromJson(vids[index]);
+	return VideoPath();
 }
 
-std::string CampaignHandler::prologMusicName(ui8 index)
+AudioPath CampaignHandler::prologMusicName(ui8 index)
 {
 	std::vector<std::string> music;
-	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index)));
+	return AudioPath::builtinTODO(VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index))));
 }
 
-std::string CampaignHandler::prologVoiceName(ui8 index)
+AudioPath CampaignHandler::prologVoiceName(ui8 index)
 {
-	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
 	auto audio = config["voice"].Vector();
 	if(index < audio.size())
-		return audio[index].String();
-	return "";
+		return AudioPath::fromJson(audio[index]);
+	return AudioPath();
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -26,7 +26,7 @@
 #include "../../widgets/TextControls.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
-#include "../../../lib/filesystem/ResourceID.h"
+#include "../../../lib/filesystem/ResourcePath.h"
 
 static void setIntSetting(std::string group, std::string field, int value)
 {
@@ -105,7 +105,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	addConditional("desktop", true);
 #endif
 
-	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", [](bool value)
 	{
 		setBoolSetting("video", "spellbookAnimation", value);
@@ -157,6 +157,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		setBoolSetting("general", "hapticFeedback", value);
 	});
+	addCallback("enableUiEnhancementsChanged", [](bool value)
+	{
+		setBoolSetting("general", "enableUiEnhancements", value);
+	});
 
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
@@ -197,6 +201,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
 	if (hapticFeedbackCheckbox)
 		hapticFeedbackCheckbox->setSelected(settings["general"]["hapticFeedback"].Bool());
+
+	std::shared_ptr<CToggleButton> enableUiEnhancementsCheckbox = widget<CToggleButton>("enableUiEnhancementsCheckbox");
+	if (enableUiEnhancementsCheckbox)
+		enableUiEnhancementsCheckbox->setSelected(settings["general"]["enableUiEnhancements"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());
@@ -281,7 +289,6 @@ void GeneralOptionsTab::setGameResolution(int index)
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 
 	GH.dispatchMainThread([](){
-		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 		GH.onScreenResize();
 	});
 }
@@ -306,7 +313,6 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 	updateResolutionSelector();
 
 	GH.dispatchMainThread([](){
-		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 		GH.onScreenResize();
 	});
 }
@@ -366,7 +372,6 @@ void GeneralOptionsTab::setGameScaling(int index)
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 
 	GH.dispatchMainThread([](){
-		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 		GH.onScreenResize();
 	});
 }

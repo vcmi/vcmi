@@ -59,14 +59,6 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 		Settings s = settings.write["session"];
 		switch(key.keysym.sym)
 		{
-			case SDLK_F5:
-				if(settings["session"]["spectate-locked-pim"].Bool())
-					CPlayerInterface::pim->unlock();
-				else
-					CPlayerInterface::pim->lock();
-				s["spectate-locked-pim"].Bool() = !settings["session"]["spectate-locked-pim"].Bool();
-				break;
-
 			case SDLK_F6:
 				s["spectate-ignore-hero"].Bool() = !settings["session"]["spectate-ignore-hero"].Bool();
 				break;

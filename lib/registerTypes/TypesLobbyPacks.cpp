@@ -16,7 +16,6 @@
 #include "../gameState/CGameStateCampaign.h"
 #include "../gameState/TavernHeroesPool.h"
 #include "../mapping/CMap.h"
-#include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
 #include "../VCMI_Lib.h"

@@ -19,7 +19,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CStackInstance;
-class FileStream;
 
 class DLL_LINKAGE CLoaderBase
 {
@@ -405,6 +404,11 @@ public:
 			data.reset();
 	}
 
+	void load(std::monostate & data)
+	{
+		// no-op
+	}
+
 	template <typename T>
 	void load(std::shared_ptr<const T> & data)
 	{
@@ -581,7 +585,7 @@ public:
 	BinaryDeserializer serializer;
 
 	std::string fName;
-	std::unique_ptr<FileStream> sfile;
+	std::unique_ptr<std::fstream> sfile;
 
 	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION); //throws!
 	virtual ~CLoadFile();

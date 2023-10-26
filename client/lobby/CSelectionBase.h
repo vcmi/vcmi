@@ -44,7 +44,7 @@ public:
 	virtual const StartInfo * getStartInfo() = 0;
 
 	virtual int getCurrentDifficulty();
-	virtual PlayerInfo getPlayerInfo(int color);
+	virtual PlayerInfo getPlayerInfo(PlayerColor color);
 
 };
 
@@ -59,6 +59,7 @@ public:
 	std::shared_ptr<CButton> buttonOptions;
 	std::shared_ptr<CButton> buttonStart;
 	std::shared_ptr<CButton> buttonBack;
+	std::shared_ptr<CButton> buttonSimturns;
 
 	std::shared_ptr<SelectionTab> tabSel;
 	std::shared_ptr<OptionsTab> tabOpt;
@@ -79,6 +80,7 @@ class InfoCard : public CIntObject
 	std::shared_ptr<CAnimImage> iconsMapSizes;
 
 	std::shared_ptr<CLabel> labelSaveDate;
+	std::shared_ptr<CLabel> labelMapSize;
 	std::shared_ptr<CLabel> labelScenarioName;
 	std::shared_ptr<CLabel> labelScenarioDescription;
 	std::shared_ptr<CLabel> labelVictoryCondition;
@@ -121,6 +123,7 @@ public:
 	CChatBox(const Rect & rect);
 
 	void keyPressed(EShortcut key) override;
+	bool captureThisKey(EShortcut key) override;
 	void addNewMessage(const std::string & text);
 };
 

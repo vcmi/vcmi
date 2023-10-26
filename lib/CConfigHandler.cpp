@@ -11,13 +11,13 @@
 #include "CConfigHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/FileStream.h"
 #include "../lib/GameConstants.h"
 #include "../lib/VCMIDirs.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 SettingsStorage settings;
+SettingsStorage persistentStorage;
 
 template<typename Accessor>
 SettingsStorage::NodeAccessor<Accessor>::NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path):
@@ -54,18 +54,28 @@ SettingsStorage::SettingsStorage():
 {
 }
 
-void SettingsStorage::init()
+void SettingsStorage::init(const std::string & dataFilename, const std::string & schema)
 {
-	std::string confName = "config/settings.json";
+	this->dataFilename = dataFilename;
+	this->schema = schema;
 
-	JsonUtils::assembleFromFiles(confName).swap(config);
+	JsonPath confName = JsonPath::builtin(dataFilename);
+
+	config = JsonUtils::assembleFromFiles(confName.getOriginalName());
 
 	// Probably new install. Create config file to save settings to
-	if (!CResourceHandler::get("local")->existsResource(ResourceID(confName)))
-		CResourceHandler::get("local")->createResource(confName);
+	if (!CResourceHandler::get("local")->existsResource(confName))
+	{
+		CResourceHandler::get("local")->createResource(dataFilename);
+		if(schema.empty())
+			invalidateNode(std::vector<std::string>());
+	}
 
-	JsonUtils::maximize(config, "vcmi:settings");
-	JsonUtils::validate(config, "vcmi:settings", "settings");
+	if(!schema.empty())
+	{
+		JsonUtils::maximize(config, schema);
+		JsonUtils::validate(config, schema, "settings");
+	}
 }
 
 void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath)
@@ -75,9 +85,10 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 
 	JsonNode savedConf = config;
 	savedConf.Struct().erase("session");
-	JsonUtils::minimize(savedConf, "vcmi:settings");
+	if(!schema.empty())
+		JsonUtils::minimize(savedConf, schema);
 
-	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
+	std::fstream file(CResourceHandler::get()->getResourceName(JsonPath::builtin(dataFilename))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << savedConf.toJson();
 }
 

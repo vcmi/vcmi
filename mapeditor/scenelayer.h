@@ -116,14 +116,49 @@ public:
 	
 	void update() override;
 	
-	void draw(bool onlyDirty = true); //TODO: implement dirty
+	void draw(bool onlyDirty = true);
 	
 	void setDirty(int x, int y);
 	void setDirty(const CGObjectInstance * object);
+
+	void setLockObject(const CGObjectInstance * object, bool lock);
+	void unlockAll();
 	
 private:
 	std::set<const CGObjectInstance *> objDirty;
+	std::set<const CGObjectInstance *> lockedObjects;
 	std::set<int3> dirty;
+};
+
+
+class ObjectPickerLayer: public AbstractLayer
+{
+	Q_OBJECT
+public:
+	ObjectPickerLayer(MapSceneBase * s);
+	
+	void update() override;
+	bool isVisible() const;
+	
+	template<class T>
+	void highlight()
+	{
+		highlight([](const CGObjectInstance * o){ return dynamic_cast<T*>(o); });
+	}
+	
+	void highlight(std::function<bool(const CGObjectInstance *)> predicate);
+	
+	void clear();
+	
+	void select(const CGObjectInstance *);
+	void discard();
+	
+signals:
+	void selectionMade(const CGObjectInstance *);
+	
+private:
+	bool isActive = false;
+	std::set<const CGObjectInstance *> possibleObjects;
 };
 
 
@@ -149,6 +184,9 @@ public:
 	bool isSelected(const CGObjectInstance *) const;
 	std::set<CGObjectInstance*> getSelection() const;
 	void clear();
+
+	void setLockObject(const CGObjectInstance * object, bool lock);
+	void unlockAll();
 		
 	QPoint shift;
 	CGObjectInstance * newObject;
@@ -160,6 +198,7 @@ signals:
 	
 private:
 	std::set<CGObjectInstance *> selectedObjects;
+	std::set<const CGObjectInstance *> lockedObjects;
 
 	void onSelection();
 };

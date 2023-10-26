@@ -19,6 +19,7 @@ class Rect;
 VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
+class CAnimation;
 class Canvas;
 class IImage;
 class BattleInterface;
@@ -37,6 +38,7 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<CAnimation> shootingRangeLimitImages;
 
 	std::shared_ptr<CAnimation> attackCursors;
+	std::shared_ptr<CAnimation> spellCursors;
 
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;

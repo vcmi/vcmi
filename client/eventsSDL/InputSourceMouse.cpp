@@ -48,12 +48,12 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 	{
 		case SDL_BUTTON_LEFT:
 			if(button.clicks > 1)
-				GH.events().dispatchMouseDoubleClick(position);
+				GH.events().dispatchMouseDoubleClick(position, 0);
 			else
-				GH.events().dispatchMouseLeftButtonPressed(position);
+				GH.events().dispatchMouseLeftButtonPressed(position, 0);
 			break;
 		case SDL_BUTTON_RIGHT:
-			GH.events().dispatchShowPopup(position);
+			GH.events().dispatchShowPopup(position, 0);
 			break;
 		case SDL_BUTTON_MIDDLE:
 			middleClickPosition = position;
@@ -74,7 +74,7 @@ void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & but
 	switch(button.button)
 	{
 		case SDL_BUTTON_LEFT:
-			GH.events().dispatchMouseLeftButtonReleased(position);
+			GH.events().dispatchMouseLeftButtonReleased(position, 0);
 			break;
 		case SDL_BUTTON_RIGHT:
 			GH.events().dispatchClosePopup(position);

@@ -72,7 +72,13 @@ void DangerHitMapAnalyzer::updateHitMap()
 		if(ai->cb->getPlayerRelations(ai->playerID, pair.first) != PlayerRelations::ENEMIES)
 			continue;
 
-		ai->pathfinder->updatePaths(pair.second, PathfinderSettings());
+		PathfinderSettings ps;
+
+		ps.mainTurnDistanceLimit = 10;
+		ps.scoutTurnDistanceLimit = 10;
+		ps.useHeroChain = false;
+
+		ai->pathfinder->updatePaths(pair.second, ps);
 
 		boost::this_thread::interruption_point();
 

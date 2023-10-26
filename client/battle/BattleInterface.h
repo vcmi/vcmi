@@ -30,6 +30,7 @@ struct BattleTriggerEffect;
 struct BattleHex;
 struct InfoAboutHero;
 class ObstacleChanges;
+class CPlayerBattleCallback;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -115,6 +116,9 @@ class BattleInterface
 	/// if set to true, battle is still starting and waiting for intro sound to end / key press from player
 	bool battleOpeningDelayActive;
 
+	/// ID of ongoing battle
+	BattleID battleID;
+
 	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:
@@ -149,14 +153,17 @@ public:
 
 	bool makingTurn() const;
 
-	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
+	BattleID getBattleID() const;
+	std::shared_ptr<CPlayerBattleCallback> getBattle() const;
+
+	BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
 	~BattleInterface();
 
 	void trySetActivePlayer( PlayerColor player ); // if in hotseat, will activate interface of chosen player
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
 
-	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
+	void giveCommand(EActionType action, BattleHex tile = BattleHex(), SpellID spell = SpellID::NONE);
 	void sendCommand(BattleAction command, const CStack * actor = nullptr);
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
@@ -188,7 +195,7 @@ public:
 	void addToAnimationStage( EAnimationEvents event, const AwaitingAnimationAction & action);
 
 	//call-ins
-	void startAction(const BattleAction* action);
+	void startAction(const BattleAction & action);
 	void stackReset(const CStack * stack);
 	void stackAdded(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
@@ -196,8 +203,8 @@ public:
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance, bool teleport); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const StackAttackInfo & attackInfo); //called when stack with id ID is attacking something on hex dest
-	void newRoundFirst( int round );
-	void newRound(int number); //caled when round is ended; number is the number of round
+	void newRoundFirst();
+	void newRound(); //caled when round is ended;
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br, QueryID queryID); //called when battle is finished - battleresult window should be printed
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
@@ -211,7 +218,7 @@ public:
 	void displaySpellEffect(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
 	void displaySpellHit(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
 
-	void endAction(const BattleAction* action);
+	void endAction(const BattleAction & action);
 
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi);
 	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);

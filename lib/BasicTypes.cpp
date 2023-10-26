@@ -35,7 +35,7 @@ TerrainId AFactionMember::getNativeTerrain() const
 {
 	constexpr auto any = TerrainId(ETerrainId::ANY_TERRAIN);
 	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::NO_TERRAIN_PENALTY, any);
+	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(any));
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
@@ -54,7 +54,7 @@ int AFactionMember::getAttack(bool ranged) const
 {
 	const std::string cachingStr = "type_PRIMARY_SKILLs_ATTACK";
 
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
+	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
@@ -63,7 +63,7 @@ int AFactionMember::getDefense(bool ranged) const
 {
 	const std::string cachingStr = "type_PRIMARY_SKILLs_DEFENSE";
 
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
@@ -71,23 +71,23 @@ int AFactionMember::getDefense(bool ranged) const
 int AFactionMember::getMinDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_1";
-	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1));
+	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin));
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
 int AFactionMember::getMaxDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_2";
-	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2));
+	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax));
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
-int AFactionMember::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
+int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 {
 	static const CSelector selectorAllSkills = Selector::type()(BonusType::PRIMARY_SKILL);
 	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
 	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
-	auto ret = allSkills->valOfBonuses(Selector::subtype()(id));
+	auto ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
 	auto minSkillValue = (id == PrimarySkill::SPELL_POWER || id == PrimarySkill::KNOWLEDGE) ? 1 : 0;
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }

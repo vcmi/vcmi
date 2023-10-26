@@ -10,10 +10,12 @@
 #pragma once
 
 #include "../mapView/IMapRendererObserver.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class ObjectInstanceID;
 class CArmedInstance;
+class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 
 class MapAudioPlayer : public IMapObjectObserver
@@ -29,7 +31,7 @@ class MapAudioPlayer : public IMapObjectObserver
 	void addObject(const CGObjectInstance * obj);
 	void removeObject(const CGObjectInstance * obj);
 
-	std::vector<std::string> getAmbientSounds(const int3 & tile);
+	std::vector<AudioPath> getAmbientSounds(const int3 & tile);
 	void updateAmbientSounds();
 	void updateMusic();
 	void update();
@@ -37,10 +39,10 @@ class MapAudioPlayer : public IMapObjectObserver
 protected:
 	// IMapObjectObserver impl
 	bool hasOngoingAnimations() override;
-	void onObjectFadeIn(const CGObjectInstance * obj) override;
-	void onObjectFadeOut(const CGObjectInstance * obj) override;
-	void onObjectInstantAdd(const CGObjectInstance * obj) override;
-	void onObjectInstantRemove(const CGObjectInstance * obj) override;
+	void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 
 	void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;

@@ -15,6 +15,8 @@
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
+#include "TurnTimerInfo.h"
+#include "ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -35,10 +37,13 @@ public:
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 	std::vector<QuestInfo> quests; //store info about all received quests
+	std::vector<Bonus> battleBonuses; //additional bonuses to be added during battle with neutrals
 
+	bool cheated;
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
-	EPlayerStatus::EStatus status;
+	EPlayerStatus status;
 	std::optional<ui8> daysWithoutCastle;
+	TurnTimerInfo turnTimer;
 
 	PlayerState();
 	PlayerState(PlayerState && other) noexcept;
@@ -71,6 +76,7 @@ public:
 		h & team;
 		h & resources;
 		h & status;
+		h & turnTimer;
 		h & heroes;
 		h & towns;
 		h & dwellings;
@@ -78,6 +84,8 @@ public:
 		h & visitedObjects;
 		h & status;
 		h & daysWithoutCastle;
+		h & cheated;
+		h & battleBonuses;
 		h & enteredLosingCheatCode;
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);

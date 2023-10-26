@@ -83,6 +83,8 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
+	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
+	ui->checkBoxVSync->setChecked(settings["video"]["vsync"].Bool());
 	ui->spinBoxReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -492,6 +494,13 @@ void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["targetfps"];
 	node->Float() = arg1;
+}
+
+void CSettingsView::on_checkBoxVSync_stateChanged(int arg1)
+{
+	Settings node = settings.write["video"]["vsync"];
+	node->Bool() = arg1;
+	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)

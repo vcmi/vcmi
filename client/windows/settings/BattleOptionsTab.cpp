@@ -13,7 +13,7 @@
 #include "../../battle/BattleInterface.h"
 #include "../../gui/CGuiHandler.h"
 #include "../../../lib/CConfigHandler.h"
-#include "../../../lib/filesystem/ResourceID.h"
+#include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -23,7 +23,7 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	setRedrawParent(true);
 
-	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)
 	{
 		viewGridChangedCallback(value, owner);
@@ -64,6 +64,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		showStickyHeroWindowsChangedCallback(value, owner);
 	});
+	addCallback("enableAutocombatSpellsChanged", [this](bool value)
+	{
+		enableAutocombatSpellsChangedCallback(value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -92,6 +96,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
 	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
+
+	std::shared_ptr<CToggleButton> enableAutocombatSpellsCheckbox = widget<CToggleButton>("enableAutocombatSpellsCheckbox");
+	enableAutocombatSpellsCheckbox->setSelected(settings["battle"]["enableAutocombatSpells"].Bool());
 }
 
 int BattleOptionsTab::getAnimSpeed() const
@@ -233,5 +240,11 @@ void BattleOptionsTab::skipBattleIntroMusicChangedCallback(bool value)
 {
 	Settings musicSkipSettingValue = settings.write["gameTweaks"]["skipBattleIntroMusic"];
 	musicSkipSettingValue->Bool() = value;
+}
+
+void BattleOptionsTab::enableAutocombatSpellsChangedCallback(bool value)
+{
+	Settings enableAutocombatSpells = settings.write["battle"]["enableAutocombatSpells"];
+	enableAutocombatSpells->Bool() = value;
 }
 

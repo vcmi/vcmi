@@ -25,7 +25,8 @@
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "ENABLE_TEST": "OFF",
                 "ENABLE_STRICT_COMPILATION": "ON",
-                "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}"
+                "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}",
+                "ENABLE_PCH" : "OFF"
             }
         },
         {
@@ -83,7 +84,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "ENABLE_LUA" : "ON",
-                "ENABLE_PCH" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -123,6 +123,17 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
                 "FORCE_BUNDLED_MINIZIP": "ON"
+
+            }
+        },
+        {
+            "name": "windows-msvc-release-ccache",
+            "displayName": "Windows x64 RelWithDebInfo with ccache",
+            "description": "VCMI RelWithDebInfo build with ccache",
+            "inherits": "windows-msvc-release",
+            "cacheVariables": {
+                "ENABLE_CCACHE": "ON"
+
             }
         },
         {
@@ -217,7 +228,20 @@
             "inherits": [
                 "base-ios-release",
                 "ios-device-conan"
-            ]
+            ],
+            "cacheVariables": {
+                "ENABLE_PCH" : "ON"
+            }
+        },
+        {
+            "name": "ios-release-conan-ccache",
+            "displayName": "iOS+Conan release using ccache",
+            "description": "VCMI iOS release using Conan and ccache",
+            "inherits": "ios-release-conan",
+            "cacheVariables": {
+                "ENABLE_PCH" : "OFF",
+                "ENABLE_CCACHE": "ON"
+            }
         },
         {
             "name": "ios-release-legacy",
@@ -307,6 +331,11 @@
             "configuration": "Release"
         },
         {
+            "name": "windows-msvc-release-ccache",
+            "configurePreset": "windows-msvc-release-ccache",
+            "inherits": "windows-msvc-release"
+        },
+        {
             "name": "windows-msvc-relwithdebinfo",
             "configurePreset": "windows-msvc-release",
             "inherits": "default-release"
@@ -326,6 +355,11 @@
             "nativeToolOptions": [
                 "CODE_SIGNING_ALLOWED_FOR_APPS=NO"
             ]
+        },
+        {
+            "name": "ios-release-conan-ccache",
+            "configurePreset": "ios-release-conan-ccache",
+            "inherits": "ios-release-conan"
         },
         {
             "name": "ios-release-legacy",

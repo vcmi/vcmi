@@ -1,0 +1,206 @@
+{
+	// additional empty heroes for correct loading of hero portraits set in map editor
+	"portraitGeneralKendal" :
+	{
+		"class" : "knight",
+		"special" : true,
+		"images": {
+			"large" : "HPL129MK",
+			"small" : "HPS129MK",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "pikeman",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitYoungCristian" :
+	{
+		"class" : "knight",
+		"special" : true,
+		"images": {
+			"large" : "HPL002SH",
+			"small" : "HPS002SH",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "pikeman",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitOrdwald" :
+	{
+		"class" : "druid",
+		"special" : true,
+		"images": {
+			"large" : "HPL132Wl",
+			"small" : "HPS132Wl",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "centaur",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitFinneas" :
+	{
+		"class" : "necromancer",
+		"special" : true,
+		"images": {
+			"large" : "HPL133Nc",
+			"small" : "HPS133Nc",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "skeleton",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitYoungGem" :
+	{
+		"class" : "druid",
+		"special" : true,
+		"images": {
+			"large" : "HPL134Nc",
+			"small" : "HPS134Nc",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "centaur",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitYoungSandro" :
+	{
+		"class" : "necromancer",
+		"special" : true,
+		"images": {
+			"large" : "HPL135Wi",
+			"small" : "HPS135Wi",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "skeleton",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	},
+	"portraitYoungYog" :
+	{
+		"class" : "wizard",
+		"special" : true,
+		"images": {
+			"large" : "HPL136Wi",
+			"small" : "HPS136Wi",
+			"specialtySmall" : "default",
+			"specialtyLarge" : "default"
+		},
+		"texts" : {
+			"name" : "",
+			"biography" : "",
+			"specialty" : {
+				"description" : "",
+				"tooltip" : "",
+				"name" : ""
+			}
+		},
+		"army" : [
+			{
+				"creature" : "gremlin",
+				"min" : 1,
+				"max" : 1
+			}
+		],
+		"skills" : [],
+		"specialty" : {}
+	}
+}

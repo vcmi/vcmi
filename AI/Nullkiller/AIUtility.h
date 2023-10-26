@@ -57,6 +57,7 @@ using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 namespace NKAI
 {
 struct creInfo;
+class AIGateway;
 class Nullkiller;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
@@ -67,7 +68,8 @@ const int ALLOWED_ROAMING_HEROES = 8;
 extern const float SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
 
-extern boost::thread_specific_ptr<CCallback> cb;
+extern thread_local CCallback * cb;
+extern thread_local AIGateway * ai;
 
 enum HeroRole
 {
@@ -149,7 +151,7 @@ struct ObjectIdRef
 	}
 };
 
-template<int id>
+template<Obj::Type id>
 bool objWithID(const CGObjectInstance * obj)
 {
 	return obj->ID == id;
@@ -201,7 +203,7 @@ void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retriev
 template<class Func>
 void foreach_neighbour(const int3 & pos, const Func & foo)
 {
-	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
+	CCallback * cbp = cb; // avoid costly retrieval of thread-specific pointer
 	for(const int3 & dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;
@@ -224,7 +226,7 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // a
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isObjectPassable(const CGObjectInstance * obj);
 bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
-bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations);
+bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj);

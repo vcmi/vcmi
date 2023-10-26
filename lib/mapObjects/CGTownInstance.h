@@ -44,7 +44,7 @@ struct DLL_LINKAGE GrowthInfo
 
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
 {
-	std::string name; // name of town
+	std::string nameTextId; // name of town
 public:
 	using CGDwelling::getPosition;
 
@@ -73,7 +73,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGDwelling&>(*this);
-		h & name;
+		h & nameTextId;
 		h & builded;
 		h & destroyed;
 		h & identifier;
@@ -102,7 +102,7 @@ public:
 			{
 				if(!town->buildings.count(building) || !town->buildings.at(building))
 				{
-					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", name, pos.toString(), building);
+					logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", nameTextId, pos.toString(), building);
 					return true;
 				}
 				return false;
@@ -126,7 +126,7 @@ public:
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 
 	std::string getNameTranslated() const;
-	void setNameTranslated(const std::string & newName);
+	void setNameTextId(const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -138,8 +138,8 @@ public:
 	EGeneratorState shipyardStatus() const override;
 	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
-	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
+	bool allowsTrade(EMarketMode mode) const override;
+	std::vector<int> availableItemsIds(EMarketMode mode) const override;
 
 	void setType(si32 ID, si32 subID) override;
 	void updateAppearance();
@@ -175,7 +175,7 @@ public:
 	void removeCapitols(const PlayerColor & owner) const;
 	void clearArmy() const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
-	void deleteTownBonus(BuildingID::EBuildingID bid);
+	void deleteTownBonus(BuildingID bid);
 
 	/// Returns damage range for secondary towers of this town
 	DamageRange getTowerDamageRange() const;
@@ -220,7 +220,7 @@ private:
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
+	bool isBonusingBuildingAdded(BuildingID bid) const;
 	void initOverriddenBids();
 	void addTownBonuses(CRandomGenerator & rand);
 };

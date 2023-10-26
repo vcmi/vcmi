@@ -91,7 +91,7 @@ void FirstLaunchView::on_pushButtonDataCopy_clicked()
 
 void FirstLaunchView::on_pushButtonDataHelp_clicked()
 {
-	static const QUrl vcmibuilderWiki("https://wiki.vcmi.eu/Using_vcmibuilder");
+	static const QUrl vcmibuilderWiki("https://github.com/vcmi/vcmi/blob/master/docs/players/Installation_Linux.md#install-data-using-vcmibuilder-script");
 	QDesktopServices::openUrl(vcmibuilderWiki);
 }
 
@@ -230,8 +230,8 @@ bool FirstLaunchView::heroesDataDetect()
 	CResourceHandler::load("config/filesystem.json");
 
 	// use file from lod archive to check presence of H3 data. Very rough estimate, but will work in majority of cases
-	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
-	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourceID("DATA/TENTCOLR.TXT"));
+	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
+	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
 
 	return heroesDataFoundROE && heroesDataFoundSOD;
 }

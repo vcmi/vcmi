@@ -22,6 +22,7 @@
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/BuildThis.h"
+#include "../Goals/StayAtTown.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../Goals/DismissHero.h"
 #include "../Markers/UnlockCluster.h"
@@ -68,7 +69,7 @@ PriorityEvaluator::~PriorityEvaluator()
 
 void PriorityEvaluator::initVisitTile()
 {
-	auto file = CResourceHandler::get()->load(ResourceID("config/ai/object-priorities.txt"))->readAll();
+	auto file = CResourceHandler::get()->load(ResourcePath("config/ai/object-priorities.txt"))->readAll();
 	std::string str = std::string((char *)file.first.get(), file.second);
 	engine = fl::FllImporter().fromString(str);
 	armyLossPersentageVariable = engine->getInputVariable("armyLoss");
@@ -241,13 +242,13 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 		return 1500;
 
 	auto statsValue =
-		10 * art->valOfBonuses(BonusType::MOVEMENT, 1)
+		10 * art->valOfBonuses(BonusType::MOVEMENT, BonusCustomSubtype::heroMovementLand)
 		+ 1200 * art->valOfBonuses(BonusType::STACKS_SPEED)
 		+ 700 * art->valOfBonuses(BonusType::MORALE)
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK)
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE)
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, PrimarySkill::KNOWLEDGE)
-		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, PrimarySkill::SPELL_POWER)
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK))
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE))
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::KNOWLEDGE))
+		+ 700 * art->valOfBonuses(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER))
 		+ 500 * art->valOfBonuses(BonusType::LUCK);
 
 	auto classValue = 0;
@@ -309,6 +310,9 @@ uint64_t RewardEvaluator::getArmyReward(
 			: 0;
 	case Obj::PANDORAS_BOX:
 		return 5000;
+	case Obj::MAGIC_WELL:
+	case Obj::MAGIC_SPRING:
+		return getManaRecoveryArmyReward(hero);
 	default:
 		return 0;
 	}
@@ -450,6 +454,11 @@ uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
 	return result;
 }
 
+uint64_t RewardEvaluator::getManaRecoveryArmyReward(const CGHeroInstance * hero) const
+{
+	return ai->heroManager->getMagicStrength(hero) * 10000 * (1.0f - std::sqrt(static_cast<float>(hero->mana) / hero->manaLimit()));
+}
+
 float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) const
 {
 	if(!target)
@@ -519,14 +528,17 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	}
 }
 
-float RewardEvaluator::evaluateWitchHutSkillScore(const CGWitchHut * hut, const CGHeroInstance * hero, HeroRole role) const
+float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const
 {
+	auto rewardable = dynamic_cast<const CRewardableObject *>(hut);
+	assert(rewardable);
+
+	auto skill = SecondarySkill(*rewardable->configuration.getVariable("secondarySkill", "gainedSkill"));
+
 	if(!hut->wasVisited(hero->tempOwner))
 		return role == HeroRole::SCOUT ? 2 : 0;
 
-	auto skill = SecondarySkill(hut->ability);
-
-	if(hero->getSecSkillLevel(skill) != SecSkillLevel::NONE
+	if(hero->getSecSkillLevel(skill) != MasteryLevel::NONE
 		|| hero->secSkills.size() >= GameConstants::SKILL_PER_HERO)
 		return 0;
 
@@ -566,7 +578,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		return 8;
 	case Obj::WITCH_HUT:
-		return evaluateWitchHutSkillScore(dynamic_cast<const CGWitchHut *>(target), hero, role);
+		return evaluateWitchHutSkillScore(target, hero, role);
 	case Obj::PANDORAS_BOX:
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;
@@ -690,6 +702,22 @@ public:
 
 		evaluationContext.armyReward += upgradeValue;
 		evaluationContext.addNonCriticalStrategicalValue(upgradeValue / (float)armyUpgrade.hero->getArmyStrength());
+	}
+};
+
+class StayAtTownManaRecoveryEvaluator : public IEvaluationContextBuilder
+{
+public:
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::STAY_AT_TOWN)
+			return;
+
+		Goals::StayAtTown & stayAtTown = dynamic_cast<Goals::StayAtTown &>(*task);
+
+		evaluationContext.armyReward += evaluationContext.evaluator.getManaRecoveryArmyReward(stayAtTown.getHero().get());
+		evaluationContext.movementCostByRole[evaluationContext.heroRole] += stayAtTown.getMovementWasted();
+		evaluationContext.movementCost += stayAtTown.getMovementWasted();
 	}
 };
 
@@ -998,6 +1026,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<DismissHeroContextBuilder>(ai));
+	evaluationContextBuilders.push_back(std::make_shared<StayAtTownManaRecoveryEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const

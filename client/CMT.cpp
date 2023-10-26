@@ -25,12 +25,14 @@
 #include "ClientCommandManager.h"
 #include "windows/CMessage.h"
 #include "render/IScreenHandler.h"
+#include "render/Graphics.h"
 
-#include "../lib/filesystem/Filesystem.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
-#include "../lib/CConfigHandler.h"
+#include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/logging/CBasicLogConfigurator.h"
 
@@ -51,9 +53,6 @@
 
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
-namespace bfs = boost::filesystem;
-
-extern boost::thread_specific_ptr<bool> inGuiThread;
 
 static po::variables_map vm;
 
@@ -119,8 +118,6 @@ int main(int argc, char * argv[])
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
-		("disable-shm", "force disable shared memory usage")
-		("enable-shm-uuid", "use UUID for shared memory identifier")
 		("testmap", po::value<std::string>(), "")
 		("testsave", po::value<std::string>(), "")
 		("spectate,s", "enable spectator interface for AI-only games")
@@ -129,7 +126,7 @@ int main(int argc, char * argv[])
 		("spectate-battle-speed", po::value<int>(), "battle animation speed for spectator")
 		("spectate-skip-battle", "skip battles in spectator view")
 		("spectate-skip-battle-result", "skip battle result window")
-		("onlyAI", "allow to run without human player, all players will be default AI")
+		("onlyAI", "allow one to run without human player, all players will be default AI")
 		("headless", "runs without GUI, implies --onlyAI")
 		("ai", po::value<std::vector<std::string>>(), "AI to be used for the player, can be specified several times for the consecutive players")
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
@@ -155,7 +152,7 @@ int main(int argc, char * argv[])
 		{
 			po::store(po::parse_command_line(argc, argv, opts, po_style::unix_style|po_style::case_insensitive), vm);
 		}
-		catch(std::exception &e)
+		catch(boost::program_options::error &e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
@@ -197,7 +194,7 @@ int main(int argc, char * argv[])
 	console->start();
 #endif
 
-	const bfs::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
@@ -243,10 +240,6 @@ int main(int argc, char * argv[])
 	// Server settings
 	setSettingBool("session/donotstartserver", "donotstartserver");
 
-	// Shared memory options
-	setSettingBool("session/disable-shm", "disable-shm");
-	setSettingBool("session/enable-shm-uuid", "enable-shm-uuid");
-
 	// Init special testing settings
 	setSettingInteger("session/serverport", "serverport", 0);
 	setSettingInteger("general/saveFrequency", "savefrequency", 1);
@@ -258,7 +251,7 @@ int main(int argc, char * argv[])
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message)
 	{
-		if (!CResourceHandler::get()->existsResource(ResourceID(filename)))
+		if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			handleFatalError(message, false);
 	};
 
@@ -303,7 +296,11 @@ int main(int argc, char * argv[])
 
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	boost::thread loading(init);
+	boost::thread loading([]()
+	{
+		setThreadName("initialize");
+		init();
+	});
 #else
 	init();
 #endif
@@ -417,7 +414,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(true)
-			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 	}
 
 	return 0;
@@ -426,16 +423,25 @@ int main(int argc, char * argv[])
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 0, 1, true, true))
+	auto audioData = CCS->videoh->getAudio(VideoPath::builtin("3DOLOGO.SMK"));
+	int sound = CCS->soundh->playSound(audioData);
+	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, true, true))
 	{
-		if (CCS->videoh->openAndPlayVideo("NWCLOGO.SMK", 0, 1, true, true))
-			CCS->videoh->openAndPlayVideo("H3INTRO.SMK", 0, 1, true, true);
+		audioData = CCS->videoh->getAudio(VideoPath::builtin("NWCLOGO.SMK"));
+		sound = CCS->soundh->playSound(audioData);
+		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, true, true))
+		{
+			audioData = CCS->videoh->getAudio(VideoPath::builtin("H3INTRO.SMK"));
+			sound = CCS->soundh->playSound(audioData);
+			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, true, true);
+		}
 	}
+	CCS->soundh->stopSound(sound);
 }
 
 static void mainLoop()
 {
-	inGuiThread.reset(new bool(true));
+	setThreadName("MainGUI");
 
 	while(1) //main SDL events loop
 	{
@@ -476,8 +482,6 @@ static void quitApplication()
 
 	vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
-
 	if(!settings["session"]["headless"].Bool())
 		GH.screenHandler().close();
 
@@ -489,6 +493,10 @@ static void quitApplication()
 	}
 
 	std::cout << "Ending...\n";
+
+	// this method is always called from event/network threads, which keep interface mutex locked
+	// unlock it here to avoid assertion failure on GH destruction in exit()
+	GH.interfaceMutex.unlock();
 	exit(0);
 }
 
