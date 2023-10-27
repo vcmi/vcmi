@@ -12,19 +12,19 @@ import yaml
 # json:  strict, but doesn't preserve line numbers necessarily, since it strips comments before parsing
 # json5: strict and preserves line numbers even for files with line comments
 # yaml:  less strict, allows e.g. leading zeros
-VALIDATION_TYPE = 'json5'
+VALIDATION_TYPE = "json5"
 
 errors = []
-for path in sorted(Path('.').glob('**/*.json')):
+for path in sorted(Path(".").glob("**/*.json")):
     # because path is an object and not a string
     path_str = str(path)
     try:
-        with open(path_str, 'r') as file:
-            if VALIDATION_TYPE == 'json':
+        with open(path_str, "r") as file:
+            if VALIDATION_TYPE == "json":
                 jstyleson.load(file)
-            elif VALIDATION_TYPE == 'json5':
+            elif VALIDATION_TYPE == "json5":
                 json5.load(file)
-            elif VALIDATION_TYPE == 'yaml':
+            elif VALIDATION_TYPE == "yaml":
                 file = file.read().replace("\t", "    ")
                 file = file.replace("//", "#")
                 yaml.safe_load(file)
@@ -36,16 +36,16 @@ for path in sorted(Path('.').glob('**/*.json')):
         error_pos = path_str
 
         # create error position strings for each type of parser
-        if hasattr(exc, 'pos'):
+        if hasattr(exc, "pos"):
             # 'json'
             # https://stackoverflow.com/a/72850269/2278742
             error_pos = f"{path_str}:{exc.lineno}:{exc.colno}"
             print(error_pos)
-        elif VALIDATION_TYPE == 'json5':
+        elif VALIDATION_TYPE == "json5":
             # 'json5'
-            pos = re.findall(r'\d+', str(exc))
+            pos = re.findall(r"\d+", str(exc))
             error_pos = f"{path_str}:{pos[0]}:{pos[-1]}"
-        elif hasattr(exc, 'problem_mark'):
+        elif hasattr(exc, "problem_mark"):
             # 'yaml'
             mark = exc.problem_mark
             error_pos = f"{path_str}:{mark.line+1}:{mark.column+1}"
