@@ -129,7 +129,7 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
 
-	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit);
+	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit) const;
 
 	float getPositiveEffectMultiplier() { return 1; }
 	float getNegativeEffectMultiplier() { return negativeEffectMultiplier; }
