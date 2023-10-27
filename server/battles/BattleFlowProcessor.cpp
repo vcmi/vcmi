@@ -284,7 +284,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 			gameHandler->sendAndApply(&bte);
 	}
 
-	if(!next->willMove())
+	if(!next || !next->willMove())
 		return nullptr;
 
 	return stack;
