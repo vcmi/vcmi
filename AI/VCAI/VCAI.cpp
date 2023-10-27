@@ -1510,7 +1510,7 @@ void VCAI::wander(HeroPtr h)
 					if(e.goal->goalType == Goals::EGoals::VISIT_TILE || e.goal->goalType == Goals::EGoals::VISIT_OBJ)
 						continue;
 
-					throw e;
+					throw;
 				}
 			}
 			else
