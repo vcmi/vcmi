@@ -3,7 +3,7 @@ import os, sys, shutil
 
 img = Image.open(sys.argv[1])
 if img.size != (1024,1024):
-    print "Input image must be 1024x1024. Provided image is %dx%d" % img.size
+    print("Input image must be 1024x1024. Provided image is %dx%d" % img.size)
 
 os.mkdir("vcmi.iconset")
 for i in [16, 32, 128, 256, 512]:
