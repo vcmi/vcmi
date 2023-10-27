@@ -15,7 +15,7 @@
 namespace NKAI
 {
 
-HitMapInfo HitMapInfo::NoTreat;
+HitMapInfo HitMapInfo::NoThreat;
 
 double HitMapInfo::value() const
 {
@@ -39,7 +39,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
 
 	enemyHeroAccessibleObjects.clear();
-	townTreats.clear();
+	townThreats.clear();
 
 	std::map<PlayerColor, std::map<const CGHeroInstance *, HeroRole>> heroes;
 
@@ -57,7 +57,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	for(auto town : ourTowns)
 	{
-		townTreats[town->id]; // insert empty list
+		townThreats[town->id]; // insert empty list
 	}
 
 	foreach_tile_pos([&](const int3 & pos){
@@ -91,21 +91,21 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 				auto & node = hitMap[pos.x][pos.y][pos.z];
 
-				HitMapInfo newTreat;
+				HitMapInfo newThreat;
 
-				newTreat.hero = path.targetHero;
-				newTreat.turn = path.turn();
-				newTreat.danger = path.getHeroStrength();
+				newThreat.hero = path.targetHero;
+				newThreat.turn = path.turn();
+				newThreat.danger = path.getHeroStrength();
 
-				if(newTreat.value() > node.maximumDanger.value())
+				if(newThreat.value() > node.maximumDanger.value())
 				{
-					node.maximumDanger = newTreat;
+					node.maximumDanger = newThreat;
 				}
 
-				if(newTreat.turn < node.fastestDanger.turn
-					|| (newTreat.turn == node.fastestDanger.turn && node.fastestDanger.danger < newTreat.danger))
+				if(newThreat.turn < node.fastestDanger.turn
+					|| (newThreat.turn == node.fastestDanger.turn && node.fastestDanger.danger < newThreat.danger))
 				{
-					node.fastestDanger = newTreat;
+					node.fastestDanger = newThreat;
 				}
 
 				auto objects = cb->getVisitableObjs(pos, false);
@@ -114,24 +114,24 @@ void DangerHitMapAnalyzer::updateHitMap()
 				{
 					if(obj->ID == Obj::TOWN && obj->getOwner() == ai->playerID)
 					{
-						auto & treats = townTreats[obj->id];
-						auto treat = std::find_if(treats.begin(), treats.end(), [&](const HitMapInfo & i) -> bool
+						auto & threats = townThreats[obj->id];
+						auto threat = std::find_if(threats.begin(), threats.end(), [&](const HitMapInfo & i) -> bool
 							{
 								return i.hero.hid == path.targetHero->id;
 							});
 
-						if(treat == treats.end())
+						if(threat == threats.end())
 						{
-							treats.emplace_back();
-							treat = std::prev(treats.end(), 1);
+							threats.emplace_back();
+							threat = std::prev(threats.end(), 1);
 						}
 
-						if(newTreat.value() > treat->value())
+						if(newThreat.value() > threat->value())
 						{
-							*treat = newTreat;
+							*threat = newThreat;
 						}
 
-						if(newTreat.turn == 0)
+						if(newThreat.turn == 0)
 						{
 							if(cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES)
 								enemyHeroAccessibleObjects.emplace_back(path.targetHero, obj);
@@ -240,13 +240,13 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 		});
 }
 
-const std::vector<HitMapInfo> & DangerHitMapAnalyzer::getTownTreats(const CGTownInstance * town) const
+const std::vector<HitMapInfo> & DangerHitMapAnalyzer::getTownThreats(const CGTownInstance * town) const
 {
 	static const std::vector<HitMapInfo> empty = {};
 
-	auto result = townTreats.find(town->id);
+	auto result = townThreats.find(town->id);
 
-	return result == townTreats.end() ? empty : result->second;
+	return result == townThreats.end() ? empty : result->second;
 }
 
 PlayerColor DangerHitMapAnalyzer::getTileOwner(const int3 & tile) const
@@ -271,14 +271,14 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger));
 }
 
-const HitMapNode & DangerHitMapAnalyzer::getObjectTreat(const CGObjectInstance * obj) const
+const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance * obj) const
 {
 	auto tile = obj->visitablePos();
 
-	return getTileTreat(tile);
+	return getTileThreat(tile);
 }
 
-const HitMapNode & DangerHitMapAnalyzer::getTileTreat(const int3 & tile) const
+const HitMapNode & DangerHitMapAnalyzer::getTileThreat(const int3 & tile) const
 {
 	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
 

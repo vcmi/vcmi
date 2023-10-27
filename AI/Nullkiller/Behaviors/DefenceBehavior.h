@@ -1,5 +1,5 @@
 /*
-* BuyArmyBehavior.h, part of VCMI engine
+* DefenceBehavior.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -39,7 +39,7 @@ namespace Goals
 
 	private:
 		void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const;
-		void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & treat, const CGTownInstance * town) const;
+		void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town) const;
 	};
 }
 
