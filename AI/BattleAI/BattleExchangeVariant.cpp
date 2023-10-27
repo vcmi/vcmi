@@ -12,9 +12,9 @@
 #include "../../lib/CStack.h"
 
 AttackerValue::AttackerValue()
+	: value(0),
+	isRetalitated(false)
 {
-	value = 0;
-	isRetalitated = false;
 }
 
 MoveTarget::MoveTarget()
