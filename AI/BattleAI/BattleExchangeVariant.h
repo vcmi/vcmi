@@ -14,6 +14,34 @@
 #include "PotentialTargets.h"
 #include "StackWithBonuses.h"
 
+struct BattleScore
+{
+	float ourDamageReduce;
+	float enemyDamageReduce;
+
+	BattleScore(float enemyDamageReduce, float ourDamageReduce)
+		:enemyDamageReduce(enemyDamageReduce), ourDamageReduce(ourDamageReduce)
+	{
+	}
+
+	BattleScore() : BattleScore(0, 0) {}
+
+	float value()
+	{
+		return enemyDamageReduce - ourDamageReduce;
+	}
+
+	BattleScore  operator+(BattleScore & other)
+	{
+		BattleScore result = *this;
+
+		result.ourDamageReduce += other.ourDamageReduce;
+		result.enemyDamageReduce += other.enemyDamageReduce;
+
+		return result;
+	}
+};
+
 struct AttackerValue
 {
 	float value;
@@ -59,8 +87,8 @@ struct EvaluationResult
 class BattleExchangeVariant
 {
 public:
-	BattleExchangeVariant(float positiveEffectMultiplier, float negativeEffectMultiplier)
-		: dpsScore(0), positiveEffectMultiplier(positiveEffectMultiplier), negativeEffectMultiplier(negativeEffectMultiplier) {}
+	BattleExchangeVariant()
+		: dpsScore() {}
 
 	float trackAttack(
 		const AttackPossibility & ap,
@@ -76,7 +104,7 @@ public:
 		std::shared_ptr<HypotheticBattle> hb,
 		bool evaluateOnly = false);
 
-	float getScore() const { return dpsScore; }
+	const BattleScore & getScore() const { return dpsScore; }
 
 	void adjustPositions(
 		std::vector<const battle::Unit *> attackers,
@@ -84,10 +112,19 @@ public:
 		std::map<BattleHex, battle::Units> & reachabilityMap);
 
 private:
-	float positiveEffectMultiplier;
-	float negativeEffectMultiplier;
-	float dpsScore;
+	BattleScore dpsScore;
 	std::map<uint32_t, AttackerValue> attackerValue;
+};
+
+struct ReachabilityData
+{
+	std::vector<const battle::Unit *> units;
+
+	// shooters which are within mellee attack and mellee units
+	std::vector<const battle::Unit *> melleeAccessible;
+
+	// far shooters
+	std::vector<const battle::Unit *> shooters;
 };
 
 class BattleExchangeEvaluator
@@ -95,16 +132,28 @@ class BattleExchangeEvaluator
 private:
 	std::shared_ptr<CBattleInfoCallback> cb;
 	std::shared_ptr<Environment> env;
+	std::map<uint32_t, ReachabilityInfo> reachabilityCache;
 	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
 	std::vector<battle::Units> turnOrder;
 	float negativeEffectMultiplier;
+
+	float scoreValue(const BattleScore & score) const;
+
+	BattleScore calculateExchange(
+		const AttackPossibility & ap,
+		uint8_t turn,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
+	bool canBeHitThisTurn(const AttackPossibility & ap);
 
 public:
 	BattleExchangeEvaluator(
 		std::shared_ptr<CBattleInfoCallback> cb,
 		std::shared_ptr<Environment> env,
 		float strengthRatio): cb(cb), env(env) {
-		negativeEffectMultiplier = strengthRatio;
+		negativeEffectMultiplier = strengthRatio >= 1 ? 1 : strengthRatio;
 	}
 
 	EvaluationResult findBestTarget(
@@ -113,14 +162,22 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
 
-	float calculateExchange(
+	float evaluateExchange(
 		const AttackPossibility & ap,
+		uint8_t turn,
 		PotentialTargets & targets,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
 
+	std::vector<const battle::Unit *> getOneTurnReachableUnits(uint8_t turn, BattleHex hex);
 	void updateReachabilityMap(std::shared_ptr<HypotheticBattle> hb);
-	std::vector<const battle::Unit *> getExchangeUnits(const AttackPossibility & ap, PotentialTargets & targets, std::shared_ptr<HypotheticBattle> hb);
+
+	ReachabilityData getExchangeUnits(
+		const AttackPossibility & ap,
+		uint8_t turn,
+		PotentialTargets & targets,
+		std::shared_ptr<HypotheticBattle> hb);
+
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
 
 	MoveTarget findMoveTowardsUnreachable(
@@ -131,6 +188,6 @@ public:
 
 	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit);
 
-	float getPositiveEffectMultiplier() { return 1; }
-	float getNegativeEffectMultiplier() { return negativeEffectMultiplier; }
+	float getPositiveEffectMultiplier() const { return 1; }
+	float getNegativeEffectMultiplier() const { return negativeEffectMultiplier; }
 };
