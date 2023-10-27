@@ -77,15 +77,18 @@ void MainWindow::loadUserSettings()
 	QSettings s(Ui::teamName, Ui::appName);
 
 	auto size = s.value(mainWindowSizeSetting).toSize();
-	if (size.isValid())
+	if(size.isValid())
 	{
 		resize(size);
 	}
 	auto position = s.value(mainWindowPositionSetting).toPoint();
-	if (!position.isNull())
+	if(!position.isNull())
 	{
 		move(position);
 	}
+	lastSavingDir = s.value(lastDirectorySetting).toString();
+	if(lastSavingDir.isEmpty())
+		lastSavingDir = QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string());
 }
 
 void MainWindow::saveUserSettings()
@@ -93,6 +96,7 @@ void MainWindow::saveUserSettings()
 	QSettings s(Ui::teamName, Ui::appName);
 	s.setValue(mainWindowSizeSetting, size());
 	s.setValue(mainWindowPositionSetting, pos());
+	s.setValue(lastDirectorySetting, lastSavingDir);
 }
 
 void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
@@ -211,7 +215,9 @@ MainWindow::MainWindow(QWidget* parent) :
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
-	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
+	ui->mapView->setOptimizationFlags(QGraphicsView::DontAdjustForAntialiasing);
+	ui->mapView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+	ui->mapView->setCacheMode(QGraphicsView::CacheBackground);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
 	connect(ui->mapView, &MapView::currentCoordinates, this, &MainWindow::currentCoordinatesChanged);
 	
@@ -296,9 +302,7 @@ void MainWindow::initializeMap(bool isNew)
 	ui->mapView->setScene(controller.scene(mapLevel));
 	ui->minimapView->setScene(controller.miniScene(mapLevel));
 	ui->minimapView->dimensions();
-	if(initialScale.isValid())
-		on_actionZoom_reset_triggered();
-	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
+	on_actionZoom_reset_triggered();
 	
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
@@ -430,16 +434,18 @@ void MainWindow::on_actionSave_as_triggered()
 	if(!controller.map())
 		return;
 
-	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), lastSavingDir, tr("VCMI maps (*.vmap)"));
+	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), lastSavingDir, tr("VCMI maps (*.VMAP)"));
 
 	if(filenameSelect.isNull())
 		return;
-
-	if(filenameSelect == filename)
-		return;
-
+	
+	QFileInfo fileInfo(filenameSelect);
+	lastSavingDir = fileInfo.dir().path();
+	
+	if(fileInfo.suffix().toUpper() != "VMAP")
+		filenameSelect += ".vmap";
+	
 	filename = filenameSelect;
-	lastSavingDir = filenameSelect.remove(QUrl(filenameSelect).fileName());
 
 	saveMap();
 }
@@ -1250,7 +1256,7 @@ void MainWindow::on_actionZoom_out_triggered()
 void MainWindow::on_actionZoom_reset_triggered()
 {
 	auto center = ui->mapView->mapToScene(ui->mapView->viewport()->geometry().center());
-	ui->mapView->fitInView(initialScale, Qt::KeepAspectRatioByExpanding);
+	ui->mapView->resetTransform();
 	ui->mapView->centerOn(center);
 }
 
