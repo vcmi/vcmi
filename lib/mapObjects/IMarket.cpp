@@ -157,7 +157,7 @@ std::vector<int> IMarket::availableItemsIds(EMarketMode mode) const
 const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
 {
 	auto * imarket = dynamic_cast<const IMarket *>(obj);
-	if(verbose && !imarket)
+	if(verbose && !imarket && obj)
 		logGlobal->error("Cannot cast to IMarket object type %s", obj->typeName);
 	return imarket;
 }
