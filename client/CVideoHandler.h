@@ -31,7 +31,7 @@ public:
 class IMainVideoPlayer : public IVideoPlayer
 {
 public:
-	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = 0){}
+	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = nullptr){}
 	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false)
 	{
 		return false;

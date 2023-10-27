@@ -317,7 +317,7 @@ bool CVCMIServer::prepareToStartGame()
 	{
 	case StartInfo::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
-		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(0));
+		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 		si->fileURI = mi->fileURI;
 		si->campState->setCurrentMap(campaignMap);
 		si->campState->setCurrentMapBonus(campaignBonus);
@@ -326,7 +326,7 @@ bool CVCMIServer::prepareToStartGame()
 
 	case StartInfo::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
-		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(0));
+		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 		si->fileURI = mi->fileURI;
 		gh->init(si.get(), progressTracking);
 		break;
@@ -1125,7 +1125,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 #ifndef SINGLE_PROCESS_APP
 	if(options.count("help"))
 	{
-		auto time = std::time(0);
+		auto time = std::time(nullptr);
 		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
 		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
 		printf("This is free software; see the source for copying conditions. There is NO\n");
