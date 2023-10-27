@@ -252,7 +252,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	auto sortFunctor = [](const JsonNode & left, const JsonNode & right)
 	{
 		if(left["points"].Integer() == right["points"].Integer())
-			return left["posFlag"].Integer() > right["posFlag"].Integer();
+			return left["posFlag"].Bool() > right["posFlag"].Bool();
 		return left["points"].Integer() > right["points"].Integer();
 	};
 
