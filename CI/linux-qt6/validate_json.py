@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+import sys
 from pathlib import Path
 from pprint import pprint
 
@@ -54,6 +55,6 @@ for path in sorted(Path(".").glob("**/*.json")):
         errors.append({"error_pos": error_pos, "error_msg": exc})
 
 if errors:
-    print("Summary of errors:")
+    print("The following JSON files are invalid:")
     pprint(errors)
-    raise Exception("Not all JSON files are valid")
+    sys.exit(1)
