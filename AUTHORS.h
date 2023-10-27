@@ -10,7 +10,7 @@
 #pragma once
 
 //VCMI PROJECT CODE CONTRIBUTORS:
-std::vector<std::vector<std::string>> contributors = {
+const std::vector<std::vector<std::string>> contributors = {
 //   Task          Name                    Aka                      E-Mail
    { "Idea",       "Michał Urbańczyk",     "Tow",                   "impono@gmail.com"             },
    { "Idea",       "Mateusz B.",           "Tow dragon",            "matcio1@gmail.com"            },
