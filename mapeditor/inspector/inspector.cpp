@@ -685,7 +685,7 @@ void Inspector::setProperty(CGHeroPlaceholder * o, const QString & key, const QV
 	
 	if(key == "Hero type")
 	{
-		o->heroType.value() = HeroTypeID(value.toInt());
+		o->heroType = HeroTypeID(value.toInt());
 	}
 }
 
