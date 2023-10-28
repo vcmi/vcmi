@@ -60,6 +60,8 @@ Allows flying movement for affected heroes
 
 Eliminates terrain penalty on certain terrain types for affected heroes (Nomads ability).
 
+Note: to eliminate all terrain penalties see ROUGH_TERRAIN_DISCOUNT bonus
+
 - subtype: type of terrain
 
 ### TERRAIN_NATIVE
