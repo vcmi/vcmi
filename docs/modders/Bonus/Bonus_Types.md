@@ -256,6 +256,7 @@ Allows creature upgrade for affected armies
 Changes duration of timed spells casted by affected hero
 
 - val: additional duration, turns
+- subtype: optional, identifier of affected spells, or all if not set
 
 ### SPELL
 

@@ -486,6 +486,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			break;
 		}
 		case BonusType::SPELL_IMMUNITY:
+		case BonusType::SPELL_DURATION:
 		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
 		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:

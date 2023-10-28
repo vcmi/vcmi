@@ -697,7 +697,11 @@ int32_t CGHeroInstance::getEffectPower(const spells::Spell * spell) const
 
 int32_t CGHeroInstance::getEnchantPower(const spells::Spell * spell) const
 {
-	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(BonusType::SPELL_DURATION);
+	int32_t spellpower = getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	int32_t durationCommon = valOfBonuses(BonusType::SPELL_DURATION, BonusSubtypeID());
+	int32_t durationSpecific = valOfBonuses(BonusType::SPELL_DURATION, BonusSubtypeID(spell->getId()));
+
+	return spellpower + durationCommon + durationSpecific;
 }
 
 int64_t CGHeroInstance::getEffectValue(const spells::Spell * spell) const
