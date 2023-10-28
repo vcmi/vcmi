@@ -62,6 +62,10 @@ Eliminates terrain penalty on certain terrain types for affected heroes (Nomads 
 
 - subtype: type of terrain
 
+### TERRAIN_NATIVE
+
+Affected units will view any terrain as native
+
 ### PRIMARY_SKILL
 
 Changes selected primary skill for affected heroes and units
