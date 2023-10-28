@@ -88,7 +88,7 @@ void MainWindow::loadUserSettings()
 	}
 	lastSavingDir = s.value(lastDirectorySetting).toString();
 	if(lastSavingDir.isEmpty())
-		lastSavingDir = QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string());
+		lastSavingDir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
 }
 
 void MainWindow::saveUserSettings()
@@ -382,7 +382,7 @@ void MainWindow::on_actionOpen_triggered()
 		return;
 	
 	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open map"),
-		QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()),
+		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
 		tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)"));
 	if(filenameSelect.isEmpty())
 		return;
@@ -1172,7 +1172,7 @@ void MainWindow::on_actionTranslations_triggered()
 void MainWindow::on_actionh3m_converter_triggered()
 {
 	auto mapFiles = QFileDialog::getOpenFileNames(this, tr("Select maps to convert"),
-		QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()),
+		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
 		tr("HoMM3 maps(*.h3m)"));
 	if(mapFiles.empty())
 		return;
