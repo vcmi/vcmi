@@ -852,6 +852,8 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
+	if(dest == start) 	//If dest is equal to start, then we should handle obstacles for it anyway
+		passed.clear();	//Just empty passed, obstacles will handled automatically
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
 	battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
 
