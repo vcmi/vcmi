@@ -55,7 +55,7 @@ TEST(MapFormat, Random)
 	opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);
 	opt.setWidth(CMapHeader::MAP_SIZE_MIDDLE);
 	opt.setHasTwoLevels(true);
-	opt.setPlayerCount(4);
+	opt.setHumanOrCpuPlayerCount(4);
 
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);
