@@ -2100,7 +2100,7 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 				state->towns -= t;
 
 				if(state->towns.empty())
-					*state->daysWithoutCastle = 0;
+					state->daysWithoutCastle = 0;
 			}
 			if(PlayerColor(val).isValidPlayer())
 			{
