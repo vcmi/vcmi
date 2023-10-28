@@ -216,7 +216,7 @@ public:
 
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
-	void removeGUI();
+	void removeGUI() const;
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
