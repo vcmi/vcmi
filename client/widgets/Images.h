@@ -56,7 +56,7 @@ public:
 
 	/// set alpha value for whole surface. Note: may be messed up if surface is shared
 	/// 0=transparent, 255=opaque
-	void setAlpha(int value);
+	void setAlpha(uint8_t value);
 	void scaleTo(Point size);
 	void colorize(PlayerColor player);
 
