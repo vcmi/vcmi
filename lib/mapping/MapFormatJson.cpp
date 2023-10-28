@@ -1263,7 +1263,7 @@ void CMapLoaderJson::readObjects()
 
 	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
 	{
-		return a->subID < b->subID;
+		return a->getObjTypeIndex() < b->getObjTypeIndex();
 	});
 }
 

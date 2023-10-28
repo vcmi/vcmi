@@ -251,7 +251,7 @@ public:
 	void retrieveVisitableObjs();
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
-	const CGObjectInstance * lookForArt(int aid) const;
+	const CGObjectInstance * lookForArt(ArtifactID aid) const;
 	bool isAccessible(const int3 & pos) const;
 	HeroPtr getHeroWithGrail() const;
 

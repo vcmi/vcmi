@@ -920,7 +920,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades)
 {
-	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID,building));
+	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->getFaction(),building));
 	std::string descr = town->town->buildings.find(building)->second->getDescriptionTranslated();
 	std::string hasNotProduced;
 	std::string hasProduced;
@@ -969,9 +969,9 @@ void CCastleBuildings::enterMagesGuild()
 	{
 		const StartInfo *si = LOCPLINT->cb->getStartInfo();
 		// it would be nice to find a way to move this hack to config/mapOverrides.json
-		if(si && si->campState &&                				// We're in campaign,
+		if(si && si->campState &&                                   // We're in campaign,
 			(si->campState->getFilename() == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
-			(hero->subID == 45))                                // and the hero is Yog (based on Solmyr)
+			(hero->getHeroType() == 45))                        // and the hero is Yog (based on Solmyr)
 		{
 			// "Yog has given up magic in all its forms..."
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[736]);

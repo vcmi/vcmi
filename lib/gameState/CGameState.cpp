@@ -580,7 +580,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
 
 	hero->ID = Obj::HERO;
-	hero->subID = heroTypeId;
+	hero->setHeroType(heroTypeId);
 	hero->tempOwner = playerColor;
 
 	hero->pos = townPos;

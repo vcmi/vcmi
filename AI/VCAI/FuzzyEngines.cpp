@@ -406,7 +406,7 @@ float VisitObjEngine::evaluate(Goals::VisitObj & goal)
 	else
 	{
 		MapObjectsEvaluator::getInstance().addObjectData(obj->ID, obj->subID, 0);
-		logGlobal->error("AI met object type it doesn't know - ID: " + std::to_string(obj->ID) + ", subID: " + std::to_string(obj->subID) + " - adding to database with value " + std::to_string(objValue));
+		logGlobal->error("AI met object type it doesn't know - ID: %d, subID: %d - adding to database with value %d ", obj->ID, obj->subID, objValue);
 	}
 
 	setSharedFuzzyVariables(goal);

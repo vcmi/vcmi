@@ -2315,7 +2315,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		auto isLibrary = isMageGuild ? false
 			: t->town->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
 
-		if(isMageGuild || isLibrary || (t->subID == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
+		if(isMageGuild || isLibrary || (t->getFaction() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
 		{
 			if(t->visitingHero)
 				giveSpells(t,t->visitingHero);
@@ -3284,7 +3284,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 				if (!town->hasBuilt(i))
 				{
 					buildStructure(town->id, i, true);
-					iw.components.emplace_back(Component::EComponentType::BUILDING, town->subID, i, 0);
+					iw.components.emplace_back(Component::EComponentType::BUILDING, town->getFaction(), i, 0);
 				}
 			}
 
@@ -3430,7 +3430,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 {
 	using events::ObjectVisitStarted;
 
-	logGlobal->debug("%s visits %s (%d:%d)", h->nodeName(), obj->getObjectName(), obj->ID, obj->subID);
+	logGlobal->debug("%s visits %s (%d)", h->nodeName(), obj->getObjectName(), obj->ID);
 
 	if (getVisitingHero(obj) != nullptr)
 	{

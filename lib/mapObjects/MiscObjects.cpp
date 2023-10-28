@@ -129,6 +129,14 @@ bool CGMine::isAbandoned() const
 	return (getObjTypeIndex() >= 7);
 }
 
+ResourceSet CGMine::dailyIncome() const
+{
+	ResourceSet result;
+	result[producedResource] += defaultResProduction();
+
+	return result;
+}
+
 std::string CGMine::getObjectName() const
 {
 	return VLC->generaltexth->translate("core.minename", getObjTypeIndex());
@@ -466,7 +474,7 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, int Su
 		if(!obj)
 			continue;
 
-		const auto * teleportObj = dynamic_cast<const CGTeleport *>(cb->getObj(obj->id));
+		const auto * teleportObj = dynamic_cast<const CGMonolith *>(cb->getObj(obj->id));
 		if(teleportObj && vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
 	}

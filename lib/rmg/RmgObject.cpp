@@ -115,7 +115,7 @@ void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
 {
 	auto templates = dObject.getObjectHandler()->getTemplates();
 	if(templates.empty())
-		throw rmgException(boost::str(boost::format("Did not find any graphics for object (%d,%d)") % dObject.ID % dObject.subID));
+		throw rmgException(boost::str(boost::format("Did not find any graphics for object (%d,%d)") % dObject.ID % dObject.getObjTypeIndex()));
 
 	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
 	dAccessibleAreaCache.clear();
@@ -128,7 +128,7 @@ void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
 	if (templates.empty())
 	{
 		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
-		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrainName));
+		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.getObjTypeIndex() % terrainName));
 	}
 	
 	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
@@ -338,7 +338,7 @@ void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 		auto templates = dObject.getObjectHandler()->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
-			throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
+			throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.getObjTypeIndex() % getPosition(true).toString() % terrainType));
 		}
 		else
 		{

@@ -256,7 +256,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 			assert(0); // should not happen
 		}
 
-		hero->subID = heroTypeId;
+		hero->setHeroType(heroTypeId);
 		gameState->map->getEditManager()->insertObject(hero);
 	}
 }

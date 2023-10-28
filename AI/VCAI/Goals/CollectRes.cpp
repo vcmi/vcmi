@@ -43,10 +43,10 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 			return resID == GameResID(EGameResID::GOLD);
 			break;
 		case Obj::RESOURCE:
-			return obj->subID == resID;
+			return dynamic_cast<const CGResource*>(obj)->resourceID() == GameResID(resID);
 			break;
 		case Obj::MINE:
-			return (obj->subID == resID &&
+			return (dynamic_cast<const CGMine*>(obj)->producedResource == GameResID(resID) &&
 				(cb->getPlayerRelations(obj->tempOwner, ai->playerID) == PlayerRelations::ENEMIES)); //don't capture our mines
 			break;
 		case Obj::CAMPFIRE:

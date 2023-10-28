@@ -1760,11 +1760,11 @@ void VCAI::addVisitableObj(const CGObjectInstance * obj)
 		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
 }
 
-const CGObjectInstance * VCAI::lookForArt(int aid) const
+const CGObjectInstance * VCAI::lookForArt(ArtifactID aid) const
 {
 	for(const CGObjectInstance * obj : ai->visitableObjs)
 	{
-		if(obj->ID == Obj::ARTIFACT && obj->subID == aid)
+		if(obj->ID == Obj::ARTIFACT && dynamic_cast<const CGArtifact *>(obj)->getArtifact()  == aid)
 			return obj;
 	}
 

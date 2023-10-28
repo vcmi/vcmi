@@ -217,7 +217,7 @@ void MapController::repairMap(CMap * map) const
 				art->storedArtifact = a;
 			}
 			else
-				map->allowedArtifact.at(art->subID) = true;
+				map->allowedArtifact.at(art->getArtifact()) = true;
 		}
 	}
 }
@@ -623,7 +623,7 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 		if(obj->ID == Obj::HERO)
 			continue; //stub! 
 		
-		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto handler = obj->getObjectHandler();
 		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
 		if(modName != "core")
 			result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();

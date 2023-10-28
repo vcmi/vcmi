@@ -232,6 +232,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	HeroTypeID getHeroType() const;
+	void setHeroType(HeroTypeID type);
 
 	void initHero(CRandomGenerator & rand);
 	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);

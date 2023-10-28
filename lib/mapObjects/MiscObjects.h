@@ -142,6 +142,7 @@ public:
 	std::set<GameResID> abandonedMineResources;
 	
 	bool isAbandoned() const;
+	ResourceSet dailyIncome() const;
 
 private:
 	void onHeroVisit(const CGHeroInstance * h) const override;

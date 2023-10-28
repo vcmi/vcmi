@@ -265,7 +265,7 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	assert(townOrTavern);
 	assert(hero);
 
-	HireHero pack(HeroTypeID(hero->subID), townOrTavern->id);
+	HireHero pack(hero->getHeroType(), townOrTavern->id);
 	pack.player = *player;
 	sendRequest(&pack);
 }

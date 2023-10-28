@@ -290,6 +290,12 @@ HeroTypeID CGHeroInstance::getHeroType() const
 	return HeroTypeID(getObjTypeIndex().getNum());
 }
 
+void CGHeroInstance::setHeroType(HeroTypeID heroType)
+{
+	assert(type == nullptr);
+	subID = heroType;
+}
+
 void CGHeroInstance::initHero(CRandomGenerator & rand, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
