@@ -22,7 +22,9 @@ public class Storage
     public static boolean testH3DataFolder(final File baseDir)
     {
         final File testH3Data = new File(baseDir, "Data");
-        return testH3Data.exists();
+        final File testH3data = new File(baseDir, "data");
+        final File testH3DATA = new File(baseDir, "DATA");
+        return testH3Data.exists() || testH3data.exists() || testH3DATA.exists();
     }
 
     public static String getH3DataFolder(Context context){
