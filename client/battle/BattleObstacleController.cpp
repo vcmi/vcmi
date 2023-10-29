@@ -27,6 +27,7 @@
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
+#include "../../lib/serializer/JsonDeserializer.h"
 
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):
 	owner(owner),
@@ -77,7 +78,14 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 			continue;
 		}
 
-		auto animation = GH.renderHandler().loadAnimation(AnimationPath::fromJson(obstacle["appearAnimation"]));
+		AnimationPath animationPath;
+		JsonDeserializer ser(nullptr, obstacle);
+		ser.serializeStruct("appearAnimation", animationPath);
+
+		if(animationPath.empty())
+			continue;
+
+		auto animation = GH.renderHandler().loadAnimation(animationPath);
 		animation->preload();
 
 		auto first = animation->getImage(0, 0);
@@ -88,7 +96,7 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, obstacle);
 		//AFAIK, in H3 there is no sound of obstacle removal
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, AnimationPath::fromJson(obstacle["appearAnimation"]), whereTo, obstacle["position"].Integer(), 0, true));
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
 
 		obstacleAnimations.erase(oi.id);
 		//so when multiple obstacles are removed, they show up one after another
