@@ -104,9 +104,6 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
 	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
 
-	engageIntoBattle(army1->tempOwner);
-	engageIntoBattle(army2->tempOwner);
-
 	const CArmedInstance *armies[2];
 	armies[0] = army1;
 	armies[1] = army2;
