@@ -36,7 +36,6 @@
 #include "effects/Timed.h"
 
 #include "CSpellHandler.h"
-#include "../NetPacks.h"
 
 #include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove

@@ -14,10 +14,11 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

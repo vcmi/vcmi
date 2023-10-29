@@ -14,8 +14,6 @@
 
 #include <vstd/RNG.h>
 
-#include "../../lib/NetPacksBase.h"
-
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_battle_IBattleState.h"
 #include "mock/mock_battle_Unit.h"

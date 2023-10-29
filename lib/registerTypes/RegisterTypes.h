@@ -9,8 +9,11 @@
  */
 #pragma once
 
-#include "../NetPacks.h"
-#include "../NetPacksLobby.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../networkPacks/PacksForServer.h"
+#include "../networkPacks/PacksForLobby.h"
+#include "../networkPacks/SetStackEffect.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
 #include "../CCreatureSet.h"

@@ -12,8 +12,7 @@
 #include <vcmi/Environment.h>
 
 #include "ApplyDamage.h"
-
-#include "../../lib/NetPacks.h"
+#include "../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

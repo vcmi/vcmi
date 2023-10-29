@@ -13,7 +13,6 @@
 #include "../CTownHandler.h"
 #include "../ObstacleHandler.h"
 #include "../VCMI_Lib.h"
-#include "../NetPacksBase.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"

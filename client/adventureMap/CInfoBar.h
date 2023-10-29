@@ -12,6 +12,7 @@
 #include "../gui/CIntObject.h"
 #include "CConfigHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/networkPacks/Component.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -9,8 +9,7 @@
  */
 #pragma once
 
-
-#include "NetPacksBase.h"
+#include "networkPacks/EInfoWindowMode.h"
 #include "battle/BattleHex.h"
 #include "GameConstants.h"
 #include "int3.h"

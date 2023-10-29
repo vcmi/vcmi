@@ -63,7 +63,7 @@ If you are interested in providing builds for other distributions, please let us
 
 ## Compiling from source
 
-Please check following developer guide: [How to build VCMI (Linux)]((../developers/Building_Linux.md))
+Please check following developer guide: [How to build VCMI (Linux)](../developers/Building_Linux.md)
 
 # Step 2: Installing Heroes III data files
 

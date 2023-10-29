@@ -26,6 +26,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CConfigHandler.h"
 
 void CArtPlace::setInternals(const CArtifactInstance * artInst)

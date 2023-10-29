@@ -12,9 +12,10 @@
 #include "CGTownBuilding.h"
 #include "CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
-#include "../NetPacks.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

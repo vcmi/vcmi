@@ -51,7 +51,6 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CStopWatch.h"
-#include "../../lib/NetPacksLobby.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"

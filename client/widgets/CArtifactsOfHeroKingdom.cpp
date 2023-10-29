@@ -15,6 +15,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
 	std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll)

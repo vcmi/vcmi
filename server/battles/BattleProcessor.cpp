@@ -20,10 +20,14 @@
 
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CPlayerState.h"
 
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
@@ -99,9 +103,6 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 {
 	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
 	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
-
-	engageIntoBattle(army1->tempOwner);
-	engageIntoBattle(army2->tempOwner);
 
 	const CArmedInstance *armies[2];
 	armies[0] = army1;

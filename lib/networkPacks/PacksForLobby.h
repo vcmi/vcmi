@@ -1,5 +1,5 @@
 /*
- * NetPacksLobby.h, part of VCMI engine
+ * PacksForLobby.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,9 +9,8 @@
  */
 #pragma once
 
-#include "NetPacksBase.h"
-
 #include "StartInfo.h"
+#include "NetPacksBase.h"
 
 class CServerHandler;
 class CVCMIServer;
@@ -43,7 +42,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 	int clientId = -1;
 	int hostClientId = -1;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -62,7 +61,7 @@ struct DLL_LINKAGE LobbyClientDisconnected : public CLobbyPackToPropagate
 	bool shutdownServer = false;
 
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -75,7 +74,7 @@ struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 {
 	std::string playerName, message;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -91,7 +90,7 @@ struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 	} action = NONE;
 
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -103,7 +102,7 @@ struct DLL_LINKAGE LobbyLoadProgress : public CLobbyPackToPropagate
 {
 	unsigned char progress;
 	
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -115,7 +114,7 @@ struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
 {
 	bool closeConnection = false, restart = false;
 	
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -131,7 +130,7 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	CGameState * initializedGameState = nullptr;
 	int clientId = -1; //-1 means to all clients
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -148,7 +147,7 @@ struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 {
 	int newHostConnectionId = -1;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -161,7 +160,7 @@ struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 	LobbyState state;
 	bool hostChanged = false; // Used on client-side only
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -176,7 +175,7 @@ struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 
 	LobbySetMap() : mapInfo(nullptr), mapGenOpts(nullptr) {}
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -189,7 +188,7 @@ struct DLL_LINKAGE LobbySetCampaign : public CLobbyPackToServer
 {
 	std::shared_ptr<CampaignState> ourCampaign;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -201,7 +200,7 @@ struct DLL_LINKAGE LobbySetCampaignMap : public CLobbyPackToServer
 {
 	CampaignScenarioID mapId = CampaignScenarioID::NONE;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -213,7 +212,7 @@ struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 {
 	int bonusId = -1;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -228,7 +227,7 @@ struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 	int32_t value = 0;
 	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -242,7 +241,7 @@ struct DLL_LINKAGE LobbySetPlayer : public CLobbyPackToServer
 {
 	PlayerColor clickedColor = PlayerColor::CANNOT_DETERMINE;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -255,7 +254,7 @@ struct DLL_LINKAGE LobbySetPlayerName : public CLobbyPackToServer
 	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
 	std::string name = "";
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -268,7 +267,7 @@ struct DLL_LINKAGE LobbySetSimturns : public CLobbyPackToServer
 {
 	SimturnsInfo simturnsInfo;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -280,7 +279,7 @@ struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 {
 	TurnTimerInfo turnTimerInfo;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -292,7 +291,7 @@ struct DLL_LINKAGE LobbySetDifficulty : public CLobbyPackToServer
 {
 	ui8 difficulty = 0;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -305,7 +304,7 @@ struct DLL_LINKAGE LobbyForceSetPlayer : public CLobbyPackToServer
 	ui8 targetConnectedPlayer = -1;
 	PlayerColor targetPlayerColor = PlayerColor::CANNOT_DETERMINE;
 
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -318,7 +317,7 @@ struct DLL_LINKAGE LobbyShowMessage : public CLobbyPackToPropagate
 {
 	std::string message;
 	
-	virtual void visitTyped(ICPackVisitor & visitor) override;
+	void visitTyped(ICPackVisitor & visitor) override;
 	
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

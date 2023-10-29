@@ -13,7 +13,6 @@
 #include "CHeroHandler.h" // for CHeroHandler
 #include "spells/CSpellHandler.h"// for CSpell
 #include "CSkillHandler.h"// for CSkill
-#include "NetPacks.h"
 #include "CBonusTypeHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
@@ -36,6 +35,7 @@
 #include "gameState/CGameState.h"
 #include "gameState/CGameStateCampaign.h"
 #include "gameState/TavernHeroesPool.h"
+#include "gameState/QuestInfo.h"
 #include "mapping/CMap.h"
 #include "modding/CModHandler.h"
 #include "modding/CModInfo.h"

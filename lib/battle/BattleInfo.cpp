@@ -9,11 +9,11 @@
  */
 #include "StdInc.h"
 #include "BattleInfo.h"
+#include "CObstacleInstance.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
 #include "../CHeroHandler.h"
-#include "../NetPacks.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"

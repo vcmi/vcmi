@@ -34,7 +34,6 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameSettings.h"

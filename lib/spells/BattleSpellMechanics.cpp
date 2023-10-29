@@ -16,9 +16,9 @@
 
 #include "../battle/IBattleState.h"
 #include "../battle/CBattleInfoCallback.h"
-
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../networkPacks/SetStackEffect.h"
 #include "../CStack.h"
-#include "../NetPacks.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

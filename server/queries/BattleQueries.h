@@ -10,8 +10,7 @@
 #pragma once
 
 #include "CQuery.h"
-
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class IBattleInfo;

@@ -15,15 +15,16 @@
 #include "client/CPlayerInterface.h"
 #include "client/Client.h"
 #include "lib/mapping/CMap.h"
+#include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/CBuildingHandler.h"
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
-#include "lib/NetPacks.h"
 #include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
 #include "lib/CPlayerState.h"
 #include "lib/UnlockGuard.h"
 #include "lib/battle/BattleInfo.h"
+#include "lib/networkPacks/PacksForServer.h"
 
 bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
 {

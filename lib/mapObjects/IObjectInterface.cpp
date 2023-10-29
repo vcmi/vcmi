@@ -14,9 +14,10 @@
 #include "CGTownInstance.h"
 #include "MiscObjects.h"
 
-#include "../NetPacks.h"
 #include "../IGameCallback.h"
 #include "../TerrainHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -14,7 +14,6 @@
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
 #include "../MetaString.h"
-#include "../NetPacksBase.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"

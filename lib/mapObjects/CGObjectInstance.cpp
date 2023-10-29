@@ -17,12 +17,12 @@
 #include "../gameState/CGameState.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
-#include "../NetPacks.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMap.h"
+#include "../networkPacks/PacksForClient.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

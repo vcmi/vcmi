@@ -10,11 +10,14 @@
 #pragma once
 
 #include "IObjectInterface.h"
+#include "../constants/EntityIdentifiers.h"
+#include "../filesystem/ResourcePath.h"
 #include "../int3.h"
 #include "../bonuses/BonusEnum.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct Component;
 class JsonSerializeFormat;
 class ObjectTemplate;
 class CMap;

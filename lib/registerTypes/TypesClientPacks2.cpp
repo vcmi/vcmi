@@ -20,7 +20,6 @@
 #include "../CHeroHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../CTownHandler.h"
-#include "../NetPacks.h"
 
 #include "../serializer/BinaryDeserializer.h"
 #include "../serializer/BinarySerializer.h"

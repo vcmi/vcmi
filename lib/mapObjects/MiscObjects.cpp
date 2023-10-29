@@ -12,7 +12,6 @@
 #include "MiscObjects.h"
 
 #include "../constants/StringConstants.h"
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../CSkillHandler.h"
@@ -24,7 +23,11 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../modding/ModScope.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../networkPacks/StackLocation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -14,9 +14,10 @@
 #include "../CGeneralTextHandler.h"
 #include "../CPlayerState.h"
 #include "../IGameCallback.h"
-#include "../NetPacks.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/PacksForClient.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
