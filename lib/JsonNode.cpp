@@ -446,6 +446,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPELLS_OF_SCHOOL:
 		case BonusType::SPELL_DAMAGE_REDUCTION:
 		case BonusType::SPELL_SCHOOL_IMMUNITY:
+		case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
 		{
 			VLC->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
 			{
@@ -485,6 +486,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			break;
 		}
 		case BonusType::SPELL_IMMUNITY:
+		case BonusType::SPELL_DURATION:
 		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
 		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
