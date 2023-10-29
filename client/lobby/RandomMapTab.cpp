@@ -191,11 +191,8 @@ void RandomMapTab::updateMapInfoByHost()
 
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
-	//FIXME: Assign all human-controlled colors in first place
-	//TODO: Where are human / CPU players toggled in player configuration?
-	//TODO: Get human player count
+	//TODO: Assign all human-controlled colors in first place
 
-	//std::set<TeamID> occupiedTeams;
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		mapInfo->mapHeader->players[i].canComputerPlay = false;
@@ -225,28 +222,10 @@ void RandomMapTab::updateMapInfoByHost()
 		vstd::erase(availableColors, player.first);
 	}
 
-	/*
-	//Reset teams to default (?)
-	// TODO: Do not reset teams here, this is handled by CMapGenOptions
-	for(auto & player : mapInfo->mapHeader->players)
-	{
-		for(int i = 0; player.team == TeamID::NO_TEAM; ++i)
-		{
-			TeamID team(i);
-			if(!occupiedTeams.count(team))
-			{
-				player.team = team;
-				occupiedTeams.insert(team);
-				break; //First assigned team is ok
-			}
-		}
-	}
-	*/
-
 	mapInfoChanged(mapInfo, mapGenOptions);
 }
 
-// TODO: This method only sets GUI options, doesn't alter any actual configurations done
+// This method only sets GUI options, doesn't alter any actual configurations done
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 {
 	mapGenOptions = opts;
@@ -265,13 +244,12 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 			compTeamsAllowed.insert(i);
 		}
 	}
-	int minComps = 0;
 
 	auto * tmpl = mapGenOptions->getMapTemplate();
 	if(tmpl)
 	{
-		// TODO: Debug / print actual numbers
-		// Most templates just skip this setting
+		playerCountAllowed = tmpl->getPlayers().getNumbers();
+		compCountAllowed = tmpl->getCpuPlayers().getNumbers();
 		auto compNumbers = tmpl->getCpuPlayers().getNumbers();
 		if (!compNumbers.empty())
 		{
@@ -292,9 +270,9 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	
 	si8 playerLimit = opts->getPlayerLimit();
 	si8 humanOrCpuPlayerCount = opts->getHumanOrCpuPlayerCount();
-	si8 compOnlyPlayersCount =  opts->getCompOnlyPlayerCount();
+	si8 compOnlyPlayersCount = opts->getCompOnlyPlayerCount();
 
-	if(mapGenOptions->getHumanOrCpuPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+	if(humanOrCpuPlayerCount != CMapGenOptions::RANDOM_SIZE)
 	{
 		vstd::erase_if(compCountAllowed, [playerLimit, humanOrCpuPlayerCount](int el)
 		{
@@ -310,7 +288,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		   opts->setTeamCount(CMapGenOptions::RANDOM_SIZE);
 		}
 	}
-	if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+	if(compOnlyPlayersCount != CMapGenOptions::RANDOM_SIZE)
 	{
 		// This setting doesn't impact total number of players
 		vstd::erase_if(compTeamsAllowed, [compOnlyPlayersCount](int el)
@@ -464,7 +442,8 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];
 	
-	int totalPlayers = randomMapTab.obtainMapGenOptions().getTotalPlayersCount();
+	int totalPlayers = randomMapTab.obtainMapGenOptions().getPlayerLimit();
+	//randomMapTab.obtainMapGenOptions().getTotalPlayersCount();
 	assert(totalPlayers <= PlayerColor::PLAYER_LIMIT_I);
 	auto settings = randomMapTab.obtainMapGenOptions().getPlayersSettings();
 	variables["totalPlayers"].Integer() = totalPlayers;
@@ -503,7 +482,6 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	OBJ_CONSTRUCTION;
 	
-
 	// Window should have X * X columns, where X is players + compOnly players.
 	// For random player count, X is 8
 
@@ -525,7 +503,6 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		settingsVec.push_back(player.second);
 	}
 
-	// FIXME: Flag is missing on windows show
 	for(int plId = 0; plId < totalPlayers; ++plId)
 	{
 		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)

@@ -71,8 +71,6 @@ si8 CMapGenOptions::getHumanOrCpuPlayerCount() const
 
 void CMapGenOptions::setHumanOrCpuPlayerCount(si8 value)
 {
-	// Set total player count (human + AI)?
-
 	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
 	humanOrCpuPlayerCount = value;
 
@@ -177,22 +175,12 @@ void CMapGenOptions::initPlayersMap()
 	players.clear();
 	int realPlayersCnt = getHumanOrCpuPlayerCount();
 
-	// TODO: Initialize settings for all color even if not present?
+	// Initialize settings for all color even if not present
 	for(int color = 0; color < getPlayerLimit(); ++color)
 	{
 		CPlayerSettings player;
 		auto pc = PlayerColor(color);
 		player.setColor(pc);
-
-		/*
-		if (vstd::contains(savedPlayerSettings, pc))
-		{
-			player.setTeam(savedPlayerSettings[pc].getTeam());
-			player.setStartingTown(savedPlayerSettings[pc].getStartingTown());
-			//TODO: Restore starting hero and bonus?
-		}
-		// Assign new owner of this player
-		*/
 
 		auto playerType = EPlayerType::AI;
 		// Color doesn't have to be continuous. Player colors can later be changed manually
@@ -215,8 +203,6 @@ void CMapGenOptions::initPlayersMap()
 void CMapGenOptions::resetPlayersMap()
 {
 	// Called when number of player changes
-	// TODO: Should it?
-
 	//But do not update info about already made selections
 
 	savePlayersMap();
@@ -307,7 +293,6 @@ void CMapGenOptions::resetPlayersMap()
 			players[color] = settings;
 		}
 	}
-	// TODO: Assign players to teams at the beginning (if all players belong to the same team)
 
 	std::set<TeamID> occupiedTeams;
 	for(auto & player : players)
@@ -407,6 +392,12 @@ const CRmgTemplate * CMapGenOptions::getMapTemplate() const
 
 void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 {
+	if (mapTemplate == value)
+	{
+		//Does not trigger during deserialization
+		return;
+	}
+
 	mapTemplate = value;
 	//validate & adapt options according to template
 	if(mapTemplate)
@@ -419,6 +410,8 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 			setHasTwoLevels(sizes.first.z - 1);
 		}
 		
+		// FIXME: GUI settings are not the same as template parameters
+		// TODO: Recalculate GUI ranges in separate method
 		if(!mapTemplate->getPlayers().isInRange(getHumanOrCpuPlayerCount()))
 			setHumanOrCpuPlayerCount(RANDOM_SIZE);
 		if(!mapTemplate->getCpuPlayers().isInRange(getCompOnlyPlayerCount()))
