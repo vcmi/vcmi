@@ -194,9 +194,9 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	assert(!scope.empty());
 
 	std::string handler = obj->handlerName;
-	if(!handlerConstructors.count(obj->handlerName))
+	if(!handlerConstructors.count(handler))
 	{
-		logMod->error("Handler with name %s was not found!", obj->handlerName);
+		logMod->error("Handler with name %s was not found!", handler);
 		// workaround for potential crash - if handler does not exists, continue with generic handler that is used for objects without any custom logc
 		handler = "generic";
 		assert(handlerConstructors.count(handler) != 0);
