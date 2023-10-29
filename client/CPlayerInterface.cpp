@@ -73,8 +73,6 @@
 #include "../lib/CondSh.h"
 #include "../lib/GameConstants.h"
 #include "../lib/JsonNode.h"
-#include "../lib/NetPacks.h" //todo: remove
-#include "../lib/NetPacksBase.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
@@ -94,6 +92,10 @@
 #include "../lib/mapObjects/ObjectTemplate.h"
 
 #include "../lib/mapping/CMapHeader.h"
+
+#include "../lib/networkPacks/PacksForClient.h"
+#include "../lib/networkPacks/PacksForClientBattle.h"
+#include "../lib/networkPacks/PacksForServer.h"
 
 #include "../lib/pathfinder/CGPathNode.h"
 

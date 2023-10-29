@@ -14,12 +14,12 @@
 
 #include "CSpellHandler.h"
 
+#include "../CGameInfoCallback.h"
+#include "../CPlayerState.h"
 #include "../CRandomGenerator.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../NetPacks.h"
-#include "../CGameInfoCallback.h"
 #include "../mapping/CMap.h"
-#include "../CPlayerState.h"
+#include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

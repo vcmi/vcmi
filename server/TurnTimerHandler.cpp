@@ -15,10 +15,11 @@
 #include "processors/TurnOrderProcessor.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/networkPacks/PacksForClient.h"
+#include "../lib/networkPacks/PacksForClientBattle.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CStack.h"
 #include "../lib/StartInfo.h"
-#include "../lib/NetPacks.h"
 
 TurnTimerHandler::TurnTimerHandler(CGameHandler & gh):
 	gameHandler(gh)

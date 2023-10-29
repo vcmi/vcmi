@@ -14,7 +14,6 @@
 #include <vcmi/ServerCallback.h>
 #include <vcmi/spells/Spell.h>
 
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
 #include "../CHeroHandler.h"
@@ -35,6 +34,8 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../modding/ModScope.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
 #include "../constants/StringConstants.h"
 #include "../battle/Unit.h"
 

@@ -12,6 +12,8 @@
 
 #include "PackForClient.h"
 
+#include "../../../../lib/networkPacks/PacksForClientBattle.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting

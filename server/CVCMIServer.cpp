@@ -26,7 +26,6 @@
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#include "../lib/NetPackVisitor.h"
 #include "LobbyNetPackVisitors.h"
 #ifdef VCMI_ANDROID
 #include <jni.h>

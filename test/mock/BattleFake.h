@@ -20,7 +20,6 @@
 #endif
 
 #include "../../lib/JsonNode.h"
-#include "../../lib/NetPacksBase.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 
 namespace test

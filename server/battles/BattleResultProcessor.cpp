@@ -23,6 +23,8 @@
 #include "../../lib/battle/SideInBattle.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/serializer/Cast.h"
 #include "../../lib/spells/CSpellHandler.h"
 

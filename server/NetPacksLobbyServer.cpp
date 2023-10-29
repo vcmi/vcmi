@@ -13,7 +13,6 @@
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
 
-#include "../lib/NetPacksLobby.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
 

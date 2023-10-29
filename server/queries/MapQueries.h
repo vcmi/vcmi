@@ -10,8 +10,14 @@
 #pragma once
 
 #include "CQuery.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 
-#include "../../lib/NetPacks.h"
+VCMI_LIB_NAMESPACE_BEGIN
+class CGHeroInstance;
+class CGObjectInstance;
+class int3;
+VCMI_LIB_NAMESPACE_END
+
 
 class TurnTimerHandler;
 

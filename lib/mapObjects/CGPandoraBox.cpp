@@ -14,13 +14,15 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 
-#include "../NetPacks.h"
 #include "../CSoundBase.h"
 
 #include "../CSkillHandler.h"
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
 #include "../constants/StringConstants.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

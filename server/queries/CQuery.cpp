@@ -15,7 +15,7 @@
 #include "../CGameHandler.h"
 
 #include "../../lib/serializer/Cast.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForServer.h"
 
 template <typename Container>
 std::string formatContainer(const Container & c, std::string delimeter = ", ", std::string opener = "(", std::string closer=")")
