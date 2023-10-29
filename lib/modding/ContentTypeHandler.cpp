@@ -104,7 +104,16 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 		JsonNode & data = entry.second;
 
 		if (data.meta != modName)
-			logMod->warn("Mod %s is attempting to inject object %s into mod %s! This may not be supported in future versions!", data.meta, name, modName);
+		{
+			// in this scenario, entire object record comes from another mod
+			// normally, this is used to "patch" object from another mod (which is legal)
+			// however in this case there is no object to patch. This might happen in such cases:
+			// - another mod attempts to add object into this mod (technically can be supported, but might lead to weird edge cases)
+			// - another mod attempts to edit object from this mod that no longer exist - DANGER since such patch likely has very incomplete data
+			// so emit warning and skip such case
+			logMod->warn("Mod %s attempts to edit object %s from mod %s but no such object exist!", data.meta, name, modName);
+			continue;
+		}
 
 		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
 		{
