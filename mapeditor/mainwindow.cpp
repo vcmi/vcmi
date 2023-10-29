@@ -68,6 +68,10 @@ QPixmap pixmapFromJson(const QJsonValue &val)
 void init()
 {
 	loadDLLClasses();
+
+	Settings config = settings.write["session"]["editor"];
+	config->Bool() = true;
+
 	logGlobal->info("Initializing VCMI_Lib");
 }
 
