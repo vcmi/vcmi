@@ -557,9 +557,9 @@ const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getPlayers() const
 	return players;
 }
 
-const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getCpuPlayers() const
+const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getHumanPlayers() const
 {
-	return cpuPlayers;
+	return humanPlayers;
 }
 
 const CRmgTemplate::Zones & CRmgTemplate::getZones() const
@@ -675,13 +675,23 @@ void CRmgTemplate::CPlayerCountRange::fromString(const std::string & value)
 	}
 }
 
+int CRmgTemplate::CPlayerCountRange::maxValue() const
+{
+	return *boost::max_element(getNumbers());
+}
+
+int CRmgTemplate::CPlayerCountRange::minValue() const
+{
+	return *boost::min_element(getNumbers());
+}
+
 void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	serializeSize(handler, minSize, "minSize");
 	serializeSize(handler, maxSize, "maxSize");
 	serializePlayers(handler, players, "players");
-	serializePlayers(handler, cpuPlayers, "cpu");
+	serializePlayers(handler, humanPlayers, "cpu"); // TODO: Rename this parameter
 
 	{
 		auto connectionsData = handler.enterArray("connections");

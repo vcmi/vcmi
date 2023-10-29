@@ -85,8 +85,45 @@ void CMapGenOptions::setHumanOrCpuPlayerCount(si8 value)
 	resetPlayersMap();
 }
 
-si8 CMapGenOptions::getTotalPlayersCount() const
+si8 CMapGenOptions::getMinPlayersCount(bool withTemplateLimit) const
 {
+	auto totalPlayers = 0;
+	si8 humans = getHumanOrCpuPlayerCount();
+	si8 cpus = getCompOnlyPlayerCount();
+
+	if (humans == RANDOM_SIZE && cpus == RANDOM_SIZE)
+	{
+		totalPlayers = 2;
+	}
+	else if (humans == RANDOM_SIZE)
+	{
+		totalPlayers = cpus + 1; // Must add at least 1 player
+	}
+	else if (cpus == RANDOM_SIZE)
+	{
+		totalPlayers = humans;
+	}
+	else
+	{
+		totalPlayers = humans + cpus;
+	}
+
+	if (withTemplateLimit && mapTemplate)
+	{
+		auto playersRange = mapTemplate->getPlayers();
+
+		//New template can also impose higher limit than current settings
+		vstd::amax(totalPlayers, playersRange.minValue());
+	}
+
+	// Can't play without at least 2 players
+	vstd::amax(totalPlayers, 2);
+	return totalPlayers;
+}
+
+si8 CMapGenOptions::getMaxPlayersCount(bool withTemplateLimit) const
+{
+	// Max number of players possible with current settings
 	auto totalPlayers = 0;
 	si8 humans = getHumanOrCpuPlayerCount();
 	si8 cpus = getCompOnlyPlayerCount();
@@ -98,6 +135,15 @@ si8 CMapGenOptions::getTotalPlayersCount() const
 	{
 		totalPlayers = humans + cpus;
 	}
+
+	if (withTemplateLimit && mapTemplate)
+	{
+		auto playersRange = mapTemplate->getPlayers();
+
+		//New template can also impose higher limit than current settings
+		vstd::amin(totalPlayers, playersRange.maxValue());
+	}
+
 	assert (totalPlayers <= PlayerColor::PLAYER_LIMIT_I);
 	assert (totalPlayers >= 2);
 	return totalPlayers;
@@ -121,10 +167,11 @@ si8 CMapGenOptions::getCompOnlyPlayerCount() const
 
 si8 CMapGenOptions::getPlayerLimit() const
 {
+	//How many players could we set with current template, ignoring other settings
 	si8 playerLimit = PlayerColor::PLAYER_LIMIT_I;
 	if (auto temp = getMapTemplate())
 	{
-		playerLimit = *boost::max_element(temp->getPlayers().getNumbers());
+		playerLimit = static_cast<si8>(temp->getPlayers().maxValue());
 	}
 	return playerLimit;
 }
@@ -207,48 +254,28 @@ void CMapGenOptions::resetPlayersMap()
 
 	savePlayersMap();
 
-	/*
-	//Remove players who have undefined properties
-	vstd::erase_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & p)
-	{
-		return p.second.getPlayerType() != EPlayerType::AI && p.second.getStartingTown() == CPlayerSettings::RANDOM_TOWN;
-	});
-	*/
+	int realPlayersCnt = getMaxPlayersCount();
 
-	// FIXME: This should be total players count
-	int realPlayersCnt = getHumanOrCpuPlayerCount();
-	if (realPlayersCnt != RANDOM_SIZE)
+	//Trim the number of AI players, then CPU-only players, finally human players
+	auto eraseLastPlayer = [this](EPlayerType playerType) -> bool
 	{
-		//Trim the number of AI players, then CPU-only players, finally human players
-		auto eraseLastPlayer = [this](EPlayerType playerType) -> bool
+		for (auto it = players.rbegin(); it != players.rend(); ++it)
 		{
-			//FIXME: Infinite loop for 0 players
-			for (auto it = players.rbegin(); it != players.rend(); ++it)
+			if (it->second.getPlayerType() == playerType)
 			{
-				if (it->second.getPlayerType() == playerType)
-				{
-					players.erase(it->first);
-					return true;
-				}
+				players.erase(it->first);
+				return true;
 			}
-			return false; //Can't earse any player of this type
-		};
-
-		while (players.size() > realPlayersCnt)
-		{
-			while (eraseLastPlayer(EPlayerType::AI));
-			while (eraseLastPlayer(EPlayerType::COMP_ONLY));
-			while (eraseLastPlayer(EPlayerType::HUMAN));
 		}
-	}
-	else
-	{
-		//If count is random, generate info for all the players
-		realPlayersCnt = PlayerColor::PLAYER_LIMIT_I;
-	}
+		return false; //Can't earse any player of this type
+	};
 
-	int realCompOnlyPlayersCnt = getCompOnlyPlayerCount();
-	//int totalPlayersLimit = getPlayerLimit();
+	while (players.size() > realPlayersCnt)
+	{
+		while (eraseLastPlayer(EPlayerType::AI));
+		while (eraseLastPlayer(EPlayerType::COMP_ONLY));
+		while (eraseLastPlayer(EPlayerType::HUMAN));
+	}
 
 	//First colors from the list are assigned to human players, then to CPU players
 	std::vector<PlayerColor> availableColors;
@@ -263,7 +290,7 @@ void CMapGenOptions::resetPlayersMap()
 		{
 			if (player.second.getPlayerType() == playerType)
 			{
-				vstd::erase(availableColors, player.second.getColor()); //FIXME: Where is this color initialized at lobby launch?
+				vstd::erase(availableColors, player.second.getColor());
 			}
 		}
 	};
@@ -409,13 +436,17 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 			setHeight(sizes.first.y);
 			setHasTwoLevels(sizes.first.z - 1);
 		}
-		
-		// FIXME: GUI settings are not the same as template parameters
-		// TODO: Recalculate GUI ranges in separate method
-		if(!mapTemplate->getPlayers().isInRange(getHumanOrCpuPlayerCount()))
+
+		si8 maxPlayerCount = getMaxPlayersCount(false);
+		si8 minPlayerCount = getMinPlayersCount(false);
+
+		// Neither setting can fit within the template range
+		if(!mapTemplate->getPlayers().isInRange(minPlayerCount) &&
+			!mapTemplate->getPlayers().isInRange(maxPlayerCount))
+		{
 			setHumanOrCpuPlayerCount(RANDOM_SIZE);
-		if(!mapTemplate->getCpuPlayers().isInRange(getCompOnlyPlayerCount()))
 			setCompOnlyPlayerCount(RANDOM_SIZE);
+		}
 		if(!mapTemplate->getWaterContentAllowed().count(getWaterContent()))
 			setWaterContent(EWaterContent::RANDOM);
 	}
@@ -473,11 +504,17 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	
 	logGlobal->info("RMG template name: %s", mapTemplate->getName());
 
+	auto maxPlayers = getMaxPlayersCount();
 	if (getHumanOrCpuPlayerCount() == RANDOM_SIZE)
 	{
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
 		//ignore all non-randomized players, make sure these players will not be missing after roll
 		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers() + countCompOnlyPlayers()));
+
+		vstd::erase_if(possiblePlayers, [maxPlayers](int i)
+		{
+			return i > maxPlayers;
+		});
 		assert(!possiblePlayers.empty());
 		setHumanOrCpuPlayerCount (*RandomGeneratorUtil::nextItem(possiblePlayers, rand));
 		updatePlayers();
@@ -490,7 +527,13 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	}
 	if(compOnlyPlayerCount == RANDOM_SIZE)
 	{
-		auto possiblePlayers = mapTemplate->getCpuPlayers().getNumbers();
+		// Use remaining range
+		auto presentPlayers = getHumanOrCpuPlayerCount();
+		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
+		vstd::erase_if(possiblePlayers, [maxPlayers, presentPlayers](int i)
+		{
+			return i > (maxPlayers - presentPlayers);
+		});
 		compOnlyPlayerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
 		updateCompOnlyPlayers();
 	}
@@ -541,13 +584,8 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 			default:
 				assert(false);
 		}
-		// FIXME: Every player is player 0 with type of AI
-		// FIXME: player.first != player.second.getColor()
-		// TODO: Set player color everywhere players is set, or only once here
 		logGlobal->trace("Player %d: %s", player.second.getColor(), playerType);
 	}
-	// FXIME: Do not set this again after options were set
-	setCompOnlyPlayerCount(cpuOnlyPlayers); //human players are set automatically (?)
 	logGlobal->info("Final player config: %d total, %d cpu-only", players.size(), static_cast<int>(getCompOnlyPlayerCount()));
 }
 
@@ -669,21 +707,38 @@ std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 		if(!tmpl->isWaterContentAllowed(getWaterContent()))
 			return true;
 
-		if(getHumanOrCpuPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+		auto humanOrCpuPlayerCount = getHumanOrCpuPlayerCount();
+		auto compOnlyPlayerCount =  getCompOnlyPlayerCount();
+		// Check if total number of players fall inside given range
+
+		if(humanOrCpuPlayerCount != CMapGenOptions::RANDOM_SIZE && compOnlyPlayerCount != CMapGenOptions::RANDOM_SIZE)
 		{
-			if (!tmpl->getPlayers().isInRange(getHumanOrCpuPlayerCount()))
+			if (!tmpl->getPlayers().isInRange(humanOrCpuPlayerCount + compOnlyPlayerCount))
+				return true;
+
+		}
+		else if(humanOrCpuPlayerCount != CMapGenOptions::RANDOM_SIZE)
+		{
+			// We can always add any number CPU players, but not subtract
+			if (!(humanOrCpuPlayerCount <= tmpl->getPlayers().maxValue()))
+				return true;
+		}
+		else if(compOnlyPlayerCount != CMapGenOptions::RANDOM_SIZE)
+		{
+			//We must fit at least one more human player, but can add any number
+			if (!(compOnlyPlayerCount < tmpl->getPlayers().maxValue()))
 				return true;
 		}
 		else
 		{
 			// Human players shouldn't be banned when playing with random player count
-			if(humanPlayers > *boost::min_element(tmpl->getPlayers().getNumbers()))
+			if(humanPlayers > tmpl->getPlayers().minValue())
 				return true;
 		}
 
 		if(compOnlyPlayerCount != CMapGenOptions::RANDOM_SIZE)
 		{
-			if (!tmpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
+			if (!tmpl->getHumanPlayers().isInRange(compOnlyPlayerCount))
 				return true;
 		}
 

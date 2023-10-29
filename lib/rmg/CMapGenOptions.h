@@ -53,9 +53,6 @@ public:
 		TeamID getTeam() const;
 		void setTeam(const TeamID & value);
 
-		/// Constant for a random town selection.
-		static const si32 RANDOM_TOWN = -1;
-
 	private:
 		PlayerColor color;
 		si32 startingTown;
@@ -91,7 +88,8 @@ public:
 	si8 getHumanOrCpuPlayerCount() const;
 	void setHumanOrCpuPlayerCount(si8 value);
 
-	si8 getTotalPlayersCount() const;
+	si8 getMinPlayersCount(bool withTemplateLimit = true) const;
+	si8 getMaxPlayersCount(bool withTemplateLimit = true) const;
 	si8 getPlayerLimit() const;
 
 	/// The count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random.

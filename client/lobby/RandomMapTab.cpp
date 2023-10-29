@@ -209,13 +209,12 @@ void RandomMapTab::updateMapInfoByHost()
 	for (auto& player : mapGenOptions->getPlayersSettings())
 	{
 		PlayerInfo playerInfo;
-		playerInfo.isFactionRandom = (player.second.getStartingTown() == CMapGenOptions::CPlayerSettings::RANDOM_TOWN);
+		playerInfo.isFactionRandom = (player.second.getStartingTown() == FactionID::RANDOM);
 		playerInfo.canComputerPlay = (player.second.getPlayerType() != EPlayerType::HUMAN);
 		playerInfo.canHumanPlay = (player.second.getPlayerType() != EPlayerType::COMP_ONLY);
 
 		auto team = player.second.getTeam();
 		playerInfo.team = team;
-		//occupiedTeams.insert(team);
 		playerInfo.hasMainTown = true;
 		playerInfo.generateHeroAtMainTown = true;
 		mapInfo->mapHeader->players[player.first] = playerInfo;
@@ -244,31 +243,16 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 			compTeamsAllowed.insert(i);
 		}
 	}
+	std::set<int> humanCountAllowed;
 
 	auto * tmpl = mapGenOptions->getMapTemplate();
 	if(tmpl)
 	{
 		playerCountAllowed = tmpl->getPlayers().getNumbers();
-		compCountAllowed = tmpl->getCpuPlayers().getNumbers();
-		auto compNumbers = tmpl->getCpuPlayers().getNumbers();
-		if (!compNumbers.empty())
-		{
-			compCountAllowed = compNumbers;
-			minComps = *boost::min_element(compCountAllowed);
-		}
-
-		playerCountAllowed = tmpl->getPlayers().getNumbers();
-
-		auto minPlayerCount = *boost::min_element(playerCountAllowed);
-		auto maxCompCount = *boost::max_element(compCountAllowed);
-		for (int i = 1; i >= (minPlayerCount - maxCompCount) && i >= 1; i--)
-		{
-			//We can always add extra CPUs to meet the minimum total player count
-			playerCountAllowed.insert(i);
-		}	
+		humanCountAllowed = tmpl->getHumanPlayers().getNumbers(); // Unused now?
 	}
 	
-	si8 playerLimit = opts->getPlayerLimit();
+	si8 playerLimit = opts->getMaxPlayersCount();
 	si8 humanOrCpuPlayerCount = opts->getHumanOrCpuPlayerCount();
 	si8 compOnlyPlayersCount = opts->getCompOnlyPlayerCount();
 
@@ -282,12 +266,23 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		{
 			return humanOrCpuPlayerCount <= el;
 		});
-		
-		if(!playerTeamsAllowed.count(opts->getTeamCount()))
-		{
-		   opts->setTeamCount(CMapGenOptions::RANDOM_SIZE);
-		}
 	}
+	else // Random
+	{
+		vstd::erase_if(compCountAllowed, [playerLimit, humanOrCpuPlayerCount](int el)
+		{
+			return (playerLimit - 1) < el; // Must leave at least 1 human player
+		});
+		vstd::erase_if(playerTeamsAllowed, [playerLimit](int el)
+		{
+			return playerLimit <= el;
+		});
+	}
+	if(!playerTeamsAllowed.count(opts->getTeamCount()))
+	{
+		opts->setTeamCount(CMapGenOptions::RANDOM_SIZE);
+	}
+
 	if(compOnlyPlayersCount != CMapGenOptions::RANDOM_SIZE)
 	{
 		// This setting doesn't impact total number of players
@@ -328,8 +323,6 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 	{
-		// FIXME: OH3 allows any setting here, even if currently selected template doesn't fit it
-		// TODO: Set max players to current template limit wherever template is explicitely selected
 		w->setSelected(opts->getHumanOrCpuPlayerCount());
 		deactivateButtonsFrom(*w, playerCountAllowed);
 	}
@@ -442,8 +435,8 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];
 	
-	int totalPlayers = randomMapTab.obtainMapGenOptions().getPlayerLimit();
-	//randomMapTab.obtainMapGenOptions().getTotalPlayersCount();
+	//int totalPlayers = randomMapTab.obtainMapGenOptions().getPlayerLimit();
+	int totalPlayers = randomMapTab.obtainMapGenOptions().getMaxPlayersCount();
 	assert(totalPlayers <= PlayerColor::PLAYER_LIMIT_I);
 	auto settings = randomMapTab.obtainMapGenOptions().getPlayersSettings();
 	variables["totalPlayers"].Integer() = totalPlayers;
@@ -482,7 +475,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	OBJ_CONSTRUCTION;
 	
-	// Window should have X * X columns, where X is players + compOnly players.
+	// Window should have X * X columns, where X is max players allowed for current settings
 	// For random player count, X is 8
 
 	if (totalPlayers > settings.size())

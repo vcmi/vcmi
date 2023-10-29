@@ -231,6 +231,9 @@ public:
 		std::string toString() const;
 		void fromString(const std::string & value);
 
+		int maxValue() const;
+		int minValue() const;
+
 	private:
 		std::vector<std::pair<int, int> > range;
 	};
@@ -247,7 +250,7 @@ public:
 	const std::string & getName() const;
 
 	const CPlayerCountRange & getPlayers() const;
-	const CPlayerCountRange & getCpuPlayers() const;
+	const CPlayerCountRange & getHumanPlayers() const;
 	std::pair<int3, int3> getMapSizes() const;
 	const Zones & getZones() const;
 	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
@@ -261,7 +264,7 @@ private:
 	std::string id;
 	std::string name;
 	int3 minSize, maxSize;
-	CPlayerCountRange players, cpuPlayers;
+	CPlayerCountRange players, humanPlayers;
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connectedZoneIds;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;

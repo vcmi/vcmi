@@ -46,7 +46,7 @@ TEST(MapFormat, Random)
 	CRmgTemplate tmpl;
 	std::shared_ptr<ZoneOptionsFake> zoneOptions = std::make_shared<ZoneOptionsFake>();
 
-	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getCpuPlayers()).addRange(1, 4);
+	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getHumanPlayers()).addRange(1, 4);
 	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = zoneOptions;
 
 	zoneOptions->setOwner(1);
