@@ -409,6 +409,7 @@ CGameState::CGameState()
 
 CGameState::~CGameState()
 {
+	currentBattles.clear();
 	map.dellNull();
 }
 
