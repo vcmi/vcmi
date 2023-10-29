@@ -1,4 +1,4 @@
-< [Documentation](../Readme.md) /  AI Description - WIP
+< [Documentation](../Readme.md) /  AI Description
 
 There are two types of AI: adventure and battle.
 
