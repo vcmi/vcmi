@@ -347,31 +347,6 @@ void CMapGenOptions::resetPlayersMap()
 			}
 		}
 	}
-	/*
-	for(int color = 0; color < totalPlayersLimit; ++color)
-	{
-		CPlayerSettings player;
-		auto pc = PlayerColor(color);
-		player.setColor(pc);
-		auto playerType = EPlayerType::AI;
-		if (getPlayerCount() != RANDOM_SIZE && color < realPlayersCnt)
-		{
-			playerType = EPlayerType::HUMAN;
-		}
-		else if((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
-			|| (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
-		{
-			//FIXME: Allow humans to choose any color, even from the end of the list
-			playerType = EPlayerType::COMP_ONLY;
-		}
-		player.setPlayerType(playerType);
-		player.setTeam(rememberTeam[pc]);
-		players[pc] = player;
-
-		if (vstd::contains(rememberTownTypes, pc))
-			players[pc].setStartingTown(rememberTownTypes[pc]);
-	}
-	*/
 }
 
 void CMapGenOptions::savePlayersMap()

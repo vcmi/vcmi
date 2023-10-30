@@ -264,7 +264,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	else // Random
 	{
-		vstd::erase_if(compCountAllowed, [playerLimit, humanOrCpuPlayerCount](int el)
+		vstd::erase_if(compCountAllowed, [playerLimit](int el)
 		{
 			return (playerLimit - 1) < el; // Must leave at least 1 human player
 		});
