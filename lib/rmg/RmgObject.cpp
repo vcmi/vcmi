@@ -328,12 +328,9 @@ void rmg::Object::setGuardedIfMonster(const Instance& object)
 
 void Object::Instance::finalize(RmgMap & map, CRandomGenerator & rng)
 {
-	// FIXME: Crash, but does not trigger under debugger. Race condition?
-	if (!map.isOnMap(getPosition(true)))
-	{
+	if(!map.isOnMap(getPosition(true)))
 		throw rmgException(boost::str(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
-	}
-
+	
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
 	{
