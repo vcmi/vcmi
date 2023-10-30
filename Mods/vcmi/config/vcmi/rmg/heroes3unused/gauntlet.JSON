@@ -2,7 +2,7 @@
 	"Gauntlet" :
 	{
 		"minSize" : "m+u", "maxSize" : "xl+u",
-		"players" : "1", "cpu" : "5",
+		"players" : "1", "humans" : "5",
 		"zones" :
 		{
 			"1" :

@@ -2,7 +2,7 @@
 	"3SB0b" :
 	{
 		"minSize" : "s", "maxSize" : "m+u",
-		"players" : "2", "cpu" : "1",
+		"players" : "2", "humans" : "1",
 		"zones" :
 		{
 			"1" :

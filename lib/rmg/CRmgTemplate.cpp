@@ -691,7 +691,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 	serializeSize(handler, minSize, "minSize");
 	serializeSize(handler, maxSize, "maxSize");
 	serializePlayers(handler, players, "players");
-	serializePlayers(handler, humanPlayers, "cpu"); // TODO: Rename this parameter
+	serializePlayers(handler, humanPlayers, "humans"); // TODO: Rename this parameter
 
 	{
 		auto connectionsData = handler.enterArray("connections");

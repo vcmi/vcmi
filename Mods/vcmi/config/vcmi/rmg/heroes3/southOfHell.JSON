@@ -2,7 +2,7 @@
 	"South of Hell" :
 	{
 		"minSize" : "m+u", "maxSize" : "l+u",
-		"players" : "2", "cpu" : "1",
+		"players" : "2", "humans" : "1",
 		"zones" :
 		{
 			"1" :
