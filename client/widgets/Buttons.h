@@ -67,7 +67,7 @@ public:
 	void setBorderColor(std::optional<ColorRGBA> borderColor);
 
 	/// adds one more callback to on-click actions
-	void addCallback(std::function<void()> callback);
+	void addCallback(const std::function<void()> & callback);
 
 	/// adds overlay on top of button image. Only one overlay can be active at once
 	void addOverlay(std::shared_ptr<CIntObject> newOverlay);

@@ -19,12 +19,13 @@
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/networkPacks/StackLocation.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor()
 	:gameHandler(nullptr)

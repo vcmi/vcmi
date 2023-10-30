@@ -274,6 +274,7 @@ void Nullkiller::makeTurn()
 
 		bestTask = choseBestTask(bestTasks);
 
+		std::string taskDescription = bestTask->toString();
 		HeroPtr hero = bestTask->getHero();
 		HeroRole heroRole = HeroRole::MAIN;
 
@@ -292,7 +293,7 @@ void Nullkiller::makeTurn()
 
 			logAi->trace(
 				"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
-				bestTask->toString(),
+				taskDescription,
 				bestTask->priority);
 		}
 
@@ -308,7 +309,7 @@ void Nullkiller::makeTurn()
 			{
 				logAi->trace(
 					"Goal %s has too low priority %f so increasing scan depth to full.",
-					bestTask->toString(),
+					taskDescription,
 					bestTask->priority);
 
 				scanDepth = ScanDepth::ALL_FULL;
@@ -316,7 +317,7 @@ void Nullkiller::makeTurn()
 				continue;
 			}
 
-			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", bestTask->toString());
+			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", taskDescription);
 
 			return;
 		}
@@ -325,7 +326,7 @@ void Nullkiller::makeTurn()
 
 		if(i == MAXPASS)
 		{
-			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", bestTask->toString());
+			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", taskDescription);
 		}
 	}
 }

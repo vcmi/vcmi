@@ -58,7 +58,7 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 		if(state != EWallState::DESTROYED)
 			continue;
 
-		auto wallHex = cb->getBattle(battleID)->wallPartToBattleHex((EWallPart)wallPart);
+		auto wallHex = cb->getBattle(battleID)->wallPartToBattleHex(wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
 		result.push_back(moatHex);
@@ -142,14 +142,14 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 			logAi->debug("BattleAI: %s -> %s x %d, from %d curpos %d dist %d speed %d: +%2f -%2f = %2f",
 				bestAttack.attackerState->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
-				(int)bestAttack.affectedUnits[0]->getCount(),
+				bestAttack.affectedUnits[0]->getCount(),
 				(int)bestAttack.from,
 				(int)bestAttack.attack.attacker->getPosition().hex,
 				bestAttack.attack.chargeDistance,
 				bestAttack.attack.attacker->speed(0, true),
 				bestAttack.defenderDamageReduce,
 				bestAttack.attackerDamageReduce,
-				bestAttack.attackValue()
+				score
 			);
 
 			if (moveTarget.scorePerTurn <= score)
@@ -190,6 +190,14 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 		if(stack->waited())
 		{
+			logAi->debug(
+				"Moving %s towards hex %s[%d], score: %2f/%2f",
+				stack->getDescription(),
+				moveTarget.cachedAttack->attack.defender->getDescription(),
+				moveTarget.cachedAttack->attack.defender->getPosition().hex,
+				moveTarget.score,
+				moveTarget.scorePerTurn);
+
 			return goTowardsNearest(stack, moveTarget.positions);
 		}
 		else
@@ -307,7 +315,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 	else
 	{
 		BattleHex currentDest = bestNeighbor;
-		while(1)
+		while(true)
 		{
 			if(!currentDest.isValid())
 			{
@@ -572,7 +580,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				}
 				else
 				{
-					ps.value = scoreEvaluator.calculateExchange(*cachedAttack, *targets, innerCache, state);
+					ps.value = scoreEvaluator.evaluateExchange(*cachedAttack, 0, *targets, innerCache, state);
 				}
 
 				for(auto unit : allUnits)

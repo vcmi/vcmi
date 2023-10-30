@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "NetPackFixture.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 
 namespace test
 {

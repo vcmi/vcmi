@@ -14,13 +14,17 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../GameSettings.h"
 #include "../CPlayerState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/Component.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../MetaString.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 

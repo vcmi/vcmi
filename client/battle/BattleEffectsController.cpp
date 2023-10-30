@@ -28,7 +28,7 @@
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/filesystem/ResourcePath.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CStack.h"
 #include "../../lib/IGameEventsReceiver.h"
 #include "../../lib/CGeneralTextHandler.h"

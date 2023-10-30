@@ -85,7 +85,7 @@ class CModList
 	QVariantMap localModList;
 	QVariantMap modSettings;
 
-	QVariantMap copyField(QVariantMap data, QString from, QString to);
+	QVariantMap copyField(QVariantMap data, QString from, QString to) const;
 
 public:
 	virtual void resetRepositories();

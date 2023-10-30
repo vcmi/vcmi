@@ -9,8 +9,11 @@
  */
 #pragma once
 
-#include "NetPacks.h"
-#include "NetPacksLobby.h"
+#include "PacksForClient.h"
+#include "PacksForClientBattle.h"
+#include "PacksForServer.h"
+#include "PacksForLobby.h"
+#include "SetStackEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

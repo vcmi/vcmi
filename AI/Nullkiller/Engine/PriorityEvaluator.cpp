@@ -593,15 +593,15 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 
 const HitMapInfo & RewardEvaluator::getEnemyHeroDanger(const int3 & tile, uint8_t turn) const
 {
-	auto & treatNode = ai->dangerHitMap->getTileTreat(tile);
+	auto & treatNode = ai->dangerHitMap->getTileThreat(tile);
 
 	if(treatNode.maximumDanger.danger == 0)
-		return HitMapInfo::NoTreat;
+		return HitMapInfo::NoThreat;
 
 	if(treatNode.maximumDanger.turn <= turn)
 		return treatNode.maximumDanger;
 
-	return treatNode.fastestDanger.turn <= turn ? treatNode.fastestDanger : HitMapInfo::NoTreat;
+	return treatNode.fastestDanger.turn <= turn ? treatNode.fastestDanger : HitMapInfo::NoThreat;
 }
 
 int32_t getArmyCost(const CArmedInstance * army)

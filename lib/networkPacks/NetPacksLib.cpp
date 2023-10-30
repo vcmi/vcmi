@@ -9,7 +9,12 @@
  */
 #include "StdInc.h"
 #include "ArtifactUtils.h"
-#include "NetPacks.h"
+#include "PacksForClient.h"
+#include "PacksForClientBattle.h"
+#include "PacksForServer.h"
+#include "StackLocation.h"
+#include "PacksForLobby.h"
+#include "SetStackEffect.h"
 #include "NetPackVisitor.h"
 #include "CGeneralTextHandler.h"
 #include "CArtHandler.h"
@@ -2100,7 +2105,7 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 				state->towns -= t;
 
 				if(state->towns.empty())
-					*state->daysWithoutCastle = 0;
+					state->daysWithoutCastle = 0;
 			}
 			if(PlayerColor(val).isValidPlayer())
 			{

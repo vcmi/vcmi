@@ -16,7 +16,6 @@
 #include "../CVCMIServer.h"
 
 #include "../../lib/CPlayerState.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
 

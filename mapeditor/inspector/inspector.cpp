@@ -123,6 +123,8 @@ void Initializer::initialize(CGHeroPlaceholder * o)
 {
 	if(!o) return;
 	
+	o->tempOwner = defaultPlayer;
+	
 	if(!o->powerRank.has_value() && !o->heroType.has_value())
 		o->powerRank = 0;
 	
@@ -273,6 +275,8 @@ void Inspector::updateProperties(CGShipyard * o)
 void Inspector::updateProperties(CGHeroPlaceholder * o)
 {
 	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, false);
 	
 	bool type = false;
 	if(o->heroType.has_value())
@@ -681,7 +685,7 @@ void Inspector::setProperty(CGHeroPlaceholder * o, const QString & key, const QV
 	
 	if(key == "Hero type")
 	{
-		o->heroType.value() = HeroTypeID(value.toInt());
+		o->heroType = HeroTypeID(value.toInt());
 	}
 }
 

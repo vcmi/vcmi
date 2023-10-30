@@ -201,7 +201,7 @@ void RoadPlacer::connectRoads()
 		catch (const std::exception & e)
 		{
 			logGlobal->error("Unhandled exception while drawing road to node %s: %s", node.toString(), e.what());
-			throw e;
+			throw;
 		}
 	}
 	

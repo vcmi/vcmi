@@ -65,3 +65,10 @@ private:
 	std::vector<std::shared_ptr<CToggleGroup>> players;
 	std::vector<std::shared_ptr<CIntObject>> placeholders;
 };
+
+class TeamAlignments: public CWindowObject
+{
+	std::shared_ptr<TeamAlignmentsWidget> widget;
+public:
+	TeamAlignments(RandomMapTab & randomMapTab);
+};

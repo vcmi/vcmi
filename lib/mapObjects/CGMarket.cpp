@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CGMarket.h"
 
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../CCreatureHandler.h"
@@ -20,6 +19,7 @@
 #include "../CSkillHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

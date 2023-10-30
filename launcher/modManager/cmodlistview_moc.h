@@ -64,7 +64,7 @@ signals:
 	void modsChanged();
 
 public:
-	explicit CModListView(QWidget * parent = 0);
+	explicit CModListView(QWidget * parent = nullptr);
 	~CModListView();
 
 	void loadScreenshots();

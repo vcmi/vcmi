@@ -18,6 +18,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 #include "../../CCallback.h"
 

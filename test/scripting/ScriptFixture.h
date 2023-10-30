@@ -16,7 +16,6 @@
 
 #include "../../lib/JsonNode.h"
 #include "../../lib/ScriptHandler.h"
-#include "../../lib/NetPacksBase.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/bonuses/Bonus.h"
 

@@ -18,10 +18,12 @@
 #include "../../lib/CStack.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/gameState/CGameState.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/networkPacks/SetStackEffect.h"
 #include "../../lib/spells/AbilityCaster.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
@@ -852,6 +854,8 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
+	if(dest == start) 	//If dest is equal to start, then we should handle obstacles for it anyway
+		passed.clear();	//Just empty passed, obstacles will handled automatically
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
 	battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
 

@@ -12,7 +12,7 @@
 #include <vcmi/events/EventBus.h>
 
 #include "../../lib/events/ApplyDamage.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 
 #include "../mock/mock_Environment.h"
 #include "../mock/mock_battle_Unit.h"

@@ -56,7 +56,7 @@ class CModListModel : public QAbstractItemModel, public CModList
 	QVariant getIcon(const CModEntry & mod, int field) const;
 
 public:
-	explicit CModListModel(QObject * parent = 0);
+	explicit CModListModel(QObject * parent = nullptr);
 
 	/// CModListContainer overrides
 	void resetRepositories() override;
@@ -93,5 +93,5 @@ class CModFilterModel : public QSortFilterProxyModel
 public:
 	void setTypeFilter(int filteredType, int filterMask);
 
-	CModFilterModel(CModListModel * model, QObject * parent = 0);
+	CModFilterModel(CModListModel * model, QObject * parent = nullptr);
 };

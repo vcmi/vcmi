@@ -68,7 +68,7 @@ void CSDL_Ext::updateRect(SDL_Surface *surface, const Rect & rect )
 		logGlobal->error("%sSDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 
 	SDL_RenderClear(mainRenderer);
-	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL))
+	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
 		logGlobal->error("%sSDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
 	SDL_RenderPresent(mainRenderer);
 
@@ -813,8 +813,8 @@ void CSDL_Ext::fillRectBlended( SDL_Surface *dst, const Rect & dstrect, const SD
 	uint32_t sdlColor = SDL_MapRGBA(dst->format, color.r, color.g, color.b, color.a);
 
 	SDL_Surface * tmp = SDL_CreateRGBSurface(0, newRect.w, newRect.h, dst->format->BitsPerPixel, dst->format->Rmask, dst->format->Gmask, dst->format->Bmask, dst->format->Amask);
-	SDL_FillRect(tmp, NULL, sdlColor);
-	SDL_BlitSurface(tmp, NULL, dst, &newRect);
+	SDL_FillRect(tmp, nullptr, sdlColor);
+	SDL_BlitSurface(tmp, nullptr, dst, &newRect);
 	SDL_FreeSurface(tmp);
 }
 

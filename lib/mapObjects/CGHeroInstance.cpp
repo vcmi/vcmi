@@ -14,7 +14,6 @@
 #include <vcmi/ServerCallback.h>
 #include <vcmi/spells/Spell.h>
 
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
 #include "../CHeroHandler.h"
@@ -35,13 +34,18 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../modding/ModScope.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
 #include "../constants/StringConstants.h"
 #include "../battle/Unit.h"
+#include "CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 {
+	serializeJsonOwner(handler);
+	
 	bool isHeroType = heroType.has_value();
 	handler.serializeBool("placeholderType", isHeroType, false);
 	
@@ -697,7 +701,11 @@ int32_t CGHeroInstance::getEffectPower(const spells::Spell * spell) const
 
 int32_t CGHeroInstance::getEnchantPower(const spells::Spell * spell) const
 {
-	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(BonusType::SPELL_DURATION);
+	int32_t spellpower = getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	int32_t durationCommon = valOfBonuses(BonusType::SPELL_DURATION, BonusSubtypeID());
+	int32_t durationSpecific = valOfBonuses(BonusType::SPELL_DURATION, BonusSubtypeID(spell->getId()));
+
+	return spellpower + durationCommon + durationSpecific;
 }
 
 int64_t CGHeroInstance::getEffectValue(const spells::Spell * spell) const
@@ -1502,8 +1510,29 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
+	auto existingHero = std::find_if(map->objects.begin(), map->objects.end(), [&](const CGObjectInstance * o) ->bool
+		{
+			return (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
+		});
+
+	if(existingHero != map->objects.end())
+	{
+		if(settings["session"]["editor"].Bool())
+		{
+			logGlobal->warn("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
+		}
+		else
+		{
+			logGlobal->error("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
+
+			throw std::runtime_error("Hero is already on the map");
+		}
+	}
+
 	if(ID == Obj::HERO)
+	{		
 		map->heroesOnMap.emplace_back(this);
+	}
 }
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {

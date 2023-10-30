@@ -22,8 +22,8 @@ TurnInfo::BonusCache::BonusCache(const TConstBonusListPtr & bl)
 {
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		noTerrainPenalty.push_back(static_cast<bool>(
-				bl->getFirst(Selector::type()(BonusType::NO_TERRAIN_PENALTY).And(Selector::subtype()(BonusSubtypeID(terrain->getId()))))));
+		auto selector = Selector::typeSubtype(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(terrain->getId()));
+		noTerrainPenalty.push_back(static_cast<bool>(bl->getFirst(selector)));
 	}
 
 	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(BonusType::FREE_SHIP_BOARDING)));

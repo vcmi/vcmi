@@ -89,8 +89,6 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	if(tile == tilePrev) //do not redraw
 		return;
 
-	tilePrev = tile;
-
 	emit currentCoordinates(tile.x, tile.y);
 
 	switch(selectionTool)
@@ -208,7 +206,21 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	case MapView::SelectionTool::Lasso:
 		if(mouseEvent->buttons() == Qt::LeftButton)
 		{
-			sc->selectionTerrainView.select(tile);
+			for(auto i = tilePrev; i != tile;)
+			{
+				int length = std::numeric_limits<int>::max();
+				int3 dir;
+				for(auto & d : int3::getDirs())
+				{
+					if(tile.dist2dSQ(i + d) < length)
+					{
+						dir = d;
+						length = tile.dist2dSQ(i + d);
+					}
+				}
+				i += dir;
+				sc->selectionTerrainView.select(i);
+			}
 			sc->selectionTerrainView.draw();
 		}
 		break;
@@ -235,6 +247,8 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 		sc->selectionObjectsView.draw();
 		break;
 	}
+	
+	tilePrev = tile;
 }
 
 void MapView::mousePressEvent(QMouseEvent *event)
@@ -459,6 +473,23 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	case MapView::SelectionTool::Lasso: {
 		if(event->button() == Qt::RightButton)
 			break;
+		
+		//connect with initial tile
+		for(auto i = tilePrev; i != tileStart;)
+		{
+			int length = std::numeric_limits<int>::max();
+			int3 dir;
+			for(auto & d : int3::getDirs())
+			{
+				if(tileStart.dist2dSQ(i + d) < length)
+				{
+					dir = d;
+					length = tileStart.dist2dSQ(i + d);
+				}
+			}
+			i += dir;
+			sc->selectionTerrainView.select(i);
+		}
 				
 		//key: y position of tile
 		//value.first: x position of left tile

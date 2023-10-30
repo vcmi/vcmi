@@ -60,7 +60,13 @@ Allows flying movement for affected heroes
 
 Eliminates terrain penalty on certain terrain types for affected heroes (Nomads ability).
 
+Note: to eliminate all terrain penalties see ROUGH_TERRAIN_DISCOUNT bonus
+
 - subtype: type of terrain
+
+### TERRAIN_NATIVE
+
+Affected units will view any terrain as native
 
 ### PRIMARY_SKILL
 
@@ -252,6 +258,7 @@ Allows creature upgrade for affected armies
 Changes duration of timed spells casted by affected hero
 
 - val: additional duration, turns
+- subtype: optional, identifier of affected spells, or all if not set
 
 ### SPELL
 
@@ -791,7 +798,7 @@ Affected unit is permanently enchanted with a spell, that is cast again every tu
 
 Affected unit is immune to all spell with level below or equal to value of this bonus
 
-- val: level to which this unit is immune to
+- val: level up to which this unit is immune to
 
 TODO: additional info?
 
@@ -892,6 +899,12 @@ Affected unit is considered to be hypnotized and will be controlled by enemy pla
 Affected unit will never retaliate to an attack (Blind, Paralyze)
 
 # Others
+
+### NEGATIVE_EFFECTS_IMMUNITY
+
+Affected unit is immune to all negative spells of specified spell school
+
+- subtype: affected spell school
 
 ### BLOCK_MAGIC_ABOVE
 

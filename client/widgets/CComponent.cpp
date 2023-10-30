@@ -31,11 +31,11 @@
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/networkPacks/Component.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/NetPacksBase.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CArtifactInstance.h"
 

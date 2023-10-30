@@ -145,6 +145,14 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Ensure LF line endings
+      if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
+      run: |
+        find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
+        -o -path ./osx  -prune -o -type f \
+        -not -name '*.png' -and -not -name '*.vcxproj*' -and -not -name '*.props' -and -not -name '*.wav' -and -not -name '*.ico' -and -not -name '*.bat' -print0 | \
+        { ! xargs -0 grep -l -z -P '\r\n'; }
+
     - name: Validate JSON
       # the Python yaml module doesn't seem to work on mac-arm
       # also, running it on multiple presets is redundant and slightly increases already long CI built times
@@ -158,18 +166,36 @@ jobs:
       env:
         VCMI_BUILD_PLATFORM: x64
 
-    - name: ccache
+    # ensure the ccache for each PR is separate so they don't interfere with each other
+    # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
+    - name: Ccache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
+      if: ${{ github.event.number != '' }}
       with:
-          key: ${{ matrix.preset }}
-          # actual cache takes up less space, at most ~1 GB
-          max-size: "5G"
-          verbose: 2
+        key: ${{ matrix.preset }}-PR-${{ github.event.number }}
+        restore-keys: |
+          ${{ matrix.preset }}-PR-${{ github.event.number }}
+          ${{ matrix.preset }}-no-PR
+        # actual cache takes up less space, at most ~1 GB
+        max-size: "5G"
+        verbose: 2
+
+    - name: Ccache for everything but PRs
+      uses: hendrikmuhs/ccache-action@v1.2
+      if: ${{ github.event.number == '' }}
+      with:
+        key: ${{ matrix.preset }}-no-PR
+        restore-keys: |
+          ${{ matrix.preset }}-no-PR
+        # actual cache takes up less space, at most ~1 GB
+        max-size: "5G"
+        verbose: 2
 
     - uses: actions/setup-python@v4
       if: "${{ matrix.conan_profile != '' }}"
       with:
         python-version: '3.10'
+
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |

@@ -573,7 +573,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 
 				const std::string templateName = options->getMapTemplate()->getName();
 				const ui32 seed = scenarioOps->seedToBeUsed;
-				const std::string dt = vstd::getDateTimeISO8601Basic(std::time(0));
+				const std::string dt = vstd::getDateTimeISO8601Basic(std::time(nullptr));
 
 				const std::string fileName = boost::str(boost::format("%s_%s_%d.vmap") % dt % templateName % seed );
 				const auto fullPath = path / fileName;

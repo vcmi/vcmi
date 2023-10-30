@@ -12,8 +12,8 @@
 
 #include "Limiter.h"
 #include "MetaString.h"
-#include "NetPacksBase.h"
 #include "Reward.h"
+#include "../networkPacks/EInfoWindowMode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

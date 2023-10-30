@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "../../lib/NetPacks.h"
 #include "../../lib/gameState/CGameState.h"
 
 namespace test

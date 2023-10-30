@@ -86,17 +86,28 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 	std::set <TModID> resolvedModIDs; // Use a set for validation for performance reason, but set does not keep order of elements
 
 	// Mod is resolved if it has not dependencies or all its dependencies are already resolved
-	auto isResolved = [&](const CModInfo & mod) -> CModInfo::EValidationStatus
+	auto isResolved = [&](const CModInfo & mod) -> bool
 	{
 		if(mod.dependencies.size() > resolvedModIDs.size())
-			return CModInfo::PENDING;
+			return false;
 
 		for(const TModID & dependency : mod.dependencies)
 		{
 			if(!vstd::contains(resolvedModIDs, dependency))
-				return CModInfo::PENDING;
+				return false;
 		}
-		return CModInfo::PASSED;
+
+		for(const TModID & conflict : mod.conflicts)
+		{
+			if(vstd::contains(resolvedModIDs, conflict))
+				return false;
+		}
+		for(const TModID & reverseConflict : resolvedModIDs)
+		{
+			if (vstd::contains(allMods.at(reverseConflict).conflicts, mod.identifier))
+				return false;
+		}
+		return true;
 	};
 
 	while(true)
@@ -104,7 +115,7 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		std::set <TModID> resolvedOnCurrentTreeLevel;
 		for(auto it = modsToResolve.begin(); it != modsToResolve.end();) // One iteration - one level of mods tree
 		{
-			if(isResolved(allMods.at(*it)) == CModInfo::PASSED)
+			if(isResolved(allMods.at(*it)))
 			{
 				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node childs will be resolved on the next iteration
 				sortedValidMods.push_back(*it);
@@ -130,6 +141,16 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		{
 			if(!vstd::contains(resolvedModIDs, dependency) && brokenMod.config["modType"].String() != "Compatibility")
 				logMod->error("Mod '%s' has been disabled: dependency '%s' is missing.", brokenMod.getVerificationInfo().name, dependency);
+		}
+		for(const TModID & conflict : brokenMod.conflicts)
+		{
+			if(vstd::contains(resolvedModIDs, conflict))
+				logMod->error("Mod '%s' has been disabled: conflicts with enabled mod '%s'.", brokenMod.getVerificationInfo().name, conflict);
+		}
+		for(const TModID & reverseConflict : resolvedModIDs)
+		{
+			if (vstd::contains(allMods.at(reverseConflict).conflicts, brokenModID))
+				logMod->error("Mod '%s' has been disabled: conflicts with enabled mod '%s'.", brokenMod.getVerificationInfo().name, reverseConflict);
 		}
 	}
 	return sortedValidMods;

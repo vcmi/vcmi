@@ -66,7 +66,7 @@ void CButton::setBorderColor(std::optional<ColorRGBA> newBorderColor)
 	borderColor = newBorderColor;
 }
 
-void CButton::addCallback(std::function<void()> callback)
+void CButton::addCallback(const std::function<void()> & callback)
 {
 	this->callback += callback;
 }

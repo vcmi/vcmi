@@ -16,6 +16,8 @@
 #include "../battles/BattleProcessor.h"
 
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/networkPacks/PacksForServer.h"
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {

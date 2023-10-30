@@ -12,6 +12,7 @@
 #include "SetResources.h"
 
 #include "../../LuaStack.h"
+#include "../../../../lib/networkPacks/PacksForClient.h"
 
 #include "../Registry.h"
 

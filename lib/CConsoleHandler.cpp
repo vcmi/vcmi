@@ -134,7 +134,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	HMODULE hModule = nullptr;
 	GetModuleFileNameA(hModule, buffer, MAX_PATH);
 	mname = strrchr(buffer, '\\');
-	if (mname != 0)
+	if (mname != nullptr)
 		mname++;
 	else
 		mname = buffer;

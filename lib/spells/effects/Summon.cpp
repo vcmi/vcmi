@@ -13,15 +13,15 @@
 #include "Registry.h"
 
 #include "../ISpellMechanics.h"
+#include "../../MetaString.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/BattleInfo.h"
 #include "../../battle/Unit.h"
-#include "../../NetPacks.h"
 #include "../../serializer/JsonSerializeFormat.h"
-
 #include "../../CCreatureHandler.h"
 #include "../../CHeroHandler.h"
 #include "../../mapObjects/CGHeroInstance.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

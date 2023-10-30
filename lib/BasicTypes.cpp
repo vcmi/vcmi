@@ -33,14 +33,13 @@ bool INativeTerrainProvider::isNativeTerrain(TerrainId terrain) const
 
 TerrainId AFactionMember::getNativeTerrain() const
 {
-	constexpr auto any = TerrainId(ETerrainId::ANY_TERRAIN);
-	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::NO_TERRAIN_PENALTY, BonusSubtypeID(any));
+	const std::string cachingStringNoTerrainPenalty = "type_TERRAIN_NATIVE_NONE";
+	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::TERRAIN_NATIVE, BonusSubtypeID());
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? any : VLC->factions()->getById(getFaction())->getNativeTerrain();
+		? TerrainId::ANY_TERRAIN : VLC->factions()->getById(getFaction())->getNativeTerrain();
 }
 
 int32_t AFactionMember::magicResistance() const
@@ -111,7 +110,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
 
 	int32_t maxGoodMorale = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+	int32_t maxBadMorale = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
 
 	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
@@ -130,7 +129,7 @@ int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
 
 	int32_t maxGoodLuck = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+	int32_t maxBadLuck = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
 
 	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }

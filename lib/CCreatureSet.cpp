@@ -23,7 +23,6 @@
 #include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"
 #include "serializer/JsonSerializeFormat.h"
-#include "NetPacksBase.h"
 
 #include <vcmi/FactionService.h>
 #include <vcmi/Faction.h>

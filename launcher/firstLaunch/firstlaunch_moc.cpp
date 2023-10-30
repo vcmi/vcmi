@@ -150,7 +150,7 @@ void FirstLaunchView::activateTabModPreset()
 
 void FirstLaunchView::exitSetup()
 {
-	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
+	if(auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow()))
 		mainWindow->exitSetup();
 }
 
@@ -160,7 +160,7 @@ void FirstLaunchView::languageSelected(const QString & selectedLanguage)
 	Settings node = settings.write["general"]["language"];
 	node->String() = selectedLanguage.toStdString();
 
-	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
+	if(auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow()))
 		mainWindow->updateTranslation();
 }
 
@@ -398,7 +398,7 @@ bool FirstLaunchView::checkCanInstallExtras()
 
 CModListView * FirstLaunchView::getModView()
 {
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow());
 
 	assert(mainWindow);
 	if (!mainWindow)

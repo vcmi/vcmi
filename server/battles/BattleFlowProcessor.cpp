@@ -20,7 +20,7 @@
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/spells/BonusCaster.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
@@ -284,7 +284,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 			gameHandler->sendAndApply(&bte);
 	}
 
-	if(!next->willMove())
+	if(!next || !next->willMove())
 		return nullptr;
 
 	return stack;

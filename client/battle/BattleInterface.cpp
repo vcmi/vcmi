@@ -40,7 +40,7 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/CThreadHelper.h"

@@ -12,7 +12,6 @@
 
 #include <vstd/RNG.h>
 
-#include "../../../lib/NetPacksBase.h"
 #include "../../../lib/spells/TargetCondition.h"
 
 
