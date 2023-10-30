@@ -181,7 +181,7 @@ QVariant CModEntry::getValueImpl(QString value, bool localized) const
 	return QVariant();
 }
 
-QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
+QVariantMap CModList::copyField(QVariantMap data, QString from, QString to) const
 {
 	QVariantMap renamed;
 

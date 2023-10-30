@@ -260,7 +260,7 @@ public:
 	//optimization - use one SM for every hero call
 
 	const CGTownInstance * findTownWithTavern() const;
-	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
+	bool canRecruitAnyHero(const CGTownInstance * t = nullptr) const;
 
 	Goals::TSubgoal getGoal(HeroPtr h) const;
 	bool canAct(HeroPtr h) const;

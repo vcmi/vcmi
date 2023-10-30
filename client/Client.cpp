@@ -698,7 +698,7 @@ void CClient::reinitScripting()
 #endif
 }
 
-void CClient::removeGUI()
+void CClient::removeGUI() const
 {
 	// CClient::endGame
 	GH.curInt = nullptr;

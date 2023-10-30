@@ -86,7 +86,7 @@ static void prog_version()
 
 static void prog_help(const po::options_description &opts)
 {
-	auto time = std::time(0);
+	auto time = std::time(nullptr);
 	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
 	printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
 	printf("This is free software; see the source for copying conditions. There is NO\n");

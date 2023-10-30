@@ -110,7 +110,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
 
 	int32_t maxGoodMorale = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+	int32_t maxBadMorale = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
 
 	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
@@ -129,7 +129,7 @@ int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
 
 	int32_t maxGoodLuck = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+	int32_t maxBadLuck = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
 
 	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }

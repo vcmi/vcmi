@@ -20,7 +20,7 @@ class CSettingsView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CSettingsView(QWidget * parent = 0);
+	explicit CSettingsView(QWidget * parent = nullptr);
 	~CSettingsView();
 
 	void loadSettings();

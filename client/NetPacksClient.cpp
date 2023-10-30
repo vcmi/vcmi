@@ -367,19 +367,21 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 void ApplyFirstClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(CGI->mh)
+	if(CGI && CGI->mh)
+	{
 		CGI->mh->onObjectFadeOut(obj, pack.initiator);
-
-	CGI->mh->waitForOngoingAnimations();
+		CGI->mh->waitForOngoingAnimations();
+	}
 }
 
 void ApplyClientNetPackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
-	if(CGI->mh)
+	if(CGI && CGI->mh)
+	{
 		CGI->mh->onObjectFadeIn(obj, pack.initiator);
-
-	CGI->mh->waitForOngoingAnimations();
+		CGI->mh->waitForOngoingAnimations();
+	}
 	cl.invalidatePaths();
 }
 

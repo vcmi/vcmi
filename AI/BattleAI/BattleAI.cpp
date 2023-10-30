@@ -197,7 +197,7 @@ BattleAction CBattleAI::useCatapult(const BattleID & battleID, const CStack * st
 	}
 	else
 	{
-		EWallPart wallParts[] = {
+		std::array wallParts {
 			EWallPart::KEEP,
 			EWallPart::BOTTOM_TOWER,
 			EWallPart::UPPER_TOWER,

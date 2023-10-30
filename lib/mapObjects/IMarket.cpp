@@ -158,7 +158,13 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
 {
 	auto * imarket = dynamic_cast<const IMarket *>(obj);
 	if(verbose && !imarket)
-		logGlobal->error("Cannot cast to IMarket object type %s", obj->typeName);
+	{
+		logGlobal->error("Cannot cast to IMarket");
+		if(obj)
+		{
+			logGlobal->error("Object type %s", obj->typeName);
+		}
+	}
 	return imarket;
 }
 

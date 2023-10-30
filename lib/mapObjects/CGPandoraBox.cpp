@@ -279,11 +279,10 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		|| vinfo.reward.heroExperience
 		|| vinfo.reward.manaDiff
 		|| vinfo.reward.resources.nonZero()
+		|| !vinfo.reward.artifacts.empty()
 		|| !vinfo.reward.bonuses.empty()
-		|| !vinfo.reward.artifacts.empty()
-		|| !vinfo.reward.secondary.empty()
-		|| !vinfo.reward.artifacts.empty()
-		|| !vinfo.reward.creatures.empty();
+		|| !vinfo.reward.creatures.empty()
+		|| !vinfo.reward.secondary.empty();
 		
 		if(hasSomething)
 			configuration.info.push_back(vinfo);

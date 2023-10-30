@@ -58,7 +58,7 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 		if(state != EWallState::DESTROYED)
 			continue;
 
-		auto wallHex = cb->getBattle(battleID)->wallPartToBattleHex((EWallPart)wallPart);
+		auto wallHex = cb->getBattle(battleID)->wallPartToBattleHex(wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
 		result.push_back(moatHex);
@@ -142,7 +142,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 			logAi->debug("BattleAI: %s -> %s x %d, from %d curpos %d dist %d speed %d: +%2f -%2f = %2f",
 				bestAttack.attackerState->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
-				(int)bestAttack.affectedUnits[0]->getCount(),
+				bestAttack.affectedUnits[0]->getCount(),
 				(int)bestAttack.from,
 				(int)bestAttack.attack.attacker->getPosition().hex,
 				bestAttack.attack.chargeDistance,
@@ -315,7 +315,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 	else
 	{
 		BattleHex currentDest = bestNeighbor;
-		while(1)
+		while(true)
 		{
 			if(!currentDest.isValid())
 			{

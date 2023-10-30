@@ -12,9 +12,9 @@
 #include "../../lib/CStack.h"
 
 AttackerValue::AttackerValue()
+	: value(0),
+	isRetalitated(false)
 {
-	value = 0;
-	isRetalitated = false;
 }
 
 MoveTarget::MoveTarget()
@@ -354,7 +354,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 	return result;
 }
 
-std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(const battle::Unit * blockerUnit)
+std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(const battle::Unit * blockerUnit) const
 {
 	std::queue<const battle::Unit *> queue;
 	std::vector<const battle::Unit *> checkedStacks;

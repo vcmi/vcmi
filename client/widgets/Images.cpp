@@ -96,7 +96,7 @@ void CPicture::showAll(Canvas & to)
 	}
 }
 
-void CPicture::setAlpha(int value)
+void CPicture::setAlpha(uint8_t value)
 {
 	bg->setAlpha(value);
 }

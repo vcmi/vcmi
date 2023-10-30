@@ -67,7 +67,7 @@ class FirstLaunchView : public QWidget
 	void installMod(const QString & modID);
 
 public:
-	explicit FirstLaunchView(QWidget * parent = 0);
+	explicit FirstLaunchView(QWidget * parent = nullptr);
 
 public slots:
 
