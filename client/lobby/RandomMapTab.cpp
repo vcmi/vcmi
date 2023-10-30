@@ -183,11 +183,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();
 
 	// Generate player information
-	int playersToGen = PlayerColor::PLAYER_LIMIT_I;
-	if(mapGenOptions->getHumanOrCpuPlayerCount() != CMapGenOptions::RANDOM_SIZE)
-	{
-		playersToGen = mapGenOptions->getHumanOrCpuPlayerCount();
-	}
+	int playersToGen = mapGenOptions->getMaxPlayersCount();
 
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
@@ -224,7 +220,6 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfoChanged(mapInfo, mapGenOptions);
 }
 
-// This method only sets GUI options, doesn't alter any actual configurations done
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 {
 	mapGenOptions = opts;

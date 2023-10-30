@@ -250,7 +250,7 @@ void CMapGenOptions::initPlayersMap()
 void CMapGenOptions::resetPlayersMap()
 {
 	// Called when number of player changes
-	//But do not update info about already made selections
+	// But do not update info about already made selections
 
 	savePlayersMap();
 
@@ -449,6 +449,8 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 		}
 		if(!mapTemplate->getWaterContentAllowed().count(getWaterContent()))
 			setWaterContent(EWaterContent::RANDOM);
+
+		resetPlayersMap(); // Update teams and player count
 	}
 }
 
@@ -484,7 +486,6 @@ void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & tea
 {
 	auto it = players.find(color);
 	assert(it != players.end());
-	// TODO: Make pivate friend method to avoid unintended changes?
 	it->second.setTeam(team);
 	customizedPlayers = true;
 }
