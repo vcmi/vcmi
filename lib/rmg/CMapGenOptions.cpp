@@ -178,9 +178,7 @@ si8 CMapGenOptions::getPlayerLimit() const
 
 void CMapGenOptions::setCompOnlyPlayerCount(si8 value)
 {
-	auto playerLimit = getPlayerLimit();
-
-	assert(value == RANDOM_SIZE || (getHumanOrCpuPlayerCount() == RANDOM_SIZE || (value >= 0 && value <= playerLimit - getHumanOrCpuPlayerCount())));
+	assert(value == RANDOM_SIZE || (getHumanOrCpuPlayerCount() == RANDOM_SIZE || (value >= 0 && value <= getPlayerLimit() - getHumanOrCpuPlayerCount())));
 	compOnlyPlayerCount = value;
 
 	resetPlayersMap();
