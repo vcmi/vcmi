@@ -176,9 +176,9 @@ jobs:
         restore-keys: |
           ${{ matrix.preset }}-PR-${{ github.event.number }}
           ${{ matrix.preset }}-no-PR
-        # actual cache takes up less space, at most ~1 GB
-        max-size: "5G"
+        max-size: "5G" # actual cache takes up less space, at most ~1 GB
         verbose: 2
+        append-timestamp: false
 
     - name: Ccache for everything but PRs
       uses: hendrikmuhs/ccache-action@v1.2
@@ -187,9 +187,9 @@ jobs:
         key: ${{ matrix.preset }}-no-PR
         restore-keys: |
           ${{ matrix.preset }}-no-PR
-        # actual cache takes up less space, at most ~1 GB
-        max-size: "5G"
+        max-size: "5G" # actual cache takes up less space, at most ~1 GB
         verbose: 2
+        append-timestamp: false
 
     - uses: actions/setup-python@v4
       if: "${{ matrix.conan_profile != '' }}"
