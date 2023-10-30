@@ -535,7 +535,14 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		{
 			return i > (maxPlayers - presentPlayers);
 		});
-		compOnlyPlayerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
+		if (possiblePlayers.empty())
+		{
+			compOnlyPlayerCount = 0;
+		}
+		else
+		{
+			compOnlyPlayerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
+		}
 		updateCompOnlyPlayers();
 	}
 	if(compOnlyTeamCount == RANDOM_SIZE)
