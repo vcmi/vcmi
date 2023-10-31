@@ -177,6 +177,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
 // "selectFirst",  - first reward which passes "limiter" will be granted to player
 // "selectPlayer", - player will be allowed to choose between rewards (e.g. treasure chest)
 // "selectRandom", - granted reward will be picked randomly when hero visits object
+// "selectAll" - every reward which passes "limiter" will be granted to player
 "selectMode" : "selectFirst"
 
 }
