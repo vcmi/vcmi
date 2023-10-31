@@ -256,7 +256,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 		break;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
-		comp = std::make_shared<CComponent>(CComponent::primskill, getSubID(), (int)getValue());
+		comp = std::make_shared<CComponent>(ComponentType::PRIM_SKILL, PrimarySkill(getSubID()), getValue());
 		break;
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[149];
@@ -271,7 +271,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 			if(value)
 			{
 				text = CGI->skillh->getByIndex(subID)->getDescriptionTranslated((int)value);
-				comp = std::make_shared<CComponent>(CComponent::secskill, subID, (int)value);
+				comp = std::make_shared<CComponent>(ComponentType::SEC_SKILL, SecondarySkill(subID), (int)value);
 			}
 			break;
 		}

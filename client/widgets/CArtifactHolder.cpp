@@ -49,7 +49,7 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
 			imageIndex = spellID.num;
-			if(baseType != CComponent::spell)
+			if(component.type != ComponentType::SPELL_SCROLL)
 			{
 				image->setScale(Point(pos.w, 34));
 				image->setAnimationPath(AnimationPath::builtin("spellscr"), imageIndex);
@@ -57,21 +57,20 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 			}
 		}
 		// Add spell component info (used to provide a pic in r-click popup)
-		baseType = CComponent::spell;
-		type = spellID;
+		component.type = ComponentType::SPELL_SCROLL;
+		component.subType = spellID;
 	}
 	else
 	{
-		if(settings["general"]["enableUiEnhancements"].Bool() && baseType != CComponent::artifact)
+		if(settings["general"]["enableUiEnhancements"].Bool() && component.type != ComponentType::ARTIFACT)
 		{
 			image->setScale(Point());
 			image->setAnimationPath(AnimationPath::builtin("artifact"), imageIndex);
 			image->moveTo(Point(pos.x, pos.y));
 		}
-		baseType = CComponent::artifact;
-		type = artInst->getTypeId();
+		component.type = ComponentType::ARTIFACT;
+		component.subType = artInst->getTypeId();
 	}
-	bonusValue = 0;
 	image->enable();
 	text = artInst->getDescription();
 }

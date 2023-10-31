@@ -95,7 +95,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 		if(artPlace.getArt()->getTypeId() == ArtifactID::CATAPULT)
 		{
 			// The Catapult must be equipped
-			std::vector<std::shared_ptr<CComponent>> catapult(1, std::make_shared<CComponent>(CComponent::artifact, 3, 0));
+			std::vector<std::shared_ptr<CComponent>> catapult(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT)));
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult);
 			return false;
 		}

@@ -375,7 +375,7 @@ class CUniversityWindow : public CStatusbarWindow
 		std::shared_ptr<CLabel> name;
 		std::shared_ptr<CLabel> level;
 	public:
-		int ID;//id of selected skill
+		SecondarySkill ID;//id of selected skill
 		CUniversityWindow * parent;
 
 		void showAll(Canvas & to) override;

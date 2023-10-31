@@ -325,7 +325,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 				std::vector<std::shared_ptr<CComponent>> resComps;
 				for(TResources::nziterator i(totalCost); i.valid(); i++)
 				{
-					resComps.push_back(std::make_shared<CComponent>(CComponent::resource, i->resType, (int)i->resVal));
+					resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
 				}
 
 				if(LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
@@ -582,10 +582,10 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			const CCommanderInstance * commander = parent->info->commander;
 			expRankIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), 4, 0, pos.x, pos.y);
 
-			auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(pos.x, pos.y, 44, 44), CComponent::experience);
+			auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(pos.x, pos.y, 44, 44), ComponentType::EXPERIENCE);
 			expArea = area;
 			area->text = CGI->generaltexth->allTexts[2];
-			area->bonusValue =	commander->getExpRank();
+			area->component.value = commander->getExpRank();
 			boost::replace_first(area->text, "%d", std::to_string(commander->getExpRank()));
 			boost::replace_first(area->text, "%d", std::to_string(CGI->heroh->reqExp(commander->getExpRank() + 1)));
 			boost::replace_first(area->text, "%d", std::to_string(commander->experience));
@@ -611,8 +611,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		if(art)
 		{
 			parent->stackArtifactIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("ARTIFACT"), art->artType->getIconIndex(), 0, pos.x, pos.y);
-			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), CComponent::artifact);
-			parent->stackArtifactHelp->type = art->artType->getId();
+			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), ComponentType::ARTIFACT);
+			parent->stackArtifactHelp->component.subType = art->artType->getId();
 
 			if(parent->info->owner)
 			{

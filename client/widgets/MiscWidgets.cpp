@@ -95,16 +95,16 @@ void LRClickableAreaWTextComp::clickPressed(const Point & cursorPosition)
 	LOCPLINT->showInfoDialog(text, comp);
 }
 
-LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
-	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
+LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, ComponentType BaseType)
+	: LRClickableAreaWText(Pos)
 {
-	type = -1;
+	component.type = BaseType;
 }
 
 std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 {
-	if(baseType >= 0)
-		return std::make_shared<CComponent>(CComponent::Etype(baseType), type, bonusValue);
+	if(component.type != ComponentType::NONE)
+		return std::make_shared<CComponent>(component);
 	else
 		return std::shared_ptr<CComponent>();
 }
@@ -164,17 +164,11 @@ void CHeroArea::hover(bool on)
 void LRClickableAreaOpenTown::clickPressed(const Point & cursorPosition)
 {
 	if(town)
-	{
 		LOCPLINT->openTownWindow(town);
-		if ( type == 2 )
-			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::VILLAGE_HALL);
-		else if ( type == 3 && town->fortLevel() )
-			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::FORT);
-	}
 }
 
 LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town)
-	: LRClickableAreaWTextComp(Pos, -1), town(Town)
+	: LRClickableAreaWTextComp(Pos), town(Town)
 {
 }
 
@@ -542,20 +536,21 @@ void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
+	const std::array textId = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
-	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
-	const int componentType[] = {CComponent::luck, CComponent::morale};
-	const int hoverTextBase[] = {7, 4};
+	const std::array neutralDescr = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
+	const std::array componentType = {ComponentType::LUCK, ComponentType::MORALE};
+	const std::array hoverTextBase = {7, 4};
 	TConstBonusListPtr modifierList = std::make_shared<const BonusList>();
-	bonusValue = 0;
+
+	component.value = 0;
 
 	if(node)
-		bonusValue = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
+		component.value = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
-	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
+	int mrlt = (component.value>0)-(component.value<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
-	baseType = componentType[morale];
+	component.type = componentType[morale];
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
@@ -563,19 +558,19 @@ void MoraleLuckBox::set(const AFactionMember * node)
 			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
-		bonusValue = 0;
+		component.value = 0;
 	}
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
 		text += "\n" + noMorale->Description();
-		bonusValue = 0;
+		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
 		text += "\n" + noLuck->Description();
-		bonusValue = 0;
+		component.value = 0;
 	}
 	else
 	{
@@ -595,7 +590,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else
 		imageName = morale ? "IMRL42" : "ILCK42";
 
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin(imageName), bonusValue + 3);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin(imageName), *component.value + 3);
 	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2));//center icon
 }
 
@@ -603,7 +598,6 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
 	: morale(Morale),
 	small(Small)
 {
-	bonusValue = 0;
 	pos = r + pos.topLeft();
 	defActions = 255-DISPOSE;
 }

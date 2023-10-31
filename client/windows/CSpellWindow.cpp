@@ -558,7 +558,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
 		if((combatSpell ^ inCombat) || inCastle)
 		{
-			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
+			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));
 			LOCPLINT->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
 		}
 		else if(combatSpell)
@@ -614,7 +614,7 @@ void CSpellWindow::SpellArea::showPopupWindow(const Point & cursorPosition)
 			boost::algorithm::replace_first(dmgInfo, "%d", std::to_string(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(mySpell->getDescriptionTranslated(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
+		CRClickPopup::createAndPush(mySpell->getDescriptionTranslated(schoolLevel) + dmgInfo, std::make_shared<CComponent>(ComponentType::SPELL, mySpell->id));
 	}
 }
 

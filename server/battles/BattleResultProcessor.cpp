@@ -419,9 +419,11 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 		for (auto art : arts) //TODO; separate function to display loot for various ojects?
 		{
-			iw.components.emplace_back(
-				Component::EComponentType::ARTIFACT, art->artType->getId(),
-				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getScrollSpellID() : SpellID(0), 0);
+			if (art->artType->getId() == ArtifactID::SPELL_SCROLL)
+				iw.components.emplace_back(ComponentType::SPELL_SCROLL, art->getScrollSpellID());
+			else
+				iw.components.emplace_back(ComponentType::ARTIFACT, art->artType->getId());
+
 			if (iw.components.size() >= 14)
 			{
 				gameHandler->sendAndApply(&iw);
@@ -463,7 +465,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			iw.text.replaceLocalString(EMetaText::SPELL_NAME, it->toEnum());
 			if (i == cs.spells.size() - 2) //we just added pre-last name
 				iw.text.replaceLocalString(EMetaText::GENERAL_TXT, 141); // " and "
-			iw.components.emplace_back(Component::EComponentType::SPELL, *it, 0, 0);
+			iw.components.emplace_back(ComponentType::SPELL, *it);
 		}
 		gameHandler->sendAndApply(&iw);
 		gameHandler->sendAndApply(&cs);

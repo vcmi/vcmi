@@ -204,13 +204,13 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	
 	if(killTarget != ObjectInstanceID::NONE && !heroName.empty())
 	{
-		components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
+		components.emplace_back(ComponentType::HERO_PORTRAIT, heroPortrait);
 		addKillTargetReplacements(text);
 	}
 	
 	if(killTarget != ObjectInstanceID::NONE && stackToKill.type)
 	{
-		components.emplace_back(stackToKill);
+		components.emplace_back(ComponentType::CREATURE, stackToKill.getId(), stackToKill.getCount());
 		addKillTargetReplacements(text);
 	}
 	

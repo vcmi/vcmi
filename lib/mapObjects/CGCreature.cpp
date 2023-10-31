@@ -563,17 +563,17 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	if(!resources.empty())
 	{
 		cb->giveResources(h->tempOwner, resources);
-		for(int i = 0; i < resources.size(); i++)
+		for(auto const & res : GameResID::ALL_RESOURCES())
 		{
-			if(resources[i] > 0)
-				iw.components.emplace_back(Component::EComponentType::RESOURCE, i, resources[i], 0);
+			if(resources[res] > 0)
+				iw.components.emplace_back(ComponentType::RESOURCE, res, resources[res]);
 		}
 	}
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
 		cb->giveHeroNewArtifact(h, VLC->arth->objects[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
-		iw.components.emplace_back(Component::EComponentType::ARTIFACT, gainedArtifact, 0, 0);
+		iw.components.emplace_back(ComponentType::ARTIFACT, gainedArtifact);
 	}
 
 	if(!iw.components.empty())
