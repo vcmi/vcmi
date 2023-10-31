@@ -130,6 +130,16 @@ void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
 		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
 		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrainName));
 	}
+	//Get terrain-specific template if possible
+	int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
+	{
+		return tmp1->getAllowedTerrains().size() < tmp2->getAllowedTerrains().size();
+	}))->getAllowedTerrains().size();
+
+	vstd::erase_if(templates, [leastTerrains](const std::shared_ptr<const ObjectTemplate> & tmp)
+	{
+		return tmp->getAllowedTerrains().size() > leastTerrains;
+	});
 	
 	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
 	dAccessibleAreaCache.clear();
