@@ -409,6 +409,7 @@ CGameState::CGameState()
 
 CGameState::~CGameState()
 {
+	// explicitly delete all ongoing battles first - BattleInfo destructor requires valid CGameState
 	currentBattles.clear();
 	map.dellNull();
 }
