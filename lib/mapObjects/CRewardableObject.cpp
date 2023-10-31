@@ -50,6 +50,38 @@ void CRewardableObject::selectRewardWthMessage(const CGHeroInstance * contextHer
 	sd.text = dialog;
 	sd.components = loadComponents(contextHero, rewardIndices);
 	cb->showBlockingDialog(&sd);
+
+}
+
+void CRewardableObject::grantAllRewardsWthMessage(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices, bool markAsVisit) const
+{
+	// TODO: A single message for all rewards?
+	if (rewardIndices.empty())
+		return;
+
+	auto index = rewardIndices.front();
+	auto vi = configuration.info.at(index);
+
+	logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
+	// show message only if it is not empty or in infobox
+	if (configuration.infoWindowType != EInfoWindowMode::MODAL || !vi.message.toString().empty())
+	{
+		InfoWindow iw;
+		iw.player = contextHero->tempOwner;
+		iw.text = vi.message;
+		iw.components = loadComponents(contextHero, rewardIndices);
+		iw.type = configuration.infoWindowType;
+		if(!iw.components.empty() || !iw.text.toString().empty())
+			cb->showInfoDialog(&iw);
+	}
+	// grant reward afterwards. Note that it may remove object
+	if(markAsVisit)
+		markAsVisited(contextHero);
+		
+	for (auto index : rewardIndices)
+	{
+		grantReward(index, contextHero);
+	}
 }
 
 std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * contextHero, const std::vector<ui32> & rewardIndices) const
@@ -115,6 +147,10 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						break;
 					case Rewardable::SELECT_RANDOM: // give random
 						grantRewardWithMessage(h, *RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()), true);
+						break;
+					case Rewardable::SELECT_ALL: // grant all possible
+						auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
+						grantAllRewardsWthMessage(h, rewards, true);
 						break;
 				}
 				break;

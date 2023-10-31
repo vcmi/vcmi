@@ -36,6 +36,7 @@ enum ESelectMode
 	SELECT_FIRST,  // first reward that matches limiters
 	SELECT_PLAYER, // player can select from all allowed rewards
 	SELECT_RANDOM, // one random reward from all mathing limiters
+	SELECT_ALL // grant all rewards that match limiters
 };
 
 enum class EEventType
@@ -46,7 +47,7 @@ enum class EEventType
 	EVENT_NOT_AVAILABLE
 };
 
-const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer", "selectRandom"};
+const std::array<std::string, 4> SelectModeString{"selectFirst", "selectPlayer", "selectRandom", "selectAll"};
 const std::array<std::string, 6> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player"};
 
 struct DLL_LINKAGE ResetInfo
