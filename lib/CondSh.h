@@ -22,6 +22,13 @@ template <typename T> struct CondSh
 
 	CondSh(T t) : data(t) {}
 
+	void unset()
+	{
+	  boost::unique_lock<boost::mutex> lock(mx);
+	  delete data;
+	  data = nullptr;
+	}
+
 	// set data
 	void set(T t)
 	{

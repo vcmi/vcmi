@@ -2119,7 +2119,7 @@ std::list<PlayerColor> CGameHandler::generatePlayerTurnOrder() const
 
 void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town)
 {
-	battleResult.set(nullptr);
+	battleResult.unset();
 
 	const auto & t = *getTile(tile);
 	TerrainId terrain = t.terType->getId();
