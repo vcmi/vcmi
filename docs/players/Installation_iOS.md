@@ -16,6 +16,10 @@ have the following options:
 - [Create signing assets on macOS from terminal](https://github.com/kambala-decapitator/xcode-auto-signing-assets). In the command replace `your.bundle.id` with something like `com.MY-NAME.vcmi`. After that use the above signer tool.
 - [Sign from any OS](https://github.com/indygreg/PyOxidizer/tree/main/tugger-code-signing). You'd still need to find a way to create signing assets (private key and provisioning profile) though.
 
+To install the signed ipa on your device, you can use Xcode or Apple Configurator (available on the Mac App Store for free). The latter also allows installing ipa from the command line, here's an example that assumes you have only 1 device connected to your Mac and the signed ipa is on your desktop:
+
+    /Applications/Apple\ Configurator.app/Contents/MacOS/cfgutil install-app ~/Desktop/vcmi.ipa
+
 ## Step 2: Installing Heroes III data files
 
 Note: if you don't need in-game videos, you can omit downloading/copying file VIDEO.VID from data folder - it will save your time and space. The same applies to the Mp3 directory.
