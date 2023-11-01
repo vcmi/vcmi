@@ -1060,14 +1060,16 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		}
 	};
 
-	TArtHolder srcArtHolder;
-	TArtHolder dstArtHolder;
+	ObjectInstanceID srcArtHolder;
+	ObjectInstanceID dstArtHolder;
 
 	BulkMoveArtifacts()
-		: swap(false)
+		: srcArtHolder(ObjectInstanceID::NONE)
+		, dstArtHolder(ObjectInstanceID::NONE)
+		, swap(false)
 	{
 	}
-	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder, bool swap)
+	BulkMoveArtifacts(const ObjectInstanceID srcArtHolder, const ObjectInstanceID dstArtHolder, bool swap)
 		: srcArtHolder(std::move(srcArtHolder))
 		, dstArtHolder(std::move(dstArtHolder))
 		, swap(swap)
@@ -1079,8 +1081,6 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 	std::vector<LinkedSlots> artsPack0;
 	std::vector<LinkedSlots> artsPack1;
 	bool swap;
-	CArtifactSet * getSrcHolderArtSet();
-	CArtifactSet * getDstHolderArtSet();
 
 	void visitTyped(ICPackVisitor & visitor) override;
 

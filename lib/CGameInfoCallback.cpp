@@ -16,6 +16,7 @@
 #include "gameState/TavernHeroesPool.h"
 #include "gameState/QuestInfo.h"
 #include "mapObjects/CGHeroInstance.h"
+#include "networkPacks/ArtifactLocation.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
@@ -964,6 +965,22 @@ const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID 
 const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const
 {
 	return gs->map->objects[oid.num];
+}
+
+CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
+{
+	auto hero = const_cast<CGHeroInstance*>(getHero(loc.artHolder));
+	if(loc.creature.has_value())
+	{
+		if(loc.creature.value() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+			return hero->commander;
+		else
+			return hero->getStackPtr(loc.creature.value());
+	}
+	else
+	{
+		return hero;
+	}
 }
 
 std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player) const

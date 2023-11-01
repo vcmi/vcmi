@@ -607,20 +607,23 @@ public:
 		TRANSITION_POS = -3,
 		FIRST_AVAILABLE = -2,
 		PRE_FIRST = -1, //sometimes used as error, sometimes as first free in backpack
+		
+		// Hero
 		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, //5
 		RIGHT_RING, LEFT_RING, FEET, //8
 		MISC1, MISC2, MISC3, MISC4, //12
 		MACH1, MACH2, MACH3, MACH4, //16
 		SPELLBOOK, MISC5, //18
-		AFTER_LAST,
-		//cres
+		BACKPACK_START = 19,
+		
+		// Creatures
 		CREATURE_SLOT = 0,
-		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6, COMMANDER_AFTER_LAST,
-
-		BACKPACK_START = 19
+		
+		// Commander
+		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6
 	};
 
-	static_assert (AFTER_LAST == BACKPACK_START, "incorrect number of artifact slots");
+	static_assert(MISC5 < BACKPACK_START, "incorrect number of artifact slots");
 
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);

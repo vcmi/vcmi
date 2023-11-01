@@ -144,7 +144,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	{
 		if(h->hasArt(elem))
 		{
-			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
+			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
 		}
 		else
 		{
@@ -153,7 +153,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			auto parts = assembly->getPartsInfo();
 
 			// Remove the assembly
-			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));
 
 			// Disassemble this backpack artifact
 			for(const auto & ci : parts)

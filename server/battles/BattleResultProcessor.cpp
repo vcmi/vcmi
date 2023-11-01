@@ -79,7 +79,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 				logGlobal->debug("War machine has been destroyed");
 				auto hero = dynamic_ptr_cast<CGHeroInstance> (army);
 				if (hero)
-					removedWarMachines.push_back (ArtifactLocation(hero, hero->getArtPos(warMachine, true)));
+					removedWarMachines.push_back (ArtifactLocation(hero->id, hero->getArtPos(warMachine, true)));
 				else
 					logGlobal->error("War machine in army without hero");
 			}
@@ -339,7 +339,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			if(slot != ArtifactPosition::PRE_FIRST)
 			{
 				arts.push_back(art);
-				ma->dst = ArtifactLocation(finishingBattle->winnerHero, slot);
+				ma->dst = ArtifactLocation(finishingBattle->winnerHero->id, slot);
 				if(ArtifactUtils::isSlotBackpack(slot))
 					ma->askAssemble = false;
 				gameHandler->sendAndApply(ma);
@@ -353,8 +353,8 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			for (auto artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
-				ma.src = ArtifactLocation(finishingBattle->loserHero, artSlot.first);
-				const CArtifactInstance * art =  ma.src.getArt();
+				ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
+				const CArtifactInstance * art = finishingBattle->loserHero->getArt(artSlot.first);
 				if (art && !art->artType->isBig() &&
 					art->artType->getId() != ArtifactID::SPELLBOOK)
 						// don't move war machines or locked arts (spellbook)
@@ -366,9 +366,9 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			{
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
-				ma.src = ArtifactLocation(finishingBattle->loserHero,
+				ma.src = ArtifactLocation(finishingBattle->loserHero->id,
 					ArtifactPosition(ArtifactPosition::BACKPACK_START + slotNumber)); //backpack automatically shifts arts to beginning
-				const CArtifactInstance * art =  ma.src.getArt();
+				const CArtifactInstance * art = finishingBattle->loserHero->getArt(ArtifactPosition::BACKPACK_START + slotNumber);
 				if (art->artType->getId() != ArtifactID::GRAIL) //grail may not be won
 				{
 					sendMoveArtifact(art, &ma);
@@ -380,8 +380,9 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 				for (auto artSlot : artifactsWorn)
 				{
 					MoveArtifact ma;
-					ma.src = ArtifactLocation(finishingBattle->loserHero->commander.get(), artSlot.first);
-					const CArtifactInstance * art =  ma.src.getArt();
+					ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
+					ma.src.creature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
+					const auto art = finishingBattle->loserHero->commander->getArt(artSlot.first);
 					if (art && !art->artType->isBig())
 					{
 						sendMoveArtifact(art, &ma);
@@ -395,11 +396,12 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		for (auto armySlot : battle.battleGetArmyObject(loser)->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
-			for (auto artSlot : artifactsWorn)
+			for(const auto & artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
-				ma.src = ArtifactLocation(armySlot.second, artSlot.first);
-				const CArtifactInstance * art =  ma.src.getArt();
+				ma.src = ArtifactLocation(finishingBattle->loserHero->id, artSlot.first);
+				ma.src.creature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
+				const auto art = finishingBattle->loserHero->commander->getArt(artSlot.first);
 				if (art && !art->artType->isBig())
 				{
 					sendMoveArtifact(art, &ma);

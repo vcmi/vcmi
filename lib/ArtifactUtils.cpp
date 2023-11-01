@@ -74,6 +74,49 @@ DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::constituentWorn
 	return positions;
 }
 
+DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::allWornSlots()
+{
+	static const std::vector<ArtifactPosition> positions =
+	{
+		ArtifactPosition::HEAD,
+		ArtifactPosition::SHOULDERS,
+		ArtifactPosition::NECK,
+		ArtifactPosition::RIGHT_HAND,
+		ArtifactPosition::LEFT_HAND,
+		ArtifactPosition::TORSO,
+		ArtifactPosition::RIGHT_RING,
+		ArtifactPosition::LEFT_RING,
+		ArtifactPosition::FEET,
+		ArtifactPosition::MISC1,
+		ArtifactPosition::MISC2,
+		ArtifactPosition::MISC3,
+		ArtifactPosition::MISC4,
+		ArtifactPosition::MISC5,
+		ArtifactPosition::MACH1,
+		ArtifactPosition::MACH2,
+		ArtifactPosition::MACH3,
+		ArtifactPosition::MACH4,
+		ArtifactPosition::SPELLBOOK
+	};
+
+	return positions;
+}
+
+DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::commanderSlots()
+{
+	static const std::vector<ArtifactPosition> positions =
+	{
+		ArtifactPosition::COMMANDER1,
+		ArtifactPosition::COMMANDER2,
+		ArtifactPosition::COMMANDER3,
+		ArtifactPosition::COMMANDER4,
+		ArtifactPosition::COMMANDER5,
+		ArtifactPosition::COMMANDER6
+	};
+
+	return positions;
+}
+
 DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 {
 	return slot.second.artifact

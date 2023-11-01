@@ -17,20 +17,6 @@
 #include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/Cast.h"
 
-struct GetEngagedHeroIds
-{
-	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> & h) const
-	{
-		return h->id;
-	}
-	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CStackInstance> & s) const
-	{
-		if(s->armyObj && s->armyObj->ID == Obj::HERO)
-			return s->armyObj->id;
-		return std::optional<ObjectInstanceID>();
-	}
-};
-
 TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	CQuery(owner)
 {
@@ -127,12 +113,12 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 
 	if(auto arts = dynamic_ptr_cast<ExchangeArtifacts>(pack))
 	{
-		if(auto id1 = std::visit(GetEngagedHeroIds(), arts->src.artHolder))
-			if(!vstd::contains(ourIds, *id1))
+		if(auto id1 = arts->src.artHolder)
+			if(!vstd::contains(ourIds, id1))
 				return true;
 
-		if(auto id2 = std::visit(GetEngagedHeroIds(), arts->dst.artHolder))
-			if(!vstd::contains(ourIds, *id2))
+		if(auto id2 = arts->dst.artHolder)
+			if(!vstd::contains(ourIds, id2))
 				return true;
 		return false;
 	}
@@ -144,8 +130,8 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 
 	if(auto art = dynamic_ptr_cast<EraseArtifactByClient>(pack))
 	{
-		if (auto id = std::visit(GetEngagedHeroIds(), art->al.artHolder))
-			return !vstd::contains(ourIds, *id);
+		if(auto id = art->al.artHolder)
+			return !vstd::contains(ourIds, id);
 	}
 
 	if(auto dismiss = dynamic_ptr_cast<AssembleArtifacts>(pack))

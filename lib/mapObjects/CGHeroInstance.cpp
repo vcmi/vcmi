@@ -1092,7 +1092,7 @@ std::string CGHeroInstance::getBiographyTextID() const
 
 CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
-	assert(art->artType->canBePutAt(this, pos));
+	assert(art->canBePutAt(this, pos));
 
 	if(ArtifactUtils::isSlotEquipment(pos))
 		attachTo(*art);
@@ -1135,7 +1135,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		ArtifactLocation(this, ArtifactPosition(ArtifactPosition::SPELLBOOK)).removeArtifact();
+		getArt(ArtifactPosition::SPELLBOOK)->removeFrom(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 

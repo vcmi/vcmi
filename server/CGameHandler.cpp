@@ -2270,7 +2270,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 				if(!t->visitingHero || !t->visitingHero->hasArt(ArtifactID::GRAIL))
 					COMPLAIN_RET("Cannot build this without grail!")
 				else
-					removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(ArtifactID::GRAIL, false)));
+					removeArtifact(ArtifactLocation(t->visitingHero->id, t->visitingHero->getArtPos(ArtifactID::GRAIL, false)));
 			}
 			break;
 		}
@@ -2664,65 +2664,66 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 
 // With the amount of changes done to the function, it's more like transferArtifacts.
 // Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
-bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
+bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLocation & dst)
 {
-	ArtifactLocation src = al1, dst = al2;
-	const PlayerColor srcPlayer = src.owningPlayer(), dstPlayer = dst.owningPlayer();
-	const CArmedInstance *srcObj = src.relatedObj(), *dstObj = dst.relatedObj();
+	ArtifactLocation srcLoc = src, dstLoc = dst;
+	const auto srcArtSet = getArtSet(srcLoc);
+	const auto dstArtSet = getArtSet(dstLoc);
+	assert(srcArtSet);
+	assert(dstArtSet);
 
 	// Make sure exchange is even possible between the two heroes.
-	if(!isAllowedExchange(srcObj->id, dstObj->id))
+	if(!isAllowedExchange(srcLoc.artHolder, dstLoc.artHolder))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
-	const CArtifactInstance *srcArtifact = src.getArt();
-	const CArtifactInstance *destArtifact = dst.getArt();
-	const bool isDstSlotBackpack = ArtifactUtils::isSlotBackpack(dst.slot);
+	const auto srcArtifact = srcArtSet->getArt(srcLoc.slot);
+	const auto dstArtifact = dstArtSet->getArt(dstLoc.slot);
+	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dstLoc.slot) : false;
 
 	if(srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
-	if(destArtifact && srcPlayer != dstPlayer && !isDstSlotBackpack)
+	if(dstArtifact && getHero(src.artHolder)->getOwner() != getHero(dst.artHolder)->getOwner() && !isDstSlotBackpack)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if((!srcArtifact || !isDstSlotBackpack)
-		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
+	if((!srcArtifact || !isDstSlotBackpack) && srcArtifact && !srcArtifact->canBePutAt(dstArtSet, dstLoc.slot, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
-	auto srcSlot = src.getSlot();
-	auto dstSlot = dst.getSlot();
+	auto srcSlotInfo = srcArtSet->getSlot(srcLoc.slot);
+	auto dstSlotInfo = dstArtSet->getSlot(dstLoc.slot);
 
-	if((srcSlot && srcSlot->locked) || (dstSlot && dstSlot->locked))
+	if((srcSlotInfo && srcSlotInfo->locked) || (dstSlotInfo && dstSlotInfo->locked))
 		COMPLAIN_RET("Cannot move artifact locks.");
 
 	if(isDstSlotBackpack && srcArtifact->artType->isBig())
 		COMPLAIN_RET("Cannot put big artifacts in backpack!");
-	if(src.slot == ArtifactPosition::MACH4 || dst.slot == ArtifactPosition::MACH4)
+	if(srcLoc.slot == ArtifactPosition::MACH4 || dstLoc.slot == ArtifactPosition::MACH4)
 		COMPLAIN_RET("Cannot move catapult!");
 
 	if(isDstSlotBackpack)
 	{
-		if(!ArtifactUtils::isBackpackFreeSlots(dst.getHolderArtSet()))
+		if(!ArtifactUtils::isBackpackFreeSlots(dstArtSet))
 			COMPLAIN_RET("Backpack is full!");
-		vstd::amin(dst.slot, ArtifactPosition::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size());
+		vstd::amin(dstLoc.slot, ArtifactPosition::BACKPACK_START + dstArtSet->artifactsInBackpack.size());
 	}
 
-	if(!(src.slot == ArtifactPosition::TRANSITION_POS && dst.slot == ArtifactPosition::TRANSITION_POS))
+	if(!(srcLoc.slot == ArtifactPosition::TRANSITION_POS && dstLoc.slot == ArtifactPosition::TRANSITION_POS))
 	{
-		if(src.slot == dst.slot && src.artHolder == dst.artHolder)
+		if(srcLoc.slot == dstLoc.slot && srcLoc.artHolder == dstLoc.artHolder)
 			COMPLAIN_RET("Won't move artifact: Dest same as source!");
 
 		// Check if dst slot is occupied
-		if(!isDstSlotBackpack && destArtifact)
+		if(!isDstSlotBackpack && dstArtifact)
 		{
 			// Previous artifact must be removed first
-			moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition::TRANSITION_POS));
+			moveArtifact(dstLoc, ArtifactLocation(dstLoc.artHolder, ArtifactPosition::TRANSITION_POS));
 		}
 
 		try
 		{
-			auto hero = std::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
-			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dst.slot))
+			auto hero = getHero(dst.artHolder);
+			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstLoc.slot))
 				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 		catch(const std::bad_variant_access &)
@@ -2730,8 +2731,8 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 			// object other than hero received an art - ignore
 		}
 
-		MoveArtifact ma(&src, &dst);
-		if(src.artHolder == dst.artHolder)
+		MoveArtifact ma(&srcLoc, &dstLoc);
+		if(srcLoc.artHolder == dstLoc.artHolder)
 			ma.askAssemble = false;
 		sendAndApply(&ma);
 	}
@@ -2749,8 +2750,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	if((!psrcHero) || (!pdstHero))
 		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
 
-	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(psrcHero),
-		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero), swap);
+	BulkMoveArtifacts ma(srcHero, dstHero, swap);
 	auto & slotsSrcDst = ma.artsPack0;
 	auto & slotsDstSrc = ma.artsPack1;
 
@@ -2854,7 +2854,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 	if(!destArtifact)
 		COMPLAIN_RET("assembleArtifacts: there is no such artifact instance!");
 
-	const auto dstLoc = ArtifactLocation(hero, artifactSlot);
+	const auto dstLoc = ArtifactLocation(hero->id, artifactSlot);
 	if(assemble)
 	{
 		CArtifact * combinedArt = VLC->arth->objects[assembleTo];
@@ -2864,8 +2864,8 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 		}
-		if(!destArtifact->canBePutAt(dstLoc)
-			&& !destArtifact->canBePutAt(ArtifactLocation(hero, ArtifactPosition::BACKPACK_START)))
+		if(!destArtifact->canBePutAt(hero, artifactSlot)
+			&& !destArtifact->canBePutAt(hero, ArtifactPosition::BACKPACK_START))
 		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to give the artholder requested artifact!");
 		}
@@ -2897,15 +2897,15 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 bool CGameHandler::eraseArtifactByClient(const ArtifactLocation & al)
 {
-	const auto * hero = getHero(al.relatedObj()->id);
+	const auto * hero = getHero(al.artHolder);
 	if(hero == nullptr)
 		COMPLAIN_RET("eraseArtifactByClient: wrong hero's ID");
 
-	const auto * art = al.getArt();
+	const auto * art = hero->getArt(al.slot);
 	if(art == nullptr)
 		COMPLAIN_RET("Cannot remove artifact!");
 
-	if(al.getArt()->artType->canBePutAt(hero) || al.slot != ArtifactPosition::TRANSITION_POS)
+	if(art->canBePutAt(hero) || al.slot != ArtifactPosition::TRANSITION_POS)
 		COMPLAIN_RET("Illegal artifact removal request");
 
 	removeArtifact(al);
@@ -3012,7 +3012,7 @@ bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, Artif
 	int resVal = 0, dump = 1;
 	m->getOffer(art->artType->getId(), rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
 
-	removeArtifact(ArtifactLocation(h, h->getArtPos(art)));
+	removeArtifact(ArtifactLocation(h->id, h->getArtPos(art)));
 	giveResource(h->tempOwner, rid, resVal);
 	return true;
 }
@@ -3750,8 +3750,8 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 
 	for(int i = 0; i < slot.size(); ++i)
 	{
-		ArtifactLocation al(hero, slot[i]);
-		const CArtifactInstance * a = al.getArt();
+		ArtifactLocation al(hero->id, slot[i]);
+		const CArtifactInstance * a = hero->getArt(al.slot);
 
 		if(!a)
 		{
@@ -3963,7 +3963,7 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 bool CGameHandler::giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos)
 {
 	assert(a->artType);
-	ArtifactLocation al(h, ArtifactPosition::PRE_FIRST);
+	ArtifactLocation al(h->id, ArtifactPosition::PRE_FIRST);
 
 	if(pos == ArtifactPosition::FIRST_AVAILABLE)
 	{
@@ -3978,7 +3978,7 @@ bool CGameHandler::giveHeroArtifact(const CGHeroInstance * h, const CArtifactIns
 		al.slot = pos;
 	}
 
-	if(a->canBePutAt(al))
+	if(a->canBePutAt(h, al.slot))
 		putArtifact(al, a);
 	else
 		return false;

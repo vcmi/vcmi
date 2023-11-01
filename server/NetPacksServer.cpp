@@ -134,7 +134,7 @@ void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 
 void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
-	gh.throwIfWrongPlayer(&pack, pack.src.owningPlayer()); //second hero can be ally
+	gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
 	result = gh.moveArtifact(pack.src, pack.dst);
 }
 
@@ -154,7 +154,7 @@ void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitEraseArtifactByClient(EraseArtifactByClient & pack)
 {
-	gh.throwIfWrongPlayer(&pack, pack.al.owningPlayer());
+	gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.al.artHolder));
 	result = gh.eraseArtifactByClient(pack.al);
 }
 

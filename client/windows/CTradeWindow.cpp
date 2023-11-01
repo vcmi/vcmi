@@ -191,8 +191,8 @@ void CTradeWindow::CTradeableItem::clickPressed(const Point & cursorPosition)
 				const auto hero = aw->arts->getHero();
 				const auto slot = hero->getSlotByInstance(art);
 				assert(slot != ArtifactPosition::PRE_FIRST);
-				LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero, slot),
-					ArtifactLocation(hero, ArtifactPosition::TRANSITION_POS));
+				LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, slot),
+					ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS));
 				aw->arts->pickedArtFromSlot = slot;
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);

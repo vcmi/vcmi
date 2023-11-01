@@ -155,9 +155,9 @@ void CArtifactInstance::setId(ArtifactInstanceID id)
 	this->id = id;
 }
 
-bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved) const
+bool CArtifactInstance::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
-	return artType->canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
+	return artType->canBePutAt(artSet, slot, assumeDestRemoved);
 }
 
 bool CArtifactInstance::isCombined() const
@@ -165,15 +165,15 @@ bool CArtifactInstance::isCombined() const
 	return artType->isCombined();
 }
 
-void CArtifactInstance::putAt(const ArtifactLocation & al)
+void CArtifactInstance::putAt(CArtifactSet & set, const ArtifactPosition slot)
 {
-	auto placementMap = al.getHolderArtSet()->putArtifact(al.slot, this);
+	auto placementMap = set.putArtifact(slot, this);
 	addPlacementMap(placementMap);
 }
 
-void CArtifactInstance::removeFrom(const ArtifactLocation & al)
+void CArtifactInstance::removeFrom(CArtifactSet & set, const ArtifactPosition slot)
 {
-	al.getHolderArtSet()->removeArtifact(al.slot);
+	set.removeArtifact(slot);
 	for(auto & part : partsInfo)
 	{
 		if(part.slot != ArtifactPosition::PRE_FIRST)
@@ -181,10 +181,10 @@ void CArtifactInstance::removeFrom(const ArtifactLocation & al)
 	}
 }
 
-void CArtifactInstance::move(const ArtifactLocation & src, const ArtifactLocation & dst)
+void CArtifactInstance::move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot)
 {
-	removeFrom(src);
-	putAt(dst);
+	removeFrom(srcSet, srcSlot);
+	putAt(dstSet, dstSlot);
 }
 
 void CArtifactInstance::deserializationFix()

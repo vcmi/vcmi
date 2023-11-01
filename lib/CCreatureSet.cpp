@@ -458,7 +458,7 @@ const CStackInstance & CCreatureSet::getStack(const SlotID & slot) const
 	return *getStackPtr(slot);
 }
 
-const CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
+CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
 {
 	if(hasStackAtSlot(slot))
 		return stacks.find(slot)->second;
@@ -870,7 +870,7 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 CStackInstance::ArtPlacementMap CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
 	assert(!getArt(pos));
-	assert(art->artType->canBePutAt(this, pos));
+	assert(art->canBePutAt(this, pos));
 
 	attachTo(*art);
 	return CArtifactSet::putArtifact(pos, art);
