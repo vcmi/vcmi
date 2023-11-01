@@ -1100,14 +1100,12 @@ void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
 
 void CGTownInstance::afterAddToMap(CMap * map)
 {
-	if(ID == Obj::TOWN)
-		map->towns.emplace_back(this);
+	map->towns.emplace_back(this);
 }
 
 void CGTownInstance::afterRemoveFromMap(CMap * map)
 {
-	if (ID == Obj::TOWN)
-		vstd::erase_if_present(map->towns, this);
+	vstd::erase_if_present(map->towns, this);
 }
 
 void CGTownInstance::reset()

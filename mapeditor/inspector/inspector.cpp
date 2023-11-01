@@ -235,8 +235,11 @@ void Inspector::updateProperties(CGDwelling * o)
 	
 	addProperty("Owner", o->tempOwner, false);
 	
-	auto * delegate = new PickObjectDelegate(controller, PickObjectDelegate::typedFilter<CGTownInstance>);
-	addProperty("Same as town", PropertyEditorPlaceholder(), delegate, false);
+	if (o->ID == Obj::RANDOM_DWELLING || o->ID == Obj::RANDOM_DWELLING_LVL)
+	{
+		auto * delegate = new PickObjectDelegate(controller, PickObjectDelegate::typedFilter<CGTownInstance>);
+		addProperty("Same as town", PropertyEditorPlaceholder(), delegate, false);
+	}
 }
 
 void Inspector::updateProperties(CGLighthouse * o)

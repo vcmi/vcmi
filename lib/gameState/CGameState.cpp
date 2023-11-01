@@ -526,15 +526,6 @@ void CGameState::randomizeMapObjects()
 
 		object->pickRandomObject(getRandomGenerator());
 
-		auto * hero = dynamic_cast<CGHeroInstance *>(object);
-		auto * town = dynamic_cast<CGTownInstance *>(object);
-
-		if (hero && hero->ID != Obj::PRISON)
-			map->heroesOnMap.emplace_back(hero);
-
-		if (town)
-			map->towns.emplace_back(town);
-
 		//handle Favouring Winds - mark tiles under it
 		if(object->ID == Obj::FAVORABLE_WINDS)
 		{
@@ -1825,10 +1816,10 @@ void CGameState::buildBonusSystemTree()
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
 
-//	for(CGTownInstance *t : map->towns)
-//	{
-//		t->deserializationFix();
-//	}
+	for(CGTownInstance *t : map->towns)
+	{
+		t->deserializationFix();
+	}
 	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact
 	// are provided on initializing / deserializing
 

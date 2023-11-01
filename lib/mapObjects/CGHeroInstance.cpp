@@ -1547,14 +1547,14 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 		}
 	}
 
-	if(ID == Obj::HERO)
+	if(ID != Obj::PRISON)
 	{		
 		map->heroesOnMap.emplace_back(this);
 	}
 }
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
-	if (ID == Obj::HERO)
+	if (ID == Obj::PRISON)
 		vstd::erase_if_present(map->heroesOnMap, this);
 }
 

@@ -128,7 +128,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 		FactionID faction = randomizeFaction(rand);
 		int level = randomizeLevel(rand);
 		assert(faction != FactionID::NONE && faction != FactionID::NEUTRAL);
-		assert(level >= 1 && level <= 7);
+		assert(level >= 0 && level <= 6);
 		randomizationInfo.reset();
 
 		CreatureID cid = (*VLC->townh)[faction]->town->creatures[level][0];
@@ -163,6 +163,8 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 			ID = Obj::CREATURE_GENERATOR4;
 			subID = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand);
 		}
+
+		setType(ID, subID);
 	}
 }
 

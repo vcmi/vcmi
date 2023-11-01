@@ -1326,14 +1326,14 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 
 	object->randomizationInfo = CGDwellingRandomizationInfo();
 
-	bool hasFactionInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_FACTION;
-	bool hasLevelInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_LVL;
+	bool hasFactionInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_LVL;
+	bool hasLevelInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_FACTION;
 
 	if (hasFactionInfo)
 	{
 		object->randomizationInfo->identifier = reader->readUInt32();
 
-		if(object->randomizationInfo->identifier != 0)
+		if(object->randomizationInfo->identifier == 0)
 			reader->readBitmaskFactions(object->randomizationInfo->allowedFactions, false);
 	}
 	else
