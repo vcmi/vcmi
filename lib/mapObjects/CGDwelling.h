@@ -55,6 +55,7 @@ private:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
 	void updateGuards() const;
 	void heroAcceptsCreatures(const CGHeroInstance *h) const;
