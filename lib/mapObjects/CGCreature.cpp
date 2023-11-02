@@ -161,7 +161,7 @@ CreatureID CGCreature::getCreature() const
 
 void CGCreature::pickRandomObject(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_MONSTER:
 			subID = VLC->creh->pickRandomMonster(rand);

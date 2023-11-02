@@ -1663,7 +1663,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		|| !(spellID.toSpell()->canBeCast(this, spells::Mode::CREATURE_ACTIVE, subject)))
 			continue;
 
-		switch (spellID)
+		switch (spellID.toEnum())
 		{
 		case SpellID::SHIELD:
 		case SpellID::FIRE_SHIELD: // not if all enemy units are shooters

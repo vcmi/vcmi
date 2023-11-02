@@ -47,7 +47,7 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn):
 
 bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 {
-	switch(layer)
+	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
 		if(hero && hero->boat && hero->boat->layer == EPathfindingLayer::AIR)

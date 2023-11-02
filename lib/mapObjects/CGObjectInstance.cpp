@@ -173,7 +173,7 @@ void CGObjectInstance::pickRandomObject(CRandomGenerator & rand)
 
 void CGObjectInstance::initObj(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::TAVERN:
 		blockVisit = true;
@@ -302,7 +302,7 @@ std::vector<Component> CGObjectInstance::getPopupComponents(const CGHeroInstance
 
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::SANCTUARY:
 		{

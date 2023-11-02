@@ -302,7 +302,7 @@ bool CPathfinder::isLayerTransitionPossible() const
 	if(source.node->action == EPathNodeAction::BATTLE)
 		return false;
 
-	switch(source.node->layer)
+	switch(source.node->layer.toEnum())
 	{
 	case ELayer::LAND:
 		if(destLayer == ELayer::AIR)
@@ -505,7 +505,7 @@ void CPathfinderHelper::updateTurnInfo(const int Turn)
 
 bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer & layer) const
 {
-	switch(layer)
+	switch(layer.getNum())
 	{
 	case EPathfindingLayer::AIR:
 		if(!options.useFlying)

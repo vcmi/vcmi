@@ -273,7 +273,7 @@ void CGResource::initObj(CRandomGenerator & rand)
 
 	if(amount == CGResource::RANDOM_AMOUNT)
 	{
-		switch(resourceID())
+		switch(resourceID().toEnum())
 		{
 		case EGameResID::GOLD:
 			amount = rand.nextInt(5, 10) * 100;
@@ -532,7 +532,7 @@ void CGMonolith::initObj(CRandomGenerator & rand)
 {
 	std::vector<Obj> IDs;
 	IDs.push_back(ID);
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 		type = ENTRANCE;
@@ -723,7 +723,7 @@ ArtifactID CGArtifact::getArtifact() const
 
 void CGArtifact::pickRandomObject(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
 			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
@@ -786,7 +786,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 		if(storedArtifact->artType->canBePutAt(h))
 		{
-			switch (ID)
+			switch (ID.toEnum())
 			{
 			case Obj::ARTIFACT:
 			{
@@ -821,7 +821,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		switch(ID)
+		switch(ID.toEnum())
 		{
 		case Obj::ARTIFACT:
 			{

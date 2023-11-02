@@ -1488,7 +1488,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared
 
 CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
-	switch(objectTemplate->id)
+	switch(objectTemplate->id.toEnum())
 	{
 		case Obj::EVENT:
 			return readEvent(mapPosition, objectInstanceID);

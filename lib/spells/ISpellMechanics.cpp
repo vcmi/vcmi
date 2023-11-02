@@ -717,7 +717,7 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch (s->id)
+	switch (s->id.getNum())
 	{
 	case SpellID::SUMMON_BOAT:
 		return std::make_unique<SummonBoatMechanics>(s);

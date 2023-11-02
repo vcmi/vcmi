@@ -944,7 +944,7 @@ void FoWChange::applyGs(CGameState *gs)
 			const CGObjectInstance *o = elem;
 			if (o)
 			{
-				switch(o->ID)
+				switch(o->ID.toEnum())
 				{
 				case Obj::HERO:
 				case Obj::MINE:

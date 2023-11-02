@@ -170,7 +170,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 
 void CGDwelling::initObj(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
@@ -488,7 +488,7 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	switch (ID)
+	switch (ID.toEnum())
 	{
 	case Obj::WAR_MACHINE_FACTORY:
 	case Obj::REFUGEE_CAMP:
