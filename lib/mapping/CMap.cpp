@@ -245,7 +245,7 @@ void CMap::calculateGuardingGreaturePositions()
 CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 {
 	for(auto & elem : heroesOnMap)
-		if(elem->getObjTypeIndex() == heroID.getNum())
+		if(elem->getHeroType() == heroID)
 			return elem;
 	return nullptr;
 }

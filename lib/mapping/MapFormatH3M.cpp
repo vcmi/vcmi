@@ -1287,7 +1287,7 @@ CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::sh
 	readMessageAndGuards(object->message, object, mapPosition);
 
 	object->amount = reader->readUInt32();
-	if(objectTemplate->subid == GameResID(EGameResID::GOLD))
+	if(GameResID(objectTemplate->subid) == GameResID(EGameResID::GOLD))
 	{
 		// Gold is multiplied by 100.
 		object->amount *= 100;
@@ -1740,7 +1740,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	for(auto & elem : map->disposedHeroes)
 	{
-		if(elem.heroId.getNum() == object->subID)
+		if(elem.heroId == object->getHeroType())
 		{
 			object->nameCustomTextId = elem.name;
 			object->customPortraitSource = elem.portrait;
@@ -1750,7 +1750,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "name"));
+		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->getHeroType().getNum(), "name"));
 
 	if(features.levelSOD)
 	{
@@ -1861,8 +1861,8 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		}
 	}
 
-	if (object->subID != -1)
-		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getByIndex(object->subID)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
+	if (object->subID != MapObjectSubID())
+		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getById(object->getHeroType())->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	else
 		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 

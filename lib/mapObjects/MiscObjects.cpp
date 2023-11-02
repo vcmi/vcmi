@@ -126,7 +126,7 @@ void CGMine::initObj(CRandomGenerator & rand)
 
 bool CGMine::isAbandoned() const
 {
-	return (getObjTypeIndex() >= 7);
+	return subID.getNum() >= 7;
 }
 
 ResourceSet CGMine::dailyIncome() const
@@ -467,7 +467,7 @@ void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<Telepo
 	}
 }
 
-TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, int SubID) const
+TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const
 {
 	for(auto obj : cb->gameState()->map->objects)
 	{

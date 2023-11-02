@@ -34,7 +34,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
+std::map <PlayerColor, std::set <MapObjectSubID> > CGKeys::playerKeyMap;
 
 //TODO: Remove constructor
 CQuest::CQuest():
@@ -724,7 +724,7 @@ void CGQuestGuard::init(CRandomGenerator & rand)
 	
 	configuration.info.push_back({});
 	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-	configuration.info.back().reward.removeObject = subID == 0 ? true : false;
+	configuration.info.back().reward.removeObject = subID.getNum() == 0 ? true : false;
 	configuration.canRefuse = true;
 }
 

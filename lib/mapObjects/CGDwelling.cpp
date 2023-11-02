@@ -96,7 +96,7 @@ FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 
 	std::vector<FactionID> potentialPicks;
 
-	for (FactionID faction(0); faction < VLC->townh->size(); ++faction)
+	for (FactionID faction(0); faction < FactionID(VLC->townh->size()); ++faction)
 		if (VLC->factions()->getById(faction)->hasTown())
 			potentialPicks.push_back(faction);
 

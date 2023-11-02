@@ -42,8 +42,8 @@ public:
 
 		/// The starting town of the player ranging from 0 to town max count or RANDOM_TOWN.
 		/// The default value is RANDOM_TOWN.
-		si32 getStartingTown() const;
-		void setStartingTown(si32 value);
+		FactionID getStartingTown() const;
+		void setStartingTown(FactionID value);
 
 		/// The default value is EPlayerType::AI.
 		EPlayerType getPlayerType() const;
@@ -55,7 +55,7 @@ public:
 
 	private:
 		PlayerColor color;
-		si32 startingTown;
+		FactionID startingTown;
 		EPlayerType playerType;
 		TeamID team;
 
