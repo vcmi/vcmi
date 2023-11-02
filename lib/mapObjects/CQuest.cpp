@@ -531,14 +531,16 @@ std::string CGSeerHut::getPopupText(const CGHeroInstance * hero) const
 std::vector<Component> CGSeerHut::getPopupComponents(PlayerColor player) const
 {
 	std::vector<Component> result;
-	quest->mission.loadComponents(result, nullptr);
+	if (quest->activeForPlayers.count(player))
+		quest->mission.loadComponents(result, nullptr);
 	return result;
 }
 
 std::vector<Component> CGSeerHut::getPopupComponents(const CGHeroInstance * hero) const
 {
 	std::vector<Component> result;
-	quest->mission.loadComponents(result, hero);
+	if (quest->activeForPlayers.count(hero->getOwner()))
+		quest->mission.loadComponents(result, hero);
 	return result;
 }
 
