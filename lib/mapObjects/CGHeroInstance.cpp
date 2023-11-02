@@ -1679,7 +1679,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		{
 			auto addSkill = [this](const std::string & skillId, const std::string & levelId)
 			{
-				const int rawId = CSkillHandler::decodeSkill(skillId);
+				const int rawId = SecondarySkill::decode(skillId);
 				if(rawId < 0)
 				{
 					logGlobal->error("Invalid secondary skill %s", skillId);

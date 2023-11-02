@@ -883,7 +883,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		}
 		map->predefinedHeroes.emplace_back(hero);
 
-		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, VLC->heroh->getByIndex(hero->subID)->getJsonKey());
+		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, VLC->heroh->getById(hero->getHeroType())->getJsonKey());
 	}
 }
 

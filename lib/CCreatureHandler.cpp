@@ -263,7 +263,7 @@ bool CCreature::isDoubleWide() const
  */
 bool CCreature::isGood () const
 {
-	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::GOOD;
+	return VLC->factions()->getById(faction)->getAlignment() == EAlignment::GOOD;
 }
 
 /**
@@ -272,7 +272,7 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::EVIL;
+	return VLC->factions()->getById(faction)->getAlignment() == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
@@ -1350,34 +1350,23 @@ CCreatureHandler::~CCreatureHandler()
 
 CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
 {
-	int r = 0;
-	if(tier == -1) //pick any allowed creature
+	std::vector<CreatureID> allowed;
+	for(const auto & creature : objects)
 	{
-		do
-		{
-			r = (*RandomGeneratorUtil::nextItem(objects, rand))->getId();
-		} while (objects[r] && objects[r]->special); // find first "not special" creature
+		if(creature->special)
+			continue;
+
+		if (creature->level == tier || tier == -1)
+			allowed.push_back(creature->getId());
 	}
-	else
+
+	if(allowed.empty())
 	{
-		assert(vstd::iswithin(tier, 1, 7));
-		std::vector<CreatureID> allowed;
-		for(const auto & creature : objects)
-		{
-			if(!creature->special && creature->level == tier)
-				allowed.push_back(creature->getId());
-		}
-
-		if(allowed.empty())
-		{
-			logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
-			return CreatureID::NONE;
-		}
-
-		return *RandomGeneratorUtil::nextItem(allowed, rand);
+		logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
+		return CreatureID::NONE;
 	}
-	assert (r >= 0); //should always be, but it crashed
-	return CreatureID(r);
+
+	return *RandomGeneratorUtil::nextItem(allowed, rand);
 }
 
 

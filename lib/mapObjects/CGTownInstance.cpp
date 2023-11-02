@@ -584,7 +584,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 					
 					TQuantity count = creatureGrowth(i);
 					if (!count) // no dwelling
-						count = VLC->creatures()->getByIndex(c)->getGrowth();
+						count = VLC->creatures()->getById(c)->getGrowth();
 					
 					{//no lower tiers or above current month
 						

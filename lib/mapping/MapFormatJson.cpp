@@ -831,7 +831,7 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	serializePredefinedHeroes(handler);
 
-	handler.serializeLIC("allowedAbilities", &CSkillHandler::decodeSkill, &CSkillHandler::encodeSkill, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
+	handler.serializeLIC("allowedAbilities", &SecondarySkill::decode, &SecondarySkill::encode, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
 
 	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
 

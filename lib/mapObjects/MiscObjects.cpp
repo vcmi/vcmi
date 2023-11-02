@@ -119,7 +119,7 @@ void CGMine::initObj(CRandomGenerator & rand)
 	}
 	else
 	{
-		producedResource = GameResID(getObjTypeIndex());
+		producedResource = GameResID(getObjTypeIndex().getNum());
 	}
 	producedQuantity = defaultResProduction();
 }
@@ -773,7 +773,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getByIndex(getArtifact())->getNameTranslated();
+	return VLC->artifacts()->getById(getArtifact())->getNameTranslated();
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const

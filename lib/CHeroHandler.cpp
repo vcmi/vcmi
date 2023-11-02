@@ -151,7 +151,7 @@ bool CHeroClass::isMagicHero() const
 
 EAlignment CHeroClass::getAlignment() const
 {
-	return VLC->factions()->getByIndex(faction)->getAlignment();
+	return VLC->factions()->getById(faction)->getAlignment();
 }
 
 int32_t CHeroClass::getIndex() const

@@ -226,7 +226,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	// Explicitly initialize static variables
 	for(auto & elem : players)
 	{
-		CGKeys::playerKeyMap[elem.first] = std::set<ui8>();
+		CGKeys::playerKeyMap[elem.first] = std::set<MapObjectSubID>();
 	}
 	for(auto & elem : teams)
 	{

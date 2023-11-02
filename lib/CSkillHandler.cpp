@@ -120,7 +120,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInf
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill)
 {
-	out << "Skill(" << (int)skill.id << "," << skill.identifier << "): [";
+	out << "Skill(" << skill.id.getNum() << "," << skill.identifier << "): [";
 	for(int i=0; i < skill.levels.size(); i++)
 		out << (i ? "," : "") << skill.levels[i];
 	return out << "]";
@@ -233,7 +233,7 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
 	}
-	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
+	logMod->debug("loaded secondary skill %s(%d)", identifier, skill->id.getNum());
 
 	return skill;
 }

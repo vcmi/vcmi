@@ -114,7 +114,7 @@ public:
 	/// The first player colors belong to standard players and the last player colors belong to comp only players.
 	/// All standard players are by default of type EPlayerType::AI.
 	const std::map<PlayerColor, CPlayerSettings> & getPlayersSettings() const;
-	void setStartingTownForPlayer(const PlayerColor & color, si32 town);
+	void setStartingTownForPlayer(const PlayerColor & color, FactionID town);
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
 	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
 	void setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType);

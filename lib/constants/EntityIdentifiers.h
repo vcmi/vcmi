@@ -401,10 +401,6 @@ class BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
 {
 public:
 	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
-
-	DLL_LINKAGE static si32 decode(const std::string & identifier);
-	DLL_LINKAGE static std::string encode(const si32 index);
-	static std::string entityType();
 };
 
 class MapObjectBaseID : public IdentifierBase

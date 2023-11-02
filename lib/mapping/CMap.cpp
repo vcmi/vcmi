@@ -72,7 +72,18 @@ void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	CMapEvent::serializeJson(handler);
 
-	handler.serializeIdArray("buildings", buildings);
+	// TODO: handler.serializeIdArray("buildings", buildings);
+	{
+		std::vector<BuildingID> temp(buildings.begin(), buildings.end());
+		auto a = handler.enterArray("buildings");
+		a.syncSize(temp);
+		for(int i = 0; i < temp.size(); ++i)
+		{
+			a.serializeInt(i, temp[i]);
+			buildings.insert(temp[i]);
+		}
+	}
+
 	{
 		auto a = handler.enterArray("creatures");
 		a.syncSize(creatures);

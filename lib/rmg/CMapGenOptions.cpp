@@ -187,7 +187,7 @@ const std::map<PlayerColor, CMapGenOptions::CPlayerSettings> & CMapGenOptions::g
 	return players;
 }
 
-void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, si32 town)
+void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, FactionID town)
 {
 	auto it = players.find(color);
 	if(it == players.end()) assert(0);

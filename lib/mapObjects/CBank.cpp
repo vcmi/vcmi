@@ -271,7 +271,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(bc->resources[it]);
 				loot.replaceLocalString(EMetaText::RES_NAMES, it);
-				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
+				cb->giveResource(hero->getOwner(), it, bc->resources[it]);
 			}
 		}
 		//grant artifacts
