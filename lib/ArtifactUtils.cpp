@@ -257,7 +257,7 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 	if(sid.getNum() >= 0)
 	{
 		if(nameStart != std::string::npos && nameEnd != std::string::npos)
-			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toSpell(VLC->spells())->getNameTranslated());
+			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(VLC->spells())->getNameTranslated());
 	}
 }
 

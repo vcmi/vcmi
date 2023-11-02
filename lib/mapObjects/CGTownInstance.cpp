@@ -917,7 +917,7 @@ const CTown * CGTownInstance::getTown() const
 	{
 		if(nullptr == town)
 		{
-			return (*VLC->townh)[subID]->town;
+			return (*VLC->townh)[getFaction()]->town;
 		}
 		else
 			return town;

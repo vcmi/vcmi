@@ -171,10 +171,10 @@ namespace TriggeredEventsDetail
 		case EMetaclass::OBJECT:
 			{
 				//TODO
-				std::set<si32> subtypes = VLC->objtypeh->knownSubObjects(type);
+				auto subtypes = VLC->objtypeh->knownSubObjects(type);
 				if(!subtypes.empty())
 				{
-					si32 subtype = *subtypes.begin();
+					auto subtype = *subtypes.begin();
 					auto handler = VLC->objtypeh->getHandlerFor(type, subtype);
 					identifier = handler->getTypeName();
 				}

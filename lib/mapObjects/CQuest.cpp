@@ -775,7 +775,7 @@ std::string CGKeys::getHoverText(PlayerColor player) const
 
 std::string CGKeys::getObjectName() const
 {
-	return VLC->generaltexth->tentColors[subID] + " " + CGObjectInstance::getObjectName();
+	return VLC->generaltexth->tentColors[subID.getNum()] + " " + CGObjectInstance::getObjectName();
 }
 
 bool CGKeymasterTent::wasVisited (PlayerColor player) const
@@ -810,7 +810,7 @@ void CGBorderGuard::getRolloverText(MetaString &text, bool onHover) const
 {
 	if (!onHover)
 	{
-		text.appendRawString(VLC->generaltexth->tentColors[subID]);
+		text.appendRawString(VLC->generaltexth->tentColors[subID.getNum()]);
 		text.appendRawString(" ");
 		text.appendRawString(VLC->objtypeh->getObjectName(Obj::KEYMASTER, subID));
 	}

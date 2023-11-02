@@ -1944,7 +1944,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	cancelText.appendTextID("core.genrltxt.596");
 	cancelText.replaceTextID(creature->getNameSingularTextID());
 
-	std::string costString = std::to_string(aid.toArtifact(CGI->artifacts())->getPrice());
+	std::string costString = std::to_string(aid.toEntity(CGI->artifacts())->getPrice());
 
 	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleString.toString());
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);

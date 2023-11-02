@@ -125,15 +125,17 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 {
 	int totalProb = 0;
 	for(const auto & possible : possibles)
-	{
-		totalProb += secSkillProbability[possible];
-	}
+		if (secSkillProbability.count(possible) != 0)
+			totalProb += secSkillProbability.at(possible);
+
 	if (totalProb != 0) // may trigger if set contains only banned skills (0 probability)
 	{
 		auto ran = rand.nextInt(totalProb - 1);
 		for(const auto & possible : possibles)
 		{
-			ran -= secSkillProbability[possible];
+			if (secSkillProbability.count(possible) != 0)
+				ran -= secSkillProbability.at(possible);
+
 			if(ran < 0)
 			{
 				return possible;
@@ -271,8 +273,6 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 		int probability = static_cast<int>(skillPair.second.Integer());
 		VLC->identifiers()->requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
 		{
-			if(heroClass->secSkillProbability.size() <= skillID)
-				heroClass->secSkillProbability.resize(skillID + 1, -1); // -1 = override with default later
 			heroClass->secSkillProbability[skillID] = probability;
 		});
 	}
@@ -369,11 +369,11 @@ void CHeroClassHandler::afterLoadFinalization()
 			auto chance = static_cast<float>(heroClass->defaultTavernChance * faction->town->defaultTavernChance);
 			heroClass->selectionProbability[faction->getId()] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
+
 		// set default probabilities for gaining secondary skills where not loaded previously
-		heroClass->secSkillProbability.resize(VLC->skillh->size(), -1);
 		for(int skillID = 0; skillID < VLC->skillh->size(); skillID++)
 		{
-			if(heroClass->secSkillProbability[skillID] < 0)
+			if(heroClass->secSkillProbability.count(skillID) == 0)
 			{
 				const CSkill * skill = (*VLC->skillh)[SecondarySkill(skillID)];
 				logMod->trace("%s: no probability for %s, using default", heroClass->identifier, skill->getJsonKey());

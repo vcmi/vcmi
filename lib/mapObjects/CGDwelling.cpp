@@ -142,7 +142,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 			{
 				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
 
-				if (handler->producesCreature(VLC->creh->objects[cid]))
+				if (handler->producesCreature(cid.toCreature()))
 					return MapObjectSubID(entry);
 			}
 			return MapObjectSubID();
@@ -319,7 +319,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 			else
 				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
 
-			CCreature *cre = VLC->creh->objects[creatures[i].second[0]];
+			const CCreature * cre =creatures[i].second[0].toCreature();
 			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(BonusType::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(BonusType::CREATURE_GROWTH);
 			if (creaturesAccumulate && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
@@ -355,7 +355,7 @@ void CGDwelling::updateGuards() const
 	{
 		for (auto creatureEntry : creatures)
 		{
-			const CCreature * crea = VLC->creh->objects[creatureEntry.second.at(0)];
+			const CCreature * crea = creatureEntry.second.at(0).toCreature();
 			SlotID slot = getSlotFor(crea->getId());
 
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it

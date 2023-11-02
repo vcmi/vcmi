@@ -427,7 +427,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			if(!upgrades.empty())
 			{
 				auto it = RandomGeneratorUtil::nextItem(upgrades, CRandomGenerator::getDefault());
-				cb->changeStackType(StackLocation(this, slotID), VLC->creh->objects[*it]);
+				cb->changeStackType(StackLocation(this, slotID), it->toCreature());
 			}
 		}
 	}
@@ -572,7 +572,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
-		cb->giveHeroNewArtifact(h, VLC->arth->objects[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(h, gainedArtifact.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		iw.components.emplace_back(ComponentType::ARTIFACT, gainedArtifact);
 	}
 

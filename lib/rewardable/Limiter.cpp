@@ -128,7 +128,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 
 	for(const auto & spell : canLearnSpells)
 	{
-		if (!hero->canLearnSpell(spell.toSpell(VLC->spells()), true))
+		if (!hero->canLearnSpell(spell.toEntity(VLC->spells()), true))
 			return false;
 	}
 

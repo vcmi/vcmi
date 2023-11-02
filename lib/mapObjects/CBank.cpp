@@ -280,7 +280,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
 			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
-			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -314,7 +314,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				const auto * spell = spellId.toSpell(VLC->spells());
+				const auto * spell = spellId.toEntity(VLC->spells());
 				iw.text.appendLocalString(EMetaText::SPELL_NAME, spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{

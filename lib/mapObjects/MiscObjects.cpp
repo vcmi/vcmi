@@ -147,7 +147,7 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource] + ")";
+		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource.getNum()] + ")";
 
 	if(stacksCount())
 	{
@@ -252,7 +252,7 @@ GameResID CGResource::resourceID() const
 
 std::string CGResource::getHoverText(PlayerColor player) const
 {
-	return VLC->generaltexth->restypes[resourceID()];
+	return VLC->generaltexth->restypes[resourceID().getNum()];
 }
 
 void CGResource::pickRandomObject(CRandomGenerator & rand)
@@ -760,7 +760,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 			storedArtifact = a;
 		}
 		if(!storedArtifact->artType)
-			storedArtifact->setType(VLC->arth->objects[getArtifact()]);
+			storedArtifact->setType(VLC->arth->objects[getArtifact().getNum()]);
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;

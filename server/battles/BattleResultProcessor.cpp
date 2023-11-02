@@ -323,7 +323,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE);
 			for(auto & spellId : battle.getBattle()->getUsedSpells(battle.otherSide(battleResult->winner)))
 			{
-				auto spell = spellId.toSpell(VLC->spells());
+				auto spell = spellId.toEntity(VLC->spells());
 				if(spell && spell->getLevel() <= eagleEyeLevel && !finishingBattle->winnerHero->spellbookContainsSpell(spell->getId()) && gameHandler->getRandomGenerator().nextInt(99) < eagleEyeChance)
 					cs.spells.insert(spell->getId());
 			}

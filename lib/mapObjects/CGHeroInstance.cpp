@@ -218,7 +218,10 @@ bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 	if (getSecSkillLevel(which) > 0)
 		return false;
 
-	if (type->heroClass->secSkillProbability[which] == 0)
+	if (type->heroClass->secSkillProbability.count(which) == 0)
+		return false;
+
+	if (type->heroClass->secSkillProbability.at(which) == 0)
 		return false;
 
 	return true;

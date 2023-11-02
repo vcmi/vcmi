@@ -114,7 +114,7 @@ CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature & creature_, bool Inc
 
 void CCreatureTypeLimiter::setCreature(const CreatureID & id)
 {
-	creature = VLC->creh->objects[id];
+	creature = id.toCreature();
 }
 
 std::string CCreatureTypeLimiter::toString() const

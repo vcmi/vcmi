@@ -143,7 +143,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 					if(ins->storedArtifact)
 					{
 						if(!map->allowedSpells[ins->storedArtifact->getScrollSpellID()])
-							issues.emplace_back(QString(tr("Spell scroll %1 is prohibited by map settings")).arg(ins->storedArtifact->getScrollSpellID().toSpell(VLC->spells())->getNameTranslated().c_str()), false);
+							issues.emplace_back(QString(tr("Spell scroll %1 is prohibited by map settings")).arg(ins->storedArtifact->getScrollSpellID().toEntity(VLC->spells())->getNameTranslated().c_str()), false);
 					}
 					else
 						issues.emplace_back(QString(tr("Spell scroll %1 doesn't have instance assigned and must be removed")).arg(ins->instanceName.c_str()), true);
