@@ -262,23 +262,4 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 	return allowedSkills;
 }
 
-si32 CSkillHandler::decodeSkill(const std::string & identifier)
-{
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "skill", identifier);
-	if(rawId)
-		return rawId.value();
-	else
-		return -1;
-}
-
-std::string CSkillHandler::encodeSkill(const si32 index)
-{
-	return (*VLC->skillh)[SecondarySkill(index)]->identifier;
-}
-
-std::string CSkillHandler::encodeSkillWithType(const si32 index)
-{
-	return ModUtility::makeFullIdentifier("", "skill", encodeSkill(index));
-}
-
 VCMI_LIB_NAMESPACE_END

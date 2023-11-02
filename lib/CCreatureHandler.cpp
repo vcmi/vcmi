@@ -388,7 +388,7 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 	if(handler.updating)
 	{
 		cost.serializeJson(handler, "cost");
-		handler.serializeInt("faction", faction);//TODO: unify with deferred resolve
+		handler.serializeId("faction", faction);
 	}
 
 	handler.serializeInt("level", level);

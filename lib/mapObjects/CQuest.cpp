@@ -392,15 +392,15 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		
 		if(missionType == "Hero")
 		{
-			ui32 temp;
-			handler.serializeId<ui32, ui32, HeroTypeID>("hero", temp, 0);
+			HeroTypeID temp;
+			handler.serializeId("hero", temp, HeroTypeID::NONE);
 			mission.heroes.emplace_back(temp);
 		}
 		
 		if(missionType == "Player")
 		{
-			ui32 temp;
-			handler.serializeId<ui32, ui32, PlayerColor>("player", temp, PlayerColor::NEUTRAL);
+			PlayerColor temp;
+			handler.serializeId("player", temp, PlayerColor::NEUTRAL);
 			mission.players.emplace_back(temp);
 		}
 	}
