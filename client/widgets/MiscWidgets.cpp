@@ -515,14 +515,16 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	auto creatureData = (*CGI->creh)[creature->stacks.begin()->second->getCreatureID()].get();
-	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(AnimationPath::builtin("TWCRPORT")), creatureData->getIconIndex());
+	auto creatureID = creature->getCreature();
+	int32_t creatureIconIndex = CGI->creatures()->getById(creatureID)->getIconIndex();
+
+	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(AnimationPath::builtin("TWCRPORT")), creatureIconIndex);
 	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
 
 	bool isHeroSelected = LOCPLINT->localState->getCurrentHero() != nullptr;
 	std::string textContent = isHeroSelected
-			? creature->getHoverText(LOCPLINT->localState->getCurrentHero())
-			: creature->getHoverText(LOCPLINT->playerID);
+			? creature->getPopupText(LOCPLINT->localState->getCurrentHero())
+			: creature->getPopupText(LOCPLINT->playerID);
 
 	//TODO: window is bigger than OH3
 	//TODO: vertical alignment does not match H3. Commented below example that matches H3 for creatures count but supports only 1 line:
