@@ -25,7 +25,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void CGMarket::initObj(CRandomGenerator & rand)
 {
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, rand);
 }
 
 void CGMarket::onHeroVisit(const CGHeroInstance * h) const

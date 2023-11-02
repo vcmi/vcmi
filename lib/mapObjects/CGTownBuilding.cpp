@@ -24,12 +24,12 @@ PlayerColor CGTownBuilding::getOwner() const
 	return town->getOwner();
 }
 
-int32_t CGTownBuilding::getObjGroupIndex() const
+MapObjectID CGTownBuilding::getObjGroupIndex() const
 {
 	return -1;
 }
 
-int32_t CGTownBuilding::getObjTypeIndex() const
+MapObjectSubID CGTownBuilding::getObjTypeIndex() const
 {
 	return 0;
 }

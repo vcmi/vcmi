@@ -1229,7 +1229,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		else if(art->ID  == Obj::ARTIFACT)
 		{
 			//specific artifact
-			artID = ArtifactID(art->subID);
+			artID = art->getArtifact();
 		}
 
 		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID.getNum());
@@ -1263,7 +1263,7 @@ void CMapLoaderJson::readObjects()
 
 	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
 	{
-		return a->subID < b->subID;
+		return a->getObjTypeIndex() < b->getObjTypeIndex();
 	});
 }
 

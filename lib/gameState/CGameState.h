@@ -115,6 +115,8 @@ public:
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
 	bool giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid);
+	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
+	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
 	void apply(CPack *pack);
 	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
@@ -187,7 +189,6 @@ private:
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
 	void randomizeMapObjects();
-	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
 	void placeStartingHeroes();
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
@@ -214,9 +215,7 @@ private:
 	CGHeroInstance * getUsedHero(const HeroTypeID & hid) const;
 	bool isUsedHero(const HeroTypeID & hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
-	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	HeroTypeID pickUnusedHeroTypeRandomly(const PlayerColor & owner); // picks a unused hero type randomly
-	HeroTypeID pickNextHeroType(const PlayerColor & owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----

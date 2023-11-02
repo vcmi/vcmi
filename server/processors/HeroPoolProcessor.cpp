@@ -50,8 +50,8 @@ TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, 
 	// try to find "better" slot to overwrite
 	// we want to avoid overwriting retreated heroes when tavern still has slot with random hero
 	// as well as avoid overwriting surrendered heroes if we can overwrite retreated hero
-	auto roleLeft = heroesPool->getSlotRole(HeroTypeID(heroes[0]->subID));
-	auto roleRight = heroesPool->getSlotRole(HeroTypeID(heroes[1]->subID));
+	auto roleLeft = heroesPool->getSlotRole(heroes[0]->getHeroType());
+	auto roleRight = heroesPool->getSlotRole(heroes[1]->getHeroType());
 
 	if (roleLeft > roleRight)
 		return TavernHeroSlot::RANDOM;
@@ -73,7 +73,7 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
-	sah.hid.setNum(hero->subID);
+	sah.hid = hero->getHeroType();
 	gameHandler->sendAndApply(&sah);
 }
 
@@ -84,7 +84,7 @@ void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroIns
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
-	sah.hid.setNum(hero->subID);
+	sah.hid = hero->getHeroType();
 	sah.army.clearSlots();
 	sah.army.setCreature(SlotID(0), hero->type->initialArmy.at(0).creature, 1);
 
@@ -111,7 +111,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 
 	if (newHero)
 	{
-		sah.hid.setNum(newHero->subID);
+		sah.hid = newHero->getHeroType();
 
 		if (giveArmy)
 		{
@@ -193,7 +193,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	for(const auto & hero : recruitableHeroes)
 	{
-		if(hero->subID == heroToRecruit)
+		if(hero->getHeroType() == heroToRecruit)
 			recruitedHero = hero;
 	}
 
@@ -206,7 +206,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	HeroRecruited hr;
 	hr.tid = mapObject->id;
-	hr.hid.setNum(recruitedHero->subID);
+	hr.hid = recruitedHero->getHeroType();
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
 	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->boat)

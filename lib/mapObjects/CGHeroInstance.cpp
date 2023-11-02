@@ -285,27 +285,28 @@ PlayerColor CGHeroInstance::getOwner() const
 	return tempOwner;
 }
 
+HeroTypeID CGHeroInstance::getHeroType() const
+{
+	return HeroTypeID(getObjTypeIndex().getNum());
+}
+
+void CGHeroInstance::setHeroType(HeroTypeID heroType)
+{
+	assert(type == nullptr);
+	subID = heroType;
+}
+
 void CGHeroInstance::initHero(CRandomGenerator & rand, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
 	initHero(rand);
 }
 
-void CGHeroInstance::setType(si32 ID, si32 subID)
-{
-	assert(ID == Obj::HERO); // just in case
-	type = VLC->heroh->objects[subID];
-
-	CGObjectInstance::setType(ID, type->heroClass->getIndex()); // to find object handler we must use heroClass->id
-	this->subID = subID; // after setType subID used to store unique hero identify id. Check issue 2277 for details
-	randomizeArmy(type->heroClass->faction);
-}
-
 void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
 	if(!type)
-		type = VLC->heroh->objects[subID];
+		type = VLC->heroh->objects[getHeroType().getNum()];
 
 	if (ID == Obj::HERO)
 		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -566,18 +567,35 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 	wisdomCounter = 1;
 }
 
+void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == Obj::HERO || ID == Obj::PRISON || ID == Obj::RANDOM_HERO);
+
+	if (ID == Obj::RANDOM_HERO)
+	{
+		ID = Obj::HERO;
+		subID = cb->gameState()->pickNextHeroType(getOwner());
+		type = VLC->heroh->objects[subID];
+		randomizeArmy(type->heroClass->faction);
+	}
+	else
+		type = VLC->heroh->objects[subID];
+
+	auto oldSubID = subID;
+
+	// to find object handler we must use heroClass->id
+	// after setType subID used to store unique hero identify id. Check issue 2277 for details
+	if (ID != Obj::PRISON)
+		setType(ID, type->heroClass->getIndex());
+	else
+		setType(ID, 0);
+
+	this->subID = oldSubID;
+}
+
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
-	if(!type)
-		initHero(rand); //TODO: set up everything for prison before specialties are configured
 
-	if (ID != Obj::PRISON)
-	{
-		auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
-		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
-		if (customApp)
-			appearance = customApp;
-	}
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
@@ -1050,7 +1068,7 @@ HeroTypeID CGHeroInstance::getPortraitSource() const
 	if (customPortraitSource.isValid())
 		return customPortraitSource;
 	else
-		return HeroTypeID(subID);
+		return getHeroType();
 }
 
 int32_t CGHeroInstance::getIconIndex() const
@@ -1502,7 +1520,7 @@ std::string CGHeroInstance::getHeroTypeName() const
 		}
 		else
 		{
-			return VLC->heroh->objects[subID]->getJsonKey();
+			return VLC->heroh->objects[getHeroType()]->getJsonKey();
 		}
 	}
 	return "";
@@ -1529,14 +1547,14 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 		}
 	}
 
-	if(ID == Obj::HERO)
+	if(ID != Obj::PRISON)
 	{		
 		map->heroesOnMap.emplace_back(this);
 	}
 }
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
-	if (ID == Obj::HERO)
+	if (ID == Obj::PRISON)
 		vstd::erase_if_present(map->heroesOnMap, this);
 }
 
@@ -1736,7 +1754,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(!appearance)
 			{
 				// crossoverDeserialize
-				type = VLC->heroh->objects[subID];
+				type = VLC->heroh->objects[getHeroType()];
 				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			}
 

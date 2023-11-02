@@ -213,7 +213,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 	std::set<HeroTypeID> heroesToRemove = campaignState->getReservedHeroes();
 
 	for(auto & campaignHeroReplacement : campaignHeroReplacements)
-		heroesToRemove.insert(HeroTypeID(campaignHeroReplacement.hero->subID));
+		heroesToRemove.insert(campaignHeroReplacement.hero->getHeroType());
 
 	for(auto & heroID : heroesToRemove)
 	{
@@ -256,7 +256,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 			assert(0); // should not happen
 		}
 
-		hero->subID = heroTypeId;
+		hero->setHeroType(heroTypeId);
 		gameState->map->getEditManager()->insertObject(hero);
 	}
 }
@@ -339,7 +339,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders(const std::vector<CampaignHer
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->pos = heroPlaceholder->pos;
-		heroToPlace->type = VLC->heroh->objects[heroToPlace->subID];
+		heroToPlace->type = VLC->heroh->objects[heroToPlace->getHeroType().getNum()];
 		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
@@ -396,7 +396,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 
 		CGHeroInstance * hero = CampaignState::crossoverDeserialize(node, gameState->map);
 
-		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->subID, hero->getNameTranslated());
+		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
 		campaignHeroReplacements.emplace_back(hero, placeholder->id);
 	}
@@ -422,7 +422,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 			CGHeroInstance * hero = CampaignState::crossoverDeserialize(*nodeListIter, gameState->map);
 			nodeListIter++;
 
-			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->subID, hero->getNameTranslated());
+			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
 			campaignHeroReplacements.emplace_back(hero, placeholder->id);
 		}
@@ -468,7 +468,7 @@ void CGameStateCampaign::initHeroes()
 		{
 			for (auto & heroe : heroes)
 			{
-				if (heroe->subID == chosenBonus->info1)
+				if (heroe->getHeroType().getNum() == chosenBonus->info1)
 				{
 					giveCampaignBonusToHero(heroe);
 					break;
@@ -557,7 +557,7 @@ void CGameStateCampaign::initTowns()
 		if(gameState->scenarioOps->campState->formatVCMI())
 			newBuilding = BuildingID(chosenBonus->info1);
 		else
-			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->subID, town->builtBuildings);
+			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFaction(), town->builtBuildings);
 
 		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
 		while(true)

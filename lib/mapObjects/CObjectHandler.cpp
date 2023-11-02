@@ -28,14 +28,4 @@ CObjectHandler::CObjectHandler()
 	logGlobal->trace("\t\tDone loading resource prices!");
 }
 
-CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
-{
-
-}
-
-bool CGObjectInstanceBySubIdFinder::operator()(CGObjectInstance * obj) const
-{
-	return this->obj->subID == obj->subID;
-}
-
 VCMI_LIB_NAMESPACE_END

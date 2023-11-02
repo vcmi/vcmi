@@ -1487,6 +1487,7 @@ void NewObject::applyGs(CGameState *gs)
 
 	CGObjectInstance * o = handler->create();
 	handler->configureObject(o, gs->getRandomGenerator());
+	assert(o->ID == this->ID);
 	
 	if (ID == Obj::MONSTER) //probably more options will be needed
 	{
@@ -1514,8 +1515,6 @@ void NewObject::applyGs(CGameState *gs)
 		o->appearance = handler->getTemplates().front();
 
 	o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
-	o->ID = ID;
-	o->subID = subID;
 	o->pos = targetPos + o->getVisitableOffset();
 
 	gs->map->objects.emplace_back(o);

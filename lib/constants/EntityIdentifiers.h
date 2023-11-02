@@ -407,7 +407,7 @@ public:
 	static std::string entityType();
 };
 
-class ObjBase : public IdentifierBase
+class MapObjectBaseID : public IdentifierBase
 {
 public:
 	enum Type
@@ -552,13 +552,36 @@ public:
 	};
 };
 
-class DLL_LINKAGE Obj : public IdentifierWithEnum<Obj, ObjBase>
+class DLL_LINKAGE MapObjectID : public IdentifierWithEnum<MapObjectID, MapObjectBaseID>
 {
 public:
-	using IdentifierWithEnum<Obj, ObjBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<MapObjectID, MapObjectBaseID>::IdentifierWithEnum;
 
 	static std::string encode(int32_t index);
 	static si32 decode(const std::string & identifier);
+};
+
+class MapObjectSubID : public Identifier<MapObjectSubID>
+{
+public:
+	constexpr MapObjectSubID(const IdentifierBase & value):
+		Identifier<MapObjectSubID>(value.getNum())
+	{}
+	constexpr MapObjectSubID(int32_t value = -1):
+		Identifier<MapObjectSubID>(value)
+	{}
+
+	MapObjectSubID & operator =(int32_t value)
+	{
+		this->num = value;
+		return *this;
+	}
+
+	MapObjectSubID & operator =(const IdentifierBase & value)
+	{
+		this->num = value.getNum();
+		return *this;
+	}
 };
 
 class DLL_LINKAGE RoadId : public Identifier<RoadId>
@@ -966,6 +989,7 @@ public:
 
 // Deprecated
 // TODO: remove
+using Obj = MapObjectID;
 using ETownType = FactionID;
 using EGameResID = GameResID;
 using River = RiverId;

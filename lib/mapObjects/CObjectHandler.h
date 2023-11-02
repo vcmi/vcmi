@@ -16,17 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
 class int3;
 
-/// function object which can be used to find an object with an specific sub ID
-class CGObjectInstanceBySubIdFinder
-{
-public:
-	CGObjectInstanceBySubIdFinder(CGObjectInstance * obj);
-	bool operator()(CGObjectInstance * obj) const;
-
-private:
-	CGObjectInstance * obj;
-};
-
 class DLL_LINKAGE CObjectHandler
 {
 public:

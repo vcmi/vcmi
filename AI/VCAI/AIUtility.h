@@ -26,7 +26,6 @@ using crint3 = const int3 &;
 using crstring = const std::string &;
 using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
-const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
 const int ALLOWED_ROAMING_HEROES = 8;
 

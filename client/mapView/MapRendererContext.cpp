@@ -427,11 +427,7 @@ size_t MapRendererWorldViewContext::overlayImageIndex(const int3 & coordinates) 
 		if(!object->visitableAt(coordinates.x, coordinates.y))
 			continue;
 
-		ObjectPosInfo info;
-		info.pos = coordinates;
-		info.id = object->ID;
-		info.subId = object->subID;
-		info.owner = object->tempOwner;
+		ObjectPosInfo info(object);
 
 		size_t iconIndex = selectOverlayImageForObject(info);
 

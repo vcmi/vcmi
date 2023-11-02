@@ -111,7 +111,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 				auto* obj = dynamic_cast<CGHeroInstance*>(factory->create());
 
-				obj->subID = hid; //will be initialized later
+				obj->setHeroType(hid); //will be initialized later
 				obj->exp = generator.getConfig().prisonExperience[i];
 				obj->setOwner(PlayerColor::NEUTRAL);
 				generator.banHero(hid);

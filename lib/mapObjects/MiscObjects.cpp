@@ -85,7 +85,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, subID == 7 ? 84 : 187);
+		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187);
 		cb->showBlockingDialog(&ynd);
 		return;
 	}
@@ -119,19 +119,27 @@ void CGMine::initObj(CRandomGenerator & rand)
 	}
 	else
 	{
-		producedResource = GameResID(subID);
+		producedResource = GameResID(getObjTypeIndex());
 	}
 	producedQuantity = defaultResProduction();
 }
 
 bool CGMine::isAbandoned() const
 {
-	return (subID >= 7);
+	return (getObjTypeIndex() >= 7);
+}
+
+ResourceSet CGMine::dailyIncome() const
+{
+	ResourceSet result;
+	result[producedResource] += defaultResProduction();
+
+	return result;
 }
 
 std::string CGMine::getObjectName() const
 {
-	return VLC->generaltexth->translate("core.minename", subID);
+	return VLC->generaltexth->translate("core.minename", getObjTypeIndex());
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -206,7 +214,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(handler.saving)
 		{
 			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
-			for(auto const & resID : abandonedMineResources)
+			for(const auto & resID : abandonedMineResources)
 			{
 				JsonNode one(JsonNode::JsonType::DATA_STRING);
 				one.String() = GameConstants::RESOURCE_NAMES[resID];
@@ -237,9 +245,26 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
+GameResID CGResource::resourceID() const
+{
+	return getObjTypeIndex().getNum();
+}
+
 std::string CGResource::getHoverText(PlayerColor player) const
 {
-	return VLC->generaltexth->restypes[subID];
+	return VLC->generaltexth->restypes[resourceID()];
+}
+
+void CGResource::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == Obj::RESOURCE || ID == Obj::RANDOM_RESOURCE);
+
+	if (ID == Obj::RANDOM_RESOURCE)
+	{
+		ID = Obj::RESOURCE;
+		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
+		setType(ID, subID);
+	}
 }
 
 void CGResource::initObj(CRandomGenerator & rand)
@@ -248,7 +273,7 @@ void CGResource::initObj(CRandomGenerator & rand)
 
 	if(amount == CGResource::RANDOM_AMOUNT)
 	{
-		switch(static_cast<EGameResID>(subID))
+		switch(resourceID())
 		{
 		case EGameResID::GOLD:
 			amount = rand.nextInt(5, 10) * 100;
@@ -285,7 +310,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGResource::collectRes(const PlayerColor & player) const
 {
-	cb->giveResource(player, static_cast<EGameResID>(subID), amount);
+	cb->giveResource(player, resourceID(), amount);
 	InfoWindow sii;
 	sii.player = player;
 	if(!message.empty())
@@ -297,9 +322,9 @@ void CGResource::collectRes(const PlayerColor & player) const
 	{
 		sii.type = EInfoWindowMode::INFO;
 		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
-		sii.text.replaceLocalString(EMetaText::RES_NAMES, subID);
+		sii.text.replaceLocalString(EMetaText::RES_NAMES, resourceID());
 	}
-	sii.components.emplace_back(Component::EComponentType::RESOURCE,subID,amount,0);
+	sii.components.emplace_back(Component::EComponentType::RESOURCE, resourceID(), amount, 0);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
 	cb->showInfoDialog(&sii);
 	cb->removeObject(this, player);
@@ -449,7 +474,7 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, int Su
 		if(!obj)
 			continue;
 
-		const auto * teleportObj = dynamic_cast<const CGTeleport *>(cb->getObj(obj->id));
+		const auto * teleportObj = dynamic_cast<const CGMonolith *>(cb->getObj(obj->id));
 		if(teleportObj && vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
 	}
@@ -688,6 +713,41 @@ bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 	|| (h->stacksCount() == 1 && h->Slots().begin()->second->count == 1);
 }
 
+ArtifactID CGArtifact::getArtifact() const
+{
+	if(ID == Obj::SPELL_SCROLL)
+		return ArtifactID::SPELL_SCROLL;
+	else
+		return getObjTypeIndex().getNum();
+}
+
+void CGArtifact::pickRandomObject(CRandomGenerator & rand)
+{
+	switch(ID)
+	{
+		case MapObjectID::RANDOM_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
+			break;
+		case MapObjectID::RANDOM_TREASURE_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE);
+			break;
+		case MapObjectID::RANDOM_MINOR_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR);
+			break;
+		case MapObjectID::RANDOM_MAJOR_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR);
+			break;
+		case MapObjectID::RANDOM_RELIC_ART:
+			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_RELIC);
+			break;
+	}
+
+	if (ID != Obj::SPELL_SCROLL)
+		ID = MapObjectID::ARTIFACT;
+
+	setType(ID, subID);
+}
+
 void CGArtifact::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
@@ -700,7 +760,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 			storedArtifact = a;
 		}
 		if(!storedArtifact->artType)
-			storedArtifact->setType(VLC->arth->objects[subID]);
+			storedArtifact->setType(VLC->arth->objects[getArtifact()]);
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
@@ -713,7 +773,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getByIndex(subID)->getNameTranslated();
+	return VLC->artifacts()->getByIndex(getArtifact())->getNameTranslated();
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
@@ -730,11 +790,11 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 			case Obj::ARTIFACT:
 			{
-				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
+				iw.components.emplace_back(Component::EComponentType::ARTIFACT, getArtifact(), 0, 0);
 				if(!message.empty())
 					iw.text = message;
 				else
-					iw.text.appendLocalString(EMetaText::ART_EVNTS, subID);
+					iw.text.appendLocalString(EMetaText::ART_EVNTS, getArtifact());
 			}
 			break;
 			case Obj::SPELL_SCROLL:
