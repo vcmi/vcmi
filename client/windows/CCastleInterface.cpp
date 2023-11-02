@@ -1535,11 +1535,13 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 			bool canAfford = resourceAmount >= building->resources[i];
 
 			if(!canAfford && state != EBuildingState::ALREADY_PRESENT && settings["general"]["enableUiEnhancements"].Bool())
+			{
 				message.appendRawString("{H3Red|%d}/%d");
+				message.replaceNumber(resourceAmount);
+			}
 			else
 				message.appendRawString("%d");
 
-			message.replaceNumber(resourceAmount);
 			message.replaceNumber(building->resources[i]);
 			components.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i, message.toString(), CComponent::small));
 		}

@@ -40,11 +40,11 @@ public:
 private:
 	std::vector<std::shared_ptr<CLabel>> lines;
 
-	size_t getIndex();
-	std::vector<AnimationPath> getFileName();
+	size_t getIndex() const;
+	std::vector<AnimationPath> getFileName() const;
 	void setSurface(const AnimationPath & defName, int imgPos);
 
-	void init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font = FONT_SMALL, std::string ValText="");
+	void init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font, const std::string & ValText);
 
 public:
 	std::shared_ptr<CAnimImage> image;
@@ -53,11 +53,11 @@ public:
 	ESize size; //component size.
 	EFonts font; //Font size of label
 
-	std::string getDescription();
-	std::string getSubtitle();
+	std::string getDescription() const;
+	std::string getSubtitle() const;
 
 	CComponent(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val = std::nullopt, ESize imageSize=large, EFonts font = FONT_SMALL);
-	CComponent(ComponentType Type, ComponentSubType Subtype, std::string Val, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(ComponentType Type, ComponentSubType Subtype, const std::string & Val, ESize imageSize=large, EFonts font = FONT_SMALL);
 	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
 	void showPopupWindow(const Point & cursorPosition) override; //call-in

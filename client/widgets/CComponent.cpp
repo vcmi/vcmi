@@ -44,17 +44,17 @@ CComponent::CComponent(ComponentType Type, ComponentSubType Subtype, std::option
 	init(Type, Subtype, Val, imageSize, font, "");
 }
 
-CComponent::CComponent(ComponentType Type, ComponentSubType Subtype, std::string Val, ESize imageSize, EFonts font)
+CComponent::CComponent(ComponentType Type, ComponentSubType Subtype, const std::string & Val, ESize imageSize, EFonts font)
 {
 	init(Type, Subtype, std::nullopt, imageSize, font, Val);
 }
 
 CComponent::CComponent(const Component & c, ESize imageSize, EFonts font)
 {
-	init(c.type, c.subType, c.value, imageSize, font);
+	init(c.type, c.subType, c.value, imageSize, font, "");
 }
 
-void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts fnt, std::string ValText)
+void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts fnt, const std::string & ValText)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -107,7 +107,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 	}
 }
 
-std::vector<AnimationPath> CComponent::getFileName()
+std::vector<AnimationPath> CComponent::getFileName() const
 {
 	static const std::array<std::string, 4>  primSkillsArr = {"PSKIL32",        "PSKIL32",        "PSKIL42",        "PSKILL"};
 	static const std::array<std::string, 4>  secSkillsArr =  {"SECSK32",        "SECSK32",        "SECSKILL",       "SECSK82"};
@@ -160,7 +160,7 @@ std::vector<AnimationPath> CComponent::getFileName()
 	}
 }
 
-size_t CComponent::getIndex()
+size_t CComponent::getIndex() const
 {
 	switch(data.type)
 	{
@@ -199,7 +199,7 @@ size_t CComponent::getIndex()
 	}
 }
 
-std::string CComponent::getDescription()
+std::string CComponent::getDescription() const
 {
 	switch(data.type)
 	{
@@ -242,11 +242,11 @@ std::string CComponent::getDescription()
 			return "";
 		default:
 			assert(0);
-			return 0;
+			return "";
 	}
 }
 
-std::string CComponent::getSubtitle()
+std::string CComponent::getSubtitle() const
 {
 	if (!customSubtitle.empty())
 		return customSubtitle;
@@ -273,14 +273,14 @@ std::string CComponent::getSubtitle()
 		case ComponentType::RESOURCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::RESOURCE_PER_DAY:
-			return boost::str(boost::format(CGI->generaltexth->allTexts[387]) % data.value.value_or(0));
+			return boost::str(boost::format(CGI->generaltexth->allTexts[3]) % data.value.value_or(0));
 		case ComponentType::CREATURE:
 		{
 			auto creature = CGI->creh->getById(data.subType.as<CreatureID>());
-			if ( data.value.value_or(0) )
-				return std::to_string(data.value.value_or(0)) + " " + (data.value.value_or(0) > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
+			if(data.value)
+				return std::to_string(*data.value) + " " + (*data.value > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
 			else
-				return data.value.value_or(0) > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated();
+				return creature->getNamePluralTranslated();
 		}
 		case ComponentType::ARTIFACT:
 			return CGI->artifacts()->getById(data.subType.as<ArtifactID>())->getNameTranslated();
