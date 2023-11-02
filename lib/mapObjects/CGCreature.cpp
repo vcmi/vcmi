@@ -40,7 +40,7 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	else
 		ms.appendLocalString(EMetaText::ARRAY_TXT, quantityTextIndex);
 	ms.appendRawString(" ");
-	ms.appendLocalString(EMetaText::CRE_PL_NAMES, getCreature());
+	ms.appendNamePlural(getCreature());
 
 	return ms.toString();
 }
@@ -52,7 +52,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);
 		ms.appendRawString(" ");
-		ms.appendLocalString(EMetaText::CRE_PL_NAMES, getCreature());
+		ms.appendName(getCreature(), stacks.begin()->second->count);
 		return ms.toString();
 	}
 	else
@@ -159,7 +159,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
-			ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, getCreature());
+			ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
 			cb->showBlockingDialog(&ynd);
 			break;
 		}
@@ -468,7 +468,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
 	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
-	ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, getCreature());
+	ynd.text.replaceName(getCreature(), getStackCount(SlotID(0)));
 	cb->showBlockingDialog(&ynd);
 }
 

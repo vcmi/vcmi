@@ -135,7 +135,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		for(auto c : vi.reward.creatures)
 		{
 			loot.appendRawString("%s");
-			loot.replaceCreatureName(c);
+			loot.replaceName(c);
 		}
 		
 		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].count == 1)

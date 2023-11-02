@@ -66,7 +66,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 			{
 				text.replaceRawString(caster->getNameTranslated());
 
-				text.replaceLocalString(EMetaText::CRE_PL_NAMES, elemental->creatureIndex());
+				text.replaceNamePlural(elemental->creatureId());
 
 				if(caster->type->gender == EHeroGender::FEMALE)
 					text.replaceLocalString(EMetaText::GENERAL_TXT, 540);

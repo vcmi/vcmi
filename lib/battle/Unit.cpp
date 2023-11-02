@@ -187,11 +187,11 @@ void Unit::addText(MetaString & text, EMetaText type, int32_t serial, const boos
 void Unit::addNameReplacement(MetaString & text, const boost::logic::tribool & plural) const
 {
 	if(boost::logic::indeterminate(plural))
-		text.replaceCreatureName(creatureId(), getCount());
+		text.replaceName(creatureId(), getCount());
 	else if(plural)
-		text.replaceLocalString(EMetaText::CRE_PL_NAMES, creatureIndex());
+		text.replaceName(creatureIndex(), 2);
 	else
-		text.replaceLocalString(EMetaText::CRE_SING_NAMES, creatureIndex());
+		text.replaceName(creatureIndex(), 1);
 }
 
 std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
@@ -200,7 +200,7 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
 
 	MetaString text;
 	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
-	text.replaceCreatureName(creatureId(), getCount());
+	text.replaceName(creatureId(), getCount());
 
 	return text.toString();
 }

@@ -485,7 +485,7 @@ void CUnitState::getCastDescription(const spells::Spell * spell, const std::vect
 	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
 	getCasterName(text);
-	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
+	text.replaceName(spell->getId());
 }
 
 int32_t CUnitState::manaLimit() const

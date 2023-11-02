@@ -223,7 +223,7 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		for(const auto & elem : mission.artifacts)
 		{
 			loot.appendRawString("%s");
-			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
+			loot.replaceName(elem);
 		}
 		text.replaceRawString(loot.buildList());
 	}
@@ -234,7 +234,7 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		for(const auto & elem : mission.creatures)
 		{
 			loot.appendRawString("%s");
-			loot.replaceCreatureName(elem);
+			loot.replaceName(elem);
 		}
 		text.replaceRawString(loot.buildList());
 	}
@@ -258,7 +258,7 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	{
 		MetaString loot;
 		for(auto & p : mission.players)
-			loot.appendLocalString(EMetaText::COLOR, p);
+			loot.appendName(p);
 		
 		text.replaceRawString(loot.buildList());
 	}
@@ -329,7 +329,7 @@ void CQuest::addKillTargetReplacements(MetaString &out) const
 		out.replaceTextID(heroName);
 	if(stackToKill.type)
 	{
-		out.replaceCreatureName(stackToKill);
+		out.replaceName(stackToKill);
 		out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
 	}
 }

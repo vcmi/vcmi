@@ -752,7 +752,7 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 
 	text.appendLocalString(EMetaText::GENERAL_TXT, textIndex);
 	getCasterName(text);
-	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
+	text.replaceName(spell->getId());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);
 }
@@ -958,7 +958,7 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 	{
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 146);
 	}
-	iw.text.replaceCreatureName(raisedStack);
+	iw.text.replaceName(raisedStack);
 
 	cb->showInfoDialog(&iw);
 }

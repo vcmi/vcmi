@@ -151,13 +151,13 @@ void CBonusSelection::createBonusesIcons()
 		{
 		case CampaignBonusType::SPELL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
-			desc.replaceLocalString(EMetaText::SPELL_NAME, bonDescs[i].info2);
+			desc.replaceName(SpellID(bonDescs[i].info2));
 			break;
 		case CampaignBonusType::MONSTER:
 			picNumber = bonDescs[i].info2 + 2;
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
 			desc.replaceNumber(bonDescs[i].info3);
-			desc.replaceLocalString(EMetaText::CRE_PL_NAMES, bonDescs[i].info2);
+			desc.replaceNamePlural(bonDescs[i].info2);
 			break;
 		case CampaignBonusType::BUILDING:
 		{
@@ -187,11 +187,11 @@ void CBonusSelection::createBonusesIcons()
 		}
 		case CampaignBonusType::ARTIFACT:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
-			desc.replaceLocalString(EMetaText::ART_NAMES, bonDescs[i].info2);
+			desc.replaceName(ArtifactID(bonDescs[i].info2));
 			break;
 		case CampaignBonusType::SPELL_SCROLL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 716);
-			desc.replaceLocalString(EMetaText::ART_NAMES, bonDescs[i].info2);
+			desc.replaceName(ArtifactID(bonDescs[i].info2));
 			break;
 		case CampaignBonusType::PRIMARY_SKILL:
 		{
@@ -229,7 +229,7 @@ void CBonusSelection::createBonusesIcons()
 		case CampaignBonusType::SECONDARY_SKILL:
 			desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
 			desc.replaceTextID(TextIdentifier("core", "genrltxt", "levels", bonDescs[i].info3 - 1).get());
-			desc.replaceLocalString(EMetaText::SEC_SKILL_NAME, bonDescs[i].info2);
+			desc.replaceName(SecondarySkill(bonDescs[i].info2));
 			picNumber = bonDescs[i].info2 * 3 + bonDescs[i].info3 - 1;
 
 			break;

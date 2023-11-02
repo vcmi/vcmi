@@ -489,7 +489,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
 				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
-				text.replaceLocalString(EMetaText::ART_NAMES, b->sid.as<ArtifactID>());
+				text.replaceName(b->sid.as<ArtifactID>());
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}

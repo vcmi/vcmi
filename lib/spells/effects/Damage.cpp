@@ -176,7 +176,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		{
 			MetaString line;
 			line.appendLocalString(EMetaText::GENERAL_TXT, 376); // Spell %s does %d damage
-			line.replaceLocalString(EMetaText::SPELL_NAME, m->getSpellIndex());
+			line.replaceName(m->getSpellId());
 			line.replaceNumber(static_cast<int>(damage));
 
 			log.push_back(line);
