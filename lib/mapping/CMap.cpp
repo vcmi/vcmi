@@ -71,16 +71,8 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	CMapEvent::serializeJson(handler);
-	{
-		std::vector<BuildingID> temp(buildings.begin(), buildings.end());
-		auto a = handler.enterArray("buildings");
-		a.syncSize(temp);
-		for(int i = 0; i < temp.size(); ++i)
-		{
-			a.serializeInt(i, temp[i]);
-			buildings.insert(temp[i]);
-		}
-	}
+
+	handler.serializeIdArray("buildings", buildings);
 	{
 		auto a = handler.enterArray("creatures");
 		a.syncSize(creatures);
@@ -393,7 +385,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type
 	// There is weird bug because of which sometimes heroes will not be found properly despite having correct position
 	// Try to workaround that and find closest object that we can use
 
-	logGlobal->error("Failed to find object of type %d at %s", static_cast<int>(type), pos.toString());
+	logGlobal->error("Failed to find object of type %d at %s", type.getNum(), pos.toString());
 	logGlobal->error("Will try to find closest matching object");
 
 	CGObjectInstance * bestMatch = nullptr;

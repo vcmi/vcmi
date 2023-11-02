@@ -317,7 +317,7 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 std::string FactionLimiter::toString() const
 {
 	boost::format fmt("FactionLimiter(faction=%s)");
-	fmt % VLC->factions()->getByIndex(faction)->getJsonKey();
+	fmt % VLC->factions()->getById(faction)->getJsonKey();
 	return fmt.str();
 }
 
@@ -326,7 +326,7 @@ JsonNode FactionLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "FACTION_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->factions()->getByIndex(faction)->getJsonKey()));
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->factions()->getById(faction)->getJsonKey()));
 
 	return root;
 }

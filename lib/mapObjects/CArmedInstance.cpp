@@ -92,7 +92,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		for(auto f : factions)
 		{
-			if (VLC->factions()->getByIndex(f)->getAlignment() != EAlignment::EVIL)
+			if (VLC->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)

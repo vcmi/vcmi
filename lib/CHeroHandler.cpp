@@ -209,7 +209,7 @@ CHeroClass::CHeroClass():
 
 void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const
 {
-	const auto & skillName = NPrimarySkill::names[static_cast<int>(pSkill)];
+	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
 	//minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	auto primarySkillLegalMinimum = (pSkill == PrimarySkill::ATTACK || pSkill == PrimarySkill::DEFENSE) ? 0 : 1;

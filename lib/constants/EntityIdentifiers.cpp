@@ -369,7 +369,7 @@ si32 FactionID::decode(const std::string & identifier)
 	if(rawId)
 		return rawId.value();
 	else
-		return FactionID::DEFAULT;
+		return FactionID::DEFAULT.getNum();
 }
 
 std::string FactionID::encode(const si32 index)

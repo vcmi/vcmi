@@ -52,11 +52,6 @@ public:
 		num += change;
 	}
 
-	constexpr operator int32_t () const
-	{
-		return num;
-	}
-
 	friend std::ostream& operator<<(std::ostream& os, const IdentifierBase& dt)
 	{
 		return os << dt.num;
