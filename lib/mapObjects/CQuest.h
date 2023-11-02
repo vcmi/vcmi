@@ -119,6 +119,11 @@ public:
 
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
+	std::string getPopupText(PlayerColor player) const override;
+	std::string getPopupText(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
+	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
 	void newTurn(CRandomGenerator & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
