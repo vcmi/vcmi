@@ -86,6 +86,9 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 	std::string getObjectName() const override;
+	std::string getPopupText(PlayerColor player) const override;
+	std::string getPopupText(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
 	void pick( const CGHeroInstance * h ) const;
 	void initObj(CRandomGenerator & rand) override;

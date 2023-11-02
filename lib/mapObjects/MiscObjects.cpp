@@ -11,7 +11,9 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
+#include "../ArtifactUtils.h"
 #include "../constants/StringConstants.h"
+#include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../CSkillHandler.h"
@@ -774,6 +776,30 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 std::string CGArtifact::getObjectName() const
 {
 	return VLC->artifacts()->getById(getArtifact())->getNameTranslated();
+}
+
+std::string CGArtifact::getPopupText(PlayerColor player) const
+{
+	if (settings["general"]["enableUiEnhancements"].Bool())
+	{
+		std::string description = VLC->artifacts()->getById(getArtifact())->getDescriptionTranslated();
+		ArtifactUtils::insertScrrollSpellName(description, SpellID::NONE); // erase text placeholder
+		return description;
+	}
+	else
+		return getObjectName();
+}
+
+std::string CGArtifact::getPopupText(const CGHeroInstance * hero) const
+{
+	return getPopupText(hero->getOwner());
+}
+
+std::vector<Component> CGArtifact::getPopupComponents(PlayerColor player) const
+{
+	return {
+		Component(ComponentType::ARTIFACT, getArtifact())
+	};
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
