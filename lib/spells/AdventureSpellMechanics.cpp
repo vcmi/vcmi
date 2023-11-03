@@ -528,8 +528,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		request.player = parameters.caster->getCasterOwner();
 		request.title.appendLocalString(EMetaText::JK_TXT, 40);
 		request.description.appendLocalString(EMetaText::JK_TXT, 41);
-		request.icon.id = Component::EComponentType::SPELL;
-		request.icon.subtype = owner->id.toEnum();
+		request.icon = Component(ComponentType::SPELL, owner->id);
 
 		env->genericQuery(&request, request.player, queryCallback);
 

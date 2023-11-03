@@ -74,42 +74,42 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	for (auto & bonus : bonuses)
 	{
 		if (bonus.type == BonusType::MORALE)
-			comps.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
+			comps.emplace_back(ComponentType::MORALE, bonus.val);
 		if (bonus.type == BonusType::LUCK)
-			comps.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
+			comps.emplace_back(ComponentType::LUCK, bonus.val);
 	}
 	
 	if (heroExperience)
-		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h ? h->calculateXp(heroExperience) : heroExperience), 0);
+		comps.emplace_back(ComponentType::EXPERIENCE, static_cast<si32>(h ? h->calculateXp(heroExperience) : heroExperience));
 
 	if (heroLevel)
-		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
+		comps.emplace_back(ComponentType::LEVEL, heroLevel);
 
 	if (manaDiff || manaPercentage >= 0)
-		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, h ? (calculateManaPoints(h) - h->mana) : manaDiff, 0);
+		comps.emplace_back(ComponentType::MANA, h ? (calculateManaPoints(h) - h->mana) : manaDiff);
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] != 0)
-			comps.emplace_back(Component::EComponentType::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
+			comps.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill(i), primary[i]);
 	}
 
 	for(const auto & entry : secondary)
-		comps.emplace_back(Component::EComponentType::SEC_SKILL, entry.first, entry.second, 0);
+		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, entry.second);
 
 	for(const auto & entry : artifacts)
-		comps.emplace_back(Component::EComponentType::ARTIFACT, entry, 1, 0);
+		comps.emplace_back(ComponentType::ARTIFACT, entry);
 
 	for(const auto & entry : spells)
-		comps.emplace_back(Component::EComponentType::SPELL, entry, 1, 0);
+		comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->getId(), entry.count, 0);
+		comps.emplace_back(ComponentType::CREATURE, entry.type->getId(), entry.count);
 
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
-			comps.emplace_back(Component::EComponentType::RESOURCE, static_cast<ui16>(i), resources[i], 0);
+			comps.emplace_back(ComponentType::RESOURCE, GameResID(i), resources[i]);
 	}
 }
 

@@ -944,7 +944,7 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
 	iw.player = tempOwner;
-	iw.components.emplace_back(raisedStack);
+	iw.components.emplace_back(ComponentType::CREATURE, raisedStack.getId(), raisedStack.count);
 
 	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
 	{

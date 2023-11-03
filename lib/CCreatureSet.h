@@ -39,6 +39,7 @@ public:
 	virtual ~CStackBasicDescriptor() = default;
 
 	const Creature * getType() const;
+	CreatureID getId() const;
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);

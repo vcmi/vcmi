@@ -79,11 +79,7 @@ std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
 
 	for (auto const & guard : guardsAmounts)
 	{
-		Component comp;
-		comp.id = Component::EComponentType::CREATURE;
-		comp.subtype = guard.first.getNum();
-		comp.val = guard.second;
-
+		Component comp(ComponentType::CREATURE, guard.first, guard.second);
 		result.push_back(comp);
 	}
 	return result;
@@ -236,7 +232,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
-			iw.components.emplace_back(Component::EComponentType::MORALE, 0, -1, 0);
+			iw.components.emplace_back(ComponentType::MORALE, -1);
 			iw.soundID = soundBase::GRAVEYARD;
 			break;
 		}
@@ -247,7 +243,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			gb.id = hero->id.getNum();
 			cb->giveHeroBonus(&gb);
 			textID = 107;
-			iw.components.emplace_back(Component::EComponentType::LUCK, 0, -2, 0);
+			iw.components.emplace_back(ComponentType::LUCK, -2);
 			break;
 		}
 		case Obj::CREATURE_BANK:
@@ -267,21 +263,21 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	//grant resources
 	if (bc)
 	{
-		for (int it = 0; it < bc->resources.size(); it++)
+		for (GameResID it : GameResID::ALL_RESOURCES())
 		{
 			if (bc->resources[it] != 0)
 			{
-				iw.components.emplace_back(Component::EComponentType::RESOURCE, it, bc->resources[it], 0);
+				iw.components.emplace_back(ComponentType::RESOURCE, it, bc->resources[it]);
 				loot.appendRawString("%d %s");
-				loot.replaceNumber(iw.components.back().val);
-				loot.replaceLocalString(EMetaText::RES_NAMES, iw.components.back().subtype);
+				loot.replaceNumber(bc->resources[it]);
+				loot.replaceLocalString(EMetaText::RES_NAMES, it);
 				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
 			}
 		}
 		//grant artifacts
 		for (auto & elem : bc->artifacts)
 		{
-			iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
+			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
 			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
 			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
@@ -325,7 +321,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 					if(hero->canLearnSpell(spell))
 					{
 						spells.insert(spellId);
-						iw.components.emplace_back(Component::EComponentType::SPELL, spellId, 0, 0);
+						iw.components.emplace_back(ComponentType::SPELL, spellId);
 					}
 				}
 				else
@@ -356,7 +352,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 		for(const auto & elem : ourArmy.Slots())
 		{
-			iw.components.emplace_back(*elem.second);
+			iw.components.emplace_back(ComponentType::CREATURE, elem.second->getId(), elem.second->getCount());
 			loot.appendRawString("%s");
 			loot.replaceCreatureName(*elem.second);
 		}

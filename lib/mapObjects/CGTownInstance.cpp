@@ -325,7 +325,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.text.appendRawString(h->commander->getName());
-			iw.components.emplace_back(*h->commander);
+			iw.components.emplace_back(ComponentType::CREATURE, h->commander->getId(), h->commander->getCount());
 			cb->showInfoDialog(&iw);
 		}
 	}

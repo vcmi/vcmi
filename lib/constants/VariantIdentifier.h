@@ -15,7 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 /// This class represents field that may contain value of multiple different identifer types
 template<typename... Types>
-class DLL_LINKAGE VariantIdentifier
+class VariantIdentifier
 {
 	std::variant<Types...> value;
 public:

@@ -2522,13 +2522,6 @@ void TurnTimeUpdate::applyGs(CGameState *gs) const
 	playerState.turnTimer = turnTimer;
 }
 
-Component::Component(const CStackBasicDescriptor & stack)
-	: id(EComponentType::CREATURE)
-	, subtype(stack.type->getId())
-	, val(stack.count)
-{
-}
-
 void EntitiesChanged::applyGs(CGameState * gs)
 {
 	for(const auto & change : changes)

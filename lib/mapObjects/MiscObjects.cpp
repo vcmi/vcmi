@@ -169,7 +169,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	iw.soundID = soundBase::FLAGMINE;
 	iw.text.appendLocalString(EMetaText::MINE_EVNTS, producedResource); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
-	iw.components.emplace_back(Component::EComponentType::RESOURCE, producedResource, producedQuantity, -1);
+	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, producedQuantity);
 	cb->showInfoDialog(&iw);
 }
 
@@ -324,7 +324,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
 		sii.text.replaceLocalString(EMetaText::RES_NAMES, resourceID());
 	}
-	sii.components.emplace_back(Component::EComponentType::RESOURCE, resourceID(), amount, 0);
+	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
 	cb->showInfoDialog(&sii);
 	cb->removeObject(this, player);
@@ -666,7 +666,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
-		iw.components.emplace_back(CStackBasicDescriptor(h->getCreature(targetstack), -countToTake));
+		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		cb->showInfoDialog(&iw);
 		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
 	}
@@ -790,7 +790,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 			case Obj::ARTIFACT:
 			{
-				iw.components.emplace_back(Component::EComponentType::ARTIFACT, getArtifact(), 0, 0);
+				iw.components.emplace_back(ComponentType::ARTIFACT, getArtifact());
 				if(!message.empty())
 					iw.text = message;
 				else
@@ -799,14 +799,14 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			break;
 			case Obj::SPELL_SCROLL:
 			{
-				int spellID = storedArtifact->getScrollSpellID();
-				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
+				SpellID spell = storedArtifact->getScrollSpellID();
+				iw.components.emplace_back(ComponentType::SPELL, spell);
 				if(!message.empty())
 					iw.text = message;
 				else
 				{
 					iw.text.appendLocalString(EMetaText::ADVOB_TXT,135);
-					iw.text.replaceLocalString(EMetaText::SPELL_NAME, spellID);
+					iw.text.replaceLocalString(EMetaText::SPELL_NAME, spell.getNum());
 				}
 			}
 			break;

@@ -571,7 +571,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	for(auto & elem : town->creatures)
 	{
 		if(!elem.empty())
-			components.push_back(std::make_shared<CComponent>(CComponent::creature, elem.front(), 0, CComponent::tiny));
+			components.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, elem.front(), 0, CComponent::tiny));
 	}
 	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140));
 }

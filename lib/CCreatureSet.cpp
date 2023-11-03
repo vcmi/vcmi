@@ -1017,6 +1017,11 @@ const Creature * CStackBasicDescriptor::getType() const
 	return type;
 }
 
+CreatureID CStackBasicDescriptor::getId() const
+{
+	return type->getId();
+}
+
 TQuantity CStackBasicDescriptor::getCount() const
 {
 	return count;

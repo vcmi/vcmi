@@ -458,6 +458,21 @@ std::string GameResID::entityType()
 	return "resource";
 }
 
+const std::array<GameResID, 7> & GameResID::ALL_RESOURCES()
+{
+	static const std::array allResources = {
+		GameResID(WOOD),
+		GameResID(MERCURY),
+		GameResID(ORE),
+		GameResID(SULFUR),
+		GameResID(CRYSTAL),
+		GameResID(GEMS),
+		GameResID(GOLD)
+	};
+
+	return allResources;
+}
+
 std::string SecondarySkill::entityType()
 {
 	return "secondarySkill";

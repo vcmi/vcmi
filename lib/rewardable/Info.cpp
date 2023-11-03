@@ -201,7 +201,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 		CreatureID from(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.first).value());
 		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.second.String()).value());
 
-		reward.extraComponents.emplace_back(Component::EComponentType::CREATURE, dest.getNum(), 0, 0);
+		reward.extraComponents.emplace_back(ComponentType::CREATURE, dest);
 
 		reward.creaturesChange[from] = dest;
 	}

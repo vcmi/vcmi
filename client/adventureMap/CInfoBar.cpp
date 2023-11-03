@@ -376,47 +376,51 @@ void CInfoBar::pushComponents(const std::vector<Component> & components, std::st
 		std::array<std::pair<std::vector<Component>, int>, 10> reward_map;
 		for(const auto & c : components)
 		{
-			switch(c.id)
+			switch(c.type)
 			{
-				case Component::EComponentType::PRIM_SKILL:
-				case Component::EComponentType::EXPERIENCE: 
+				case ComponentType::PRIM_SKILL:
+				case ComponentType::EXPERIENCE:
+				case ComponentType::LEVEL:
+				case ComponentType::MANA:
 					reward_map.at(0).first.push_back(c);
 					reward_map.at(0).second = 8; //At most 8, cannot be more
 					break;
-				case Component::EComponentType::SEC_SKILL:
+				case ComponentType::SEC_SKILL:
 					reward_map.at(1).first.push_back(c);
 					reward_map.at(1).second = 4; //At most 4
 					break;
-				case Component::EComponentType::SPELL: 
+				case ComponentType::SPELL:
 					reward_map.at(2).first.push_back(c);
 					reward_map.at(2).second = 4; //At most 4
 					break;
-				case Component::EComponentType::ARTIFACT:
+				case ComponentType::ARTIFACT:
+				case ComponentType::SPELL_SCROLL:
 					reward_map.at(3).first.push_back(c);
 					reward_map.at(3).second = 4; //At most 4, too long names
 					break;
-				case Component::EComponentType::CREATURE:
+				case ComponentType::CREATURE:
 					reward_map.at(4).first.push_back(c);
 					reward_map.at(4).second = 4; //At most 4, too long names
 					break;
-				case Component::EComponentType::RESOURCE:
+				case ComponentType::RESOURCE:
+				case ComponentType::RESOURCE_PER_DAY:
 					reward_map.at(5).first.push_back(c);
 					reward_map.at(5).second = 7; //At most 7
 					break;
-				case Component::EComponentType::MORALE: 
-				case Component::EComponentType::LUCK:
+				case ComponentType::MORALE:
+				case ComponentType::LUCK:
 					reward_map.at(6).first.push_back(c);
 					reward_map.at(6).second = 2; //At most 2 - 1 for morale + 1 for luck
 					break;
-				case Component::EComponentType::BUILDING:
+				case ComponentType::BUILDING:
 					reward_map.at(7).first.push_back(c);
 					reward_map.at(7).second = 1; //At most 1 - only large icons available AFAIK
 					break;
-				case Component::EComponentType::HERO_PORTRAIT:
+				case ComponentType::HERO_PORTRAIT:
 					reward_map.at(8).first.push_back(c);
 					reward_map.at(8).second = 1; //I do not think than we even can get more than 1 hero
 					break;
-				case Component::EComponentType::FLAG:
+				case ComponentType::FLAG:
 					reward_map.at(9).first.push_back(c);
 					reward_map.at(9).second = 1; //I do not think than we even can get more than 1 player in notification
 					break;
