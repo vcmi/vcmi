@@ -189,9 +189,9 @@ void Unit::addNameReplacement(MetaString & text, const boost::logic::tribool & p
 	if(boost::logic::indeterminate(plural))
 		text.replaceName(creatureId(), getCount());
 	else if(plural)
-		text.replaceName(creatureIndex(), 2);
+		text.replaceNamePlural(creatureIndex());
 	else
-		text.replaceName(creatureIndex(), 1);
+		text.replaceNameSingular(creatureIndex());
 }
 
 std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
