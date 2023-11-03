@@ -204,11 +204,19 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 
 CAnimation::CAnimation(const AnimationPath & Name):
 	name(boost::starts_with(Name.getName(), "SPRITES") ? Name : Name.addPrefix("SPRITES/")),
-	preloaded(false),
-	defFile()
+	preloaded(false)
 {
 	if(CResourceHandler::get()->existsResource(name))
-		defFile = std::make_shared<CDefFile>(name);
+	{
+		try
+		{
+			defFile = std::make_shared<CDefFile>(name);
+		}
+		catch ( const std::runtime_error & e)
+		{
+			logAnim->error("Def file %s failed to load! Reason: %s", Name.getOriginalName(), e.what());
+		}
+	}
 
 	init();
 
