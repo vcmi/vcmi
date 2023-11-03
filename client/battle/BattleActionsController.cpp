@@ -905,7 +905,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 const spells::Caster * BattleActionsController::getCurrentSpellcaster() const
 {
 	if (heroSpellToCast)
-		return owner.getActiveHero();
+		return owner.currentHero();
 	else
 		return owner.stacksController->getActiveStack();
 }
