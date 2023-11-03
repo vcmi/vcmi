@@ -252,7 +252,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	auto sortFunctor = [](const JsonNode & left, const JsonNode & right)
 	{
 		if(left["points"].Integer() == right["points"].Integer())
-			return left["posFlag"].Integer() > right["posFlag"].Integer();
+			return left["posFlag"].Bool() > right["posFlag"].Bool();
 		return left["points"].Integer() > right["points"].Integer();
 	};
 
@@ -325,7 +325,6 @@ void CHighScoreInputScreen::deactivate()
 {
 	CCS->videoh->close();
 	CCS->soundh->stopSound(videoSoundHandle);
-	CIntObject::deactivate();
 }
 
 void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
@@ -361,7 +360,7 @@ void CHighScoreInputScreen::keyPressed(EShortcut key)
 }
 
 CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std::string text)> readyCB)
-	: CWindowObject(0, ImagePath::builtin("HIGHNAME")), ready(readyCB)
+	: CWindowObject(NEEDS_ANIMATED_BACKGROUND, ImagePath::builtin("HIGHNAME")), ready(readyCB)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
