@@ -505,7 +505,7 @@ void CPathfinderHelper::updateTurnInfo(const int Turn)
 
 bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer & layer) const
 {
-	switch(layer.getNum())
+	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
 		if(!options.useFlying)

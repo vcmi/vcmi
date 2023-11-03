@@ -931,7 +931,7 @@ void CGameState::initMapObjects()
 		if(!obj)
 			continue;
 
-		switch (obj->ID.getNum())
+		switch(obj->ID.toEnum())
 		{
 			case Obj::QUEST_GUARD:
 			case Obj::SEER_HUT:

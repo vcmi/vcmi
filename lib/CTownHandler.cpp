@@ -686,7 +686,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	//MODS COMPATIBILITY FOR 0.96
 	if(!ret->produce.nonZero())
 	{
-		switch (ret->bid.getNum()) {
+		switch (ret->bid.toEnum()) {
 			break; case BuildingID::VILLAGE_HALL: ret->produce[EGameResID::GOLD] = 500;
 			break; case BuildingID::TOWN_HALL :   ret->produce[EGameResID::GOLD] = 1000;
 			break; case BuildingID::CITY_HALL :   ret->produce[EGameResID::GOLD] = 2000;
