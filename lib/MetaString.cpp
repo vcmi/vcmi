@@ -112,21 +112,6 @@ std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) c
 
 	switch(type)
 	{
-//		case EMetaText::ART_DESCR:
-//		{
-//			const auto * art = ArtifactID(ser).toArtifact(VLC->artifacts());
-//			if(art)
-//				return art->getDescriptionTranslated();
-//			return "#!#";
-//		}
-//		case EMetaText::MINE_NAMES:
-//		{
-//			return VLC->generaltexth->translate("core.minename", ser);
-//		}
-//		case EMetaText::MINE_EVNTS:
-//		{
-//			return VLC->generaltexth->translate(, ser);
-//		}
 		case EMetaText::GENERAL_TXT:
 			return VLC->generaltexth->translate("core.genrltxt", ser);
 		case EMetaText::RES_NAMES:
