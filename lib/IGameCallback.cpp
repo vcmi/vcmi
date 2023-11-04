@@ -24,7 +24,6 @@
 #include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
 #include "serializer/BinaryDeserializer.h"
 #include "serializer/BinarySerializer.h"
-#include "serializer/CLoadIntegrityValidator.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -191,9 +190,6 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 	logGlobal->info("\tReading options");
 	in.serializer & si;
 
-	logGlobal->info("\tReading handlers");
-	in.serializer & *VLC;
-
 	logGlobal->info("\tReading gamestate");
 	in.serializer & gs;
 }
@@ -207,14 +203,11 @@ void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
 	out.serializer & static_cast<CMapHeader&>(*gs->map);
 	logGlobal->info("\tSaving options");
 	out.serializer & gs->scenarioOps;
-	logGlobal->info("\tSaving handlers");
-	out.serializer & *VLC;
 	logGlobal->info("\tSaving gamestate");
 	out.serializer & gs;
 }
 
 // hardly memory usage for `-gdwarf-4` flag
-template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadIntegrityValidator>(CLoadIntegrityValidator &);
 template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadFile>(CLoadFile &);
 template DLL_LINKAGE void CPrivilegedInfoCallback::saveCommonState<CSaveFile>(CSaveFile &) const;
 

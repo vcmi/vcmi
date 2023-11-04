@@ -52,12 +52,6 @@ class DLL_LINKAGE CIdentifierStorage
 		{
 			return id == other.id && scope == other.scope;
 		}
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & id;
-			h & scope;
-		}
 	};
 
 	std::multimap<std::string, ObjectData> registeredObjects;
@@ -102,12 +96,6 @@ public:
 
 	/// called at the very end of loading to check for any missing ID's
 	void finalize();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & registeredObjects;
-		h & state;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

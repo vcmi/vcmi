@@ -95,57 +95,6 @@ void registerTypesMapObjects1(Serializer &s)
 template<typename Serializer>
 void registerTypesMapObjectTypes(Serializer &s)
 {
-	s.template registerType<AObjectTypeHandler, CRewardableConstructor>();
-	s.template registerType<AObjectTypeHandler, CHeroInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, CTownInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, DwellingInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
-	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, CreatureInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, ResourceInstanceConstructor>();
-
-#define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
-
-	REGISTER_GENERIC_HANDLER(CGObjectInstance);
-	REGISTER_GENERIC_HANDLER(CGArtifact);
-	REGISTER_GENERIC_HANDLER(CGBlackMarket);
-	REGISTER_GENERIC_HANDLER(CGBoat);
-	REGISTER_GENERIC_HANDLER(CGBorderGate);
-	REGISTER_GENERIC_HANDLER(CGBorderGuard);
-	REGISTER_GENERIC_HANDLER(CGCreature);
-	REGISTER_GENERIC_HANDLER(CGDenOfthieves);
-	REGISTER_GENERIC_HANDLER(CGDwelling);
-	REGISTER_GENERIC_HANDLER(CGEvent);
-	REGISTER_GENERIC_HANDLER(CGGarrison);
-	REGISTER_GENERIC_HANDLER(CGHeroPlaceholder);
-	REGISTER_GENERIC_HANDLER(CGHeroInstance);
-	REGISTER_GENERIC_HANDLER(CGKeymasterTent);
-	REGISTER_GENERIC_HANDLER(CGLighthouse);
-	REGISTER_GENERIC_HANDLER(CGTerrainPatch);
-	REGISTER_GENERIC_HANDLER(CGMagi);
-	REGISTER_GENERIC_HANDLER(CGMarket);
-	REGISTER_GENERIC_HANDLER(CGMine);
-	REGISTER_GENERIC_HANDLER(CGObelisk);
-	REGISTER_GENERIC_HANDLER(CGPandoraBox);
-	REGISTER_GENERIC_HANDLER(CGQuestGuard);
-	REGISTER_GENERIC_HANDLER(CGResource);
-	REGISTER_GENERIC_HANDLER(CGSeerHut);
-	REGISTER_GENERIC_HANDLER(CGShipyard);
-	REGISTER_GENERIC_HANDLER(CGSignBottle);
-	REGISTER_GENERIC_HANDLER(CGSirens);
-	REGISTER_GENERIC_HANDLER(CGMonolith);
-	REGISTER_GENERIC_HANDLER(CGSubterraneanGate);
-	REGISTER_GENERIC_HANDLER(CGWhirlpool);
-	REGISTER_GENERIC_HANDLER(CGTownInstance);
-	REGISTER_GENERIC_HANDLER(CGUniversity);
-	REGISTER_GENERIC_HANDLER(HillFort);
-
-#undef REGISTER_GENERIC_HANDLER
-
 	s.template registerType<IUpdater, GrowsWithLevelUpdater>();
 	s.template registerType<IUpdater, TimesHeroLevelUpdater>();
 	s.template registerType<IUpdater, TimesStackLevelUpdater>();

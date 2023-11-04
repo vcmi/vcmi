@@ -180,7 +180,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.cpp
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.cpp
-		${MAIN_LIB_DIR}/serializer/CLoadIntegrityValidator.cpp
 		${MAIN_LIB_DIR}/serializer/CMemorySerializer.cpp
 		${MAIN_LIB_DIR}/serializer/Connection.cpp
 		${MAIN_LIB_DIR}/serializer/CSerializer.cpp
@@ -546,7 +545,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.h
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.h
-		${MAIN_LIB_DIR}/serializer/CLoadIntegrityValidator.h
 		${MAIN_LIB_DIR}/serializer/CMemorySerializer.h
 		${MAIN_LIB_DIR}/serializer/Connection.h
 		${MAIN_LIB_DIR}/serializer/CSerializer.h
