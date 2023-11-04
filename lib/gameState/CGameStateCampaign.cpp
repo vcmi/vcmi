@@ -90,7 +90,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 					.And(Selector::subtype()(BonusSubtypeID(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
-				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
+				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g.getNum()];
 			}
 		}
 	}
@@ -375,7 +375,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 		auto * heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
 
 		// only 1 field must be set
-		assert(heroPlaceholder->powerRank != heroPlaceholder->heroType);
+		assert(heroPlaceholder->powerRank.has_value() != heroPlaceholder->heroType.has_value());
 
 		if(heroPlaceholder->powerRank)
 			placeholdersByPower.push_back(heroPlaceholder);
@@ -498,7 +498,7 @@ void CGameStateCampaign::initStartingResources()
 		std::vector<const PlayerSettings *> people = getHumanPlayerInfo(); //players we will give resource bonus
 		for(const PlayerSettings *ps : people)
 		{
-			std::vector<int> res; //resources we will give
+			std::vector<GameResID> res; //resources we will give
 			switch (chosenBonus->info1)
 			{
 				case 0: case 1: case 2: case 3: case 4: case 5: case 6:

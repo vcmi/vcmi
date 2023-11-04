@@ -119,14 +119,14 @@ void CGMine::initObj(CRandomGenerator & rand)
 	}
 	else
 	{
-		producedResource = GameResID(getObjTypeIndex());
+		producedResource = GameResID(getObjTypeIndex().getNum());
 	}
 	producedQuantity = defaultResProduction();
 }
 
 bool CGMine::isAbandoned() const
 {
-	return (getObjTypeIndex() >= 7);
+	return subID.getNum() >= 7;
 }
 
 ResourceSet CGMine::dailyIncome() const
@@ -147,7 +147,7 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource] + ")";
+		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource.getNum()] + ")";
 
 	if(stacksCount())
 	{
@@ -252,7 +252,7 @@ GameResID CGResource::resourceID() const
 
 std::string CGResource::getHoverText(PlayerColor player) const
 {
-	return VLC->generaltexth->restypes[resourceID()];
+	return VLC->generaltexth->restypes[resourceID().getNum()];
 }
 
 void CGResource::pickRandomObject(CRandomGenerator & rand)
@@ -273,7 +273,7 @@ void CGResource::initObj(CRandomGenerator & rand)
 
 	if(amount == CGResource::RANDOM_AMOUNT)
 	{
-		switch(resourceID())
+		switch(resourceID().toEnum())
 		{
 		case EGameResID::GOLD:
 			amount = rand.nextInt(5, 10) * 100;
@@ -467,7 +467,7 @@ void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<Telepo
 	}
 }
 
-TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, int SubID) const
+TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const
 {
 	for(auto obj : cb->gameState()->map->objects)
 	{
@@ -532,7 +532,7 @@ void CGMonolith::initObj(CRandomGenerator & rand)
 {
 	std::vector<Obj> IDs;
 	IDs.push_back(ID);
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 		type = ENTRANCE;
@@ -723,7 +723,7 @@ ArtifactID CGArtifact::getArtifact() const
 
 void CGArtifact::pickRandomObject(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
 			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
@@ -760,7 +760,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 			storedArtifact = a;
 		}
 		if(!storedArtifact->artType)
-			storedArtifact->setType(VLC->arth->objects[getArtifact()]);
+			storedArtifact->setType(VLC->arth->objects[getArtifact().getNum()]);
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
@@ -773,7 +773,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->artifacts()->getByIndex(getArtifact())->getNameTranslated();
+	return VLC->artifacts()->getById(getArtifact())->getNameTranslated();
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
@@ -786,7 +786,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 		if(storedArtifact->artType->canBePutAt(h))
 		{
-			switch (ID)
+			switch (ID.toEnum())
 			{
 			case Obj::ARTIFACT:
 			{
@@ -821,7 +821,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		switch(ID)
+		switch(ID.toEnum())
 		{
 		case Obj::ARTIFACT:
 			{

@@ -157,7 +157,7 @@ public:
 	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level
 	std::vector<int> primarySkillHighLevel;// same for high levels (> 10)
 
-	std::vector<int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
+	std::map<SecondarySkill, int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
 
 	std::map<FactionID, int> selectionProbability; //probability of selection in towns
 
@@ -201,12 +201,6 @@ public:
 		h & imageBattleFemale;
 		h & imageMapMale;
 		h & imageMapFemale;
-
-		if(!h.saving)
-		{
-			for(int & i : secSkillProbability)
-				vstd::amax(i, 0);
-		}
 	}
 	EAlignment getAlignment() const;
 };

@@ -137,7 +137,7 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	cb->sendAndApply(&cov);
 
 	int banktext = 0;
-	switch (ID)
+	switch (ID.toEnum())
 	{
 	case Obj::DERELICT_SHIP:
 		banktext = 41;
@@ -180,7 +180,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 	if (bc)
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::DERELICT_SHIP:
 			textID = 43;
@@ -203,7 +203,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	}
 	else
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::SHIPWRECK:
 		case Obj::DERELICT_SHIP:
@@ -216,7 +216,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			gbonus.bonus.sid = BonusSourceID(ID);
 			gbonus.bonus.type = BonusType::MORALE;
 			gbonus.bonus.val = -1;
-			switch (ID)
+			switch (ID.toEnum())
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
@@ -271,7 +271,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(bc->resources[it]);
 				loot.replaceLocalString(EMetaText::RES_NAMES, it);
-				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
+				cb->giveResource(hero->getOwner(), it, bc->resources[it]);
 			}
 		}
 		//grant artifacts
@@ -280,7 +280,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
 			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
-			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -314,7 +314,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				const auto * spell = spellId.toSpell(VLC->spells());
+				const auto * spell = spellId.toEntity(VLC);
 				iw.text.appendLocalString(EMetaText::SPELL_NAME, spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{

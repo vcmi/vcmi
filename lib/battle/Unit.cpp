@@ -218,7 +218,7 @@ int Unit::getRawSurrenderCost() const
 void UnitInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("count", count);
-	handler.serializeId("type", type, CreatureID::NONE);
+	handler.serializeId("type", type, CreatureID(CreatureID::NONE));
 	handler.serializeInt("side", side);
 	handler.serializeInt("position", position);
 	handler.serializeBool("summoned", summoned);

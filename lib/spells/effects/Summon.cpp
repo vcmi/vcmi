@@ -107,7 +107,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 			if(summonByHealth)
 			{
-				const auto *creatureType = creature.toCreature(m->creatures());
+				const auto *creatureType = creature.toEntity(m->creatures());
 				auto creatureMaxHealth = creatureType->getMaxHealth();
 				amount = static_cast<int32_t>(valueWithBonus / creatureMaxHealth);
 			}

@@ -944,7 +944,7 @@ void FoWChange::applyGs(CGameState *gs)
 			const CGObjectInstance *o = elem;
 			if (o)
 			{
-				switch(o->ID)
+				switch(o->ID.toEnum())
 				{
 				case Obj::HERO:
 				case Obj::MINE:
@@ -2113,7 +2113,7 @@ void BattleStart::applyGs(CGameState * gs) const
 	info->battleID = gs->nextBattleID;
 	info->localInit();
 
-	gs->nextBattleID = vstd::next(gs->nextBattleID, 1);
+	gs->nextBattleID = BattleID(gs->nextBattleID.getNum() + 1);
 }
 
 void BattleNextRound::applyGs(CGameState * gs) const

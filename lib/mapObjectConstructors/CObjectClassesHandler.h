@@ -105,8 +105,8 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	void loadSubObject(const std::string & identifier, JsonNode config, si32 ID, si32 subID);
-	void removeSubObject(si32 ID, si32 subID);
+	void loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID);
+	void removeSubObject(MapObjectID ID, MapObjectSubID subID);
 
 	void beforeValidate(JsonNode & object) override;
 	void afterLoadFinalization() override;
@@ -114,22 +114,22 @@ public:
 	std::vector<bool> getDefaultAllowed() const override;
 
 	/// Queries to detect loaded objects
-	std::set<si32> knownObjects() const;
-	std::set<si32> knownSubObjects(si32 primaryID) const;
+	std::set<MapObjectID> knownObjects() const;
+	std::set<MapObjectSubID> knownSubObjects(MapObjectID primaryID) const;
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
-	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
+	TObjectTypeHandler getHandlerFor(MapObjectID type, MapObjectSubID subtype) const;
 	TObjectTypeHandler getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
 
-	std::string getObjectName(si32 type, si32 subtype) const;
+	std::string getObjectName(MapObjectID type, MapObjectSubID subtype) const;
 
-	SObjectSounds getObjectSounds(si32 type, si32 subtype) const;
+	SObjectSounds getObjectSounds(MapObjectID type, MapObjectSubID subtype) const;
 
 	/// Returns handler string describing the handler (for use in client)
-	std::string getObjectHandlerName(si32 type) const;
+	std::string getObjectHandlerName(MapObjectID type) const;
 
-	std::string getJsonKey(si32 type) const;
+	std::string getJsonKey(MapObjectID type) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

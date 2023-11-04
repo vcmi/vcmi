@@ -111,11 +111,6 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
-	///json serialization helpers
-	static si32 decodeSkill(const std::string & identifier);
-	static std::string encodeSkill(const si32 index);
-	static std::string encodeSkillWithType(const si32 index);
-
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & objects;

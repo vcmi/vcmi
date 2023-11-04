@@ -96,7 +96,7 @@ FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 
 	std::vector<FactionID> potentialPicks;
 
-	for (FactionID faction(0); faction < VLC->townh->size(); ++faction)
+	for (FactionID faction(0); faction < FactionID(VLC->townh->size()); ++faction)
 		if (VLC->factions()->getById(faction)->hasTown())
 			potentialPicks.push_back(faction);
 
@@ -142,7 +142,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 			{
 				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
 
-				if (handler->producesCreature(VLC->creh->objects[cid]))
+				if (handler->producesCreature(cid.toCreature()))
 					return MapObjectSubID(entry);
 			}
 			return MapObjectSubID();
@@ -170,7 +170,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 
 void CGDwelling::initObj(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
@@ -319,7 +319,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 			else
 				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
 
-			CCreature *cre = VLC->creh->objects[creatures[i].second[0]];
+			const CCreature * cre =creatures[i].second[0].toCreature();
 			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(BonusType::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(BonusType::CREATURE_GROWTH);
 			if (creaturesAccumulate && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
@@ -344,7 +344,7 @@ void CGDwelling::updateGuards() const
 	//default condition - creatures are of level 5 or higher
 	for (auto creatureEntry : creatures)
 	{
-		if (VLC->creatures()->getByIndex(creatureEntry.second.at(0))->getLevel() >= 5 && ID != Obj::REFUGEE_CAMP)
+		if (VLC->creatures()->getById(creatureEntry.second.at(0))->getLevel() >= 5 && ID != Obj::REFUGEE_CAMP)
 		{
 			guarded = true;
 			break;
@@ -355,7 +355,7 @@ void CGDwelling::updateGuards() const
 	{
 		for (auto creatureEntry : creatures)
 		{
-			const CCreature * crea = VLC->creh->objects[creatureEntry.second.at(0)];
+			const CCreature * crea = creatureEntry.second.at(0).toCreature();
 			SlotID slot = getSlotFor(crea->getId());
 
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
@@ -488,7 +488,7 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	switch (ID)
+	switch (ID.toEnum())
 	{
 	case Obj::WAR_MACHINE_FACTORY:
 	case Obj::REFUGEE_CAMP:

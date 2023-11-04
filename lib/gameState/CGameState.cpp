@@ -226,7 +226,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	// Explicitly initialize static variables
 	for(auto & elem : players)
 	{
-		CGKeys::playerKeyMap[elem.first] = std::set<ui8>();
+		CGKeys::playerKeyMap[elem.first] = std::set<MapObjectSubID>();
 	}
 	for(auto & elem : teams)
 	{
@@ -566,7 +566,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		}
 	}
 
-	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, VLC->heroh->objects[heroTypeId]->heroClass->getIndex());
+	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
 	CGObjectInstance * obj = handler->create(handler->getTemplates().front());
 	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
 
@@ -630,7 +630,7 @@ void CGameState::initHeroes()
 
 		hero->initHero(getRandomGenerator());
 		getPlayerState(hero->getOwner())->heroes.push_back(hero);
-		map->allHeroes[hero->getHeroType()] = hero;
+		map->allHeroes[hero->getHeroType().getNum()] = hero;
 	}
 
 	// generate boats for all heroes on water
@@ -661,7 +661,7 @@ void CGameState::initHeroes()
 		{
 			auto * hero = dynamic_cast<CGHeroInstance*>(obj.get());
 			hero->initHero(getRandomGenerator());
-			map->allHeroes[hero->getHeroType()] = hero;
+			map->allHeroes[hero->getHeroType().getNum()] = hero;
 		}
 	}
 
@@ -674,7 +674,7 @@ void CGameState::initHeroes()
 		heroesPool->addHeroToPool(ph);
 		heroesToCreate.erase(ph->type->getId());
 
-		map->allHeroes[ph->getHeroType()] = ph;
+		map->allHeroes[ph->getHeroType().getNum()] = ph;
 	}
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
@@ -760,7 +760,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toArtifact(VLC->artifacts());
+				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
 
 				CGHeroInstance *hero = elem.second.heroes[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
@@ -931,7 +931,7 @@ void CGameState::initMapObjects()
 		if(!obj)
 			continue;
 
-		switch (obj->ID)
+		switch(obj->ID.toEnum())
 		{
 			case Obj::QUEST_GUARD:
 			case Obj::SEER_HUT:

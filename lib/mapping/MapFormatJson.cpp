@@ -171,10 +171,10 @@ namespace TriggeredEventsDetail
 		case EMetaclass::OBJECT:
 			{
 				//TODO
-				std::set<si32> subtypes = VLC->objtypeh->knownSubObjects(type);
+				auto subtypes = VLC->objtypeh->knownSubObjects(type);
 				if(!subtypes.empty())
 				{
-					si32 subtype = *subtypes.begin();
+					auto subtype = *subtypes.begin();
 					auto handler = VLC->objtypeh->getHandlerFor(type, subtype);
 					identifier = handler->getTypeName();
 				}
@@ -831,7 +831,7 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	serializePredefinedHeroes(handler);
 
-	handler.serializeLIC("allowedAbilities", &CSkillHandler::decodeSkill, &CSkillHandler::encodeSkill, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
+	handler.serializeLIC("allowedAbilities", &SecondarySkill::decode, &SecondarySkill::encode, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
 
 	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
 

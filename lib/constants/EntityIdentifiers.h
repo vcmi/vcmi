@@ -14,10 +14,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class Services;
 class Artifact;
 class ArtifactService;
 class Creature;
 class CreatureService;
+class HeroType;
+class CHero;
+class HeroTypeService;
 
 namespace spells
 {
@@ -185,6 +189,9 @@ public:
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const CHero * toHeroType() const;
+	const HeroType * toEntity(const Services * services) const;
 
 	DLL_LINKAGE static const HeroTypeID NONE;
 	DLL_LINKAGE static const HeroTypeID RANDOM;
@@ -401,10 +408,6 @@ class BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
 {
 public:
 	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
-
-	DLL_LINKAGE static si32 decode(const std::string & identifier);
-	DLL_LINKAGE static std::string encode(const si32 index);
-	static std::string entityType();
 };
 
 class MapObjectBaseID : public IdentifierBase
@@ -679,7 +682,7 @@ public:
 	};
 
 	DLL_LINKAGE const CArtifact * toArtifact() const;
-	DLL_LINKAGE const Artifact * toArtifact(const ArtifactService * service) const;
+	DLL_LINKAGE const Artifact * toEntity(const Services * service) const;
 };
 
 class ArtifactID : public IdentifierWithEnum<ArtifactID, ArtifactIDBase>
@@ -719,7 +722,8 @@ public:
 	};
 
 	DLL_LINKAGE const CCreature * toCreature() const;
-	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatures) const;
+	DLL_LINKAGE const Creature * toEntity(const Services * services) const;
+	DLL_LINKAGE const Creature * toEntity(const CreatureService * creatures) const;
 };
 
 class DLL_LINKAGE CreatureID : public IdentifierWithEnum<CreatureID, CreatureIDBase>
@@ -837,7 +841,8 @@ public:
 	};
 
 	const CSpell * toSpell() const; //deprecated
-	const spells::Spell * toSpell(const spells::Service * service) const;
+	const spells::Spell * toEntity(const Services * service) const;
+	const spells::Spell * toEntity(const spells::Service * service) const;
 };
 
 class DLL_LINKAGE SpellID : public IdentifierWithEnum<SpellID, SpellIDBase>

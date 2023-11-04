@@ -21,6 +21,7 @@
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroClass.h>
 #include <vcmi/HeroClassService.h>
+#include <vcmi/Services.h>
 
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
@@ -28,6 +29,7 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "VCMI_Lib.h"
+#include "CHeroHandler.h"
 #include "CArtHandler.h"//todo: remove
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
@@ -191,12 +193,12 @@ std::string HeroTypeID::entityType()
 
 const CArtifact * ArtifactIDBase::toArtifact() const
 {
-	return dynamic_cast<const CArtifact*>(toArtifact(VLC->artifacts()));
+	return dynamic_cast<const CArtifact*>(toEntity(VLC));
 }
 
-const Artifact * ArtifactIDBase::toArtifact(const ArtifactService * service) const
+const Artifact * ArtifactIDBase::toEntity(const Services * services) const
 {
-	return service->getByIndex(num);
+	return services->artifacts()->getByIndex(num);
 }
 
 si32 ArtifactID::decode(const std::string & identifier)
@@ -237,7 +239,12 @@ const CCreature * CreatureIDBase::toCreature() const
 	return VLC->creh->objects.at(num);
 }
 
-const Creature * CreatureIDBase::toCreature(const CreatureService * creatures) const
+const Creature * CreatureIDBase::toEntity(const Services * services) const
+{
+	return toEntity(services->creatures());
+}
+
+const Creature * CreatureIDBase::toEntity(const CreatureService * creatures) const
 {
 	return creatures->getByIndex(num);
 }
@@ -271,9 +278,24 @@ const CSpell * SpellIDBase::toSpell() const
 	return VLC->spellh->objects[num];
 }
 
-const spells::Spell * SpellIDBase::toSpell(const spells::Service * service) const
+const spells::Spell * SpellIDBase::toEntity(const Services * services) const
+{
+	return toEntity(services->spells());
+}
+
+const spells::Spell * SpellIDBase::toEntity(const spells::Service * service) const
 {
 	return service->getByIndex(num);
+}
+
+const CHero * HeroTypeID::toHeroType() const
+{
+	return dynamic_cast<const CHero*>(toEntity(VLC));
+}
+
+const HeroType * HeroTypeID::toEntity(const Services * services) const
+{
+	return services->heroTypes()->getByIndex(num);
 }
 
 si32 SpellID::decode(const std::string & identifier)
@@ -369,7 +391,7 @@ si32 FactionID::decode(const std::string & identifier)
 	if(rawId)
 		return rawId.value();
 	else
-		return FactionID::DEFAULT;
+		return FactionID::DEFAULT.getNum();
 }
 
 std::string FactionID::encode(const si32 index)

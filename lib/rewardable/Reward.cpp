@@ -133,7 +133,7 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 		std::vector<std::pair<SecondarySkill, si32>> fieldValue(secondary.begin(), secondary.end());
 		a.serializeStruct<std::pair<SecondarySkill, si32>>(fieldValue, [](JsonSerializeFormat & h, std::pair<SecondarySkill, si32> & e)
 		{
-			h.serializeId("skill", e.first, SecondarySkill{}, VLC->skillh->decodeSkill, VLC->skillh->encodeSkill);
+			h.serializeId("skill", e.first);
 			h.serializeId("level", e.second, 0, [](const std::string & i){return vstd::find_pos(NSecondarySkill::levels, i);}, [](si32 i){return NSecondarySkill::levels.at(i);});
 		});
 		a.syncSize(fieldValue);

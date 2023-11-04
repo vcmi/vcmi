@@ -234,7 +234,7 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 				value = JsonRandom::loadSpell(input, rng, object.variables.values).getNum();
 
 			if (category.first == "primarySkill")
-				value = static_cast<int>(JsonRandom::loadPrimary(input, rng, object.variables.values));
+				value = JsonRandom::loadPrimary(input, rng, object.variables.values).getNum();
 
 			if (category.first == "secondarySkill")
 				value = JsonRandom::loadSecondary(input, rng, object.variables.values).getNum();

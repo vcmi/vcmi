@@ -225,7 +225,7 @@ public:
 
 class DLL_LINKAGE CGMonolith : public CGTeleport
 {
-	TeleportChannelID findMeChannel(const std::vector<Obj> & IDs, int SubID) const;
+	TeleportChannelID findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const;
 
 protected:
 	void onHeroVisit(const CGHeroInstance * h) const override;

@@ -53,14 +53,14 @@ struct VectorizedObjectInfo
 /// Base class for serializers capable of reading or writing data
 class DLL_LINKAGE CSerializer
 {
-	template<typename T>
-	static si32 idToNumber(const T &t, typename std::enable_if<std::is_convertible<T,si32>::value>::type * dummy = nullptr)
+	template<typename Numeric, std::enable_if_t<std::is_arithmetic_v<Numeric>, bool> = true>
+	static int32_t idToNumber(const Numeric &t)
 	{
 		return t;
 	}
 
-	template<typename T, typename NT>
-	static NT idToNumber(const IdentifierBase &t)
+	template<typename IdentifierType, std::enable_if_t<std::is_base_of_v<IdentifierBase, IdentifierType>, bool> = true>
+	static int32_t idToNumber(const IdentifierType &t)
 	{
 		return t.getNum();
 	}

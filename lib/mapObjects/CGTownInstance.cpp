@@ -372,7 +372,7 @@ bool CGTownInstance::isBonusingBuildingAdded(BuildingID bid) const
 {
 	auto present = std::find_if(bonusingBuildings.begin(), bonusingBuildings.end(), [&](CGTownBuilding* building)
 		{
-			return building->getBuildingType().num == bid;
+			return building->getBuildingType() == bid;
 		});
 
 	return present != bonusingBuildings.end();
@@ -470,7 +470,7 @@ FactionID CGTownInstance::randomizeFaction(CRandomGenerator & rand)
 
 	std::vector<FactionID> potentialPicks;
 
-	for (FactionID faction(0); faction < VLC->townh->size(); ++faction)
+	for (FactionID faction(0); faction < FactionID(VLC->townh->size()); ++faction)
 		if (VLC->factions()->getById(faction)->hasTown())
 			potentialPicks.push_back(faction);
 
@@ -584,7 +584,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 					
 					TQuantity count = creatureGrowth(i);
 					if (!count) // no dwelling
-						count = VLC->creatures()->getByIndex(c)->getGrowth();
+						count = VLC->creatures()->getById(c)->getGrowth();
 					
 					{//no lower tiers or above current month
 						
@@ -917,7 +917,7 @@ const CTown * CGTownInstance::getTown() const
 	{
 		if(nullptr == town)
 		{
-			return (*VLC->townh)[subID]->town;
+			return (*VLC->townh)[getFaction()]->town;
 		}
 		else
 			return town;
@@ -996,9 +996,9 @@ bool CGTownInstance::hasBuilt(const BuildingID & buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
-bool CGTownInstance::hasBuilt(const BuildingID & buildingID, int townID) const
+bool CGTownInstance::hasBuilt(const BuildingID & buildingID, FactionID townID) const
 {
-	if (townID == town->faction->getIndex() || townID == ETownType::ANY)
+	if (townID == town->faction->getId() || townID == FactionID::ANY)
 		return hasBuilt(buildingID);
 	return false;
 }
