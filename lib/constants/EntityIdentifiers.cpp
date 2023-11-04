@@ -37,6 +37,8 @@
 #include "constants/StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "TerrainHandler.h" //TODO: remove
+#include "RiverHandler.h"
+#include "RoadHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "CTownHandler.h"
@@ -404,6 +406,11 @@ std::string FactionID::entityType()
 	return "faction";
 }
 
+const Faction * FactionID::toEntity(const Services * service) const
+{
+	return service->factions()->getByIndex(num);
+}
+
 si32 TerrainId::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
@@ -421,6 +428,21 @@ std::string TerrainId::encode(const si32 index)
 std::string TerrainId::entityType()
 {
 	return "terrain";
+}
+
+const TerrainType * TerrainId::toEntity(const Services * service) const
+{
+	return VLC->terrainTypeHandler->getByIndex(num);
+}
+
+const RoadType * RoadId::toEntity(const Services * service) const
+{
+	return VLC->roadTypeHandler->getByIndex(num);
+}
+
+const RiverType * RiverId::toEntity(const Services * service) const
+{
+	return VLC->riverTypeHandler->getByIndex(num);
 }
 
 const BattleField BattleField::NONE;

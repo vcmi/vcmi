@@ -50,6 +50,8 @@ template <typename IdType>
 class DLL_LINKAGE EntityT : public Entity
 {
 public:
+	using IdentifierType = IdType;
+
 	virtual IdType getId() const = 0;
 };
 

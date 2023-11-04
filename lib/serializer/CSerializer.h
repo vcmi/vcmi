@@ -165,24 +165,6 @@ struct VectorizedIDType
 };
 
 template <>
-struct VectorizedIDType<CArtifact>
-{
-	using type = ArtifactID;
-};
-
-template <>
-struct VectorizedIDType<CCreature>
-{
-	using type = CreatureID;
-};
-
-template <>
-struct VectorizedIDType<CHero>
-{
-	using type = HeroTypeID;
-};
-
-template <>
 struct VectorizedIDType<CArtifactInstance>
 {
 	using type = ArtifactInstanceID;

@@ -22,6 +22,10 @@ class CreatureService;
 class HeroType;
 class CHero;
 class HeroTypeService;
+class Faction;
+class RoadType;
+class RiverType;
+class TerrainType;
 
 namespace spells
 {
@@ -181,20 +185,20 @@ public:
 	static std::string entityType();
 };
 
-class HeroTypeID : public Identifier<HeroTypeID>
+class DLL_LINKAGE HeroTypeID : public Identifier<HeroTypeID>
 {
 public:
 	using Identifier<HeroTypeID>::Identifier;
 	///json serialization helpers
-	DLL_LINKAGE static si32 decode(const std::string & identifier);
-	DLL_LINKAGE static std::string encode(const si32 index);
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 	static std::string entityType();
 
 	const CHero * toHeroType() const;
 	const HeroType * toEntity(const Services * services) const;
 
-	DLL_LINKAGE static const HeroTypeID NONE;
-	DLL_LINKAGE static const HeroTypeID RANDOM;
+	static const HeroTypeID NONE;
+	static const HeroTypeID RANDOM;
 
 	bool isValid() const
 	{
@@ -349,6 +353,7 @@ public:
 
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
+	const Faction * toEntity(const Services * service) const;
 	static std::string entityType();
 
 	bool isValid() const
@@ -596,6 +601,8 @@ public:
 	static const RoadId DIRT_ROAD;
 	static const RoadId GRAVEL_ROAD;
 	static const RoadId COBBLESTONE_ROAD;
+
+	const RoadType * toEntity(const Services * service) const;
 };
 
 class DLL_LINKAGE RiverId : public Identifier<RiverId>
@@ -608,6 +615,8 @@ public:
 	static const RiverId ICY_RIVER;
 	static const RiverId MUD_RIVER;
 	static const RiverId LAVA_RIVER;
+
+	const RiverType * toEntity(const Services * service) const;
 };
 
 class DLL_LINKAGE EPathfindingLayerBase : public IdentifierBase
@@ -912,6 +921,7 @@ public:
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
+	const TerrainType * toEntity(const Services * service) const;
 };
 
 class ObstacleInfo;

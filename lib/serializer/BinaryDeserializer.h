@@ -258,6 +258,25 @@ public:
 				return;
 		}
 
+		loadPointerImpl(data);
+	}
+
+	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void loadPointerImpl(T &data)
+	{
+		using DataType = std::remove_pointer_t<T>;
+
+		typename DataType::IdentifierType index;
+		load(index);
+
+		auto * constEntity = index.toEntity(VLC);
+		auto * constData = dynamic_cast<const DataType *>(constEntity);
+		data = const_cast<DataType *>(constData);
+	}
+
+	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void loadPointerImpl(T &data)
+	{
 		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id)
 		if(smartPointerSerialization)
 		{
@@ -273,7 +292,6 @@ public:
 				return;
 			}
 		}
-
 		//get type id
 		ui16 tid;
 		load( tid );
