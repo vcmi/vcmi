@@ -30,7 +30,7 @@ void CArtifactsOfHeroMarket::scrollBackpack(int offset)
 	{
 		for(auto & artPlace : backpack)
 		{
-			if(artPlace->isMarked())
+			if(artPlace->isSelected())
 			{
 				selectArtCallback(artPlace.get());
 				break;

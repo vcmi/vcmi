@@ -11,6 +11,8 @@
 
 #include "CArtifactHolder.h"
 
+class CButton;
+
 class CArtifactsOfHeroBase : public CIntObject
 {
 protected:

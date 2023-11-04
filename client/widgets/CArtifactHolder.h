@@ -19,7 +19,6 @@ class CArtifactSet;
 VCMI_LIB_NAMESPACE_END
 
 class CAnimImage;
-class CButton;
 
 class CArtifactHolder
 {
@@ -32,19 +31,24 @@ public:
 
 class CArtPlace : public LRClickableAreaWTextComp
 {
+public:
+	CArtPlace(Point position, const CArtifactInstance * art = nullptr);
+	const CArtifactInstance* getArt();
+	void lockSlot(bool on);
+	bool isLocked() const;
+	void selectSlot(bool on);
+	bool isSelected() const;
+	void showAll(Canvas & to) override;
+	void setArtifact(const CArtifactInstance * art);
+
 protected:
 	std::shared_ptr<CAnimImage> image;
 	const CArtifactInstance * ourArt;
 	int imageIndex;
+	std::shared_ptr<CAnimImage> selection;
+	bool locked;
 
 	void setInternals(const CArtifactInstance * artInst);
-	virtual void createImage()=0;
-
-public:
-	CArtPlace(Point position, const CArtifactInstance * Art = nullptr);
-	const CArtifactInstance * getArt();
-
-	virtual void setArtifact(const CArtifactInstance * art)=0;
 };
 
 class CCommanderArtPlace : public CArtPlace
@@ -53,14 +57,12 @@ protected:
 	const CGHeroInstance * commanderOwner;
 	ArtifactPosition commanderSlotID;
 
-	void createImage() override;
 	void returnArtToHeroCallback();
 
 public:
-	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr);
+	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * art = nullptr);
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
-	void setArtifact(const CArtifactInstance * art) override;
 };
 
 class CHeroArtPlace: public CArtPlace
@@ -72,23 +74,10 @@ public:
 	ClickFunctor leftClickCallback;
 	ClickFunctor showPopupCallback;
 
-	CHeroArtPlace(Point position, const CArtifactInstance * Art = nullptr);
-	void lockSlot(bool on);
-	bool isLocked();
-	void selectSlot(bool on);
-	bool isMarked() const;
+	CHeroArtPlace(Point position, const CArtifactInstance * art = nullptr);
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
-	void showAll(Canvas & to) override;
-	void setArtifact(const CArtifactInstance * art) override;
 	void addCombinedArtInfo(std::map<const CArtifact*, int> & arts);
-
-protected:
-	std::shared_ptr<CAnimImage> selection;
-	bool locked;
-	bool marked;
-
-	void createImage() override;
 };
 
 namespace ArtifactUtilsClient
