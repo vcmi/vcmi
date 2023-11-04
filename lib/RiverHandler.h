@@ -24,12 +24,6 @@ struct DLL_LINKAGE RiverPaletteAnimation
 	int32_t start;
 	/// total numbers of colors to cycle
 	int32_t length;
-
-	template <typename Handler> void serialize(Handler& h, const int version)
-	{
-		h & start;
-		h & length;
-	}
 };
 
 class DLL_LINKAGE RiverType : public EntityT<RiverId>
@@ -57,16 +51,6 @@ public:
 	std::vector<RiverPaletteAnimation> paletteAnimation;
 
 	RiverType();
-
-	template <typename Handler> void serialize(Handler& h, const int version)
-	{
-		h & tilesFilename;
-		h & identifier;
-		h & modScope;
-		h & deltaName;
-		h & id;
-		h & paletteAnimation;
-	}
 };
 
 class DLL_LINKAGE RiverTypeService : public EntityServiceT<RiverId, RiverType>
@@ -88,11 +72,6 @@ public:
 	virtual const std::vector<std::string> & getTypeNames() const override;
 	virtual std::vector<JsonNode> loadLegacyData() override;
 	virtual std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

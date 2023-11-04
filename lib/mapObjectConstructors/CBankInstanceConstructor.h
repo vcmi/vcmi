@@ -92,15 +92,6 @@ public:
 	bool hasNameTextID() const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & levels;
-		h & bankResetDuration;
-		h & blockVisit;
-		h & coastVisitable;
-		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

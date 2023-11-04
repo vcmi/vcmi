@@ -62,16 +62,6 @@ public:
 	std::string getJsonKey() const;
 	std::string getNameTextID() const;
 	std::string getNameTranslated() const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id;
-		h & handlerName;
-		h & base;
-		h & objects;
-		h & identifier;
-		h & modScope;
-	}
 };
 
 /// Main class responsible for creation of all adventure map objects
@@ -130,11 +120,6 @@ public:
 	std::string getObjectHandlerName(MapObjectID type) const;
 
 	std::string getJsonKey(MapObjectID type) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

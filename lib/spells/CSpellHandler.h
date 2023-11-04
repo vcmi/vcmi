@@ -267,39 +267,6 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & identifier;
-		if (version > 820)
-			h & modScope;
-		h & id;
-		h & level;
-		h & power;
-		h & probabilities;
-		h & attributes;
-		h & combat;
-		h & creatureAbility;
-		h & positiveness;
-		h & counteredSpells;
-		h & rising;
-		h & damage;
-		h & offensive;
-		h & targetType;
-		h & targetCondition;
-		h & iconImmune;
-		h & defaultProbability;
-		h & special;
-		h & castSound;
-		h & iconBook;
-		h & iconEffect;
-		h & iconScenarioBonus;
-		h & iconScroll;
-		h & levels;
-		h & school;
-		h & animationInfo;
-		h & nonMagical;
-		h & onlyOnWaterMap;
-	}
 	friend class CSpellHandler;
 	friend class Graphics;
 	friend class test::CSpellTest;
@@ -383,15 +350,6 @@ public:
 	 *
 	 */
 	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-		if(!h.saving)
-		{
-			afterLoadFinalization();
-		}
-	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

@@ -91,30 +91,6 @@ public:
 	bool isSurface() const;
 	bool isUnderground() const;
 	bool isTransitionRequired() const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & battleFields;
-		h & prohibitTransitions;
-		h & minimapBlocked;
-		h & minimapUnblocked;
-		h & modScope;
-		h & identifier;
-		h & musicFilename;
-		h & tilesFilename;
-		h & shortIdentifier;
-		h & terrainViewPatterns;
-		h & rockTerrain;
-		h & river;
-		h & paletteAnimation;
-
-		h & id;
-		h & moveCost;
-		h & horseSound;
-		h & horseSoundPenalty;
-		h & passabilityType;
-		h & transitionRequired;
-	}
 };
 
 class DLL_LINKAGE TerrainTypeService : public EntityServiceT<TerrainId, TerrainType>
@@ -134,11 +110,6 @@ public:
 	virtual const std::vector<std::string> & getTypeNames() const override;
 	virtual std::vector<JsonNode> loadLegacyData() override;
 	virtual std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

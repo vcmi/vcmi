@@ -18,13 +18,6 @@ struct SObjectSounds
 	std::vector<AudioPath> ambient;
 	std::vector<AudioPath> visit;
 	std::vector<AudioPath> removal;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & ambient;
-		h & visit;
-		h & removal;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

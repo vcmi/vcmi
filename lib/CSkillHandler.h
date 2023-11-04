@@ -29,14 +29,6 @@ public:
 		std::string iconMedium;
 		std::string iconLarge;
 		std::vector<std::shared_ptr<Bonus>> effects;
-
-		template <typename Handler> void serialize(Handler & h, const int version)
-		{
-			h & iconSmall;
-			h & iconMedium;
-			h & iconLarge;
-			h & effects;
-		}
 	};
 
 private:
@@ -82,17 +74,6 @@ public:
 
 	bool onlyOnWaterMap;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & id;
-		h & identifier;
-		h & gainChance;
-		h & levels;
-		h & obligatoryMajor;
-		h & obligatoryMinor;
-		h & onlyOnWaterMap;
-	}
-
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
@@ -110,11 +91,6 @@ public:
 	void beforeValidate(JsonNode & object) override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
