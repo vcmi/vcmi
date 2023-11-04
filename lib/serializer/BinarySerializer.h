@@ -181,6 +181,19 @@ public:
 		if(!hlp)
 			return;
 
+		savePointerImpl(data);
+	}
+
+	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void savePointerImpl(const T &data)
+	{
+		auto index = data->getId();
+		save(index);
+	}
+
+	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void savePointerImpl(const T &data)
+	{
 		if(writer->smartVectorMembersSerialization)
 		{
 			typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType;
@@ -203,19 +216,6 @@ public:
 				return;
 		}
 
-		savePointerImpl(data);
-	}
-
-	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
-	void savePointerImpl(const T &data)
-	{
-		auto index = data->getId();
-		save(index);
-	}
-
-	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
-	void savePointerImpl(const T &data)
-	{
 		if(smartPointerSerialization)
 		{
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.

@@ -16,7 +16,7 @@
 #include "../campaign/CampaignState.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../registerTypes/RegisterTypes.h"
+#include "../networkPacks/ArtifactLocation.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../StartInfo.h"

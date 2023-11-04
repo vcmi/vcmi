@@ -234,6 +234,25 @@ public:
 			return;
 		}
 
+		loadPointerImpl(data);
+	}
+
+	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void loadPointerImpl(T &data)
+	{
+		using DataType = std::remove_pointer_t<T>;
+
+		typename DataType::IdentifierType index;
+		load(index);
+
+		auto * constEntity = index.toEntity(VLC);
+		auto * constData = dynamic_cast<const DataType *>(constEntity);
+		data = const_cast<DataType *>(constData);
+	}
+
+	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void loadPointerImpl(T &data)
+	{
 		if(reader->smartVectorMembersSerialization)
 		{
 			typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
@@ -258,25 +277,6 @@ public:
 				return;
 		}
 
-		loadPointerImpl(data);
-	}
-
-	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
-	void loadPointerImpl(T &data)
-	{
-		using DataType = std::remove_pointer_t<T>;
-
-		typename DataType::IdentifierType index;
-		load(index);
-
-		auto * constEntity = index.toEntity(VLC);
-		auto * constData = dynamic_cast<const DataType *>(constEntity);
-		data = const_cast<DataType *>(constData);
-	}
-
-	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
-	void loadPointerImpl(T &data)
-	{
 		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id)
 		if(smartPointerSerialization)
 		{
@@ -502,7 +502,7 @@ public:
 		// use appropriate alternative for result
 		data = table[which];
 		// perform actual load via std::visit dispatch
-		std::visit([this](auto& o) { load(o); }, data);
+		std::visit([&](auto& o) { load(o); }, data);
 	}
 
 	template<typename T>

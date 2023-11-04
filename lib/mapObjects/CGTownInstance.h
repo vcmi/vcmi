@@ -99,7 +99,7 @@ public:
 		}
 		else
 		{
-			CFaction * faction;
+			CFaction * faction = nullptr;
 			h & faction;
 			town = faction ? faction->town : nullptr;
 		}
