@@ -9,76 +9,21 @@
  */
 #pragma once
 
+#include "../widgets/CTradeBase.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
-#include "../../lib/FunctionList.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-class IMarket;
-
-VCMI_LIB_NAMESPACE_END
 
 class CSlider;
-class CTextBox;
-class CPicture;
 class CGStatusBar;
 
-class CTradeWindow : public CWindowObject, public CWindowWithArtifacts //base for markets and altar of sacrifice
+class CTradeWindow : public CTradeBase, public CWindowObject, public CWindowWithArtifacts //base for markets and altar of sacrifice
 {
 public:
-	enum EType
-	{
-		RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, CREATURE_PLACEHOLDER, ARTIFACT_PLACEHOLDER, ARTIFACT_INSTANCE
-	};
-
-	class CTradeableItem : public CIntObject, public std::enable_shared_from_this<CTradeableItem>
-	{
-		std::shared_ptr<CAnimImage> image;
-		AnimationPath getFilename();
-		int getIndex();
-	public:
-		const CArtifactInstance * hlp; //holds ptr to artifact instance id type artifact
-		EType type;
-		int id;
-		const int serial;
-		const bool left;
-		std::string subtitle; //empty if default
-
-		void setType(EType newType);
-		void setID(int newID);
-
-		const CArtifactInstance * getArtInstance() const;
-		void setArtInstance(const CArtifactInstance * art);
-
-		CFunctionList<void()> callback;
-		bool downSelection;
-
-		void showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to);
-
-		void showPopupWindow(const Point & cursorPosition) override;
-		void hover(bool on) override;
-		void showAll(Canvas & to) override;
-		void clickPressed(const Point & cursorPosition) override;
-		std::string getName(int number = -1) const;
-		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
-	};
-
-	const IMarket * market;
-	const CGHeroInstance * hero;
-
-	//all indexes: 1 = left, 0 = right
-	std::array<std::vector<std::shared_ptr<CTradeableItem>>, 2> items;
-
-	//highlighted items (nullptr if no highlight)
-	std::shared_ptr<CTradeableItem> hLeft;
-	std::shared_ptr<CTradeableItem> hRight;
 	EType itemsType[2];
 
 	EMarketMode mode;
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CButton> max;
-	std::shared_ptr<CButton> deal;
 
 	std::shared_ptr<CSlider> slider; //for choosing amount to be exchanged
 	bool readyToTrade;
@@ -93,9 +38,6 @@ public:
 	void initItems(bool Left);
 	std::vector<int> *getItemsIds(bool Left); //nullptr if default
 	void getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const;
-	void removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove);
-	void removeItem(std::shared_ptr<CTradeableItem> item);
-	void getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRemove);
 	void setMode(EMarketMode Mode); //mode setter
 
 	void artifactSelected(CHeroArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
@@ -130,7 +72,7 @@ public:
 
 	void setMax();
 	void sliderMoved(int to);
-	void makeDeal();
+	void makeDeal() override;
 	void selectionChanged(bool side) override; //true == left
 	CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode);
 	~CMarketplaceWindow();
@@ -171,7 +113,7 @@ public:
 
 	void putOnAltar(int backpackIndex);
 	bool putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance * art);
-	void makeDeal();
+	void makeDeal() override;
 	void showAll(Canvas & to) override;
 
 	void blockTrade();

@@ -12,317 +12,28 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
-#include "../widgets/Images.h"
 #include "../render/Canvas.h"
-#include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
-#include "../windows/InfoWindows.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
 
-#include "../../lib/VCMI_Lib.h"
-#include "../../lib/CArtHandler.h"
-#include "../../lib/CCreatureHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGMarket.h"
-#include "../../lib/networkPacks/ArtifactLocation.h"
-
-CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
-	: CIntObject(LCLICK | HOVER | SHOW_POPUP, pos),
-	type(EType(-1)),// set to invalid, will be corrected in setType
-	id(ID),
-	serial(Serial),
-	left(Left)
-{
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	downSelection = false;
-	hlp = nullptr;
-	setType(Type);
-}
-
-void CTradeWindow::CTradeableItem::setType(EType newType)
-{
-	if(type != newType)
-	{
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-		type = newType;
-
-		if(getIndex() < 0)
-		{
-			image = std::make_shared<CAnimImage>(getFilename(), 0);
-			image->disable();
-		}
-		else
-		{
-			image = std::make_shared<CAnimImage>(getFilename(), getIndex());
-		}
-	}
-}
-
-void CTradeWindow::CTradeableItem::setID(int newID)
-{
-	if (id != newID)
-	{
-		id = newID;
-		if (image)
-		{
-			int index = getIndex();
-			if (index < 0)
-				image->disable();
-			else
-			{
-				image->enable();
-				image->setFrame(index);
-			}
-		}
-	}
-}
-
-AnimationPath CTradeWindow::CTradeableItem::getFilename()
-{
-	switch(type)
-	{
-	case RESOURCE:
-		return AnimationPath::builtin("RESOURCE");
-	case PLAYER:
-		return AnimationPath::builtin("CREST58");
-	case ARTIFACT_TYPE:
-	case ARTIFACT_PLACEHOLDER:
-	case ARTIFACT_INSTANCE:
-		return AnimationPath::builtin("artifact");
-	case CREATURE:
-		return AnimationPath::builtin("TWCRPORT");
-	default:
-		return {};
-	}
-}
-
-int CTradeWindow::CTradeableItem::getIndex()
-{
-	if (id < 0)
-		return -1;
-
-	switch(type)
-	{
-	case RESOURCE:
-	case PLAYER:
-		return id;
-	case ARTIFACT_TYPE:
-	case ARTIFACT_INSTANCE:
-	case ARTIFACT_PLACEHOLDER:
-		return CGI->artifacts()->getByIndex(id)->getIconIndex();
-	case CREATURE:
-		return CGI->creatures()->getByIndex(id)->getIconIndex();
-	default:
-		return -1;
-	}
-}
-
-void CTradeWindow::CTradeableItem::showAll(Canvas & to)
-{
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
-	assert(mw);
-
-	Point posToBitmap;
-	Point posToSubCenter;
-
-	switch(type)
-	{
-	case RESOURCE:
-		posToBitmap = Point(19,9);
-		posToSubCenter = Point(36, 59);
-		break;
-	case CREATURE_PLACEHOLDER:
-	case CREATURE:
-		posToSubCenter = Point(29, 76);
-		// Positing of unit count is different in Altar of Sacrifice and Freelancer's Guild
-		if(mw->mode == EMarketMode::CREATURE_EXP && downSelection)
-			posToSubCenter.y += 5;
-		break;
-	case PLAYER:
-		posToSubCenter = Point(31, 76);
-		break;
-	case ARTIFACT_PLACEHOLDER:
-	case ARTIFACT_INSTANCE:
-		posToSubCenter = Point(19, 55);
-		if(downSelection)
-			posToSubCenter.y += 8;
-		break;
-	case ARTIFACT_TYPE:
-		posToSubCenter = Point(19, 58);
-		break;
-	}
-
-	if (image)
-	{
-		image->moveTo(pos.topLeft() + posToBitmap);
-		CIntObject::showAll(to);
-	}
-
-	to.drawText(pos.topLeft() + posToSubCenter, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, subtitle);
-}
-
-void CTradeWindow::CTradeableItem::clickPressed(const Point & cursorPosition)
-{
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
-	assert(mw);
-		if(type == ARTIFACT_PLACEHOLDER)
-		{
-			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
-			const auto pickedArtInst = aw->getPickedArtifact();
-
-			if(pickedArtInst)
-			{
-				aw->arts->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
-				aw->moveArtToAltar(this->shared_from_this(), pickedArtInst);
-			}
-			else if(const CArtifactInstance *art = getArtInstance())
-			{
-				const auto hero = aw->arts->getHero();
-				const auto slot = hero->getSlotByInstance(art);
-				assert(slot != ArtifactPosition::PRE_FIRST);
-				LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, slot),
-					ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS));
-				aw->arts->pickedArtFromSlot = slot;
-				aw->arts->artifactsOnAltar.erase(art);
-				setID(-1);
-				subtitle.clear();
-				aw->deal->block(!aw->arts->artifactsOnAltar.size());
-			}
-
-			aw->calcTotalExp();
-			return;
-		}
-		if(left)
-		{
-			if(mw->hLeft != this->shared_from_this())
-				mw->hLeft = this->shared_from_this();
-			else
-				return;
-		}
-		else
-		{
-			if(mw->hRight != this->shared_from_this())
-				mw->hRight = this->shared_from_this();
-			else
-				return;
-		}
-		mw->selectionChanged(left);
-}
-
-void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::string &customSub, Canvas & to)
-{
-	Rect oldPos = pos;
-	std::string oldSub = subtitle;
-	downSelection = true;
-
-	moveTo(dstPos);
-	subtitle = customSub;
-	showAll(to);
-
-	downSelection = false;
-	moveTo(oldPos.topLeft());
-	subtitle = oldSub;
-}
-
-void CTradeWindow::CTradeableItem::hover(bool on)
-{
-	if(!on)
-	{
-		GH.statusbar()->clear();
-		return;
-	}
-
-	switch(type)
-	{
-	case CREATURE:
-	case CREATURE_PLACEHOLDER:
-		GH.statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
-		break;
-	case ARTIFACT_PLACEHOLDER:
-		if(id < 0)
-			GH.statusbar()->write(CGI->generaltexth->zelp[582].first);
-		else
-			GH.statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
-		break;
-	}
-}
-
-void CTradeWindow::CTradeableItem::showPopupWindow(const Point & cursorPosition)
-{
-	switch(type)
-	{
-		case CREATURE:
-		case CREATURE_PLACEHOLDER:
-			//GH.statusbar->print(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
-			break;
-		case ARTIFACT_TYPE:
-		case ARTIFACT_PLACEHOLDER:
-			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
-			if(id >= 0)
-				CRClickPopup::createAndPush(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated());
-			break;
-	}
-}
-
-std::string CTradeWindow::CTradeableItem::getName(int number) const
-{
-	switch(type)
-	{
-	case PLAYER:
-		return CGI->generaltexth->capColors[id];
-	case RESOURCE:
-		return CGI->generaltexth->restypes[id];
-	case CREATURE:
-		if(number == 1)
-			return CGI->creh->objects[id]->getNameSingularTranslated();
-		else
-			return CGI->creh->objects[id]->getNamePluralTranslated();
-	case ARTIFACT_TYPE:
-	case ARTIFACT_INSTANCE:
-		return CGI->artifacts()->getByIndex(id)->getNameTranslated();
-	}
-	logGlobal->error("Invalid trade item type: %d", (int)type);
-	return "";
-}
-
-const CArtifactInstance * CTradeWindow::CTradeableItem::getArtInstance() const
-{
-	switch(type)
-	{
-	case ARTIFACT_PLACEHOLDER:
-	case ARTIFACT_INSTANCE:
-		return hlp;
-	default:
-		return nullptr;
-	}
-}
-
-void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
-{
-	assert(type == ARTIFACT_PLACEHOLDER || type == ARTIFACT_INSTANCE);
-	hlp = art;
-	if(art)
-		setID(art->artType->getId());
-	else
-		setID(-1);
-}
 
 CTradeWindow::CTradeWindow(const ImagePath & bgName, const IMarket *Market, const CGHeroInstance *Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode):
+	CTradeBase(Market, Hero),
 	CWindowObject(PLAYER_COLORED, bgName),
-	market(Market),
 	onWindowClosed(onWindowClosed),
-	hero(Hero),
 	readyToTrade(false)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -403,6 +114,26 @@ void CTradeWindow::initItems(bool Left)
 
 			auto item = std::make_shared<CTradeableItem>(pos[j].topLeft(), itemsType[Left], id, Left, j);
 			item->pos = pos[j] + this->pos.topLeft();
+			if(mode != EMarketMode::ARTIFACT_EXP)
+				item->clickPressedCallback = [this](std::shared_ptr<CTradeableItem> altarSlot) -> void
+				{
+					if(altarSlot->left)
+					{
+						if(hLeft != altarSlot)
+							hLeft = altarSlot;
+						else
+							return;
+					}
+					else
+					{
+						if(hRight != altarSlot)
+							hRight = altarSlot;
+						else
+							return;
+					}
+					selectionChanged(altarSlot->left);
+				};
+
 			items[Left].push_back(item);
 		}
 		vstd::clear_pointer(ids);
@@ -569,30 +300,6 @@ void CTradeWindow::close()
 		onWindowClosed();
 
 	CWindowObject::close();
-}
-
-void CTradeWindow::removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove)
-{
-	for(auto item : toRemove)
-		removeItem(item);
-}
-
-void CTradeWindow::removeItem(std::shared_ptr<CTradeableItem> item)
-{
-	items[item->left] -= item;
-
-	if(hRight == item)
-	{
-		hRight.reset();
-		selectionChanged(false);
-	}
-}
-
-void CTradeWindow::getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRemove)
-{
-	for(auto item : items[1])
-		if(!hero->getStackCount(SlotID(item->serial)))
-			toRemove.insert(item);
 }
 
 void CTradeWindow::setMode(EMarketMode Mode)
