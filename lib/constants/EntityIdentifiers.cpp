@@ -21,6 +21,7 @@
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroClass.h>
 #include <vcmi/HeroClassService.h>
+#include <vcmi/Services.h>
 
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
@@ -192,12 +193,12 @@ std::string HeroTypeID::entityType()
 
 const CArtifact * ArtifactIDBase::toArtifact() const
 {
-	return dynamic_cast<const CArtifact*>(toEntity(VLC->artifacts()));
+	return dynamic_cast<const CArtifact*>(toEntity(VLC));
 }
 
-const Artifact * ArtifactIDBase::toEntity(const ArtifactService * service) const
+const Artifact * ArtifactIDBase::toEntity(const Services * services) const
 {
-	return service->getByIndex(num);
+	return services->artifacts()->getByIndex(num);
 }
 
 si32 ArtifactID::decode(const std::string & identifier)
@@ -238,6 +239,11 @@ const CCreature * CreatureIDBase::toCreature() const
 	return VLC->creh->objects.at(num);
 }
 
+const Creature * CreatureIDBase::toEntity(const Services * services) const
+{
+	return toEntity(services->creatures());
+}
+
 const Creature * CreatureIDBase::toEntity(const CreatureService * creatures) const
 {
 	return creatures->getByIndex(num);
@@ -272,6 +278,11 @@ const CSpell * SpellIDBase::toSpell() const
 	return VLC->spellh->objects[num];
 }
 
+const spells::Spell * SpellIDBase::toEntity(const Services * services) const
+{
+	return toEntity(services->spells());
+}
+
 const spells::Spell * SpellIDBase::toEntity(const spells::Service * service) const
 {
 	return service->getByIndex(num);
@@ -279,12 +290,12 @@ const spells::Spell * SpellIDBase::toEntity(const spells::Service * service) con
 
 const CHero * HeroTypeID::toHeroType() const
 {
-	return dynamic_cast<const CHero*>(toEntity(VLC->heroTypes()));
+	return dynamic_cast<const CHero*>(toEntity(VLC));
 }
 
-const HeroType * HeroTypeID::toEntity(const HeroTypeService * service) const
+const HeroType * HeroTypeID::toEntity(const Services * services) const
 {
-	return service->getByIndex(num);
+	return services->heroTypes()->getByIndex(num);
 }
 
 si32 SpellID::decode(const std::string & identifier)

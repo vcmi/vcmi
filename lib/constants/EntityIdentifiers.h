@@ -14,6 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class Services;
 class Artifact;
 class ArtifactService;
 class Creature;
@@ -190,7 +191,7 @@ public:
 	static std::string entityType();
 
 	const CHero * toHeroType() const;
-	const HeroType * toEntity(const HeroTypeService * service) const;
+	const HeroType * toEntity(const Services * services) const;
 
 	DLL_LINKAGE static const HeroTypeID NONE;
 	DLL_LINKAGE static const HeroTypeID RANDOM;
@@ -681,7 +682,7 @@ public:
 	};
 
 	DLL_LINKAGE const CArtifact * toArtifact() const;
-	DLL_LINKAGE const Artifact * toEntity(const ArtifactService * service) const;
+	DLL_LINKAGE const Artifact * toEntity(const Services * service) const;
 };
 
 class ArtifactID : public IdentifierWithEnum<ArtifactID, ArtifactIDBase>
@@ -721,6 +722,7 @@ public:
 	};
 
 	DLL_LINKAGE const CCreature * toCreature() const;
+	DLL_LINKAGE const Creature * toEntity(const Services * services) const;
 	DLL_LINKAGE const Creature * toEntity(const CreatureService * creatures) const;
 };
 
@@ -839,6 +841,7 @@ public:
 	};
 
 	const CSpell * toSpell() const; //deprecated
+	const spells::Spell * toEntity(const Services * service) const;
 	const spells::Spell * toEntity(const spells::Service * service) const;
 };
 

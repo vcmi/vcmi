@@ -23,6 +23,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct Query;
 class IBattleState;
 class CRandomGenerator;
+class CreatureService;
 class CMap;
 class CGameInfoCallback;
 class CBattleInfoCallback;
@@ -31,6 +32,11 @@ class JsonNode;
 class CStack;
 class CGObjectInstance;
 class CGHeroInstance;
+
+namespace spells
+{
+class Service;
+}
 
 namespace vstd
 {

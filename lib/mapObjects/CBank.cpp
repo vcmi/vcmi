@@ -314,7 +314,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				const auto * spell = spellId.toEntity(VLC->spells());
+				const auto * spell = spellId.toEntity(VLC);
 				iw.text.appendLocalString(EMetaText::SPELL_NAME, spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{

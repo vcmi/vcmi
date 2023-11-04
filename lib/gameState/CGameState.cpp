@@ -760,7 +760,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC->artifacts());
+				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
 
 				CGHeroInstance *hero = elem.second.heroes[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))

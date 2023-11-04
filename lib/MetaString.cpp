@@ -114,35 +114,35 @@ std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) c
 	{
 		case EMetaText::ART_NAMES:
 		{
-			const auto * art = ArtifactID(ser).toEntity(VLC->artifacts());
+			const auto * art = ArtifactID(ser).toEntity(VLC);
 			if(art)
 				return art->getNameTranslated();
 			return "#!#";
 		}
 		case EMetaText::ART_DESCR:
 		{
-			const auto * art = ArtifactID(ser).toEntity(VLC->artifacts());
+			const auto * art = ArtifactID(ser).toEntity(VLC);
 			if(art)
 				return art->getDescriptionTranslated();
 			return "#!#";
 		}
 		case EMetaText::ART_EVNTS:
 		{
-			const auto * art = ArtifactID(ser).toEntity(VLC->artifacts());
+			const auto * art = ArtifactID(ser).toEntity(VLC);
 			if(art)
 				return art->getEventTranslated();
 			return "#!#";
 		}
 		case EMetaText::CRE_PL_NAMES:
 		{
-			const auto * cre = CreatureID(ser).toEntity(VLC->creatures());
+			const auto * cre = CreatureID(ser).toEntity(VLC);
 			if(cre)
 				return cre->getNamePluralTranslated();
 			return "#!#";
 		}
 		case EMetaText::CRE_SING_NAMES:
 		{
-			const auto * cre = CreatureID(ser).toEntity(VLC->creatures());
+			const auto * cre = CreatureID(ser).toEntity(VLC);
 			if(cre)
 				return cre->getNameSingularTranslated();
 			return "#!#";
@@ -157,7 +157,7 @@ std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) c
 		}
 		case EMetaText::SPELL_NAME:
 		{
-			const auto * spell = SpellID(ser).toEntity(VLC->spells());
+			const auto * spell = SpellID(ser).toEntity(VLC);
 			if(spell)
 				return spell->getNameTranslated();
 			return "#!#";

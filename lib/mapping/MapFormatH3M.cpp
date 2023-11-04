@@ -926,7 +926,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	if(artifactID == ArtifactID::NONE)
 		return false;
 
-	const Artifact * art = artifactID.toEntity(VLC->artifacts());
+	const Artifact * art = artifactID.toEntity(VLC);
 
 	if(!art)
 	{

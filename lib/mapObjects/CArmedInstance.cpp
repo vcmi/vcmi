@@ -73,7 +73,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(const auto & slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const auto * creature  = inst->getCreatureID().toEntity(VLC->creatures());
+		const auto * creature  = inst->getCreatureID().toEntity(VLC);
 
 		factions.insert(creature->getFaction());
 		// Check for undead flag instead of faction (undead mummies are neutral)

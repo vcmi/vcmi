@@ -100,13 +100,13 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			switch(source)
 			{
 			case BonusSource::ARTIFACT:
-				str << sid.as<ArtifactID>().toEntity(VLC->artifacts())->getNameTranslated();
+				str << sid.as<ArtifactID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::SPELL_EFFECT:
-				str << sid.as<SpellID>().toEntity(VLC->spells())->getNameTranslated();
+				str << sid.as<SpellID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::CREATURE_ABILITY:
-				str << sid.as<CreatureID>().toEntity(VLC->creatures())->getNamePluralTranslated();
+				str << sid.as<CreatureID>().toEntity(VLC)->getNamePluralTranslated();
 				break;
 			case BonusSource::SECONDARY_SKILL:
 				str << VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
