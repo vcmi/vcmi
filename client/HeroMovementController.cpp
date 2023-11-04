@@ -359,7 +359,7 @@ void HeroMovementController::moveOnce(const CGHeroInstance * h, const CGPath & p
 	{
 		stopMovementSound();
 		logGlobal->trace("Requesting hero teleportation to %s", nextNode.coord.toString());
-		LOCPLINT->cb->moveHero(h, nextCoord, false);
+		LOCPLINT->cb->moveHero(h, h->pos, false);
 		return;
 	}
 	else
