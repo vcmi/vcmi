@@ -247,8 +247,8 @@ namespace JsonDetail
 		static Type convert(const JsonNode & node)
 		{
 			///this should be triggered only for numeric types and enums
-			static_assert(boost::mpl::or_<std::is_arithmetic<Type>, std::is_enum<Type>, boost::is_class<Type> >::value, "Unsupported type for JsonNode::convertTo()!");
-			return JsonConvImpl<Type, boost::mpl::or_<std::is_enum<Type>, boost::is_class<Type> >::value >::convertImpl(node);
+			static_assert(std::is_arithmetic_v<Type> || std::is_enum_v<Type> || std::is_class_v<Type>, "Unsupported type for JsonNode::convertTo()!");
+			return JsonConvImpl<Type, std::is_enum_v<Type> || std::is_class_v<Type> >::convertImpl(node);
 
 		}
 	};

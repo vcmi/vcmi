@@ -9,9 +9,6 @@
  */
 #pragma once
 
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/for_each.hpp>
-
 #include "CTypeList.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../../Global.h"
@@ -37,41 +34,6 @@ public:
 /// Effectively revesed version of BinarySerializer
 class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 {
-	template<typename Variant, typename Source>
-	struct VariantLoaderHelper
-	{
-		Source & source;
-		std::vector<std::function<Variant()>> funcs;
-
-		template <class V>
-		struct mpl_types_impl;
-
-		template <class... Ts>
-		struct mpl_types_impl<std::variant<Ts...>> {
-			using type = boost::mpl::vector<Ts...>;
-		};
-
-		template <class V>
-		using mpl_types = typename mpl_types_impl<V>::type;
-
-		VariantLoaderHelper(Source & source):
-			source(source)
-		{
-			boost::mpl::for_each<mpl_types<Variant>>(std::ref(*this));
-		}
-
-		template<typename Type>
-		void operator()(Type)
-		{
-			funcs.push_back([&]() -> Variant
-			{
-				Type obj;
-				source.load(obj);
-				return Variant(obj);
-			});
-		}
-	};
-
 	template<typename Ser,typename T>
 	struct LoadIfStackInstance
 	{
@@ -510,17 +472,19 @@ public:
 		this->read((void*)data.c_str(),length);
 	}
 
-	template<typename T0, typename... TN>
-	void load(std::variant<T0, TN...> & data)
+	template<typename... TN>
+	void load(std::variant<TN...> & data)
 	{
-		using TVariant = std::variant<T0, TN...>;
-
-		VariantLoaderHelper<TVariant, BinaryDeserializer> loader(*this);
-
 		si32 which;
 		load( which );
-		assert(which < loader.funcs.size());
-		data = loader.funcs.at(which)();
+		assert(which < sizeof...(TN));
+
+		// Create array of variants that contains all default-constructed alternatives
+		const std::variant<TN...> table[] = { TN{ }... };
+		// use appropriate alternative for result
+		data = table[which];
+		// perform actual load via std::visit dispatch
+		std::visit([this](auto& o) { load(o); }, data);
 	}
 
 	template<typename T>

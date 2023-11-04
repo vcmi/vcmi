@@ -22,7 +22,7 @@ public:
 	template<typename T>
 	CSelector(const T &t,	//SFINAE trick -> include this c-tor in overload resolution only if parameter is class
 							//(includes functors, lambdas) or function. Without that VC is going mad about ambiguities.
-		typename std::enable_if < boost::mpl::or_ < std::is_class<T>, std::is_function<T >> ::value>::type *dummy = nullptr)
+		typename std::enable_if_t < std::is_class_v<T> || std::is_function_v<T> > *dummy = nullptr)
 		: TBase(t)
 	{}
 
