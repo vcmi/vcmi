@@ -45,16 +45,13 @@ public:
 	virtual void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const = 0;
 	virtual void selectionChanged(bool side) = 0; //true == left
 	virtual Point selectionOffset(bool Left) const = 0;
-	virtual std::string selectionSubtitle(bool Left) const = 0;
-	virtual void garrisonChanged() = 0;
+	virtual std::string updateSlotSubtitle(bool Left) const = 0;
+	virtual void updateGarrison() = 0;
 	virtual void artifactsChanged(bool left) = 0;
 protected:
 	std::function<void()> onWindowClosed;
 	std::shared_ptr<CGStatusBar> statusBar;
-	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CPicture>> images;
-	std::vector<std::shared_ptr<CButton>> buttons;
-	std::vector<std::shared_ptr<CTextBox>> texts;
 };
 
 class CMarketplaceWindow : public CTradeWindow
@@ -78,58 +75,12 @@ public:
 	~CMarketplaceWindow();
 
 	Point selectionOffset(bool Left) const override;
-	std::string selectionSubtitle(bool Left) const override;
+	std::string updateSlotSubtitle(bool Left) const override;
 
-	void garrisonChanged() override; //removes creatures with count 0 from the list (apparently whole stack has been sold)
+	void updateGarrison() override; //removes creatures with count 0 from the list (apparently whole stack has been sold)
 	void artifactsChanged(bool left) override;
 	void resourceChanged();
 
 	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const override;
 	void updateTraderText();
-};
-
-class CAltarWindow : public CTradeWindow
-{
-	std::shared_ptr<CAnimImage> artIcon;
-public:
-	std::vector<int> sacrificedUnits; //[slot_nr] -> how many creatures from that slot will be sacrificed
-	std::vector<int> expPerUnit;
-
-	std::shared_ptr<CButton> sacrificeAll;
-	std::shared_ptr<CButton> sacrificeBackpack;
-	std::shared_ptr<CLabel> expToLevel;
-	std::shared_ptr<CLabel> expOnAltar;
-	std::shared_ptr<CArtifactsOfHeroAltar> arts;
-
-	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, const std::function<void()> & onWindowClosed, EMarketMode Mode);
-	~CAltarWindow();
-
-	void getExpValues();
-
-	void selectionChanged(bool side) override; //true == left
-	void selectOppositeItem(bool side);
-	void SacrificeAll();
-	void SacrificeBackpack();
-
-	void putOnAltar(int backpackIndex);
-	bool putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance * art);
-	void makeDeal() override;
-	void showAll(Canvas & to) override;
-
-	void blockTrade();
-	void sliderMoved(int to);
-	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const override;
-	void mimicCres();
-
-	Point selectionOffset(bool Left) const override;
-	std::string selectionSubtitle(bool Left) const override;
-	void garrisonChanged() override;
-	void artifactsChanged(bool left) override;
-	void calcTotalExp();
-	void setExpToLevel();
-	void updateRight(std::shared_ptr<CTradeableItem> toUpdate);
-
-	void artifactPicked();
-	int firstFreeSlot();
-	void moveArtToAltar(std::shared_ptr<CTradeableItem>, const CArtifactInstance * art);
 };

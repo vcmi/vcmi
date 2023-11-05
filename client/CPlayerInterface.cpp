@@ -48,6 +48,7 @@
 #include "widgets/CComponent.h"
 #include "widgets/CGarrisonInt.h"
 
+#include "windows/CAltarWindow.h"
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CHeroWindow.h"
@@ -421,7 +422,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, Prim
 	if (which == PrimarySkill::EXPERIENCE)
 	{
 		for (auto ctw : GH.windows().findWindows<CAltarWindow>())
-			ctw->setExpToLevel();
+			ctw->updateExpToLevel();
 	}
 	else
 		adventureInt->onHeroChanged(hero);
@@ -558,10 +559,10 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 	for (auto cgh : GH.windows().findWindows<IGarrisonHolder>())
 		cgh->updateGarrisons();
 
-	for (auto cmw : GH.windows().findWindows<CTradeWindow>())
+	for (auto cmw : GH.windows().findWindows<CAltarWindow>())
 	{
-		if (vstd::contains(objs, cmw->hero))
-			cmw->garrisonChanged();
+		if(vstd::contains(objs, cmw->getHero()))
+			cmw->updateGarrison();
 	}
 
 	GH.windows().totalRedraw();

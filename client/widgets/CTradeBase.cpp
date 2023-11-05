@@ -31,6 +31,11 @@ CTradeBase::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool L
 	downSelection = false;
 	hlp = nullptr;
 	setType(Type);
+	if(image)
+	{
+		this->pos.w = image->pos.w;
+		this->pos.h = image->pos.h;
+	}
 }
 
 void CTradeBase::CTradeableItem::setType(EType newType)
@@ -124,14 +129,14 @@ void CTradeBase::CTradeableItem::showAll(Canvas & to)
 		break;
 	case CREATURE_PLACEHOLDER:
 	case CREATURE:
-		posToSubCenter = Point(29, 76);
+		posToSubCenter = Point(29, 77);
 		break;
 	case PLAYER:
 		posToSubCenter = Point(31, 76);
 		break;
 	case ARTIFACT_PLACEHOLDER:
 	case ARTIFACT_INSTANCE:
-		posToSubCenter = Point(19, 55);
+		posToSubCenter = Point(19, 54);
 		if (downSelection)
 			posToSubCenter.y += 8;
 		break;
