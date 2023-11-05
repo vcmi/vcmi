@@ -74,7 +74,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
-	using TTemplatesContainer = std::multimap<std::pair<si32, si32>, std::shared_ptr<const ObjectTemplate>>;
+	using TTemplatesContainer = std::multimap<std::pair<MapObjectID, MapObjectSubID>, std::shared_ptr<const ObjectTemplate>>;
 	TTemplatesContainer legacyTemplates;
 
 	TObjectTypeHandler loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);

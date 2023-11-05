@@ -571,6 +571,12 @@ public:
 
 	static std::string encode(int32_t index);
 	static si32 decode(const std::string & identifier);
+
+	// TODO: Remove
+	constexpr operator int32_t () const
+	{
+		return num;
+	}
 };
 
 class MapObjectSubID : public Identifier<MapObjectSubID>
@@ -593,6 +599,12 @@ public:
 	{
 		this->num = value.getNum();
 		return *this;
+	}
+
+	// TODO: Remove
+	constexpr operator int32_t () const
+	{
+		return num;
 	}
 };
 

@@ -117,7 +117,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 		tmpl->readTxt(parser);
 		parser.endLine();
 
-		std::pair<si32, si32> key(tmpl->id.num, tmpl->subid);
+		std::pair key(tmpl->id, tmpl->subid);
 		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
 	}
 

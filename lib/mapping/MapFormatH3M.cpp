@@ -707,7 +707,7 @@ void CMapLoaderH3M::readDisposedHeroes()
 		for(int g = 0; g < disp; ++g)
 		{
 			map->disposedHeroes[g].heroId = reader->readHero();
-			map->disposedHeroes[g].portrait.setNum(reader->readHeroPortrait());
+			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
 			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId));
 			reader->readBitmaskPlayers(map->disposedHeroes[g].players, false);
 		}

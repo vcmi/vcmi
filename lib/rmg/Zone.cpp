@@ -127,10 +127,10 @@ rmg::Area & Zone::freePaths()
 
 FactionID Zone::getTownType() const
 {
-	return FactionID(townType);
+	return townType;
 }
 
-void Zone::setTownType(si32 town)
+void Zone::setTownType(FactionID town)
 {
 	townType = town;
 }

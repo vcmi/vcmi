@@ -144,12 +144,12 @@ CFaction::~CFaction()
 
 int32_t CFaction::getIndex() const
 {
-	return index;
+	return index.getNum();
 }
 
 int32_t CFaction::getIconIndex() const
 {
-	return index; //???
+	return index.getNum(); //???
 }
 
 std::string CFaction::getJsonKey() const
@@ -172,8 +172,8 @@ void CFaction::registerIcons(const IconRegistar & cb) const
 		cb(info.icons[1][0] + 2, 0, "ITPA", info.iconSmall[1][0]);
 		cb(info.icons[1][1] + 2, 0, "ITPA", info.iconSmall[1][1]);
 
-		cb(index, 1, "CPRSMALL", info.towerIconSmall);
-		cb(index, 1, "TWCRPORT", info.towerIconLarge);
+		cb(index.getNum(), 1, "CPRSMALL", info.towerIconSmall);
+		cb(index.getNum(), 1, "TWCRPORT", info.towerIconLarge);
 
 	}
 }
@@ -734,7 +734,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	ret->town->buildings[ret->bid] = ret;
 
-	registerObject(source.meta, ret->town->getBuildingScope(), ret->identifier, ret->bid);
+	registerObject(source.meta, ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
 }
 
 void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
@@ -1115,10 +1115,10 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
-		info.icons[0][0] = 8 + object->index * 4 + 0;
-		info.icons[0][1] = 8 + object->index * 4 + 1;
-		info.icons[1][0] = 8 + object->index * 4 + 2;
-		info.icons[1][1] = 8 + object->index * 4 + 3;
+		info.icons[0][0] = 8 + object->index.getNum() * 4 + 0;
+		info.icons[0][1] = 8 + object->index.getNum() * 4 + 1;
+		info.icons[1][0] = 8 + object->index.getNum() * 4 + 2;
+		info.icons[1][1] = 8 + object->index.getNum() * 4 + 3;
 
 		VLC->identifiers()->requestIdentifier(scope, "object", "town", [=](si32 index)
 		{
@@ -1142,7 +1142,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index);
+	registerObject(scope, "faction", name, object->index.getNum());
 }
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -1158,10 +1158,10 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
-		info.icons[0][0] = (GameConstants::F_NUMBER + object->index) * 2 + 0;
-		info.icons[0][1] = (GameConstants::F_NUMBER + object->index) * 2 + 1;
-		info.icons[1][0] = object->index * 2 + 0;
-		info.icons[1][1] = object->index * 2 + 1;
+		info.icons[0][0] = (GameConstants::F_NUMBER + object->index.getNum()) * 2 + 0;
+		info.icons[0][1] = (GameConstants::F_NUMBER + object->index.getNum()) * 2 + 1;
+		info.icons[1][0] = object->index.getNum() * 2 + 0;
+		info.icons[1][1] = object->index.getNum() * 2 + 1;
 
 		VLC->identifiers()->requestIdentifier(scope, "object", "town", [=](si32 index)
 		{
@@ -1173,7 +1173,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index);
+	registerObject(scope, "faction", name, object->index.getNum());
 }
 
 void CTownHandler::loadRandomFaction()

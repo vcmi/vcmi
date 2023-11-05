@@ -179,7 +179,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 {
 	for(int i = 0; i < count; i++)
 	{
-		si32 subType = zone.getTownType();
+		FactionID subType = zone.getTownType();
 		
 		if(totalTowns>0)
 		{
