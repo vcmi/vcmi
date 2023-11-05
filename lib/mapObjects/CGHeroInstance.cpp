@@ -1533,7 +1533,7 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 {
 	auto existingHero = std::find_if(map->objects.begin(), map->objects.end(), [&](const CGObjectInstance * o) ->bool
 		{
-			return (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
+			return o && (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
 		});
 
 	if(existingHero != map->objects.end())

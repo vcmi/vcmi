@@ -209,7 +209,6 @@ void InfoCard::changeSelection()
 		return;
 
 	labelSaveDate->setText(mapInfo->date);
-	labelMapSize->setText(std::to_string(mapInfo->mapHeader->width) + "x" + std::to_string(mapInfo->mapHeader->height));
 	mapName->setText(mapInfo->getNameTranslated());
 	mapDescription->setText(mapInfo->getDescriptionTranslated());
 
@@ -220,8 +219,11 @@ void InfoCard::changeSelection()
 	if(SEL->screenType == ESelectionScreen::campaignList)
 		return;
 
-	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
 	const CMapHeader * header = mapInfo->mapHeader.get();
+
+	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height));
+	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
+
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
 	labelVictoryConditionText->setText(header->victoryMessage.toString());
 	iconsLossCondition->setFrame(header->defeatIconIndex);
