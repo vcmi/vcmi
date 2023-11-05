@@ -447,7 +447,6 @@ bool ObjectManager::createRequiredObjects()
 					instance->object().getObjectName(), instance->getPosition(true).toString());
 				mapProxy->removeObject(&instance->object());
 			}
-			rmgNearObject.clear();
 		}
 	}
 	
