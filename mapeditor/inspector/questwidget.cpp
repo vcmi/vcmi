@@ -54,7 +54,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
-		if(!controller.map()->allowedArtifact[i])
+		if(controller.map()->allowedArtifact.count(i) == 0)
 			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 		ui->lArtifacts->addItem(item);
 	}
@@ -66,7 +66,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
-		if(!controller.map()->allowedSpells[i])
+		if(controller.map()->allowedSpells.count(i) == 0)
 			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 		ui->lSpells->addItem(item);
 	}
@@ -82,7 +82,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 		for(auto & s : NSecondarySkill::levels)
 			widget->addItem(QString::fromStdString(s));
 		
-		if(!controller.map()->allowedAbilities[i])
+		if(controller.map()->allowedAbilities.count(i) == 0)
 		{
 			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 			widget->setEnabled(false);

@@ -73,7 +73,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 			item->setCheckState(Qt::Unchecked);
-			if(!map.allowedArtifact[i])
+			if(map.allowedArtifact.count(i) == 0)
 				item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 			w->addItem(item);
 		}
@@ -88,7 +88,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 			item->setCheckState(Qt::Unchecked);
-			if(!map.allowedSpells[i])
+			if(map.allowedSpells.count(i) == 0)
 				item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 			w->addItem(item);
 		}
@@ -115,7 +115,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			for(auto & s : NSecondarySkill::levels)
 				widget->addItem(QString::fromStdString(s));
 			
-			if(!map.allowedAbilities[i])
+			if(map.allowedAbilities.count(i) == 0)
 			{
 				item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 				widget->setEnabled(false);

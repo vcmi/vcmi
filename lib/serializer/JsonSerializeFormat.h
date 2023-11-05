@@ -137,18 +137,6 @@ public:
 	///may assume that object index is valid
 	using TEncoder = std::function<std::string(si32)>;
 
-	using TSerialize = std::function<void(JsonSerializeFormat &)>;
-
-	struct LIC
-	{
-		LIC(const std::vector<bool> & Standard, TDecoder Decoder, TEncoder Encoder);
-
-		const std::vector<bool> & standard;
-		const TDecoder decoder;
-		const TEncoder encoder;
-		std::vector<bool> all, any, none;
-	};
-
 	struct LICSet
 	{
 		LICSet(const std::set<si32> & Standard, TDecoder Decoder, TEncoder Encoder);
@@ -211,13 +199,28 @@ public:
 	 * @param value target value, must be resized properly
 	 *
 	 */
-	virtual void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value) = 0;
+	virtual void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value) = 0;
 
-	/** @brief Complete serialization of Logical identifier condition
-	 */
-	virtual void serializeLIC(const std::string & fieldName, LIC & value) = 0;
+	template<typename T>
+	void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<T> & standard, std::set<T> & value)
+	{
+		std::set<int32_t> standardInt;
+		std::set<int32_t> valueInt;
 
-	/** @brief Complete serialization of Logical identifier condition. (Special version)
+		for (auto entry : standard)
+			standardInt.insert(entry.getNum());
+
+		for (auto entry : value)
+			valueInt.insert(entry.getNum());
+
+		serializeLIC(fieldName, decoder, encoder, standard, value);
+
+		value.clear();
+		for (auto entry : valueInt)
+			value.insert(T(entry));
+	}
+
+	/** @brief Complete serialization of Logical identifier condition.
 	 * Assumes that all values are allowed by default, and standard contains them
 	 */
 	virtual void serializeLIC(const std::string & fieldName, LICSet & value) = 0;
@@ -453,6 +456,8 @@ protected:
 
 	virtual void serializeInternal(std::string & value) = 0;
 	virtual void serializeInternal(int64_t & value) = 0;
+
+	void readLICPart(const JsonNode & part, const JsonSerializeFormat::TDecoder & decoder, std::set<si32> & value) const;
 
 private:
 	const IInstanceResolver * instanceResolver;

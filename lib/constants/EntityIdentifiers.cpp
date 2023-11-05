@@ -236,6 +236,16 @@ std::string SecondarySkill::encode(const si32 index)
 	return VLC->skills()->getById(SecondarySkill(index))->getJsonKey();
 }
 
+const CSkill * SecondarySkill::toSkill() const
+{
+	return dynamic_cast<const CSkill *>(toEntity(VLC));
+}
+
+const Skill * SecondarySkill::toEntity(const Services * services) const
+{
+	return services->skills()->getByIndex(num);
+}
+
 const CCreature * CreatureIDBase::toCreature() const
 {
 	return VLC->creh->objects.at(num);

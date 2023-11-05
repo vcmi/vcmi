@@ -186,7 +186,7 @@ void Initializer::initialize(CGArtifact * o)
 		std::vector<SpellID> out;
 		for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 		{
-			if(VLC->spellh->getDefaultAllowed().at(spell->id))
+			if(VLC->spellh->getDefaultAllowed().count(spell->id) != 0)
 			{
 				out.push_back(spell->id);
 			}
@@ -319,7 +319,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 		auto * delegate = new InspectorDelegate;
 		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
 		{
-			if(controller.map()->allowedHeroes.at(i))
+			if(controller.map()->allowedHeroes.count(HeroTypeID(i)) != 0)
 			{
 				if(o->ID == Obj::PRISON || (o->type && VLC->heroh->objects[i]->heroClass->getIndex() == o->type->heroClass->getIndex()))
 				{
@@ -356,7 +356,7 @@ void Inspector::updateProperties(CGArtifact * o)
 			auto * delegate = new InspectorDelegate;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(controller.map()->allowedSpells.at(spell->id))
+				if(controller.map()->allowedSpells.count(spell->id) != 0)
 					delegate->options.push_back({QObject::tr(spell->getNameTranslated().c_str()), QVariant::fromValue(int(spell->getId()))});
 			}
 			addProperty("Spell", VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);

@@ -105,81 +105,11 @@ void JsonUpdater::serializeInternal(int64_t & value)
 	value = currentObject->Integer();
 }
 
-void JsonUpdater::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)
+void JsonUpdater::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value)
 {
-	const JsonNode & field = currentObject->operator[](fieldName);
-
-	if(field.isNull())
-		return;
-
-	const JsonNode & anyOf = field["anyOf"];
-	const JsonNode & allOf = field["allOf"];
-	const JsonNode & noneOf = field["noneOf"];
-
-	if(anyOf.Vector().empty() && allOf.Vector().empty())
-	{
-		//permissive mode
-		value = standard;
-	}
-	else
-	{
-		//restrictive mode
-		value.clear();
-		value.resize(standard.size(), false);
-
-		readLICPart(anyOf, decoder, true, value);
-		readLICPart(allOf, decoder, true, value);
-	}
-
-	readLICPart(noneOf, decoder, false, value);
-}
-
-void JsonUpdater::serializeLIC(const std::string & fieldName, LIC & value)
-{
-	const JsonNode & field = currentObject->operator[](fieldName);
-
-	if(field.isNull())
-		return;
-
-	const JsonNode & anyOf = field["anyOf"];
-	const JsonNode & allOf = field["allOf"];
-	const JsonNode & noneOf = field["noneOf"];
-
-	if(anyOf.Vector().empty())
-	{
-		//permissive mode
-		value.any = value.standard;
-	}
-	else
-	{
-		//restrictive mode
-		value.any.clear();
-		value.any.resize(value.standard.size(), false);
-
-		readLICPart(anyOf, value.decoder, true, value.any);
-	}
-
-	readLICPart(allOf, value.decoder, true, value.all);
-	readLICPart(noneOf, value.decoder, true, value.none);
-
-	//remove any banned from allowed and required
-	for(si32 idx = 0; idx < value.none.size(); idx++)
-	{
-		if(value.none[idx])
-		{
-			value.all[idx] = false;
-			value.any[idx] = false;
-		}
-	}
-
-	//add all required to allowed
-	for(si32 idx = 0; idx < value.all.size(); idx++)
-	{
-		if(value.all[idx])
-		{
-			value.any[idx] = true;
-		}
-	}
+	LICSet lic(standard, decoder, encoder);
+	serializeLIC(fieldName, lic);
+	value = lic.any;
 }
 
 void JsonUpdater::serializeLIC(const std::string & fieldName, LICSet & value)

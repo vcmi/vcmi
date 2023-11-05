@@ -1201,35 +1201,8 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 
 	{
-		JsonSerializeFormat::LIC spellsLIC(VLC->spellh->getDefaultAllowed(), SpellID::decode, SpellID::encode);
-
-		if(handler.saving)
-		{
-			for(const SpellID & id : possibleSpells)
-				spellsLIC.any[id.num] = true;
-
-			for(const SpellID & id : obligatorySpells)
-				spellsLIC.all[id.num] = true;
-		}
-
-		handler.serializeLIC("spells", spellsLIC);
-
-		if(!handler.saving)
-		{
-			possibleSpells.clear();
-			for(si32 idx = 0; idx < spellsLIC.any.size(); idx++)
-			{
-				if(spellsLIC.any[idx])
-					possibleSpells.emplace_back(idx);
-			}
-
-			obligatorySpells.clear();
-			for(si32 idx = 0; idx < spellsLIC.all.size(); idx++)
-			{
-				if(spellsLIC.all[idx])
-					obligatorySpells.emplace_back(idx);
-			}
-		}
+		handler.serializeIdArray( "possibleSpells", possibleSpells);
+		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
 	}
 }
 
