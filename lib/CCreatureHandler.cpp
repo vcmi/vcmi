@@ -324,7 +324,7 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 
 bool CCreature::valid() const
 {
-	return this == VLC->creh->objects[idNumber];
+	return this == (*VLC->creh)[idNumber];
 }
 
 std::string CCreature::nodeName() const
@@ -778,15 +778,13 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		}
 		do //parse everything that's left
 		{
-			CreatureID sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
+			CreatureID sid = parser.readNumber(); //id = this particular creature ID
 
 			b.sid = BonusSourceID(sid);
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-			{
-				objects[sid]->addNewBonus(b); //add directly to CCreature Node
-			}
+				(*this)[sid]->addNewBonus(b); //add directly to CCreature Node
 		}
 		while (parser.endLine());
 

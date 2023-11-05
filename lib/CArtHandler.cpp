@@ -371,7 +371,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 	objects.emplace_back(object);
 
-	registerObject(scope, "artifact", name, object->id);
+	registerObject(scope, "artifact", name, object->id.getNum());
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -383,7 +383,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = object;
 
-	registerObject(scope, "artifact", name, object->id);
+	registerObject(scope, "artifact", name, object->id.getNum());
 }
 
 const std::vector<std::string> & CArtHandler::getTypeNames() const
@@ -630,7 +630,7 @@ void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 
 bool CArtHandler::legalArtifact(const ArtifactID & id)
 {
-	auto art = objects[id];
+	auto art = id.toArtifact();
 	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
 
 	if(art->isCombined())
@@ -639,13 +639,13 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 	if(art->aClass < CArtifact::ART_TREASURE || art->aClass > CArtifact::ART_RELIC)
 		return false; // invalid class
 
-	if(!art->possibleSlots[ArtBearer::HERO].empty())
+	if(art->possibleSlots.count(ArtBearer::HERO) && !art->possibleSlots.at(ArtBearer::HERO).empty())
 		return true;
 
-	if(!art->possibleSlots[ArtBearer::CREATURE].empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
+	if(art->possibleSlots.count(ArtBearer::CREATURE) && !art->possibleSlots.at(ArtBearer::CREATURE).empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_ARTIFACT))
 		return true;
 
-	if(!art->possibleSlots[ArtBearer::COMMANDER].empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
+	if(art->possibleSlots.count(ArtBearer::COMMANDER) && !art->possibleSlots.at(ArtBearer::COMMANDER).empty() && VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 		return true;
 
 	return false;
@@ -658,7 +658,7 @@ void CArtHandler::initAllowedArtifactsList(const std::set<ArtifactID> & allowed)
 	for (ArtifactID i : allowed)
 	{
 		if (legalArtifact(ArtifactID(i)))
-			allowedArtifacts.push_back(objects[i]);
+			allowedArtifacts.push_back(i.toArtifact());
 			//keep im mind that artifact can be worn by more than one type of bearer
 	}
 }
@@ -682,7 +682,6 @@ void CArtHandler::afterLoadFinalization()
 	{
 		for(auto &bonus : art->getExportedBonusList())
 		{
-			assert(art == objects[art->id]);
 			assert(bonus->source == BonusSource::ARTIFACT);
 			bonus->sid = BonusSourceID(art->id);
 		}

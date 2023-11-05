@@ -22,7 +22,7 @@ ObstacleCasterProxy::ObstacleCasterProxy(PlayerColor owner_, const Caster * hero
 {
 }
 
-int32_t ObstacleCasterProxy::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
+int32_t ObstacleCasterProxy::getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	return obs.spellLevel;
 }

@@ -1860,8 +1860,7 @@ void CGameState::attachArmedObjects()
 
 bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 {
-	 CArtifact * const artifact = VLC->arth->objects[aid]; //pointer to constant object
-	 CArtifactInstance * ai = ArtifactUtils::createNewArtifactInstance(artifact);
+	 CArtifactInstance * ai = ArtifactUtils::createNewArtifactInstance(aid);
 	 map->addNewArtifactInstance(ai);
 	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))

@@ -428,7 +428,7 @@ const CGHeroInstance * CUnitState::getHeroCaster() const
 	return nullptr;
 }
 
-int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
+int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spell->getId())));
 	vstd::abetween(skill, 0, 3);

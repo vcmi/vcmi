@@ -98,12 +98,7 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 
 void CMapGenerator::initPrisonsRemaining()
 {
-	allowedPrisons = 0;
-	for (auto isAllowed : map->getMap(this).allowedHeroes)
-	{
-		if (isAllowed)
-			allowedPrisons++;
-	}
+	allowedPrisons = map->getMap(this).allowedHeroes.size();
 	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getHumanOrCpuPlayerCount()); //so at least 16 heroes will be available for every player
 }
 

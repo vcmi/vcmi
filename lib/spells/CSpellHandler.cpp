@@ -154,7 +154,7 @@ void CSpell::forEachSchool(const std::function<void(const SpellSchool &, bool &)
 	bool stop = false;
 	for(auto iter : SpellConfig::SCHOOL_ORDER)
 	{
-		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[iter];
+		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[iter.getNum()];
 		if(school.at(cnf.id))
 		{
 			cb(cnf.id, stop);

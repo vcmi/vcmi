@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CArmedInstance::randomizeArmy(int type)
+void CArmedInstance::randomizeArmy(FactionID type)
 {
 	for (auto & elem : stacks)
 	{

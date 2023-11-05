@@ -29,7 +29,7 @@ private:
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
-	void randomizeArmy(int type);
+	void randomizeArmy(FactionID type);
 	virtual void updateMoraleBonusFromArmy();
 
 	void armyChanged() override;

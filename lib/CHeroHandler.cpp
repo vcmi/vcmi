@@ -518,7 +518,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 
 		for (auto const & upgradeSourceID : oldTargets)
 		{
-			const CCreature * upgradeSource = VLC->creh->objects[upgradeSourceID];
+			const CCreature * upgradeSource = upgradeSourceID.toCreature();
 			targets.insert(upgradeSource->upgrades.begin(), upgradeSource->upgrades.end());
 		}
 
@@ -528,7 +528,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 
 	for(CreatureID cid : targets)
 	{
-		const CCreature &specCreature = *VLC->creh->objects[cid];
+		auto const & specCreature = *cid.toCreature();
 		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
 
 		{

@@ -2095,7 +2095,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			guard->quest->mission.creatures.resize(typeNumber);
 			for(int hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->quest->mission.creatures[hh].type = VLC->creh->objects[reader->readCreature()];
+				guard->quest->mission.creatures[hh].type = reader->readCreature().toCreature();
 				guard->quest->mission.creatures[hh].count = reader->readUInt16();
 			}
 			break;

@@ -136,7 +136,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	if (creatures[level].second.empty())
 		return ret; //no dwelling
 
-	const CCreature *creature = VLC->creh->objects[creatures[level].second.back()];
+	const Creature *creature = creatures[level].second.back().toEntity(VLC);
 	const int base = creature->getGrowth();
 	int castleBonus = 0;
 
@@ -489,8 +489,8 @@ void CGTownInstance::pickRandomObject(CRandomGenerator & rand)
 
 	assert(ID == Obj::TOWN); // just in case
 	setType(ID, subID);
-	town = (*VLC->townh)[subID]->town;
-	randomizeArmy(subID);
+	town = (*VLC->townh)[getFaction()]->town;
+	randomizeArmy(getFaction());
 	updateAppearance();
 }
 
@@ -571,7 +571,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 				}
 				else //upgrade
 				{
-					cb->changeStackType(sl, VLC->creh->objects[*c->upgrades.begin()]);
+					cb->changeStackType(sl, c->upgrades.begin()->toCreature());
 				}
 			}
 			if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
@@ -592,7 +592,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 						{
 							StackLocation sl(this, n);
 							if (slotEmpty(n))
-								cb->insertNewStack(sl, VLC->creh->objects[c], count);
+								cb->insertNewStack(sl, c.toCreature(), count);
 							else //add to existing
 								cb->changeStackCount(sl, count);
 						}

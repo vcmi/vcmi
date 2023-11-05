@@ -672,6 +672,12 @@ class ArtifactPosition : public IdentifierWithEnum<ArtifactPosition, ArtifactPos
 {
 public:
 	using IdentifierWithEnum<ArtifactPosition, ArtifactPositionBase>::IdentifierWithEnum;
+
+	// TODO: Remove
+	constexpr operator int32_t () const
+	{
+		return num;
+	}
 };
 
 class ArtifactIDBase : public IdentifierBase
@@ -728,6 +734,7 @@ public:
 		FIRE_ELEMENTAL = 114, // for tests
 		PSYCHIC_ELEMENTAL = 120, // for hardcoded ability
 		MAGIC_ELEMENTAL = 121, // for hardcoded ability
+		AZURE_DRAGON = 132,
 		CATAPULT = 145,
 		BALLISTA = 146,
 		FIRST_AID_TENT = 147,

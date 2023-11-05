@@ -528,13 +528,10 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 						{
 							std::string temp;
 							if(hero->type)
-							{
 								temp = hero->type->getJsonKey();
-							}
 							else
-							{
-								temp = VLC->heroh->objects[hero->subID]->getJsonKey();
-							}
+								temp = hero->getHeroType().toEntity(VLC)->getJsonKey();
+
 							handler.serializeString("type", temp);
 						}
 					}
@@ -753,7 +750,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 
 	for(DisposedHero & hero : map->disposedHeroes)
 	{
-		std::string type = HeroTypeID::encode(hero.heroId);
+		std::string type = HeroTypeID::encode(hero.heroId.getNum());
 
 		auto definition = definitions->enterStruct(type);
 

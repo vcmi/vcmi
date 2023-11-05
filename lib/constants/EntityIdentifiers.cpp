@@ -160,12 +160,12 @@ std::string CampaignScenarioID::encode(const si32 index)
 	return std::to_string(index);
 }
 
-std::string Obj::encode(int32_t index)
+std::string MapObjectID::encode(int32_t index)
 {
-	return VLC->objtypeh->getObjectHandlerName(index);
+	return VLC->objtypeh->getObjectHandlerName(MapObjectID(index));
 }
 
-si32 Obj::decode(const std::string & identifier)
+si32 MapObjectID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
 	if(rawId)

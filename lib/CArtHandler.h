@@ -142,7 +142,7 @@ class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtif
 {
 public:
 	/// List of artifacts allowed on the map
-	std::vector<CArtifact *> allowedArtifacts;
+	std::vector<const CArtifact *> allowedArtifacts;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
