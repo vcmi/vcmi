@@ -621,67 +621,44 @@ void CMap::banWaterContent()
 
 void CMap::banWaterSpells()
 {
-	for (int j = 0; j < allowedSpells.size(); j++)
+	vstd::erase_if(allowedSpells, [&](SpellID spell)
 	{
-		if (allowedSpells[j])
-		{
-			auto* spell = dynamic_cast<const CSpell*>(VLC->spells()->getByIndex(j));
-			if (spell->onlyOnWaterMap && !isWaterMap())
-			{
-				allowedSpells[j] = false;
-			}
-		}
-	}
+		return spell.toSpell()->onlyOnWaterMap && !isWaterMap();
+	});
 }
 
 void CMap::banWaterArtifacts()
 {
-	for (int j = 0; j < allowedArtifact.size(); j++)
+	vstd::erase_if(allowedArtifact, [&](ArtifactID artifact)
 	{
-		if (allowedArtifact[j])
-		{
-			auto* art = dynamic_cast<const CArtifact*>(VLC->artifacts()->getByIndex(j));
-			if (art->onlyOnWaterMap && !isWaterMap())
-			{
-				allowedArtifact[j] = false;
-			}
-		}
-	}
+		return artifact.toArtifact()->onlyOnWaterMap && !isWaterMap();
+	});
 }
 
 void CMap::banWaterSkills()
 {
-	for (int j = 0; j < allowedAbilities.size(); j++)
+	vstd::erase_if(allowedAbilities, [&](SecondarySkill skill)
 	{
-		if (allowedAbilities[j])
-		{
-			auto* skill = dynamic_cast<const CSkill*>(VLC->skills()->getByIndex(j));
-			if (skill->onlyOnWaterMap && !isWaterMap())
-			{
-				allowedAbilities[j] = false;
-			}
-		}
-	}
+		return skill.toSkill()->onlyOnWaterMap && !isWaterMap();
+	});
 }
 
 void CMap::banWaterHeroes()
 {
-	for (int j = 0; j < allowedHeroes.size(); j++)
+	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
 	{
-		if (allowedHeroes[j])
-		{
-			auto* h = dynamic_cast<const CHero*>(VLC->heroTypes()->getByIndex(j));
-			if ((h->onlyOnWaterMap && !isWaterMap()) || (h->onlyOnMapWithoutWater && isWaterMap()))
-			{
-				banHero(HeroTypeID(j));
-			}
-		}
-	}
+		return hero.toHeroType()->onlyOnWaterMap && !isWaterMap();
+	});
+
+	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
+	{
+		return hero.toHeroType()->onlyOnMapWithoutWater && isWaterMap();
+	});
 }
 
 void CMap::banHero(const HeroTypeID & id)
 {
-	allowedHeroes.at(id) = false;
+	allowedHeroes.erase(id);
 }
 
 void CMap::initTerrain()

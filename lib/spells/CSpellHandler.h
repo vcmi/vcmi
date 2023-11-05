@@ -349,7 +349,7 @@ public:
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.
 	 *
 	 */
-	std::vector<bool> getDefaultAllowed() const override;
+	std::set<SpellID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

@@ -389,28 +389,19 @@ RoadType * CMapFormatJson::getRoadByCode(const std::string & code)
 
 void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const
 {
-	//TODO: unify allowed factions with others - make them std::vector<bool>
-
-	std::vector<bool> temp;
-	temp.resize(VLC->townh->size(), false);
-	auto standard = VLC->townh->getDefaultAllowed();
+	std::set<FactionID> temp;
 
 	if(handler.saving)
 	{
 		for(auto faction : VLC->townh->objects)
 			if(faction->town && vstd::contains(value, faction->getId()))
-				temp[static_cast<std::size_t>(faction->getIndex())] = true;
+				temp.insert(faction->getId());
 	}
 
-	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, standard, temp);
+	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, VLC->townh->getDefaultAllowed(), temp);
 
 	if(!handler.saving)
-	{
-		value.clear();
-		for (std::size_t i=0; i<temp.size(); i++)
-			if(temp[i])
-				value.insert(static_cast<FactionID>(i));
-	}
+		value = temp;
 }
 
 void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)

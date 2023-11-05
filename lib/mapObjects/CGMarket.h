@@ -67,7 +67,6 @@ public:
 	std::vector<int> skills; //available skills
 
 	std::vector<int> availableItemsIds(EMarketMode mode) const override;
-	void initObj(CRandomGenerator & rand) override;//set skills for trade
 	void onHeroVisit(const CGHeroInstance * h) const override; //open window
 
 	template <typename Handler> void serialize(Handler &h, const int version)

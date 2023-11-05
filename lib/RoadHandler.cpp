@@ -59,11 +59,6 @@ std::vector<JsonNode> RoadTypeHandler::loadLegacyData()
 	return {};
 }
 
-std::vector<bool> RoadTypeHandler::getDefaultAllowed() const
-{
-	return {};
-}
-
 std::string RoadType::getJsonKey() const
 {
 	return modScope + ":" + identifier;

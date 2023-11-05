@@ -24,7 +24,6 @@ class DLL_LINKAGE CRmgTemplateStorage : public IHandlerBase
 public:
 	CRmgTemplateStorage() = default;
 	
-	std::vector<bool> getDefaultAllowed() const override;
 	std::vector<JsonNode> loadLegacyData() override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod

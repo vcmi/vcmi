@@ -101,8 +101,6 @@ public:
 	void beforeValidate(JsonNode & object) override;
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
 	/// Queries to detect loaded objects
 	std::set<MapObjectID> knownObjects() const;
 	std::set<MapObjectSubID> knownSubObjects(MapObjectID primaryID) const;

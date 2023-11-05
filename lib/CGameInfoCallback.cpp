@@ -53,19 +53,19 @@ const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) c
 	return &gs->scenarioOps->getIthPlayersSettings(color);
 }
 
-bool CGameInfoCallback::isAllowed(int32_t type, int32_t id) const
+bool CGameInfoCallback::isAllowed(SpellID id) const
 {
-	switch(type)
-	{
-	case 0:
-		return gs->map->allowedSpells[id];
-	case 1:
-		return gs->map->allowedArtifact[id];
-	case 2:
-		return gs->map->allowedAbilities[id];
-	default:
-		ERROR_RET_VAL_IF(1, "Wrong type!", false);
-	}
+	return gs->map->allowedSpells.count(id) != 0;
+}
+
+bool CGameInfoCallback::isAllowed(ArtifactID id) const
+{
+	return gs->map->allowedArtifact.count(id) != 0;
+}
+
+bool CGameInfoCallback::isAllowed(SecondarySkill id) const
+{
+	return gs->map->allowedAbilities.count(id) != 0;
 }
 
 std::optional<PlayerColor> CGameInfoCallback::getPlayerID() const

@@ -21,7 +21,7 @@ struct DLL_LINKAGE TurnInfo
 	/// This is certainly not the best design ever and certainly can be improved
 	/// Unfortunately for pathfinder that do hundreds of thousands calls onus system add too big overhead
 	struct BonusCache {
-		std::vector<bool> noTerrainPenalty;
+		std::set<TerrainId> noTerrainPenalty;
 		bool freeShipBoarding;
 		bool flyingMovement;
 		int flyingMovementVal;

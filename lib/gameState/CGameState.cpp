@@ -1877,10 +1877,7 @@ bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 
 std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllowed) const
 {
-	std::set<HeroTypeID> ret;
-	for(int i = 0; i < map->allowedHeroes.size(); i++)
-		if(map->allowedHeroes[i] || alsoIncludeNotAllowed)
-			ret.insert(HeroTypeID(i));
+	std::set<HeroTypeID> ret = map->allowedHeroes;
 
 	for(const auto & playerSettingPair : scenarioOps->playerInfos) //remove uninitialized yet heroes picked for start by other players
 	{

@@ -666,18 +666,6 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<bool> CCreatureHandler::getDefaultAllowed() const
-{
-	std::vector<bool> ret;
-
-	ret.reserve(objects.size());
-	for(const CCreature * crea : objects)
-	{
-		ret.push_back(crea ? !crea->special : false);
-	}
-	return ret;
-}
-
 void CCreatureHandler::loadCrExpMod()
 {
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values

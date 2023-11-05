@@ -304,11 +304,6 @@ void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID
 	objects[ID]->objects[subID] = nullptr;
 }
 
-std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>(); //TODO?
-}
-
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObjectSubID subtype) const
 {
 	try

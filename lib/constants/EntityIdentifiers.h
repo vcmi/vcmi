@@ -23,6 +23,7 @@ class HeroType;
 class CHero;
 class HeroTypeService;
 class Faction;
+class Skill;
 class RoadType;
 class RiverType;
 class TerrainType;
@@ -308,6 +309,9 @@ public:
 	static std::string entityType();
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
+
+	const CSkill * toSkill() const;
+	const Skill * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE PrimarySkill : public Identifier<PrimarySkill>

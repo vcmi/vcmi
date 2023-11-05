@@ -212,7 +212,7 @@ bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 	if ( !canLearnSkill())
 		return false;
 
-	if (!cb->isAllowed(2, which))
+	if (!cb->isAllowed(which))
 		return false;
 
 	if (getSecSkillLevel(which) > 0)
@@ -777,7 +777,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->getIndex());
+	const bool isAllowed = IObjectInterface::cb->isAllowed(spell->getId());
 
 	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
 	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
@@ -841,7 +841,7 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
 		return false;//creature abilities can not be learned
 	}
 
-	if(!allowBanned && !IObjectInterface::cb->isAllowed(0, spell->getIndex()))
+	if(!allowBanned && !IObjectInterface::cb->isAllowed(spell->getId()))
 	{
 		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned

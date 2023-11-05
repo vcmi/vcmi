@@ -1259,31 +1259,28 @@ void CTownHandler::initializeWarMachines()
 	warMachinesToLoad.clear();
 }
 
-std::vector<bool> CTownHandler::getDefaultAllowed() const
+std::set<FactionID> CTownHandler::getDefaultAllowed() const
 {
-	std::vector<bool> allowedFactions;
-	allowedFactions.reserve(objects.size());
+	std::set<FactionID> allowedFactions;
+
 	for(auto town : objects)
-	{
-		allowedFactions.push_back(town->town != nullptr);
-	}
+		if (town->town != nullptr)
+			allowedFactions.insert(town->getId());
+
 	return allowedFactions;
 }
 
 std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 {
-	std::set<FactionID> allowedFactions;
-	std::vector<bool> allowed;
-	if (withTown)
-		allowed = getDefaultAllowed();
-	else
-		allowed.resize( objects.size(), true);
+	if (!withTown)
+		return getDefaultAllowed();
 
-	for (size_t i=0; i<allowed.size(); i++)
-		if (allowed[i])
-			allowedFactions.insert(static_cast<FactionID>(i));
+	std::set<FactionID> result;
+	for(auto town : objects)
+		result.insert(town->getId());
 
-	return allowedFactions;
+	return result;
+
 }
 
 const std::vector<std::string> & CTownHandler::getTypeNames() const

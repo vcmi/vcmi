@@ -57,7 +57,9 @@ public:
 //	//various
 	virtual int getDate(Date mode=Date::DAY) const = 0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 //	const StartInfo * getStartInfo(bool beforeRandomization = false)const;
-	virtual bool isAllowed(int32_t type, int32_t id) const = 0; //type: 0 - spell; 1- artifact; 2 - secondary skill
+	virtual bool isAllowed(SpellID id) const = 0;
+	virtual bool isAllowed(ArtifactID id) const = 0;
+	virtual bool isAllowed(SecondarySkill id) const = 0;
 
 	//player
 	virtual std::optional<PlayerColor> getPlayerID() const = 0;
@@ -143,7 +145,9 @@ public:
 	//various
 	int getDate(Date mode=Date::DAY)const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	virtual const StartInfo * getStartInfo(bool beforeRandomization = false)const;
-	bool isAllowed(int32_t type, int32_t id) const override; //type: 0 - spell; 1- artifact; 2 - secondary skill
+	bool isAllowed(SpellID id) const override;
+	bool isAllowed(ArtifactID id) const override;
+	bool isAllowed(SecondarySkill id) const override;
 
 	//player
 	std::optional<PlayerColor> getPlayerID() const override;

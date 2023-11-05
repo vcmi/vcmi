@@ -71,7 +71,6 @@ public:
 	
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData() override;
-	std::vector<bool> getDefaultAllowed() const override;
 };
 
 VCMI_LIB_NAMESPACE_END

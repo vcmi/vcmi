@@ -96,20 +96,6 @@ void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 	cb->sendAndApply(&saa);
 }
 
-void CGUniversity::initObj(CRandomGenerator & rand)
-{
-	CGMarket::initObj(rand);
-	
-	std::vector<int> toChoose;
-	for(int i = 0; i < VLC->skillh->size(); ++i)
-	{
-		if(!vstd::contains(skills, i) && cb->isAllowed(2, i))
-		{
-			toChoose.push_back(i);
-		}
-	}
-}
-
 std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
 {
 	switch (mode)

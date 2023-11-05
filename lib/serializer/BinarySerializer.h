@@ -137,14 +137,6 @@ public:
 		save(writ);
 	}
 
-	template < typename T, typename std::enable_if < std::is_same<T, std::vector<bool> >::value, int  >::type = 0 >
-	void save(const T &data)
-	{
-		std::vector<ui8> convData;
-		std::copy(data.begin(), data.end(), std::back_inserter(convData));
-		save(convData);
-	}
-
 	template < class T, typename std::enable_if < std::is_fundamental<T>::value && !std::is_same<T, bool>::value, int  >::type = 0 >
 	void save(const T &data)
 	{

@@ -1201,8 +1201,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 
 	{
-		std::vector<bool> standard = VLC->spellh->getDefaultAllowed();
-		JsonSerializeFormat::LIC spellsLIC(standard, SpellID::decode, SpellID::encode);
+		JsonSerializeFormat::LIC spellsLIC(VLC->spellh->getDefaultAllowed(), SpellID::decode, SpellID::encode);
 
 		if(handler.saving)
 		{

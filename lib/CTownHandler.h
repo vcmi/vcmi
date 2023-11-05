@@ -350,7 +350,7 @@ public:
 	void loadCustom() override;
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
+	std::set<FactionID> getDefaultAllowed() const;
 	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
 
 	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);

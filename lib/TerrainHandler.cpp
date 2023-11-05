@@ -140,11 +140,6 @@ std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 	return result;
 }
 
-std::vector<bool> TerrainTypeHandler::getDefaultAllowed() const
-{
-	return {};
-}
-
 bool TerrainType::isLand() const
 {
 	return !isWater();

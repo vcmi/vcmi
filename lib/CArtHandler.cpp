@@ -651,24 +651,27 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 	return false;
 }
 
-void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
+void CArtHandler::initAllowedArtifactsList(const std::set<ArtifactID> & allowed)
 {
 	allowedArtifacts.clear();
 
-	for (ArtifactID i=ArtifactID::SPELLBOOK; i < ArtifactID(static_cast<si32>(objects.size())); i.advance(1))
+	for (ArtifactID i : allowed)
 	{
-		if (allowed[i] && legalArtifact(ArtifactID(i)))
+		if (legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(objects[i]);
 			//keep im mind that artifact can be worn by more than one type of bearer
 	}
 }
 
-std::vector<bool> CArtHandler::getDefaultAllowed() const
+std::set<ArtifactID> CArtHandler::getDefaultAllowed() const
 {
-	std::vector<bool> allowedArtifacts;
-	allowedArtifacts.resize(127, true);
-	allowedArtifacts.resize(141, false);
-	allowedArtifacts.resize(size(), true);
+	std::set<ArtifactID> allowedArtifacts;
+
+	for (auto artifact : objects)
+	{
+		if (!artifact->isCombined())
+			allowedArtifacts.insert(artifact->getId());
+	}
 	return allowedArtifacts;
 }
 

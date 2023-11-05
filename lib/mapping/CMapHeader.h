@@ -238,8 +238,8 @@ public:
 
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
-	std::vector<bool> allowedHeroes;
-	std::vector<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
+	std::set<HeroTypeID> allowedHeroes;
+	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 

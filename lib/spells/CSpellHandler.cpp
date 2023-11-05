@@ -986,15 +986,13 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 	inheritNode("expert");
 }
 
-std::vector<bool> CSpellHandler::getDefaultAllowed() const
+std::set<SpellID> CSpellHandler::getDefaultAllowed() const
 {
-	std::vector<bool> allowedSpells;
-	allowedSpells.reserve(objects.size());
+	std::set<SpellID> allowedSpells;
 
 	for(const CSpell * s : objects)
-	{
-		allowedSpells.push_back( !(s->isSpecial() || s->isCreatureAbility()));
-	}
+		if (!s->isSpecial() && !s->isCreatureAbility())
+			allowedSpells.insert(s->getId());
 
 	return allowedSpells;
 }

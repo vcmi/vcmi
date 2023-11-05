@@ -256,10 +256,14 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("expert");
 }
 
-std::vector<bool> CSkillHandler::getDefaultAllowed() const
+std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 {
-	std::vector<bool> allowedSkills(objects.size(), true);
-	return allowedSkills;
+	std::set<SecondarySkill> result;
+
+	for (auto const & skill : objects)
+		result.insert(skill->getId());
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

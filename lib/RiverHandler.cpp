@@ -68,11 +68,6 @@ std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 	return {};
 }
 
-std::vector<bool> RiverTypeHandler::getDefaultAllowed() const
-{
-	return {};
-}
-
 std::string RiverType::getJsonKey() const
 {
 	return modScope + ":" + identifier;

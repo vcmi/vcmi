@@ -266,12 +266,12 @@ void MapReaderH3M::readBitmaskHeroClassesSized(std::set<HeroClassID> & dest, boo
 	readBitmask(dest, classesBytes, classesCount, invert);
 }
 
-void MapReaderH3M::readBitmaskHeroes(std::vector<bool> & dest, bool invert)
+void MapReaderH3M::readBitmaskHeroes(std::set<HeroTypeID> & dest, bool invert)
 {
 	readBitmask<HeroTypeID>(dest, features.heroesBytes, features.heroesCount, invert);
 }
 
-void MapReaderH3M::readBitmaskHeroesSized(std::vector<bool> & dest, bool invert)
+void MapReaderH3M::readBitmaskHeroesSized(std::set<HeroTypeID> & dest, bool invert)
 {
 	uint32_t heroesCount = readUInt32();
 	uint32_t heroesBytes = (heroesCount + 7) / 8;
@@ -280,12 +280,12 @@ void MapReaderH3M::readBitmaskHeroesSized(std::vector<bool> & dest, bool invert)
 	readBitmask<HeroTypeID>(dest, heroesBytes, heroesCount, invert);
 }
 
-void MapReaderH3M::readBitmaskArtifacts(std::vector<bool> &dest, bool invert)
+void MapReaderH3M::readBitmaskArtifacts(std::set<ArtifactID> &dest, bool invert)
 {
 	readBitmask<ArtifactID>(dest, features.artifactsBytes, features.artifactsCount, invert);
 }
 
-void MapReaderH3M::readBitmaskArtifactsSized(std::vector<bool> &dest, bool invert)
+void MapReaderH3M::readBitmaskArtifactsSized(std::set<ArtifactID> &dest, bool invert)
 {
 	uint32_t artifactsCount = reader->readUInt32();
 	uint32_t artifactsBytes = (artifactsCount + 7) / 8;
@@ -294,19 +294,9 @@ void MapReaderH3M::readBitmaskArtifactsSized(std::vector<bool> &dest, bool inver
 	readBitmask<ArtifactID>(dest, artifactsBytes, artifactsCount, invert);
 }
 
-void MapReaderH3M::readBitmaskSpells(std::vector<bool> & dest, bool invert)
-{
-	readBitmask<SpellID>(dest, features.spellsBytes, features.spellsCount, invert);
-}
-
 void MapReaderH3M::readBitmaskSpells(std::set<SpellID> & dest, bool invert)
 {
 	readBitmask(dest, features.spellsBytes, features.spellsCount, invert);
-}
-
-void MapReaderH3M::readBitmaskSkills(std::vector<bool> & dest, bool invert)
-{
-	readBitmask<SecondarySkill>(dest, features.skillsBytes, features.skillsCount, invert);
 }
 
 void MapReaderH3M::readBitmaskSkills(std::set<SecondarySkill> & dest, bool invert)
@@ -315,7 +305,7 @@ void MapReaderH3M::readBitmaskSkills(std::set<SecondarySkill> & dest, bool inver
 }
 
 template<class Identifier>
-void MapReaderH3M::readBitmask(std::vector<bool> & dest, const int bytesToRead, const int objectsToRead, bool invert)
+void MapReaderH3M::readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert)
 {
 	for(int byte = 0; byte < bytesToRead; ++byte)
 	{
@@ -331,24 +321,11 @@ void MapReaderH3M::readBitmask(std::vector<bool> & dest, const int bytesToRead, 
 				Identifier h3mID(index);
 				Identifier vcmiID = remapIdentifier(h3mID);
 
-				if (vcmiID.getNum() >= dest.size())
-					dest.resize(vcmiID.getNum() + 1);
-				dest[vcmiID.getNum()] = result;
+				if (result)
+					dest.insert(vcmiID);
 			}
 		}
 	}
-}
-
-template<class Identifier>
-void MapReaderH3M::readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert)
-{
-	std::vector<bool> bitmap;
-	bitmap.resize(objectsToRead, false);
-	readBitmask<Identifier>(bitmap, bytesToRead, objectsToRead, invert);
-
-	for(int i = 0; i < bitmap.size(); i++)
-		if(bitmap[i])
-			dest.insert(static_cast<Identifier>(i));
 }
 
 int3 MapReaderH3M::readInt3()

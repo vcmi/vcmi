@@ -692,7 +692,7 @@ void CMapLoaderH3M::readAllowedHeroes()
 		for (uint32_t i = 0; i < placeholdersQty; ++i)
 		{
 			auto heroID = reader->readHero();
-			mapHeader->reservedCampaignHeroes.push_back(heroID);
+			mapHeader->reservedCampaignHeroes.insert(heroID);
 		}
 	}
 }
@@ -764,13 +764,13 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	{
 		for(CArtifact * artifact : VLC->arth->objects)
 			if(artifact->isCombined())
-				map->allowedArtifact[artifact->getId()] = false;
+				map->allowedArtifact.erase(artifact->getId());
 	}
 
 	if(!features.levelAB)
 	{
-		map->allowedArtifact[ArtifactID::VIAL_OF_DRAGON_BLOOD] = false;
-		map->allowedArtifact[ArtifactID::ARMAGEDDONS_BLADE] = false;
+		map->allowedArtifact.erase(ArtifactID::VIAL_OF_DRAGON_BLOOD);
+		map->allowedArtifact.erase(ArtifactID::ARMAGEDDONS_BLADE);
 	}
 
 	// Messy, but needed
@@ -780,7 +780,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 		{
 			if(cond.condition == EventCondition::HAVE_ARTIFACT || cond.condition == EventCondition::TRANSPORT)
 			{
-				map->allowedArtifact[cond.objectType] = false;
+				map->allowedArtifact.erase(cond.objectType);
 			}
 			return cond;
 		};
@@ -1160,7 +1160,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 			auto defaultAllowed = VLC->skillh->getDefaultAllowed();
 
 			for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
-				if(defaultAllowed[skillID])
+				if(defaultAllowed.count(skillID))
 					allowedAbilities.insert(SecondarySkill(skillID));
 		}
 
@@ -2085,7 +2085,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			{
 				auto artid = reader->readArtifact();
 				guard->quest->mission.artifacts.push_back(artid);
-				map->allowedArtifact[artid] = false; //these are unavailable for random generation
+				map->allowedArtifact.erase(artid); //these are unavailable for random generation
 			}
 			break;
 		}
@@ -2212,7 +2212,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 		//add all spells from mods
 		for(int i = features.spellsCount; i < defaultAllowed.size(); ++i)
-			if(defaultAllowed[i])
+			if(defaultAllowed.count(i))
 				object->possibleSpells.emplace_back(i);
 	}
 

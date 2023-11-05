@@ -129,9 +129,9 @@ public:
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
-	std::vector<bool> allowedSpells;
-	std::vector<bool> allowedArtifact;
-	std::vector<bool> allowedAbilities;
+	std::set<SpellID> allowedSpells;
+	std::set<ArtifactID> allowedArtifact;
+	std::set<SecondarySkill> allowedAbilities;
 	std::list<CMapEvent> events;
 	int3 grailPos;
 	int grailRadius;

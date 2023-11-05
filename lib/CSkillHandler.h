@@ -90,7 +90,7 @@ public:
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
 
-	std::vector<bool> getDefaultAllowed() const override;
+	std::set<SecondarySkill> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
