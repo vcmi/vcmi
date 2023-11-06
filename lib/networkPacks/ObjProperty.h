@@ -12,6 +12,8 @@
 #include "../constants/VariantIdentifier.h"
 #include "../constants/EntityIdentifiers.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 enum class ObjProperty : int8_t
 {
 	INVALID,
@@ -67,3 +69,5 @@ public:
 };
 
 using ObjPropertyID = VariantIdentifier<NumericID, MapObjectID, ObjectInstanceID, CreatureID, PlayerColor, TeamID>;
+
+VCMI_LIB_NAMESPACE_END

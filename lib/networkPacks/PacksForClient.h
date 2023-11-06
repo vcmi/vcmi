@@ -1216,7 +1216,6 @@ struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 	ObjProperty what{};
 
 	ObjPropertyID identifier;
-	int32_t value = 0;
 
 	SetObjectProperty() = default;
 
@@ -1227,7 +1226,6 @@ struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 		h & id;
 		h & what;
 		h & identifier;
-		h & value;
 	}
 };
 
