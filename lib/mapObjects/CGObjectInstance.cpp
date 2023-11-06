@@ -181,23 +181,20 @@ void CGObjectInstance::initObj(CRandomGenerator & rand)
 	}
 }
 
-void CGObjectInstance::setProperty( ui8 what, ui32 val )
+void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
 {
-	setPropertyDer(what, val); // call this before any actual changes (needed at least for dwellings)
+	setPropertyDer(what, identifier); // call this before any actual changes (needed at least for dwellings)
 
 	switch(what)
 	{
 	case ObjProperty::OWNER:
-		tempOwner = PlayerColor(val);
+		tempOwner = identifier.as<PlayerColor>();
 		break;
 	case ObjProperty::BLOCKVIS:
-		blockVisit = val;
+		blockVisit = identifier.getNum();
 		break;
 	case ObjProperty::ID:
-		ID = Obj(val);
-		break;
-	case ObjProperty::SUBID:
-		subID = val;
+		ID = identifier.as<MapObjectID>();
 		break;
 	}
 }
@@ -207,7 +204,7 @@ TObjectTypeHandler CGObjectInstance::getObjectHandler() const
 	return VLC->objtypeh->getHandlerFor(ID, subID);
 }
 
-void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
+void CGObjectInstance::setPropertyDer( ObjProperty what, ObjPropertyID identifier )
 {}
 
 int3 CGObjectInstance::getSightCenter() const
@@ -229,7 +226,7 @@ void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDura
 {
 	GiveBonus gbonus;
 	gbonus.bonus.type = BonusType::NONE;
-	gbonus.id = heroID.getNum();
+	gbonus.id = heroID;
 	gbonus.bonus.duration = duration;
 	gbonus.bonus.source = BonusSource::OBJECT_TYPE;
 	gbonus.bonus.sid = BonusSourceID(ID);

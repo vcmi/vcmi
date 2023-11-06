@@ -49,7 +49,7 @@ void IObjectInterface::initObj(CRandomGenerator & rand)
 void IObjectInterface::pickRandomObject(CRandomGenerator & rand)
 {}
 
-void IObjectInterface::setProperty( ui8 what, ui32 val )
+void IObjectInterface::setProperty(ObjProperty what, ObjPropertyID identifier)
 {}
 
 bool IObjectInterface::wasVisited (PlayerColor player) const

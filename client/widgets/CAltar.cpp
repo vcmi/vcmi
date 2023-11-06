@@ -99,14 +99,15 @@ TExpType CAltarArtifacts::calcExpAltarForHero()
 
 void CAltarArtifacts::makeDeal()
 {
-	std::vector<ui32> positions;
+	std::vector<TradeItemSell> positions;
 	for(const auto art : arts->artifactsOnAltar)
 	{
 		positions.push_back(hero->getSlotByInstance(art));
 	}
-	std::sort(positions.begin(), positions.end(), std::greater<>());
+	std::sort(positions.begin(), positions.end());
+	std::reverse(positions.begin(), positions.end());
 
-	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_EXP, positions, {}, {}, hero);
+	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_EXP, positions, std::vector<TradeItemBuy>(), std::vector<ui32>(), hero);
 	arts->artifactsOnAltar.clear();
 
 	for(auto item : items[0])
@@ -374,14 +375,14 @@ void CAltarCreatures::makeDeal()
 	unitsSlider->scrollTo(0);
 	expForHero->setText(std::to_string(0));
 
-	std::vector<ui32> ids;
+	std::vector<TradeItemSell> ids;
 	std::vector<ui32> toSacrifice;
 
 	for(int i = 0; i < unitsOnAltar.size(); i++)
 	{
 		if(unitsOnAltar[i])
 		{
-			ids.push_back(i);
+			ids.push_back(SlotID(i));
 			toSacrifice.push_back(unitsOnAltar[i]);
 		}
 	}

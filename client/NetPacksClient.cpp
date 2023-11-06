@@ -350,15 +350,16 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 	cl.invalidatePaths();
 	switch(pack.who)
 	{
-	case GiveBonus::ETarget::HERO:
+	case GiveBonus::ETarget::OBJECT:
 		{
-			const CGHeroInstance *h = gs.getHero(ObjectInstanceID(pack.id));
-			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, true);
+			const CGHeroInstance *h = gs.getHero(pack.id.as<ObjectInstanceID>());
+			if (h)
+				callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, true);
 		}
 		break;
 	case GiveBonus::ETarget::PLAYER:
 		{
-			callInterfaceIfPresent(cl, PlayerColor(pack.id), &IGameEventsReceiver::playerBonusChanged, pack.bonus, true);
+			callInterfaceIfPresent(cl, pack.id.as<PlayerColor>(), &IGameEventsReceiver::playerBonusChanged, pack.bonus, true);
 		}
 		break;
 	}
@@ -433,16 +434,17 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 	cl.invalidatePaths();
 	switch(pack.who)
 	{
-	case GiveBonus::ETarget::HERO:
+	case GiveBonus::ETarget::OBJECT:
 		{
-			const CGHeroInstance *h = gs.getHero(ObjectInstanceID(pack.whoID));
-			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, false);
+			const CGHeroInstance *h = gs.getHero(pack.whoID.as<ObjectInstanceID>());
+			if (h)
+				callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, false);
 		}
 		break;
 	case GiveBonus::ETarget::PLAYER:
 		{
 			//const PlayerState *p = gs.getPlayerState(pack.id);
-			callInterfaceIfPresent(cl, PlayerColor(pack.whoID), &IGameEventsReceiver::playerBonusChanged, pack.bonus, false);
+			callInterfaceIfPresent(cl, pack.whoID.as<PlayerColor>(), &IGameEventsReceiver::playerBonusChanged, pack.bonus, false);
 		}
 		break;
 	}

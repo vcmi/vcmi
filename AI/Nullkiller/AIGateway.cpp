@@ -481,7 +481,7 @@ void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		auto relations = myCb->getPlayerRelations(playerID, (PlayerColor)sop->val);
+		auto relations = myCb->getPlayerRelations(playerID, sop->identifier.as<PlayerColor>());
 		auto obj = myCb->getObj(sop->id, false);
 
 		if(!nullkiller) // crash protection
@@ -1419,7 +1419,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
+					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}

@@ -266,31 +266,28 @@ void CGCreature::newTurn(CRandomGenerator & rand) const
 		if (stacks.begin()->second->count < VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
 			ui32 power = static_cast<ui32>(temppower * (100 + VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
-			cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
-			cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
+			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, VLC->settings()->getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
+			cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, VLC->settings()->getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
 }
-void CGCreature::setPropertyDer(ui8 what, ui32 val)
+void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
 		case ObjProperty::MONSTER_COUNT:
-			stacks[SlotID(0)]->count = val;
+			stacks[SlotID(0)]->count = identifier.getNum();
 			break;
 		case ObjProperty::MONSTER_POWER:
-			temppower = val;
+			temppower = identifier.getNum();
 			break;
 		case ObjProperty::MONSTER_EXP:
-			giveStackExp(val);
-			break;
-		case ObjProperty::MONSTER_RESTORE_TYPE:
-			formation.basicType = val;
+			giveStackExp(identifier.getNum());
 			break;
 		case ObjProperty::MONSTER_REFUSED_JOIN:
-			refusedJoining = val;
+			refusedJoining = identifier.getNum();
 			break;
 	}
 }
@@ -368,7 +365,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
 {
 	if(refusedJoining)
-		cb->setObjProperty(id, ObjProperty::MONSTER_REFUSED_JOIN, false);
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, false);
 
 	if(pursue)
 	{
@@ -386,7 +383,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 	{
 		if(takenAction(h,false) == FLEE)
 		{
-			cb->setObjProperty(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
+			cb->setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
 			flee(h);
 		}
 		else //they fight
@@ -421,10 +418,6 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 void CGCreature::fight( const CGHeroInstance *h ) const
 {
 	//split stacks
-	//TODO: multiple creature types in a stack?
-	int basicType = stacks.begin()->second->type->getId();
-	cb->setObjProperty(id, ObjProperty::MONSTER_RESTORE_TYPE, basicType); //store info about creature stack
-
 	int stacksCount = getNumberOfStacks(h);
 	//source: http://heroescommunity.com/viewthread.php3?TID=27539&PID=1266335#focus
 
@@ -488,7 +481,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	{
 		//merge stacks into one
 		TSlots::const_iterator i;
-		CCreature * cre = VLC->creh->objects[formation.basicType];
+		const CCreature * cre = getCreature().toCreature();
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
 			if(cre->isMyUpgrade(i->second->type))
@@ -513,7 +506,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 				cb->moveStack(StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
 		}
 
-		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
 	}
 }
 

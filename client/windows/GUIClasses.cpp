@@ -988,7 +988,7 @@ void CTransformerWindow::makeDeal()
 	for(auto & elem : items)
 	{
 		if(!elem->left)
-			LOCPLINT->cb->trade(market, EMarketMode::CREATURE_UNDEAD, elem->id, 0, 0, hero);
+			LOCPLINT->cb->trade(market, EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
 	}
 }
 
@@ -1163,13 +1163,13 @@ void CUniversityWindow::close()
 	CStatusbarWindow::close();
 }
 
-void CUniversityWindow::makeDeal(int skill)
+void CUniversityWindow::makeDeal(SecondarySkill skill)
 {
-	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_SKILL, 6, skill, 1, hero);
+	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_SKILL, GameResID(GameResID::GOLD), skill, 1, hero);
 }
 
 
-CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bool available)
+CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkill SKILL, bool available)
 	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("UNIVERS2.PCX")),
 	owner(owner_)
 {
@@ -1204,7 +1204,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
-void CUnivConfirmWindow::makeDeal(int skill)
+void CUnivConfirmWindow::makeDeal(SecondarySkill skill)
 {
 	owner->makeDeal(skill);
 	close();

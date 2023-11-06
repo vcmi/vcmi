@@ -201,7 +201,7 @@ void CGDwelling::initObj(CRandomGenerator & rand)
 	}
 }
 
-void CGDwelling::setPropertyDer(ui8 what, ui32 val)
+void CGDwelling::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
@@ -214,14 +214,14 @@ void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 					std::vector<ConstTransitivePtr<CGDwelling> >* dwellings = &cb->gameState()->players[tempOwner].dwellings;
 					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 				}
-				if (PlayerColor(val) != PlayerColor::NEUTRAL) //can new owner be neutral?
-					cb->gameState()->players[PlayerColor(val)].dwellings.emplace_back(this);
+				if (identifier.as<PlayerColor>().isValidPlayer())
+					cb->gameState()->players[identifier.as<PlayerColor>()].dwellings.emplace_back(this);
 			}
 			break;
 		case ObjProperty::AVAILABLE_CREATURE:
 			creatures.resize(1);
 			creatures[0].second.resize(1);
-			creatures[0].second[0] = CreatureID(val);
+			creatures[0].second[0] = identifier.as<CreatureID>();
 			break;
 	}
 }
@@ -300,7 +300,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(rand));
+		cb->setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(rand));
 	}
 
 	bool change = false;

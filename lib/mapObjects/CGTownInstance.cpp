@@ -53,28 +53,28 @@ int CGTownInstance::getSightRadius() const //returns sight distance
 	return ret;
 }
 
-void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
+void CGTownInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 ///this is freakin' overcomplicated solution
 	switch (what)
 	{
 		case ObjProperty::STRUCTURE_ADD_VISITING_HERO:
-			bonusingBuildings[val]->setProperty(ObjProperty::VISITORS, visitingHero->id.getNum());
+			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::VISITORS, visitingHero->id);
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
-			bonusingBuildings[val]->setProperty(ObjProperty::STRUCTURE_CLEAR_VISITORS, 0);
+			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::STRUCTURE_CLEAR_VISITORS, NumericID(0));
 			break;
 		case ObjProperty::STRUCTURE_ADD_GARRISONED_HERO: //add garrisoned hero to visitors
-			bonusingBuildings[val]->setProperty(ObjProperty::VISITORS, garrisonHero->id.getNum());
+			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::VISITORS, garrisonHero->id);
 			break;
 		case ObjProperty::BONUS_VALUE_FIRST:
-			bonusValue.first = val;
+			bonusValue.first = identifier.getNum();
 			break;
 		case ObjProperty::BONUS_VALUE_SECOND:
-			bonusValue.second = val;
+			bonusValue.second = identifier.getNum();
 			break;
 		case ObjProperty::REWARD_RANDOMIZE:
-			bonusingBuildings[val]->setProperty(ObjProperty::REWARD_RANDOMIZE, 0);
+			bonusingBuildings[identifier.getNum()]->setProperty(ObjProperty::REWARD_RANDOMIZE, NumericID(0));
 			break;
 	}
 }
@@ -534,12 +534,12 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 			resID = (resID==2)?1:resID;
 			int resVal = rand.nextInt(1, 4);//with size 1..4
 			cb->giveResource(tempOwner, static_cast<EGameResID>(resID), resVal);
-			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_FIRST, resID);
-			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_SECOND, resVal);
+			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_FIRST, resID);
+			cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, resVal);
 		}
 		
 		for(const auto * manaVortex : getBonusingBuildings(BuildingSubID::MANA_VORTEX))
-			cb->setObjProperty(id, ObjProperty::STRUCTURE_CLEAR_VISITORS, manaVortex->indexOnTV); //reset visitors for Mana Vortex
+			cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_CLEAR_VISITORS, manaVortex->indexOnTV); //reset visitors for Mana Vortex
 
 		//get Mana Vortex or Stables bonuses
 		//same code is in the CGameHandler::buildStructure method
@@ -1072,9 +1072,9 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID ) const
 {
 	if(visitingHero == h)
-		cb->setObjProperty(id, ObjProperty::STRUCTURE_ADD_VISITING_HERO, structureInstanceID); //add to visitors
+		cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_VISITING_HERO, structureInstanceID); //add to visitors
 	else if(garrisonHero == h)
-		cb->setObjProperty(id, ObjProperty::STRUCTURE_ADD_GARRISONED_HERO, structureInstanceID); //then it must be garrisoned hero
+		cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_GARRISONED_HERO, structureInstanceID); //then it must be garrisoned hero
 	else
 	{
 		//should never ever happen

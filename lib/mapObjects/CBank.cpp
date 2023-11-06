@@ -94,12 +94,12 @@ void CBank::setConfig(const BankConfig & config)
 		setCreature (SlotID(stacksCount()), stack.type->getId(), stack.count);
 }
 
-void CBank::setPropertyDer (ui8 what, ui32 val)
+void CBank::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
 		case ObjProperty::BANK_DAYCOUNTER: //daycounter
-				daycounter+=val;
+				daycounter+= identifier.getNum();
 			break;
 		case ObjProperty::BANK_RESET:
 			// FIXME: Object reset must be done by separate netpack from server
@@ -119,9 +119,9 @@ void CBank::newTurn(CRandomGenerator & rand) const
 		if (resetDuration != 0)
 		{
 			if (daycounter >= resetDuration)
-				cb->setObjProperty (id, ObjProperty::BANK_RESET, 0); //daycounter 0
+				cb->setObjPropertyValue(id, ObjProperty::BANK_RESET); //daycounter 0
 			else
-				cb->setObjProperty (id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
+				cb->setObjPropertyValue(id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
 		}
 	}
 }
@@ -210,7 +210,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		case Obj::CRYPT:
 		{
 			GiveBonus gbonus;
-			gbonus.id = hero->id.getNum();
+			gbonus.id = hero->id;
 			gbonus.bonus.duration = BonusDuration::ONE_BATTLE;
 			gbonus.bonus.source = BonusSource::OBJECT_TYPE;
 			gbonus.bonus.sid = BonusSourceID(ID);
@@ -240,7 +240,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		{
 			GiveBonus gb;
 			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, -2, BonusSourceID(id), VLC->generaltexth->arraytxt[70]);
-			gb.id = hero->id.getNum();
+			gb.id = hero->id;
 			cb->giveHeroBonus(&gb);
 			textID = 107;
 			iw.components.emplace_back(ComponentType::LUCK, -2);
@@ -369,7 +369,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, hero, ourArmy, false);
 		}
-		cb->setObjProperty(id, ObjProperty::BANK_CLEAR, 0); //bc = nullptr
+		cb->setObjPropertyValue(id, ObjProperty::BANK_CLEAR); //bc = nullptr
 	}
 }
 

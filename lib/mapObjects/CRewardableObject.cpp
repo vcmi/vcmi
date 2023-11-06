@@ -169,7 +169,7 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 
 void CRewardableObject::markAsVisited(const CGHeroInstance * hero) const
 {
-	cb->setObjProperty(id, ObjProperty::REWARD_CLEARED, true);
+	cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, true);
 
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
 	cb->sendAndApply(&cov);
@@ -177,7 +177,7 @@ void CRewardableObject::markAsVisited(const CGHeroInstance * hero) const
 
 void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
 {
-	cb->setObjProperty(id, ObjProperty::REWARD_SELECT, rewardID);
+	cb->setObjPropertyValue(id, ObjProperty::REWARD_SELECT, rewardID);
 	grantRewardBeforeLevelup(cb, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainer immediately
@@ -338,7 +338,7 @@ std::vector<Component> CRewardableObject::getPopupComponents(const CGHeroInstanc
 	return getPopupComponentsImpl(hero->getOwner(), hero);
 }
 
-void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
+void CRewardableObject::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
@@ -346,10 +346,10 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 			initObj(cb->gameState()->getRandomGenerator());
 			break;
 		case ObjProperty::REWARD_SELECT:
-			selectedReward = val;
+			selectedReward = identifier.getNum();
 			break;
 		case ObjProperty::REWARD_CLEARED:
-			onceVisitableObjectCleared = val;
+			onceVisitableObjectCleared = identifier.getNum();
 			break;
 	}
 }
@@ -360,11 +360,11 @@ void CRewardableObject::newTurn(CRandomGenerator & rand) const
 	{
 		if (configuration.resetParameters.rewards)
 		{
-			cb->setObjProperty(id, ObjProperty::REWARD_RANDOMIZE, 0);
+			cb->setObjPropertyValue(id, ObjProperty::REWARD_RANDOMIZE, 0);
 		}
 		if (configuration.resetParameters.visitors)
 		{
-			cb->setObjProperty(id, ObjProperty::REWARD_CLEARED, false);
+			cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, false);
 			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
 			cb->sendAndApply(&cov);
 		}

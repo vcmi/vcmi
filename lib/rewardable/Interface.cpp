@@ -150,9 +150,9 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 	for(const Bonus & bonus : info.reward.bonuses)
 	{
 		GiveBonus gb;
-		gb.who = GiveBonus::ETarget::HERO;
+		gb.who = GiveBonus::ETarget::OBJECT;
 		gb.bonus = bonus;
-		gb.id = hero->id.getNum();
+		gb.id = hero->id;
 		cb->giveHeroBonus(&gb);
 	}
 

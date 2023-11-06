@@ -44,10 +44,10 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-void CTeamVisited::setPropertyDer(ui8 what, ui32 val)
+void CTeamVisited::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
-	if(what == CTeamVisited::OBJPROP_VISITED)
-		players.insert(PlayerColor(val));
+	if(what == ObjProperty::VISITED)
+		players.insert(identifier.as<PlayerColor>());
 }
 
 bool CTeamVisited::wasVisited(PlayerColor player) const
@@ -1195,13 +1195,13 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 		cb->sendAndApply(&iw);
 
 		// increment general visited obelisks counter
-		cb->setObjProperty(id, CGObelisk::OBJPROP_INC, team.getNum());
+		cb->setObjPropertyID(id, ObjProperty::OBELISK_VISITED, team);
 		cb->showObjectWindow(this, EOpenWindowMode::PUZZLE_MAP, h, false);
 
 		// mark that particular obelisk as visited for all players in the team
 		for(const auto & color : ts->players)
 		{
-			cb->setObjProperty(id, CGObelisk::OBJPROP_VISITED, color.getNum());
+			cb->setObjPropertyID(id, ObjProperty::VISITED, color);
 		}
 	}
 	else
@@ -1228,14 +1228,14 @@ std::string CGObelisk::getHoverText(PlayerColor player) const
 	return getObjectName() + " " + visitedTxt(wasVisited(player));
 }
 
-void CGObelisk::setPropertyDer( ui8 what, ui32 val )
+void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
 	{
-		case CGObelisk::OBJPROP_INC:
+		case ObjProperty::OBELISK_VISITED:
 			{
-				auto progress = ++visited[TeamID(val)];
-				logGlobal->debug("Player %d: obelisk progress %d / %d", val, static_cast<int>(progress) , static_cast<int>(obeliskCount));
+				auto progress = ++visited[identifier.as<TeamID>()];
+				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(obeliskCount));
 
 				if(progress > obeliskCount)
 				{
@@ -1246,7 +1246,7 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 				break;
 			}
 		default:
-			CTeamVisited::setPropertyDer(what, val);
+			CTeamVisited::setPropertyDer(what, identifier);
 			break;
 	}
 }
@@ -1263,7 +1263,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 		if(oldOwner.isValidPlayer()) //remove bonus from old owner
 		{
 			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
-			rb.whoID = oldOwner.getNum();
+			rb.whoID = oldOwner;
 			rb.source = BonusSource::OBJECT_INSTANCE;
 			rb.id = BonusSourceID(id);
 			cb->sendAndApply(&rb);
@@ -1285,7 +1285,7 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	GiveBonus gb(GiveBonus::ETarget::PLAYER);
 	gb.bonus.type = BonusType::MOVEMENT;
 	gb.bonus.val = 500;
-	gb.id = player.getNum();
+	gb.id = player;
 	gb.bonus.duration = BonusDuration::PERMANENT;
 	gb.bonus.source = BonusSource::OBJECT_INSTANCE;
 	gb.bonus.sid = BonusSourceID(id);

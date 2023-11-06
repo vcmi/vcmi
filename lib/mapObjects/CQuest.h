@@ -144,10 +144,7 @@ public:
 		h & seerName;
 	}
 protected:
-	static constexpr int SEERHUT_VISITED = 10;
-	static constexpr int SEERHUT_COMPLETE = 11;
-
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
@@ -186,7 +183,7 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 	}
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 };
 
 class DLL_LINKAGE CGKeymasterTent : public CGKeys

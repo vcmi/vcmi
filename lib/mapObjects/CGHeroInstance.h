@@ -307,7 +307,7 @@ public:
 	bool isCoastVisitable() const override;
 	BattleField getBattlefield() const override;
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;//synchr
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;//synchr
 	///common part of hero instance and hero definition
 	void serializeCommonOptions(JsonSerializeFormat & handler);
 

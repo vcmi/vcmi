@@ -54,17 +54,6 @@ public:
 	bool containsUpgradedStack() const;
 	int getNumberOfStacks(const CGHeroInstance *hero) const;
 
-	struct DLL_LINKAGE formationInfo // info about merging stacks after battle back into one
-	{
-		si32 basicType;
-		ui8 upgrade; //random seed used to determine number of stacks and is there's upgraded stack
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & basicType;
-			h & upgrade;
-		}
-	} formation;
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
@@ -80,7 +69,7 @@ public:
 		h & formation;
 	}
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:

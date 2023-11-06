@@ -13,6 +13,7 @@
 
 #include "CGameInfoCallback.h" // for CGameInfoCallback
 #include "CRandomGenerator.h"
+#include "networkPacks/ObjProperty.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -73,14 +74,15 @@ public:
 class DLL_LINKAGE IGameEventCallback
 {
 public:
-	virtual void setObjProperty(ObjectInstanceID objid, int prop, si64 val) = 0;
+	virtual void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) = 0;
+	virtual void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) = 0;
 
 	virtual void showInfoDialog(InfoWindow * iw) = 0;
 	virtual void showInfoDialog(const std::string & msg, PlayerColor player) = 0;
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
-	virtual void createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype = 0) = 0;
+	virtual void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;

@@ -101,7 +101,7 @@ bool ArmyWidget::commitChanges()
 		}
 	}
 	
-	army.setFormation(ui->formationTight->isChecked());
+	army.setFormation(ui->formationTight->isChecked() ? EArmyFormation::TIGHT : EArmyFormation::LOOSE );
 	return isArmed;
 }
 

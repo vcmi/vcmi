@@ -122,8 +122,8 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	{
 		for(auto bonus : attackerInfo->battleBonuses)
 		{
-			GiveBonus giveBonus(GiveBonus::ETarget::HERO);
-			giveBonus.id = hero1->id.getNum();
+			GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
+			giveBonus.id = hero1->id;
 			giveBonus.bonus = bonus;
 			gameHandler->sendAndApply(&giveBonus);
 		}

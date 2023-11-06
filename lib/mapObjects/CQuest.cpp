@@ -544,18 +544,18 @@ std::vector<Component> CGSeerHut::getPopupComponents(const CGHeroInstance * hero
 	return result;
 }
 
-void CGSeerHut::setPropertyDer(ui8 what, ui32 val)
+void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch(what)
 	{
-		case CGSeerHut::SEERHUT_VISITED:
+		case ObjProperty::SEERHUT_VISITED:
 		{
-			quest->activeForPlayers.emplace(val);
+			quest->activeForPlayers.emplace(identifier.as<PlayerColor>());
 			break;
 		}
-		case CGSeerHut::SEERHUT_COMPLETE:
+		case ObjProperty::SEERHUT_COMPLETE:
 		{
-			quest->isCompleted = val;
+			quest->isCompleted = identifier.getNum();
 			quest->activeForPlayers.clear();
 			break;
 		}
@@ -567,7 +567,7 @@ void CGSeerHut::newTurn(CRandomGenerator & rand) const
 	CRewardableObject::newTurn(rand);
 	if(quest->lastDay >= 0 && quest->lastDay <= cb->getDate() - 1) //time is up
 	{
-		cb->setObjProperty (id, CGSeerHut::SEERHUT_COMPLETE, true);
+		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
 	}
 }
 
@@ -582,7 +582,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 		if(firstVisit)
 		{
-			cb->setObjProperty(id, CGSeerHut::SEERHUT_VISITED, h->getOwner());
+			cb->setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
 
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
@@ -665,7 +665,7 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 	if(answer)
 	{
 		quest->completeQuest(cb, hero);
-		cb->setObjProperty(id, CGSeerHut::SEERHUT_COMPLETE, !quest->repeatedQuest); //mission complete
+		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !quest->repeatedQuest); //mission complete
 	}
 }
 
@@ -764,7 +764,7 @@ void CGQuestGuard::onHeroVisit(const CGHeroInstance * h) const
 	if(!quest->isCompleted)
 		CGSeerHut::onHeroVisit(h);
 	else
-		cb->setObjProperty(id, CGSeerHut::SEERHUT_COMPLETE, false);
+		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, false);
 }
 
 bool CGQuestGuard::passableFor(PlayerColor color) const
@@ -783,15 +783,14 @@ void CGKeys::reset()
 	playerKeyMap.clear();
 }
 
-void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
+void CGKeys::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
 {
-	if (what >= 101 && what <= (100 + PlayerColor::PLAYER_LIMIT_I))
+	if (what == ObjProperty::KEYMASTER_VISITED)
 	{
-		PlayerColor player(what-101);
-		playerKeyMap[player].insert(static_cast<ui8>(val));
+		playerKeyMap[identifier.as<PlayerColor>()].insert(subID);
 	}
 	else
-		logGlobal->error("Unexpected properties requested to set: what=%d, val=%d", static_cast<int>(what), val);
+		logGlobal->error("Unexpected properties requested to set: what=%d, val=%d", static_cast<int>(what), identifier.getNum());
 }
 
 bool CGKeys::wasMyColorVisited(const PlayerColor & player) const
@@ -819,7 +818,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	int txt_id;
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
-		cb->setObjProperty(id, h->tempOwner.getNum()+101, subID);
+		cb->setObjPropertyID(id, ObjProperty::KEYMASTER_VISITED, h->tempOwner);
 		txt_id=19;
 	}
 	else

@@ -971,18 +971,15 @@ void GiveBonus::applyGs(CGameState *gs)
 	CBonusSystemNode *cbsn = nullptr;
 	switch(who)
 	{
-	case ETarget::HERO:
-		cbsn = gs->getHero(ObjectInstanceID(id));
+	case ETarget::OBJECT:
+		cbsn = dynamic_cast<CBonusSystemNode*>(gs->getObjInstance(id.as<ObjectInstanceID>()));
 		break;
 	case ETarget::PLAYER:
-		cbsn = gs->getPlayerState(PlayerColor(id));
-		break;
-	case ETarget::TOWN:
-		cbsn = gs->getTown(ObjectInstanceID(id));
+		cbsn = gs->getPlayerState(id.as<PlayerColor>());
 		break;
 	case ETarget::BATTLE:
 		assert(Bonus::OneBattle(&bonus));
-		cbsn = dynamic_cast<CBonusSystemNode*>(gs->getBattle(BattleID(id)));
+		cbsn = dynamic_cast<CBonusSystemNode*>(gs->getBattle(id.as<BattleID>()));
 		break;
 	}
 
@@ -1114,11 +1111,20 @@ void PlayerReinitInterface::applyGs(CGameState *gs)
 
 void RemoveBonus::applyGs(CGameState *gs)
 {
-	CBonusSystemNode * node = nullptr;
-	if (who == GiveBonus::ETarget::HERO)
-		node = gs->getHero(ObjectInstanceID(whoID));
-	else
-		node = gs->getPlayerState(PlayerColor(whoID));
+	CBonusSystemNode *node = nullptr;
+	switch(who)
+	{
+	case GiveBonus::ETarget::OBJECT:
+		node = dynamic_cast<CBonusSystemNode*>(gs->getObjInstance(whoID.as<ObjectInstanceID>()));
+		break;
+	case GiveBonus::ETarget::PLAYER:
+		node = gs->getPlayerState(whoID.as<PlayerColor>());
+		break;
+	case GiveBonus::ETarget::BATTLE:
+		assert(Bonus::OneBattle(&bonus));
+		node = dynamic_cast<CBonusSystemNode*>(gs->getBattle(whoID.as<BattleID>()));
+		break;
+	}
 
 	BonusList &bonuses = node->getExportedBonusList();
 
@@ -1483,7 +1489,7 @@ void NewObject::applyGs(CGameState *gs)
 	const TerrainTile & t = gs->map->getTile(targetPos);
 	terrainType = t.terType->getId();
 
-	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
+	auto handler = VLC->objtypeh->getHandlerFor(ID, subID.getNum());
 
 	CGObjectInstance * o = handler->create();
 	handler->configureObject(o, gs->getRandomGenerator());
@@ -1499,13 +1505,13 @@ void NewObject::applyGs(CGameState *gs)
 		cre->character = 2;
 		cre->gainedArtifact = ArtifactID::NONE;
 		cre->identifier = -1;
-		cre->addToSlot(SlotID(0), new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
+		cre->addToSlot(SlotID(0), new CStackInstance(subID.as<CreatureID>(), -1)); //add placeholder stack
 	}
 
 	assert(!handler->getTemplates(terrainType).empty());
 	if (handler->getTemplates().empty())
 	{
-		logGlobal->error("Attempt to create object (%d %d) with no templates!", ID, subID);
+		logGlobal->error("Attempt to create object (%d %d) with no templates!", ID, subID.getNum());
 		return;
 	}
 
@@ -2049,9 +2055,9 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 				if(state->towns.empty())
 					state->daysWithoutCastle = 0;
 			}
-			if(PlayerColor(val).isValidPlayer())
+			if(identifier.as<PlayerColor>().isValidPlayer())
 			{
-				PlayerState * p = gs->getPlayerState(PlayerColor(val));
+				PlayerState * p = gs->getPlayerState(identifier.as<PlayerColor>());
 				p->towns.emplace_back(t);
 
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
@@ -2062,12 +2068,12 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 
 		CBonusSystemNode & nodeToMove = cai->whatShouldBeAttached();
 		nodeToMove.detachFrom(cai->whereShouldBeAttached(gs));
-		obj->setProperty(what,val);
+		obj->setProperty(what, identifier);
 		nodeToMove.attachTo(cai->whereShouldBeAttached(gs));
 	}
 	else //not an armed instance
 	{
-		obj->setProperty(what,val);
+		obj->setProperty(what, identifier);
 	}
 }
 

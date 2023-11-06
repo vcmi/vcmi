@@ -203,12 +203,6 @@ public:
 	}
 };
 
-enum class EArmyFormation : uint8_t
-{
-	LOOSE,
-	TIGHT
-};
-
 namespace NArmyFormation
 {
 	static const std::vector<std::string> names{ "wide", "tight" };
@@ -235,7 +229,7 @@ public:
 	void addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void clearSlots() override;
-	void setFormation(bool tight);
+	void setFormation(EArmyFormation tight);
 	CArmedInstance *castToArmyObj();
 
 	//basic operations

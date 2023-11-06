@@ -403,7 +403,7 @@ class CUniversityWindow : public CStatusbarWindow
 public:
 	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market, const std::function<void()> & onWindowClosed);
 
-	void makeDeal(int skill);
+	void makeDeal(SecondarySkill skill);
 	void close();
 };
 
@@ -422,10 +422,10 @@ class CUnivConfirmWindow : public CStatusbarWindow
 	std::shared_ptr<CAnimImage> costIcon;
 	std::shared_ptr<CLabel> cost;
 
-	void makeDeal(int skill);
+	void makeDeal(SecondarySkill skill);
 
 public:
-	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available);
+	CUnivConfirmWindow(CUniversityWindow * PARENT, SecondarySkill SKILL, bool available);
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison

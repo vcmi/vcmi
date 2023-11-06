@@ -29,15 +29,13 @@ public:
 	bool wasVisited (const CGHeroInstance * h) const override;
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(const TeamID & team) const;
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & players;
 	}
-
-	static constexpr int OBJPROP_VISITED = 10;
 };
 
 class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
@@ -361,7 +359,6 @@ class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 class DLL_LINKAGE CGObelisk : public CTeamVisited
 {
 public:
-	static constexpr int OBJPROP_INC = 20;
 	static ui8 obeliskCount; //how many obelisks are on map
 	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 
@@ -375,7 +372,7 @@ public:
 		h & static_cast<CTeamVisited&>(*this);
 	}
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 };
 
 class DLL_LINKAGE CGLighthouse : public CGObjectInstance

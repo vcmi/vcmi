@@ -162,7 +162,7 @@ public:
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> & spells) override {};
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;};
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype ) override {};
+	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs = false) override {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs = false) override {};
@@ -212,7 +212,8 @@ public:
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override {}
 	void changeFogOfWar(std::unordered_set<int3> & tiles, PlayerColor player, ETileVisibility mode) override {}
 
-	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override {}
+	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override {};
+	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {};
 
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
