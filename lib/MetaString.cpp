@@ -323,7 +323,7 @@ void MetaString::serializeJson(JsonSerializeFormat & handler)
 
 void MetaString::appendName(const SpellID & id)
 {
-	appendTextID(id.toSpell(VLC->spells())->getNameTextID());
+	appendTextID(id.toEntity(VLC)->getNameTextID());
 }
 
 void MetaString::appendName(const PlayerColor & id)
@@ -341,17 +341,17 @@ void MetaString::appendName(const CreatureID & id, TQuantity count)
 
 void MetaString::appendNameSingular(const CreatureID & id)
 {
-	appendTextID(id.toCreature(VLC->creatures())->getNameSingularTextID());
+	appendTextID(id.toEntity(VLC)->getNameSingularTextID());
 }
 
 void MetaString::appendNamePlural(const CreatureID & id)
 {
-	appendTextID(id.toCreature(VLC->creatures())->getNamePluralTextID());
+	appendTextID(id.toEntity(VLC)->getNamePluralTextID());
 }
 
 void MetaString::replaceName(const ArtifactID & id)
 {
-	replaceTextID(id.toArtifact(VLC->artifacts())->getNameTextID());
+	replaceTextID(id.toEntity(VLC)->getNameTextID());
 }
 
 void MetaString::replaceName(const MapObjectID& id)
@@ -371,17 +371,17 @@ void MetaString::replaceName(const SecondarySkill & id)
 
 void MetaString::replaceName(const SpellID & id)
 {
-	replaceTextID(id.toSpell(VLC->spells())->getNameTextID());
+	replaceTextID(id.toEntity(VLC)->getNameTextID());
 }
 
 void MetaString::replaceNameSingular(const CreatureID & id)
 {
-	replaceTextID(id.toCreature(VLC->creatures())->getNameSingularTextID());
+	replaceTextID(id.toEntity(VLC)->getNameSingularTextID());
 }
 
 void MetaString::replaceNamePlural(const CreatureID & id)
 {
-	replaceTextID(id.toCreature(VLC->creatures())->getNamePluralTextID());
+	replaceTextID(id.toEntity(VLC)->getNamePluralTextID());
 }
 
 void MetaString::replaceName(const CreatureID & id, TQuantity count) //adds sing or plural name;
