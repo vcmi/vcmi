@@ -93,7 +93,7 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	image->disable();
 
-	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION);
+	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION, 0, -1, -1);
 	selection->visible = false;
 }
 

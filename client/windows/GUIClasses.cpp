@@ -677,9 +677,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 
-	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 150));
+	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 151));
 	artifs[0]->setHero(heroInst[0]);
-	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 150));
+	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 151));
 	artifs[1]->setHero(heroInst[1]);
 
 	addSetAndCallbacks(artifs[0]);

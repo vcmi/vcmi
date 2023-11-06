@@ -54,13 +54,13 @@ protected:
 
 	const std::vector<Point> slotPos =
 	{
-		Point(509,30),  Point(567,240), Point(509,80),  //0-2
-		Point(383,68),  Point(564,183), Point(509,130), //3-5
-		Point(431,68),  Point(610,183), Point(515,295), //6-8
-		Point(383,143), Point(399,194), Point(415,245), //9-11
-		Point(431,296), Point(564,30),  Point(610,30), //12-14
+		Point(509,30),  Point(568,242), Point(509,80),  //0-2
+		Point(383,69),  Point(562,184), Point(509,131), //3-5
+		Point(431,69),  Point(610,184), Point(515,295), //6-8
+		Point(383,143), Point(399,193), Point(415,244), //9-11
+		Point(431,295), Point(564,30),  Point(610,30), //12-14
 		Point(610,76),  Point(610,122), Point(610,310), //15-17
-		Point(381,296) //18
+		Point(381,295) //18
 	};
 
 	virtual void init(CHeroArtPlace::ClickFunctor lClickCallback, CHeroArtPlace::ClickFunctor showPopupCallback,

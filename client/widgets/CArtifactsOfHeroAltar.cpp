@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroAltar.h"
 
+#include "Buttons.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
@@ -27,6 +28,12 @@ CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 		position,
 		std::bind(&CArtifactsOfHeroAltar::scrollBackpack, this, _1));
 	pickedArtFromSlot = ArtifactPosition::PRE_FIRST;
+
+	// The backpack is in the altar window above and to the right
+	for(auto & slot : backpack)
+		slot->moveBy(Point(2, -1));
+	leftBackpackRoll->moveBy(Point(2, -1));
+	rightBackpackRoll->moveBy(Point(2, -1));
 };
 
 CArtifactsOfHeroAltar::~CArtifactsOfHeroAltar()
