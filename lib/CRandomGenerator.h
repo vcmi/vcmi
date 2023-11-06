@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-using TGenerator = std::mt19937;
+using TGenerator = std::minstd_rand;
 using TIntDist = std::uniform_int_distribution<int>;
 using TInt64Dist = std::uniform_int_distribution<int64_t>;
 using TRealDist = std::uniform_real_distribution<double>;
