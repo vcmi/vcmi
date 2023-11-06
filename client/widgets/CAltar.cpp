@@ -73,29 +73,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	for(auto & altarSlotPos : posSlotsAltar)
 	{
 		auto altarSlot = std::make_shared<CTradeableItem>(altarSlotPos, EType::ARTIFACT_PLACEHOLDER, -1, false, slotNum++);
-		altarSlot->clickPressedCallback = [this](std::shared_ptr<CTradeableItem> altarSlot) -> void
-			{
-				const auto pickedArtInst = arts->getPickedArtifact();
-				if(pickedArtInst)
-				{
-					arts->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
-					moveArtToAltar(altarSlot, pickedArtInst);
-				}
-				else if(const CArtifactInstance * art = altarSlot->getArtInstance())
-				{
-					const auto hero = arts->getHero();
-					const auto slot = hero->getSlotByInstance(art);
-					assert(slot != ArtifactPosition::PRE_FIRST);
-					LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, slot),
-						ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS));
-					arts->pickedArtFromSlot = slot;
-					arts->artifactsOnAltar.erase(art);
-					altarSlot->setID(-1);
-					altarSlot->subtitle.clear();
-					deal->block(!arts->artifactsOnAltar.size());
-				}
-				calcExpAltarForHero();
-			};
+		altarSlot->clickPressedCallback = std::bind(&CAltarArtifacts::onSlotClickPressed, this, _1);
 		altarSlot->subtitle = "";
 		items.front().emplace_back(altarSlot);
 	}
@@ -227,6 +205,30 @@ bool CAltarArtifacts::putArtOnAltar(std::shared_ptr<CTradeableItem> altarSlot, c
 	return true;
 };
 
+void CAltarArtifacts::onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot)
+{
+	const auto pickedArtInst = arts->getPickedArtifact();
+	if(pickedArtInst)
+	{
+		arts->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
+		moveArtToAltar(altarSlot, pickedArtInst);
+	}
+	else if(const CArtifactInstance * art = altarSlot->getArtInstance())
+	{
+		const auto hero = arts->getHero();
+		const auto slot = hero->getSlotByInstance(art);
+		assert(slot != ArtifactPosition::PRE_FIRST);
+		LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, slot),
+			ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS));
+		arts->pickedArtFromSlot = slot;
+		arts->artifactsOnAltar.erase(art);
+		altarSlot->setID(-1);
+		altarSlot->subtitle.clear();
+		deal->block(!arts->artifactsOnAltar.size());
+	}
+	calcExpAltarForHero();
+}
+
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
 	: CAltar(market, hero)
 {
@@ -239,16 +241,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	lSubtitle = std::make_shared<CLabel>(180, 503, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	rSubtitle = std::make_shared<CLabel>(426, 503, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	unitsSlider = std::make_shared<CSlider>(Point(231, 481), 137, [this](int newVal) -> void
-		{
-			if(hLeft)
-				unitsOnAltar[hLeft->serial] = newVal;
-			if(hRight)
-				updateAltarSlot(hRight);
-			deal->block(calcExpAltarForHero() == 0);
-			updateControls();
-			updateSubtitlesForSelected();
-		}, 0, 0, 0, Orientation::HORIZONTAL);
+	unitsSlider = std::make_shared<CSlider>(Point(231, 481), 137, std::bind(&CAltarCreatures::onUnitsSliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
 	maxUnits = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, unitsSlider));
 
 	unitsOnAltar.resize(GameConstants::ARMY_SIZE, 0);
@@ -256,27 +249,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	sacrificeAllButton = std::make_shared<CButton>(
 		Point(393, 520), AnimationPath::builtin("ALTARMY.DEF"), CGI->generaltexth->zelp[579], std::bind(&CAltar::sacrificeAll, this));
 
-	auto clickPressed = [this](std::shared_ptr<CTradeableItem> altarSlot, std::vector<std::shared_ptr<CTradeableItem>> & oppositeSlots,
-		std::shared_ptr<CTradeableItem> & hCurSide, std::shared_ptr<CTradeableItem> & hOppSide) -> void
-		{
-			std::shared_ptr<CTradeableItem> oppositeSlot;
-			for(const auto & slot : oppositeSlots)
-				if(slot->serial == altarSlot->serial)
-				{
-					oppositeSlot = slot;
-					break;
-				}
-
-			if(hCurSide != altarSlot && oppositeSlot)
-			{
-				hCurSide = altarSlot;
-				hOppSide = oppositeSlot;
-				updateControls();
-				updateSubtitlesForSelected();
-				redraw();
-			}
-		};
-
+	// Creating slots for hero creatures
 	for(int slotIdx = 0; slotIdx < GameConstants::ARMY_SIZE; slotIdx++)
 	{
 		CreatureID creatureId = CreatureID::NONE;
@@ -286,21 +259,23 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 			continue;
 
 		auto heroSlot = std::make_shared<CTradeableItem>(posSlotsHero[slotIdx], EType::CREATURE, creatureId.num, true, slotIdx);
-		heroSlot->clickPressedCallback = [this, clickPressed](std::shared_ptr<CTradeableItem> altarSlot) -> void
+		heroSlot->clickPressedCallback = [this](std::shared_ptr<CTradeableItem> altarSlot) -> void
 			{
-				clickPressed(altarSlot, items[0], hLeft, hRight);
+				onSlotClickPressed(altarSlot, items[0], hLeft, hRight);
 			};
 		heroSlot->subtitle = std::to_string(hero->getStackCount(SlotID(slotIdx)));
 		items[1].emplace_back(heroSlot);
 	}
+
+	// Creating slots for creatures on altar
 	assert(items[1].size() <= posSlotsAltar.size());
 	for(const auto & heroSlot : items[1])
 	{
 		auto altarSlot = std::make_shared<CTradeableItem>(posSlotsAltar[heroSlot->serial], EType::CREATURE_PLACEHOLDER, heroSlot->id, false, heroSlot->serial);
 		altarSlot->pos.w = heroSlot->pos.w; altarSlot->pos.h = heroSlot->pos.h;
-		altarSlot->clickPressedCallback = [this, clickPressed](std::shared_ptr<CTradeableItem> altarSlot) -> void
+		altarSlot->clickPressedCallback = [this](std::shared_ptr<CTradeableItem> altarSlot) -> void
 			{
-				clickPressed(altarSlot, items[1], hRight, hLeft);
+				onSlotClickPressed(altarSlot, items[1], hRight, hLeft);
 			};
 		items[0].emplace_back(altarSlot);
 	}
@@ -454,4 +429,37 @@ void CAltarCreatures::updateAltarSlot(std::shared_ptr<CTradeableItem> slot)
 	slot->setType(units > 0 ? CREATURE : CREATURE_PLACEHOLDER);
 	slot->subtitle = units > 0 ?
 		boost::str(boost::format(CGI->generaltexth->allTexts[122]) % std::to_string(hero->calculateXp(units * expPerUnit[slot->serial]))) : "";
+}
+
+void CAltarCreatures::onUnitsSliderMoved(int newVal)
+{
+	if(hLeft)
+		unitsOnAltar[hLeft->serial] = newVal;
+	if(hRight)
+		updateAltarSlot(hRight);
+	deal->block(calcExpAltarForHero() == 0);
+	updateControls();
+	updateSubtitlesForSelected();
+}
+
+void CAltarCreatures::onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot,
+	std::vector<std::shared_ptr<CTradeableItem>> & oppositeSlots,
+	std::shared_ptr<CTradeableItem> & hCurSide, std::shared_ptr<CTradeableItem> & hOppSide)
+{
+	std::shared_ptr<CTradeableItem> oppositeSlot;
+	for(const auto & slot : oppositeSlots)
+		if(slot->serial == altarSlot->serial)
+		{
+			oppositeSlot = slot;
+			break;
+		}
+
+	if(hCurSide != altarSlot && oppositeSlot)
+	{
+		hCurSide = altarSlot;
+		hOppSide = oppositeSlot;
+		updateControls();
+		updateSubtitlesForSelected();
+		redraw();
+	}
 }

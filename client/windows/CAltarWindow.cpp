@@ -30,12 +30,12 @@ CAltarWindow::CAltarWindow(const IMarket * market, const CGHeroInstance * hero, 
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
+	assert(mode == EMarketMode::ARTIFACT_EXP || mode == EMarketMode::CREATURE_EXP);
 	if(mode == EMarketMode::ARTIFACT_EXP)
 		createAltarArtifacts(market, hero);
-	else if (mode == EMarketMode::CREATURE_EXP)
+	else if(mode == EMarketMode::CREATURE_EXP)
 		createAltarCreatures(market, hero);
-	else
-		close();
+
 	updateExpToLevel();
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }

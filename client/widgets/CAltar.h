@@ -59,6 +59,7 @@ private:
 	};
 
 	bool putArtOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance * art);
+	void onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot);
 };
 
 class CAltarCreatures : public CAltar
@@ -95,4 +96,8 @@ private:
 	void readExpValues();
 	void updateControls();
 	void updateSubtitlesForSelected();
+	void onUnitsSliderMoved(int newVal);
+	void onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot,
+		std::vector<std::shared_ptr<CTradeableItem>> & oppositeSlots,
+		std::shared_ptr<CTradeableItem> & hCurSide, std::shared_ptr<CTradeableItem> & hOppSide);
 };

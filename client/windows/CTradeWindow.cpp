@@ -163,9 +163,46 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 	//  X  X  X
 	//  X  X  X
 	//     X
-	int h, w, x, y, dx, dy;
-	int leftToRightOffset;
-	getBaseForPositions(type, dx, dy, x, y, h, w, !Left, leftToRightOffset);
+	int h = 0, w = 0, x = 0, y = 0, dx = 0, dy = 0;
+
+	switch(type)
+	{
+	case RESOURCE:
+		dx = 82;
+		dy = 79;
+		x = 39;
+		y = 180;
+		h = 68;
+		w = 70;
+		break;
+	case PLAYER:
+		dx = 83;
+		dy = 118;
+		h = 64;
+		w = 58;
+		x = 44;
+		y = 83;
+		assert(!Left);
+		break;
+	case CREATURE://45,123
+		x = 45;
+		y = 123;
+		w = 58;
+		h = 64;
+		dx = 83;
+		dy = 98;
+		assert(Left);
+		break;
+	case ARTIFACT_TYPE://45,123
+		x = 340 - 289;
+		y = 180;
+		w = 44;
+		h = 44;
+		dx = 83;
+		dy = 79;
+		break;
+	}
+	int leftToRightOffset = 289;
 
 	const std::vector<Rect> tmp =
 	{
@@ -670,49 +707,6 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 void CMarketplaceWindow::resourceChanged()
 {
 	initSubs(true);
-}
-
-void CMarketplaceWindow::getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const
-{
-	switch(type)
-	{
-	case RESOURCE:
-		dx = 82;
-		dy = 79;
-		x = 39;
-		y = 180;
-		h = 68;
-		w = 70;
-		break;
-	case PLAYER:
-		dx = 83;
-		dy = 118;
-		h = 64;
-		w = 58;
-		x = 44;
-		y = 83;
-		assert(Right);
-		break;
-	case CREATURE://45,123
-		x = 45;
-		y = 123;
-		w = 58;
-		h = 64;
-		dx = 83;
-		dy = 98;
-		assert(!Right);
-		break;
-	case ARTIFACT_TYPE://45,123
-		x = 340-289;
-		y = 180;
-		w = 44;
-		h = 44;
-		dx = 83;
-		dy = 79;
-		break;
-	}
-
-	leftToRightOffset = 289;
 }
 
 void CMarketplaceWindow::updateTraderText()
