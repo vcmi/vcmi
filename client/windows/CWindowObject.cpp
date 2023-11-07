@@ -39,7 +39,8 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point ce
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	if(!(options & NEEDS_ANIMATED_BACKGROUND)) //currently workaround for highscores (currently uses window as normal control, because otherwise videos are not played in background yet)
+		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -60,7 +61,8 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	if(!(options & NEEDS_ANIMATED_BACKGROUND)) //currently workaround for highscores (currently uses window as normal control, because otherwise videos are not played in background yet)
+		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 

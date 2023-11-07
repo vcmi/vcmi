@@ -442,7 +442,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 			{
 				auto player = PlayerColor(*owner - 1);
 				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
-				si32 faction = FactionID::RANDOM;
+				FactionID faction = FactionID::RANDOM;
 				if (vstd::contains(playerSettings, player))
 				{
 					faction = playerSettings[player].getStartingTown();

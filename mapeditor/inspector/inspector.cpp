@@ -87,14 +87,6 @@ void Initializer::initialize(CGDwelling * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
-	
-	switch(o->ID)
-	{
-		case Obj::RANDOM_DWELLING:
-		case Obj::RANDOM_DWELLING_LVL:
-		case Obj::RANDOM_DWELLING_FACTION:
-			o->initRandomObjectInfo();
-	}
 }
 
 void Initializer::initialize(CGGarrison * o)
@@ -243,7 +235,7 @@ void Inspector::updateProperties(CGDwelling * o)
 	
 	addProperty("Owner", o->tempOwner, false);
 	
-	if(dynamic_cast<CCreGenAsCastleInfo*>(o->info))
+	if (o->ID == Obj::RANDOM_DWELLING || o->ID == Obj::RANDOM_DWELLING_LVL)
 	{
 		auto * delegate = new PickObjectDelegate(controller, PickObjectDelegate::typedFilter<CGTownInstance>);
 		addProperty("Same as town", PropertyEditorPlaceholder(), delegate, false);
@@ -641,12 +633,12 @@ void Inspector::setProperty(CGDwelling * o, const QString & key, const QVariant 
 	
 	if(key == "Same as town")
 	{
-		if(auto * info = dynamic_cast<CCreGenAsCastleInfo*>(o->info))
-		{
-			info->instanceId = "";
-			if(CGTownInstance * town = data_cast<CGTownInstance>(value.toLongLong()))
-				info->instanceId = town->instanceName;
-		}
+		if (!o->randomizationInfo.has_value())
+			o->randomizationInfo = CGDwellingRandomizationInfo();
+
+		o->randomizationInfo->instanceId = "";
+		if(CGTownInstance * town = data_cast<CGTownInstance>(value.toLongLong()))
+			o->randomizationInfo->instanceId = town->instanceName;
 	}
 }
 

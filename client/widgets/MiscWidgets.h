@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../../lib/networkPacks/Component.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -202,13 +203,12 @@ private:
 class LRClickableAreaWTextComp: public LRClickableAreaWText
 {
 public:
-	int type;
-	int baseType;
-	int bonusValue;
+	Component component;
+
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 
-	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
+	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), ComponentType baseType = ComponentType::NONE);
 	std::shared_ptr<CComponent> createComponent() const;
 };
 

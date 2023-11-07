@@ -166,7 +166,7 @@ protected:
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {
 public:
-	static std::map <PlayerColor, std::set <ui8> > playerKeyMap; //[players][keysowned]
+	static std::map <PlayerColor, std::set <MapObjectSubID> > playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
 
 	static void reset();

@@ -285,10 +285,9 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
 }
 
-void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, si32 subID)
+void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
-	assert(ID < objects.size());
 	assert(objects[ID]);
 
 	if ( subID >= objects[ID]->objects.size())
@@ -298,9 +297,8 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 	loadSubObject(config.meta, identifier, config, objects[ID], subID);
 }
 
-void CObjectClassesHandler::removeSubObject(si32 ID, si32 subID)
+void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
 {
-	assert(ID < objects.size());
 	assert(objects[ID]);
 	assert(subID < objects[ID]->objects.size());
 	objects[ID]->objects[subID] = nullptr;
@@ -311,7 +309,7 @@ std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
 	return std::vector<bool>(); //TODO?
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObjectSubID subtype) const
 {
 	try
 	{
@@ -352,9 +350,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID comp
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
 }
 
-std::set<si32> CObjectClassesHandler::knownObjects() const
+std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
 {
-	std::set<si32> ret;
+	std::set<MapObjectID> ret;
 
 	for(auto * entry : objects)
 		if (entry)
@@ -363,9 +361,9 @@ std::set<si32> CObjectClassesHandler::knownObjects() const
 	return ret;
 }
 
-std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
+std::set<MapObjectSubID> CObjectClassesHandler::knownSubObjects(MapObjectID primaryID) const
 {
-	std::set<si32> ret;
+	std::set<MapObjectSubID> ret;
 
 	if (!objects.at(primaryID))
 	{
@@ -461,7 +459,7 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG()
 	}
 }
 
-std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
+std::string CObjectClassesHandler::getObjectName(MapObjectID type, MapObjectSubID subtype) const
 {
 	const auto handler = getHandlerFor(type, subtype);
 	if (handler && handler->hasNameTextID())
@@ -470,7 +468,7 @@ std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 		return objects[type]->getNameTranslated();
 }
 
-SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) const
+SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObjectSubID subtype) const
 {
 	// TODO: these objects may have subID's that does not have associated handler:
 	// Prison: uses hero type as subID
@@ -479,19 +477,18 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) co
 	if(type == Obj::PRISON || type == Obj::HERO || type == Obj::SPELL_SCROLL)
 		subtype = 0;
 
-	assert(type < objects.size());
 	assert(objects[type]);
 	assert(subtype < objects[type]->objects.size());
 
 	return getHandlerFor(type, subtype)->getSounds();
 }
 
-std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
+std::string CObjectClassesHandler::getObjectHandlerName(MapObjectID type) const
 {
 	return objects.at(type)->handlerName;
 }
 
-std::string CObjectClassesHandler::getJsonKey(si32 type) const
+std::string CObjectClassesHandler::getJsonKey(MapObjectID type) const
 {
 	return objects.at(type)->getJsonKey();
 }

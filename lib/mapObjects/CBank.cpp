@@ -46,7 +46,7 @@ void CBank::initObj(CRandomGenerator & rand)
 {
 	daycounter = 0;
 	resetDuration = 0;
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, rand);
 }
 
 bool CBank::isCoastVisitable() const
@@ -79,11 +79,7 @@ std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
 
 	for (auto const & guard : guardsAmounts)
 	{
-		Component comp;
-		comp.id = Component::EComponentType::CREATURE;
-		comp.subtype = guard.first.getNum();
-		comp.val = guard.second;
-
+		Component comp(ComponentType::CREATURE, guard.first, guard.second);
 		result.push_back(comp);
 	}
 	return result;
@@ -141,7 +137,7 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	cb->sendAndApply(&cov);
 
 	int banktext = 0;
-	switch (ID)
+	switch (ID.toEnum())
 	{
 	case Obj::DERELICT_SHIP:
 		banktext = 41;
@@ -184,7 +180,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 	if (bc)
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::DERELICT_SHIP:
 			textID = 43;
@@ -207,7 +203,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	}
 	else
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::SHIPWRECK:
 		case Obj::DERELICT_SHIP:
@@ -220,7 +216,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			gbonus.bonus.sid = BonusSourceID(ID);
 			gbonus.bonus.type = BonusType::MORALE;
 			gbonus.bonus.val = -1;
-			switch (ID)
+			switch (ID.toEnum())
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
@@ -236,7 +232,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
-			iw.components.emplace_back(Component::EComponentType::MORALE, 0, -1, 0);
+			iw.components.emplace_back(ComponentType::MORALE, -1);
 			iw.soundID = soundBase::GRAVEYARD;
 			break;
 		}
@@ -247,7 +243,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			gb.id = hero->id.getNum();
 			cb->giveHeroBonus(&gb);
 			textID = 107;
-			iw.components.emplace_back(Component::EComponentType::LUCK, 0, -2, 0);
+			iw.components.emplace_back(ComponentType::LUCK, -2);
 			break;
 		}
 		case Obj::CREATURE_BANK:
@@ -267,24 +263,24 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	//grant resources
 	if (bc)
 	{
-		for (int it = 0; it < bc->resources.size(); it++)
+		for (GameResID it : GameResID::ALL_RESOURCES())
 		{
 			if (bc->resources[it] != 0)
 			{
-				iw.components.emplace_back(Component::EComponentType::RESOURCE, it, bc->resources[it], 0);
+				iw.components.emplace_back(ComponentType::RESOURCE, it, bc->resources[it]);
 				loot.appendRawString("%d %s");
-				loot.replaceNumber(iw.components.back().val);
-				loot.replaceLocalString(EMetaText::RES_NAMES, iw.components.back().subtype);
-				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
+				loot.replaceNumber(bc->resources[it]);
+				loot.replaceLocalString(EMetaText::RES_NAMES, it);
+				cb->giveResource(hero->getOwner(), it, bc->resources[it]);
 			}
 		}
 		//grant artifacts
 		for (auto & elem : bc->artifacts)
 		{
-			iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
+			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
 			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
-			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -318,14 +314,14 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				const auto * spell = spellId.toSpell(VLC->spells());
+				const auto * spell = spellId.toEntity(VLC);
 				iw.text.appendLocalString(EMetaText::SPELL_NAME, spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{
 					if(hero->canLearnSpell(spell))
 					{
 						spells.insert(spellId);
-						iw.components.emplace_back(Component::EComponentType::SPELL, spellId, 0, 0);
+						iw.components.emplace_back(ComponentType::SPELL, spellId);
 					}
 				}
 				else
@@ -356,7 +352,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 		for(const auto & elem : ourArmy.Slots())
 		{
-			iw.components.emplace_back(*elem.second);
+			iw.components.emplace_back(ComponentType::CREATURE, elem.second->getId(), elem.second->getCount());
 			loot.appendRawString("%s");
 			loot.replaceCreatureName(*elem.second);
 		}

@@ -293,7 +293,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			std::string msg = CGI->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
-			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
+			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
 			showInfoDialog(msg, cmp);
 		}
 		else
@@ -326,7 +326,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 		auto playerColor = *cb->getPlayerID();
 
 		std::vector<Component> components;
-		components.emplace_back(Component::EComponentType::FLAG, playerColor.getNum(), 0, 0);
+		components.emplace_back(ComponentType::FLAG, playerColor);
 		MetaString text;
 
 		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;
@@ -1228,7 +1228,7 @@ void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, con
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getNameTranslated());
 
 		// Picture of assembled artifact at bottom.
-		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact->getIndex(), 0);
+		auto sc = std::make_shared<CComponent>(ComponentType::ARTIFACT, assembledArtifact->getId());
 		scs.push_back(sc);
 	}
 	else
@@ -1441,7 +1441,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 			std::string msg = CGI->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<std::shared_ptr<CComponent>> cmp;
-			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
+			cmp.push_back(std::make_shared<CComponent>(ComponentType::FLAG, playerID));
 			makingTurn = true; //workaround for stiff showInfoDialog implementation
 			showInfoDialog(msg, cmp);
 			makingTurn = false;
@@ -1753,8 +1753,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 {
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	if(hero)
+	if(auto hero = cb->getHero(al.artHolder))
 	{
 		auto art = hero->getArt(al.slot);
 		if(art == nullptr)
@@ -1770,15 +1769,13 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
 	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactRemoved(al);
@@ -1789,8 +1786,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), dst.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(dst.artHolder));
 
 	bool redraw = true;
 	// If a bulk transfer has arrived, then redrawing only the last art movement.
@@ -1815,8 +1811,7 @@ void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
 	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactAssembled(al);
@@ -1825,8 +1820,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
-	adventureInt->onHeroChanged(hero);
+	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
 
 	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactDisassembled(al);

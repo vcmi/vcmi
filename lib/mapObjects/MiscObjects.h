@@ -89,9 +89,12 @@ public:
 
 	void pick( const CGHeroInstance * h ) const;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 
 	void afterAddToMap(CMap * map) override;
 	BattleField getBattlefield() const override;
+
+	ArtifactID getArtifact() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -113,11 +116,13 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	std::string getHoverText(PlayerColor player) const override;
 
 	void collectRes(const PlayerColor & player) const;
+	GameResID resourceID() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -137,6 +142,7 @@ public:
 	std::set<GameResID> abandonedMineResources;
 	
 	bool isAbandoned() const;
+	ResourceSet dailyIncome() const;
 
 private:
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -219,7 +225,7 @@ public:
 
 class DLL_LINKAGE CGMonolith : public CGTeleport
 {
-	TeleportChannelID findMeChannel(const std::vector<Obj> & IDs, int SubID) const;
+	TeleportChannelID findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const;
 
 protected:
 	void onHeroVisit(const CGHeroInstance * h) const override;

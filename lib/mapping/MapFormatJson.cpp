@@ -171,10 +171,10 @@ namespace TriggeredEventsDetail
 		case EMetaclass::OBJECT:
 			{
 				//TODO
-				std::set<si32> subtypes = VLC->objtypeh->knownSubObjects(type);
+				auto subtypes = VLC->objtypeh->knownSubObjects(type);
 				if(!subtypes.empty())
 				{
-					si32 subtype = *subtypes.begin();
+					auto subtype = *subtypes.begin();
 					auto handler = VLC->objtypeh->getHandlerFor(type, subtype);
 					identifier = handler->getTypeName();
 				}
@@ -831,7 +831,7 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	serializePredefinedHeroes(handler);
 
-	handler.serializeLIC("allowedAbilities", &CSkillHandler::decodeSkill, &CSkillHandler::encodeSkill, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
+	handler.serializeLIC("allowedAbilities", &SecondarySkill::decode, &SecondarySkill::encode, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
 
 	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
 
@@ -1229,7 +1229,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		else if(art->ID  == Obj::ARTIFACT)
 		{
 			//specific artifact
-			artID = ArtifactID(art->subID);
+			artID = art->getArtifact();
 		}
 
 		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID.getNum());
@@ -1263,7 +1263,7 @@ void CMapLoaderJson::readObjects()
 
 	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
 	{
-		return a->subID < b->subID;
+		return a->getObjTypeIndex() < b->getObjTypeIndex();
 	});
 }
 

@@ -25,7 +25,7 @@ std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() c
 {
 	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
 	for(const auto & slot : currentTavern)
-		pool.erase(HeroTypeID(slot.hero->subID));
+		pool.erase(slot.hero->getHeroType());
 
 	return pool;
 }
@@ -34,7 +34,7 @@ TavernSlotRole TavernHeroesPool::getSlotRole(HeroTypeID hero) const
 {
 	for (auto const & slot : currentTavern)
 	{
-		if (HeroTypeID(slot.hero->subID) == hero)
+		if (slot.hero->getHeroType() == hero)
 			return slot.role;
 	}
 	return TavernSlotRole::NONE;
@@ -132,7 +132,7 @@ void TavernHeroesPool::onNewDay()
 
 void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
 {
-	heroesPool[HeroTypeID(hero->subID)] = hero;
+	heroesPool[hero->getHeroType()] = hero;
 }
 
 void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> mask)

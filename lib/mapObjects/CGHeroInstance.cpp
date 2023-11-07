@@ -218,7 +218,10 @@ bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 	if (getSecSkillLevel(which) > 0)
 		return false;
 
-	if (type->heroClass->secSkillProbability[which] == 0)
+	if (type->heroClass->secSkillProbability.count(which) == 0)
+		return false;
+
+	if (type->heroClass->secSkillProbability.at(which) == 0)
 		return false;
 
 	return true;
@@ -285,27 +288,28 @@ PlayerColor CGHeroInstance::getOwner() const
 	return tempOwner;
 }
 
+HeroTypeID CGHeroInstance::getHeroType() const
+{
+	return HeroTypeID(getObjTypeIndex().getNum());
+}
+
+void CGHeroInstance::setHeroType(HeroTypeID heroType)
+{
+	assert(type == nullptr);
+	subID = heroType;
+}
+
 void CGHeroInstance::initHero(CRandomGenerator & rand, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
 	initHero(rand);
 }
 
-void CGHeroInstance::setType(si32 ID, si32 subID)
-{
-	assert(ID == Obj::HERO); // just in case
-	type = VLC->heroh->objects[subID];
-
-	CGObjectInstance::setType(ID, type->heroClass->getIndex()); // to find object handler we must use heroClass->id
-	this->subID = subID; // after setType subID used to store unique hero identify id. Check issue 2277 for details
-	randomizeArmy(type->heroClass->faction);
-}
-
 void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
 	if(!type)
-		type = VLC->heroh->objects[subID];
+		type = VLC->heroh->objects[getHeroType().getNum()];
 
 	if (ID == Obj::HERO)
 		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -566,18 +570,35 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 	wisdomCounter = 1;
 }
 
+void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == Obj::HERO || ID == Obj::PRISON || ID == Obj::RANDOM_HERO);
+
+	if (ID == Obj::RANDOM_HERO)
+	{
+		ID = Obj::HERO;
+		subID = cb->gameState()->pickNextHeroType(getOwner());
+		type = VLC->heroh->objects[subID];
+		randomizeArmy(type->heroClass->faction);
+	}
+	else
+		type = VLC->heroh->objects[subID];
+
+	auto oldSubID = subID;
+
+	// to find object handler we must use heroClass->id
+	// after setType subID used to store unique hero identify id. Check issue 2277 for details
+	if (ID != Obj::PRISON)
+		setType(ID, type->heroClass->getIndex());
+	else
+		setType(ID, 0);
+
+	this->subID = oldSubID;
+}
+
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
-	if(!type)
-		initHero(rand); //TODO: set up everything for prison before specialties are configured
 
-	if (ID != Obj::PRISON)
-	{
-		auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
-		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
-		if (customApp)
-			appearance = customApp;
-	}
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
@@ -926,7 +947,7 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
 	iw.player = tempOwner;
-	iw.components.emplace_back(raisedStack);
+	iw.components.emplace_back(ComponentType::CREATURE, raisedStack.getId(), raisedStack.count);
 
 	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
 	{
@@ -1050,7 +1071,7 @@ HeroTypeID CGHeroInstance::getPortraitSource() const
 	if (customPortraitSource.isValid())
 		return customPortraitSource;
 	else
-		return HeroTypeID(subID);
+		return getHeroType();
 }
 
 int32_t CGHeroInstance::getIconIndex() const
@@ -1092,7 +1113,7 @@ std::string CGHeroInstance::getBiographyTextID() const
 
 CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
-	assert(art->artType->canBePutAt(this, pos));
+	assert(art->canBePutAt(this, pos));
 
 	if(ArtifactUtils::isSlotEquipment(pos))
 		attachTo(*art);
@@ -1135,7 +1156,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		ArtifactLocation(this, ArtifactPosition(ArtifactPosition::SPELLBOOK)).removeArtifact();
+		getArt(ArtifactPosition::SPELLBOOK)->removeFrom(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 
@@ -1502,7 +1523,7 @@ std::string CGHeroInstance::getHeroTypeName() const
 		}
 		else
 		{
-			return VLC->heroh->objects[subID]->getJsonKey();
+			return VLC->heroh->objects[getHeroType()]->getJsonKey();
 		}
 	}
 	return "";
@@ -1512,7 +1533,7 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 {
 	auto existingHero = std::find_if(map->objects.begin(), map->objects.end(), [&](const CGObjectInstance * o) ->bool
 		{
-			return (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
+			return o && (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
 		});
 
 	if(existingHero != map->objects.end())
@@ -1529,14 +1550,14 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 		}
 	}
 
-	if(ID == Obj::HERO)
+	if(ID != Obj::PRISON)
 	{		
 		map->heroesOnMap.emplace_back(this);
 	}
 }
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
-	if (ID == Obj::HERO)
+	if (ID == Obj::PRISON)
 		vstd::erase_if_present(map->heroesOnMap, this);
 }
 
@@ -1661,7 +1682,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		{
 			auto addSkill = [this](const std::string & skillId, const std::string & levelId)
 			{
-				const int rawId = CSkillHandler::decodeSkill(skillId);
+				const int rawId = SecondarySkill::decode(skillId);
 				if(rawId < 0)
 				{
 					logGlobal->error("Invalid secondary skill %s", skillId);
@@ -1736,7 +1757,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(!appearance)
 			{
 				// crossoverDeserialize
-				type = VLC->heroh->objects[subID];
+				type = VLC->heroh->objects[getHeroType()];
 				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			}
 

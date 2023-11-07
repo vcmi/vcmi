@@ -201,7 +201,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 		CreatureID from(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.first).value());
 		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.second.String()).value());
 
-		reward.extraComponents.emplace_back(Component::EComponentType::CREATURE, dest.getNum(), 0, 0);
+		reward.extraComponents.emplace_back(ComponentType::CREATURE, dest);
 
 		reward.creaturesChange[from] = dest;
 	}
@@ -234,7 +234,7 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 				value = JsonRandom::loadSpell(input, rng, object.variables.values).getNum();
 
 			if (category.first == "primarySkill")
-				value = static_cast<int>(JsonRandom::loadPrimary(input, rng, object.variables.values));
+				value = JsonRandom::loadPrimary(input, rng, object.variables.values).getNum();
 
 			if (category.first == "secondarySkill")
 				value = JsonRandom::loadSecondary(input, rng, object.variables.values).getNum();

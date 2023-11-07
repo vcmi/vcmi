@@ -295,14 +295,16 @@ public:
 	}
 
 	///si32-convertible identifier <-> Json string
-	template <typename T, typename U, typename E = T>
-	void serializeId(const std::string & fieldName, T & value, const U & defaultValue)
+	template <typename IdentifierType, typename IdentifierTypeBase = IdentifierType>
+	void serializeId(const std::string & fieldName, IdentifierType & value, const IdentifierTypeBase & defaultValue = IdentifierType::NONE)
 	{
+		static_assert(std::is_base_of_v<IdentifierBase, IdentifierType>, "This method can only serialize Identifier classes!");
+
 		if (saving)
 		{
 			if (value != defaultValue)
 			{
-				std::string fieldValue = E::encode(value);
+				std::string fieldValue = IdentifierType::encode(value.getNum());
 				serializeString(fieldName, fieldValue);
 			}
 		}
@@ -313,13 +315,13 @@ public:
 
 			if (!fieldValue.empty())
 			{
-				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue, [&value](int32_t index){
-					value = T(index);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+					value = IdentifierType(index);
 				});
 			}
 			else
 			{
-				value = T(defaultValue);
+				value = IdentifierType(defaultValue);
 			}
 		}
 	}
@@ -333,7 +335,7 @@ public:
 			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-				fieldValue.push_back(E::encode(vitem));
+				fieldValue.push_back(E::encode(vitem.getNum()));
 
 			serializeInternal(fieldName, fieldValue);
 		}
@@ -362,7 +364,7 @@ public:
 			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-				fieldValue.push_back(U::encode(vitem));
+				fieldValue.push_back(U::encode(vitem.getNum()));
 
 			serializeInternal(fieldName, fieldValue);
 		}
@@ -387,7 +389,24 @@ public:
 		const TDecoder decoder = std::bind(&IInstanceResolver::decode, instanceResolver, _1);
 		const TEncoder encoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
 
-		serializeId<T>(fieldName, value, defaultValue, decoder, encoder);
+		if (saving)
+		{
+			if (value != defaultValue)
+			{
+				std::string fieldValue = encoder(value.getNum());
+				serializeString(fieldName, fieldValue);
+			}
+		}
+		else
+		{
+			std::string fieldValue;
+			serializeString(fieldName, fieldValue);
+
+			if (!fieldValue.empty())
+				value = T(decoder(fieldValue));
+			else
+				value = T(defaultValue);
+		}
 	}
 
 	///any serializable object <-> Json struct

@@ -20,6 +20,7 @@
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../StartInfo.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -324,7 +325,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.text.appendRawString(h->commander->getName());
-			iw.components.emplace_back(*h->commander);
+			iw.components.emplace_back(ComponentType::CREATURE, h->commander->getId(), h->commander->getCount());
 			cb->showInfoDialog(&iw);
 		}
 	}
@@ -371,7 +372,7 @@ bool CGTownInstance::isBonusingBuildingAdded(BuildingID bid) const
 {
 	auto present = std::find_if(bonusingBuildings.begin(), bonusingBuildings.end(), [&](CGTownBuilding* building)
 		{
-			return building->getBuildingType().num == bid;
+			return building->getBuildingType() == bid;
 		});
 
 	return present != bonusingBuildings.end();
@@ -457,6 +458,40 @@ void CGTownInstance::deleteTownBonus(BuildingID bid)
 	bonusingBuildings.erase(bonusingBuildings.begin() + i);
 
 	delete freeIt;
+}
+
+FactionID CGTownInstance::randomizeFaction(CRandomGenerator & rand)
+{
+	if(getOwner().isValidPlayer())
+		return cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner()).castle;
+
+	if(alignmentToPlayer.isValidPlayer())
+		return cb->gameState()->scenarioOps->getIthPlayersSettings(alignmentToPlayer).castle;
+
+	std::vector<FactionID> potentialPicks;
+
+	for (FactionID faction(0); faction < FactionID(VLC->townh->size()); ++faction)
+		if (VLC->factions()->getById(faction)->hasTown())
+			potentialPicks.push_back(faction);
+
+	assert(!potentialPicks.empty());
+	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
+}
+
+void CGTownInstance::pickRandomObject(CRandomGenerator & rand)
+{
+	assert(ID == MapObjectID::TOWN || ID == MapObjectID::RANDOM_TOWN);
+	if (ID == MapObjectID::RANDOM_TOWN)
+	{
+		ID = MapObjectID::TOWN;
+		subID = randomizeFaction(rand);
+	}
+
+	assert(ID == Obj::TOWN); // just in case
+	setType(ID, subID);
+	town = (*VLC->townh)[subID]->town;
+	randomizeArmy(subID);
+	updateAppearance();
 }
 
 void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structures
@@ -549,7 +584,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 					
 					TQuantity count = creatureGrowth(i);
 					if (!count) // no dwelling
-						count = VLC->creatures()->getByIndex(c)->getGrowth();
+						count = VLC->creatures()->getById(c)->getGrowth();
 					
 					{//no lower tiers or above current month
 						
@@ -750,20 +785,11 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 		return IMarket::availableItemsIds(mode);
 }
 
-void CGTownInstance::setType(si32 ID, si32 subID)
-{
-	assert(ID == Obj::TOWN); // just in case
-	CGObjectInstance::setType(ID, subID);
-	town = (*VLC->townh)[subID]->town;
-	randomizeArmy(subID);
-	updateAppearance();
-}
-
 void CGTownInstance::updateAppearance()
 {
 	auto terrain = cb->gameState()->getTile(visitablePos())->terType->getId();
 	//FIXME: not the best way to do this
-	auto app = VLC->objtypeh->getHandlerFor(ID, subID)->getOverride(terrain, this);
+	auto app = getObjectHandler()->getOverride(terrain, this);
 	if (app)
 		appearance = app;
 }
@@ -891,7 +917,7 @@ const CTown * CGTownInstance::getTown() const
 	{
 		if(nullptr == town)
 		{
-			return (*VLC->townh)[subID]->town;
+			return (*VLC->townh)[getFaction()]->town;
 		}
 		else
 			return town;
@@ -970,9 +996,9 @@ bool CGTownInstance::hasBuilt(const BuildingID & buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
-bool CGTownInstance::hasBuilt(const BuildingID & buildingID, int townID) const
+bool CGTownInstance::hasBuilt(const BuildingID & buildingID, FactionID townID) const
 {
-	if (townID == town->faction->getIndex() || townID == ETownType::ANY)
+	if (townID == town->faction->getId() || townID == FactionID::ANY)
 		return hasBuilt(buildingID);
 	return false;
 }
@@ -1074,14 +1100,12 @@ void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
 
 void CGTownInstance::afterAddToMap(CMap * map)
 {
-	if(ID == Obj::TOWN)
-		map->towns.emplace_back(this);
+	map->towns.emplace_back(this);
 }
 
 void CGTownInstance::afterRemoveFromMap(CMap * map)
 {
-	if (ID == Obj::TOWN)
-		vstd::erase_if_present(map->towns, this);
+	vstd::erase_if_present(map->towns, this);
 }
 
 void CGTownInstance::reset()

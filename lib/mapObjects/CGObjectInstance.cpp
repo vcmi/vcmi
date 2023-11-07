@@ -40,12 +40,12 @@ CGObjectInstance::CGObjectInstance():
 //must be instantiated in .cpp file for access to complete types of all member fields
 CGObjectInstance::~CGObjectInstance() = default;
 
-int32_t CGObjectInstance::getObjGroupIndex() const
+MapObjectID CGObjectInstance::getObjGroupIndex() const
 {
-	return ID.num;
+	return ID;
 }
 
-int32_t CGObjectInstance::getObjTypeIndex() const
+MapObjectSubID CGObjectInstance::getObjTypeIndex() const
 {
 	return subID;
 }
@@ -122,7 +122,7 @@ std::set<int3> CGObjectInstance::getBlockedOffsets() const
 	return appearance->getBlockedOffsets();
 }
 
-void CGObjectInstance::setType(si32 newID, si32 newSubID)
+void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 {
 	auto position = visitablePos();
 	auto oldOffset = getVisitableOffset();
@@ -166,9 +166,14 @@ void CGObjectInstance::setType(si32 newID, si32 newSubID)
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 
+void CGObjectInstance::pickRandomObject(CRandomGenerator & rand)
+{
+	// no-op
+}
+
 void CGObjectInstance::initObj(CRandomGenerator & rand)
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::TAVERN:
 		blockVisit = true;
@@ -195,6 +200,11 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 		subID = val;
 		break;
 	}
+}
+
+TObjectTypeHandler CGObjectInstance::getObjectHandler() const
+{
+	return VLC->objtypeh->getHandlerFor(ID, subID);
 }
 
 void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
@@ -292,7 +302,7 @@ std::vector<Component> CGObjectInstance::getPopupComponents(const CGHeroInstance
 
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
-	switch(ID)
+	switch(ID.toEnum())
 	{
 	case Obj::SANCTUARY:
 		{

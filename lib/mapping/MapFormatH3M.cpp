@@ -883,7 +883,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		}
 		map->predefinedHeroes.emplace_back(hero);
 
-		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, VLC->heroh->getByIndex(hero->subID)->getJsonKey());
+		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, VLC->heroh->getById(hero->getHeroType())->getJsonKey());
 	}
 }
 
@@ -926,7 +926,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	if(artifactID == ArtifactID::NONE)
 		return false;
 
-	const Artifact * art = artifactID.toArtifact(VLC->artifacts());
+	const Artifact * art = artifactID.toEntity(VLC);
 
 	if(!art)
 	{
@@ -944,10 +944,9 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	// He has Shackles of War (normally - MISC slot artifact) in LEFT_HAND slot set in editor
 	// Artifact seems to be missing in game, so skip artifacts that don't fit target slot
 	auto * artifact = ArtifactUtils::createArtifact(map, artifactID);
-	auto dstLoc = ArtifactLocation(hero, ArtifactPosition(slot));
-	if(artifact->canBePutAt(dstLoc))
+	if(artifact->canBePutAt(hero, ArtifactPosition(slot)))
 	{
-		artifact->putAt(dstLoc);
+		artifact->putAt(*hero, ArtifactPosition(slot));
 	}
 	else
 	{
@@ -1288,7 +1287,7 @@ CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::sh
 	readMessageAndGuards(object->message, object, mapPosition);
 
 	object->amount = reader->readUInt32();
-	if(objectTemplate->subid == GameResID(EGameResID::GOLD))
+	if(GameResID(objectTemplate->subid) == GameResID(EGameResID::GOLD))
 	{
 		// Gold is multiplied by 100.
 		object->amount *= 100;
@@ -1323,60 +1322,34 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 {
 	auto * object = new CGDwelling();
 
-	CSpecObjInfo * spec = nullptr;
-	switch(objectTemplate->id)
-	{
-		case Obj::RANDOM_DWELLING:
-			spec = new CCreGenLeveledCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_LVL:
-			spec = new CCreGenAsCastleInfo();
-			break;
-		case Obj::RANDOM_DWELLING_FACTION:
-			spec = new CCreGenLeveledInfo();
-			break;
-		default:
-			throw std::runtime_error("Invalid random dwelling format");
-	}
-	spec->owner = object;
-
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 
-	//216 and 217
-	if(auto * castleSpec = dynamic_cast<CCreGenAsCastleInfo *>(spec))
+	object->randomizationInfo = CGDwellingRandomizationInfo();
+
+	bool hasFactionInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_LVL;
+	bool hasLevelInfo = objectTemplate->id == Obj::RANDOM_DWELLING || objectTemplate->id == Obj::RANDOM_DWELLING_FACTION;
+
+	if (hasFactionInfo)
 	{
-		castleSpec->instanceId = "";
-		castleSpec->identifier = reader->readUInt32();
-		if(!castleSpec->identifier)
-		{
-			castleSpec->asCastle = false;
-			const int MASK_SIZE = 8;
-			ui8 mask[2];
-			mask[0] = reader->readUInt8();
-			mask[1] = reader->readUInt8();
+		object->randomizationInfo->identifier = reader->readUInt32();
 
-			castleSpec->allowedFactions.clear();
-			castleSpec->allowedFactions.resize(VLC->townh->size(), false);
+		if(object->randomizationInfo->identifier == 0)
+			reader->readBitmaskFactions(object->randomizationInfo->allowedFactions, false);
+	}
+	else
+		object->randomizationInfo->allowedFactions.insert(FactionID(objectTemplate->subid));
 
-			for(int i = 0; i < MASK_SIZE; i++)
-				castleSpec->allowedFactions[i] = ((mask[0] & (1 << i)) > 0);
-
-			for(int i = 0; i < (GameConstants::F_NUMBER - MASK_SIZE); i++)
-				castleSpec->allowedFactions[i + MASK_SIZE] = ((mask[1] & (1 << i)) > 0);
-		}
-		else
-		{
-			castleSpec->asCastle = true;
-		}
+	if(hasLevelInfo)
+	{
+		object->randomizationInfo->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(0)) + 1;
+		object->randomizationInfo->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(6)) + 1;
+	}
+	else
+	{
+		object->randomizationInfo->minLevel = objectTemplate->subid;
+		object->randomizationInfo->maxLevel = objectTemplate->subid;
 	}
 
-	//216 and 218
-	if(auto * lvlSpec = dynamic_cast<CCreGenLeveledInfo *>(spec))
-	{
-		lvlSpec->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(0)) + 1;
-		lvlSpec->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(6)) + 1;
-	}
-	object->info = spec;
 	return object;
 }
 
@@ -1515,7 +1488,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared
 
 CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
-	switch(objectTemplate->id)
+	switch(objectTemplate->id.toEnum())
 	{
 		case Obj::EVENT:
 			return readEvent(mapPosition, objectInstanceID);
@@ -1767,7 +1740,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	for(auto & elem : map->disposedHeroes)
 	{
-		if(elem.heroId.getNum() == object->subID)
+		if(elem.heroId == object->getHeroType())
 		{
 			object->nameCustomTextId = elem.name;
 			object->customPortraitSource = elem.portrait;
@@ -1777,7 +1750,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasName = reader->readBool();
 	if(hasName)
-		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "name"));
+		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->getHeroType().getNum(), "name"));
 
 	if(features.levelSOD)
 	{
@@ -1888,8 +1861,8 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		}
 	}
 
-	if (object->subID != -1)
-		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getByIndex(object->subID)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
+	if (object->subID != MapObjectSubID())
+		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getById(object->getHeroType())->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	else
 		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 

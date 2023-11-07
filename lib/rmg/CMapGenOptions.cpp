@@ -217,6 +217,19 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
 
 void CMapGenOptions::initPlayersMap()
 {
+
+	std::map<PlayerColor, FactionID> rememberTownTypes;
+	std::map<PlayerColor, TeamID> rememberTeam;
+
+	for(const auto & p : players)
+	{
+		auto town = p.second.getStartingTown();
+		if (town != FactionID::RANDOM)
+			rememberTownTypes[p.first] = FactionID(town);
+		rememberTeam[p.first] = p.second.getTeam();
+	}
+
+
 	players.clear();
 	int realPlayersCnt = getHumanOrCpuPlayerCount();
 
@@ -368,7 +381,7 @@ const std::map<PlayerColor, CMapGenOptions::CPlayerSettings> & CMapGenOptions::g
 	return players;
 }
 
-void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, si32 town)
+void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, FactionID town)
 {
 	auto it = players.find(color);
 	assert(it != players.end());
@@ -755,17 +768,17 @@ void CMapGenOptions::CPlayerSettings::setColor(const PlayerColor & value)
 	color = value;
 }
 
-si32 CMapGenOptions::CPlayerSettings::getStartingTown() const
+FactionID CMapGenOptions::CPlayerSettings::getStartingTown() const
 {
 	return startingTown;
 }
 
-void CMapGenOptions::CPlayerSettings::setStartingTown(si32 value)
+void CMapGenOptions::CPlayerSettings::setStartingTown(FactionID value)
 {
-	assert(value >= -1);
-	if(value >= 0)
+	assert(value >= FactionID::RANDOM);
+	if(value != FactionID::RANDOM)
 	{
-		assert(value < static_cast<int>(VLC->townh->size()));
+		assert(value < FactionID(VLC->townh->size()));
 		assert((*VLC->townh)[value]->town != nullptr);
 	}
 	startingTown = value;

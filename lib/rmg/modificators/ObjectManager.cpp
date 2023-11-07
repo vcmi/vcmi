@@ -447,7 +447,6 @@ bool ObjectManager::createRequiredObjects()
 					instance->object().getObjectName(), instance->getPosition(true).toString());
 				mapProxy->removeObject(&instance->object());
 			}
-			rmgNearObject.clear();
 		}
 	}
 	
@@ -556,7 +555,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			}
 		}
 
-		switch (instance->object().ID)
+		switch (instance->object().ID.toEnum())
 		{
 			case Obj::RANDOM_TREASURE_ART:
 			case Obj::RANDOM_MINOR_ART: //In OH3 quest artifacts have higher value than normal arts
@@ -586,7 +585,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 	*/
 
-	switch (object.instances().front()->object().ID)
+	switch(object.instances().front()->object().ID.toEnum())
 	{
 		case Obj::WATER_WHEEL:
 			if (auto* m = zone.getModificator<RiverPlacer>())

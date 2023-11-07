@@ -231,7 +231,8 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	void setType(si32 ID, si32 subID) override;
+	HeroTypeID getHeroType() const;
+	void setHeroType(HeroTypeID type);
 
 	void initHero(CRandomGenerator & rand);
 	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);
@@ -294,6 +295,7 @@ public:
 	void deserializationFix();
 
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
 

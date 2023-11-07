@@ -34,7 +34,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
+std::map <PlayerColor, std::set <MapObjectSubID> > CGKeys::playerKeyMap;
 
 //TODO: Remove constructor
 CQuest::CQuest():
@@ -144,7 +144,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	{
 		if(h->hasArt(elem))
 		{
-			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
+			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
 		}
 		else
 		{
@@ -153,7 +153,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			auto parts = assembly->getPartsInfo();
 
 			// Remove the assembly
-			cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));
 
 			// Disassemble this backpack artifact
 			for(const auto & ci : parts)
@@ -204,13 +204,13 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	
 	if(killTarget != ObjectInstanceID::NONE && !heroName.empty())
 	{
-		components.emplace_back(Component::EComponentType::HERO_PORTRAIT, heroPortrait, 0, 0);
+		components.emplace_back(ComponentType::HERO_PORTRAIT, heroPortrait);
 		addKillTargetReplacements(text);
 	}
 	
 	if(killTarget != ObjectInstanceID::NONE && stackToKill.type)
 	{
-		components.emplace_back(stackToKill);
+		components.emplace_back(ComponentType::CREATURE, stackToKill.getId(), stackToKill.getCount());
 		addKillTargetReplacements(text);
 	}
 	
@@ -392,15 +392,15 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		
 		if(missionType == "Hero")
 		{
-			ui32 temp;
-			handler.serializeId<ui32, ui32, HeroTypeID>("hero", temp, 0);
+			HeroTypeID temp;
+			handler.serializeId("hero", temp, HeroTypeID::NONE);
 			mission.heroes.emplace_back(temp);
 		}
 		
 		if(missionType == "Player")
 		{
-			ui32 temp;
-			handler.serializeId<ui32, ui32, PlayerColor>("player", temp, PlayerColor::NEUTRAL);
+			PlayerColor temp;
+			handler.serializeId("player", temp, PlayerColor::NEUTRAL);
 			mission.players.emplace_back(temp);
 		}
 	}
@@ -724,7 +724,7 @@ void CGQuestGuard::init(CRandomGenerator & rand)
 	
 	configuration.info.push_back({});
 	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-	configuration.info.back().reward.removeObject = subID == 0 ? true : false;
+	configuration.info.back().reward.removeObject = subID.getNum() == 0 ? true : false;
 	configuration.canRefuse = true;
 }
 
@@ -775,7 +775,7 @@ std::string CGKeys::getHoverText(PlayerColor player) const
 
 std::string CGKeys::getObjectName() const
 {
-	return VLC->generaltexth->tentColors[subID] + " " + CGObjectInstance::getObjectName();
+	return VLC->generaltexth->tentColors[subID.getNum()] + " " + CGObjectInstance::getObjectName();
 }
 
 bool CGKeymasterTent::wasVisited (PlayerColor player) const
@@ -810,7 +810,7 @@ void CGBorderGuard::getRolloverText(MetaString &text, bool onHover) const
 {
 	if (!onHover)
 	{
-		text.appendRawString(VLC->generaltexth->tentColors[subID]);
+		text.appendRawString(VLC->generaltexth->tentColors[subID.getNum()]);
 		text.appendRawString(" ");
 		text.appendRawString(VLC->objtypeh->getObjectName(Obj::KEYMASTER, subID));
 	}

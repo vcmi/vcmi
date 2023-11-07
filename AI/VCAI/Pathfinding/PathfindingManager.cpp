@@ -190,7 +190,7 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 	if(isBlockedBorderGate(firstTileToGet))
 	{
 		//FIXME: this way we'll not visit gate and activate quest :?
-		return sptr(Goals::FindObj(Obj::KEYMASTER, cb->getTile(firstTileToGet)->visitableObjects.back()->subID));
+		return sptr(Goals::FindObj(Obj::KEYMASTER, cb->getTile(firstTileToGet)->visitableObjects.back()->getObjTypeIndex()));
 	}
 
 	auto topObj = cb->getTopObj(firstTileToGet);

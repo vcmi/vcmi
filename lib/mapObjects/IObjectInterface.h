@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../networkPacks/EInfoWindowMode.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -33,8 +34,8 @@ public:
 
 	virtual ~IObjectInterface() = default;
 
-	virtual int32_t getObjGroupIndex() const = 0;
-	virtual int32_t getObjTypeIndex() const = 0;
+	virtual MapObjectID getObjGroupIndex() const = 0;
+	virtual MapObjectSubID getObjTypeIndex() const = 0;
 
 	virtual PlayerColor getOwner() const = 0;
 	virtual int3 visitablePos() const = 0;
@@ -44,6 +45,7 @@ public:
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
 	virtual void newTurn(CRandomGenerator & rand) const;
 	virtual void initObj(CRandomGenerator & rand); //synchr
+	virtual void pickRandomObject(CRandomGenerator & rand);
 	virtual void setProperty(ui8 what, ui32 val);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved

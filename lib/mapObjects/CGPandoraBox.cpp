@@ -257,7 +257,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				const std::string skillName = p.first;
 				const std::string levelId = p.second.String();
 				
-				const int rawId = CSkillHandler::decodeSkill(skillName);
+				const int rawId = SecondarySkill::decode(skillName);
 				if(rawId < 0)
 				{
 					logGlobal->error("Invalid secondary skill %s", skillName);

@@ -39,11 +39,11 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 		auto slot = ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->getTypeId());
 		if(slot == ArtifactPosition::PRE_FIRST)
 		{
-			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 		}
 		else
 		{
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero, slot));
+			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
 		}
 	}
 	if(putBackPickedArtCallback)
@@ -178,7 +178,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
 {
 	for(auto artPlace : artWorn)
-		artPlace.second->selectSlot(art->artType->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
+		artPlace.second->selectSlot(art->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
 }
 
 void CArtifactsOfHeroBase::unmarkSlots()

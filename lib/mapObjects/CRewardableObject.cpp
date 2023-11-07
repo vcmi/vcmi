@@ -373,7 +373,7 @@ void CRewardableObject::newTurn(CRandomGenerator & rand) const
 
 void CRewardableObject::initObj(CRandomGenerator & rand)
 {
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, rand);
 }
 
 CRewardableObject::CRewardableObject()

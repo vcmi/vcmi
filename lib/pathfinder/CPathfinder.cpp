@@ -260,15 +260,18 @@ std::vector<int3> CPathfinderHelper::getTeleportExits(const PathNodeInfo & sourc
 			teleportationExits.push_back(exit);
 		}
 	}
-	else if(options.useCastleGate
-		&& (source.nodeObject->ID == Obj::TOWN && source.nodeObject->subID == ETownType::INFERNO
-		&& source.objectRelations != PlayerRelations::ENEMIES))
+	else if(options.useCastleGate && source.nodeObject->ID == Obj::TOWN && source.objectRelations != PlayerRelations::ENEMIES)
 	{
-		/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
-		/// This may be handy if we allow to use teleportation to friendly towns
-		for(const auto & exit : getCastleGates(source))
+		auto * town = dynamic_cast<const CGTownInstance *>(source.nodeObject);
+		assert(town);
+		if (town && town->getFaction() == FactionID::INFERNO)
 		{
-			teleportationExits.push_back(exit);
+			/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
+			/// This may be handy if we allow to use teleportation to friendly towns
+			for(const auto & exit : getCastleGates(source))
+			{
+				teleportationExits.push_back(exit);
+			}
 		}
 	}
 
@@ -299,7 +302,7 @@ bool CPathfinder::isLayerTransitionPossible() const
 	if(source.node->action == EPathNodeAction::BATTLE)
 		return false;
 
-	switch(source.node->layer)
+	switch(source.node->layer.toEnum())
 	{
 	case ELayer::LAND:
 		if(destLayer == ELayer::AIR)
@@ -502,7 +505,7 @@ void CPathfinderHelper::updateTurnInfo(const int Turn)
 
 bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer & layer) const
 {
-	switch(layer)
+	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
 		if(!options.useFlying)

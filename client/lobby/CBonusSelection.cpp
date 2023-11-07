@@ -161,7 +161,7 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		case CampaignBonusType::BUILDING:
 		{
-			int faction = -1;
+			FactionID faction;
 			for(auto & elem : CSH->si->playerInfos)
 			{
 				if(elem.second.isControlledByHuman())

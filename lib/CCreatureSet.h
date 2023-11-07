@@ -39,6 +39,7 @@ public:
 	virtual ~CStackBasicDescriptor() = default;
 
 	const Creature * getType() const;
+	CreatureID getId() const;
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
@@ -253,7 +254,7 @@ public:
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 
 	const CStackInstance & getStack(const SlotID & slot) const; //stack must exist
-	const CStackInstance * getStackPtr(const SlotID & slot) const; //if stack doesn't exist, returns nullptr
+	CStackInstance * getStackPtr(const SlotID & slot) const; //if stack doesn't exist, returns nullptr
 	const CCreature * getCreature(const SlotID & slot) const; //workaround of map issue;
 	int getStackCount(const SlotID & slot) const;
 	TExpType getStackExperience(const SlotID & slot) const;

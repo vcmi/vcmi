@@ -80,8 +80,8 @@ void CArtifactsOfHeroBackpack::swapArtifacts(const ArtifactLocation & srcLoc, co
 
 void CArtifactsOfHeroBackpack::pickUpArtifact(CHeroArtPlace & artPlace)
 {
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, artPlace.slot),
-		ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
+		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 }
 
 void CArtifactsOfHeroBackpack::scrollBackpack(int offset)

@@ -90,7 +90,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 					.And(Selector::subtype()(BonusSubtypeID(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
-				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
+				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g.getNum()];
 			}
 		}
 	}
@@ -134,9 +134,9 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 
 				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
 
-				ArtifactLocation al(hero, artifactPosition);
-				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
-					al.removeArtifact();
+				ArtifactLocation al(hero->id, artifactPosition);
+				if(!takeable && !hero->getSlot(al.slot)->locked)  //don't try removing locked artifacts -> it crashes #1719
+					hero->getArt(al.slot)->removeFrom(*hero, al.slot);
 			};
 
 			// process on copy - removal of artifact will invalidate container
@@ -213,7 +213,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 	std::set<HeroTypeID> heroesToRemove = campaignState->getReservedHeroes();
 
 	for(auto & campaignHeroReplacement : campaignHeroReplacements)
-		heroesToRemove.insert(HeroTypeID(campaignHeroReplacement.hero->subID));
+		heroesToRemove.insert(campaignHeroReplacement.hero->getHeroType());
 
 	for(auto & heroID : heroesToRemove)
 	{
@@ -256,7 +256,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 			assert(0); // should not happen
 		}
 
-		hero->subID = heroTypeId;
+		hero->setHeroType(heroTypeId);
 		gameState->map->getEditManager()->insertObject(hero);
 	}
 }
@@ -300,7 +300,7 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 			CArtifactInstance * scroll = ArtifactUtils::createScroll(SpellID(curBonus->info2));
 			const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 			if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
-				scroll->putAt(ArtifactLocation(hero, slot));
+				scroll->putAt(*hero, slot);
 			else
 				logGlobal->error("Cannot give starting scroll - no free slots!");
 			break;
@@ -339,7 +339,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders(const std::vector<CampaignHer
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->pos = heroPlaceholder->pos;
-		heroToPlace->type = VLC->heroh->objects[heroToPlace->subID];
+		heroToPlace->type = VLC->heroh->objects[heroToPlace->getHeroType().getNum()];
 		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
@@ -375,7 +375,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 		auto * heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
 
 		// only 1 field must be set
-		assert(heroPlaceholder->powerRank != heroPlaceholder->heroType);
+		assert(heroPlaceholder->powerRank.has_value() != heroPlaceholder->heroType.has_value());
 
 		if(heroPlaceholder->powerRank)
 			placeholdersByPower.push_back(heroPlaceholder);
@@ -396,7 +396,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 
 		CGHeroInstance * hero = CampaignState::crossoverDeserialize(node, gameState->map);
 
-		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->subID, hero->getNameTranslated());
+		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
 		campaignHeroReplacements.emplace_back(hero, placeholder->id);
 	}
@@ -422,7 +422,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 			CGHeroInstance * hero = CampaignState::crossoverDeserialize(*nodeListIter, gameState->map);
 			nodeListIter++;
 
-			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->subID, hero->getNameTranslated());
+			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
 			campaignHeroReplacements.emplace_back(hero, placeholder->id);
 		}
@@ -468,7 +468,7 @@ void CGameStateCampaign::initHeroes()
 		{
 			for (auto & heroe : heroes)
 			{
-				if (heroe->subID == chosenBonus->info1)
+				if (heroe->getHeroType().getNum() == chosenBonus->info1)
 				{
 					giveCampaignBonusToHero(heroe);
 					break;
@@ -498,7 +498,7 @@ void CGameStateCampaign::initStartingResources()
 		std::vector<const PlayerSettings *> people = getHumanPlayerInfo(); //players we will give resource bonus
 		for(const PlayerSettings *ps : people)
 		{
-			std::vector<int> res; //resources we will give
+			std::vector<GameResID> res; //resources we will give
 			switch (chosenBonus->info1)
 			{
 				case 0: case 1: case 2: case 3: case 4: case 5: case 6:
@@ -557,7 +557,7 @@ void CGameStateCampaign::initTowns()
 		if(gameState->scenarioOps->campState->formatVCMI())
 			newBuilding = BuildingID(chosenBonus->info1);
 		else
-			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->subID, town->builtBuildings);
+			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFaction(), town->builtBuildings);
 
 		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
 		while(true)

@@ -240,7 +240,7 @@ TEST_F(CGameStateTest, issue2765)
 		gameCallback->sendAndApply(&na);
 
 		PutArtifact pack;
-		pack.al = ArtifactLocation(defender, ArtifactPosition::MACH1);
+		pack.al = ArtifactLocation(defender->id, ArtifactPosition::MACH1);
 		pack.art = a;
 		gameCallback->sendAndApply(&pack);
 	}
@@ -334,7 +334,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		gameCallback->sendAndApply(&na);
 
 		PutArtifact pack;
-		pack.al = ArtifactLocation(attacker, ArtifactPosition::SPELLBOOK);
+		pack.al = ArtifactLocation(attacker->id, ArtifactPosition::SPELLBOOK);
 		pack.art = a;
 		gameCallback->sendAndApply(&pack);
 	}

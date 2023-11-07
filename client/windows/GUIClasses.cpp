@@ -401,7 +401,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 		std::vector<std::shared_ptr<CSelectableComponent>> comps;
 		for(auto & skill : skills)
 		{
-			auto comp = std::make_shared<CSelectableComponent>(CComponent::secskill, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
+			auto comp = std::make_shared<CSelectableComponent>(ComponentType::SEC_SKILL, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
 			comp->onChoose = std::bind(&CLevelWindow::close, this);
 			comps.push_back(comp);
 		}
@@ -693,9 +693,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		else
 			primSkillAreas[g]->pos = Rect(Point(pos.x + 329, pos.y + 19 + 36 * g), Point(140, 32));
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
-		primSkillAreas[g]->type = g;
-		primSkillAreas[g]->bonusValue = 0;
-		primSkillAreas[g]->baseType = 0;
+		primSkillAreas[g]->component = Component( ComponentType::PRIM_SKILL, PrimarySkill(g));
 		primSkillAreas[g]->hoverText = CGI->generaltexth->heroscrn[1];
 		boost::replace_first(primSkillAreas[g]->hoverText, "%s", CGI->generaltexth->primarySkillNames[g]);
 	}
@@ -708,14 +706,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		//secondary skill's clickable areas
 		for(int g=0; g<hero->secSkills.size(); ++g)
 		{
-			int skill = hero->secSkills[g].first,
-				level = hero->secSkills[g].second; // <1, 3>
+			SecondarySkill skill = hero->secSkills[g].first;
+			int level = hero->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
 			secSkillAreas[b][g]->pos = Rect(Point(pos.x + 32 + g * 36 + b * 454 , pos.y + (qeLayout ? 83 : 88)), Point(32, 32) );
-			secSkillAreas[b][g]->baseType = 1;
-
-			secSkillAreas[b][g]->type = skill;
-			secSkillAreas[b][g]->bonusValue = level;
+			secSkillAreas[b][g]->component = Component(ComponentType::SEC_SKILL, skill, level);
 			secSkillAreas[b][g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
 
 			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
@@ -1082,7 +1077,7 @@ void CUniversityWindow::CItem::clickPressed(const Point & cursorPosition)
 
 void CUniversityWindow::CItem::showPopupWindow(const Point & cursorPosition)
 {
-	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
+	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(ComponentType::SEC_SKILL, ID, 1));
 }
 
 void CUniversityWindow::CItem::hover(bool on)

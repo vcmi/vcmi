@@ -141,7 +141,6 @@ public:
 	bool allowsTrade(EMarketMode mode) const override;
 	std::vector<int> availableItemsIds(EMarketMode mode) const override;
 
-	void setType(si32 ID, si32 subID) override;
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -161,7 +160,7 @@ public:
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
-	bool hasBuilt(const BuildingID & buildingID, int townID) const;
+	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
 
 	TResources getBuildingCost(const BuildingID & buildingID) const;
 	TResources dailyIncome() const; //calculates daily income of this town
@@ -197,6 +196,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void onHeroLeave(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
+	void pickRandomObject(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
@@ -216,6 +216,7 @@ protected:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 private:
+	FactionID randomizeFaction(CRandomGenerator & rand);
 	void setOwner(const PlayerColor & owner) const;
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;

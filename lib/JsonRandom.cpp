@@ -113,7 +113,7 @@ namespace JsonRandom
 		if (value.empty() || value[0] != '@')
 			return PrimarySkill(*VLC->identifiers()->getIdentifier(modScope, "primarySkill", value));
 		else
-			return PrimarySkill(loadVariable("primarySkill", value, variables, static_cast<int>(PrimarySkill::NONE)));
+			return PrimarySkill(loadVariable("primarySkill", value, variables, PrimarySkill::NONE.getNum()));
 	}
 
 	/// Method that allows type-specific object filtering
@@ -322,7 +322,7 @@ namespace JsonRandom
 			for(const auto & pair : value.Struct())
 			{
 				PrimarySkill id = decodeKey<PrimarySkill>(pair.second.meta, pair.first, variables);
-				ret[static_cast<int>(id)] += loadValue(pair.second, rng, variables);
+				ret[id.getNum()] += loadValue(pair.second, rng, variables);
 			}
 		}
 		if(value.isVector())
@@ -333,7 +333,7 @@ namespace JsonRandom
 				PrimarySkill skillID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 
 				defaultSkills.erase(skillID);
-				ret[static_cast<int>(skillID)] += loadValue(element, rng, variables);
+				ret[skillID.getNum()] += loadValue(element, rng, variables);
 			}
 		}
 		return ret;

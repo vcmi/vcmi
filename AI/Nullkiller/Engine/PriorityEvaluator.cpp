@@ -122,7 +122,7 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 {
 	//Fixme: unused variable hero
 
-	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
+	auto objectInfo = target->getObjectHandler()->getObjectInfo(target->appearance);
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto resources = bankInfo->getPossibleResourcesReward();
 	TResources result = TResources();
@@ -139,7 +139,7 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 
 uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
 {
-	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
+	auto objectInfo = target->getObjectHandler()->getObjectInfo(target->appearance);
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto creatures = bankInfo->getPossibleCreaturesReward();
 	uint64_t result = 0;
@@ -467,14 +467,20 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	switch(target->ID)
 	{
 	case Obj::MINE:
-		return target->subID == GameResID(EGameResID::GOLD)
+	{
+		auto mine = dynamic_cast<const CGMine *>(target);
+		return mine->producedResource == EGameResID::GOLD
 			? 0.5f 
-			: 0.4f * getTotalResourceRequirementStrength(target->subID) + 0.1f * getResourceRequirementStrength(target->subID);
+			: 0.4f * getTotalResourceRequirementStrength(mine->producedResource) + 0.1f * getResourceRequirementStrength(mine->producedResource);
+	}
 
 	case Obj::RESOURCE:
-		return target->subID == GameResID(EGameResID::GOLD)
+	{
+		auto resource = dynamic_cast<const CGResource *>(target);
+		return resource->resourceID() == EGameResID::GOLD
 			? 0
-			: 0.2f * getTotalResourceRequirementStrength(target->subID) + 0.4f * getResourceRequirementStrength(target->subID);
+			: 0.2f * getTotalResourceRequirementStrength(resource->resourceID()) + 0.4f * getResourceRequirementStrength(resource->resourceID());
+	}
 
 	case Obj::CREATURE_BANK:
 	{
@@ -626,12 +632,14 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	const int dailyIncomeMultiplier = 5;
 	const float enemyArmyEliminationGoldRewardRatio = 0.2f;
 	const int32_t heroEliminationBonus = GameConstants::HERO_GOLD_COST / 2;
-	auto isGold = target->subID == GameResID(EGameResID::GOLD); // TODO: other resorces could be sold but need to evaluate market power
 
 	switch(target->ID)
 	{
 	case Obj::RESOURCE:
-		return isGold ? 600 : 100;
+	{
+		auto * res = dynamic_cast<const CGResource*>(target);
+		return res->resourceID() == GameResID::GOLD ? 600 : 100;
+	}
 	case Obj::TREASURE_CHEST:
 		return 1500;
 	case Obj::WATER_WHEEL:
@@ -640,7 +648,10 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 		return dailyIncomeMultiplier * estimateTownIncome(ai->cb.get(), target, hero);
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
-		return dailyIncomeMultiplier * (isGold ? 1000 : 75);
+	{
+		auto * mine = dynamic_cast<const CGMine*>(target);
+		return dailyIncomeMultiplier * (mine->producedResource == GameResID::GOLD ? 1000 : 75);
+	}
 	case Obj::MYSTICAL_GARDEN:
 	case Obj::WINDMILL:
 		return 100;
@@ -1005,7 +1016,7 @@ public:
 
 uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const
 {
-	if(ai->buildAnalyzer->hasAnyBuilding(town->subID, bi.id))
+	if(ai->buildAnalyzer->hasAnyBuilding(town->getFaction(), bi.id))
 		return 0;
 
 	auto creaturesToUpgrade = ai->armyManager->getTotalCreaturesAvailable(bi.baseCreatureID);

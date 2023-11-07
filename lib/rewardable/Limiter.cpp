@@ -128,7 +128,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 
 	for(const auto & spell : canLearnSpells)
 	{
-		if (!hero->canLearnSpell(spell.toSpell(VLC->spells()), true))
+		if (!hero->canLearnSpell(spell.toEntity(VLC), true))
 			return false;
 	}
 
@@ -187,49 +187,45 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 								 const CGHeroInstance * h) const
 {
 	if (heroExperience)
-		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
+		comps.emplace_back(ComponentType::EXPERIENCE, static_cast<si32>(h->calculateXp(heroExperience)));
 
 	if (heroLevel > 0)
-		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
+		comps.emplace_back(ComponentType::EXPERIENCE, heroLevel);
 
 	if (manaPoints || manaPercentage > 0)
 	{
 		int absoluteMana = h->manaLimit() ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
-		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, absoluteMana + manaPoints, 0);
+		comps.emplace_back(ComponentType::MANA, absoluteMana + manaPoints);
 	}
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] != 0)
-			comps.emplace_back(Component::EComponentType::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
+			comps.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill(i), primary[i]);
 	}
 
 	for(const auto & entry : secondary)
-		comps.emplace_back(Component::EComponentType::SEC_SKILL, entry.first, entry.second, 0);
+		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, entry.second);
 
 	for(const auto & entry : artifacts)
-		comps.emplace_back(Component::EComponentType::ARTIFACT, entry, 1, 0);
+		comps.emplace_back(ComponentType::ARTIFACT, entry);
 
 	for(const auto & entry : spells)
-		comps.emplace_back(Component::EComponentType::SPELL, entry, 1, 0);
+		comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->getId(), entry.count, 0);
+		comps.emplace_back(ComponentType::CREATURE, entry.type->getId(), entry.count);
 	
 	for(const auto & entry : players)
-		comps.emplace_back(Component::EComponentType::FLAG, entry, 0, 0);
+		comps.emplace_back(ComponentType::FLAG, entry);
 	
-	//FIXME: portrait may not match hero, if custom portrait was set in map editor
 	for(const auto & entry : heroes)
-		comps.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroTypes()->getById(entry)->getIconIndex(), 0, 0);
+		comps.emplace_back(ComponentType::HERO_PORTRAIT, entry);
 	
-	for(const auto & entry : heroClasses)
-		comps.emplace_back(Component::EComponentType::HERO_PORTRAIT, VLC->heroClasses()->getById(entry)->getIconIndex(), 0, 0);
-
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
-			comps.emplace_back(Component::EComponentType::RESOURCE, static_cast<ui16>(i), resources[i], 0);
+			comps.emplace_back(ComponentType::RESOURCE, GameResID(i), resources[i]);
 	}
 }
 
@@ -253,7 +249,7 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 		std::vector<std::pair<SecondarySkill, si32>> fieldValue(secondary.begin(), secondary.end());
 		a.serializeStruct<std::pair<SecondarySkill, si32>>(fieldValue, [](JsonSerializeFormat & h, std::pair<SecondarySkill, si32> & e)
 		{
-			h.serializeId("skill", e.first, SecondarySkill{}, VLC->skillh->decodeSkill, VLC->skillh->encodeSkill);
+			h.serializeId("skill", e.first, SecondarySkill(SecondarySkill::NONE));
 			h.serializeId("level", e.second, 0, [](const std::string & i){return vstd::find_pos(NSecondarySkill::levels, i);}, [](si32 i){return NSecondarySkill::levels.at(i);});
 		});
 		a.syncSize(fieldValue);

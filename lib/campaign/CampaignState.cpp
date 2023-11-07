@@ -73,13 +73,13 @@ ImagePath CampaignRegions::getBackgroundName() const
 
 Point CampaignRegions::getPosition(CampaignScenarioID which) const
 {
-	auto const & region = regions[static_cast<int>(which)];
+	auto const & region = regions[which.getNum()];
 	return Point(region.xpos, region.ypos);
 }
 
 ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const
 {
-	auto const & region = regions[static_cast<int>(which)];
+	auto const & region = regions[which.getNum()];
 
 	static const std::string colors[2][8] =
 	{
@@ -267,24 +267,23 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return a->getHeroStrength() > b->getHeroStrength();
 	});
 
-	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getNameTranslated());
+	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();
 
 	for (auto * hero : heroes)
 	{
-		HeroTypeID heroType(hero->subID);
 		JsonNode node = CampaignState::crossoverSerialize(hero);
 
-		if (reservedHeroes.count(heroType))
+		if (reservedHeroes.count(hero->getHeroType()))
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->subID, hero->getNameTranslated());
-			globalHeroPool[heroType] = node;
+			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->getHeroType(), hero->getNameTranslated());
+			globalHeroPool[hero->getHeroType()] = node;
 		}
 		else
 		{
-			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->subID, hero->getNameTranslated());
+			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->getHeroType(), hero->getNameTranslated());
 			scenarioHeroPool[*currentMap].push_back(node);
 		}
 	}
@@ -321,7 +320,7 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
 	CMapService mapService;
 	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
+	scenarioName += ':' + std::to_string(scenarioId.getNum());
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	return mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding());
 }
@@ -334,7 +333,7 @@ std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scena
 	CMapService mapService;
 	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
+	scenarioName += ':' + std::to_string(scenarioId.getNum());
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	return mapService.loadMapHeader(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding());
 }

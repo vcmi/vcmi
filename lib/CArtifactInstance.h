@@ -84,11 +84,12 @@ public:
 	ArtifactInstanceID getId() const;
 	void setId(ArtifactInstanceID id);
 
-	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;
+	bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
+		bool assumeDestRemoved = false) const;
 	bool isCombined() const;
-	void putAt(const ArtifactLocation & al);
-	void removeFrom(const ArtifactLocation & al);
-	void move(const ArtifactLocation & src, const ArtifactLocation & dst);
+	void putAt(CArtifactSet & set, const ArtifactPosition slot);
+	void removeFrom(CArtifactSet & set, const ArtifactPosition slot);
+	void move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot);
 	
 	void deserializationFix();
 	template <typename Handler> void serialize(Handler & h, const int version)

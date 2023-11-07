@@ -35,7 +35,7 @@ std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstanc
 	{
 		const Rewardable::VisitInfo & visit = configuration.info[i];
 
-		if(event == visit.visitType && visit.limiter.heroAllowed(hero))
+		if(event == visit.visitType && (!hero || visit.limiter.heroAllowed(hero)))
 		{
 			logGlobal->trace("Reward %d is allowed", i);
 			ret.push_back(static_cast<ui32>(i));

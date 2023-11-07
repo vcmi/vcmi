@@ -24,12 +24,12 @@ PlayerColor CGTownBuilding::getOwner() const
 	return town->getOwner();
 }
 
-int32_t CGTownBuilding::getObjGroupIndex() const
+MapObjectID CGTownBuilding::getObjGroupIndex() const
 {
 	return -1;
 }
 
-int32_t CGTownBuilding::getObjTypeIndex() const
+MapObjectSubID CGTownBuilding::getObjTypeIndex() const
 {
 	return 0;
 }
@@ -207,31 +207,31 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
 			what = PrimarySkill::KNOWLEDGE;
 			val = 1;
-			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 3, 1, 0);
+			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::KNOWLEDGE, 1);
 			break;
 
 		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
 			what = PrimarySkill::SPELL_POWER;
 			val = 1;
-			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 2, 1, 0);
+			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::SPELL_POWER, 1);
 			break;
 
 		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
 			what = PrimarySkill::ATTACK;
 			val = 1;
-			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 0, 1, 0);
+			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::ATTACK, 1);
 			break;
 
 		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
 			what = PrimarySkill::EXPERIENCE;
 			val = static_cast<int>(h->calculateXp(1000));
-			iw.components.emplace_back(Component::EComponentType::EXPERIENCE, 0, val, 0);
+			iw.components.emplace_back(ComponentType::EXPERIENCE, val);
 			break;
 
 		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
 			what = PrimarySkill::DEFENSE;
 			val = 1;
-			iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, 1, 1, 0);
+			iw.components.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill::DEFENSE, 1);
 			break;
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:

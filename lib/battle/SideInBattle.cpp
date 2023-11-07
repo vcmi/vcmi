@@ -18,7 +18,7 @@ void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army
 	hero = Hero;
 	armyObject = Army;
 
-	switch(armyObject->ID)
+	switch(armyObject->ID.toEnum())
 	{
 		case Obj::CREATURE_GENERATOR1:
 		case Obj::CREATURE_GENERATOR2:
