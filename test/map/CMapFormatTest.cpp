@@ -46,7 +46,7 @@ TEST(MapFormat, Random)
 	CRmgTemplate tmpl;
 	std::shared_ptr<ZoneOptionsFake> zoneOptions = std::make_shared<ZoneOptionsFake>();
 
-	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getCpuPlayers()).addRange(1, 4);
+	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getHumanPlayers()).addRange(1, 4);
 	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = zoneOptions;
 
 	zoneOptions->setOwner(1);
@@ -55,7 +55,7 @@ TEST(MapFormat, Random)
 	opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);
 	opt.setWidth(CMapHeader::MAP_SIZE_MIDDLE);
 	opt.setHasTwoLevels(true);
-	opt.setPlayerCount(4);
+	opt.setHumanOrCpuPlayerCount(4);
 
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);

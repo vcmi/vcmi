@@ -2,7 +2,8 @@
 	"2SM2i(2)" :
 	{
 		"minSize" : "s", "maxSize" : "m+u",
-		"players" : "2-4",
+		"players" : "2",
+		"humans": "1-2",
 		"zones" :
 		{
 			"1" :
@@ -32,7 +33,7 @@
 			},
 			"3" :
 			{
-				"type" : "playerStart",
+				"type" : "treasure",
 				"size" : 11,
 				"monsters" : "normal",
 				"minesLikeZone" : 1,
@@ -54,7 +55,7 @@
 			},
 			"5" :
 			{
-				"type" : "playerStart",
+				"type" : "treasure",
 				"size" : 11,
 				"monsters" : "normal",
 				"neutralTowns" : { "towns" : 1 },

@@ -2,7 +2,7 @@
 	"2SM0k" :
 	{
 		"minSize" : "s", "maxSize" : "m+u",
-		"players" : "2", "cpu" : "6",
+		"players" : "2", "humans" : "1-2",
 		"zones" :
 		{
 			"1" :
