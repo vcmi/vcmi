@@ -724,19 +724,19 @@ void CGArtifact::pickRandomObject(CRandomGenerator & rand)
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
-			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
 			break;
 		case MapObjectID::RANDOM_TREASURE_ART:
-			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE);
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE);
 			break;
 		case MapObjectID::RANDOM_MINOR_ART:
-			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR);
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR);
 			break;
 		case MapObjectID::RANDOM_MAJOR_ART:
-			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR);
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR);
 			break;
 		case MapObjectID::RANDOM_RELIC_ART:
-			subID = VLC->arth->pickRandomArtifact(rand, CArtifact::ART_RELIC);
+			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_RELIC);
 			break;
 	}
 

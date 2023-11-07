@@ -144,14 +144,14 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	}
 }
 
-void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const
+void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE).toArtifact());
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR).toArtifact());
 
-	out.push_back(VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR).toArtifact());
+	out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR).toArtifact());
 }
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)

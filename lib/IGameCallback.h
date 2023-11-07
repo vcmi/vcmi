@@ -61,7 +61,7 @@ public:
 	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const; 
+	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 	template<typename Saver>

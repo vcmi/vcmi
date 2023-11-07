@@ -141,21 +141,12 @@ public:
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
-	/// Stores number of times each artifact was placed on map via randomization
-	std::map<ArtifactID, int> allocatedArtifacts;
-
 	/// List of artifacts allowed on the map
 	std::vector<CArtifact *> allowedArtifacts;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
 	static CArtifact::EartClass stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
-
-	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> filtered);
 
 	bool legalArtifact(const ArtifactID & id);
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
