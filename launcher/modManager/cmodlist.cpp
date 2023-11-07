@@ -105,7 +105,7 @@ bool CModEntry::isVisible() const
 			return false;
 	}
 
-	return !localData.isEmpty() || !repository.isEmpty();
+	return !localData.isEmpty() || (!repository.isEmpty() && !repository.contains("mod"));
 }
 
 bool CModEntry::isTranslation() const

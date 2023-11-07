@@ -210,7 +210,7 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CArmedInstance::serializeJsonOptions(handler);
-
+	serializeJsonOwner(handler);
 	if(isAbandoned())
 	{
 		if(handler.saving)
@@ -240,10 +240,6 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 					abandonedMineResources.emplace(raw_res);
 			}
 		}
-	}
-	else
-	{
-		serializeJsonOwner(handler);
 	}
 }
 
