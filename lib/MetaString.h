@@ -12,31 +12,24 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
+class ArtifactID;
 class CreatureID;
 class CStackBasicDescriptor;
 class JsonSerializeFormat;
+class MapObjectID;
+class MapObjectSubID;
+class PlayerColor;
+class SecondarySkill;
+class SpellID;
 using TQuantity = si32;
 
 /// Strings classes that can be used as replacement in MetaString
 enum class EMetaText : uint8_t
 {
 	GENERAL_TXT = 1,
-	OBJ_NAMES,
 	RES_NAMES,
-	ART_NAMES,
 	ARRAY_TXT,
-	CRE_PL_NAMES,
-	CREGENS,
-	MINE_NAMES,
-	MINE_EVNTS,
 	ADVOB_TXT,
-	ART_EVNTS,
-	SPELL_NAME,
-	SEC_SKILL_NAME,
-	CRE_SING_NAMES,
-	CREGENS4,
-	COLOR,
-	ART_DESCR,
 	JK_TXT
 };
 
@@ -82,6 +75,12 @@ public:
 	/// Appends specified number to resulting string
 	void appendNumber(int64_t value);
 
+	void appendName(const SpellID& id);
+	void appendName(const PlayerColor& id);
+	void appendName(const CreatureID & id, TQuantity count);
+	void appendNameSingular(const CreatureID & id);
+	void appendNamePlural(const CreatureID & id);
+
 	/// Replaces first '%s' placeholder in string with specified local string
 	void replaceLocalString(EMetaText type, ui32 serial);
 	/// Replaces first '%s' placeholder in string with specified fixed, untranslated string
@@ -93,10 +92,18 @@ public:
 	/// Replaces first '%+d' placeholder in string with specified number using '+' sign as prefix
 	void replacePositiveNumber(int64_t txt);
 
+	void replaceName(const ArtifactID & id);
+	void replaceName(const MapObjectID& id);
+	void replaceName(const PlayerColor& id);
+	void replaceName(const SecondarySkill& id);
+	void replaceName(const SpellID& id);
+
 	/// Replaces first '%s' placeholder with singular or plural name depending on creatures count
-	void replaceCreatureName(const CreatureID & id, TQuantity count);
+	void replaceName(const CreatureID & id, TQuantity count);
+	void replaceNameSingular(const CreatureID & id);
+	void replaceNamePlural(const CreatureID & id);
 	/// Replaces first '%s' placeholder with singular or plural name depending on creatures count
-	void replaceCreatureName(const CStackBasicDescriptor & stack);
+	void replaceName(const CStackBasicDescriptor & stack);
 
 	/// erases any existing content in the string
 	void clear();

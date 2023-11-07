@@ -908,24 +908,24 @@ void CGameHandler::onNewTurn()
 			{
 				case NewTurn::DOUBLE_GROWTH:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
-					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
-					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
+					iw.text.replaceNameSingular(n.creatureid);
+					iw.text.replaceNameSingular(n.creatureid);
 					break;
 				case NewTurn::PLAGUE:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
 					break;
 				case NewTurn::BONUS_GROWTH:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
-					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
-					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
+					iw.text.replaceNameSingular(n.creatureid);
+					iw.text.replaceNameSingular(n.creatureid);
 					break;
 				case NewTurn::DEITYOFFIRE:
 					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
-					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, 42); //%s imp
-					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, 42); //%s imp
-					iw.text.replacePositiveNumber(15);							//%+d 15
-					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, 43); //%s familiar
-					iw.text.replacePositiveNumber(15);							//%+d 15
+					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
+					iw.text.replaceNameSingular(CreatureID::IMP); //%s imp
+					iw.text.replacePositiveNumber(15);//%+d 15
+					iw.text.replaceNameSingular(CreatureID::FAMILIAR); //%s familiar
+					iw.text.replacePositiveNumber(15);//%+d 15
 					break;
 				default:
 					if (newMonth)
@@ -1350,7 +1350,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 				InfoWindow iw;
 				iw.player = oldOwner;
 				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
-				iw.text.replaceLocalString(EMetaText::COLOR, oldOwner.getNum());
+				iw.text.replaceName(oldOwner);
 				sendAndApply(&iw);
 			}
 		}
@@ -1588,7 +1588,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 			for (auto it : cs2.spells)
 			{
 				iw.components.emplace_back(ComponentType::SPELL, it);
-				iw.text.appendLocalString(EMetaText::SPELL_NAME, it.toEnum());
+				iw.text.appendName(it);
 				switch (size--)
 				{
 					case 2:
@@ -1616,7 +1616,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 			for (auto it : cs1.spells)
 			{
 				iw.components.emplace_back(ComponentType::SPELL, it);
-				iw.text.appendLocalString(EMetaText::SPELL_NAME, it.toEnum());
+				iw.text.appendName(it);
 				switch (size--)
 				{
 					case 2:
@@ -3639,7 +3639,7 @@ void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossC
 {
 	out.player = player;
 	out.text = victoryLossCheckResult.messageToSelf;
-	out.text.replaceLocalString(EMetaText::COLOR, player.getNum());
+	out.text.replaceName(player);
 	out.components.emplace_back(ComponentType::FLAG, player);
 }
 
@@ -3661,16 +3661,18 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	iw.player = h->tempOwner;
 	if (gs->map->grailPos == h->visitablePos())
 	{
+		ArtifactID grail = ArtifactID::GRAIL;
+
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
-		iw.text.appendLocalString(EMetaText::ART_NAMES, ArtifactID::GRAIL);
+		iw.text.replaceName(grail);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::FIRST_AVAILABLE); //give grail
+		giveHeroNewArtifact(h, grail.toArtifact(), ArtifactPosition::FIRST_AVAILABLE); //give grail
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
-		iw.components.emplace_back(ComponentType::ARTIFACT, ArtifactID(ArtifactID::GRAIL));
+		iw.components.emplace_back(ComponentType::ARTIFACT, grail);
 		iw.text.clear();
-		iw.text.appendLocalString(EMetaText::ART_DESCR, ArtifactID::GRAIL);
+		iw.text.appendTextID(grail.toArtifact()->getDescriptionTextID());
 		sendAndApply(&iw);
 	}
 	else

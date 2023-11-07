@@ -169,7 +169,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::FLAGMINE;
-	iw.text.appendLocalString(EMetaText::MINE_EVNTS, producedResource); //not use subID, abandoned mines uses default mine texts
+	iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get()); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
 	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, producedQuantity);
 	cb->showInfoDialog(&iw);
@@ -816,7 +816,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				if(!message.empty())
 					iw.text = message;
 				else
-					iw.text.appendLocalString(EMetaText::ART_EVNTS, getArtifact());
+					iw.text.appendTextID(getArtifact().toArtifact()->getEventTextID());
 			}
 			break;
 			case Obj::SPELL_SCROLL:
@@ -828,7 +828,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				else
 				{
 					iw.text.appendLocalString(EMetaText::ADVOB_TXT,135);
-					iw.text.replaceLocalString(EMetaText::SPELL_NAME, spell.getNum());
+					iw.text.replaceName(spell);
 				}
 			}
 			break;

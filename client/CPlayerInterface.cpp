@@ -337,13 +337,13 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 			if (daysWithoutCastle < 6)
 			{
 				text.appendLocalString(EMetaText::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
-				text.replaceLocalString(EMetaText::COLOR, playerColor.getNum());
+				text.replaceName(playerColor);
 				text.replaceNumber(7 - daysWithoutCastle);
 			}
 			else if (daysWithoutCastle == 6)
 			{
 				text.appendLocalString(EMetaText::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-				text.replaceLocalString(EMetaText::COLOR, playerColor.getNum());
+				text.replaceName(playerColor);
 			}
 
 			showInfoDialogAndWait(components, text);

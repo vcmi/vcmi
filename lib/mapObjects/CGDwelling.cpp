@@ -234,7 +234,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
-		iw.text.replaceLocalString(EMetaText::OBJ_NAMES, ID);
+		iw.text.replaceName(ID);
 		cb->sendAndApply(&iw);
 		return;
 	}
@@ -249,12 +249,12 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		BlockingDialog bd(true,false);
 		bd.player = h->tempOwner;
 		bd.text.appendLocalString(EMetaText::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
-		bd.text.replaceLocalString(ID == Obj::CREATURE_GENERATOR1 ? EMetaText::CREGENS : EMetaText::CREGENS4, subID);
+		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			bd.text.replaceRawString(CCreature::getQuantityRangeStringForId(Slots().begin()->second->getQuantityID()));
 		else
 			bd.text.replaceLocalString(EMetaText::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
-		bd.text.replaceCreatureName(*Slots().begin()->second);
+		bd.text.replaceName(*Slots().begin()->second);
 		cb->showBlockingDialog(&bd);
 		return;
 	}
@@ -270,16 +270,16 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, ID == Obj::CREATURE_GENERATOR1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
-		bd.text.replaceLocalString(ID == Obj::CREATURE_GENERATOR1 ? EMetaText::CREGENS : EMetaText::CREGENS4, subID);
+		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		for(const auto & elem : creatures)
-			bd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, elem.second[0]);
+			bd.text.replaceNamePlural(elem.second[0]);
 	}
 	else if(ID == Obj::REFUGEE_CAMP)
 	{
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
-		bd.text.replaceLocalString(EMetaText::OBJ_NAMES, ID);
+		bd.text.replaceName(ID);
 		for(const auto & elem : creatures)
-			bd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, elem.second[0]);
+			bd.text.replaceNamePlural(elem.second[0]);
 	}
 	else if(ID == Obj::WAR_MACHINE_FACTORY)
 		bd.text.appendLocalString(EMetaText::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
@@ -436,7 +436,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.type = EInfoWindowMode::AUTO;
 				iw.player = h->tempOwner;
 				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 425);//The %s would join your hero, but there aren't enough provisions to support them.
-				iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, crid);
+				iw.text.replaceNamePlural(crid);
 				cb->showInfoDialog(&iw);
 			}
 			else //give creatures
@@ -452,7 +452,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.player = h->tempOwner;
 				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 423); //%d %s join your army.
 				iw.text.replaceNumber(count);
-				iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, crid);
+				iw.text.replaceNamePlural(crid);
 
 				cb->showInfoDialog(&iw);
 				cb->sendAndApply(&sac);
@@ -464,7 +464,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			InfoWindow iw;
 			iw.type = EInfoWindowMode::AUTO;
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 422); //There are no %s here to recruit.
-			iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, crid);
+			iw.text.replaceNamePlural(crid);
 			iw.player = h->tempOwner;
 			cb->sendAndApply(&iw);
 		}

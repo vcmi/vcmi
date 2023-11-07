@@ -1067,7 +1067,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			{
 				MetaString text;
 				text.appendLocalString(EMetaText::GENERAL_TXT, 376);
-				text.replaceLocalString(EMetaText::SPELL_NAME, SpellID::FIRE_SHIELD);
+				text.replaceName(SpellID(SpellID::FIRE_SHIELD));
 				text.replaceNumber(totalDamage);
 				blm.lines.push_back(std::move(text));
 			}

@@ -704,6 +704,7 @@ public:
 		NONE = -1,
 		ARCHER = 2, // for debug / fallback
 		IMP = 42, // for Deity of Fire
+		FAMILIAR = 43, // for Deity of Fire
 		SKELETON = 56, // for Skeleton Transformer
 		BONE_DRAGON = 68, // for Skeleton Transformer
 		TROGLODYTES = 70, // for Abandoned Mine

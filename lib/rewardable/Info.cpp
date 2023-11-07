@@ -249,23 +249,23 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 	for (const auto & variable : variables.values )
 	{
 		if( boost::algorithm::starts_with(variable.first, "spell"))
-			target.replaceLocalString(EMetaText::SPELL_NAME, variable.second);
+			target.replaceName(SpellID(variable.second));
 
 		if( boost::algorithm::starts_with(variable.first, "secondarySkill"))
-			target.replaceLocalString(EMetaText::SEC_SKILL_NAME, variable.second);
+			target.replaceName(SecondarySkill(variable.second));
 	}
 }
 
 void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const
 {
 	for (const auto & artifact : info.reward.artifacts )
-		target.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
+		target.replaceName(artifact);
 
-	for (const auto & artifact : info.reward.spells )
-		target.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
+	for (const auto & spell : info.reward.spells )
+		target.replaceName(spell);
 
 	for (const auto & secondary : info.reward.secondary )
-		target.replaceLocalString(EMetaText::SEC_SKILL_NAME, secondary.first.getNum());
+		target.replaceName(secondary.first);
 
 	replaceTextPlaceholders(target, variables);
 }

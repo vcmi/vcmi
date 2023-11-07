@@ -279,7 +279,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		{
 			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
-			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
+			loot.replaceName(elem);
 			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
@@ -293,7 +293,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 					return a.type->getFightValue() < b.type->getFightValue();
 				})->type;
 
-				iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, strongest->getId());
+				iw.text.replaceNamePlural(strongest->getId());
 				iw.text.replaceRawString(loot.buildList());
 			}
 			cb->showInfoDialog(&iw);
@@ -315,7 +315,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			for(const SpellID & spellId : bc->spells)
 			{
 				const auto * spell = spellId.toEntity(VLC);
-				iw.text.appendLocalString(EMetaText::SPELL_NAME, spellId);
+				iw.text.appendName(spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{
 					if(hero->canLearnSpell(spell))
@@ -354,7 +354,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		{
 			iw.components.emplace_back(ComponentType::CREATURE, elem.second->getId(), elem.second->getCount());
 			loot.appendRawString("%s");
-			loot.replaceCreatureName(*elem.second);
+			loot.replaceName(*elem.second);
 		}
 
 		if(ourArmy.stacksCount())

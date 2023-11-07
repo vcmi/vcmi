@@ -462,7 +462,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		auto it = cs.spells.begin();
 		for (int i = 0; i < cs.spells.size(); i++, it++)
 		{
-			iw.text.replaceLocalString(EMetaText::SPELL_NAME, it->toEnum());
+			iw.text.replaceName(*it);
 			if (i == cs.spells.size() - 2) //we just added pre-last name
 				iw.text.replaceLocalString(EMetaText::GENERAL_TXT, 141); // " and "
 			iw.components.emplace_back(ComponentType::SPELL, *it);
