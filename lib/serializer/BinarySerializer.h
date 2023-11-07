@@ -174,11 +174,11 @@ public:
 	void save(const T &data)
 	{
 		//write if pointer is not nullptr
-		ui8 hlp = (data!=nullptr);
-		save(hlp);
+		bool isNull = (data == nullptr);
+		save(isNull);
 
 		//if pointer is nullptr then we don't need anything more...
-		if(!hlp)
+		if(data == nullptr)
 			return;
 
 		savePointerImpl(data);

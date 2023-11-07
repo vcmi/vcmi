@@ -226,9 +226,9 @@ public:
 	template < typename T, typename std::enable_if < std::is_pointer<T>::value, int  >::type = 0 >
 	void load(T &data)
 	{
-		ui8 hlp;
-		load( hlp );
-		if(!hlp)
+		bool isNull;
+		load( isNull );
+		if(isNull)
 		{
 			data = nullptr;
 			return;
