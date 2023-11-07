@@ -187,14 +187,14 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 								 const CGHeroInstance * h) const
 {
 	if (heroExperience)
-		comps.emplace_back(ComponentType::EXPERIENCE, static_cast<si32>(h->calculateXp(heroExperience)));
+		comps.emplace_back(ComponentType::EXPERIENCE, static_cast<si32>(h ? h->calculateXp(heroExperience) : heroExperience));
 
 	if (heroLevel > 0)
 		comps.emplace_back(ComponentType::EXPERIENCE, heroLevel);
 
 	if (manaPoints || manaPercentage > 0)
 	{
-		int absoluteMana = h->manaLimit() ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
+		int absoluteMana = (h && h->manaLimit()) ? (manaPercentage * h->mana / h->manaLimit() / 100) : 0;
 		comps.emplace_back(ComponentType::MANA, absoluteMana + manaPoints);
 	}
 

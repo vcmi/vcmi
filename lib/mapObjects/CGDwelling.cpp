@@ -335,6 +335,30 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 	updateGuards();
 }
 
+std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
+{
+	if (getOwner() != player)
+		return {};
+
+	std::vector<Component> result;
+
+	if (ID == Obj::CREATURE_GENERATOR1 && !creatures.empty())
+	{
+		for (auto const & creature : creatures.front().second)
+			result.emplace_back(ComponentType::CREATURE, creature, creatures.front().first);
+	}
+
+	if (ID == Obj::CREATURE_GENERATOR4)
+	{
+		for (auto const & creatureLevel : creatures)
+		{
+			if (!creatureLevel.second.empty())
+				result.emplace_back(ComponentType::CREATURE, creatureLevel.second.back(), creatureLevel.first);
+		}
+	}
+	return result;
+}
+
 void CGDwelling::updateGuards() const
 {
 	//TODO: store custom guard config and use it

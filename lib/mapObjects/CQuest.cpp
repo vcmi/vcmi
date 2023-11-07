@@ -513,6 +513,37 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 	return hoverName;
 }
 
+std::string CGSeerHut::getHoverText(const CGHeroInstance * hero) const
+{
+	return getHoverText(hero->getOwner());
+}
+
+std::string CGSeerHut::getPopupText(PlayerColor player) const
+{
+	return getHoverText(player);
+}
+
+std::string CGSeerHut::getPopupText(const CGHeroInstance * hero) const
+{
+	return getHoverText(hero->getOwner());
+}
+
+std::vector<Component> CGSeerHut::getPopupComponents(PlayerColor player) const
+{
+	std::vector<Component> result;
+	if (quest->activeForPlayers.count(player))
+		quest->mission.loadComponents(result, nullptr);
+	return result;
+}
+
+std::vector<Component> CGSeerHut::getPopupComponents(const CGHeroInstance * hero) const
+{
+	std::vector<Component> result;
+	if (quest->activeForPlayers.count(hero->getOwner()))
+		quest->mission.loadComponents(result, hero);
+	return result;
+}
+
 void CGSeerHut::setPropertyDer(ui8 what, ui32 val)
 {
 	switch(what)

@@ -32,7 +32,6 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 		return "INVALID_STACK";
 	}
 
-	std::string hoverName;
 	MetaString ms;
 	CCreature::CreatureQuantityId monsterQuantityId = stacks.begin()->second->getQuantityID();
 	int quantityTextIndex = 172 + 3 * (int)monsterQuantityId;
@@ -42,20 +41,33 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 		ms.appendLocalString(EMetaText::ARRAY_TXT, quantityTextIndex);
 	ms.appendRawString(" ");
 	ms.appendLocalString(EMetaText::CRE_PL_NAMES, getCreature());
-	hoverName = ms.toString();
-	return hoverName;
+
+	return ms.toString();
 }
 
 std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
-	std::string hoverName;
 	if(hero->hasVisions(this, BonusCustomSubtype::visionsMonsters))
 	{
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);
 		ms.appendRawString(" ");
 		ms.appendLocalString(EMetaText::CRE_PL_NAMES, getCreature());
+		return ms.toString();
+	}
+	else
+	{
+		return getHoverText(hero->tempOwner);
+	}
+}
 
+std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
+{
+	std::string hoverName;
+	if(hero->hasVisions(this, BonusCustomSubtype::visionsMonsters))
+	{
+		MetaString ms;
+		ms.appendRawString(getHoverText(hero));
 		ms.appendRawString("\n\n");
 
 		int decision = takenAction(hero, true);
@@ -72,10 +84,10 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			ms.appendLocalString(EMetaText::GENERAL_TXT,243);
 			break;
 		default: //decision = cost in gold
-			ms.appendRawString(boost::str(boost::format(VLC->generaltexth->allTexts[244]) % decision));
+			ms.appendLocalString(EMetaText::GENERAL_TXT,244);
+			ms.replaceNumber(decision);
 			break;
 		}
-
 		hoverName = ms.toString();
 	}
 	else
@@ -83,25 +95,40 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 		hoverName = getHoverText(hero->tempOwner);
 	}
 
-	hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
+	if (settings["general"]["enableUiEnhancements"].Bool())
+	{
+		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
-	int choice;
-	double ratio = (static_cast<double>(getArmyStrength()) / hero->getTotalStrength());
-		 if (ratio < 0.1)  choice = 0;
-	else if (ratio < 0.25) choice = 1;
-	else if (ratio < 0.6)  choice = 2;
-	else if (ratio < 0.9)  choice = 3;
-	else if (ratio < 1.1)  choice = 4;
-	else if (ratio < 1.3)  choice = 5;
-	else if (ratio < 1.8)  choice = 6;
-	else if (ratio < 2.5)  choice = 7;
-	else if (ratio < 4)    choice = 8;
-	else if (ratio < 8)    choice = 9;
-	else if (ratio < 20)   choice = 10;
-	else                   choice = 11;
+		int choice;
+		double ratio = (static_cast<double>(getArmyStrength()) / hero->getTotalStrength());
+		if (ratio < 0.1)  choice = 0;
+		else if (ratio < 0.25) choice = 1;
+		else if (ratio < 0.6)  choice = 2;
+		else if (ratio < 0.9)  choice = 3;
+		else if (ratio < 1.1)  choice = 4;
+		else if (ratio < 1.3)  choice = 5;
+		else if (ratio < 1.8)  choice = 6;
+		else if (ratio < 2.5)  choice = 7;
+		else if (ratio < 4)    choice = 8;
+		else if (ratio < 8)    choice = 9;
+		else if (ratio < 20)   choice = 10;
+		else                   choice = 11;
 
-	hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
+		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
+	}
 	return hoverName;
+}
+
+std::string CGCreature::getPopupText(PlayerColor player) const
+{
+	return getHoverText(player);
+}
+
+std::vector<Component> CGCreature::getPopupComponents(PlayerColor player) const
+{
+	return {
+		Component(ComponentType::CREATURE, getCreature())
+	};
 }
 
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const

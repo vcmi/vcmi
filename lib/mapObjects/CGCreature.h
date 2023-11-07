@@ -40,6 +40,9 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
+	std::string getPopupText(PlayerColor player) const override;
+	std::string getPopupText(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	void initObj(CRandomGenerator & rand) override;
 	void pickRandomObject(CRandomGenerator & rand) override;
 	void newTurn(CRandomGenerator & rand) const override;
