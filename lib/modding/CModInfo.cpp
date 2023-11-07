@@ -177,7 +177,7 @@ bool CModInfo::checkModGameplayAffecting() const
 	return *modGameplayAffecting;
 }
 
-const CModInfo::VerificationInfo & CModInfo::getVerificationInfo() const
+const ModVerificationInfo & CModInfo::getVerificationInfo() const
 {
 	return verificationInfo;
 }

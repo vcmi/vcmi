@@ -10,11 +10,9 @@
 #pragma once
 
 #include "../JsonNode.h"
-#include "CModVersion.h"
+#include "ModVerificationInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-using TModID = std::string;
 
 class DLL_LINKAGE CModInfo
 {
@@ -30,34 +28,6 @@ public:
 		PASSED
 	};
 	
-	struct VerificationInfo
-	{
-		/// human-readable mod name
-		std::string name;
-		
-		/// version of the mod
-		CModVersion version;
-		
-		/// CRC-32 checksum of the mod
-		ui32 checksum = 0;
-		
-		/// parent mod ID, empty if root-level mod
-		TModID parent;
-		
-		/// for serialization purposes
-		bool impactsGameplay = true;
-		
-		template <typename Handler>
-		void serialize(Handler & h, const int v)
-		{
-			h & name;
-			h & version;
-			h & checksum;
-			h & parent;
-			h & impactsGameplay;
-		}
-	};
-
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
 
@@ -94,7 +64,7 @@ public:
 	/// return true if this mod can affect gameplay, e.g. adds or modifies any game objects
 	bool checkModGameplayAffecting() const;
 	
-	const VerificationInfo & getVerificationInfo() const;
+	const ModVerificationInfo & getVerificationInfo() const;
 
 private:
 	/// true if mod is enabled by user, e.g. in Launcher UI
@@ -103,7 +73,7 @@ private:
 	/// true if mod can be loaded - compatible and has no missing deps
 	bool implicitlyEnabled;
 	
-	VerificationInfo verificationInfo;
+	ModVerificationInfo verificationInfo;
 
 	void loadLocalData(const JsonNode & data);
 };

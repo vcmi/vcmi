@@ -74,6 +74,10 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 
 bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
 {
+	//FIXME: Optimize
+	// this method is called A LOT on game start and some parts, e.g. for loops are too slow for that
+
+	assert(a && b);
 	if(!a)
 		return true;
 	if(!b)

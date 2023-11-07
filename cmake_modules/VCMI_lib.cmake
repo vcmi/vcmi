@@ -116,6 +116,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
 
+		${MAIN_LIB_DIR}/modding/ActiveModsInSaveList.cpp
 		${MAIN_LIB_DIR}/modding/CModHandler.cpp
 		${MAIN_LIB_DIR}/modding/CModInfo.cpp
 		${MAIN_LIB_DIR}/modding/CModVersion.cpp
@@ -466,6 +467,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
 
+		${MAIN_LIB_DIR}/modding/ActiveModsInSaveList.h
 		${MAIN_LIB_DIR}/modding/CModHandler.h
 		${MAIN_LIB_DIR}/modding/CModInfo.h
 		${MAIN_LIB_DIR}/modding/CModVersion.h
@@ -474,6 +476,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/ModIncompatibility.h
 		${MAIN_LIB_DIR}/modding/ModScope.h
 		${MAIN_LIB_DIR}/modding/ModUtility.h
+		${MAIN_LIB_DIR}/modding/ModVerificationInfo.h
 
 		${MAIN_LIB_DIR}/networkPacks/ArtifactLocation.h
 		${MAIN_LIB_DIR}/networkPacks/BattleChanges.h

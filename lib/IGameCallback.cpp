@@ -40,6 +40,7 @@
 #include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
+#include "modding/ActiveModsInSaveList.h"
 #include "CPlayerState.h"
 #include "GameSettings.h"
 #include "ScriptHandler.h"
@@ -183,12 +184,16 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 
 	CMapHeader dum;
 	StartInfo * si = nullptr;
+	ActiveModsInSaveList activeMods;
 
 	logGlobal->info("\tReading header");
 	in.serializer & dum;
 
 	logGlobal->info("\tReading options");
 	in.serializer & si;
+
+	logGlobal->info("\tReading mod list");
+	in.serializer & activeMods;
 
 	logGlobal->info("\tReading gamestate");
 	in.serializer & gs;
@@ -197,12 +202,16 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 template<typename Saver>
 void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
 {
+	ActiveModsInSaveList activeMods;
+
 	logGlobal->info("Saving lib part of game...");
 	out.putMagicBytes(SAVEGAME_MAGIC);
 	logGlobal->info("\tSaving header");
 	out.serializer & static_cast<CMapHeader&>(*gs->map);
 	logGlobal->info("\tSaving options");
 	out.serializer & gs->scenarioOps;
+	logGlobal->info("\tSaving mod list");
+	out.serializer & activeMods;
 	logGlobal->info("\tSaving gamestate");
 	out.serializer & gs;
 }

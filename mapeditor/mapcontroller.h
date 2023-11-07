@@ -16,7 +16,7 @@
 #include "../lib/modding/CModInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
+using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 class EditorObstaclePlacer;
 VCMI_LIB_NAMESPACE_END
 

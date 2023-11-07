@@ -9,21 +9,22 @@
  */
 #pragma once
 
-#include "CModInfo.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CModHandler;
 class CModIndentifier;
+class CModInfo;
+struct CModVersion;
 class JsonNode;
 class IHandlerBase;
 class CIdentifierStorage;
 class CContentHandler;
+struct ModVerificationInfo;
 class ResourcePath;
 
 using TModID = std::string;
 
-class DLL_LINKAGE CModHandler : boost::noncopyable
+class DLL_LINKAGE CModHandler final : boost::noncopyable
 {
 	std::map <TModID, CModInfo> allMods;
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
@@ -49,9 +50,6 @@ class DLL_LINKAGE CModHandler : boost::noncopyable
 	bool validateTranslations(TModID modName) const;
 
 	CModVersion getModVersion(TModID modName) const;
-
-	/// Attempt to set active mods according to provided list of mods from save, throws on failure
-	void trySetActiveMods(const std::vector<std::pair<TModID, CModInfo::VerificationInfo>> & modList);
 
 public:
 	std::shared_ptr<CContentHandler> content; //(!)Do not serialize FIXME: make private
@@ -79,32 +77,7 @@ public:
 	void afterLoad(bool onlyEssential);
 
 	CModHandler();
-	virtual ~CModHandler();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		if(h.saving)
-		{
-			h & activeMods;
-			for(const auto & m : activeMods)
-				h & getModInfo(m).getVerificationInfo();
-		}
-		else
-		{
-			loadMods();
-			std::vector<TModID> saveActiveMods;
-			h & saveActiveMods;
-			
-			std::vector<std::pair<TModID, CModInfo::VerificationInfo>> saveModInfos(saveActiveMods.size());
-			for(int i = 0; i < saveActiveMods.size(); ++i)
-			{
-				saveModInfos[i].first = saveActiveMods[i];
-				h & saveModInfos[i].second;
-			}
-
-			trySetActiveMods(saveModInfos);
-		}
-	}
+	~CModHandler();
 };
 
 VCMI_LIB_NAMESPACE_END
