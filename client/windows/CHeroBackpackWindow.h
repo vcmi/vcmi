@@ -17,13 +17,24 @@ class CFilledTexture;
 class CHeroBackpackWindow : public CWindowObject, public CWindowWithArtifacts
 {
 public:
+	CHeroBackpackWindow();
 	CHeroBackpackWindow(const CGHeroInstance * hero);
 	
-private:
+protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
 	std::shared_ptr<CButton> quitButton;
 	std::shared_ptr<CFilledTexture> stretchedBackground;
-	const int windowMargin = 10;
+	const int windowMargin = 5;
 
+	void init();
+	void showAll(Canvas & to) override;
+};
+
+class CHeroQuickBackpackWindow : public CHeroBackpackWindow
+{
+public:
+	CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot);
+
+private:
 	void showAll(Canvas & to) override;
 };

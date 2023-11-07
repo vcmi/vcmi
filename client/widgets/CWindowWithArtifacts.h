@@ -24,7 +24,8 @@ public:
 		std::weak_ptr<CArtifactsOfHeroAltar>,
 		std::weak_ptr<CArtifactsOfHeroKingdom>,
 		std::weak_ptr<CArtifactsOfHeroMain>,
-		std::weak_ptr<CArtifactsOfHeroBackpack>>;
+		std::weak_ptr<CArtifactsOfHeroBackpack>,
+		std::weak_ptr<CArtifactsOfHeroQuickBackpack>>;
 	using CloseCallback = std::function<void()>;
 
 	void addSet(CArtifactsOfHeroPtr artSet);

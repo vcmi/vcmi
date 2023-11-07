@@ -17,60 +17,28 @@
 #include "ObjectLists.h"
 
 #include "../CPlayerInterface.h"
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
 #include "../../CCallback.h"
 
-CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
+CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
-	pos += position;
 	setRedrawParent(true);
+}
+
+CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
+	: CArtifactsOfHeroBackpack()
+{
+	pos += position;
 
 	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
-	auto visibleCapacityMax = HERO_BACKPACK_WINDOW_SLOT_ROWS * HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
+	auto visibleCapacityMax = slots_rows_max * slots_columns_max;
 	if(backpackCap >= 0)
 		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
 
-	backpack.resize(visibleCapacityMax);
-	size_t artPlaceIdx = 0;
-	for(auto & artPlace : backpack)
-	{
-		const auto pos = Point(slotSizeWithMargin * (artPlaceIdx % HERO_BACKPACK_WINDOW_SLOT_COLUMNS),
-			slotSizeWithMargin * (artPlaceIdx / HERO_BACKPACK_WINDOW_SLOT_COLUMNS));
-		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
-		artPlace = std::make_shared<CHeroArtPlace>(pos);
-		artPlace->setArtifact(nullptr);
-		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
-		artPlaceIdx++;
-	}
-
-	if(backpackCap < 0 || visibleCapacityMax < backpackCap)
-	{
-		auto onCreate = [](size_t index) -> std::shared_ptr<CIntObject>
-		{
-			return std::make_shared<CIntObject>();
-		};
-		CListBoxWithCallback::MovedPosCallback posMoved = [this](size_t pos) -> void
-		{
-			scrollBackpack(static_cast<int>(pos) * HERO_BACKPACK_WINDOW_SLOT_COLUMNS - backpackPos);
-		};
-		backpackListBox = std::make_shared<CListBoxWithCallback>(
-				posMoved, onCreate, Point(0, 0), Point(0, 0), HERO_BACKPACK_WINDOW_SLOT_ROWS, 0, 0, 1,
-				Rect(HERO_BACKPACK_WINDOW_SLOT_COLUMNS * slotSizeWithMargin + sliderPosOffsetX, 0, HERO_BACKPACK_WINDOW_SLOT_ROWS * slotSizeWithMargin - 2, 0));
-	}
-
-	pos.w = visibleCapacityMax > HERO_BACKPACK_WINDOW_SLOT_COLUMNS ? HERO_BACKPACK_WINDOW_SLOT_COLUMNS : visibleCapacityMax;
-	pos.w *= slotSizeWithMargin;
-	if(backpackListBox)
-		pos.w += sliderPosOffsetX + 16; // 16 is slider width. TODO: get it from CListBox directly;
-
-	pos.h = (visibleCapacityMax / HERO_BACKPACK_WINDOW_SLOT_COLUMNS);
-	if(visibleCapacityMax % HERO_BACKPACK_WINDOW_SLOT_COLUMNS != 0)
-		pos.h += 1;
-	pos.h *= slotSizeWithMargin;
+	initAOHbackpack(visibleCapacityMax, backpackCap < 0 || visibleCapacityMax < backpackCap);
 }
 
 void CArtifactsOfHeroBackpack::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
@@ -107,5 +75,91 @@ void CArtifactsOfHeroBackpack::updateBackpackSlots()
 
 size_t CArtifactsOfHeroBackpack::getActiveSlotRowsNum()
 {
-	return (curHero->artifactsInBackpack.size() + HERO_BACKPACK_WINDOW_SLOT_COLUMNS - 1) / HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
+	return (curHero->artifactsInBackpack.size() + slots_columns_max - 1) / slots_columns_max;
+}
+
+size_t CArtifactsOfHeroBackpack::getSlotsNum()
+{
+	return backpack.size();
+}
+
+void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	backpack.resize(slots);
+	size_t artPlaceIdx = 0;
+	for(auto & artPlace : backpack)
+	{
+		const auto pos = Point(slotSizeWithMargin * (artPlaceIdx % slots_columns_max),
+			slotSizeWithMargin * (artPlaceIdx / slots_columns_max));
+		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
+		artPlace = std::make_shared<CHeroArtPlace>(pos);
+		artPlace->setArtifact(nullptr);
+		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
+		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlaceIdx++;
+	}
+
+	if(slider)
+	{
+		auto onCreate = [](size_t index) -> std::shared_ptr<CIntObject>
+		{
+			return std::make_shared<CIntObject>();
+		};
+		CListBoxWithCallback::MovedPosCallback posMoved = [this](size_t pos) -> void
+		{
+			scrollBackpack(static_cast<int>(pos) * slots_columns_max - backpackPos);
+		};
+		backpackListBox = std::make_shared<CListBoxWithCallback>(
+			posMoved, onCreate, Point(0, 0), Point(0, 0), slots_rows_max, 0, 0, 1,
+			Rect(slots_columns_max * slotSizeWithMargin + sliderPosOffsetX, 0, slots_rows_max * slotSizeWithMargin - 2, 0));
+	}
+
+	pos.w = slots > slots_columns_max ? slots_columns_max : slots;
+	pos.w *= slotSizeWithMargin;
+	if(slider)
+		pos.w += sliderPosOffsetX + 16; // 16 is slider width. TODO: get it from CListBox directly;
+
+	pos.h = slots / slots_columns_max;
+	if(slots % slots_columns_max != 0)
+		pos.h += 1;
+	pos.h *= slotSizeWithMargin;
+}
+
+CArtifactsOfHeroQuickBackpack::CArtifactsOfHeroQuickBackpack(const Point & position, const ArtifactPosition filterBySlot)
+{
+	pos += position;
+
+	if(!ArtifactUtils::isSlotEquipment(filterBySlot))
+		return;
+
+	this->filterBySlot = filterBySlot;
+}
+
+void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
+{
+	if(curHero == hero)
+		return;
+	
+	curHero = hero;
+	if(curHero)
+	{
+		std::map<const CArtifact*, const CArtifactInstance*> filteredArts;
+		for(auto & slotInfo : curHero->artifactsInBackpack)
+		{
+			if(slotInfo.artifact->artType->canBePutAt(curHero, filterBySlot, true))
+				filteredArts.insert(std::pair(slotInfo.artifact->artType, slotInfo.artifact));
+		}
+		backpack.clear();
+		initAOHbackpack(filteredArts.size(), false);
+		auto artPlace = backpack.begin();
+		for(auto & art : filteredArts)
+			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
+	}
+}
+
+ArtifactPosition CArtifactsOfHeroQuickBackpack::getFilterSlot()
+{
+	return filterBySlot;
 }

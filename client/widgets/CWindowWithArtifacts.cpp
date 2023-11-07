@@ -206,6 +206,14 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 					}
 				}
 			}
+			else if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroQuickBackpack>>)
+			{
+				const auto hero = artSetPtr->getHero();
+				artSetPtr->swapArtifacts(ArtifactLocation(hero->id, artPlace.slot),
+					ArtifactLocation(hero->id, artSetPtr->getFilterSlot()));
+				if(closeCallback)
+					closeCallback();
+			}
 		}, artSetWeak.value());
 }
 
@@ -245,7 +253,8 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 			// Altar window, Market window right click handler
 			else if constexpr(
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>> ||
-				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMarket>>)
+				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMarket>> ||
+				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroQuickBackpack>>)
 			{
 				if(artPlace.getArt() && artPlace.text.size())
 					artPlace.LRClickableAreaWTextComp::showPopupWindow(GH.getCursorPosition());
