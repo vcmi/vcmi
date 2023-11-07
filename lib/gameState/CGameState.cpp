@@ -921,11 +921,9 @@ void CGameState::initMapObjects()
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(obj)
-		{
-			logGlobal->trace("Calling Init for object %d, %s, %s", obj->id.getNum(), obj->typeName, obj->subTypeName);
 			obj->initObj(getRandomGenerator());
-		}
 	}
+	logGlobal->debug("\tObject initialization done");
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(!obj)
