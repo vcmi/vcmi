@@ -886,7 +886,7 @@ void CGameHandler::onNewTurn()
 	if (newMonth)
 	{
 		SetAvailableArtifacts saa;
-		saa.id = -1;
+		saa.id = ObjectInstanceID::NONE;
 		pickAllowedArtsSet(saa.arts, getRandomGenerator());
 		sendAndApply(&saa);
 	}
@@ -1328,8 +1328,8 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owner)
 {
 	PlayerColor oldOwner = getOwner(obj->id);
-	SetObjectProperty sop(obj->id, ObjProperty::OWNER, owner.getNum());
-	sendAndApply(&sop);
+
+	setObjPropertyID(obj->id, ObjProperty::OWNER, owner);
 
 	std::set<PlayerColor> playerColors = {owner, oldOwner};
 	checkVictoryLossConditions(playerColors);
@@ -2973,12 +2973,12 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	SetAvailableArtifacts saa;
 	if(dynamic_cast<const CGTownInstance *>(m))
 	{
-		saa.id = -1;
+		saa.id = ObjectInstanceID::NONE;
 		saa.arts = CGTownInstance::merchantArtifacts;
 	}
 	else if(const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m)) //black market
 	{
-		saa.id = bm->id.getNum();
+		saa.id = bm->id;
 		saa.arts = bm->artifacts;
 	}
 	else
@@ -3044,23 +3044,23 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	return true;
 }
 
-bool CGameHandler::tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2)
+bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, PlayerColor player, GameResID toSell, GameResID toBuy)
 {
-	TResourceCap r1 = getPlayerState(player)->resources[id1];
+	TResourceCap haveToSell = getPlayerState(player)->resources[toSell];
 
-	vstd::amin(val, r1); //can't trade more resources than have
+	vstd::amin(amountToSell, haveToSell); //can't trade more resources than have
 
 	int b1, b2; //base quantities for trade
-	market->getOffer(id1, id2, b1, b2, EMarketMode::RESOURCE_RESOURCE);
-	int units = val / b1; //how many base quantities we trade
+	market->getOffer(toSell, toBuy, b1, b2, EMarketMode::RESOURCE_RESOURCE);
+	int amountToBoy = amountToSell / b1; //how many base quantities we trade
 
-	if (val%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
+	if (amountToSell % b1 != 0) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
 	{
 		COMPLAIN_RET("Invalid deal, not all offered units of resource were used.");
 	}
 
-	giveResource(player, GameResID(id1), - b1 * units);
-	giveResource(player, GameResID(id2), b2 * units);
+	giveResource(player, toSell, -b1 * amountToBoy);
+	giveResource(player, toBuy, b2 * amountToBoy);
 
 	return true;
 }
@@ -3144,7 +3144,7 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, GameResID r1, Pla
 	return true;
 }
 
-bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
+bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 {
 	const CGHeroInstance *h = getHero(hid);
 	if (!h)
@@ -4047,8 +4047,8 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 			createObject(*tile, PlayerColor::NEUTRAL, Obj::MONSTER, creatureID);
 			auto monsterId = getTopObj(*tile)->id;
 
-			setObjProperty(monsterId, ObjProperty::MONSTER_COUNT, count);
-			setObjProperty(monsterId, ObjProperty::MONSTER_POWER, (si64)1000*count);
+			setObjPropertyValue(monsterId, ObjProperty::MONSTER_COUNT, count);
+			setObjPropertyValue(monsterId, ObjProperty::MONSTER_POWER, (si64)1000*count);
 		}
 		tiles.erase(tile); //not use it again
 	}
@@ -4170,12 +4170,21 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 	return true;
 }
 
-void CGameHandler::setObjProperty(ObjectInstanceID objid, int prop, si64 val)
+void CGameHandler::setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value)
 {
 	SetObjectProperty sob;
 	sob.id = objid;
 	sob.what = prop;
-	sob.val = static_cast<ui32>(val);
+	sob.identifier = NumericID(value);
+	sendAndApply(&sob);
+}
+
+void CGameHandler::setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier)
+{
+	SetObjectProperty sob;
+	sob.id = objid;
+	sob.what = prop;
+	sob.identifier = identifier;
 	sendAndApply(&sob);
 }
 
@@ -4209,7 +4218,7 @@ scripting::Pool * CGameHandler::getGlobalContextPool() const
 //}
 #endif
 
-void CGameHandler::createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype)
+void CGameHandler::createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype)
 {
 	NewObject no;
 	no.ID = type;

@@ -221,42 +221,49 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i], pack.r2[i]);
+			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sendResources(pack.val[i], pack.player, GameResID(pack.r1[i]), PlayerColor(pack.r2[i]));
+			result &= gh.sendResources(pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<PlayerColor>());
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellCreatures(pack.val[i], market, hero, SlotID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellCreatures(pack.val[i], market, hero, pack.r1[i].as<SlotID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.buyArtifact(market, hero, GameResID(pack.r1[i]), ArtifactID(pack.r2[i]));
+			result &= gh.buyArtifact(market, hero, pack.r1[i].as<GameResID>(), pack.r2[i].as<ArtifactID>());
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellArtifact(market, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellArtifact(market, hero, pack.r1[i].as<ArtifactInstanceID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.transformInUndead(market, hero, SlotID(pack.r1[i]));
+			result &= gh.transformInUndead(market, hero, pack.r1[i].as<SlotID>());
 		break;
 	case EMarketMode::RESOURCE_SKILL:
 		for(int i = 0; i < pack.r2.size(); ++i)
-			result &= gh.buySecSkill(market, hero, SecondarySkill(pack.r2[i]));
+			result &= gh.buySecSkill(market, hero, pack.r2[i].as<SecondarySkill>());
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
-		std::vector<SlotID> slotIDs(pack.r1.begin(), pack.r1.end());
+		std::vector<SlotID> slotIDs;
 		std::vector<ui32> count(pack.val.begin(), pack.val.end());
+
+		for(auto const & slot : pack.r1)
+			slotIDs.push_back(slot.as<SlotID>());
+
 		result = gh.sacrificeCreatures(market, hero, slotIDs, count);
 		return;
 	}
 	case EMarketMode::ARTIFACT_EXP:
 	{
-		std::vector<ArtifactPosition> positions(pack.r1.begin(), pack.r1.end());
+		std::vector<ArtifactPosition> positions;
+		for(auto const & slot : pack.r1)
+			positions.push_back(slot.as<ArtifactPosition>());
+
 		result = gh.sacrificeArtifact(market, hero, positions);
 		return;
 	}

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../networkPacks/EInfoWindowMode.h"
+#include "../networkPacks/ObjProperty.h"
 #include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -46,7 +47,7 @@ public:
 	virtual void newTurn(CRandomGenerator & rand) const;
 	virtual void initObj(CRandomGenerator & rand); //synchr
 	virtual void pickRandomObject(CRandomGenerator & rand);
-	virtual void setProperty(ui8 what, ui32 val);//synchr
+	virtual void setProperty(ObjProperty what, ObjPropertyID identifier);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query

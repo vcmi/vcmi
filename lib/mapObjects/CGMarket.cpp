@@ -91,7 +91,7 @@ void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 		return;
 
 	SetAvailableArtifacts saa;
-	saa.id = id.getNum();
+	saa.id = id;
 	cb->pickAllowedArtsSet(saa.arts, rand);
 	cb->sendAndApply(&saa);
 }

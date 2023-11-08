@@ -484,12 +484,14 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/networkPacks/EOpenWindowMode.h
 		${MAIN_LIB_DIR}/networkPacks/NetPacksBase.h
 		${MAIN_LIB_DIR}/networkPacks/NetPackVisitor.h
+		${MAIN_LIB_DIR}/networkPacks/ObjProperty.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForClient.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForClientBattle.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForLobby.h
 		${MAIN_LIB_DIR}/networkPacks/PacksForServer.h
 		${MAIN_LIB_DIR}/networkPacks/SetStackEffect.h
 		${MAIN_LIB_DIR}/networkPacks/StackLocation.h
+		${MAIN_LIB_DIR}/networkPacks/TradeItem.h
 
 		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.h

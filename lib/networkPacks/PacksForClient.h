@@ -15,6 +15,7 @@
 #include "EOpenWindowMode.h"
 #include "EntityChanges.h"
 #include "NetPacksBase.h"
+#include "ObjProperty.h"
 
 #include "../CCreatureSet.h"
 #include "../MetaString.h"
@@ -366,17 +367,17 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
-	enum class ETarget : ui8 { HERO, PLAYER, TOWN, BATTLE };
+	enum class ETarget : int8_t { OBJECT, PLAYER, BATTLE };
 	
-	explicit GiveBonus(ETarget Who = ETarget::HERO)
+	explicit GiveBonus(ETarget Who = ETarget::OBJECT)
 		:who(Who)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 
-	ETarget who = ETarget::HERO; //who receives bonus
-	si32 id = 0; //hero. town or player id - whoever receives it
+	ETarget who = ETarget::OBJECT;
+	VariantIdentifier<ObjectInstanceID, PlayerColor, BattleID> id;
 	Bonus bonus;
 	MetaString bdescr;
 
@@ -388,7 +389,7 @@ struct DLL_LINKAGE GiveBonus : public CPackForClient
 		h & id;
 		h & bdescr;
 		h & who;
-		assert(id != -1);
+		assert(id.getNum() != -1);
 	}
 };
 
@@ -461,7 +462,7 @@ struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
 
 struct DLL_LINKAGE RemoveBonus : public CPackForClient
 {
-	explicit RemoveBonus(GiveBonus::ETarget Who = GiveBonus::ETarget::HERO)
+	explicit RemoveBonus(GiveBonus::ETarget Who = GiveBonus::ETarget::OBJECT)
 		:who(Who)
 	{
 	}
@@ -469,7 +470,7 @@ struct DLL_LINKAGE RemoveBonus : public CPackForClient
 	void applyGs(CGameState * gs);
 
 	GiveBonus::ETarget who; //who receives bonus
-	ui32 whoID = 0; //hero, town or player id - whoever loses bonus
+	VariantIdentifier<HeroTypeID, PlayerColor, BattleID, ObjectInstanceID> whoID;
 
 	//vars to identify bonus: its source
 	BonusSource source;
@@ -574,7 +575,7 @@ struct DLL_LINKAGE UpdateCastleEvents : public CPackForClient
 struct DLL_LINKAGE ChangeFormation : public CPackForClient
 {
 	ObjectInstanceID hid;
-	ui8 formation = 0;
+	EArmyFormation formation{};
 
 	void applyGs(CGameState * gs) const;
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -781,9 +782,9 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	void applyGs(CGameState * gs);
 
 	/// Object ID to create
-	Obj ID;
+	MapObjectID ID;
 	/// Object secondary ID to create
-	ui32 subID = 0;
+	VariantIdentifier<MapObjectSubID, HeroTypeID, CreatureID, BoatId> subID;
 	/// Position of visitable tile of created object
 	int3 targetPos;
 	/// Which player initiated creation of this object
@@ -806,7 +807,8 @@ struct DLL_LINKAGE SetAvailableArtifacts : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
 
-	si32 id = 0; //two variants: id < 0: set artifact pool for Artifact Merchants in towns; id >= 0: set pool for adv. map Black Market (id is the id of Black Market instance then)
+	//two variants: id < 0: set artifact pool for Artifact Merchants in towns; id >= 0: set pool for adv. map Black Market (id is the id of Black Market instance then)
+	ObjectInstanceID id;
 	std::vector<const CArtifact *> arts;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -1207,38 +1209,15 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient //103  - displays simple i
 	InfoWindow() = default;
 };
 
-namespace ObjProperty
-{
-	enum
-	{
-		OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8,
-		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13, MONSTER_REFUSED_JOIN,
-
-		//town-specific
-		STRUCTURE_ADD_VISITING_HERO, STRUCTURE_CLEAR_VISITORS, STRUCTURE_ADD_GARRISONED_HERO,  //changing buildings state
-		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND, //used in Rampart for special building that generates resources (storing resource type and quantity)
-
-		//creature-bank specific
-		BANK_DAYCOUNTER, BANK_RESET, BANK_CLEAR,
-
-		//object with reward
-		REWARD_RANDOMIZE, REWARD_SELECT, REWARD_CLEARED
-	};
-}
-
 struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
 	ObjectInstanceID id;
-	ui8 what = 0; // see ObjProperty enum
-	ui32 val = 0;
+	ObjProperty what{};
+
+	ObjPropertyID identifier;
+
 	SetObjectProperty() = default;
-	SetObjectProperty(const ObjectInstanceID & ID, ui8 What, ui32 Val)
-		: id(ID)
-		, what(What)
-		, val(Val)
-	{
-	}
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1246,7 +1225,7 @@ struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 	{
 		h & id;
 		h & what;
-		h & val;
+		h & identifier;
 	}
 };
 

@@ -65,7 +65,7 @@ public:
 
 	void initObj(CRandomGenerator & rand) override;
 	
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	CRewardableObject();
 	

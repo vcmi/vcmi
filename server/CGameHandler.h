@@ -101,7 +101,7 @@ public:
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype ) override;
+	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override;
@@ -156,7 +156,8 @@ public:
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
-	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override;
+	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
+	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
 	void showInfoDialog(InfoWindow * iw) override;
 	void showInfoDialog(const std::string & msg, PlayerColor player) override;
 
@@ -182,8 +183,8 @@ public:
 
 	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
-	bool setFormation( ObjectInstanceID hid, ui8 formation );
-	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);
+	bool setFormation( ObjectInstanceID hid, EArmyFormation formation );
+	bool tradeResources(const IMarket *market, ui32 amountToSell, PlayerColor player, GameResID toSell, GameResID toBuy);
 	bool sacrificeCreatures(const IMarket * market, const CGHeroInstance * hero, const std::vector<SlotID> & slot, const std::vector<ui32> & count);
 	bool sendResources(ui32 val, PlayerColor player, GameResID r1, PlayerColor r2);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, GameResID resourceID);

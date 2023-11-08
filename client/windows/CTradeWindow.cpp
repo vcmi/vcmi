@@ -503,14 +503,27 @@ void CMarketplaceWindow::makeDeal()
 
 	if(allowDeal)
 	{
-		if(slider)
+		switch(mode)
 		{
-			LOCPLINT->cb->trade(market, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
+		case EMarketMode::RESOURCE_RESOURCE:
+			LOCPLINT->cb->trade(market, mode, GameResID(leftIdToSend), GameResID(hRight->id), slider->getValue() * r1, hero);
 			slider->scrollTo(0);
-		}
-		else
-		{
-			LOCPLINT->cb->trade(market, mode, leftIdToSend, hRight->id, r2, hero);
+			break;
+		case EMarketMode::CREATURE_RESOURCE:
+			LOCPLINT->cb->trade(market, mode, SlotID(leftIdToSend), GameResID(hRight->id), slider->getValue() * r1, hero);
+			slider->scrollTo(0);
+			break;
+		case EMarketMode::RESOURCE_PLAYER:
+			LOCPLINT->cb->trade(market, mode, GameResID(leftIdToSend), PlayerColor(hRight->id), slider->getValue() * r1, hero);
+			slider->scrollTo(0);
+			break;
+
+		case EMarketMode::RESOURCE_ARTIFACT:
+			LOCPLINT->cb->trade(market, mode, GameResID(leftIdToSend), ArtifactID(hRight->id), r2, hero);
+			break;
+		case EMarketMode::ARTIFACT_RESOURCE:
+			LOCPLINT->cb->trade(market, mode, ArtifactInstanceID(leftIdToSend), GameResID(hRight->id), r2, hero);
+			break;
 		}
 	}
 

@@ -211,7 +211,7 @@ public:
 		return defendingHero && garrisonHero && defendingHero != garrisonHero;
 	}
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 

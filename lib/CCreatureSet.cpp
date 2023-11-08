@@ -415,12 +415,9 @@ int CCreatureSet::stacksCount() const
 	return static_cast<int>(stacks.size());
 }
 
-void CCreatureSet::setFormation(bool tight)
+void CCreatureSet::setFormation(EArmyFormation mode)
 {
-	if (tight)
-		formation = EArmyFormation::TIGHT;
-	else
-		formation = EArmyFormation::LOOSE;
+	formation = mode;
 }
 
 void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)

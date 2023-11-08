@@ -83,7 +83,7 @@ ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(SpellCastEnviron
 		for(const Bonus & b : bonuses)
 		{
 			GiveBonus gb;
-			gb.id = parameters.caster->getCasterUnitId();
+			gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 			gb.bonus = b;
 			env->apply(&gb);
 		}
@@ -323,7 +323,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	}
 
 	GiveBonus gb;
-	gb.id = parameters.caster->getCasterUnitId();
+	gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, BonusSourceID(owner->id));
 	env->apply(&gb);
 

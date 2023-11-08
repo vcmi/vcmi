@@ -306,7 +306,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	formations->resetCallback();
 	//setting formations
 	formations->setSelected(curHero->formation == EArmyFormation::TIGHT ? 1 : 0);
-	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, value);});
+	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, static_cast<EArmyFormation>(value));});
 
 	morale->set(curHero);
 	luck->set(curHero);

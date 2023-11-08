@@ -139,8 +139,8 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 		gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 	///Give all spells with bonus (to allow banned spells)
-	GiveBonus giveBonus(GiveBonus::ETarget::HERO);
-	giveBonus.id = hero->id.getNum();
+	GiveBonus giveBonus(GiveBonus::ETarget::OBJECT);
+	giveBonus.id = hero->id;
 	giveBonus.bonus = Bonus(BonusDuration::PERMANENT, BonusType::SPELLS_OF_LEVEL, BonusSource::OTHER, 0, BonusSourceID());
 	//start with level 0 to skip abilities
 	for (int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
@@ -300,11 +300,11 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 
 	gameHandler->sendAndApply(&smp);
 
-	GiveBonus gb(GiveBonus::ETarget::HERO);
+	GiveBonus gb(GiveBonus::ETarget::OBJECT);
 	gb.bonus.type = BonusType::FREE_SHIP_BOARDING;
 	gb.bonus.duration = BonusDuration::ONE_DAY;
 	gb.bonus.source = BonusSource::OTHER;
-	gb.id = hero->id.getNum();
+	gb.id = hero->id;
 	gameHandler->giveHeroBonus(&gb);
 }
 

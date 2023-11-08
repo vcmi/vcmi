@@ -35,13 +35,14 @@ public:
 
 	//TODO: fail all stub calls
 
-	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override {}
+	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
+	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
 	void showInfoDialog(InfoWindow * iw) override {}
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {}
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {}
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
-	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, Obj type, int32_t subtype = 0) override {};
+	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override {}
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}

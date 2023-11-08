@@ -23,7 +23,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	ui32 resetDuration;
 	bool coastVisitable;
 
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void doVisit(const CGHeroInstance * hero) const;
 
 public:

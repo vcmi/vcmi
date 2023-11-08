@@ -127,7 +127,7 @@ public:
 	void pickRandomObject(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
-	void setProperty(ui8 what, ui32 val) final;
+	void setProperty(ObjProperty what, ObjPropertyID identifier) final;
 
 	virtual void afterAddToMap(CMap * map);
 	virtual void afterRemoveFromMap(CMap * map);
@@ -154,7 +154,7 @@ public:
 
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
-	virtual void setPropertyDer(ui8 what, ui32 val);
+	virtual void setPropertyDer(ObjProperty what, ObjPropertyID identifier);
 
 	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
 	void setType(MapObjectID ID, MapObjectSubID subID);

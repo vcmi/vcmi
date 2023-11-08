@@ -348,7 +348,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	if (gender == EHeroGender::DEFAULT)
 		gender = type->gender;
 
-	setFormation(false);
+	setFormation(EArmyFormation::LOOSE);
 	if (!stacksCount()) //standard army//initial army
 	{
 		initArmy(rand);
@@ -501,7 +501,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			SetMovePoints smp;
 			smp.hid = id;
 			
-			cb->setManaPoints (id, manaLimit());		
+			cb->setManaPoints (id, manaLimit());
 			
 			ObjectInstanceID boatId;
 			const auto boatPos = visitablePos();
@@ -520,7 +520,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				smp.val = movementPointsLimit(true);
 			}
 			cb->giveHero(id, h->tempOwner, boatId); //recreates def and adds hero to player
-			cb->setObjProperty(id, ObjProperty::ID, Obj::HERO); //set ID to 34 AFTER hero gets correct flag color
+			cb->setObjPropertyID(id, ObjProperty::ID, Obj(Obj::HERO)); //set ID to 34 AFTER hero gets correct flag color
 			cb->setMovePoints (&smp);
 
 			h->showInfoDialog(102);
@@ -620,10 +620,10 @@ void CGHeroInstance::updateSkillBonus(const SecondarySkill & which, int val)
 		addNewBonus(std::make_shared<Bonus>(*b));
 }
 
-void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
+void CGHeroInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	if(what == ObjProperty::PRIMARY_STACK_COUNT)
-		setStackCount(SlotID(0), val);
+		setStackCount(SlotID(0), identifier.getNum());
 }
 
 double CGHeroInstance::getFightingStrength() const

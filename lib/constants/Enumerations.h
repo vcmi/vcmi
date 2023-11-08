@@ -246,4 +246,10 @@ enum class ETileVisibility : int8_t // Fog of war change
 	REVEALED
 };
 
+enum class EArmyFormation : int8_t
+{
+	LOOSE,
+	TIGHT
+};
+
 VCMI_LIB_NAMESPACE_END

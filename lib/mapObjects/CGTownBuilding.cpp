@@ -120,12 +120,12 @@ COPWBonus::COPWBonus(const BuildingID & bid, BuildingSubID::EBuildingSubID subId
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 }
 
-void COPWBonus::setProperty(ui8 what, ui32 val)
+void COPWBonus::setProperty(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
 		case ObjProperty::VISITORS:
-			visitors.insert(val);
+			visitors.insert(identifier.as<ObjectInstanceID>());
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
 			visitors.clear();
@@ -148,7 +148,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 			{
 				GiveBonus gb;
 				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT_TYPE, 600, BonusSourceID(Obj(Obj::STABLES)), BonusCustomSubtype::heroMovementLand, VLC->generaltexth->arraytxt[100]);
-				gb.id = heroID.getNum();
+				gb.id = heroID;
 				cb->giveHeroBonus(&gb);
 
 				SetMovePoints mp;
@@ -187,10 +187,10 @@ CTownBonus::CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID s
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 }
 
-void CTownBonus::setProperty (ui8 what, ui32 val)
+void CTownBonus::setProperty(ObjProperty what, ObjPropertyID identifier)
 {
 	if(what == ObjProperty::VISITORS)
-		visitors.insert(ObjectInstanceID(val));
+		visitors.insert(identifier.as<ObjectInstanceID>());
 }
 
 void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
@@ -272,7 +272,7 @@ void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) con
 			bonus->duration = BonusDuration::ONE_DAY;
 		}
 		gb.bonus = * bonus;
-		gb.id = h->id.getNum();
+		gb.id = h->id;
 		cb->giveHeroBonus(&gb);
 
 		if(bonus->duration == BonusDuration::PERMANENT)
@@ -318,21 +318,21 @@ void CTownRewardableBuilding::newTurn(CRandomGenerator & rand) const
 	{
 		if(configuration.resetParameters.rewards)
 		{
-			cb->setObjProperty(town->id, ObjProperty::REWARD_RANDOMIZE, indexOnTV);
+			cb->setObjPropertyValue(town->id, ObjProperty::REWARD_RANDOMIZE, indexOnTV);
 		}
 		if(configuration.resetParameters.visitors)
 		{
-			cb->setObjProperty(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
+			cb->setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
 		}
 	}
 }
 
-void CTownRewardableBuilding::setProperty(ui8 what, ui32 val)
+void CTownRewardableBuilding::setProperty(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
 		case ObjProperty::VISITORS:
-			visitors.insert(ObjectInstanceID(val));
+			visitors.insert(identifier.as<ObjectInstanceID>());
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
 			visitors.clear();
@@ -341,7 +341,7 @@ void CTownRewardableBuilding::setProperty(ui8 what, ui32 val)
 			initObj(cb->gameState()->getRandomGenerator());
 			break;
 		case ObjProperty::REWARD_SELECT:
-			selectedReward = val;
+			selectedReward = identifier.getNum();
 			break;
 	}
 }
