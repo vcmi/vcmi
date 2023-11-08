@@ -163,7 +163,7 @@ bool TurnOrderProcessor::mustActBefore(PlayerColor left, PlayerColor right) cons
 	if (!leftInfo->isHuman() && rightInfo->isHuman())
 		return false;
 
-	return left < right;
+	return false;
 }
 
 bool TurnOrderProcessor::canStartTurn(PlayerColor which) const
