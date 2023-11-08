@@ -34,8 +34,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 #define DEFINE_EXTERNAL_METHOD(METHODNAME) \
 extern template DLL_LINKAGE void METHODNAME<BinaryDeserializer>(BinaryDeserializer & s); \
-extern template DLL_LINKAGE void METHODNAME<BinarySerializer>(BinarySerializer & s); \
-extern template DLL_LINKAGE void METHODNAME<CTypeList>(CTypeList & s); \
+extern template DLL_LINKAGE void METHODNAME<BinarySerializer>(BinarySerializer & s);
 
 //DEFINE_EXTERNAL_METHOD(registerTypesMapObjects)
 DEFINE_EXTERNAL_METHOD(registerTypesMapObjects1)

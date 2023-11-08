@@ -19,6 +19,7 @@
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGTownBuilding.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../battle/BattleInfo.h"
 #include "../battle/CObstacleInstance.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Updaters.h"
@@ -351,7 +352,6 @@ void registerTypes(Serializer &s)
 
 extern template DLL_LINKAGE void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
 extern template DLL_LINKAGE void registerTypes<BinarySerializer>(BinarySerializer & s);
-extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif
 

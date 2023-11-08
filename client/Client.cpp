@@ -523,20 +523,20 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 
 void CClient::handlePack(CPack * pack)
 {
-	CBaseForCLApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
+	CBaseForCLApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
 	if(apply)
 	{
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		apply->applyOnClBefore(this, pack);
-		logNetwork->trace("\tMade first apply on cl: %s", typeList.getTypeInfo(pack)->name());
+		logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 		gs->apply(pack);
-		logNetwork->trace("\tApplied on gs: %s", typeList.getTypeInfo(pack)->name());
+		logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
 		apply->applyOnClAfter(this, pack);
-		logNetwork->trace("\tMade second apply on cl: %s", typeList.getTypeInfo(pack)->name());
+		logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
 	}
 	else
 	{
-		logNetwork->error("Message %s cannot be applied, cannot find applier!", typeList.getTypeInfo(pack)->name());
+		logNetwork->error("Message %s cannot be applied, cannot find applier!", typeid(pack).name());
 	}
 	delete pack;
 }

@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "CSerializer.h"
 #include "CTypeList.h"
 #include "../mapObjects/CArmedInstance.h"
 
@@ -194,9 +195,10 @@ public:
 	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
 	void savePointerImpl(const T &data)
 	{
+		typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType;
+
 		if(writer->smartVectorMembersSerialization)
 		{
-			typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType;
 			typedef typename VectorizedTypeFor<TObjectType>::type VType;
 			typedef typename VectorizedIDType<TObjectType>::type IDType;
 
@@ -220,7 +222,7 @@ public:
 		{
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.
 			// Therefore, all pointers need to be normalized to the actual object address.
-			auto actualPointer = typeList.castToMostDerived(data);
+			const void * actualPointer = static_cast<const void*>(data);
 			auto i = savedPointers.find(actualPointer);
 			if(i != savedPointers.end())
 			{
@@ -236,13 +238,13 @@ public:
 		}
 
 		//write type identifier
-		ui16 tid = typeList.getTypeID(data);
+		uint16_t tid = CTypeList::getInstance().getTypeID(data);
 		save(tid);
 
 		if(!tid)
 			save(*data); //if type is unregistered simply write all data in a standard way
 		else
-			applier.getApplier(tid)->savePtr(*this, typeList.castToMostDerived(data));  //call serializer specific for our real type
+			applier.getApplier(tid)->savePtr(*this, static_cast<const void*>(data));  //call serializer specific for our real type
 	}
 
 	template < typename T, typename std::enable_if < is_serializeable<BinarySerializer, T>::value, int  >::type = 0 >

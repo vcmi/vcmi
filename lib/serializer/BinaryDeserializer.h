@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "CSerializer.h"
 #include "CTypeList.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../../Global.h"
@@ -100,40 +101,39 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 		return length;
 	}
 
-	template <typename T> class CPointerLoader;
+	template <typename Type> class CPointerLoader;
 
-	class CBasicPointerLoader
+	class IPointerLoader
 	{
 	public:
-		virtual const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
-		virtual ~CBasicPointerLoader(){}
+		virtual void * loadPtr(CLoaderBase &ar, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+		virtual ~IPointerLoader() = default;
 
-		template<typename T> static CBasicPointerLoader *getApplier(const T * t=nullptr)
+		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
 		{
-			return new CPointerLoader<T>();
+			return new CPointerLoader<Type>();
 		}
 	};
 
-	template <typename T> class CPointerLoader : public CBasicPointerLoader
+	template <typename Type> class CPointerLoader : public IPointerLoader
 	{
 	public:
-		const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const override //data is pointer to the ACTUAL POINTER
+		void * loadPtr(CLoaderBase &ar, ui32 pid) const override //data is pointer to the ACTUAL POINTER
 		{
 			auto & s = static_cast<BinaryDeserializer &>(ar);
-			T *&ptr = *static_cast<T**>(data);
 
 			//create new object under pointer
-			typedef typename std::remove_pointer<T>::type npT;
-			ptr = ClassObjectCreator<npT>::invoke(); //does new npT or throws for abstract classes
+			Type * ptr = ClassObjectCreator<Type>::invoke(); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
-			//T is most derived known type, it's time to call actual serialize
+
 			assert(s.fileVersion != 0);
 			ptr->serialize(s,s.fileVersion);
-			return &typeid(T);
+
+			return static_cast<void*>(ptr);
 		}
 	};
 
-	CApplier<CBasicPointerLoader> applier;
+	CApplier<IPointerLoader> applier;
 
 	int write(const void * data, unsigned size);
 
@@ -143,7 +143,7 @@ public:
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<ui32, const std::type_info*> loadedPointersTypes;
-	std::map<const void*, std::any> loadedSharedPointers;
+	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
 	bool smartPointerSerialization;
 	bool saving;
 
@@ -288,7 +288,7 @@ public:
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
 				assert(loadedPointersTypes.count(pid));
-				data = reinterpret_cast<T>(typeList.castRaw(i->second, loadedPointersTypes.at(pid), &typeid(typename std::remove_const<typename std::remove_pointer<T>::type>::type)));
+				data = static_cast<T>(i->second);
 				return;
 			}
 		}
@@ -313,8 +313,7 @@ public:
 				data = nullptr;
 				return;
 			}
-			auto typeInfo = app->loadPtr(*this,&data, pid);
-			data = reinterpret_cast<T>(typeList.castRaw((void*)data, typeInfo, &typeid(typename std::remove_const<typename std::remove_pointer<T>::type>::type)));
+			data = static_cast<T>(app->loadPtr(*this, pid));
 		}
 	}
 
@@ -340,7 +339,7 @@ public:
 		NonConstT *internalPtr;
 		load(internalPtr);
 
-		void *internalPtrDerived = typeList.castToMostDerived(internalPtr);
+		void * internalPtrDerived = static_cast<void*>(internalPtr);
 
 		if(internalPtr)
 		{
@@ -349,35 +348,13 @@ public:
 			{
 				// This pointers is already loaded. The "data" needs to be pointed to it,
 				// so their shared state is actually shared.
-				try
-				{
-					auto actualType = typeList.getTypeInfo(internalPtr);
-					auto typeWeNeedToReturn = typeList.getTypeInfo<T>();
-					if(*actualType == *typeWeNeedToReturn)
-					{
-						// No casting needed, just unpack already stored shared_ptr and return it
-						data = std::any_cast<std::shared_ptr<T>>(itr->second);
-					}
-					else
-					{
-						// We need to perform series of casts
-						auto ret = typeList.castShared(itr->second, actualType, typeWeNeedToReturn);
-						data = std::any_cast<std::shared_ptr<T>>(ret);
-					}
-				}
-				catch(std::exception &e)
-				{
-					logGlobal->error(e.what());
-					logGlobal->error("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME", itr->second.type().name(), typeid(std::shared_ptr<T>).name());
-					//TODO scenario with inheritance -> we can have stored ptr to base and load ptr to derived (or vice versa)
-					throw;
-				}
+				data = std::static_pointer_cast<T>(itr->second);
 			}
 			else
 			{
 				auto hlp = std::shared_ptr<NonConstT>(internalPtr);
 				data = hlp;
-				loadedSharedPointers[internalPtrDerived] = typeList.castSharedToMostDerived(hlp);
+				loadedSharedPointers[internalPtrDerived] = std::static_pointer_cast<void>(hlp);
 			}
 		}
 		else

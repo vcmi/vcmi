@@ -1134,7 +1134,7 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 
 void CGameState::apply(CPack *pack)
 {
-	ui16 typ = typeList.getTypeID(pack);
+	ui16 typ = CTypeList::getInstance().getTypeID(pack);
 	applier->getApplier(typ)->applyOnGS(this, pack);
 }
 

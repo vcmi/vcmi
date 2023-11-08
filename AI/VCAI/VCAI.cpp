@@ -505,14 +505,14 @@ void VCAI::requestRealized(PackageApplied * pa)
 	NET_EVENT_HANDLER;
 	if(status.haveTurn())
 	{
-		if(pa->packType == typeList.getTypeID<EndTurn>())
+		if(pa->packType == CTypeList::getInstance().getTypeID<EndTurn>(nullptr))
 		{
 			if(pa->result)
 				status.madeTurn();
 		}
 	}
 
-	if(pa->packType == typeList.getTypeID<QueryReply>())
+	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 	{
 		status.receivedAnswerConfirmation(pa->requestID, pa->result);
 	}

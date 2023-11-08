@@ -463,12 +463,12 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 		PackageApplied applied;
 		applied.player = pack->player;
 		applied.result = succesfullyApplied;
-		applied.packType = typeList.getTypeID(pack);
+		applied.packType = CTypeList::getInstance().getTypeID(pack);
 		applied.requestID = pack->requestID;
 		pack->c->sendPack(&applied);
 	};
 
-	CBaseForGHApply * apply = applier->getApplier(typeList.getTypeID(pack)); //and appropriate applier object
+	CBaseForGHApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //and appropriate applier object
 	if(isBlockedByQueries(pack, pack->player))
 	{
 		sendPackageResponse(false);
