@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
+#include "../networkPacks/TradeItem.h"
+#include "../constants/Enumerations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,7 +25,7 @@ public:
 	virtual int getMarketEfficiency() const = 0;
 	virtual bool allowsTrade(EMarketMode mode) const;
 	virtual int availableUnits(EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
-	virtual std::vector<int> availableItemsIds(EMarketMode mode) const;
+	virtual std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const;
 
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 	std::vector<EMarketMode> availableModes() const;

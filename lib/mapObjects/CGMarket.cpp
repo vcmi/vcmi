@@ -48,18 +48,18 @@ int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	return -1;
 }
 
-std::vector<int> CGMarket::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
 {
 	if(allowsTrade(mode))
 		return IMarket::availableItemsIds(mode);
-	return std::vector<int>();
+	return std::vector<TradeItemBuy>();
 }
 
 CGMarket::CGMarket()
 {
 }
 
-std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) const
 {
 	switch(mode)
 	{
@@ -67,16 +67,16 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
 		return IMarket::availableItemsIds(mode);
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
-			std::vector<int> ret;
+			std::vector<TradeItemBuy> ret;
 			for(const CArtifact *a : artifacts)
 				if(a)
 					ret.push_back(a->getId());
 				else
-					ret.push_back(-1);
+					ret.push_back(ArtifactID{});
 			return ret;
 		}
 	default:
-		return std::vector<int>();
+		return std::vector<TradeItemBuy>();
 	}
 }
 
@@ -96,7 +96,7 @@ void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 	cb->sendAndApply(&saa);
 }
 
-std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) const
 {
 	switch (mode)
 	{
@@ -104,7 +104,7 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
 			return skills;
 
 		default:
-			return std::vector<int>();
+			return std::vector<TradeItemBuy>();
 	}
 }
 

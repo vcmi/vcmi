@@ -778,8 +778,10 @@ void CGameState::initTowns()
 		campaign->initTowns();
 
 	CGTownInstance::universitySkills.clear();
-	for ( int i=0; i<4; i++)
-		CGTownInstance::universitySkills.push_back(14+i);//skills for university
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
 
 	for (auto & elem : map->towns)
 	{

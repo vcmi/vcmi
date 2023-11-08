@@ -1156,7 +1156,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	clerkSpeech = std::make_shared<CTextBox>(speechStr, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	title = std::make_shared<CLabel>(231, 26, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
 
-	std::vector<int> goods = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
+	std::vector<TradeItemBuy> goods = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
 
 	for(int i=0; i<goods.size(); i++)//prepare clickable items
 		items.push_back(std::make_shared<CItem>(this, goods[i], 54+i*104, 234));

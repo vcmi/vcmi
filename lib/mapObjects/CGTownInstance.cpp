@@ -34,7 +34,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
-std::vector<int> CGTownInstance::universitySkills;
+std::vector<TradeItemBuy> CGTownInstance::universitySkills;
 
 
 int CGTownInstance::getSightRadius() const //returns sight distance
@@ -765,16 +765,16 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 	}
 }
 
-std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) const
 {
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
-		std::vector<int> ret;
+		std::vector<TradeItemBuy> ret;
 		for(const CArtifact *a : merchantArtifacts)
 			if(a)
 				ret.push_back(a->getId());
 			else
-				ret.push_back(-1);
+				ret.push_back(ArtifactID{});
 		return ret;
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )

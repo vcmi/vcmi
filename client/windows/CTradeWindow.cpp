@@ -632,7 +632,7 @@ void CMarketplaceWindow::artifactsChanged(bool Left)
 	if(mode != EMarketMode::RESOURCE_ARTIFACT)
 		return;
 
-	std::vector<int> available = market->availableItemsIds(mode);
+	std::vector<TradeItemBuy> available = market->availableItemsIds(mode);
 	std::set<std::shared_ptr<CTradeableItem>> toRemove;
 	for(auto item : items[0])
 		if(!vstd::contains(available, item->id))

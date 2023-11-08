@@ -79,8 +79,9 @@ void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 		a.syncSize(temp);
 		for(int i = 0; i < temp.size(); ++i)
 		{
-			a.serializeInt(i, temp[i].getNum());
-			buildings.insert(temp[i]);
+			int buildingID = temp[i].getNum();
+			a.serializeInt(i, buildingID);
+			buildings.insert(buildingID);
 		}
 	}
 

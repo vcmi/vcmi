@@ -68,7 +68,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	static std::vector<const CArtifact *> merchantArtifacts; //vector of artifacts available at Artifact merchant, NULLs possible (for making empty space when artifact is bought)
-	static std::vector<int> universitySkills;//skills for university of magic
+	static std::vector<TradeItemBuy> universitySkills;//skills for university of magic
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -150,7 +150,7 @@ public:
 	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
 	bool allowsTrade(EMarketMode mode) const override;
-	std::vector<int> availableItemsIds(EMarketMode mode) const override;
+	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
 	void updateAppearance();
 

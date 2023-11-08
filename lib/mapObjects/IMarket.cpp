@@ -140,16 +140,16 @@ int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 	}
 }
 
-std::vector<int> IMarket::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> IMarket::availableItemsIds(EMarketMode mode) const
 {
-	std::vector<int> ret;
+	std::vector<TradeItemBuy> ret;
 	switch(mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::ARTIFACT_RESOURCE:
 	case EMarketMode::CREATURE_RESOURCE:
-		for (int i = 0; i < 7; i++)
-			ret.push_back(i);
+		for (auto res : GameResID::ALL_RESOURCES())
+			ret.push_back(res);
 	}
 	return ret;
 }
