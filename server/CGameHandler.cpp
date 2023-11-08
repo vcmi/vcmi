@@ -3959,38 +3959,46 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 	}
 }
 
-bool CGameHandler::giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos)
+bool CGameHandler::putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble)
 {
-	assert(a->artType);
-	ArtifactLocation al(h->id, ArtifactPosition::PRE_FIRST);
+	assert(art && art->artType);
+	ArtifactLocation dst(al.artHolder, ArtifactPosition::PRE_FIRST);
+	dst.creature = al.creature;
+	auto putTo = getArtSet(al);
+	assert(putTo);
 
-	if(pos == ArtifactPosition::FIRST_AVAILABLE)
+	if(al.slot == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		al.slot = ArtifactUtils::getArtAnyPosition(h, a->getTypeId());
+		dst.slot = ArtifactUtils::getArtAnyPosition(putTo, art->getTypeId());
 	}
-	else if(ArtifactUtils::isSlotBackpack(pos))
+	else if(ArtifactUtils::isSlotBackpack(al.slot) && !al.creature.has_value())
 	{
-		al.slot = ArtifactUtils::getArtBackpackPosition(h, a->getTypeId());
+		dst.slot = ArtifactUtils::getArtBackpackPosition(putTo, art->getTypeId());
 	}
 	else
 	{
-		al.slot = pos;
+		dst.slot = al.slot;
 	}
 
-	if(a->canBePutAt(h, al.slot))
-		putArtifact(al, a);
+	if(!askAssemble.has_value())
+	{
+		if(!dst.creature.has_value() && ArtifactUtils::isSlotEquipment(dst.slot))
+			askAssemble = true;
+		else
+			askAssemble = false;
+	}
+
+	if(art->canBePutAt(putTo, dst.slot))
+	{
+		PutArtifact pa(dst, askAssemble.value());
+		pa.art = art;
+		sendAndApply(&pa);
+		return true;
+	}
 	else
+	{
 		return false;
-
-	return true;
-}
-
-void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstance *a)
-{
-	PutArtifact pa;
-	pa.art = a;
-	pa.al = al;
-	sendAndApply(&pa);
+	}
 }
 
 bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos)
@@ -4019,7 +4027,7 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 	na.art = newArtInst;
 	sendAndApply(&na); // -> updates newArtInst!!!
 
-	if(giveHeroArtifact(h, newArtInst, pos))
+	if(putArtifact(ArtifactLocation(h->id, pos), newArtInst, false))
 		return true;
 	else
 		return false;
