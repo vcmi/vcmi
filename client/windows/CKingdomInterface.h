@@ -253,6 +253,7 @@ public:
 	void townChanged(const CGTownInstance *town);
 	void heroRemoved();
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 	void artifactRemoved(const ArtifactLocation &artLoc) override;
 	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
 	void artifactDisassembled(const ArtifactLocation &artLoc) override;
@@ -290,6 +291,7 @@ public:
 	CTownItem(const CGTownInstance * Town);
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 	void update();
 };
 
@@ -322,6 +324,7 @@ public:
 	std::shared_ptr<CArtifactsOfHeroKingdom> heroArts;
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 
 	CHeroItem(const CGHeroInstance * hero);
 };
@@ -340,6 +343,7 @@ public:
 	CKingdHeroList(size_t maxSize);
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 };
 
 /// Tab with all town-specific data
@@ -358,4 +362,5 @@ public:
 
 	void townChanged(const CGTownInstance * town);
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 };

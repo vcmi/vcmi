@@ -107,6 +107,7 @@ public:
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 	void createBackpackWindow();
 
 	//friends

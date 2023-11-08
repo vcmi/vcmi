@@ -45,10 +45,15 @@ void CAltarWindow::updateExpToLevel()
 	altar->expToLevel->setText(std::to_string(CGI->heroh->reqExp(CGI->heroh->level(altar->hero->exp) + 1) - altar->hero->exp));
 }
 
-void CAltarWindow::updateGarrison()
+void CAltarWindow::updateGarrisons()
 {
 	if(auto altarCreatures = std::static_pointer_cast<CAltarCreatures>(altar))
 		altarCreatures->updateGarrison();
+}
+
+bool CAltarWindow::holdsGarrison(const CArmedInstance * army)
+{
+	return hero == army;
 }
 
 const CGHeroInstance * CAltarWindow::getHero() const

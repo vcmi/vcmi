@@ -13,12 +13,13 @@
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 
-class CAltarWindow : public CWindowObject, public CWindowWithArtifacts
+class CAltarWindow : public CWindowObject, public CWindowWithArtifacts, public IGarrisonHolder
 {
 public:
 	CAltarWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode);
 	void updateExpToLevel();
-	void updateGarrison();
+	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 	const CGHeroInstance * getHero() const;
 	void close() override;
 

@@ -353,3 +353,8 @@ void CHeroWindow::updateGarrisons()
 	garr->recreateSlots();
 	morale->set(curHero);
 }
+
+bool CHeroWindow::holdsGarrison(const CArmedInstance * army)
+{
+	return army == curHero;
+}

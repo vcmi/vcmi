@@ -290,6 +290,7 @@ public:
 	std::array<std::shared_ptr<CArtifactsOfHeroMain>, 2> artifs;
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 
@@ -362,6 +363,7 @@ public:
 	void addAll();
 	void close() override;
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed);
 };
 
@@ -443,6 +445,7 @@ public:
 	CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits);
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 };
 
 /// Hill fort is the building where you can upgrade units
@@ -482,6 +485,7 @@ private:
 public:
 	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object);
 	void updateGarrisons() override;//update buttons after garrison changes
+	bool holdsGarrison(const CArmedInstance * army) override;
 };
 
 class CThievesGuildWindow : public CStatusbarWindow

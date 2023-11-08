@@ -223,7 +223,7 @@ private:
 	};
 
 	void heroKilled(const CGHeroInstance* hero);
-	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
+	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
 	void requestReturningToMainMenu(bool won);
 	void acceptTurn(QueryID queryID); //used during hot seat after your turn message is close
 	void initializeHeroTownList();

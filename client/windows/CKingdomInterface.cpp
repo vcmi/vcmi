@@ -662,6 +662,11 @@ void CKingdomInterface::updateGarrisons()
 		garrison->updateGarrisons();
 }
 
+bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
+{
+	return army->getOwner() == LOCPLINT->playerID;
+}
+
 void CKingdomInterface::artifactAssembled(const ArtifactLocation& artLoc)
 {
 	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
@@ -707,6 +712,15 @@ void CKingdHeroList::updateGarrisons()
 		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
+}
+
+bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
+{
+	for(std::shared_ptr<CIntObject> object : heroes->getItems())
+		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
+			if (garrison->holdsGarrison(army))
+				return true;
+	return false;
 }
 
 std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
@@ -759,6 +773,15 @@ void CKingdTownList::updateGarrisons()
 		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
+}
+
+bool CKingdTownList::holdsGarrison(const CArmedInstance * army)
+{
+	for(std::shared_ptr<CIntObject> object : towns->getItems())
+		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
+			if (garrison->holdsGarrison(army))
+				return true;
+	return false;
 }
 
 std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
@@ -834,6 +857,11 @@ void CTownItem::updateGarrisons()
 	garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);
 	garr->setArmy(town->visitingHero, EGarrisonType::LOWER);
 	garr->recreateSlots();
+}
+
+bool CTownItem::holdsGarrison(const CArmedInstance * army)
+{
+	return army == town || army == town->getUpperArmy() || army == town->visitingHero;
 }
 
 void CTownItem::update()
@@ -996,6 +1024,11 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 void CHeroItem::updateGarrisons()
 {
 	garr->recreateSlots();
+}
+
+bool CHeroItem::holdsGarrison(const CArmedInstance * army)
+{
+	return hero == army;
 }
 
 std::shared_ptr<CIntObject> CHeroItem::onTabSelected(size_t index)
