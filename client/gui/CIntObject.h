@@ -21,7 +21,7 @@ class Canvas;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CArmedInstance;
-VCMI_LIB_NAMESPACE_BEGIN
+VCMI_LIB_NAMESPACE_END
 
 class IUpdateable
 {
