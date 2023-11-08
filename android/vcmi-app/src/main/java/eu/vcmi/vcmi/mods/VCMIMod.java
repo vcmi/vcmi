@@ -46,6 +46,7 @@ public class VCMIMod
     // internal
     public boolean mLoadedCorrectly;
     public boolean mSystem;
+    public boolean mVisible;
 
     protected VCMIMod()
     {
@@ -67,6 +68,7 @@ public class VCMIMod
         mod.mArchiveUrl = modDownloadData.optString("download");
         mod.mSize = obj.optLong("size");
         mod.mLoadedCorrectly = true;
+		mod.mVisible = mModType.equals("Compatibility");
         return mod;
     }
 
@@ -87,6 +89,7 @@ public class VCMIMod
         }
         mod.mLoadedCorrectly = true;
         mod.mActive = true; // active by default
+		mod.mVisible = true;
         mod.mInstalled = true;
         mod.installationFolder = modPath;
 
@@ -171,6 +174,7 @@ public class VCMIMod
             mAuthor = modInfoContent.optString("author");
             mContact = modInfoContent.optString("contact");
             mModType = modInfoContent.optString("modType");
+			mVisible = mModType.equals("Compatibility");
             mSystem = mId.equals("vcmi");
 
             final File submodsDir = new File(modPath, "Mods");

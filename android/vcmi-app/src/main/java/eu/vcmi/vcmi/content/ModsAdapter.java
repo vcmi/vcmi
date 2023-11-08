@@ -164,8 +164,11 @@ public class ModsAdapter extends RecyclerView.Adapter<ModBaseViewHolder>
 
         for (VCMIMod mod : mods)
         {
-            ModItem modItem = new ModItem(mod);
-            list.add(modItem);
+            if (mod.mVisible)
+            {
+                ModItem modItem = new ModItem(mod);
+                list.add(modItem);
+            }
         }
 
         mDataset.addAll(list);
