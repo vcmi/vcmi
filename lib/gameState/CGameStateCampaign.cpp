@@ -189,8 +189,8 @@ void CGameStateCampaign::placeCampaignHeroes()
 		auto it = gameState->scenarioOps->playerInfos.find(playerColor);
 		if(it != gameState->scenarioOps->playerInfos.end())
 		{
-			auto heroTypeId = campaignBonus->info2;
-			if(heroTypeId == 0xffff) // random bonus hero
+			HeroTypeID heroTypeId = HeroTypeID(campaignBonus->info2);
+			if(heroTypeId.getNum() == 0xffff) // random bonus hero
 			{
 				heroTypeId = gameState->pickUnusedHeroTypeRandomly(playerColor);
 			}

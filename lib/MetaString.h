@@ -21,13 +21,13 @@ class MapObjectSubID;
 class PlayerColor;
 class SecondarySkill;
 class SpellID;
+class GameResID;
 using TQuantity = si32;
 
 /// Strings classes that can be used as replacement in MetaString
 enum class EMetaText : uint8_t
 {
 	GENERAL_TXT = 1,
-	RES_NAMES,
 	ARRAY_TXT,
 	ADVOB_TXT,
 	JK_TXT
@@ -97,6 +97,7 @@ public:
 	void replaceName(const PlayerColor& id);
 	void replaceName(const SecondarySkill& id);
 	void replaceName(const SpellID& id);
+	void replaceName(const GameResID& id);
 
 	/// Replaces first '%s' placeholder with singular or plural name depending on creatures count
 	void replaceName(const CreatureID & id, TQuantity count);

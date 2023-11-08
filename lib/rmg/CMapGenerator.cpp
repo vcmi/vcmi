@@ -182,7 +182,7 @@ void CMapGenerator::addPlayerInfo()
 {
 	// Teams are already configured in CMapGenOptions. However, it's not the case when it comes to map editor
 
-	std::set<int> teamsTotal;
+	std::set<TeamID> teamsTotal;
 
 	if (mapGenOptions.arePlayersCustomized())
 	{
@@ -284,7 +284,7 @@ void CMapGenerator::addPlayerInfo()
 				player.team = TeamID(*itTeam);
 				teamNumbers[j].erase(itTeam);
 			}
-			teamsTotal.insert(player.team.getNum());
+			teamsTotal.insert(player.team);
 			map->getMap(this).players[pSettings.getColor().getNum()] = player;
 		}
 

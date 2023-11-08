@@ -242,13 +242,13 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	if(mission.resources.nonZero())
 	{
 		MetaString loot;
-		for(int i = 0; i < 7; ++i)
+		for(auto i : GameResID::ALL_RESOURCES())
 		{
 			if(mission.resources[i])
 			{
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(mission.resources[i]);
-				loot.replaceLocalString(EMetaText::RES_NAMES, i);
+				loot.replaceName(i);
 			}
 		}
 		text.replaceRawString(loot.buildList());

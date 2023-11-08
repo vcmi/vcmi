@@ -1971,9 +1971,9 @@ void HeroVisit::applyGs(CGameState *gs)
 
 void SetAvailableArtifacts::applyGs(CGameState * gs) const
 {
-	if(id >= 0)
+	if(id != ObjectInstanceID::NONE)
 	{
-		if(auto * bm = dynamic_cast<CGBlackMarket *>(gs->map->objects[id].get()))
+		if(auto * bm = dynamic_cast<CGBlackMarket *>(gs->getObjInstance(id)))
 		{
 			bm->artifacts = arts;
 		}

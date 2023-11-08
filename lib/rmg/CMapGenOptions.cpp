@@ -325,7 +325,7 @@ void CMapGenOptions::resetPlayersMap()
 		}
 		else
 		{
-			logGlobal->warn("Adding settings for player %s", color.encode(color));
+			logGlobal->warn("Adding settings for player %s", color);
 			// Usually, all players should be initialized in initPlayersMap()
 			CPlayerSettings settings;
 			players[color] = settings;

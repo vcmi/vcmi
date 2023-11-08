@@ -273,7 +273,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				iw.components.emplace_back(ComponentType::RESOURCE, it, bc->resources[it]);
 				loot.appendRawString("%d %s");
 				loot.replaceNumber(bc->resources[it]);
-				loot.replaceLocalString(EMetaText::RES_NAMES, it);
+				loot.replaceName(it);
 				cb->giveResource(hero->getOwner(), it, bc->resources[it]);
 			}
 		}

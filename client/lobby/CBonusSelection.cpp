@@ -235,38 +235,30 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		case CampaignBonusType::RESOURCE:
 		{
-			int serialResID = 0;
+			desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
+
 			switch(bonDescs[i].info1)
 			{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-				serialResID = bonDescs[i].info1;
-				break;
-			case 0xFD: //wood + ore
-				serialResID = 7;
-				break;
-			case 0xFE: //rare resources
-				serialResID = 8;
-				break;
+				case 0xFD: //wood + ore
+				{
+					desc.replaceLocalString(EMetaText::GENERAL_TXT, 721);
+					picNumber = 7;
+					break;
+				}
+				case 0xFE: //wood + ore
+				{
+					desc.replaceLocalString(EMetaText::GENERAL_TXT, 722);
+					picNumber = 8;
+					break;
+				}
+				default:
+				{
+					desc.replaceName(GameResID(bonDescs[i].info1));
+					picNumber = bonDescs[i].info1;
+				}
 			}
-			picNumber = serialResID;
 
-			desc.appendLocalString(EMetaText::GENERAL_TXT, 717);
 			desc.replaceNumber(bonDescs[i].info2);
-			
-			if(serialResID <= 6)
-			{
-				desc.replaceLocalString(EMetaText::RES_NAMES, serialResID);
-			}
-			else
-			{
-				desc.replaceLocalString(EMetaText::GENERAL_TXT, 714 + serialResID);
-			}
 			break;
 		}
 		case CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO:

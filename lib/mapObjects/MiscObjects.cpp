@@ -320,7 +320,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 	{
 		sii.type = EInfoWindowMode::INFO;
 		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
-		sii.text.replaceLocalString(EMetaText::RES_NAMES, resourceID());
+		sii.text.replaceName(resourceID());
 	}
 	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);

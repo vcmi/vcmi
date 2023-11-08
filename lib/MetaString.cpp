@@ -114,8 +114,6 @@ std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) c
 	{
 		case EMetaText::GENERAL_TXT:
 			return VLC->generaltexth->translate("core.genrltxt", ser);
-		case EMetaText::RES_NAMES:
-			return VLC->generaltexth->translate("core.restypes", ser);
 		case EMetaText::ARRAY_TXT:
 			return VLC->generaltexth->translate("core.arraytxt", ser);
 		case EMetaText::ADVOB_TXT:
@@ -372,6 +370,11 @@ void MetaString::replaceName(const SecondarySkill & id)
 void MetaString::replaceName(const SpellID & id)
 {
 	replaceTextID(id.toEntity(VLC)->getNameTextID());
+}
+
+void MetaString::replaceName(const GameResID& id)
+{
+	replaceTextID(TextIdentifier("core.restypes", id.getNum()).get());
 }
 
 void MetaString::replaceNameSingular(const CreatureID & id)
