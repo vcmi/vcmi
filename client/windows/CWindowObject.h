@@ -16,8 +16,6 @@ class CGStatusBar;
 
 class CWindowObject : public WindowBase
 {
-	std::shared_ptr<CPicture> createBg(const ImagePath & imageName, bool playerColored);
-
 	std::vector<std::shared_ptr<CPicture>> shadowParts;
 
 	void setShadow(bool on);
@@ -32,6 +30,7 @@ protected:
 	//To display border
 	void updateShadow();
 	void setBackground(const ImagePath & filename);
+	std::shared_ptr<CPicture> createBg(const ImagePath & imageName, bool playerColored);
 public:
 	enum EOptions
 	{

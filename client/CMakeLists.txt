@@ -93,12 +93,14 @@ set(client_SRCS
 	renderSDL/SDL_Extensions.cpp
 
 	widgets/Buttons.cpp
+	widgets/CAltar.cpp
 	widgets/CArtifactHolder.cpp
 	widgets/CComponent.cpp
 	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
 	widgets/ComboBox.cpp
+	widgets/CTradeBase.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
@@ -114,6 +116,7 @@ set(client_SRCS
 	widgets/CWindowWithArtifacts.cpp
 	widgets/RadialMenu.cpp
 
+	windows/CAltarWindow.cpp
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
 	windows/CHeroOverview.cpp
@@ -259,12 +262,14 @@ set(client_HEADERS
 	renderSDL/SDL_PixelAccess.h
 
 	widgets/Buttons.h
+	widgets/CAltar.h
 	widgets/CArtifactHolder.h
 	widgets/CComponent.h
 	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
 	widgets/ComboBox.h
+	widgets/CTradeBase.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
@@ -280,6 +285,7 @@ set(client_HEADERS
 	widgets/CWindowWithArtifacts.h
 	widgets/RadialMenu.h
 
+	windows/CAltarWindow.h
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
 	windows/CHeroOverview.h

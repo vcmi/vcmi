@@ -75,12 +75,26 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 	text = artInst->getDescription();
 }
 
-CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art) 
-	: ourArt(Art)
+CArtPlace::CArtPlace(Point position, const CArtifactInstance * art) 
+	: ourArt(art)
+	, locked(false)
 {
-	image = nullptr;
 	pos += position;
 	pos.w = pos.h = 44;
+
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	imageIndex = 0;
+	if(locked)
+		imageIndex = ArtifactID::ART_LOCK;
+	else if(ourArt)
+		imageIndex = ourArt->artType->getIconIndex();
+
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
+	image->disable();
+
+	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION, 0, -1, -1);
+	selection->visible = false;
 }
 
 const CArtifactInstance * CArtPlace::getArt()
@@ -88,26 +102,12 @@ const CArtifactInstance * CArtPlace::getArt()
 	return ourArt;
 }
 
-CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art)
-	: CArtPlace(position, Art),
+CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * art)
+	: CArtPlace(position, art),
 	commanderOwner(commanderOwner),
 	commanderSlotID(artSlot.num)
 {
-	createImage();
-	setArtifact(Art);
-}
-
-void CCommanderArtPlace::createImage()
-{
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
-
-	imageIndex = 0;
-	if(ourArt)
-		imageIndex = ourArt->artType->getIconIndex();
-
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
-	if(!ourArt)
-		image->disable();
+	setArtifact(art);
 }
 
 void CCommanderArtPlace::returnArtToHeroCallback()
@@ -145,20 +145,12 @@ void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 		CArtPlace::showPopupWindow(cursorPosition);
 }
 
-void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
+CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * art)
+	: CArtPlace(position, art)
 {
-	setInternals(art);
 }
 
-CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * Art)
-	: CArtPlace(position, Art),
-	locked(false),
-	marked(false)
-{
-	createImage();
-}
-
-void CHeroArtPlace::lockSlot(bool on)
+void CArtPlace::lockSlot(bool on)
 {
 	if(locked == on)
 		return;
@@ -173,26 +165,19 @@ void CHeroArtPlace::lockSlot(bool on)
 		image->setFrame(0);
 }
 
-bool CHeroArtPlace::isLocked()
+bool CArtPlace::isLocked() const
 {
 	return locked;
 }
 
-void CHeroArtPlace::selectSlot(bool on)
+void CArtPlace::selectSlot(bool on)
 {
-	if(marked == on)
-		return;
-
-	marked = on;
-	if(on)
-		selection->enable();
-	else
-		selection->disable();
+	selection->visible = on;
 }
 
-bool CHeroArtPlace::isMarked() const
+bool CArtPlace::isSelected() const
 {
-	return marked;
+	return selection->visible;
 }
 
 void CHeroArtPlace::clickPressed(const Point & cursorPosition)
@@ -207,18 +192,13 @@ void CHeroArtPlace::showPopupWindow(const Point & cursorPosition)
 		showPopupCallback(*this);
 }
 
-void CHeroArtPlace::showAll(Canvas & to)
+void CArtPlace::showAll(Canvas & to)
 {
-	if(ourArt)
-	{
-		CIntObject::showAll(to);
-	}
-
-	if(marked && isActive())
-		to.drawBorder(pos, Colors::BRIGHT_YELLOW);
+	CIntObject::showAll(to);
+	selection->showAll(to);
 }
 
-void CHeroArtPlace::setArtifact(const CArtifactInstance * art)
+void CArtPlace::setArtifact(const CArtifactInstance * art)
 {
 	setInternals(art);
 	if(art)
@@ -251,24 +231,6 @@ void CHeroArtPlace::addCombinedArtInfo(std::map<const CArtifact*, int> & arts)
 		text += " (" + boost::str(boost::format("%d") % combinedArt.second) + " / " +
 			boost::str(boost::format("%d") % combinedArt.first->getConstituents().size()) + ")" + artList;
 	}
-}
-
-void CHeroArtPlace::createImage()
-{
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-
-	si32 imageIndex = 0;
-
-	if(locked)
-		imageIndex = ArtifactID::ART_LOCK;
-	else if(ourArt)
-		imageIndex = ourArt->artType->getIconIndex();
-
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
-	image->disable();
-
-	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION);
-	selection->disable();
 }
 
 bool ArtifactUtilsClient::askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot)
