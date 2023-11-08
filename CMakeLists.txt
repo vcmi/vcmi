@@ -709,6 +709,19 @@ if(WIN32)
 	endif()
 
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
+
+	if(MSVC)
+		#parse all binary targets for their dll dependencies, recursively
+		install(TARGETS ${BINARY_TARGETS} RUNTIME_DEPENDENCIES
+			#skip parsing system dlls
+			PRE_EXCLUDE_REGEXES "api-ms-.*" "ext-ms-.*"
+			#include all requeired dlls found in build dir
+			POST_INCLUDE_REGEXES "${CMAKE_BINARY_DIR}.*" 
+			#do not include other dlls (from c:/windows)
+			POST_EXCLUDE_REGEXES ".*"
+			DESTINATION ${BIN_DIR}
+		)
+	endif()
 endif(WIN32)
 
 #######################################

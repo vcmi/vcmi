@@ -1,3 +1,4 @@
 add_main_lib(vcmi_lib_server STATIC)
+set(BINARY_TARGETS ${BINARY_TARGETS} vcmi_lib_server PARENT_SCOPE)
 target_compile_definitions(vcmi_lib_server PUBLIC VCMI_LIB_NAMESPACE=LIB_SERVER)
 target_compile_definitions(vcmi_lib_server PUBLIC VCMI_DLL_STATIC=1)

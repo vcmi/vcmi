@@ -347,6 +347,7 @@ if(ANDROID)
 else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
+set(BINARY_TARGETS ${BINARY_TARGETS} vcmiclient PARENT_SCOPE)
 
 add_dependencies(vcmiclient vcmiserver)
 if(NOT ENABLE_STATIC_AI_LIBS)

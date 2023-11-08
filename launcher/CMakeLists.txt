@@ -108,6 +108,7 @@ if(ENABLE_SINGLE_APP_BUILD)
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
 endif()
+set(BINARY_TARGETS ${BINARY_TARGETS} vcmilauncher PARENT_SCOPE)
 
 if(TARGET Qt6::Core)
 	if(ENABLE_TRANSLATIONS)

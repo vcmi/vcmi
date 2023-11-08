@@ -60,6 +60,7 @@ else()
 	else()
 		add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
 	endif()
+	set(BINARY_TARGETS ${BINARY_TARGETS} vcmiserver PARENT_SCOPE)
 	set(server_LIBS vcmi)
 endif()
 

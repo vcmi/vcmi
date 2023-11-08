@@ -143,6 +143,7 @@ if(WIN32)
 endif()
 
 add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
+set(BINARY_TARGETS ${BINARY_TARGETS} vcmieditor PARENT_SCOPE)
 
 if(TARGET Qt6::Core)
 	if(ENABLE_TRANSLATIONS)
