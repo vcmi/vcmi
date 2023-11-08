@@ -81,14 +81,22 @@ public class ModsAdapter extends RecyclerView.Adapter<ModBaseViewHolder>
                         modHolder.mDownloadProgress.setText(item.mDownloadProgress);
                         modHolder.mDownloadProgress.setVisibility(View.VISIBLE);
                     }
-                    else if (!item.mMod.mInstalled)
-                    {
-                        modHolder.mDownloadBtn.setVisibility(View.VISIBLE);
-                    }
-                    else if (item.mMod.installationFolder != null)
-                    {
-                        modHolder.mUninstall.setVisibility(View.VISIBLE);
-                    }
+                    else
+					{
+						if (!item.mMod.mInstalled)
+						{
+							modHolder.mDownloadBtn.setVisibility(View.VISIBLE);
+						}
+						if (item.mMod.mRepoVersion != null && item.mMod.mLocalVersion != null && !item.mMod.mRepoVersion.equals(item.mMod.mLocalVersion))
+						{
+							modHolder.mDownloadBtn.setVisibility(View.VISIBLE);
+						}
+						
+						if (item.mMod.installationFolder != null)
+						{
+							modHolder.mUninstall.setVisibility(View.VISIBLE);
+						}
+					}
 
                     modHolder.itemView.setOnClickListener(v -> mItemListener.onItemPressed(item, holder));
                     modHolder.mStatusIcon.setOnClickListener(v -> mItemListener.onTogglePressed(item, holder));

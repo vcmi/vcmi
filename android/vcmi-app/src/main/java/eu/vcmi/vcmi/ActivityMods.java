@@ -267,6 +267,14 @@ public class ActivityMods extends ActivityWithToolbar
         @Override
         public void onDownloadPressed(final ModsAdapter.ModItem mod, final RecyclerView.ViewHolder vh)
         {
+			if (mod.mMod.mInstalled)
+			{
+				// Update - erase old mod first
+				File installationFolder = mod.mMod.installationFolder;
+				FileUtil.clearDirectory(installationFolder);
+				installationFolder.delete();
+			}
+			
             Log.i(this, "Mod download pressed: " + mod);
             mModsAdapter.downloadProgress(mod, "0%");
             installModAsync(mod);

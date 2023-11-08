@@ -30,6 +30,8 @@ public class VCMIMod
     public String mName;
     public String mDesc;
     public String mVersion;
+	public String mRepoVersion;
+	public String mLocalVersion;
     public String mAuthor;
     public String mContact;
     public String mModType;
@@ -62,6 +64,7 @@ public class VCMIMod
         mod.mName = obj.optString("name");
         mod.mDesc = obj.optString("description");
         mod.mVersion = obj.optString("version");
+		mod.mRepoVersion = obj.optString("version");
         mod.mAuthor = obj.optString("author");
         mod.mContact = obj.optString("contact");
         mod.mModType = obj.optString("modType");
@@ -171,6 +174,7 @@ public class VCMIMod
             mName = modInfoContent.optString("name");
             mDesc = modInfoContent.optString("description");
             mVersion = modInfoContent.optString("version");
+			mLocalVersion = modInfoContent.optString("version");
             mAuthor = modInfoContent.optString("author");
             mContact = modInfoContent.optString("contact");
             mModType = modInfoContent.optString("modType");
@@ -258,5 +262,6 @@ public class VCMIMod
         this.mAuthor = other.mAuthor;
         this.mDesc = other.mDesc;
         this.mArchiveUrl = other.mArchiveUrl;
+		this.mRepoVersion = other.mRepoVersion;
     }
 }
