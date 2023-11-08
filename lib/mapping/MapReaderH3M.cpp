@@ -81,6 +81,17 @@ ArtifactID MapReaderH3M::readArtifact()
 	return ArtifactID::NONE;
 }
 
+ArtifactID MapReaderH3M::readArtifact8()
+{
+	ArtifactID result(reader->readInt8());
+
+	if (result.getNum() < features.artifactsCount)
+		return remapIdentifier(result);
+
+	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	return ArtifactID::NONE;
+}
+
 ArtifactID MapReaderH3M::readArtifact32()
 {
 	ArtifactID result(reader->readInt32());
@@ -194,6 +205,13 @@ SpellID MapReaderH3M::readSpell32()
 	if(result.getNum() == features.spellIdentifierInvalid)
 		return SpellID::NONE;
 	assert(result.getNum() < features.spellsCount);
+	return result;
+}
+
+GameResID MapReaderH3M::readGameResID()
+{
+	GameResID result(readInt8());
+	assert(result.getNum() < features.resourcesCount);
 	return result;
 }
 

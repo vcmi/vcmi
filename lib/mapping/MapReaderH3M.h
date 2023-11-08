@@ -32,6 +32,7 @@ public:
 	void setIdentifierRemapper(const MapIdentifiersH3M & remapper);
 
 	ArtifactID readArtifact();
+	ArtifactID readArtifact8();
 	ArtifactID readArtifact32();
 	CreatureID readCreature();
 	HeroTypeID readHero();
@@ -42,6 +43,7 @@ public:
 	SecondarySkill readSkill();
 	SpellID readSpell();
 	SpellID readSpell32();
+	GameResID readGameResID();
 	PlayerColor readPlayer();
 	PlayerColor readPlayer32();
 

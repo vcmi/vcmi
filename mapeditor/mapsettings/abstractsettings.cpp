@@ -129,9 +129,7 @@ JsonNode AbstractSettings::conditionToJson(const EventCondition & event)
 	result["condition"].Integer() = event.condition;
 	result["value"].Integer() = event.value;
 	result["objectType"].Integer() = event.objectType;
-	result["objectSubytype"].Integer() = event.objectSubtype;
 	result["objectInstanceName"].String() = event.objectInstanceName;
-	result["metaType"].Integer() = (ui8)event.metaType;
 	{
 		auto & position = result["position"].Vector();
 		position.resize(3);

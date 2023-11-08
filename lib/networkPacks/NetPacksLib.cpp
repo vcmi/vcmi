@@ -1218,12 +1218,12 @@ void RemoveObject::applyGs(CGameState *gs)
 		{
 			if (cond.object == obj)
 			{
-				if (cond.condition == EventCondition::DESTROY || cond.condition == EventCondition::DESTROY_0)
+				if (cond.condition == EventCondition::DESTROY)
 				{
 					cond.condition = EventCondition::CONST_VALUE;
 					cond.value = 1; // destroyed object, from now on always fulfilled
 				}
-				else if (cond.condition == EventCondition::CONTROL || cond.condition == EventCondition::HAVE_0)
+				else if (cond.condition == EventCondition::CONTROL)
 				{
 					cond.condition = EventCondition::CONST_VALUE;
 					cond.value = 0; // destroyed object, from now on can not be fulfilled

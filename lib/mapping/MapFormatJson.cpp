@@ -139,63 +139,6 @@ namespace TriggeredEventsDetail
 
 	static const std::array<std::string, 2> typeNames = { "victory", "defeat" };
 
-	static EMetaclass decodeMetaclass(const std::string & source)
-	{
-		if(source.empty())
-			return EMetaclass::INVALID;
-		auto rawId = vstd::find_pos(NMetaclass::names, source);
-
-		if(rawId >= 0)
-			return static_cast<EMetaclass>(rawId);
-		else
-			return EMetaclass::INVALID;
-	}
-
-	static std::string encodeIdentifier(EMetaclass metaType, si32 type)
-	{
-		std::string metaclassName = NMetaclass::names[static_cast<int>(metaType)];
-		std::string identifier;
-
-		switch(metaType)
-		{
-		case EMetaclass::ARTIFACT:
-			{
-				identifier = ArtifactID::encode(type);
-			}
-			break;
-		case EMetaclass::CREATURE:
-			{
-				identifier = CreatureID::encode(type);
-			}
-			break;
-		case EMetaclass::OBJECT:
-			{
-				//TODO
-				auto subtypes = VLC->objtypeh->knownSubObjects(type);
-				if(!subtypes.empty())
-				{
-					auto subtype = *subtypes.begin();
-					auto handler = VLC->objtypeh->getHandlerFor(type, subtype);
-					identifier = handler->getTypeName();
-				}
-			}
-			break;
-		case EMetaclass::RESOURCE:
-			{
-				identifier = GameConstants::RESOURCE_NAMES[type];
-			}
-			break;
-		default:
-			{
-				logGlobal->error("Unsupported metaclass %s for event condition", metaclassName);
-				return "";
-			}
-			break;
-		}
-
-		return ModUtility::makeFullIdentifier("", metaclassName, identifier);
-	}
-
 	static EventCondition JsonToCondition(const JsonNode & node)
 	{
 		EventCondition event;
@@ -210,54 +153,28 @@ namespace TriggeredEventsDetail
 		{
 			const JsonNode & data = node.Vector()[1];
 
+			event.objectInstanceName = data["object"].String();
+			event.value = data["value"].Integer();
+
 			switch (event.condition)
 			{
-			case EventCondition::HAVE_0:
-			case EventCondition::DESTROY_0:
-				{
-					//todo: support subtypes
-
-					std::string fullIdentifier = data["type"].String();
-					std::string metaTypeName;
-					std::string scope;
-					std::string identifier;
-					ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
-
-					event.metaType = decodeMetaclass(metaTypeName);
-
-					auto type = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), fullIdentifier, false);
-
-					if(type)
-						event.objectType = type.value();
-					event.objectInstanceName = data["object"].String();
-					if(data["value"].isNumber())
-						event.value = static_cast<si32>(data["value"].Integer());
-				}
-				break;
-			case EventCondition::HAVE_BUILDING_0:
-				{
-					//todo: support of new condition format HAVE_BUILDING_0
-				}
-				break;
-			default:
-				{
-					//old format
-					if (data["type"].getType() == JsonNode::JsonType::DATA_STRING)
-					{
-						auto identifier = VLC->identifiers()->getIdentifier(data["type"]);
-						if(identifier)
-							event.objectType = identifier.value();
-						else
-							throw std::runtime_error("Identifier resolution failed in event condition");
-					}
-
-					if (data["type"].isNumber())
-						event.objectType = static_cast<si32>(data["type"].Float());
-
-					if (!data["value"].isNull())
-						event.value = static_cast<si32>(data["value"].Float());
-				}
-				break;
+				case EventCondition::HAVE_ARTIFACT:
+				case EventCondition::TRANSPORT:
+					event.objectType = ArtifactID(ArtifactID::decode(data["type"].String()));
+					break;
+				case EventCondition::HAVE_CREATURES:
+					event.objectType = CreatureID(CreatureID::decode(data["type"].String()));
+					break;
+				case EventCondition::HAVE_RESOURCES:
+					event.objectType = GameResID(GameResID::decode(data["type"].String()));
+					break;
+				case EventCondition::HAVE_BUILDING:
+					event.objectType = BuildingID(BuildingID::decode(data["type"].String()));
+					break;
+				case EventCondition::CONTROL:
+				case EventCondition::DESTROY:
+					event.objectType = MapObjectID(MapObjectID::decode(data["type"].String()));
+					break;
 			}
 
 			if (!data["position"].isNull())
@@ -283,39 +200,11 @@ namespace TriggeredEventsDetail
 
 		JsonNode data;
 
-		switch (event.condition)
-		{
-		case EventCondition::HAVE_0:
-		case EventCondition::DESTROY_0:
-			{
-				//todo: support subtypes
+		if(!event.objectInstanceName.empty())
+			data["object"].String() = event.objectInstanceName;
 
-				if(event.metaType != EMetaclass::INVALID)
-					data["type"].String() = encodeIdentifier(event.metaType, event.objectType);
-
-				if(event.value > 0)
-					data["value"].Integer() = event.value;
-
-				if(!event.objectInstanceName.empty())
-					data["object"].String() = event.objectInstanceName;
-			}
-			break;
-		case EventCondition::HAVE_BUILDING_0:
-			{
-			//todo: support of new condition format HAVE_BUILDING_0
-			}
-			break;
-		default:
-			{
-				//old format
-				if(event.objectType != -1)
-					data["type"].Integer() = event.objectType;
-
-				if(event.value != -1)
-					data["value"].Integer() = event.value;
-			}
-			break;
-		}
+		data["type"].String() = event.objectType.toString();
+		data["value"].Integer() = event.value;
 
 		if(event.position != int3(-1, -1, -1))
 		{

@@ -1149,7 +1149,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			for(const BuildingID & id : forbiddenBuildings)
 			{
-				buildingsLIC.none.insert(id);
+				buildingsLIC.none.insert(id.getNum());
 				customBuildings = true;
 			}
 
@@ -1166,7 +1166,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 				if(id == BuildingID::FORT)
 					hasFort = true;
 
-				buildingsLIC.all.insert(id);
+				buildingsLIC.all.insert(id.getNum());
 				customBuildings = true;
 			}
 

@@ -79,7 +79,7 @@ void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 		a.syncSize(temp);
 		for(int i = 0; i < temp.size(); ++i)
 		{
-			a.serializeInt(i, temp[i]);
+			a.serializeInt(i, temp[i].getNum());
 			buildings.insert(temp[i]);
 		}
 	}
@@ -429,16 +429,16 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					event.onFulfill.replaceTextID(VLC->artifacts()->getByIndex(cond.objectType)->getNameTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<ArtifactID>().toEntity(VLC)->getNameTextID());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					event.onFulfill.replaceTextID(VLC->creatures()->getByIndex(cond.objectType)->getNameSingularTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<CreatureID>().toEntity(VLC)->getNameSingularTextID());
 					event.onFulfill.replaceNumber(cond.value);
 					break;
 
 				case EventCondition::HAVE_RESOURCES:
-					event.onFulfill.replaceLocalString(EMetaText::RES_NAMES, cond.objectType);
+					event.onFulfill.replaceName(cond.objectType.as<GameResID>());
 					event.onFulfill.replaceNumber(cond.value);
 					break;
 
@@ -449,7 +449,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::CONTROL:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>());
 
 					if (cond.object)
 					{
@@ -464,7 +464,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::DESTROY:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>());
 
 					if (cond.object)
 					{
@@ -480,14 +480,6 @@ void CMap::checkForObjectives()
 				//break; case EventCondition::IS_HUMAN:
 				//break; case EventCondition::DAYS_WITHOUT_TOWN:
 				//break; case EventCondition::STANDARD_WIN:
-
-				//TODO: support new condition format
-				case EventCondition::HAVE_0:
-					break;
-				case EventCondition::DESTROY_0:
-					break;
-				case EventCondition::HAVE_BUILDING_0:
-					break;
 			}
 			return cond;
 		};

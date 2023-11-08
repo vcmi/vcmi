@@ -69,21 +69,16 @@ bool PlayerInfo::hasCustomMainHero() const
 
 EventCondition::EventCondition(EWinLoseType condition):
 	object(nullptr),
-	metaType(EMetaclass::INVALID),
 	value(-1),
-	objectType(-1),
-	objectSubtype(-1),
 	position(-1, -1, -1),
 	condition(condition)
 {
 }
 
-EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position):
+EventCondition::EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position):
 	object(nullptr),
-	metaType(EMetaclass::INVALID),
 	value(value),
 	objectType(objectType),
-	objectSubtype(-1),
 	position(position),
 	condition(condition)
 {}

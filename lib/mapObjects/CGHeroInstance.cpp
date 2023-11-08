@@ -1778,7 +1778,7 @@ bool CGHeroInstance::isMissionCritical() const
 
 		auto const & testFunctor = [&](const EventCondition & condition)
 		{
-			if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::HAVE_0) && condition.object)
+			if ((condition.condition == EventCondition::CONTROL) && condition.object)
 			{
 				const auto * hero = dynamic_cast<const CGHeroInstance *>(condition.object);
 				return (hero != this);

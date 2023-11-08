@@ -173,11 +173,6 @@ TSubgoal Win::whatToDoToAchieve()
 		case EventCondition::CONST_VALUE:
 			break;
 
-		case EventCondition::HAVE_0:
-		case EventCondition::HAVE_BUILDING_0:
-		case EventCondition::DESTROY_0:
-			//TODO: support new condition format
-			return sptr(Conquer());
 		default:
 			assert(0);
 		}

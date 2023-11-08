@@ -417,6 +417,21 @@ class BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
 {
 public:
 	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
+
+	static BuildingID TOWN_HALL_LEVEL(uint level)
+	{
+		assert(level < 4);
+		return BuildingID(Type::TOWN_HALL + level);
+	}
+	static BuildingID FORT_LEVEL(uint level)
+	{
+		assert(level < 3);
+		return BuildingID(Type::TOWN_HALL + level);
+	}
+
+	static std::string encode(int32_t index);
+	static si32 decode(const std::string & identifier);
+
 };
 
 class MapObjectBaseID : public IdentifierBase

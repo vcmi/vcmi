@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "../constants/VariantIdentifier.h"
 #include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
@@ -99,7 +100,6 @@ struct DLL_LINKAGE PlayerInfo
 struct DLL_LINKAGE EventCondition
 {
 	enum EWinLoseType {
-		//internal use, deprecated
 		HAVE_ARTIFACT,     // type - required artifact
 		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
 		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
@@ -108,27 +108,21 @@ struct DLL_LINKAGE EventCondition
 		DESTROY,           // position - position of object, optional, type - type of object
 		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
 
-		//map format version pre 1.0
 		DAYS_PASSED,       // value - number of days from start of the game
 		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
 		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
 		STANDARD_WIN,      // normal defeat all enemies condition
 		CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true)
-
-		//map format version 1.0+
-		HAVE_0,
-		HAVE_BUILDING_0,
-		DESTROY_0
 	};
 
+	using TargetTypeID = VariantIdentifier<ArtifactID, CreatureID, GameResID, BuildingID, MapObjectID>;
+
 	EventCondition(EWinLoseType condition = STANDARD_WIN);
-	EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position = int3(-1, -1, -1));
+	EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position = int3(-1, -1, -1));
 
 	const CGObjectInstance * object; // object that was at specified position or with instance name on start
-	EMetaclass metaType;
 	si32 value;
-	si32 objectType;
-	si32 objectSubtype;
+	TargetTypeID objectType;
 	std::string objectInstanceName;
 	int3 position;
 	EWinLoseType condition;
@@ -141,9 +135,7 @@ struct DLL_LINKAGE EventCondition
 		h & objectType;
 		h & position;
 		h & condition;
-		h & objectSubtype;
 		h & objectInstanceName;
-		h & metaType;
 	}
 };
 
