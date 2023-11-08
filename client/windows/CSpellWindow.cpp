@@ -639,7 +639,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 	mySpell = spell;
 	if(mySpell)
 	{
-		int32_t whichSchool = 0; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
+		SpellSchool whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 
@@ -648,7 +648,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 
 		{
 			OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-			schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab], schoolLevel);
+			schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool.getNum() : owner->selectedTab], schoolLevel);
 		}
 
 		ColorRGBA firstLineColor, secondLineColor;

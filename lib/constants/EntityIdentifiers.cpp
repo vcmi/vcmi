@@ -532,4 +532,14 @@ std::string SecondarySkill::entityType()
 	return "secondarySkill";
 }
 
+std::string BuildingID::encode(int32_t index)
+{
+	return std::to_string(index);
+}
+
+si32 BuildingID::decode(const std::string & identifier)
+{
+	return std::stoi(identifier);
+}
+
 VCMI_LIB_NAMESPACE_END

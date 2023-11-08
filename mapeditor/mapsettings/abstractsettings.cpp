@@ -128,7 +128,7 @@ JsonNode AbstractSettings::conditionToJson(const EventCondition & event)
 	JsonNode result;
 	result["condition"].Integer() = event.condition;
 	result["value"].Integer() = event.value;
-	result["objectType"].Integer() = event.objectType;
+	result["objectType"].String() = event.objectType.toString();
 	result["objectInstanceName"].String() = event.objectInstanceName;
 	{
 		auto & position = result["position"].Vector();

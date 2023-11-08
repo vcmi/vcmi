@@ -1779,7 +1779,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 				for(const auto & it : elem->Slots())
 				{
 					CreatureID toCmp = it.second->type->getId(); //ID of creature we should compare with the best one
-					if(bestCre == -1 || bestCre.toEntity(VLC)->getAIValue() < toCmp.toEntity(VLC)->getAIValue())
+					if(bestCre == CreatureID::NONE || bestCre.toEntity(VLC)->getAIValue() < toCmp.toEntity(VLC)->getAIValue())
 					{
 						bestCre = toCmp;
 					}
