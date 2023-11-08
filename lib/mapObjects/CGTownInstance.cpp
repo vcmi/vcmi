@@ -1208,7 +1208,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 FactionID CGTownInstance::getFaction() const
 {
-	return town->faction->getId();
+	return  FactionID(subID.getNum());
 }
 
 TerrainId CGTownInstance::getNativeTerrain() const

@@ -213,7 +213,7 @@ public:
 		for (auto entry : value)
 			valueInt.insert(entry.getNum());
 
-		serializeLIC(fieldName, decoder, encoder, standard, value);
+		serializeLIC(fieldName, decoder, encoder, standardInt, valueInt);
 
 		value.clear();
 		for (auto entry : valueInt)

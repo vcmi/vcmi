@@ -418,12 +418,12 @@ class DLL_LINKAGE BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDB
 public:
 	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
 
-	static BuildingID HALL_LEVEL(uint level)
+	static BuildingID HALL_LEVEL(unsigned int level)
 	{
 		assert(level < 4);
 		return BuildingID(Type::VILLAGE_HALL + level);
 	}
-	static BuildingID FORT_LEVEL(uint level)
+	static BuildingID FORT_LEVEL(unsigned int level)
 	{
 		assert(level < 3);
 		return BuildingID(Type::TOWN_HALL + level);
