@@ -52,6 +52,7 @@ set(client_SRCS
 	lobby/CScenarioInfoScreen.cpp
 	lobby/CSelectionBase.cpp
 	lobby/OptionsTab.cpp
+	lobby/OptionsTabBase.cpp
 	lobby/RandomMapTab.cpp
 	lobby/SelectionTab.cpp
 
@@ -212,6 +213,7 @@ set(client_HEADERS
 	lobby/CScenarioInfoScreen.h
 	lobby/CSelectionBase.h
 	lobby/OptionsTab.h
+	lobby/OptionsTabBase.h
 	lobby/RandomMapTab.h
 	lobby/SelectionTab.h
 
