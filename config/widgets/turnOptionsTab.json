@@ -78,7 +78,13 @@
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x" : 64, "y" : 480, "w": 316, "h": 1},
+			"rect": {"x" : 64, "y" : 465, "w": 316, "h": 1},
+			"color": [0, 0, 0, 0],
+			"colorLine": [80, 96, 160, 128]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x" : 64, "y" : 466, "w": 316, "h": 1},
 			"color": [0, 0, 0, 0],
 			"colorLine": [32, 40, 128, 128]
 		},
@@ -123,16 +129,10 @@
 				},
 				{
 					"text": "vcmi.optionsTab.chessFieldCreature.help"
-				},
-				{
-					"text": ""
-				},
-				{
-					"text": "vcmi.optionsTab.simturnsMin.help"
 				}
 			]
 		},
-		
+
 		{
 			"type" : "verticalLayout66",
 			"customType" : "timeInputBackground",
@@ -181,7 +181,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.optionsTab.simturnsMin.hover",
-			"position": {"x": 70, "y": 430}
+			"position": {"x": 70, "y": 420}
 		},
 		{
 			"type": "label",
@@ -189,16 +189,16 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.optionsTab.simturnsMax.hover",
-			"position": {"x": 70, "y": 460}
+			"position": {"x": 70, "y": 445}
 		},
 
 		{
 			"name": "simturnsDurationMin",
 			"type": "slider",
 			"orientation": "horizontal",
-			"position": {"x": 178, "y": 430},
+			"position": {"x": 178, "y": 420},
 			"size": 200,
-			"callback": "setSimturnDuration",
+			"callback": "setSimturnDurationMin",
 			"itemsVisible": 1,
 			"itemsTotal": 28,
 			"selected": 0,
@@ -210,9 +210,9 @@
 			"name": "simturnsDurationMax",
 			"type": "slider",
 			"orientation": "horizontal",
-			"position": {"x": 178, "y": 460},
+			"position": {"x": 178, "y": 445},
 			"size": 200,
-			"callback": "setSimturnDuration",
+			"callback": "setSimturnDurationMax",
 			"itemsVisible": 1,
 			"itemsTotal": 28,
 			"selected": 0,
@@ -227,7 +227,7 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 320, "y": 438}
+			"position": {"x": 320, "y": 428}
 		},
 		{
 			"name": "labelSimturnsDurationValueMax",
@@ -236,9 +236,17 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 320, "y": 468}
+			"position": {"x": 320, "y": 453}
 		},
-		
+		{
+			"type" : "label",
+			"text": "vcmi.optionsTab.simturns.help",
+			"type": "multiLineLabel",
+			"font": "tiny",
+			"alignment": "center",
+			"color": "white",
+			"rect": {"x": 70, "y": 470, "w": 300, "h": 40}
+		},
 		{
 			"position": {"x": 70, "y": 535},
 			"type": "toggleButton",

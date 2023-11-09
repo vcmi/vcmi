@@ -236,8 +236,7 @@
 	"vcmi.optionsTab.simturnsMin.hover" : "At least for",
 	"vcmi.optionsTab.simturnsMax.hover" : "At most for",
 	"vcmi.optionsTab.simturnsAI.hover" : "(Experimental) Simultaneous AI Turns",
-	"vcmi.optionsTab.simturnsMin.help" : "Play simultaneously at least for specified number of days. Contacts between players during this period are blocked",
-	"vcmi.optionsTab.simturnsMax.help" : "Play simultaneously at most for specified number of days or until they meet each other.",
+	"vcmi.optionsTab.simturns.help" : "Play simultaneously at least for specified number of days, after which simultaneous turns will stay active until specified day or until players make contact. Contacts between players during this period are blocked",
 	"vcmi.optionsTab.simturnsAI.help" : "",
 
 	// Custom victory conditions for H3 campaigns and HotA maps

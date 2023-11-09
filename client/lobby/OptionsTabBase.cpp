@@ -38,8 +38,14 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		}
 	});
 
-	addCallback("setSimturnDuration", [&](int index){
-		SimturnsInfo info;
+	addCallback("setSimturnDurationMin", [&](int index){
+		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
+		info.requiredTurns = index;
+		CSH->setSimturnsInfo(info);
+	});
+
+	addCallback("setSimturnDurationMax", [&](int index){
+		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.optionalTurns = index;
 		CSH->setSimturnsInfo(info);
 	});
@@ -184,10 +190,21 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 void OptionsTabBase::recreate()
 {
 	//Simultaneous turns
-	if(auto turnSlider = widget<CSlider>("labelSimturnsDurationValue"))
+	if(auto turnSlider = widget<CSlider>("simturnsDurationMin"))
+		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.requiredTurns);
+
+	if(auto turnSlider = widget<CSlider>("simturnsDurationMax"))
 		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.optionalTurns);
 
-	if(auto w = widget<CLabel>("labelSimturnsDurationValue"))
+	if(auto w = widget<CLabel>("labelSimturnsDurationValueMin"))
+	{
+		MetaString message;
+		message.appendRawString("%d days");
+		message.replaceNumber(SEL->getStartInfo()->simturnsInfo.requiredTurns);
+		w->setText(message.toString());
+	}
+
+	if(auto w = widget<CLabel>("labelSimturnsDurationValueMax"))
 	{
 		MetaString message;
 		message.appendRawString("%d days");
