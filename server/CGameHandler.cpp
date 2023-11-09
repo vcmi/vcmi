@@ -2720,16 +2720,9 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 		ma.swap = true;
 	}
 
-	try
-	{
-		auto hero = getHero(dst.artHolder);
-		if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstSlot))
-			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
-	}
-	catch(const std::bad_variant_access &)
-	{
-		// object other than hero received an art - ignore
-	}
+	auto hero = getHero(dst.artHolder);
+	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstSlot))
+		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
