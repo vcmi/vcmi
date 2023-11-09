@@ -249,7 +249,8 @@ public:
 	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr);
 	~CCastleInterface();
 
-	virtual void updateGarrisons() override;
+	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 
 	void castleTeleport(int where);
 	void townChange();

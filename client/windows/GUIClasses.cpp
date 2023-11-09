@@ -861,6 +861,11 @@ void CExchangeWindow::updateGarrisons()
 	updateWidgets();
 }
 
+bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
+{
+	return garr->upperArmy() == army || garr->lowerArmy() == army;
+}
+
 void CExchangeWindow::questlog(int whichHero)
 {
 	CCS->curh->dragAndDropCursor(nullptr);
@@ -1006,6 +1011,11 @@ void CTransformerWindow::updateGarrisons()
 {
 	for(auto & item : items)
 		item->update();
+}
+
+bool CTransformerWindow::holdsGarrison(const CArmedInstance * army)
+{
+	return army == hero;
 }
 
 CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero, const std::function<void()> & onWindowClosed)
@@ -1251,6 +1261,11 @@ void CGarrisonWindow::updateGarrisons()
 	garr->recreateSlots();
 }
 
+bool CGarrisonWindow::holdsGarrison(const CArmedInstance * army)
+{
+	return garr->upperArmy() == army || garr->lowerArmy() == army;
+}
+
 CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object)
 	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("APHLFTBK")),
 	fort(object),
@@ -1290,6 +1305,11 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
 	updateGarrisons();
+}
+
+bool CHillFortWindow::holdsGarrison(const CArmedInstance * army)
+{
+	return hero == army;
 }
 
 void CHillFortWindow::updateGarrisons()

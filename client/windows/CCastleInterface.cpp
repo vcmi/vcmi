@@ -1262,6 +1262,11 @@ void CCastleInterface::updateGarrisons()
 	redraw();
 }
 
+bool CCastleInterface::holdsGarrison(const CArmedInstance * army)
+{
+	return army == town || army == town->getUpperArmy() || army == town->visitingHero;
+}
+
 void CCastleInterface::close()
 {
 	if(town->tempOwner == LOCPLINT->playerID) //we may have opened window for an allied town

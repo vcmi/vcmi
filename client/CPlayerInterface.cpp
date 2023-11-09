@@ -499,8 +499,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	adventureInt->onHeroChanged(nullptr);
 	adventureInt->onTownChanged(town);
 
-	for (auto gh : GH.windows().findWindows<IGarrisonHolder>())
-		gh->updateGarrisons();
+	for (auto cgh : GH.windows().findWindows<IGarrisonHolder>())
+		if (cgh->holdsGarrison(town))
+			cgh->updateGarrisons();
 
 	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
 		ki->townChanged(town);
@@ -521,49 +522,42 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 
 void CPlayerInterface::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2)
 {
-	std::vector<const CGObjectInstance *> instances;
+	std::vector<const CArmedInstance *> instances;
 
-	if(auto obj = cb->getObj(id1))
+	if(auto obj = dynamic_cast<const CArmedInstance *>(cb->getObjInstance(id1)))
 		instances.push_back(obj);
 
 
 	if(id2 != ObjectInstanceID() && id2 != id1)
 	{
-		if(auto obj = cb->getObj(id2))
+		if(auto obj = dynamic_cast<const CArmedInstance *>(cb->getObjInstance(id2)))
 			instances.push_back(obj);
 	}
 
 	garrisonsChanged(instances);
 }
 
-void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
+void CPlayerInterface::garrisonsChanged(std::vector<const CArmedInstance *> objs)
 {
 	for (auto object : objs)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(object);
 		auto * town = dynamic_cast<const CGTownInstance*>(object);
 
+		if (town)
+			adventureInt->onTownChanged(town);
+
 		if (hero)
 		{
 			adventureInt->onHeroChanged(hero);
-
-			if(hero->inTownGarrison)
-			{
+			if(hero->inTownGarrison && hero->visitedTown != town)
 				adventureInt->onTownChanged(hero->visitedTown);
-			}
 		}
-		if (town)
-			adventureInt->onTownChanged(town);
 	}
 
 	for (auto cgh : GH.windows().findWindows<IGarrisonHolder>())
-		cgh->updateGarrisons();
-
-	for (auto cmw : GH.windows().findWindows<CAltarWindow>())
-	{
-		if(vstd::contains(objs, cmw->getHero()))
-			cmw->updateGarrison();
-	}
+		if (cgh->holdsGarrisons(objs))
+			cgh->updateGarrisons();
 
 	GH.windows().totalRedraw();
 }

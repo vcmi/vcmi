@@ -641,6 +641,9 @@ void CClient::battleFinished(const BattleID & battleID)
 
 void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor color)
 {
+	if (battleints.count(color) == 0)
+		return; // not our combat in MP
+
 	auto battleint = battleints.at(color);
 
 	if (!battleint->human)
