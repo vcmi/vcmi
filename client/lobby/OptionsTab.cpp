@@ -43,7 +43,7 @@
 #include "../../lib/mapping/CMapHeader.h"
 
 OptionsTab::OptionsTab()
-	: OptionsTabBase(JsonPath::builtin("config/widgets/optionsTab.json"))
+	: OptionsTabBase(JsonPath::builtin("config/widgets/playerOptionsTab.json"))
 	, humanPlayers(0)
 {
 }

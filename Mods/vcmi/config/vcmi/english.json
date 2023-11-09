@@ -220,14 +220,24 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team Alignments",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Road Types",
 
-	"vcmi.optionsTab.widgets.chessFieldBase.help" : "{Extra timer}\n\nStarts counting down when the {turn timer} reaches zero. It is set only once at the beginning of the game. When this timer reaches zero, the player's turn ends.",
-	"vcmi.optionsTab.widgets.chessFieldTurn.help" : "{Turn timer}\n\nStarts counting down when the player starts their turn on the adventure map. It is reset to its initial value at the start of each turn. Any unused turn time will be added to the {Extra timer} if it is in use.",
-	"vcmi.optionsTab.widgets.chessFieldBattle.help" : "{Battle timer}\n\nCounts down during battles when the {stack timer} reaches zero. It is reset to its initial value at the start of each battle. If the timer reaches zero, the currently active stack will defend.",
-	"vcmi.optionsTab.widgets.chessFieldCreature.help" : "{Stack timer}\n\nStarts counting down when the player is selecting an action for the current stack during battle. It resets to its initial value after the stack's action is completed.",
-	"vcmi.optionsTab.widgets.labelTimer" : "Timer",
-	"vcmi.optionsTab.widgets.timerModeSwitch.classic" : "Classic timer",
-	"vcmi.optionsTab.widgets.timerModeSwitch.chess" : "Chess timer",
+	"vcmi.optionsTab.turnOptions.hover" : "Turn Options",
+	"vcmi.optionsTab.turnOptions.help" : "Select turn timer and simultaneous turns options",
 
+	"vcmi.optionsTab.chessFieldBase.hover" : "Base timer",
+	"vcmi.optionsTab.chessFieldTurn.hover" : "Turn timer",
+	"vcmi.optionsTab.chessFieldBattle.hover" : "Battle timer",
+	"vcmi.optionsTab.chessFieldCreature.hover" : "Unit timer",
+	"vcmi.optionsTab.chessFieldBase.help" : "Starts counting down when the {Turn Timer} reaches zero. It is set only once at the beginning of the game. When this timer reaches zero, the player's turn ends.",
+	"vcmi.optionsTab.chessFieldTurn.help" : "Starts counting down when the player starts their turn on the adventure map. It is reset to its initial value at the start of each turn. Any unused turn time will be added to the {Extra Timer} if it is in use.",
+	"vcmi.optionsTab.chessFieldBattle.help" : "Counts down during battles when the {Unit Timer} reaches zero. It is reset to its initial value at the start of each battle. If the timer reaches zero, the currently active stack will defend.",
+	"vcmi.optionsTab.chessFieldCreature.help" : "Starts counting down when the player is selecting an action for the current stack during battle. It resets to its initial value after the stack's action is completed.",
+
+	"vcmi.optionsTab.simturnsMin.hover" : "Simultaneous turns (minimum)",
+	"vcmi.optionsTab.simturnsMax.hover" : "Simultaneous turns (maximum)",
+	"vcmi.optionsTab.simturnsAI.hover" : "(Experimental) Simultaneous AI Turns",
+	"vcmi.optionsTab.simturnsMin.help" : "Players will act simultaneously for specified number of days. Contacts between players are blocked",
+	"vcmi.optionsTab.simturnsMax.help" : "Players will act simultaneously until they meet each other or if specified date has been reached",
+	"vcmi.optionsTab.simturnsAI.help" : "",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",

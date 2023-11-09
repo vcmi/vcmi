@@ -1,0 +1,186 @@
+{
+	"customTypes" : {
+		"verticalLayout66" : {
+			"type" : "layout",
+			"vertical" : true,
+			"dynamic" : false,
+			"distance" : 66
+		},
+		"labelTitle" : {
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"labelDescription" : {
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"rect": {"x": 0, "y": 0, "w": 300, "h": 35},
+			"adoptHeight": true
+		},
+		"timeInput" : {
+			"type": "textInput",
+			"background": "timerField",
+			"alignment": "center",
+			"text": "00:00",
+			"rect": {"x": 0, "y": 0, "w": 84, "h": 25},
+			"offset": {"x": 0, "y": 0}
+		}
+	},
+	
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"image": "RANMAPBK",
+			"position": {"x": 0, "y": 6}
+		},
+		
+		{
+			"name": "labelTitle",
+			"type": "label",
+			"font": "big",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.optionsTab.turnOptions.hover",
+			"position": {"x": 222, "y": 36}
+		},
+		
+		{
+			"name": "labelSubTitle",
+			"type": "multiLineLabel",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "vcmi.optionsTab.turnOptions.help",
+			"rect": {"x": 60, "y": 48, "w": 320, "h": 0},
+			"adoptHeight": true
+		},
+		{
+			"type" : "verticalLayout66",
+			"customType" : "labelTitle",
+			"position": {"x": 70, "y": 134},
+			"items":
+			[
+				{
+					"text": "vcmi.optionsTab.chessFieldBase.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldTurn.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldBattle.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldCreature.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.simturnsMin.hover"
+				},
+				{
+					"text": "vcmi.optionsTab.simturnsMax.hover"
+				}
+			]
+		},
+		
+		{
+			"type" : "verticalLayout66",
+			"customType" : "labelDescription",
+			"position": {"x": 70, "y": 153},
+			"items":
+			[
+				{
+					"text": "vcmi.optionsTab.chessFieldBase.help"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldTurn.help"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldBattle.help"
+				},
+				{
+					"text": "vcmi.optionsTab.chessFieldCreature.help"
+				},
+				{
+					"text": "vcmi.optionsTab.simturnsMin.help"
+				},
+				{
+					"text": "vcmi.optionsTab.simturnsMax.help"
+				}
+			]
+		},
+		
+		{
+			"type" : "verticalLayout66",
+			"customType" : "timeInput",
+			"position": {"x": 294, "y": 129},
+			"items":
+			[
+				{
+					"name": "chessFieldBase",
+					"callback": "parseAndSetTimer_base",
+					"help": "vcmi.optionsTab.chessFieldBase.help"
+				},
+				{
+					"name": "chessFieldTurn",
+					"callback": "parseAndSetTimer_turn",
+					"help": "vcmi.optionsTab.chessFieldTurn.help"
+				},
+				{
+					"name": "chessFieldBattle",
+					"callback": "parseAndSetTimer_battle",
+					"help": "vcmi.optionsTab.chessFieldBattle.help"
+				},
+				{
+					"name": "chessFieldCreature",
+					"callback": "parseAndSetTimer_creature",
+					"help": "vcmi.optionsTab.chessFieldCreature.help"
+				},
+			]
+		},
+
+		// simturns
+		{
+			"name": "simturnsDuration",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 258, "y": 398},
+			"size": 120,
+			"callback": "setSimturnDuration",
+			"itemsVisible": 1,
+			"itemsTotal": 28,
+			"selected": 0,
+			"style": "blue",
+			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
+			"panningStep": 20
+		},
+		
+		{
+			"name": "labelSimturnsDurationValue",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 320, "y": 406}
+		},
+		
+		{
+			"position": {"x": 70, "y": 535},
+			"type": "toggleButton",
+			"image": "sysopchk.def"
+		},
+		{
+			"name": "labelSimturnsAI",
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "yellow",
+			"text": "vcmi.optionsTab.simturnsAI.hover",
+			"position": {"x": 110, "y": 540}
+		}
+	]
+}

@@ -190,7 +190,7 @@ void OptionsTabBase::recreate()
 	if(auto w = widget<CLabel>("labelSimturnsDurationValue"))
 	{
 		MetaString message;
-		message.appendRawString("Simturns: up to %d days");
+		message.appendRawString("%d days");
 		message.replaceNumber(SEL->getStartInfo()->simturnsInfo.optionalTurns);
 		w->setText(message.toString());
 	}
