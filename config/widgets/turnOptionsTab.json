@@ -14,7 +14,7 @@
 		},
 		"labelDescription" : {
 			"type": "multiLineLabel",
-			"font": "small",
+			"font": "tiny",
 			"alignment": "center",
 			"color": "white",
 			"rect": {"x": 0, "y": 0, "w": 300, "h": 35},
@@ -22,11 +22,16 @@
 		},
 		"timeInput" : {
 			"type": "textInput",
-			"background": "timerField",
 			"alignment": "center",
 			"text": "00:00",
-			"rect": {"x": 0, "y": 0, "w": 84, "h": 25},
+			"rect": {"x": 0, "y": 0, "w": 86, "h": 23},
 			"offset": {"x": 0, "y": 0}
+		},
+		"timeInputBackground" : {
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 0, "y": 0, "w": 86, "h": 23},
+			"color": [0, 0, 0, 128],
+			"colorLine": [64, 80, 128, 128]
 		}
 	},
 	
@@ -60,6 +65,24 @@
 			"adoptHeight": true
 		},
 		{
+			"type": "texture",
+			"image": "DiBoxBck",
+			"color" : "blue", 
+			"rect": {"x" : 64, "y" : 416, "w": 316, "h": 102}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x" : 64, "y" : 416, "w": 316, "h": 102},
+			"color": [0, 0, 0, 0],
+			"colorLine": [64, 80, 128, 128]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x" : 64, "y" : 480, "w": 316, "h": 1},
+			"color": [0, 0, 0, 0],
+			"colorLine": [32, 40, 128, 128]
+		},
+		{
 			"type" : "verticalLayout66",
 			"customType" : "labelTitle",
 			"position": {"x": 70, "y": 134},
@@ -78,10 +101,7 @@
 					"text": "vcmi.optionsTab.chessFieldCreature.hover"
 				},
 				{
-					"text": "vcmi.optionsTab.simturnsMin.hover"
-				},
-				{
-					"text": "vcmi.optionsTab.simturnsMax.hover"
+					"text": "vcmi.optionsTab.simturns"
 				}
 			]
 		},
@@ -89,7 +109,7 @@
 		{
 			"type" : "verticalLayout66",
 			"customType" : "labelDescription",
-			"position": {"x": 70, "y": 153},
+			"position": {"x": 70, "y": 155},
 			"items":
 			[
 				{
@@ -105,14 +125,27 @@
 					"text": "vcmi.optionsTab.chessFieldCreature.help"
 				},
 				{
-					"text": "vcmi.optionsTab.simturnsMin.help"
+					"text": ""
 				},
 				{
-					"text": "vcmi.optionsTab.simturnsMax.help"
+					"text": "vcmi.optionsTab.simturnsMin.help"
 				}
 			]
 		},
 		
+		{
+			"type" : "verticalLayout66",
+			"customType" : "timeInputBackground",
+			"position": {"x": 294, "y": 129},
+			"items":
+			[
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+
 		{
 			"type" : "verticalLayout66",
 			"customType" : "timeInput",
@@ -138,17 +171,33 @@
 					"name": "chessFieldCreature",
 					"callback": "parseAndSetTimer_creature",
 					"help": "vcmi.optionsTab.chessFieldCreature.help"
-				},
+				}
 			]
 		},
 
-		// simturns
 		{
-			"name": "simturnsDuration",
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.optionsTab.simturnsMin.hover",
+			"position": {"x": 70, "y": 430}
+		},
+		{
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"text": "vcmi.optionsTab.simturnsMax.hover",
+			"position": {"x": 70, "y": 460}
+		},
+
+		{
+			"name": "simturnsDurationMin",
 			"type": "slider",
 			"orientation": "horizontal",
-			"position": {"x": 258, "y": 398},
-			"size": 120,
+			"position": {"x": 178, "y": 430},
+			"size": 200,
 			"callback": "setSimturnDuration",
 			"itemsVisible": 1,
 			"itemsTotal": 28,
@@ -157,15 +206,37 @@
 			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
 			"panningStep": 20
 		},
-		
 		{
-			"name": "labelSimturnsDurationValue",
+			"name": "simturnsDurationMax",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 178, "y": 460},
+			"size": 200,
+			"callback": "setSimturnDuration",
+			"itemsVisible": 1,
+			"itemsTotal": 28,
+			"selected": 0,
+			"style": "blue",
+			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
+			"panningStep": 20
+		},
+		{
+			"name": "labelSimturnsDurationValueMin",
 			"type": "label",
 			"font": "small",
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 320, "y": 406}
+			"position": {"x": 320, "y": 438}
+		},
+		{
+			"name": "labelSimturnsDurationValueMax",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 320, "y": 468}
 		},
 		
 		{
