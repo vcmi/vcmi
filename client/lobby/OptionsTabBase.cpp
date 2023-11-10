@@ -18,6 +18,7 @@
 #include "../CGameInfo.h"
 
 #include "../../lib/StartInfo.h"
+#include "../../lib/Languages.h"
 #include "../../lib/MetaString.h"
 #include "../../lib/CGeneralTextHandler.h"
 
@@ -189,6 +190,32 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 
 void OptionsTabBase::recreate()
 {
+	auto const & generateSimturnsDurationText = [](int days) -> std::string
+	{
+		bool canUseMonth = days % 28 == 0 && days >= 28*2;
+		bool canUseWeek = days % 7 == 0 && days >= 7*2;
+
+		MetaString message;
+		int value = days;
+		std::string text = "vcmi.optionsTab.simturns.days";
+
+		if (canUseWeek)
+		{
+			value = days / 7;
+			text = "vcmi.optionsTab.simturns.weeks";
+		}
+
+		if (canUseMonth)
+		{
+			value = days / 28;
+			text = "vcmi.optionsTab.simturns.months";
+		}
+
+		message.appendTextID(Languages::getPluralFormTextID( CGI->generaltexth->getPreferredLanguage(), value, text));
+		message.replaceNumber(value);
+		return message.toString();
+	};
+
 	//Simultaneous turns
 	if(auto turnSlider = widget<CSlider>("simturnsDurationMin"))
 		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.requiredTurns);
@@ -197,20 +224,10 @@ void OptionsTabBase::recreate()
 		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.optionalTurns);
 
 	if(auto w = widget<CLabel>("labelSimturnsDurationValueMin"))
-	{
-		MetaString message;
-		message.appendRawString("%d days");
-		message.replaceNumber(SEL->getStartInfo()->simturnsInfo.requiredTurns);
-		w->setText(message.toString());
-	}
+		w->setText(generateSimturnsDurationText(SEL->getStartInfo()->simturnsInfo.requiredTurns));
 
 	if(auto w = widget<CLabel>("labelSimturnsDurationValueMax"))
-	{
-		MetaString message;
-		message.appendRawString("%d days");
-		message.replaceNumber(SEL->getStartInfo()->simturnsInfo.optionalTurns);
-		w->setText(message.toString());
-	}
+		w->setText(generateSimturnsDurationText(SEL->getStartInfo()->simturnsInfo.optionalTurns));
 
 	const auto & turnTimerRemote = SEL->getStartInfo()->turnTimerInfo;
 

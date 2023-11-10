@@ -238,6 +238,18 @@
 	"vcmi.optionsTab.simturnsAI.hover" : "(Experimental) Simultaneous AI Turns",
 	"vcmi.optionsTab.simturns.help" : "Play simultaneously at least for specified number of days, after which simultaneous turns will stay active until specified day or until players make contact. Contacts between players during this period are blocked",
 	"vcmi.optionsTab.simturnsAI.help" : "",
+	
+	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
+	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	"vcmi.optionsTab.simturns.days.0" : " %d days",
+	"vcmi.optionsTab.simturns.days.1" : " %d day",
+	"vcmi.optionsTab.simturns.days.2" : " %d days",
+	"vcmi.optionsTab.simturns.weeks.0" : " %d weeks",
+	"vcmi.optionsTab.simturns.weeks.1" : " %d week",
+	"vcmi.optionsTab.simturns.weeks.2" : " %d weeks",
+	"vcmi.optionsTab.simturns.months.0" : " %d months",
+	"vcmi.optionsTab.simturns.months.1" : " %d month",
+	"vcmi.optionsTab.simturns.months.2" : " %d months",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
