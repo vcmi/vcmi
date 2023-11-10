@@ -236,7 +236,8 @@
 	"vcmi.optionsTab.simturnsMin.hover" : "At least for",
 	"vcmi.optionsTab.simturnsMax.hover" : "At most for",
 	"vcmi.optionsTab.simturnsAI.hover" : "(Experimental) Simultaneous AI Turns",
-	"vcmi.optionsTab.simturns.help" : "Play simultaneously at least for specified number of days, after which simultaneous turns will stay active until specified day or until players make contact. Contacts between players during this period are blocked",
+	"vcmi.optionsTab.simturnsMin.help" : "Play simultaneously for specified number of days. Contacts between players during this period are blocked",
+	"vcmi.optionsTab.simturnsMax.help" : "Play simultaneously for specified number of days or until contact with another player",
 	"vcmi.optionsTab.simturnsAI.help" : "",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language

@@ -68,23 +68,35 @@
 			"type": "texture",
 			"image": "DiBoxBck",
 			"color" : "blue", 
-			"rect": {"x" : 64, "y" : 416, "w": 316, "h": 102}
+			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124}
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x" : 64, "y" : 416, "w": 316, "h": 102},
+			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124},
 			"color": [0, 0, 0, 0],
 			"colorLine": [64, 80, 128, 128]
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x" : 64, "y" : 465, "w": 316, "h": 1},
+			"rect": {"x" : 65, "y" : 416, "w": 314, "h": 1},
 			"color": [0, 0, 0, 0],
 			"colorLine": [80, 96, 160, 128]
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x" : 64, "y" : 466, "w": 316, "h": 1},
+			"rect": {"x" : 65, "y" : 417, "w": 314, "h": 1},
+			"color": [0, 0, 0, 0],
+			"colorLine": [32, 40, 128, 128]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x" : 65, "y" : 466, "w": 314, "h": 1},
+			"color": [0, 0, 0, 0],
+			"colorLine": [80, 96, 160, 128]
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x" : 65, "y" : 467, "w": 314, "h": 1},
 			"color": [0, 0, 0, 0],
 			"colorLine": [32, 40, 128, 128]
 		},
@@ -189,7 +201,7 @@
 			"alignment": "left",
 			"color": "white",
 			"text": "vcmi.optionsTab.simturnsMax.hover",
-			"position": {"x": 70, "y": 445}
+			"position": {"x": 70, "y": 470}
 		},
 
 		{
@@ -199,8 +211,7 @@
 			"position": {"x": 178, "y": 420},
 			"size": 200,
 			"callback": "setSimturnDurationMin",
-			"itemsVisible": 1,
-			"itemsTotal": 28,
+			"items": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 28, 35, 42, 49, 56, 84, 112, 140, 168 ],
 			"selected": 0,
 			"style": "blue",
 			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
@@ -210,11 +221,10 @@
 			"name": "simturnsDurationMax",
 			"type": "slider",
 			"orientation": "horizontal",
-			"position": {"x": 178, "y": 445},
+			"position": {"x": 178, "y": 470},
 			"size": 200,
 			"callback": "setSimturnDurationMax",
-			"itemsVisible": 1,
-			"itemsTotal": 28,
+			"items": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 28, 35, 42, 49, 56, 84, 112, 140, 168, 1000000 ],
 			"selected": 0,
 			"style": "blue",
 			"scrollBounds": {"x": 0, "y": 0, "w": 194, "h": 32},
@@ -236,16 +246,25 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 320, "y": 453}
+			"position": {"x": 320, "y": 478}
 		},
 		{
 			"type" : "label",
-			"text": "vcmi.optionsTab.simturns.help",
+			"text": "vcmi.optionsTab.simturnsMin.help",
 			"type": "multiLineLabel",
 			"font": "tiny",
 			"alignment": "center",
 			"color": "white",
-			"rect": {"x": 70, "y": 470, "w": 300, "h": 40}
+			"rect": {"x": 70, "y": 430, "w": 300, "h": 40}
+		},
+		{
+			"type" : "label",
+			"text": "vcmi.optionsTab.simturnsMax.help",
+			"type": "multiLineLabel",
+			"font": "tiny",
+			"alignment": "center",
+			"color": "white",
+			"rect": {"x": 70, "y": 480, "w": 300, "h": 40}
 		},
 		{
 			"position": {"x": 70, "y": 535},

@@ -42,12 +42,14 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	addCallback("setSimturnDurationMin", [&](int index){
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.requiredTurns = index;
+		info.optionalTurns = std::max(info.optionalTurns, index);
 		CSH->setSimturnsInfo(info);
 	});
 
 	addCallback("setSimturnDurationMax", [&](int index){
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.optionalTurns = index;
+		info.requiredTurns = std::min(info.requiredTurns, index);
 		CSH->setSimturnsInfo(info);
 	});
 
@@ -192,14 +194,19 @@ void OptionsTabBase::recreate()
 {
 	auto const & generateSimturnsDurationText = [](int days) -> std::string
 	{
+		if (days == 0)
+			return CGI->generaltexth->translate("core.genrltxt.523");
+
+		if (days >= 1000000) // Not "unlimited" but close enough
+			return CGI->generaltexth->translate("core.turndur.10");
+
 		bool canUseMonth = days % 28 == 0 && days >= 28*2;
 		bool canUseWeek = days % 7 == 0 && days >= 7*2;
 
-		MetaString message;
 		int value = days;
 		std::string text = "vcmi.optionsTab.simturns.days";
 
-		if (canUseWeek)
+		if (canUseWeek && !canUseMonth)
 		{
 			value = days / 7;
 			text = "vcmi.optionsTab.simturns.weeks";
@@ -211,6 +218,7 @@ void OptionsTabBase::recreate()
 			text = "vcmi.optionsTab.simturns.months";
 		}
 
+		MetaString message;
 		message.appendTextID(Languages::getPluralFormTextID( CGI->generaltexth->getPreferredLanguage(), value, text));
 		message.replaceNumber(value);
 		return message.toString();
@@ -218,10 +226,10 @@ void OptionsTabBase::recreate()
 
 	//Simultaneous turns
 	if(auto turnSlider = widget<CSlider>("simturnsDurationMin"))
-		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.requiredTurns);
+		turnSlider->setValue(SEL->getStartInfo()->simturnsInfo.requiredTurns);
 
 	if(auto turnSlider = widget<CSlider>("simturnsDurationMax"))
-		turnSlider->scrollTo(SEL->getStartInfo()->simturnsInfo.optionalTurns);
+		turnSlider->setValue(SEL->getStartInfo()->simturnsInfo.optionalTurns);
 
 	if(auto w = widget<CLabel>("labelSimturnsDurationValueMin"))
 		w->setText(generateSimturnsDurationText(SEL->getStartInfo()->simturnsInfo.requiredTurns));
