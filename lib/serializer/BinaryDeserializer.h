@@ -12,11 +12,8 @@
 #include "CSerializer.h"
 #include "CTypeList.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../../Global.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-class CStackInstance;
 
 class DLL_LINKAGE CLoaderBase
 {
@@ -115,7 +112,8 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 		}
 	};
 
-	template <typename Type> class CPointerLoader : public IPointerLoader
+	template <typename Type>
+	class CPointerLoader : public IPointerLoader
 	{
 	public:
 		void * loadPtr(CLoaderBase &ar, ui32 pid) const override //data is pointer to the ACTUAL POINTER
@@ -147,13 +145,7 @@ public:
 	bool smartPointerSerialization;
 	bool saving;
 
-	BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
-	{
-		saving = false;
-		fileVersion = 0;
-		smartPointerSerialization = true;
-		reverseEndianess = false;
-	}
+	BinaryDeserializer(IBinaryReader * r);
 
 	template<class T>
 	BinaryDeserializer & operator&(T & t)
@@ -535,32 +527,6 @@ public:
 			load(read);
 			data = read;
 		}
-	}
-};
-
-class DLL_LINKAGE CLoadFile : public IBinaryReader
-{
-public:
-	BinaryDeserializer serializer;
-
-	std::string fName;
-	std::unique_ptr<std::fstream> sfile;
-
-	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION); //throws!
-	virtual ~CLoadFile();
-	int read(void * data, unsigned size) override; //throws!
-
-	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!
-	void clear();
-	void reportState(vstd::CLoggerBase * out) override;
-
-	void checkMagicBytes(const std::string & text);
-
-	template<class T>
-	CLoadFile & operator>>(T &t)
-	{
-		serializer & t;
-		return * this;
 	}
 };
 

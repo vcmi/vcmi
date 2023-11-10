@@ -27,6 +27,7 @@
 #include "../lib/CCreatureSet.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CTownHandler.h"
@@ -47,20 +48,19 @@
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/mapObjects/CGMarket.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/networkPacks/StackLocation.h"
 #include "../lib/pathfinder/CPathfinder.h"
 #include "../lib/pathfinder/PathfinderOptions.h"
 #include "../lib/pathfinder/TurnInfo.h"
 
-#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypesServerPacks.h"
 
 #include "../lib/rmg/CMapGenOptions.h"
 
-#include "../lib/serializer/CTypeList.h"
-#include "../lib/serializer/Cast.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/serializer/JsonSerializer.h"
+#include "../lib/serializer/CSaveFile.h"
+#include "../lib/serializer/CLoadFile.h"
 
 #include "../lib/spells/CSpellHandler.h"
 

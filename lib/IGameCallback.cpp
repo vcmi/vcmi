@@ -21,9 +21,8 @@
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
 
-#include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
-#include "serializer/BinaryDeserializer.h"
-#include "serializer/BinarySerializer.h"
+#include "serializer/CLoadFile.h"
+#include "serializer/CSaveFile.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"

@@ -42,7 +42,7 @@
 #include "../modding/IdentifierStorage.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
-#include "../registerTypes/RegisterTypes.h"
+#include "../registerTypes/RegisterTypesClientPacks.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../serializer/CTypeList.h"
@@ -157,8 +157,7 @@ CGameState::CGameState()
 	gs = this;
 	heroesPool = std::make_unique<TavernHeroesPool>();
 	applier = std::make_shared<CApplier<CBaseForGSApply>>();
-	registerTypesClientPacks1(*applier);
-	registerTypesClientPacks2(*applier);
+	registerTypesClientPacks(*applier);
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 

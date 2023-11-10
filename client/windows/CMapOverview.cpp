@@ -39,7 +39,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-#include "../../lib/serializer/BinaryDeserializer.h"
+#include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 

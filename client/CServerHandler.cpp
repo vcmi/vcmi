@@ -47,7 +47,7 @@
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CMemorySerializer.h"
 

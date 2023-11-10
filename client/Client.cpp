@@ -24,6 +24,7 @@
 #include "../CCallback.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/UnlockGuard.h"
@@ -32,7 +33,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypesClientPacks.h"
 #include "../lib/serializer/Connection.h"
 
 #include <memory>
@@ -137,8 +138,7 @@ CClient::CClient()
 {
 	waitingRequest.clear();
 	applier = std::make_shared<CApplier<CBaseForCLApply>>();
-	registerTypesClientPacks1(*applier);
-	registerTypesClientPacks2(*applier);
+	registerTypesClientPacks(*applier);
 	IObjectInterface::cb = this;
 	gs = nullptr;
 }

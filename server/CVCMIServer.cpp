@@ -47,7 +47,7 @@
 #include "../lib/UnlockGuard.h"
 
 // for applier
-#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 
 // UUID generation
 #include <boost/uuid/uuid.hpp>
