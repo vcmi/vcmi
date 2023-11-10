@@ -111,7 +111,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		b->val = 2 - static_cast<si32>(factionsInArmy);
 		description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
-		description = b->description.substr(0, description.size()-2);//trim value
+		description = description.substr(0, description.size()-3);//trim value
 	}
 	
 	boost::algorithm::trim(description);
