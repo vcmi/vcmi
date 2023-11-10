@@ -53,6 +53,12 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		CSH->setSimturnsInfo(info);
 	});
 
+	addCallback("setSimturnAI", [&](int index){
+		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
+		info.allowHumanWithAI = index;
+		CSH->setSimturnsInfo(info);
+	});
+
 	//helper function to parse string containing time to integer reflecting time in seconds
 	//assumed that input string can be modified by user, function shall support user's intention
 	// normal: 2:00, 12:30
@@ -236,6 +242,9 @@ void OptionsTabBase::recreate()
 
 	if(auto w = widget<CLabel>("labelSimturnsDurationValueMax"))
 		w->setText(generateSimturnsDurationText(SEL->getStartInfo()->simturnsInfo.optionalTurns));
+
+	if(auto buttonSimturnsAI = widget<CToggleButton>("buttonSimturnsAI"))
+		buttonSimturnsAI->setSelectedSilent(SEL->getStartInfo()->simturnsInfo.allowHumanWithAI);
 
 	const auto & turnTimerRemote = SEL->getStartInfo()->turnTimerInfo;
 

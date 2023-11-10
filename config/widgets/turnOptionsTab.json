@@ -267,6 +267,7 @@
 			"rect": {"x": 70, "y": 480, "w": 300, "h": 40}
 		},
 		{
+			"name": "buttonSimturnsAI",
 			"position": {"x": 70, "y": 535},
 			"type": "toggleButton",
 			"image": "lobby/checkbox"
