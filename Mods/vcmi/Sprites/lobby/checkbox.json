@@ -1,0 +1,8 @@
+{
+	"basepath" : "lobby/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "checkboxBlueOff.png"},
+		{ "frame" : 1, "file" : "checkboxBlueOn.png"}
+	]
+}

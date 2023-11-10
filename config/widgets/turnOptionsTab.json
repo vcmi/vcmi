@@ -250,7 +250,7 @@
 		{
 			"position": {"x": 70, "y": 535},
 			"type": "toggleButton",
-			"image": "sysopchk.def"
+			"image": "lobby/checkbox"
 		},
 		{
 			"name": "labelSimturnsAI",
