@@ -129,6 +129,9 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 	
 	for(const auto & item : items->Vector())
 		addWidget(item["name"].String(), buildWidget(item));
+
+	pos.w = config["width"].Integer();
+	pos.h = config["height"].Integer();
 }
 
 void InterfaceObjectConfigurable::addConditional(const std::string & name, bool active)

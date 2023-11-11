@@ -124,6 +124,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/IdentifierStorage.cpp
 		${MAIN_LIB_DIR}/modding/ModUtility.cpp
 
+		${MAIN_LIB_DIR}/network/NetworkClient.cpp
+		${MAIN_LIB_DIR}/network/NetworkConnection.cpp
+		${MAIN_LIB_DIR}/network/NetworkServer.cpp
+
 		${MAIN_LIB_DIR}/networkPacks/NetPacksLib.cpp
 
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
@@ -470,6 +474,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/ModScope.h
 		${MAIN_LIB_DIR}/modding/ModUtility.h
 		${MAIN_LIB_DIR}/modding/ModVerificationInfo.h
+
+		${MAIN_LIB_DIR}/network/NetworkClient.h
+		${MAIN_LIB_DIR}/network/NetworkConnection.h
+		${MAIN_LIB_DIR}/network/NetworkDefines.h
+		${MAIN_LIB_DIR}/network/NetworkServer.h
 
 		${MAIN_LIB_DIR}/networkPacks/ArtifactLocation.h
 		${MAIN_LIB_DIR}/networkPacks/BattleChanges.h

@@ -24,6 +24,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../serverLobby/LobbyWindow.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -459,7 +460,15 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	buttonHotseat = std::make_shared<CButton>(Point(373, 78), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
 	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this));
 	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 2), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this));
+	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBONL.DEF"), CGI->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this));
+
 	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+}
+
+void CMultiMode::openLobby()
+{
+	close();
+	GH.windows().createAndPushWindow<LobbyWindow>();
 }
 
 void CMultiMode::hostTCP()

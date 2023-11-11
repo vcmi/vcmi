@@ -1,0 +1,186 @@
+{
+	"customTypes" : {
+		"labelTitleMain" : {
+			"type": "label",
+			"font": "big",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"labelTitle" : {
+			"type": "label",
+			"font": "small",
+			"alignment": "left",
+			"color": "yellow"
+		},
+		"backgroundTexture" : {
+			"type": "texture",
+			"font": "tiny",
+			"color" : "blue",
+			"image": "DIBOXBCK"
+		},
+		"areaFilled":{
+			"type": "transparentFilledRectangle",
+			"color": [0, 0, 0, 75],
+			"colorLine": [64, 80, 128, 255]
+		}
+	},
+	
+	
+	"width": 1024,
+	"height": 600,
+	
+	"items":
+	[
+		{
+			"type": "backgroundTexture",
+			"rect": {"w": 1024, "h": 600}
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 5, "y": 5, "w": 250, "h": 40}
+		},
+		{
+			"type": "labelTitleMain",
+			"position": {"x": 15, "y": 10},
+			"text" : "Player Name"
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 5, "y": 50, "w": 250, "h": 150}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 15, "y": 53},
+			"text" : "Match Filter"
+		},
+
+		{
+			"type": "areaFilled",
+			"rect": {"x": 5, "y": 210, "w": 250, "h": 310}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 15, "y": 213},
+			"text" : "Match List"
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 270, "y": 50, "w": 150, "h": 540}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 280, "y": 53},
+			"text" : "Channel List"
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 430, "y": 50, "w": 430, "h": 515}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 440, "y": 53},
+			"text" : "Game Chat"
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 430, "y": 565, "w": 395, "h": 25}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 440, "y": 568},
+			"text" : "Enter Message"
+		},
+		
+		{
+			"type": "areaFilled",
+			"rect": {"x": 870, "y": 50, "w": 150, "h": 540}
+		},
+		{
+			"type": "labelTitle",
+			"position": {"x": 880, "y": 53},
+			"text" : "Player List"
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 940, "y": 10},
+			"image": "settingsWindow/button80",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"hotkey": "globalReturn",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "Exit"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 828, "y": 565},
+			"image": "settingsWindow/button32",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"hotkey": "globalReturn",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": ">"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 10, "y": 520},
+			"image": "settingsWindow/button190",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"hotkey": "globalReturn",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "Start Public Game"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
+			"position": {"x": 10, "y": 555},
+			"image": "settingsWindow/button190",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"hotkey": "globalReturn",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "Start Private Game"
+				}
+			]
+		},
+
+	]
+}

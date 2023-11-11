@@ -86,12 +86,14 @@ public:
 	std::shared_ptr<CPicture> picture;
 	std::shared_ptr<CTextInput> playerName;
 	std::shared_ptr<CButton> buttonHotseat;
+	std::shared_ptr<CButton> buttonLobby;
 	std::shared_ptr<CButton> buttonHost;
 	std::shared_ptr<CButton> buttonJoin;
 	std::shared_ptr<CButton> buttonCancel;
 	std::shared_ptr<CGStatusBar> statusBar;
 
 	CMultiMode(ESelectionScreen ScreenType);
+	void openLobby();
 	void hostTCP();
 	void joinTCP();
 	std::string getPlayerName();
