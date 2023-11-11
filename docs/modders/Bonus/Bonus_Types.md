@@ -6,13 +6,13 @@ The bonuses were grouped according to their original purpose. The bonus system a
 
 ### NONE
 
-Special bonus that gives no effect
+Bonus placeholder that gives no effect
 
 ### MORALE
 
 Changes morale of affected units
 
-- val: change in morale
+- val: change in morale, eg. 1, -2
 
 ### LUCK
 
@@ -29,7 +29,7 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 
 ### DARKNESS
 
-On each turn, hides area in fog of war around affected town for all players other than town owner
+On each turn, hides area in fog of war around affected town for all players other than town owner. Currently does not work for any entities other than towns.
 
 - val: radius in tiles
 
@@ -40,21 +40,21 @@ On each turn, hides area in fog of war around affected town for all players othe
 Increases amount of movement points available to affected hero on new turn
 
 - subtype: 
-- - heroMovementLand: only land movement will be affected
-- - heroMovementSea: only sea movement will be affected
+	- heroMovementLand: only land movement will be affected
+	- heroMovementSea: only sea movement will be affected
 - val: number of movement points (100 points for a tile)
 
 ### WATER_WALKING
 
 Allows movement over water for affected heroes
 
-- val: TODO
+- val: Penalty to movement, in percent (Basic Water Walk - 40, Advanced Water Walk - 20)
 
 ### FLYING_MOVEMENT
 
 Allows flying movement for affected heroes
 
-- val: TODO
+- val: Penalty to movement, in percent
 
 ### NO_TERRAIN_PENALTY
 
@@ -62,11 +62,11 @@ Eliminates terrain penalty on certain terrain types for affected heroes (Nomads 
 
 Note: to eliminate all terrain penalties see ROUGH_TERRAIN_DISCOUNT bonus
 
-- subtype: type of terrain
+- subtype: type of terrain, eg `terrain.sand`
 
 ### TERRAIN_NATIVE
 
-Affected units will view any terrain as native
+Affected units will view any terrain as native. This means army containing these creature will have no movement penalty, and will be able to see Mines and Quick Sand in battle.
 
 ### PRIMARY_SKILL
 
@@ -93,38 +93,38 @@ Restores entire mana pool for affected heroes on new turn
 
 ### NONEVIL_ALIGNMENT_MIX
 
-Allows mixing of creaturs of neutral and good factions in affected armies without penalty to morale
+Allows mixing of creaturs of neutral and good factions in affected armies without penalty to morale (Angelic Alliance effect)
 
 ### SURRENDER_DISCOUNT
 
 Changes surrender cost for affected heroes
 
-- val: decrease in cost, in precentage
+- val: decrease in cost, in percentage
 
 ### IMPROVED_NECROMANCY
 
-TODO: Determine units which is raised by necromancy skill.
+Allows to raise different creatures than Skeletons after battle.
 
 - subtype: creature raised
 - val: Necromancer power
-- addInfo: limiter by Necromancer power
-- Example (from Necromancy skill):
+- addInfo: Level of Necromancy secondary skill (1 - Basic, 3 - Expert)
+- Example (from Cloak Of The Undead King):
 
-` "power" : {`  
-`  "type" : "IMPROVED_NECROMANCY",`  
-`  "subtype" : "creature.skeleton",`  
-`  "addInfo" : 0`  
-` }`
+        {
+            "type" : "IMPROVED_NECROMANCY",
+            "subtype" : "creature.walkingDead",
+            "addInfo" : 1
+        }
 
 ### LEARN_BATTLE_SPELL_CHANCE
 
-Determines chance for affected heroes to learn spell casted by enemy hero after battle
+Determines chance for affected heroes to learn spell cast by enemy hero after battle
 
 - val: chance to learn spell, percentage
 
 ### LEARN_BATTLE_SPELL_LEVEL_LIMIT
 
-Allows affected heroes to learn spell casted by enemy hero after battle
+Allows affected heroes to learn spell cast by enemy hero after battle
 
 - val: maximal level of spell that can be learned
 
@@ -207,7 +207,7 @@ Defines maximum level of spells than hero can learn from any source (Wisdom)
 
 ### SPECIAL_SPELL_LEV
 
-Gives additional bonus to effect of specific spell based on level of creature it is casted on
+Gives additional bonus to effect of specific spell based on level of creature it is cast on
 
 - subtype: identifier of affected spell
 - val: bonus to spell effect, percentage, divided by target creature level
@@ -228,25 +228,39 @@ Gives additional bonus to effect of specific spell
 
 ### SPECIAL_PECULIAR_ENCHANT
 
-TODO: blesses and curses with id = val dependent on unit's level
+Gives creature under effect of this spell additional bonus, which is hardcoded and depends on the creature tier.
 
-- subtype: affected spell identifier
+- subtype: affected spell identifier, ie. `spell.haste`
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
-TODO: specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add
+Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray decrease target's defence by additional 2 points:
+
+        "disruptingRay" : {
+            "addInfo" : -2,
+            "subtype" : "spell.disruptingRay",
+            "type" : "SPECIAL_ADD_VALUE_ENCHANT"
+        }
 
 - subtype: affected spell identifier
+- additionalInfo: value to add
 
 ### SPECIAL_FIXED_VALUE_ENCHANT
 
-TODO: specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.
+Spell affecting creature has fixed effect, eg. hero Melody has constant spell effect of +3:
+
+        "fortune" : {
+            "addInfo" : 3,
+            "subtype" : "spell.fortune",
+            "type" : "SPECIAL_FIXED_VALUE_ENCHANT"
+        }
 
 - subtype: affected spell identifier
+- additionalInfo = fixed value
 
 ### SPECIAL_UPGRADE
 
-Allows creature upgrade for affected armies
+Allows creature being upgraded to another creature (Gelu, Dracon)
 
 - subtype: identifier of creature that can being upgraded
 - addInfo: identifier of creature to which perform an upgrade
@@ -255,7 +269,7 @@ Allows creature upgrade for affected armies
 
 ### SPELL_DURATION
 
-Changes duration of timed spells casted by affected hero
+Changes duration of timed spells cast by affected hero
 
 - val: additional duration, turns
 - subtype: optional, identifier of affected spells, or all if not set
@@ -308,8 +322,8 @@ Heroes affected by this bonus can not retreat or surrender in battle
 Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
 - subtype:
-- - immunityBattleWide: Entire battle will be affected by bonus
-- - immunityEnemyHero: Only enemy hero will be affected by bonus
+	- immunityBattleWide: Entire battle will be affected by bonus
+	- immunityEnemyHero: Only enemy hero will be affected by bonus
 
 ### OPENING_BATTLE_SPELL
 
@@ -320,7 +334,7 @@ In battle, army affected by this bonus will cast spell at the very start of the 
 
 ### FREE_SHIP_BOARDING
 
-Heroes affected by this bonus will keep all their movement points when embarking or disembarking ship
+Heroes affected by this bonus will not lose all movement points when embarking or disembarking ship. Movement points are converted depending on max land and water movement range.
 
 ### WHIRLPOOL_PROTECTION
 
@@ -345,9 +359,9 @@ Increases movement speed of units in battle
 Increases base damage of creature in battle
 
 - subtype:
-- - creatureDamageMin: increases only minimal damage 
-- - creatureDamageMax: increases only maximal damage
-- - creatureDamageBoth: increases both minimal and maximal damage
+	- creatureDamageMin: increases only minimal damage 
+	- creatureDamageMax: increases only maximal damage
+	- creatureDamageBoth: increases both minimal and maximal damage
 - val: additional damage points
 
 ### SHOTS
@@ -405,8 +419,8 @@ Affected units can not receive good or bad morale
 Affected unit can fly on the battlefield
 
 - subtype:
-- - movementFlying: creature will fly (slowly move across battlefield)
-- - movementTeleporting: creature will instantly teleport to destination
+	- movementFlying: creature will fly (slowly move across battlefield)
+	- movementTeleporting: creature will instantly teleport to destination
 
 ### SHOOTER
 
@@ -480,9 +494,9 @@ Affected units will receive reduced damage from attacks by other units
 
 - val: damage reduction, percentage
 - subtype: 
-- - damageTypeMelee: only melee damage will be reduced
-- - damageTypeRanged: only ranged damage will be reduced
-- - damageTypeAll: all damage will be reduced
+	- damageTypeMelee: only melee damage will be reduced
+	- damageTypeRanged: only ranged damage will be reduced
+	- damageTypeAll: all damage will be reduced
 
 ### PERCENTAGE_DAMAGE_BOOST
 
@@ -490,8 +504,8 @@ Affected units will deal increased damage when attacking other units
 
 - val: damage increase, percentage
 - subtype: 
-- - damageTypeMelee: only melee damage will increased
-- - damageTypeRanged: only ranged damage will increased
+	- damageTypeMelee: only melee damage will increased
+	- damageTypeRanged: only ranged damage will increased
 
 ### GENERAL_ATTACK_REDUCTION
 
@@ -519,7 +533,7 @@ Affected unit will deal full damage when shooting over walls in sieges. Does not
 
 ### FREE_SHOOTING
 
-Affected unit can use ranged attack even when blocked by enemy unit. (Sharpshooter's Bow)
+Affected unit can use ranged attack even when blocked by enemy unit, like with Bow of the Sharpshooter relic
 
 ### BLOCKS_RETALIATION
 
@@ -531,8 +545,8 @@ Affected unit will gain new creatures for each enemy killed by this unit
 
 - val: number of units gained per enemy killed
 - subtype: 
-- - soulStealPermanent: creature will stay after the battle
-- - soulStealBattle: creature will be lost after the battle
+	- soulStealPermanent: creature will stay after the battle
+	- soulStealBattle: creature will be lost after the battle
 
 ### TRANSMUTATION
 
@@ -540,8 +554,8 @@ Affected units have chance to transform attacked unit to other creature type
 
 - val: chance for ability to trigger, percentage
 - subtype: 
-- - transmutationPerHealth: transformed unit will have same HP pool as original stack, 
-- - transmutationPerUnit: transformed unit will have same number of units as original stack
+	- transmutationPerHealth: transformed unit will have same HP pool as original stack, 
+	- transmutationPerUnit: transformed unit will have same number of units as original stack
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
 
 ### SUMMON_GUARDIANS
@@ -577,8 +591,8 @@ Affected unit will kills additional units after attack
 
 - val: chance to trigger, percentage
 - subtype: 
-- - destructionKillPercentage: kill percentage of units, 
-- - destructionKillAmount: kill amount
+	- destructionKillPercentage: kill percentage of units, 
+	- destructionKillAmount: kill amount
 - addInfo: amount or percentage to kill
 
 ### LIMITED_SHOOTING_RANGE
@@ -691,11 +705,11 @@ Affected unit will deal additional damage after attack
 Affected unit will kill additional units after attack
 
 - subtype: 
-- - deathStareGorgon: random amount
-- - deathStareCommander: fixed amount
+	- deathStareGorgon: random amount
+	- deathStareCommander: fixed amount
 - val: 
-- - for deathStareGorgon: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once. TODO: recheck formula
-- - for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
+	- for deathStareGorgon: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once. TODO: recheck formula
+	- for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
 
 ### SPECIAL_CRYSTAL_GENERATION
 
@@ -737,53 +751,41 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 ### SPELL_AFTER_ATTACK
 
-TODO: 
-
-- subtype - spell id
-- value - chance %
+- subtype - spell id, eg. spell.iceBolt
+- value - chance (percent)
 - additional info - \[X, Y\]
-- X - spell level
-- Y = 0 - all attacks, 1 - shot only, 2 - melee only
+    - X - spell level
+    - Y = 0 - all attacks, 1 - shot only, 2 - melee only
 
 ### SPELL_BEFORE_ATTACK
 
-TODO: 
-
 - subtype - spell id
 - value - chance %
 - additional info - \[X, Y\]
-- X - spell level
-- Y = 0 - all attacks, 1 - shot only, 2 - melee only
+    - X - spell level
+    - Y = 0 - all attacks, 1 - shot only, 2 - melee only
 
-### SPECIFIC_SPELL_POWER
+### SPECIFIC_SPELL_POWER 
 
-TODO: 
-
-- value used for Thunderbolt and Resurrection casted by units, also for Healing secondary skill (for core:spell.firstAid used by First Aid tent)
+- value: Used for Thunderbolt and Resurrection cast by units (multiplied by stack size). Also used for Healing secondary skill (for core:spell.firstAid used by First Aid tent)
 - subtype - spell id
 
 ### CREATURE_SPELL_POWER
 
-TODO: 
-
-- value per unit, divided by 100 (so faerie Dragons have 500)
+- value: Spell Power of offensive spell cast unit, divided by 100. ie. Faerie Dragons have value fo 500, which gives them 5 Spell Power for each unit in the stack.
 
 ### CREATURE_ENCHANT_POWER
 
-TODO: 
-
-total duration of spells casted by creature
+ - val: Total duration of spells cast by creature, in turns
 
 ### REBIRTH
 
 Affected stack will resurrect after death
 
-TODO: recheck math
-
-- val - percent of total stack HP restored
+- val - percent of total stack HP restored, not rounded. For instance, when 4 Phoenixes with Rebirth chance of 20% die, there is 80% chance than one Phoenix will rise. 
 - subtype:
-- - rebirthRegular: (Phoenix)
-- - rebirthSpecial: at least one unit will always resurrect (sacred Phoenix)
+    - rebirthRegular: Phoenix, as described above.
+    - rebirthSpecial: At least one unit will always rise (Sacred Phoenix)
 
 ### ENCHANTED
 
@@ -798,9 +800,7 @@ Affected unit is permanently enchanted with a spell, that is cast again every tu
 
 Affected unit is immune to all spell with level below or equal to value of this bonus
 
-- val: level up to which this unit is immune to
-
-TODO: additional info?
+- val: level of spell up to which this unit is immune to
 
 ### MAGIC_RESISTANCE
 
@@ -846,7 +846,7 @@ Affected unit can be affected by all friendly spells even it would be normally i
 
 ### POISON
 
-TODO: describe
+Unit affected by poison will lose 10% of max health every combat turn, up to `val`. After that, effect ends.
 
 - val - max health penalty from poison possible
 
@@ -934,9 +934,9 @@ Affected heroes will be under effect of Visions spell, revealing information of 
 
 - val: multiplier to effect range. Information is revealed within (val \* hero spell power) range
 - subtype:
-- - visionsMonsters: reveal information on monsters, 
-- - visionsHeroes: reveal information on heroes, 
-- - visionsTowns: reveal information on towns
+    - visionsMonsters: reveal information on monsters, 
+    - visionsHeroes: reveal information on heroes, 
+    - visionsTowns: reveal information on towns
 
 ### BLOCK_MAGIC_BELOW
 
