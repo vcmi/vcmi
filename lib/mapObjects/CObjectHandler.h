@@ -22,11 +22,6 @@ public:
 	std::vector<ui32> resVals; //default values of resources in gold
 
 	CObjectHandler();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & resVals;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

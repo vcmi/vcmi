@@ -858,7 +858,7 @@ void AddQuest::applyGs(CGameState * gs) const
 
 void UpdateArtHandlerLists::applyGs(CGameState * gs) const
 {
-	VLC->arth->allocatedArtifacts = allocatedArtifacts;
+	gs->allocatedArtifacts = allocatedArtifacts;
 }
 
 void UpdateMapEvents::applyGs(CGameState * gs) const

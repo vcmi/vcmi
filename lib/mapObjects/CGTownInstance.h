@@ -92,7 +92,18 @@ public:
 		for(auto * bonusingBuilding : bonusingBuildings)
 			bonusingBuilding->town = this;
 		
-		h & town;
+		if (h.saving)
+		{
+			CFaction * faction = town ? town->faction : nullptr;
+			h & faction;
+		}
+		else
+		{
+			CFaction * faction = nullptr;
+			h & faction;
+			town = faction ? faction->town : nullptr;
+		}
+
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 

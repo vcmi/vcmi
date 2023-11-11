@@ -1237,10 +1237,10 @@ void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, con
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
-	if(pa->packType == typeList.getTypeID<MoveHero>())
+	if(pa->packType == CTypeList::getInstance().getTypeID<MoveHero>(nullptr))
 		movementController->onMoveHeroApplied();
 
-	if(pa->packType == typeList.getTypeID<QueryReply>())
+	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 		movementController->onQueryReplyApplied();
 }
 

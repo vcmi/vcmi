@@ -23,7 +23,7 @@ class CInputStream;
 class IMapLoader;
 class IMapPatcher;
 
-using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
+using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 
 /**
  * The map service provides loading of VCMI/H3 map files. It can

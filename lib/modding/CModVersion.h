@@ -18,6 +18,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+using TModID = std::string;
+
 struct DLL_LINKAGE CModVersion
 {
 	static const int Any = -1;

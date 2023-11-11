@@ -10,8 +10,7 @@
 #include "StdInc.h"
 #include "Connection.h"
 
-#include "../registerTypes/RegisterTypes.h"
-#include "../mapping/CMapHeader.h"
+#include "../networkPacks/NetPacksBase.h"
 
 #include <boost/asio.hpp>
 
@@ -45,8 +44,6 @@ void CConnection::init()
 
 	enableSmartPointerSerialization();
 	disableStackSendingByID();
-	registerTypes(iser);
-	registerTypes(oser);
 #ifndef VCMI_ENDIAN_BIG
 	myEndianess = true;
 #else

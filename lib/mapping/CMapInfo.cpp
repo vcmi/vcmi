@@ -21,7 +21,7 @@
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
-#include "../serializer/CMemorySerializer.h"
+#include "../serializer/CLoadFile.h"
 #include "../CGeneralTextHandler.h"
 #include "../rmg/CMapGenOptions.h"
 #include "../CCreatureHandler.h"

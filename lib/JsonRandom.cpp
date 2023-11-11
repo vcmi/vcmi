@@ -24,6 +24,7 @@
 #include "CSkillHandler.h"
 #include "CHeroHandler.h"
 #include "IGameCallback.h"
+#include "gameState/CGameState.h"
 #include "mapObjects/IObjectInterface.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
@@ -388,7 +389,7 @@ namespace JsonRandom
 
 		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts, variables);
 
-		return VLC->arth->pickRandomArtifact(rng, potentialPicks);
+		return IObjectInterface::cb->gameState()->pickRandomArtifact(rng, potentialPicks);
 	}
 
 	std::vector<ArtifactID> loadArtifacts(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)

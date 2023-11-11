@@ -80,7 +80,7 @@ public:
 	bool isVisibleAt(si32 X, si32 Y) const;
 	bool isBlockedAt(si32 X, si32 Y) const;
 
-	inline std::set<int3> getBlockedOffsets() const
+	inline const std::set<int3> & getBlockedOffsets() const
 	{
 		return blockedOffsets;
 	};

@@ -116,6 +116,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
 
+		${MAIN_LIB_DIR}/modding/ActiveModsInSaveList.cpp
 		${MAIN_LIB_DIR}/modding/CModHandler.cpp
 		${MAIN_LIB_DIR}/modding/CModInfo.cpp
 		${MAIN_LIB_DIR}/modding/CModVersion.cpp
@@ -131,15 +132,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/pathfinder/PathfinderOptions.cpp
 		${MAIN_LIB_DIR}/pathfinder/PathfindingRules.cpp
 		${MAIN_LIB_DIR}/pathfinder/TurnInfo.cpp
-
-		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesClientPacks1.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesClientPacks2.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects1.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects2.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects3.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesLobbyPacks.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesServerPacks.cpp
 
 		${MAIN_LIB_DIR}/rewardable/Configuration.cpp
 		${MAIN_LIB_DIR}/rewardable/Info.cpp
@@ -180,9 +172,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.cpp
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.cpp
-		${MAIN_LIB_DIR}/serializer/CLoadIntegrityValidator.cpp
+		${MAIN_LIB_DIR}/serializer/CLoadFile.cpp
 		${MAIN_LIB_DIR}/serializer/CMemorySerializer.cpp
 		${MAIN_LIB_DIR}/serializer/Connection.cpp
+		${MAIN_LIB_DIR}/serializer/CSaveFile.cpp
 		${MAIN_LIB_DIR}/serializer/CSerializer.cpp
 		${MAIN_LIB_DIR}/serializer/CTypeList.cpp
 		${MAIN_LIB_DIR}/serializer/JsonDeserializer.cpp
@@ -467,6 +460,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
 
+		${MAIN_LIB_DIR}/modding/ActiveModsInSaveList.h
 		${MAIN_LIB_DIR}/modding/CModHandler.h
 		${MAIN_LIB_DIR}/modding/CModInfo.h
 		${MAIN_LIB_DIR}/modding/CModVersion.h
@@ -475,6 +469,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/ModIncompatibility.h
 		${MAIN_LIB_DIR}/modding/ModScope.h
 		${MAIN_LIB_DIR}/modding/ModUtility.h
+		${MAIN_LIB_DIR}/modding/ModVerificationInfo.h
 
 		${MAIN_LIB_DIR}/networkPacks/ArtifactLocation.h
 		${MAIN_LIB_DIR}/networkPacks/BattleChanges.h
@@ -503,6 +498,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/pathfinder/TurnInfo.h
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesClientPacks.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesLobbyPacks.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesMapObjects.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesServerPacks.h
 
 		${MAIN_LIB_DIR}/rewardable/Configuration.h
 		${MAIN_LIB_DIR}/rewardable/Info.h
@@ -546,9 +545,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.h
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.h
-		${MAIN_LIB_DIR}/serializer/CLoadIntegrityValidator.h
+		${MAIN_LIB_DIR}/serializer/CLoadFile.h
 		${MAIN_LIB_DIR}/serializer/CMemorySerializer.h
 		${MAIN_LIB_DIR}/serializer/Connection.h
+		${MAIN_LIB_DIR}/serializer/CSaveFile.h
 		${MAIN_LIB_DIR}/serializer/CSerializer.h
 		${MAIN_LIB_DIR}/serializer/CTypeList.h
 		${MAIN_LIB_DIR}/serializer/JsonDeserializer.h

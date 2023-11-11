@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
-using ModCompatibilityInfo = std::map<std::string, CModInfo::VerificationInfo>;
+using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName

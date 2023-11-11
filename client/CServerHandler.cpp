@@ -47,7 +47,7 @@
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CMemorySerializer.h"
 
@@ -94,7 +94,7 @@ public:
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
 
-		logNetwork->trace("\tImmediately apply on lobby: %s", typeList.getTypeInfo(ptr)->name());
+		logNetwork->trace("\tImmediately apply on lobby: %s", typeid(ptr).name());
 		ptr->visit(visitor);
 
 		return visitor.getResult();
@@ -105,7 +105,7 @@ public:
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnLobbyScreenNetPackVisitor visitor(*handler, lobby);
 
-		logNetwork->trace("\tApply on lobby from queue: %s", typeList.getTypeInfo(ptr)->name());
+		logNetwork->trace("\tApply on lobby from queue: %s", typeid(ptr).name());
 		ptr->visit(visitor);
 	}
 };
@@ -298,7 +298,7 @@ void CServerHandler::applyPacksOnLobbyScreen()
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		CPackForLobby * pack = packsForLobbyScreen.front();
 		packsForLobbyScreen.pop_front();
-		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
+		CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
 		apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
 		GH.windows().totalRedraw();
 		delete pack;
@@ -953,7 +953,7 @@ void CServerHandler::threadHandleConnection()
 
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 {
-	if(applier->getApplier(typeList.getTypeID(&lobbyPack))->applyOnLobbyHandler(this, &lobbyPack))
+	if(applier->getApplier(CTypeList::getInstance().getTypeID(&lobbyPack))->applyOnLobbyHandler(this, &lobbyPack))
 	{
 		if(!settings["session"]["headless"].Bool())
 		{

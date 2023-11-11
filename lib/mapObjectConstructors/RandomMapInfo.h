@@ -33,14 +33,6 @@ struct DLL_LINKAGE RandomMapInfo
 	{}
 
 	void setMapLimit(ui32 val) { mapLimit = val; }
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & value;
-		h & mapLimit;
-		h & zoneLimit;
-		h & rarity;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

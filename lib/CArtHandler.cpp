@@ -607,75 +607,6 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 	}
 }
 
-ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
-{
-	std::set<ArtifactID> potentialPicks;
-
-	// Select artifacts that satisfy provided criterias
-	for (auto const * artifact : allowedArtifacts)
-	{
-		assert(artifact->aClass != CArtifact::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
-
-		if ((flags & CArtifact::ART_TREASURE) == 0 && artifact->aClass == CArtifact::ART_TREASURE)
-			continue;
-
-		if ((flags & CArtifact::ART_MINOR) == 0 && artifact->aClass == CArtifact::ART_MINOR)
-			continue;
-
-		if ((flags & CArtifact::ART_MAJOR) == 0 && artifact->aClass == CArtifact::ART_MAJOR)
-			continue;
-
-		if ((flags & CArtifact::ART_RELIC) == 0 && artifact->aClass == CArtifact::ART_RELIC)
-			continue;
-
-		if (!accepts(artifact->id))
-			continue;
-
-		potentialPicks.insert(artifact->id);
-	}
-
-	return pickRandomArtifact(rand, potentialPicks);
-}
-
-ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> potentialPicks)
-{
-	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
-	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
-	if (potentialPicks.empty())
-	{
-		logGlobal->warn("Failed to find artifact that matches requested parameters!");
-		return ArtifactID::GRAIL;
-	}
-
-	// Find how many times least used artifacts were picked by randomizer
-	int leastUsedTimes = std::numeric_limits<int>::max();
-	for (auto const & artifact : potentialPicks)
-		if (allocatedArtifacts[artifact] < leastUsedTimes)
-			leastUsedTimes = allocatedArtifacts[artifact];
-
-	// Pick all artifacts that were used least number of times
-	std::set<ArtifactID> preferredPicks;
-	for (auto const & artifact : potentialPicks)
-		if (allocatedArtifacts[artifact] == leastUsedTimes)
-			preferredPicks.insert(artifact);
-
-	assert(!preferredPicks.empty());
-
-	ArtifactID artID = *RandomGeneratorUtil::nextItem(preferredPicks, rand);
-	allocatedArtifacts[artID] += 1; // record +1 more usage
-	return artID;
-}
-
-ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts)
-{
-	return pickRandomArtifact(rand, 0xff, std::move(accepts));
-}
-
-ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
-{
-	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
-}
-
 void CArtHandler::makeItCreatureArt(CArtifact * a, bool onlyCreature)
 {
 	if (onlyCreature)
@@ -723,7 +654,6 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 {
 	allowedArtifacts.clear();
-	allocatedArtifacts.clear();
 
 	for (ArtifactID i=ArtifactID::SPELLBOOK; i < ArtifactID(static_cast<si32>(objects.size())); i.advance(1))
 	{

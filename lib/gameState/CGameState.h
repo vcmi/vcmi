@@ -83,6 +83,9 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 	friend class CGameStateCampaign;
 
 public:
+	/// Stores number of times each artifact was placed on map via randomization
+	std::map<ArtifactID, int> allocatedArtifacts;
+
 	/// List of currently ongoing battles
 	std::vector<std::unique_ptr<BattleInfo>> currentBattles;
 	/// ID that can be allocated to next battle
@@ -130,6 +133,12 @@ public:
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 	void updateRumor();
 
+	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> filtered);
+
 	/// Returns battle in which selected player is engaged, or nullptr if none.
 	/// Can NOT be used with neutral player, use battle by ID instead
 	const BattleInfo * getBattle(const PlayerColor & player) const;
@@ -176,6 +185,7 @@ public:
 		h & rand;
 		h & rumor;
 		h & campaign;
+		h & allocatedArtifacts;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

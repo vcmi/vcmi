@@ -47,7 +47,7 @@
 #include "../lib/UnlockGuard.h"
 
 // for applier
-#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 
 // UUID generation
 #include <boost/uuid/uuid.hpp>
@@ -485,7 +485,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 
 void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 {
-	CBaseForServerApply * apply = applier->getApplier(typeList.getTypeID(pack.get()));
+	CBaseForServerApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()));
 	if(apply->applyOnServerBefore(this, pack.get()))
 		addToAnnounceQueue(std::move(pack));
 }
@@ -502,7 +502,7 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 		c->sendPack(pack.get());
 	}
 
-	applier->getApplier(typeList.getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
+	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
 }
 
 void CVCMIServer::announceMessage(const std::string & txt)

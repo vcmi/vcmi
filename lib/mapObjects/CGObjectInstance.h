@@ -77,7 +77,7 @@ public:
 	bool coveringAt (const int3 & pos) const; //returns true if object covers with picture location (x, y) (h3m pos)
 
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
-	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
+	const std::set<int3> & getBlockedOffsets() const; //returns set of relative positions blocked by this object
 
 	/// returns true if object is visitable
 	bool isVisitable() const;

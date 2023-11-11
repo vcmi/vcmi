@@ -42,7 +42,7 @@
 #include "../modding/IdentifierStorage.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
-#include "../registerTypes/RegisterTypes.h"
+#include "../registerTypes/RegisterTypesClientPacks.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../serializer/CTypeList.h"
@@ -157,8 +157,7 @@ CGameState::CGameState()
 	gs = this;
 	heroesPool = std::make_unique<TavernHeroesPool>();
 	applier = std::make_shared<CApplier<CBaseForGSApply>>();
-	registerTypesClientPacks1(*applier);
-	registerTypesClientPacks2(*applier);
+	registerTypesClientPacks(*applier);
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 
@@ -760,7 +759,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
+				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(VLC);
 
 				CGHeroInstance *hero = elem.second.heroes[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
@@ -921,11 +920,9 @@ void CGameState::initMapObjects()
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(obj)
-		{
-			logGlobal->trace("Calling Init for object %d, %s, %s", obj->id.getNum(), obj->typeName, obj->subTypeName);
 			obj->initObj(getRandomGenerator());
-		}
 	}
+	logGlobal->debug("\tObject initialization done");
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(!obj)
@@ -1136,7 +1133,7 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 
 void CGameState::apply(CPack *pack)
 {
-	ui16 typ = typeList.getTypeID(pack);
+	ui16 typ = CTypeList::getInstance().getTypeID(pack);
 	applier->getApplier(typ)->applyOnGS(this, pack);
 }
 
@@ -1969,6 +1966,75 @@ TeamState::TeamState(TeamState && other) noexcept:
 CRandomGenerator & CGameState::getRandomGenerator()
 {
 	return rand;
+}
+
+ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
+{
+	std::set<ArtifactID> potentialPicks;
+
+	// Select artifacts that satisfy provided criterias
+	for (auto const * artifact : VLC->arth->allowedArtifacts)
+	{
+		assert(artifact->aClass != CArtifact::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
+
+		if ((flags & CArtifact::ART_TREASURE) == 0 && artifact->aClass == CArtifact::ART_TREASURE)
+			continue;
+
+		if ((flags & CArtifact::ART_MINOR) == 0 && artifact->aClass == CArtifact::ART_MINOR)
+			continue;
+
+		if ((flags & CArtifact::ART_MAJOR) == 0 && artifact->aClass == CArtifact::ART_MAJOR)
+			continue;
+
+		if ((flags & CArtifact::ART_RELIC) == 0 && artifact->aClass == CArtifact::ART_RELIC)
+			continue;
+
+		if (!accepts(artifact->getId()))
+			continue;
+
+		potentialPicks.insert(artifact->getId());
+	}
+
+	return pickRandomArtifact(rand, potentialPicks);
+}
+
+ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> potentialPicks)
+{
+	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
+	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
+	if (potentialPicks.empty())
+	{
+		logGlobal->warn("Failed to find artifact that matches requested parameters!");
+		return ArtifactID::GRAIL;
+	}
+
+	// Find how many times least used artifacts were picked by randomizer
+	int leastUsedTimes = std::numeric_limits<int>::max();
+	for (auto const & artifact : potentialPicks)
+		if (allocatedArtifacts[artifact] < leastUsedTimes)
+			leastUsedTimes = allocatedArtifacts[artifact];
+
+	// Pick all artifacts that were used least number of times
+	std::set<ArtifactID> preferredPicks;
+	for (auto const & artifact : potentialPicks)
+		if (allocatedArtifacts[artifact] == leastUsedTimes)
+			preferredPicks.insert(artifact);
+
+	assert(!preferredPicks.empty());
+
+	ArtifactID artID = *RandomGeneratorUtil::nextItem(preferredPicks, rand);
+	allocatedArtifacts[artID] += 1; // record +1 more usage
+	return artID;
+}
+
+ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts)
+{
+	return pickRandomArtifact(rand, 0xff, std::move(accepts));
+}
+
+ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags)
+{
+	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
 }
 
 VCMI_LIB_NAMESPACE_END

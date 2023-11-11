@@ -52,13 +52,6 @@ public:
 		ui32 minAmount;
 		ui32 maxAmount;
 		CreatureID creature;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & minAmount;
-			h & maxAmount;
-			h & creature;
-		}
 	};
 	si32 imageIndex = 0;
 
@@ -104,29 +97,6 @@ public:
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & ID;
-		h & imageIndex;
-		h & initialArmy;
-		h & heroClass;
-		h & secSkillsInit;
-		h & specialty;
-		h & spells;
-		h & haveSpellBook;
-		h & gender;
-		h & special;
-		h & onlyOnWaterMap;
-		h & onlyOnMapWithoutWater;
-		h & iconSpecSmall;
-		h & iconSpecLarge;
-		h & portraitSmall;
-		h & portraitLarge;
-		h & identifier;
-		h & modScope;
-		h & battleImage;
-	}
 };
 
 class DLL_LINKAGE CHeroClass : public HeroClass
@@ -183,25 +153,6 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & modScope;
-		h & identifier;
-		h & faction;
-		h & id;
-		h & defaultTavernChance;
-		h & primarySkillInitial;
-		h & primarySkillLowLevel;
-		h & primarySkillHighLevel;
-		h & secSkillProbability;
-		h & selectionProbability;
-		h & affinity;
-		h & commander;
-		h & imageBattleMale;
-		h & imageBattleFemale;
-		h & imageMapMale;
-		h & imageMapFemale;
-	}
 	EAlignment getAlignment() const;
 };
 
@@ -217,11 +168,6 @@ public:
 	std::vector<bool> getDefaultAllowed() const override;
 
 	~CHeroClassHandler();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & objects;
-	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
@@ -261,13 +207,6 @@ public:
 	~CHeroHandler();
 
 	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & classes;
-		h & objects;
-		h & expPerLevel;
-	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

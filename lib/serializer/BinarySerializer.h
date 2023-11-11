@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "CSerializer.h"
 #include "CTypeList.h"
 #include "../mapObjects/CArmedInstance.h"
 
@@ -114,11 +115,7 @@ public:
 	bool smartPointerSerialization;
 	bool saving;
 
-	BinarySerializer(IBinaryWriter * w): CSaverBase(w)
-	{
-		saving=true;
-		smartPointerSerialization = true;
-	}
+	BinarySerializer(IBinaryWriter * w);
 
 	template<typename Base, typename Derived>
 	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
@@ -174,16 +171,30 @@ public:
 	void save(const T &data)
 	{
 		//write if pointer is not nullptr
-		ui8 hlp = (data!=nullptr);
-		save(hlp);
+		bool isNull = (data == nullptr);
+		save(isNull);
 
 		//if pointer is nullptr then we don't need anything more...
-		if(!hlp)
+		if(data == nullptr)
 			return;
+
+		savePointerImpl(data);
+	}
+
+	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void savePointerImpl(const T &data)
+	{
+		auto index = data->getId();
+		save(index);
+	}
+
+	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void savePointerImpl(const T &data)
+	{
+		typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType;
 
 		if(writer->smartVectorMembersSerialization)
 		{
-			typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType;
 			typedef typename VectorizedTypeFor<TObjectType>::type VType;
 			typedef typename VectorizedIDType<TObjectType>::type IDType;
 
@@ -207,7 +218,7 @@ public:
 		{
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.
 			// Therefore, all pointers need to be normalized to the actual object address.
-			auto actualPointer = typeList.castToMostDerived(data);
+			const void * actualPointer = static_cast<const void*>(data);
 			auto i = savedPointers.find(actualPointer);
 			if(i != savedPointers.end())
 			{
@@ -223,13 +234,13 @@ public:
 		}
 
 		//write type identifier
-		ui16 tid = typeList.getTypeID(data);
+		uint16_t tid = CTypeList::getInstance().getTypeID(data);
 		save(tid);
 
 		if(!tid)
 			save(*data); //if type is unregistered simply write all data in a standard way
 		else
-			applier.getApplier(tid)->savePtr(*this, typeList.castToMostDerived(data));  //call serializer specific for our real type
+			applier.getApplier(tid)->savePtr(*this, static_cast<const void*>(data));  //call serializer specific for our real type
 	}
 
 	template < typename T, typename std::enable_if < is_serializeable<BinarySerializer, T>::value, int  >::type = 0 >
@@ -386,32 +397,6 @@ public:
 			auto writ = static_cast<uint64_t>(data.to_ulong());
 			save(writ);
 		}
-	}
-};
-
-class DLL_LINKAGE CSaveFile : public IBinaryWriter
-{
-public:
-	BinarySerializer serializer;
-
-	boost::filesystem::path fName;
-	std::unique_ptr<std::fstream> sfile;
-
-	CSaveFile(const boost::filesystem::path &fname); //throws!
-	~CSaveFile();
-	int write(const void * data, unsigned size) override;
-
-	void openNextFile(const boost::filesystem::path &fname); //throws!
-	void clear();
-	void reportState(vstd::CLoggerBase * out) override;
-
-	void putMagicBytes(const std::string &text);
-
-	template<class T>
-	CSaveFile & operator<<(const T &t)
-	{
-		serializer & t;
-		return * this;
 	}
 };
 

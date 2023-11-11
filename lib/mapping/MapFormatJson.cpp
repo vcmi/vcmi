@@ -966,7 +966,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 	{
 		for(auto & mod : header["mods"].Vector())
 		{
-			CModInfo::VerificationInfo info;
+			ModVerificationInfo info;
 			info.version = CModVersion::fromString(mod["version"].String());
 			info.checksum = mod["checksum"].Integer();
 			info.name = mod["name"].String();

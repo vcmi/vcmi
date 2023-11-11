@@ -117,7 +117,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	return ret;
 }
 
-std::set<int3> CGObjectInstance::getBlockedOffsets() const
+const std::set<int3> & CGObjectInstance::getBlockedOffsets() const
 {
 	return appearance->getBlockedOffsets();
 }

@@ -21,10 +21,8 @@
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
 
-#include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
-#include "serializer/BinaryDeserializer.h"
-#include "serializer/BinarySerializer.h"
-#include "serializer/CLoadIntegrityValidator.h"
+#include "serializer/CLoadFile.h"
+#include "serializer/CSaveFile.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -41,6 +39,7 @@
 #include "modding/CModInfo.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
+#include "modding/ActiveModsInSaveList.h"
 #include "CPlayerState.h"
 #include "GameSettings.h"
 #include "ScriptHandler.h"
@@ -145,14 +144,14 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	}
 }
 
-void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const
+void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE).toArtifact());
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR).toArtifact());
+		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR).toArtifact());
 
-	out.push_back(VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR).toArtifact());
+	out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR).toArtifact());
 }
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
@@ -184,6 +183,7 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 
 	CMapHeader dum;
 	StartInfo * si = nullptr;
+	ActiveModsInSaveList activeMods;
 
 	logGlobal->info("\tReading header");
 	in.serializer & dum;
@@ -191,8 +191,8 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 	logGlobal->info("\tReading options");
 	in.serializer & si;
 
-	logGlobal->info("\tReading handlers");
-	in.serializer & *VLC;
+	logGlobal->info("\tReading mod list");
+	in.serializer & activeMods;
 
 	logGlobal->info("\tReading gamestate");
 	in.serializer & gs;
@@ -201,20 +201,21 @@ void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 template<typename Saver>
 void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
 {
+	ActiveModsInSaveList activeMods;
+
 	logGlobal->info("Saving lib part of game...");
 	out.putMagicBytes(SAVEGAME_MAGIC);
 	logGlobal->info("\tSaving header");
 	out.serializer & static_cast<CMapHeader&>(*gs->map);
 	logGlobal->info("\tSaving options");
 	out.serializer & gs->scenarioOps;
-	logGlobal->info("\tSaving handlers");
-	out.serializer & *VLC;
+	logGlobal->info("\tSaving mod list");
+	out.serializer & activeMods;
 	logGlobal->info("\tSaving gamestate");
 	out.serializer & gs;
 }
 
 // hardly memory usage for `-gdwarf-4` flag
-template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadIntegrityValidator>(CLoadIntegrityValidator &);
 template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadFile>(CLoadFile &);
 template DLL_LINKAGE void CPrivilegedInfoCallback::saveCommonState<CSaveFile>(CSaveFile &) const;
 
