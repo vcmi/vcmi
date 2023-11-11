@@ -228,7 +228,7 @@
 	"vcmi.optionsTab.chessFieldBattle.hover" : "Battle timer",
 	"vcmi.optionsTab.chessFieldCreature.hover" : "Unit timer",
 	"vcmi.optionsTab.chessFieldBase.help" : "Used when {Turn Timer} reaches 0. Set once at game start. On reaching zero, ends current turn. Any ongoing combat with end with a loss.",
-	"vcmi.optionsTab.chessFieldTurn.help" : "Used out of combat or when {Battle Timer} runs out. Reset each turn. Leftover added to Base Timer at turn's end.",
+	"vcmi.optionsTab.chessFieldTurn.help" : "Used out of combat or when {Battle Timer} runs out. Reset each turn. Leftover added to {Base Timer} at turn's end.",
 	"vcmi.optionsTab.chessFieldBattle.help" : "Used in battles with AI or in pvp combat when {Unit Timer} runs out. Reset at start of each combat.",
 	"vcmi.optionsTab.chessFieldCreature.help" : "Used when selecting unit action in pvp combat. Reset at start of each unit's turn.",
 
@@ -238,7 +238,7 @@
 	"vcmi.optionsTab.simturnsAI.hover" : "(Experimental) Simultaneous AI Turns",
 	"vcmi.optionsTab.simturnsMin.help" : "Play simultaneously for specified number of days. Contacts between players during this period are blocked",
 	"vcmi.optionsTab.simturnsMax.help" : "Play simultaneously for specified number of days or until contact with another player",
-	"vcmi.optionsTab.simturnsAI.help" : "",
+	"vcmi.optionsTab.simturnsAI.help" : "{Simultaneous AI Turns}\nExperimental option. Allows AI players to act at the same time as human player when simultaneous turns are enabled.",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount

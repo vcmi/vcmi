@@ -30,6 +30,11 @@
 	"vcmi.capitalColors.6" : "Сизий",
 	"vcmi.capitalColors.7" : "Рожевий",
 
+	"vcmi.heroOverview.startingArmy" : "Початкові загони",
+	"vcmi.heroOverview.warMachine" : "Бойові машини",
+	"vcmi.heroOverview.secondarySkills" : "Навички",
+	"vcmi.heroOverview.spells" : "Закляття",
+
 	"vcmi.radialWheel.mergeSameUnit" : "Об'єднати однакових істот",
 	"vcmi.radialWheel.fillSingleUnit" : "Заповнити одиничними істотами",
 	"vcmi.radialWheel.splitSingleUnit" : "Відділити одну істоту",
@@ -37,8 +42,21 @@
 	"vcmi.radialWheel.moveUnit" : "Перемістити істоту до іншої армії",
 	"vcmi.radialWheel.splitUnit" : "Розділити істоту в інший слот",
 
+	"vcmi.radialWheel.heroGetArmy" : "Отримати армію іншого героя",
+	"vcmi.radialWheel.heroSwapArmy" : "Обміняти армії героїв",
+	"vcmi.radialWheel.heroExchange" : "Відкрити вікно обміну",
+	"vcmi.radialWheel.heroGetArtifacts" : "Отримати артефакти іншого героя",
+	"vcmi.radialWheel.heroSwapArtifacts" : "Обміняти артефакти героїв",
+	"vcmi.radialWheel.heroDismiss" : "Звільнити цього героя",
+
+	"vcmi.radialWheel.moveTop" : "Перемістити на початок",
+	"vcmi.radialWheel.moveUp" : "Перемістити вгору",
+	"vcmi.radialWheel.moveDown" : "Перемістити вниз",
+	"vcmi.radialWheel.moveBottom" : "Перемістити у кінець",
+
 	"vcmi.mainMenu.serverConnecting" : "Підключення...",
 	"vcmi.mainMenu.serverAddressEnter" : "Вкажіть адресу:",
+	"vcmi.mainMenu.serverConnectionFailed" : "Помилка з'єднання",
 	"vcmi.mainMenu.serverClosing" : "Завершення...",
 	"vcmi.mainMenu.hostTCP" : "Створити TCP/IP гру",
 	"vcmi.mainMenu.joinTCP" : "Приєднатися до TCP/IP гри",
@@ -46,9 +64,14 @@
 	
 	"vcmi.lobby.filepath" : "Назва файлу",
 	"vcmi.lobby.creationDate" : "Дата створення",
+	"vcmi.lobby.scenarioName" : "Scenario name",
+	"vcmi.lobby.mapPreview" : "Огляд мапи",
+	"vcmi.lobby.noPreview" : "огляд недоступний",
+	"vcmi.lobby.noUnderground" : "немає підземелля",
 
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
+	"vcmi.server.errors.modsToDisable"   : "{Модифікації що мають бути вимкнені}",
 	"vcmi.server.confirmReconnect"       : "Підключитися до минулої сесії?",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Загальні",
@@ -84,6 +107,8 @@
 	"vcmi.systemOptions.framerateButton.help"   : "{Лічильник кадрів}\n\n Перемикає видимість лічильника кадрів на секунду у кутку ігрового вікна",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильний відгук",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильний відгук}\n\nВикористовувати вібрацію при використанні сенсорного екрану",
+	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Розширення інтерфейсу",
+	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Розширення інтерфейсу}\n\nУвімкніть різні розширення інтерфейсу для покращення якості життя. Наприклад, більша книга заклинань, рюкзак тощо. Вимкнути, щоб отримати більш класичний досвід.",
 
 	"vcmi.adventureOptions.infoBarPick.help" : "{Повідомлення у панелі статусу}\n\nЗа можливості, повідомлення про відвідування об'єктів карти пригод будуть відображені у панелі статусу замість окремого вікна",
 	"vcmi.adventureOptions.infoBarPick.hover" : "Повідомлення у панелі статусу",
@@ -167,7 +192,7 @@
 	"vcmi.townHall.greetingCustomBonus"     : "%s дає вам +%d %s%s",
 	"vcmi.townHall.greetingCustomUntil"     : " до наступної битви.",
 	"vcmi.townHall.greetingInTownMagicWell" : "%s повністю відновлює ваш запас очків магії.",
-	
+
 	"vcmi.logicalExpressions.anyOf"  : "Будь-що з перерахованого:",
 	"vcmi.logicalExpressions.allOf"  : "Все з перерахованого:",
 	"vcmi.logicalExpressions.noneOf" : "Нічого з перерахованого:",
@@ -194,6 +219,38 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Види доріг",
+
+	"vcmi.optionsTab.turnOptions.hover" : "Параметри ходів",
+	"vcmi.optionsTab.turnOptions.help" : "Виберіть опції таймера ходів та одночасних ходів",
+
+	"vcmi.optionsTab.chessFieldBase.hover" : "Основний таймер",
+	"vcmi.optionsTab.chessFieldTurn.hover" : "Таймер ходу",
+	"vcmi.optionsTab.chessFieldBattle.hover" : "Таймер битви",
+	"vcmi.optionsTab.chessFieldCreature.hover" : "Таймер загону",
+	"vcmi.optionsTab.chessFieldBase.help" : "Використовується коли {Таймер ходу} вичерпується. Встановлюється один раз на початку гри. Коли вичерпується, поточний хід буде перервано, поточна битва буде програна.",
+	"vcmi.optionsTab.chessFieldTurn.help" : "Використовується під час ходу. Встановлюється кожен хід. Залишок додається до {основного таймеру} у кінці ходу",
+	"vcmi.optionsTab.chessFieldBattle.help" : "Використовується у боях з ШІ чи у боях з гравцями якщо {таймер загону} вичерпується. Встановлюється на початку кожного бою.",
+	"vcmi.optionsTab.chessFieldCreature.help" : "Використовується при обираннія дії загону у боях з гравцями. Встановлюється на початку кожної дії.",
+
+	"vcmi.optionsTab.simturns" : "Одночасні ходи",
+	"vcmi.optionsTab.simturnsMin.hover" : "Щонайменше",
+	"vcmi.optionsTab.simturnsMax.hover" : "Щонайбільше",
+	"vcmi.optionsTab.simturnsAI.hover" : "(Експериментально) Одночасні ходи ШІ",
+	"vcmi.optionsTab.simturnsMin.help" : "Грати одночасно обрану кількість днів. Контакти між гравцями у цей період заблоковані",
+	"vcmi.optionsTab.simturnsMax.help" : "Грати одночасно обрану кількість днів чи до першого контакту з іншим гравцем",
+	"vcmi.optionsTab.simturnsAI.help" : "{Одночасні ходи ШІ}\nЕкспериментальна опція. Дозволяє гравцям-ШІ діяти одночасно с гравцями-людьми якщо одночасні ходи увімкнені.",
+	
+	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
+	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	"vcmi.optionsTab.simturns.days.0" : " %d днів",
+	"vcmi.optionsTab.simturns.days.1" : " %d день",
+	"vcmi.optionsTab.simturns.days.2" : " %d дні",
+	"vcmi.optionsTab.simturns.weeks.0" : " %d тижнів",
+	"vcmi.optionsTab.simturns.weeks.1" : " %d тиждень",
+	"vcmi.optionsTab.simturns.weeks.2" : " %d тижні",
+	"vcmi.optionsTab.simturns.months.0" : " %d місяців",
+	"vcmi.optionsTab.simturns.months.1" : " %d місяць",
+	"vcmi.optionsTab.simturns.months.2" : " %d місяці",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Ворогу вдалося вижити до сьогоднішнього дня. Він переміг!",
