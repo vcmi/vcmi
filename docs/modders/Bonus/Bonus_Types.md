@@ -110,11 +110,13 @@ Allows to raise different creatures than Skeletons after battle.
 - addInfo: Level of Necromancy secondary skill (1 - Basic, 3 - Expert)
 - Example (from Cloak Of The Undead King):
 
-        {
-            "type" : "IMPROVED_NECROMANCY",
-            "subtype" : "creature.walkingDead",
-            "addInfo" : 1
-        }
+```jsonc
+{
+    "type" : "IMPROVED_NECROMANCY",
+    "subtype" : "creature.walkingDead",
+    "addInfo" : 1
+}
+```
 
 ### LEARN_BATTLE_SPELL_CHANCE
 
@@ -234,13 +236,15 @@ Gives creature under effect of this spell additional bonus, which is hardcoded a
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
-Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray decrease target's defence by additional 2 points:
+Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray decrease target's defense by additional 2 points:
 
-        "disruptingRay" : {
-            "addInfo" : -2,
-            "subtype" : "spell.disruptingRay",
-            "type" : "SPECIAL_ADD_VALUE_ENCHANT"
-        }
+```jsonc
+"disruptingRay" : {
+    "addInfo" : -2,
+    "subtype" : "spell.disruptingRay",
+    "type" : "SPECIAL_ADD_VALUE_ENCHANT"
+}
+``````
 
 - subtype: affected spell identifier
 - additionalInfo: value to add
@@ -249,11 +253,13 @@ Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray de
 
 Spell affecting creature has fixed effect, eg. hero Melody has constant spell effect of +3:
 
-        "fortune" : {
-            "addInfo" : 3,
-            "subtype" : "spell.fortune",
-            "type" : "SPECIAL_FIXED_VALUE_ENCHANT"
-        }
+```jsonc
+"fortune" : {
+    "addInfo" : 3,
+    "subtype" : "spell.fortune",
+    "type" : "SPECIAL_FIXED_VALUE_ENCHANT"
+}
+```
 
 - subtype: affected spell identifier
 - additionalInfo = fixed value
@@ -484,9 +490,9 @@ Affected unit can return to his starting location after attack (Harpies)
 
 ### ENEMY_DEFENCE_REDUCTION
 
-Affected unit will ignore specified percentage of attacked unit defence (Behemoth)
+Affected unit will ignore specified percentage of attacked unit defense (Behemoth)
 
-- val: amount of defence points to ignore, percentage
+- val: amount of defense points to ignore, percentage
 
 ### GENERAL_DAMAGE_REDUCTION
 
@@ -515,9 +521,9 @@ Affected units will deal reduced damage when attacking other units (Blind or Par
 
 ### DEFENSIVE_STANCE
 
-Affected units will receive increased bonus to defence while defending
+Affected units will receive increased bonus to defense while defending
 
-- val: additional bonus to defence, in skill points
+- val: additional bonus to defense, in skill points
 
 ### NO_DISTANCE_PENALTY
 
@@ -886,9 +892,9 @@ Affected unit can not be controlled by player and instead it will attempt to mov
 
 ### IN_FRENZY
 
-Affected unit's defence is reduced to 0 and is transferred to attack with specified multiplier
+Affected unit's defense is reduced to 0 and is transferred to attack with specified multiplier
 
-- val: multiplier factor with which defence is transferred to attack (percentage)
+- val: multiplier factor with which defense is transferred to attack (percentage)
 
 ### HYPNOTIZED
 
