@@ -24,6 +24,7 @@
 #include "CServerHandler.h"
 #include "ClientCommandManager.h"
 #include "windows/CMessage.h"
+#include "windows/InfoWindows.h"
 #include "render/IScreenHandler.h"
 #include "render/Graphics.h"
 
@@ -502,10 +503,14 @@ static void quitApplication()
 
 void handleQuit(bool ask)
 {
-	if(CSH->client && LOCPLINT && ask)
+	if(ask)
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
+
+		if (LOCPLINT)
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
+		else
+			CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 	}
 	else
 	{
