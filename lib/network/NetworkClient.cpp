@@ -38,6 +38,8 @@ void NetworkClient::onConnected(const boost::system::error_code & ec)
 
 	connection = std::make_shared<NetworkConnection>(socket, *this);
 	connection->start();
+
+	onConnectionEstablished();
 }
 
 void NetworkClient::run()

@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE NetworkConnection :public std::enable_shared_from_this<NetworkConnection>, boost::noncopyable
 {
 	static const int messageHeaderSize = sizeof(uint32_t);
-	static const int messageMaxSize = 1024;
+	static const int messageMaxSize = 65536; // arbitrary size to prevent potential massive allocation if we receive garbage input
 
 	std::shared_ptr<NetworkSocket> socket;
 

@@ -56,6 +56,7 @@ void NetworkServer::onDisconnected(const std::shared_ptr<NetworkConnection> & co
 {
 	assert(connections.count(connection));
 	connections.erase(connection);
+	onConnectionLost(connection);
 }
 
 VCMI_LIB_NAMESPACE_END

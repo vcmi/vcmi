@@ -17,11 +17,29 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/MetaString.h"
+#include "../../lib/CConfigHandler.h"
 
 LobbyClient::LobbyClient(LobbyWindow * window)
 	: window(window)
 {
 
+}
+
+static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
+{
+	// FIXME: better/unified way to format date
+	auto timeNowChrono = std::chrono::system_clock::now();
+	timeNowChrono += std::chrono::seconds(timeOffsetSeconds);
+
+	std::time_t timeNowC = std::chrono::system_clock::to_time_t(timeNowChrono);
+	std::tm timeNowTm = *std::localtime(&timeNowC);
+
+	MetaString timeFormatted;
+	timeFormatted.appendRawString("%d:%d");
+	timeFormatted.replaceNumber(timeNowTm.tm_hour);
+	timeFormatted.replaceNumber(timeNowTm.tm_min);
+
+	return timeFormatted.toString();
 }
 
 void LobbyClient::onPacketReceived(const std::vector<uint8_t> & message)
@@ -37,22 +55,27 @@ void LobbyClient::onPacketReceived(const std::vector<uint8_t> & message)
 			std::string senderName = entry["senderName"].String();
 			std::string messageText = entry["messageText"].String();
 			int ageSeconds = entry["ageSeconds"].Integer();
-
-			// FIXME: better/unified way to format date
-			auto timeNowChrono = std::chrono::system_clock::now();
-			timeNowChrono -= std::chrono::seconds(ageSeconds);
-
-			std::time_t timeNowC = std::chrono::system_clock::to_time_t(timeNowChrono);
-			std::tm timeNowTm = *std::localtime(&timeNowC);
-
-			MetaString dateFormatted;
-			dateFormatted.appendRawString("%d:%d");
-			dateFormatted.replaceNumber(timeNowTm.tm_hour);
-			dateFormatted.replaceNumber(timeNowTm.tm_min);
-
-			window->onGameChatMessage(senderName, messageText, dateFormatted.toString());
+			std::string timeFormatted = getCurrentTimeFormatted(-ageSeconds);
+			window->onGameChatMessage(senderName, messageText, timeFormatted);
 		}
 	}
+
+	if (json["type"].String() == "chatMessage")
+	{
+		std::string senderName = json["senderName"].String();
+		std::string messageText = json["messageText"].String();
+		std::string timeFormatted = getCurrentTimeFormatted();
+		window->onGameChatMessage(senderName, messageText, timeFormatted);
+	}
+}
+
+void LobbyClient::onConnectionEstablished()
+{
+	JsonNode toSend;
+	toSend["type"].String() = "authentication";
+	toSend["accountName"].String() = settings["general"]["playerName"].String();
+
+	sendMessage(toSend);
 }
 
 void LobbyClient::onConnectionFailed(const std::string & errorMessage)
@@ -90,6 +113,11 @@ LobbyWidget::LobbyWidget(LobbyWindow * window)
 	build(config);
 }
 
+std::shared_ptr<CLabel> LobbyWidget::getAccountNameLabel()
+{
+	return widget<CLabel>("accountNameLabel");
+}
+
 std::shared_ptr<CTextInput> LobbyWidget::getMessageInput()
 {
 	return widget<CTextInput>("messageInput");
@@ -110,6 +138,7 @@ LobbyWindow::LobbyWindow():
 	connection = std::make_shared<LobbyClient>(this);
 
 	connection->start("127.0.0.1", 30303);
+	widget->getAccountNameLabel()->setText(settings["general"]["playerName"].String());
 
 	addUsedEvents(TIME);
 }

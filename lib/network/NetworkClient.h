@@ -30,6 +30,7 @@ class DLL_LINKAGE NetworkClient : boost::noncopyable, public INetworkConnectionL
 protected:
 	virtual void onPacketReceived(const std::vector<uint8_t> & message) = 0;
 	virtual void onConnectionFailed(const std::string & errorMessage) = 0;
+	virtual void onConnectionEstablished() = 0;
 	virtual void onDisconnected() = 0;
 
 	void sendPacket(const std::vector<uint8_t> & message);

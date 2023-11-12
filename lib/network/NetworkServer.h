@@ -27,6 +27,7 @@ class DLL_LINKAGE NetworkServer : boost::noncopyable, public INetworkConnectionL
 	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
 protected:
 	virtual void onNewConnection(const std::shared_ptr<NetworkConnection> &) = 0;
+	virtual void onConnectionLost(const std::shared_ptr<NetworkConnection> &) = 0;
 
 	void sendPacket(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message);
 

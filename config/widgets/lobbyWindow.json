@@ -41,9 +41,9 @@
 			"rect": {"x": 5, "y": 5, "w": 250, "h": 40}
 		},
 		{
+			"name" : "accountNameLabel",
 			"type": "labelTitleMain",
-			"position": {"x": 15, "y": 10},
-			"text" : "Player Name"
+			"position": {"x": 15, "y": 10}
 		},
 		
 		{
@@ -91,8 +91,7 @@
 			"font": "small",
 			"alignment": "left",
 			"color": "white",
-			"text": "[00:00]{Player 1}: Hello\n[00:01]{Player 2}: HI!",
-			"rect": {"x": 430, "y": 70, "w": 430, "h": 495}
+			"rect": {"x": 440, "y": 70, "w": 430, "h": 495}
 		},
 		
 		{

@@ -109,27 +109,14 @@ void LobbyServer::sendMessage(const std::shared_ptr<NetworkConnection> & target,
 
 void LobbyServer::onNewConnection(const std::shared_ptr<NetworkConnection> & connection)
 {
-	// FIXME: move to authorization message reply
-	auto history = database->getRecentMessageHistory();
-
-	JsonNode json;
-	json["type"].String() = "chatHistory";
-
-	for (auto const & message : boost::adaptors::reverse(history))
-	{
-		JsonNode jsonEntry;
-
-		jsonEntry["messageText"].String() = message.messageText;
-		jsonEntry["senderName"].String() = message.sender;
-		jsonEntry["ageSeconds"].Integer() = message.messageAgeSeconds;
-
-		json["messages"].Vector().push_back(jsonEntry);
-	}
-
-	sendMessage(connection, json);
 }
 
-void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
+void LobbyServer::onConnectionLost(const std::shared_ptr<NetworkConnection> & connection)
+{
+	activeAccounts.erase(connection);
+}
+
+void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
 	// FIXME: find better approach
 	const char * payloadBegin = reinterpret_cast<const char*>(message.data());
@@ -137,7 +124,46 @@ void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> &, c
 
 	if (json["type"].String() == "sendChatMessage")
 	{
-		database->insertChatMessage("Unknown", json["messageText"].String());
+		if (activeAccounts.count(connection) == 0)
+			return; // unauthenticated
+
+		std::string senderName = activeAccounts[connection].accountName;
+		std::string messageText = json["messageText"].String();
+
+		database->insertChatMessage(senderName, messageText);
+
+		JsonNode reply;
+		reply["type"].String() = "chatMessage";
+		reply["messageText"].String() = messageText;
+		reply["senderName"].String() = senderName;
+
+		for (auto const & connection : activeAccounts)
+			sendMessage(connection.first, reply);
+	}
+
+	if (json["type"].String() == "authentication")
+	{
+		std::string accountName = json["accountName"].String();
+
+		activeAccounts[connection].accountName = accountName;
+
+		auto history = database->getRecentMessageHistory();
+
+		JsonNode json;
+		json["type"].String() = "chatHistory";
+
+		for (auto const & message : boost::adaptors::reverse(history))
+		{
+			JsonNode jsonEntry;
+
+			jsonEntry["messageText"].String() = message.messageText;
+			jsonEntry["senderName"].String() = message.sender;
+			jsonEntry["ageSeconds"].Integer() = message.messageAgeSeconds;
+
+			json["messages"].Vector().push_back(jsonEntry);
+		}
+
+		sendMessage(connection, json);
 	}
 }
 

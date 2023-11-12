@@ -43,9 +43,17 @@ public:
 
 class LobbyServer : public NetworkServer
 {
+	struct AccountState
+	{
+		std::string accountName;
+	};
+
+	std::map<std::shared_ptr<NetworkConnection>, AccountState> activeAccounts;
+
 	std::unique_ptr<LobbyDatabase> database;
 
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
+	void onConnectionLost(const std::shared_ptr<NetworkConnection> &) override;
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
 
 	void sendMessage(const std::shared_ptr<NetworkConnection> & target, const JsonNode & json);

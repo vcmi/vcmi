@@ -22,6 +22,7 @@ class LobbyWidget : public InterfaceObjectConfigurable
 public:
 	LobbyWidget(LobbyWindow * window);
 
+	std::shared_ptr<CLabel> getAccountNameLabel();
 	std::shared_ptr<CTextInput> getMessageInput();
 	std::shared_ptr<CTextBox> getGameChat();
 };
@@ -32,6 +33,7 @@ class LobbyClient : public NetworkClient
 
 	void onPacketReceived(const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
+	void onConnectionEstablished() override;
 	void onDisconnected() override;
 
 public:
