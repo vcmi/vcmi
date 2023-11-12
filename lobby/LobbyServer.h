@@ -17,8 +17,8 @@ class LobbyServer : public NetworkServer
 {
 	std::unique_ptr<SQLiteInstance> database;
 
-	void onNewConnection(std::shared_ptr<NetworkConnection>) override;
-	void onPacketReceived(std::shared_ptr<NetworkConnection>, const std::vector<uint8_t> & message) override;
+	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
+	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
 public:
 	LobbyServer();
 };

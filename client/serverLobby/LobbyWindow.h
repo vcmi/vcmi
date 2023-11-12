@@ -23,6 +23,8 @@ public:
 class LobbyClient : public NetworkClient
 {
 	void onPacketReceived(const std::vector<uint8_t> & message) override;
+	void onConnectionFailed(const std::string & errorMessage) override;
+	void onDisconnected() override;
 public:
 	LobbyClient() = default;
 };
@@ -31,6 +33,8 @@ class LobbyWindow : public CWindowObject
 {
 	std::shared_ptr<LobbyWidget> widget;
 	std::shared_ptr<LobbyClient> connection;
+
+	void tick(uint32_t msPassed);
 
 public:
 	LobbyWindow();

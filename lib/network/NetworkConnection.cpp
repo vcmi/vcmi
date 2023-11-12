@@ -12,8 +12,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkConnection::NetworkConnection(const std::shared_ptr<NetworkSocket> & socket)
+NetworkConnection::NetworkConnection(const std::shared_ptr<NetworkSocket> & socket, INetworkConnectionListener & listener)
 	: socket(socket)
+	, listener(listener)
 {
 
 }
@@ -28,7 +29,13 @@ void NetworkConnection::start()
 
 void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
 {
-	uint32_t messageSize = readPacketSize(ec);
+	if (ec)
+	{
+		listener.onDisconnected(shared_from_this());
+		return;
+	}
+
+	uint32_t messageSize = readPacketSize();
 
 	boost::asio::async_read(*socket,
 							readBuffer,
@@ -36,23 +43,15 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
 							std::bind(&NetworkConnection::onPacketReceived,this, _1, messageSize));
 }
 
-uint32_t NetworkConnection::readPacketSize(const boost::system::error_code & ec)
+uint32_t NetworkConnection::readPacketSize()
 {
-	if (ec)
-	{
-		throw std::runtime_error("Connection aborted!");
-	}
-
 	if (readBuffer.size() < messageHeaderSize)
-	{
 		throw std::runtime_error("Failed to read header!");
-	}
 
 	std::istream istream(&readBuffer);
 
 	uint32_t messageSize;
 	istream.read(reinterpret_cast<char *>(&messageSize), messageHeaderSize);
-
 	if (messageSize > messageMaxSize)
 	{
 		throw std::runtime_error("Invalid packet size!");
@@ -65,7 +64,8 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 {
 	if (ec)
 	{
-		throw std::runtime_error("Connection aborted!");
+		listener.onDisconnected(shared_from_this());
+		return;
 	}
 
 	if (readBuffer.size() < expectedPacketSize)
@@ -78,6 +78,8 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 	message.resize(expectedPacketSize);
 	std::istream istream(&readBuffer);
 	istream.read(reinterpret_cast<char *>(message.data()), messageHeaderSize);
+
+	listener.onPacketReceived(shared_from_this(), message);
 
 	start();
 }

@@ -36,28 +36,25 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 {
 	if(ec)
 	{
-		logNetwork->info("Something wrong during accepting: %s", ec.message());
-		return;
+		throw std::runtime_error("Something wrong during accepting: " + ec.message());
 	}
 
-	try
-	{
-		logNetwork->info("We got a new connection! :)");
-		auto connection = std::make_shared<NetworkConnection>(upcomingConnection);
-		connections.insert(connection);
-		connection->start();
-	}
-	catch(std::exception & e)
-	{
-		logNetwork->error("Failure processing new connection! %s", e.what());
-	}
-
+	logNetwork->info("We got a new connection! :)");
+	auto connection = std::make_shared<NetworkConnection>(upcomingConnection, *this);
+	connections.insert(connection);
+	connection->start();
 	startAsyncAccept();
 }
 
 void NetworkServer::sendPacket(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
 	connection->sendPacket(message);
+}
+
+void NetworkServer::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
+{
+	assert(connections.count(connection));
+	connections.erase(connection);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -30,7 +30,13 @@ void NetworkClient::start(const std::string & host, uint16_t port)
 
 void NetworkClient::onConnected(const boost::system::error_code & ec)
 {
-	connection = std::make_shared<NetworkConnection>(socket);
+	if (ec)
+	{
+		onConnectionFailed(ec.message());
+		return;
+	}
+
+	connection = std::make_shared<NetworkConnection>(socket, *this);
 	connection->start();
 }
 
@@ -39,9 +45,25 @@ void NetworkClient::run()
 	io->run();
 }
 
+void NetworkClient::poll()
+{
+	io->poll();
+}
+
 void NetworkClient::sendPacket(const std::vector<uint8_t> & message)
 {
 	connection->sendPacket(message);
 }
+
+void NetworkClient::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
+{
+	onDisconnected();
+}
+
+void NetworkClient::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
+{
+	onPacketReceived(message);
+}
+
 
 VCMI_LIB_NAMESPACE_END

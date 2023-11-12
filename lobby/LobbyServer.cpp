@@ -15,17 +15,17 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-static const std::string DATABASE_PATH = "~/vcmi.db";
+static const std::string DATABASE_PATH = "/home/ivan/vcmi.db";
 static const int LISTENING_PORT = 30303;
 //static const std::string SERVER_NAME = GameConstants::VCMI_VERSION + " (server)";
 //static const std::string SERVER_UUID = boost::uuids::to_string(boost::uuids::random_generator()());
 
-void LobbyServer::onNewConnection(std::shared_ptr<NetworkConnection>)
+void LobbyServer::onNewConnection(const std::shared_ptr<NetworkConnection> &)
 {
 
 }
 
-void LobbyServer::onPacketReceived(std::shared_ptr<NetworkConnection>, const std::vector<uint8_t> & message)
+void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
 {
 
 }
@@ -33,7 +33,6 @@ void LobbyServer::onPacketReceived(std::shared_ptr<NetworkConnection>, const std
 LobbyServer::LobbyServer()
 {
 	database = SQLiteInstance::open(DATABASE_PATH, true);
-
 }
 
 int main(int argc, const char * argv[])

@@ -14,9 +14,23 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 
+#include "../windows/InfoWindows.h"
+
 void LobbyClient::onPacketReceived(const std::vector<uint8_t> & message)
 {
 
+}
+
+void LobbyClient::onConnectionFailed(const std::string & errorMessage)
+{
+	GH.windows().popWindows(1);
+	CInfoWindow::showInfoDialog("Failed to connect to game lobby!\n" + errorMessage, {});
+}
+
+void LobbyClient::onDisconnected()
+{
+	GH.windows().popWindows(1);
+	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
 }
 
 LobbyWidget::LobbyWidget()
@@ -37,4 +51,11 @@ LobbyWindow::LobbyWindow():
 	connection = std::make_shared<LobbyClient>();
 
 	connection->start("127.0.0.1", 30303);
+
+	addUsedEvents(TIME);
+}
+
+void LobbyWindow::tick(uint32_t msPassed)
+{
+	connection->poll();
 }

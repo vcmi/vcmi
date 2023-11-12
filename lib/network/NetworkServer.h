@@ -15,7 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class NetworkConnection;
 
-class DLL_LINKAGE NetworkServer : boost::noncopyable
+class DLL_LINKAGE NetworkServer : boost::noncopyable, public INetworkConnectionListener
 {
 	std::shared_ptr<NetworkService> io;
 	std::shared_ptr<NetworkAcceptor> acceptor;
@@ -23,9 +23,10 @@ class DLL_LINKAGE NetworkServer : boost::noncopyable
 
 	void connectionAccepted(std::shared_ptr<NetworkSocket>, const boost::system::error_code & ec);
 	void startAsyncAccept();
+
+	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
 protected:
-	virtual void onNewConnection(std::shared_ptr<NetworkConnection>) = 0;
-	virtual void onPacketReceived(std::shared_ptr<NetworkConnection>, const std::vector<uint8_t> & message) = 0;
+	virtual void onNewConnection(const std::shared_ptr<NetworkConnection> &) = 0;
 
 	void sendPacket(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message);
 

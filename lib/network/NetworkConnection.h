@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE NetworkConnection : boost::noncopyable
+class DLL_LINKAGE NetworkConnection :public std::enable_shared_from_this<NetworkConnection>, boost::noncopyable
 {
 	static const int messageHeaderSize = sizeof(uint32_t);
 	static const int messageMaxSize = 1024;
@@ -21,13 +21,14 @@ class DLL_LINKAGE NetworkConnection : boost::noncopyable
 	std::shared_ptr<NetworkSocket> socket;
 
 	NetworkBuffer readBuffer;
+	INetworkConnectionListener & listener;
 
 	void onHeaderReceived(const boost::system::error_code & ec);
 	void onPacketReceived(const boost::system::error_code & ec, uint32_t expectedPacketSize);
-	uint32_t readPacketSize(const boost::system::error_code & ec);
+	uint32_t readPacketSize();
 
 public:
-	NetworkConnection(const std::shared_ptr<NetworkSocket> & socket);
+	NetworkConnection(const std::shared_ptr<NetworkSocket> & socket, INetworkConnectionListener & listener);
 
 	void start();
 	void sendPacket(const std::vector<uint8_t> & message);

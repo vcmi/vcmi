@@ -19,4 +19,15 @@ using NetworkAcceptor = boost::asio::basic_socket_acceptor<boost::asio::ip::tcp>
 using NetworkBuffer = boost::asio::streambuf;
 using NetworkTimer = boost::asio::steady_timer;
 
+class NetworkConnection;
+
+class DLL_LINKAGE INetworkConnectionListener
+{
+	friend class NetworkConnection;
+
+protected:
+	virtual void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) = 0;
+	virtual void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) = 0;
+};
+
 VCMI_LIB_NAMESPACE_END
