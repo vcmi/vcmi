@@ -28,7 +28,16 @@ void LobbyDatabase::prepareStatements()
 		INSERT INTO chatMessages(senderName, messageText) VALUES( ?, ?);
 	)";
 
+	static const std::string getRecentMessageHistoryText = R"(
+		SELECT senderName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',sendTime)  AS secondsElapsed
+		FROM chatMessages
+		WHERE secondsElapsed < 60*60*24
+		ORDER BY sendTime DESC
+		LIMIT 100
+	)";
+
 	insertChatMessageStatement = database->prepare(insertChatMessageText);
+	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
 }
 
 void LobbyDatabase::createTableChatMessages()
@@ -69,9 +78,55 @@ void LobbyDatabase::insertChatMessage(const std::string & sender, const std::str
 	insertChatMessageStatement->reset();
 }
 
-void LobbyServer::onNewConnection(const std::shared_ptr<NetworkConnection> &)
+std::vector<LobbyDatabase::ChatMessage> LobbyDatabase::getRecentMessageHistory()
 {
+	std::vector<LobbyDatabase::ChatMessage> result;
 
+	while(getRecentMessageHistoryStatement->execute())
+	{
+		LobbyDatabase::ChatMessage message;
+		getRecentMessageHistoryStatement->getColumns(message.sender, message.messageText, message.messageAgeSeconds);
+		result.push_back(message);
+	}
+	getRecentMessageHistoryStatement->reset();
+
+	return result;
+}
+
+void LobbyServer::sendMessage(const std::shared_ptr<NetworkConnection> & target, const JsonNode & json)
+{
+	//FIXME: copy-paste from LobbyClient::sendMessage
+	std::string payloadString = json.toJson(true);
+
+	// FIXME: find better approach
+	uint8_t * payloadBegin = reinterpret_cast<uint8_t*>(payloadString.data());
+	uint8_t * payloadEnd = payloadBegin + payloadString.size();
+
+	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
+
+	sendPacket(target, payloadBuffer);
+}
+
+void LobbyServer::onNewConnection(const std::shared_ptr<NetworkConnection> & connection)
+{
+	// FIXME: move to authorization message reply
+	auto history = database->getRecentMessageHistory();
+
+	JsonNode json;
+	json["type"].String() = "chatHistory";
+
+	for (auto const & message : boost::adaptors::reverse(history))
+	{
+		JsonNode jsonEntry;
+
+		jsonEntry["messageText"].String() = message.messageText;
+		jsonEntry["senderName"].String() = message.sender;
+		jsonEntry["ageSeconds"].Integer() = message.messageAgeSeconds;
+
+		json["messages"].Vector().push_back(jsonEntry);
+	}
+
+	sendMessage(connection, json);
 }
 
 void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)

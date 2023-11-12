@@ -43,6 +43,7 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 	auto connection = std::make_shared<NetworkConnection>(upcomingConnection, *this);
 	connections.insert(connection);
 	connection->start();
+	onNewConnection(connection);
 	startAsyncAccept();
 }
 

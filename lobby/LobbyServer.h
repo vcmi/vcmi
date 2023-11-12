@@ -11,6 +11,10 @@
 
 #include "../lib/network/NetworkServer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class JsonNode;
+VCMI_LIB_NAMESPACE_END
+
 class SQLiteInstance;
 class SQLiteStatement;
 
@@ -18,14 +22,23 @@ class LobbyDatabase
 {
 	std::unique_ptr<SQLiteInstance> database;
 	std::unique_ptr<SQLiteStatement> insertChatMessageStatement;
+	std::unique_ptr<SQLiteStatement> getRecentMessageHistoryStatement;
 
 	void initializeDatabase();
 	void prepareStatements();
 	void createTableChatMessages();
 public:
+	struct ChatMessage
+	{
+		std::string sender;
+		std::string messageText;
+		int messageAgeSeconds;
+	};
+
 	LobbyDatabase();
 
 	void insertChatMessage(const std::string & sender, const std::string & messageText);
+	std::vector<ChatMessage> getRecentMessageHistory();
 };
 
 class LobbyServer : public NetworkServer
@@ -34,6 +47,8 @@ class LobbyServer : public NetworkServer
 
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
+
+	void sendMessage(const std::shared_ptr<NetworkConnection> & target, const JsonNode & json);
 public:
 	LobbyServer();
 };

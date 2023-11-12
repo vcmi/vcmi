@@ -23,6 +23,7 @@ public:
 	LobbyWidget(LobbyWindow * window);
 
 	std::shared_ptr<CTextInput> getMessageInput();
+	std::shared_ptr<CTextBox> getGameChat();
 };
 
 class LobbyClient : public NetworkClient
@@ -41,6 +42,8 @@ public:
 
 class LobbyWindow : public CWindowObject
 {
+	std::string chatHistory;
+
 	std::shared_ptr<LobbyWidget> widget;
 	std::shared_ptr<LobbyClient> connection;
 
@@ -51,5 +54,5 @@ public:
 
 	void doSendChatMessage();
 
-	void onGameChatMessage(std::string sender, std::string message, std::string when);
+	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when);
 };

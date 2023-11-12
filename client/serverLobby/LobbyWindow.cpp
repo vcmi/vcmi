@@ -14,8 +14,9 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/TextControls.h"
-
 #include "../windows/InfoWindows.h"
+
+#include "../../lib/MetaString.h"
 
 LobbyClient::LobbyClient(LobbyWindow * window)
 	: window(window)
@@ -25,7 +26,33 @@ LobbyClient::LobbyClient(LobbyWindow * window)
 
 void LobbyClient::onPacketReceived(const std::vector<uint8_t> & message)
 {
+	// FIXME: find better approach
+	const char * payloadBegin = reinterpret_cast<const char*>(message.data());
+	JsonNode json(payloadBegin, message.size());
 
+	if (json["type"].String() == "chatHistory")
+	{
+		for (auto const & entry : json["messages"].Vector())
+		{
+			std::string senderName = entry["senderName"].String();
+			std::string messageText = entry["messageText"].String();
+			int ageSeconds = entry["ageSeconds"].Integer();
+
+			// FIXME: better/unified way to format date
+			auto timeNowChrono = std::chrono::system_clock::now();
+			timeNowChrono -= std::chrono::seconds(ageSeconds);
+
+			std::time_t timeNowC = std::chrono::system_clock::to_time_t(timeNowChrono);
+			std::tm timeNowTm = *std::localtime(&timeNowC);
+
+			MetaString dateFormatted;
+			dateFormatted.appendRawString("%d:%d");
+			dateFormatted.replaceNumber(timeNowTm.tm_hour);
+			dateFormatted.replaceNumber(timeNowTm.tm_min);
+
+			window->onGameChatMessage(senderName, messageText, dateFormatted.toString());
+		}
+	}
 }
 
 void LobbyClient::onConnectionFailed(const std::string & errorMessage)
@@ -68,6 +95,11 @@ std::shared_ptr<CTextInput> LobbyWidget::getMessageInput()
 	return widget<CTextInput>("messageInput");
 }
 
+std::shared_ptr<CTextBox> LobbyWidget::getGameChat()
+{
+	return widget<CTextBox>("gameChat");
+}
+
 LobbyWindow::LobbyWindow():
 	CWindowObject(BORDERED)
 {
@@ -98,4 +130,17 @@ void LobbyWindow::doSendChatMessage()
 	connection->sendMessage(toSend);
 
 	widget->getMessageInput()->setText("");
+}
+
+void LobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)
+{
+	MetaString chatMessageFormatted;
+	chatMessageFormatted.appendRawString("[%s] {%s}: %s\n");
+	chatMessageFormatted.replaceRawString(when);
+	chatMessageFormatted.replaceRawString(sender);
+	chatMessageFormatted.replaceRawString(message);
+
+	chatHistory += chatMessageFormatted.toString();
+
+	widget->getGameChat()->setText(chatHistory);
 }
