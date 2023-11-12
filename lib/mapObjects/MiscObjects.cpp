@@ -779,7 +779,8 @@ std::string CGArtifact::getPopupText(PlayerColor player) const
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
 		std::string description = VLC->artifacts()->getById(getArtifact())->getDescriptionTranslated();
-		ArtifactUtils::insertScrrollSpellName(description, SpellID::NONE); // erase text placeholder
+		if (getArtifact() == ArtifactID::SPELL_SCROLL)
+			ArtifactUtils::insertScrrollSpellName(description, SpellID::NONE); // erase text placeholder
 		return description;
 	}
 	else
