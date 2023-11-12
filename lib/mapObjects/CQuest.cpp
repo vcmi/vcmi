@@ -208,9 +208,9 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 		addKillTargetReplacements(text);
 	}
 	
-	if(killTarget != ObjectInstanceID::NONE && stackToKill.type)
+	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE)
 	{
-		components.emplace_back(ComponentType::CREATURE, stackToKill.getId(), stackToKill.getCount());
+		components.emplace_back(ComponentType::CREATURE, stackToKill);
 		addKillTargetReplacements(text);
 	}
 	
@@ -314,7 +314,7 @@ void CQuest::defineQuestName()
 	if(!mission.spells.empty()) questName = CQuest::missionName(2);
 	if(!mission.secondary.empty()) questName = CQuest::missionName(2);
 	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(3);
-	if(killTarget != ObjectInstanceID::NONE && stackToKill.getType()) questName = CQuest::missionName(4);
+	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE) questName = CQuest::missionName(4);
 	if(!mission.artifacts.empty()) questName = CQuest::missionName(5);
 	if(!mission.creatures.empty()) questName = CQuest::missionName(6);
 	if(mission.resources.nonZero()) questName = CQuest::missionName(7);
@@ -327,9 +327,9 @@ void CQuest::addKillTargetReplacements(MetaString &out) const
 {
 	if(!heroName.empty())
 		out.replaceTextID(heroName);
-	if(stackToKill.type)
+	if(stackToKill != CreatureID::NONE)
 	{
-		out.replaceName(stackToKill);
+		out.replaceNamePlural(stackToKill);
 		out.replaceRawString(VLC->generaltexth->arraytxt[147+stackDirection]);
 	}
 }
@@ -429,9 +429,8 @@ void CGSeerHut::setObjToKill()
 	
 	if(getCreatureToKill(true))
 	{
-		quest->stackToKill = getCreatureToKill(false)->getStack(SlotID(0)); //FIXME: stacks tend to disappear (desync?) on server :?
-		assert(quest->stackToKill.type);
-		quest->stackToKill.count = 0; //no count in info window
+		quest->stackToKill = getCreatureToKill(false)->getCreature();
+		assert(quest->stackToKill != CreatureID::NONE);
 		quest->stackDirection = checkDirection();
 	}
 	else if(getHeroToKill(true))
