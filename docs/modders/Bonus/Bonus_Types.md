@@ -311,17 +311,17 @@ Affected heroes will add specified resources amounts to player treasure on new d
 Increases weekly growth of creatures in affected towns (Legion artifacts)
 
 - value: number of additional weekly creatures
-- subtype: dwelling level, in form "creatureLevelX" where X is desired level (1-7)
+- subtype: dwelling level, in form `creatureLevelX` where X is desired level (1-7)
 
 ### CREATURE_GROWTH_PERCENT
 
-Increases weekly growth of creatures in affected towns
+Increases weekly growth of creatures in affected towns (Statue of Legion)
 
 - val: additional growth, percentage
 
 ### BATTLE_NO_FLEEING
 
-Heroes affected by this bonus can not retreat or surrender in battle
+Heroes affected by this bonus can not retreat or surrender in battle (Shackles of War effect)
 
 ### NEGATE_ALL_NATURAL_IMMUNITIES
 
@@ -390,11 +390,11 @@ Affected unit is considered to be a gargoyle and not affected by certain spells
 
 ### UNDEAD
 
-Affected unit is considered to be undead
+Affected unit is considered to be undead, which makes it immune to many effects, and also reduce morale of allied living units.
 
 ### SIEGE_WEAPON
 
-Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move.
+Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move. All War Machines should have this bonus.
 
 ### DRAGON_NATURE
 
@@ -426,7 +426,7 @@ Affected unit can fly on the battlefield
 
 - subtype:
 	- movementFlying: creature will fly (slowly move across battlefield)
-	- movementTeleporting: creature will instantly teleport to destination
+	- movementTeleporting: creature will instantly teleport to destination, skipping movement animation.
 
 ### SHOOTER
 
@@ -434,21 +434,21 @@ Affected unit can shoot
 
 ### CHARGE_IMMUNITY
 
-Affected unit is immune to JOUSTING ability
+Affected unit is immune to JOUSTING ability of (ie. Champions).
 
 ### ADDITIONAL_ATTACK
 
-Affected unit can perform additional attacks. Attacked unit will retaliate after each attack if can
+Affected unit can perform additional attacks. Attacked unit will retaliate after each attack if able.
 
 - val: number of additional attacks to perform
 
 ### UNLIMITED_RETALIATIONS
 
-Affected unit will always retaliate if able
+Affected unit will always retaliate if able (Royal Griffin)
 
 ### ADDITIONAL_RETALIATION
 
-Affected unit can retaliate multiple times per turn
+Affected unit can retaliate multiple times per turn (basic Griffin)
 
 - value: number of additional retaliations
 
@@ -462,7 +462,7 @@ Affected unit will deal more damage based on movement distance (Champions)
 
 Affected unit will deal more damage when attacking specific creature
 
-- subtype - identifier of hated creature
+- subtype - identifier of hated creature, ie. "creature.genie"
 - val - additional damage, percentage
 
 ### SPELL_LIKE_ATTACK
@@ -612,7 +612,7 @@ Affected unit can use ranged attacks only within specified range
 
 ### CATAPULT
 
-Affected unit can attack walls during siege battles
+Affected unit can attack walls during siege battles (Cyclops)
 
 - subtype: spell that describes attack parameters
 
@@ -649,7 +649,7 @@ All units adjacent to affected unit will receive additional spell resistance bon
 
 ### HP_REGENERATION
 
-Affected unit will regenerate portion of its health points on its turn
+Affected unit will regenerate portion of its health points on its turn.
 
 - val: amount of health points gained per round
 
@@ -667,19 +667,19 @@ Affected unit will give his hero specified portion of mana points spent by enemy
 
 ### LIFE_DRAIN
 
-Affected unit will heal itself, resurrecting any dead units, by amount of dealt damage
+Affected unit will heal itself, resurrecting any dead units, by amount of dealt damage (Vampire Lord)
 
 - val: percentage of damage that will be converted into health points
 
 ### DOUBLE_DAMAGE_CHANCE
 
-Affected unit has chance to deal double damage on attack
+Affected unit has chance to deal double damage on attack (Death Knight)
 
 - val: chance to trigger, percentage
 
 ### FEAR
 
-If enemy army has creatures affected by this bonus, they will skip their turn with 10% chance. Blocked by FEARLESS bonus.
+If enemy army has creatures affected by this bonus, they will skip their turn with 10% chance (Azure Dragon). Blocked by FEARLESS bonus.
 
 ### HEALER
 
