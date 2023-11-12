@@ -77,7 +77,7 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 
 	message.resize(expectedPacketSize);
 	std::istream istream(&readBuffer);
-	istream.read(reinterpret_cast<char *>(message.data()), messageHeaderSize);
+	istream.read(reinterpret_cast<char *>(message.data()), expectedPacketSize);
 
 	listener.onPacketReceived(shared_from_this(), message);
 

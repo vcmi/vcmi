@@ -14,19 +14,29 @@
 
 #include "../../lib/network/NetworkClient.h"
 
+class LobbyWindow;
+
 class LobbyWidget : public InterfaceObjectConfigurable
 {
+	LobbyWindow * window;
 public:
-	LobbyWidget();
+	LobbyWidget(LobbyWindow * window);
+
+	std::shared_ptr<CTextInput> getMessageInput();
 };
 
 class LobbyClient : public NetworkClient
 {
+	LobbyWindow * window;
+
 	void onPacketReceived(const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onDisconnected() override;
+
 public:
-	LobbyClient() = default;
+	explicit LobbyClient(LobbyWindow * window);
+
+	void sendMessage(const JsonNode & data);
 };
 
 class LobbyWindow : public CWindowObject
@@ -38,4 +48,8 @@ class LobbyWindow : public CWindowObject
 
 public:
 	LobbyWindow();
+
+	void doSendChatMessage();
+
+	void onGameChatMessage(std::string sender, std::string message, std::string when);
 };

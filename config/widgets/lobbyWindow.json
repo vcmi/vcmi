@@ -85,15 +85,25 @@
 			"position": {"x": 440, "y": 53},
 			"text" : "Game Chat"
 		},
+		{
+			"type": "textBox",
+			"name": "gameChat",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"text": "[00:00]{Player 1}: Hello\n[00:01]{Player 2}: HI!",
+			"rect": {"x": 430, "y": 70, "w": 430, "h": 495}
+		},
 		
 		{
 			"type": "areaFilled",
 			"rect": {"x": 430, "y": 565, "w": 395, "h": 25}
 		},
 		{
-			"type": "labelTitle",
-			"position": {"x": 440, "y": 568},
-			"text" : "Enter Message"
+			"name" : "messageInput",
+			"type": "textInput",
+			"alignment" : "left",
+			"rect": {"x": 440, "y": 568, "w": 375, "h": 20}
 		},
 		
 		{
@@ -112,7 +122,7 @@
 			"image": "settingsWindow/button80",
 			"help": "core.help.288",
 			"callback": "closeWindow",
-			"hotkey": "globalReturn",
+			"hotkey": "globalCancel",
 			"items":
 			[
 				{
@@ -130,8 +140,8 @@
 			"position": {"x": 828, "y": 565},
 			"image": "settingsWindow/button32",
 			"help": "core.help.288",
-			"callback": "closeWindow",
-			"hotkey": "globalReturn",
+			"callback": "sendMessage",
+			"hotkey": "globalAccept",
 			"items":
 			[
 				{
@@ -149,8 +159,6 @@
 			"position": {"x": 10, "y": 520},
 			"image": "settingsWindow/button190",
 			"help": "core.help.288",
-			"callback": "closeWindow",
-			"hotkey": "globalReturn",
 			"items":
 			[
 				{
@@ -168,8 +176,6 @@
 			"position": {"x": 10, "y": 555},
 			"image": "settingsWindow/button190",
 			"help": "core.help.288",
-			"callback": "closeWindow",
-			"hotkey": "globalReturn",
 			"items":
 			[
 				{

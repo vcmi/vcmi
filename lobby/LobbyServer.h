@@ -12,10 +12,25 @@
 #include "../lib/network/NetworkServer.h"
 
 class SQLiteInstance;
+class SQLiteStatement;
+
+class LobbyDatabase
+{
+	std::unique_ptr<SQLiteInstance> database;
+	std::unique_ptr<SQLiteStatement> insertChatMessageStatement;
+
+	void initializeDatabase();
+	void prepareStatements();
+	void createTableChatMessages();
+public:
+	LobbyDatabase();
+
+	void insertChatMessage(const std::string & sender, const std::string & messageText);
+};
 
 class LobbyServer : public NetworkServer
 {
-	std::unique_ptr<SQLiteInstance> database;
+	std::unique_ptr<LobbyDatabase> database;
 
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;

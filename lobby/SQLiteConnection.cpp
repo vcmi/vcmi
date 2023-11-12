@@ -16,7 +16,8 @@ static void on_sqlite_error( sqlite3 * connection, [[maybe_unused]] int result )
 {
 	if ( result != SQLITE_OK )
 	{
-		printf( "sqlite error: %s\n", sqlite3_errmsg( connection ) );
+		const char * message = sqlite3_errmsg( connection );
+		printf( "sqlite error: %s\n", message );
 	}
 
 	assert( result == SQLITE_OK );

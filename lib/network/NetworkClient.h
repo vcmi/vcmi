@@ -32,12 +32,12 @@ protected:
 	virtual void onConnectionFailed(const std::string & errorMessage) = 0;
 	virtual void onDisconnected() = 0;
 
+	void sendPacket(const std::vector<uint8_t> & message);
 public:
 	NetworkClient();
 	virtual ~NetworkClient() = default;
 
 	void start(const std::string & host, uint16_t port);
-	void sendPacket(const std::vector<uint8_t> & message);
 	void run();
 	void poll();
 };
