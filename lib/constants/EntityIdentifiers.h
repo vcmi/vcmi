@@ -769,7 +769,7 @@ public:
 		DIMENSION_DOOR = 8,
 		TOWN_PORTAL = 9,
 
-		// Combar spells
+		// Combat spells
 		QUICKSAND = 10,
 		LAND_MINE = 11,
 		FORCE_FIELD = 12,

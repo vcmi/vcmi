@@ -579,8 +579,13 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		std::string addInfo = "";
 		for(auto & bonus : * modifierList)
 		{
-			if(bonus->val)
-				addInfo += "\n" + bonus->Description();
+			if(bonus->val) {
+				const std::string& description = bonus->Description();
+				//arraytxt already contains \n
+				if (description.size() && description[0] != '\n')
+					addInfo += '\n';
+				addInfo += description;
+			}
 		}
 		text = addInfo.empty() 
 			? text + CGI->generaltexth->arraytxt[noneTxtId] 

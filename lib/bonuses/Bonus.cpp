@@ -91,7 +91,7 @@ JsonNode CAddInfo::toJsonNode() const
 }
 std::string Bonus::Description(std::optional<si32> customValue) const
 {
-	std::ostringstream str;
+	std::string str;
 
 	if(description.empty())
 	{
@@ -100,38 +100,42 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			switch(source)
 			{
 			case BonusSource::ARTIFACT:
-				str << sid.as<ArtifactID>().toEntity(VLC)->getNameTranslated();
+				str = sid.as<ArtifactID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::SPELL_EFFECT:
-				str << sid.as<SpellID>().toEntity(VLC)->getNameTranslated();
+				str = sid.as<SpellID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::CREATURE_ABILITY:
-				str << sid.as<CreatureID>().toEntity(VLC)->getNamePluralTranslated();
+				str = sid.as<CreatureID>().toEntity(VLC)->getNamePluralTranslated();
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				str << VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
+				str = VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
 				break;
 			case BonusSource::HERO_SPECIAL:
-				str << VLC->heroTypes()->getById(sid.as<HeroTypeID>())->getNameTranslated();
+				str = VLC->heroTypes()->getById(sid.as<HeroTypeID>())->getNameTranslated();
 				break;
 			default:
 				//todo: handle all possible sources
-				str << "Unknown";
+				str = "Unknown";
 				break;
 			}
 		}
 		else
-			str << stacking;
+			str = stacking;
 	}
 	else
 	{
-		str << description;
+		str = description;
 	}
 
-	if(auto value = customValue.value_or(val))
-		str << " " << std::showpos << value;
+	if(auto value = customValue.value_or(val)) {
+		//arraytxt already contains +-value
+		std::string valueString = boost::str(boost::format(" %+d") % value);
+		if(!boost::algorithm::ends_with(str, valueString))
+			str += valueString;
+	}
 
-	return str.str();
+	return str;
 }
 
 static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
