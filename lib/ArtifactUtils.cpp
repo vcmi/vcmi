@@ -33,10 +33,11 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
-	if(art->canBePutAt(target, ArtifactPosition::BACKPACK_START))
-	{
-		return ArtifactPosition::BACKPACK_START;
-	}
+	if(target->bearerType() == ArtBearer::HERO)
+		if(art->canBePutAt(target, ArtifactPosition::BACKPACK_START))
+		{
+			return ArtifactPosition::BACKPACK_START;
+		}
 	return ArtifactPosition::PRE_FIRST;
 }
 

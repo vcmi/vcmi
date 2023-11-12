@@ -1837,13 +1837,13 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 			switch(operation)
 			{
 			case EBulkArtsOp::BULK_MOVE:
-				art->move(artSet, srcPos, *gs->getHero(dstArtHolder), slot.dstPos);
+				art->move(artSet, srcPos, *gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature)), slot.dstPos);
 				break;
 			case EBulkArtsOp::BULK_REMOVE:
 				art->removeFrom(artSet, srcPos);
 				break;
 			case EBulkArtsOp::BULK_PUT:
-				art->putAt(*gs->getHero(srcArtHolder), slot.dstPos);
+				art->putAt(*gs->getArtSet(ArtifactLocation(srcArtHolder, srcCreature)), slot.dstPos);
 				break;
 			default:
 				break;
@@ -1856,11 +1856,11 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 		}
 	};
 	
-	auto * leftSet = gs->getArtSet(ArtifactLocation(srcArtHolder));
+	auto * leftSet = gs->getArtSet(ArtifactLocation(srcArtHolder, srcCreature));
 	if(swap)
 	{
 		// Swap
-		auto * rightSet = gs->getArtSet(ArtifactLocation(dstArtHolder));
+		auto * rightSet = gs->getArtSet(ArtifactLocation(dstArtHolder, dstCreature));
 		CArtifactFittingSet artFittingSet(leftSet->bearerType());
 
 		artFittingSet.artifactsWorn = rightSet->artifactsWorn;

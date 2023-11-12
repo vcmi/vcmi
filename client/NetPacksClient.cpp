@@ -301,7 +301,7 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		{
 			auto srcLoc = ArtifactLocation(pack.srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(pack.dstArtHolder, slotToMove.dstPos);
-			MoveArtifact ma(&srcLoc, &dstLoc, false);
+			MoveArtifact ma(&srcLoc, &dstLoc, pack.askAssemble);
 			visitMoveArtifact(ma);
 		}
 	};

@@ -975,13 +975,13 @@ struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
 	PutArtifact() = default;
-	explicit PutArtifact(ArtifactLocation * dst, bool askAssemble = true)
-		: al(*dst), askAssemble(askAssemble)
+	explicit PutArtifact(ArtifactLocation & dst, bool askAssemble = true)
+		: al(dst), askAssemble(askAssemble)
 	{
 	}
 
 	ArtifactLocation al;
-	bool askAssemble = false;
+	bool askAssemble;
 	ConstTransitivePtr<CArtifactInstance> art;
 
 	void applyGs(CGameState * gs);
@@ -1064,17 +1064,25 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 
 	ObjectInstanceID srcArtHolder;
 	ObjectInstanceID dstArtHolder;
+	std::optional<SlotID> srcCreature;
+	std::optional<SlotID> dstCreature;
 
 	BulkMoveArtifacts()
 		: srcArtHolder(ObjectInstanceID::NONE)
 		, dstArtHolder(ObjectInstanceID::NONE)
 		, swap(false)
+		, askAssemble(false)
+		, srcCreature(std::nullopt)
+		, dstCreature(std::nullopt)
 	{
 	}
 	BulkMoveArtifacts(const ObjectInstanceID srcArtHolder, const ObjectInstanceID dstArtHolder, bool swap)
 		: srcArtHolder(std::move(srcArtHolder))
 		, dstArtHolder(std::move(dstArtHolder))
 		, swap(swap)
+		, askAssemble(false)
+		, srcCreature(std::nullopt)
+		, dstCreature(std::nullopt)
 	{
 	}
 
@@ -1083,6 +1091,7 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 	std::vector<LinkedSlots> artsPack0;
 	std::vector<LinkedSlots> artsPack1;
 	bool swap;
+	bool askAssemble;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1092,7 +1101,10 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		h & artsPack1;
 		h & srcArtHolder;
 		h & dstArtHolder;
+		h & srcCreature;
+		h & dstCreature;
 		h & swap;
+		h & askAssemble;
 	}
 };
 

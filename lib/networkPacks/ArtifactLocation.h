@@ -31,6 +31,12 @@ struct ArtifactLocation
 		, creature(std::nullopt)
 	{
 	}
+	ArtifactLocation(const ObjectInstanceID id, const std::optional<SlotID> creatureSlot)
+		: artHolder(id)
+		, slot(ArtifactPosition::PRE_FIRST)
+		, creature(creatureSlot)
+	{
+	}
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
