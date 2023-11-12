@@ -1531,22 +1531,25 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
-	auto existingHero = std::find_if(map->objects.begin(), map->objects.end(), [&](const CGObjectInstance * o) ->bool
-		{
-			return o && (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
-		});
-
-	if(existingHero != map->objects.end())
+	if(ID != Obj::RANDOM_HERO)
 	{
-		if(settings["session"]["editor"].Bool())
-		{
-			logGlobal->warn("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
-		}
-		else
-		{
-			logGlobal->error("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
+		auto existingHero = std::find_if(map->objects.begin(), map->objects.end(), [&](const CGObjectInstance * o) ->bool
+			{
+				return o && (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
+			});
 
-			throw std::runtime_error("Hero is already on the map");
+		if(existingHero != map->objects.end())
+		{
+			if(settings["session"]["editor"].Bool())
+			{
+				logGlobal->warn("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
+			}
+			else
+			{
+				logGlobal->error("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
+
+				throw std::runtime_error("Hero is already on the map");
+			}
 		}
 	}
 

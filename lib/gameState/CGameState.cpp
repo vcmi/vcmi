@@ -121,8 +121,7 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 		return *notAllowedHeroesButStillBetterThanCrash.begin();
 
 	logGlobal->error("No free heroes at all!");
-	assert(0); //current code can't handle this situation
-	return HeroTypeID::NONE; // no available heroes at all
+	throw std::runtime_error("Can not allocate hero. All heroes are already used.");
 }
 
 int CGameState::getDate(Date mode) const
