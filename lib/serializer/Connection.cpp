@@ -269,13 +269,7 @@ CPack * CConnection::retrievePack()
 	iser & pack;
 	logNetwork->trace("Received CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
 	if(pack == nullptr)
-	{
 		logNetwork->error("Received a nullptr CPack! You should check whether client and server ABI matches.");
-	}
-	else
-	{
-		pack->c = this->shared_from_this();
-	}
 
 	enableBufferedRead = false;
 

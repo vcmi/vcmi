@@ -20,7 +20,9 @@ class ICPackVisitor;
 
 struct DLL_LINKAGE CPack
 {
-	std::shared_ptr<CConnection> c; // Pointer to connection that pack received from
+	/// Pointer to connection that pack received from
+	/// Only set & used on server
+	std::shared_ptr<CConnection> c;
 
 	CPack() = default;
 	virtual ~CPack() = default;

@@ -481,6 +481,7 @@ static void quitApplication()
 		vstd::clear_pointer(graphics);
 	}
 
+	vstd::clear_pointer(CSH);
 	vstd::clear_pointer(VLC);
 
 	vstd::clear_pointer(console);// should be removed after everything else since used by logging

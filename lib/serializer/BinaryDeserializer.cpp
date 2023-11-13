@@ -23,4 +23,9 @@ BinaryDeserializer::BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
 	registerTypes(*this);
 }
 
+BinaryDeserializer::~BinaryDeserializer()
+{
+
+}
+
 VCMI_LIB_NAMESPACE_END

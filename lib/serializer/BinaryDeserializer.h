@@ -140,12 +140,12 @@ public:
 	si32 fileVersion;
 
 	std::map<ui32, void*> loadedPointers;
-	std::map<ui32, const std::type_info*> loadedPointersTypes;
 	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
 	bool smartPointerSerialization;
 	bool saving;
 
 	BinaryDeserializer(IBinaryReader * r);
+	~BinaryDeserializer();
 
 	template<class T>
 	BinaryDeserializer & operator&(T & t)
@@ -279,7 +279,6 @@ public:
 			{
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
-				assert(loadedPointersTypes.count(pid));
 				data = static_cast<T>(i->second);
 				return;
 			}
@@ -313,10 +312,7 @@ public:
 	void ptrAllocated(const T *ptr, ui32 pid)
 	{
 		if(smartPointerSerialization && pid != 0xffffffff)
-		{
-			loadedPointersTypes[pid] = &typeid(T);
 			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
-		}
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
