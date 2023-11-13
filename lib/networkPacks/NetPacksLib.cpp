@@ -993,29 +993,28 @@ void GiveBonus::applyGs(CGameState *gs)
 
 	std::string &descr = b->description;
 
-	if(bdescr.empty() && (bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE))
-	{
-		if (bonus.source == BonusSource::OBJECT_TYPE || bonus.source == BonusSource::OBJECT_INSTANCE)
-		{
-			descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
-		}
-		else if(bonus.source == BonusSource::TOWN_STRUCTURE)
-		{
-			descr = bonus.description;
-			return;
-		}
-		else
-		{
-			descr = bdescr.toString();
-		}
-	}
-	else
+	if(!bdescr.empty()) 
 	{
 		descr = bdescr.toString();
 	}
-	// Some of(?) versions of H3 use %s here instead of %d. Try to replace both of them
-	boost::replace_first(descr, "%d", std::to_string(std::abs(bonus.val)));
-	boost::replace_first(descr, "%s", std::to_string(std::abs(bonus.val)));
+	else if(!descr.empty())
+	{
+		//use preseet description
+	}
+	else if((bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE)
+		  && (bonus.source == BonusSource::OBJECT_TYPE || bonus.source == BonusSource::OBJECT_INSTANCE))
+	{
+		//no description, use generic
+		//?could use allways when Type == BonusDuration::Type::ONE_BATTLE
+		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
+	}
+	else
+	{
+		logGlobal->debug("Empty bonus decription. Type=%d", (int) bonus.type);
+	}
+	// Some of(?) versions of H3 use " %s" here instead of %d. Try to replace both of them
+	boost::replace_first(descr, "%d", std::to_string(std::abs(bonus.val))); // " +/-%d Temporary until next battle
+	boost::replace_first(descr, " %s", boost::str(boost::format(" %+d") % bonus.val));  // " %s" in arraytxt.69, fountian of fortune
 }
 
 void ChangeObjPos::applyGs(CGameState *gs)
