@@ -134,8 +134,10 @@ std::shared_ptr<IImage> MapTileStorage::find(size_t fileIndex, size_t rotationIn
 MapRendererTerrain::MapRendererTerrain()
 	: storage(VLC->terrainTypeHandler->objects.size())
 {
+	logGlobal->debug("Loading map terrains");
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 		storage.load(terrain->getIndex(), terrain->tilesFilename, EImageBlitMode::OPAQUE);
+	logGlobal->debug("Done loading map terrains");
 }
 
 void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -173,8 +175,10 @@ uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 &
 MapRendererRiver::MapRendererRiver()
 	: storage(VLC->riverTypeHandler->objects.size())
 {
+	logGlobal->debug("Loading map rivers");
 	for(const auto & river : VLC->riverTypeHandler->objects)
 		storage.load(river->getIndex(), river->tilesFilename, EImageBlitMode::COLORKEY);
+	logGlobal->debug("Done loading map rivers");
 }
 
 void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -208,8 +212,10 @@ uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & c
 MapRendererRoad::MapRendererRoad()
 	: storage(VLC->roadTypeHandler->objects.size())
 {
+	logGlobal->debug("Loading map roads");
 	for(const auto & road : VLC->roadTypeHandler->objects)
 		storage.load(road->getIndex(), road->tilesFilename, EImageBlitMode::COLORKEY);
+	logGlobal->debug("Done loading map roads");
 }
 
 void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)

@@ -145,7 +145,6 @@ public:
 	bool saving;
 
 	BinaryDeserializer(IBinaryReader * r);
-	~BinaryDeserializer();
 
 	template<class T>
 	BinaryDeserializer & operator&(T & t)
@@ -291,7 +290,7 @@ public:
 		{
 			typedef typename std::remove_pointer<T>::type npT;
 			typedef typename std::remove_const<npT>::type ncpT;
-			data = ClassObjectCreator<ncpT>::invoke();// !!!
+			data = ClassObjectCreator<ncpT>::invoke();
 			ptrAllocated(data, pid);
 			load(*data);
 		}

@@ -317,8 +317,7 @@ CTownHandler::CTownHandler():
 
 CTownHandler::~CTownHandler()
 {
-	delete randomTown;
-	delete randomFaction;
+	delete randomFaction; // will also delete randomTown
 }
 
 JsonNode readBuilding(CLegacyConfigParser & parser)
