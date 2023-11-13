@@ -56,8 +56,8 @@ void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCall
 }
 
 void CArtifactsOfHeroBase::init(
-	CHeroArtPlace::ClickFunctor lClickCallback,
-	CHeroArtPlace::ClickFunctor showPopupCallback,
+	CArtPlace::ClickFunctor lClickCallback,
+	CArtPlace::ClickFunctor showPopupCallback,
 	const Point & position,
 	BpackScrollFunctor scrollCallback)
 {
@@ -78,14 +78,14 @@ void CArtifactsOfHeroBase::init(
 	{
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
-		artPlace.second->leftClickCallback = lClickCallback;
-		artPlace.second->showPopupCallback = showPopupCallback;
+		artPlace.second->setClickPressedCallback(lClickCallback);
+		artPlace.second->setShowPopupCallback(showPopupCallback);
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
-		artPlace->leftClickCallback = lClickCallback;
-		artPlace->showPopupCallback = showPopupCallback;
+		artPlace->setClickPressedCallback(lClickCallback);
+		artPlace->setShowPopupCallback(showPopupCallback);
 	}
 	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(-1);}, EShortcut::MOVE_LEFT);
 	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(+1);}, EShortcut::MOVE_RIGHT);
@@ -95,16 +95,16 @@ void CArtifactsOfHeroBase::init(
 	setRedrawParent(true);
 }
 
-void CArtifactsOfHeroBase::leftClickArtPlace(CHeroArtPlace & artPlace)
+void CArtifactsOfHeroBase::leftClickArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
 	if(leftClickCallback)
-		leftClickCallback(*this, artPlace);
+		leftClickCallback(*this, artPlace, cursorPosition);
 }
 
-void CArtifactsOfHeroBase::rightClickArtPlace(CHeroArtPlace & artPlace)
+void CArtifactsOfHeroBase::rightClickArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
 	if(showPopupCallback)
-		showPopupCallback(*this, artPlace);
+		showPopupCallback(*this, artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)

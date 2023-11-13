@@ -23,5 +23,5 @@ public:
 	CArtifactsOfHeroMain(const Point & position);
 	~CArtifactsOfHeroMain();
 	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
-	void pickUpArtifact(CHeroArtPlace & artPlace);
+	void pickUpArtifact(CArtPlace & artPlace);
 };

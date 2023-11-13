@@ -24,5 +24,5 @@ public:
 		std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll);
 	~CArtifactsOfHeroKingdom();
 	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
-	void pickUpArtifact(CHeroArtPlace & artPlace);
+	void pickUpArtifact(CArtPlace & artPlace);
 };

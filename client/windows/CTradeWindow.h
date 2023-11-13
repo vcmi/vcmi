@@ -40,7 +40,7 @@ public:
 	void getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const;
 	void setMode(EMarketMode Mode); //mode setter
 
-	void artifactSelected(CHeroArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
+	void artifactSelected(CArtPlace * slot); //used when selling artifacts -> called when user clicked on artifact slot
 	virtual void selectionChanged(bool side) = 0; //true == left
 	virtual Point selectionOffset(bool Left) const = 0;
 	virtual std::string updateSlotSubtitle(bool Left) const = 0;

@@ -139,7 +139,7 @@ void CCommanderArtPlace::clickPressed(const Point & cursorPosition)
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
-void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
+void CCommanderArtPlace::showPopupWindow(const Point& cursorPosition)
 {
 	if(ourArt && text.size())
 		CArtPlace::showPopupWindow(cursorPosition);
@@ -180,16 +180,16 @@ bool CArtPlace::isSelected() const
 	return selection->visible;
 }
 
-void CHeroArtPlace::clickPressed(const Point & cursorPosition)
+void CArtPlace::clickPressed(const Point & cursorPosition)
 {
-	if(leftClickCallback)
-		leftClickCallback(*this);
+	if(clickPressedCallback)
+		clickPressedCallback(*this, cursorPosition);
 }
 
-void CHeroArtPlace::showPopupWindow(const Point & cursorPosition)
+void CArtPlace::showPopupWindow(const Point & cursorPosition)
 {
 	if(showPopupCallback)
-		showPopupCallback(*this);
+		showPopupCallback(*this, cursorPosition);
 }
 
 void CArtPlace::showAll(Canvas & to)
@@ -214,6 +214,16 @@ void CArtPlace::setArtifact(const CArtifactInstance * art)
 	{
 		lockSlot(false);
 	}
+}
+
+void CArtPlace::setClickPressedCallback(ClickFunctor callback)
+{
+	clickPressedCallback = callback;
+}
+
+void CArtPlace::setShowPopupCallback(ClickFunctor callback)
+{
+	showPopupCallback = callback;
 }
 
 void CHeroArtPlace::addCombinedArtInfo(std::map<const CArtifact*, int> & arts)

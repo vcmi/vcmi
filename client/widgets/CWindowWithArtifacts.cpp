@@ -48,8 +48,8 @@ void CWindowWithArtifacts::addSetAndCallbacks(CArtifactsOfHeroPtr artSet)
 	std::visit([this, artPutBackHandler](auto artSetWeak)
 		{
 			auto artSet = artSetWeak.lock();
-			artSet->leftClickCallback = std::bind(&CWindowWithArtifacts::leftClickArtPlaceHero, this, _1, _2);
-			artSet->showPopupCallback = std::bind(&CWindowWithArtifacts::rightClickArtPlaceHero, this, _1, _2);
+			artSet->leftClickCallback = std::bind(&CWindowWithArtifacts::leftClickArtPlaceHero, this, _1, _2, _3);
+			artSet->showPopupCallback = std::bind(&CWindowWithArtifacts::rightClickArtPlaceHero, this, _1, _2, _3);
 			artSet->setPutBackPickedArtifactCallback(artPutBackHandler);
 		}, artSet);
 }
@@ -77,7 +77,7 @@ const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact()
 		return nullptr;
 }
 
-void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CHeroArtPlace & artPlace)
+void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
 {
 	const auto artSetWeak = findAOHbyRef(artsInst);
 	assert(artSetWeak.has_value());
@@ -85,7 +85,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 	if(artPlace.isLocked())
 		return;
 
-	const auto checkSpecialArts = [](const CGHeroInstance * hero, CHeroArtPlace & artPlace) -> bool
+	const auto checkSpecialArts = [](const CGHeroInstance * hero, CArtPlace & artPlace) -> bool
 	{
 		if(artPlace.getArt()->getTypeId() == ArtifactID::SPELLBOOK)
 		{
@@ -217,7 +217,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 		}, artSetWeak.value());
 }
 
-void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CHeroArtPlace & artPlace)
+void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
 {
 	const auto artSetWeak = findAOHbyRef(artsInst);
 	assert(artSetWeak.has_value());
@@ -226,7 +226,7 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 		return;
 
 	std::visit(
-		[&artPlace](auto artSetWeak) -> void
+		[&artPlace, &cursorPosition](auto artSetWeak) -> void
 		{
 			const auto artSetPtr = artSetWeak.lock();
 
@@ -247,7 +247,7 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 						return;
 					}
 					if(artPlace.text.size())
-						artPlace.LRClickableAreaWTextComp::showPopupWindow(GH.getCursorPosition());
+						artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 				}
 			}
 			// Altar window, Market window right click handler
@@ -257,7 +257,7 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroQuickBackpack>>)
 			{
 				if(artPlace.getArt() && artPlace.text.size())
-					artPlace.LRClickableAreaWTextComp::showPopupWindow(GH.getCursorPosition());
+					artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
 			}
 		}, artSetWeak.value());
 }

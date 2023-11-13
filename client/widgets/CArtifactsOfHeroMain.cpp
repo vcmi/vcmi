@@ -19,8 +19,8 @@
 CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
 {
 	init(
-		std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1),
-		std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1),
+		std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1, _2),
+		std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1, _2),
 		position,
 		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
 }
@@ -35,7 +35,7 @@ void CArtifactsOfHeroMain::swapArtifacts(const ArtifactLocation & srcLoc, const 
 	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
 }
 
-void CArtifactsOfHeroMain::pickUpArtifact(CHeroArtPlace & artPlace)
+void CArtifactsOfHeroMain::pickUpArtifact(CArtPlace & artPlace)
 {
 	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
 		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));

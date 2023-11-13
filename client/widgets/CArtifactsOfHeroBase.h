@@ -21,7 +21,7 @@ protected:
 
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
-	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CHeroArtPlace&)>;
+	using ClickFunctor = std::function<void(CArtifactsOfHeroBase&, CArtPlace&, const Point&)>;
 	using PutBackPickedArtCallback = std::function<void()>;
 
 	ClickFunctor leftClickCallback;
@@ -30,8 +30,8 @@ public:
 	CArtifactsOfHeroBase();
 	virtual void putBackPickedArtifact();
 	virtual void setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback);
-	virtual void leftClickArtPlace(CHeroArtPlace & artPlace);
-	virtual void rightClickArtPlace(CHeroArtPlace & artPlace);
+	virtual void leftClickArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
+	virtual void rightClickArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void setHero(const CGHeroInstance * hero);
 	virtual const CGHeroInstance * getHero() const;
 	virtual void scrollBackpack(int offset);

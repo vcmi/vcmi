@@ -46,7 +46,7 @@ void CArtifactsOfHeroBackpack::swapArtifacts(const ArtifactLocation & srcLoc, co
 	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
 }
 
-void CArtifactsOfHeroBackpack::pickUpArtifact(CHeroArtPlace & artPlace)
+void CArtifactsOfHeroBackpack::pickUpArtifact(CArtPlace & artPlace)
 {
 	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
 		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
@@ -96,8 +96,8 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
 		artPlace = std::make_shared<CHeroArtPlace>(pos);
 		artPlace->setArtifact(nullptr);
-		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1, _2));
+		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1, _2));
 		artPlaceIdx++;
 	}
 

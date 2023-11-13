@@ -25,7 +25,7 @@ public:
 	CArtifactsOfHeroBackpack();
 	CArtifactsOfHeroBackpack(const Point & position);
 	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
-	void pickUpArtifact(CHeroArtPlace & artPlace);
+	void pickUpArtifact(CArtPlace & artPlace);
 	void scrollBackpack(int offset) override;
 	void updateBackpackSlots() override;
 	size_t getActiveSlotRowsNum();
