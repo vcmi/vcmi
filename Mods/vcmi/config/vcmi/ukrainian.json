@@ -130,6 +130,9 @@
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Пропускати вступну музику",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускати вступну музику}\n\n Пропускати коротку музику, яка грає на початку кожної битви перед початком дії. Також можна пропустити, натиснувши клавішу ESC.",
 
+	"vcmi.adventureMap.revisitObject.hover" : "Відвідати Об'єкт",
+	"vcmi.adventureMap.revisitObject.help" : "{Відвідати Об'єкт}\n\nЯкщо герой в даний момент стоїть на об'єкті мапи, він може знову відвідати цю локацію.",
+
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Натисніть будь-яку клавішу, щоб розпочати бій",
 	"vcmi.battleWindow.damageEstimation.melee" : "Атакувати %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Атакувати %CREATURE (%DAMAGE, %KILLS).",

@@ -255,10 +255,13 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 	// However other language versions don't have name placeholder at all, so we have to be careful
 	auto nameStart = description.find_first_of('[');
 	auto nameEnd = description.find_first_of(']', nameStart);
-	if(sid.getNum() >= 0)
+
+	if(nameStart != std::string::npos && nameEnd != std::string::npos)
 	{
-		if(nameStart != std::string::npos && nameEnd != std::string::npos)
+		if(sid.getNum() >= 0)
 			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(VLC->spells())->getNameTranslated());
+		else
+			description = description.erase(nameStart, nameEnd - nameStart + 2); // erase "[spell name] " - including space
 	}
 }
 

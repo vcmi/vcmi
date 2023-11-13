@@ -126,7 +126,7 @@ void TavernHeroesPool::onNewDay()
 			continue;
 
 		hero.second->setMovementPoints(hero.second->movementPointsLimit(true));
-		hero.second->mana = hero.second->manaLimit();
+		hero.second->mana = hero.second->getManaNewTurn();
 	}
 }
 

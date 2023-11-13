@@ -561,27 +561,35 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeader()
 
 void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 {
+	auto factionIndex = playerSettings.getCastleValidated();
+
+	if (playerSettings.castle == FactionID::RANDOM)
+		return genBonusWindow();
+
 	pos = Rect(0, 0, 228, 290);
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
-	auto factionIndex = playerSettings.getCastleValidated();
 	std::vector<std::shared_ptr<CComponent>> components;
 	const CTown * town = (*CGI->townh)[factionIndex]->town;
 
 	for(auto & elem : town->creatures)
 	{
 		if(!elem.empty())
-			components.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, elem.front(), 0, CComponent::tiny));
+			components.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, elem.front(), std::nullopt, CComponent::tiny));
 	}
 	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140));
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 {
+	auto heroIndex = playerSettings.getHeroValidated();
+
+	if (playerSettings.hero == HeroTypeID::RANDOM)
+		return genBonusWindow();
+
 	pos = Rect(0, 0, 292, 226);
 	genHeader();
 	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[78]);
-	auto heroIndex = playerSettings.getHeroValidated();
 
 	imageSpeciality = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
 	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->getSpecialtyNameTranslated());

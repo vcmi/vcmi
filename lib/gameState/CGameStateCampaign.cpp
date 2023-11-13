@@ -217,6 +217,10 @@ void CGameStateCampaign::placeCampaignHeroes()
 
 	for(auto & heroID : heroesToRemove)
 	{
+		// Do not replace reserved heroes initially, e.g. in 1st campaign scenario in which they appear
+		if (campaignState->getHeroByType(heroID).isNull())
+			continue;
+
 		auto * hero = gameState->getUsedHero(heroID);
 		if(hero)
 		{

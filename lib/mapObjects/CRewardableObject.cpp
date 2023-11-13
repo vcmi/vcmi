@@ -301,7 +301,7 @@ std::string CRewardableObject::getDescriptionMessage(PlayerColor player, const C
 		return configuration.description.toString();
 
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-	if (rewardIndices.empty() && !configuration.info[0].description.empty())
+	if (rewardIndices.empty() || !configuration.info[0].description.empty())
 		return configuration.info[0].description.toString();
 
 	if (!configuration.info[rewardIndices.front()].description.empty())

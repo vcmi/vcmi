@@ -116,7 +116,11 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	if(ev.type == SDL_QUIT)
 	{
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+#ifdef VCMI_ANDROID
 		handleQuit(false);
+#else
+		handleQuit(true);
+#endif
 		return;
 	}
 	else if(ev.type == SDL_KEYDOWN)

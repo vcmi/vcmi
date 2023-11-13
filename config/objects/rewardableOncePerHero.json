@@ -249,7 +249,7 @@
 						"description" : "@core.arraytxt.202",
 						"message" : 148,
 						"appearChance" : { "max" : 34 },
-						"gainedLevels" : 1
+						"heroLevel" : 1
 					},
 					{
 						"description" : "@core.arraytxt.203",
@@ -257,7 +257,7 @@
 						"appearChance" : { "min" : 34, "max" : 67 },
 						"limiter" : { "resources" : { "gold" : 2000 } },
 						"resources" : { "gold" : -2000 },
-						"gainedLevels" : 1
+						"heroLevel" : 1
 					},
 					{
 						"description" : "@core.arraytxt.204",
@@ -265,7 +265,7 @@
 						"appearChance" : { "min" : 67 },
 						"limiter" : { "resources" : { "gems" : 10 } },
 						"resources" : { "gems" : -10 },
-						"gainedLevels" : 1
+						"heroLevel" : 1
 					},
 				]	
 			}

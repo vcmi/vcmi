@@ -40,7 +40,7 @@ public:
 	// needed for messages / hover text
 	ui8 textOption;
 	ui8 completedOption;
-	CStackBasicDescriptor stackToKill;
+	CreatureID stackToKill;
 	ui8 stackDirection;
 	std::string heroName; //backup of hero name
 	HeroTypeID heroPortrait;

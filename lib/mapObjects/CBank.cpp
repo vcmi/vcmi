@@ -70,6 +70,9 @@ std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
 	if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
 		return {};
 
+	if (bc == nullptr)
+		return {};
+
 	std::map<CreatureID, int> guardsAmounts;
 	std::vector<Component> result;
 
