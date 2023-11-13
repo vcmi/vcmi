@@ -181,6 +181,9 @@ CMap::~CMap()
 	for(auto quest : quests)
 		quest.dellNull();
 
+	for(auto artInstance : artInstances)
+		artInstance.dellNull();
+
 	resetStaticData();
 }
 

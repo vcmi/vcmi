@@ -700,7 +700,7 @@ void CGameState::initFogOfWar()
 	int layers = map->levels();
 	for(auto & elem : teams)
 	{
-		auto fow = elem.second.fogOfWarMap;
+		auto & fow = elem.second.fogOfWarMap;
 		fow->resize(boost::extents[layers][map->width][map->height]);
 		std::fill(fow->data(), fow->data() + fow->num_elements(), 0);
 
@@ -1952,7 +1952,7 @@ bool RumorState::update(int id, int extra)
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
-	fogOfWarMap = std::make_shared<boost::multi_array<ui8, 3>>();
+	fogOfWarMap = std::make_unique<boost::multi_array<ui8, 3>>();
 }
 
 TeamState::TeamState(TeamState && other) noexcept:

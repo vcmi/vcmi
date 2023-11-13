@@ -346,7 +346,6 @@ int main(int argc, char * argv[])
 	session["autoSkip"].Bool()  = vm.count("autoSkip");
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 	session["aiSolo"].Bool() = false;
-	std::shared_ptr<CMainMenu> mmenu;
 	
 	if(vm.count("testmap"))
 	{
@@ -362,7 +361,7 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		mmenu = CMainMenu::create();
+		auto mmenu = CMainMenu::create();
 		GH.curInt = mmenu.get();
 	}
 	
@@ -399,7 +398,7 @@ int main(int argc, char * argv[])
 		//start lobby immediately
 		names.push_back(session["username"].String());
 		ESelectionScreen sscreen = session["gamemode"].Integer() == 0 ? ESelectionScreen::newGame : ESelectionScreen::loadGame;
-		mmenu->openLobby(sscreen, session["host"].Bool(), &names, ELoadMode::MULTI);
+		CMM->openLobby(sscreen, session["host"].Bool(), &names, ELoadMode::MULTI);
 	}
 	
 	// Restore remote session - start game immediately
@@ -471,6 +470,9 @@ static void quitApplication()
 		{
 			CCS->musich->release();
 			CCS->soundh->release();
+
+			delete CCS->consoleh;
+			delete CCS->curh;
 
 			vstd::clear_pointer(CCS);
 		}

@@ -247,7 +247,7 @@ public:
 
 	virtual int getResourceAmount(GameResID type) const;
 	virtual TResources getResourceAmount() const;
-	virtual std::shared_ptr<const boost::multi_array<ui8, 3>> getVisibilityMap() const; //returns visibility map
+	//virtual std::shared_ptr<const boost::multi_array<ui8, 3>> getVisibilityMap() const; //returns visibility map
 	//virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 };
 

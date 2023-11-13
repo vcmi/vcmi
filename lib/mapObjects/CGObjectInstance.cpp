@@ -35,10 +35,14 @@ CGObjectInstance::CGObjectInstance():
 	tempOwner(PlayerColor::UNFLAGGABLE),
 	blockVisit(false)
 {
+	logGlobal->debug("Created object at %d", ptrdiff_t(this));
 }
 
 //must be instantiated in .cpp file for access to complete types of all member fields
-CGObjectInstance::~CGObjectInstance() = default;
+CGObjectInstance::~CGObjectInstance()
+{
+	logGlobal->debug("Deleted object %d at %d", id.getNum(), ptrdiff_t(this));
+}
 
 MapObjectID CGObjectInstance::getObjGroupIndex() const
 {

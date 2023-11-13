@@ -292,7 +292,7 @@ public:
 		{
 			typedef typename std::remove_pointer<T>::type npT;
 			typedef typename std::remove_const<npT>::type ncpT;
-			data = ClassObjectCreator<ncpT>::invoke();
+			data = ClassObjectCreator<ncpT>::invoke();// !!!
 			ptrAllocated(data, pid);
 			load(*data);
 		}

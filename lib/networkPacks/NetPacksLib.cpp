@@ -932,7 +932,7 @@ void SetMovePoints::applyGs(CGameState * gs) const
 void FoWChange::applyGs(CGameState *gs)
 {
 	TeamState * team = gs->getPlayerTeam(player);
-	auto fogOfWarMap = team->fogOfWarMap;
+	auto & fogOfWarMap = team->fogOfWarMap;
 	for(const int3 & t : tiles)
 		(*fogOfWarMap)[t.z][t.x][t.y] = mode != ETileVisibility::HIDDEN;
 
@@ -1327,7 +1327,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 		gs->map->addBlockVisTiles(h);
 	}
 
-	auto fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
+	auto & fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
 	for(const int3 & t : fowRevealed)
 		(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 }

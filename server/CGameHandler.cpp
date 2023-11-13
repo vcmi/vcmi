@@ -860,7 +860,7 @@ void CGameHandler::onNewTurn()
 				fw.mode = ETileVisibility::REVEALED;
 				fw.player = player;
 				// find all hidden tiles
-				const auto fow = getPlayerTeam(player)->fogOfWarMap;
+				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
 
 				auto shape = fow->shape();
 				for(size_t z = 0; z < shape[0]; z++)
