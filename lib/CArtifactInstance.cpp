@@ -165,6 +165,11 @@ bool CArtifactInstance::isCombined() const
 	return artType->isCombined();
 }
 
+bool CArtifactInstance::isScroll() const
+{
+	return artType->isScroll();
+}
+
 void CArtifactInstance::putAt(CArtifactSet & set, const ArtifactPosition slot)
 {
 	auto placementMap = set.putArtifact(slot, this);

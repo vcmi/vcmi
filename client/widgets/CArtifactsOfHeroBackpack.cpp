@@ -145,16 +145,39 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 	curHero = hero;
 	if(curHero)
 	{
+		ArtifactID artInSlotId = ArtifactID::NONE;
+		SpellID scrollInSlotSpellId = SpellID::NONE;
+		if(auto artInSlot = curHero->getArt(filterBySlot))
+		{
+			artInSlotId = artInSlot->getTypeId();
+			scrollInSlotSpellId = artInSlot->getScrollSpellID();
+		}
+
 		std::map<const CArtifact*, const CArtifactInstance*> filteredArts;
 		for(auto & slotInfo : curHero->artifactsInBackpack)
-		{
-			if(slotInfo.artifact->artType->canBePutAt(curHero, filterBySlot, true))
+			if(slotInfo.artifact->getTypeId() != artInSlotId &&	!slotInfo.artifact->isScroll() &&
+				slotInfo.artifact->artType->canBePutAt(curHero, filterBySlot, true))
+			{
 				filteredArts.insert(std::pair(slotInfo.artifact->artType, slotInfo.artifact));
+			}
+
+		std::map<const SpellID, const CArtifactInstance*> filteredScrolls;
+		if(filterBySlot == ArtifactPosition::MISC1 || filterBySlot == ArtifactPosition::MISC2 || filterBySlot == ArtifactPosition::MISC3 ||
+			filterBySlot == ArtifactPosition::MISC4 || filterBySlot == ArtifactPosition::MISC5)
+		{
+			for(auto & slotInfo : curHero->artifactsInBackpack)
+			{
+				if(slotInfo.artifact->isScroll() && slotInfo.artifact->getScrollSpellID() != scrollInSlotSpellId)
+					filteredScrolls.insert(std::pair(slotInfo.artifact->getScrollSpellID(), slotInfo.artifact));
+			}
 		}
+
 		backpack.clear();
-		initAOHbackpack(filteredArts.size(), false);
+		initAOHbackpack(filteredArts.size() + filteredScrolls.size(), false);
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
+			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
+		for(auto & art : filteredScrolls)
 			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
 	}
 }
