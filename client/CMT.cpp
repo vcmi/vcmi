@@ -473,6 +473,9 @@ static void quitApplication()
 
 			delete CCS->consoleh;
 			delete CCS->curh;
+			delete CCS->videoh;
+			delete CCS->musich;
+			delete CCS->soundh;
 
 			vstd::clear_pointer(CCS);
 		}
