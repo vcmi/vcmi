@@ -25,12 +25,13 @@
 
 #include "../../CCallback.h"
 
-#include "../CGameInfo.h"
-#include "../../lib/networkPacks/PacksForLobby.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/rmg/CMapGenOptions.h"
+#include "../CGameInfo.h"
 
 CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	: CSelectionBase(screenType), bonusSel(nullptr)
@@ -51,7 +52,8 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		});
 
 		buttonOptions = std::make_shared<CButton>(Point(411, 510), AnimationPath::builtin("GSPBUTT.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
-		buttonTurnOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabTurnOptions), EShortcut::NONE);
+		if(settings["general"]["enableUiEnhancements"].Bool())
+			buttonTurnOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabTurnOptions), EShortcut::NONE);
 	};
 
 	buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
@@ -149,7 +151,10 @@ void CLobbyScreen::toggleMode(bool host)
 	auto buttonColor = host ? Colors::WHITE : Colors::ORANGE;
 	buttonSelect->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL, buttonColor);
 	buttonOptions->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL, buttonColor);
-	buttonTurnOptions->addTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.turnOptions.hover"), FONT_SMALL, buttonColor);
+
+	if (buttonTurnOptions)
+		buttonTurnOptions->addTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.turnOptions.hover"), FONT_SMALL, buttonColor);
+
 	if(buttonRMG)
 	{
 		buttonRMG->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL, buttonColor);
@@ -157,7 +162,9 @@ void CLobbyScreen::toggleMode(bool host)
 	}
 	buttonSelect->block(!host);
 	buttonOptions->block(!host);
-	buttonTurnOptions->block(!host);
+
+	if (buttonTurnOptions)
+		buttonTurnOptions->block(!host);
 
 	if(CSH->mi)
 	{

@@ -237,7 +237,7 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 320, "y": 428}
+			"position": {"x": 278, "y": 428}
 		},
 		{
 			"name": "labelSimturnsDurationValueMax",
@@ -246,7 +246,7 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 320, "y": 478}
+			"position": {"x": 278, "y": 478}
 		},
 		{
 			"type" : "label",
