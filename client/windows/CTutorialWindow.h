@@ -12,6 +12,9 @@
 #include "../windows/CWindowObject.h"
 
 class CFilledTexture;
+class CButton;
+class CLabel;
+class CMultiLineLabel;
 
 enum TutorialMode
 {
@@ -24,10 +27,18 @@ class CTutorialWindow : public CWindowObject
     TutorialMode mode;
     std::shared_ptr<CFilledTexture> background;
 
+    std::shared_ptr<CButton> buttonOk;
+    std::shared_ptr<CButton> buttonLeft;
+    std::shared_ptr<CButton> buttonRight;
+
+	std::shared_ptr<CLabel> labelTitle;
+	std::shared_ptr<CMultiLineLabel> labelInformation;
+
+    void close();
+    void next();
+    void previous();
+
 public:
     CTutorialWindow(const TutorialMode & m);
-    static void openWindowFirstTime(const TutorialMode & m);
-    
-    
-    void clickPressed(const Point & cursorPosition) override;
+    static void openWindowFirstTime(const TutorialMode & m);    
 };
