@@ -18,27 +18,27 @@ class CMultiLineLabel;
 
 enum TutorialMode
 {
-    TOUCH_ADVENTUREMAP,
-    TOUCH_BATTLE
+	TOUCH_ADVENTUREMAP,
+	TOUCH_BATTLE
 };
 
 class CTutorialWindow : public CWindowObject
 {
-    TutorialMode mode;
-    std::shared_ptr<CFilledTexture> background;
+	TutorialMode mode;
+	std::shared_ptr<CFilledTexture> background;
 
-    std::shared_ptr<CButton> buttonOk;
-    std::shared_ptr<CButton> buttonLeft;
-    std::shared_ptr<CButton> buttonRight;
+	std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<CButton> buttonLeft;
+	std::shared_ptr<CButton> buttonRight;
 
 	std::shared_ptr<CLabel> labelTitle;
 	std::shared_ptr<CMultiLineLabel> labelInformation;
 
-    void close();
-    void next();
-    void previous();
+	void close();
+	void next();
+	void previous();
 
 public:
-    CTutorialWindow(const TutorialMode & m);
-    static void openWindowFirstTime(const TutorialMode & m);    
+	CTutorialWindow(const TutorialMode & m);
+	static void openWindowFirstTime(const TutorialMode & m);	
 };
