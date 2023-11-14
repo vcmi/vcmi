@@ -128,6 +128,7 @@ set(client_SRCS
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
 	windows/CTradeWindow.cpp
+	windows/CTutorialWindow.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
 	windows/GUIClasses.cpp
@@ -297,6 +298,7 @@ set(client_HEADERS
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
 	windows/CTradeWindow.h
+	windows/CTutorialWindow.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h
 	windows/GUIClasses.h

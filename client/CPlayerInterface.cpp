@@ -57,6 +57,7 @@
 #include "windows/CQuestLog.h"
 #include "windows/CSpellWindow.h"
 #include "windows/CTradeWindow.h"
+#include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
 #include "windows/InfoWindows.h"
 
@@ -275,6 +276,8 @@ void CPlayerInterface::gamePause(bool pause)
 
 void CPlayerInterface::yourTurn(QueryID queryID)
 {
+	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_ADVENTUREMAP);
+
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	{
 		LOCPLINT = this;
