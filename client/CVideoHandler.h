@@ -31,6 +31,7 @@ public:
 class IMainVideoPlayer : public IVideoPlayer
 {
 public:
+	virtual ~IMainVideoPlayer() = default;
 	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = nullptr){}
 	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false)
 	{
@@ -39,7 +40,7 @@ public:
 	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) { return std::make_pair(nullptr, 0); };
 };
 
-class CEmptyVideoPlayer : public IMainVideoPlayer
+class CEmptyVideoPlayer final : public IMainVideoPlayer
 {
 public:
 	int curFrame() const override {return -1;};
@@ -64,7 +65,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CInputStream;
 VCMI_LIB_NAMESPACE_END
 
-class CVideoPlayer : public IMainVideoPlayer
+class CVideoPlayer final : public IMainVideoPlayer
 {
 	int stream;					// stream index in video
 	AVFormatContext *format;

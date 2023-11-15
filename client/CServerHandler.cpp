@@ -1021,7 +1021,8 @@ void CServerHandler::threadRunServer()
 void CServerHandler::onServerFinished()
 {
 	threadRunLocalServer.reset();
-	CSH->campaignServerRestartLock.setn(false);
+	if (CSH)
+		CSH->campaignServerRestartLock.setn(false);
 }
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const

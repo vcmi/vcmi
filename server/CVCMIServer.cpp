@@ -445,6 +445,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 		try
 		{
 			pack = c->retrievePack();
+			pack->c = c;
 		}
 		catch(boost::system::system_error & e)
 		{

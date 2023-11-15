@@ -23,8 +23,9 @@ protected:
 	bool initialized;
 	int volume;					// from 0 (mute) to 100
 
-public:
 	CAudioBase(): initialized(false), volume(0) {};
+	~CAudioBase() = default;
+public:
 	virtual void init() = 0;
 	virtual void release() = 0;
 
@@ -32,7 +33,7 @@ public:
 	ui32 getVolume() const { return volume; };
 };
 
-class CSoundHandler: public CAudioBase
+class CSoundHandler final : public CAudioBase
 {
 private:
 	//update volume on configuration change
@@ -124,7 +125,7 @@ public:
 	bool stop(int fade_ms=0);
 };
 
-class CMusicHandler: public CAudioBase
+class CMusicHandler final: public CAudioBase
 {
 private:
 	//update volume on configuration change

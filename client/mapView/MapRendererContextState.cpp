@@ -34,8 +34,10 @@ MapRendererContextState::MapRendererContextState()
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
+	logGlobal->debug("Loading map objects");
 	for(const auto & obj : CGI->mh->getMap()->objects)
 		addObject(obj);
+	logGlobal->debug("Done loading map objects");
 }
 
 void MapRendererContextState::addObject(const CGObjectInstance * obj)

@@ -316,6 +316,8 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 	auto heapFunctor = static_cast<std::function<void()>*>(current.data1);
 
 	(*heapFunctor)();
+
+	delete heapFunctor;
 }
 
 const Point & InputHandler::getCursorPosition() const

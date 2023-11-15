@@ -327,13 +327,21 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	{
 		// hero starts with default spellbook presence status
 		if(!getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
-			putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+		{
+			auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK);
+			cb->gameState()->map->addNewArtifactInstance(artifact);
+			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
+		}
 	}
 	else
 		spells -= SpellID::SPELLBOOK_PRESET;
 
 	if(!getArt(ArtifactPosition::MACH4))
-		putArtifact(ArtifactPosition::MACH4, ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT)); //everyone has a catapult
+	{
+		auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT);
+		cb->gameState()->map->addNewArtifactInstance(artifact);
+		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
+	}
 
 	if(!hasBonus(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)))
 	{
@@ -448,7 +456,11 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 				ArtifactPosition slot = art->getPossibleSlots().at(ArtBearer::HERO).front();
 
 				if(!getArt(slot))
-					putArtifact(slot, ArtifactUtils::createNewArtifactInstance(aid));
+				{
+					auto artifact = ArtifactUtils::createNewArtifactInstance(aid);
+					cb->gameState()->map->addNewArtifactInstance(artifact);
+					putArtifact(slot, artifact);
+				}
 				else
 					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTranslated(), slot.toEnum(), aid.toEnum());
 			}

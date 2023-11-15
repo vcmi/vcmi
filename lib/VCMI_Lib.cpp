@@ -259,6 +259,11 @@ void LibClasses::clear()
 	delete battlefieldsHandler;
 	delete generaltexth;
 	delete identifiersHandler;
+	delete obstacleHandler;
+	delete terrainTypeHandler;
+	delete riverTypeHandler;
+	delete roadTypeHandler;
+	delete settingsHandler;
 	makeNull();
 }
 
@@ -282,6 +287,11 @@ void LibClasses::makeNull()
 #endif
 	battlefieldsHandler = nullptr;
 	identifiersHandler = nullptr;
+	obstacleHandler = nullptr;
+	terrainTypeHandler = nullptr;
+	riverTypeHandler = nullptr;
+	roadTypeHandler = nullptr;
+	settingsHandler = nullptr;
 }
 
 LibClasses::LibClasses()

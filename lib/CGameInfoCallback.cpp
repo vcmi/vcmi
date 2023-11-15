@@ -726,12 +726,6 @@ CGameInfoCallback::CGameInfoCallback(CGameState * GS):
 {
 }
 
-std::shared_ptr<const boost::multi_array<ui8, 3>> CPlayerSpecificInfoCallback::getVisibilityMap() const
-{
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->getPlayerTeam(*getPlayerID())->fogOfWarMap;
-}
-
 int CPlayerSpecificInfoCallback::howManyTowns() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
