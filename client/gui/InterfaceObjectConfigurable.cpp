@@ -501,12 +501,25 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto position = readPosition(config["position"]);
 	int length = config["size"].Integer();
 	auto style = config["style"].String() == "brown" ? CSlider::BROWN : CSlider::BLUE;
-	auto itemsVisible = config["itemsVisible"].Integer();
-	auto itemsTotal = config["itemsTotal"].Integer();
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
-	const auto & result =
-		std::make_shared<CSlider>(position, length, callbacks_int.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
+	auto orientation = horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL;
+
+	std::shared_ptr<CSlider> result;
+
+	if (config["items"].isNull())
+	{
+		auto itemsVisible = config["itemsVisible"].Integer();
+		auto itemsTotal = config["itemsTotal"].Integer();
+
+		result = std::make_shared<CSlider>(position, length, callbacks_int.at(config["callback"].String()), itemsVisible, itemsTotal, value, orientation, style);
+	}
+	else
+	{
+		auto items = config["items"].convertTo<std::vector<int>>();
+		result = std::make_shared<SliderNonlinear>(position, length, callbacks_int.at(config["callback"].String()), items, value, orientation, style);
+	}
+
 
 	if(!config["scrollBounds"].isNull())
 	{

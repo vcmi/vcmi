@@ -30,7 +30,7 @@ struct DLL_LINKAGE SimturnsInfo
 	/// Maximum number of turns that might be played simultaneously unless contact is detected
 	int optionalTurns = 0;
 	/// If set to true, human and 1 AI can act at the same time
-	bool allowHumanWithAI = true;
+	bool allowHumanWithAI = false;
 
 	template <typename Handler>
 	void serialize(Handler &h, const int version)

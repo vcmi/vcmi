@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include "OptionsTabBase.h"
 #include "../windows/CWindowObject.h"
 #include "../widgets/Scrollable.h"
-#include "../gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerSettings;
@@ -30,7 +30,7 @@ class CButton;
 class FilledTexturePlayerColored;
 
 /// The options tab which is shown at the map selection phase.
-class OptionsTab : public InterfaceObjectConfigurable
+class OptionsTab : public OptionsTabBase
 {
 	struct PlayerOptionsEntry;
 	

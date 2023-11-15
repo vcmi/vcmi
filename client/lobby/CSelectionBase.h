@@ -26,6 +26,7 @@ class CAnimImage;
 class CToggleGroup;
 class RandomMapTab;
 class OptionsTab;
+class TurnOptionsTab;
 class SelectionTab;
 class InfoCard;
 class CChatBox;
@@ -57,12 +58,14 @@ public:
 	std::shared_ptr<CButton> buttonSelect;
 	std::shared_ptr<CButton> buttonRMG;
 	std::shared_ptr<CButton> buttonOptions;
+	std::shared_ptr<CButton> buttonTurnOptions;
 	std::shared_ptr<CButton> buttonStart;
 	std::shared_ptr<CButton> buttonBack;
 	std::shared_ptr<CButton> buttonSimturns;
 
 	std::shared_ptr<SelectionTab> tabSel;
 	std::shared_ptr<OptionsTab> tabOpt;
+	std::shared_ptr<TurnOptionsTab> tabTurnOptions;
 	std::shared_ptr<RandomMapTab> tabRand;
 	std::shared_ptr<CIntObject> curTab;
 

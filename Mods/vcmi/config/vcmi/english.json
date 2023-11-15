@@ -220,14 +220,37 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team Alignments",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Road Types",
 
-	"vcmi.optionsTab.widgets.chessFieldBase.help" : "{Extra timer}\n\nStarts counting down when the {turn timer} reaches zero. It is set only once at the beginning of the game. When this timer reaches zero, the player's turn ends.",
-	"vcmi.optionsTab.widgets.chessFieldTurn.help" : "{Turn timer}\n\nStarts counting down when the player starts their turn on the adventure map. It is reset to its initial value at the start of each turn. Any unused turn time will be added to the {Extra timer} if it is in use.",
-	"vcmi.optionsTab.widgets.chessFieldBattle.help" : "{Battle timer}\n\nCounts down during battles when the {stack timer} reaches zero. It is reset to its initial value at the start of each battle. If the timer reaches zero, the currently active stack will defend.",
-	"vcmi.optionsTab.widgets.chessFieldCreature.help" : "{Stack timer}\n\nStarts counting down when the player is selecting an action for the current stack during battle. It resets to its initial value after the stack's action is completed.",
-	"vcmi.optionsTab.widgets.labelTimer" : "Timer",
-	"vcmi.optionsTab.widgets.timerModeSwitch.classic" : "Classic timer",
-	"vcmi.optionsTab.widgets.timerModeSwitch.chess" : "Chess timer",
+	"vcmi.optionsTab.turnOptions.hover" : "Turn Options",
+	"vcmi.optionsTab.turnOptions.help" : "Select turn timer and simultaneous turns options",
 
+	"vcmi.optionsTab.chessFieldBase.hover" : "Base timer",
+	"vcmi.optionsTab.chessFieldTurn.hover" : "Turn timer",
+	"vcmi.optionsTab.chessFieldBattle.hover" : "Battle timer",
+	"vcmi.optionsTab.chessFieldCreature.hover" : "Unit timer",
+	"vcmi.optionsTab.chessFieldBase.help" : "Used when {Turn Timer} reaches 0. Set once at game start. On reaching zero, ends current turn. Any ongoing combat with end with a loss.",
+	"vcmi.optionsTab.chessFieldTurn.help" : "Used out of combat or when {Battle Timer} runs out. Reset each turn. Leftover added to {Base Timer} at turn's end.",
+	"vcmi.optionsTab.chessFieldBattle.help" : "Used in battles with AI or in pvp combat when {Unit Timer} runs out. Reset at start of each combat.",
+	"vcmi.optionsTab.chessFieldCreature.help" : "Used when selecting unit action in pvp combat. Reset at start of each unit's turn.",
+
+	"vcmi.optionsTab.simturns" : "Simultaneous turns",
+	"vcmi.optionsTab.simturnsMin.hover" : "At least for",
+	"vcmi.optionsTab.simturnsMax.hover" : "At most for",
+	"vcmi.optionsTab.simturnsAI.hover" : "(Experimental) Simultaneous AI Turns",
+	"vcmi.optionsTab.simturnsMin.help" : "Play simultaneously for specified number of days. Contacts between players during this period are blocked",
+	"vcmi.optionsTab.simturnsMax.help" : "Play simultaneously for specified number of days or until contact with another player",
+	"vcmi.optionsTab.simturnsAI.help" : "{Simultaneous AI Turns}\nExperimental option. Allows AI players to act at the same time as human player when simultaneous turns are enabled.",
+	
+	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
+	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	"vcmi.optionsTab.simturns.days.0" : " %d days",
+	"vcmi.optionsTab.simturns.days.1" : " %d day",
+	"vcmi.optionsTab.simturns.days.2" : " %d days",
+	"vcmi.optionsTab.simturns.weeks.0" : " %d weeks",
+	"vcmi.optionsTab.simturns.weeks.1" : " %d week",
+	"vcmi.optionsTab.simturns.weeks.2" : " %d weeks",
+	"vcmi.optionsTab.simturns.months.0" : " %d months",
+	"vcmi.optionsTab.simturns.months.1" : " %d month",
+	"vcmi.optionsTab.simturns.months.2" : " %d months",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
