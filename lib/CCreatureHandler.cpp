@@ -27,18 +27,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const std::map<CCreature::CreatureQuantityId, std::string> CCreature::creatureQuantityRanges =
-{
-		{CCreature::CreatureQuantityId::FEW, "1-4"},
-		{CCreature::CreatureQuantityId::SEVERAL, "5-9"},
-		{CCreature::CreatureQuantityId::PACK, "10-19"},
-		{CCreature::CreatureQuantityId::LOTS, "20-49"},
-		{CCreature::CreatureQuantityId::HORDE, "50-99"},
-		{CCreature::CreatureQuantityId::THRONG, "100-249"},
-		{CCreature::CreatureQuantityId::SWARM, "250-499"},
-		{CCreature::CreatureQuantityId::ZOUNDS, "500-999"},
-		{CCreature::CreatureQuantityId::LEGION, "1000+"}
-};
+const unsigned CCreature::quantityRangeLowerBounds[] = {0, 1, 5, 10, 20, 50, 100, 250, 500, 1000};
+std::string CCreature::creatureQuantityRanges[(int)CCreature::CreatureQuantityId::LEGION+1];
 
 int32_t CCreature::getIndex() const
 {
@@ -209,47 +199,50 @@ std::string CCreature::getNameSingularTextID() const
 
 CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
 {
-	if (quantity<5)
-		return CCreature::CreatureQuantityId::FEW;
-	if (quantity<10)
-		return CCreature::CreatureQuantityId::SEVERAL;
-	if (quantity<20)
-		return CCreature::CreatureQuantityId::PACK;
-	if (quantity<50)
-		return CCreature::CreatureQuantityId::LOTS;
-	if (quantity<100)
-		return CCreature::CreatureQuantityId::HORDE;
-	if (quantity<250)
-		return CCreature::CreatureQuantityId::THRONG;
-	if (quantity<500)
-		return CCreature::CreatureQuantityId::SWARM;
-	if (quantity<1000)
-		return CCreature::CreatureQuantityId::ZOUNDS;
-
+	int quantityEnum = 0;
+	for (; quantityEnum < (int)CCreature::CreatureQuantityId::LEGION; ++quantityEnum) {
+		if (quantity < quantityRangeLowerBounds[quantityEnum+1])
+			return (CCreature::CreatureQuantityId) quantityEnum;
+	}
 	return CCreature::CreatureQuantityId::LEGION;
 }
 
-std::string CCreature::getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId)
+const std::string& CCreature::getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId)
 {
-	if(creatureQuantityRanges.find(quantityId) != creatureQuantityRanges.end())
-		return creatureQuantityRanges.at(quantityId);
+	unsigned quantityEnumInit = 0;
+	if (creatureQuantityRanges[quantityEnumInit].empty()) {
+		for (; quantityEnumInit < (int) CCreature::CreatureQuantityId::LEGION; ++quantityEnumInit)
+			creatureQuantityRanges[quantityEnumInit] = boost::str(
+				boost::format("%d-%d")
+				% quantityRangeLowerBounds[quantityEnumInit]
+				% (quantityRangeLowerBounds[quantityEnumInit+1]-1)
+			);
+		creatureQuantityRanges[quantityEnumInit] = boost::str(
+			boost::format("%d+")
+			% quantityRangeLowerBounds[quantityEnumInit]
+		);
+	}
 
-	logGlobal->error("Wrong quantityId: %d", (int)quantityId);
-	assert(0);
-	return "[ERROR]";
+	unsigned quantityEnum = (unsigned) quantityId;
+	if (quantityEnum >(int) CCreature::CreatureQuantityId::LEGION) {
+		logGlobal->error("Wrong quantityId: %d", quantityEnum);
+		assert(0);
+		quantityEnum = (unsigned) CCreature::CreatureQuantityId::LEGION;
+	}
+
+	return creatureQuantityRanges[quantityEnum];
 }
 
-int CCreature::estimateCreatureCount(ui32 countID)
+int CCreature::estimateCreatureCount(CCreature::CreatureQuantityId quantityId)
 {
-	static const int creature_count[] = { 0, 3, 8, 15, 35, 75, 175, 375, 750, 2500 };
+	unsigned quantityEnum = (unsigned) quantityId;
+	if (quantityEnum > (int)CreatureQuantityId::LEGION)
+		logGlobal->error("Wrong countID %d!", quantityEnum);
 
-	if(countID > 9)
-	{
-		logGlobal->error("Wrong countID %d!", countID);
-		return 0;
-	}
-	else
-		return creature_count[countID];
+	if (quantityEnum >= (int)CreatureQuantityId::LEGION)
+		return (int) quantityRangeLowerBounds[(int)CreatureQuantityId::LEGION] * maxQuantityEstimationMuliplier;
+
+	return (quantityRangeLowerBounds[quantityEnum] + quantityRangeLowerBounds[quantityEnum+1]+1)/2;
 }
 
 bool CCreature::isDoubleWide() const
