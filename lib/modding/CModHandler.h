@@ -21,6 +21,7 @@ class CIdentifierStorage;
 class CContentHandler;
 struct ModVerificationInfo;
 class ResourcePath;
+class MetaString;
 
 using TModID = std::string;
 
@@ -29,6 +30,7 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	std::map <TModID, CModInfo> allMods;
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 	std::unique_ptr<CModInfo> coreMod;
+	mutable std::unique_ptr<MetaString> modLoadErrors;
 
 	bool hasCircularDependency(const TModID & mod, std::set<TModID> currentList = std::set<TModID>()) const;
 
@@ -60,15 +62,18 @@ public:
 	void loadModFilesystems();
 
 	/// returns ID of mod that provides selected file resource
-	TModID findResourceOrigin(const ResourcePath & name);
+	TModID findResourceOrigin(const ResourcePath & name) const;
 
 	std::string getModLanguage(const TModID & modId) const;
 
 	std::set<TModID> getModDependencies(const TModID & modId, bool & isModFound) const;
 
 	/// returns list of all (active) mods
-	std::vector<std::string> getAllMods();
-	std::vector<std::string> getActiveMods();
+	std::vector<std::string> getAllMods() const;
+	std::vector<std::string> getActiveMods() const;
+
+	/// Returns human-readable string that describes erros encounter during mod loading, such as missing dependencies
+	std::string getModLoadErrors() const;
 	
 	const CModInfo & getModInfo(const TModID & modId) const;
 
