@@ -34,6 +34,8 @@ class CTutorialWindow : public CWindowObject
 	std::shared_ptr<CLabel> labelTitle;
 	std::shared_ptr<CMultiLineLabel> labelInformation;
 
+	std::string video;
+
 	void close();
 	void next();
 	void previous();
@@ -41,4 +43,8 @@ class CTutorialWindow : public CWindowObject
 public:
 	CTutorialWindow(const TutorialMode & m);
 	static void openWindowFirstTime(const TutorialMode & m);	
+
+	void show(Canvas & to) override;
+	void activate() override;
+	void deactivate() override;
 };

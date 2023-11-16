@@ -14,6 +14,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CondSh.h"
 #include "../CPlayerInterface.h"
+#include "../CGameInfo.h"
+#include "../CVideoHandler.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -21,6 +23,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
+#include "../render/Canvas.h"
 
 CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	: CWindowObject(BORDERED, ImagePath::builtin("DIBOXBCK")), mode { m }
@@ -75,4 +78,30 @@ void CTutorialWindow::next()
 void CTutorialWindow::previous()
 {
 	
+}
+
+void CTutorialWindow::show(Canvas & to)
+{
+	CCS->videoh->update(pos.x + 200, pos.y + 200, to.getInternalSurface(), true, false,
+	[&]()
+	{
+		CCS->videoh->close();
+		CCS->videoh->open(VideoPath::builtin(video));
+	});
+	redraw();
+
+	CIntObject::show(to);
+}
+
+void CTutorialWindow::activate()
+{
+	video = "tutorial/BattleDirection";
+
+	CCS->videoh->open(VideoPath::builtin(video));
+	CIntObject::activate();
+}
+
+void CTutorialWindow::deactivate()
+{
+	CCS->videoh->close();
 }
