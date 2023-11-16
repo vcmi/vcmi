@@ -123,15 +123,16 @@ namespace GameConstants
 
 si32 HeroClassID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "heroClass", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "heroClass", identifier);
+	return rawId.value();
 }
 
 std::string HeroClassID::encode(const si32 index)
 {
+	if (index == -1)
+		return "";
 	return VLC->heroClasses()->getByIndex(index)->getJsonKey();
 }
 
@@ -162,29 +163,50 @@ std::string CampaignScenarioID::encode(const si32 index)
 
 std::string MapObjectID::encode(int32_t index)
 {
+	if (index == -1)
+		return "";
 	return VLC->objtypeh->getObjectHandlerName(MapObjectID(index));
 }
 
 si32 MapObjectID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
+	return rawId.value();
+}
+
+std::string BoatId::encode(int32_t index)
+{
+	if (index == -1)
+		return "";
+	return VLC->objtypeh->getObjectHandlerName(MapObjectID(index));
+}
+
+si32 BoatId::decode(const std::string & identifier)
+{
+	if (identifier.empty())
+		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
+	return rawId.value();
 }
 
 si32 HeroTypeID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	if (identifier == "random")
+		return -2;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", identifier);
+	return rawId.value();
 }
 
 std::string HeroTypeID::encode(const si32 index)
 {
+	if (index == -1)
+		return "";
+	if (index == -2)
+		return "random";
 	return VLC->heroTypes()->getByIndex(index)->getJsonKey();
 }
 
@@ -205,15 +227,16 @@ const Artifact * ArtifactIDBase::toEntity(const Services * services) const
 
 si32 ArtifactID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", identifier);
+	return rawId.value();
 }
 
 std::string ArtifactID::encode(const si32 index)
 {
+	if (index == -1)
+		return "";
 	return VLC->artifacts()->getByIndex(index)->getJsonKey();
 }
 
@@ -224,15 +247,16 @@ std::string ArtifactID::entityType()
 
 si32 SecondarySkill::decode(const std::string& identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "secondarySkill", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "secondarySkill", identifier);
+	return rawId.value();
 }
 
 std::string SecondarySkill::encode(const si32 index)
 {
+	if (index == -1)
+		return "";
 	return VLC->skills()->getById(SecondarySkill(index))->getJsonKey();
 }
 
@@ -263,15 +287,16 @@ const Creature * CreatureIDBase::toEntity(const CreatureService * creatures) con
 
 si32 CreatureID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", identifier);
+	return rawId.value();
 }
 
 std::string CreatureID::encode(const si32 index)
 {
+	if (index == -1)
+		return "";
 	return VLC->creatures()->getById(CreatureID(index))->getJsonKey();
 }
 
@@ -312,11 +337,10 @@ const HeroType * HeroTypeID::toEntity(const Services * services) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
+	return rawId.value();
 }
 
 std::string SpellID::encode(const si32 index)
@@ -326,11 +350,10 @@ std::string SpellID::encode(const si32 index)
 
 si32 BattleField::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return -1;
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
+	return rawId.value();
 }
 
 std::string BattleField::encode(const si32 index)
@@ -399,15 +422,17 @@ std::string PrimarySkill::entityType()
 
 si32 FactionID::decode(const std::string & identifier)
 {
+	if (identifier.empty())
+		return -1;
+
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
-	if(rawId)
-		return rawId.value();
-	else
-		return FactionID::DEFAULT.getNum();
+	return rawId.value();
 }
 
 std::string FactionID::encode(const si32 index)
 {
+	if (index == -1)
+		return "";
 	return VLC->factions()->getByIndex(index)->getJsonKey();
 }
 
@@ -423,21 +448,65 @@ const Faction * FactionID::toEntity(const Services * service) const
 
 si32 TerrainId::decode(const std::string & identifier)
 {
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
-	if(rawId)
-		return rawId.value();
-	else
+	if (identifier.empty())
 		return static_cast<si32>(TerrainId::NONE);
+
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+	return rawId.value();
 }
 
 std::string TerrainId::encode(const si32 index)
 {
+	if (index == TerrainId::NONE)
+		return "";
 	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
 }
 
 std::string TerrainId::entityType()
 {
 	return "terrain";
+}
+
+si32 RoadId::decode(const std::string & identifier)
+{
+	if (identifier.empty())
+		return RoadId::NO_ROAD.getNum();
+
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+	return rawId.value();
+}
+
+std::string RoadId::encode(const si32 index)
+{
+	if (index == RoadId::NO_ROAD.getNum())
+		return "";
+	return VLC->roadTypeHandler->getByIndex(index)->getJsonKey();
+}
+
+std::string RoadId::entityType()
+{
+	return "road";
+}
+
+si32 RiverId::decode(const std::string & identifier)
+{
+	if (identifier.empty())
+		return RiverId::NO_RIVER.getNum();
+
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+	return rawId.value();
+}
+
+std::string RiverId::encode(const si32 index)
+{
+	if (index == RiverId::NO_RIVER.getNum())
+		return "";
+	return VLC->riverTypeHandler->getByIndex(index)->getJsonKey();
+}
+
+std::string RiverId::entityType()
+{
+	return "road";
 }
 
 const TerrainType * TerrainId::toEntity(const Services * service) const

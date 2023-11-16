@@ -53,10 +53,10 @@ enum class ObjProperty : int8_t
 	REWARD_CLEARED
 };
 
-class NumericID : public Identifier<NumericID>
+class NumericID : public StaticIdentifier<NumericID>
 {
 public:
-	using Identifier<NumericID>::Identifier;
+	using StaticIdentifier<NumericID>::StaticIdentifier;
 
 	static si32 decode(const std::string & identifier)
 	{
