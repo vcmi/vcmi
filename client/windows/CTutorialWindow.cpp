@@ -13,6 +13,7 @@
 #include "../eventsSDL/InputHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CondSh.h"
+#include "../../lib/CGeneralTextHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 #include "../CVideoHandler.h"
@@ -42,8 +43,9 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	if(mode == TutorialMode::TOUCH_ADVENTUREMAP) videos = { "RightClick", "MapPanning", "MapZooming" };
 	else if(mode == TutorialMode::TOUCH_BATTLE) videos = { "BattleDirection", "BattleDirectionAbort", "AbortSpell" };
 
-	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Touchscreen Intro");
-	buttonOk = std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::close, this), EShortcut::GLOBAL_ACCEPT); //62x28
+	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.tutorialWindow.title"));
+	labelInformation = std::make_shared<CMultiLineLabel>(Rect(5, 40, 370, 60), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "");
+	buttonOk = std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::exit, this), EShortcut::GLOBAL_ACCEPT); //62x28
 	buttonLeft = std::make_shared<CButton>(Point(5, 217), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), std::bind(&CTutorialWindow::previous, this), EShortcut::MOVE_LEFT); //22x46
 	buttonRight = std::make_shared<CButton>(Point(352, 217), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), std::bind(&CTutorialWindow::next, this), EShortcut::MOVE_RIGHT); //22x46
 
@@ -57,7 +59,7 @@ void CTutorialWindow::setContent()
 	buttonLeft->block(page<1);
 	buttonRight->block(page>videos.size() - 2);
 
-	labelInformation = std::make_shared<CMultiLineLabel>(Rect(5, 40, 370, 60), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.");
+	labelInformation->setText(CGI->generaltexth->translate("vcmi.tutorialWindow.decription." + videos[page]));
 }
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
@@ -73,12 +75,12 @@ void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 	}
 }
 
-void CTutorialWindow::close()
+void CTutorialWindow::exit()
 {
 	if(LOCPLINT)
 		LOCPLINT->showingDialog->setn(false);
 
-	WindowBase::close();
+	close();
 }
 
 void CTutorialWindow::next()

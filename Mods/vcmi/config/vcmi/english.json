@@ -172,6 +172,14 @@
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
 
+	"vcmi.tutorialWindow.title" : "Touchscreen Introduction",
+	"vcmi.tutorialWindow.decription.RightClick" : "Touch and hold the element on which you want to right-click. Touch the free area to close.",
+	"vcmi.tutorialWindow.decription.MapPanning" : "Panning with one finger to move the map.",
+	"vcmi.tutorialWindow.decription.MapZooming" : "Pinching with two fingers to zoom the map. Standard zoom has a snap-in effect.",
+	"vcmi.tutorialWindow.decription.BattleDirection" : "To attack from a defined side, swipe in the corresponding direction from which the attack is to be made.",
+	"vcmi.tutorialWindow.decription.BattleDirectionAbort" : "The attack direction gesture can be canceled if the finger is far enough away.",
+	"vcmi.tutorialWindow.decription.AbortSpell" : "A spell can be canceled by touching and holding.",
+
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Show Available Creatures",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Show Available Creatures}\n\nShow the number of creatures available to purchase instead of their growth in town summary (bottom-left corner of town screen).",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Show Weekly Growth of Creatures",

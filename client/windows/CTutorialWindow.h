@@ -39,7 +39,7 @@ class CTutorialWindow : public CWindowObject
 
 	int page;
 
-	void close();
+	void exit();
 	void next();
 	void previous();
 	void setContent();
