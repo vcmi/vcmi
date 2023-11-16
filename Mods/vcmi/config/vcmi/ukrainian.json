@@ -73,6 +73,8 @@
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
 	"vcmi.server.errors.modsToDisable"   : "{Модифікації що мають бути вимкнені}",
 	"vcmi.server.confirmReconnect"       : "Підключитися до минулої сесії?",
+	"vcmi.server.errors.modNoDependency" : "Не вдалося увімкнути мод {'%s'}!\n Модифікація потребує мод {'%s'} який зараз не активний!\n",
+	"vcmi.server.errors.modConflict" : "Не вдалося увімкнути мод {'%s'}!\n Конфліктує з активним модом {'%s'}!\n",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Загальні",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Перемикає на вкладку загальних параметрів, яка містить налаштування, пов'язані із загальною поведінкою ігрового клієнта",

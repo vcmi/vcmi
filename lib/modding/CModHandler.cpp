@@ -21,6 +21,7 @@
 #include "../CStopWatch.h"
 #include "../GameSettings.h"
 #include "../Languages.h"
+#include "../MetaString.h"
 #include "../ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
@@ -133,6 +134,24 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		break;
 	}
 
+	modLoadErrors = std::make_unique<MetaString>();
+
+	auto addErrorMessage = [this](const std::string & textID, const std::string & brokenModID, const std::string & missingModID)
+	{
+		modLoadErrors->appendTextID(textID);
+
+		if (allMods.count(brokenModID))
+			modLoadErrors->replaceRawString(allMods.at(brokenModID).getVerificationInfo().name);
+		else
+			modLoadErrors->replaceRawString(brokenModID);
+
+		if (allMods.count(missingModID))
+			modLoadErrors->replaceRawString(allMods.at(missingModID).getVerificationInfo().name);
+		else
+			modLoadErrors->replaceRawString(missingModID);
+
+	};
+
 	// Left mods have unresolved dependencies, output all to log.
 	for(const auto & brokenModID : modsToResolve)
 	{
@@ -140,17 +159,17 @@ std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModI
 		for(const TModID & dependency : brokenMod.dependencies)
 		{
 			if(!vstd::contains(resolvedModIDs, dependency) && brokenMod.config["modType"].String() != "Compatibility")
-				logMod->error("Mod '%s' has been disabled: dependency '%s' is missing.", brokenMod.getVerificationInfo().name, dependency);
+				addErrorMessage("vcmi.server.errors.modNoDependency", brokenModID, dependency);
 		}
 		for(const TModID & conflict : brokenMod.conflicts)
 		{
 			if(vstd::contains(resolvedModIDs, conflict))
-				logMod->error("Mod '%s' has been disabled: conflicts with enabled mod '%s'.", brokenMod.getVerificationInfo().name, conflict);
+				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, conflict);
 		}
 		for(const TModID & reverseConflict : resolvedModIDs)
 		{
 			if (vstd::contains(allMods.at(reverseConflict).conflicts, brokenModID))
-				logMod->error("Mod '%s' has been disabled: conflicts with enabled mod '%s'.", brokenMod.getVerificationInfo().name, reverseConflict);
+				addErrorMessage("vcmi.server.errors.modConflict", brokenModID, reverseConflict);
 		}
 	}
 	return sortedValidMods;
@@ -235,7 +254,7 @@ void CModHandler::loadMods(bool onlyEssential)
 	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")));
 }
 
-std::vector<std::string> CModHandler::getAllMods()
+std::vector<std::string> CModHandler::getAllMods() const
 {
 	std::vector<std::string> modlist;
 	modlist.reserve(allMods.size());
@@ -244,9 +263,14 @@ std::vector<std::string> CModHandler::getAllMods()
 	return modlist;
 }
 
-std::vector<std::string> CModHandler::getActiveMods()
+std::vector<std::string> CModHandler::getActiveMods() const
 {
 	return activeMods;
+}
+
+std::string CModHandler::getModLoadErrors() const
+{
+	return modLoadErrors->toString();
 }
 
 const CModInfo & CModHandler::getModInfo(const TModID & modId) const
@@ -320,7 +344,7 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-TModID CModHandler::findResourceOrigin(const ResourcePath & name)
+TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 {
 	for(const auto & modID : boost::adaptors::reverse(activeMods))
 	{

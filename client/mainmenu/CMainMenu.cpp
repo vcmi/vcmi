@@ -49,6 +49,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/modding/CModHandler.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
@@ -337,6 +338,17 @@ void CMainMenu::update()
 		GH.windows().pushWindow(CMM);
 		GH.windows().pushWindow(menu);
 		menu->switchToTab(menu->getActiveTab());
+	}
+
+	static bool warnedAboutModDependencies = false;
+
+	if (!warnedAboutModDependencies)
+	{
+		warnedAboutModDependencies = true;
+		auto errorMessages = CGI->modh->getModLoadErrors();
+
+		if (!errorMessages.empty())
+			CInfoWindow::showInfoDialog(errorMessages, std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 	}
 
 	// Handles mouse and key input
