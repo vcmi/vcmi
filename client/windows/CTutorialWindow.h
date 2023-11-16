@@ -35,10 +35,14 @@ class CTutorialWindow : public CWindowObject
 	std::shared_ptr<CMultiLineLabel> labelInformation;
 
 	std::string video;
+	std::vector<std::string> videos;
+
+	int page;
 
 	void close();
 	void next();
 	void previous();
+	void setContent();
 
 public:
 	CTutorialWindow(const TutorialMode & m);

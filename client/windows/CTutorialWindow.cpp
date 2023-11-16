@@ -26,11 +26,11 @@
 #include "../render/Canvas.h"
 
 CTutorialWindow::CTutorialWindow(const TutorialMode & m)
-	: CWindowObject(BORDERED, ImagePath::builtin("DIBOXBCK")), mode { m }
+	: CWindowObject(BORDERED, ImagePath::builtin("DIBOXBCK")), mode { m }, page { 0 }
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	pos = Rect(pos.x, pos.y, 540, 400); //video: 480x320
+	pos = Rect(pos.x, pos.y, 380, 400); //video: 320x240
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
 
 	updateShadow();
@@ -39,14 +39,25 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 
 	addUsedEvents(LCLICK);
 
-	buttonOk = std::make_shared<CButton>(Point(239, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::close, this), EShortcut::GLOBAL_ACCEPT); //62x28
-	buttonLeft = std::make_shared<CButton>(Point(5, 177), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), std::bind(&CTutorialWindow::previous, this), EShortcut::MOVE_LEFT); //22x46
-	buttonRight = std::make_shared<CButton>(Point(513, 177), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), std::bind(&CTutorialWindow::next, this), EShortcut::MOVE_RIGHT); //22x46
+	if(mode == TutorialMode::TOUCH_ADVENTUREMAP) videos = { "RightClick", "MapPanning", "MapZooming" };
+	else if(mode == TutorialMode::TOUCH_BATTLE) videos = { "BattleDirection", "BattleDirectionAbort", "AbortSpell" };
 
-	buttonLeft->block(true);
+	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Touchscreen Intro");
+	buttonOk = std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::close, this), EShortcut::GLOBAL_ACCEPT); //62x28
+	buttonLeft = std::make_shared<CButton>(Point(5, 217), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), std::bind(&CTutorialWindow::previous, this), EShortcut::MOVE_LEFT); //22x46
+	buttonRight = std::make_shared<CButton>(Point(352, 217), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), std::bind(&CTutorialWindow::next, this), EShortcut::MOVE_RIGHT); //22x46
 
-	labelTitle = std::make_shared<CLabel>(270, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Touchscreen Intro");
-	labelInformation = std::make_shared<CMultiLineLabel>(Rect(5, 50, 530, 60), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.");
+	setContent();
+}
+
+void CTutorialWindow::setContent()
+{
+	video = "tutorial/" + videos[page];
+
+	buttonLeft->block(page<1);
+	buttonRight->block(page>videos.size() - 2);
+
+	labelInformation = std::make_shared<CMultiLineLabel>(Rect(5, 40, 370, 60), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.");
 }
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
@@ -72,31 +83,34 @@ void CTutorialWindow::close()
 
 void CTutorialWindow::next()
 {
-
+	page++;
+	setContent();
+	deactivate();
+	activate();
 }
 
 void CTutorialWindow::previous()
 {
-	
+	page--;
+	setContent();
+	deactivate();
+	activate();
 }
 
 void CTutorialWindow::show(Canvas & to)
 {
-	CCS->videoh->update(pos.x + 200, pos.y + 200, to.getInternalSurface(), true, false,
+	CCS->videoh->update(pos.x + 30, pos.y + 120, to.getInternalSurface(), true, false,
 	[&]()
 	{
 		CCS->videoh->close();
 		CCS->videoh->open(VideoPath::builtin(video));
 	});
-	redraw();
 
 	CIntObject::show(to);
 }
 
 void CTutorialWindow::activate()
 {
-	video = "tutorial/BattleDirection";
-
 	CCS->videoh->open(VideoPath::builtin(video));
 	CIntObject::activate();
 }
