@@ -345,7 +345,7 @@ bool RmgMap::isAllowedSpell(const SpellID & sid) const
 	assert(sid.getNum() >= 0);
 	if (sid.getNum() < mapInstance->allowedSpells.size())
 	{
-		return mapInstance->allowedSpells[sid];
+		return mapInstance->allowedSpells.count(sid);
 	}
 	else
 		return false;

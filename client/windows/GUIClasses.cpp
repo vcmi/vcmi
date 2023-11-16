@@ -1156,10 +1156,10 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	clerkSpeech = std::make_shared<CTextBox>(speechStr, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	title = std::make_shared<CLabel>(231, 26, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
 
-	std::vector<int> goods = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
+	std::vector<TradeItemBuy> goods = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
 
 	for(int i=0; i<goods.size(); i++)//prepare clickable items
-		items.push_back(std::make_shared<CItem>(this, goods[i], 54+i*104, 234));
+		items.push_back(std::make_shared<CItem>(this, goods[i].as<SecondarySkill>(), 54+i*104, 234));
 
 	cancel = std::make_shared<CButton>(Point(200, 313), AnimationPath::builtin("IOKAY.DEF"), CGI->generaltexth->zelp[632], [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
@@ -1579,7 +1579,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	counter = 0;
 	for(auto & it : tgi.bestCreature)
 	{
-		if(it.second >= 0)
+		if(it.second != CreatureID::NONE)
 			bestCreatures.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), it.second+2, 0, 255 + 66 * counter, 479));
 		counter++;
 	}

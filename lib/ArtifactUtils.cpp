@@ -216,7 +216,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifa
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const ArtifactID & aid)
 {
-	return ArtifactUtils::createNewArtifactInstance(VLC->arth->objects[aid]);
+	return ArtifactUtils::createNewArtifactInstance((*VLC->arth)[aid]);
 }
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)

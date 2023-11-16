@@ -142,14 +142,14 @@ class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtif
 {
 public:
 	/// List of artifacts allowed on the map
-	std::vector<CArtifact *> allowedArtifacts;
+	std::vector<const CArtifact *> allowedArtifacts;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
 	static CArtifact::EartClass stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
 
 	bool legalArtifact(const ArtifactID & id);
-	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
+	void initAllowedArtifactsList(const std::set<ArtifactID> & allowed);
 	static void makeItCreatureArt(CArtifact * a, bool onlyCreature = true);
 	static void makeItCommanderArt(CArtifact * a, bool onlyCommander = true);
 
@@ -161,7 +161,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
+	std::set<ArtifactID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

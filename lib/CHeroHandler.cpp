@@ -393,11 +393,6 @@ void CHeroClassHandler::afterLoadFinalization()
 	}
 }
 
-std::vector<bool> CHeroClassHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>(size(), true);
-}
-
 CHeroClassHandler::~CHeroClassHandler() = default;
 
 CHeroHandler::~CHeroHandler() = default;
@@ -523,7 +518,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 
 		for (auto const & upgradeSourceID : oldTargets)
 		{
-			const CCreature * upgradeSource = VLC->creh->objects[upgradeSourceID];
+			const CCreature * upgradeSource = upgradeSourceID.toCreature();
 			targets.insert(upgradeSource->upgrades.begin(), upgradeSource->upgrades.end());
 		}
 
@@ -533,7 +528,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 
 	for(CreatureID cid : targets)
 	{
-		const CCreature &specCreature = *VLC->creh->objects[cid];
+		auto const & specCreature = *cid.toCreature();
 		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
 
 		{
@@ -763,18 +758,15 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 	}
 }
 
-std::vector<bool> CHeroHandler::getDefaultAllowed() const
+std::set<HeroTypeID> CHeroHandler::getDefaultAllowed() const
 {
-	// Look Data/HOTRAITS.txt for reference
-	std::vector<bool> allowedHeroes;
-	allowedHeroes.reserve(size());
+	std::set<HeroTypeID> result;
 
 	for(const CHero * hero : objects)
-	{
-		allowedHeroes.push_back(hero && !hero->special);
-	}
+		if (hero && !hero->special)
+			result.insert(hero->getId());
 
-	return allowedHeroes;
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

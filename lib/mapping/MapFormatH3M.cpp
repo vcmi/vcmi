@@ -268,7 +268,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			{
 				SHeroName vv;
 				vv.heroId = reader->readHero();
-				vv.heroName = readLocalizedString(TextIdentifier("header", "heroNames", vv.heroId));
+				vv.heroName = readLocalizedString(TextIdentifier("header", "heroNames", vv.heroId.getNum()));
 
 				playerInfo.heroesNames.push_back(vv);
 			}
@@ -381,7 +381,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::GATHERRESOURCE:
 			{
 				EventCondition cond(EventCondition::HAVE_RESOURCES);
-				cond.objectType = reader->readUInt8();
+				cond.objectType = reader->readGameResID();
 				cond.value = reader->readInt32();
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.279");
@@ -397,9 +397,9 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventExpression::OperatorAll oper;
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.position = reader->readInt3();
-				cond.objectType = BuildingID::TOWN_HALL + reader->readUInt8();
+				cond.objectType = BuildingID::HALL_LEVEL(reader->readUInt8() + 1);
 				oper.expressions.emplace_back(cond);
-				cond.objectType = BuildingID::FORT + reader->readUInt8();
+				cond.objectType = BuildingID::FORT_LEVEL(reader->readUInt8());
 				oper.expressions.emplace_back(cond);
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.283");
@@ -414,7 +414,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				assert(allowNormalVictory == true); // not selectable in editor
 				assert(appliesToAI == true); // not selectable in editor
 				EventCondition cond(EventCondition::HAVE_BUILDING);
-				cond.objectType = BuildingID::GRAIL;
+				cond.objectType = BuildingID(BuildingID::GRAIL);
 				cond.position = reader->readInt3();
 				if(cond.position.z > 2)
 					cond.position = int3(-1, -1, -1);
@@ -433,7 +433,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				allowNormalVictory = true; // H3 behavior
 				assert(appliesToAI == false); // not selectable in editor
 				EventCondition cond(EventCondition::DESTROY);
-				cond.objectType = Obj::HERO;
+				cond.objectType = MapObjectID(MapObjectID::HERO);
 				cond.position = reader->readInt3();
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.253");
@@ -446,7 +446,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::CAPTURECITY:
 			{
 				EventCondition cond(EventCondition::CONTROL);
-				cond.objectType = Obj::TOWN;
+				cond.objectType = MapObjectID(MapObjectID::TOWN);
 				cond.position = reader->readInt3();
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.250");
@@ -460,7 +460,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				assert(appliesToAI == true); // not selectable in editor
 				EventCondition cond(EventCondition::DESTROY);
-				cond.objectType = Obj::MONSTER;
+				cond.objectType = MapObjectID(MapObjectID::MONSTER);
 				cond.position = reader->readInt3();
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.287");
@@ -473,8 +473,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::TAKEDWELLINGS:
 			{
 				EventExpression::OperatorAll oper;
-				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR1));
-				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR4));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj(Obj::CREATURE_GENERATOR1)));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj(Obj::CREATURE_GENERATOR4)));
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.289");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.288");
@@ -486,7 +486,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::TAKEMINES:
 			{
 				EventCondition cond(EventCondition::CONTROL);
-				cond.objectType = Obj::MINE;
+				cond.objectType = MapObjectID(MapObjectID::MINE);
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.291");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.290");
@@ -499,7 +499,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				assert(allowNormalVictory == true); // not selectable in editor
 				EventCondition cond(EventCondition::TRANSPORT);
-				cond.objectType = reader->readUInt8();
+				cond.objectType = reader->readArtifact8();
 				cond.position = reader->readInt3();
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.293");
@@ -513,7 +513,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				assert(appliesToAI == false); // not selectable in editor
 				EventCondition cond(EventCondition::DESTROY);
-				cond.objectType = Obj::MONSTER;
+				cond.objectType = MapObjectID(MapObjectID::MONSTER);
 
 				specialVictory.effect.toOtherMessage.appendTextID("vcmi.map.victoryCondition.eliminateMonsters.toOthers");
 				specialVictory.onFulfill.appendTextID("vcmi.map.victoryCondition.eliminateMonsters.toSelf");
@@ -602,7 +602,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
-				cond.objectType = Obj::TOWN;
+				cond.objectType = Obj(Obj::TOWN);
 				cond.position = reader->readInt3();
 
 				noneOf.expressions.emplace_back(cond);
@@ -616,7 +616,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
-				cond.objectType = Obj::HERO;
+				cond.objectType = Obj(Obj::HERO);
 				cond.position = reader->readInt3();
 
 				noneOf.expressions.emplace_back(cond);
@@ -692,7 +692,7 @@ void CMapLoaderH3M::readAllowedHeroes()
 		for (uint32_t i = 0; i < placeholdersQty; ++i)
 		{
 			auto heroID = reader->readHero();
-			mapHeader->reservedCampaignHeroes.push_back(heroID);
+			mapHeader->reservedCampaignHeroes.insert(heroID);
 		}
 	}
 }
@@ -707,8 +707,8 @@ void CMapLoaderH3M::readDisposedHeroes()
 		for(int g = 0; g < disp; ++g)
 		{
 			map->disposedHeroes[g].heroId = reader->readHero();
-			map->disposedHeroes[g].portrait.setNum(reader->readHeroPortrait());
-			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId));
+			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
+			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId.getNum()));
 			reader->readBitmaskPlayers(map->disposedHeroes[g].players, false);
 		}
 	}
@@ -764,13 +764,13 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	{
 		for(CArtifact * artifact : VLC->arth->objects)
 			if(artifact->isCombined())
-				map->allowedArtifact[artifact->getId()] = false;
+				map->allowedArtifact.erase(artifact->getId());
 	}
 
 	if(!features.levelAB)
 	{
-		map->allowedArtifact[ArtifactID::VIAL_OF_DRAGON_BLOOD] = false;
-		map->allowedArtifact[ArtifactID::ARMAGEDDONS_BLADE] = false;
+		map->allowedArtifact.erase(ArtifactID::VIAL_OF_DRAGON_BLOOD);
+		map->allowedArtifact.erase(ArtifactID::ARMAGEDDONS_BLADE);
 	}
 
 	// Messy, but needed
@@ -780,7 +780,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 		{
 			if(cond.condition == EventCondition::HAVE_ARTIFACT || cond.condition == EventCondition::TRANSPORT)
 			{
-				map->allowedArtifact[cond.objectType] = false;
+				map->allowedArtifact.erase(cond.objectType.as<ArtifactID>());
 			}
 			return cond;
 		};
@@ -1160,7 +1160,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 			auto defaultAllowed = VLC->skillh->getDefaultAllowed();
 
 			for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
-				if(defaultAllowed[skillID])
+				if(defaultAllowed.count(skillID))
 					allowedAbilities.insert(SecondarySkill(skillID));
 		}
 
@@ -2085,7 +2085,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			{
 				auto artid = reader->readArtifact();
 				guard->quest->mission.artifacts.push_back(artid);
-				map->allowedArtifact[artid] = false; //these are unavailable for random generation
+				map->allowedArtifact.erase(artid); //these are unavailable for random generation
 			}
 			break;
 		}
@@ -2095,7 +2095,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			guard->quest->mission.creatures.resize(typeNumber);
 			for(int hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->quest->mission.creatures[hh].type = VLC->creh->objects[reader->readCreature()];
+				guard->quest->mission.creatures[hh].type = reader->readCreature().toCreature();
 				guard->quest->mission.creatures[hh].count = reader->readUInt16();
 			}
 			break;
@@ -2212,7 +2212,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 		//add all spells from mods
 		for(int i = features.spellsCount; i < defaultAllowed.size(); ++i)
-			if(defaultAllowed[i])
+			if(defaultAllowed.count(i))
 				object->possibleSpells.emplace_back(i);
 	}
 

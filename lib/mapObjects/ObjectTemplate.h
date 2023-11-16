@@ -43,8 +43,8 @@ class DLL_LINKAGE ObjectTemplate
 
 public:
 	/// H3 ID/subID of this object
-	Obj id;
-	si32 subid;
+	MapObjectID id;
+	MapObjectSubID subid;
 	/// print priority, objects with higher priority will be print first, below everything else
 	si32 printPriority;
 	/// animation file that should be used to display object

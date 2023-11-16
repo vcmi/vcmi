@@ -44,13 +44,6 @@ public:
 	/// allows handler to do post-loading step for validation or integration of loaded data
 	virtual void afterLoadFinalization(){};
 
-	/**
-	 * Gets a list of objects that are allowed by default on maps
-	 *
-	 * @return a list of allowed objects, the index is the object id
-	 */
-	virtual std::vector<bool> getDefaultAllowed() const = 0;
-
 	virtual ~IHandlerBase(){}
 };
 

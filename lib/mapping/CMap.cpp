@@ -79,8 +79,9 @@ void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 		a.syncSize(temp);
 		for(int i = 0; i < temp.size(); ++i)
 		{
-			a.serializeInt(i, temp[i]);
-			buildings.insert(temp[i]);
+			int buildingID = temp[i].getNum();
+			a.serializeInt(i, buildingID);
+			buildings.insert(buildingID);
 		}
 	}
 
@@ -432,16 +433,16 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					event.onFulfill.replaceTextID(VLC->artifacts()->getByIndex(cond.objectType)->getNameTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<ArtifactID>().toEntity(VLC)->getNameTextID());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					event.onFulfill.replaceTextID(VLC->creatures()->getByIndex(cond.objectType)->getNameSingularTextID());
+					event.onFulfill.replaceTextID(cond.objectType.as<CreatureID>().toEntity(VLC)->getNameSingularTextID());
 					event.onFulfill.replaceNumber(cond.value);
 					break;
 
 				case EventCondition::HAVE_RESOURCES:
-					event.onFulfill.replaceLocalString(EMetaText::RES_NAMES, cond.objectType);
+					event.onFulfill.replaceName(cond.objectType.as<GameResID>());
 					event.onFulfill.replaceNumber(cond.value);
 					break;
 
@@ -452,7 +453,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::CONTROL:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>());
 
 					if (cond.object)
 					{
@@ -467,7 +468,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::DESTROY:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>());
 
 					if (cond.object)
 					{
@@ -483,14 +484,6 @@ void CMap::checkForObjectives()
 				//break; case EventCondition::IS_HUMAN:
 				//break; case EventCondition::DAYS_WITHOUT_TOWN:
 				//break; case EventCondition::STANDARD_WIN:
-
-				//TODO: support new condition format
-				case EventCondition::HAVE_0:
-					break;
-				case EventCondition::DESTROY_0:
-					break;
-				case EventCondition::HAVE_BUILDING_0:
-					break;
 			}
 			return cond;
 		};
@@ -624,67 +617,44 @@ void CMap::banWaterContent()
 
 void CMap::banWaterSpells()
 {
-	for (int j = 0; j < allowedSpells.size(); j++)
+	vstd::erase_if(allowedSpells, [&](SpellID spell)
 	{
-		if (allowedSpells[j])
-		{
-			auto* spell = dynamic_cast<const CSpell*>(VLC->spells()->getByIndex(j));
-			if (spell->onlyOnWaterMap && !isWaterMap())
-			{
-				allowedSpells[j] = false;
-			}
-		}
-	}
+		return spell.toSpell()->onlyOnWaterMap && !isWaterMap();
+	});
 }
 
 void CMap::banWaterArtifacts()
 {
-	for (int j = 0; j < allowedArtifact.size(); j++)
+	vstd::erase_if(allowedArtifact, [&](ArtifactID artifact)
 	{
-		if (allowedArtifact[j])
-		{
-			auto* art = dynamic_cast<const CArtifact*>(VLC->artifacts()->getByIndex(j));
-			if (art->onlyOnWaterMap && !isWaterMap())
-			{
-				allowedArtifact[j] = false;
-			}
-		}
-	}
+		return artifact.toArtifact()->onlyOnWaterMap && !isWaterMap();
+	});
 }
 
 void CMap::banWaterSkills()
 {
-	for (int j = 0; j < allowedAbilities.size(); j++)
+	vstd::erase_if(allowedAbilities, [&](SecondarySkill skill)
 	{
-		if (allowedAbilities[j])
-		{
-			auto* skill = dynamic_cast<const CSkill*>(VLC->skills()->getByIndex(j));
-			if (skill->onlyOnWaterMap && !isWaterMap())
-			{
-				allowedAbilities[j] = false;
-			}
-		}
-	}
+		return skill.toSkill()->onlyOnWaterMap && !isWaterMap();
+	});
 }
 
 void CMap::banWaterHeroes()
 {
-	for (int j = 0; j < allowedHeroes.size(); j++)
+	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
 	{
-		if (allowedHeroes[j])
-		{
-			auto* h = dynamic_cast<const CHero*>(VLC->heroTypes()->getByIndex(j));
-			if ((h->onlyOnWaterMap && !isWaterMap()) || (h->onlyOnMapWithoutWater && isWaterMap()))
-			{
-				banHero(HeroTypeID(j));
-			}
-		}
-	}
+		return hero.toHeroType()->onlyOnWaterMap && !isWaterMap();
+	});
+
+	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
+	{
+		return hero.toHeroType()->onlyOnMapWithoutWater && isWaterMap();
+	});
 }
 
 void CMap::banHero(const HeroTypeID & id)
 {
-	allowedHeroes.at(id) = false;
+	allowedHeroes.erase(id);
 }
 
 void CMap::initTerrain()

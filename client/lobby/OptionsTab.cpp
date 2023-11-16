@@ -407,10 +407,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 	selectedHero = initialHero;
 	selectedBonus = initialBonus;
 	allowedFactions = SEL->getPlayerInfo(color).allowedFactions;
-	std::vector<bool> allowedHeroesFlag = SEL->getMapInfo()->mapHeader->allowedHeroes;
-	for(int i = 0; i < allowedHeroesFlag.size(); i++)
-		if(allowedHeroesFlag[i])
-			allowedHeroes.insert(HeroTypeID(i));
+	allowedHeroes = SEL->getMapInfo()->mapHeader->allowedHeroes;
 
 	for(auto & player : SEL->getStartInfo()->playerInfos)
 	{

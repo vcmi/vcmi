@@ -179,7 +179,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 {
 	for(int i = 0; i < count; i++)
 	{
-		si32 subType = zone.getTownType();
+		FactionID subType = zone.getTownType();
 		
 		if(totalTowns>0)
 		{
@@ -223,7 +223,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 	}
 }
 
-si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
+FactionID TownPlacer::getRandomTownType(bool matchUndergroundType)
 {
 	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes());
 	if(matchUndergroundType)

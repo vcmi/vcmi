@@ -17,9 +17,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 template<typename... Types>
 class VariantIdentifier
 {
-	std::variant<Types...> value;
-public:
+	using Type = std::variant<Types...>;
+	Type value;
 
+public:
 	VariantIdentifier()
 	{}
 

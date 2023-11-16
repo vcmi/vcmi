@@ -23,6 +23,7 @@ class HeroType;
 class CHero;
 class HeroTypeService;
 class Faction;
+class Skill;
 class RoadType;
 class RiverType;
 class TerrainType;
@@ -308,6 +309,9 @@ public:
 	static std::string entityType();
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
+
+	const CSkill * toSkill() const;
+	const Skill * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE PrimarySkill : public Identifier<PrimarySkill>
@@ -409,10 +413,24 @@ public:
 	}
 };
 
-class BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
+class DLL_LINKAGE BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
 {
 public:
 	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
+
+	static BuildingID HALL_LEVEL(unsigned int level)
+	{
+		assert(level < 4);
+		return BuildingID(Type::VILLAGE_HALL + level);
+	}
+	static BuildingID FORT_LEVEL(unsigned int level)
+	{
+		assert(level < 3);
+		return BuildingID(Type::TOWN_HALL + level);
+	}
+
+	static std::string encode(int32_t index);
+	static si32 decode(const std::string & identifier);
 };
 
 class MapObjectBaseID : public IdentifierBase
@@ -567,6 +585,12 @@ public:
 
 	static std::string encode(int32_t index);
 	static si32 decode(const std::string & identifier);
+
+	// TODO: Remove
+	constexpr operator int32_t () const
+	{
+		return num;
+	}
 };
 
 class MapObjectSubID : public Identifier<MapObjectSubID>
@@ -589,6 +613,12 @@ public:
 	{
 		this->num = value.getNum();
 		return *this;
+	}
+
+	// TODO: Remove
+	constexpr operator int32_t () const
+	{
+		return num;
 	}
 };
 
@@ -668,6 +698,12 @@ class ArtifactPosition : public IdentifierWithEnum<ArtifactPosition, ArtifactPos
 {
 public:
 	using IdentifierWithEnum<ArtifactPosition, ArtifactPositionBase>::IdentifierWithEnum;
+
+	// TODO: Remove
+	constexpr operator int32_t () const
+	{
+		return num;
+	}
 };
 
 class ArtifactIDBase : public IdentifierBase
@@ -724,6 +760,7 @@ public:
 		FIRE_ELEMENTAL = 114, // for tests
 		PSYCHIC_ELEMENTAL = 120, // for hardcoded ability
 		MAGIC_ELEMENTAL = 121, // for hardcoded ability
+		AZURE_DRAGON = 132,
 		CATAPULT = 145,
 		BALLISTA = 146,
 		FIRST_AID_TENT = 147,

@@ -165,8 +165,6 @@ public:
 
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
 	~CHeroClassHandler();
 
 protected:
@@ -206,7 +204,7 @@ public:
 	CHeroHandler();
 	~CHeroHandler();
 
-	std::vector<bool> getDefaultAllowed() const override;
+	std::set<HeroTypeID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

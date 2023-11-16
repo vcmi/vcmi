@@ -188,13 +188,7 @@ std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
 
 std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
 {
-	std::set<FactionID> defaultTowns;
-	auto towns = VLC->townh->getDefaultAllowed();
-	for(int i = 0; i < towns.size(); ++i)
-	{
-		if(towns[i]) defaultTowns.insert(FactionID(i));
-	}
-	return defaultTowns;
+	return VLC->townh->getDefaultAllowed();
 }
 
 const std::set<FactionID> ZoneOptions::getTownTypes() const

@@ -34,7 +34,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
-std::vector<int> CGTownInstance::universitySkills;
+std::vector<TradeItemBuy> CGTownInstance::universitySkills;
 
 
 int CGTownInstance::getSightRadius() const //returns sight distance
@@ -136,7 +136,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	if (creatures[level].second.empty())
 		return ret; //no dwelling
 
-	const CCreature *creature = VLC->creh->objects[creatures[level].second.back()];
+	const Creature *creature = creatures[level].second.back().toEntity(VLC);
 	const int base = creature->getGrowth();
 	int castleBonus = 0;
 
@@ -489,8 +489,8 @@ void CGTownInstance::pickRandomObject(CRandomGenerator & rand)
 
 	assert(ID == Obj::TOWN); // just in case
 	setType(ID, subID);
-	town = (*VLC->townh)[subID]->town;
-	randomizeArmy(subID);
+	town = (*VLC->townh)[getFaction()]->town;
+	randomizeArmy(getFaction());
 	updateAppearance();
 }
 
@@ -571,7 +571,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 				}
 				else //upgrade
 				{
-					cb->changeStackType(sl, VLC->creh->objects[*c->upgrades.begin()]);
+					cb->changeStackType(sl, c->upgrades.begin()->toCreature());
 				}
 			}
 			if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
@@ -592,7 +592,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 						{
 							StackLocation sl(this, n);
 							if (slotEmpty(n))
-								cb->insertNewStack(sl, VLC->creh->objects[c], count);
+								cb->insertNewStack(sl, c.toCreature(), count);
 							else //add to existing
 								cb->changeStackCount(sl, count);
 						}
@@ -765,16 +765,16 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 	}
 }
 
-std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
+std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) const
 {
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
-		std::vector<int> ret;
+		std::vector<TradeItemBuy> ret;
 		for(const CArtifact *a : merchantArtifacts)
 			if(a)
 				ret.push_back(a->getId());
 			else
-				ret.push_back(-1);
+				ret.push_back(ArtifactID{});
 		return ret;
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
@@ -1149,7 +1149,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			for(const BuildingID & id : forbiddenBuildings)
 			{
-				buildingsLIC.none.insert(id);
+				buildingsLIC.none.insert(id.getNum());
 				customBuildings = true;
 			}
 
@@ -1166,7 +1166,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 				if(id == BuildingID::FORT)
 					hasFort = true;
 
-				buildingsLIC.all.insert(id);
+				buildingsLIC.all.insert(id.getNum());
 				customBuildings = true;
 			}
 
@@ -1201,42 +1201,14 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 
 	{
-		std::vector<bool> standard = VLC->spellh->getDefaultAllowed();
-		JsonSerializeFormat::LIC spellsLIC(standard, SpellID::decode, SpellID::encode);
-
-		if(handler.saving)
-		{
-			for(const SpellID & id : possibleSpells)
-				spellsLIC.any[id.num] = true;
-
-			for(const SpellID & id : obligatorySpells)
-				spellsLIC.all[id.num] = true;
-		}
-
-		handler.serializeLIC("spells", spellsLIC);
-
-		if(!handler.saving)
-		{
-			possibleSpells.clear();
-			for(si32 idx = 0; idx < spellsLIC.any.size(); idx++)
-			{
-				if(spellsLIC.any[idx])
-					possibleSpells.emplace_back(idx);
-			}
-
-			obligatorySpells.clear();
-			for(si32 idx = 0; idx < spellsLIC.all.size(); idx++)
-			{
-				if(spellsLIC.all[idx])
-					obligatorySpells.emplace_back(idx);
-			}
-		}
+		handler.serializeIdArray( "possibleSpells", possibleSpells);
+		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
 	}
 }
 
 FactionID CGTownInstance::getFaction() const
 {
-	return town->faction->getId();
+	return  FactionID(subID.getNum());
 }
 
 TerrainId CGTownInstance::getNativeTerrain() const

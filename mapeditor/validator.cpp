@@ -125,7 +125,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				}
 				if(ins->type)
 				{
-					if(!map->allowedHeroes[ins->type->getId().getNum()])
+					if(map->allowedHeroes.count(ins->getHeroType()) == 0)
 						issues.emplace_back(QString(tr("Hero %1 is prohibited by map settings")).arg(ins->type->getNameTranslated().c_str()), false);
 					
 					if(!allHeroesOnMap.insert(ins->type).second)
@@ -142,7 +142,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->storedArtifact)
 					{
-						if(!map->allowedSpells[ins->storedArtifact->getScrollSpellID()])
+						if(map->allowedSpells.count(ins->storedArtifact->getScrollSpellID()) == 0)
 							issues.emplace_back(QString(tr("Spell scroll %1 is prohibited by map settings")).arg(ins->storedArtifact->getScrollSpellID().toEntity(VLC->spells())->getNameTranslated().c_str()), false);
 					}
 					else
@@ -150,7 +150,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				}
 				else
 				{
-					if(ins->ID == Obj::ARTIFACT && !map->allowedArtifact[ins->subID])
+					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifact()) == 0)
 					{
 						issues.emplace_back(QString(tr("Artifact %1 is prohibited by map settings")).arg(ins->getObjectName().c_str()), false);
 					}

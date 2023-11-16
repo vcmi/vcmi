@@ -638,14 +638,14 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	if(!possibleCreatures.empty())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, zone.getRand());
-		amount = strength / VLC->creh->objects[creId]->getAIValue();
+		amount = strength / creId.toEntity(VLC)->getAIValue();
 		if (amount >= 4)
 			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
-		creId = CreatureID(132); //Azure Dragon
-		amount = strength / VLC->creh->objects[creId]->getAIValue();
+		creId = CreatureID::AZURE_DRAGON; //Azure Dragon
+		amount = strength / creId.toEntity(VLC)->getAIValue();
 	}
 	
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);

@@ -49,7 +49,7 @@ CGDwelling::~CGDwelling() = default;
 FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)
 {
 	if (ID == Obj::RANDOM_DWELLING_FACTION)
-		return FactionID(subID);
+		return FactionID(subID.getNum());
 
 	assert(ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL);
 	assert(randomizationInfo.has_value());
@@ -138,7 +138,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 		auto testID = [&](const Obj & primaryID) -> MapObjectSubID
 		{
 			auto dwellingIDs = VLC->objtypeh->knownSubObjects(primaryID);
-			for (si32 entry : dwellingIDs)
+			for (MapObjectSubID entry : dwellingIDs)
 			{
 				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
 

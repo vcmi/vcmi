@@ -155,8 +155,8 @@ void TreasurePlacer::addAllPossibleObjects()
 		if(dwellingType == Obj::CREATURE_GENERATOR1)
 		{
 			//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
-			static int elementalConfluxROE[] = {7, 13, 16, 47};
-			for(int & i : elementalConfluxROE)
+			static MapObjectSubID elementalConfluxROE[] = {7, 13, 16, 47};
+			for(auto const & i : elementalConfluxROE)
 				vstd::erase_if_present(subObjects, i);
 		}
 		
@@ -918,7 +918,7 @@ char TreasurePlacer::dump(const int3 & t)
 	return Modificator::dump(t);
 }
 
-void ObjectInfo::setTemplates(si32 type, si32 subtype, TerrainId terrainType)
+void ObjectInfo::setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrainType)
 {
 	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
 	if(!templHandler)

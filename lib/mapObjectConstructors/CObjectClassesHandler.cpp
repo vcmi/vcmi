@@ -117,7 +117,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 		tmpl->readTxt(parser);
 		parser.endLine();
 
-		std::pair<si32, si32> key(tmpl->id.num, tmpl->subid);
+		std::pair key(tmpl->id, tmpl->subid);
 		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
 	}
 
@@ -288,32 +288,26 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
-	assert(objects[ID]);
+	assert(objects[ID.getNum()]);
 
-	if ( subID >= objects[ID]->objects.size())
-		objects[ID]->objects.resize(subID+1);
+	if ( subID.getNum() >= objects[ID.getNum()]->objects.size())
+		objects[ID.getNum()]->objects.resize(subID.getNum()+1);
 
-	JsonUtils::inherit(config, objects.at(ID)->base);
-	loadSubObject(config.meta, identifier, config, objects[ID], subID);
+	JsonUtils::inherit(config, objects.at(ID.getNum())->base);
+	loadSubObject(config.meta, identifier, config, objects[ID.getNum()], subID.getNum());
 }
 
 void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
 {
-	assert(objects[ID]);
-	assert(subID < objects[ID]->objects.size());
-	objects[ID]->objects[subID] = nullptr;
-}
-
-std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>(); //TODO?
+	assert(objects[ID.getNum()]);
+	objects[ID.getNum()]->objects[subID.getNum()] = nullptr;
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObjectSubID subtype) const
 {
 	try
 	{
-		auto result = objects.at(type)->objects.at(subtype);
+		auto result = objects.at(type.getNum())->objects.at(subtype.getNum());
 
 		if (result != nullptr)
 			return result;
@@ -323,7 +317,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 		// Leave catch block silently
 	}
 
-	std::string errorString = "Failed to find object of type " + std::to_string(type) + "::" + std::to_string(subtype);
+	std::string errorString = "Failed to find object of type " + std::to_string(type.getNum()) + "::" + std::to_string(subtype.getNum());
 	logGlobal->error(errorString);
 	throw std::runtime_error(errorString);
 }
@@ -365,13 +359,13 @@ std::set<MapObjectSubID> CObjectClassesHandler::knownSubObjects(MapObjectID prim
 {
 	std::set<MapObjectSubID> ret;
 
-	if (!objects.at(primaryID))
+	if (!objects.at(primaryID.getNum()))
 	{
 		logGlobal->error("Failed to find object %d", primaryID);
 		return ret;
 	}
 
-	for(const auto & entry : objects.at(primaryID)->objects)
+	for(const auto & entry : objects.at(primaryID.getNum())->objects)
 		if (entry)
 			ret.insert(entry->subtype);
 
@@ -465,7 +459,7 @@ std::string CObjectClassesHandler::getObjectName(MapObjectID type, MapObjectSubI
 	if (handler && handler->hasNameTextID())
 		return handler->getNameTranslated();
 	else
-		return objects[type]->getNameTranslated();
+		return objects[type.getNum()]->getNameTranslated();
 }
 
 SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObjectSubID subtype) const
@@ -477,20 +471,19 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObject
 	if(type == Obj::PRISON || type == Obj::HERO || type == Obj::SPELL_SCROLL)
 		subtype = 0;
 
-	assert(objects[type]);
-	assert(subtype < objects[type]->objects.size());
+	assert(objects[type.getNum()]);
 
 	return getHandlerFor(type, subtype)->getSounds();
 }
 
 std::string CObjectClassesHandler::getObjectHandlerName(MapObjectID type) const
 {
-	return objects.at(type)->handlerName;
+	return objects.at(type.getNum())->handlerName;
 }
 
 std::string CObjectClassesHandler::getJsonKey(MapObjectID type) const
 {
-	return objects.at(type)->getJsonKey();
+	return objects.at(type.getNum())->getJsonKey();
 }
 
 VCMI_LIB_NAMESPACE_END

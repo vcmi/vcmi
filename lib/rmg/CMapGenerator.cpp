@@ -98,12 +98,7 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 
 void CMapGenerator::initPrisonsRemaining()
 {
-	allowedPrisons = 0;
-	for (auto isAllowed : map->getMap(this).allowedHeroes)
-	{
-		if (isAllowed)
-			allowedPrisons++;
-	}
+	allowedPrisons = map->getMap(this).allowedHeroes.size();
 	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getHumanOrCpuPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
@@ -187,7 +182,7 @@ void CMapGenerator::addPlayerInfo()
 {
 	// Teams are already configured in CMapGenOptions. However, it's not the case when it comes to map editor
 
-	std::set<int> teamsTotal;
+	std::set<TeamID> teamsTotal;
 
 	if (mapGenOptions.arePlayersCustomized())
 	{
@@ -289,7 +284,7 @@ void CMapGenerator::addPlayerInfo()
 				player.team = TeamID(*itTeam);
 				teamNumbers[j].erase(itTeam);
 			}
-			teamsTotal.insert(player.team.getNum());
+			teamsTotal.insert(player.team);
 			map->getMap(this).players[pSettings.getColor().getNum()] = player;
 		}
 
@@ -493,19 +488,16 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 	auto isWaterMap = map->getMap(this).isWaterMap();
 	//Skip heroes that were banned, including the ones placed in prisons
 	std::vector<HeroTypeID> ret;
-	for (int j = 0; j < map->getMap(this).allowedHeroes.size(); j++)
+	for (HeroTypeID hero : map->getMap(this).allowedHeroes)
 	{
-		if (map->getMap(this).allowedHeroes[j])
+		auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getById(hero));
+		if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap))
 		{
-			auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getByIndex(j));
-			if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap))
-			{
-				continue;
-			}
-			else
-			{
-				ret.push_back(HeroTypeID(j));
-			}
+			continue;
+		}
+		else
+		{
+			ret.push_back(hero);
 		}
 	}
 	return ret;
@@ -514,7 +506,7 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
 	//TODO: Protect with mutex
-	map->getMap(this).allowedArtifact[id] = false;
+	map->getMap(this).allowedArtifact.erase(id);
 }
 
 void CMapGenerator::banHero(const HeroTypeID & id)

@@ -94,24 +94,6 @@ void MapController::repairMap(CMap * map) const
 	if(!map)
 		return;
 	
-	//there might be extra skills, arts and spells not imported from map
-	if(VLC->skillh->getDefaultAllowed().size() > map->allowedAbilities.size())
-	{
-		map->allowedAbilities.resize(VLC->skillh->getDefaultAllowed().size());
-	}
-	if(VLC->arth->getDefaultAllowed().size() > map->allowedArtifact.size())
-	{
-		map->allowedArtifact.resize(VLC->arth->getDefaultAllowed().size());
-	}
-	if(VLC->spellh->getDefaultAllowed().size() > map->allowedSpells.size())
-	{
-		map->allowedSpells.resize(VLC->spellh->getDefaultAllowed().size());
-	}
-	if(VLC->heroh->getDefaultAllowed().size() > map->allowedHeroes.size())
-	{
-		map->allowedHeroes.resize(VLC->heroh->getDefaultAllowed().size());
-	}
-	
 	//make sure events/rumors has name to have proper identifiers
 	int emptyNameId = 1;
 	for(auto & e : map->events)
@@ -149,7 +131,7 @@ void MapController::repairMap(CMap * map) const
 		//fix hero instance
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
 		{
-			map->allowedHeroes.at(nih->subID) = true;
+			map->allowedHeroes.insert(nih->getHeroType());
 			auto type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name
@@ -217,7 +199,7 @@ void MapController::repairMap(CMap * map) const
 				art->storedArtifact = a;
 			}
 			else
-				map->allowedArtifact.at(art->getArtifact()) = true;
+				map->allowedArtifact.insert(art->getArtifact());
 		}
 	}
 }

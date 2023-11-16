@@ -114,11 +114,6 @@ std::vector<JsonNode> ObstacleHandler::loadLegacyData()
 	return {};
 }
 
-std::vector<bool> ObstacleHandler::getDefaultAllowed() const
-{
-	return {};
-}
-
 const std::vector<std::string> & ObstacleHandler::getTypeNames() const
 {
 	static const std::vector<std::string> types = { "obstacle" };

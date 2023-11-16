@@ -780,8 +780,10 @@ void CGameState::initTowns()
 		campaign->initTowns();
 
 	CGTownInstance::universitySkills.clear();
-	for ( int i=0; i<4; i++)
-		CGTownInstance::universitySkills.push_back(14+i);//skills for university
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
+	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
 
 	for (auto & elem : map->towns)
 	{
@@ -1382,7 +1384,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::HAVE_ARTIFACT: //check if any hero has winning artifact
 		{
 			for(const auto & elem : p->heroes)
-				if(elem->hasArt(ArtifactID(condition.objectType)))
+				if(elem->hasArt(condition.objectType.as<ArtifactID>()))
 					return true;
 			return false;
 		}
@@ -1398,7 +1400,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 					&& (ai = dynamic_cast<const CArmedInstance *>(object.get()))) //contains army
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
-						if(elem.second->type->getIndex() == condition.objectType) //it's searched creature
+						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
 							total += elem.second->count;
 				}
 			}
@@ -1406,20 +1408,20 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::HAVE_RESOURCES:
 		{
-			return p->resources[condition.objectType] >= condition.value;
+			return p->resources[condition.objectType.as<GameResID>()] >= condition.value;
 		}
 		case EventCondition::HAVE_BUILDING:
 		{
 			if (condition.object) // specific town
 			{
 				const auto * t = dynamic_cast<const CGTownInstance *>(condition.object);
-				return (t->tempOwner == player && t->hasBuilt(BuildingID(condition.objectType)));
+				return (t->tempOwner == player && t->hasBuilt(condition.objectType.as<BuildingID>()));
 			}
 			else // any town
 			{
 				for (const CGTownInstance * t : p->towns)
 				{
-					if (t->hasBuilt(BuildingID(condition.objectType)))
+					if (t->hasBuilt(condition.objectType.as<BuildingID>()))
 						return true;
 				}
 				return false;
@@ -1438,7 +1440,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			{
 				for(const auto & elem : map->objects) // mode B - destroy all objects of this type
 				{
-					if(elem && elem->ID.getNum() == condition.objectType)
+					if(elem && elem->ID == condition.objectType.as<MapObjectID>())
 						return false;
 				}
 				return true;
@@ -1459,7 +1461,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 				for(const auto & elem : map->objects) // mode B - flag all objects of this type
 				{
 					 //check not flagged objs
-					if ( elem && elem->ID.getNum() == condition.objectType && team.count(elem->tempOwner) == 0 )
+					if ( elem && elem->ID == condition.objectType.as<MapObjectID>() && team.count(elem->tempOwner) == 0 )
 						return false;
 				}
 				return true;
@@ -1468,8 +1470,8 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::TRANSPORT:
 		{
 			const auto * t = dynamic_cast<const CGTownInstance *>(condition.object);
-			return (t->visitingHero && t->visitingHero->hasArt(ArtifactID(condition.objectType))) ||
-				   (t->garrisonHero && t->garrisonHero->hasArt(ArtifactID(condition.objectType)));
+			return (t->visitingHero && t->visitingHero->hasArt(condition.objectType.as<ArtifactID>())) ||
+				   (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType.as<ArtifactID>()));
 		}
 		case EventCondition::DAYS_PASSED:
 		{
@@ -1489,24 +1491,6 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::CONST_VALUE:
 		{
 			return condition.value; // just convert to bool
-		}
-		case EventCondition::HAVE_0:
-		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
-		}
-		case EventCondition::HAVE_BUILDING_0:
-		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
-		}
-		case EventCondition::DESTROY_0:
-		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
 		}
 		default:
 			logGlobal->error("Invalid event condition type: %d", (int)condition.condition);
@@ -1791,13 +1775,13 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		{
 			if(playerInactive(player.second.color)) //do nothing for neutral player
 				continue;
-			int bestCre = -1; //best creature's ID
+			CreatureID bestCre; //best creature's ID
 			for(const auto & elem : player.second.heroes)
 			{
 				for(const auto & it : elem->Slots())
 				{
-					int toCmp = it.second->type->getId(); //ID of creature we should compare with the best one
-					if(bestCre == -1 || VLC->creh->objects[bestCre]->getAIValue() < VLC->creh->objects[toCmp]->getAIValue())
+					CreatureID toCmp = it.second->type->getId(); //ID of creature we should compare with the best one
+					if(bestCre == CreatureID::NONE || bestCre.toEntity(VLC)->getAIValue() < toCmp.toEntity(VLC)->getAIValue())
 					{
 						bestCre = toCmp;
 					}
@@ -1862,8 +1846,7 @@ void CGameState::attachArmedObjects()
 
 bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 {
-	 CArtifact * const artifact = VLC->arth->objects[aid]; //pointer to constant object
-	 CArtifactInstance * ai = ArtifactUtils::createNewArtifactInstance(artifact);
+	 CArtifactInstance * ai = ArtifactUtils::createNewArtifactInstance(aid);
 	 map->addNewArtifactInstance(ai);
 	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
@@ -1879,10 +1862,7 @@ bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 
 std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllowed) const
 {
-	std::set<HeroTypeID> ret;
-	for(int i = 0; i < map->allowedHeroes.size(); i++)
-		if(map->allowedHeroes[i] || alsoIncludeNotAllowed)
-			ret.insert(HeroTypeID(i));
+	std::set<HeroTypeID> ret = map->allowedHeroes;
 
 	for(const auto & playerSettingPair : scenarioOps->playerInfos) //remove uninitialized yet heroes picked for start by other players
 	{

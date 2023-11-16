@@ -160,12 +160,12 @@ std::string CampaignScenarioID::encode(const si32 index)
 	return std::to_string(index);
 }
 
-std::string Obj::encode(int32_t index)
+std::string MapObjectID::encode(int32_t index)
 {
-	return VLC->objtypeh->getObjectHandlerName(index);
+	return VLC->objtypeh->getObjectHandlerName(MapObjectID(index));
 }
 
-si32 Obj::decode(const std::string & identifier)
+si32 MapObjectID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
 	if(rawId)
@@ -234,6 +234,16 @@ si32 SecondarySkill::decode(const std::string& identifier)
 std::string SecondarySkill::encode(const si32 index)
 {
 	return VLC->skills()->getById(SecondarySkill(index))->getJsonKey();
+}
+
+const CSkill * SecondarySkill::toSkill() const
+{
+	return dynamic_cast<const CSkill *>(toEntity(VLC));
+}
+
+const Skill * SecondarySkill::toEntity(const Services * services) const
+{
+	return services->skills()->getByIndex(num);
 }
 
 const CCreature * CreatureIDBase::toCreature() const
@@ -520,6 +530,16 @@ const std::array<GameResID, 7> & GameResID::ALL_RESOURCES()
 std::string SecondarySkill::entityType()
 {
 	return "secondarySkill";
+}
+
+std::string BuildingID::encode(int32_t index)
+{
+	return std::to_string(index);
+}
+
+si32 BuildingID::decode(const std::string & identifier)
+{
+	return std::stoi(identifier);
 }
 
 VCMI_LIB_NAMESPACE_END

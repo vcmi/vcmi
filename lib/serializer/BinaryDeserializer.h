@@ -196,15 +196,6 @@ public:
 		data = static_cast<bool>(read);
 	}
 
-	template < typename T, typename std::enable_if < std::is_same<T, std::vector<bool> >::value, int  >::type = 0 >
-	void load(T & data)
-	{
-		std::vector<ui8> convData;
-		load(convData);
-		convData.resize(data.size());
-		range::copy(convData, data.begin());
-	}
-
 	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
 	void load(std::vector<T> &data)
 	{

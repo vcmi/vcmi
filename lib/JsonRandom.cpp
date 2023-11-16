@@ -156,7 +156,7 @@ namespace JsonRandom
 
 		for (auto const & artID : valuesSet)
 		{
-			CArtifact * art = VLC->arth->objects[artID];
+			const CArtifact * art = artID.toArtifact();
 
 			if(!vstd::iswithin(art->getPrice(), minValue, maxValue))
 				continue;
@@ -164,7 +164,7 @@ namespace JsonRandom
 			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
 				continue;
 
-			if(!IObjectInterface::cb->isAllowed(1, art->getIndex()))
+			if(!IObjectInterface::cb->isAllowed(art->getId()))
 				continue;
 
 			if(!allowedPositions.empty())
@@ -344,7 +344,7 @@ namespace JsonRandom
 	{
 		std::set<SecondarySkill> defaultSkills;
 		for(const auto & skill : VLC->skillh->objects)
-			if (IObjectInterface::cb->isAllowed(2, skill->getIndex()))
+			if (IObjectInterface::cb->isAllowed(skill->getId()))
 				defaultSkills.insert(skill->getId());
 
 		std::set<SecondarySkill> potentialPicks = filterKeys(value, defaultSkills, variables);
@@ -366,7 +366,7 @@ namespace JsonRandom
 		{
 			std::set<SecondarySkill> defaultSkills;
 			for(const auto & skill : VLC->skillh->objects)
-				if (IObjectInterface::cb->isAllowed(2, skill->getIndex()))
+				if (IObjectInterface::cb->isAllowed(skill->getId()))
 					defaultSkills.insert(skill->getId());
 
 			for(const auto & element : value.Vector())
@@ -406,7 +406,7 @@ namespace JsonRandom
 	{
 		std::set<SpellID> defaultSpells;
 		for(const auto & spell : VLC->spellh->objects)
-			if (IObjectInterface::cb->isAllowed(0, spell->getIndex()))
+			if (IObjectInterface::cb->isAllowed(spell->getId()))
 				defaultSpells.insert(spell->getId());
 
 		std::set<SpellID> potentialPicks = filterKeys(value, defaultSpells, variables);
@@ -482,13 +482,13 @@ namespace JsonRandom
 		else
 			logMod->warn("Failed to select suitable random creature!");
 
-		stack.type = VLC->creh->objects[pickedCreature];
+		stack.type = pickedCreature.toCreature();
 		stack.count = loadValue(value, rng, variables);
 		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade
 			{
-				stack.type = VLC->creh->objects[*RandomGeneratorUtil::nextItem(stack.type->upgrades, rng)];
+				stack.type = RandomGeneratorUtil::nextItem(stack.type->upgrades, rng)->toCreature();
 			}
 		}
 		return stack;
@@ -523,7 +523,7 @@ namespace JsonRandom
 			if (node["upgradeChance"].Float() > 0)
 			{
 				for(const auto & creaID : crea->upgrades)
-					info.allowedCreatures.push_back(VLC->creh->objects[creaID]);
+					info.allowedCreatures.push_back(creaID.toCreature());
 			}
 			ret.push_back(info);
 		}

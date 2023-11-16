@@ -261,7 +261,7 @@ void MarketInstanceConstructor::randomizeObject(CGMarket * object, CRandomGenera
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{
 		for(auto skill : JsonRandom::loadSecondaries(predefinedOffer, rng, emptyVariables))
-			university->skills.push_back(skill.first.getNum());
+			university->skills.push_back(skill.first);
 	}
 }
 

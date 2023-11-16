@@ -79,7 +79,7 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 
 SlotID CCreatureSet::getSlotFor(const CreatureID & creature, ui32 slotsAmount) const /*returns -1 if no slot available */
 {
-	return getSlotFor(VLC->creh->objects[creature], slotsAmount);
+	return getSlotFor(creature.toCreature(), slotsAmount);
 }
 
 SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
@@ -304,7 +304,7 @@ void CCreatureSet::sweep()
 
 void CCreatureSet::addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging)
 {
-	const CCreature *c = VLC->creh->objects[cre];
+	const CCreature *c = cre.toCreature();
 
 	if(!hasStackAtSlot(slot))
 	{
@@ -749,10 +749,10 @@ void CStackInstance::giveStackExp(TExpType exp)
 
 void CStackInstance::setType(const CreatureID & creID)
 {
-	if(creID.getNum() >= 0 && creID.getNum() < VLC->creh->objects.size())
-		setType(VLC->creh->objects[creID]);
+	if (creID == CreatureID::NONE)
+		setType(nullptr);//FIXME: unused branch?
 	else
-		setType((const CCreature*)nullptr);
+		setType(creID.toCreature());
 }
 
 void CStackInstance::setType(const CCreature *c)
@@ -809,7 +809,7 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 {
 	if(!randomStack)
 	{
-		return (type  &&  type == VLC->creh->objects[type->getId()]);
+		return (type && type == type->getId().toEntity(VLC));
 	}
 	else
 		return allowUnrandomized;
@@ -999,7 +999,7 @@ bool CCommanderInstance::gainsLevel() const
 CStackBasicDescriptor::CStackBasicDescriptor() = default;
 
 CStackBasicDescriptor::CStackBasicDescriptor(const CreatureID & id, TQuantity Count):
-	type(VLC->creh->objects[id]), 
+	type(id.toCreature()),
 	count(Count)
 {
 }

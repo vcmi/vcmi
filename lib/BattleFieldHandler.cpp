@@ -54,11 +54,6 @@ const std::vector<std::string> & BattleFieldHandler::getTypeNames() const
 	return types;
 }
 
-std::vector<bool> BattleFieldHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>();
-}
-
 int32_t BattleFieldInfo::getIndex() const
 {
 	return battlefield.getNum();

@@ -29,7 +29,7 @@ struct ObjectInfo
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	
-	void setTemplates(si32 type, si32 subtype, TerrainId terrain);
+	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
 };
 
 class TreasurePlacer: public Modificator

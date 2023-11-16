@@ -212,7 +212,7 @@ bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 	if ( !canLearnSkill())
 		return false;
 
-	if (!cb->isAllowed(2, which))
+	if (!cb->isAllowed(which))
 		return false;
 
 	if (getSecSkillLevel(which) > 0)
@@ -590,11 +590,11 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 	{
 		ID = Obj::HERO;
 		subID = cb->gameState()->pickNextHeroType(getOwner());
-		type = VLC->heroh->objects[subID];
+		type = VLC->heroh->objects[getHeroType().getNum()];
 		randomizeArmy(type->heroClass->faction);
 	}
 	else
-		type = VLC->heroh->objects[subID];
+		type = VLC->heroh->objects[getHeroType().getNum()];
 
 	auto oldSubID = subID;
 
@@ -669,7 +669,7 @@ int32_t CGHeroInstance::getCasterUnitId() const
 	return id.getNum();
 }
 
-int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
+int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	int32_t skill = -1; //skill level
 
@@ -789,7 +789,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->getIndex());
+	const bool isAllowed = IObjectInterface::cb->isAllowed(spell->getId());
 
 	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
 	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
@@ -853,7 +853,7 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
 		return false;//creature abilities can not be learned
 	}
 
-	if(!allowBanned && !IObjectInterface::cb->isAllowed(0, spell->getIndex()))
+	if(!allowBanned && !IObjectInterface::cb->isAllowed(spell->getId()))
 	{
 		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned
@@ -921,7 +921,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		// raise upgraded creature (at 2/3 rate) if no space available otherwise
 		if(getSlotFor(creatureTypeRaised) == SlotID())
 		{
-			for(const CreatureID & upgraded : VLC->creh->objects[creatureTypeRaised]->upgrades)
+			for(const CreatureID & upgraded : creatureTypeRaised.toCreature()->upgrades)
 			{
 				if(getSlotFor(upgraded) != SlotID())
 				{
@@ -932,7 +932,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 			}
 		}
 		// calculate number of creatures raised - low level units contribute at 50% rate
-		const double raisedUnitHealth = VLC->creh->objects[creatureTypeRaised]->getMaxHealth();
+		const double raisedUnitHealth = creatureTypeRaised.toCreature()->getMaxHealth();
 		double raisedUnits = 0;
 		for(const auto & casualty : casualties)
 		{
@@ -1535,7 +1535,7 @@ std::string CGHeroInstance::getHeroTypeName() const
 		}
 		else
 		{
-			return VLC->heroh->objects[getHeroType()]->getJsonKey();
+			return getHeroType().toEntity(VLC)->getJsonKey();
 		}
 	}
 	return "";
@@ -1669,15 +1669,11 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			for(size_t skillIndex = 0; skillIndex < secondarySkills.size(); ++skillIndex)
 			{
 				JsonArraySerializer inner = secondarySkills.enterArray(skillIndex);
-				const si32 rawId = secSkills.at(skillIndex).first;
+				SecondarySkill skillId = secSkills.at(skillIndex).first;
 
-				if(rawId < 0 || rawId >= VLC->skillh->size())
-					logGlobal->error("Invalid secondary skill %d", rawId);
-
-				auto value = (*VLC->skillh)[SecondarySkill(rawId)]->getJsonKey();
-				handler.serializeString("skill", value);
-				value = NSecondarySkill::levels.at(secSkills.at(skillIndex).second);
-				handler.serializeString("level", value);
+				handler.serializeId("skill", skillId);
+				std::string skillLevel = NSecondarySkill::levels.at(secSkills.at(skillIndex).second);
+				handler.serializeString("level", skillLevel);
 			}
 		}
 	}
@@ -1769,7 +1765,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(!appearance)
 			{
 				// crossoverDeserialize
-				type = VLC->heroh->objects[getHeroType()];
+				type = VLC->heroh->objects[getHeroType().getNum()];
 				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			}
 
@@ -1794,7 +1790,7 @@ bool CGHeroInstance::isMissionCritical() const
 
 		auto const & testFunctor = [&](const EventCondition & condition)
 		{
-			if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::HAVE_0) && condition.object)
+			if ((condition.condition == EventCondition::CONTROL) && condition.object)
 			{
 				const auto * hero = dynamic_cast<const CGHeroInstance *>(condition.object);
 				return (hero != this);

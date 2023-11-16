@@ -53,19 +53,19 @@ const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) c
 	return &gs->scenarioOps->getIthPlayersSettings(color);
 }
 
-bool CGameInfoCallback::isAllowed(int32_t type, int32_t id) const
+bool CGameInfoCallback::isAllowed(SpellID id) const
 {
-	switch(type)
-	{
-	case 0:
-		return gs->map->allowedSpells[id];
-	case 1:
-		return gs->map->allowedArtifact[id];
-	case 2:
-		return gs->map->allowedAbilities[id];
-	default:
-		ERROR_RET_VAL_IF(1, "Wrong type!", false);
-	}
+	return gs->map->allowedSpells.count(id) != 0;
+}
+
+bool CGameInfoCallback::isAllowed(ArtifactID id) const
+{
+	return gs->map->allowedArtifact.count(id) != 0;
+}
+
+bool CGameInfoCallback::isAllowed(SecondarySkill id) const
+{
+	return gs->map->allowedAbilities.count(id) != 0;
 }
 
 std::optional<PlayerColor> CGameInfoCallback::getPlayerID() const
@@ -122,17 +122,17 @@ TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
 	return TurnTimerInfo{};
 }
 
-const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifier) const
+const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(ObjectInstanceID identifier) const
 {
 	if(gs->map->questIdentifierToId.empty())
 	{
 		//assume that it is VCMI map and quest identifier equals instance identifier
-		return getObj(ObjectInstanceID(identifier), true);
+		return getObj(identifier, true);
 	}
 	else
 	{
-		ERROR_RET_VAL_IF(!vstd::contains(gs->map->questIdentifierToId, identifier), "There is no object with such quest identifier!", nullptr);
-		return getObj(gs->map->questIdentifierToId[identifier]);
+		ERROR_RET_VAL_IF(!vstd::contains(gs->map->questIdentifierToId, identifier.getNum()), "There is no object with such quest identifier!", nullptr);
+		return getObj(gs->map->questIdentifierToId[identifier.getNum()]);
 	}
 }
 

@@ -217,11 +217,6 @@ const Script * ScriptHandler::resolveScript(const std::string & name) const
 	}
 }
 
-std::vector<bool> ScriptHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>();
-}
-
 std::vector<JsonNode> ScriptHandler::loadLegacyData()
 {
 	return std::vector<JsonNode>();

@@ -324,7 +324,7 @@ bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 
 bool CCreature::valid() const
 {
-	return this == VLC->creh->objects[idNumber];
+	return this == (*VLC->creh)[idNumber];
 }
 
 std::string CCreature::nodeName() const
@@ -666,18 +666,6 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<bool> CCreatureHandler::getDefaultAllowed() const
-{
-	std::vector<bool> ret;
-
-	ret.reserve(objects.size());
-	for(const CCreature * crea : objects)
-	{
-		ret.push_back(crea ? !crea->special : false);
-	}
-	return ret;
-}
-
 void CCreatureHandler::loadCrExpMod()
 {
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
@@ -790,15 +778,13 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		}
 		do //parse everything that's left
 		{
-			CreatureID sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
+			CreatureID sid = parser.readNumber(); //id = this particular creature ID
 
 			b.sid = BonusSourceID(sid);
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-			{
-				objects[sid]->addNewBonus(b); //add directly to CCreature Node
-			}
+				(*this)[sid]->addNewBonus(b); //add directly to CCreature Node
 		}
 		while (parser.endLine());
 

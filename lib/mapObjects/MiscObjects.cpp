@@ -33,7 +33,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
+std::map <MapObjectSubID, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
@@ -219,7 +219,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 			for(const auto & resID : abandonedMineResources)
 			{
 				JsonNode one(JsonNode::JsonType::DATA_STRING);
-				one.String() = GameConstants::RESOURCE_NAMES[resID];
+				one.String() = GameConstants::RESOURCE_NAMES[resID.getNum()];
 				node.Vector().push_back(one);
 			}
 			handler.serializeRaw("possibleResources", node, std::nullopt);
@@ -320,7 +320,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 	{
 		sii.type = EInfoWindowMode::INFO;
 		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
-		sii.text.replaceLocalString(EMetaText::RES_NAMES, resourceID());
+		sii.text.replaceName(resourceID());
 	}
 	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);

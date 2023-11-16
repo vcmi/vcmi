@@ -1059,7 +1059,7 @@ bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
 	return VLC->heroh->size() > ID
 		&& si->playerInfos[player].castle == VLC->heroh->objects[ID]->heroClass->faction
 		&& !vstd::contains(getUsedHeroes(), ID)
-		&& mi->mapHeader->allowedHeroes[ID];
+		&& mi->mapHeader->allowedHeroes.count(ID);
 }
 
 std::vector<HeroTypeID> CVCMIServer::getUsedHeroes()

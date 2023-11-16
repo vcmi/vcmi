@@ -29,7 +29,6 @@ VCMI_REGISTER_CORE_SCRIPT_API(GameCbProxy, "Game");
 const std::vector<GameCbProxy::CustomRegType> GameCbProxy::REGISTER_CUSTOM =
 {
 	{"getDate", LuaMethodWrapper<GameCb, decltype(&GameCb::getDate), &GameCb::getDate>::invoke, false},
-	{"isAllowed", LuaMethodWrapper<GameCb, decltype(&GameCb::isAllowed), &GameCb::isAllowed>::invoke, false},
 	{"getPlayer", LuaMethodWrapper<GameCb, decltype(&GameCb::getPlayer), &GameCb::getPlayer>::invoke, false},
 
 	{"getHero", LuaMethodWrapper<GameCb, decltype(&GameCb::getHero), &GameCb::getHero>::invoke, false},

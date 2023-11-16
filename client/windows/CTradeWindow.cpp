@@ -149,7 +149,9 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 			break;
 
 		case ARTIFACT_TYPE:
-			ids = new std::vector<int>(market->availableItemsIds(mode));
+			ids = new std::vector<int>;
+			for (auto const & item : market->availableItemsIds(mode))
+				ids->push_back(item.getNum());
 			break;
 		}
 	}
@@ -632,10 +634,10 @@ void CMarketplaceWindow::artifactsChanged(bool Left)
 	if(mode != EMarketMode::RESOURCE_ARTIFACT)
 		return;
 
-	std::vector<int> available = market->availableItemsIds(mode);
+	std::vector<TradeItemBuy> available = market->availableItemsIds(mode);
 	std::set<std::shared_ptr<CTradeableItem>> toRemove;
 	for(auto item : items[0])
-		if(!vstd::contains(available, item->id))
+		if(!vstd::contains(available, ArtifactID(item->id)))
 			toRemove.insert(item);
 
 	removeItems(toRemove);

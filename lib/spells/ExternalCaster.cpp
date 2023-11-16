@@ -42,7 +42,7 @@ void ExternalCaster::spendMana(ServerCallback * server, const int32_t spellCost)
 	//do nothing
 }
 
-int32_t ExternalCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
+int32_t ExternalCaster::getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	return schoolLevel;
 }

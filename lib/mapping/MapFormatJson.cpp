@@ -139,63 +139,6 @@ namespace TriggeredEventsDetail
 
 	static const std::array<std::string, 2> typeNames = { "victory", "defeat" };
 
-	static EMetaclass decodeMetaclass(const std::string & source)
-	{
-		if(source.empty())
-			return EMetaclass::INVALID;
-		auto rawId = vstd::find_pos(NMetaclass::names, source);
-
-		if(rawId >= 0)
-			return static_cast<EMetaclass>(rawId);
-		else
-			return EMetaclass::INVALID;
-	}
-
-	static std::string encodeIdentifier(EMetaclass metaType, si32 type)
-	{
-		std::string metaclassName = NMetaclass::names[static_cast<int>(metaType)];
-		std::string identifier;
-
-		switch(metaType)
-		{
-		case EMetaclass::ARTIFACT:
-			{
-				identifier = ArtifactID::encode(type);
-			}
-			break;
-		case EMetaclass::CREATURE:
-			{
-				identifier = CreatureID::encode(type);
-			}
-			break;
-		case EMetaclass::OBJECT:
-			{
-				//TODO
-				auto subtypes = VLC->objtypeh->knownSubObjects(type);
-				if(!subtypes.empty())
-				{
-					auto subtype = *subtypes.begin();
-					auto handler = VLC->objtypeh->getHandlerFor(type, subtype);
-					identifier = handler->getTypeName();
-				}
-			}
-			break;
-		case EMetaclass::RESOURCE:
-			{
-				identifier = GameConstants::RESOURCE_NAMES[type];
-			}
-			break;
-		default:
-			{
-				logGlobal->error("Unsupported metaclass %s for event condition", metaclassName);
-				return "";
-			}
-			break;
-		}
-
-		return ModUtility::makeFullIdentifier("", metaclassName, identifier);
-	}
-
 	static EventCondition JsonToCondition(const JsonNode & node)
 	{
 		EventCondition event;
@@ -210,54 +153,28 @@ namespace TriggeredEventsDetail
 		{
 			const JsonNode & data = node.Vector()[1];
 
+			event.objectInstanceName = data["object"].String();
+			event.value = data["value"].Integer();
+
 			switch (event.condition)
 			{
-			case EventCondition::HAVE_0:
-			case EventCondition::DESTROY_0:
-				{
-					//todo: support subtypes
-
-					std::string fullIdentifier = data["type"].String();
-					std::string metaTypeName;
-					std::string scope;
-					std::string identifier;
-					ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
-
-					event.metaType = decodeMetaclass(metaTypeName);
-
-					auto type = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), fullIdentifier, false);
-
-					if(type)
-						event.objectType = type.value();
-					event.objectInstanceName = data["object"].String();
-					if(data["value"].isNumber())
-						event.value = static_cast<si32>(data["value"].Integer());
-				}
-				break;
-			case EventCondition::HAVE_BUILDING_0:
-				{
-					//todo: support of new condition format HAVE_BUILDING_0
-				}
-				break;
-			default:
-				{
-					//old format
-					if (data["type"].getType() == JsonNode::JsonType::DATA_STRING)
-					{
-						auto identifier = VLC->identifiers()->getIdentifier(data["type"]);
-						if(identifier)
-							event.objectType = identifier.value();
-						else
-							throw std::runtime_error("Identifier resolution failed in event condition");
-					}
-
-					if (data["type"].isNumber())
-						event.objectType = static_cast<si32>(data["type"].Float());
-
-					if (!data["value"].isNull())
-						event.value = static_cast<si32>(data["value"].Float());
-				}
-				break;
+				case EventCondition::HAVE_ARTIFACT:
+				case EventCondition::TRANSPORT:
+					event.objectType = ArtifactID(ArtifactID::decode(data["type"].String()));
+					break;
+				case EventCondition::HAVE_CREATURES:
+					event.objectType = CreatureID(CreatureID::decode(data["type"].String()));
+					break;
+				case EventCondition::HAVE_RESOURCES:
+					event.objectType = GameResID(GameResID::decode(data["type"].String()));
+					break;
+				case EventCondition::HAVE_BUILDING:
+					event.objectType = BuildingID(BuildingID::decode(data["type"].String()));
+					break;
+				case EventCondition::CONTROL:
+				case EventCondition::DESTROY:
+					event.objectType = MapObjectID(MapObjectID::decode(data["type"].String()));
+					break;
 			}
 
 			if (!data["position"].isNull())
@@ -283,39 +200,11 @@ namespace TriggeredEventsDetail
 
 		JsonNode data;
 
-		switch (event.condition)
-		{
-		case EventCondition::HAVE_0:
-		case EventCondition::DESTROY_0:
-			{
-				//todo: support subtypes
+		if(!event.objectInstanceName.empty())
+			data["object"].String() = event.objectInstanceName;
 
-				if(event.metaType != EMetaclass::INVALID)
-					data["type"].String() = encodeIdentifier(event.metaType, event.objectType);
-
-				if(event.value > 0)
-					data["value"].Integer() = event.value;
-
-				if(!event.objectInstanceName.empty())
-					data["object"].String() = event.objectInstanceName;
-			}
-			break;
-		case EventCondition::HAVE_BUILDING_0:
-			{
-			//todo: support of new condition format HAVE_BUILDING_0
-			}
-			break;
-		default:
-			{
-				//old format
-				if(event.objectType != -1)
-					data["type"].Integer() = event.objectType;
-
-				if(event.value != -1)
-					data["value"].Integer() = event.value;
-			}
-			break;
-		}
+		data["type"].String() = event.objectType.toString();
+		data["value"].Integer() = event.value;
 
 		if(event.position != int3(-1, -1, -1))
 		{
@@ -389,28 +278,19 @@ RoadType * CMapFormatJson::getRoadByCode(const std::string & code)
 
 void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const
 {
-	//TODO: unify allowed factions with others - make them std::vector<bool>
-
-	std::vector<bool> temp;
-	temp.resize(VLC->townh->size(), false);
-	auto standard = VLC->townh->getDefaultAllowed();
+	std::set<FactionID> temp;
 
 	if(handler.saving)
 	{
 		for(auto faction : VLC->townh->objects)
 			if(faction->town && vstd::contains(value, faction->getId()))
-				temp[static_cast<std::size_t>(faction->getIndex())] = true;
+				temp.insert(faction->getId());
 	}
 
-	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, standard, temp);
+	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, VLC->townh->getDefaultAllowed(), temp);
 
 	if(!handler.saving)
-	{
-		value.clear();
-		for (std::size_t i=0; i<temp.size(); i++)
-			if(temp[i])
-				value.insert(static_cast<FactionID>(i));
-	}
+		value = temp;
 }
 
 void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
@@ -537,13 +417,10 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 						{
 							std::string temp;
 							if(hero->type)
-							{
 								temp = hero->type->getJsonKey();
-							}
 							else
-							{
-								temp = VLC->heroh->objects[hero->subID]->getJsonKey();
-							}
+								temp = hero->getHeroType().toEntity(VLC)->getJsonKey();
+
 							handler.serializeString("type", temp);
 						}
 					}
@@ -762,7 +639,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 
 	for(DisposedHero & hero : map->disposedHeroes)
 	{
-		std::string type = HeroTypeID::encode(hero.heroId);
+		std::string type = HeroTypeID::encode(hero.heroId.getNum());
 
 		auto definition = definitions->enterStruct(type);
 

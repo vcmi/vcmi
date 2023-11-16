@@ -160,7 +160,7 @@ void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::
 	{
 		const spells::Spell * spell = SpellID(i).toSpell();
 
-		if (!isAllowed(0, spell->getIndex()))
+		if (!isAllowed(spell->getId()))
 			continue;
 
 		if (level.has_value() && spell->getLevel() != level)
