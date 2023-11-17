@@ -940,7 +940,7 @@ public:
 	static const std::array<GameResID, 7> & ALL_RESOURCES();
 };
 
-class DLL_LINKAGE BuildingTypeUniqueID : public StaticIdentifier<BuildingTypeUniqueID>
+class DLL_LINKAGE BuildingTypeUniqueID : public Identifier<BuildingTypeUniqueID>
 {
 public:
 	BuildingTypeUniqueID(FactionID faction, BuildingID building );
@@ -951,7 +951,20 @@ public:
 	BuildingID getBuilding() const;
 	FactionID getFaction() const;
 
-	using StaticIdentifier<BuildingTypeUniqueID>::StaticIdentifier;
+	using Identifier<BuildingTypeUniqueID>::Identifier;
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		FactionID faction = getFaction();
+		BuildingID building = getBuilding();
+
+		h & faction;
+		h & building;
+
+		if (!h.saving)
+			*this = BuildingTypeUniqueID(faction, building);
+	}
 };
 
 class DLL_LINKAGE CampaignScenarioID : public StaticIdentifier<CampaignScenarioID>
