@@ -34,6 +34,7 @@
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
 #include "CSkillHandler.h"//todo: remove
+#include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "TerrainHandler.h" //TODO: remove
@@ -165,14 +166,14 @@ std::string MapObjectID::encode(int32_t index)
 {
 	if (index == -1)
 		return "";
-	return VLC->objtypeh->getObjectHandlerName(MapObjectID(index));
+	return VLC->objtypeh->getJsonKey(MapObjectID(index));
 }
 
 si32 MapObjectID::decode(const std::string & identifier)
 {
 	if (identifier.empty())
 		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "object", identifier);
 	return rawId.value();
 }
 
@@ -180,14 +181,14 @@ std::string BoatId::encode(int32_t index)
 {
 	if (index == -1)
 		return "";
-	return VLC->objtypeh->getObjectHandlerName(MapObjectID(index));
+	return VLC->objtypeh->getHandlerFor(MapObjectID::BOAT, index)->getJsonKey();
 }
 
 si32 BoatId::decode(const std::string & identifier)
 {
 	if (identifier.empty())
 		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "objects", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "core:boat", identifier);
 	return rawId.value();
 }
 
@@ -345,6 +346,8 @@ si32 SpellID::decode(const std::string & identifier)
 
 std::string SpellID::encode(const si32 index)
 {
+	if (index == -1)
+		return "";
 	return VLC->spells()->getByIndex(index)->getJsonKey();
 }
 
@@ -450,6 +453,8 @@ si32 TerrainId::decode(const std::string & identifier)
 {
 	if (identifier.empty())
 		return static_cast<si32>(TerrainId::NONE);
+	if (identifier == "native")
+		return TerrainId::NATIVE_TERRAIN;
 
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
 	return rawId.value();
@@ -459,6 +464,8 @@ std::string TerrainId::encode(const si32 index)
 {
 	if (index == TerrainId::NONE)
 		return "";
+	if (index == TerrainId::NATIVE_TERRAIN)
+		return "native";
 	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
 }
 
@@ -506,7 +513,7 @@ std::string RiverId::encode(const si32 index)
 
 std::string RiverId::entityType()
 {
-	return "road";
+	return "river";
 }
 
 const TerrainType * TerrainId::toEntity(const Services * service) const
