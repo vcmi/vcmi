@@ -54,15 +54,15 @@ TSubgoal Win::whatToDoToAchieve()
 			return sptr(GetArtOfType(goal.objectType.as<ArtifactID>()));
 		case EventCondition::DESTROY:
 		{
-			if(goal.object)
+			if(goal.objectID != ObjectInstanceID::NONE)
 			{
-				auto obj = cb->getObj(goal.object->id);
+				auto obj = cb->getObj(goal.objectID);
 				if(obj)
 					if(obj->getOwner() == ai->playerID) //we can't capture our own object
 						return sptr(Conquer());
 
 
-				return sptr(VisitObj(goal.object->id.getNum()));
+				return sptr(VisitObj(goal.objectID.getNum()));
 			}
 			else
 			{
@@ -124,13 +124,13 @@ TSubgoal Win::whatToDoToAchieve()
 		}
 		case EventCondition::CONTROL:
 		{
-			if(goal.object)
+			if(goal.objectID != ObjectInstanceID::NONE)
 			{
-				auto objRelations = cb->getPlayerRelations(ai->playerID, goal.object->tempOwner);
+				auto obj = cb->getObj(goal.objectID);
 				
-				if(objRelations == PlayerRelations::ENEMIES)
+				if(obj && cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
 				{
-					return sptr(VisitObj(goal.object->id.getNum()));
+					return sptr(VisitObj(goal.objectID.getNum()));
 				}
 				else
 				{

@@ -120,7 +120,7 @@ struct DLL_LINKAGE EventCondition
 	EventCondition(EWinLoseType condition = STANDARD_WIN);
 	EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position = int3(-1, -1, -1));
 
-	const CGObjectInstance * object; // object that was at specified position or with instance name on start
+	ObjectInstanceID objectID; // object that was at specified position or with instance name on start
 	si32 value;
 	TargetTypeID objectType;
 	std::string objectInstanceName;
@@ -130,7 +130,7 @@ struct DLL_LINKAGE EventCondition
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & object;
+		h & objectID;
 		h & value;
 		h & objectType;
 		h & position;

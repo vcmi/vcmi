@@ -1215,7 +1215,7 @@ void RemoveObject::applyGs(CGameState *gs)
 	{
 		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
 		{
-			if (cond.object == obj)
+			if (cond.objectID == obj->id)
 			{
 				if (cond.condition == EventCondition::DESTROY)
 				{

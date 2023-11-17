@@ -68,7 +68,6 @@ bool PlayerInfo::hasCustomMainHero() const
 }
 
 EventCondition::EventCondition(EWinLoseType condition):
-	object(nullptr),
 	value(-1),
 	position(-1, -1, -1),
 	condition(condition)
@@ -76,7 +75,6 @@ EventCondition::EventCondition(EWinLoseType condition):
 }
 
 EventCondition::EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position):
-	object(nullptr),
 	value(value),
 	objectType(objectType),
 	position(position),
