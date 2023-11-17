@@ -191,8 +191,6 @@ public:
 		h & artInstances;
 
 		// static members
-		h & CGKeys::playerKeyMap;
-		h & CGMagi::eyelist;
 		h & CGObelisk::obeliskCount;
 		h & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;

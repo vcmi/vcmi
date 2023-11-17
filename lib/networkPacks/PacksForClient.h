@@ -784,7 +784,7 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	/// Object ID to create
 	MapObjectID ID;
 	/// Object secondary ID to create
-	VariantIdentifier<MapObjectSubID, HeroTypeID, CreatureID, BoatId> subID;
+	MapObjectSubID subID;
 	/// Position of visitable tile of created object
 	int3 targetPos;
 	/// Which player initiated creation of this object
@@ -797,7 +797,7 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & ID;
-		h & subID;
+		subID.serializeIdentifier(h, ID, version);
 		h & targetPos;
 		h & initiator;
 	}
@@ -1247,10 +1247,11 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 	{
 		VISITOR_ADD,      // mark hero as one that have visited this object
 		VISITOR_ADD_TEAM, // mark team as one that have visited this object
+		VISITOR_GLOBAL,   // mark player as one that have visited object of this type
 		VISITOR_REMOVE,   // unmark visitor, reversed to ADD
 		VISITOR_CLEAR     // clear all visitors from this object (object reset)
 	};
-	ui32 mode = VISITOR_CLEAR; // uses VisitMode enum
+	VisitMode mode = VISITOR_CLEAR; // uses VisitMode enum
 	ObjectInstanceID object;
 	ObjectInstanceID hero; // note: hero owner will be also marked as "visited" this object
 
@@ -1260,7 +1261,7 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 
 	ChangeObjectVisitors() = default;
 
-	ChangeObjectVisitors(ui32 mode, const ObjectInstanceID & object, const ObjectInstanceID & heroID = ObjectInstanceID(-1))
+	ChangeObjectVisitors(VisitMode mode, const ObjectInstanceID & object, const ObjectInstanceID & heroID = ObjectInstanceID(-1))
 		: mode(mode)
 		, object(object)
 		, hero(heroID)

@@ -1061,6 +1061,12 @@ void ChangeObjectVisitors::applyGs(CGameState * gs) const
 			}
 
 			break;
+		case VISITOR_GLOBAL:
+			{
+				CGObjectInstance * objectPtr = gs->getObjInstance(object);
+				gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjectsGlobal.insert({objectPtr->ID, objectPtr->subID});
+				break;
+			}
 		case VISITOR_REMOVE:
 			gs->getHero(hero)->visitedObjects.erase(object);
 			break;
@@ -1488,7 +1494,7 @@ void NewObject::applyGs(CGameState *gs)
 	const TerrainTile & t = gs->map->getTile(targetPos);
 	terrainType = t.terType->getId();
 
-	auto handler = VLC->objtypeh->getHandlerFor(ID, subID.getNum());
+	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
 
 	CGObjectInstance * o = handler->create();
 	handler->configureObject(o, gs->getRandomGenerator());
@@ -1504,7 +1510,7 @@ void NewObject::applyGs(CGameState *gs)
 		cre->character = 2;
 		cre->gainedArtifact = ArtifactID::NONE;
 		cre->identifier = -1;
-		cre->addToSlot(SlotID(0), new CStackInstance(subID.as<CreatureID>(), -1)); //add placeholder stack
+		cre->addToSlot(SlotID(0), new CStackInstance(subID.getNum(), -1)); //add placeholder stack
 	}
 
 	assert(!handler->getTemplates(terrainType).empty());

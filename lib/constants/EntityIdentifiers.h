@@ -490,16 +490,14 @@ public:
 	}
 };
 
-class MapObjectSubID : public StaticIdentifier<MapObjectSubID>
+class DLL_LINKAGE MapObjectSubID : public Identifier<MapObjectSubID>
 {
 public:
-	MapObjectID primaryIdentifier;
-
 	constexpr MapObjectSubID(const IdentifierBase & value):
-		StaticIdentifier<MapObjectSubID>(value.getNum())
+		Identifier<MapObjectSubID>(value.getNum())
 	{}
 	constexpr MapObjectSubID(int32_t value = -1):
-		StaticIdentifier<MapObjectSubID>(value)
+		Identifier<MapObjectSubID>(value)
 	{}
 
 	MapObjectSubID & operator =(int32_t value)
@@ -514,13 +512,27 @@ public:
 		return *this;
 	}
 
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
+	static si32 decode(MapObjectID primaryID, const std::string & identifier);
+	static std::string encode(MapObjectID primaryID, si32 index);
 
 	// TODO: Remove
 	constexpr operator int32_t () const
 	{
 		return num;
+	}
+
+	template <typename Handler>
+	void serializeIdentifier(Handler &h, const MapObjectID & primaryID, const int version)
+	{
+		std::string secondaryStringID;
+
+		if (h.saving)
+			secondaryStringID = encode(primaryID, num);
+
+		h & secondaryStringID;
+
+		if (!h.saving)
+			num = decode(primaryID, secondaryStringID);
 	}
 };
 

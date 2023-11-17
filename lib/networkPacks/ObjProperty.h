@@ -39,7 +39,6 @@ enum class ObjProperty : int8_t
 
 	SEERHUT_VISITED,
 	SEERHUT_COMPLETE,
-	KEYMASTER_VISITED,
 	OBELISK_VISITED,
 
 	//creature-bank specific

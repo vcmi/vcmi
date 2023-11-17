@@ -671,8 +671,6 @@ CMapEditManager * CMap::getEditManager()
 
 void CMap::resetStaticData()
 {
-	CGKeys::reset();
-	CGMagi::reset();
 	CGObelisk::reset();
 	CGTownInstance::reset();
 }

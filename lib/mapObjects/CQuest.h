@@ -168,11 +168,6 @@ protected:
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {
 public:
-	static std::map <PlayerColor, std::set <MapObjectSubID> > playerKeyMap; //[players][keysowned]
-	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
-
-	static void reset();
-
 	bool wasMyColorVisited(const PlayerColor & player) const;
 
 	std::string getObjectName() const override; //depending on color
@@ -182,8 +177,6 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
-protected:
-	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 };
 
 class DLL_LINKAGE CGKeymasterTent : public CGKeys

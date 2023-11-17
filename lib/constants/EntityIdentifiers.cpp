@@ -177,6 +177,35 @@ si32 MapObjectID::decode(const std::string & identifier)
 	return rawId.value();
 }
 
+std::string MapObjectSubID::encode(MapObjectID primaryID, int32_t index)
+{
+	if (index == -1)
+		return "";
+
+	if(primaryID == Obj::PRISON || primaryID == Obj::HERO)
+		return HeroTypeID::encode(index);
+
+	if (primaryID == Obj::SPELL_SCROLL)
+		return SpellID::encode(index);
+
+	return VLC->objtypeh->getHandlerFor(primaryID, index)->getJsonKey();
+}
+
+si32 MapObjectSubID::decode(MapObjectID primaryID, const std::string & identifier)
+{
+	if (identifier.empty())
+		return -1;
+
+	if(primaryID == Obj::PRISON || primaryID == Obj::HERO)
+		return HeroTypeID::decode(identifier);
+
+	if (primaryID == Obj::SPELL_SCROLL)
+		return SpellID::decode(identifier);
+
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), VLC->objtypeh->getJsonKey(primaryID), identifier);
+	return rawId.value();
+}
+
 std::string BoatId::encode(int32_t index)
 {
 	if (index == -1)

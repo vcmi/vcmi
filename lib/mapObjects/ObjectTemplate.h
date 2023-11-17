@@ -164,7 +164,7 @@ public:
 		h & animationFile;
 		h & stringID;
 		h & id;
-		h & subid;
+		subid.serializeIdentifier(h, id, version);
 		h & printPriority;
 		h & visitDir;
 		h & editorAnimationFile;
