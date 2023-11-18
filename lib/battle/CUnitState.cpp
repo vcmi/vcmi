@@ -46,7 +46,7 @@ int32_t CAmmo::available() const
 
 bool CAmmo::canUse(int32_t amount) const
 {
-	return !isLimited() || (available() - amount >= 0);
+	return (available() - amount >= 0) || !isLimited();
 }
 
 bool CAmmo::isLimited() const
@@ -99,7 +99,7 @@ CShots & CShots::operator=(const CShots & other)
 
 bool CShots::isLimited() const
 {
-	return !env->unitHasAmmoCart(owner) || !shooter.getHasBonus();
+	return !shooter.getHasBonus() || !env->unitHasAmmoCart(owner);
 }
 
 void CShots::setEnv(const IUnitEnvironment * env_)
