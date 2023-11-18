@@ -45,17 +45,17 @@
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/network/NetworkClient.h"
 #include "../lib/rmg/CMapGenOptions.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/asio.hpp>
 #include "../lib/serializer/Cast.h"
 #include "LobbyClientNetPackVisitors.h"
 
@@ -131,8 +131,16 @@ public:
 static const std::string NAME_AFFIX = "client";
 static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
+CServerHandler::~CServerHandler() = default;
+
 CServerHandler::CServerHandler()
-	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
+	: state(EClientState::NONE)
+	, mx(std::make_shared<boost::recursive_mutex>())
+	, networkClient(std::make_unique<NetworkClient>(*this))
+	, client(nullptr)
+	, loadMode(0)
+	, campaignStateToSend(nullptr)
+	, campaignServerRestartLock(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	//read from file to restore last session
@@ -161,7 +169,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 		myNames.push_back(settings["general"]["playerName"].String());
 }
 
-void CServerHandler::startLocalServerAndConnect()
+void CServerHandler::startLocalServerAndConnect(const std::function<void()> & onConnected)
 {
 	if(threadRunLocalServer)
 		threadRunLocalServer->join();
@@ -169,16 +177,12 @@ void CServerHandler::startLocalServerAndConnect()
 	th->update();
 	
 	auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.existingProcess");
-	try
+
+	if (!checkNetworkPortIsFree(localhostAddress, getDefaultPort()))
 	{
-		CConnection testConnection(localhostAddress, getDefaultPort(), NAME, uuid);
 		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
 		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
-	}
-	catch(std::runtime_error & error)
-	{
-		//no connection means that port is not busy and we can start local server
 	}
 	
 #if defined(SINGLE_PROCESS_APP)
@@ -243,38 +247,15 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-	justConnectToServer(localhostAddress, 0);
+	justConnectToServer(localhostAddress, 0, onConnected);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
 
-void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
+void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port, const std::function<void()> & onConnected)
 {
+	logNetwork->info("Establishing connection...");
 	state = EClientState::CONNECTING;
-	while(!c && state != EClientState::CONNECTION_CANCELLED)
-	{
-		try
-		{
-			logNetwork->info("Establishing connection...");
-			c = std::make_shared<CConnection>(
-					addr.size() ? addr : getHostAddress(),
-					port ? port : getHostPort(),
-					NAME, uuid);
-		}
-		catch(std::runtime_error & error)
-		{
-			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
-		}
-	}
-
-	if(state == EClientState::CONNECTION_CANCELLED)
-	{
-		logNetwork->info("Connection aborted by player!");
-		return;
-	}
-
-	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
 	if(!addr.empty() && addr != getHostAddress())
 	{
@@ -286,13 +267,39 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		Settings serverPort = settings.write["server"]["port"];
 		serverPort->Integer() = port;
 	}
+
+	networkClient->start(addr.size() ? addr : getHostAddress(), port ? port : getHostPort());
+}
+
+void CServerHandler::onConnectionFailed(const std::string & errorMessage)
+{
+	if(state == EClientState::CONNECTION_CANCELLED)
+	{
+		logNetwork->info("Connection aborted by player!");
+		return;
+	}
+
+	logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", errorMessage);
+
+	//FIXME: replace with asio timer
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+
+	//FIXME: pass parameters from initial attempt
+	networkClient->start(getHostAddress(), getHostPort());
+}
+
+void CServerHandler::onConnectionEstablished()
+{
+	c->enterLobbyConnectionMode();
+	sendClientConnecting();
+
+	//FIXME: call functor provided in CServerHandler::justConnectToServer
+	assert(0);
+	//onConnected();
 }
 
 void CServerHandler::applyPacksOnLobbyScreen()
 {
-	if(!c || !c->handler)
-		return;
-
 	boost::unique_lock<boost::recursive_mutex> lock(*mx);
 	while(!packsForLobbyScreen.empty())
 	{
@@ -303,16 +310,6 @@ void CServerHandler::applyPacksOnLobbyScreen()
 		apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
 		GH.windows().totalRedraw();
 		delete pack;
-	}
-}
-
-void CServerHandler::stopServerConnection()
-{
-	if(c->handler)
-	{
-		while(!c->handler->timed_join(boost::chrono::milliseconds(50)))
-			applyPacksOnLobbyScreen();
-		c->handler->join();
 	}
 }
 
@@ -421,7 +418,6 @@ void CServerHandler::sendClientDisconnecting()
 	{
 		// Network thread might be applying network pack at this moment
 		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-		c->close();
 		c.reset();
 	}
 }
@@ -814,7 +810,7 @@ void CServerHandler::restoreLastSession()
 			myNames.push_back(name.String());
 		resetStateForLobby(StartInfo::LOAD_GAME, &myNames);
 		screenType = ESelectionScreen::loadGame;
-		justConnectToServer(settings["server"]["server"].String(), settings["server"]["port"].Integer());
+		justConnectToServer(settings["server"]["server"].String(), settings["server"]["port"].Integer(), {});
 	};
 	
 	auto cleanUpSession = []()
@@ -844,9 +840,9 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		screenType = ESelectionScreen::newGame;
 	}
 	if(settings["session"]["donotstartserver"].Bool())
-		justConnectToServer(localhostAddress, 3030);
+		justConnectToServer(localhostAddress, 3030, {});
 	else
-		startLocalServerAndConnect();
+		startLocalServerAndConnect({});
 
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
@@ -902,65 +898,49 @@ public:
 	}
 };
 
-void CServerHandler::threadHandleConnection()
+void CServerHandler::onPacketReceived(const std::vector<uint8_t> & message)
 {
-	setThreadName("handleConnection");
-	c->enterLobbyConnectionMode();
-
-	try
+	CPack * pack = c->retrievePack(message);
+	if(state == EClientState::DISCONNECTING)
 	{
-		sendClientConnecting();
-		while(c && c->connected)
-		{
-			while(state == EClientState::STARTING)
-				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
-
-			CPack * pack = c->retrievePack();
-			if(state == EClientState::DISCONNECTING)
-			{
-				// FIXME: server shouldn't really send netpacks after it's tells client to disconnect
-				// Though currently they'll be delivered and might cause crash.
-				vstd::clear_pointer(pack);
-			}
-			else
-			{
-				ServerHandlerCPackVisitor visitor(*this);
-				pack->visit(visitor);
-			}
-		}
+		// FIXME: server shouldn't really send netpacks after it's tells client to disconnect
+		// Though currently they'll be delivered and might cause crash.
+		vstd::clear_pointer(pack);
 	}
-	//catch only asio exceptions
-	catch(const boost::system::system_error & e)
+	else
 	{
-		if(state == EClientState::DISCONNECTING)
+		ServerHandlerCPackVisitor visitor(*this);
+		pack->visit(visitor);
+	}
+}
+
+void CServerHandler::onDisconnected()
+{
+	if(state == EClientState::DISCONNECTING)
+	{
+		logNetwork->info("Successfully closed connection to server, ending listening thread!");
+	}
+	else
+	{
+		logNetwork->error("Lost connection to server, ending listening thread! Connection has been closed");
+
+		if(client)
 		{
-			logNetwork->info("Successfully closed connection to server, ending listening thread!");
+			state = EClientState::DISCONNECTING;
+
+			GH.dispatchMainThread([]()
+			{
+				CSH->endGameplay();
+				GH.defActionsDef = 63;
+				CMM->menu->switchToTab("main");
+			});
 		}
 		else
 		{
-			if (e.code() == boost::asio::error::eof)
-				logNetwork->error("Lost connection to server, ending listening thread! Connection has been closed");
-			else
-				logNetwork->error("Lost connection to server, ending listening thread! Reason: %s", e.what());
-
-			if(client)
-			{
-				state = EClientState::DISCONNECTING;
-
-				GH.dispatchMainThread([]()
-				{
-					CSH->endGameplay();
-					GH.defActionsDef = 63;
-					CMM->menu->switchToTab("main");
-				});
-			}
-			else
-			{
-				auto lcd = new LobbyClientDisconnected();
-				lcd->clientId = c->connectionID;
-				boost::unique_lock<boost::recursive_mutex> lock(*mx);
-				packsForLobbyScreen.push_back(lcd);
-			}
+			auto lcd = new LobbyClientDisconnected();
+			lcd->clientId = c->connectionID;
+			boost::unique_lock<boost::recursive_mutex> lock(*mx);
+			packsForLobbyScreen.push_back(lcd);
 		}
 	}
 }

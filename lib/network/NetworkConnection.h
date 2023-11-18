@@ -10,6 +10,7 @@
 #pragma once
 
 #include "NetworkDefines.h"
+#include "NetworkListener.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

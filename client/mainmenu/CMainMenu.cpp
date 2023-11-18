@@ -45,7 +45,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/campaign/CampaignHandler.h"
-#include "../../lib/serializer/Connection.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
@@ -559,7 +558,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	{
 		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 		buttonOk->block(true);
-		startConnectThread();
+		startConnection();
 	}
 	else
 	{
@@ -582,7 +581,7 @@ void CSimpleJoinScreen::connectToServer()
 	buttonOk->block(true);
 	GH.stopTextInput();
 
-	startConnectThread(inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
+	startConnection(inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
 }
 
 void CSimpleJoinScreen::leaveScreen()
@@ -603,7 +602,7 @@ void CSimpleJoinScreen::onChange(const std::string & newText)
 	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 }
 
-void CSimpleJoinScreen::startConnectThread(const std::string & addr, ui16 port)
+void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 {
 #if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
 	// in single process build server must use same JNIEnv as client
@@ -611,35 +610,31 @@ void CSimpleJoinScreen::startConnectThread(const std::string & addr, ui16 port)
 	// https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md#threads-and-the-java-vm
 	CVCMIServer::reuseClientJNIEnv(SDL_AndroidGetJNIEnv());
 #endif
-	boost::thread connector(&CSimpleJoinScreen::connectThread, this, addr, port);
 
-	connector.detach();
-}
+	auto const & onConnected = [this]()
+	{
+		// async call to prevent thread race
+		GH.dispatchMainThread([this](){
+			if(CSH->state == EClientState::CONNECTION_FAILED)
+			{
+				CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
 
-void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
-{
-	setThreadName("connectThread");
-	if(!addr.length())
-		CSH->startLocalServerAndConnect();
+				textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
+				GH.startTextInput(inputAddress->pos);
+				buttonOk->block(false);
+			}
+
+			if(GH.windows().isTopWindow(this))
+			{
+				close();
+			}
+		});
+	};
+
+	if(addr.empty())
+		CSH->startLocalServerAndConnect(onConnected);
 	else
-		CSH->justConnectToServer(addr, port);
-
-	// async call to prevent thread race
-	GH.dispatchMainThread([this](){
-		if(CSH->state == EClientState::CONNECTION_FAILED)
-		{
-			CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
-
-			textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
-			GH.startTextInput(inputAddress->pos);
-			buttonOk->block(false);
-		}
-
-		if(GH.windows().isTopWindow(this))
-		{
-			close();
-		}
-	});
+		CSH->justConnectToServer(addr, port, onConnected);
 }
 
 CLoadingScreen::CLoadingScreen()

@@ -1,0 +1,50 @@
+/*
+ * NetworkListener.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+class NetworkConnection;
+class NetworkServer;
+class NetworkClient;
+
+class DLL_LINKAGE INetworkConnectionListener
+{
+	friend class NetworkConnection;
+protected:
+	virtual void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) = 0;
+	virtual void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) = 0;
+
+	~INetworkConnectionListener() = default;
+};
+
+class DLL_LINKAGE INetworkServerListener : public INetworkConnectionListener
+{
+	friend class NetworkServer;
+protected:
+	virtual void onNewConnection(const std::shared_ptr<NetworkConnection> &) = 0;
+
+	~INetworkServerListener() = default;
+};
+
+class DLL_LINKAGE INetworkClientListener
+{
+	friend class NetworkClient;
+protected:
+	virtual void onPacketReceived(const std::vector<uint8_t> & message) = 0;
+	virtual void onConnectionFailed(const std::string & errorMessage) = 0;
+	virtual void onConnectionEstablished() = 0;
+	virtual void onDisconnected() = 0;
+
+	~INetworkClientListener() = default;
+};
+
+
+VCMI_LIB_NAMESPACE_END

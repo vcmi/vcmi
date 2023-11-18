@@ -12,7 +12,7 @@
 #include "../gui/InterfaceObjectConfigurable.h"
 #include "../windows/CWindowObject.h"
 
-#include "../../lib/network/NetworkClient.h"
+#include "../../lib/network/NetworkListener.h"
 
 class LobbyWindow;
 
@@ -27,8 +27,9 @@ public:
 	std::shared_ptr<CTextBox> getGameChat();
 };
 
-class LobbyClient : public NetworkClient
+class LobbyClient : public INetworkClientListener
 {
+	std::unique_ptr<NetworkClient> networkClient;
 	LobbyWindow * window;
 
 	void onPacketReceived(const std::vector<uint8_t> & message) override;
@@ -40,6 +41,10 @@ public:
 	explicit LobbyClient(LobbyWindow * window);
 
 	void sendMessage(const JsonNode & data);
+	void start(const std::string & host, uint16_t port);
+	void run();
+	void poll();
+
 };
 
 class LobbyWindow : public CWindowObject

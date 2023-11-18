@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include "../lib/serializer/Connection.h"
+#include "../lib/network/NetworkListener.h"
 #include "../lib/StartInfo.h"
 
-#include <boost/program_options.hpp>
+#include <boost/program_options/variables_map.hpp>
 
 #if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 #define VCMI_ANDROID_DUAL_PROCESS 1
@@ -24,6 +24,7 @@ class CMapInfo;
 
 struct CPackForLobby;
 
+class CConnection;
 struct StartInfo;
 struct LobbyInfo;
 struct PlayerSettings;
@@ -46,53 +47,66 @@ enum class EServerState : ui8
 	SHUTDOWN
 };
 
-class CVCMIServer : public LobbyInfo
+class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkClientListener
 {
+	/// Network server instance that receives and processes incoming connections on active socket
+	std::unique_ptr<NetworkServer> networkServer;
+
+	/// Outgoing connection established by this server to game lobby for proxy mode (only in lobby game)
+	std::unique_ptr<NetworkClient> outgoingConnection;
+
+public:
+	/// List of all active connections
+	std::vector<std::shared_ptr<CConnection>> activeConnections;
+
+private:
+	/// List of all connections that were closed (but can still reconnect later)
+	std::vector<std::shared_ptr<CConnection>> inactiveConnections;
+
 	std::atomic<bool> restartGameplay; // FIXME: this is just a hack
-	std::shared_ptr<boost::asio::io_service> io;
-	std::shared_ptr<TAcceptor> acceptor;
-	std::shared_ptr<TSocket> upcomingConnection;
-	std::list<std::unique_ptr<CPackForLobby>> announceQueue;
+
 	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
-	std::unique_ptr<boost::thread> announceLobbyThread;
 	std::unique_ptr<boost::thread> remoteConnectionsThread;
 	std::atomic<EServerState> state;
 
-public:
-	std::shared_ptr<CGameHandler> gh;
-	ui16 port;
+	// INetworkServerListener impl
+	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
+	void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) override;
+	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
 
-	boost::program_options::variables_map cmdLineOptions;
-	std::set<std::shared_ptr<CConnection>> connections;
-	std::set<std::shared_ptr<CConnection>> remoteConnections;
-	std::set<std::shared_ptr<CConnection>> hangingConnections; //keep connections of players disconnected during the game
-	
+	// INetworkClientListener impl
+	void onPacketReceived(const std::vector<uint8_t> & message) override;
+	void onConnectionFailed(const std::string & errorMessage) override;
+	void onConnectionEstablished() override;
+	void onDisconnected() override;
+
+	void establishOutgoingConnection();
+
+	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<NetworkConnection> &);
+
 	std::atomic<int> currentClientId;
 	std::atomic<ui8> currentPlayerId;
-	std::shared_ptr<CConnection> hostClient;
+
+public:
+	std::shared_ptr<CGameHandler> gh;
+	boost::program_options::variables_map cmdLineOptions;
 
 	CVCMIServer(boost::program_options::variables_map & opts);
 	~CVCMIServer();
+
 	void run();
+
 	bool prepareToStartGame();
 	void prepareToRestart();
-	void startGameImmidiately();
+	void startGameImmediately();
 
-	void establishRemoteConnections();
-	void connectToRemote();
-	void startAsyncAccept();
-	void connectionAccepted(const boost::system::error_code & ec);
 	void threadHandleClient(std::shared_ptr<CConnection> c);
-	void threadAnnounceLobby();
-	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);
 
 	void announcePack(std::unique_ptr<CPackForLobby> pack);
 	bool passHost(int toConnectionId);
 
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
-	void announceMessage(const std::string & txt);
-	void addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack);
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
@@ -100,6 +114,11 @@ public:
 	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode);
 	void clientDisconnected(std::shared_ptr<CConnection> c);
 	void reconnectPlayer(int connId);
+
+public:
+	void announceMessage(const std::string & txt);
+
+	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);
 
 	void updateAndPropagateLobbyState();
 

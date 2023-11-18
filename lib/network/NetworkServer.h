@@ -10,6 +10,7 @@
 #pragma once
 
 #include "NetworkDefines.h"
+#include "NetworkListener.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,20 +22,20 @@ class DLL_LINKAGE NetworkServer : boost::noncopyable, public INetworkConnectionL
 	std::shared_ptr<NetworkAcceptor> acceptor;
 	std::set<std::shared_ptr<NetworkConnection>> connections;
 
+	INetworkServerListener & listener;
+
 	void connectionAccepted(std::shared_ptr<NetworkSocket>, const boost::system::error_code & ec);
 	void startAsyncAccept();
 
 	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
-protected:
-	virtual void onNewConnection(const std::shared_ptr<NetworkConnection> &) = 0;
-	virtual void onConnectionLost(const std::shared_ptr<NetworkConnection> &) = 0;
+	void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) override;
+public:
+	explicit NetworkServer(INetworkServerListener & listener);
 
 	void sendPacket(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message);
 
-public:
-	virtual ~NetworkServer() = default;
-
 	void start(uint16_t port);
+	void run(std::chrono::milliseconds duration);
 	void run();
 };
 

@@ -30,11 +30,12 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/serializer/BinaryDeserializer.h"
+#include "../lib/serializer/BinarySerializer.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/registerTypes/RegisterTypesClientPacks.h"
-#include "../lib/serializer/Connection.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>

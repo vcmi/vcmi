@@ -478,6 +478,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/network/NetworkClient.h
 		${MAIN_LIB_DIR}/network/NetworkConnection.h
 		${MAIN_LIB_DIR}/network/NetworkDefines.h
+		${MAIN_LIB_DIR}/network/NetworkListener.h
 		${MAIN_LIB_DIR}/network/NetworkServer.h
 
 		${MAIN_LIB_DIR}/networkPacks/ArtifactLocation.h

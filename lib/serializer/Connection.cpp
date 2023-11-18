@@ -10,9 +10,52 @@
 #include "StdInc.h"
 #include "Connection.h"
 
-#include "../networkPacks/NetPacksBase.h"
+#include "BinaryDeserializer.h"
+#include "BinarySerializer.h"
 
-#include <boost/asio.hpp>
+//#include "../networkPacks/NetPacksBase.h"
+
+CConnection::CConnection(std::weak_ptr<NetworkConnection> networkConnection)
+{
+
+}
+
+void CConnection::sendPack(const CPack * pack)
+{
+
+}
+
+CPack * CConnection::retrievePack(const std::vector<uint8_t> & data)
+{
+	return nullptr;
+}
+
+void CConnection::disableStackSendingByID()
+{
+
+}
+
+void CConnection::enterLobbyConnectionMode()
+{
+
+}
+
+void CConnection::enterGameplayConnectionMode(CGameState * gs)
+{
+
+}
+
+int CConnection::write(const void * data, unsigned size)
+{
+	return 0;
+}
+
+int CConnection::read(void * data, unsigned size)
+{
+	return 0;
+}
+
+#if 0
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -362,3 +405,5 @@ std::string CConnection::toString() const
 }
 
 VCMI_LIB_NAMESPACE_END
+
+#endif

@@ -13,6 +13,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+NetworkServer::NetworkServer(INetworkServerListener & listener)
+	:listener(listener)
+{
+
+}
+
 void NetworkServer::start(uint16_t port)
 {
 	io = std::make_shared<boost::asio::io_service>();
@@ -32,6 +38,11 @@ void NetworkServer::run()
 	io->run();
 }
 
+void NetworkServer::run(std::chrono::milliseconds duration)
+{
+	io->run_for(duration);
+}
+
 void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingConnection, const boost::system::error_code & ec)
 {
 	if(ec)
@@ -43,7 +54,7 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 	auto connection = std::make_shared<NetworkConnection>(upcomingConnection, *this);
 	connections.insert(connection);
 	connection->start();
-	onNewConnection(connection);
+	listener.onNewConnection(connection);
 	startAsyncAccept();
 }
 
@@ -56,7 +67,12 @@ void NetworkServer::onDisconnected(const std::shared_ptr<NetworkConnection> & co
 {
 	assert(connections.count(connection));
 	connections.erase(connection);
-	onConnectionLost(connection);
+	listener.onDisconnected(connection);
+}
+
+void NetworkServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
+{
+	listener.onPacketReceived(connection, message);
 }
 
 VCMI_LIB_NAMESPACE_END

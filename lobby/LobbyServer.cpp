@@ -104,14 +104,14 @@ void LobbyServer::sendMessage(const std::shared_ptr<NetworkConnection> & target,
 
 	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
 
-	sendPacket(target, payloadBuffer);
+	networkServer->sendPacket(target, payloadBuffer);
 }
 
 void LobbyServer::onNewConnection(const std::shared_ptr<NetworkConnection> & connection)
 {
 }
 
-void LobbyServer::onConnectionLost(const std::shared_ptr<NetworkConnection> & connection)
+void LobbyServer::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
 {
 	activeAccounts.erase(connection);
 }
@@ -169,7 +169,18 @@ void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & co
 
 LobbyServer::LobbyServer()
 	: database(new LobbyDatabase())
+	, networkServer(new NetworkServer(*this))
 {
+}
+
+void LobbyServer::start(uint16_t port)
+{
+	networkServer->start(port);
+}
+
+void LobbyServer::run()
+{
+	networkServer->run();
 }
 
 int main(int argc, const char * argv[])

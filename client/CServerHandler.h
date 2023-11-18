@@ -11,6 +11,7 @@
 
 #include "../lib/CStopWatch.h"
 
+#include "../lib/network/NetworkListener.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CondSh.h"
 
@@ -80,8 +81,10 @@ public:
 };
 
 /// structure to handle running server and connecting to it
-class CServerHandler : public IServerAPI, public LobbyInfo
+class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClientListener, boost::noncopyable
 {
+	std::unique_ptr<NetworkClient> networkClient;
+
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
 	
 	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
@@ -95,12 +98,18 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
-	void threadHandleConnection();
 	void threadRunServer();
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
+	void onPacketReceived(const std::vector<uint8_t> & message) override;
+	void onConnectionFailed(const std::string & errorMessage) override;
+	void onConnectionEstablished() override;
+	void onDisconnected() override;
+
 public:
+	std::shared_ptr<CConnection> c;
+
 	std::atomic<EClientState> state;
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together
@@ -115,7 +124,6 @@ public:
 	std::unique_ptr<CStopWatch> th;
 	std::shared_ptr<boost::thread> threadRunLocalServer;
 
-	std::shared_ptr<CConnection> c;
 	CClient * client;
 
 	CondSh<bool> campaignServerRestartLock;
@@ -123,15 +131,15 @@ public:
 	static const std::string localhostAddress;
 
 	CServerHandler();
+	~CServerHandler();
 	
 	std::string getHostAddress() const;
 	ui16 getHostPort() const;
 
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
-	void startLocalServerAndConnect();
-	void justConnectToServer(const std::string & addr, const ui16 port);
+	void startLocalServerAndConnect(const std::function<void()> & onConnected);
+	void justConnectToServer(const std::string & addr, const ui16 port, const std::function<void()> & onConnected);
 	void applyPacksOnLobbyScreen();
-	void stopServerConnection();
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();

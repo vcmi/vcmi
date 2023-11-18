@@ -18,12 +18,12 @@
 
 #include "../../lib/MetaString.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/network/NetworkClient.h"
 
 LobbyClient::LobbyClient(LobbyWindow * window)
-	: window(window)
-{
-
-}
+	: networkClient(std::make_unique<NetworkClient>(*this))
+	, window(window)
+{}
 
 static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 {
@@ -100,7 +100,22 @@ void LobbyClient::sendMessage(const JsonNode & data)
 
 	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
 
-	sendPacket(payloadBuffer);
+	networkClient->sendPacket(payloadBuffer);
+}
+
+void LobbyClient::start(const std::string & host, uint16_t port)
+{
+	networkClient->start(host, port);
+}
+
+void LobbyClient::run()
+{
+	networkClient->run();
+}
+
+void LobbyClient::poll()
+{
+	networkClient->poll();
 }
 
 LobbyWidget::LobbyWidget(LobbyWindow * window)

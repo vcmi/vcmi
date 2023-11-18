@@ -13,10 +13,27 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkClient::NetworkClient()
+DLL_LINKAGE bool checkNetworkPortIsFree(const std::string & host, uint16_t port)
+{
+	boost::asio::io_service io;
+	NetworkAcceptor acceptor(io);
+
+	boost::system::error_code ec;
+	acceptor.open(boost::asio::ip::tcp::v4(), ec);
+	if (ec)
+		return false;
+
+	acceptor.bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port), ec);
+	if (ec)
+		return false;
+
+	return true;
+}
+
+NetworkClient::NetworkClient(INetworkClientListener & listener)
 	: io(new NetworkService)
 	, socket(new NetworkSocket(*io))
-//	, timer(new NetworkTimer(*io))
+	, listener(listener)
 {
 }
 
@@ -32,14 +49,14 @@ void NetworkClient::onConnected(const boost::system::error_code & ec)
 {
 	if (ec)
 	{
-		onConnectionFailed(ec.message());
+		listener.onConnectionFailed(ec.message());
 		return;
 	}
 
 	connection = std::make_shared<NetworkConnection>(socket, *this);
 	connection->start();
 
-	onConnectionEstablished();
+	listener.onConnectionEstablished();
 }
 
 void NetworkClient::run()
@@ -59,12 +76,12 @@ void NetworkClient::sendPacket(const std::vector<uint8_t> & message)
 
 void NetworkClient::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
 {
-	onDisconnected();
+	listener.onDisconnected();
 }
 
 void NetworkClient::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
-	onPacketReceived(message);
+	listener.onPacketReceived(message);
 }
 
 

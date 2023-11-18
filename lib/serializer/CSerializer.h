@@ -51,7 +51,7 @@ struct VectorizedObjectInfo
 };
 
 /// Base class for serializers capable of reading or writing data
-class DLL_LINKAGE CSerializer
+class DLL_LINKAGE CSerializer : boost::noncopyable
 {
 	template<typename Numeric, std::enable_if_t<std::is_arithmetic_v<Numeric>, bool> = true>
 	static int32_t idToNumber(const Numeric &t)

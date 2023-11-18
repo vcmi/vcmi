@@ -41,7 +41,7 @@ public:
 	std::vector<ChatMessage> getRecentMessageHistory();
 };
 
-class LobbyServer : public NetworkServer
+class LobbyServer : public INetworkServerListener
 {
 	struct AccountState
 	{
@@ -51,12 +51,16 @@ class LobbyServer : public NetworkServer
 	std::map<std::shared_ptr<NetworkConnection>, AccountState> activeAccounts;
 
 	std::unique_ptr<LobbyDatabase> database;
+	std::unique_ptr<NetworkServer> networkServer;
 
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
-	void onConnectionLost(const std::shared_ptr<NetworkConnection> &) override;
+	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
 
 	void sendMessage(const std::shared_ptr<NetworkConnection> & target, const JsonNode & json);
 public:
 	LobbyServer();
+
+	void start(uint16_t port);
+	void run();
 };

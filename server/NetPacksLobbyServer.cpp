@@ -13,11 +13,9 @@
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
 
-#include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
-
-// Campaigns
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/serializer/Connection.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -38,67 +36,18 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(srv.gh)
-	{
-		for(auto & connection : srv.hangingConnections)
-		{
-			if(connection->uuid == pack.uuid)
-			{
-				{
-				result = true;
-				return;
-				}
-			}
-		}
-	}
-	
 	if(srv.getState() == EServerState::LOBBY)
 	{
 		result = true;
 		return;
 	}
 	
-	//disconnect immediately and ignore this client
-	srv.connections.erase(pack.c);
-	if(pack.c && pack.c->isOpen())
-	{
-		pack.c->close();
-		pack.c->connected = false;
-	}
-	{
 	result = false;
 	return;
-	}
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(srv.gh)
-	{
-		for(auto & connection : srv.hangingConnections)
-		{
-			if(connection->uuid == pack.uuid)
-			{
-				logNetwork->info("Reconnection player");
-				pack.c->connectionID = connection->connectionID;
-				for(auto & playerConnection : srv.gh->connections)
-				{
-					for(auto & existingConnection : playerConnection.second)
-					{
-						if(existingConnection == connection)
-						{
-							playerConnection.second.erase(existingConnection);
-							playerConnection.second.insert(pack.c);
-							break;
-						}
-					}
-				}
-				srv.hangingConnections.erase(connection);
-				break;
-			}
-		}
-	}
-	
 	srv.clientConnected(pack.c, pack.names, pack.uuid, pack.mode);
 	// Server need to pass some data to newly connected client
 	pack.clientId = pack.c->connectionID;
@@ -121,7 +70,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyCl
 		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
 		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
 		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
-		srv.addToAnnounceQueue(std::move(startGameForReconnectedPlayer));
+		srv.announcePack(std::move(startGameForReconnectedPlayer));
 	}
 }
 
@@ -154,38 +103,28 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 void ApplyOnServerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
 	srv.clientDisconnected(pack.c);
-	pack.c->close();
-	pack.c->connected = false;
-
 	result = true;
 }
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.c && pack.c->isOpen())
-	{
-		boost::unique_lock<boost::mutex> lock(*pack.c->mutexWrite);
-		pack.c->close();
-		pack.c->connected = false;
-	}
-
 	if(pack.shutdownServer)
 	{
 		logNetwork->info("Client requested shutdown, server will close itself...");
 		srv.setState(EServerState::SHUTDOWN);
 		return;
 	}
-	else if(srv.connections.empty())
+	else if(srv.activeConnections.empty())
 	{
 		logNetwork->error("Last connection lost, server will close itself...");
 		srv.setState(EServerState::SHUTDOWN);
 	}
-	else if(pack.c == srv.hostClient)
+	else if(pack.c->connectionID == srv.hostClientId)
 	{
 		auto ph = std::make_unique<LobbyChangeHost>();
-		auto newHost = *RandomGeneratorUtil::nextItem(srv.connections, CRandomGenerator::getDefault());
+		auto newHost = srv.activeConnections.front();
 		ph->newHostConnectionId = newHost->connectionID;
-		srv.addToAnnounceQueue(std::move(ph));
+		srv.announcePack(std::move(ph));
 	}
 	srv.updateAndPropagateLobbyState();
 	
@@ -270,8 +209,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 {
-	boost::unique_lock<boost::mutex> stateLock(srv.stateMutex);
-	for(auto & c : srv.connections)
+	for(auto & c : srv.activeConnections)
 	{
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
@@ -312,10 +250,10 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
 	if(pack.clientId == -1) //do not restart game for single client only
-		srv.startGameImmidiately();
+		srv.startGameImmediately();
 	else
 	{
-		for(auto & c : srv.connections)
+		for(auto & c : srv.activeConnections)
 		{
 			if(c->connectionID == pack.clientId)
 			{

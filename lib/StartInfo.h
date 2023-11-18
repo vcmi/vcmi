@@ -197,7 +197,6 @@ struct DLL_LINKAGE LobbyState
 
 struct DLL_LINKAGE LobbyInfo : public LobbyState
 {
-	boost::mutex stateMutex;
 	std::string uuid;
 
 	LobbyInfo() {}
@@ -205,7 +204,8 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	void verifyStateBeforeStart(bool ignoreNoHuman = false) const;
 
 	bool isClientHost(int clientId) const;
-	std::set<PlayerColor> getAllClientPlayers(int clientId);
+	bool isPlayerHost(const PlayerColor & color) const;
+	std::set<PlayerColor> getAllClientPlayers(int clientId) const;
 	std::vector<ui8> getConnectedPlayerIdsForClient(int clientId) const;
 
 	// Helpers for lobby state access

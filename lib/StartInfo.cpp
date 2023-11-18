@@ -123,7 +123,12 @@ bool LobbyInfo::isClientHost(int clientId) const
 	return clientId == hostClientId;
 }
 
-std::set<PlayerColor> LobbyInfo::getAllClientPlayers(int clientId)
+bool LobbyInfo::isPlayerHost(const PlayerColor & color) const
+{
+	return vstd::contains(getAllClientPlayers(hostClientId), color);
+}
+
+std::set<PlayerColor> LobbyInfo::getAllClientPlayers(int clientId) const
 {
 	std::set<PlayerColor> players;
 	for(auto & elem : si->playerInfos)

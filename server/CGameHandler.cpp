@@ -61,6 +61,7 @@
 
 #include "../lib/serializer/CSaveFile.h"
 #include "../lib/serializer/CLoadFile.h"
+#include "../lib/serializer/Connection.h"
 
 #include "../lib/spells/CSpellHandler.h"
 
@@ -969,11 +970,11 @@ void CGameHandler::onNewTurn()
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
 
-void CGameHandler::run(bool resume)
+void CGameHandler::start(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
-	for (auto cc : lobby->connections)
+	for (auto cc : lobby->activeConnections)
 	{
 		auto players = lobby->getAllClientPlayers(cc->connectionID);
 		std::stringstream sbuffer;
@@ -1004,18 +1005,11 @@ void CGameHandler::run(bool resume)
 		events::GameResumed::defaultExecute(serverEventBus.get());
 
 	turnOrder->onGameStarted();
+}
 
-	//wait till game is done
-	auto clockLast = std::chrono::steady_clock::now();
-	while(lobby->getState() == EServerState::GAMEPLAY)
-	{
-		const auto clockDuration = std::chrono::steady_clock::now() - clockLast;
-		const int timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(clockDuration).count();
-		clockLast += clockDuration;
-		turnTimerHandler.update(timePassed);
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-
-	}
+void CGameHandler::tick(int millisecondsPassed)
+{
+	turnTimerHandler.update(millisecondsPassed);
 }
 
 void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
@@ -1677,13 +1671,8 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 void CGameHandler::sendToAllClients(CPackForClient * pack)
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(*pack).name());
-	for (auto c : lobby->connections)
-	{
-		if(!c->isOpen())
-			continue;
-
+	for (auto c : lobby->activeConnections)
 		c->sendPack(pack);
-	}
 }
 
 void CGameHandler::sendAndApply(CPackForClient * pack)
