@@ -562,14 +562,14 @@ int32_t BattleInfo::getActiveStackID() const
 	return activeStack;
 }
 
-TStacks BattleInfo::getStacksIf(TStackFilter predicate) const
+TStacks BattleInfo::getStacksIf(const TStackFilter & predicate) const
 {
 	TStacks ret;
 	vstd::copy_if(stacks, std::back_inserter(ret), predicate);
 	return ret;
 }
 
-battle::Units BattleInfo::getUnitsIf(battle::UnitFilter predicate) const
+battle::Units BattleInfo::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	battle::Units ret;
 	vstd::copy_if(stacks, std::back_inserter(ret), predicate);
