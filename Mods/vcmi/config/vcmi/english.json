@@ -75,6 +75,7 @@
 	"vcmi.server.confirmReconnect"       : "Do you want to reconnect to the last session?",
 	"vcmi.server.errors.modNoDependency" : "Failed to load mod {'%s'}!\n It depends on mod {'%s'} which is not active!\n",
 	"vcmi.server.errors.modConflict" : "Failed to load mod {'%s'}!\n Conflicts with active mod {'%s'}!\n",
+	"vcmi.server.errors.unknownEntity" : "Failed to load save! Unknown entity '%s' found in saved game! Save may not be compatible with currently installed version of mods!",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "General",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Switches to General Options tab, which contains settings related to general game client behavior.",

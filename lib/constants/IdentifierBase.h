@@ -9,6 +9,19 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class IdentifierResolutionException : public std::runtime_error
+{
+public:
+	const std::string identifierName;
+
+	IdentifierResolutionException(const std::string & identifierName )
+		: std::runtime_error("Failed to resolve identifier " + identifierName)
+		, identifierName(identifierName)
+	{}
+};
+
 class IdentifierBase
 {
 protected:
@@ -21,6 +34,11 @@ protected:
 	{}
 
 	~IdentifierBase() = default;
+
+	/// Attempts to resolve identifier using provided entity type
+	/// Returns resolved numeric identifier
+	/// Throws IdentifierResolutionException on failure
+	static int32_t resolveIdentifier(const std::string & entityType, const std::string identifier);
 public:
 	int32_t num;
 
@@ -233,4 +251,4 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+VCMI_LIB_NAMESPACE_END

@@ -122,12 +122,21 @@ namespace GameConstants
 #endif
 }
 
-si32 HeroClassID::decode(const std::string & identifier)
+int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const std::string identifier)
 {
 	if (identifier.empty())
 		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "heroClass", identifier);
-	return rawId.value();
+
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType, identifier);
+
+	if (rawId)
+		return rawId.value();
+	throw IdentifierResolutionException(identifier);
+}
+
+si32 HeroClassID::decode(const std::string & identifier)
+{
+	return resolveIdentifier("heroClass", identifier);
 }
 
 std::string HeroClassID::encode(const si32 index)
@@ -171,10 +180,7 @@ std::string MapObjectID::encode(int32_t index)
 
 si32 MapObjectID::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "object", identifier);
-	return rawId.value();
+	return resolveIdentifier("object", identifier);
 }
 
 std::string MapObjectSubID::encode(MapObjectID primaryID, int32_t index)
@@ -193,17 +199,13 @@ std::string MapObjectSubID::encode(MapObjectID primaryID, int32_t index)
 
 si32 MapObjectSubID::decode(MapObjectID primaryID, const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-
 	if(primaryID == Obj::PRISON || primaryID == Obj::HERO)
 		return HeroTypeID::decode(identifier);
 
 	if (primaryID == Obj::SPELL_SCROLL)
 		return SpellID::decode(identifier);
 
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), VLC->objtypeh->getJsonKey(primaryID), identifier);
-	return rawId.value();
+	return resolveIdentifier(VLC->objtypeh->getJsonKey(primaryID), identifier);
 }
 
 std::string BoatId::encode(int32_t index)
@@ -215,20 +217,14 @@ std::string BoatId::encode(int32_t index)
 
 si32 BoatId::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "core:boat", identifier);
-	return rawId.value();
+	return resolveIdentifier("core:boat", identifier);
 }
 
 si32 HeroTypeID::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
 	if (identifier == "random")
 		return -2;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", identifier);
-	return rawId.value();
+	return resolveIdentifier("hero", identifier);
 }
 
 std::string HeroTypeID::encode(const si32 index)
@@ -257,10 +253,7 @@ const Artifact * ArtifactIDBase::toEntity(const Services * services) const
 
 si32 ArtifactID::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", identifier);
-	return rawId.value();
+	return resolveIdentifier("artifact", identifier);
 }
 
 std::string ArtifactID::encode(const si32 index)
@@ -277,10 +270,7 @@ std::string ArtifactID::entityType()
 
 si32 SecondarySkill::decode(const std::string& identifier)
 {
-	if (identifier.empty())
-		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "secondarySkill", identifier);
-	return rawId.value();
+	return resolveIdentifier("secondarySkill", identifier);
 }
 
 std::string SecondarySkill::encode(const si32 index)
@@ -317,10 +307,7 @@ const Creature * CreatureIDBase::toEntity(const CreatureService * creatures) con
 
 si32 CreatureID::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", identifier);
-	return rawId.value();
+	return resolveIdentifier("creature", identifier);
 }
 
 std::string CreatureID::encode(const si32 index)
@@ -367,10 +354,7 @@ const HeroType * HeroTypeID::toEntity(const Services * services) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
-	return rawId.value();
+	return resolveIdentifier("spell", identifier);
 }
 
 std::string SpellID::encode(const si32 index)
@@ -382,10 +366,7 @@ std::string SpellID::encode(const si32 index)
 
 si32 BattleField::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
-	return rawId.value();
+	return resolveIdentifier("battlefield", identifier);
 }
 
 std::string BattleField::encode(const si32 index)
@@ -439,7 +420,7 @@ std::string PlayerColor::entityType()
 
 si32 PrimarySkill::decode(const std::string& identifier)
 {
-	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+	return resolveIdentifier(entityType(), identifier);
 }
 
 std::string PrimarySkill::encode(const si32 index)
@@ -454,11 +435,7 @@ std::string PrimarySkill::entityType()
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return -1;
-
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
-	return rawId.value();
+	return resolveIdentifier(entityType(), identifier);
 }
 
 std::string FactionID::encode(const si32 index)
@@ -480,13 +457,10 @@ const Faction * FactionID::toEntity(const Services * service) const
 
 si32 TerrainId::decode(const std::string & identifier)
 {
-	if (identifier.empty())
-		return static_cast<si32>(TerrainId::NONE);
 	if (identifier == "native")
 		return TerrainId::NATIVE_TERRAIN;
 
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
-	return rawId.value();
+	return resolveIdentifier(entityType(), identifier);
 }
 
 std::string TerrainId::encode(const si32 index)
@@ -508,8 +482,7 @@ si32 RoadId::decode(const std::string & identifier)
 	if (identifier.empty())
 		return RoadId::NO_ROAD.getNum();
 
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
-	return rawId.value();
+	return resolveIdentifier(entityType(), identifier);
 }
 
 std::string RoadId::encode(const si32 index)
@@ -529,8 +502,7 @@ si32 RiverId::decode(const std::string & identifier)
 	if (identifier.empty())
 		return RiverId::NO_RIVER.getNum();
 
-	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
-	return rawId.value();
+	return resolveIdentifier(entityType(), identifier);
 }
 
 std::string RiverId::encode(const si32 index)
@@ -574,7 +546,7 @@ const ObstacleInfo * Obstacle::getInfo() const
 
 si32 SpellSchool::decode(const std::string & identifier)
 {
-	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+	return resolveIdentifier(entityType(), identifier);
 }
 
 std::string SpellSchool::encode(const si32 index)
@@ -592,7 +564,7 @@ std::string SpellSchool::entityType()
 
 si32 GameResID::decode(const std::string & identifier)
 {
-	return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
+	return resolveIdentifier(entityType(), identifier);
 }
 
 std::string GameResID::encode(const si32 index)
