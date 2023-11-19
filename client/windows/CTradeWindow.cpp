@@ -86,7 +86,7 @@ void CTradeWindow::initItems(bool Left)
 	{
 		if(Left && itemsType[1] == RESOURCE)
 		{
-			resoursesPanelPlayer = std::make_shared<SResourcesPanel>(
+			tradePanels.emplace_back(std::make_shared<SResourcesPanel>(
 				[this](std::shared_ptr<CTradeableItem> marketSlot) -> void
 				{
 					if(hLeft != marketSlot)
@@ -97,19 +97,19 @@ void CTradeWindow::initItems(bool Left)
 						hLeft->selection->selectSlot(true);
 						selectionChanged(true);
 					}
-				}, 
+				},
 				[this]() -> void
 				{
-					for(auto & slot : resoursesPanelPlayer->slots)
+					for(auto & slot : tradePanels[1]->slots)
 						slot->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial)));
-				});
-			resoursesPanelPlayer->moveBy(Point(39, 182));
-			resoursesPanelPlayer->updateSlots();
+				}));
+			tradePanels.back()->moveBy(Point(39, 182));
+			tradePanels.back()->updateSlots();
 			return;
 		}
 		if(!Left && itemsType[0] == RESOURCE)
 		{
-			resoursesPanelMarket = std::make_shared<SResourcesPanel>(
+			tradePanels.emplace_back(std::make_shared<SResourcesPanel>(
 				[this](std::shared_ptr<CTradeableItem> marketSlot) -> void
 				{
 					if(hRight != marketSlot)
@@ -124,31 +124,53 @@ void CTradeWindow::initItems(bool Left)
 				},
 				[this]() -> void
 				{
-					for(auto & slot : resoursesPanelMarket->slots)
-					{
-						if(hLeft) //artifact, creature
+					if(hLeft)
+						for(auto & slot : tradePanels[0]->slots)
 						{
 							int h1, h2; //hlp variables for getting offer
-							market->getOffer(hLeft->id, slot->id, h1, h2, mode);
-							if(slot->id != hLeft->id || mode != EMarketMode::RESOURCE_RESOURCE) //don't allow exchanging same resources
-							{
-								std::ostringstream oss;
-								oss << h2;
-								if(h1 != 1)
-									oss << "/" << h1;
-								slot->subtitle = oss.str();
-							}
+							market->getOffer(hLeft->id, slot->id, h1, h2, EMarketMode::RESOURCE_RESOURCE);
+
+							if(slot->id != hLeft->id)
+								tradePanels[0]->updateOffer(slot->serial, h1, h2);
 							else
 								slot->subtitle = CGI->generaltexth->allTexts[164]; // n/a
 						}
-						else
-							slot->subtitle = "";
-					}
-				});
-			resoursesPanelMarket->moveBy(Point(327, 182));
+					else
+						tradePanels[0]->clearSubtitles();
+				}));
+			tradePanels.back()->moveBy(Point(327, 182));
 			return;
 		}
-
+		if(!Left && itemsType[0] == ARTIFACT_TYPE)
+		{
+			tradePanels.emplace_back(std::make_shared<SArtifactsPanel>(
+				[this](std::shared_ptr<CTradeableItem> marketSlot) -> void
+				{
+					if(hRight != marketSlot)
+					{
+						if(hRight)
+							hRight->selection->selectSlot(false);
+						hRight = marketSlot;
+						hRight->selection->selectSlot(true);
+						selectionChanged(false);
+						initSubs(false);
+					}
+				}, 
+				[this]() -> void
+				{
+					if(hLeft)
+						for(auto & slot : tradePanels[0]->slots)
+						{
+							int h1, h2; //hlp variables for getting offer
+							market->getOffer(hLeft->id, slot->id, h1, h2, EMarketMode::RESOURCE_ARTIFACT);
+							tradePanels[0]->updateOffer(slot->serial, h1, h2);
+						}
+					else
+						tradePanels[0]->clearSubtitles();
+				}, market->availableItemsIds(mode)));
+			tradePanels.back()->moveBy(Point(340, 182));
+			return;
+		}
 
 		std::vector<int> *ids = getItemsIds(Left);
 		std::vector<Rect> pos;
@@ -229,12 +251,6 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 				if(PlayerColor(i) != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(PlayerColor(i)) == EPlayerStatus::INGAME)
 					ids->push_back(i);
 			break;
-
-		case ARTIFACT_TYPE:
-			ids = new std::vector<int>;
-			for (auto const & item : market->availableItemsIds(mode))
-				ids->push_back(item.getNum());
-			break;
 		}
 	}
 
@@ -269,14 +285,6 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		dy = 98;
 		assert(Left);
 		break;
-	case ARTIFACT_TYPE://45,123
-		x = 340 - 289;
-		y = 180;
-		w = 44;
-		h = 44;
-		dx = 83;
-		dy = 79;
-		break;
 	}
 	int leftToRightOffset = 289;
 
@@ -302,12 +310,12 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 void CTradeWindow::initSubs(bool Left)
 {
-	if(itemsType[Left] == RESOURCE)
+	if(itemsType[Left] == RESOURCE || itemsType[Left] == ARTIFACT_TYPE)
 	{ 
 		if(Left)
-			resoursesPanelPlayer->updateSlots();
+			tradePanels[1]->updateSlots();
 		else
-			resoursesPanelMarket->updateSlots();
+			tradePanels[0]->updateSlots();
 		return;
 	}
 
@@ -590,10 +598,8 @@ void CMarketplaceWindow::makeDeal()
 	madeTransaction = true;
 	hLeft = nullptr;
 	hRight = nullptr;
-	if(resoursesPanelPlayer)
-		resoursesPanelPlayer->deselect();
-	if(resoursesPanelMarket)
-		resoursesPanelMarket->deselect();
+	for(auto & panel : tradePanels)
+		panel->deselect();
 	selectionChanged(true);
 }
 

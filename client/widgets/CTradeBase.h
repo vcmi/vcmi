@@ -11,7 +11,8 @@
 
 #include "Images.h"
 
-#include "../../lib/FunctionList.h"
+#include "../lib/FunctionList.h"
+#include "../lib/networkPacks/TradeItem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -64,10 +65,22 @@ public:
 	CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 };
 
-struct SResourcesPanel : public CIntObject
+struct STradePanel : public CIntObject
 {
-	using updatePanelFunctor = std::function<void()>;
+	using updateSlotsFunctor = std::function<void()>;
 
+	std::vector<std::shared_ptr<CTradeableItem>> slots;
+	std::function<void()> updateSlotsCallback;
+	std::shared_ptr<CTradeableItem> selected;
+
+	virtual void updateSlots();
+	virtual void deselect();
+	virtual void clearSubtitles();
+	void updateOffer(int slotIdx, int, int);
+};
+
+struct SResourcesPanel : public STradePanel
+{
 	const std::vector<GameResID> resourcesForTrade =
 	{
 		GameResID::WOOD, GameResID::MERCURY, GameResID::ORE,
@@ -80,12 +93,22 @@ struct SResourcesPanel : public CIntObject
 		Point(0, 79), Point(83, 79), Point(166, 79),
 		Point(83, 158)
 	};
-	std::vector<std::shared_ptr<CTradeableItem>> slots;
-	std::function<void()> updateSubtitles;
 
-	SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updatePanelFunctor updateSubtitles);
-	void updateSlots();
-	void deselect();
+	SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updateSlotsFunctor updateSubtitles);
+};
+
+struct SArtifactsPanel : public STradePanel
+{
+	const std::vector<Point> slotsPos =
+	{
+		Point(0, 0), Point(83, 0), Point(166, 0),
+		Point(0, 79), Point(83, 79), Point(166, 79),
+		Point(83, 158)
+	};
+	const size_t artifactsForTrade = 7;
+
+	SArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updateSlotsFunctor updateSubtitles,
+		std::vector<TradeItemBuy> & arts);
 };
 
 class CTradeBase
@@ -96,8 +119,7 @@ public:
 
 	//all indexes: 1 = left, 0 = right
 	std::array<std::vector<std::shared_ptr<CTradeableItem>>, 2> items;
-	std::shared_ptr<SResourcesPanel> resoursesPanelPlayer;
-	std::shared_ptr<SResourcesPanel> resoursesPanelMarket;
+	std::vector<std::shared_ptr<STradePanel>> tradePanels;
 
 	//highlighted items (nullptr if no highlight)
 	std::shared_ptr<CTradeableItem> hLeft;

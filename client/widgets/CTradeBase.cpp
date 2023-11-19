@@ -258,8 +258,32 @@ void CTradeableItem::setArtInstance(const CArtifactInstance * art)
 		setID(-1);
 }
 
-SResourcesPanel::SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updatePanelFunctor updateSubtitles)
-	: updateSubtitles(updateSubtitles)
+void STradePanel::updateSlots()
+{
+	if(updateSlotsCallback)
+		updateSlotsCallback();
+}
+
+void STradePanel::deselect()
+{
+	for(auto & slot : slots)
+		slot->selection->selectSlot(false);
+}
+
+void STradePanel::clearSubtitles()
+{
+	for(auto & slot : slots)
+		slot->subtitle.clear();
+}
+
+void STradePanel::updateOffer(int slotIdx, int cost, int qty)
+{
+	slots[slotIdx]->subtitle = std::to_string(qty);
+	if(cost != 1)
+		slots[slotIdx]->subtitle += "/" + std::to_string(cost);
+}
+
+SResourcesPanel::SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updateSlotsFunctor updateSubtitles)
 {
 	assert(resourcesForTrade.size() == slotsPos.size());
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
@@ -271,18 +295,26 @@ SResourcesPanel::SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPresse
 		slots.back()->pos.w = 69; slots.back()->pos.h = 66;
 		slots.back()->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[res.num], slots.back()->pos.dimensions()));
 	}
+	updateSlotsCallback = updateSubtitles;
 }
 
-void SResourcesPanel::updateSlots()
+SArtifactsPanel::SArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updateSlotsFunctor updateSubtitles,
+	std::vector<TradeItemBuy> & arts)
 {
-	if(updateSubtitles)
-		updateSubtitles();
-}
+	assert(artifactsForTrade == slotsPos.size());
+	assert(artifactsForTrade == arts.size());
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
-void SResourcesPanel::deselect()
-{
+	slots.resize(artifactsForTrade);
+	int slotNum = 0;
 	for(auto & slot : slots)
-		slot->selection->selectSlot(false);
+	{
+		slot = std::make_shared<CTradeableItem>(slotsPos[slotNum], EType::ARTIFACT_TYPE, arts[slotNum].getNum(), false, slotNum);
+		slot->clickPressedCallback = clickPressedCallback;
+		slot->pos.w = slot->pos.h = 44;
+		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotNum++], slot->pos.dimensions()));
+	}
+	updateSlotsCallback = updateSubtitles;
 }
 
 CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)
