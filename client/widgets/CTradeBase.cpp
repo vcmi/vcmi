@@ -20,7 +20,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CTradeBase::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
+CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
 	: CIntObject(LCLICK | HOVER | SHOW_POPUP, pos)
 	, type(EType(-1)) // set to invalid, will be corrected in setType
 	, id(ID)
@@ -38,7 +38,7 @@ CTradeBase::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool L
 	}
 }
 
-void CTradeBase::CTradeableItem::setType(EType newType)
+void CTradeableItem::setType(EType newType)
 {
 	if(type != newType)
 	{
@@ -57,7 +57,7 @@ void CTradeBase::CTradeableItem::setType(EType newType)
 	}
 }
 
-void CTradeBase::CTradeableItem::setID(int newID)
+void CTradeableItem::setID(int newID)
 {
 	if(id != newID)
 	{
@@ -76,7 +76,7 @@ void CTradeBase::CTradeableItem::setID(int newID)
 	}
 }
 
-AnimationPath CTradeBase::CTradeableItem::getFilename()
+AnimationPath CTradeableItem::getFilename()
 {
 	switch(type)
 	{
@@ -95,7 +95,7 @@ AnimationPath CTradeBase::CTradeableItem::getFilename()
 	}
 }
 
-int CTradeBase::CTradeableItem::getIndex()
+int CTradeableItem::getIndex()
 {
 	if(id < 0)
 		return -1;
@@ -116,7 +116,7 @@ int CTradeBase::CTradeableItem::getIndex()
 	}
 }
 
-void CTradeBase::CTradeableItem::showAll(Canvas & to)
+void CTradeableItem::showAll(Canvas & to)
 {
 	Point posToBitmap;
 	Point posToSubCenter;
@@ -154,13 +154,13 @@ void CTradeBase::CTradeableItem::showAll(Canvas & to)
 	to.drawText(pos.topLeft() + posToSubCenter, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, subtitle);
 }
 
-void CTradeBase::CTradeableItem::clickPressed(const Point& cursorPosition)
+void CTradeableItem::clickPressed(const Point & cursorPosition)
 {
 	if(clickPressedCallback)
 		clickPressedCallback(shared_from_this());
 }
 
-void CTradeBase::CTradeableItem::showAllAt(const Point& dstPos, const std::string& customSub, Canvas& to)
+void CTradeableItem::showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to)
 {
 	Rect oldPos = pos;
 	std::string oldSub = subtitle;
@@ -175,7 +175,7 @@ void CTradeBase::CTradeableItem::showAllAt(const Point& dstPos, const std::strin
 	subtitle = oldSub;
 }
 
-void CTradeBase::CTradeableItem::hover(bool on)
+void CTradeableItem::hover(bool on)
 {
 	if(!on)
 	{
@@ -198,7 +198,7 @@ void CTradeBase::CTradeableItem::hover(bool on)
 	}
 }
 
-void CTradeBase::CTradeableItem::showPopupWindow(const Point& cursorPosition)
+void CTradeableItem::showPopupWindow(const Point & cursorPosition)
 {
 	switch(type)
 	{
@@ -214,7 +214,7 @@ void CTradeBase::CTradeableItem::showPopupWindow(const Point& cursorPosition)
 	}
 }
 
-std::string CTradeBase::CTradeableItem::getName(int number) const
+std::string CTradeableItem::getName(int number) const
 {
 	switch(type)
 	{
@@ -235,7 +235,7 @@ std::string CTradeBase::CTradeableItem::getName(int number) const
 	return "";
 }
 
-const CArtifactInstance* CTradeBase::CTradeableItem::getArtInstance() const
+const CArtifactInstance * CTradeableItem::getArtInstance() const
 {
 	switch(type)
 	{
@@ -247,7 +247,7 @@ const CArtifactInstance* CTradeBase::CTradeableItem::getArtInstance() const
 	}
 }
 
-void CTradeBase::CTradeableItem::setArtInstance(const CArtifactInstance * art)
+void CTradeableItem::setArtInstance(const CArtifactInstance * art)
 {
 	assert(type == ARTIFACT_PLACEHOLDER || type == ARTIFACT_INSTANCE);
 	hlp = art;
@@ -255,6 +255,26 @@ void CTradeBase::CTradeableItem::setArtInstance(const CArtifactInstance * art)
 		setID(art->artType->getId());
 	else
 		setID(-1);
+}
+
+SResourcesPanel::SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updatePanelFunctor updateSubtitles)
+	: updateSubtitles(updateSubtitles)
+{
+	assert(resourcesForTrade.size() == slotsPos.size());
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+
+	for(const auto & res : resourcesForTrade)
+	{
+		slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[res.num], EType::RESOURCE, res.num, true, res.num));
+		slots.back()->clickPressedCallback = clickPressedCallback;
+		slots.back()->pos.w = 69; slots.back()->pos.h = 66;
+	}
+}
+
+void SResourcesPanel::updateSlots()
+{
+	if(updateSubtitles)
+		updateSubtitles();
 }
 
 CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)

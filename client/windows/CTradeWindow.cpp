@@ -84,6 +84,66 @@ void CTradeWindow::initItems(bool Left)
 	}
 	else
 	{
+		if(Left && itemsType[1] == RESOURCE)
+		{
+			resoursesPanelPlayer = std::make_shared<SResourcesPanel>(
+				[this](std::shared_ptr<CTradeableItem> marketSlot) -> void
+				{
+					if(hLeft != marketSlot)
+						hLeft = marketSlot;
+					else
+						return;
+					selectionChanged(true);
+				}, 
+				[this]() -> void
+				{
+					for(auto & slot : resoursesPanelPlayer->slots)
+						slot->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial)));
+				});
+			resoursesPanelPlayer->moveBy(Point(39, 182));
+			resoursesPanelPlayer->updateSlots();
+			return;
+		}
+		if(!Left && itemsType[0] == RESOURCE)
+		{
+			resoursesPanelMarket = std::make_shared<SResourcesPanel>(
+				[this](std::shared_ptr<CTradeableItem> marketSlot) -> void
+				{
+					if(hRight != marketSlot)
+						hRight = marketSlot;
+					else
+						return;
+					selectionChanged(false);
+					initSubs(false);
+				},
+				[this]() -> void
+				{
+					for(auto & slot : resoursesPanelMarket->slots)
+					{
+						if(hLeft) //artifact, creature
+						{
+							int h1, h2; //hlp variables for getting offer
+							market->getOffer(hLeft->id, slot->id, h1, h2, mode);
+							if(slot->id != hLeft->id || mode != EMarketMode::RESOURCE_RESOURCE) //don't allow exchanging same resources
+							{
+								std::ostringstream oss;
+								oss << h2;
+								if(h1 != 1)
+									oss << "/" << h1;
+								slot->subtitle = oss.str();
+							}
+							else
+								slot->subtitle = CGI->generaltexth->allTexts[164]; // n/a
+						}
+						else
+							slot->subtitle = "";
+					}
+				});
+			resoursesPanelMarket->moveBy(Point(327, 182));
+			return;
+		}
+
+
 		std::vector<int> *ids = getItemsIds(Left);
 		std::vector<Rect> pos;
 		int amount = -1;
@@ -185,14 +245,6 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 	switch(type)
 	{
-	case RESOURCE:
-		dx = 82;
-		dy = 79;
-		x = 39;
-		y = 180;
-		h = 68;
-		w = 70;
-		break;
 	case PLAYER:
 		dx = 83;
 		dy = 118;
@@ -244,6 +296,15 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 void CTradeWindow::initSubs(bool Left)
 {
+	if(itemsType[Left] == RESOURCE)
+	{ 
+		if(Left)
+			resoursesPanelPlayer->updateSlots();
+		else
+			resoursesPanelMarket->updateSlots();
+		return;
+	}
+
 	for(auto item : items[Left])
 	{
 		if(Left)
@@ -253,9 +314,6 @@ void CTradeWindow::initSubs(bool Left)
 			case CREATURE:
 				item->subtitle = std::to_string(hero->getStackCount(SlotID(item->serial)));
 				break;
-			case RESOURCE:
-				item->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(item->serial)));
-				break;
 			}
 		}
 		else //right side
@@ -264,23 +322,6 @@ void CTradeWindow::initSubs(bool Left)
 			{
 				item->subtitle = CGI->generaltexth->capColors[item->id];
 			}
-			else if(hLeft)//artifact, creature
-			{
-				int h1, h2; //hlp variables for getting offer
-				market->getOffer(hLeft->id, item->id, h1, h2, mode);
-				if(item->id != hLeft->id || mode != EMarketMode::RESOURCE_RESOURCE) //don't allow exchanging same resources
-				{
-					std::ostringstream oss;
-					oss << h2;
-					if(h1!=1)
-						oss << "/" << h1;
-					item->subtitle = oss.str();
-				}
-				else
-					item->subtitle = CGI->generaltexth->allTexts[164]; // n/a
-			}
-			else
-				item->subtitle = "";
 		}
 	}
 }
