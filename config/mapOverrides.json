@@ -7,7 +7,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "control", { "type" : 17 } ]
+					[ "control", { "type" : "creatureGeneratorCommon" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.289",
@@ -35,7 +35,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [  9, 64, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [  9, 64, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -47,7 +47,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 13, 63, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 13, 63, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -95,7 +95,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "transport", { "position" : [ 16, 23, 0 ], "type" : 84 } ]
+					[ "transport", { "position" : [ 16, 23, 0 ], "type" : "artifact.spiritOfOppression" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.293",
@@ -135,7 +135,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : 2 } ]
+					[ "haveArtifact", { "type" : "artifact.grail" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
@@ -163,7 +163,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 63, 65, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 63, 65, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -205,7 +205,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 102, 18, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 102, 18, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -217,7 +217,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : 128 } ]
+					[ "haveArtifact", { "type" : "artifact.armageddonsBlade" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
@@ -246,7 +246,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [  7, 66, 0 ], "type" : 34 } ] // Catherine
+						[ "control", { "position" : [  7, 66, 0 ], "type" : "hero" } ] // Catherine
 					]
 				],
 				"effect" : {
@@ -260,7 +260,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 18, 68, 0 ], "type" : 34 } ] // Roland
+						[ "control", { "position" : [ 18, 68, 0 ], "type" : "hero" } ] // Roland
 					]
 				],
 				"effect" : {
@@ -274,7 +274,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 58, 12, 0 ], "type" : 34 } ]  //Gelu
+						[ "control", { "position" : [ 58, 12, 0 ], "type" : "hero" } ]  //Gelu
 					]
 				],
 				"effect" : {
@@ -287,7 +287,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "destroy", { "position" : [ 33, 37, 0 ], "type" : 34 } ]
+					[ "destroy", { "position" : [ 33, 37, 0 ], "type" : "hero" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.253",
@@ -316,7 +316,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [  4,  3, 0 ], "type" : 34 } ] // Gelu
+						[ "control", { "position" : [  4,  3, 0 ], "type" : "hero" } ] // Gelu
 					]
 				],
 				"effect" : {
@@ -330,7 +330,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 12, 63, 0 ], "type" : 34 } ] // Catherine
+						[ "control", { "position" : [ 12, 63, 0 ], "type" : "hero" } ] // Catherine
 					]
 				],
 				"effect" : {
@@ -344,7 +344,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 63, 51, 0 ], "type" : 34 } ]  // Roland
+						[ "control", { "position" : [ 63, 51, 0 ], "type" : "hero" } ]  // Roland
 					]
 				],
 				"effect" : {
@@ -369,7 +369,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "transport", { "position" : [ 35, 36, 0 ], "type" : 128 } ]
+					[ "transport", { "position" : [ 35, 36, 0 ], "type" : "artifact.armageddonsBlade" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.293",
@@ -397,7 +397,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 99, 101, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 99, 101, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -421,7 +421,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "control", { "type" : 53 } ]
+					[ "control", { "type" : "mine" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.291",
@@ -449,7 +449,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 104, 61, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 104, 61, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -470,7 +470,7 @@
 				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
-				"condition" : [ "destroy", { "position" : [ 6, 49, 0 ], "type" : 54 } ],
+				"condition" : [ "destroy", { "position" : [ 6, 49, 0 ], "type" : "monster" } ],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
@@ -497,7 +497,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 88, 82, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 88, 82, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -518,7 +518,7 @@
 				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
-				"condition" : [ "destroy", { "position" : [ 107, 3, 0 ], "type" : 54 } ],
+				"condition" : [ "destroy", { "position" : [ 107, 3, 0 ], "type" : "monster" } ],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
@@ -545,7 +545,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 23, 1, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 23, 1, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -566,7 +566,7 @@
 				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
-				"condition" : [ "destroy", { "position" : [ 57, 61, 0 ], "type" : 54 } ],
+				"condition" : [ "destroy", { "position" : [ 57, 61, 0 ], "type" : "monster" } ],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
@@ -594,7 +594,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 10, 59, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 10, 59, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -608,7 +608,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [  4, 63, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [  4, 63, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -622,7 +622,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 15, 63, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 15, 63, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -636,7 +636,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 10, 66, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 10, 66, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -686,7 +686,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 94, 60, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 94, 60, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -700,7 +700,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 93, 51, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 93, 51, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -714,7 +714,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 85, 64, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 85, 64, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -728,7 +728,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [100, 63, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [100, 63, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -766,7 +766,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 34, 38, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 34, 38, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -780,7 +780,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 32,  7, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 32,  7, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -794,7 +794,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [  8, 63, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [  8, 63, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -808,7 +808,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 65, 63, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 65, 63, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -838,7 +838,7 @@
 				"message" : "core.genrltxt.7"
 			},
 			"specialVictory" : {
-				"condition" : [  "destroy", { "type" : 54} ],
+				"condition" : [  "destroy", { "type" : "monster"} ],
 				"effect" : {
 					"messageToSend" : "vcmi.map.victoryCondition.eliminateMonsters.toOthers",
 					"type" : "victory"
@@ -857,7 +857,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 1, 3, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 1, 3, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -878,7 +878,7 @@
 				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
-				"condition" : [ "destroy", { "position" : [ 62, 5, 1 ], "type" : 54 } ],
+				"condition" : [ "destroy", { "position" : [ 62, 5, 1 ], "type" : "monster" } ],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
@@ -905,7 +905,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 69, 69, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 69, 69, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -933,7 +933,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[  "destroy", { "type" : 54} ]
+					[  "destroy", { "type" : "monster"} ]
 				],
 				"effect" : {
 					"messageToSend" : "vcmi.map.victoryCondition.eliminateMonsters.toOthers",
@@ -954,7 +954,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "control", { "type" : 17 } ]
+					[ "control", { "type" : "creatureGeneratorCommon" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.289",
@@ -994,7 +994,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 60, 45, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 60, 45, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -1044,7 +1044,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 19, 60, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 19, 60, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1058,7 +1058,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 17, 60, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 17, 60, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1068,7 +1068,7 @@
 				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
-				"condition" : [ "haveArtifact", { "type" : 54 } ],
+				"condition" : [ "haveArtifact", { "type" : "artifact.amuletOfTheUndertaker" } ],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
@@ -1096,7 +1096,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 25, 30, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 25, 30, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1110,7 +1110,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 25, 30, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 25, 30, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1123,7 +1123,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "transport", { "position" : [ 9, 11, 0 ], "type" : 55 } ]
+					[ "transport", { "position" : [ 9, 11, 0 ], "type" : "artifact.vampiresCowl" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.293",
@@ -1152,7 +1152,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 55, 17, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 55, 17, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1166,7 +1166,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 53, 17, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 53, 17, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1179,7 +1179,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "transport", { "position" : [ 53, 16, 0 ], "type" : 56 } ]
+					[ "transport", { "position" : [ 53, 16, 0 ], "type" : "artifact.deadMansBoots" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.293",
@@ -1207,7 +1207,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 58, 70, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 58, 70, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -1219,7 +1219,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : 20 } ]
+					[ "haveArtifact", { "type" : "artifact.skullHelmet" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
@@ -1247,7 +1247,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 69, 2, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 69, 2, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -1259,7 +1259,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : 8 } ]
+					[ "haveArtifact", { "type" : "artifact.blackshardOfTheDeadKnight" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
@@ -1287,7 +1287,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 2, 1, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 2, 1, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -1299,7 +1299,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : 26 } ]
+					[ "haveArtifact", { "type" : "artifact.ribCage" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
@@ -1327,7 +1327,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 10, 11, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 10, 11, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -1339,7 +1339,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : 14 } ]
+					[ "haveArtifact", { "type" : "artifact.shieldOfTheYawningDead" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
@@ -1368,7 +1368,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 56, 54, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 56, 54, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1382,7 +1382,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 65, 53, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 65, 53, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1420,7 +1420,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 65, 25, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 65, 25, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1434,7 +1434,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 67, 25, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 67, 25, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1471,7 +1471,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 71, 14, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 71, 14, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -1495,7 +1495,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "control", { "position" : [ 68, 4, 0 ], "type" : 98 } ]
+					[ "control", { "position" : [ 68, 4, 0 ], "type" : "town" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.250",
@@ -1524,7 +1524,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 57, 12, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 57, 12, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1538,7 +1538,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 25, 11, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 25, 11, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1551,7 +1551,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "destroy", { "position" : [ 8, 29, 1 ], "type" : 34 } ]
+					[ "destroy", { "position" : [ 8, 29, 1 ], "type" : "hero" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.253",
@@ -1580,7 +1580,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 54,  6, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 54,  6, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1594,7 +1594,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 13,  6, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 13,  6, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1632,7 +1632,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 34, 10, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 34, 10, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1646,7 +1646,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 36, 10, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 36, 10, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1659,7 +1659,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "control", { "position" : [ 36, 67, 0 ], "type" : 98 } ]
+					[ "control", { "position" : [ 36, 67, 0 ], "type" : "town" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.250",
@@ -1688,7 +1688,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 21, 10, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 21, 10, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1702,7 +1702,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 44,  9, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 44,  9, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1746,7 +1746,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 66, 70, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 66, 70, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1760,7 +1760,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 70, 66, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 70, 66, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1804,7 +1804,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [  7, 13, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [  7, 13, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1818,7 +1818,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [  9, 15, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [  9, 15, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1832,7 +1832,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 6, 103, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 6, 103, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1846,7 +1846,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 9, 105, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 9, 105, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1889,7 +1889,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 14, 53, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 14, 53, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1903,7 +1903,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 21, 69, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 21, 69, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1917,7 +1917,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 38, 59, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 38, 59, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1931,7 +1931,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 66, 60, 0 ], "type" : 34 } ]
+						[ "control", { "position" : [ 66, 60, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1980,7 +1980,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 68, 13, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 68, 13, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -2004,7 +2004,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "control", { "position" : [ 4, 67, 0 ], "type" : 98 } ]
+					[ "control", { "position" : [ 4, 67, 0 ], "type" : "town" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.250",
@@ -2032,7 +2032,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 66, 17, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 66, 17, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -2044,7 +2044,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "haveResources", { "type" : 6, "value" : 100000 } ]
+					[ "haveResources", { "type" : "gold", "value" : 100000 } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.279",
@@ -2072,7 +2072,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 6, 8, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 6, 8, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
@@ -2096,7 +2096,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "destroy", { "position" : [ 31, 26, 0 ], "type" : 34 } ]
+					[ "destroy", { "position" : [ 31, 26, 0 ], "type" : "hero" } ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.253",
@@ -2124,7 +2124,7 @@
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 24, 7, 0 ], "type" : 34 } ] ]
+					[ "noneOf", [ "control", { "position" : [ 24, 7, 0 ], "type" : "hero" } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
