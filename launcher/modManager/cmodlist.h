@@ -76,6 +76,9 @@ public:
 	QVariant getValue(QString value) const;
 	QVariant getBaseValue(QString value) const;
 
+	QStringList getDependencies() const;
+	QStringList getConflicts() const;
+
 	static QString sizeToString(double size);
 };
 

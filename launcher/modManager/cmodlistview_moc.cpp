@@ -218,12 +218,12 @@ QStringList CModListView::getModNames(QStringList input)
 
 	for(const auto & modID : input)
 	{
-		auto mod = modModel->getMod(modID);
+		auto mod = modModel->getMod(modID.toLower());
 
 		QString modName = mod.getValue("name").toString();
 
 		if (modName.isEmpty())
-			result += modID;
+			result += modID.toLower();
 		else
 			result += modName;
 	}
@@ -311,8 +311,8 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	if(needToShowSupportedLanguages)
 		result += replaceIfNotEmpty(supportedLanguages, lineTemplate.arg(tr("Languages")));
 
-	result += replaceIfNotEmpty(getModNames(mod.getValue("depends").toStringList()), lineTemplate.arg(tr("Required mods")));
-	result += replaceIfNotEmpty(getModNames(mod.getValue("conflicts").toStringList()), lineTemplate.arg(tr("Conflicting mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
+	result += replaceIfNotEmpty(getModNames(mod.getConflicts()), lineTemplate.arg(tr("Conflicting mods")));
 	result += replaceIfNotEmpty(getModNames(mod.getValue("description").toStringList()), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
@@ -464,7 +464,7 @@ QStringList CModListView::findBlockingMods(QString modUnderTest)
 		if(mod.isEnabled())
 		{
 			// one of enabled mods have requirement (or this mod) marked as conflict
-			for(auto conflict : mod.getValue("conflicts").toStringList())
+			for(auto conflict : mod.getConflicts())
 			{
 				if(required.contains(conflict))
 					ret.push_back(name);
@@ -485,7 +485,7 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 		if(!current.isInstalled())
 			continue;
 
-		if(current.getValue("depends").toStringList().contains(mod))
+		if(current.getDependencies().contains(mod, Qt::CaseInsensitive))
 		{
 			if(!(current.isDisabled() && excludeDisabled))
 				ret += modName;

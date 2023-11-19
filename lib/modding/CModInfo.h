@@ -20,6 +20,7 @@ class DLL_LINKAGE CModInfo
 	/// Do not serialize - depends on local mod version, not server/save mod version
 	mutable std::optional<bool> modGameplayAffecting;
 
+	static std::set<TModID> readModList(const JsonNode & input);
 public:
 	enum EValidationStatus
 	{
