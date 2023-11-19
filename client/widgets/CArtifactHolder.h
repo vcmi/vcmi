@@ -29,7 +29,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation & artLoc)=0;
 };
 
-class CArtPlace : public LRClickableAreaWTextComp
+class CArtPlace : public LRClickableAreaWTextComp, public SelectableSlot
 {
 public:
 	using ClickFunctor = std::function<void(CArtPlace&, const Point&)>;
@@ -40,9 +40,6 @@ public:
 	const CArtifactInstance * getArt();
 	void lockSlot(bool on);
 	bool isLocked() const;
-	void selectSlot(bool on);
-	bool isSelected() const;
-	void showAll(Canvas & to) override;
 	void setArtifact(const CArtifactInstance * art);
 	void setClickPressedCallback(ClickFunctor callback);
 	void setShowPopupCallback(ClickFunctor callback);
@@ -55,7 +52,6 @@ protected:
 	std::shared_ptr<CAnimImage> image;
 	const CArtifactInstance * ourArt;
 	int imageIndex;
-	std::shared_ptr<CAnimImage> selection;
 	bool locked;
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;

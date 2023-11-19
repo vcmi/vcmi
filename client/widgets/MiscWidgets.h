@@ -252,9 +252,14 @@ class TransparentFilledRectangle : public CIntObject
 	ColorRGBA color;
 	ColorRGBA colorLine;
 	bool drawLine;
+	int lineWidth;
+
 public:
     TransparentFilledRectangle(Rect position, ColorRGBA color);
-    TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine);
+    TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine, int width = 1);
+	void setDrawBorder(bool on);
+	bool getDrawBorder();
+	void setBorderWidth(int width);
     void showAll(Canvas & to) override;
 };
 
@@ -266,4 +271,16 @@ class SimpleLine : public CIntObject
 public:
     SimpleLine(Point pos1, Point pos2, ColorRGBA color);
     void showAll(Canvas & to) override;
+};
+
+class SelectableSlot : virtual public CIntObject
+{
+public:
+	std::unique_ptr<TransparentFilledRectangle> selection;
+
+	SelectableSlot(Rect area, Point oversize, const int width);
+	SelectableSlot(Rect area, Point oversize);
+	SelectableSlot(Rect area, const int width = 1);
+	void selectSlot(bool on);
+	bool isSelected() const;
 };

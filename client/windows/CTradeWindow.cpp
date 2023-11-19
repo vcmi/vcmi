@@ -90,10 +90,13 @@ void CTradeWindow::initItems(bool Left)
 				[this](std::shared_ptr<CTradeableItem> marketSlot) -> void
 				{
 					if(hLeft != marketSlot)
+					{
+						if(hLeft)
+							hLeft->selection->selectSlot(false);
 						hLeft = marketSlot;
-					else
-						return;
-					selectionChanged(true);
+						hLeft->selection->selectSlot(true);
+						selectionChanged(true);
+					}
 				}, 
 				[this]() -> void
 				{
@@ -110,11 +113,14 @@ void CTradeWindow::initItems(bool Left)
 				[this](std::shared_ptr<CTradeableItem> marketSlot) -> void
 				{
 					if(hRight != marketSlot)
+					{
+						if(hRight)
+							hRight->selection->selectSlot(false);
 						hRight = marketSlot;
-					else
-						return;
-					selectionChanged(false);
-					initSubs(false);
+						hRight->selection->selectSlot(true);
+						selectionChanged(false);
+						initSubs(false);
+					}
 				},
 				[this]() -> void
 				{
@@ -329,11 +335,6 @@ void CTradeWindow::initSubs(bool Left)
 void CTradeWindow::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
-
-	if(hRight)
-		to.drawBorder(Rect::createAround(hRight->pos, 1), Colors::BRIGHT_YELLOW, 2);
-	if(hLeft && hLeft->type != ARTIFACT_INSTANCE)
-		to.drawBorder(Rect::createAround(hLeft->pos, 1), Colors::BRIGHT_YELLOW, 2);
 
 	if(readyToTrade)
 	{
@@ -589,6 +590,10 @@ void CMarketplaceWindow::makeDeal()
 	madeTransaction = true;
 	hLeft = nullptr;
 	hRight = nullptr;
+	if(resoursesPanelPlayer)
+		resoursesPanelPlayer->deselect();
+	if(resoursesPanelMarket)
+		resoursesPanelMarket->deselect();
 	selectionChanged(true);
 }
 

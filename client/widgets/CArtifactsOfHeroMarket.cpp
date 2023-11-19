@@ -19,6 +19,11 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position)
 		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
 		position,
 		std::bind(&CArtifactsOfHeroMarket::scrollBackpack, this, _1));
+
+	for(auto slot : artWorn)
+		slot.second->selection->lineWidth = 2;
+	for(auto slot : backpack)
+		slot->selection->lineWidth = 2;
 };
 
 void CArtifactsOfHeroMarket::scrollBackpack(int offset)

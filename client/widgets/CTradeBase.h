@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class IMarket;
 class CGHeroInstance;
+class SelectableSlot;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -50,7 +51,7 @@ public:
 	const CArtifactInstance * getArtInstance() const;
 	void setArtInstance(const CArtifactInstance * art);
 
-	CFunctionList<void()> callback;
+	std::unique_ptr<SelectableSlot> selection;
 	bool downSelection;
 
 	void showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to);
@@ -84,6 +85,7 @@ struct SResourcesPanel : public CIntObject
 
 	SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updatePanelFunctor updateSubtitles);
 	void updateSlots();
+	void deselect();
 };
 
 class CTradeBase

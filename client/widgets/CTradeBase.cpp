@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CTradeBase.h"
+#include "MiscWidgets.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
@@ -268,6 +269,7 @@ SResourcesPanel::SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPresse
 		slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[res.num], EType::RESOURCE, res.num, true, res.num));
 		slots.back()->clickPressedCallback = clickPressedCallback;
 		slots.back()->pos.w = 69; slots.back()->pos.h = 66;
+		slots.back()->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[res.num], slots.back()->pos.dimensions()));
 	}
 }
 
@@ -275,6 +277,12 @@ void SResourcesPanel::updateSlots()
 {
 	if(updateSubtitles)
 		updateSubtitles();
+}
+
+void SResourcesPanel::deselect()
+{
+	for(auto & slot : slots)
+		slot->selection->selectSlot(false);
 }
 
 CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)

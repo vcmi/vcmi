@@ -75,13 +75,11 @@ void CArtPlace::setInternals(const CArtifactInstance * artInst)
 	text = artInst->getDescription();
 }
 
-CArtPlace::CArtPlace(Point position, const CArtifactInstance * art) 
-	: ourArt(art)
+CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
+	: SelectableSlot(Rect(position, Point(44, 44)), Point(1, 1))
+	, ourArt(art)
 	, locked(false)
 {
-	pos += position;
-	pos.w = pos.h = 44;
-
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
 	imageIndex = 0;
@@ -92,9 +90,6 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * art)
 
 	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	image->disable();
-
-	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION, 0, -1, -1);
-	selection->visible = false;
 }
 
 const CArtifactInstance * CArtPlace::getArt()
@@ -170,16 +165,6 @@ bool CArtPlace::isLocked() const
 	return locked;
 }
 
-void CArtPlace::selectSlot(bool on)
-{
-	selection->visible = on;
-}
-
-bool CArtPlace::isSelected() const
-{
-	return selection->visible;
-}
-
 void CArtPlace::clickPressed(const Point & cursorPosition)
 {
 	if(clickPressedCallback)
@@ -199,12 +184,6 @@ void CArtPlace::gesture(bool on, const Point & initialPosition, const Point & fi
 
 	if(gestureCallback)
 		gestureCallback(*this, initialPosition);
-}
-
-void CArtPlace::showAll(Canvas & to)
-{
-	CIntObject::showAll(to);
-	selection->showAll(to);
 }
 
 void CArtPlace::setArtifact(const CArtifactInstance * art)
