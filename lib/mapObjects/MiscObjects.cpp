@@ -33,7 +33,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::map <MapObjectSubID, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
@@ -1003,26 +1002,27 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 	CArmedInstance::serializeJsonOptions(handler);
 }
 
-void CGMagi::reset()
-{
-	eyelist.clear();
-}
-
 void CGMagi::initObj(CRandomGenerator & rand)
 {
 	if (ID == Obj::EYE_OF_MAGI)
-	{
 		blockVisit = true;
-		eyelist[subID].push_back(id);
-	}
 }
+
 void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
 	if (ID == Obj::HUT_OF_MAGI)
 	{
 		h->showInfoDialog(61);
 
-		if (!eyelist[subID].empty())
+		std::vector<const CGObjectInstance *> eyes;
+
+		for (auto object : cb->gameState()->map->objects)
+		{
+			if (object && object->ID == Obj::EYE_OF_MAGI && object->subID == this->subID)
+				eyes.push_back(object);
+		}
+
+		if (!eyes.empty())
 		{
 			CenterView cv;
 			cv.player = h->tempOwner;
@@ -1033,10 +1033,8 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 			fw.mode = ETileVisibility::REVEALED;
 			fw.waitForDialogs = true;
 
-			for(const auto & it : eyelist[subID])
+			for(const auto & eye : eyes)
 			{
-				const CGObjectInstance *eye = cb->getObj(it);
-
 				cb->getTilesInRange (fw.tiles, eye->pos, 10, ETileVisibility::HIDDEN, h->tempOwner);
 				cb->sendAndApply(&fw);
 				cv.pos = eye->pos;

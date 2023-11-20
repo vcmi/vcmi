@@ -223,11 +223,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
 
-	// Explicitly initialize static variables
-	for(auto & elem : players)
-	{
-		CGKeys::playerKeyMap[elem.first] = std::set<MapObjectSubID>();
-	}
 	for(auto & elem : teams)
 	{
 		CGObelisk::visited[elem.first] = 0;
@@ -1411,9 +1406,9 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::HAVE_BUILDING:
 		{
-			if (condition.object) // specific town
+			if (condition.objectID != ObjectInstanceID::NONE) // specific town
 			{
-				const auto * t = dynamic_cast<const CGTownInstance *>(condition.object);
+				const auto * t = getTown(condition.objectID);
 				return (t->tempOwner == player && t->hasBuilt(condition.objectType.as<BuildingID>()));
 			}
 			else // any town
@@ -1428,12 +1423,12 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::DESTROY:
 		{
-			if (condition.object) // mode A - destroy specific object of this type
+			if (condition.objectID != ObjectInstanceID::NONE) // mode A - destroy specific object of this type
 			{
-				if(const auto * hero = dynamic_cast<const CGHeroInstance *>(condition.object))
+				if(const auto * hero = getHero(condition.objectID))
 					return boost::range::find(gs->map->heroesOnMap, hero) == gs->map->heroesOnMap.end();
 				else
-					return getObj(condition.object->id) == nullptr;
+					return getObj(condition.objectID) == nullptr;
 			}
 			else
 			{
@@ -1451,9 +1446,9 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			// NOTE: cgameinfocallback specified explicitly in order to get const version
 			const auto & team = CGameInfoCallback::getPlayerTeam(player)->players;
 
-			if (condition.object) // mode A - flag one specific object, like town
+			if (condition.objectID != ObjectInstanceID::NONE) // mode A - flag one specific object, like town
 			{
-				return team.count(condition.object->tempOwner) != 0;
+				return team.count(getObjInstance(condition.objectID)->tempOwner) != 0;
 			}
 			else
 			{
@@ -1468,7 +1463,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::TRANSPORT:
 		{
-			const auto * t = dynamic_cast<const CGTownInstance *>(condition.object);
+			const auto * t = getTown(condition.objectID);
 			return (t->visitingHero && t->visitingHero->hasArt(condition.objectType.as<ArtifactID>())) ||
 				   (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType.as<ArtifactID>()));
 		}

@@ -140,7 +140,7 @@ public:
 		h & subTypeName;
 		h & pos;
 		h & ID;
-		h & subID;
+		subID.serializeIdentifier(h, ID, version);
 		h & id;
 		h & tempOwner;
 		h & blockVisit;

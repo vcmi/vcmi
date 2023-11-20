@@ -1793,11 +1793,8 @@ bool CGHeroInstance::isMissionCritical() const
 
 		auto const & testFunctor = [&](const EventCondition & condition)
 		{
-			if ((condition.condition == EventCondition::CONTROL) && condition.object)
-			{
-				const auto * hero = dynamic_cast<const CGHeroInstance *>(condition.object);
-				return (hero != this);
-			}
+			if ((condition.condition == EventCondition::CONTROL) && condition.objectID != ObjectInstanceID::NONE)
+				return (id != condition.objectID);
 
 			if(condition.condition == EventCondition::IS_HUMAN)
 				return true;

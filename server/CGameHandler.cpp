@@ -1802,9 +1802,20 @@ bool CGameHandler::load(const std::string & filename)
 		lobby->announceMessage(errorMsg);
 		return false;
 	}
+	catch(const IdentifierResolutionException & e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		lobby->announceMessage(errorMsg.toString());//FIXME: should be localized on client side
+		return false;
+	}
+
 	catch(const std::exception & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
+		lobby->announceMessage(std::string("Failed to load game: ") + e.what());
 		return false;
 	}
 	gs->preInit(VLC);

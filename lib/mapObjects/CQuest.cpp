@@ -23,6 +23,7 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
+#include "../CPlayerState.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -33,8 +34,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-std::map <PlayerColor, std::set <MapObjectSubID> > CGKeys::playerKeyMap;
 
 //TODO: Remove constructor
 CQuest::CQuest():
@@ -777,24 +776,9 @@ void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	quest->serializeJson(handler, "quest");
 }
 
-void CGKeys::reset()
-{
-	playerKeyMap.clear();
-}
-
-void CGKeys::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
-{
-	if (what == ObjProperty::KEYMASTER_VISITED)
-	{
-		playerKeyMap[identifier.as<PlayerColor>()].insert(subID);
-	}
-	else
-		logGlobal->error("Unexpected properties requested to set: what=%d, val=%d", static_cast<int>(what), identifier.getNum());
-}
-
 bool CGKeys::wasMyColorVisited(const PlayerColor & player) const
 {
-	return playerKeyMap.count(player) && vstd::contains(playerKeyMap[player], subID);
+	return cb->getPlayerState(player)->visitedObjectsGlobal.count({ID, subID}) != 0;
 }
 
 std::string CGKeys::getHoverText(PlayerColor player) const
@@ -817,7 +801,11 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	int txt_id;
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
-		cb->setObjPropertyID(id, ObjProperty::KEYMASTER_VISITED, h->tempOwner);
+		ChangeObjectVisitors cow;
+		cow.mode = ChangeObjectVisitors::VISITOR_GLOBAL;
+		cow.hero = h->id;
+		cow.object = id;
+		cb->sendAndApply(&cow);
 		txt_id=19;
 	}
 	else

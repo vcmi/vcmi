@@ -1272,7 +1272,7 @@ std::set<FactionID> CTownHandler::getDefaultAllowed() const
 
 std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 {
-	if (!withTown)
+	if (withTown)
 		return getDefaultAllowed();
 
 	std::set<FactionID> result;

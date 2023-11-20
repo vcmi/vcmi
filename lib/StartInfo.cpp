@@ -32,7 +32,7 @@ FactionID PlayerSettings::getCastleValidated() const
 {
 	if (!castle.isValid())
 		return FactionID(0);
-	if (castle.getNum() < VLC->townh->size())
+	if (castle.getNum() < VLC->townh->size() && VLC->townh->objects[castle.getNum()]->town != nullptr)
 		return castle;
 
 	return FactionID(0);

@@ -37,6 +37,9 @@ void MapIdentifiersH3M::loadMapping(std::map<IdentifierID, IdentifierID> & resul
 
 void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 {
+	if (!mapping["supported"].Bool())
+		throw std::runtime_error("Unsupported map format!");
+
 	for (auto entryFaction : mapping["buildings"].Struct())
 	{
 		FactionID factionID (*VLC->identifiers()->getIdentifier(entryFaction.second.meta, "faction", entryFaction.first));

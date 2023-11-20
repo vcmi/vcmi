@@ -448,19 +448,19 @@ void CMap::checkForObjectives()
 
 				case EventCondition::HAVE_BUILDING:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, Obj::TOWN);
+						cond.objectID = getObjectiveObjectFrom(cond.position, Obj::TOWN)->id;
 					break;
 
 				case EventCondition::CONTROL:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>());
+						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
 
-					if (cond.object)
+					if (cond.objectID != ObjectInstanceID::NONE)
 					{
-						const auto * town = dynamic_cast<const CGTownInstance *>(cond.object);
+						const auto * town = dynamic_cast<const CGTownInstance *>(objects[cond.objectID].get());
 						if (town)
 							event.onFulfill.replaceRawString(town->getNameTranslated());
-						const auto * hero = dynamic_cast<const CGHeroInstance *>(cond.object);
+						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
 						if (hero)
 							event.onFulfill.replaceRawString(hero->getNameTranslated());
 					}
@@ -468,17 +468,17 @@ void CMap::checkForObjectives()
 
 				case EventCondition::DESTROY:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>());
+						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
 
-					if (cond.object)
+					if (cond.objectID != ObjectInstanceID::NONE)
 					{
-						const auto * hero = dynamic_cast<const CGHeroInstance *>(cond.object);
+						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
 						if (hero)
 							event.onFulfill.replaceRawString(hero->getNameTranslated());
 					}
 					break;
 				case EventCondition::TRANSPORT:
-					cond.object = getObjectiveObjectFrom(cond.position, Obj::TOWN);
+					cond.objectID = getObjectiveObjectFrom(cond.position, Obj::TOWN)->id;
 					break;
 				//break; case EventCondition::DAYS_PASSED:
 				//break; case EventCondition::IS_HUMAN:
@@ -671,8 +671,6 @@ CMapEditManager * CMap::getEditManager()
 
 void CMap::resetStaticData()
 {
-	CGKeys::reset();
-	CGMagi::reset();
 	CGObelisk::reset();
 	CGTownInstance::reset();
 }
