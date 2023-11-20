@@ -187,25 +187,21 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	sps.val = 1;
 	sendAndApply(&sps);
 
-	PrepareHeroLevelUp pre;
-	pre.heroId = hero->id;
-	sendAndApply(&pre);
-
 	HeroLevelUp hlu;
 	hlu.player = hero->tempOwner;
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
-	hlu.skills = pre.skills;
+	hlu.skills = hero->getLevelUpProposedSecondarySkills(heroPool->getHeroSkillsRandomGenerator(hero->getHeroType()));
 
 	if (hlu.skills.size() == 0)
 	{
 		sendAndApply(&hlu);
 		levelUpHero(hero);
 	}
-	else if (hlu.skills.size() == 1)
+	else if (hlu.skills.size() == 1 || !hero->getOwner().isValidPlayer())
 	{
 		sendAndApply(&hlu);
-		levelUpHero(hero, pre.skills.front());
+		levelUpHero(hero, hlu.skills.front());
 	}
 	else if (hlu.skills.size() > 1)
 	{
@@ -550,6 +546,9 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 
 	for (auto & elem : gs->players)
 		turnOrder->addPlayer(elem.first);
+
+	for (auto & elem : gs->map->allHeroes)
+		heroPool->getHeroSkillsRandomGenerator(elem->getHeroType()); // init RMG seed
 
 	reinitScripting();
 }

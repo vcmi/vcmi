@@ -397,9 +397,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		commander->giveStackExp (exp); //after our exp is set
 	}
 
-	skillsInfo.rand.setSeed(rand.nextInt());
-	skillsInfo.resetMagicSchoolCounter();
-	skillsInfo.resetWisdomCounter();
+	skillsInfo = SecondarySkillsInfo();
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
 	for(const std::shared_ptr<Bonus> & b : type->specialty)
@@ -569,17 +567,15 @@ ui8 CGHeroInstance::maxlevelsToWisdom() const
 CGHeroInstance::SecondarySkillsInfo::SecondarySkillsInfo():
 	magicSchoolCounter(1),
 	wisdomCounter(1)
-{
-	rand.setSeed(0);
-}
+{}
 
 void CGHeroInstance::SecondarySkillsInfo::resetMagicSchoolCounter()
 {
-	magicSchoolCounter = 1;
+	magicSchoolCounter = 0;
 }
 void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 {
-	wisdomCounter = 1;
+	wisdomCounter = 0;
 }
 
 void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
@@ -1268,49 +1264,31 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 	return ArtBearer::HERO;
 }
 
-std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() const
+std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(CRandomGenerator & rand) const
 {
-	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
-
 	auto getObligatorySkills = [](CSkill::Obligatory obl){
-		std::vector<SecondarySkill> obligatory = {};
+		std::set<SecondarySkill> obligatory;
 		for(auto i = 0; i < VLC->skillh->size(); i++)
 			if((*VLC->skillh)[SecondarySkill(i)]->obligatory(obl))
-				obligatory.emplace_back(i); //Always return all obligatory skills
+				obligatory.insert(i); //Always return all obligatory skills
 
 		return obligatory;
 	};
 
-	auto selectObligatorySkill = [&](std::vector<SecondarySkill>& ss) -> void
+	auto intersect = [](const std::set<SecondarySkill> & left, const std::set<SecondarySkill> & right)
 	{
-		std::shuffle(ss.begin(), ss.end(), skillsInfo.rand.getStdGenerator());
-
-		for(const auto & skill : ss)
-		{
-			if (canLearnSkill(skill)) //only skills hero doesn't know yet
-			{
-				obligatorySkills.push_back(skill);
-				break; //only one
-			}
-		}
+		std::set<SecondarySkill> intersect;
+		std::set_intersection(left.begin(), left.end(), right.begin(), right.end(),
+						 std::inserter(intersect, intersect.begin()));
+		return intersect;
 	};
 
-	if (!skillsInfo.wisdomCounter)
-	{
-		auto obligatory = getObligatorySkills(CSkill::Obligatory::MAJOR);
-		selectObligatorySkill(obligatory);
-	}
-	if (!skillsInfo.magicSchoolCounter)
-	{
-		auto obligatory = getObligatorySkills(CSkill::Obligatory::MINOR);
-		selectObligatorySkill(obligatory);
-	}
+	std::set<SecondarySkill> wisdomList = getObligatorySkills(CSkill::Obligatory::MAJOR);
+	std::set<SecondarySkill> schoolList = getObligatorySkills(CSkill::Obligatory::MINOR);
 
-	std::vector<SecondarySkill> skills;
-	//picking sec. skills for choice
 	std::set<SecondarySkill> basicAndAdv;
-	std::set<SecondarySkill> expert;
 	std::set<SecondarySkill> none;
+
 	for(int i = 0; i < VLC->skillh->size(); i++)
 		if (canLearnSkill(SecondarySkill(i)))
 			none.insert(SecondarySkill(i));
@@ -1319,58 +1297,56 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	{
 		if(elem.second < MasteryLevel::EXPERT)
 			basicAndAdv.insert(elem.first);
-		else
-			expert.insert(elem.first);
 		none.erase(elem.first);
 	}
-	for(const auto & s : obligatorySkills) //don't duplicate them
-	{
-		none.erase (s);
-		basicAndAdv.erase (s);
-		expert.erase (s);
-	}
 
-	//first offered skill:
-	// 1) give obligatory skill
-	// 2) give any other new skill
-	// 3) upgrade existing
-	if(canLearnSkill() && !obligatorySkills.empty())
-	{
-		skills.push_back (obligatorySkills[0]);
-	}
-	else if(!none.empty() && canLearnSkill()) //hero have free skill slot
-	{
-		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.rand)); //new skill
-		none.erase(skills.back());
-	}
-	else if(!basicAndAdv.empty())
-	{
-		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.rand)); //upgrade existing
-		basicAndAdv.erase(skills.back());
-	}
+	bool wantsWisdom = skillsInfo.wisdomCounter + 1 >= maxlevelsToWisdom();
+	bool wantsSchool = skillsInfo.magicSchoolCounter + 1 >= maxlevelsToMagicSchool();
 
-	//second offered skill:
-	//1) upgrade existing
-	//2) give obligatory skill
-	//3) give any other new skill
-	if(!basicAndAdv.empty())
-	{
-		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.rand);//upgrade existing
-		skills.push_back(s);
-		basicAndAdv.erase(s);
-	}
-	else if (canLearnSkill() && obligatorySkills.size() > 1)
-	{
-		skills.push_back (obligatorySkills[1]);
-	}
-	else if(!none.empty() && canLearnSkill())
-	{
-		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.rand)); //give new skill
-		none.erase(skills.back());
-	}
+	std::vector<SecondarySkill> skills;
 
-	if (skills.size() == 2) // Fix for #1868 to avoid changing logic (possibly causing bugs in process)
-		std::swap(skills[0], skills[1]);
+	auto chooseSkill = [&](std::set<SecondarySkill> & options)
+	{
+		bool selectWisdom = wantsWisdom && !intersect(options, wisdomList).empty();
+		bool selectSchool = wantsSchool && !intersect(options, schoolList).empty();
+		SecondarySkill selection;
+
+		if (selectWisdom)
+			selection = type->heroClass->chooseSecSkill(intersect(options, wisdomList), rand);
+		else if (selectSchool)
+			selection = type->heroClass->chooseSecSkill(intersect(options, schoolList), rand);
+		else
+			selection = type->heroClass->chooseSecSkill(options, rand);
+
+		skills.push_back(selection);
+		options.erase(selection);
+
+		if (wisdomList.count(selection))
+			wisdomList.clear();
+
+		if (schoolList.count(selection))
+			schoolList.clear();
+	};
+
+	if (!basicAndAdv.empty())
+		chooseSkill(basicAndAdv);
+
+	if (canLearnSkill() && !none.empty())
+		chooseSkill(none);
+
+	if (!basicAndAdv.empty() && skills.size() < 2)
+		chooseSkill(basicAndAdv);
+
+	if (canLearnSkill() && !none.empty() && skills.size() < 2)
+		chooseSkill(none);
+
+	if (skills.empty())
+		logGlobal->info("Selecting secondary skills: Nothing to select!");
+	if (skills.size() == 1)
+		logGlobal->info("Selecting secondary skills: %s (wisdom: %d, schools: %d)!", skills[0], skillsInfo.wisdomCounter, skillsInfo.magicSchoolCounter);
+	if (skills.size() == 2)
+		logGlobal->info("Selecting secondary skills: %s or %s (wisdom: %d, schools: %d)!", skills[0], skills[1], int(skillsInfo.wisdomCounter), int(skillsInfo.magicSchoolCounter));
+
 	return skills;
 }
 
@@ -1406,7 +1382,7 @@ std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerato
 	assert(gainsLevel());
 
 	std::optional<SecondarySkill> chosenSecondarySkill;
-	const auto proposedSecondarySkills = getLevelUpProposedSecondarySkills();
+	const auto proposedSecondarySkills = getLevelUpProposedSecondarySkills(rand);
 	if(!proposedSecondarySkills.empty())
 	{
 		std::vector<SecondarySkill> learnedSecondarySkills;
@@ -1474,8 +1450,9 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 	++level;
 
 	//deterministic secondary skills
-	skillsInfo.magicSchoolCounter = (skillsInfo.magicSchoolCounter + 1) % maxlevelsToMagicSchool();
-	skillsInfo.wisdomCounter = (skillsInfo.wisdomCounter + 1) % maxlevelsToWisdom();
+	++skillsInfo.magicSchoolCounter;
+	++skillsInfo.wisdomCounter;
+
 	for(const auto & skill : skills)
 	{
 		if((*VLC->skillh)[skill]->obligatory(CSkill::Obligatory::MAJOR))
@@ -1495,7 +1472,7 @@ void CGHeroInstance::levelUpAutomatically(CRandomGenerator & rand)
 		const auto primarySkill = nextPrimarySkill(rand);
 		setPrimarySkill(primarySkill, 1, false);
 
-		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills();
+		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills(rand);
 
 		const auto secondarySkill = nextSecondarySkill(rand);
 		if(secondarySkill)

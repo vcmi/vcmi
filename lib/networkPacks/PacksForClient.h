@@ -1276,23 +1276,6 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE PrepareHeroLevelUp : public CPackForClient
-{
-	ObjectInstanceID heroId;
-
-	/// Do not serialize, used by server only
-	std::vector<SecondarySkill> skills;
-
-	void applyGs(CGameState * gs);
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & heroId;
-	}
-};
-
 struct DLL_LINKAGE HeroLevelUp : public Query
 {
 	PlayerColor player;

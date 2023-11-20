@@ -380,11 +380,6 @@ void ChangeObjectVisitors::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeObjectVisitors(*this);
 }
 
-void PrepareHeroLevelUp::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitPrepareHeroLevelUp(*this);
-}
-
 void HeroLevelUp::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitHeroLevelUp(*this);
@@ -2079,23 +2074,6 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 	else //not an armed instance
 	{
 		obj->setProperty(what, identifier);
-	}
-}
-
-void PrepareHeroLevelUp::applyGs(CGameState * gs)
-{
-	auto * hero = gs->getHero(heroId);
-	assert(hero);
-
-	auto proposedSkills = hero->getLevelUpProposedSecondarySkills();
-
-	if(skills.size() == 1 || hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
-	{
-		skills.push_back(*RandomGeneratorUtil::nextItem(proposedSkills, hero->skillsInfo.rand));
-	}
-	else
-	{
-		skills = proposedSkills;
 	}
 }
 
