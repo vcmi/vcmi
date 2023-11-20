@@ -128,16 +128,14 @@ namespace HeaderDetail
 
 namespace TriggeredEventsDetail
 {
-	static const std::array<std::string, 15> conditionNames =
+	static const std::array conditionNames =
 	{
 		"haveArtifact", "haveCreatures",   "haveResources",   "haveBuilding",
 		"control",      "destroy",         "transport",       "daysPassed",
-		"isHuman",      "daysWithoutTown", "standardWin",     "constValue",
-
-		"have_0", "haveBuilding_0", "destroy_0"
+		"isHuman",      "daysWithoutTown", "standardWin",     "constValue"
 	};
 
-	static const std::array<std::string, 2> typeNames = { "victory", "defeat" };
+	static const std::array typeNames = { "victory", "defeat" };
 
 	static EventCondition JsonToCondition(const JsonNode & node)
 	{
