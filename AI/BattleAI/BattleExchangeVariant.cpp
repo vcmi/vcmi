@@ -890,11 +890,12 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 			auto ratio = blockedUnitDamage / (blockedUnitDamage + activeUnitDamage);
 
 			auto unitReachability = turnBattle.getReachability(unit);
+			auto unitSpeed = unit->speed(turn); // Cached value, to avoid performance hit
 
 			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
 			{
 				bool enemyUnit = false;
-				bool reachable = unitReachability.distances[hex] <= unit->speed(turn);
+				bool reachable = unitReachability.distances[hex] <= unitSpeed;
 
 				if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
 				{
@@ -906,7 +907,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 
 						for(BattleHex neighbor : hex.neighbouringTiles())
 						{
-							reachable = unitReachability.distances[neighbor] <= unit->speed(turn);
+							reachable = unitReachability.distances[neighbor] <= unitSpeed;
 
 							if(reachable) break;
 						}

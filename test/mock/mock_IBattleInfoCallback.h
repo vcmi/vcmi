@@ -29,7 +29,7 @@ public:
 
 	MOCK_CONST_METHOD0(battleNextUnitId, uint32_t());
 
-	MOCK_CONST_METHOD1(battleGetUnitsIf, battle::Units(battle::UnitFilter));
+	MOCK_CONST_METHOD1(battleGetUnitsIf, battle::Units(const battle::UnitFilter &));
 
 	MOCK_CONST_METHOD1(battleGetUnitByID, const battle::Unit *(uint32_t));
 	MOCK_CONST_METHOD2(battleGetUnitByPos, const battle::Unit *(BattleHex, bool));

@@ -17,8 +17,8 @@ class BattleStateMock : public IBattleState
 {
 public:
 	MOCK_CONST_METHOD0(getActiveStackID, int32_t());
-	MOCK_CONST_METHOD1(getStacksIf, TStacks(TStackFilter));
-	MOCK_CONST_METHOD1(getUnitsIf, battle::Units(battle::UnitFilter));
+	MOCK_CONST_METHOD1(getStacksIf, TStacks(const TStackFilter&));
+	MOCK_CONST_METHOD1(getUnitsIf, battle::Units(const battle::UnitFilter &));
 	MOCK_CONST_METHOD0(getBattlefieldType, BattleField());
 	MOCK_CONST_METHOD0(getTerrainType, TerrainId());
 	MOCK_CONST_METHOD0(getAllObstacles, IBattleInfo::ObstacleCList());

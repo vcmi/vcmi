@@ -357,7 +357,7 @@ const battle::Unit * CBattleInfoCallback::battleGetUnitByPos(BattleHex pos, bool
 	auto ret = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return !unit->isGhost()
-			&& vstd::contains(battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()), pos)
+			&& unit->coversPos(pos)
 			&& (!onlyAlive || unit->alive());
 	});
 

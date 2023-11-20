@@ -40,12 +40,12 @@ int32_t BattleProxy::getActiveStackID() const
 		return -1;
 }
 
-TStacks BattleProxy::getStacksIf(TStackFilter predicate) const
+TStacks BattleProxy::getStacksIf(const TStackFilter & predicate) const
 {
 	return subject->battleGetStacksIf(predicate);
 }
 
-battle::Units BattleProxy::getUnitsIf(battle::UnitFilter predicate) const
+battle::Units BattleProxy::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	return subject->battleGetUnitsIf(predicate);
 }

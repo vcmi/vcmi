@@ -114,7 +114,7 @@ public:
 
 	int32_t getActiveStackID() const override;
 
-	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
+	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	void nextRound() override;
 	void nextTurn(uint32_t unitId) override;

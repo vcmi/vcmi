@@ -298,7 +298,7 @@ std::shared_ptr<StackWithBonuses> HypotheticBattle::getForUpdate(uint32_t id)
 	}
 }
 
-battle::Units HypotheticBattle::getUnitsIf(battle::UnitFilter predicate) const
+battle::Units HypotheticBattle::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	battle::Units proxyed = BattleProxy::getUnitsIf(predicate);
 

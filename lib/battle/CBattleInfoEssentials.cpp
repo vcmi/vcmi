@@ -109,13 +109,13 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 	});
 }
 
-TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate) const
+TStacks CBattleInfoEssentials::battleGetStacksIf(const TStackFilter & predicate) const
 {
 	RETURN_IF_NOT_BATTLE(TStacks());
 	return getBattle()->getStacksIf(std::move(predicate));
 }
 
-battle::Units CBattleInfoEssentials::battleGetUnitsIf(battle::UnitFilter predicate)  const
+battle::Units CBattleInfoEssentials::battleGetUnitsIf(const battle::UnitFilter & predicate)  const
 {
 	RETURN_IF_NOT_BATTLE(battle::Units());
 	return getBattle()->getUnitsIf(predicate);

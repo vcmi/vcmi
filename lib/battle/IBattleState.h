@@ -42,9 +42,9 @@ public:
 
 	virtual int32_t getActiveStackID() const = 0;
 
-	virtual TStacks getStacksIf(TStackFilter predicate) const = 0;
+	virtual TStacks getStacksIf(const TStackFilter & predicate) const = 0;
 
-	virtual battle::Units getUnitsIf(battle::UnitFilter predicate) const = 0;
+	virtual battle::Units getUnitsIf(const battle::UnitFilter & predicate) const = 0;
 
 	virtual BattleField getBattlefieldType() const = 0;
 	virtual TerrainId getTerrainType() const = 0;

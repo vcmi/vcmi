@@ -72,7 +72,7 @@ public:
 
 	virtual uint32_t battleNextUnitId() const = 0;
 
-	virtual battle::Units battleGetUnitsIf(battle::UnitFilter predicate) const = 0;
+	virtual battle::Units battleGetUnitsIf(const battle::UnitFilter & predicate) const = 0;
 
 	virtual const battle::Unit * battleGetUnitByID(uint32_t ID) const = 0;
 	virtual const battle::Unit * battleGetUnitByPos(BattleHex pos, bool onlyAlive = true) const = 0;
