@@ -797,6 +797,7 @@ void SetResources::applyGs(CGameState * gs) const
 		gs->getPlayerState(player)->resources = res;
 	else
 		gs->getPlayerState(player)->resources += res;
+	gs->getPlayerState(player)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
 
 	//just ensure that player resources are not negative
 	//server is responsible to check if player can afford deal
@@ -2022,6 +2023,7 @@ void NewTurn::applyGs(CGameState *gs)
 	{
 		assert(re.first.isValidPlayer());
 		gs->getPlayerState(re.first)->resources = re.second;
+		gs->getPlayerState(re.first)->resources.amin(GameConstants::PLAYER_RESOURCES_CAP);
 	}
 
 	for(const auto & creatureSet : cres) //set available creatures in towns
