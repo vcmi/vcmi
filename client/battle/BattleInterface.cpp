@@ -29,6 +29,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../windows/CTutorialWindow.h"
 #include "../render/Canvas.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
@@ -148,6 +149,8 @@ void BattleInterface::openingEnd()
 		tacticNextStack(nullptr);
 	activateStack();
 	battleOpeningDelayActive = false;
+
+	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_BATTLE);
 }
 
 BattleInterface::~BattleInterface()

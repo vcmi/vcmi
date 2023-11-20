@@ -214,6 +214,10 @@
 		"SOUNDS/":
 		[
 			{"type" : "dir", "path" : "/Sounds"}
+		],
+		"VIDEO/":
+		[
+			{"type" : "dir", "path" : "/Video"}
 		]
 	}
 }

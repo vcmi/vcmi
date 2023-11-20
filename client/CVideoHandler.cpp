@@ -41,8 +41,11 @@ extern "C" {
 static int lodRead(void* opaque, uint8_t* buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+	int bytes = static_cast<int>(video->data->read(buf, size));
+	if(bytes == 0)
+    	return AVERROR_EOF;
 
-	return static_cast<int>(video->data->read(buf, size));
+	return bytes;
 }
 
 static si64 lodSeek(void * opaque, si64 pos, int whence)
@@ -59,8 +62,11 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 static int lodReadAudio(void* opaque, uint8_t* buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+	int bytes = static_cast<int>(video->dataAudio->read(buf, size));
+	if(bytes == 0)
+    	return AVERROR_EOF;
 
-	return static_cast<int>(video->dataAudio->read(buf, size));
+	return bytes;
 }
 
 static si64 lodSeekAudio(void * opaque, si64 pos, int whence)
