@@ -959,7 +959,7 @@ void OptionsTab::PlayerOptionsEntry::updateName() {
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
 {
-	if(ps.isControlledByAI() || humanPlayers > 0)
+	if(ps.isControlledByAI() || humanPlayers > 1)
 		CSH->setPlayer(ps.color);
 }
 
