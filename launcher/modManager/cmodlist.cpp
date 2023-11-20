@@ -141,6 +141,22 @@ QVariant CModEntry::getValue(QString value) const
 	return getValueImpl(value, true);
 }
 
+QStringList CModEntry::getDependencies() const
+{
+	QStringList result;
+	for (auto const & entry : getValue("depends").toStringList())
+		result.push_back(entry.toLower());
+	return result;
+}
+
+QStringList CModEntry::getConflicts() const
+{
+	QStringList result;
+	for (auto const & entry : getValue("conflicts").toStringList())
+		result.push_back(entry.toLower());
+	return result;
+}
+
 QVariant CModEntry::getBaseValue(QString value) const
 {
 	return getValueImpl(value, false);
@@ -341,8 +357,8 @@ QStringList CModList::getRequirements(QString modname)
 	{
 		auto mod = getMod(modname);
 
-		for(auto entry : mod.getValue("depends").toStringList())
-			ret += getRequirements(entry);
+		for(auto entry : mod.getDependencies())
+			ret += getRequirements(entry.toLower());
 	}
 	ret += modname;
 

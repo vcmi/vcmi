@@ -22,6 +22,16 @@ static JsonNode addMeta(JsonNode config, const std::string & meta)
 	return config;
 }
 
+std::set<TModID> CModInfo::readModList(const JsonNode & input)
+{
+	std::set<TModID> result;
+
+	for (auto const & string : input.convertTo<std::set<std::string>>())
+		result.insert(boost::to_lower_copy(string));
+
+	return result;
+}
+
 CModInfo::CModInfo():
 	explicitlyEnabled(false),
 	implicitlyEnabled(true),
@@ -32,8 +42,8 @@ CModInfo::CModInfo():
 
 CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config):
 	identifier(identifier),
-	dependencies(config["depends"].convertTo<std::set<std::string>>()),
-	conflicts(config["conflicts"].convertTo<std::set<std::string>>()),
+	dependencies(readModList(config["depends"])),
+	conflicts(readModList(config["conflicts"])),
 	explicitlyEnabled(false),
 	implicitlyEnabled(true),
 	validation(PENDING),
