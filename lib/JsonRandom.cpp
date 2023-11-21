@@ -406,7 +406,7 @@ namespace JsonRandom
 	{
 		std::set<SpellID> defaultSpells;
 		for(const auto & spell : VLC->spellh->objects)
-			if (IObjectInterface::cb->isAllowed(spell->getId()))
+			if (IObjectInterface::cb->isAllowed(spell->getId()) && !spell->isSpecial())
 				defaultSpells.insert(spell->getId());
 
 		std::set<SpellID> potentialPicks = filterKeys(value, defaultSpells, variables);
