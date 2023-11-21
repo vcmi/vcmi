@@ -371,7 +371,7 @@ si32 BattleField::decode(const std::string & identifier)
 
 std::string BattleField::encode(const si32 index)
 {
-	return VLC->spells()->getByIndex(index)->getJsonKey();
+	return VLC->battlefields()->getByIndex(index)->getJsonKey();
 }
 
 std::string SpellID::entityType()
