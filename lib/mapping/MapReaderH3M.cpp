@@ -325,6 +325,8 @@ void MapReaderH3M::readBitmaskSkills(std::set<SecondarySkill> & dest, bool inver
 template<class Identifier>
 void MapReaderH3M::readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert)
 {
+	dest.clear();
+
 	for(int byte = 0; byte < bytesToRead; ++byte)
 	{
 		const ui8 mask = reader->readUInt8();

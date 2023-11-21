@@ -1055,9 +1055,8 @@
 					{
 						"chance": 100,
 						"guards": [
-							{ "amount": 20, "type": "goldGolem" },
+							{ "amount": 40, "type": "goldGolem" },
 							{ "amount": 10, "type": "diamondGolem" },
-							{ "amount": 20, "type": "goldGolem" },
 							{ "amount": 10, "type": "diamondGolem" }
 						],
 						"combat_value": 786,

@@ -778,7 +778,7 @@ void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 
 bool CGKeys::wasMyColorVisited(const PlayerColor & player) const
 {
-	return cb->getPlayerState(player)->visitedObjectsGlobal.count({ID, subID}) != 0;
+	return cb->getPlayerState(player)->visitedObjectsGlobal.count({Obj::KEYMASTER, subID}) != 0;
 }
 
 std::string CGKeys::getHoverText(PlayerColor player) const

@@ -36,6 +36,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -267,6 +268,10 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 		else
 			loadSubObject(subData.second.meta, subData.first, subData.second, obj);
 	}
+
+	if (obj->id == MapObjectID::MONOLITH_TWO_WAY)
+		generateExtraMonolithsForRMG(obj);
+
 	return obj;
 }
 
@@ -413,14 +418,12 @@ void CObjectClassesHandler::afterLoadFinalization()
 				logGlobal->warn("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
-
-	generateExtraMonolithsForRMG();
 }
 
-void CObjectClassesHandler::generateExtraMonolithsForRMG()
+void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)
 {
 	//duplicate existing two-way portals to make reserve for RMG
-	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->objects;
+	auto& portalVec = container->objects;
 	//FIXME: Monoliths  in this vector can be already not useful for every terrain
 	const size_t portalCount = portalVec.size();
 
@@ -449,7 +452,10 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG()
 		newPortal->type = portal->getIndex();
 
 		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
+
 		portalVec.push_back(newPortal);
+
+		registerObject(ModScope::scopeGame(), container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
 	}
 }
 

@@ -282,7 +282,7 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 		return false;
 
 	//we are besieged defender
-	if(side == BattleSide::DEFENDER && battleGetSiegeLevel())
+	if(side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr)
 	{
 		const auto * town = battleGetDefendedTown();
 		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL))
@@ -357,7 +357,7 @@ bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
 	const auto side = playerToSide(player);
 	if(!side)
 		return false;
-	bool iAmSiegeDefender = (side.value() == BattleSide::DEFENDER && battleGetSiegeLevel());
+	bool iAmSiegeDefender = (side.value() == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr);
 	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
 	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(otherSide(side.value()));
 }

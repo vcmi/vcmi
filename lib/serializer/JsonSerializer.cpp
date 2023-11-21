@@ -97,7 +97,6 @@ void JsonSerializer::serializeInternal(int64_t & value)
 
 void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value)
 {
-	assert(standard.size() == value.size());
 	if(standard == value)
 		return;
 

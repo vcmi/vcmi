@@ -678,8 +678,6 @@ void CMapLoaderH3M::readTeamInfo()
 
 void CMapLoaderH3M::readAllowedHeroes()
 {
-	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
-
 	if(features.levelHOTA0)
 		reader->readBitmaskHeroesSized(mapHeader->allowedHeroes, false);
 	else
@@ -749,8 +747,6 @@ void CMapLoaderH3M::readMapOptions()
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
-	map->allowedArtifact = VLC->arth->getDefaultAllowed();
-
 	if(features.levelAB)
 	{
 		if(features.levelHOTA0)
@@ -1827,9 +1823,8 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 				logGlobal->debug("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTextID(), object->subID);
 			}
 
-			object->spells.insert(SpellID::PRESET); //placeholder "preset spells"
-
 			reader->readBitmaskSpells(object->spells, false);
+			object->spells.insert(SpellID::PRESET); //placeholder "preset spells"
 		}
 	}
 	else if(features.levelAB)
