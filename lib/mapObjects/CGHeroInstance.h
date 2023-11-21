@@ -111,9 +111,6 @@ public:
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
-		//skills are determined, initialized at map start
-		//FIXME remove mutable
-		mutable CRandomGenerator rand;
 		ui8 magicSchoolCounter;
 		ui8 wisdomCounter;
 
@@ -126,7 +123,6 @@ public:
 		{
 			h & magicSchoolCounter;
 			h & wisdomCounter;
-			h & rand;
 		}
 	} skillsInfo;
 
@@ -194,7 +190,7 @@ public:
 	std::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
 
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
-	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills() const;
+	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(CRandomGenerator & rand) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 

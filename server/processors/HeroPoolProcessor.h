@@ -29,6 +29,9 @@ class HeroPoolProcessor : boost::noncopyable
 	/// per-player random generators
 	std::map<PlayerColor, std::unique_ptr<CRandomGenerator>> playerSeed;
 
+	/// per-hero random generators used to randomize skills
+	std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeed;
+
 	void clearHeroFromSlot(const PlayerColor & color, TavernHeroSlot slot);
 	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy);
 
@@ -54,6 +57,8 @@ public:
 
 	void onNewWeek(const PlayerColor & color);
 
+	CRandomGenerator & getHeroSkillsRandomGenerator(const HeroTypeID & hero);
+
 	/// Incoming net pack handling
 	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player);
 
@@ -61,5 +66,6 @@ public:
 	{
 		// h & gameHandler; // FIXME: make this work instead of using deserializationFix in gameHandler
 		h & playerSeed;
+		h & heroSeed;
 	}
 };

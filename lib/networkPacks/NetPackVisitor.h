@@ -87,7 +87,6 @@ public:
 	virtual void visitInfoWindow(InfoWindow & pack) {}
 	virtual void visitSetObjectProperty(SetObjectProperty & pack) {}
 	virtual void visitChangeObjectVisitors(ChangeObjectVisitors & pack) {}
-	virtual void visitPrepareHeroLevelUp(PrepareHeroLevelUp & pack) {}
 	virtual void visitHeroLevelUp(HeroLevelUp & pack) {}
 	virtual void visitCommanderLevelUp(CommanderLevelUp & pack) {}
 	virtual void visitBlockingDialog(BlockingDialog & pack) {}

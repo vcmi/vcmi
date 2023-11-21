@@ -123,26 +123,30 @@ void CHero::serializeJson(JsonSerializeFormat & handler)
 
 SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const //picks secondary skill out from given possibilities
 {
+	assert(!possibles.empty());
+
+	if (possibles.size() == 1)
+		return *possibles.begin();
+
 	int totalProb = 0;
 	for(const auto & possible : possibles)
 		if (secSkillProbability.count(possible) != 0)
 			totalProb += secSkillProbability.at(possible);
 
-	if (totalProb != 0) // may trigger if set contains only banned skills (0 probability)
-	{
-		auto ran = rand.nextInt(totalProb - 1);
-		for(const auto & possible : possibles)
-		{
-			if (secSkillProbability.count(possible) != 0)
-				ran -= secSkillProbability.at(possible);
+	if (totalProb == 0) // may trigger if set contains only banned skills (0 probability)
+		return *RandomGeneratorUtil::nextItem(possibles, rand);
 
-			if(ran < 0)
-			{
-				return possible;
-			}
-		}
+	auto ran = rand.nextInt(totalProb - 1);
+	for(const auto & possible : possibles)
+	{
+		if (secSkillProbability.count(possible) != 0)
+			ran -= secSkillProbability.at(possible);
+
+		if(ran < 0)
+			return possible;
 	}
-	// FIXME: select randomly? How H3 handles such rare situation?
+
+	assert(0); // should not be possible
 	return *possibles.begin();
 }
 
