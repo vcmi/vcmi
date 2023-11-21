@@ -329,7 +329,6 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		if(!getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
 		{
 			auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK);
-			cb->gameState()->map->addNewArtifactInstance(artifact);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
 		}
 	}
@@ -339,7 +338,6 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	if(!getArt(ArtifactPosition::MACH4))
 	{
 		auto artifact = ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT);
-		cb->gameState()->map->addNewArtifactInstance(artifact);
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
@@ -458,7 +456,6 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 				if(!getArt(slot))
 				{
 					auto artifact = ArtifactUtils::createNewArtifactInstance(aid);
-					cb->gameState()->map->addNewArtifactInstance(artifact);
 					putArtifact(slot, artifact);
 				}
 				else

@@ -50,6 +50,7 @@ namespace GameConstants
 	constexpr int CREATURES_COUNT = 197;
 
 	constexpr ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
+	constexpr int64_t PLAYER_RESOURCES_CAP = 1000 * 1000 * 1000;
 }
 
 VCMI_LIB_NAMESPACE_END

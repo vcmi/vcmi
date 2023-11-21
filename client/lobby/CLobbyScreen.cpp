@@ -76,7 +76,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 
 		card->iconDifficulty->addCallback(std::bind(&IServerAPI::setDifficulty, CSH, _1));
 
-		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRBEG.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_BEGIN_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRBEG.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_BEGIN_GAME);
 		initLobby();
 		break;
 	}
@@ -84,7 +84,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	{
 		tabOpt = std::make_shared<OptionsTab>();
 		tabTurnOptions = std::make_shared<TurnOptionsTab>();
-		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_LOAD_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_LOAD_GAME);
 		initLobby();
 		break;
 	}

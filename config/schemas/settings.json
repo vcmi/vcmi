@@ -255,7 +255,7 @@
 				},
 				"quickCombat" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : false
 				},
 				"objectAnimation" : {
 					"type" : "boolean",
