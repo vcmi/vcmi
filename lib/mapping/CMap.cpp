@@ -166,7 +166,7 @@ CMap::CMap()
 	, grailRadius(0)
 	, uidCounter(0)
 {
-	allHeroes.resize(allowedHeroes.size());
+	allHeroes.resize(VLC->heroh->objects.size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpells = VLC->spellh->getDefaultAllowed();
