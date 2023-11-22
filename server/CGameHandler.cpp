@@ -548,7 +548,10 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 		turnOrder->addPlayer(elem.first);
 
 	for (auto & elem : gs->map->allHeroes)
-		heroPool->getHeroSkillsRandomGenerator(elem->getHeroType()); // init RMG seed
+	{
+		if(elem)
+			heroPool->getHeroSkillsRandomGenerator(elem->getHeroType()); // init RMG seed
+	}
 
 	reinitScripting();
 }

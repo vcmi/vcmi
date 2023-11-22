@@ -116,7 +116,7 @@ public:
 		if(index < 0 || index >= objects.size())
 		{
 			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
-			throw std::runtime_error("internal error");
+			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
 		}
 
 		return objects[index];

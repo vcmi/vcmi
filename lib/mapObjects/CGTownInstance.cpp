@@ -1079,7 +1079,7 @@ void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 st
 	{
 		//should never ever happen
 		logGlobal->error("Cannot add hero %s to visitors of structure # %d", h->getNameTranslated(), structureInstanceID);
-		throw std::runtime_error("internal error");
+		throw std::runtime_error("unexpected hero in CGTownInstance::addHeroToStructureVisitors");
 	}
 }
 

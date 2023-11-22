@@ -108,8 +108,6 @@ void CMapLoaderH3M::init()
 	inputStream->seek(0);
 
 	readHeader();
-	map->allHeroes.resize(map->allowedHeroes.size());
-
 	readDisposedHeroes();
 	readMapOptions();
 	readAllowedArtifacts();
@@ -678,6 +676,8 @@ void CMapLoaderH3M::readTeamInfo()
 
 void CMapLoaderH3M::readAllowedHeroes()
 {
+	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
+
 	if(features.levelHOTA0)
 		reader->readBitmaskHeroesSized(mapHeader->allowedHeroes, false);
 	else
@@ -747,6 +747,8 @@ void CMapLoaderH3M::readMapOptions()
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
+	map->allowedArtifact = VLC->arth->getDefaultAllowed();
+
 	if(features.levelAB)
 	{
 		if(features.levelHOTA0)
