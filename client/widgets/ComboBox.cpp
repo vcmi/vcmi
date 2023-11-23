@@ -22,10 +22,11 @@ ComboBox::DropDown::Item::Item(const JsonNode & config, ComboBox::DropDown & _dr
 {
 	build(config);
 	
-	if(auto w = widget<CPicture>("hoverImage"))
+	if(auto w = widget<CIntObject>("hoverImage"))
 	{
 		pos.w = w->pos.w;
 		pos.h = w->pos.h;
+		w->disable();
 	}
 	setRedrawParent(true);
 }
@@ -42,14 +43,14 @@ void ComboBox::DropDown::Item::updateItem(int idx, const void * _item)
 
 void ComboBox::DropDown::Item::hover(bool on)
 {
-	auto h = widget<CPicture>("hoverImage");
+	auto h = widget<CIntObject>("hoverImage");
 	auto w = widget<CLabel>("labelName");
 	if(h && w)
 	{
-		if(w->getText().empty())
-			h->visible = false;
+		if(w->getText().empty() || on == false)
+			h->disable();
 		else
-			h->visible = on;
+			h->enable();
 	}
 	redraw();
 }

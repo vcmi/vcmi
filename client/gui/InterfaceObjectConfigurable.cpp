@@ -310,8 +310,6 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto image = ImagePath::fromJson(config["image"]);
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
-	if(!config["visible"].isNull())
-		pic->visible = config["visible"].Bool();
 
 	if ( config["playerColored"].Bool() && LOCPLINT)
 		pic->colorize(LOCPLINT->playerID);
