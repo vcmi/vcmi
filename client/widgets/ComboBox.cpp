@@ -67,7 +67,7 @@ void ComboBox::DropDown::Item::clickReleased(const Point & cursorPosition)
 	dropDown.clickReleased(cursorPosition);
 }
 
-ComboBox::DropDown::DropDown(const JsonNode & config, ComboBox & _comboBox):
+ComboBox::DropDown::DropDown(const JsonNode & config, ComboBox & _comboBox, Point dropDownPosition):
 	InterfaceObjectConfigurable(LCLICK | HOVER),
 	comboBox(_comboBox)
 {
@@ -78,7 +78,7 @@ ComboBox::DropDown::DropDown(const JsonNode & config, ComboBox & _comboBox):
 	
 	addCallback("sliderMove", std::bind(&ComboBox::DropDown::sliderMove, this, std::placeholders::_1));
 	
-	pos = comboBox.pos;
+	pos = comboBox.pos + dropDownPosition;
 	
 	build(config);
 	
@@ -156,12 +156,12 @@ void ComboBox::DropDown::setItem(const void * item)
 	GH.windows().popWindows(1);
 }
 
-ComboBox::ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, EShortcut key, bool playerColoredButton):
+ComboBox::ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, Point dropDownPosition, EShortcut key, bool playerColoredButton):
 	CButton(position, defName, help, 0, key, playerColoredButton)
 {
-	addCallback([&, dropDownDescriptor]()
+	addCallback([this, dropDownDescriptor, dropDownPosition]()
 	{
-		GH.windows().createAndPushWindow<ComboBox::DropDown>(dropDownDescriptor, *this);
+		GH.windows().createAndPushWindow<ComboBox::DropDown>(dropDownDescriptor, *this, dropDownPosition);
 	});
 }
 

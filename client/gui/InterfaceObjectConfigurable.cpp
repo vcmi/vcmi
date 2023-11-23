@@ -560,9 +560,11 @@ std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonN
 {
 	logGlobal->debug("Building widget ComboBox");
 	auto position = readPosition(config["position"]);
+	auto dropDownPosition = readPosition(config["dropDownPosition"]);
 	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
-	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"]);
+	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"], dropDownPosition);
+
 	if(!config["items"].isNull())
 	{
 		for(const auto & item : config["items"].Vector())
