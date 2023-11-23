@@ -1,0 +1,520 @@
+{
+	"dropDownBackground" : 
+	{
+		"type": "transparentFilledRectangle",
+		"visible": false,
+		"rect": {"x": 1, "y": 1, "w": 219, "h": 19},
+		"color": [0, 0, 0, 128],
+		"colorLine": [0, 0, 0, 128]
+	},
+	"dropDownLabel":
+	{
+		"type": "label",
+		"font": "small",
+		"alignment": "left",
+		"color": "white",
+		"position": {"x": 4, "y": 0}
+	},
+	"dropDownHover":
+	{
+		"type": "transparentFilledRectangle",
+		"visible": false,
+		"rect": {"x": 2, "y": 2, "w": 216, "h": 16},
+		"color": [0, 0, 0, 0],
+		"colorLine": [255, 255, 0, 255]
+	},
+	"dropDownTimers" : 
+	{
+		"name": "timerPresetSelector",
+		"type": "comboBox",
+		"image": "lobby/dropdown",
+		"imageOrder": [0, 0, 0, 0],
+		"items":
+		[
+			{
+				"name": "timer",
+				"type": "label",
+				"font": "small",
+				"alignment": "left",
+				"color": "white",
+				"text": "Custom turn time"
+			}
+		],
+		"dropDown":
+		{
+			"items":
+			[
+				{
+					"type": "texture",
+					"image": "DiBoxBck",
+					"color" : "blue", 
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 260}
+				},
+				{
+					"type": "transparentFilledRectangle",
+					"visible": false,
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 260},
+					"color": [0, 0, 0, 0],
+					"colorLine": [64, 80, 128, 128]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 0},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Unlimited turn time"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 20},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Classic timer: 1 minute"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 40},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Classic timer: 2 minutes"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 60},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Classic timer: 5 minutes"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 80},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Classic timer: 10 minutes"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 100},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Classic timer: 20 minutes"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 120},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Classic timer: 30 minutes"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 140},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Chess: 16:00 + 08:00 + 02:00 + 00:00"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 160},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Chess: 16:00 + 08:00 + 01:15 + 00:00"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 180},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Chess: 08:00 + 04:00 + 01:00 + 00:00"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 200},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Chess: 02:00 + 01:30 + 01:00 + 00:00"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 220},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Chess: 02:00 + 01:00 + 00:15 + 00:00"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 240},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Chess: 01:00 + 01:00 + 00:00 + 00:00"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				}
+			]
+		}
+	},
+	"dropDownSimturns" : 
+	{
+		"name": "timerPresetSelector",
+		"type": "comboBox",
+		"image": "lobby/dropdown",
+		"imageOrder": [0, 0, 0, 0],
+		"items":
+		[
+			{
+				"name": "timer",
+				"type": "label",
+				"font": "small",
+				"alignment": "left",
+				"color": "white",
+				"text": "Custom simultaneous turns"
+			}
+		],
+		"dropDown":
+		{
+			"items":
+			[
+				{
+					"type": "texture",
+					"image": "DiBoxBck",
+					"color" : "blue", 
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 160}
+				},
+				{
+					"type": "transparentFilledRectangle",
+					"visible": false,
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 160},
+					"color": [0, 0, 0, 0],
+					"colorLine": [64, 80, 128, 128]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 0},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "No simultaneous turns"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 20},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Simturns: Until contact"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 40},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Simturns: 1 week, break on contact"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 60},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Simturns: 2 weeks, break on contact"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 80},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Simturns: 1 month, break on contact"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 100},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Simturns: 1 week, contacts blocked"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 120},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Simturns: 2 weeks, contacts blocked"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 140},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "Simturns: 1 month, contacts blocked"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				}
+			]
+		}
+	}
+}

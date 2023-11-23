@@ -1,5 +1,4 @@
 {
-	"library" : "config/widgets/turnOptionsDropdownLibrary.json",
 	"items":
 	[
 		{
@@ -73,19 +72,41 @@
 			"rect": {"x": 315, "y": 92, "w": 70, "h": 0},
 			"adoptHeight": true
 		},
-
+		
+		// timer
 		{
-			"type" : "dropDownTimers",
-			"name": "timerPresetSelector",
-			"position": {"x": 56, "y": 535},
-			"dropDownPosition": {"x": 0, "y": -260}
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.521",
+			"position": {"x": 222, "y": 544}
 		},
+		
 		{
-			"type" : "dropDownSimturns",
-			"name": "simturnsPresetSelector",
-			"position": {"x": 56, "y": 555},
-			"dropDownPosition": {"x": 0, "y": -160}
-		}
+			"name": "labelTurnDurationValue",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 319, "y": 565}
+		},
+		
+		{
+			"name": "sliderTurnDuration",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 55, "y": 557},
+			"size": 194,
+			"callback": "setTimerPreset",
+			"itemsVisible": 1,
+			"itemsTotal": 11,
+			"selected": 11,
+			"style": "blue",
+			"scrollBounds": {"x": -3, "y": -25, "w": 337, "h": 43},
+			"panningStep": 20
+		},
 	],
 
 	"variables":
