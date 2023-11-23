@@ -34,7 +34,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			tinfo.baseTimer = tpreset.at(0).Integer() * 1000;
 			tinfo.turnTimer = tpreset.at(1).Integer() * 1000;
 			tinfo.battleTimer = tpreset.at(2).Integer() * 1000;
-			tinfo.creatureTimer = tpreset.at(3).Integer() * 1000;
+			tinfo.unitTimer = tpreset.at(3).Integer() * 1000;
 			CSH->setTurnTimerInfo(tinfo);
 		}
 	});
@@ -133,7 +133,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		if(time >= 0)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
-			tinfo.creatureTimer = time;
+			tinfo.unitTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 		}
 	});
@@ -175,7 +175,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 						tinfo.baseTimer = (*tObj)["default"].Vector().at(0).Integer() * 1000;
 						tinfo.turnTimer = (*tObj)["default"].Vector().at(1).Integer() * 1000;
 						tinfo.battleTimer = (*tObj)["default"].Vector().at(2).Integer() * 1000;
-						tinfo.creatureTimer = (*tObj)["default"].Vector().at(3).Integer() * 1000;
+						tinfo.unitTimer = (*tObj)["default"].Vector().at(3).Integer() * 1000;
 						CSH->setTurnTimerInfo(tinfo);
 					}
 				}
@@ -251,7 +251,7 @@ void OptionsTabBase::recreate()
 	//classic timer
 	if(auto turnSlider = widget<CSlider>("sliderTurnDuration"))
 	{
-		if(!variables["timerPresets"].isNull() && !turnTimerRemote.battleTimer && !turnTimerRemote.creatureTimer && !turnTimerRemote.baseTimer)
+		if(!variables["timerPresets"].isNull() && !turnTimerRemote.battleTimer && !turnTimerRemote.unitTimer && !turnTimerRemote.baseTimer)
 		{
 			for(int idx = 0; idx < variables["timerPresets"].Vector().size(); ++idx)
 			{
@@ -281,11 +281,11 @@ void OptionsTabBase::recreate()
 	if(auto ww = widget<CTextInput>("chessFieldBattle"))
 		ww->setText(timeToString(turnTimerRemote.battleTimer), false);
 	if(auto ww = widget<CTextInput>("chessFieldCreature"))
-		ww->setText(timeToString(turnTimerRemote.creatureTimer), false);
+		ww->setText(timeToString(turnTimerRemote.unitTimer), false);
 
 	if(auto w = widget<ComboBox>("timerModeSwitch"))
 	{
-		if(turnTimerRemote.battleTimer || turnTimerRemote.creatureTimer || turnTimerRemote.baseTimer)
+		if(turnTimerRemote.battleTimer || turnTimerRemote.unitTimer || turnTimerRemote.baseTimer)
 		{
 			if(auto turnSlider = widget<CSlider>("sliderTurnDuration"))
 				if(turnSlider->isActive())

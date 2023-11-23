@@ -19,7 +19,7 @@ bool TurnTimerInfo::isEnabled() const
 
 bool TurnTimerInfo::isBattleEnabled() const
 {
-	return creatureTimer > 0 || battleTimer > 0;
+	return unitTimer > 0 || battleTimer > 0;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -128,9 +128,9 @@ void TurnTimerWidget::updateTimer(PlayerColor player, uint32_t msPassed)
 	if(player.isValidPlayer() || (playerInfo && playerInfo->isHuman()))
 	{
 		if(time.isBattle)
-			timeCheckAndUpdate(time.creatureTimer);
+			timeCheckAndUpdate(time.baseTimer + time.turnTimer + time.battleTimer + time.unitTimer);
 		else
-			timeCheckAndUpdate(time.turnTimer);
+			timeCheckAndUpdate(time.baseTimer + time.turnTimer);
 	}
 	else
 		timeCheckAndUpdate(0);
