@@ -37,12 +37,13 @@ class ComboBox : public CButton
 		bool receiveEvent(const Point & position, int eventType) const override;
 		void clickPressed(const Point & cursorPosition) override;
 		void setItem(const void *);
+
+		void updateListItems();
 			
 	private:
 		std::shared_ptr<DropDown::Item> buildItem(const JsonNode & config);
 		
 		void sliderMove(int slidPos);
-		void updateListItems();
 		
 		ComboBox & comboBox;
 		std::vector<std::shared_ptr<Item>> items;
@@ -66,4 +67,6 @@ public:
 	std::function<std::string(int, const void *)> getItemText;
 	
 	void setItem(int id);
+
+	void updateListItems();
 };

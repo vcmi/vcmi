@@ -33,9 +33,9 @@ ComboBox::DropDown::Item::Item(const JsonNode & config, ComboBox::DropDown & _dr
 
 void ComboBox::DropDown::Item::updateItem(int idx, const void * _item)
 {
+	item = _item;
 	if(auto w = widget<CLabel>("labelName"))
 	{
-		item = _item;
 		if(dropDown.comboBox.getItemText)
 			w->setText(dropDown.comboBox.getItemText(idx, item));
 	}
@@ -130,20 +130,21 @@ void ComboBox::DropDown::clickPressed(const Point & cursorPosition)
 
 void ComboBox::DropDown::updateListItems()
 {
+	int elemIdx = 0;
+
 	if(auto w = widget<CSlider>("slider"))
+		elemIdx = w->getValue();
+
+	for(auto item : items)
 	{
-		int elemIdx = w->getValue();
-		for(auto item : items)
+		if(elemIdx < curItems.size())
 		{
-			if(elemIdx < curItems.size())
-			{
-				item->updateItem(elemIdx, curItems[elemIdx]);
-				elemIdx++;
-			}
-			else
-			{
-				item->updateItem(elemIdx);
-			}
+			item->updateItem(elemIdx, curItems[elemIdx]);
+			elemIdx++;
+		}
+		else
+		{
+			item->updateItem(elemIdx);
 		}
 	}
 }
@@ -167,7 +168,9 @@ ComboBox::ComboBox(Point position, const AnimationPath & defName, const std::pai
 
 void ComboBox::setItem(const void * item)
 {
-	if(auto w = std::dynamic_pointer_cast<CLabel>(overlay); getItemText)
+	auto w = std::dynamic_pointer_cast<CLabel>(overlay);
+
+	if( w && getItemText)
 		addTextOverlay(getItemText(0, item), w->font, w->color);
 	
 	if(onSetItem)

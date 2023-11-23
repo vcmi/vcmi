@@ -74,7 +74,7 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 		{
 			endTurnAllowed[player] = true;
 			auto & timer = timers[player];
-			if(si->turnTimerInfo.accumulatingTurnTimer > 0)
+			if(si->turnTimerInfo.accumulatingTurnTimer)
 				timer.baseTimer += timer.turnTimer;
 			timer.turnTimer = si->turnTimerInfo.turnTimer;
 			

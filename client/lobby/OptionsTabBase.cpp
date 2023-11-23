@@ -26,18 +26,35 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 {
 	recActions = 0;
 
-	addCallback("setTimerPreset", [&](int index){
+	auto setTimerPresetCallback = [this](int index){
 		if(!variables["timerPresets"].isNull())
 		{
 			auto tpreset = variables["timerPresets"].Vector().at(index).Vector();
-			TurnTimerInfo tinfo;
+			TurnTimerInfo tinfo =  SEL->getStartInfo()->turnTimerInfo;
 			tinfo.baseTimer = tpreset.at(0).Integer() * 1000;
 			tinfo.turnTimer = tpreset.at(1).Integer() * 1000;
 			tinfo.battleTimer = tpreset.at(2).Integer() * 1000;
 			tinfo.unitTimer = tpreset.at(3).Integer() * 1000;
+			tinfo.accumulatingTurnTimer = tpreset.at(4).Bool();
+			tinfo.accumulatingUnitTimer = tpreset.at(5).Bool();
 			CSH->setTurnTimerInfo(tinfo);
 		}
-	});
+	};
+
+	auto setSimturnsPresetCallback = [this](int index){
+		if(!variables["simturnsPresets"].isNull())
+		{
+			auto tpreset = variables["simturnsPresets"].Vector().at(index).Vector();
+			SimturnsInfo tinfo = SEL->getStartInfo()->simturnsInfo;
+			tinfo.optionalTurns = tpreset.at(0).Integer();
+			tinfo.requiredTurns = tpreset.at(1).Integer();
+			tinfo.allowHumanWithAI = tpreset.at(2).Bool();
+			CSH->setSimturnsInfo(tinfo);
+		}
+	};
+
+	addCallback("setTimerPreset", setTimerPresetCallback);
+	addCallback("setSimturnPreset", setSimturnsPresetCallback);
 
 	addCallback("setSimturnDurationMin", [&](int index){
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
@@ -57,6 +74,18 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.allowHumanWithAI = index;
 		CSH->setSimturnsInfo(info);
+	});
+
+	addCallback("setTurnTimerAccumulate", [&](int index){
+		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
+		info.accumulatingTurnTimer = index;
+		CSH->setTurnTimerInfo(info);
+	});
+
+	addCallback("setUnitTimerAccumulate", [&](int index){
+		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
+		info.accumulatingUnitTimer = index;
+		CSH->setTurnTimerInfo(info);
 	});
 
 	//helper function to parse string containing time to integer reflecting time in seconds
@@ -194,6 +223,34 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 
 		w->setItem(0);
 	}
+
+	if(auto w = widget<ComboBox>("simturnsPresetSelector"))
+	{
+		w->onConstructItems = [this](std::vector<const void *> & curItems)
+		{
+			for (size_t i = 0; i < variables["simturnsPresets"].Vector().size(); ++i)
+				curItems.push_back((void*)i);
+		};
+
+		w->onSetItem = [setSimturnsPresetCallback](const void * item){
+			size_t itemIndex = (size_t)item;
+			setSimturnsPresetCallback(itemIndex);
+		};
+	}
+
+	if(auto w = widget<ComboBox>("timerPresetSelector"))
+	{
+		w->onConstructItems = [this](std::vector<const void *> & curItems)
+		{
+			for (size_t i = 0; i < variables["timerPresets"].Vector().size(); ++i)
+				curItems.push_back((void*)i);
+		};
+
+		w->onSetItem = [setTimerPresetCallback](const void * item){
+			size_t itemIndex = (size_t)item;
+			setTimerPresetCallback(itemIndex);
+		};
+	}
 }
 
 void OptionsTabBase::recreate()
@@ -245,6 +302,12 @@ void OptionsTabBase::recreate()
 
 	if(auto buttonSimturnsAI = widget<CToggleButton>("buttonSimturnsAI"))
 		buttonSimturnsAI->setSelectedSilent(SEL->getStartInfo()->simturnsInfo.allowHumanWithAI);
+
+	if(auto buttonTurnTimerAccumulate = widget<CToggleButton>("buttonTurnTimerAccumulate"))
+		buttonTurnTimerAccumulate->setSelectedSilent(SEL->getStartInfo()->turnTimerInfo.accumulatingTurnTimer);
+
+	if(auto buttonUnitTimerAccumulate = widget<CToggleButton>("buttonUnitTimerAccumulate"))
+		buttonUnitTimerAccumulate->setSelectedSilent(SEL->getStartInfo()->turnTimerInfo.accumulatingUnitTimer);
 
 	const auto & turnTimerRemote = SEL->getStartInfo()->turnTimerInfo;
 
