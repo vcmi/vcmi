@@ -1,3 +1,182 @@
+# 1.3.2 -> 1.4.0
+
+### General
+* Implemented High Score screen
+* Implemented tracking of completed campaigns
+* "Secret" Heroes 3 campaigns now require completion of prerequisite campaigns first
+* Completing a campaign will now return player to campaign selection window instead of main menu
+* Game will now play video on winning or losing a game
+* Game will now correctly check for mod compatibility when loading saved games
+* Game client will no longer load conflicting mods if player have both of them enabled
+* If some mods fail to load due to missing dependencies or conflicts, game client will display message on opening main menu
+* Game will no longer crash on loading save with different mod versions and will show error message instead
+* Saved games are now 2-3 time smaller than before
+* Added Vietnamese translation
+* Failure to connect to a MP game will now show proper error message
+* Added VSync support
+* Implemented tutorial
+* Slightly reduced server connection time
+* Implemented support for playback of audio from video files
+* Windows Installer will now automatically add required firewall rules
+* Game audio will now be disabled if game window is not focused
+* Fixed formtting of date and time of a savegame on Android
+* Added list of vcmi authors to Credits screen
+* Quick combat is now disabled by default
+* Spectator mode in single player is now disabled
+
+### Multiplayer
+* Implemented simultaneous turns
+* Implemented turn timers, including chess timers version
+* Game will now hide entire adventure map on hotseat turn transfer
+* Added option to pause game timer while on system options window
+* Implemented localization support for maps * game will now use texts from local player instead of host
+* Multiple fixes to validation of player requests by server
+
+### Android
+* Heroes 3 data import now accepts files in any case
+* Fixed detection of Heroes 3 data presence when 'data' directory uses lower case
+
+### Touchscreen
+* Added tutorial video clips that explain supported touch gestures
+* Double tap will now be correctly interpreted as double click, e.g. to start scenario via double-click
+* Implemented snapping to 100% scale for adventure map zooming
+* Implemented smooth scrolling for adventure map
+* Implemented radial wheel to reorder list of owned towns and heroes
+* Implemented radial wheel for hero exchange in towns
+
+### Launcher
+* When mod is being downloaded, launcher will now correctly show progress as well as total size of a mod
+* Double-clicking mod name will now perform expected action, e.g. install/update/enable or disable
+* Launcher will now show mod extraction progress instead of freezing
+* "Friendly AI" option will now correctly display current type of friendly AI
+* Player can now correctly switch to global chat after disconnect
+* "Resolve mods conflicts" button now attempts to fix all mods if nothing is selected
+* Implemented support for mention in game lobby
+* Implemented support for global and room channels in game lobby
+* Added option to reconnect to game lobby
+
+### Editor
+* It is now possible to configure rewards for Seer Hut, Pandora Boxes and Events
+* It is now possible to configure quest (limiter) in Seer Hut and Quest Guards
+* It is now possible to configure events and rumors in map editor
+* Improved army configuration interface
+* Added option to customize hero skills
+* It is now possible to select object on map for win/loss conditions or for main town
+* Random dwellings can now be linked to a random town
+* Added map editor zoom 
+* Added objects lock functionality 
+* It is now possible to configure hero placeholders in map editor
+* Fixed duplicate artifact image on mouse drag 
+* Lasso tool will no longer skip tiles
+* Fixed layout of roads and rivers
+
+### Stability
+* Fix possible crash on generating random map
+* Fixed multiple memory leaks in game client
+* Fixed crash on casting Hypnotize multiple times
+* Fixed crash on attempting to move all artifacts from hero that has no artifacts
+* Fixed crash on attempting to load corrupted .def file
+* Fixed crash on clicking on empty Altar of Sacrifice slots
+
+### AI
+* BattleAI should now see strong stacks even if blocked by weak stacks.
+* BattleAI will now prefers targets slower than own stack even if they are not reachable this turn.
+* Improved BattleAI performance when selecting spell to cast
+* Improved BattleAI performance when selection unit action
+* Improved BattleAI spell selection logic
+* Nullkiller AI can now use Fly and Water Walk spells
+
+### Campaigns
+* Implemented voiceover audio support for Heroes 3 campaigns
+* Fixes victory condition on 1st scenario of "Long Live the King" campaign 
+* Fixed loading of defeat/victory icon and message for some campaign scenarios
+
+### Interface
+* Implemented adventure map dimming on opening windows
+* Clicking town hall icon on town screen will now open town hall
+* Clicking buildings in town hall will now show which resources are missing (if any)
+* Fixed incorrect positioning of total experience text on Altart of Sacrifice
+* Game will now show correct video file on battle end
+* Game will now correctly loop battle end animation video
+* Implemented larger version of spellbooks that displays up to 24 spells at once
+* Spell scrolls in hero inventory now show icon of contained spell
+* Fixed incorrect hero morale tooltip after visiting adventure map objects
+* Fixed incorrect information for skills in hero exchange window
+
+### Main Menu
+* Implemented window for quick selection of starting hero, town and bonus
+* Implemented map preview in scenario selection and game load screen accessible via right click on map
+* Added support for folders in scenario selection and save/load screens
+* Added support for "Show Random Maps" button in random map setup screen
+* Added starting hero preview screen
+* Added option to change name of player while in map setup screen
+* Implemeted loading screen with progress bar
+* Game will now stay on loading screen while random map generation is in process
+* Team Alignments popup in scenario options will no longer show empty teams
+* Fixed missing borders on team alignments configuration window in random maps
+* Fixed map difficulty icon on save/load screen
+* Main menu animation will no longer appear on top of new game / load game text
+
+### Adventure Map Interface
+* Picking up an artifact on adventure map will now show artifact assembly dialog if such option exists
+* Minimap will now preserve correct aspect ratio on rectangular maps
+* Fixed slot highlighting when an artifact is being assembled
+* Ctrl-click on hero will now select him instead of changing path of active hero
+* In selection windows (level up window, treasure chest pickup, etc) it is now possible to select reward via double-click
+* Attacking wandering monsters with preconfigured message will now correctly show the message
+* Revisit object button will now be blocked if there is no object to revisit
+* Fixed missing tooltip for "revisit object" button
+* Fixed calculation of fow reveal range for all objects
+* Attempt to close game will now ask for confirmation
+* Right-clicking previously visited Seer Huts or Quest Guards will show icon with preview of quest goal
+* Right-clicking owned dwellings will show amount of creatures available to for recruitment
+* Right-clicking previously visited creature banks will show exact guards composition with their portraits
+* Right-clicking artifacts on map will show artifact description
+* Right-clicking objects that give bonus to hero will show object description
+
+### Mechanics
+* Heroes in tavern will correctly lose effects from spells or visited objects on new day
+* Fixed multiple bugs in offering of Wisdom and Spell Schools on levelup. Mechanic should now work identically to Heroes 3
+* Retreated heroes will no longer restore their entire mana pool on new day
+* Fixed Grail in Crypt on some custom maps
+* Added support for repeateable quests in Seer Huts
+* Using "Sacrifice All" on Altar will now correctly place all creatures but one on altar
+* Fixed probabilities of luck and morale
+* Blinded stack no longer can get morale 
+* Creature that attacks while standing in moat will now correctly receive moat damage
+* Player resources are now limited to 1 000 000 000 to prevent overflow
+* It is no longer possible to escape from town without fort
+
+### Random Maps Generator
+* Increased tolerance for placement of Subterranean Gates
+* Game will now select random object template out of available options instead of picking first one
+* It is no longer possible to create map with a single team
+* Fixed interface no displaying correct random map settings in some cases
+* Fixed game failing to generate random map if number of AI players is set to non-zero
+* Fixed misleading error "no info for player X found"
+* Fixed bug leading to AI players defeated on day one.
+
+### Modding
+* All bonuses now require string as a subtype. See documentation for exact list of possible strings for each bonus.
+* Changes to existing objects parameters in mods will now be applied to ongoing saves
+* Fixed handling of engine version compatibility check
+* Added support for giving arbitrary bonuses to AI players
+* Most of mods of type "Translation" are now hidden in Launcher
+* Added new mod type: "Compatibility". Mods of this type are hidden in Launcher and are always active if they are compatible.
+* Added new mod type: "Maps"
+* Added new TERRAIN_NATIVE bonus that makes any terrain native to affected units
+* SPELL_DURATION now allows subtypes. If set to spell, bonus will only affect specified spell
+* Both game client and launcher will now correctly handle dependencies that are not in lower case
+* Implemented support for refusable Witch Hut and Scholar
+* Added "variables" to configurable objects that are shared between all rewards
+* Added visit mode "limiter" for configurable objects. Hero will be considered as "visited this object" if he fulfills provided condition
+* Added option to customize text displayed for visited objects, e.g. show "Already learned" instead of "Visited"
+* Added option to define custom description of configurable object, accessible via right-click
+* Added option to show object content icons on right-click
+* Object lnow allows checking whether hero can learn spell
+* Object limiter now allows checking whether hero can learn skill
+* Object reward may now reveal terrain around visiting hero (e.g. Redwood Observatory)
+
 # 1.3.1 -> 1.3.2
 
 ### GENERAL
