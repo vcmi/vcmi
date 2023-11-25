@@ -1339,11 +1339,16 @@ void CCastleInterface::recreateIcons()
 
 	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [&]()
 	{
-		if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		for(auto & town : towns)
 		{
-			if (town->getOwner() == LOCPLINT->playerID)
-				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero, nullptr, EMarketMode::RESOURCE_RESOURCE);
+			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			{
+				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				return;
+			}
 		}
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 	});
 	
 	fastTavern = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [&]()
