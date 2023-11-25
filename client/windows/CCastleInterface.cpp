@@ -1329,11 +1329,12 @@ void CCastleInterface::recreateIcons()
 	fort = std::make_shared<CTownInfo>(122, 413, town, false);
 
 	fastTownHall = std::make_shared<CButton>(Point(80, 413), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&](){ builds->enterTownHall(); });
-	fastTownHall->setImageOrder(town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1);
+	fastTownHall->setImageOrder(town->hallLevel(), town->hallLevel(), town->hallLevel(), town->hallLevel());
 	fastTownHall->setAnimateLonelyFrame(true);
 
+	int imageIndex = town->fortLevel() == CGTownInstance::EFortLevel::NONE ? 3 : town->fortLevel() - 1;
 	fastArmyPurchase = std::make_shared<CButton>(Point(122, 413), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&](){ builds->enterToTheQuickRecruitmentWindow(); });
-	fastArmyPurchase->setImageOrder(town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1);
+	fastArmyPurchase->setImageOrder(imageIndex, imageIndex, imageIndex, imageIndex);
 	fastArmyPurchase->setAnimateLonelyFrame(true);
 
 	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [&]()
