@@ -10,17 +10,16 @@
 * Game client will no longer load conflicting mods if player have both of them enabled
 * If some mods fail to load due to missing dependencies or conflicts, game client will display message on opening main menu
 * Game will no longer crash on loading save with different mod versions and will show error message instead
-* Saved games are now 2-3 time smaller than before
+* Saved games are now 2-3 times smaller than before
 * Added Vietnamese translation
 * Failure to connect to a MP game will now show proper error message
 * Added VSync support
 * Implemented tutorial
-* Slightly reduced server connection time
 * Implemented support for playback of audio from video files
 * Windows Installer will now automatically add required firewall rules
 * Game audio will now be disabled if game window is not focused
-* Fixed formtting of date and time of a savegame on Android
-* Added list of vcmi authors to Credits screen
+* Fixed formatting of date and time of a savegame on Android
+* Added list of VCMI authors to credits screen
 * Quick combat is now disabled by default
 * Spectator mode in single player is now disabled
 
@@ -29,7 +28,8 @@
 * Implemented turn timers, including chess timers version
 * Game will now hide entire adventure map on hotseat turn transfer
 * Added option to pause game timer while on system options window
-* Implemented localization support for maps * game will now use texts from local player instead of host
+* Implemented localization support for maps
+* Game will now use texts from local player instead of host
 * Multiple fixes to validation of player requests by server
 
 ### Android
@@ -45,7 +45,7 @@
 * Implemented radial wheel for hero exchange in towns
 
 ### Launcher
-* When mod is being downloaded, launcher will now correctly show progress as well as total size of a mod
+* When a mod is being downloaded, the launcher will now correctly show progress as well as its total size
 * Double-clicking mod name will now perform expected action, e.g. install/update/enable or disable
 * Launcher will now show mod extraction progress instead of freezing
 * "Friendly AI" option will now correctly display current type of friendly AI
@@ -87,7 +87,7 @@
 * Nullkiller AI can now use Fly and Water Walk spells
 
 ### Campaigns
-* Implemented voiceover audio support for Heroes 3 campaigns
+* Implemented voice-over audio support for Heroes 3 campaigns
 * Fixes victory condition on 1st scenario of "Long Live the King" campaign 
 * Fixed loading of defeat/victory icon and message for some campaign scenarios
 
@@ -95,7 +95,7 @@
 * Implemented adventure map dimming on opening windows
 * Clicking town hall icon on town screen will now open town hall
 * Clicking buildings in town hall will now show which resources are missing (if any)
-* Fixed incorrect positioning of total experience text on Altart of Sacrifice
+* Fixed incorrect positioning of total experience text on Altar of Sacrifice
 * Game will now show correct video file on battle end
 * Game will now correctly loop battle end animation video
 * Implemented larger version of spellbooks that displays up to 24 spells at once
@@ -106,11 +106,12 @@
 ### Main Menu
 * Implemented window for quick selection of starting hero, town and bonus
 * Implemented map preview in scenario selection and game load screen accessible via right click on map
+* Show exact map size in map selection
 * Added support for folders in scenario selection and save/load screens
 * Added support for "Show Random Maps" button in random map setup screen
 * Added starting hero preview screen
 * Added option to change name of player while in map setup screen
-* Implemeted loading screen with progress bar
+* Implemented loading screen with progress bar
 * Game will now stay on loading screen while random map generation is in process
 * Team Alignments popup in scenario options will no longer show empty teams
 * Fixed missing borders on team alignments configuration window in random maps
@@ -139,7 +140,7 @@
 * Fixed multiple bugs in offering of Wisdom and Spell Schools on levelup. Mechanic should now work identically to Heroes 3
 * Retreated heroes will no longer restore their entire mana pool on new day
 * Fixed Grail in Crypt on some custom maps
-* Added support for repeateable quests in Seer Huts
+* Added support for repeatable quests in Seer Huts
 * Using "Sacrifice All" on Altar will now correctly place all creatures but one on altar
 * Fixed probabilities of luck and morale
 * Blinded stack no longer can get morale 
@@ -161,7 +162,7 @@
 * Changes to existing objects parameters in mods will now be applied to ongoing saves
 * Fixed handling of engine version compatibility check
 * Added support for giving arbitrary bonuses to AI players
-* Most of mods of type "Translation" are now hidden in Launcher
+* Most mods of type "Translation" are now hidden in Launcher
 * Added new mod type: "Compatibility". Mods of this type are hidden in Launcher and are always active if they are compatible.
 * Added new mod type: "Maps"
 * Added new TERRAIN_NATIVE bonus that makes any terrain native to affected units
@@ -173,7 +174,7 @@
 * Added option to customize text displayed for visited objects, e.g. show "Already learned" instead of "Visited"
 * Added option to define custom description of configurable object, accessible via right-click
 * Added option to show object content icons on right-click
-* Object lnow allows checking whether hero can learn spell
+* Object now allows checking whether hero can learn spell
 * Object limiter now allows checking whether hero can learn skill
 * Object reward may now reveal terrain around visiting hero (e.g. Redwood Observatory)
 
