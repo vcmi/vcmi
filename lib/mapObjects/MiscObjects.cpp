@@ -739,10 +739,13 @@ void CGArtifact::pickRandomObject(CRandomGenerator & rand)
 			break;
 	}
 
-	if (ID != Obj::SPELL_SCROLL)
+	if (ID != MapObjectID::SPELL_SCROLL && ID != MapObjectID::ARTIFACT)
+	{
 		ID = MapObjectID::ARTIFACT;
-
-	setType(ID, subID);
+		setType(ID, subID);
+	}
+	else if (ID != MapObjectID::SPELL_SCROLL)
+		ID = MapObjectID::ARTIFACT;
 }
 
 void CGArtifact::initObj(CRandomGenerator & rand)
