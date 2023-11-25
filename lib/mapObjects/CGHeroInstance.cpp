@@ -1337,13 +1337,6 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(CR
 	if (canLearnSkill() && !none.empty() && skills.size() < 2)
 		chooseSkill(none);
 
-	if (skills.empty())
-		logGlobal->info("Selecting secondary skills: Nothing to select!");
-	if (skills.size() == 1)
-		logGlobal->info("Selecting secondary skills: %s (wisdom: %d, schools: %d)!", skills[0], skillsInfo.wisdomCounter, skillsInfo.magicSchoolCounter);
-	if (skills.size() == 2)
-		logGlobal->info("Selecting secondary skills: %s or %s (wisdom: %d, schools: %d)!", skills[0], skills[1], int(skillsInfo.wisdomCounter), int(skillsInfo.magicSchoolCounter));
-
 	return skills;
 }
 
