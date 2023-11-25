@@ -822,10 +822,11 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	}
 
 	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
-	fastTownHall->setImageOrder(town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1, town->hallLevel() - 1);
+	fastTownHall->setImageOrder(town->hallLevel(), town->hallLevel(), town->hallLevel(), town->hallLevel());
 	fastTownHall->setAnimateLonelyFrame(true);
+	int imageIndex = town->fortLevel() == CGTownInstance::EFortLevel::NONE ? 3 : town->fortLevel() - 1;
 	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
-	fastArmyPurchase->setImageOrder(town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1, town->fortLevel() - 1);
+	fastArmyPurchase->setImageOrder(imageIndex, imageIndex, imageIndex, imageIndex);
 	fastArmyPurchase->setAnimateLonelyFrame(true);
 	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
 	{
