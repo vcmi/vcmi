@@ -947,6 +947,11 @@ std::string CGTownInstance::getNameTranslated() const
 	return VLC->generaltexth->translate(nameTextId);
 }
 
+std::string CGTownInstance::getNameTextID() const
+{
+	return nameTextId;
+}
+
 void CGTownInstance::setNameTextId( const std::string & newName )
 {
 	nameTextId = newName;

@@ -137,6 +137,7 @@ public:
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 
 	std::string getNameTranslated() const;
+	std::string getNameTextID() const;
 	void setNameTextId(const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
