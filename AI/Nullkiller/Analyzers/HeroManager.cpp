@@ -187,7 +187,8 @@ bool HeroManager::heroCapReached() const
 	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
 
 	return heroCount >= ALLOWED_ROAMING_HEROES
-		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
 }
 
 float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
