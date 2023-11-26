@@ -534,7 +534,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 		addNewAnim(new MovementStartAnimation(owner, stack));
 	});
 
-	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementFlying)))
+	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementTeleporting)))
 	{
 		owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [&]()
 		{
