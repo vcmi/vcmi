@@ -528,9 +528,11 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	textTitle = std::make_shared<CTextBox>("", Rect(20, 20, 205, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
 	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), background->getSurface());
 	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
+	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
 		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
+		buttonOk->block(true);
 		startConnectThread();
 	}
 	else
@@ -539,8 +541,6 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputAddress->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
-		buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
-
 		inputAddress->giveFocus();
 	}
 	inputAddress->setText(host ? CServerHandler::localhostAddress : CSH->getHostAddress(), true);
