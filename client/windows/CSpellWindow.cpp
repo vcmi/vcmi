@@ -97,13 +97,13 @@ public:
 } spellsorter;
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
-	CWindowObject(PLAYER_COLORED | (settings["general"]["enableUiEnhancements"].Bool() ? BORDERED : 0)),
+	CWindowObject(PLAYER_COLORED | (settings["general"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
 	myHero(_myHero),
 	myInt(_myInt),
-	isBigSpellbook(settings["general"]["enableUiEnhancements"].Bool()),
+	isBigSpellbook(settings["general"]["enableLargeSpellbook"].Bool()),
 	spellsPerPage(24),
 	offL(-11),
 	offR(195),
