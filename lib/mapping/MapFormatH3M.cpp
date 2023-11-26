@@ -1162,18 +1162,24 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 					allowedAbilities.insert(SecondarySkill(skillID));
 		}
 
-		JsonVector anyOfList;
-
-		for (auto const & skill : allowedAbilities)
-		{
-			JsonNode entry;
-			entry.String() = VLC->skills()->getById(skill)->getJsonKey();
-			anyOfList.push_back(entry);
-		}
 		JsonNode variable;
-		variable["anyOf"].Vector() = anyOfList;
-		variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
+		if (allowedAbilities.size() == 1)
+		{
+			variable.String() = VLC->skills()->getById(*allowedAbilities.begin())->getJsonKey();
+		}
+		else
+		{
+			JsonVector anyOfList;
+			for (auto const & skill : allowedAbilities)
+			{
+				JsonNode entry;
+				entry.String() = VLC->skills()->getById(skill)->getJsonKey();
+				anyOfList.push_back(entry);
+			}
+			variable["anyOf"].Vector() = anyOfList;
+		}
 
+		variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
 		rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 	}
 	return object;
