@@ -97,7 +97,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesSOD()
 	MapFormatFeaturesH3M result = getFeaturesAB();
 	result.levelSOD = true;
 
-	result.artifactsCount = 141; // + Combined artifacts
+	result.artifactsCount = 144; // + Combined artifacts + 3 unfinished artifacts (required for some maps)
 	result.artifactsBytes = 18;
 
 	result.heroesPortraitsCount = 163; // +Finneas +young Gem +young Sandro +young Yog
