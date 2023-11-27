@@ -190,7 +190,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 					return CGI->generaltexth->allTexts[522];
 
 			if(!playerSettings.heroNameTextId.empty())
-				return playerSettings.heroNameTextId;
+				return CGI->generaltexth->translate(playerSettings.heroNameTextId);
 			auto index = playerSettings.getHeroValidated();
 			return (*CGI->heroh)[index]->getNameTranslated();
 		}
