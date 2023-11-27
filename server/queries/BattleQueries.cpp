@@ -18,6 +18,7 @@
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
+#include "../../lib/serializer/Cast.h"
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
@@ -46,8 +47,13 @@ CBattleQuery::CBattleQuery(CGameHandler * owner):
 
 bool CBattleQuery::blocksPack(const CPack * pack) const
 {
-	const char * name = typeid(*pack).name();
-	return strcmp(name, typeid(MakeAction).name()) != 0;
+	if(dynamic_ptr_cast<MakeAction>(pack) != nullptr)
+		return false;
+
+	if(dynamic_ptr_cast<GamePause>(pack) != nullptr)
+		return false;
+
+	return true;
 }
 
 void CBattleQuery::onRemoval(PlayerColor color)
