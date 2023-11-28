@@ -72,6 +72,7 @@ struct STradePanel : public CIntObject
 	std::vector<std::shared_ptr<CTradeableItem>> slots;
 	std::function<void()> updateSlotsCallback;
 	std::shared_ptr<CTradeableItem> selected;
+	const int selectionWidth = 2;
 
 	virtual void updateSlots();
 	virtual void deselect();
@@ -111,6 +112,17 @@ struct SArtifactsPanel : public STradePanel
 		std::vector<TradeItemBuy> & arts);
 };
 
+struct SPlayersPanel : public STradePanel
+{
+	const std::vector<Point> slotsPos =
+	{
+		Point(0, 0), Point(83, 0), Point(166, 0),
+		Point(0, 118), Point(83, 118), Point(166, 118),
+		Point(83, 236)
+	};
+	SPlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback);
+};
+
 class CTradeBase
 {
 public:
@@ -119,7 +131,7 @@ public:
 
 	//all indexes: 1 = left, 0 = right
 	std::array<std::vector<std::shared_ptr<CTradeableItem>>, 2> items;
-	std::vector<std::shared_ptr<STradePanel>> tradePanels;
+	std::shared_ptr<STradePanel> leftTradePanel, rightTradePanel;
 
 	//highlighted items (nullptr if no highlight)
 	std::shared_ptr<CTradeableItem> hLeft;

@@ -17,6 +17,9 @@
 #include "../windows/InfoWindows.h"
 
 #include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
+
+#include "../../CCallback.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -126,23 +129,24 @@ void CTradeableItem::showAll(Canvas & to)
 	{
 	case RESOURCE:
 		posToBitmap = Point(19, 9);
-		posToSubCenter = Point(36, 59);
+		posToSubCenter = Point(35, 57);
 		break;
 	case CREATURE_PLACEHOLDER:
 	case CREATURE:
 		posToSubCenter = Point(29, 77);
 		break;
 	case PLAYER:
-		posToSubCenter = Point(31, 76);
+		posToSubCenter = Point(31, 77);
 		break;
 	case ARTIFACT_PLACEHOLDER:
 	case ARTIFACT_INSTANCE:
-		posToSubCenter = Point(19, 54);
+		posToSubCenter = Point(22, 51);
 		if (downSelection)
 			posToSubCenter.y += 8;
 		break;
 	case ARTIFACT_TYPE:
-		posToSubCenter = Point(19, 58);
+		posToSubCenter = Point(35, 57);
+		posToBitmap = Point(13, 0);
 		break;
 	}
 
@@ -293,7 +297,8 @@ SResourcesPanel::SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPresse
 		slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[res.num], EType::RESOURCE, res.num, true, res.num));
 		slots.back()->clickPressedCallback = clickPressedCallback;
 		slots.back()->pos.w = 69; slots.back()->pos.h = 66;
-		slots.back()->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[res.num], slots.back()->pos.dimensions()));
+		slots.back()->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[res.num], slots.back()->pos.dimensions()),
+			Point(1, 1), selectionWidth);
 	}
 	updateSlotsCallback = updateSubtitles;
 }
@@ -311,10 +316,33 @@ SArtifactsPanel::SArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPresse
 	{
 		slot = std::make_shared<CTradeableItem>(slotsPos[slotNum], EType::ARTIFACT_TYPE, arts[slotNum].getNum(), false, slotNum);
 		slot->clickPressedCallback = clickPressedCallback;
-		slot->pos.w = slot->pos.h = 44;
-		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotNum++], slot->pos.dimensions()));
+		slot->pos.w = 69; slot->pos.h = 66;
+		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotNum++], slot->pos.dimensions()), Point(1, 1), selectionWidth);
 	}
 	updateSlotsCallback = updateSubtitles;
+}
+
+SPlayersPanel::SPlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback)
+{
+	assert(PlayerColor::PLAYER_LIMIT_I <= slotsPos.size());
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+
+	std::vector<PlayerColor> players;
+	for(auto player = PlayerColor(0); player < PlayerColor::PLAYER_LIMIT_I; player++)
+	{
+		if(player != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(player) == EPlayerStatus::INGAME)
+			players.emplace_back(player);
+	}
+
+	slots.resize(players.size());
+	int slotNum = 0;
+	for(auto & slot : slots)
+	{
+		slot = std::make_shared<CTradeableItem>(slotsPos[slotNum], EType::PLAYER, players[slotNum].num, false, slotNum);
+		slot->clickPressedCallback = clickPressedCallback;
+		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotNum], slot->pos.dimensions()), Point(1, 1), selectionWidth);
+		slot->subtitle = CGI->generaltexth->capColors[players[slotNum++].num];
+	}
 }
 
 CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)
