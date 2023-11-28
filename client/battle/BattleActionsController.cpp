@@ -999,7 +999,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 		return action.spellcast();
 	};
 
-	bool isCurrentStackInSpellcastMode = std::all_of(possibleActions.begin(), possibleActions.end(), spellcastActionPredicate);
+	bool isCurrentStackInSpellcastMode = !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastActionPredicate);
 
 	if (spellcastingModeActive() || isCurrentStackInSpellcastMode)
 	{

@@ -648,7 +648,14 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 
 		{
 			OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-			schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool.getNum() : owner->selectedTab], schoolLevel);
+			schoolBorder.reset();
+			if (owner->selectedTab >= 4)
+			{
+				if (whichSchool.getNum() != SpellSchool())
+					schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders.at(whichSchool.getNum()), schoolLevel);
+			}
+			else
+				schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders.at(owner->selectedTab), schoolLevel);
 		}
 
 		ColorRGBA firstLineColor, secondLineColor;

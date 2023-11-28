@@ -222,7 +222,13 @@ int CConnection::read(void * data, unsigned size)
 CConnection::~CConnection()
 {
 	if(handler)
-		handler->join();
+	{
+		// ugly workaround to avoid self-join if last strong reference to shared_ptr that owns this class has been released in this very thread, e.g. on netpack processing
+		if (boost::this_thread::get_id() != handler->get_id())
+			handler->join();
+		else
+			handler->detach();
+	}
 
 	close();
 }

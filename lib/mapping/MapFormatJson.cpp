@@ -158,20 +158,35 @@ namespace TriggeredEventsDetail
 			{
 				case EventCondition::HAVE_ARTIFACT:
 				case EventCondition::TRANSPORT:
-					event.objectType = ArtifactID(ArtifactID::decode(data["type"].String()));
+					if (data["type"].isNumber()) // compatibility
+						event.objectType = ArtifactID(data["type"].Integer());
+					else
+						event.objectType = ArtifactID(ArtifactID::decode(data["type"].String()));
 					break;
 				case EventCondition::HAVE_CREATURES:
-					event.objectType = CreatureID(CreatureID::decode(data["type"].String()));
+					if (data["type"].isNumber()) // compatibility
+						event.objectType = CreatureID(data["type"].Integer());
+					else
+						event.objectType = CreatureID(CreatureID::decode(data["type"].String()));
 					break;
 				case EventCondition::HAVE_RESOURCES:
-					event.objectType = GameResID(GameResID::decode(data["type"].String()));
+					if (data["type"].isNumber()) // compatibility
+						event.objectType = GameResID(data["type"].Integer());
+					else
+						event.objectType = GameResID(GameResID::decode(data["type"].String()));
 					break;
 				case EventCondition::HAVE_BUILDING:
-					event.objectType = BuildingID(BuildingID::decode(data["type"].String()));
+					if (data["type"].isNumber()) // compatibility
+						event.objectType = BuildingID(data["type"].Integer());
+					else
+						event.objectType = BuildingID(BuildingID::decode(data["type"].String()));
 					break;
 				case EventCondition::CONTROL:
 				case EventCondition::DESTROY:
-					event.objectType = MapObjectID(MapObjectID::decode(data["type"].String()));
+					if (data["type"].isNumber()) // compatibility
+						event.objectType = MapObjectID(data["type"].Integer());
+					else
+						event.objectType = MapObjectID(MapObjectID::decode(data["type"].String()));
 					break;
 			}
 

@@ -45,7 +45,9 @@ public:
 	std::string heroName; //backup of hero name
 	HeroTypeID heroPortrait;
 
-	MetaString firstVisitText, nextVisitText, completedText;
+	MetaString firstVisitText;
+	MetaString nextVisitText;
+	MetaString completedText;
 	bool isCustomFirst;
 	bool isCustomNext;
 	bool isCustomComplete;

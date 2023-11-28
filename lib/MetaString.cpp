@@ -51,8 +51,11 @@ void MetaString::appendRawString(const std::string & value)
 
 void MetaString::appendTextID(const std::string & value)
 {
-	message.push_back(EMessage::APPEND_TEXTID_STRING);
-	stringsTextID.push_back(value);
+	if (!value.empty())
+	{
+		message.push_back(EMessage::APPEND_TEXTID_STRING);
+		stringsTextID.push_back(value);
+	}
 }
 
 void MetaString::appendNumber(int64_t value)

@@ -215,8 +215,12 @@ void CGCreature::pickRandomObject(CRandomGenerator & rand)
 			subID = VLC->creh->pickRandomMonster(rand, 7);
 			break;
 	}
-	ID = MapObjectID::MONSTER;
-	setType(ID, subID);
+
+	if (ID != MapObjectID::MONSTER)
+	{
+		ID = MapObjectID::MONSTER;
+		setType(ID, subID);
+	}
 }
 
 void CGCreature::initObj(CRandomGenerator & rand)
