@@ -50,6 +50,7 @@
 #include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CMemorySerializer.h"
+#include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -417,8 +418,12 @@ void CServerHandler::sendClientDisconnecting()
 	}
 	sendLobbyPack(lcd);
 	
-	c->close();
-	c.reset();
+	{
+		// Network thread might be applying network pack at this moment
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		c->close();
+		c.reset();
+	}
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
@@ -665,9 +670,6 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
 {
-	client->endGame();
-	vstd::clear_pointer(client);
-
 	if(closeConnection)
 	{
 		// Game is ending
@@ -675,6 +677,10 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 		CSH->sendClientDisconnecting();
 		logNetwork->info("Closed connection.");
 	}
+
+	client->endGame();
+	vstd::clear_pointer(client);
+
 	if(!restart)
 	{
 		if(CMM)
