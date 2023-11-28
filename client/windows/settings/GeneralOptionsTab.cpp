@@ -164,7 +164,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	addCallback("enableLargeSpellbookChanged", [](bool value)
 	{
-		setBoolSetting("general", "enableLargeSpellbook", value);
+		setBoolSetting("gameTweaks", "enableLargeSpellbook", value);
 	});
 
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
@@ -213,7 +213,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CToggleButton> enableLargeSpellbookCheckbox = widget<CToggleButton>("enableLargeSpellbookCheckbox");
 	if (enableLargeSpellbookCheckbox)
-		enableLargeSpellbookCheckbox->setSelected(settings["general"]["enableLargeSpellbook"].Bool());
+		enableLargeSpellbookCheckbox->setSelected(settings["gameTweaks"]["enableLargeSpellbook"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());

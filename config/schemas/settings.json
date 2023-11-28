@@ -39,8 +39,7 @@
 				"useSavePrefix",
 				"savePrefix",
 				"startTurnAutosave",
-				"enableUiEnhancements",
-				"enableLargeSpellbook"
+				"enableUiEnhancements"
 			],
 			"properties" : {
 				"playerName" : {
@@ -132,10 +131,6 @@
 				"enableUiEnhancements" : {
 					"type": "boolean",
 					"default": true
-				},
-				"enableLargeSpellbook" : {
-					"type": "boolean",
-					"default": false
 				}
 			}
 		},
@@ -581,7 +576,8 @@
 				"compactTownCreatureInfo",
 				"infoBarPick",
 				"skipBattleIntroMusic",
-				"infoBarCreatureManagement"
+				"infoBarCreatureManagement",
+				"enableLargeSpellbook"
 			],
 			"properties" : {
 				"showGrid" : {
@@ -615,6 +611,10 @@
 				"infoBarCreatureManagement": {
 					"type" : "boolean",
 					"default" : false
+				},
+				"enableLargeSpellbook" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		}
