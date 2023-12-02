@@ -36,10 +36,23 @@
 	"vcmi.heroOverview.spells" : "Zaubersprüche",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Gleiche Kreaturen zusammenführen",
+	"vcmi.radialWheel.fillSingleUnit" : "Füllen mit einzelnen Kreaturen",
 	"vcmi.radialWheel.splitSingleUnit" : "Wegtrennen einzelner Kreaturen",
 	"vcmi.radialWheel.splitUnitEqually" : "Gleichmäßiges trennen der Kreaturen",
 	"vcmi.radialWheel.moveUnit" : "Verschieben der Kreatur in andere Armee",
 	"vcmi.radialWheel.splitUnit" : "Aufsplitten der Kreatur in anderen Slot",
+	
+	"vcmi.radialWheel.heroGetArmy" : "Armee von anderem Helden erhalten",
+	"vcmi.radialWheel.heroSwapArmy" : "Tausche Armee mit anderem Helden",
+	"vcmi.radialWheel.heroExchange" : "Öffne Tausch-Menü",
+	"vcmi.radialWheel.heroGetArtifacts" : "Artefakte von anderen Helden erhalten",
+	"vcmi.radialWheel.heroSwapArtifacts" : "Tausche Artefakte mit anderen Helden",
+	"vcmi.radialWheel.heroDismiss" : "Held entlassen",
+
+	"vcmi.radialWheel.moveTop" : "Ganz nach oben bewegen",
+	"vcmi.radialWheel.moveUp" : "Nach oben bewegen",
+	"vcmi.radialWheel.moveDown" : "Nach unten bewegen",
+	"vcmi.radialWheel.moveBottom" : "Ganz nach unten bewegen",
 
 	"vcmi.mainMenu.serverConnecting" : "Verbinde...",
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",
@@ -58,7 +71,11 @@
 
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
+	"vcmi.server.errors.modsToDisable"   : "{Folgende Mods müssen deaktiviert werden}",
 	"vcmi.server.confirmReconnect"       : "Mit der letzten Sitzung verbinden?",
+	"vcmi.server.errors.modNoDependency" : "Mod {'%s'} konnte nicht geladen werden!\n Sie hängt von Mod {'%s'} ab, die nicht aktiv ist!\n",
+	"vcmi.server.errors.modConflict" : "Mod {'%s'} konnte nicht geladen werden!\n Konflikte mit aktiver Mod {'%s'}!\n",
+	"vcmi.server.errors.unknownEntity" : "Spielstand konnte nicht geladen werden! Unbekannte Entität '%s' im gespeicherten Spiel gefunden! Der Spielstand ist möglicherweise nicht mit der aktuell installierten Version der Mods kompatibel!",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Allgemein",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Wechselt zur Registerkarte Allgemeine Optionen, die Einstellungen zum allgemeinen Verhalten des Spielclients enthält.",
@@ -94,7 +111,9 @@
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptisches Feedback",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptisches Feedback}\n\nHaptisches Feedback bei Touch-Eingaben.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Interface Verbesserungen",
-	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Interface Verbesserungen}\n\nSchaltet verschiedene Interface Verbesserungen um. Wie z.B. ein größeres Zauberbuch, Rucksack, etc. Deaktivieren, um ein klassischeres Erlebnis zu haben.",
+	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Interface Verbesserungen}\n\nSchaltet verschiedene Interface Verbesserungen um. Wie z.B. ein Rucksack-Button, etc. Deaktivieren, um ein klassischeres Erlebnis zu haben.",
+	"vcmi.systemOptions.enableLargeSpellbookButton.hover"  : "Großes Zauberbuch",
+	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Großes Zauberbuch}\n\nErmöglicht ein größeres Zauberbuch, in das mehr Zaubersprüche pro Seite passen. Die Animation des Seitenwechsels im Zauberbuch funktioniert nicht, wenn diese Einstellung aktiviert ist.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Meldungen im Infobereich anzeigen",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Meldungen im Infobereich anzeigen}\n\nWann immer möglich, werden Spielnachrichten von besuchten Kartenobjekten in der Infoleiste angezeigt, anstatt als Popup-Fenster zu erscheinen",
@@ -140,6 +159,9 @@
 	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Statistikfenster für Helden anzeigen}\n\nDauerhaftes Einschalten des Statistikfenster für Helden, das die primären Werte und Zauberpunkte anzeigt.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Intro-Musik überspringen",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Intro-Musik überspringen}\n\n Überspringe die kurze Musik, die zu Beginn eines jeden Kampfes gespielt wird, bevor die Action beginnt. Kann auch durch Drücken der ESC-Taste übersprungen werden.",
+	
+	"vcmi.adventureMap.revisitObject.hover" : "Objekt erneut besuchen",
+	"vcmi.adventureMap.revisitObject.help" : "{Objekt erneut besuchen}\n\nSteht ein Held gerade auf einem Kartenobjekt, kann er den Ort erneut aufsuchen.",
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Beliebige Taste drücken, um das Kampf-Intro zu überspringen",
 	"vcmi.battleWindow.damageEstimation.melee" : "Angriff auf %CREATURE (%DAMAGE).",
@@ -154,6 +176,15 @@
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d werden verenden",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
+
+	"vcmi.tutorialWindow.title" : "Touchscreen Einführung",
+	"vcmi.tutorialWindow.decription.RightClick" : "Berührt und haltet das Element, auf das mit der rechten Maustaste geklickt werden soll. Berührt den freien Bereich, um zu schließen.",
+	"vcmi.tutorialWindow.decription.MapPanning" : "Berührt und zieht mit einem Finger, um die Karte zu verschieben.",
+	"vcmi.tutorialWindow.decription.MapZooming" : "Berührt mit zwei Fingern, um den Kartenzoom zu ändern.",
+	"vcmi.tutorialWindow.decription.RadialWheel" : "Durch Streichen öffnet sich das Radialrad für verschiedene Aktionen, wie z.B. Kreaturen-/Heldenverwaltung und Stadtreihenfolge.",
+	"vcmi.tutorialWindow.decription.BattleDirection" : "Um aus einer bestimmten Richtung anzugreifen, wischt in die Richtung, aus der der Angriff erfolgen soll.",
+	"vcmi.tutorialWindow.decription.BattleDirectionAbort" : "Die Geste für die Angriffsrichtung kann abgebrochen werden, wenn der Finger weit genug entfernt ist.",
+	"vcmi.tutorialWindow.decription.AbortSpell" : "Berühren und halten, um einen Zauber abzubrechen.",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Verfügbare Kreaturen anzeigen",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Verfügbare Kreaturen anzeigen}\n\n Zeigt in der Stadtübersicht (linke untere Ecke) die zum Kauf verfügbaren Kreaturen anstelle ihres Wachstums an.",
@@ -182,6 +213,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Öffne Kommandanten-Fenster",
 	"vcmi.heroWindow.openCommander.help"  : "Zeige Informationen über Kommandanten dieses Helden",
+	"vcmi.heroWindow.openBackpack.hover" : "Artefakt-Rucksack-Fenster öffnen",
+	"vcmi.heroWindow.openBackpack.help"  : "Öffnet ein Fenster, das die Verwaltung des Artefakt-Rucksacks erleichtert",
 
 	"vcmi.commanderWindow.artifactMessage" : "Möchtet Ihr diesen Artefakt dem Helden zurückgeben?",
 
@@ -200,6 +233,38 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Einrichtung...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team-Zuordnungen",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Straßentypen",
+
+	"vcmi.optionsTab.turnOptions.hover" : "Zug-Optionen",
+	"vcmi.optionsTab.turnOptions.help" : "Ändere Optionen zu Zug-Timer und simultanen Zügen",
+
+	"vcmi.optionsTab.chessFieldBase.hover" : "Basis-Timer",
+	"vcmi.optionsTab.chessFieldTurn.hover" : "Zug-Timer",
+	"vcmi.optionsTab.chessFieldBattle.hover" : "Kampf-Timer",
+	"vcmi.optionsTab.chessFieldCreature.hover" : "Einheiten-Timer",
+	"vcmi.optionsTab.chessFieldBase.help" : "Wird verwendet, wenn {Zug-Timer} 0 erreicht. Wird einmal zu Beginn des Spiels gesetzt. Bei Erreichen von Null wird der aktuelle Zug beendet. Jeder laufende Kampf endet mit einem Verlust.",
+	"vcmi.optionsTab.chessFieldTurn.help" : "Wird außerhalb des Kampfes verwendet oder wenn der {Kampf-Timer} abgelaufen ist. Wird jede Runde zurückgesetzt. Reste werden am Ende der Runde zum {Basis-Timer} hinzugefügt.",
+	"vcmi.optionsTab.chessFieldBattle.help" : "Wird in Kämpfen mit der KI oder im PvP-Kampf verwendet, wenn {Einheiten-Timer} abläuft. Wird zu Beginn eines jeden Kampfes zurückgesetzt.",
+	"vcmi.optionsTab.chessFieldCreature.help" : "Wird bei der Auswahl der Einheitenaktion im PvP-Kampf verwendet. Wird zu Beginn der Runde jeder Einheit zurückgesetzt.",
+
+	"vcmi.optionsTab.simturns" : "Simultane Züge",
+	"vcmi.optionsTab.simturnsMin.hover" : "Zumindest für",
+	"vcmi.optionsTab.simturnsMax.hover" : "Höchstens für",
+	"vcmi.optionsTab.simturnsAI.hover" : "(Experimentell) Simultane KI Züge",
+	"vcmi.optionsTab.simturnsMin.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen. Die Kontakte zwischen den Spielern sind während dieser Zeit blockiert",
+	"vcmi.optionsTab.simturnsMax.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen oder bis zum Kontakt mit einem anderen Spieler",
+	"vcmi.optionsTab.simturnsAI.help" : "{Simultane KI Züge}\nExperimentelle Option. Ermöglicht es den KI-Spielern, gleichzeitig mit dem menschlichen Spieler zu agieren, wenn simultane Spielzüge aktiviert sind.",
+	
+	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
+	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	"vcmi.optionsTab.simturns.days.0" : "%d Tage",
+	"vcmi.optionsTab.simturns.days.1" : "%d Tag",
+	"vcmi.optionsTab.simturns.days.2" : "%d Tage",
+	"vcmi.optionsTab.simturns.weeks.0" : "%d Wochen",
+	"vcmi.optionsTab.simturns.weeks.1" : "%d Woche",
+	"vcmi.optionsTab.simturns.weeks.2" : "%d Wochen",
+	"vcmi.optionsTab.simturns.months.0" : "%d Monate",
+	"vcmi.optionsTab.simturns.months.1" : "%d Monat",
+	"vcmi.optionsTab.simturns.months.2" : "%d Monate",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Der Feind hat es geschafft, bis zum heutigen Tag zu überleben. Der Sieg gehört ihm!",
