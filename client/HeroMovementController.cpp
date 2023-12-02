@@ -100,7 +100,8 @@ void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, Tel
 		}
 	}
 
-	assert(0); // exit not found? How?
+	// may happen when hero has path but does not moves alongside it
+	// for example, while standing on teleporter set path that does not leads throught teleporter and press space
 	LOCPLINT->cb->selectionMade(-1, askID);
 	return;
 }

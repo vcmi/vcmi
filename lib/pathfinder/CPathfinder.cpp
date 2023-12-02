@@ -24,11 +24,45 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+bool CPathfinderHelper::canMoveFromNode(const PathNodeInfo & source) const
+{
+	// we can always make the first step, even when standing on object
+	if(source.node->theNodeBefore == nullptr)
+		return true;
+
+	if (!source.nodeObject)
+		return true;
+
+	if (!source.isNodeObjectVisitable())
+		return true;
+
+	// we can always move from visitable object if hero has teleported here (e.g. went through monolith)
+	if (source.node->isTeleportAction())
+		return true;
+
+	// we can go through garrisons
+	if (source.nodeObject->ID == MapObjectID::GARRISON || source.nodeObject->ID == MapObjectID::GARRISON2)
+		return true;
+
+	// or through border gate (if we stand on it then we already have the key)
+	if (source.nodeObject->ID == MapObjectID::BORDER_GATE)
+		return true;
+
+	// or "through" boat, but only if this is embarking
+	if (source.nodeObject->ID == MapObjectID::BOAT && source.node->action == EPathNodeAction::EMBARK)
+		return true;
+
+	return false;
+}
+
 std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & source) const
 {
 	std::vector<int3> neighbourTiles;
-	neighbourTiles.reserve(8);
 
+	if (!canMoveFromNode(source))
+		return neighbourTiles;
+
+	neighbourTiles.reserve(8);
 	getNeighbours(
 		*source.tile,
 		source.node->coord,
@@ -38,7 +72,7 @@ std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & sour
 
 	if(source.isNodeObjectVisitable())
 	{
-		vstd::erase_if(neighbourTiles, [&](const int3 & tile) -> bool 
+		vstd::erase_if(neighbourTiles, [&](const int3 & tile) -> bool
 		{
 			return !canMoveBetween(tile, source.nodeObject->visitablePos());
 		});
@@ -135,6 +169,9 @@ void CPathfinder::calculatePaths()
 		{
 			if(neighbour->locked)
 				continue;
+
+			if (source.node->theNodeBefore && source.node->theNodeBefore->coord == neighbour->coord )
+				continue; // block U-turns
 
 			if(!hlp->isLayerAvailable(neighbour->layer))
 				continue;

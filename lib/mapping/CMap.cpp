@@ -348,13 +348,8 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	{
 		for (CGObjectInstance* obj : posTile.visitableObjects)
 		{
-			if(obj->isBlockedVisitable())
-			{
-				if (obj->ID == Obj::MONSTER) // Monster
-					return pos;
-				else
-					return int3(-1, -1, -1); //blockvis objects are not guarded by neighbouring creatures
-			}
+			if (obj->ID == Obj::MONSTER)
+				return pos;
 		}
 	}
 
