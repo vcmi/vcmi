@@ -159,7 +159,7 @@ void CRecruitmentWindow::buy()
 		else
 		{
 			std::string txt;
-			if(dst->ID == Obj::HERO)
+			if(dwelling->ID != Obj::TOWN)
 			{
 				txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
 				boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->getNamePluralTranslated() : CGI->creh->objects[crid]->getNameSingularTranslated());

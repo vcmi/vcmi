@@ -69,7 +69,6 @@
 			[
 				{
 					"name": "enableAutocombatSpellsCheckbox",
-					"help": "vcmi.battleOptions.enableAutocombatSpells",
 					"callback": "enableAutocombatSpellsChanged"
 				}
 			]

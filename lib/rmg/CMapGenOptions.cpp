@@ -313,8 +313,8 @@ void CMapGenOptions::resetPlayersMap()
 	while (players.size() < realPlayersCnt && !availableColors.empty())
 	{
 		auto color = availableColors.front();
-		setPlayerTypeForStandardPlayer(color, EPlayerType::AI);
 		players[color].setColor(color);
+		setPlayerTypeForStandardPlayer(color, EPlayerType::AI);
 		availableColors.erase(availableColors.begin());
 
 		if (vstd::contains(savedPlayerSettings, color))
