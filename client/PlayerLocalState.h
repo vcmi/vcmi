@@ -42,7 +42,9 @@ public:
 	{
 		//on which page we left spellbook
 		int spellbookLastPageBattle = 0;
-		int spellbokLastPageAdvmap = 0;
+		int spellbookLastPageAdvmap = 0;
+		std::string spellbookLastFilterBattle = "";
+		std::string spellbookLastFilterAdvmap = "";
 		int spellbookLastTabBattle = 4;
 		int spellbookLastTabAdvmap = 4;
 
@@ -50,7 +52,7 @@ public:
 		void serialize(Handler & h, const int version)
 		{
 			h & spellbookLastPageBattle;
-			h & spellbokLastPageAdvmap;
+			h & spellbookLastPageAdvmap;
 			h & spellbookLastTabBattle;
 			h & spellbookLastTabAdvmap;
 		}

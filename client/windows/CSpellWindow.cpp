@@ -124,70 +124,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		offL = offR = offT = offB = offRM = 0;
 		spellsPerPage = 12;
 	}
+
 	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
-	//initializing castable spells
-	mySpells.reserve(CGI->spellh->objects.size());
-	for(const CSpell * spell : CGI->spellh->objects)
-	{
-		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell))
-			mySpells.push_back(spell);
-	}
-	std::sort(mySpells.begin(), mySpells.end(), spellsorter);
+	searchBox = std::make_shared<CTextInput>(Rect(10, isBigSpellbook ? 8 : 20, pos.w-20, 16), FONT_MEDIUM, std::bind(&CSpellWindow::searchInput, this));
+	searchBox->setText(battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastFilterBattle : myInt->localState->spellbookSettings.spellbookLastFilterAdvmap);
 
-	//initializing sizes of spellbook's parts
-	for(auto & elem : sitesPerTabAdv)
-		elem = 0;
-	for(auto & elem : sitesPerTabBattle)
-		elem = 0;
-
-	for(const auto spell : mySpells)
-	{
-		int * sitesPerOurTab = spell->isCombat() ? sitesPerTabBattle : sitesPerTabAdv;
-
-		++sitesPerOurTab[4];
-
-		spell->forEachSchool([&sitesPerOurTab](const SpellSchool & school, bool & stop)
-		{
-			++sitesPerOurTab[school];
-		});
-	}
-	if(sitesPerTabAdv[4] % spellsPerPage == 0)
-		sitesPerTabAdv[4]/=spellsPerPage;
-	else
-		sitesPerTabAdv[4] = sitesPerTabAdv[4]/spellsPerPage + 1;
-
-	for(int v=0; v<4; ++v)
-	{
-		if(sitesPerTabAdv[v] <= spellsPerPage - 2)
-			sitesPerTabAdv[v] = 1;
-		else
-		{
-			if((sitesPerTabAdv[v] - spellsPerPage - 2) % spellsPerPage == 0)
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 1;
-			else
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 2;
-		}
-	}
-
-	if(sitesPerTabBattle[4] % spellsPerPage == 0)
-		sitesPerTabBattle[4]/=spellsPerPage;
-	else
-		sitesPerTabBattle[4] = sitesPerTabBattle[4]/spellsPerPage + 1;
-
-	for(int v=0; v<4; ++v)
-	{
-		if(sitesPerTabBattle[v] <= spellsPerPage - 2)
-			sitesPerTabBattle[v] = 1;
-		else
-		{
-			if((sitesPerTabBattle[v] - spellsPerPage - 2) % spellsPerPage == 0)
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 1;
-			else
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 2;
-		}
-	}
-
+	processSpells();
 
 	//numbers of spell pages computed
 
@@ -253,7 +196,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	selectedTab = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap;
 	schoolTab->setFrame(selectedTab, 0);
-	int cp = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap;
+	int cp = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbookLastPageAdvmap;
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
 	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
 	setCurrentPage(cp);
@@ -296,10 +239,89 @@ std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 	return GH.renderHandler().createImage(canvas.getInternalSurface());
 }
 
+void CSpellWindow::searchInput()
+{
+	processSpells();
+
+	int cp = 0;
+	// spellbook last page battle index is not reset after battle, so this needs to stay here
+	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
+	setCurrentPage(cp);
+	computeSpellsPerArea();
+}
+
+void CSpellWindow::processSpells()
+{
+	mySpells.clear();
+
+	//initializing castable spells
+	mySpells.reserve(CGI->spellh->objects.size());
+	for(const CSpell * spell : CGI->spellh->objects)
+	{
+		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && boost::algorithm::contains(boost::algorithm::to_lower_copy(spell->getNameTranslated()), boost::algorithm::to_lower_copy(searchBox->getText())))
+			mySpells.push_back(spell);
+	}
+	std::sort(mySpells.begin(), mySpells.end(), spellsorter);
+
+	//initializing sizes of spellbook's parts
+	for(auto & elem : sitesPerTabAdv)
+		elem = 0;
+	for(auto & elem : sitesPerTabBattle)
+		elem = 0;
+
+	for(const auto spell : mySpells)
+	{
+		int * sitesPerOurTab = spell->isCombat() ? sitesPerTabBattle : sitesPerTabAdv;
+
+		++sitesPerOurTab[4];
+
+		spell->forEachSchool([&sitesPerOurTab](const SpellSchool & school, bool & stop)
+		{
+			++sitesPerOurTab[school];
+		});
+	}
+	if(sitesPerTabAdv[4] % spellsPerPage == 0)
+		sitesPerTabAdv[4]/=spellsPerPage;
+	else
+		sitesPerTabAdv[4] = sitesPerTabAdv[4]/spellsPerPage + 1;
+
+	for(int v=0; v<4; ++v)
+	{
+		if(sitesPerTabAdv[v] <= spellsPerPage - 2)
+			sitesPerTabAdv[v] = 1;
+		else
+		{
+			if((sitesPerTabAdv[v] - spellsPerPage - 2) % spellsPerPage == 0)
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 1;
+			else
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 2;
+		}
+	}
+
+	if(sitesPerTabBattle[4] % spellsPerPage == 0)
+		sitesPerTabBattle[4]/=spellsPerPage;
+	else
+		sitesPerTabBattle[4] = sitesPerTabBattle[4]/spellsPerPage + 1;
+
+	for(int v=0; v<4; ++v)
+	{
+		if(sitesPerTabBattle[v] <= spellsPerPage - 2)
+			sitesPerTabBattle[v] = 1;
+		else
+		{
+			if((sitesPerTabBattle[v] - spellsPerPage - 2) % spellsPerPage == 0)
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 1;
+			else
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 2;
+		}
+	}
+}
+
 void CSpellWindow::fexitb()
 {
 	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
-	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbookLastPageAdvmap) = currentPage;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastFilterBattle : myInt->localState->spellbookSettings.spellbookLastFilterAdvmap) = searchBox->getText();
 
 	close();
 }
@@ -595,7 +617,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 			auto guard = vstd::makeScopeGuard([this]()
 			{
 				owner->myInt->localState->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
-				owner->myInt->localState->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
+				owner->myInt->localState->spellbookSettings.spellbookLastPageAdvmap = owner->currentPage;
 			});
 
 			if(mySpell->getTargetType() == spells::AimType::LOCATION)
