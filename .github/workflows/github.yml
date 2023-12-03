@@ -279,6 +279,14 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+          
+    - name: Symbols
+      if: ${{ matrix.platform == 'msvc' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
+        path: |
+            ${{github.workspace}}/**/*.pdb
 
     - name: Android JNI ${{matrix.platform}}
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
