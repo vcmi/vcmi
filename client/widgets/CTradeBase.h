@@ -67,17 +67,20 @@ public:
 
 struct STradePanel : public CIntObject
 {
-	using updateSlotsFunctor = std::function<void()>;
+	using UpdateSlotsFunctor = std::function<void()>;
+	using DeleteSlotsCheck = std::function<bool(std::shared_ptr<CTradeableItem> & slot)>;
 
 	std::vector<std::shared_ptr<CTradeableItem>> slots;
-	std::function<void()> updateSlotsCallback;
+	UpdateSlotsFunctor updateSlotsCallback;
+	DeleteSlotsCheck deleteSlotsCheck;
 	std::shared_ptr<CTradeableItem> selected;
 	const int selectionWidth = 2;
 
 	virtual void updateSlots();
 	virtual void deselect();
 	virtual void clearSubtitles();
-	void updateOffer(int slotIdx, int, int);
+	void updateOffer(CTradeableItem & slot, int, int);
+	void deleteSlots();
 };
 
 struct SResourcesPanel : public STradePanel
@@ -95,7 +98,7 @@ struct SResourcesPanel : public STradePanel
 		Point(83, 158)
 	};
 
-	SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updateSlotsFunctor updateSubtitles);
+	SResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles);
 };
 
 struct SArtifactsPanel : public STradePanel
@@ -106,9 +109,9 @@ struct SArtifactsPanel : public STradePanel
 		Point(0, 79), Point(83, 79), Point(166, 79),
 		Point(83, 158)
 	};
-	const size_t artifactsForTrade = 7;
+	const size_t slotsForTrade = 7;
 
-	SArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, updateSlotsFunctor updateSubtitles,
+	SArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles,
 		std::vector<TradeItemBuy> & arts);
 };
 
@@ -121,6 +124,19 @@ struct SPlayersPanel : public STradePanel
 		Point(83, 236)
 	};
 	SPlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback);
+};
+
+struct SCreaturesPanel : public STradePanel
+{
+	using slotsData = std::vector<std::tuple<CreatureID, SlotID, int>>;
+
+	const std::vector<Point> slotsPos =
+	{
+		Point(0, 0), Point(83, 0), Point(166, 0),
+		Point(0, 98), Point(83, 98), Point(166, 98),
+		Point(83, 196)
+	};
+	SCreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, slotsData & initialSlots);
 };
 
 class CTradeBase

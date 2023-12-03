@@ -36,8 +36,6 @@ public:
 	void initSubs(bool Left);
 	void initTypes();
 	void initItems(bool Left);
-	std::vector<int> *getItemsIds(bool Left); //nullptr if default
-	void getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const;
 	void setMode(EMarketMode Mode); //mode setter
 
 	void artifactSelected(CArtPlace * slot); //used when selling artifacts -> called when user clicked on artifact slot

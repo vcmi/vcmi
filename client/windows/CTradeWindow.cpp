@@ -92,7 +92,7 @@ void CTradeWindow::initItems(bool Left)
 					int h1, h2; //hlp variables for getting offer
 					market->getOffer(hLeft->id, slot->id, h1, h2, mode);
 
-					rightTradePanel->updateOffer(slot->serial, h1, h2);
+					rightTradePanel->updateOffer(*slot, h1, h2);
 				}
 			else
 				rightTradePanel->clearSubtitles();
@@ -111,7 +111,22 @@ void CTradeWindow::initItems(bool Left)
 			selectionChanged(left);
 		};
 
-		if(Left && (mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::RESOURCE_PLAYER))
+		if(Left && mode == EMarketMode::CREATURE_RESOURCE)
+		{
+			SCreaturesPanel::slotsData slots;
+			for(auto slotId = SlotID(0); slotId.num < GameConstants::ARMY_SIZE; slotId++)
+			{
+				if(const auto & creature = hero->getCreature(slotId))
+					slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
+			}
+			leftTradePanel = std::make_shared<SCreaturesPanel>(std::bind(clickPressedTradePanel, _1, true), slots);
+			leftTradePanel->moveBy(Point(45, 123));
+			leftTradePanel->deleteSlotsCheck = [this](std::shared_ptr<CTradeableItem> & slot) -> bool
+			{
+				return this->hero->getStackCount(SlotID(slot->serial)) == 0 ? true : false;
+			};
+		}
+		else if(Left && (mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::RESOURCE_PLAYER))
 		{
 			leftTradePanel = std::make_shared<SResourcesPanel>(std::bind(clickPressedTradePanel, _1, true),
 				[this]() -> void
@@ -121,9 +136,8 @@ void CTradeWindow::initItems(bool Left)
 				});
 			leftTradePanel->moveBy(Point(39, 182));
 			leftTradePanel->updateSlots();
-			return;
 		}
-		if(!Left && mode == EMarketMode::RESOURCE_RESOURCE)
+		else if(!Left && mode == EMarketMode::RESOURCE_RESOURCE)
 		{
 			rightTradePanel = std::make_shared<SResourcesPanel>(std::bind(clickPressedTradePanel, _1, false),
 				[this, updRightSub]() -> void
@@ -133,153 +147,28 @@ void CTradeWindow::initItems(bool Left)
 						rightTradePanel->slots[hLeft->serial]->subtitle = CGI->generaltexth->allTexts[164]; // n/a
 				});
 			rightTradePanel->moveBy(Point(327, 181));
-			return;
 		}
-		if(!Left && (mode == EMarketMode::ARTIFACT_RESOURCE || mode == EMarketMode::CREATURE_RESOURCE))
+		else if(!Left && (mode == EMarketMode::ARTIFACT_RESOURCE || mode == EMarketMode::CREATURE_RESOURCE))
 		{
 			rightTradePanel = std::make_shared<SResourcesPanel>(std::bind(clickPressedTradePanel, _1, false),
 				std::bind(updRightSub, EMarketMode::ARTIFACT_RESOURCE));
 			rightTradePanel->moveBy(Point(327, 181));
-			return;
 		}
-		if(!Left && mode == EMarketMode::RESOURCE_ARTIFACT)
+		else if(!Left && mode == EMarketMode::RESOURCE_ARTIFACT)
 		{
 			rightTradePanel = std::make_shared<SArtifactsPanel>(std::bind(clickPressedTradePanel, _1, false),
 				std::bind(updRightSub, EMarketMode::RESOURCE_ARTIFACT), market->availableItemsIds(mode));
 			rightTradePanel->moveBy(Point(327, 181));
-			return;
+			rightTradePanel->deleteSlotsCheck = [this](std::shared_ptr<CTradeableItem> & slot) -> bool
+			{
+				return vstd::contains(market->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), ArtifactID(slot->id)) ? false : true;
+			};
 		}
-		if(!Left && mode == EMarketMode::RESOURCE_PLAYER)
+		else if(!Left && mode == EMarketMode::RESOURCE_PLAYER)
 		{
 			rightTradePanel = std::make_shared<SPlayersPanel>(std::bind(clickPressedTradePanel, _1, false));
 			rightTradePanel->moveBy(Point(333, 83));
-			return;
 		}
-
-		std::vector<int> *ids = getItemsIds(Left);
-		std::vector<Rect> pos;
-		int amount = -1;
-
-		getPositionsFor(pos, Left, itemsType[Left]);
-
-		if(Left || !ids)
-			amount = 7;
-		else
-			amount = static_cast<int>(ids->size());
-
-		if(ids)
-			vstd::amin(amount, ids->size());
-
-		for(int j=0; j<amount; j++)
-		{
-			int id = (ids && ids->size()>j) ? (*ids)[j] : j;
-			if(id < 0 && mode != EMarketMode::ARTIFACT_EXP)  //when sacrificing artifacts we need to prepare empty slots
-				continue;
-
-			auto item = std::make_shared<CTradeableItem>(pos[j].topLeft(), itemsType[Left], id, Left, j);
-			item->pos = pos[j] + this->pos.topLeft();
-			if(mode != EMarketMode::ARTIFACT_EXP)
-				item->clickPressedCallback = [this](std::shared_ptr<CTradeableItem> altarSlot) -> void
-				{
-					if(altarSlot->left)
-					{
-						if(hLeft != altarSlot)
-							hLeft = altarSlot;
-						else
-							return;
-					}
-					else
-					{
-						if(hRight != altarSlot)
-							hRight = altarSlot;
-						else
-							return;
-					}
-					selectionChanged(altarSlot->left);
-				};
-
-			items[Left].push_back(item);
-		}
-		vstd::clear_pointer(ids);
-		initSubs(Left);
-	}
-}
-
-std::vector<int> *CTradeWindow::getItemsIds(bool Left)
-{
-	std::vector<int> *ids = nullptr;
-
-	if(Left)
-	{
-		switch(itemsType[1])
-		{
-		case CREATURE:
-			ids = new std::vector<int>;
-			for(int i = 0; i < 7; i++)
-			{
-				if(const CCreature *c = hero->getCreature(SlotID(i)))
-					ids->push_back(c->getId());
-				else
-					ids->push_back(-1);
-			}
-			break;
-		}
-	}
-	else
-	{
-		switch(itemsType[0])
-		{
-		case PLAYER:
-			ids = new std::vector<int>;
-			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-				if(PlayerColor(i) != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(PlayerColor(i)) == EPlayerStatus::INGAME)
-					ids->push_back(i);
-			break;
-		}
-	}
-
-	return ids;
-}
-
-void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const
-{
-	//seven boxes:
-	//  X  X  X
-	//  X  X  X
-	//     X
-	int h = 0, w = 0, x = 0, y = 0, dx = 0, dy = 0;
-
-	switch(type)
-	{
-	case CREATURE://45,123
-		x = 45;
-		y = 123;
-		w = 58;
-		h = 64;
-		dx = 83;
-		dy = 98;
-		assert(Left);
-		break;
-	}
-	int leftToRightOffset = 289;
-
-	const std::vector<Rect> tmp =
-	{
-		Rect(Point(x + 0 * dx, y + 0 * dx), Point(w, h) ),
-		Rect(Point(x + 1 * dx, y + 0 * dx), Point(w, h) ),
-		Rect(Point(x + 2 * dx, y + 0 * dx), Point(w, h) ),
-		Rect(Point(x + 0 * dx, y + 1 * dy), Point(w, h) ),
-		Rect(Point(x + 1 * dx, y + 1 * dy), Point(w, h) ),
-		Rect(Point(x + 2 * dx, y + 1 * dy), Point(w, h) ),
-		Rect(Point(x + 1 * dx, y + 2 * dy), Point(w, h) )
-	};
-
-	vstd::concatenate(poss, tmp);
-
-	if(!Left)
-	{
-		for(Rect &r : poss)
-			r.x += leftToRightOffset;
 	}
 }
 
@@ -292,19 +181,6 @@ void CTradeWindow::initSubs(bool Left)
 		else
 			rightTradePanel->updateSlots();
 		return;
-	}
-
-	for(auto item : items[Left])
-	{
-		if(Left)
-		{
-			switch(itemsType[1])
-			{
-			case CREATURE:
-				item->subtitle = std::to_string(hero->getStackCount(SlotID(item->serial)));
-				break;
-			}
-		}
 	}
 }
 
@@ -660,10 +536,8 @@ void CMarketplaceWindow::updateGarrison()
 	if(mode != EMarketMode::CREATURE_RESOURCE)
 		return;
 
-	std::set<std::shared_ptr<CTradeableItem>> toRemove;
-	getEmptySlots(toRemove);
-	removeItems(toRemove);
-	initSubs(true);
+	leftTradePanel->deleteSlots();
+	leftTradePanel->updateSlots();
 }
 
 void CMarketplaceWindow::artifactsChanged(bool Left)
@@ -671,17 +545,8 @@ void CMarketplaceWindow::artifactsChanged(bool Left)
 	assert(!Left);
 	if(mode != EMarketMode::RESOURCE_ARTIFACT)
 		return;
-
-	std::vector<TradeItemBuy> available = market->availableItemsIds(mode);
-	std::set<std::shared_ptr<CTradeableItem>> toRemove;
-	for(auto item : items[0])
-		if(!vstd::contains(available, ArtifactID(item->id)))
-			toRemove.insert(item);
-
-	removeItems(toRemove);
-
-	// clear set to erase final instance of shared_ptr - we want to redraw screen only after it has been deleted
-	toRemove.clear();
+	
+	rightTradePanel->deleteSlots();
 	redraw();
 }
 

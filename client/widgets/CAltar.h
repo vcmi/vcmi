@@ -66,7 +66,7 @@ class CAltarCreatures : public CAltar
 {
 public:
 	CAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
-	void updateGarrison();
+	void updateSlots();
 	void deselect() override;
 	TExpType calcExpAltarForHero() override;
 	void makeDeal() override;
@@ -80,24 +80,10 @@ private:
 	std::vector<int> expPerUnit;
 	std::shared_ptr<CLabel> lSubtitle, rSubtitle;
 
-	const std::vector<Point> posSlotsAltar =
-	{
-		Point(334, 110), Point(417, 110), Point(500, 110),
-		Point(334, 208), Point(417, 208), Point(500, 208),
-		Point(417, 306)
-	};
-	const std::vector<Point> posSlotsHero =
-	{
-		Point(45, 110), Point(128, 110), Point(211, 110),
-		Point(45, 208), Point(128, 208), Point(211, 208),
-		Point(128, 306)
-	};
-
 	void readExpValues();
 	void updateControls();
 	void updateSubtitlesForSelected();
 	void onUnitsSliderMoved(int newVal);
-	void onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot,
-		std::vector<std::shared_ptr<CTradeableItem>> & oppositeSlots,
+	void onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot, std::shared_ptr<STradePanel> & oppositePanel,
 		std::shared_ptr<CTradeableItem> & hCurSide, std::shared_ptr<CTradeableItem> & hOppSide);
 };

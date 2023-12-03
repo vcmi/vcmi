@@ -44,6 +44,10 @@ CAltar::CAltar(const IMarket * market, const CGHeroInstance * hero)
 
 void CAltar::deselect()
 {
+	if(hLeft)
+		hLeft->selection->selectSlot(false);
+	if(hRight)
+		hRight->selection->selectSlot(false);
 	hLeft = hRight = nullptr;
 	deal->block(true);
 }
@@ -251,35 +255,36 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 		Point(393, 520), AnimationPath::builtin("ALTARMY.DEF"), CGI->generaltexth->zelp[579], std::bind(&CAltar::sacrificeAll, this));
 
 	// Creating slots for hero creatures
-	for(int slotIdx = 0; slotIdx < GameConstants::ARMY_SIZE; slotIdx++)
+	SCreaturesPanel::slotsData slots;
+	for(auto slotId = SlotID(0); slotId.num < GameConstants::ARMY_SIZE; slotId++)
 	{
-		CreatureID creatureId = CreatureID::NONE;
-		if(const auto & creature = hero->getCreature(SlotID(slotIdx)))
-			creatureId = creature->getId();
-		else
-			continue;
-
-		auto heroSlot = std::make_shared<CTradeableItem>(posSlotsHero[slotIdx], EType::CREATURE, creatureId.num, true, slotIdx);
-		heroSlot->clickPressedCallback = [this](std::shared_ptr<CTradeableItem> altarSlot) -> void
-			{
-				onSlotClickPressed(altarSlot, items[0], hLeft, hRight);
-			};
-		heroSlot->subtitle = std::to_string(hero->getStackCount(SlotID(slotIdx)));
-		items[1].emplace_back(heroSlot);
+		if(const auto & creature = hero->getCreature(slotId))
+			slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
 	}
+	leftTradePanel = std::make_shared<SCreaturesPanel>([this](std::shared_ptr<CTradeableItem> altarSlot) -> void
+		{
+			onSlotClickPressed(altarSlot, rightTradePanel, hLeft, hRight);
+		}, slots);
+	leftTradePanel->moveBy(Point(45, 110));
+	leftTradePanel->updateSlotsCallback = [this]() -> void
+		{
+			for(auto & heroSlot : leftTradePanel->slots)
+				heroSlot->subtitle = std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial)));
+		};
 
 	// Creating slots for creatures on altar
-	assert(items[1].size() <= posSlotsAltar.size());
-	for(const auto & heroSlot : items[1])
-	{
-		auto altarSlot = std::make_shared<CTradeableItem>(posSlotsAltar[heroSlot->serial], EType::CREATURE_PLACEHOLDER, heroSlot->id, false, heroSlot->serial);
-		altarSlot->pos.w = heroSlot->pos.w; altarSlot->pos.h = heroSlot->pos.h;
-		altarSlot->clickPressedCallback = [this](std::shared_ptr<CTradeableItem> altarSlot) -> void
-			{
-				onSlotClickPressed(altarSlot, items[1], hRight, hLeft);
-			};
-		items[0].emplace_back(altarSlot);
-	}
+	for(auto & slot : slots)
+		std::get<2>(slot) = 0;
+	rightTradePanel = std::make_shared<SCreaturesPanel>([this](std::shared_ptr<CTradeableItem> altarSlot) -> void
+		{
+			onSlotClickPressed(altarSlot, leftTradePanel, hRight, hLeft);
+		}, slots);
+	rightTradePanel->moveBy(Point(334, 110));
+
+	leftTradePanel->deleteSlotsCheck = rightTradePanel->deleteSlotsCheck = [this](std::shared_ptr<CTradeableItem> & slot) -> bool
+		{
+			return this->hero->getStackCount(SlotID(slot->serial)) == 0 ? true : false;
+		};
 
 	readExpValues();
 	calcExpAltarForHero();
@@ -289,7 +294,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 void CAltarCreatures::readExpValues()
 {
 	int dump;
-	for(auto heroSlot : items[1])
+	for(auto heroSlot : leftTradePanel->slots)
 	{
 		if(heroSlot->id >= 0)
 			market->getOffer(heroSlot->id, 0, dump, expPerUnit[heroSlot->serial], EMarketMode::CREATURE_EXP);
@@ -340,14 +345,13 @@ void CAltarCreatures::updateSubtitlesForSelected()
 		rSubtitle->setText("");
 }
 
-void CAltarCreatures::updateGarrison()
+void CAltarCreatures::updateSlots()
 {
-	std::set<std::shared_ptr<CTradeableItem>> empty;
-	getEmptySlots(empty);
-	removeItems(empty);
+	rightTradePanel->deleteSlots();
+	leftTradePanel->deleteSlots();
+	assert(leftTradePanel->slots.size() == rightTradePanel->slots.size());
 	readExpValues();
-	for(auto & heroSlot : items[1])
-		heroSlot->subtitle = std::to_string(hero->getStackCount(SlotID(heroSlot->serial)));
+	leftTradePanel->updateSlots();
 }
 
 void CAltarCreatures::deselect()
@@ -392,17 +396,17 @@ void CAltarCreatures::makeDeal()
 	for(int & units : unitsOnAltar)
 		units = 0;
 
-	for(auto heroSlot : items[0])
+	for(auto heroSlot : rightTradePanel->slots)
 	{
 		heroSlot->setType(CREATURE_PLACEHOLDER);
-		heroSlot->subtitle = "";
+		heroSlot->subtitle.clear();
 	}
 }
 
 void CAltarCreatures::sacrificeAll()
 {
 	std::optional<SlotID> lastSlot;
-	for(auto heroSlot : items[1])
+	for(auto heroSlot : leftTradePanel->slots)
 	{
 		auto stackCount = hero->getStackCount(SlotID(heroSlot->serial));
 		if(stackCount > unitsOnAltar[heroSlot->serial])
@@ -417,7 +421,7 @@ void CAltarCreatures::sacrificeAll()
 
 	if(hRight)
 		unitsSlider->scrollTo(unitsOnAltar[hRight->serial]);
-	for(auto altarSlot : items[0])
+	for(auto altarSlot : rightTradePanel->slots)
 		updateAltarSlot(altarSlot);
 	updateSubtitlesForSelected();
 
@@ -443,18 +447,21 @@ void CAltarCreatures::onUnitsSliderMoved(int newVal)
 	updateSubtitlesForSelected();
 }
 
-void CAltarCreatures::onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot,
-	std::vector<std::shared_ptr<CTradeableItem>> & oppositeSlots,
+void CAltarCreatures::onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot, std::shared_ptr<STradePanel> & oppositePanel,
 	std::shared_ptr<CTradeableItem> & hCurSide, std::shared_ptr<CTradeableItem> & hOppSide)
 {
 	std::shared_ptr<CTradeableItem> oppositeSlot;
-	for(const auto & slot : oppositeSlots)
+	for(const auto & slot : oppositePanel->slots)
 		if(slot->serial == altarSlot->serial)
 		{
 			oppositeSlot = slot;
 			break;
 		}
 
+	if(hCurSide)
+		hCurSide->selection->selectSlot(false);
+	if(hOppSide)
+		hOppSide->selection->selectSlot(false);
 	if(hCurSide != altarSlot && oppositeSlot)
 	{
 		hCurSide = altarSlot;
@@ -463,4 +470,7 @@ void CAltarCreatures::onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSl
 		updateSubtitlesForSelected();
 		redraw();
 	}
+	hCurSide->selection->selectSlot(true);
+	hOppSide->selection->selectSlot(true);
+	redraw();
 }
