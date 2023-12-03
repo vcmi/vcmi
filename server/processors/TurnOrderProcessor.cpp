@@ -263,8 +263,6 @@ void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
 
 	if (actingPlayers.empty())
 		doStartNewDay();
-
-	assert(!actingPlayers.empty());
 }
 
 bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
