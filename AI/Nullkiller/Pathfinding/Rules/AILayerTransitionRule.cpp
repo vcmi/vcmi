@@ -91,12 +91,12 @@ namespace AIPathfinding
 
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			if(hero->canCastThisSpell(waterWalk.toSpell()))
+			if(hero->canCastThisSpell(waterWalk.toSpell()) && hero->mana >= hero->getSpellCost(waterWalk.toSpell()))
 			{
 				waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero);
 			}
 
-			if(hero->canCastThisSpell(airWalk.toSpell()))
+			if(hero->canCastThisSpell(airWalk.toSpell()) && hero->mana >= hero->getSpellCost(airWalk.toSpell()))
 			{
 				airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero);
 			}
@@ -178,11 +178,6 @@ namespace AIPathfinding
 		EPathNodeAction targetAction) const
 	{
 		bool result = false;
-
-		if(!specialAction->canAct(nodeStorage->getAINode(source.node)))
-		{
-			return false;
-		}
 
 		nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
