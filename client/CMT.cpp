@@ -462,9 +462,9 @@ static void mainLoop()
 	{
 		if(CSH->client)
 			CSH->endGameplay();
-	}
 
-	GH.windows().clear();
+		GH.windows().clear();
+	}
 
 	CMM.reset();
 

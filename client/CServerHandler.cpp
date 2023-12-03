@@ -617,7 +617,9 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
-	GH.windows().createAndPushWindow<CLoadingScreen>();
+
+	if(!settings["session"]["headless"].Bool())
+		GH.windows().createAndPushWindow<CLoadingScreen>();
 	
 	LobbyStartGame lsg;
 	if(client)

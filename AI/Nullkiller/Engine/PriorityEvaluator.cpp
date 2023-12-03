@@ -588,6 +588,8 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::PANDORAS_BOX:
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;
+	case Obj::PYRAMID:
+		return 3.0f;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
