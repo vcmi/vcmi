@@ -83,7 +83,10 @@ ArtifactID MapReaderH3M::readArtifact()
 
 ArtifactID MapReaderH3M::readArtifact8()
 {
-	ArtifactID result(reader->readInt8());
+	ArtifactID result(reader->readUInt8());
+
+	if(result.getNum() == 0xff)
+		return ArtifactID::NONE;
 
 	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
