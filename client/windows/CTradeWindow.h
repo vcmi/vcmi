@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CTradeBase.h"
+#include "../widgets/markets/CTradeBase.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 

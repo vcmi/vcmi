@@ -20,10 +20,10 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position)
 		position,
 		std::bind(&CArtifactsOfHeroMarket::scrollBackpack, this, _1));
 
-	for(auto slot : artWorn)
-		slot.second->selection->lineWidth = 2;
-	for(auto slot : backpack)
-		slot->selection->lineWidth = 2;
+	for(const auto & [slot, artPlace] : artWorn)
+		artPlace->selection->setBorderWidth(2);
+	for(auto artPlace : backpack)
+		artPlace->selection->setBorderWidth(2);
 };
 
 void CArtifactsOfHeroMarket::scrollBackpack(int offset)

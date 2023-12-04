@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../widgets/CAltar.h"
+#include "../widgets/markets/CAltarArtifacts.h"
+#include "../widgets/markets/CAltarCreatures.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 
@@ -28,7 +29,7 @@ public:
 
 private:
 	const CGHeroInstance * hero;
-	std::shared_ptr<CExpAltar> altar;
+	std::shared_ptr<CExperienceAltar> altar;
 	std::shared_ptr<CButton> changeModeButton;
 	std::shared_ptr<CButton> quitButton;
 	std::function<void()> windowClosedCallback;
