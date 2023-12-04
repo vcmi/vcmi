@@ -40,19 +40,11 @@ bool CPathfinderHelper::canMoveFromNode(const PathNodeInfo & source) const
 	if (source.node->isTeleportAction())
 		return true;
 
-	// we can go through garrisons
-	if (source.nodeObject->ID == MapObjectID::GARRISON || source.nodeObject->ID == MapObjectID::GARRISON2)
-		return true;
+	// we can not go through teleporters since moving onto a teleport will teleport hero and may invalidate path (e.g. one-way teleport or enemy hero on other side)
+	if (dynamic_cast<const CGTeleport*>(source.nodeObject) != nullptr)
+		return false;
 
-	// or through border gate (if we stand on it then we already have the key)
-	if (source.nodeObject->ID == MapObjectID::BORDER_GATE)
-		return true;
-
-	// or "through" boat, but only if this is embarking
-	if (source.nodeObject->ID == MapObjectID::BOAT && source.node->action == EPathNodeAction::EMBARK)
-		return true;
-
-	return false;
+	return true;
 }
 
 std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & source) const
