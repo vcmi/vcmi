@@ -1,5 +1,5 @@
 curl -LfsS -o "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v143.7z" \
-	"https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.6/vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v143.7z"
+	"https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.7/vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v143.7z"
 7z x "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v143.7z"
 
 #rm -r -f vcpkg/installed/${VCMI_BUILD_PLATFORM}-windows/debug

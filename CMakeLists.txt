@@ -715,6 +715,11 @@ endif(WIN32)
 #       Packaging section             #
 #######################################
 
+if(MSVC)
+	SET(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${BIN_DIR})
+	Include(InstallRequiredSystemLibraries)
+endif()
+
 set(CPACK_PACKAGE_VERSION_MAJOR ${VCMI_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${VCMI_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${VCMI_VERSION_PATCH})
