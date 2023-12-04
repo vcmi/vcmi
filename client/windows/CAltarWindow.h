@@ -28,7 +28,7 @@ public:
 
 private:
 	const CGHeroInstance * hero;
-	std::shared_ptr<CAltar> altar;
+	std::shared_ptr<CExpAltar> altar;
 	std::shared_ptr<CButton> changeModeButton;
 	std::shared_ptr<CButton> quitButton;
 	std::function<void()> windowClosedCallback;

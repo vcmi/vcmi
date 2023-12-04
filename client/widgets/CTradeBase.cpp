@@ -13,6 +13,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
+#include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 
@@ -367,8 +368,25 @@ SCreaturesPanel::SCreaturesPanel(CTradeableItem::ClickPressedFunctor clickPresse
 		slot->clickPressedCallback = clickPressedCallback;
 		if(creaturesNum != 0)
 			slot->subtitle = std::to_string(std::get<2>(slotData));
-		slot->pos.w = 58; slots.back()->pos.h = 64;
-		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotId.num], slots.back()->pos.dimensions()), Point(1, 1), selectionWidth);
+		slot->pos.w = 58; slot->pos.h = 64;
+		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotId.num], slot->pos.dimensions()), Point(1, 1), selectionWidth);
+	}
+}
+
+SCreaturesPanel::SCreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback,
+	std::vector<std::shared_ptr<CTradeableItem>> & stsSlots, bool emptySlots)
+{
+	assert(slots.size() <= GameConstants::ARMY_SIZE);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+
+	for(const auto & srcSlot : stsSlots)
+	{
+		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[srcSlot->serial],
+			emptySlots ? EType::CREATURE_PLACEHOLDER : EType::CREATURE, srcSlot->id, true, srcSlot->serial));
+		slot->clickPressedCallback = clickPressedCallback;
+		slot->subtitle = emptySlots ? "" : srcSlot->subtitle;
+		slot->pos.w = srcSlot->pos.w; slot->pos.h = srcSlot->pos.h;
+		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slot->serial], slot->pos.dimensions()), Point(1, 1), selectionWidth);
 	}
 }
 
@@ -376,6 +394,8 @@ CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)
 	: market(market)
 	, hero(hero)
 {
+	deal = std::make_shared<CButton>(Point(), AnimationPath::builtin("ALTSACR.DEF"),
+		CGI->generaltexth->zelp[585], std::bind(&CTradeBase::makeDeal, this));
 }
 
 void CTradeBase::removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove)
@@ -397,4 +417,64 @@ void CTradeBase::getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRem
 	for(auto item : leftTradePanel->slots)
 		if(!hero->getStackCount(SlotID(item->serial)))
 			toRemove.insert(item);
+}
+
+void CTradeBase::deselect()
+{
+	if(hLeft)
+		hLeft->selection->selectSlot(false);
+	if(hRight)
+		hRight->selection->selectSlot(false);
+	hLeft = hRight = nullptr;
+	deal->block(true);
+}
+
+void CTradeBase::onSlotClickPressed(std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+{
+	if(newSlot == hCurSlot)
+		return;
+
+	if(hCurSlot)
+		hCurSlot->selection->selectSlot(false);
+	hCurSlot = newSlot;
+	newSlot->selection->selectSlot(true);
+}
+
+CExpAltar::CExpAltar()
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	// Experience needed to reach next level
+	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
+	// Total experience on the Altar
+	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
+	deal->moveBy(dealButtonPos);
+	expToLevel = std::make_shared<CLabel>(75, 477, FONT_SMALL, ETextAlignment::CENTER);
+	expForHero = std::make_shared<CLabel>(75, 545, FONT_SMALL, ETextAlignment::CENTER);
+}
+
+CCreaturesSelling::CCreaturesSelling()
+{
+	assert(hero);
+	SCreaturesPanel::slotsData slots;
+	for(auto slotId = SlotID(0); slotId.num < GameConstants::ARMY_SIZE; slotId++)
+	{
+		if(const auto & creature = hero->getCreature(slotId))
+			slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
+	}
+	leftTradePanel = std::make_shared<SCreaturesPanel>([this](std::shared_ptr<CTradeableItem> altarSlot) -> void
+		{
+			onSlotClickPressed(altarSlot, hLeft);
+		}, slots);
+}
+
+bool CCreaturesSelling::slotDeletingCheck(std::shared_ptr<CTradeableItem> & slot)
+{
+	return hero->getStackCount(SlotID(slot->serial)) == 0 ? true : false;
+}
+
+void CCreaturesSelling::updateSubtitle()
+{
+	for(auto & heroSlot : leftTradePanel->slots)
+		heroSlot->subtitle = std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial)));
 }

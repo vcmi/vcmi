@@ -24,6 +24,7 @@ VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class CTextBox;
+class CSlider;
 
 enum EType
 {
@@ -137,6 +138,8 @@ struct SCreaturesPanel : public STradePanel
 		Point(83, 196)
 	};
 	SCreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, slotsData & initialSlots);
+	SCreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback,
+		std::vector<std::shared_ptr<CTradeableItem>> & stsSlots, bool emptySlots = true);
 };
 
 class CTradeBase
@@ -153,15 +156,40 @@ public:
 	std::shared_ptr<CTradeableItem> hLeft;
 	std::shared_ptr<CTradeableItem> hRight;
 	std::shared_ptr<CButton> deal;
+	std::shared_ptr<CSlider> offerSlider;
 
 	CTradeBase(const IMarket * market, const CGHeroInstance * hero);
 	void removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove);
 	void removeItem(std::shared_ptr<CTradeableItem> item);
 	void getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRemove);
 	virtual void makeDeal() = 0;
+	virtual void deselect();
+	virtual void onSlotClickPressed(std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
 
 protected:
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	std::vector<std::shared_ptr<CTextBox>> texts;
+};
+
+// Market subclasses
+class CExpAltar : virtual public CTradeBase, virtual public CIntObject
+{
+public:
+	std::shared_ptr<CLabel> expToLevel;
+	std::shared_ptr<CLabel> expForHero;
+	std::shared_ptr<CButton> sacrificeAllButton;
+	const Point dealButtonPos = Point(269, 520);
+
+	CExpAltar();
+	virtual void sacrificeAll() = 0;
+	virtual TExpType calcExpAltarForHero() = 0;
+};
+
+class CCreaturesSelling : virtual public CTradeBase, virtual public CIntObject
+{
+public:
+	CCreaturesSelling();
+	bool slotDeletingCheck(std::shared_ptr<CTradeableItem> & slot);
+	void updateSubtitle();
 };

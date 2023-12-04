@@ -12,23 +12,7 @@
 #include "../widgets/CArtifactsOfHeroAltar.h"
 #include "../widgets/CTradeBase.h"
 
-class CSlider;
-
-class CAltar : public CTradeBase, public CIntObject
-{
-public:
-	std::shared_ptr<CLabel> expToLevel;
-	std::shared_ptr<CLabel> expForHero;
-	std::shared_ptr<CButton> sacrificeAllButton;
-
-	CAltar(const IMarket * market, const CGHeroInstance * hero);
-	virtual ~CAltar() = default;
-	virtual void sacrificeAll() = 0;
-	virtual void deselect();
-	virtual TExpType calcExpAltarForHero() = 0;
-};
-
-class CAltarArtifacts : public CAltar
+class CAltarArtifacts : public CExpAltar
 {
 public:
 	CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero);
@@ -62,7 +46,7 @@ private:
 	void onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot);
 };
 
-class CAltarCreatures : public CAltar
+class CAltarCreatures : public CExpAltar, public CCreaturesSelling
 {
 public:
 	CAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
@@ -75,7 +59,6 @@ public:
 
 private:
 	std::shared_ptr<CButton> maxUnits;
-	std::shared_ptr<CSlider> unitsSlider;
 	std::vector<int> unitsOnAltar;
 	std::vector<int> expPerUnit;
 	std::shared_ptr<CLabel> lSubtitle, rSubtitle;
@@ -83,7 +66,6 @@ private:
 	void readExpValues();
 	void updateControls();
 	void updateSubtitlesForSelected();
-	void onUnitsSliderMoved(int newVal);
-	void onSlotClickPressed(std::shared_ptr<CTradeableItem> altarSlot, std::shared_ptr<STradePanel> & oppositePanel,
-		std::shared_ptr<CTradeableItem> & hCurSide, std::shared_ptr<CTradeableItem> & hOppSide);
+	void onOfferSliderMoved(int newVal);
+	void onSlotClickPressed(std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSide) override;
 };

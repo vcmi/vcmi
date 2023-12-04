@@ -100,14 +100,7 @@ void CTradeWindow::initItems(bool Left)
 
 		auto clickPressedTradePanel = [this](std::shared_ptr<CTradeableItem> newSlot, bool left)
 		{
-			auto * selectedSlot = &hRight;
-			if(left)
-				selectedSlot = &hLeft;
-
-			if(*selectedSlot)
-				(*selectedSlot)->selection->selectSlot(false);
-			*selectedSlot = newSlot;
-			newSlot->selection->selectSlot(true);
+			CTradeBase::onSlotClickPressed(newSlot, left ? hLeft : hRight);
 			selectionChanged(left);
 		};
 
