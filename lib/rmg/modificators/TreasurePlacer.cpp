@@ -625,20 +625,31 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 	for(const auto & oi : treasureInfos)
 	{
 		auto blockedArea = rmgObject.getArea();
-		auto accessibleArea = rmgObject.getAccessibleArea();
+		auto entrableArea = rmgObject.getEntrableArea();
+		
 		if(rmgObject.instances().empty())
-			accessibleArea.add(int3());
+			entrableArea.add(int3());
 		
 		auto * object = oi->generateObject();
 		if(oi->templates.empty())
 			continue;
 		
 		object->appearance = *RandomGeneratorUtil::nextItem(oi->templates, zone.getRand());
+
+		auto blockingIssue = object->isBlockedVisitable() && !object->isRemovable();
+		if (blockingIssue)
+		{
+			// Do not place next to another such object (Corpse issue)
+			// Calculate this before instance is added to rmgObject
+			auto blockVisitProximity = rmgObject.getBlockVisitableArea().getBorderOutside();
+			entrableArea.subtract(blockVisitProximity);
+		}
+
 		auto & instance = rmgObject.addInstance(*object);
 
 		do
 		{
-			if(accessibleArea.empty())
+			if(entrableArea.empty())
 			{
 				//fail - fallback
 				rmgObject.clear();
@@ -649,12 +660,14 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			if(densePlacement)
 			{
 				int bestPositionsWeight = std::numeric_limits<int>::max();
-				for(const auto & t : accessibleArea.getTilesVector())
+				for(const auto & t : entrableArea.getTilesVector())
 				{
 					instance.setPosition(t);
-					int w = rmgObject.getAccessibleArea().getTilesVector().size();
-					if(w < bestPositionsWeight)
+					int w = rmgObject.getEntrableArea().getTilesVector().size();
+
+					if(w && w < bestPositionsWeight)
 					{
+						// Minimum 1 position must be entrable
 						bestPositions.clear();
 						bestPositions.push_back(t);
 						bestPositionsWeight = w;
@@ -664,10 +677,12 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 						bestPositions.push_back(t);
 					}
 				}
+
 			}
-			else
+
+			if (bestPositions.empty())
 			{
-				bestPositions = accessibleArea.getTilesVector();
+				bestPositions = entrableArea.getTilesVector();
 			}
 			
 			int3 nextPos = *RandomGeneratorUtil::nextItem(bestPositions, zone.getRand());
@@ -676,7 +691,6 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			auto instanceAccessibleArea = instance.getAccessibleArea();
 			if(instance.getBlockedArea().getTilesVector().size() == 1)
 			{
-				//TOOD: Move hardcoded option to template
 				if(instance.object().appearance->isVisitableFromTop() && !instance.object().isBlockedVisitable())
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
@@ -684,16 +698,12 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			//first object is good
 			if(rmgObject.instances().size() == 1)
 				break;
-			
-			// TODO: Do not place blockvis objects so that they block access to existing accessible area
-			// Either object must be removable, or both must be accessible independently
 
-			//condition for good position
-			if(!blockedArea.overlap(instance.getBlockedArea()) && accessibleArea.overlap(instanceAccessibleArea))
+			if(!blockedArea.overlap(instance.getBlockedArea()) && entrableArea.overlap(instanceAccessibleArea))
 				break;
-			
+
 			//fail - new position
-			accessibleArea.erase(nextPos);
+			entrableArea.erase(nextPos);
 		} while(true);
 	}
 	return rmgObject;

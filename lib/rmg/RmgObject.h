@@ -36,6 +36,7 @@ public:
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
 		bool isBlockedVisitable() const;
+		bool isRemovable() const;
 		const Area & getAccessibleArea() const;
 		void setTemplate(TerrainId terrain, CRandomGenerator &); //cache invalidation
 		void setAnyTemplate(CRandomGenerator &); //cache invalidation
@@ -73,6 +74,8 @@ public:
 	int3 getVisitablePosition() const;
 	const Area & getAccessibleArea(bool exceptLast = false) const;
 	const Area & getBlockVisitableArea() const;
+	const Area & getRemovableArea() const;
+	const Area getEntrableArea() const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
@@ -93,6 +96,7 @@ private:
 	mutable Area dFullAreaCache;
 	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
 	mutable Area dBlockVisitableCache;
+	mutable Area dRemovableAreaCache;
 	int3 dPosition;
 	ui32 dStrength;
 	bool guarded;

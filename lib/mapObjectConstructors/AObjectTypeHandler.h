@@ -43,6 +43,9 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	si32 type;
 	si32 subtype;
 
+	bool blockVisit;
+	bool removable;
+
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const;

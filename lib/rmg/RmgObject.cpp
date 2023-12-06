@@ -153,6 +153,11 @@ bool Object::Instance::isBlockedVisitable() const
 	return dObject.isBlockedVisitable();
 }
 
+bool Object::Instance::isRemovable() const
+{
+	return dObject.isRemovable();
+}
+
 CGObjectInstance & Object::Instance::object()
 {
 	return dObject;
@@ -269,14 +274,44 @@ const rmg::Area & Object::getBlockVisitableArea() const
 {
 	if(dInstances.empty())
 		return dBlockVisitableCache;
-	for(auto i = dInstances.begin(); i != std::prev(dInstances.end()); ++i)
+
+	for(const auto i : dInstances)
 	{
 		// FIXME: Account for blockvis objects with multiple visitable tiles
-		if (i->isBlockedVisitable())
-			dAccessibleAreaCache.add(i->getVisitablePosition());
+		if (i.isBlockedVisitable())
+			dBlockVisitableCache.add(i.getVisitablePosition());
 	}
 
 	return dBlockVisitableCache;
+}
+
+const rmg::Area & Object::getRemovableArea() const
+{
+	if(dInstances.empty())
+		return dRemovableAreaCache;
+
+	for(const auto i : dInstances)
+	{
+		if (i.isRemovable())
+			dRemovableAreaCache.unite(i.getBlockedArea());
+	}
+
+	return dRemovableAreaCache;
+}
+
+const rmg::Area Object::getEntrableArea() const
+{
+	// Calculate Area that hero can freely pass
+
+	// Do not use blockVisitTiles, unless they belong to removable objects (resources etc.)
+	// area = accessibleArea - (blockVisitableArea - removableArea)
+
+	rmg::Area entrableArea = getAccessibleArea();
+	rmg::Area blockVisitableArea = getBlockVisitableArea();
+	blockVisitableArea.subtract(getRemovableArea());
+	entrableArea.subtract(blockVisitableArea);
+
+	return entrableArea;
 }
 
 void Object::setPosition(const int3 & position)
@@ -284,6 +319,7 @@ void Object::setPosition(const int3 & position)
 	dAccessibleAreaCache.translate(position - dPosition);
 	dAccessibleAreaFullCache.translate(position - dPosition);
 	dBlockVisitableCache.translate(position - dPosition);
+	dRemovableAreaCache.translate(position - dPosition);
 	dFullAreaCache.translate(position - dPosition);
 	
 	dPosition = position;
@@ -390,6 +426,7 @@ void Object::clearCachedArea() const
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
 	dBlockVisitableCache.clear();
+	dRemovableAreaCache.clear();
 }
 
 void Object::clear()

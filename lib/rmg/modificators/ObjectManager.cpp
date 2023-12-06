@@ -664,7 +664,19 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	if(!guard)
 		return false;
 	
-	rmg::Area visitablePos({object.getVisitablePosition()});
+	// Prefer non-blocking tiles, if any
+	auto entrableTiles = object.getEntrableArea().getTiles();
+	int3 entrableTile;
+	if (entrableTiles.empty())
+	{
+		entrableTile = object.getVisitablePosition();
+	}
+	else
+	{
+		*RandomGeneratorUtil::nextItem(entrableTiles, zone.getRand());
+	}
+
+	rmg::Area visitablePos({entrableTile});
 	visitablePos.unite(visitablePos.getBorderOutside());
 	
 	auto accessibleArea = object.getAccessibleArea();
