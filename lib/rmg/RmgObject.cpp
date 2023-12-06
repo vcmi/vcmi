@@ -275,7 +275,7 @@ const rmg::Area & Object::getBlockVisitableArea() const
 	if(dInstances.empty())
 		return dBlockVisitableCache;
 
-	for(const auto i : dInstances)
+	for(const auto & i : dInstances)
 	{
 		// FIXME: Account for blockvis objects with multiple visitable tiles
 		if (i.isBlockedVisitable())
@@ -290,7 +290,7 @@ const rmg::Area & Object::getRemovableArea() const
 	if(dInstances.empty())
 		return dRemovableAreaCache;
 
-	for(const auto i : dInstances)
+	for(const auto & i : dInstances)
 	{
 		if (i.isRemovable())
 			dRemovableAreaCache.unite(i.getBlockedArea());
