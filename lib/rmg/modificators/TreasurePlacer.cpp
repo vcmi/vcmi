@@ -676,7 +676,8 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			auto instanceAccessibleArea = instance.getAccessibleArea();
 			if(instance.getBlockedArea().getTilesVector().size() == 1)
 			{
-				if(instance.object().appearance->isVisitableFromTop() && instance.object().ID != Obj::CORPSE)
+				//TOOD: Move hardcoded option to template
+				if(instance.object().appearance->isVisitableFromTop() && !instance.object().isBlockedVisitable())
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			
@@ -684,6 +685,9 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			if(rmgObject.instances().size() == 1)
 				break;
 			
+			// TODO: Do not place blockvis objects so that they block access to existing accessible area
+			// Either object must be removable, or both must be accessible independently
+
 			//condition for good position
 			if(!blockedArea.overlap(instance.getBlockedArea()) && accessibleArea.overlap(instanceAccessibleArea))
 				break;

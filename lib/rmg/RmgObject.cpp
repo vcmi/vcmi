@@ -40,7 +40,9 @@ const Area & Object::Instance::getBlockedArea() const
 	{
 		dBlockedAreaCache.assign(dObject.getBlockedPos());
 		if(dObject.isVisitable() || dBlockedAreaCache.empty())
-			dBlockedAreaCache.add(dObject.visitablePos());
+			if (!dObject.isBlockedVisitable())
+				// Do no assume blocked tile is accessible
+				dBlockedAreaCache.add(dObject.visitablePos());
 	}
 	return dBlockedAreaCache;
 }
@@ -85,9 +87,7 @@ void Object::Instance::setPosition(const int3 & position)
 	
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
-	dParent.dAccessibleAreaCache.clear();
-	dParent.dAccessibleAreaFullCache.clear();
-	dParent.dFullAreaCache.clear();
+	dParent.clearCachedArea();
 }
 
 void Object::Instance::setPositionRaw(const int3 & position)
@@ -97,9 +97,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 		dObject.pos = dPosition + dParent.getPosition();
 		dBlockedAreaCache.clear();
 		dAccessibleAreaCache.clear();
-		dParent.dAccessibleAreaCache.clear();
-		dParent.dAccessibleAreaFullCache.clear();
-		dParent.dFullAreaCache.clear();
+		dParent.clearCachedArea();
 	}
 		
 	auto shift = position + dParent.getPosition() - dObject.pos;
@@ -141,15 +139,18 @@ void Object::Instance::clear()
 	delete &dObject;
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
-	dParent.dAccessibleAreaCache.clear();
-	dParent.dAccessibleAreaFullCache.clear();
-	dParent.dFullAreaCache.clear();
+	dParent.clearCachedArea();
 }
 
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
 	auto relPosition = position - getPosition(true);
 	return dObject.appearance->isVisitableFrom(relPosition.x, relPosition.y);
+}
+
+bool Object::Instance::isBlockedVisitable() const
+{
+	return dObject.isBlockedVisitable();
 }
 
 CGObjectInstance & Object::Instance::object()
@@ -205,9 +206,7 @@ void Object::addInstance(Instance & object)
 	setGuardedIfMonster(object);
 	dInstances.push_back(object);
 
-	dFullAreaCache.clear();
-	dAccessibleAreaCache.clear();
-	dAccessibleAreaFullCache.clear();
+	clearCachedArea();
 }
 
 Object::Instance & Object::addInstance(CGObjectInstance & object)
@@ -215,9 +214,7 @@ Object::Instance & Object::addInstance(CGObjectInstance & object)
 	dInstances.emplace_back(*this, object);
 	setGuardedIfMonster(dInstances.back());
 
-	dFullAreaCache.clear();
-	dAccessibleAreaCache.clear();
-	dAccessibleAreaFullCache.clear();
+	clearCachedArea();
 	return dInstances.back();
 }
 
@@ -226,9 +223,7 @@ Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & p
 	dInstances.emplace_back(*this, object, position);
 	setGuardedIfMonster(dInstances.back());
 
-	dFullAreaCache.clear();
-	dAccessibleAreaCache.clear();
-	dAccessibleAreaFullCache.clear();
+	clearCachedArea();
 	return dInstances.back();
 }
 
@@ -270,10 +265,25 @@ const rmg::Area & Object::getAccessibleArea(bool exceptLast) const
 		return dAccessibleAreaFullCache;
 }
 
+const rmg::Area & Object::getBlockVisitableArea() const
+{
+	if(dInstances.empty())
+		return dBlockVisitableCache;
+	for(auto i = dInstances.begin(); i != std::prev(dInstances.end()); ++i)
+	{
+		// FIXME: Account for blockvis objects with multiple visitable tiles
+		if (i->isBlockedVisitable())
+			dAccessibleAreaCache.add(i->getVisitablePosition());
+	}
+
+	return dBlockVisitableCache;
+}
+
 void Object::setPosition(const int3 & position)
 {
 	dAccessibleAreaCache.translate(position - dPosition);
 	dAccessibleAreaFullCache.translate(position - dPosition);
+	dBlockVisitableCache.translate(position - dPosition);
 	dFullAreaCache.translate(position - dPosition);
 	
 	dPosition = position;
@@ -374,14 +384,21 @@ void Object::finalize(RmgMap & map, CRandomGenerator & rng)
 	}
 }
 
+void Object::clearCachedArea() const
+{
+	dFullAreaCache.clear();
+	dAccessibleAreaCache.clear();
+	dAccessibleAreaFullCache.clear();
+	dBlockVisitableCache.clear();
+}
+
 void Object::clear()
 {
 	for(auto & instance : dInstances)
 		instance.clear();
 	dInstances.clear();
-	dFullAreaCache.clear();
-	dAccessibleAreaCache.clear();
-	dAccessibleAreaFullCache.clear();
+
+	clearCachedArea();
 }
  
 
