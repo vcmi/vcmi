@@ -67,14 +67,14 @@
 			"adoptHeight": true
 		},
 		
-		{
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"text": "Select preset",
-			"position": {"x": 105, "y": 100}
-		},
+//		{
+//			"type": "label",
+//			"font": "medium",
+//			"alignment": "center",
+//			"color": "yellow",
+//			"text": "vcmi.optionsTab.selectPreset",
+//			"position": {"x": 105, "y": 100}
+//		},
 		{
 			"type" : "dropDownTimers",
 			"name": "timerPresetSelector",
@@ -140,10 +140,10 @@
 					"text": "vcmi.optionsTab.chessFieldBattle.hover"
 				},
 				{
-					"text": "vcmi.optionsTab.chessFieldCreature.hover"
+					"text": "vcmi.optionsTab.chessFieldUnit.hover"
 				},
 				{
-					"text": "vcmi.optionsTab.simturns"
+					"text": "vcmi.optionsTab.simturnsTitle"
 				}
 			]
 		},
@@ -158,13 +158,13 @@
 					"text": "vcmi.optionsTab.chessFieldBase.help"
 				},
 				{
-					"text": "vcmi.optionsTab.chessFieldTurn.help"
+					"name": "chessFieldTurnLabel"
 				},
 				{
 					"text": "vcmi.optionsTab.chessFieldBattle.help"
 				},
 				{
-					"text": "vcmi.optionsTab.chessFieldCreature.help"
+					"name": "chessFieldUnitLabel"
 				}
 			]
 		},
@@ -174,25 +174,25 @@
 			"position": {"x": 160, "y": 195},
 			"type": "toggleButton",
 			"image": "lobby/checkbox",
-			"callback" : "setSimturnAI"
+			"callback" : "setTurnTimerAccumulate"
 		},
 		{
 			"name": "buttonUnitTimerAccumulate",
 			"position": {"x": 160, "y": 327},
 			"type": "toggleButton",
 			"image": "lobby/checkbox",
-			"callback" : "setSimturnAI"
+			"callback" : "setUnitTimerAccumulate"
 		},
 		
 		{
 			"type" : "labelTitle",
 			"position": {"x": 195, "y": 199},
-			"text" : "Accumulate"
+			"text" : "vcmi.optionsTab.accumulate"
 		},
 		{
 			"type" : "labelTitle",
 			"position": {"x": 195, "y": 331},
-			"text" : "Accumulate"
+			"text" : "vcmi.optionsTab.accumulate"
 		},
 
 		{
@@ -230,9 +230,9 @@
 					"help": "vcmi.optionsTab.chessFieldBattle.help"
 				},
 				{
-					"name": "chessFieldCreature",
-					"callback": "parseAndSetTimer_creature",
-					"help": "vcmi.optionsTab.chessFieldCreature.help"
+					"name": "chessFieldUnit",
+					"callback": "parseAndSetTimer_unit",
+					"help": "vcmi.optionsTab.chessFieldUnit.help"
 				}
 			]
 		},
@@ -343,10 +343,10 @@
 			[    0,  600,   0, 0, false, false],
 			[    0, 1200,   0, 0, false, false],
 			[    0, 1800,   0, 0, false, false],
-			[  960,  480, 120, 0, true, false],
-			[  960,  480,  75, 0, true, false],
+			[ 1200,  600, 120, 0, true, false],
+			[  960,  480,  90, 0, true, false],
 			[  480,  240,  60, 0, true, false],
-			[  120,   90,  60, 0, true, false],
+			[  240,  120,  30, 0, true, false],
 			[  120,   60,  15, 0, true, false],
 			[   60,   60,   0, 0, true, false]
 		],

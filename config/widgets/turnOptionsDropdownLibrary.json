@@ -37,7 +37,7 @@
 				"font": "small",
 				"alignment": "left",
 				"color": "white",
-				"text": "Custom turn time"
+				"text": "vcmi.optionsTab.turnTime.select"
 			}
 		],
 		"dropDown":
@@ -69,7 +69,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Unlimited turn time"
+							"text": "vcmi.optionsTab.turnTime.unlimited"
 						},
 						{
 							"type": "dropDownHover",
@@ -89,7 +89,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Classic timer: 1 minute"
+							"text": "vcmi.optionsTab.turnTime.classic.1"
 						},
 						{
 							"type": "dropDownHover",
@@ -109,7 +109,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Classic timer: 2 minutes"
+							"text": "vcmi.optionsTab.turnTime.classic.2"
 						},
 						{
 							"type": "dropDownHover",
@@ -129,7 +129,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Classic timer: 5 minutes"
+							"text": "vcmi.optionsTab.turnTime.classic.5"
 						},
 						{
 							"type": "dropDownHover",
@@ -149,7 +149,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Classic timer: 10 minutes"
+							"text": "vcmi.optionsTab.turnTime.classic.10"
 						},
 						{
 							"type": "dropDownHover",
@@ -169,7 +169,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Classic timer: 20 minutes"
+							"text": "vcmi.optionsTab.turnTime.classic.20"
 						},
 						{
 							"type": "dropDownHover",
@@ -189,7 +189,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Classic timer: 30 minutes"
+							"text": "vcmi.optionsTab.turnTime.classic.30"
 						},
 						{
 							"type": "dropDownHover",
@@ -209,7 +209,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Chess: 16:00 + 08:00 + 02:00 + 00:00"
+							"text": "vcmi.optionsTab.turnTime.chess.20"
 						},
 						{
 							"type": "dropDownHover",
@@ -229,7 +229,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Chess: 16:00 + 08:00 + 01:15 + 00:00"
+							"text": "vcmi.optionsTab.turnTime.chess.16"
 						},
 						{
 							"type": "dropDownHover",
@@ -249,7 +249,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Chess: 08:00 + 04:00 + 01:00 + 00:00"
+							"text": "vcmi.optionsTab.turnTime.chess.8"
 						},
 						{
 							"type": "dropDownHover",
@@ -269,7 +269,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Chess: 02:00 + 01:30 + 01:00 + 00:00"
+							"text": "vcmi.optionsTab.turnTime.chess.4"
 						},
 						{
 							"type": "dropDownHover",
@@ -289,7 +289,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Chess: 02:00 + 01:00 + 00:15 + 00:00"
+							"text": "vcmi.optionsTab.turnTime.chess.2"
 						},
 						{
 							"type": "dropDownHover",
@@ -309,7 +309,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Chess: 01:00 + 01:00 + 00:00 + 00:00"
+							"text": "vcmi.optionsTab.turnTime.chess.1"
 						},
 						{
 							"type": "dropDownHover",
@@ -334,7 +334,7 @@
 				"font": "small",
 				"alignment": "left",
 				"color": "white",
-				"text": "Custom simultaneous turns"
+				"text": "vcmi.optionsTab.simturns.select"
 			}
 		],
 		"dropDown":
@@ -366,7 +366,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "No simultaneous turns"
+							"text": "vcmi.optionsTab.simturns.none"
 						},
 						{
 							"type": "dropDownHover",
@@ -386,7 +386,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Simturns: Until contact"
+							"text": "vcmi.optionsTab.simturns.tillContactMax"
 						},
 						{
 							"type": "dropDownHover",
@@ -406,7 +406,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Simturns: 1 week, break on contact"
+							"text": "vcmi.optionsTab.simturns.tillContact1"
 						},
 						{
 							"type": "dropDownHover",
@@ -426,7 +426,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Simturns: 2 weeks, break on contact"
+							"text": "vcmi.optionsTab.simturns.tillContact2"
 						},
 						{
 							"type": "dropDownHover",
@@ -446,7 +446,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Simturns: 1 month, break on contact"
+							"text": "vcmi.optionsTab.simturns.tillContact4"
 						},
 						{
 							"type": "dropDownHover",
@@ -466,7 +466,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Simturns: 1 week, contacts blocked"
+							"text": "vcmi.optionsTab.simturns.blocked1"
 						},
 						{
 							"type": "dropDownHover",
@@ -486,7 +486,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Simturns: 2 weeks, contacts blocked"
+							"text": "vcmi.optionsTab.simturns.blocked2"
 						},
 						{
 							"type": "dropDownHover",
@@ -506,7 +506,7 @@
 						{
 							"type": "dropDownLabel",
 							"name": "labelName",
-							"text": "Simturns: 1 month, contacts blocked"
+							"text": "vcmi.optionsTab.simturns.blocked4"
 						},
 						{
 							"type": "dropDownHover",

@@ -32,6 +32,13 @@ struct DLL_LINKAGE SimturnsInfo
 	/// If set to true, human and 1 AI can act at the same time
 	bool allowHumanWithAI = false;
 
+	bool operator == (const SimturnsInfo & other) const
+	{
+		return requiredTurns == other.requiredTurns &&
+				optionalTurns == other.optionalTurns &&
+				allowHumanWithAI == other.allowHumanWithAI;
+	}
+
 	template <typename Handler>
 	void serialize(Handler &h, const int version)
 	{

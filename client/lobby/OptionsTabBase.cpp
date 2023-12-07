@@ -22,35 +22,49 @@
 #include "../../lib/MetaString.h"
 #include "../../lib/CGeneralTextHandler.h"
 
+std::vector<TurnTimerInfo> OptionsTabBase::getTimerPresets() const
+{
+	std::vector<TurnTimerInfo> result;
+
+	for (auto const & tpreset : variables["timerPresets"].Vector())
+	{
+		TurnTimerInfo tinfo;
+		tinfo.baseTimer = tpreset[0].Integer() * 1000;
+		tinfo.turnTimer = tpreset[1].Integer() * 1000;
+		tinfo.battleTimer = tpreset[2].Integer() * 1000;
+		tinfo.unitTimer = tpreset[3].Integer() * 1000;
+		tinfo.accumulatingTurnTimer = tpreset[4].Bool();
+		tinfo.accumulatingUnitTimer = tpreset[5].Bool();
+		result.push_back(tinfo);
+	}
+	return result;
+}
+
+std::vector<SimturnsInfo> OptionsTabBase::getSimturnsPresets() const
+{
+	std::vector<SimturnsInfo> result;
+
+	for (auto const & tpreset : variables["simturnsPresets"].Vector())
+	{
+		SimturnsInfo tinfo;
+		tinfo.optionalTurns = tpreset[0].Integer();
+		tinfo.requiredTurns = tpreset[1].Integer();
+		tinfo.allowHumanWithAI = tpreset[2].Bool();
+		result.push_back(tinfo);
+	}
+	return result;
+}
+
 OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 {
 	recActions = 0;
 
 	auto setTimerPresetCallback = [this](int index){
-		if(!variables["timerPresets"].isNull())
-		{
-			auto tpreset = variables["timerPresets"].Vector().at(index).Vector();
-			TurnTimerInfo tinfo =  SEL->getStartInfo()->turnTimerInfo;
-			tinfo.baseTimer = tpreset.at(0).Integer() * 1000;
-			tinfo.turnTimer = tpreset.at(1).Integer() * 1000;
-			tinfo.battleTimer = tpreset.at(2).Integer() * 1000;
-			tinfo.unitTimer = tpreset.at(3).Integer() * 1000;
-			tinfo.accumulatingTurnTimer = tpreset.at(4).Bool();
-			tinfo.accumulatingUnitTimer = tpreset.at(5).Bool();
-			CSH->setTurnTimerInfo(tinfo);
-		}
+		CSH->setTurnTimerInfo(getTimerPresets().at(index));
 	};
 
 	auto setSimturnsPresetCallback = [this](int index){
-		if(!variables["simturnsPresets"].isNull())
-		{
-			auto tpreset = variables["simturnsPresets"].Vector().at(index).Vector();
-			SimturnsInfo tinfo = SEL->getStartInfo()->simturnsInfo;
-			tinfo.optionalTurns = tpreset.at(0).Integer();
-			tinfo.requiredTurns = tpreset.at(1).Integer();
-			tinfo.allowHumanWithAI = tpreset.at(2).Bool();
-			CSH->setSimturnsInfo(tinfo);
-		}
+		CSH->setSimturnsInfo(getSimturnsPresets().at(index));
 	};
 
 	addCallback("setTimerPreset", setTimerPresetCallback);
@@ -157,7 +171,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			CSH->setTurnTimerInfo(tinfo);
 		}
 	});
-	addCallback("parseAndSetTimer_creature", [parseTimerString](const std::string & str){
+	addCallback("parseAndSetTimer_unit", [parseTimerString](const std::string & str){
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
@@ -306,6 +320,22 @@ void OptionsTabBase::recreate()
 	if(auto buttonTurnTimerAccumulate = widget<CToggleButton>("buttonTurnTimerAccumulate"))
 		buttonTurnTimerAccumulate->setSelectedSilent(SEL->getStartInfo()->turnTimerInfo.accumulatingTurnTimer);
 
+	if(auto chessFieldTurnLabel = widget<CLabel>("chessFieldTurnLabel"))
+	{
+		if (SEL->getStartInfo()->turnTimerInfo.accumulatingTurnTimer)
+			chessFieldTurnLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldTurnAccumulate.help"));
+		else
+			chessFieldTurnLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldTurnDiscard.help"));
+	}
+
+	if(auto chessFieldUnitLabel = widget<CLabel>("chessFieldUnitLabel"))
+	{
+		if (SEL->getStartInfo()->turnTimerInfo.accumulatingUnitTimer)
+			chessFieldUnitLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldUnitAccumulate.help"));
+		else
+			chessFieldUnitLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldUnitDiscard.help"));
+	}
+
 	if(auto buttonUnitTimerAccumulate = widget<CToggleButton>("buttonUnitTimerAccumulate"))
 		buttonUnitTimerAccumulate->setSelectedSilent(SEL->getStartInfo()->turnTimerInfo.accumulatingUnitTimer);
 
@@ -343,7 +373,7 @@ void OptionsTabBase::recreate()
 		ww->setText(timeToString(turnTimerRemote.turnTimer), false);
 	if(auto ww = widget<CTextInput>("chessFieldBattle"))
 		ww->setText(timeToString(turnTimerRemote.battleTimer), false);
-	if(auto ww = widget<CTextInput>("chessFieldCreature"))
+	if(auto ww = widget<CTextInput>("chessFieldUnit"))
 		ww->setText(timeToString(turnTimerRemote.unitTimer), false);
 
 	if(auto w = widget<ComboBox>("timerModeSwitch"))

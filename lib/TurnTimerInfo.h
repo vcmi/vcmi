@@ -27,6 +27,16 @@ struct DLL_LINKAGE TurnTimerInfo
 	
 	bool isEnabled() const;
 	bool isBattleEnabled() const;
+
+	bool operator == (const TurnTimerInfo & other) const
+	{
+		return turnTimer == other.turnTimer &&
+				baseTimer == other.baseTimer &&
+				battleTimer == other.battleTimer &&
+				unitTimer == other.unitTimer &&
+				accumulatingTurnTimer == other.accumulatingTurnTimer &&
+				accumulatingUnitTimer == other.accumulatingUnitTimer;
+	}
 	
 	template <typename Handler>
 	void serialize(Handler &h, const int version)
