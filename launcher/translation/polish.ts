@@ -673,27 +673,27 @@ Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybrane
         <translation>Pokaż intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="409"/>
         <source>Active</source>
         <translation>Aktywny</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="414"/>
         <source>Disabled</source>
         <translation>Wyłączone</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="415"/>
         <source>Enable</source>
         <translation>Włącz</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="418"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="420"/>
         <source>Not Installed</source>
         <translation>Nie zainstalowano</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="419"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="421"/>
         <source>Install</source>
         <translation>Zainstaluj</translation>
     </message>

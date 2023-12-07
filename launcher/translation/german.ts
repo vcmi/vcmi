@@ -121,7 +121,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Karten</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
@@ -180,7 +180,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Kompatibilität</translation>
+        <translation>Kompatibilität</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
@@ -319,7 +319,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
@@ -410,12 +410,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="599"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen von %s%. %p% (%v MB von %m MB) beendet</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="618"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Download fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="619"/>
@@ -424,30 +424,37 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnten nicht alle Dateien heruntergeladen werden.
+
+Es sind Fehler aufgetreten:
+
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="620"/>
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Installation erfolgreich heruntergeladen?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="759"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation von Mod %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="811"/>
         <source>Operation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Operation fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgetretene Fehler:
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="847"/>
@@ -598,7 +605,7 @@ Exklusiver Vollbildmodus - das Spiel bedeckt den gesamten Bildschirm und verwend
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="631"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished"></translation>
+        <translation>Reservierter Bildschirmbereich</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
@@ -649,7 +656,7 @@ Exklusiver Vollbildmodus - das Spiel bedeckt den gesamten Bildschirm und verwend
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translation>VSync</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="374"/>
@@ -703,27 +710,27 @@ Exklusiver Vollbildmodus - das Spiel bedeckt den gesamten Bildschirm und verwend
     <message>
         <location filename="../lobby/chat_moc.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formular</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="40"/>
         <source>Users in lobby</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzer in der Lobby</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="50"/>
         <source>Global chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Globaler Chat</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="104"/>
         <source>type you message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachricht eingeben</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="111"/>
         <source>send</source>
-        <translation type="unfinished"></translation>
+        <translation>senden</translation>
     </message>
 </context>
 <context>
