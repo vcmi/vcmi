@@ -83,14 +83,14 @@ public class ModsAdapter extends RecyclerView.Adapter<ModBaseViewHolder>
                     }
                     else
 					{
-						if (!item.mMod.mInstalled)
-						{
+						//if (!item.mMod.mInstalled)
+						//{
 							modHolder.mDownloadBtn.setVisibility(View.VISIBLE);
-						}
-						if (item.mMod.mRepoVersion != null && item.mMod.mLocalVersion != null && !item.mMod.mRepoVersion.equals(item.mMod.mLocalVersion))
-						{
-							modHolder.mDownloadBtn.setVisibility(View.VISIBLE);
-						}
+						//}
+						//if (item.mMod.mRepoVersion != null && item.mMod.mLocalVersion != null && !item.mMod.mRepoVersion.equals(item.mMod.mLocalVersion))
+						//{
+						//	modHolder.mDownloadBtn.setVisibility(View.VISIBLE);
+						//}
 						
 						if (item.mMod.installationFolder != null)
 						{
@@ -172,11 +172,8 @@ public class ModsAdapter extends RecyclerView.Adapter<ModBaseViewHolder>
 
         for (VCMIMod mod : mods)
         {
-            if (mod.mVisible)
-            {
-                ModItem modItem = new ModItem(mod);
-                list.add(modItem);
-            }
+            ModItem modItem = new ModItem(mod);
+            list.add(modItem);
         }
 
         mDataset.addAll(list);

@@ -71,7 +71,7 @@ public class VCMIMod
         mod.mArchiveUrl = modDownloadData.optString("download");
         mod.mSize = obj.optLong("size");
         mod.mLoadedCorrectly = true;
-		mod.mVisible = mModType.equals("Compatibility");
+		mod.mVisible = mod.mModType.equals("Compatibility");
         return mod;
     }
 
