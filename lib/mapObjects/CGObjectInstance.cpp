@@ -33,7 +33,8 @@ CGObjectInstance::CGObjectInstance():
 	ID(Obj::NO_OBJ),
 	subID(-1),
 	tempOwner(PlayerColor::UNFLAGGABLE),
-	blockVisit(false)
+	blockVisit(false),
+	removable(false)
 {
 }
 
@@ -173,12 +174,7 @@ void CGObjectInstance::pickRandomObject(CRandomGenerator & rand)
 
 void CGObjectInstance::initObj(CRandomGenerator & rand)
 {
-	switch(ID.toEnum())
-	{
-	case Obj::TAVERN:
-		blockVisit = true;
-		break;
-	}
+	// no-op
 }
 
 void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
@@ -191,6 +187,7 @@ void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
 		tempOwner = identifier.as<PlayerColor>();
 		break;
 	case ObjProperty::BLOCKVIS:
+		// Never actually used in code, but possible in ERM
 		blockVisit = identifier.getNum();
 		break;
 	case ObjProperty::ID:
@@ -327,7 +324,14 @@ bool CGObjectInstance::isVisitable() const
 
 bool CGObjectInstance::isBlockedVisitable() const
 {
+	// TODO: Read from json
 	return blockVisit;
+}
+
+bool CGObjectInstance::isRemovable() const
+{
+	// TODO: Read from json
+	return removable;
 }
 
 bool CGObjectInstance::isCoastVisitable() const

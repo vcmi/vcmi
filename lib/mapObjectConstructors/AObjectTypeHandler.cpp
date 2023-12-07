@@ -96,6 +96,10 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	else
 		aiValue = static_cast<std::optional<si32>>(input["aiValue"].Integer());
 
+	// TODO: Define properties, move them to actual object instance
+	blockVisit = input["blockVisit"].Bool();
+	removable = input["removable"].Bool();
+
 	battlefield = BattleField::NONE;
 
 	if(!input["battleground"].isNull())
@@ -120,6 +124,8 @@ void AObjectTypeHandler::preInitObject(CGObjectInstance * obj) const
 	obj->subID = subtype;
 	obj->typeName = typeName;
 	obj->subTypeName = subTypeName;
+	obj->blockVisit = blockVisit;
+	obj->removable = removable;
 }
 
 void AObjectTypeHandler::initTypeData(const JsonNode & input)
