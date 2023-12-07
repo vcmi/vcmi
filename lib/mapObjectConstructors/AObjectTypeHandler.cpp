@@ -97,16 +97,8 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		aiValue = static_cast<std::optional<si32>>(input["aiValue"].Integer());
 
 	// TODO: Define properties, move them to actual object instance
-	if(input["blockVisit"].isNull())
-		blockVisit = false;
-	else
-		blockVisit = input["blockVisit"].Bool();
-
-	if(input["removable"].isNull())
-		removable = false;
-	else
-		removable = input["removable"].Bool();
-
+	blockVisit = input["blockVisit"].Bool();
+	removable = input["removable"].Bool();
 
 	battlefield = BattleField::NONE;
 
