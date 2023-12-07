@@ -836,13 +836,18 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo* oi) {return v + oi->value; });
 
-			for (ui32 attempt = 0; attempt <= 2; attempt++)
+			const ui32 maxPileGenerationAttemps = 2;
+			for (ui32 attempt = 0; attempt <= maxPileGenerationAttemps; attempt++)
 			{
 				auto rmgObject = constructTreasurePile(treasurePileInfos, attempt == maxAttempts);
 
-				if (rmgObject.instances().empty()) //handle incorrect placement
+				if (rmgObject.instances().empty())
 				{
-					restoreZoneLimits(treasurePileInfos);
+					// Restore once if all attemps failed
+					if (attempt == (maxPileGenerationAttemps - 1))
+					{
+						restoreZoneLimits(treasurePileInfos);
+					}
 					continue;
 				}
 
