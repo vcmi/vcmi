@@ -310,8 +310,6 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto image = ImagePath::fromJson(config["image"]);
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
-	if(!config["visible"].isNull())
-		pic->visible = config["visible"].Bool();
 
 	if ( config["playerColored"].Bool() && LOCPLINT)
 		pic->colorize(LOCPLINT->playerID);
@@ -562,9 +560,11 @@ std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonN
 {
 	logGlobal->debug("Building widget ComboBox");
 	auto position = readPosition(config["position"]);
+	auto dropDownPosition = readPosition(config["dropDownPosition"]);
 	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
-	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"]);
+	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"], dropDownPosition);
+
 	if(!config["items"].isNull())
 	{
 		for(const auto & item : config["items"].Vector())

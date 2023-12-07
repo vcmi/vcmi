@@ -205,11 +205,11 @@
 	"vcmi.optionsTab.chessFieldBase.hover" : "额外计时器",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "转动计时器",
 	"vcmi.optionsTab.chessFieldBattle.hover" : "战斗计时器",
-	"vcmi.optionsTab.chessFieldCreature.hover" : "堆栈计时器",
+	"vcmi.optionsTab.chessFieldUnit.hover" : "堆栈计时器",
 	"vcmi.optionsTab.chessFieldBase.help" : "当{转动计时器}达到零时开始倒计时。 它仅在游戏开始时设置一次。 当计时器达到零时，玩家的回合结束。",
 	"vcmi.optionsTab.chessFieldTurn.help" : "当玩家在冒险地图上开始回合时开始倒计时。 它在每回合开始时重置为其初始值。 任何未使用的回合时间将被添加到{额外计时器}（如果正在使用）中。",
 	"vcmi.optionsTab.chessFieldBattle.help" : "战斗期间当 {堆栈计时器} 达到0时进行倒计时。 每次战斗开始时都会重置为初始值。 如果计时器达到零，当前活动的堆栈将进行防御。",
-	"vcmi.optionsTab.chessFieldCreature.help" : "当玩家在战斗中为当前堆栈选择一个动作时开始倒计时。 堆栈操作完成后，它会重置为其初始值。",
+	"vcmi.optionsTab.chessFieldUnit.help" : "当玩家在战斗中为当前堆栈选择一个动作时开始倒计时。 堆栈操作完成后，它会重置为其初始值。",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "敌人依然存活至今，你失败了！",

@@ -42,8 +42,16 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 
+static JsonPath optionsTabConfigLocation()
+{
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		return JsonPath::builtin("config/widgets/playerOptionsTab.json");
+	else
+		return JsonPath::builtin("config/widgets/advancedOptionsTab.json");
+}
+
 OptionsTab::OptionsTab()
-	: OptionsTabBase(JsonPath::builtin("config/widgets/playerOptionsTab.json"))
+	: OptionsTabBase(optionsTabConfigLocation())
 	, humanPlayers(0)
 {
 }

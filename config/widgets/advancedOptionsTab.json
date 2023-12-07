@@ -1,5 +1,4 @@
 {
-	"library" : "config/widgets/turnOptionsDropdownLibrary.json",
 	"items":
 	[
 		{
@@ -73,49 +72,58 @@
 			"rect": {"x": 315, "y": 92, "w": 70, "h": 0},
 			"adoptHeight": true
 		},
-
+		
+		// timer
 		{
-			"type" : "dropDownTimers",
-			"name": "timerPresetSelector",
-			"position": {"x": 56, "y": 535},
-			"dropDownPosition": {"x": 0, "y": -260}
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.521",
+			"position": {"x": 222, "y": 544}
 		},
+		
 		{
-			"type" : "dropDownSimturns",
-			"name": "simturnsPresetSelector",
-			"position": {"x": 56, "y": 555},
-			"dropDownPosition": {"x": 0, "y": -160}
-		}
+			"name": "labelTurnDurationValue",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 319, "y": 565}
+		},
+		
+		{
+			"name": "sliderTurnDuration",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 55, "y": 557},
+			"size": 194,
+			"callback": "setTimerPreset",
+			"itemsVisible": 1,
+			"itemsTotal": 11,
+			"selected": 11,
+			"style": "blue",
+			"scrollBounds": {"x": -3, "y": -25, "w": 337, "h": 43},
+			"panningStep": 20
+		},
 	],
 
 	"variables":
 	{
 		"timerPresets" :
 		[
-			[    0,    0,   0, 0, false, false],
-			[    0,   60,   0, 0, false, false],
-			[    0,  120,   0, 0, false, false],
-			[    0,  300,   0, 0, false, false],
-			[    0,  600,   0, 0, false, false],
-			[    0, 1200,   0, 0, false, false],
-			[    0, 1800,   0, 0, false, false],
-			[  960,  480, 120, 0, true, false],
-			[  960,  480,  75, 0, true, false],
-			[  480,  240,  60, 0, true, false],
-			[  120,   90,  60, 0, true, false],
-			[  120,   60,  15, 0, true, false],
-			[   60,   60,   0, 0, true, false]
-		],
-		"simturnsPresets" :
-		[
-			[   0,  0, false],
-			[ 999,  0, false],
-			[   7,  0, false],
-			[  14,  0, false],
-			[  28,  0, false],
-			[   7,  7, false],
-			[  14, 14, false],
-			[  28, 28, false]
+			[0,   60, 0, 0, false, false],
+			[0,  120, 0, 0, false, false],
+			[0,  240, 0, 0, false, false],
+			[0,  360, 0, 0, false, false],
+			[0,  480, 0, 0, false, false],
+			[0,  600, 0, 0, false, false],
+			[0,  900, 0, 0, false, false],
+			[0, 1200, 0, 0, false, false],
+			[0, 1500, 0, 0, false, false],
+			[0, 1800, 0, 0, false, false],
+			[0,    0, 0, 0, false, false],
 		]
 	}
 }

@@ -449,8 +449,16 @@ void CSpellWindow::setCurrentPage(int value)
 	schoolPicture->visible = selectedTab!=4 && currentPage == 0;
 	if(selectedTab != 4)
 		schoolPicture->setFrame(selectedTab, 0);
-	leftCorner->visible = currentPage != 0;
-	rightCorner->visible = (currentPage+1) < pagesWithinCurrentTab();
+
+	if (currentPage != 0)
+		leftCorner->enable();
+	else
+		leftCorner->disable();
+
+	if (currentPage + 1 < pagesWithinCurrentTab())
+		rightCorner->enable();
+	else
+		rightCorner->disable();
 
 	mana->setText(std::to_string(myHero->mana));//just in case, it will be possible to cast spell without closing book
 }
