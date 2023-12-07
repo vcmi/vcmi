@@ -102,6 +102,8 @@
 * Spell scrolls in hero inventory now show icon of contained spell
 * Fixed incorrect hero morale tooltip after visiting adventure map objects
 * Fixed incorrect information for skills in hero exchange window
+* Confirmation button will now be disabled on automatic server connect dialog
+* Attempting to recruit creature in town with no free slots in garrisons will now correctly show error message
 
 ### Main Menu
 * Implemented window for quick selection of starting hero, town and bonus
@@ -147,6 +149,12 @@
 * Creature that attacks while standing in moat will now correctly receive moat damage
 * Player resources are now limited to 1 000 000 000 to prevent overflow
 * It is no longer possible to escape from town without fort
+* Pathfinder will no longer make U-turns when moving onto visitable objects while flying
+* Pathfinder will no longer make paths that go over teleporters without actually using them
+* Game will now correctly update guard status of tiles that are guarded by multiple wandering monsters
+* Moving onto Garrisons and Border Guards entrance tiles that are guarded by wandering monsters will now correctly trigger battle
+* It is no longer possible to build second boat in shipyard when shipyard should be blocked by boat with hero
+* Gundula is now Offense specialist and not Sorcery, as in H3
 
 ### Random Maps Generator
 * Increased tolerance for placement of Subterranean Gates
