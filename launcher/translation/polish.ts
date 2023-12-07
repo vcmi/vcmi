@@ -121,7 +121,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapy</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
@@ -180,7 +180,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Kompatybilność</translation>
+        <translation>Kompatybilność</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
@@ -319,7 +319,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
@@ -410,12 +410,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="599"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie %s%. %p% (%v MB z %m MB) ukończono</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="618"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Pobieranie nieudane</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="619"/>
@@ -424,30 +424,37 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się pobrać wszystkich plików.
+
+Napotkane błędy:
+
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="620"/>
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Zainstalować pomyślnie pobrane?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="759"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalowanie modyfikacji %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="811"/>
         <source>Operation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacja nieudana</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Napotkane błędy:
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="847"/>
@@ -598,7 +605,7 @@ Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybrane
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="631"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarezerwowany obszar ekranu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
@@ -649,7 +656,7 @@ Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybrane
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronizacja pionowa (VSync)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="374"/>
@@ -703,27 +710,27 @@ Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybrane
     <message>
         <location filename="../lobby/chat_moc.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="40"/>
         <source>Users in lobby</source>
-        <translation type="unfinished"></translation>
+        <translation>Gracze w lobby</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="50"/>
         <source>Global chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Globalny czat</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="104"/>
         <source>type you message</source>
-        <translation type="unfinished"></translation>
+        <translation>napisz wiadomość</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="111"/>
         <source>send</source>
-        <translation type="unfinished"></translation>
+        <translation>wyślij</translation>
     </message>
 </context>
 <context>
@@ -926,87 +933,87 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translation>Czeski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Chinese</source>
-        <translation></translation>
+        <translation>Chiński</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation>Angielski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Finnish</source>
-        <translation type="unfinished"></translation>
+        <translation>Fiński</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>French</source>
-        <translation type="unfinished"></translation>
+        <translation>Francuski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>German</source>
-        <translation type="unfinished"></translation>
+        <translation>Niemiecki</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Hungarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Węgierski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation>Włoski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translation>Koreański</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Polish</source>
-        <translation type="unfinished"></translation>
+        <translation>Polski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Portuguese</source>
-        <translation type="unfinished"></translation>
+        <translation>Portugalski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Russian</source>
-        <translation type="unfinished"></translation>
+        <translation>Rosyjski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
         <source>Spanish</source>
-        <translation type="unfinished"></translation>
+        <translation>Hiszpański</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Swedish</source>
-        <translation type="unfinished"></translation>
+        <translation>Szwedzki</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Turkish</source>
-        <translation type="unfinished"></translation>
+        <translation>Turecki</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Ukrainian</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukraiński</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation>Wietnamski</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1026,7 +1033,7 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     <message>
         <location filename="../languages.cpp" line="64"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
