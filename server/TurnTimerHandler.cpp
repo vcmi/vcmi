@@ -74,7 +74,7 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 		{
 			endTurnAllowed[player] = true;
 			auto & timer = timers[player];
-			if(si->turnTimerInfo.baseTimer > 0)
+			if(si->turnTimerInfo.accumulatingTurnTimer)
 				timer.baseTimer += timer.turnTimer;
 			timer.turnTimer = si->turnTimerInfo.turnTimer;
 			
@@ -127,17 +127,14 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 	const auto * state = gameHandler.getPlayerState(player);
 	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{
-		if(!timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
-		{
-			if(timer.baseTimer > 0)
-			{
-				timer.turnTimer = timer.baseTimer;
-				timer.baseTimer = 0;
-				onPlayerMakingTurn(player, 0);
-			}
-			else if(endTurnAllowed[state->color] && !gameHandler.queries->topQuery(state->color)) //wait for replies to avoid pending queries
-				gameHandler.turnOrder->onPlayerEndsTurn(state->color);
-		}
+		if(timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
+			return;
+
+		if(timerCountDown(timer.baseTimer, si->turnTimerInfo.baseTimer, player, waitTime))
+			return;
+
+		if(endTurnAllowed[state->color] && !gameHandler.queries->topQuery(state->color)) //wait for replies to avoid pending queries
+			gameHandler.turnOrder->onPlayerEndsTurn(state->color);
 	}
 }
 
@@ -176,8 +173,8 @@ void TurnTimerHandler::onBattleStart(const BattleID & battleID)
 			auto & timer = timers[i];
 			timer.isBattle = true;
 			timer.isActive = si->turnTimerInfo.isBattleEnabled();
-			timer.battleTimer = (pvpBattle ? si->turnTimerInfo.battleTimer : 0);
-			timer.creatureTimer = (pvpBattle ? si->turnTimerInfo.creatureTimer : si->turnTimerInfo.battleTimer);
+			timer.battleTimer = si->turnTimerInfo.battleTimer;
+			timer.unitTimer = (pvpBattle ? si->turnTimerInfo.unitTimer : 0);
 			
 			sendTimerUpdate(i);
 		}
@@ -201,8 +198,6 @@ void TurnTimerHandler::onBattleEnd(const BattleID & battleID)
 	auto attacker = gs->getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
 	auto defender = gs->getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
 	
-	bool pvpBattle = isPvpBattle(battleID);
-	
 	for(auto i : {attacker, defender})
 	{
 		if(i.isValidPlayer())
@@ -210,14 +205,6 @@ void TurnTimerHandler::onBattleEnd(const BattleID & battleID)
 			auto & timer = timers[i];
 			timer.isBattle = false;
 			timer.isActive = true;
-			if(!pvpBattle)
-			{
-				if(si->turnTimerInfo.baseTimer && timer.baseTimer == 0)
-					timer.baseTimer = timer.creatureTimer;
-				else if(si->turnTimerInfo.turnTimer && timer.turnTimer == 0)
-					timer.turnTimer = timer.creatureTimer;
-			}
-
 			sendTimerUpdate(i);
 		}
 	}
@@ -242,9 +229,9 @@ void TurnTimerHandler::onBattleNextStack(const BattleID & battleID, const CStack
 		auto player = stack.getOwner();
 		
 		auto & timer = timers[player];
-		if(timer.battleTimer == 0)
-			timer.battleTimer = timer.creatureTimer;
-		timer.creatureTimer = si->turnTimerInfo.creatureTimer;
+		if(timer.accumulatingUnitTimer)
+			timer.battleTimer += timer.unitTimer;
+		timer.unitTimer = si->turnTimerInfo.unitTimer;
 		
 		sendTimerUpdate(player);
 	}
@@ -283,56 +270,44 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 		return;
 	
 	const auto * state = gameHandler.getPlayerState(player);
-	assert(state && state->status != EPlayerStatus::INGAME);
+	assert(state && state->status == EPlayerStatus::INGAME);
 	if(!state || state->status != EPlayerStatus::INGAME || !state->human)
 		return;
 	
 	auto & timer = timers[player];
-	if(timer.isActive && timer.isBattle && !timerCountDown(timer.creatureTimer, si->turnTimerInfo.creatureTimer, player, waitTime))
+	if(timer.isActive && timer.isBattle)
 	{
+		 if (timerCountDown(timer.unitTimer, si->turnTimerInfo.unitTimer, player, waitTime))
+			return;
+
+		 if (timerCountDown(timer.battleTimer, si->turnTimerInfo.battleTimer, player, waitTime))
+			 return;
+
+		 if (timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
+			 return;
+
+		 if (timerCountDown(timer.baseTimer, si->turnTimerInfo.baseTimer, player, waitTime))
+			 return;
+
 		if(isPvpBattle(battleID))
 		{
-			if(timer.battleTimer > 0)
-			{
-				timer.creatureTimer = timer.battleTimer;
-				timerCountDown(timer.creatureTimer, timer.battleTimer, player, 0);
-				timer.battleTimer = 0;
-			}
+			BattleAction doNothing;
+			doNothing.side = side;
+			if(isTactisPhase)
+				doNothing.actionType = EActionType::END_TACTIC_PHASE;
 			else
 			{
-				BattleAction doNothing;
-				doNothing.side = side;
-				if(isTactisPhase)
-					doNothing.actionType = EActionType::END_TACTIC_PHASE;
-				else
-				{
-					doNothing.actionType = EActionType::DEFEND;
-					doNothing.stackNumber = stack->unitId();
-				}
-				gameHandler.battles->makePlayerBattleAction(battleID, player, doNothing);
+				doNothing.actionType = EActionType::DEFEND;
+				doNothing.stackNumber = stack->unitId();
 			}
+			gameHandler.battles->makePlayerBattleAction(battleID, player, doNothing);
 		}
 		else
 		{
-			if(timer.turnTimer > 0)
-			{
-				timer.creatureTimer = timer.turnTimer;
-				timerCountDown(timer.creatureTimer, timer.turnTimer, player, 0);
-				timer.turnTimer = 0;
-			}
-			else if(timer.baseTimer > 0)
-			{
-				timer.creatureTimer = timer.baseTimer;
-				timerCountDown(timer.creatureTimer, timer.baseTimer, player, 0);
-				timer.baseTimer = 0;
-			}
-			else
-			{
-				BattleAction retreat;
-				retreat.side = side;
-				retreat.actionType = EActionType::RETREAT; //harsh punishment
-				gameHandler.battles->makePlayerBattleAction(battleID, player, retreat);
-			}
+			BattleAction retreat;
+			retreat.side = side;
+			retreat.actionType = EActionType::RETREAT; //harsh punishment
+			gameHandler.battles->makePlayerBattleAction(battleID, player, retreat);
 		}
 	}
 }

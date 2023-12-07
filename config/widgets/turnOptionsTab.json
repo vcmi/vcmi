@@ -1,4 +1,6 @@
 {
+	"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+
 	"customTypes" : {
 		"verticalLayout66" : {
 			"type" : "layout",
@@ -64,6 +66,28 @@
 			"rect": {"x": 60, "y": 48, "w": 320, "h": 0},
 			"adoptHeight": true
 		},
+		
+//		{
+//			"type": "label",
+//			"font": "medium",
+//			"alignment": "center",
+//			"color": "yellow",
+//			"text": "vcmi.optionsTab.selectPreset",
+//			"position": {"x": 105, "y": 100}
+//		},
+		{
+			"type" : "dropDownTimers",
+			"name": "timerPresetSelector",
+			"position": {"x": 160, "y": 78},
+			"dropDownPosition": {"x": 0, "y": 20}
+		},
+		{
+			"type" : "dropDownSimturns",
+			"name": "simturnsPresetSelector",
+			"position": {"x": 160, "y": 98},
+			"dropDownPosition": {"x": 0, "y": 20}
+		},
+		
 		{
 			"type": "texture",
 			"image": "DiBoxBck",
@@ -103,7 +127,7 @@
 		{
 			"type" : "verticalLayout66",
 			"customType" : "labelTitle",
-			"position": {"x": 70, "y": 134},
+			"position": {"x": 70, "y": 133},
 			"items":
 			[
 				{
@@ -116,10 +140,10 @@
 					"text": "vcmi.optionsTab.chessFieldBattle.hover"
 				},
 				{
-					"text": "vcmi.optionsTab.chessFieldCreature.hover"
+					"text": "vcmi.optionsTab.chessFieldUnit.hover"
 				},
 				{
-					"text": "vcmi.optionsTab.simturns"
+					"text": "vcmi.optionsTab.simturnsTitle"
 				}
 			]
 		},
@@ -134,15 +158,41 @@
 					"text": "vcmi.optionsTab.chessFieldBase.help"
 				},
 				{
-					"text": "vcmi.optionsTab.chessFieldTurn.help"
+					"name": "chessFieldTurnLabel"
 				},
 				{
 					"text": "vcmi.optionsTab.chessFieldBattle.help"
 				},
 				{
-					"text": "vcmi.optionsTab.chessFieldCreature.help"
+					"name": "chessFieldUnitLabel"
 				}
 			]
+		},
+		
+		{
+			"name": "buttonTurnTimerAccumulate",
+			"position": {"x": 160, "y": 195},
+			"type": "toggleButton",
+			"image": "lobby/checkbox",
+			"callback" : "setTurnTimerAccumulate"
+		},
+		{
+			"name": "buttonUnitTimerAccumulate",
+			"position": {"x": 160, "y": 327},
+			"type": "toggleButton",
+			"image": "lobby/checkbox",
+			"callback" : "setUnitTimerAccumulate"
+		},
+		
+		{
+			"type" : "labelTitle",
+			"position": {"x": 195, "y": 199},
+			"text" : "vcmi.optionsTab.accumulate"
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 195, "y": 331},
+			"text" : "vcmi.optionsTab.accumulate"
 		},
 
 		{
@@ -180,9 +230,9 @@
 					"help": "vcmi.optionsTab.chessFieldBattle.help"
 				},
 				{
-					"name": "chessFieldCreature",
-					"callback": "parseAndSetTimer_creature",
-					"help": "vcmi.optionsTab.chessFieldCreature.help"
+					"name": "chessFieldUnit",
+					"callback": "parseAndSetTimer_unit",
+					"help": "vcmi.optionsTab.chessFieldUnit.help"
 				}
 			]
 		},
@@ -249,7 +299,6 @@
 			"position": {"x": 278, "y": 478}
 		},
 		{
-			"type" : "label",
 			"text": "vcmi.optionsTab.simturnsMin.help",
 			"type": "multiLineLabel",
 			"font": "tiny",
@@ -258,7 +307,6 @@
 			"rect": {"x": 70, "y": 430, "w": 300, "h": 40}
 		},
 		{
-			"type" : "label",
 			"text": "vcmi.optionsTab.simturnsMax.help",
 			"type": "multiLineLabel",
 			"font": "tiny",
@@ -270,7 +318,8 @@
 			"name": "buttonSimturnsAI",
 			"position": {"x": 70, "y": 535},
 			"type": "toggleButton",
-			"image": "lobby/checkbox"
+			"image": "lobby/checkbox",
+			"callback" : "setSimturnAI"
 		},
 		{
 			"name": "labelSimturnsAI",
@@ -281,5 +330,36 @@
 			"text": "vcmi.optionsTab.simturnsAI.hover",
 			"position": {"x": 110, "y": 540}
 		}
-	]
+	],
+	
+	"variables":
+	{
+		"timerPresets" :
+		[
+			[    0,    0,   0, 0, false, false],
+			[    0,   60,   0, 0, false, false],
+			[    0,  120,   0, 0, false, false],
+			[    0,  300,   0, 0, false, false],
+			[    0,  600,   0, 0, false, false],
+			[    0, 1200,   0, 0, false, false],
+			[    0, 1800,   0, 0, false, false],
+			[ 1200,  600, 120, 0, true, false],
+			[  960,  480,  90, 0, true, false],
+			[  480,  240,  60, 0, true, false],
+			[  240,  120,  30, 0, true, false],
+			[  120,   60,  15, 0, true, false],
+			[   60,   60,   0, 0, true, false]
+		],
+		"simturnsPresets" :
+		[
+			[   0,  0, false],
+			[ 999,  0, false],
+			[   7,  0, false],
+			[  14,  0, false],
+			[  28,  0, false],
+			[   7,  7, false],
+			[  14, 14, false],
+			[  28, 28, false]
+		]
+	}
 }

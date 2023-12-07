@@ -1,0 +1,520 @@
+{
+	"dropDownBackground" : 
+	{
+		"type": "transparentFilledRectangle",
+		"visible": false,
+		"rect": {"x": 1, "y": 1, "w": 219, "h": 19},
+		"color": [0, 0, 0, 128],
+		"colorLine": [0, 0, 0, 128]
+	},
+	"dropDownLabel":
+	{
+		"type": "label",
+		"font": "small",
+		"alignment": "left",
+		"color": "white",
+		"position": {"x": 4, "y": 0}
+	},
+	"dropDownHover":
+	{
+		"type": "transparentFilledRectangle",
+		"visible": false,
+		"rect": {"x": 2, "y": 2, "w": 216, "h": 16},
+		"color": [0, 0, 0, 0],
+		"colorLine": [255, 255, 0, 255]
+	},
+	"dropDownTimers" : 
+	{
+		"name": "timerPresetSelector",
+		"type": "comboBox",
+		"image": "lobby/dropdown",
+		"imageOrder": [0, 0, 0, 0],
+		"items":
+		[
+			{
+				"name": "timer",
+				"type": "label",
+				"font": "small",
+				"alignment": "left",
+				"color": "white",
+				"text": "vcmi.optionsTab.turnTime.select"
+			}
+		],
+		"dropDown":
+		{
+			"items":
+			[
+				{
+					"type": "texture",
+					"image": "DiBoxBck",
+					"color" : "blue", 
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 260}
+				},
+				{
+					"type": "transparentFilledRectangle",
+					"visible": false,
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 260},
+					"color": [0, 0, 0, 0],
+					"colorLine": [64, 80, 128, 128]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 0},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.unlimited"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 20},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.classic.1"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 40},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.classic.2"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 60},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.classic.5"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 80},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.classic.10"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 100},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.classic.20"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 120},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.classic.30"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 140},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.chess.20"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 160},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.chess.16"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 180},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.chess.8"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 200},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.chess.4"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 220},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.chess.2"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 240},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.turnTime.chess.1"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				}
+			]
+		}
+	},
+	"dropDownSimturns" : 
+	{
+		"name": "timerPresetSelector",
+		"type": "comboBox",
+		"image": "lobby/dropdown",
+		"imageOrder": [0, 0, 0, 0],
+		"items":
+		[
+			{
+				"name": "timer",
+				"type": "label",
+				"font": "small",
+				"alignment": "left",
+				"color": "white",
+				"text": "vcmi.optionsTab.simturns.select"
+			}
+		],
+		"dropDown":
+		{
+			"items":
+			[
+				{
+					"type": "texture",
+					"image": "DiBoxBck",
+					"color" : "blue", 
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 160}
+				},
+				{
+					"type": "transparentFilledRectangle",
+					"visible": false,
+					"rect": {"x": 0, "y": 0, "w": 220, "h": 160},
+					"color": [0, 0, 0, 0],
+					"colorLine": [64, 80, 128, 128]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 0},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.none"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 20},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.tillContactMax"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 40},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.tillContact1"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 60},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.tillContact2"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 80},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.tillContact4"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 100},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.blocked1"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 120},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.blocked2"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				},
+				{
+					"type": "item",
+					"position": {"x": 0, "y": 140},
+					"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+					"items":
+					[
+						{
+							"type": "dropDownBackground"
+						},
+						{
+							"type": "dropDownLabel",
+							"name": "labelName",
+							"text": "vcmi.optionsTab.simturns.blocked4"
+						},
+						{
+							"type": "dropDownHover",
+							"name": "hoverImage"
+						}
+					]
+				}
+			]
+		}
+	}
+}

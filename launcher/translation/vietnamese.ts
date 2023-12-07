@@ -673,27 +673,27 @@ Toàn màn hình riêng biệt - Trò chơi chạy toàn màn hình và dùng đ
         <translation>Hiện thị giới thiệu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="409"/>
         <source>Active</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="414"/>
         <source>Disabled</source>
         <translation>Tắt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="415"/>
         <source>Enable</source>
         <translation>Bật</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="418"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="420"/>
         <source>Not Installed</source>
         <translation>Chưa cài đặt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="419"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="421"/>
         <source>Install</source>
         <translation>Cài đặt</translation>
     </message>
