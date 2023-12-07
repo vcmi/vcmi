@@ -5,6 +5,8 @@
 		"index" : 12,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"ambient" : ["LOOPCAMP"],
 				"visit" : ["EXPERNCE"],
@@ -19,10 +21,7 @@
 					"value"		: 2000,
 					"rarity"	: 500
 				},
-				"removable": true,
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -49,6 +48,8 @@
 		"index" : 29,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["GENIE"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -62,17 +63,14 @@
 					"value"		: 2000,
 					"rarity"	: 100
 				},
-				"removable": true,
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 51,
 						"appearChance" : { "max" : 25 },
-						"removeObject" : true,
+						"removeObject" : true
 					},
 					{
 						"message" : 52,
@@ -108,6 +106,8 @@
 		"index" : 82,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["CHEST"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -121,10 +121,7 @@
 					"value"		: 1500,
 					"rarity"	: 500
 				},
-				"removable": true,
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -160,6 +157,8 @@
 		"index" : 86,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["TREASURE"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -173,10 +172,7 @@
 					"value"		: 1500,
 					"rarity"	: 50
 				},
-				"removable": true,
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -212,6 +208,7 @@
 		"index" : 101,
 		"handler": "configurable",
 		"base" : {
+			"removable": true,
 			"sounds" : {
 				"visit" : ["CHEST"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -225,7 +222,6 @@
 					"value"		: 1500,
 					"rarity"	: 1000
 				},
-				"removable": true,
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"blockedVisitable" : true,
