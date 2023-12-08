@@ -378,6 +378,10 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 			for(const auto & color : t->players)
 			{
 				gameHandler->setObjPropertyID(obj->id, ObjProperty::VISITED, color);
+
+				PlayerCheated pc;
+				pc.player = color;
+				gameHandler->sendAndApply(&pc);
 			}
 		}
 	}
