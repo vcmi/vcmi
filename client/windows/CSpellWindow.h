@@ -27,6 +27,7 @@ class CGStatusBar;
 class CPlayerInterface;
 class CSpellWindow;
 class CTextInput;
+class TransparentFilledRectangle;
 
 /// The spell window
 class CSpellWindow : public CWindowObject
@@ -82,6 +83,8 @@ class CSpellWindow : public CWindowObject
 	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
 
 	std::shared_ptr<CTextInput> searchBox;
+	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
+	std::shared_ptr<CLabel> searchBoxDescription;
 
 	bool isBigSpellbook;
 	int spellsPerPage;

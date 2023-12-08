@@ -127,8 +127,19 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
-	searchBox = std::make_shared<CTextInput>(Rect(10, isBigSpellbook ? 8 : 20, pos.w-20, 16), FONT_MEDIUM, std::bind(&CSpellWindow::searchInput, this));
-	searchBox->setText(battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastFilterBattle : myInt->localState->spellbookSettings.spellbookLastFilterAdvmap);
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		Rect r(90, isBigSpellbook ? 480 : 420, isBigSpellbook ? 160 : 110, 16);
+		const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
+		const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+		const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
+		searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
+		searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
+
+		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, std::bind(&CSpellWindow::searchInput, this));
+		searchBox->removeFocus();
+		searchBox->setText("");		
+	}
 
 	processSpells();
 
@@ -241,6 +252,9 @@ std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 
 void CSpellWindow::searchInput()
 {
+	if(searchBox)
+		searchBoxDescription->setEnabled(searchBox->getText().empty());
+
 	processSpells();
 
 	int cp = 0;
@@ -258,7 +272,8 @@ void CSpellWindow::processSpells()
 	mySpells.reserve(CGI->spellh->objects.size());
 	for(const CSpell * spell : CGI->spellh->objects)
 	{
-		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && boost::algorithm::contains(boost::algorithm::to_lower_copy(spell->getNameTranslated()), boost::algorithm::to_lower_copy(searchBox->getText())))
+		bool searchTextFound = !searchBox || boost::algorithm::contains(boost::algorithm::to_lower_copy(spell->getNameTranslated()), boost::algorithm::to_lower_copy(searchBox->getText()));
+		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && searchTextFound)
 			mySpells.push_back(spell);
 	}
 	std::sort(mySpells.begin(), mySpells.end(), spellsorter);
@@ -321,7 +336,6 @@ void CSpellWindow::fexitb()
 {
 	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
 	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbookLastPageAdvmap) = currentPage;
-	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastFilterBattle : myInt->localState->spellbookSettings.spellbookLastFilterAdvmap) = searchBox->getText();
 
 	close();
 }

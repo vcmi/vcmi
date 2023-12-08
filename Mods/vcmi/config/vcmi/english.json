@@ -54,6 +54,8 @@
 	"vcmi.radialWheel.moveDown" : "Move down",
 	"vcmi.radialWheel.moveBottom" : "Move to bottom",
 
+	"vcmi.spellBook.search" : "search...",
+
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Failed to connect",
