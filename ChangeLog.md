@@ -160,8 +160,9 @@
 * Increased tolerance for placement of Subterranean Gates
 * Game will now select random object template out of available options instead of picking first one
 * It is no longer possible to create map with a single team
+* Game will no longer route roads through non-removable treasure objects, such as Corpse
+* Fixed placement of treasure piles with non-removable objects, such as Corpse
 * Fixed interface no displaying correct random map settings in some cases
-* Fixed game failing to generate random map if number of AI players is set to non-zero
 * Fixed misleading error "no info for player X found"
 * Fixed bug leading to AI players defeated on day one.
 
