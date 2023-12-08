@@ -40,6 +40,7 @@ class PlayerMessageProcessor
 	void cheatPuzzleReveal(PlayerColor player);
 	void cheatMaxLuck(PlayerColor player, const CGHeroInstance * hero);
 	void cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero);
+	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
 
 public:
 	CGameHandler * gameHandler;

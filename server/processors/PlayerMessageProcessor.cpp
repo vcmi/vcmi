@@ -391,9 +391,21 @@ void PlayerMessageProcessor::cheatMaxLuck(PlayerColor player, const CGHeroInstan
 {
 	if (!hero)
 		return;
-		
+
 	GiveBonus gb;
 	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::MAX_LUCK, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
+	gb.id = hero->id;
+
+	gameHandler->giveHeroBonus(&gb);
+}
+
+void PlayerMessageProcessor::cheatFly(PlayerColor player, const CGHeroInstance * hero)
+{
+	if (!hero)
+		return;
+		
+	GiveBonus gb;
+	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::FLYING_MOVEMENT, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
 	gb.id = hero->id;
 
 	gameHandler->giveHeroBonus(&gb);
@@ -444,7 +456,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcmiforgeofnoldorking", "vcmiartifacts",
 		"vcmiolorin",            "vcmiexp",
 		"nwcfollowthewhiterabbit",
-		"nwcmorpheus"
+		"nwcmorpheus",
+		"nwctheone"
 	};
 
 	if (!vstd::contains(townTargetedCheats, cheatName) && !vstd::contains(playerTargetedCheats, cheatName) && !vstd::contains(heroTargetedCheats, cheatName))
@@ -521,6 +534,15 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatRevealPuzzle = [&]() { cheatPuzzleReveal(player); };
 	const auto & doCheatMaxLuck = [&]() { cheatMaxLuck(player, hero); };
 	const auto & doCheatMaxMorale = [&]() { cheatMaxMorale(player, hero); };
+	const auto & doCheatTheOne = [&]()
+	{
+		if(!hero)
+			return;
+		cheatMapReveal(player, true);
+		cheatGiveArmy(player, hero, { "archangel", "5" });
+		cheatMovement(player, hero, { });
+		cheatFly(player, hero);
+	};
 
 	// Unimplemented H3 cheats:
 	// nwcphisherprice - Changes and brightens the game colors.
@@ -575,6 +597,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"nwcoracle",               doCheatRevealPuzzle   },
 		{"nwcfollowthewhiterabbit", doCheatMaxLuck        },
 		{"nwcmorpheus",             doCheatMaxMorale      },
+		{"nwctheone",               doCheatTheOne         },
 	};
 
 	assert(callbacks.count(cheatName));
