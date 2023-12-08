@@ -20,6 +20,8 @@ class JsonNode;
 	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
+	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
+	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
 	BONUS_NAME(SIGHT_RADIUS) \
 	BONUS_NAME(MANA_REGENERATION) /*points per turn*/  \

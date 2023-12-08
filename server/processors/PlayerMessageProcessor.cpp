@@ -383,6 +383,24 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 	}
 }
 
+void PlayerMessageProcessor::cheatMaxLuck(PlayerColor player, const CGHeroInstance * hero)
+{
+	GiveBonus gb;
+	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::MAX_LUCK, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
+	gb.id = hero->id;
+
+	gameHandler->giveHeroBonus(&gb);
+}
+
+void PlayerMessageProcessor::cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero)
+{
+	GiveBonus gb;
+	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::MAX_MORALE, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
+	gb.id = hero->id;
+
+	gameHandler->giveHeroBonus(&gb);
+}
+
 bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerColor player, ObjectInstanceID currObj)
 {
 	std::vector<std::string> words;
@@ -415,6 +433,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcminahar",             "vcmimove",        "nwcnebuchadnezzar",
 		"vcmiforgeofnoldorking", "vcmiartifacts",
 		"vcmiolorin",            "vcmiexp",
+		"nwcfollowthewhiterabbit",
+		"nwcmorpheus"
 	};
 
 	if (!vstd::contains(townTargetedCheats, cheatName) && !vstd::contains(playerTargetedCheats, cheatName) && !vstd::contains(heroTargetedCheats, cheatName))
@@ -489,60 +509,62 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatMapReveal = [&]() { cheatMapReveal(player, true); };
 	const auto & doCheatMapHide = [&]() { cheatMapReveal(player, false); };
 	const auto & doCheatRevealPuzzle = [&]() { cheatPuzzleReveal(player); };
+	const auto & doCheatMaxLuck = [&]() { cheatMaxLuck(player, hero); };
+	const auto & doCheatMaxMorale = [&]() { cheatMaxMorale(player, hero); };
 
 	// Unimplemented H3 cheats:
-	// nwcfollowthewhiterabbit - The currently selected hero permanently gains maximum luck.
-	// nwcmorpheus - The currently selected hero permanently gains maximum morale.
 	// nwcphisherprice - Changes and brightens the game colors.
 
 	std::map<std::string, std::function<void()>> callbacks = {
-		{"vcmiainur",            [&] () {doCheatGiveArmyFixed({ "archangel", "5" });} },
-		{"nwctrinity",           [&] () {doCheatGiveArmyFixed({ "archangel", "5" });} },
-		{"vcmiangband",          [&] () {doCheatGiveArmyFixed({ "blackKnight", "10" });} },
-		{"vcmiglaurung",         [&] () {doCheatGiveArmyFixed({ "crystalDragon", "5000" });} },
-		{"vcmiarchangel",        [&] () {doCheatGiveArmyFixed({ "archangel", "5" });} },
-		{"nwcagents",            [&] () {doCheatGiveArmyFixed({ "blackKnight", "10" });} },
-		{"vcmiblackknight",      [&] () {doCheatGiveArmyFixed({ "blackKnight", "10" });} },
-		{"vcmicrystal",          [&] () {doCheatGiveArmyFixed({ "crystalDragon", "5000" });} },
-		{"vcmiazure",            [&] () {doCheatGiveArmyFixed({ "azureDragon", "5000" });} },
-		{"vcmifaerie",           [&] () {doCheatGiveArmyFixed({ "fairieDragon", "5000" });} },
-		{"vcmiarmy",              doCheatGiveArmyCustom },
-		{"vcminissi",             doCheatGiveArmyCustom },
-		{"vcmiistari",            doCheatGiveSpells     },
-		{"vcmispells",            doCheatGiveSpells     },
-		{"nwcthereisnospoon",     doCheatGiveSpells     },
-		{"vcmiarmenelos",         doCheatBuildTown      },
-		{"vcmibuild",             doCheatBuildTown      },
-		{"nwczion",               doCheatBuildTown      },
-		{"vcminoldor",            doCheatGiveMachines   },
-		{"vcmimachines",          doCheatGiveMachines   },
-		{"nwclotsofguns",         doCheatGiveMachines   },
-		{"vcmiforgeofnoldorking", doCheatGiveArtifacts  },
-		{"vcmiartifacts",         doCheatGiveArtifacts  },
-		{"vcmiglorfindel",        doCheatLevelup        },
-		{"vcmilevel",             doCheatLevelup        },
-		{"nwcneo",                doCheatLevelup        },
-		{"vcmiolorin",            doCheatExperience     },
-		{"vcmiexp",               doCheatExperience     },
-		{"vcminahar",             doCheatMovement       },
-		{"vcmimove",              doCheatMovement       },
-		{"nwcnebuchadnezzar",     doCheatMovement       },
-		{"vcmiformenos",          doCheatResources      },
-		{"vcmiresources",         doCheatResources      },
-		{"nwctheconstruct",       doCheatResources      },
-		{"nwcbluepill",           doCheatDefeat         },
-		{"vcmimelkor",            doCheatDefeat         },
-		{"vcmilose",              doCheatDefeat         },
-		{"nwcredpill",            doCheatVictory        },
-		{"vcmisilmaril",          doCheatVictory        },
-		{"vcmiwin",               doCheatVictory        },
-		{"nwcwhatisthematrix",    doCheatMapReveal      },
-		{"vcmieagles",            doCheatMapReveal      },
-		{"vcmimap",               doCheatMapReveal      },
-		{"vcmiungoliant",         doCheatMapHide        },
-		{"vcmihidemap",           doCheatMapHide        },
-		{"nwcignoranceisbliss",   doCheatMapHide        },
-		{"nwcoracle",             doCheatRevealPuzzle   },
+		{"vcmiainur",              [&] () {doCheatGiveArmyFixed({ "archangel", "5" });} },
+		{"nwctrinity",             [&] () {doCheatGiveArmyFixed({ "archangel", "5" });} },
+		{"vcmiangband",            [&] () {doCheatGiveArmyFixed({ "blackKnight", "10" });} },
+		{"vcmiglaurung",           [&] () {doCheatGiveArmyFixed({ "crystalDragon", "5000" });} },
+		{"vcmiarchangel",          [&] () {doCheatGiveArmyFixed({ "archangel", "5" });} },
+		{"nwcagents",              [&] () {doCheatGiveArmyFixed({ "blackKnight", "10" });} },
+		{"vcmiblackknight",        [&] () {doCheatGiveArmyFixed({ "blackKnight", "10" });} },
+		{"vcmicrystal",            [&] () {doCheatGiveArmyFixed({ "crystalDragon", "5000" });} },
+		{"vcmiazure",              [&] () {doCheatGiveArmyFixed({ "azureDragon", "5000" });} },
+		{"vcmifaerie",             [&] () {doCheatGiveArmyFixed({ "fairieDragon", "5000" });} },
+		{"vcmiarmy",                doCheatGiveArmyCustom },
+		{"vcminissi",               doCheatGiveArmyCustom },
+		{"vcmiistari",              doCheatGiveSpells     },
+		{"vcmispells",              doCheatGiveSpells     },
+		{"nwcthereisnospoon",       doCheatGiveSpells     },
+		{"vcmiarmenelos",           doCheatBuildTown      },
+		{"vcmibuild",               doCheatBuildTown      },
+		{"nwczion",                 doCheatBuildTown      },
+		{"vcminoldor",              doCheatGiveMachines   },
+		{"vcmimachines",            doCheatGiveMachines   },
+		{"nwclotsofguns",           doCheatGiveMachines   },
+		{"vcmiforgeofnoldorking",   doCheatGiveArtifacts  },
+		{"vcmiartifacts",           doCheatGiveArtifacts  },
+		{"vcmiglorfindel",          doCheatLevelup        },
+		{"vcmilevel",               doCheatLevelup        },
+		{"nwcneo",                  doCheatLevelup        },
+		{"vcmiolorin",              doCheatExperience     },
+		{"vcmiexp",                 doCheatExperience     },
+		{"vcminahar",               doCheatMovement       },
+		{"vcmimove",                doCheatMovement       },
+		{"nwcnebuchadnezzar",       doCheatMovement       },
+		{"vcmiformenos",            doCheatResources      },
+		{"vcmiresources",           doCheatResources      },
+		{"nwctheconstruct",         doCheatResources      },
+		{"nwcbluepill",             doCheatDefeat         },
+		{"vcmimelkor",              doCheatDefeat         },
+		{"vcmilose",                doCheatDefeat         },
+		{"nwcredpill",              doCheatVictory        },
+		{"vcmisilmaril",            doCheatVictory        },
+		{"vcmiwin",                 doCheatVictory        },
+		{"nwcwhatisthematrix",      doCheatMapReveal      },
+		{"vcmieagles",              doCheatMapReveal      },
+		{"vcmimap",                 doCheatMapReveal      },
+		{"vcmiungoliant",           doCheatMapHide        },
+		{"vcmihidemap",             doCheatMapHide        },
+		{"nwcignoranceisbliss",     doCheatMapHide        },
+		{"nwcoracle",               doCheatRevealPuzzle   },
+		{"nwcfollowthewhiterabbit", doCheatMaxLuck        },
+		{"nwcmorpheus",             doCheatMaxMorale      },
 	};
 
 	assert(callbacks.count(cheatName));
