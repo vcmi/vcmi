@@ -249,6 +249,8 @@
 	"vcmi.optionsTab.chessFieldUnitAccumulate.help" : "Używany podczas oczekiwania na podjęcie akcji jednostką w bitwie pomiędzy ludźmi. Nadwyżka czasu dodaje się do {Timera bitwy}",
 	"vcmi.optionsTab.chessFieldUnitDiscard.help" : "Używany podczas oczekiwania na podjęcie akcji jednostką w bitwie pomiędzy ludźmi. Resetuje się przy rozpoczęciu akcji jednostką.",
 
+	"vcmi.optionsTab.accumulate" : "Akumuluj",
+
 	"vcmi.optionsTab.simturnsTitle" : "Tury równoczesne / symultaniczne",
 	"vcmi.optionsTab.simturnsMin.hover" : "Co najmniej przez",
 	"vcmi.optionsTab.simturnsMax.hover" : "Maks. przez",

@@ -249,6 +249,8 @@
 	"vcmi.optionsTab.chessFieldUnitAccumulate.help" : "Used when selecting unit action in pvp combat. Leftover added to {Battle Timer} at end of unit turn.",
 	"vcmi.optionsTab.chessFieldUnitDiscard.help" : "Used when selecting unit action in pvp combat. Reset at start of each unit's turn. Any unspent time is lost",
 
+	"vcmi.optionsTab.accumulate" : "Accumulate",
+
 	"vcmi.optionsTab.simturnsTitle" : "Simultaneous turns",
 	"vcmi.optionsTab.simturnsMin.hover" : "At least for",
 	"vcmi.optionsTab.simturnsMax.hover" : "At most for",
