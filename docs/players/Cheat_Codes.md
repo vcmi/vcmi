@@ -57,6 +57,11 @@ Alternative usage: `vcmilevel <amount>` - advances hero by specified number of l
 - `vcmiolorin` or `vcmiexp` - gives selected hero 10000 experience
 Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of experience
 
+### Luck and morale
+
+`nwcfollowthewhiterabbit` - the currently selected hero permanently gains maximum luck
+`nwcmorpheus` - the currently selected hero permanently gains maximum morale
+
 ### Puzzle map
 
 `nwcoracle` - reveals the puzzle map
