@@ -68,8 +68,11 @@ Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of 
 
 ### Finishing the game
 
-`nwcredpill` or `vcmisilmaril` or `vcmiwin` - player wins  
-`nwcbluepill` or `vcmimelkor` or `vcmilose` - player loses  
+`nwcredpill` or `vcmisilmaril` or `vcmiwin` - player wins
+`nwcbluepill` or `vcmimelkor` or `vcmilose` - player loses
+
+### Misc
+`nwctheone` - reveals the whole map, gives 5 archangels in each empty slot, 1000000 movement points and permanent flight
 
 ## Using cheat codes on other players
 By default, all cheat codes apply to current player. Alternatively, it is possible to specify player that you want to target:
