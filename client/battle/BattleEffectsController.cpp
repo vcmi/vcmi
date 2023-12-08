@@ -23,11 +23,12 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
+#include "../render/Graphics.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"
-#include "../../lib/filesystem/ResourceID.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CStack.h"
 #include "../../lib/IGameEventsReceiver.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -40,14 +41,14 @@ BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 
 void BattleEffectsController::displayEffect(EBattleEffect effect, const BattleHex & destTile)
 {
-	displayEffect(effect, "", destTile);
+	displayEffect(effect, AudioPath(), destTile);
 }
 
-void BattleEffectsController::displayEffect(EBattleEffect effect, std::string soundFile, const BattleHex & destTile)
+void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPath & soundFile, const BattleHex & destTile)
 {
 	size_t effectID = static_cast<size_t>(effect);
 
-	std::string customAnim = graphics->battleACToDef[effectID][0];
+	AnimationPath customAnim = AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]);
 
 	CCS->soundh->playSound( soundFile );
 
@@ -58,7 +59,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 {
 	owner.checkForAnimations();
 
-	const CStack * stack = owner.curInt->cb->battleGetStackByID(bte.stackID);
+	const CStack * stack = owner.getBattle()->battleGetStackByID(bte.stackID);
 	if(!stack)
 	{
 		logGlobal->error("Invalid stack ID %d", bte.stackID);
@@ -68,22 +69,22 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 	switch(static_cast<BonusType>(bte.effect))
 	{
 		case BonusType::HP_REGENERATION:
-			displayEffect(EBattleEffect::REGENERATION, "REGENER", stack->getPosition());
+			displayEffect(EBattleEffect::REGENERATION, AudioPath::builtin("REGENER"), stack->getPosition());
 			break;
 		case BonusType::MANA_DRAIN:
-			displayEffect(EBattleEffect::MANA_DRAIN, "MANADRAI", stack->getPosition());
+			displayEffect(EBattleEffect::MANA_DRAIN, AudioPath::builtin("MANADRAI"), stack->getPosition());
 			break;
 		case BonusType::POISON:
-			displayEffect(EBattleEffect::POISON, "POISON", stack->getPosition());
+			displayEffect(EBattleEffect::POISON, AudioPath::builtin("POISON"), stack->getPosition());
 			break;
 		case BonusType::FEAR:
-			displayEffect(EBattleEffect::FEAR, "FEAR", stack->getPosition());
+			displayEffect(EBattleEffect::FEAR, AudioPath::builtin("FEAR"), stack->getPosition());
 			break;
 		case BonusType::MORALE:
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
-			displayEffect(EBattleEffect::GOOD_MORALE, "GOODMRLE", stack->getPosition());
+			displayEffect(EBattleEffect::GOOD_MORALE, AudioPath::builtin("GOODMRLE"), stack->getPosition());
 			owner.appendBattleLog(hlp);
 			break;
 		}
@@ -93,20 +94,20 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 	owner.waitForAnimations();
 }
 
-void BattleEffectsController::startAction(const BattleAction* action)
+void BattleEffectsController::startAction(const BattleAction & action)
 {
 	owner.checkForAnimations();
 
-	const CStack *stack = owner.curInt->cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = owner.getBattle()->battleGetStackByID(action.stackNumber);
 
-	switch(action->actionType)
+	switch(action.actionType)
 	{
 	case EActionType::WAIT:
 		owner.appendBattleLog(stack->formatGeneralMessage(136));
 		break;
 	case EActionType::BAD_MORALE:
 		owner.appendBattleLog(stack->formatGeneralMessage(-34));
-		displayEffect(EBattleEffect::BAD_MORALE, "BADMRLE", stack->getPosition());
+		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
 		break;
 	}
 
@@ -131,7 +132,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 
 void BattleEffectsController::loadColorMuxers()
 {
-	const JsonNode config(ResourceID("config/battleEffects.json"));
+	const JsonNode config(JsonPath::builtin("config/battleEffects.json"));
 
 	for(auto & muxer : config["colorMuxers"].Struct())
 	{

@@ -14,12 +14,17 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../GameSettings.h"
+#include "../CPlayerState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/Component.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../MetaString.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 
@@ -41,7 +46,7 @@ void CBank::initObj(CRandomGenerator & rand)
 {
 	daycounter = 0;
 	resetDuration = 0;
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, rand);
 }
 
 bool CBank::isCoastVisitable() const
@@ -51,8 +56,36 @@ bool CBank::isCoastVisitable() const
 
 std::string CBank::getHoverText(PlayerColor player) const
 {
-	// TODO: record visited players
-	return getObjectName() + " " + visitedTxt(bc == nullptr);
+	if (!wasVisited(player))
+		return getObjectName();
+
+	return getObjectName() + "\n" + visitedTxt(bc == nullptr);
+}
+
+std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
+{
+	if (!wasVisited(player))
+		return {};
+
+	if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
+		return {};
+
+	if (bc == nullptr)
+		return {};
+
+	std::map<CreatureID, int> guardsAmounts;
+	std::vector<Component> result;
+
+	for (auto const & slot : Slots())
+		if (slot.second)
+			guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
+
+	for (auto const & guard : guardsAmounts)
+	{
+		Component comp(ComponentType::CREATURE, guard.first, guard.second);
+		result.push_back(comp);
+	}
+	return result;
 }
 
 void CBank::setConfig(const BankConfig & config)
@@ -64,12 +97,12 @@ void CBank::setConfig(const BankConfig & config)
 		setCreature (SlotID(stacksCount()), stack.type->getId(), stack.count);
 }
 
-void CBank::setPropertyDer (ui8 what, ui32 val)
+void CBank::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
 		case ObjProperty::BANK_DAYCOUNTER: //daycounter
-				daycounter+=val;
+				daycounter+= identifier.getNum();
 			break;
 		case ObjProperty::BANK_RESET:
 			// FIXME: Object reset must be done by separate netpack from server
@@ -89,22 +122,25 @@ void CBank::newTurn(CRandomGenerator & rand) const
 		if (resetDuration != 0)
 		{
 			if (daycounter >= resetDuration)
-				cb->setObjProperty (id, ObjProperty::BANK_RESET, 0); //daycounter 0
+				cb->setObjPropertyValue(id, ObjProperty::BANK_RESET); //daycounter 0
 			else
-				cb->setObjProperty (id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
+				cb->setObjPropertyValue(id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
 		}
 	}
 }
 
 bool CBank::wasVisited (PlayerColor player) const
 {
-	return !bc; //FIXME: player A should not know about visit done by player B
+	return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
 }
 
 void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+	cb->sendAndApply(&cov);
+
 	int banktext = 0;
-	switch (ID)
+	switch (ID.toEnum())
 	{
 	case Obj::DERELICT_SHIP:
 		banktext = 41;
@@ -130,27 +166,9 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	bd.player = h->getOwner();
 	bd.soundID = soundBase::invalid; // Sound is handled in json files, else two sounds are played
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, banktext);
+	bd.components = getPopupComponents(h->getOwner());
 	if (banktext == 32)
 		bd.text.replaceRawString(getObjectName());
-
-	if (VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
-	{
-		std::map<CreatureID, int> guardsAmounts;
-
-		for (auto const & slot : Slots())
-			if (slot.second)
-				guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
-
-		for (auto const & guard : guardsAmounts)
-		{
-			Component comp;
-			comp.id = Component::EComponentType::CREATURE;
-			comp.subtype = guard.first.getNum();
-			comp.val = guard.second;
-
-			bd.components.push_back(comp);
-		}
-	}
 
 	cb->showBlockingDialog(&bd);
 }
@@ -165,7 +183,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 	if (bc)
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::DERELICT_SHIP:
 			textID = 43;
@@ -188,20 +206,20 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	}
 	else
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::SHIPWRECK:
 		case Obj::DERELICT_SHIP:
 		case Obj::CRYPT:
 		{
 			GiveBonus gbonus;
-			gbonus.id = hero->id.getNum();
+			gbonus.id = hero->id;
 			gbonus.bonus.duration = BonusDuration::ONE_BATTLE;
-			gbonus.bonus.source = BonusSource::OBJECT;
-			gbonus.bonus.sid = ID;
+			gbonus.bonus.source = BonusSource::OBJECT_TYPE;
+			gbonus.bonus.sid = BonusSourceID(ID);
 			gbonus.bonus.type = BonusType::MORALE;
 			gbonus.bonus.val = -1;
-			switch (ID)
+			switch (ID.toEnum())
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
@@ -217,18 +235,18 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
-			iw.components.emplace_back(Component::EComponentType::MORALE, 0, -1, 0);
+			iw.components.emplace_back(ComponentType::MORALE, -1);
 			iw.soundID = soundBase::GRAVEYARD;
 			break;
 		}
 		case Obj::PYRAMID:
 		{
 			GiveBonus gb;
-			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT, -2, id.getNum(), VLC->generaltexth->arraytxt[70]);
-			gb.id = hero->id.getNum();
+			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, -2, BonusSourceID(id), VLC->generaltexth->arraytxt[70]);
+			gb.id = hero->id;
 			cb->giveHeroBonus(&gb);
 			textID = 107;
-			iw.components.emplace_back(Component::EComponentType::LUCK, 0, -2, 0);
+			iw.components.emplace_back(ComponentType::LUCK, -2);
 			break;
 		}
 		case Obj::CREATURE_BANK:
@@ -248,24 +266,24 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	//grant resources
 	if (bc)
 	{
-		for (int it = 0; it < bc->resources.size(); it++)
+		for (GameResID it : GameResID::ALL_RESOURCES())
 		{
 			if (bc->resources[it] != 0)
 			{
-				iw.components.emplace_back(Component::EComponentType::RESOURCE, it, bc->resources[it], 0);
+				iw.components.emplace_back(ComponentType::RESOURCE, it, bc->resources[it]);
 				loot.appendRawString("%d %s");
-				loot.replaceNumber(iw.components.back().val);
-				loot.replaceLocalString(EMetaText::RES_NAMES, iw.components.back().subtype);
-				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
+				loot.replaceNumber(bc->resources[it]);
+				loot.replaceName(it);
+				cb->giveResource(hero->getOwner(), it, bc->resources[it]);
 			}
 		}
 		//grant artifacts
 		for (auto & elem : bc->artifacts)
 		{
-			iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
+			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
 			loot.appendRawString("%s");
-			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
-			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
+			loot.replaceName(elem);
+			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -278,7 +296,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 					return a.type->getFightValue() < b.type->getFightValue();
 				})->type;
 
-				iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, strongest->getId());
+				iw.text.replaceNamePlural(strongest->getId());
 				iw.text.replaceRawString(loot.buildList());
 			}
 			cb->showInfoDialog(&iw);
@@ -299,14 +317,14 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				const auto * spell = spellId.toSpell(VLC->spells());
-				iw.text.appendLocalString(EMetaText::SPELL_NAME, spellId);
+				const auto * spell = spellId.toEntity(VLC);
+				iw.text.appendName(spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{
 					if(hero->canLearnSpell(spell))
 					{
 						spells.insert(spellId);
-						iw.components.emplace_back(Component::EComponentType::SPELL, spellId, 0, 0);
+						iw.components.emplace_back(ComponentType::SPELL, spellId);
 					}
 				}
 				else
@@ -337,9 +355,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 		for(const auto & elem : ourArmy.Slots())
 		{
-			iw.components.emplace_back(*elem.second);
+			iw.components.emplace_back(ComponentType::CREATURE, elem.second->getId(), elem.second->getCount());
 			loot.appendRawString("%s");
-			loot.replaceCreatureName(*elem.second);
+			loot.replaceName(*elem.second);
 		}
 
 		if(ourArmy.stacksCount())
@@ -354,7 +372,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, hero, ourArmy, false);
 		}
-		cb->setObjProperty(id, ObjProperty::BANK_CLEAR, 0); //bc = nullptr
+		cb->setObjPropertyValue(id, ObjProperty::BANK_CLEAR); //bc = nullptr
 	}
 }
 

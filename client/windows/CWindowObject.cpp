@@ -20,6 +20,7 @@
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Canvas.h"
 
 #include "../CGameInfo.h"
@@ -33,12 +34,13 @@
 
 #include <SDL_surface.h>
 
-CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
+CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point centerAt):
 	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	if(!(options & NEEDS_ANIMATED_BACKGROUND)) //currently workaround for highscores (currently uses window as normal control, because otherwise videos are not played in background yet)
+		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -54,12 +56,13 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 		setShadow(true);
 }
 
-CWindowObject::CWindowObject(int options_, std::string imageName):
+CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	if(!(options & NEEDS_ANIMATED_BACKGROUND)) //currently workaround for highscores (currently uses window as normal control, because otherwise videos are not played in background yet)
+		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -81,7 +84,7 @@ CWindowObject::~CWindowObject()
 		CCS->curh->show();
 }
 
-std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool playerColored)
+std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, bool playerColored)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -95,7 +98,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool pl
 	return image;
 }
 
-void CWindowObject::setBackground(std::string filename)
+void CWindowObject::setBackground(const ImagePath & filename)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -210,9 +213,9 @@ void CWindowObject::setShadow(bool on)
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowBottom), Point(shadowStart.x, shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowBottom), Point(shadowStart.x, shadowPos.y)));
 
 		}
 		SDL_FreeSurface(shadowCorner);
@@ -237,10 +240,10 @@ bool CWindowObject::isPopupWindow() const
 	return options & RCLICK_POPUP;
 }
 
-CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
+CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
 {
 }
 
-CStatusbarWindow::CStatusbarWindow(int options, std::string imageName) : CWindowObject(options, imageName)
+CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName) : CWindowObject(options, imageName)
 {
 }

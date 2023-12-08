@@ -17,6 +17,7 @@
 #include "renderSDL/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/CInputStream.h"
 
 #include <SDL_render.h>
 
@@ -40,8 +41,11 @@ extern "C" {
 static int lodRead(void* opaque, uint8_t* buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+	int bytes = static_cast<int>(video->data->read(buf, size));
+	if(bytes == 0)
+    	return AVERROR_EOF;
 
-	return static_cast<int>(video->data->read(buf, size));
+	return bytes;
 }
 
 static si64 lodSeek(void * opaque, si64 pos, int whence)
@@ -52,6 +56,27 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 		return video->data->getSize();
 
 	return video->data->seek(pos);
+}
+
+// Define a set of functions to read data
+static int lodReadAudio(void* opaque, uint8_t* buf, int size)
+{
+	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+	int bytes = static_cast<int>(video->dataAudio->read(buf, size));
+	if(bytes == 0)
+    	return AVERROR_EOF;
+
+	return bytes;
+}
+
+static si64 lodSeekAudio(void * opaque, si64 pos, int whence)
+{
+	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+
+	if (whence & AVSEEK_SIZE)
+		return video->dataAudio->getSize();
+
+	return video->dataAudio->seek(pos);
 }
 
 CVideoPlayer::CVideoPlayer()
@@ -70,30 +95,32 @@ CVideoPlayer::CVideoPlayer()
 	, doLoop(false)
 {}
 
-bool CVideoPlayer::open(std::string fname, bool scale)
+bool CVideoPlayer::open(const VideoPath & fname, bool scale)
 {
 	return open(fname, true, false);
 }
 
 // loop = to loop through the video
 // useOverlay = directly write to the screen.
-bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scale)
+bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverlay, bool scale)
 {
 	close();
 
-	this->fname = fname;
 	doLoop = loop;
 	frameTime = 0;
 
-	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
+	if (CResourceHandler::get()->existsResource(videoToOpen))
+		fname = videoToOpen;
+	else
+		fname = videoToOpen.addPrefix("VIDEO/");
 
-	if (!CResourceHandler::get()->existsResource(resource))
+	if (!CResourceHandler::get()->existsResource(fname))
 	{
-		logGlobal->error("Error: video %s was not found", resource.getName());
+		logGlobal->error("Error: video %s was not found", fname.getName());
 		return false;
 	}
 
-	data = CResourceHandler::get()->load(resource);
+	data = CResourceHandler::get()->load(fname);
 
 	static const int BUFFER_SIZE = 4096;
 
@@ -284,7 +311,7 @@ bool CVideoPlayer::nextFrame()
 						sws_scale(sws, frame->data, frame->linesize,
 								  0, codecContext->height, data, linesize);
 
-						SDL_UpdateYUVTexture(texture, NULL, data[0], linesize[0],
+						SDL_UpdateYUVTexture(texture, nullptr, data[0], linesize[0],
 								data[1], linesize[1],
 								data[2], linesize[2]);
 						av_freep(&data[0]);
@@ -346,7 +373,7 @@ void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 	show(x, y, dst, update);
 }
 
-void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
+void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update, std::function<void()> onVideoRestart)
 {
 	if (sws == nullptr)
 		return;
@@ -365,7 +392,10 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 			show(x,y,dst,update);
 		else
 		{
-			open(fname);
+			if(onVideoRestart)
+				onVideoRestart();
+			VideoPath filenameToReopen = fname; // create copy to backup this->fname
+			open(filenameToReopen);
 			nextFrame();
 
 			// The y position is wrong at the first frame.
@@ -382,7 +412,8 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 
 void CVideoPlayer::close()
 {
-	fname.clear();
+	fname = VideoPath();
+
 	if (sws)
 	{
 		sws_freeContext(sws);
@@ -428,6 +459,162 @@ void CVideoPlayer::close()
 	}
 }
 
+std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath & videoToOpen)
+{
+	std::pair<std::unique_ptr<ui8 []>, si64> dat(std::make_pair(nullptr, 0));
+
+	VideoPath fnameAudio;
+
+	if (CResourceHandler::get()->existsResource(videoToOpen))
+		fnameAudio = videoToOpen;
+	else
+		fnameAudio = videoToOpen.addPrefix("VIDEO/");
+
+	if (!CResourceHandler::get()->existsResource(fnameAudio))
+	{
+		logGlobal->error("Error: video %s was not found", fnameAudio.getName());
+		return dat;
+	}
+
+	dataAudio = CResourceHandler::get()->load(fnameAudio);
+
+	static const int BUFFER_SIZE = 4096;
+
+	unsigned char * bufferAudio  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
+	AVIOContext * contextAudio = avio_alloc_context( bufferAudio, BUFFER_SIZE, 0, (void *)this, lodReadAudio, nullptr, lodSeekAudio);
+
+	AVFormatContext * formatAudio = avformat_alloc_context();
+	formatAudio->pb = contextAudio;
+	// filename is not needed - file was already open and stored in this->data;
+	int avfopen = avformat_open_input(&formatAudio, "dummyFilename", nullptr, nullptr);
+
+	if (avfopen != 0)
+	{
+		return dat;
+	}
+	// Retrieve stream information
+	if (avformat_find_stream_info(formatAudio, nullptr) < 0)
+		return dat;
+
+	// Find the first audio stream
+	int streamAudio = -1;
+	for(ui32 i = 0; i < formatAudio->nb_streams; i++)
+	{
+		if (formatAudio->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+		{
+			streamAudio = i;
+			break;
+		}
+	}
+
+	if(streamAudio < 0)
+		return dat;
+
+	const AVCodec *codecAudio = avcodec_find_decoder(formatAudio->streams[streamAudio]->codecpar->codec_id);
+		
+	AVCodecContext *codecContextAudio;
+	if (codecAudio != nullptr)
+		codecContextAudio = avcodec_alloc_context3(codecAudio);
+
+	// Get a pointer to the codec context for the audio stream
+	if (streamAudio > -1)
+	{
+		int ret = avcodec_parameters_to_context(codecContextAudio, formatAudio->streams[streamAudio]->codecpar);
+		if (ret < 0)
+		{
+			//We cannot get codec from parameters
+			avcodec_free_context(&codecContextAudio);
+		}
+	}
+	
+	// Open codec
+	AVFrame *frameAudio;
+	if (codecAudio != nullptr)
+	{
+		if ( avcodec_open2(codecContextAudio, codecAudio, nullptr) < 0 )
+		{
+			// Could not open codec
+			codecAudio = nullptr;
+		}
+		// Allocate audio frame
+		frameAudio = av_frame_alloc();
+	}
+		
+	AVPacket packet;
+
+	std::vector<ui8> samples;
+
+	while (av_read_frame(formatAudio, &packet) >= 0)
+	{
+		if(packet.stream_index == streamAudio)
+		{
+			int rc = avcodec_send_packet(codecContextAudio, &packet);
+			if (rc >= 0)
+				packet.size = 0;
+			rc = avcodec_receive_frame(codecContextAudio, frameAudio);
+			int bytesToRead = (frameAudio->nb_samples * 2 * (formatAudio->streams[streamAudio]->codecpar->bits_per_coded_sample / 8));
+			if (rc >= 0)
+				for (int s = 0; s < bytesToRead; s += sizeof(ui8))
+				{
+					ui8 value;
+					memcpy(&value, &frameAudio->data[0][s], sizeof(ui8));
+					samples.push_back(value);
+				}
+		}
+
+		av_packet_unref(&packet);
+	}
+
+	typedef struct WAV_HEADER {
+		ui8 RIFF[4] = {'R', 'I', 'F', 'F'};
+		ui32 ChunkSize;
+		ui8 WAVE[4] = {'W', 'A', 'V', 'E'};
+		ui8 fmt[4] = {'f', 'm', 't', ' '};
+		ui32 Subchunk1Size = 16;
+		ui16 AudioFormat = 1;
+		ui16 NumOfChan = 2;
+		ui32 SamplesPerSec = 22050;
+		ui32 bytesPerSec = 22050 * 2;
+		ui16 blockAlign = 2;
+		ui16 bitsPerSample = 16;
+		ui8 Subchunk2ID[4] = {'d', 'a', 't', 'a'};
+		ui32 Subchunk2Size;
+	} wav_hdr;
+
+	wav_hdr wav;
+	wav.ChunkSize = samples.size() + sizeof(wav_hdr) - 8;
+  	wav.Subchunk2Size = samples.size() + sizeof(wav_hdr) - 44;
+	wav.SamplesPerSec = formatAudio->streams[streamAudio]->codecpar->sample_rate;
+	wav.bitsPerSample = formatAudio->streams[streamAudio]->codecpar->bits_per_coded_sample;
+	auto wavPtr = reinterpret_cast<ui8*>(&wav);
+
+	dat = std::make_pair(std::make_unique<ui8[]>(samples.size() + sizeof(wav_hdr)), samples.size() + sizeof(wav_hdr));
+	std::copy(wavPtr, wavPtr + sizeof(wav_hdr), dat.first.get());
+	std::copy(samples.begin(), samples.end(), dat.first.get() + sizeof(wav_hdr));
+
+	if (frameAudio)
+		av_frame_free(&frameAudio);
+
+	if (codecAudio)
+	{
+		avcodec_close(codecContextAudio);
+		codecAudio = nullptr;
+	}
+	if (codecContextAudio)
+		avcodec_free_context(&codecContextAudio);
+
+	if (formatAudio)
+		avformat_close_input(&formatAudio);
+
+	if (contextAudio)
+	{
+		av_free(contextAudio);
+		contextAudio = nullptr;
+	}
+
+	return dat;
+}
+
 // Plays a video. Only works for overlays.
 bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 {
@@ -450,6 +637,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 
 		SDL_Rect rect = CSDL_Ext::toSDL(pos);
 
+		SDL_RenderClear(mainRenderer);
 		SDL_RenderCopy(mainRenderer, texture, nullptr, &rect);
 		SDL_RenderPresent(mainRenderer);
 
@@ -461,13 +649,13 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 		double frameDurationSec = packet_duration * av_q2d(format->streams[stream]->time_base);
 		uint32_t timeToSleepMillisec = 1000 * (frameDurationSec);
 
-		boost::this_thread::sleep(boost::posix_time::millisec(timeToSleepMillisec));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(timeToSleepMillisec));
 	}
 
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, bool stopOnKey, bool scale)
+bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey, bool scale)
 {
 	open(name, false, true, scale);
 	bool ret = playVideo(x, y,  stopOnKey);

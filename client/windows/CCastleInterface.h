@@ -36,6 +36,7 @@ class CTownList;
 class CGarrisonInt;
 class CComponent;
 class CComponentBox;
+class LRClickableArea;
 
 /// Building "button"
 class CBuildingRect : public CShowableAnim
@@ -112,6 +113,7 @@ public:
 	void set(const CGHeroInstance * newHero);
 
 	void hover (bool on) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void deactivate() override;
@@ -152,10 +154,9 @@ class CCastleBuildings : public CIntObject
 	void enterBlacksmith(ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
-	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades);//Rampart's fountains
+	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
 	void enterMagesGuild();
-	void enterTownHall();
-
+	
 	void openMagesGuild();
 	void openTownHall();
 
@@ -167,9 +168,10 @@ public:
 	~CCastleBuildings();
 
 	void enterDwelling(int level);
+	void enterTownHall();
 	void enterToTheQuickRecruitmentWindow();
 
-	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID::EBuildingID upgrades = BuildingID::NONE);
+	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 };
@@ -226,7 +228,10 @@ class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 
 	std::shared_ptr<CButton> exit;
 	std::shared_ptr<CButton> split;
+	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
+	std::shared_ptr<LRClickableArea> fastMarket;
+	std::shared_ptr<LRClickableArea> fastTavern;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
 
@@ -244,13 +249,14 @@ public:
 	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr);
 	~CCastleInterface();
 
-	virtual void updateGarrisons() override;
+	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 
 	void castleTeleport(int where);
 	void townChange();
 	void keyPressed(EShortcut key) override;
 
-	void close();
+	void close() override;
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);
 	void recreateIcons();
@@ -265,7 +271,7 @@ class CHallInterface : public CStatusbarWindow
 		const CGTownInstance * town;
 		const CBuilding * building;
 
-		ui32 state;//Buildings::EBuildStructure enum
+		EBuildingState state;
 
 		std::shared_ptr<CAnimImage> header;
 		std::shared_ptr<CAnimImage> icon;
@@ -303,10 +309,10 @@ class CBuildWindow: public CStatusbarWindow
 	std::shared_ptr<CButton> buy;
 	std::shared_ptr<CButton> cancel;
 
-	std::string getTextForState(int state);
+	std::string getTextForState(EBuildingState state);
 	void buyFunc();
 public:
-	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick);
+	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, EBuildingState State, bool rightClick);
 };
 
 //Small class to display
@@ -355,7 +361,7 @@ class CFortScreen : public CStatusbarWindow
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 	std::shared_ptr<CButton> exit;
 
-	std::string getBgName(const CGTownInstance * town);
+	ImagePath getBgName(const CGTownInstance * town);
 
 public:
 	CFortScreen(const CGTownInstance * town);
@@ -385,7 +391,7 @@ class CMageGuildScreen : public CStatusbarWindow
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 
 public:
-	CMageGuildScreen(CCastleInterface * owner,std::string image);
+	CMageGuildScreen(CCastleInterface * owner, const ImagePath & image);
 };
 
 /// The blacksmith window where you can buy available in town war machine

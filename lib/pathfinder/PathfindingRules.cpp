@@ -123,7 +123,7 @@ void DestinationActionRule::process(
 	EPathNodeAction action = EPathNodeAction::NORMAL;
 	const auto * hero = pathfinderHelper->hero;
 
-	switch(destination.node->layer)
+	switch(destination.node->layer.toEnum())
 	{
 	case EPathfindingLayer::LAND:
 		if(source.node->layer == EPathfindingLayer::SAIL)
@@ -290,7 +290,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 	if(destination.node->accessible == EPathAccessibility::BLOCKED)
 		return BlockingReason::DESTINATION_BLOCKED;
 
-	switch(destination.node->layer)
+	switch(destination.node->layer.toEnum())
 	{
 	case EPathfindingLayer::LAND:
 		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord))
@@ -298,8 +298,8 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 
 		if(source.guarded)
 		{
-			if(!(pathfinderConfig->options.originalMovementRules && source.node->layer == EPathfindingLayer::AIR) &&
-				!destination.isGuardianTile) // Can step into tile of guard
+			if(!(pathfinderConfig->options.originalMovementRules && source.node->layer == EPathfindingLayer::AIR) 
+				&&	(!destination.isGuardianTile || pathfinderHelper->getGuardiansCount(source.coord) > 1)) // Can step into tile of guard
 			{
 				return BlockingReason::SOURCE_GUARDED;
 			}
@@ -359,7 +359,7 @@ void LayerTransitionRule::process(
 	if(source.node->layer == destination.node->layer)
 		return;
 
-	switch(source.node->layer)
+	switch(source.node->layer.toEnum())
 	{
 	case EPathfindingLayer::LAND:
 		if(destination.node->layer == EPathfindingLayer::SAIL)

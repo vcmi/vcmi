@@ -18,6 +18,7 @@ set(launcher_SRCS
 		lobby/lobby.cpp
 		lobby/lobby_moc.cpp
 		lobby/lobbyroomrequest_moc.cpp
+		lobby/chat_moc.cpp
 )
 
 set(launcher_HEADERS
@@ -39,6 +40,7 @@ set(launcher_HEADERS
 		lobby/lobby.h
 		lobby/lobby_moc.h
 		lobby/lobbyroomrequest_moc.h
+		lobby/chat_moc.h
 		main.h
 )
 
@@ -52,6 +54,7 @@ set(launcher_FORMS
 		updatedialog_moc.ui
 		lobby/lobby_moc.ui
 		lobby/lobbyroomrequest_moc.ui
+		lobby/chat_moc.ui
 )
 
 set(launcher_TS
@@ -63,6 +66,7 @@ set(launcher_TS
 	translation/russian.ts
 	translation/spanish.ts
 	translation/ukrainian.ts
+	translation/vietnamese.ts
 )
 
 if(APPLE_IOS)
@@ -170,12 +174,11 @@ if(APPLE_IOS)
 else()
 	set(RESOURCES_DESTINATION ${DATA_DIR}/launcher)
 
-	# Copy to build directory for easier debugging
+	# Link to build directory for easier debugging
 	add_custom_command(TARGET vcmilauncher POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher
-		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-		COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
-
+		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
 	)
 
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})

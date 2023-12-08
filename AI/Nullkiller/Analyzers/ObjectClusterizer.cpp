@@ -94,16 +94,22 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 {
 	for(auto node = path.nodes.rbegin(); node != path.nodes.rend(); node++)
 	{
-		auto guardPos = ai->cb->getGuardingCreaturePosition(node->coord);
-		auto blockers = ai->cb->getVisitableObjs(node->coord);
-		
-		if(guardPos.valid())
-		{
-			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node->coord));
+		std::vector<const CGObjectInstance *> blockers = {};
 
-			if(guard)
+		if(node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
+		{
+			auto guardPos = ai->cb->getGuardingCreaturePosition(node->coord);
+			
+			blockers = ai->cb->getVisitableObjs(node->coord);
+
+			if(guardPos.valid())
 			{
-				blockers.insert(blockers.begin(), guard);
+				auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node->coord));
+
+				if(guard)
+				{
+					blockers.insert(blockers.begin(), guard);
+				}
 			}
 		}
 

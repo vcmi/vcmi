@@ -20,7 +20,7 @@
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
-#include "../CModHandler.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -84,7 +84,7 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 	if (!config["depth"].isNull())
 		depth = static_cast<int>(config["depth"].Float());
 
-	ResourceID resID(URI, EResType::DIRECTORY);
+	ResourcePath resID(URI, EResType::DIRECTORY);
 
 	for(auto & loader : CResourceHandler::get("initial")->getResourcesWithName(resID))
 	{
@@ -96,16 +96,16 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 void CFilesystemGenerator::loadZipArchive(const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, EResType::ARCHIVE_ZIP));
+	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, EResType::ARCHIVE_ZIP));
 	if (filename)
 		filesystem->addLoader(new CZipLoader(mountPoint, *filename), false);
 }
 
-template<EResType::Type archiveType>
+template<EResType archiveType>
 void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, archiveType));
+	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, archiveType));
 	if (filename)
 		filesystem->addLoader(new CArchiveLoader(mountPoint, *filename, extractArchives), false);
 }
@@ -113,10 +113,10 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, EResType::TEXT));
+	auto filename = CResourceHandler::get("initial")->getResourceName(JsonPath::builtin(URI));
 	if (filename)
 	{
-		auto configData = CResourceHandler::get("initial")->load(ResourceID(URI, EResType::TEXT))->readAll();
+		auto configData = CResourceHandler::get("initial")->load(JsonPath::builtin(URI))->readAll();
 		const JsonNode configInitial(reinterpret_cast<char *>(configData.first.get()), configData.second);
 		filesystem->addLoader(new CMappedFileLoader(mountPoint, configInitial), false);
 	}
@@ -131,7 +131,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 	//recurse only into specific directories
 	auto recurseInDir = [&](const std::string & URI, int depth)
 	{
-		ResourceID ID(URI, EResType::DIRECTORY);
+		ResourcePath ID(URI, EResType::DIRECTORY);
 
 		for(auto & loader : initialLoader->getResourcesWithName(ID))
 		{
@@ -147,7 +147,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 	for (auto & path : VCMIDirs::get().dataPaths())
 	{
 		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
-			initialLoader->addLoader(new CFilesystemLoader("", path, 0, true), false);
+			initialLoader->addLoader(new CFilesystemLoader("", path, 1, true), false);
 	}
 	initialLoader->addLoader(new CFilesystemLoader("", VCMIDirs::get().userDataPath(), 0, true), false);
 
@@ -210,11 +210,11 @@ ISimpleResourceLoader * CResourceHandler::get(const std::string & identifier)
 
 void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives)
 {
-	auto fsConfigData = get("initial")->load(ResourceID(fsConfigURI, EResType::TEXT))->readAll();
+	auto fsConfigData = get("initial")->load(JsonPath::builtin(fsConfigURI))->readAll();
 
 	const JsonNode fsConfig(reinterpret_cast<char *>(fsConfigData.first.get()), fsConfigData.second);
 
-	addFilesystem("data", CModHandler::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
+	addFilesystem("data", ModScope::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
 
 void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)

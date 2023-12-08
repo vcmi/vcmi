@@ -354,7 +354,7 @@ bool ObjectManager::createRequiredObjects()
 	for(const auto & objInfo : requiredObjects)
 	{
 		rmg::Object rmgObject(*objInfo.obj);
-		rmgObject.setTemplate(zone.getTerrainType());
+		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 
 		Zone::Lock lock(zone.areaMutex);
@@ -394,7 +394,7 @@ bool ObjectManager::createRequiredObjects()
 		auto possibleArea = zone.areaPossible();
 
 		rmg::Object rmgObject(*objInfo.obj);
-		rmgObject.setTemplate(zone.getTerrainType());
+		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject,
 										  [this, &rmgObject](const int3 & tile)
@@ -447,7 +447,6 @@ bool ObjectManager::createRequiredObjects()
 					instance->object().getObjectName(), instance->getPosition(true).toString());
 				mapProxy->removeObject(&instance->object());
 			}
-			rmgNearObject.clear();
 		}
 	}
 	
@@ -480,7 +479,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		if (!monster->object().appearance)
 		{
 			//Needed to determine visitable offset
-			monster->setAnyTemplate();
+			monster->setAnyTemplate(zone.getRand());
 		}
 		object.getPosition();
 		auto visitableOffset = monster->object().getVisitableOffset();
@@ -492,7 +491,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		int3 parentOffset = monster->getPosition(true) - monster->getPosition(false);
 		monster->setPosition(fixedPos - parentOffset);
 	}
-	object.finalize(map);
+	object.finalize(map, zone.getRand());
 
 	Zone::Lock lock(zone.areaMutex);
 	zone.areaPossible().subtract(object.getArea());
@@ -547,8 +546,12 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		objects.push_back(&instance->object());
 		if(auto * m = zone.getModificator<RoadPlacer>())
 		{
-			//FIXME: Objects that can be removed, can be trespassed. Does not include Corpse
-			if(instance->object().appearance->isVisitableFromTop())
+			if (instance->object().blockVisit && !instance->object().removable)
+			{
+				//Cannot be trespassed (Corpse)
+				continue;
+			}
+			else if(instance->object().appearance->isVisitableFromTop())
 				m->areaForRoads().add(instance->getVisitablePosition());
 			else
 			{
@@ -556,7 +559,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			}
 		}
 
-		switch (instance->object().ID)
+		switch (instance->object().ID.toEnum())
 		{
 			case Obj::RANDOM_TREASURE_ART:
 			case Obj::RANDOM_MINOR_ART: //In OH3 quest artifacts have higher value than normal arts
@@ -586,7 +589,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 	*/
 
-	switch (object.instances().front()->object().ID)
+	switch(object.instances().front()->object().ID.toEnum())
 	{
 		case Obj::WATER_WHEEL:
 			if (auto* m = zone.getModificator<RiverPlacer>())
@@ -639,14 +642,14 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	if(!possibleCreatures.empty())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, zone.getRand());
-		amount = strength / VLC->creh->objects[creId]->getAIValue();
+		amount = strength / creId.toEntity(VLC)->getAIValue();
 		if (amount >= 4)
 			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
-		creId = CreatureID(132); //Azure Dragon
-		amount = strength / VLC->creh->objects[creId]->getAIValue();
+		creId = CreatureID::AZURE_DRAGON; //Azure Dragon
+		amount = strength / creId.toEntity(VLC)->getAIValue();
 	}
 	
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
@@ -665,7 +668,19 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	if(!guard)
 		return false;
 	
-	rmg::Area visitablePos({object.getVisitablePosition()});
+	// Prefer non-blocking tiles, if any
+	auto entrableTiles = object.getEntrableArea().getTiles();
+	int3 entrableTile(-1, -1, -1);
+	if (entrableTiles.empty())
+	{
+		entrableTile = object.getVisitablePosition();
+	}
+	else
+	{
+		entrableTile = *RandomGeneratorUtil::nextItem(entrableTiles, zone.getRand());
+	}
+
+	rmg::Area visitablePos({entrableTile});
 	visitablePos.unite(visitablePos.getBorderOutside());
 	
 	auto accessibleArea = object.getAccessibleArea();
@@ -689,7 +704,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	});
 	
 	auto & instance = object.addInstance(*guard);
-	instance.setAnyTemplate(); //terrain is irrelevant for monsters, but monsters need some template now
+	instance.setAnyTemplate(zone.getRand()); //terrain is irrelevant for monsters, but monsters need some template now
 
 	//Fix HoTA monsters with offset template
 	auto visitableOffset = instance.object().getVisitableOffset();

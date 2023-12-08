@@ -24,10 +24,12 @@
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
+#include "../CMusicHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 
 #include <SDL_events.h>
+#include <SDL_timer.h>
 
 InputHandler::InputHandler()
 	: mouseHandler(std::make_unique<InputSourceMouse>())
@@ -111,32 +113,45 @@ bool InputHandler::ignoreEventsUntilInput()
 
 void InputHandler::preprocessEvent(const SDL_Event & ev)
 {
-	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
+	if(ev.type == SDL_QUIT)
 	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 #ifdef VCMI_ANDROID
 		handleQuit(false);
 #else
-		handleQuit();
-#endif
-		return;
-	}
-#ifdef VCMI_ANDROID
-	else if (ev.type == SDL_KEYDOWN && ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK)
-	{
 		handleQuit(true);
-	}
 #endif
-	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-	{
-		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-		Settings full = settings.write["video"]["fullscreen"];
-		full->Bool() = !full->Bool();
-
-		GH.onScreenResize();
 		return;
+	}
+	else if(ev.type == SDL_KEYDOWN)
+	{
+		if(ev.key.keysym.sym == SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT))
+		{
+			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+			handleQuit(true);
+			return;
+		}
+
+		if(ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK)
+		{
+			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+			handleQuit(true);
+			return;
+		}
+
+		if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_F4)
+		{
+			boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+			Settings full = settings.write["video"]["fullscreen"];
+			full->Bool() = !full->Bool();
+
+			GH.onScreenResize();
+			return;
+		}
 	}
 	else if(ev.type == SDL_USEREVENT)
 	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		handleUserEvent(ev.user);
 
 		return;
@@ -147,16 +162,35 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		case SDL_WINDOWEVENT_RESTORED:
 #ifndef VCMI_IOS
 			{
-				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 				GH.onScreenResize();
 			}
 #endif
+			break;
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			{
+				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+				if(settings["general"]["enableUiEnhancements"].Bool()) {
+					CCS->musich->setVolume(settings["general"]["music"].Integer());
+					CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+				}
+			}
+			break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			{
+				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+				if(settings["general"]["enableUiEnhancements"].Bool()) {
+					CCS->musich->setVolume(0);
+					CCS->soundh->setVolume(0);
+				}
+			}
 			break;
 		}
 		return;
 	}
 	else if(ev.type == SDL_SYSWMEVENT)
 	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 		{
 			NotificationHandler::handleSdlEvent(ev);
@@ -166,6 +200,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
 	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		if (CCS && CCS->curh)
 			CCS->curh->cursorMove(ev.motion.x, ev.motion.y);
 	}
@@ -254,6 +289,11 @@ void InputHandler::hapticFeedback()
 	fingerHandler->hapticFeedback();
 }
 
+uint32_t InputHandler::getTicks()
+{
+	return SDL_GetTicks();
+}
+
 bool InputHandler::hasTouchInputDevice() const
 {
 	return fingerHandler->hasTouchInputDevice();
@@ -276,6 +316,8 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 	auto heapFunctor = static_cast<std::function<void()>*>(current.data1);
 
 	(*heapFunctor)();
+
+	delete heapFunctor;
 }
 
 const Point & InputHandler::getCursorPosition() const

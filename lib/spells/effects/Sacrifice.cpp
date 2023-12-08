@@ -13,11 +13,11 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -123,6 +123,7 @@ void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const Effect
 	Heal::apply(calculateHealEffectValue(m, victim), server, m, healTarget);
 
 	BattleUnitsChanged removeUnits;
+	removeUnits.battleID = m->battle()->getBattle()->getBattleID();
 	removeUnits.changedStacks.emplace_back(victim->unitId(), UnitChanges::EOperation::REMOVE);
 	server->apply(&removeUnits);
 }

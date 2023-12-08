@@ -12,10 +12,10 @@
 
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
 #include "../JsonRandom.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGDwelling.h"
+#include "../modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +43,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 
 		for(auto currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			VLC->modh->identifiers.requestIdentifier("creature", creaturesOnLevel[currentCreature], [=] (si32 index)
+			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [=] (si32 index)
 			{
 				availableCreatures[currentLevel][currentCreature] = VLC->creh->objects[index];
 			});
@@ -93,7 +93,8 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * object, CRandomGe
 	}
 	else if(guards.getType() == JsonNode::JsonType::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
 	{
-		for(auto & stack : JsonRandom::loadCreatures(guards, rng))
+		JsonRandom::Variables emptyVariables;
+		for(auto & stack : JsonRandom::loadCreatures(guards, rng, emptyVariables))
 		{
 			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->getId(), stack.count));
 		}

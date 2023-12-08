@@ -117,17 +117,17 @@
 			},
 			"bonuses" : {
 				"damage" : {
-					"subtype" : 0,
+					"subtype" : "creatureDamageBoth",
 					"type" : "CREATURE_DAMAGE",
 					"val" : 10
 				},
 				"attack" : {
-					"subtype" : "primSkill.attack",
+					"subtype" : "primarySkill.attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				},
 				"defence" : {
-					"subtype" : "primSkill.defence",
+					"subtype" : "primarySkill.defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				}
@@ -156,17 +156,17 @@
 			},
 			"bonuses" : {
 				"damage" : {
-					"subtype" : 0,
+					"subtype" : "creatureDamageBoth",
 					"type" : "CREATURE_DAMAGE",
 					"val" : 10
 				},
 				"attack" : {
-					"subtype" : "primSkill.attack",
+					"subtype" : "primarySkill.attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				},
 				"defence" : {
-					"subtype" : "primSkill.defence",
+					"subtype" : "primarySkill.defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 5
 				}
@@ -197,8 +197,8 @@
 				"val" : 5
 			},
 			"bonuses" : {
-				"attack" : { "subtype" : "primSkill.attack" },
-				"defence" : { "subtype" : "primSkill.defence" }
+				"attack" : { "subtype" : "primarySkill.attack" },
+				"defence" : { "subtype" : "primarySkill.defence" }
 			}
 		}
 	},
@@ -241,8 +241,8 @@
 				"val" : 5
 			},
 			"bonuses" : {
-				"attack" : { "subtype" : "primSkill.attack" },
-				"defence" : { "subtype" : "primSkill.defence" }
+				"attack" : { "subtype" : "primarySkill.attack" },
+				"defence" : { "subtype" : "primarySkill.defence" }
 			}
 		},
 		"army" :
@@ -313,12 +313,12 @@
 			},
 			"bonuses" : {
 				"attack" : {
-					"subtype" : "primSkill.attack",
+					"subtype" : "primarySkill.attack",
 					"type" : "PRIMARY_SKILL",
 					"val" : 4
 				},
 				"defence" : {
-					"subtype" : "primSkill.defence",
+					"subtype" : "primarySkill.defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				},

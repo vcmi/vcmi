@@ -10,7 +10,11 @@
 			}
 		},
 		"types" : {
-			"prison" : { "index" : 0, "aiValue" : 5000 }
+			"prison" : {
+				"index" : 0,
+				"aiValue" : 5000,
+				"removable": true
+			}
 		}
 	},
 
@@ -136,6 +140,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 10000,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "ava0128.def", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				},
@@ -150,70 +155,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
-				"rmg" : {
-				}
-			}
-		}
-	},
-
-	"redwoodObservatory" : {
-		"index" :58,
-		"handler" : "observatory",
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 750,
-				"templates" :
-				{
-					"base" : { "animation" : "avxredw.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["grass", "swamp", "dirt", "sand", "lava", "rough"] },
-					"snow" : { "animation" : "avxreds0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["snow"] }
-				},
-				"rmg" : {
-					"zoneLimit"	: 1,
-					"value"		: 750,
-					"rarity"	: 100
-				}
-			}
-		}
-	},
-	"pillarOfFire" : {
-		"index" :60,
-		"handler" : "observatory",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPFIRE"],
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 750,
-				"rmg" : {
-					"zoneLimit"	: 1,
-					"value"		: 750,
-					"rarity"	: 100
-				}
-			}
-		}
-	},
-	"coverOfDarkness" : {
-		"index" :15,
-		"handler" : "observatory",
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 100,
+				"removable": true,
 				"rmg" : {
 				}
 			}
@@ -290,78 +232,6 @@
 					"zoneLimit"	: 1,
 					"value"		: 1500,
 					"rarity"	: 50
-				}
-			}
-		}
-	},
-	"shrineOfMagicLevel1" : {//incantation
-		"index" :88,
-		"handler" : "shrine",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPSHRIN"],
-				"visit" : ["TEMPLE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 500,
-				"rmg" : {
-					"value"		: 500,
-					"rarity"	: 100
-				},
-				"visitText" : 127,
-				"spell" : {
-					"level" : 1
-				}
-			}
-		}
-	},
-	"shrineOfMagicLevel2" : {//gesture
-		"index" :89,
-		"handler" : "shrine",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPSHRIN"],
-				"visit" : ["TEMPLE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 2000,
-				"rmg" : {
-					"value"		: 2000,
-					"rarity"	: 100
-				},
-				"visitText" : 128,
-				"spell" : {
-					"level" : 2
-				}
-			}
-		}
-	},
-	"shrineOfMagicLevel3" : {//thinking
-		"index" :90,
-		"handler" : "shrine",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPSHRIN"],
-				"visit" : ["TEMPLE"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 3000,
-				"rmg" : {
-					"value"		: 3000,
-					"rarity"	: 100
-				},
-				"visitText" : 129,
-				"spell" : {
-					"level" : 3
 				}
 			}
 		}
@@ -449,27 +319,8 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 0,
+				"removable": true,
 				"rmg" : {
-				}
-			}
-		}
-	},
-	"scholar" : {
-		"index" :81,
-		"handler" : "scholar",
-		"base" : {
-			"sounds" : {
-				"visit" : ["GAZEBO"],
-				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 1500,
-				"rmg" : {
-					"value"		: 1500,
-					"rarity"	: 100
 				}
 			}
 		}
@@ -548,7 +399,7 @@
 				"templates" :
 				{
 					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
-					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] },
+					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] }
 				},
 				"rmg" : {
 					"value"		: 100,
@@ -587,26 +438,6 @@
 			}
 		}
 	},
-	"witchHut" : {
-		"index" :113,
-		"handler" : "witch",
-		"base" : {
-			"sounds" : {
-				"visit" : ["GAZEBO"]
-			}
-		},
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"aiValue" : 1500,
-				"rmg" : {
-					"zoneLimit"	: 3,
-					"value"		: 1500,
-					"rarity"	: 80
-				}
-			}
-		}
-	},
 	"questGuard" : {
 		"index" :215,
 		"handler" : "questGuard",
@@ -620,6 +451,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 10000,
+				"removable": true,
 				"rmg" : {
 				}
 			}
@@ -671,6 +503,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 150
@@ -687,6 +520,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 5000,
 					"rarity"	: 150
@@ -703,6 +537,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 10000,
 					"rarity"	: 150
@@ -719,6 +554,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"rmg" : {
 					"value"		: 20000,
 					"rarity"	: 150
@@ -748,6 +584,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon1", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -760,6 +597,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon2", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -772,6 +610,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon3", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -784,6 +623,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon4", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -808,6 +648,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon6", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -820,6 +661,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"removable": true,
 				"templates" : {
 					"normal" : { "animation" : "AVWmon7", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -863,6 +705,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 0,
+				"removable": true,
 				"rmg" : {
 				}
 			}
@@ -876,6 +719,21 @@
 				"index" : 0,
 				"aiValue" : 0,
 				"rmg" : {
+				},
+				"templates" : {
+					"normal" : {
+						"animation" : "AVXMKTT0",
+						"editorAnimation" : "AVXMKTT0",
+						"visitableFrom" : [
+							"---",
+							"--+",
+							"+++"
+						],
+						"mask" : [
+							"VV",
+							"BV"
+						]
+					}
 				}
 			}
 		}
@@ -884,6 +742,7 @@
 		"index" :95,
 		"handler": "generic",
 		"base" : {
+			"blockVisit": true,
 			"sounds" : {
 				"ambient" : ["LOOPTAV"],
 				"visit" : ["STORE"]

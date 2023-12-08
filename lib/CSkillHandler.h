@@ -29,14 +29,6 @@ public:
 		std::string iconMedium;
 		std::string iconLarge;
 		std::vector<std::shared_ptr<Bonus>> effects;
-
-		template <typename Handler> void serialize(Handler & h, const int version)
-		{
-			h & iconSmall;
-			h & iconMedium;
-			h & iconLarge;
-			h & effects;
-		}
 	};
 
 private:
@@ -48,7 +40,7 @@ private:
 	std::string identifier;
 
 public:
-	CSkill(const SecondarySkill & id = SecondarySkill::DEFAULT, std::string identifier = "default", bool obligatoryMajor = false, bool obligatoryMinor = false);
+	CSkill(const SecondarySkill & id = SecondarySkill::NONE, std::string identifier = "default", bool obligatoryMajor = false, bool obligatoryMinor = false);
 	~CSkill() = default;
 
 	enum class Obligatory : ui8
@@ -82,17 +74,6 @@ public:
 
 	bool onlyOnWaterMap;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & id;
-		h & identifier;
-		h & gainChance;
-		h & levels;
-		h & obligatoryMajor;
-		h & obligatoryMinor;
-		h & onlyOnWaterMap;
-	}
-
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
@@ -109,17 +90,7 @@ public:
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
-	///json serialization helpers
-	static si32 decodeSkill(const std::string & identifier);
-	static std::string encodeSkill(const si32 index);
-	static std::string encodeSkillWithType(const si32 index);
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
+	std::set<SecondarySkill> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

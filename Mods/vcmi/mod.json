@@ -5,7 +5,7 @@
 	"chinese" : {
 		"name" : "VCMI essential files",
 		"description" : "Essential files required for VCMI to run correctly",
-		
+
 		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/chinese.json"
@@ -15,7 +15,7 @@
 	"czech" : {
 		"name" : "Nezbytné soubory VCMI",
 		"description" : "Nezbytné soubory pro správný běh VCMI",
-		
+
 		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/czech.json"
@@ -32,23 +32,23 @@
 			"config/vcmi/french.json"
 		]
 	},
-	
+
 	"german" : {
 		"name" : "VCMI - grundlegende Dateien",
 		"description" : "Grundlegende Dateien, die für die korrekte Ausführung von VCMI erforderlich sind",
 		"author" : "VCMI-Team",
-		
+
 		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/german.json"
 		]
 	},
-	
+
 	"polish" : {
 		"name" : "Podstawowe pliki VCMI",
 		"description" : "Dodatkowe pliki wymagane do prawidłowego działania VCMI",
 		"author" : "Zespół VCMI",
-		
+
 		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/polish.json"
@@ -70,7 +70,7 @@
 		"name" : "VCMI - ключові файли",
 		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
 		"author" : "Команда VCMI",
-		
+
 		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/ukrainian.json"
@@ -88,18 +88,28 @@
 		]
 	},
 
+	"vietnamese": {
+		"name": "VCMI essential files",
+		"description": "Các tập tin cần thiết để chạy VCMI",
+		"author": "Vũ Đắc Hoàng Ân",
+		"skipValidation": true,
+		"translations": [
+			"config/vcmi/vietnamese.json"
+		]
+	},
+
 	"version" : "1.3",
 	"author" : "VCMI Team",
 	"contact" : "http://forum.vcmi.eu/index.php",
 	"modType" : "Graphical",
-	
+
 	"factions" : [ "config/vcmi/towerFactions" ],
 	"creatures" : [ "config/vcmi/towerCreature" ],
-		
+
 	"translations" : [
 		"config/vcmi/english.json"
 	],
-	
+
 	"templates" : [
 		"config/vcmi/rmg/hdmod/aroundamarsh.JSON",
 		"config/vcmi/rmg/hdmod/balance.JSON",
@@ -200,6 +210,14 @@
 		"MAPS/":
 		[
 			{"type" : "dir",  "path" : "/Maps"}
+		],
+		"SOUNDS/":
+		[
+			{"type" : "dir", "path" : "/Sounds"}
+		],
+		"VIDEO/":
+		[
+			{"type" : "dir", "path" : "/Video"}
 		]
 	}
 }

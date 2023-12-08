@@ -62,30 +62,30 @@ bool IBonusBearer::hasBonusOfType(BonusType type) const
 	return hasBonus(s, cachingStr);
 }
 
-int IBonusBearer::valOfBonuses(BonusType type, int subtype) const
+int IBonusBearer::valOfBonuses(BonusType type, BonusSubtypeID subtype) const
 {
 	//This part is performance-critical
-	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
 
 	CSelector s = Selector::typeSubtype(type, subtype);
 
 	return valOfBonuses(s, cachingStr);
 }
 
-bool IBonusBearer::hasBonusOfType(BonusType type, int subtype) const
+bool IBonusBearer::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 {
 	//This part is performance-critical
-	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
 
 	CSelector s = Selector::typeSubtype(type, subtype);
 
 	return hasBonus(s, cachingStr);
 }
 
-bool IBonusBearer::hasBonusFrom(BonusSource source, ui32 sourceID) const
+bool IBonusBearer::hasBonusFrom(BonusSource source, BonusSourceID sourceID) const
 {
-	boost::format fmt("source_%did_%d");
-	fmt % static_cast<int>(source) % sourceID;
+	boost::format fmt("source_%did_%s");
+	fmt % static_cast<int>(source) % sourceID.toString();
 
 	return hasBonus(Selector::source(source,sourceID), fmt.str());
 }

@@ -14,6 +14,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "battle/BattleHex.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -31,7 +32,9 @@ public:
 	Obstacle obstacle;
 	si32 iconIndex;
 	std::string identifier;
-	std::string appearSound, appearAnimation, animation;
+	AudioPath appearSound;
+	AnimationPath appearAnimation;
+	AnimationPath animation;
 	std::vector<TerrainId> allowedTerrains;
 	std::vector<std::string> allowedSpecialBfields;
 	
@@ -51,23 +54,6 @@ public:
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 	
 	bool isAppropriate(const TerrainId terrainType, const BattleField & specialBattlefield) const;
-	
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & obstacle;
-		h & iconIndex;
-		h & identifier;
-		h & animation;
-		h & appearAnimation;
-		h & appearSound;
-		h & allowedTerrains;
-		h & allowedSpecialBfields;
-		h & isAbsoluteObstacle;
-		h & isForegroundObstacle;
-		h & width;
-		h & height;
-		h & blockedTiles;
-	}
 };
 
 class DLL_LINKAGE ObstacleService : public EntityServiceT<Obstacle, ObstacleInfo>
@@ -85,12 +71,6 @@ public:
 	
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData() override;
-	std::vector<bool> getDefaultAllowed() const override;
-	
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

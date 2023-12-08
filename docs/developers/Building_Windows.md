@@ -10,7 +10,9 @@ Windows builds can be made in more than one way and with more than one tool. Thi
 - Git or git GUI, for example, SourceTree [download link](http://www.sourcetreeapp.com/download)
 - CMake [download link](https://cmake.org/download/). During install after accepting license agreement make sure to check "Add CMake to the system PATH for all users".
 - To unpack pre-build Vcpkg: [7-zip](http://www.7-zip.org/download.html)
-- Optionally, to create installer: [NSIS](http://nsis.sourceforge.net/Main_Page)
+- Optional:
+    - To create installer: [NSIS](http://nsis.sourceforge.net/Main_Page)
+    - To speed up recompilation: [CCache](https://github.com/ccache/ccache/releases)
 
 ## Choose an installation directory
 
@@ -75,6 +77,10 @@ From command line use:
 
 For the list of the packages used you can also consult [vcmi-deps-windows readme](https://github.com/vcmi/vcmi-deps-windows) in case this article gets outdated a bit.
 
+# Install CCache
+
+Extract `ccache` to a folder of your choosing, add the folder to the `PATH` environment variable and log out and back in.
+
 # Build VCMI
 
 #### From GIT GUI
@@ -97,7 +103,11 @@ For the list of the packages used you can also consult [vcmi-deps-windows readme
 
 ## Compile VCMI with Visual Studio
 - Open `%VCMI_DIR%/build/VCMI.sln` in Visual Studio
-- Select `Release` build type in combobox
+- Select `Release` build type in the combobox
+- If you want to use ccache:
+    - Select `Manage Configurations...` in the combobox
+    - Specify the following CMake variable: `ENABLE_CCACHE=ON`
+    - See the [Visual Studio documentation](https://learn.microsoft.com/en-us/cpp/build/customize-cmake-settings?view=msvc-170#cmake-variables-and-cache) for details
 - Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer.
 - VCMI will be built in `%VCMI_DIR%/build/bin` folder!
 

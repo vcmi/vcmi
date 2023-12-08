@@ -10,10 +10,11 @@
 #pragma once
 
 #include "IMapRendererObserver.h"
+#include "../../lib/Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-class Point;
 struct ObjectPosInfo;
+class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 
 struct MapRendererContextState;
@@ -50,8 +51,13 @@ class MapViewController : public IMapObjectObserver
 	std::shared_ptr<MapRendererPuzzleMapContext> puzzleMapContext;
 
 private:
-	bool isEventInstant(const CGObjectInstance * obj);
-	bool isEventVisible(const CGObjectInstance * obj);
+	const int defaultTileSize = 32;
+	const int zoomTileDeadArea = 5;
+	Point targetTileSize = Point(32, 32);
+	bool wasInDeadZone = true;
+
+	bool isEventInstant(const CGObjectInstance * obj, const PlayerColor & initiator);
+	bool isEventVisible(const CGObjectInstance * obj, const PlayerColor & initiator);
 	bool isEventVisible(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
 
 	void fadeOutObject(const CGObjectInstance * obj);
@@ -62,10 +68,10 @@ private:
 
 	// IMapObjectObserver impl
 	bool hasOngoingAnimations() override;
-	void onObjectFadeIn(const CGObjectInstance * obj) override;
-	void onObjectFadeOut(const CGObjectInstance * obj) override;
-	void onObjectInstantAdd(const CGObjectInstance * obj) override;
-	void onObjectInstantRemove(const CGObjectInstance * obj) override;
+	void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 	void onHeroMoved(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;

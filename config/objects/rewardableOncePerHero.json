@@ -55,6 +55,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 40,
+				"description" : "@core.xtrainfo.7",
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -86,6 +87,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 60,
+				"description" : "@core.xtrainfo.4",
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -117,6 +119,7 @@
 
 				"onVisitedMessage" : 67,
 				"onEmptyMessage" : 68,
+				"description" : "@core.xtrainfo.6",
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -161,6 +164,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 81,
+				"description" : "@core.xtrainfo.8",
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -192,6 +196,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 101,
+				"description" : "@core.xtrainfo.11",
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -233,28 +238,34 @@
 					}
 				],
 				"onVisitedMessage" : 147,
+				"description" : "@core.xtrainfo.18",
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"canRefuse" : true,
+				"showScoutedPreview" : true,
+
 				"rewards" : [
 					{
+						"description" : "@core.arraytxt.202",
 						"message" : 148,
 						"appearChance" : { "max" : 34 },
-						"gainedLevels" : 1
+						"heroLevel" : 1
 					},
 					{
+						"description" : "@core.arraytxt.203",
 						"message" : 149,
 						"appearChance" : { "min" : 34, "max" : 67 },
 						"limiter" : { "resources" : { "gold" : 2000 } },
 						"resources" : { "gold" : -2000 },
-						"gainedLevels" : 1
+						"heroLevel" : 1
 					},
 					{
+						"description" : "@core.arraytxt.204",
 						"message" : 151,
 						"appearChance" : { "min" : 67 },
 						"limiter" : { "resources" : { "gems" : 10 } },
 						"resources" : { "gems" : -10 },
-						"gainedLevels" : 1
+						"heroLevel" : 1
 					},
 				]	
 			}
@@ -282,6 +293,7 @@
 				"onSelectMessage" : 71,
 				"onVisitedMessage" : 72,
 				"onEmptyMessage" : 73,
+				"description" : "@core.xtrainfo.9",
 				"visitMode" : "hero",
 				"selectMode" : "selectPlayer",
 				"canRefuse" : true,
@@ -322,6 +334,7 @@
 				"onSelectMessage" : 158,
 				"onVisitedMessage" : 159,
 				"onEmptyMessage" : 160,
+				"description" : "@core.xtrainfo.10",
 				"visitMode" : "hero",
 				"selectMode" : "selectPlayer",
 				"canRefuse" : true,
@@ -360,6 +373,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 144,
+				"description" : "@core.xtrainfo.5",
 				"visitMode" : "hero",
 				"selectMode" : "selectFirst",
 				"rewards" : [

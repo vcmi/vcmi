@@ -98,6 +98,11 @@ public:
 		return Point(w,h);
 	}
 
+	Rect resize(const int size) const
+	{
+		return Rect(x-size,y-size,w+2*size,h+2*size);
+	}
+
 	void moveTo(const Point & dest)
 	{
 		x = dest.x;

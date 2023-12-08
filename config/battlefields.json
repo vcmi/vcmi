@@ -130,21 +130,18 @@
 		"bonuses": [
 			{
 				"type" : "NO_MORALE",
-				"subtype" : 0,
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
 				"description" : "Creatures on Cursed Ground"
 			},
 			{
 				"type" : "NO_LUCK",
-				"subtype" : 0,
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
 				"description" : "Creatures on Cursed Ground"
 			},
 			{
 				"type" : "BLOCK_MAGIC_ABOVE",
-				"subtype" : 0,
 				"val" : 1,
 				"valueType" : "INDEPENDENT_MIN"
 			}

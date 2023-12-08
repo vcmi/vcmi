@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CArmedInstance::randomizeArmy(int type)
+void CArmedInstance::randomizeArmy(FactionID type)
 {
 	for (auto & elem : stacks)
 	{
@@ -59,7 +59,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
  	if(!b)
 	{
-		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, BonusSourceID());
 		addNewBonus(b);
 	}
 
@@ -73,7 +73,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(const auto & slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const CCreature * creature  = VLC->creh->objects[inst->getCreatureID()];
+		const auto * creature  = inst->getCreatureID().toEntity(VLC);
 
 		factions.insert(creature->getFaction());
 		// Check for undead flag instead of faction (undead mummies are neutral)
@@ -92,7 +92,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		for(auto f : factions)
 		{
-			if (VLC->factions()->getByIndex(f)->getAlignment() != EAlignment::EVIL)
+			if (VLC->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)
@@ -111,7 +111,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		b->val = 2 - static_cast<si32>(factionsInArmy);
 		description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
-		description = b->description.substr(0, description.size()-2);//trim value
+		description = description.substr(0, description.size()-3);//trim value
 	}
 	
 	boost::algorithm::trim(description);
@@ -120,13 +120,12 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	CBonusSystemNode::treeHasChanged();
 
 	//-1 modifier for any Undead unit in army
-	const ui8 UNDEAD_MODIFIER_ID = -2;
-	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(BonusSource::ARMY, UNDEAD_MODIFIER_ID));
+	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(BonusSource::ARMY, BonusCustomSource::undeadMoraleDebuff));
  	if(hasUndead)
 	{
 		if(!undeadModifier)
 		{
-			undeadModifier = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
+			undeadModifier = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, -1, BonusCustomSource::undeadMoraleDebuff, VLC->generaltexth->arraytxt[116]);
 			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
 			addNewBonus(undeadModifier);
 		}
@@ -143,7 +142,7 @@ void CArmedInstance::armyChanged()
 
 CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState * gs)
 {
-	if(tempOwner < PlayerColor::PLAYER_LIMIT)
+	if(tempOwner.isValidPlayer())
 		if(auto * where = gs->getPlayerState(tempOwner))
 			return *where;
 
@@ -158,6 +157,12 @@ CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
 const IBonusBearer* CArmedInstance::getBonusBearer() const
 {
 	return this;
+}
+
+void CArmedInstance::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	CGObjectInstance::serializeJsonOptions(handler);
+	CCreatureSet::serializeJson(handler, "army", 7);
 }
 
 VCMI_LIB_NAMESPACE_END

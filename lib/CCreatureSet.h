@@ -39,9 +39,12 @@ public:
 	virtual ~CStackBasicDescriptor() = default;
 
 	const Creature * getType() const;
+	CreatureID getId() const;
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
+	
+	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -55,7 +58,7 @@ public:
 			CreatureID idNumber;
 			h & idNumber;
 			if(idNumber != CreatureID::NONE)
-				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getByIndex(idNumber)));
+				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getById(idNumber)));
 			else
 				type = nullptr;
 		}
@@ -96,7 +99,7 @@ public:
 
 	//overrides CBonusSystemNode
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
-	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
+	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
 
 	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
@@ -121,7 +124,7 @@ public:
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
-	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
+	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
 	void removeArtifact(ArtifactPosition pos) override;
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	virtual std::string nodeName() const override; //from CBonusSystemnode
@@ -200,11 +203,10 @@ public:
 	}
 };
 
-enum class EArmyFormation : uint8_t
+namespace NArmyFormation
 {
-	LOOSE,
-	TIGHT
-};
+	static const std::vector<std::string> names{ "wide", "tight" };
+}
 
 class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
@@ -227,7 +229,7 @@ public:
 	void addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void clearSlots() override;
-	void setFormation(bool tight);
+	void setFormation(EArmyFormation tight);
 	CArmedInstance *castToArmyObj();
 
 	//basic operations
@@ -246,7 +248,7 @@ public:
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 
 	const CStackInstance & getStack(const SlotID & slot) const; //stack must exist
-	const CStackInstance * getStackPtr(const SlotID & slot) const; //if stack doesn't exist, returns nullptr
+	CStackInstance * getStackPtr(const SlotID & slot) const; //if stack doesn't exist, returns nullptr
 	const CCreature * getCreature(const SlotID & slot) const; //workaround of map issue;
 	int getStackCount(const SlotID & slot) const;
 	TExpType getStackExperience(const SlotID & slot) const;
@@ -284,7 +286,7 @@ public:
 		h & formation;
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize = std::nullopt);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize = std::nullopt);
 
 	operator bool() const
 	{

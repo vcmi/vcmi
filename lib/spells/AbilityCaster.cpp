@@ -28,14 +28,14 @@ AbilityCaster::AbilityCaster(const battle::Unit * actualCaster_, int32_t baseSpe
 
 AbilityCaster::~AbilityCaster() = default;
 
-int32_t AbilityCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
+int32_t AbilityCaster::getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	auto skill = baseSpellLevel;
 	const auto * unit = dynamic_cast<const battle::Unit*>(actualCaster);
 
 	if(spell->getLevel() > 0)
 	{
-		vstd::amax(skill, unit->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, SpellSchool(ESpellSchool::ANY)));
+		vstd::amax(skill, unit->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
 	}
 
 	vstd::amax(skill, 0);

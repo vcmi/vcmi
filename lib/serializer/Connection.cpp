@@ -10,8 +10,7 @@
 #include "StdInc.h"
 #include "Connection.h"
 
-#include "../registerTypes/RegisterTypes.h"
-#include "../mapping/CMapHeader.h"
+#include "../networkPacks/NetPacksBase.h"
 
 #include <boost/asio.hpp>
 
@@ -45,8 +44,6 @@ void CConnection::init()
 
 	enableSmartPointerSerialization();
 	disableStackSendingByID();
-	registerTypes(iser);
-	registerTypes(oser);
 #ifndef VCMI_ENDIAN_BIG
 	myEndianess = true;
 #else
@@ -82,7 +79,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 	if(error)
 	{
 		logNetwork->error("Problem with resolving: \n%s", error.message());
-		throw std::runtime_error("Can't establish connection: Problem with resolving");
+		throw std::runtime_error("Problem with resolving");
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
@@ -90,7 +87,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 	else
 	{
 		logNetwork->error("Critical problem: No endpoints found!");
-		throw std::runtime_error("Can't establish connection: No endpoints found!");
+		throw std::runtime_error("No endpoints found!");
 	}
 	while(pom != end)
 	{
@@ -109,7 +106,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 		}
 		else
 		{
-			throw std::runtime_error("Can't establish connection: Failed to connect!");
+			throw std::runtime_error("Failed to connect!");
 		}
 		endpoint_iterator++;
 	}
@@ -224,10 +221,16 @@ int CConnection::read(void * data, unsigned size)
 
 CConnection::~CConnection()
 {
-	if(handler)
-		handler->join();
-
 	close();
+
+	if(handler)
+	{
+		// ugly workaround to avoid self-join if last strong reference to shared_ptr that owns this class has been released in this very thread, e.g. on netpack processing
+		if (boost::this_thread::get_id() != handler->get_id())
+			handler->join();
+		else
+			handler->detach();
+	}
 }
 
 template<class T>
@@ -243,6 +246,15 @@ void CConnection::close()
 {
 	if(socket)
 	{
+		try
+		{
+			socket->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
+		}
+		catch (const boost::system::system_error & e)
+		{
+			logNetwork->error("error closing socket: %s", e.what());
+		}
+
 		socket->close();
 		socket.reset();
 	}
@@ -272,13 +284,7 @@ CPack * CConnection::retrievePack()
 	iser & pack;
 	logNetwork->trace("Received CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
 	if(pack == nullptr)
-	{
 		logNetwork->error("Received a nullptr CPack! You should check whether client and server ABI matches.");
-	}
-	else
-	{
-		pack->c = this->shared_from_this();
-	}
 
 	enableBufferedRead = false;
 

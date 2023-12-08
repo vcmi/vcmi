@@ -39,6 +39,7 @@ class CTownList;
 class CInfoBar;
 class CMinimap;
 class MapAudioPlayer;
+class TurnTimerWidget;
 enum class EAdventureState;
 
 struct MapDrawingInfo;
@@ -58,12 +59,16 @@ private:
 	/// if true, then scrolling was blocked via ctrl and should not restart until player move cursor outside scrolling area
 	bool scrollingWasBlocked;
 
+	/// how much should the background dimmed, when windows are on the top
+	int backgroundDimLevel;
+
 	/// spell for which player is selecting target, or nullptr if none
 	const CSpell *spellBeingCasted;
 
 	std::shared_ptr<MapAudioPlayer> mapAudio;
 	std::shared_ptr<AdventureMapWidget> widget;
 	std::shared_ptr<AdventureMapShortcuts> shortcuts;
+	std::shared_ptr<TurnTimerWidget> watches;
 
 private:
 	void setState(EAdventureState state);
@@ -86,6 +91,9 @@ private:
 
 	/// casts current spell at specified location
 	void performSpellcasting(const int3 & castTarget);
+
+	/// dim interface if some windows opened
+	void dim(Canvas & to);
 
 protected:
 	/// CIntObject interface implementation
@@ -137,6 +145,9 @@ public:
 
 	/// Called when currently selected object changes
 	void onSelectionChanged(const CArmedInstance *sel);
+
+	/// Called when town order changes
+	void onTownOrderChanged();
 
 	/// Called when map audio should be paused, e.g. on combat or town screen access
 	void onAudioPaused();

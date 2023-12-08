@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include "../CCreatureSet.h"
-#include "../ResourceSet.h"
 #include "../spells/ExternalCaster.h"
 #include "Configuration.h"
 
@@ -43,6 +41,8 @@ protected:
 public:
 	
 	Rewardable::Configuration configuration;
+	
+	void serializeJson(JsonSerializeFormat & handler);
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

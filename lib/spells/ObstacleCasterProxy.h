@@ -9,7 +9,6 @@
  */
 
 #include "ProxyCaster.h"
-#include "../lib/NetPacksBase.h"
 #include "../battle/BattleHex.h"
 #include "../battle/CObstacleInstance.h"
 
@@ -36,7 +35,7 @@ class DLL_LINKAGE ObstacleCasterProxy : public SilentCaster
 public:
 	ObstacleCasterProxy(PlayerColor owner_, const Caster * hero_, const SpellCreatedObstacle & obs_);
 
-	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
+	int32_t getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool = nullptr) const override;
 	int32_t getEffectLevel(const Spell * spell) const override;
 	int64_t getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const override;
 	int32_t getEffectPower(const Spell * spell) const override;

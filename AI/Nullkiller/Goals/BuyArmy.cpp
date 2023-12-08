@@ -17,9 +17,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 using namespace Goals;
 
 bool BuyArmy::operator==(const BuyArmy & other) const
@@ -54,7 +51,7 @@ void BuyArmy::accept(AIGateway * ai)
 		auto res = cb->getResourceAmount();
 		auto & ci = armyToBuy[i];
 
-		if(objid != -1 && ci.creID != objid)
+		if(objid != CreatureID::NONE && ci.creID.getNum() != objid)
 			continue;
 
 		vstd::amin(ci.count, res / ci.cre->getFullRecruitCost());

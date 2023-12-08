@@ -49,13 +49,8 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 		{
 			for (auto & bonus : rewardInfo.reward.bonuses)
 			{
-				bonus.source = BonusSource::OBJECT;
-				bonus.sid = rewardableObject->ID;
-				//TODO: bonus.description = object->getObjectName();
-				if (bonus.type == BonusType::MORALE)
-					rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
-				if (bonus.type == BonusType::LUCK)
-					rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
+				bonus.source = BonusSource::OBJECT_TYPE;
+				bonus.sid = BonusSourceID(rewardableObject->ID);
 			}
 		}
 		assert(!rewardableObject->configuration.info.empty());

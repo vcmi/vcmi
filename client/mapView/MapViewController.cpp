@@ -20,6 +20,7 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -90,13 +91,13 @@ void MapViewController::modifyTileSize(int stepsChange)
 	// we want to zoom in/out in fixed 10% steps, to allow player to return back to exactly 100% zoom just by scrolling
 	// so, zooming in for 5 steps will put game at 1.1^5 = 1.61 scale
 	// try to determine current zooming level and change it by requested number of steps
-	double currentZoomFactor = model->getSingleTileSize().x / 32.0;
+	double currentZoomFactor = targetTileSize.x / static_cast<double>(defaultTileSize);
 	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.01));
 	double newZoomSteps = stepsChange != 0 ? currentZoomSteps + stepsChange : stepsChange;
 	double newZoomFactor = std::pow(1.01, newZoomSteps);
 
-	Point currentZoom = model->getSingleTileSize();
-	Point desiredZoom = Point(32,32) * newZoomFactor;
+	Point currentZoom = targetTileSize;
+	Point desiredZoom = Point(defaultTileSize,defaultTileSize) * newZoomFactor;
 
 	if (desiredZoom == currentZoom && stepsChange < 0)
 		desiredZoom -= Point(1,1);
@@ -112,7 +113,22 @@ void MapViewController::modifyTileSize(int stepsChange)
 	};
 
 	if (actualZoom != currentZoom)
+	{
+		targetTileSize = actualZoom;
+		if(actualZoom.x >= defaultTileSize - zoomTileDeadArea && actualZoom.x <= defaultTileSize + zoomTileDeadArea)
+			actualZoom.x = defaultTileSize;
+		if(actualZoom.y >= defaultTileSize - zoomTileDeadArea && actualZoom.y <= defaultTileSize + zoomTileDeadArea)
+			actualZoom.y = defaultTileSize;
+		
+		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == Point(defaultTileSize, defaultTileSize);
+
+		if(!wasInDeadZone && isInDeadZone)
+			GH.input().hapticFeedback();
+
+		wasInDeadZone = isInDeadZone;
+
 		setTileSize(actualZoom);
+	}
 }
 
 MapViewController::MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view)
@@ -152,7 +168,7 @@ void MapViewController::tick(uint32_t timeDelta)
 		if(!hero)
 			hero = boat->hero;
 
-		double heroMoveTime = LOCPLINT->makingTurn ?
+		double heroMoveTime = LOCPLINT->playerID == hero->getOwner() ?
 			settings["adventure"]["heroMoveTime"].Float() :
 			settings["adventure"]["enemyMoveTime"].Float();
 
@@ -251,29 +267,33 @@ void MapViewController::afterRender()
 	}
 }
 
-bool MapViewController::isEventInstant(const CGObjectInstance * obj)
+bool MapViewController::isEventInstant(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
-	if (!isEventVisible(obj))
+	if (!isEventVisible(obj, initiator))
 		return true;
 
-	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() <= 0)
+	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() <= 0)
 		return true; // instant movement speed
 
-	if(LOCPLINT->makingTurn && settings["adventure"]["heroMoveTime"].Float() <= 0)
+	if(initiator == LOCPLINT->playerID && settings["adventure"]["heroMoveTime"].Float() <= 0)
 		return true; // instant movement speed
 
 	return false;
 }
 
-bool MapViewController::isEventVisible(const CGObjectInstance * obj)
+bool MapViewController::isEventVisible(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	if(adventureContext == nullptr)
 		return false;
 
-	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
 	if(!GH.windows().isTopWindow(adventureInt))
+		return false;
+
+	// do not focus on actions of other players during our turn (e.g. simturns)
+	if (LOCPLINT->makingTurn && initiator != LOCPLINT->playerID)
 		return false;
 
 	if(obj->isVisitable())
@@ -287,10 +307,14 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(adventureContext == nullptr)
 		return false;
 
-	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(obj->getOwner() != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
 	if(!GH.windows().isTopWindow(adventureInt))
+		return false;
+
+	// do not focus on actions of other players during our turn (e.g. simturns)
+	if (LOCPLINT->makingTurn && obj->getOwner() != LOCPLINT->playerID)
 		return false;
 
 	if(context->isVisible(obj->convertToVisitablePos(from)))
@@ -378,7 +402,7 @@ void MapViewController::onBeforeHeroEmbark(const CGHeroInstance * obj, const int
 {
 	if(isEventVisible(obj, from, dest))
 	{
-		if (!isEventInstant(obj))
+		if (!isEventInstant(obj, obj->getOwner()))
 			fadeOutObject(obj);
 		setViewCenter(obj->getSightCenter());
 	}
@@ -402,39 +426,39 @@ void MapViewController::onAfterHeroDisembark(const CGHeroInstance * obj, const i
 {
 	if(isEventVisible(obj, from, dest))
 	{
-		if (!isEventInstant(obj))
+		if (!isEventInstant(obj, obj->getOwner()))
 			fadeInObject(obj);
 		setViewCenter(obj->getSightCenter());
 	}
 	addObject(obj);
 }
 
-void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)
+void MapViewController::onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	assert(!hasOngoingAnimations());
 
-	if(isEventVisible(obj) && !isEventInstant(obj) )
+	if(isEventVisible(obj, initiator) && !isEventInstant(obj, initiator) )
 		fadeInObject(obj);
 
 	addObject(obj);
 }
 
-void MapViewController::onObjectFadeOut(const CGObjectInstance * obj)
+void MapViewController::onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	assert(!hasOngoingAnimations());
 
-	if(isEventVisible(obj) && !isEventInstant(obj) )
+	if(isEventVisible(obj, initiator) && !isEventInstant(obj, initiator) )
 		fadeOutObject(obj);
 	else
 		removeObject(obj);
 }
 
-void MapViewController::onObjectInstantAdd(const CGObjectInstance * obj)
+void MapViewController::onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	addObject(obj);
 };
 
-void MapViewController::onObjectInstantRemove(const CGObjectInstance * obj)
+void MapViewController::onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	removeObject(obj);
 };

@@ -29,6 +29,7 @@
 #include "../windows/CMessage.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
@@ -37,7 +38,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
@@ -51,7 +52,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
-	const JsonNode config(ResourceID("config/widgets/BattleWindow2.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/BattleWindow2.json"));
 	
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
@@ -367,10 +368,10 @@ void BattleWindow::bSurrenderf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	int cost = owner.curInt->cb->battleGetSurrenderCost();
+	int cost = owner.getBattle()->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
-		std::string enemyHeroName = owner.curInt->cb->battleGetEnemyHero().name;
+		std::string enemyHeroName = owner.getBattle()->battleGetEnemyHero().name;
 		if(enemyHeroName.empty())
 		{
 			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
@@ -387,7 +388,7 @@ void BattleWindow::bFleef()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if ( owner.curInt->cb->battleCanFlee() )
+	if ( owner.getBattle()->battleCanFlee() )
 	{
 		CFunctionList<void()> ony = std::bind(&BattleWindow::reallyFlee,this);
 		owner.curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
@@ -398,16 +399,16 @@ void BattleWindow::bFleef()
 		std::string heroName;
 		//calculating fleeing hero's name
 		if (owner.attackingHeroInstance)
-			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
+			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
 				heroName = owner.attackingHeroInstance->getNameTranslated();
 		if (owner.defendingHeroInstance)
-			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
+			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
 				heroName = owner.defendingHeroInstance->getNameTranslated();
 		//calculating text
 		auto txt = boost::format(CGI->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
 
 		//printing message
-		owner.curInt->showInfoDialog(boost::to_string(txt), comps);
+		owner.curInt->showInfoDialog(boost::str(txt), comps);
 	}
 }
 
@@ -419,7 +420,7 @@ void BattleWindow::reallyFlee()
 
 void BattleWindow::reallySurrender()
 {
-	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
+	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.getBattle()->battleGetSurrenderCost())
 	{
 		owner.curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
 	}
@@ -436,23 +437,23 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 	if(!w)
 		return;
 	
-	std::string iconName = variables["actionIconDefault"].String();
+	AnimationPath iconName = AnimationPath::fromJson(variables["actionIconDefault"]);
 	switch(action.get())
 	{
 		case PossiblePlayerBattleAction::ATTACK:
-			iconName = variables["actionIconAttack"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconAttack"]);
 			break;
 			
 		case PossiblePlayerBattleAction::SHOOT:
-			iconName = variables["actionIconShoot"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconShoot"]);
 			break;
 			
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			iconName = variables["actionIconSpell"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconSpell"]);
 			break;
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			iconName = variables["actionIconSpell"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconSpell"]);
 			break;
 			
 		//TODO: figure out purpose of this icon
@@ -461,15 +462,15 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 			//break;
 			
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			iconName = variables["actionIconReturn"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconReturn"]);
 			break;
 			
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			iconName = variables["actionIconNoReturn"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconNoReturn"]);
 			break;
 	}
 		
-	auto anim = std::make_shared<CAnimation>(iconName);
+	auto anim = GH.renderHandler().loadAnimation(iconName);
 	w->setImage(anim);
 	w->redraw();
 }
@@ -509,7 +510,7 @@ void BattleWindow::bAutofightf()
 		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
 
 		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
-		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide(), false);
+		ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
 		owner.curInt->autofightingAI = ai;
 		owner.curInt->cb->registerBattleInterface(ai);
 
@@ -531,7 +532,7 @@ void BattleWindow::bSpellf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	ESpellCastProblem::ESpellCastProblem spellCastProblem = owner.curInt->cb->battleCanCastSpell(myHero, spells::Mode::HERO);
+	ESpellCastProblem spellCastProblem = owner.getBattle()->battleCanCastSpell(myHero, spells::Mode::HERO);
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
@@ -547,7 +548,7 @@ void BattleWindow::bSpellf()
 
 		if (blockingBonus->source == BonusSource::ARTIFACT)
 		{
-			const auto artID = ArtifactID(blockingBonus->sid);
+			const auto artID = blockingBonus->sid.as<ArtifactID>();
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
 			std::string heroName = myHero->hasArt(artID) ? myHero->getNameTranslated() : owner.enemyHero().name;
@@ -633,11 +634,11 @@ void BattleWindow::bTacticPhaseEnd()
 void BattleWindow::blockUI(bool on)
 {
 	bool canCastSpells = false;
-	auto hero = owner.curInt->cb->battleGetMyHero();
+	auto hero = owner.getBattle()->battleGetMyHero();
 
 	if(hero)
 	{
-		ESpellCastProblem::ESpellCastProblem spellcastingProblem = owner.curInt->cb->battleCanCastSpell(hero, spells::Mode::HERO);
+		ESpellCastProblem spellcastingProblem = owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO);
 
 		//if magic is blocked, we leave button active, so the message can be displayed after button click
 		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
@@ -646,8 +647,8 @@ void BattleWindow::blockUI(bool on)
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
 
 	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);
-	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.curInt->cb->battleCanFlee());
-	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.curInt->cb->battleGetSurrenderCost() < 0);
+	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.getBattle()->battleCanFlee());
+	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.getBattle()->battleGetSurrenderCost() < 0);
 	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);

@@ -35,7 +35,7 @@ private:
 	
 	Ui::ArmyWidget *ui;
 	CArmedInstance & army;
-	std::array<QLineEdit*, TOTAL_SLOTS> uiCounts;
+	std::array<QSpinBox*, TOTAL_SLOTS> uiCounts;
 	std::array<QComboBox*, TOTAL_SLOTS> uiSlots;
 };
 

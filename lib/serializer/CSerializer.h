@@ -14,8 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const ui32 SERIALIZATION_VERSION = 825;
-const ui32 MINIMAL_SERIALIZATION_VERSION = 824;
+const ui32 SERIALIZATION_VERSION = 831;
+const ui32 MINIMAL_SERIALIZATION_VERSION = 831;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 class CHero;
@@ -53,14 +53,14 @@ struct VectorizedObjectInfo
 /// Base class for serializers capable of reading or writing data
 class DLL_LINKAGE CSerializer
 {
-	template<typename T>
-	static si32 idToNumber(const T &t, typename std::enable_if<std::is_convertible<T,si32>::value>::type * dummy = 0)
+	template<typename Numeric, std::enable_if_t<std::is_arithmetic_v<Numeric>, bool> = true>
+	static int32_t idToNumber(const Numeric &t)
 	{
 		return t;
 	}
 
-	template<typename T, typename NT>
-	static NT idToNumber(const BaseForID<T, NT> &t)
+	template<typename IdentifierType, std::enable_if_t<std::is_base_of_v<IdentifierBase, IdentifierType>, bool> = true>
+	static int32_t idToNumber(const IdentifierType &t)
 	{
 		return t.getNum();
 	}
@@ -149,42 +149,31 @@ struct is_serializeable
 template <typename T> //metafunction returning CGObjectInstance if T is its derivate or T elsewise
 struct VectorizedTypeFor
 {
-	using type = typename
-		//if
-		boost::mpl::eval_if<std::is_same<CGHeroInstance, T>,
-		boost::mpl::identity<CGHeroInstance>,
-		//else if
-		boost::mpl::eval_if<std::is_base_of<CGObjectInstance, T>,
-		boost::mpl::identity<CGObjectInstance>,
-		//else
-		boost::mpl::identity<T>
-		>>::type;
+	using type = std::conditional_t<std::is_base_of_v<CGObjectInstance, T>, CGObjectInstance, T>;
 };
-template <typename U>
+
+template <>
+struct VectorizedTypeFor<CGHeroInstance>
+{
+	using type = CGHeroInstance;
+};
+
+template <typename T>
 struct VectorizedIDType
 {
-	using type = typename
-		//if
-		boost::mpl::eval_if<std::is_same<CArtifact, U>,
-		boost::mpl::identity<ArtifactID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CCreature, U>,
-		boost::mpl::identity<CreatureID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CHero, U>,
-		boost::mpl::identity<HeroTypeID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CArtifactInstance, U>,
-		boost::mpl::identity<ArtifactInstanceID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CGHeroInstance, U>,
-		boost::mpl::identity<HeroTypeID>,
-		//else if
-		boost::mpl::eval_if<std::is_base_of<CGObjectInstance, U>,
-		boost::mpl::identity<ObjectInstanceID>,
-		//else
-		boost::mpl::identity<si32>
-		>>>>>>::type;
+	using type = std::conditional_t<std::is_base_of_v<CGObjectInstance, T>, ObjectInstanceID, int32_t>;
+};
+
+template <>
+struct VectorizedIDType<CArtifactInstance>
+{
+	using type = ArtifactInstanceID;
+};
+
+template <>
+struct VectorizedIDType<CGHeroInstance>
+{
+	using type = HeroTypeID;
 };
 
 /// Base class for deserializers

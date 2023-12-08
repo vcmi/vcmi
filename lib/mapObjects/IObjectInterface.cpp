@@ -14,23 +14,14 @@
 #include "CGTownInstance.h"
 #include "MiscObjects.h"
 
-#include "../NetPacks.h"
 #include "../IGameCallback.h"
 #include "../TerrainHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 IGameCallback * IObjectInterface::cb = nullptr;
-
-///helpers
-void IObjectInterface::openWindow(const EOpenWindowMode type, const int id1, const int id2)
-{
-	OpenWindow ow;
-	ow.window = type;
-	ow.id1 = id1;
-	ow.id2 = id2;
-	IObjectInterface::cb->sendAndApply(&ow);
-}
 
 void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
@@ -55,7 +46,10 @@ void IObjectInterface::newTurn(CRandomGenerator & rand) const
 void IObjectInterface::initObj(CRandomGenerator & rand)
 {}
 
-void IObjectInterface::setProperty( ui8 what, ui32 val )
+void IObjectInterface::pickRandomObject(CRandomGenerator & rand)
+{}
+
+void IObjectInterface::setProperty(ObjProperty what, ObjPropertyID identifier)
 {}
 
 bool IObjectInterface::wasVisited (PlayerColor player) const
@@ -95,11 +89,23 @@ int3 IBoatGenerator::bestLocation() const
 		int3 targetTile = getObject()->visitablePos() + offset;
 		const TerrainTile *tile = getObject()->cb->getTile(targetTile, false);
 
-		if(tile) //tile is in the map
+		if(!tile)
+			continue; // tile not visible / outside the map
+
+		if(!tile->terType->isWater())
+			continue;
+
+		if (tile->blocked)
 		{
-			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
-				return targetTile;
+			bool hasBoat = false;
+			for (auto const * object : tile->blockingObjects)
+				if (object->ID == Obj::BOAT || object->ID == Obj::HERO)
+					hasBoat = true;
+
+			if (!hasBoat)
+				continue; // tile is blocked, but not by boat -> check next potential position
 		}
+		return targetTile;
 	}
 	return int3 (-1,-1,-1);
 }
@@ -118,7 +124,7 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	if(t->blockingObjects.empty())
 		return GOOD; //OK
 
-	if(t->blockingObjects.front()->ID == Obj::BOAT)
+	if(t->blockingObjects.front()->ID == Obj::BOAT || t->blockingObjects.front()->ID == Obj::HERO)
 		return BOAT_ALREADY_BUILT; //blocked with boat
 
 	return TILE_BLOCKED; //blocked

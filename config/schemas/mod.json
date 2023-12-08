@@ -55,12 +55,16 @@
 		},
 		"modType" : {
 			"type" : "string",
-			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Artifacts", "AI" ],
+			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Artifacts", "AI" ],
 			"description" : "Type of mod, e.g. Town, Artifacts, Graphical."
 		},
 		"author" : {
 			"type" : "string",
 			"description" : "Author of the mod. Can be nickname, real name or name of team"
+		},
+		"downloadSize": {
+			"type" : "number",
+			"description" : "Approximate size of mod, compressed by zip algorithm, in Mb"
 		},
 		"contact" : {
 			"type" : "string",

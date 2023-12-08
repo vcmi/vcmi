@@ -11,7 +11,7 @@
 
 #include "ScriptFixture.h"
 
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 
 #include "../mock/mock_ServerCallback.h"
 

@@ -9,20 +9,25 @@
  */
 #pragma once
 
+#include "../filesystem/ResourcePath.h"
+#include "../MetaString.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct DLL_LINKAGE CampaignScenarioPrologEpilog
 {
 	bool hasPrologEpilog = false;
-	std::string prologVideo; // from CmpMovie.txt
-	std::string prologMusic; // from CmpMusic.txt
-	std::string prologText;
+	VideoPath prologVideo;
+	AudioPath prologMusic; // from CmpMusic.txt
+	AudioPath prologVoice;
+	MetaString prologText;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & hasPrologEpilog;
 		h & prologVideo;
 		h & prologMusic;
+		h & prologVoice;
 		h & prologText;
 	}
 };

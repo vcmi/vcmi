@@ -12,7 +12,7 @@
 #include "../render/IFont.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-class ResourceID;
+class ResourcePath;
 VCMI_LIB_NAMESPACE_END
 
 class CBitmapFont : public IFont
@@ -31,10 +31,10 @@ class CBitmapFont : public IFont
 	std::unordered_map<CodePoint, BitmapChar> chars;
 	uint32_t maxHeight;
 
-	void loadModFont(const std::string & modName, const ResourceID & resource);
+	void loadModFont(const std::string & modName, const ResourcePath & resource);
 
-	void renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const;
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
+	void renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 public:
 	explicit CBitmapFont(const std::string & filename);
 

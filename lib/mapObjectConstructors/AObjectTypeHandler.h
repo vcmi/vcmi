@@ -43,6 +43,9 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	si32 type;
 	si32 subtype;
 
+	bool blockVisit;
+	bool removable;
+
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const;
@@ -112,20 +115,6 @@ public:
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & type;
-		h & subtype;
-		h & templates;
-		h & rmgInfo;
-		h & modScope;
-		h & typeName;
-		h & subTypeName;
-		h & sounds;
-		h & aiValue;
-		h & battlefield;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

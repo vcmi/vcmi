@@ -1,0 +1,97 @@
+{
+	"cartographer" : {
+		"index" :13,
+		"handler": "configurable",
+		"lastReservedIndex" : 2,
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
+		"types" : {
+			"cartographerWater" : {
+				"index" : 0,
+				"aiValue" : 5000,
+				"rmg" : {
+					"zoneLimit" : 1,
+					"value" : 5000,
+					"rarity" : 20
+				},
+				"compatibilityIdentifiers" : [ "water" ],
+				"visitMode" : "unlimited",
+				"canRefuse" : true,
+				"rewards" : [
+					{
+						"limiter" : { "resources" : { "gold" : 1000 } },
+						"message" : 25,
+						"resources" : {
+							"gold" : -1000
+						},
+						"revealTiles" : {
+							"water" : 1
+						}
+					}
+				],
+				"onEmptyMessage" : 28,
+				"onVisitedMessage" : 24
+			},
+			"cartographerLand" : {
+				"index" : 1,
+				"aiValue": 10000,
+				"rmg" : {
+					"zoneLimit" : 1,
+					"value" : 10000,
+					"rarity" : 2
+				},
+				"compatibilityIdentifiers" : [ "land" ],
+				"visitMode" : "unlimited",
+				"canRefuse" : true,
+				"rewards" : [
+					{
+						"limiter" : { "resources" : { "gold" : 1000 } },
+						"message" : 26,
+						"resources" : {
+							"gold" : -1000
+						},
+						"revealTiles" : {
+							"surface" : 1,
+							"water" : -1,
+							"rock" : -1
+						}
+					}
+				],
+				"onEmptyMessage" : 28,
+				"onVisitedMessage" : 24
+			},
+			"cartographerSubterranean" : {
+				"index" : 2,
+				"aiValue" : 7500,
+				"rmg" : {
+					"zoneLimit" : 1,
+					"value" : 7500,
+					"rarity" : 20
+				},
+				"compatibilityIdentifiers" : [ "subterra" ],
+				"visitMode" : "unlimited",
+				"canRefuse" : true,
+				"rewards" : [
+					{
+						"limiter" : { "resources" : { "gold" : 1000 } },
+						"message" : 27,
+						"resources" : {
+							"gold" : -1000
+						},
+						"revealTiles" : {
+							"subterra" : 1,
+							"water" : -1,
+							"rock" : -1,
+							"surface" : -1
+						}
+					}
+				],
+				"onEmptyMessage" : 28,
+				"onVisitedMessage" : 24
+			}
+		}
+	}
+}

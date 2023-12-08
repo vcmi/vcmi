@@ -19,7 +19,7 @@ class CGWhirlpool;
 struct TurnInfo;
 struct PathfinderOptions;
 
-class CPathfinder
+class DLL_LINKAGE CPathfinder
 {
 public:
 	friend class CPathfinderHelper;
@@ -72,16 +72,19 @@ public:
 	const CGHeroInstance * hero;
 	std::vector<TurnInfo *> turnsInfo;
 	const PathfinderOptions & options;
+	bool canCastFly;
+	bool canCastWaterWalk;
 
 	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	virtual ~CPathfinderHelper();
 	void initializePatrol();
 	bool isHeroPatrolLocked() const;
+	bool canMoveFromNode(const PathNodeInfo & source) const;
 	bool isPatrolMovementAllowed(const int3 & dst) const;
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	const TurnInfo * getTurnInfo() const;
-	bool hasBonusOfType(const BonusType type, const int subtype = -1) const;
+	bool hasBonusOfType(BonusType type) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
 	std::vector<int3> getCastleGates(const PathNodeInfo & source) const;
@@ -121,6 +124,8 @@ public:
 
 	int movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const;
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
+
+	int getGuardiansCount(int3 tile) const;
 };
 
 VCMI_LIB_NAMESPACE_END

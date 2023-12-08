@@ -19,6 +19,7 @@ struct Bonus;
 class JsonNode;
 class JsonSerializeFormat;
 class BattleField;
+class int3;
 
 namespace vstd
 {
@@ -37,11 +38,13 @@ public:
 
 	virtual ~IBattleInfo() = default;
 
+	virtual BattleID getBattleID() const = 0;
+
 	virtual int32_t getActiveStackID() const = 0;
 
-	virtual TStacks getStacksIf(TStackFilter predicate) const = 0;
+	virtual TStacks getStacksIf(const TStackFilter & predicate) const = 0;
 
-	virtual battle::Units getUnitsIf(battle::UnitFilter predicate) const = 0;
+	virtual battle::Units getUnitsIf(const battle::UnitFilter & predicate) const = 0;
 
 	virtual BattleField getBattlefieldType() const = 0;
 	virtual TerrainId getTerrainType() const = 0;
@@ -55,6 +58,8 @@ public:
 	virtual PlayerColor getSidePlayer(ui8 side) const = 0;
 	virtual const CArmedInstance * getSideArmy(ui8 side) const = 0;
 	virtual const CGHeroInstance * getSideHero(ui8 side) const = 0;
+	/// Returns list of all spells used by specified side (and that can be learned by opposite hero)
+	virtual std::vector<SpellID> getUsedSpells(ui8 side) const = 0;
 
 	virtual uint32_t getCastSpells(ui8 side) const = 0;
 	virtual int32_t getEnchanterCounter(ui8 side) const = 0;
@@ -65,14 +70,15 @@ public:
 	virtual uint32_t nextUnitId() const = 0;
 
 	virtual int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const = 0;
+
+	virtual int3 getLocation() const = 0;
+	virtual bool isCreatureBank() const = 0;
 };
 
 class DLL_LINKAGE IBattleState : public IBattleInfo
 {
 public:
-	//TODO: add non-const API
-
-	virtual void nextRound(int32_t roundNr) = 0;
+	virtual void nextRound() = 0;
 	virtual void nextTurn(uint32_t unitId) = 0;
 
 	virtual void addUnit(uint32_t id, const JsonNode & data) = 0;

@@ -2,7 +2,7 @@
 	"Meeting in Muzgob" :
 	{
 		"minSize" : "l", "maxSize" : "xl+u",
-		"players" : "2-6", "cpu" : "2",
+		"players" : "2-6", "humans" : "2",
 		"zones" :
 		{
 			"1" :

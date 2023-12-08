@@ -9,17 +9,11 @@
  */
 #pragma once
 
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/for_each.hpp>
-
+#include "CSerializer.h"
 #include "CTypeList.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../../Global.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-class CStackInstance;
-class FileStream;
 
 class DLL_LINKAGE CLoaderBase
 {
@@ -38,41 +32,6 @@ public:
 /// Effectively revesed version of BinarySerializer
 class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 {
-	template<typename Variant, typename Source>
-	struct VariantLoaderHelper
-	{
-		Source & source;
-		std::vector<std::function<Variant()>> funcs;
-
-		template <class V>
-		struct mpl_types_impl;
-
-		template <class... Ts>
-		struct mpl_types_impl<std::variant<Ts...>> {
-			using type = boost::mpl::vector<Ts...>;
-		};
-
-		template <class V>
-		using mpl_types = typename mpl_types_impl<V>::type;
-
-		VariantLoaderHelper(Source & source):
-			source(source)
-		{
-			boost::mpl::for_each<mpl_types<Variant>>(std::ref(*this));
-		}
-
-		template<typename Type>
-		void operator()(Type)
-		{
-			funcs.push_back([&]() -> Variant
-			{
-				Type obj;
-				source.load(obj);
-				return Variant(obj);
-			});
-		}
-	};
-
 	template<typename Ser,typename T>
 	struct LoadIfStackInstance
 	{
@@ -139,40 +98,40 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 		return length;
 	}
 
-	template <typename T> class CPointerLoader;
+	template <typename Type> class CPointerLoader;
 
-	class CBasicPointerLoader
+	class IPointerLoader
 	{
 	public:
-		virtual const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
-		virtual ~CBasicPointerLoader(){}
+		virtual void * loadPtr(CLoaderBase &ar, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+		virtual ~IPointerLoader() = default;
 
-		template<typename T> static CBasicPointerLoader *getApplier(const T * t=nullptr)
+		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
 		{
-			return new CPointerLoader<T>();
+			return new CPointerLoader<Type>();
 		}
 	};
 
-	template <typename T> class CPointerLoader : public CBasicPointerLoader
+	template <typename Type>
+	class CPointerLoader : public IPointerLoader
 	{
 	public:
-		const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const override //data is pointer to the ACTUAL POINTER
+		void * loadPtr(CLoaderBase &ar, ui32 pid) const override //data is pointer to the ACTUAL POINTER
 		{
 			auto & s = static_cast<BinaryDeserializer &>(ar);
-			T *&ptr = *static_cast<T**>(data);
 
 			//create new object under pointer
-			typedef typename std::remove_pointer<T>::type npT;
-			ptr = ClassObjectCreator<npT>::invoke(); //does new npT or throws for abstract classes
+			Type * ptr = ClassObjectCreator<Type>::invoke(); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
-			//T is most derived known type, it's time to call actual serialize
+
 			assert(s.fileVersion != 0);
 			ptr->serialize(s,s.fileVersion);
-			return &typeid(T);
+
+			return static_cast<void*>(ptr);
 		}
 	};
 
-	CApplier<CBasicPointerLoader> applier;
+	CApplier<IPointerLoader> applier;
 
 	int write(const void * data, unsigned size);
 
@@ -181,18 +140,11 @@ public:
 	si32 fileVersion;
 
 	std::map<ui32, void*> loadedPointers;
-	std::map<ui32, const std::type_info*> loadedPointersTypes;
-	std::map<const void*, std::any> loadedSharedPointers;
+	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
 	bool smartPointerSerialization;
 	bool saving;
 
-	BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
-	{
-		saving = false;
-		fileVersion = 0;
-		smartPointerSerialization = true;
-		reverseEndianess = false;
-	}
+	BinaryDeserializer(IBinaryReader * r);
 
 	template<class T>
 	BinaryDeserializer & operator&(T & t)
@@ -244,15 +196,6 @@ public:
 		data = static_cast<bool>(read);
 	}
 
-	template < typename T, typename std::enable_if < std::is_same<T, std::vector<bool> >::value, int  >::type = 0 >
-	void load(T & data)
-	{
-		std::vector<ui8> convData;
-		load(convData);
-		convData.resize(data.size());
-		range::copy(convData, data.begin());
-	}
-
 	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
 	void load(std::vector<T> &data)
 	{
@@ -265,14 +208,33 @@ public:
 	template < typename T, typename std::enable_if < std::is_pointer<T>::value, int  >::type = 0 >
 	void load(T &data)
 	{
-		ui8 hlp;
-		load( hlp );
-		if(!hlp)
+		bool isNull;
+		load( isNull );
+		if(isNull)
 		{
 			data = nullptr;
 			return;
 		}
 
+		loadPointerImpl(data);
+	}
+
+	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void loadPointerImpl(T &data)
+	{
+		using DataType = std::remove_pointer_t<T>;
+
+		typename DataType::IdentifierType index;
+		load(index);
+
+		auto * constEntity = index.toEntity(VLC);
+		auto * constData = dynamic_cast<const DataType *>(constEntity);
+		data = const_cast<DataType *>(constData);
+	}
+
+	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	void loadPointerImpl(T &data)
+	{
 		if(reader->smartVectorMembersSerialization)
 		{
 			typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
@@ -307,12 +269,10 @@ public:
 			{
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
-				assert(loadedPointersTypes.count(pid));
-				data = reinterpret_cast<T>(typeList.castRaw(i->second, loadedPointersTypes.at(pid), &typeid(typename std::remove_const<typename std::remove_pointer<T>::type>::type)));
+				data = static_cast<T>(i->second);
 				return;
 			}
 		}
-
 		//get type id
 		ui16 tid;
 		load( tid );
@@ -334,8 +294,7 @@ public:
 				data = nullptr;
 				return;
 			}
-			auto typeInfo = app->loadPtr(*this,&data, pid);
-			data = reinterpret_cast<T>(typeList.castRaw((void*)data, typeInfo, &typeid(typename std::remove_const<typename std::remove_pointer<T>::type>::type)));
+			data = static_cast<T>(app->loadPtr(*this, pid));
 		}
 	}
 
@@ -343,10 +302,7 @@ public:
 	void ptrAllocated(const T *ptr, ui32 pid)
 	{
 		if(smartPointerSerialization && pid != 0xffffffff)
-		{
-			loadedPointersTypes[pid] = &typeid(T);
 			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
-		}
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
@@ -361,7 +317,7 @@ public:
 		NonConstT *internalPtr;
 		load(internalPtr);
 
-		void *internalPtrDerived = typeList.castToMostDerived(internalPtr);
+		void * internalPtrDerived = static_cast<void*>(internalPtr);
 
 		if(internalPtr)
 		{
@@ -370,39 +326,22 @@ public:
 			{
 				// This pointers is already loaded. The "data" needs to be pointed to it,
 				// so their shared state is actually shared.
-				try
-				{
-					auto actualType = typeList.getTypeInfo(internalPtr);
-					auto typeWeNeedToReturn = typeList.getTypeInfo<T>();
-					if(*actualType == *typeWeNeedToReturn)
-					{
-						// No casting needed, just unpack already stored shared_ptr and return it
-						data = std::any_cast<std::shared_ptr<T>>(itr->second);
-					}
-					else
-					{
-						// We need to perform series of casts
-						auto ret = typeList.castShared(itr->second, actualType, typeWeNeedToReturn);
-						data = std::any_cast<std::shared_ptr<T>>(ret);
-					}
-				}
-				catch(std::exception &e)
-				{
-					logGlobal->error(e.what());
-					logGlobal->error("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME", itr->second.type().name(), typeid(std::shared_ptr<T>).name());
-					//TODO scenario with inheritance -> we can have stored ptr to base and load ptr to derived (or vice versa)
-					throw;
-				}
+				data = std::static_pointer_cast<T>(itr->second);
 			}
 			else
 			{
 				auto hlp = std::shared_ptr<NonConstT>(internalPtr);
 				data = hlp;
-				loadedSharedPointers[internalPtrDerived] = typeList.castSharedToMostDerived(hlp);
+				loadedSharedPointers[internalPtrDerived] = std::static_pointer_cast<void>(hlp);
 			}
 		}
 		else
 			data.reset();
+	}
+
+	void load(std::monostate & data)
+	{
+		// no-op
 	}
 
 	template <typename T>
@@ -506,17 +445,19 @@ public:
 		this->read((void*)data.c_str(),length);
 	}
 
-	template<typename T0, typename... TN>
-	void load(std::variant<T0, TN...> & data)
+	template<typename... TN>
+	void load(std::variant<TN...> & data)
 	{
-		using TVariant = std::variant<T0, TN...>;
-
-		VariantLoaderHelper<TVariant, BinaryDeserializer> loader(*this);
-
 		si32 which;
 		load( which );
-		assert(which < loader.funcs.size());
-		data = loader.funcs.at(which)();
+		assert(which < sizeof...(TN));
+
+		// Create array of variants that contains all default-constructed alternatives
+		const std::variant<TN...> table[] = { TN{ }... };
+		// use appropriate alternative for result
+		data = table[which];
+		// perform actual load via std::visit dispatch
+		std::visit([&](auto& o) { load(o); }, data);
 	}
 
 	template<typename T>
@@ -572,32 +513,6 @@ public:
 			load(read);
 			data = read;
 		}
-	}
-};
-
-class DLL_LINKAGE CLoadFile : public IBinaryReader
-{
-public:
-	BinaryDeserializer serializer;
-
-	std::string fName;
-	std::unique_ptr<FileStream> sfile;
-
-	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION); //throws!
-	virtual ~CLoadFile();
-	int read(void * data, unsigned size) override; //throws!
-
-	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!
-	void clear();
-	void reportState(vstd::CLoggerBase * out) override;
-
-	void checkMagicBytes(const std::string & text);
-
-	template<class T>
-	CLoadFile & operator>>(T &t)
-	{
-		serializer & t;
-		return * this;
 	}
 };
 

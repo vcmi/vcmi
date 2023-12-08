@@ -14,11 +14,12 @@
 #include <vcmi/HeroType.h>
 #include <vcmi/HeroTypeService.h>
 
-#include "../lib/ConstTransitivePtr.h"
+#include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/BonusList.h"
 #include "IHandlerBase.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -51,13 +52,6 @@ public:
 		ui32 minAmount;
 		ui32 maxAmount;
 		CreatureID creature;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & minAmount;
-			h & maxAmount;
-			h & creature;
-		}
 	};
 	si32 imageIndex = 0;
 
@@ -78,7 +72,7 @@ public:
 	std::string iconSpecLarge;
 	std::string portraitSmall;
 	std::string portraitLarge;
-	std::string battleImage;
+	AnimationPath battleImage;
 
 	CHero();
 	virtual ~CHero();
@@ -103,29 +97,6 @@ public:
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & ID;
-		h & imageIndex;
-		h & initialArmy;
-		h & heroClass;
-		h & secSkillsInit;
-		h & specialty;
-		h & spells;
-		h & haveSpellBook;
-		h & gender;
-		h & special;
-		h & onlyOnWaterMap;
-		h & onlyOnMapWithoutWater;
-		h & iconSpecSmall;
-		h & iconSpecLarge;
-		h & portraitSmall;
-		h & portraitLarge;
-		h & identifier;
-		h & modScope;
-		h & battleImage;
-	}
 };
 
 class DLL_LINKAGE CHeroClass : public HeroClass
@@ -156,12 +127,12 @@ public:
 	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level
 	std::vector<int> primarySkillHighLevel;// same for high levels (> 10)
 
-	std::vector<int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
+	std::map<SecondarySkill, int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
 
 	std::map<FactionID, int> selectionProbability; //probability of selection in towns
 
-	std::string imageBattleMale;
-	std::string imageBattleFemale;
+	AnimationPath imageBattleMale;
+	AnimationPath imageBattleFemale;
 	std::string imageMapMale;
 	std::string imageMapFemale;
 
@@ -182,51 +153,19 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & modScope;
-		h & identifier;
-		h & faction;
-		h & id;
-		h & defaultTavernChance;
-		h & primarySkillInitial;
-		h & primarySkillLowLevel;
-		h & primarySkillHighLevel;
-		h & secSkillProbability;
-		h & selectionProbability;
-		h & affinity;
-		h & commander;
-		h & imageBattleMale;
-		h & imageBattleFemale;
-		h & imageMapMale;
-		h & imageMapFemale;
-
-		if(!h.saving)
-		{
-			for(int & i : secSkillProbability)
-				vstd::amax(i, 0);
-		}
-	}
 	EAlignment getAlignment() const;
 };
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
-	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill) const;
+	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const;
 
 public:
 	std::vector<JsonNode> loadLegacyData() override;
 
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
 	~CHeroClassHandler();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & objects;
-	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
@@ -265,14 +204,7 @@ public:
 	CHeroHandler();
 	~CHeroHandler();
 
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & classes;
-		h & objects;
-		h & expPerLevel;
-	}
+	std::set<HeroTypeID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

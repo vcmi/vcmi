@@ -16,12 +16,7 @@
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
 #include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/StringConstants.h"
-
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 
@@ -48,10 +43,10 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 			return resID == GameResID(EGameResID::GOLD);
 			break;
 		case Obj::RESOURCE:
-			return obj->subID == resID;
+			return dynamic_cast<const CGResource*>(obj)->resourceID() == GameResID(resID);
 			break;
 		case Obj::MINE:
-			return (obj->subID == resID &&
+			return (dynamic_cast<const CGMine*>(obj)->producedResource == GameResID(resID) &&
 				(cb->getPlayerRelations(obj->tempOwner, ai->playerID) == PlayerRelations::ENEMIES)); //don't capture our mines
 			break;
 		case Obj::CAMPFIRE:
@@ -65,14 +60,11 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 				return false;
 			}
 			break;
-		case Obj::WATER_WHEEL:
-			if (resID != GameResID(EGameResID::GOLD))
-				return false;
-			break;
 		case Obj::MYSTICAL_GARDEN:
 			if ((resID != GameResID(EGameResID::GOLD)) && (resID != GameResID(EGameResID::GEMS)))
 				return false;
 			break;
+		case Obj::WATER_WHEEL:
 		case Obj::LEAN_TO:
 		case Obj::WAGON:
 			if (resID != GameResID(EGameResID::GOLD))
@@ -175,10 +167,10 @@ TSubgoal CollectRes::whatToDoToTrade()
 		int howManyCanWeBuy = 0;
 		for (GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
 		{
-			if (GameResID(i) == resID)
+			if (i.getNum() == resID)
 				continue;
 			int toGive = -1, toReceive = -1;
-			m->getOffer(GameResID(i), resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
+			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
 			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);
 		}

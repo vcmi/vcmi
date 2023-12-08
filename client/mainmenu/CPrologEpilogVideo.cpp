@@ -20,19 +20,25 @@
 
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
-	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), exitCb(callback)
+	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	addUsedEvents(LCLICK);
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
+	auto audioData = CCS->videoh->getAudio(spe.prologVideo);
+	videoSoundHandle = CCS->soundh->playSound(audioData);
 	CCS->videoh->open(spe.prologVideo);
-	CCS->musich->playMusic("Music/" + spe.prologMusic, true, true);
-	// MPTODO: Custom campaign crashing on this?
-//	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
+	CCS->musich->playMusic(spe.prologMusic, true, true);
+	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
+	auto onVoiceStop = [this]()
+	{
+		voiceStopped = true;
+	};
+	CCS->soundh->setCallback(voiceSoundHandle, onVoiceStop);
 
-	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText);
+	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText.toString());
 	text->scrollTextTo(-100);
 }
 
@@ -51,7 +57,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 	else
 		text->showAll(to); // blit text over video, if needed
 
-	if(text->textSize.y + 100 < positionCounter / 5)
+	if(text->textSize.y + 100 < positionCounter / 5 && voiceStopped)
 		clickPressed(GH.getCursorPosition());
 }
 
@@ -59,5 +65,6 @@ void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
 	close();
 	CCS->soundh->stopSound(voiceSoundHandle);
+	CCS->soundh->stopSound(videoSoundHandle);
 	exitCb();
 }

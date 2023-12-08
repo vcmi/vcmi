@@ -13,14 +13,15 @@
 #include "Registry.h"
 
 #include "../ISpellMechanics.h"
+#include "../../MetaString.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../battle/BattleInfo.h"
 #include "../../battle/Unit.h"
-#include "../../NetPacks.h"
 #include "../../serializer/JsonSerializeFormat.h"
-
 #include "../../CCreatureHandler.h"
 #include "../../CHeroHandler.h"
 #include "../../mapObjects/CGHeroInstance.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -65,7 +66,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 			{
 				text.replaceRawString(caster->getNameTranslated());
 
-				text.replaceLocalString(EMetaText::CRE_PL_NAMES, elemental->creatureIndex());
+				text.replaceNamePlural(elemental->creatureId());
 
 				if(caster->type->gender == EHeroGender::FEMALE)
 					text.replaceLocalString(EMetaText::GENERAL_TXT, 540);
@@ -87,6 +88,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));//TODO: consider use base power too
 
 	BattleUnitsChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & dest : target)
 	{
@@ -105,7 +107,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 			if(summonByHealth)
 			{
-				const auto *creatureType = creature.toCreature(m->creatures());
+				const auto *creatureType = creature.toEntity(m->creatures());
 				auto creatureMaxHealth = creatureType->getMaxHealth();
 				amount = static_cast<int32_t>(valueWithBonus / creatureMaxHealth);
 			}

@@ -12,7 +12,6 @@
 #include "gtest/gtest.h"
 
 #include "../AI/VCAI/VCAI.h"
-#include "ResourceManagerTest.h"
 #include "../AI/VCAI/Goals/Goals.h"
 #include "mock_VCAI_CGoal.h"
 #include "mock_VCAI.h"

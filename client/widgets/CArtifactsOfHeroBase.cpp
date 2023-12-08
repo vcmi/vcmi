@@ -22,6 +22,7 @@
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 	: backpackPos(0),
@@ -38,11 +39,11 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 		auto slot = ArtifactUtils::getArtAnyPosition(curHero, curHero->artifactsTransitionPos.begin()->artifact->getTypeId());
 		if(slot == ArtifactPosition::PRE_FIRST)
 		{
-			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 		}
 		else
 		{
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero, slot));
+			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
 		}
 	}
 	if(putBackPickedArtCallback)
@@ -55,15 +56,15 @@ void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCall
 }
 
 void CArtifactsOfHeroBase::init(
-	CHeroArtPlace::ClickHandler lClickCallback,
-	CHeroArtPlace::ClickHandler rClickCallback,
+	CHeroArtPlace::ClickFunctor lClickCallback,
+	CHeroArtPlace::ClickFunctor showPopupCallback,
 	const Point & position,
-	BpackScrollHandler scrollHandler)
+	BpackScrollFunctor scrollCallback)
 {
 	// CArtifactsOfHeroBase::init may be transform to CArtifactsOfHeroBase::CArtifactsOfHeroBase if OBJECT_CONSTRUCTION_CAPTURING is removed
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	pos += position;
-	for(int g = 0; g < GameConstants::BACKPACK_START; g++)
+	for(int g = 0; g < ArtifactPosition::BACKPACK_START; g++)
 	{
 		artWorn[ArtifactPosition(g)] = std::make_shared<CHeroArtPlace>(slotPos[g]);
 	}
@@ -78,18 +79,20 @@ void CArtifactsOfHeroBase::init(
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
 		artPlace.second->leftClickCallback = lClickCallback;
-		artPlace.second->rightClickCallback = rClickCallback;
+		artPlace.second->showPopupCallback = showPopupCallback;
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = lClickCallback;
-		artPlace->rightClickCallback = rClickCallback;
+		artPlace->showPopupCallback = showPopupCallback;
 	}
-	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [scrollHandler]() { scrollHandler(-1); }, EShortcut::MOVE_LEFT);
-	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [scrollHandler]() { scrollHandler(+1); }, EShortcut::MOVE_RIGHT);
+	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(-1);}, EShortcut::MOVE_LEFT);
+	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [scrollCallback]() {scrollCallback(+1);}, EShortcut::MOVE_RIGHT);
 	leftBackpackRoll->block(true);
 	rightBackpackRoll->block(true);
+
+	setRedrawParent(true);
 }
 
 void CArtifactsOfHeroBase::leftClickArtPlace(CHeroArtPlace & artPlace)
@@ -100,8 +103,8 @@ void CArtifactsOfHeroBase::leftClickArtPlace(CHeroArtPlace & artPlace)
 
 void CArtifactsOfHeroBase::rightClickArtPlace(CHeroArtPlace & artPlace)
 {
-	if(rightClickCallback)
-		rightClickCallback(*this, artPlace);
+	if(showPopupCallback)
+		showPopupCallback(*this, artPlace);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
@@ -127,7 +130,7 @@ const CGHeroInstance * CArtifactsOfHeroBase::getHero() const
 void CArtifactsOfHeroBase::scrollBackpack(int offset)
 {
 	scrollBackpackForArtSet(offset, *curHero);
-	safeRedraw();
+	redraw();
 }
 
 void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSet & artSet)
@@ -143,7 +146,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	};
 	slotInc inc_ring = [artsInBackpack](ArtifactPosition & slot) -> ArtifactPosition
 	{
-		return ArtifactPosition(GameConstants::BACKPACK_START + (slot - GameConstants::BACKPACK_START + 1) % artsInBackpack);
+		return ArtifactPosition::BACKPACK_START + (slot - ArtifactPosition::BACKPACK_START + 1) % artsInBackpack;
 	};
 	slotInc inc;
 	if(scrollingPossible)
@@ -158,7 +161,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	if(artsInBackpack)
 		backpackPos %= artsInBackpack;
 
-	auto slot = ArtifactPosition(GameConstants::BACKPACK_START + backpackPos);
+	auto slot = ArtifactPosition(ArtifactPosition::BACKPACK_START + backpackPos);
 	for(auto artPlace : backpack)
 	{
 		setSlotData(artPlace, slot, artSet);
@@ -172,21 +175,10 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 		rightBackpackRoll->block(!scrollingPossible);
 }
 
-void CArtifactsOfHeroBase::safeRedraw()
-{
-	if(isActive())
-	{
-		if(parent)
-			parent->redraw();
-		else
-			redraw();
-	}
-}
-
 void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
 {
 	for(auto artPlace : artWorn)
-		artPlace.second->selectSlot(art->artType->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
+		artPlace.second->selectSlot(art->canBePutAt(curHero, artPlace.second->slot, assumeDestRemoved));
 }
 
 void CArtifactsOfHeroBase::unmarkSlots()
@@ -270,8 +262,10 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 			{
 				arts.insert(std::pair(combinedArt, 0));
 				for(const auto part : combinedArt->getConstituents())
-					if(artSet.hasArt(part->getId(), true))
+				{
+					if(artSet.hasArt(part->getId(), false))
 						arts.at(combinedArt)++;
+				}
 			}
 			artPlace->addCombinedArtInfo(arts);
 		}

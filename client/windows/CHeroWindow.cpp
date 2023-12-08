@@ -28,6 +28,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 
@@ -38,7 +39,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/NetPacksBase.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {
@@ -63,49 +64,49 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos += pos_;
 
-	image = std::make_shared<CAnimImage>("PortraitsSmall", hero->portrait);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->getIconIndex());
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
-	: CStatusbarWindow(PLAYER_COLORED, "HeroScr4")
+	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("HeroScr4"))
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	curHero = hero;
 
-	banner = std::make_shared<CAnimImage>("CREST58", LOCPLINT->playerID.getNum(), 0, 606, 8);
+	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), LOCPLINT->playerID.getNum(), 0, 606, 8);
 	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
 	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
-	statusbar = CGStatusBar::create(7, 559, "ADROLLVR.bmp", 660);
+	statusbar = CGStatusBar::create(7, 559, ImagePath::builtin("ADROLLVR.bmp"), 660);
 
-	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(609, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(heroscrn[17]), [=](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
-		questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
-		backpackButton = std::make_shared<CButton>(Point(424, 429), "buttons/backpack", CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
-		backpackButton->addOverlay(std::make_shared<CPicture>("buttons/backpackButtonIcon"));
-		dismissButton = std::make_shared<CButton>(Point(534, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
+		backpackButton->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
 	}
 	else
 	{
 		dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 		questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-		dismissButton = std::make_shared<CButton>(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
-		questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		dismissButton = std::make_shared<CButton>(Point(454, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 	}
 
 	formations = std::make_shared<CToggleGroup>(0);
-	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));
-	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), "hsbtns7.def", std::make_pair(heroscrn[24], heroscrn[30]), 0, EShortcut::HERO_LOOSE_FORMATION));
+	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));
+	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), AnimationPath::builtin("hsbtns7.def"), std::make_pair(heroscrn[24], heroscrn[30]), 0, EShortcut::HERO_LOOSE_FORMATION));
 
 	if(hero->commander)
 	{
-		commanderButton = std::make_shared<CButton>(Point(317, 18), "buttons/commander", CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
+		commanderButton = std::make_shared<CButton>(Point(317, 18), AnimationPath::builtin("buttons/commander"), CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
 	}
 
 	//right list of heroes
@@ -114,13 +115,13 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	//areas
 	portraitArea = std::make_shared<LRClickableAreaWText>(Rect(18, 18, 58, 64));
-	portraitImage = std::make_shared<CAnimImage>("PortraitsLarge", 0, 0, 19, 19);
+	portraitImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), 0, 0, 19, 19);
 
 	for(int v = 0; v < GameConstants::PRIMARY_SKILLS; ++v)
 	{
-		auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(30 + 70 * v, 109, 42, 64), CComponent::primskill);
+		auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(30 + 70 * v, 109, 42, 64), ComponentType::PRIM_SKILL);
 		area->text = CGI->generaltexth->arraytxt[2+v];
-		area->type = v;
+		area->component.subType = PrimarySkill(v);
 		area->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[v]);
 		primSkillAreas.push_back(area);
 
@@ -128,7 +129,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		primSkillValues.push_back(value);
 	}
 
-	auto primSkills = std::make_shared<CAnimation>("PSKIL42");
+	auto primSkills = GH.renderHandler().loadAnimation(AnimationPath::builtin("PSKIL42"));
 	primSkills->preload();
 	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 0, 0, 32, 111));
 	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 1, 0, 102, 111));
@@ -137,7 +138,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 4, 0, 20, 230));
 	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 5, 0, 242, 111));
 
-	specImage = std::make_shared<CAnimImage>("UN44", 0, 0, 18, 180);
+	specImage = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), 0, 0, 18, 180);
 	specArea = std::make_shared<LRClickableAreaWText>(Rect(18, 180, 136, 42), CGI->generaltexth->heroscrn[27]);
 	specName = std::make_shared<CLabel>(69, 205);
 
@@ -149,11 +150,11 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
 
-	auto secSkills = std::make_shared<CAnimation>("SECSKILL");
+	auto secSkills = GH.renderHandler().loadAnimation(AnimationPath::builtin("SECSKILL"));
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
-		secSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>(r, CComponent::secskill));
+		secSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>(r, ComponentType::SEC_SKILL));
 		secSkillImages.push_back(std::make_shared<CAnimImage>(secSkills, 0, 0, r.x, r.y));
 
 		int x = (i % 2) ? 212 : 68;
@@ -195,13 +196,13 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	specImage->setFrame(curHero->type->imageIndex);
 	specName->setText(curHero->type->getSpecialtyNameTranslated());
 
-	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), "hsbtns8.def", std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
+	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
 	tacticsButton->addHoverText(CButton::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
 
 	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated()));
 	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated());
 	portraitArea->text = curHero->getBiographyTranslated();
-	portraitImage->setFrame(curHero->portrait);
+	portraitImage->setFrame(curHero->getIconIndex());
 
 	{
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
@@ -211,40 +212,41 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			boost::algorithm::replace_first(helpBox, "%s", CGI->generaltexth->allTexts[43]);
 
 			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero);
-			auto split = std::make_shared<CButton>(Point(539, 519), "hsbtns9.def", CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&](){ garr->splitClick(); });
+			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&](){ garr->splitClick(); });
 			garr->addSplitBtn(split);
 		}
 		if(!arts)
 		{
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->setHero(curHero);
-			addSet(arts);
+			addSetAndCallbacks(arts);
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
 
 		listSelection.reset();
 		if(serial >= 0)
-			listSelection = std::make_shared<CPicture>("HPSYYY", 612, 33 + serial * 54);
+			listSelection = std::make_shared<CPicture>(ImagePath::builtin("HPSYYY"), 612, 33 + serial * 54);
 	}
 
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
-		primSkillAreas[g]->bonusValue = curHero->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(g));
-		primSkillValues[g]->setText(std::to_string(primSkillAreas[g]->bonusValue));
+		int value = curHero->getPrimSkillLevel(static_cast<PrimarySkill>(g));
+		primSkillAreas[g]->component.value = value;
+		primSkillValues[g]->setText(std::to_string(value));
 	}
 
 	//secondary skills support
 	for(size_t g=0; g< secSkillAreas.size(); ++g)
 	{
-		int skill = curHero->secSkills[g].first;
-		int	level = curHero->getSecSkillLevel(SecondarySkill(curHero->secSkills[g].first));
+		SecondarySkill skill = curHero->secSkills[g].first;
+		int	level = curHero->getSecSkillLevel(skill);
 		std::string skillName = CGI->skillh->getByIndex(skill)->getNameTranslated();
 		std::string skillValue = CGI->generaltexth->levels[level-1];
 
-		secSkillAreas[g]->type = skill;
-		secSkillAreas[g]->bonusValue = level;
+		secSkillAreas[g]->component.subType = skill;
+		secSkillAreas[g]->component.value = level;
 		secSkillAreas[g]->text = CGI->skillh->getByIndex(skill)->getDescriptionTranslated(level);
 		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % skillValue % skillName);
 		secSkillImages[g]->setFrame(skill*3 + level + 2);
@@ -304,7 +306,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	formations->resetCallback();
 	//setting formations
 	formations->setSelected(curHero->formation == EArmyFormation::TIGHT ? 1 : 0);
-	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, value);});
+	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, static_cast<EArmyFormation>(value));});
 
 	morale->set(curHero);
 	luck->set(curHero);
@@ -333,20 +335,11 @@ void CHeroWindow::commanderWindow()
 	if(pickedArtInst)
 	{
 		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, pickedArtInst->getTypeId());
-		if(freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
+		if(vstd::contains(ArtifactUtils::commanderSlots(), freeSlot)) // We don't want to put it in commander's backpack!
 		{
-			ArtifactLocation src(hero, ArtifactPosition::TRANSITION_POS);
-			ArtifactLocation dst(curHero->commander.get(), freeSlot);
-
-			if(pickedArtInst->canBePutAt(dst, true))
-			{	//equip clicked stack
-				if(dst.getArt())
-				{
-					LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(hero,
-						ArtifactUtils::getArtBackpackPosition(hero, pickedArtInst->getTypeId())));
-				}
-				LOCPLINT->cb->swapArtifacts(src, dst);
-			}
+			ArtifactLocation dst(curHero->id, freeSlot);
+			dst.creature = SlotID::COMMANDER_SLOT_PLACEHOLDER;
+			LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS), dst);
 		}
 	}
 	else
@@ -359,4 +352,9 @@ void CHeroWindow::updateGarrisons()
 {
 	garr->recreateSlots();
 	morale->set(curHero);
+}
+
+bool CHeroWindow::holdsGarrison(const CArmedInstance * army)
+{
+	return army == curHero;
 }

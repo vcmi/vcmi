@@ -9,6 +9,7 @@
  */
 #include "CFocusableHelper.h"
 #include "../Global.h"
+#include "StdInc.h"
 #include "widgets/TextControls.h"
 
 void removeFocusFromActiveInput()

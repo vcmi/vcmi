@@ -22,26 +22,15 @@ class JsonSerializeFormat;
 
 class ResourceSet;
 
-enum class EGameResID : int8_t
-{
-	WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL,
-
-	WOOD_AND_ORE = 127,  // special case for town bonus resource
-	INVALID = -1
-};
-
-using GameResID = Identifier<EGameResID>;
-
 //class to be representing a vector of resource
 class ResourceSet
 {
 private:
-	std::array<TResource, GameConstants::RESOURCE_QUANTITY> container;
+	std::array<TResource, GameConstants::RESOURCE_QUANTITY> container = {};
 public:
 	// read resources set from json. Format example: { "gold": 500, "wood":5 }
 	DLL_LINKAGE ResourceSet(const JsonNode & node);
-	DLL_LINKAGE ResourceSet(TResource wood = 0, TResource mercury = 0, TResource ore = 0, TResource sulfur = 0, TResource crystal = 0,
-							TResource gems = 0, TResource gold = 0, TResource mithril = 0);
+	DLL_LINKAGE ResourceSet() = default;
 
 
 #define scalarOperator(OPSIGN)									\

@@ -20,10 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct BankConfig
 {
-	ui32 value = 0; //overall value of given things
 	ui32 chance = 0; //chance for this level being chosen
-	ui32 upgradeChance = 0; //chance for creatures to be in upgraded versions
-	ui32 combatValue = 0; //how hard are guards of this level
 	std::vector<CStackBasicDescriptor> guards; //creature ID, amount
 	ResourceSet resources; //resources given in case of victory
 	std::vector<CStackBasicDescriptor> creatures; //creatures granted in case of victory (creature ID, amount)
@@ -33,13 +30,10 @@ struct BankConfig
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & chance;
-		h & upgradeChance;
 		h & guards;
-		h & combatValue;
 		h & resources;
 		h & creatures;
 		h & artifacts;
-		h & value;
 		h & spells;
 	}
 };
@@ -98,15 +92,6 @@ public:
 	bool hasNameTextID() const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & levels;
-		h & bankResetDuration;
-		h & blockVisit;
-		h & coastVisitable;
-		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

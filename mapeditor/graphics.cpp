@@ -24,7 +24,6 @@
 #include "../lib/filesystem/CBinaryReader.h"
 #include "Animation.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/CModHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -41,7 +40,7 @@ Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
 {
-	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/PLAYERS.PAL"))->readAll();
+	auto textFile = CResourceHandler::get()->load(ResourcePath("DATA/PLAYERS.PAL"))->readAll();
 	std::string pals((char*)textFile.first.get(), textFile.second);
 	
 	playerColorPalette.resize(256);
@@ -60,7 +59,7 @@ void Graphics::loadPaletteAndColors()
 	
 	neutralColorPalette.resize(32);
 	
-	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
+	auto stream = CResourceHandler::get()->load(ResourcePath("config/NEUTRAL.PAL"));
 	CBinaryReader reader(stream.get());
 	
 	for(int i = 0; i < 32; ++i)
@@ -130,8 +129,8 @@ void Graphics::loadHeroAnimations()
 	{
 		for(auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
-			if(!heroAnimations.count(templ->animationFile))
-				heroAnimations[templ->animationFile] = loadHeroAnimation(templ->animationFile);
+			if(!heroAnimations.count(templ->animationFile.getName()))
+				heroAnimations[templ->animationFile.getName()] = loadHeroAnimation(templ->animationFile.getName());
 		}
 	}
 	
@@ -228,7 +227,7 @@ void Graphics::blueToPlayersAdv(QImage * sur, PlayerColor player)
 	if(sur->format() == QImage::Format_Indexed8)
 	{
 		auto palette = sur->colorTable();
-		if(player < PlayerColor::PLAYER_LIMIT)
+		if(player.isValidPlayer())
 		{
 			for(int i = 0; i < 32; ++i)
 				palette[224 + i] = playerColorPalette[player.getNum() * 32 + i];
@@ -239,7 +238,7 @@ void Graphics::blueToPlayersAdv(QImage * sur, PlayerColor player)
 		}
 		else
 		{
-			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.getStr());
+			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.toString());
 			return;
 		}
 		//FIXME: not all player colored images have player palette at last 32 indexes
@@ -271,7 +270,7 @@ std::shared_ptr<Animation> Graphics::getHeroAnimation(const std::shared_ptr<cons
 		return std::shared_ptr<Animation>();
 	}
 	
-	std::shared_ptr<Animation> ret = loadHeroAnimation(info->animationFile);
+	std::shared_ptr<Animation> ret = loadHeroAnimation(info->animationFile.getName());
 	
 	//already loaded
 	if(ret)
@@ -280,8 +279,8 @@ std::shared_ptr<Animation> Graphics::getHeroAnimation(const std::shared_ptr<cons
 		return ret;
 	}
 	
-	ret = std::make_shared<Animation>(info->animationFile);
-	heroAnimations[info->animationFile] = ret;
+	ret = std::make_shared<Animation>(info->animationFile.getOriginalName());
+	heroAnimations[info->animationFile.getName()] = ret;
 	
 	ret->preload();
 	return ret;
@@ -295,7 +294,7 @@ std::shared_ptr<Animation> Graphics::getAnimation(const std::shared_ptr<const Ob
 		return std::shared_ptr<Animation>();
 	}
 	
-	std::shared_ptr<Animation> ret = mapObjectAnimations[info->animationFile];
+	std::shared_ptr<Animation> ret = mapObjectAnimations[info->animationFile.getName()];
 	
 	//already loaded
 	if(ret)
@@ -304,8 +303,8 @@ std::shared_ptr<Animation> Graphics::getAnimation(const std::shared_ptr<const Ob
 		return ret;
 	}
 	
-	ret = std::make_shared<Animation>(info->animationFile);
-	mapObjectAnimations[info->animationFile] = ret;
+	ret = std::make_shared<Animation>(info->animationFile.getOriginalName());
+	mapObjectAnimations[info->animationFile.getName()] = ret;
 	
 	ret->preload();
 	return ret;

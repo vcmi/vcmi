@@ -45,7 +45,7 @@ void BonusCaster::getCastDescription(const Spell * spell, const std::vector<cons
 
 	text.appendLocalString(EMetaText::GENERAL_TXT, textIndex);
 	getCasterName(text);
-	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
+	text.replaceName(spell->getId());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);
 }

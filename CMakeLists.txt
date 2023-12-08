@@ -79,6 +79,30 @@ if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 endif()
 
+# On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
+# The XCode and MSVC builds each require some more configuration, which is enabled by the following option:
+if(MSVC OR (CMAKE_GENERATOR STREQUAL "Xcode"))
+  option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+endif()
+
+if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
+	find_program(CCACHE ccache REQUIRED)
+	if(CCACHE)
+		# https://stackoverflow.com/a/36515503/2278742
+		# Set up wrapper scripts
+		configure_file(xcode/launch-c.in   xcode/launch-c)
+		configure_file(xcode/launch-cxx.in xcode/launch-cxx)
+		execute_process(COMMAND chmod a+rx
+												"${CMAKE_BINARY_DIR}/xcode/launch-c"
+												"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+		# Set Xcode project attributes to route compilation through our scripts
+		set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+		set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+		set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+		set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+	endif()
+endif()
+
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
@@ -237,6 +261,23 @@ if(MINGW OR MSVC)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 	if(MSVC)
+		if(ENABLE_CCACHE)
+			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
+			find_program(CCACHE ccache REQUIRED)
+			if (CCACHE)
+				file(COPY_FILE
+					${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
+					ONLY_IF_DIFFERENT)
+
+				set(CMAKE_VS_GLOBALS
+					"CLToolExe=cl.exe"
+					"CLToolPath=${CMAKE_BINARY_DIR}"
+					"TrackFileAccess=false"
+					"UseMultiToolTask=true"
+				)
+			endif()
+		endif()
+
 		add_definitions(-DBOOST_ALL_NO_LIB)
 		add_definitions(-DBOOST_ALL_DYN_LINK)
 		set(Boost_USE_STATIC_LIBS OFF)
@@ -250,6 +291,7 @@ if(MINGW OR MSVC)
 		# Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+		add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING) # Fix gtest and gmock build
 
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
@@ -587,11 +629,6 @@ if(ANDROID)
 		)
 	endif()
 
-	install(FILES AUTHORS
-		DESTINATION res/raw
-		RENAME authors.txt
-	)
-
 	# zip internal assets - 'config' and 'Mods' dirs, save md5 of the zip
 	install(CODE "
 		cmake_path(ABSOLUTE_PATH CMAKE_INSTALL_PREFIX
@@ -678,6 +715,11 @@ endif(WIN32)
 #       Packaging section             #
 #######################################
 
+if(MSVC)
+	SET(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${BIN_DIR})
+	Include(InstallRequiredSystemLibraries)
+endif()
+
 set(CPACK_PACKAGE_VERSION_MAJOR ${VCMI_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${VCMI_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${VCMI_VERSION_PATCH})
@@ -715,14 +757,21 @@ if(WIN32)
 	else()
 		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 	endif()
+
 	if(ENABLE_LAUNCHER)
-		set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
-		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
+		set(VCMI_MAIN_EXECUTABLE "VCMI_launcher")
 	else()
-		set(CPACK_PACKAGE_EXECUTABLES "VCMI_client;VCMI")
-		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_client.exe\\\"")
+		set(VCMI_MAIN_EXECUTABLE "VCMI_client")
 	endif()
-	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
+	set(CPACK_PACKAGE_EXECUTABLES "${VCMI_MAIN_EXECUTABLE};VCMI")
+	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+		CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\${VCMI_MAIN_EXECUTABLE}.exe\\\"
+		ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
+	")
+	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+		Delete \\\"$DESKTOP\\\\VCMI.lnk\\\"
+		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_server' SW_HIDE
+	")
 
 	# Strip MinGW CPack target if build configuration without debug info
 	if(MINGW)

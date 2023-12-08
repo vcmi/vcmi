@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -118,7 +118,7 @@
 				},
 				"useSavePrefix" : {
 					"type": "boolean",
-					"default": false
+					"default": true
 				},
 				"savePrefix" : {
 					"type": "string",
@@ -149,7 +149,8 @@
 				"driver",
 				"displayIndex",
 				"showfps",
-				"targetfps"
+				"targetfps",
+				"vsync"
 			],
 			"properties" : {
 				"resolution" : {
@@ -207,6 +208,10 @@
 				"targetfps" : {
 					"type" : "number",
 					"default" : 60
+				},
+				"vsync" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
@@ -230,7 +235,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -250,7 +255,7 @@
 				},
 				"quickCombat" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : false
 				},
 				"objectAnimation" : {
 					"type" : "boolean",
@@ -274,7 +279,15 @@
 				"leftButtonDrag" : {
 					"type" : "boolean",
 					"default" : false
-				}
+				},
+				"smoothDragging" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"backgroundDimLevel" : {
+					"type" : "number",
+					"default" : 128
+				},
 			}
 		},
 		"battle" : {
@@ -487,7 +500,7 @@
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.3.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.4.json",
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",
@@ -539,6 +552,18 @@
 				}
 			}
 		},
+		"lobby" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "mapPreview" ],
+			"properties" : {
+				"mapPreview" : {
+					"type" : "boolean",
+					"default" : true
+				}
+			}
+		},
 		"gameTweaks" : {
 			"type" : "object",
 			"default" : {},
@@ -551,7 +576,8 @@
 				"compactTownCreatureInfo",
 				"infoBarPick",
 				"skipBattleIntroMusic",
-				"infoBarCreatureManagement"
+				"infoBarCreatureManagement",
+				"enableLargeSpellbook"
 			],
 			"properties" : {
 				"showGrid" : {
@@ -585,6 +611,10 @@
 				"infoBarCreatureManagement": {
 					"type" : "boolean",
 					"default" : false
+				},
+				"enableLargeSpellbook" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		}

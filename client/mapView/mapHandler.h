@@ -47,10 +47,10 @@ public:
 	bool isInMap(const int3 & tile);
 
 	/// see MapObjectObserver interface
-	void onObjectFadeIn(const CGObjectInstance * obj);
-	void onObjectFadeOut(const CGObjectInstance * obj);
-	void onObjectInstantAdd(const CGObjectInstance * obj);
-	void onObjectInstantRemove(const CGObjectInstance * obj);
+	void onObjectFadeIn(const CGObjectInstance * obj, const PlayerColor & initiator);
+	void onObjectFadeOut(const CGObjectInstance * obj, const PlayerColor & initiator);
+	void onObjectInstantAdd(const CGObjectInstance * obj, const PlayerColor & initiator);
+	void onObjectInstantRemove(const CGObjectInstance * obj, const PlayerColor & initiator);
 	void onBeforeHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
 	void onAfterHeroTeleported(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
 	void onBeforeHeroEmbark(const CGHeroInstance * obj, const int3 & from, const int3 & dest);

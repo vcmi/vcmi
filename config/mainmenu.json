@@ -2,7 +2,11 @@
 	//images used in game selection screen
 	"game-select" : ["gamselb0", "gamselb1"],
 
-	"loading" : ["loadbar"],
+	"loading" :
+	{
+		"background" : ["loadbar"],
+		"x": 395, "y": 548, "size": 18, "amount": 20, "name": "loadprog"
+	},
 
 	//Main menu window, consists of several sub-menus aka items
 	"window":

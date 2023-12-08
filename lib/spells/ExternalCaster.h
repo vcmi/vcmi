@@ -14,6 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class SpellSchool;
+
 namespace spells
 {
 
@@ -27,7 +29,7 @@ public:
 	void setActualCaster(const Caster * actualCaster);
 	void setSpellSchoolLevel(int level);
 
-	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
+	int32_t getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool = nullptr) const override;
 	void spendMana(ServerCallback * server, const int32_t spellCost) const override;
 };
 

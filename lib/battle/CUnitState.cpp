@@ -13,8 +13,8 @@
 
 #include <vcmi/spells/Spell.h>
 
-#include "../NetPacks.h"
 #include "../CCreatureHandler.h"
+#include "../MetaString.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
@@ -46,7 +46,7 @@ int32_t CAmmo::available() const
 
 bool CAmmo::canUse(int32_t amount) const
 {
-	return !isLimited() || (available() - amount >= 0);
+	return (available() - amount >= 0) || !isLimited();
 }
 
 bool CAmmo::isLimited() const
@@ -99,7 +99,7 @@ CShots & CShots::operator=(const CShots & other)
 
 bool CShots::isLimited() const
 {
-	return !env->unitHasAmmoCart(owner) || !shooter.getHasBonus();
+	return !shooter.getHasBonus() || !env->unitHasAmmoCart(owner);
 }
 
 void CShots::setEnv(const IUnitEnvironment * env_)
@@ -340,12 +340,12 @@ CUnitState::CUnitState():
 	health(this),
 	shots(this),
 	totalAttacks(this, Selector::type()(BonusType::ADDITIONAL_ATTACK), 1),
-	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1)), 0),
-	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2)), 0),
-	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK), 0),
-	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE), 0),
+	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin)), 0),
+	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax)), 0),
+	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)), 0),
+	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)), 0),
 	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),
-	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, SpellID::CLONE))),
+	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::CLONE))))),
 	cloneID(-1)
 {
 
@@ -428,9 +428,9 @@ const CGHeroInstance * CUnitState::getHeroCaster() const
 	return nullptr;
 }
 
-int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
+int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool) const
 {
-	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, spell->getIndex()));
+	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spell->getId())));
 	vstd::abetween(skill, 0, 3);
 	return skill;
 }
@@ -466,7 +466,7 @@ int32_t CUnitState::getEnchantPower(const spells::Spell * spell) const
 
 int64_t CUnitState::getEffectValue(const spells::Spell * spell) const
 {
-	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, spell->getIndex());
+	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, BonusSubtypeID(spell->getId()));
 }
 
 PlayerColor CUnitState::getCasterOwner() const
@@ -485,7 +485,7 @@ void CUnitState::getCastDescription(const spells::Spell * spell, const std::vect
 	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
 	getCasterName(text);
-	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
+	text.replaceName(spell->getId());
 }
 
 int32_t CUnitState::manaLimit() const
@@ -511,7 +511,7 @@ bool CUnitState::isGhost() const
 
 bool CUnitState::isFrozen() const
 {
-	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
+	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::STONE_GAZE))), Selector::all);
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const

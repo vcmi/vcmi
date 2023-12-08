@@ -33,14 +33,13 @@ bool INativeTerrainProvider::isNativeTerrain(TerrainId terrain) const
 
 TerrainId AFactionMember::getNativeTerrain() const
 {
-	constexpr auto any = TerrainId(ETerrainId::ANY_TERRAIN);
-	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::NO_TERRAIN_PENALTY, any);
+	const std::string cachingStringNoTerrainPenalty = "type_TERRAIN_NATIVE_NONE";
+	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(BonusType::TERRAIN_NATIVE, BonusSubtypeID());
 
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? any : VLC->factions()->getById(getFaction())->getNativeTerrain();
+		? TerrainId::ANY_TERRAIN : VLC->factions()->getById(getFaction())->getNativeTerrain();
 }
 
 int32_t AFactionMember::magicResistance() const
@@ -54,7 +53,7 @@ int AFactionMember::getAttack(bool ranged) const
 {
 	const std::string cachingStr = "type_PRIMARY_SKILLs_ATTACK";
 
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
+	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
@@ -63,7 +62,7 @@ int AFactionMember::getDefense(bool ranged) const
 {
 	const std::string cachingStr = "type_PRIMARY_SKILLs_DEFENSE";
 
-	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+	static const auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
@@ -71,23 +70,23 @@ int AFactionMember::getDefense(bool ranged) const
 int AFactionMember::getMinDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_1";
-	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1));
+	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin));
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
 int AFactionMember::getMaxDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_2";
-	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2));
+	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax));
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
-int AFactionMember::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
+int AFactionMember::getPrimSkillLevel(PrimarySkill id) const
 {
 	static const CSelector selectorAllSkills = Selector::type()(BonusType::PRIMARY_SKILL);
 	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
 	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
-	auto ret = allSkills->valOfBonuses(Selector::subtype()(id));
+	auto ret = allSkills->valOfBonuses(Selector::subtype()(BonusSubtypeID(id)));
 	auto minSkillValue = (id == PrimarySkill::SPELL_POWER || id == PrimarySkill::KNOWLEDGE) ? 1 : 0;
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
@@ -111,7 +110,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
 
 	int32_t maxGoodMorale = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+	int32_t maxBadMorale = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
 
 	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
@@ -130,7 +129,7 @@ int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
 
 	int32_t maxGoodLuck = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+	int32_t maxBadLuck = - (int32_t) VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
 
 	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }

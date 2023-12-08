@@ -20,11 +20,10 @@
 #include "api/Registry.h"
 
 #include "../../lib/JsonNode.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/CGameInfoCallback.h"
-#include "../../lib/CModHandler.h"
+#include "../../lib/modding/ModScope.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -75,7 +74,7 @@ LuaContext::LuaContext(const Script * source, const Environment * env_):
 	S.push(env->game());
 	lua_setglobal(L, "GAME");
 
-	S.push(env->battle());
+	S.push(env->battle(BattleID::NONE));
 	lua_setglobal(L, "BATTLE");
 
 	S.push(env->eventBus());
@@ -511,18 +510,18 @@ int LuaContext::loadModule()
 
 		registar->pushMetatable(L);
 	}
-	else if(scope == CModHandler::scopeBuiltin())
+	else if(scope == ModScope::scopeBuiltin())
 	{
 
 	//	boost::algorithm::replace_all(modulePath, boost::is_any_of("\\/ "), "");
 
 		boost::algorithm::replace_all(modulePath, ".", "/");
 
-		auto *loader = CResourceHandler::get(CModHandler::scopeBuiltin());
+		auto *loader = CResourceHandler::get(ModScope::scopeBuiltin());
 
 		modulePath = "scripts/lib/" + modulePath;
 
-		ResourceID id(modulePath, EResType::LUA);
+		ResourcePath id(modulePath, EResType::LUA);
 
 		if(!loader->existsResource(id))
 			return errorRetVoid("Module not found: "+modulePath);

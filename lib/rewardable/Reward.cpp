@@ -12,8 +12,21 @@
 #include "Reward.h"
 
 #include "../mapObjects/CGHeroInstance.h"
+#include "../serializer/JsonSerializeFormat.h"
+#include "../constants/StringConstants.h"
+#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+void Rewardable::RewardRevealTiles::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeBool("hide", hide);
+	handler.serializeInt("scoreSurface", scoreSurface);
+	handler.serializeInt("scoreSubterra", scoreSubterra);
+	handler.serializeInt("scoreWater", scoreWater);
+	handler.serializeInt("scoreRock", scoreRock);
+	handler.serializeInt("radius", radius);
+}
 
 Rewardable::Reward::Reward()
 	: heroExperience(0)
@@ -24,7 +37,7 @@ Rewardable::Reward::Reward()
 	, movePercentage(-1)
 	, primary(4, 0)
 	, removeObject(false)
-	, spellCast(SpellID::NONE, SecSkillLevel::NONE)
+	, spellCast(SpellID::NONE, MasteryLevel::NONE)
 {
 }
 
@@ -53,44 +66,95 @@ Component Rewardable::Reward::getDisplayedComponent(const CGHeroInstance * h) co
 	return comps.front();
 }
 
-void Rewardable::Reward::loadComponents(std::vector<Component> & comps,
-								 const CGHeroInstance * h) const
+void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CGHeroInstance * h) const
 {
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
-
-	if (heroExperience)
+	
+	for (auto & bonus : bonuses)
 	{
-		comps.emplace_back(Component::EComponentType::EXPERIENCE, 0, static_cast<si32>(h->calculateXp(heroExperience)), 0);
+		if (bonus.type == BonusType::MORALE)
+			comps.emplace_back(ComponentType::MORALE, bonus.val);
+		if (bonus.type == BonusType::LUCK)
+			comps.emplace_back(ComponentType::LUCK, bonus.val);
 	}
+	
+	if (heroExperience)
+		comps.emplace_back(ComponentType::EXPERIENCE, static_cast<si32>(h ? h->calculateXp(heroExperience) : heroExperience));
+
 	if (heroLevel)
-		comps.emplace_back(Component::EComponentType::EXPERIENCE, 1, heroLevel, 0);
+		comps.emplace_back(ComponentType::LEVEL, heroLevel);
 
 	if (manaDiff || manaPercentage >= 0)
-		comps.emplace_back(Component::EComponentType::PRIM_SKILL, 5, calculateManaPoints(h) - h->mana, 0);
+		comps.emplace_back(ComponentType::MANA, h ? (calculateManaPoints(h) - h->mana) : manaDiff);
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] != 0)
-			comps.emplace_back(Component::EComponentType::PRIM_SKILL, static_cast<ui16>(i), primary[i], 0);
+			comps.emplace_back(ComponentType::PRIM_SKILL, PrimarySkill(i), primary[i]);
 	}
 
 	for(const auto & entry : secondary)
-		comps.emplace_back(Component::EComponentType::SEC_SKILL, entry.first, entry.second, 0);
+		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, entry.second);
 
 	for(const auto & entry : artifacts)
-		comps.emplace_back(Component::EComponentType::ARTIFACT, entry, 1, 0);
+		comps.emplace_back(ComponentType::ARTIFACT, entry);
 
 	for(const auto & entry : spells)
-		comps.emplace_back(Component::EComponentType::SPELL, entry, 1, 0);
+		comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(Component::EComponentType::CREATURE, entry.type->getId(), entry.count, 0);
+		comps.emplace_back(ComponentType::CREATURE, entry.type->getId(), entry.count);
 
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
-			comps.emplace_back(Component::EComponentType::RESOURCE, static_cast<ui16>(i), resources[i], 0);
+			comps.emplace_back(ComponentType::RESOURCE, GameResID(i), resources[i]);
+	}
+}
+
+void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
+{
+	resources.serializeJson(handler, "resources");
+	handler.serializeBool("removeObject", removeObject);
+	handler.serializeInt("manaPercentage", manaPercentage);
+	handler.serializeInt("movePercentage", movePercentage);
+	handler.serializeInt("heroExperience", heroExperience);
+	handler.serializeInt("heroLevel", heroLevel);
+	handler.serializeInt("manaDiff", manaDiff);
+	handler.serializeInt("manaOverflowFactor", manaOverflowFactor);
+	handler.serializeInt("movePoints", movePoints);
+	handler.serializeIdArray("artifacts", artifacts);
+	handler.serializeIdArray("spells", spells);
+	handler.enterArray("creatures").serializeStruct(creatures);
+	handler.enterArray("primary").serializeArray(primary);
+	{
+		auto a = handler.enterArray("secondary");
+		std::vector<std::pair<SecondarySkill, si32>> fieldValue(secondary.begin(), secondary.end());
+		a.serializeStruct<std::pair<SecondarySkill, si32>>(fieldValue, [](JsonSerializeFormat & h, std::pair<SecondarySkill, si32> & e)
+		{
+			h.serializeId("skill", e.first);
+			h.serializeId("level", e.second, 0, [](const std::string & i){return vstd::find_pos(NSecondarySkill::levels, i);}, [](si32 i){return NSecondarySkill::levels.at(i);});
+		});
+		a.syncSize(fieldValue);
+		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
+	}
+	
+	{
+		auto a = handler.enterArray("creaturesChange");
+		std::vector<std::pair<CreatureID, CreatureID>> fieldValue(creaturesChange.begin(), creaturesChange.end());
+		a.serializeStruct<std::pair<CreatureID, CreatureID>>(fieldValue, [](JsonSerializeFormat & h, std::pair<CreatureID, CreatureID> & e)
+		{
+			h.serializeId("creature", e.first, CreatureID{});
+			h.serializeId("amount", e.second, CreatureID{});
+		});
+		creaturesChange = std::map<CreatureID, CreatureID>(fieldValue.begin(), fieldValue.end());
+	}
+	
+	{
+		auto a = handler.enterStruct("spellCast");
+		a->serializeId("spell", spellCast.first, SpellID{});
+		a->serializeInt("level", spellCast.second);
 	}
 }
 

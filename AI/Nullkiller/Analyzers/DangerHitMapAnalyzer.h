@@ -18,7 +18,7 @@ struct AIPath;
 
 struct HitMapInfo
 {
-	static HitMapInfo NoTreat;
+	static HitMapInfo NoThreat;
 
 	uint64_t danger;
 	uint8_t turn;
@@ -74,7 +74,7 @@ private:
 	bool hitMapUpToDate = false;
 	bool tileOwnersUpToDate = false;
 	const Nullkiller * ai;
-	std::map<ObjectInstanceID, std::vector<HitMapInfo>> townTreats;
+	std::map<ObjectInstanceID, std::vector<HitMapInfo>> townThreats;
 
 public:
 	DangerHitMapAnalyzer(const Nullkiller * ai) :ai(ai) {}
@@ -82,14 +82,14 @@ public:
 	void updateHitMap();
 	void calculateTileOwners();
 	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
-	const HitMapNode & getObjectTreat(const CGObjectInstance * obj) const;
-	const HitMapNode & getTileTreat(const int3 & tile) const;
+	const HitMapNode & getObjectThreat(const CGObjectInstance * obj) const;
+	const HitMapNode & getTileThreat(const int3 & tile) const;
 	std::set<const CGObjectInstance *> getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
 	void reset();
 	void resetTileOwners() { tileOwnersUpToDate = false; }
 	PlayerColor getTileOwner(const int3 & tile) const;
 	const CGTownInstance * getClosestTown(const int3 & tile) const;
-	const std::vector<HitMapInfo> & getTownTreats(const CGTownInstance * town) const;
+	const std::vector<HitMapInfo> & getTownThreats(const CGTownInstance * town) const;
 };
 
 }

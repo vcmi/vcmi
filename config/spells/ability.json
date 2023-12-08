@@ -141,13 +141,13 @@
 					"attack" : {
 						"val" : -2,
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"duration" : "N_TURNS"
 					},
 					"defence" : {
 						"val" : -2,
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"subtype" : "primarySkill.defence",
 						"duration" : "N_TURNS"
 					}
 				}
@@ -384,7 +384,7 @@
 							"primarySkill" : {
 								"val" : -3,
 								"type" : "PRIMARY_SKILL",
-								"subtype" : "primSkill.defence",
+								"subtype" : "primarySkill.defence",
 								"duration" : "PERMANENT",
 								"valueType" : "ADDITIVE_VALUE"
 							}

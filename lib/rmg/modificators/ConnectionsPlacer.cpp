@@ -25,7 +25,6 @@
 #include "WaterAdopter.h"
 #include "WaterProxy.h"
 #include "TownPlacer.h"
-#include <boost/interprocess/sync/scoped_lock.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -317,8 +316,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto * gate2 = factory->create();
 			rmg::Object rmgGate1(*gate1);
 			rmg::Object rmgGate2(*gate2);
-			rmgGate1.setTemplate(zone.getTerrainType());
-			rmgGate2.setTemplate(otherZone->getTerrainType());
+			rmgGate1.setTemplate(zone.getTerrainType(), zone.getRand());
+			rmgGate2.setTemplate(otherZone->getTerrainType(), zone.getRand());
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
 			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
 			int minDist = 3;
@@ -335,16 +334,12 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 					return -1.f;
 				
 				//This could fail is accessibleArea is below the map
-				rmg::Area toPlace(rmgGate1.getArea() + rmgGate1.getAccessibleArea());
-				auto inTheMap = toPlace.getTilesVector();
-				toPlace.clear();
-				for (const int3& tile : inTheMap)
+				rmg::Area toPlace(rmgGate1.getArea());
+				toPlace.unite(toPlace.getBorderOutside()); // Add a bit of extra space around
+				toPlace.erase_if([this](const int3 & tile)
 				{
-					if (map.isOnMap(tile))
-					{
-						toPlace.add(tile);
-					}
-				}
+					return !map.isOnMap(tile);
+				});
 				toPlace.translate(-zShift);
 				
 				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);

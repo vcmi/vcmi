@@ -14,10 +14,11 @@
 #include "../CSpellHandler.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
+#include "../../MetaString.h"
 #include "../../CStack.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../CGeneralTextHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -34,6 +35,9 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 {
 	StacksInjured stacksInjured;
 	BattleLogMessage blm;
+	stacksInjured.battleID = m->battle()->getBattle()->getBattleID();
+	blm.battleID = m->battle()->getBattle()->getBattleID();
+
 	size_t targetIndex = 0;
 	const battle::Unit * firstTarget = nullptr;
 	const bool describe = server->describeChanges();
@@ -48,6 +52,7 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		if(unit && unit->alive())
 		{
 			BattleStackAttacked bsa;
+			bsa.battleID = m->battle()->getBattle()->getBattleID();
 			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
 			bsa.stackAttacked = unit->unitId();
 			bsa.attackerID = -1;
@@ -85,11 +90,11 @@ bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 	if(!UnitEffect::isReceptive(m, unit))
 		return false;
 
-	bool isImmune = m->getSpell()->isMagical() && (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(ESpellSchool::ANY)) >= 100); //General spell damage immunity
+	bool isImmune = m->getSpell()->isMagical() && (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::ANY)) >= 100); //General spell damage immunity
 	//elemental immunity for damage
-	m->getSpell()->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
+	m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop)
 	{
-		isImmune |= (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, cnf.id) >= 100); //100% reduction is immunity
+		isImmune |= (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(cnf)) >= 100); //100% reduction is immunity
 	});
 
 	return !isImmune;
@@ -171,7 +176,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		{
 			MetaString line;
 			line.appendLocalString(EMetaText::GENERAL_TXT, 376); // Spell %s does %d damage
-			line.replaceLocalString(EMetaText::SPELL_NAME, m->getSpellIndex());
+			line.replaceName(m->getSpellId());
 			line.replaceNumber(static_cast<int>(damage));
 
 			log.push_back(line);

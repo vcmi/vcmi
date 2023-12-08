@@ -71,7 +71,7 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
-	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, hero->type->getIndex());
+	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, BonusSourceID(hero->type->getId()));
 	auto secondarySkillBonus = Selector::targetSourceType()(BonusSource::SECONDARY_SKILL);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus));
 	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(BonusSource::SECONDARY_SKILL));
@@ -83,7 +83,7 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 
 		if(hasBonus)
 		{
-			SecondarySkill bonusSkill = SecondarySkill(bonus->sid);
+			SecondarySkill bonusSkill = bonus->sid.as<SecondarySkill>();
 			float bonusScore = wariorSkillsScores.evaluateSecSkill(hero, bonusSkill);
 
 			if(bonusScore > 0)
@@ -187,7 +187,43 @@ bool HeroManager::heroCapReached() const
 	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
 
 	return heroCount >= ALLOWED_ROAMING_HEROES
-		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
+}
+
+float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
+{
+	auto hasFly = hero->spellbookContainsSpell(SpellID::FLY);
+	auto hasTownPortal = hero->spellbookContainsSpell(SpellID::TOWN_PORTAL);
+	auto manaLimit = hero->manaLimit();
+	auto spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	auto hasEarth = hero->getSpellSchoolLevel(SpellID(SpellID::TOWN_PORTAL).toSpell()) > 0;
+
+	auto score = 0.0f;
+
+	for(auto spellId : hero->getSpellsInSpellbook())
+	{
+		auto spell = spellId.toSpell();
+		auto schoolLevel = hero->getSpellSchoolLevel(spell);
+
+		score += (spell->getLevel() + 1) * (schoolLevel + 1) * 0.05f;
+	}
+
+	vstd::amin(score, 1);
+
+	score *= std::min(1.0f, spellPower / 10.0f);
+
+	if(hasFly)
+		score += 0.3f;
+
+	if(hasTownPortal && hasEarth)
+		score += 0.6f;
+
+	vstd::amin(score, 1);
+
+	score *= std::min(1.0f, manaLimit / 100.0f);
+
+	return std::min(score, 1.0f);
 }
 
 bool HeroManager::canRecruitHero(const CGTownInstance * town) const
@@ -278,7 +314,7 @@ void ExistingSkillRule::evaluateScore(const CGHeroInstance * hero, SecondarySkil
 		if(heroSkill.first == skill)
 			return;
 
-		upgradesLeft += SecSkillLevel::EXPERT - heroSkill.second;
+		upgradesLeft += MasteryLevel::EXPERT - heroSkill.second;
 	}
 
 	if(score >= 2 || (score >= 1 && upgradesLeft <= 1))
@@ -292,7 +328,7 @@ void WisdomRule::evaluateScore(const CGHeroInstance * hero, SecondarySkill skill
 
 	auto wisdomLevel = hero->getSecSkillLevel(SecondarySkill::WISDOM);
 
-	if(hero->level > 10 && wisdomLevel == SecSkillLevel::NONE)
+	if(hero->level > 10 && wisdomLevel == MasteryLevel::NONE)
 		score += 1.5;
 }
 
@@ -310,7 +346,7 @@ void AtLeastOneMagicRule::evaluateScore(const CGHeroInstance * hero, SecondarySk
 	
 	bool heroHasAnyMagic = vstd::contains_if(magicSchools, [&](SecondarySkill skill) -> bool
 	{
-		return hero->getSecSkillLevel(skill) > SecSkillLevel::NONE;
+		return hero->getSecSkillLevel(skill) > MasteryLevel::NONE;
 	});
 
 	if(!heroHasAnyMagic)

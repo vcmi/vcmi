@@ -10,23 +10,25 @@
 
 #pragma once
 
-#include "../CModVersion.h"
+#include "../constants/VariantIdentifier.h"
+#include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
 #include "../MetaString.h"
+#include "../CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
-using ModCompatibilityInfo = std::map<std::string, CModVersion>;
+using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName
 {
 	SHeroName();
 
-	int heroId;
+	HeroTypeID heroId;
 	std::string heroName;
 
 	template <typename Handler>
@@ -44,15 +46,15 @@ struct DLL_LINKAGE PlayerInfo
 	PlayerInfo();
 
 	/// Gets the default faction id or -1 for a random faction.
-	si8 defaultCastle() const;
+	FactionID defaultCastle() const;
 	/// Gets the default hero id or -1 for a random hero.
-	si8 defaultHero() const;
+	HeroTypeID defaultHero() const;
 	bool canAnyonePlay() const;
 	bool hasCustomMainHero() const;
 
 	bool canHumanPlay;
 	bool canComputerPlay;
-	EAiTactic::EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
+	EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
 
 	std::set<FactionID> allowedFactions;
 	bool isFactionRandom;
@@ -62,10 +64,10 @@ struct DLL_LINKAGE PlayerInfo
 	/// Player has a random main hero
 	bool hasRandomHero;
 	/// The default value is -1.
-	si32 mainCustomHeroPortrait;
-	std::string mainCustomHeroName;
+	HeroTypeID mainCustomHeroPortrait;
+	std::string mainCustomHeroNameTextId;
 	/// ID of custom hero (only if portrait and hero name are set, otherwise unpredicted value), -1 if none (not always -1)
-	si32 mainCustomHeroId;
+	HeroTypeID mainCustomHeroId;
 
 	std::vector<SHeroName> heroesNames; /// list of placed heroes on the map
 	bool hasMainTown; /// The default value is false.
@@ -84,7 +86,7 @@ struct DLL_LINKAGE PlayerInfo
 		h & allowedFactions;
 		h & isFactionRandom;
 		h & mainCustomHeroPortrait;
-		h & mainCustomHeroName;
+		h & mainCustomHeroNameTextId;
 		h & heroesNames;
 		h & hasMainTown;
 		h & generateHeroAtMainTown;
@@ -98,7 +100,6 @@ struct DLL_LINKAGE PlayerInfo
 struct DLL_LINKAGE EventCondition
 {
 	enum EWinLoseType {
-		//internal use, deprecated
 		HAVE_ARTIFACT,     // type - required artifact
 		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
 		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
@@ -107,27 +108,21 @@ struct DLL_LINKAGE EventCondition
 		DESTROY,           // position - position of object, optional, type - type of object
 		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
 
-		//map format version pre 1.0
 		DAYS_PASSED,       // value - number of days from start of the game
 		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
 		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
 		STANDARD_WIN,      // normal defeat all enemies condition
 		CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true)
-
-		//map format version 1.0+
-		HAVE_0,
-		HAVE_BUILDING_0,
-		DESTROY_0
 	};
 
-	EventCondition(EWinLoseType condition = STANDARD_WIN);
-	EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position = int3(-1, -1, -1));
+	using TargetTypeID = VariantIdentifier<ArtifactID, CreatureID, GameResID, BuildingID, MapObjectID>;
 
-	const CGObjectInstance * object; // object that was at specified position or with instance name on start
-	EMetaclass metaType;
+	EventCondition(EWinLoseType condition = STANDARD_WIN);
+	EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position = int3(-1, -1, -1));
+
+	ObjectInstanceID objectID; // object that was at specified position or with instance name on start
 	si32 value;
-	si32 objectType;
-	si32 objectSubtype;
+	TargetTypeID objectType;
 	std::string objectInstanceName;
 	int3 position;
 	EWinLoseType condition;
@@ -135,14 +130,12 @@ struct DLL_LINKAGE EventCondition
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & object;
+		h & objectID;
 		h & value;
 		h & objectType;
 		h & position;
 		h & condition;
-		h & objectSubtype;
 		h & objectInstanceName;
-		h & metaType;
 	}
 };
 
@@ -199,7 +192,7 @@ struct DLL_LINKAGE TriggeredEvent
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
-class DLL_LINKAGE CMapHeader
+class DLL_LINKAGE CMapHeader: public TextLocalizationContainer
 {
 	void setupEvents();
 public:
@@ -213,7 +206,7 @@ public:
 	static const int MAP_SIZE_GIANT = 252;
 
 	CMapHeader();
-	virtual ~CMapHeader() = default;
+	virtual ~CMapHeader();
 
 	ui8 levels() const;
 
@@ -223,8 +216,8 @@ public:
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
 	bool twoLevel; /// The default value is true.
-	std::string name;
-	std::string description;
+	MetaString name;
+	MetaString description;
 	ui8 difficulty; /// The default value is 1 representing a normal map difficulty.
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
@@ -237,20 +230,25 @@ public:
 
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
-	std::vector<bool> allowedHeroes;
-	std::vector<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
+	std::set<HeroTypeID> allowedHeroes;
+	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserverd for campaign
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
+	
+	/// translations for map to be transferred over network
+	JsonNode translations;
+	
+	void registerMapStrings();
 
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)
 	{
+		h & static_cast<TextLocalizationContainer&>(*this);
 		h & version;
-		if(Version >= 821)
-			h & mods;
+		h & mods;
 		h & name;
 		h & description;
 		h & width;
@@ -268,7 +266,14 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
+		h & translations;
+		if(!h.saving)
+			registerMapStrings();
 	}
 };
+
+/// wrapper functions to register string into the map and stores its translation
+std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized);
+std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language);
 
 VCMI_LIB_NAMESPACE_END

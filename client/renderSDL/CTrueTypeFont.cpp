@@ -24,7 +24,7 @@
 std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
 {
 	std::string filename = "Data/" + config["file"].String();
-	return CResourceHandler::get()->load(ResourceID(filename, EResType::TTF_FONT))->readAll();
+	return CResourceHandler::get()->load(ResourcePath(filename, EResType::TTF_FONT))->readAll();
 }
 
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)
@@ -72,7 +72,7 @@ CTrueTypeFont::~CTrueTypeFont() = default;
 size_t CTrueTypeFont::getLineHeight() const
 {
 	if (fallbackFont)
-		fallbackFont->getLineHeight();
+		return fallbackFont->getLineHeight();
 
 	return TTF_FontHeight(font.get());
 }
@@ -98,7 +98,7 @@ size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 	return width;
 }
 
-void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
 	if (fallbackFont && fallbackFont->canRepresentString(data))
 	{
@@ -113,9 +113,9 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 	{
 		SDL_Surface * rendered;
 		if (blended)
-			rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), color);
+			rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
 		else
-			rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), color);
+			rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
 
 		assert(rendered);
 

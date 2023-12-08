@@ -66,14 +66,6 @@ public:
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & filtersJson;
-		h & faction;
-		h & filters;
-		h & static_cast<CDefaultObjectTypeHandler<CGTownInstance>&>(*this);
-	}
 };
 
 class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance>
@@ -93,14 +85,6 @@ public:
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & filtersJson;
-		h & heroClass;
-		h & filters;
-		h & static_cast<CDefaultObjectTypeHandler<CGHeroInstance>&>(*this);
-	}
 };
 
 class DLL_LINKAGE BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
@@ -113,27 +97,15 @@ protected:
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport
 	
-	std::string actualAnimation; //for OH3 boats those have actual animations
-	std::string overlayAnimation; //waves animations
-	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
+	AnimationPath actualAnimation; //for OH3 boats those have actual animations
+	AnimationPath overlayAnimation; //waves animations
+	std::array<AnimationPath, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 	
 public:
 	void initializeObject(CGBoat * object) const override;
 
 	/// Returns boat preview animation, for use in Shipyards
-	std::string getBoatAnimationName() const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CDefaultObjectTypeHandler<CGBoat>&>(*this);
-		h & layer;
-		h & onboardAssaultAllowed;
-		h & onboardVisitAllowed;
-		h & bonuses;
-		h & actualAnimation;
-		h & overlayAnimation;
-		h & flagAnimations;
-	}
+	AnimationPath getBoatAnimationName() const;
 };
 
 class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
@@ -141,7 +113,7 @@ class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 protected:
 	void initTypeData(const JsonNode & config) override;
 	
-	std::set<EMarketMode::EMarketMode> marketModes;
+	std::set<EMarketMode> marketModes;
 	JsonNode predefinedOffer;
 	int marketEfficiency;
 	
@@ -152,12 +124,6 @@ public:
 	void initializeObject(CGMarket * object) const override;
 	void randomizeObject(CGMarket * object, CRandomGenerator & rng) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CDefaultObjectTypeHandler<CGMarket>&>(*this);
-		h & marketModes;
-		h & marketEfficiency;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

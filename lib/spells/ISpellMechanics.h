@@ -23,6 +23,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct Query;
 class IBattleState;
 class CRandomGenerator;
+class CreatureService;
 class CMap;
 class CGameInfoCallback;
 class CBattleInfoCallback;
@@ -31,6 +32,11 @@ class JsonNode;
 class CStack;
 class CGObjectInstance;
 class CGHeroInstance;
+
+namespace spells
+{
+class Service;
+}
 
 namespace vstd
 {
@@ -56,7 +62,7 @@ public:
 
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) = 0;	//TODO: remove
 
-	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
+	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
 };
 
 namespace spells
@@ -180,7 +186,7 @@ class DLL_LINKAGE Mechanics
 public:
 	virtual ~Mechanics();
 
-	virtual bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const = 0;
+	virtual bool adaptProblem(ESpellCastProblem source, Problem & target) const = 0;
 	virtual bool adaptGenericProblem(Problem & target) const = 0;
 
 	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex) const = 0;
@@ -235,8 +241,6 @@ public:
 	virtual int64_t applySpecificSpellBonus(int64_t value) const = 0;
 	virtual int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const = 0;
 
-	virtual std::vector<BonusType> getElementalImmunity() const = 0;
-
 	//Battle facade
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
 	virtual bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const = 0;
@@ -264,7 +268,7 @@ class DLL_LINKAGE BaseMechanics : public Mechanics
 public:
 	virtual ~BaseMechanics();
 
-	bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const override;
+	bool adaptProblem(ESpellCastProblem source, Problem & target) const override;
 	bool adaptGenericProblem(Problem & target) const override;
 
 	int32_t getSpellIndex() const override;
@@ -295,8 +299,6 @@ public:
 	int64_t applySpellBonus(int64_t value, const battle::Unit * target) const override;
 	int64_t applySpecificSpellBonus(int64_t value) const override;
 	int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const override;
-
-	std::vector<BonusType> getElementalImmunity() const override;
 
 	bool ownerMatches(const battle::Unit * unit) const override;
 	bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const override;

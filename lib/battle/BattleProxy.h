@@ -24,12 +24,14 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// IBattleInfo
+	const IBattleInfo * getBattle() const override;
+	std::optional<PlayerColor> getPlayerID() const override;
 
 	int32_t getActiveStackID() const override;
 
-	TStacks getStacksIf(TStackFilter predicate) const override;
+	TStacks getStacksIf(const TStackFilter & predicate) const override;
 
-	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
+	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	BattleField getBattlefieldType() const override;
 	TerrainId getTerrainType() const override;

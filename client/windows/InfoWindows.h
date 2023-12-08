@@ -15,6 +15,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGObjectInstance;
+class CGTownInstance;
+class CGHeroInstance;
 class CGGarrison;
 class CGCreature;
 class Rect;
@@ -46,14 +49,14 @@ public:
 class CInfoWindow : public CSimpleWindow
 {
 public:
-	using TButtonsInfo = std::vector<std::pair<std::string, CFunctionList<void()>>>;
+	using TButtonsInfo = std::vector<std::pair<AnimationPath, CFunctionList<void()>>>;
 	using TCompsInfo = std::vector<std::shared_ptr<CComponent>>;
 	QueryID ID; //for identification
 	std::shared_ptr<CTextBox> text;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	TCompsInfo components;
 
-	virtual void close();
+	void close() override;
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
@@ -76,7 +79,7 @@ public:
 class CRClickPopup : public WindowBase
 {
 public:
-	virtual void close();
+	virtual void close() override;
 	bool isPopupWindow() const override;
 
 	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);
@@ -127,7 +130,8 @@ class CSelWindow : public CInfoWindow
 public:
 	void selectionChange(unsigned to);
 	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID);
+	void madeChoiceAndClose();
+	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QueryID askID);
 
 	//notification - this class inherits important destructor from CInfoWindow
 };

@@ -83,12 +83,16 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
+	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
+	ui->checkBoxVSync->setChecked(settings["video"]["vsync"].Bool());
 	ui->spinBoxReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
 	ui->comboBoxEnemyAI->setCurrentText(QString::fromStdString(settings["server"]["enemyAI"].String()));
+
 	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
+	ui->comboBoxAlliedPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["alliedAI"].String()));
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 
@@ -492,6 +496,13 @@ void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["targetfps"];
 	node->Float() = arg1;
+}
+
+void CSettingsView::on_checkBoxVSync_stateChanged(int arg1)
+{
+	Settings node = settings.write["video"]["vsync"];
+	node->Bool() = arg1;
+	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)

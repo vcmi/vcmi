@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "CZipLoader.h"
-#include "FileStream.h"
 
 #include "../ScopeGuard.h"
 
@@ -62,9 +61,9 @@ CZipLoader::CZipLoader(const std::string & mountPoint, const boost::filesystem::
 	logGlobal->trace("Zip archive loaded, %d files found", files.size());
 }
 
-std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::string & mountPoint, const boost::filesystem::path & archive)
+std::unordered_map<ResourcePath, unz64_file_pos> CZipLoader::listFiles(const std::string & mountPoint, const boost::filesystem::path & archive)
 {
-	std::unordered_map<ResourceID, unz64_file_pos> ret;
+	std::unordered_map<ResourcePath, unz64_file_pos> ret;
 
 	unzFile file = unzOpen2_64(archive.c_str(), &zlibApi);
 
@@ -85,7 +84,7 @@ std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::
 			unzGetCurrentFileInfo64(file, &info, filename.data(), static_cast<uLong>(filename.size()), nullptr, 0, nullptr, 0);
 
 			std::string filenameString(filename.data(), filename.size());
-			unzGetFilePos64(file, &ret[ResourceID(mountPoint + filenameString)]);
+			unzGetFilePos64(file, &ret[ResourcePath(mountPoint + filenameString)]);
 		}
 		while (unzGoToNextFile(file) == UNZ_OK);
 	}
@@ -94,12 +93,12 @@ std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::
 	return ret;
 }
 
-std::unique_ptr<CInputStream> CZipLoader::load(const ResourceID & resourceName) const
+std::unique_ptr<CInputStream> CZipLoader::load(const ResourcePath & resourceName) const
 {
 	return std::unique_ptr<CInputStream>(new CZipStream(ioApi, archiveName, files.at(resourceName)));
 }
 
-bool CZipLoader::existsResource(const ResourceID & resourceName) const
+bool CZipLoader::existsResource(const ResourcePath & resourceName) const
 {
 	return files.count(resourceName) != 0;
 }
@@ -109,9 +108,9 @@ std::string CZipLoader::getMountPoint() const
 	return mountPoint;
 }
 
-std::unordered_set<ResourceID> CZipLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
+std::unordered_set<ResourcePath> CZipLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
-	std::unordered_set<ResourceID> foundID;
+	std::unordered_set<ResourcePath> foundID;
 
 	for(const auto & file : files)
 	{
@@ -155,7 +154,10 @@ std::vector<std::string> ZipArchive::listFiles(const boost::filesystem::path & f
 {
 	std::vector<std::string> ret;
 
-	unzFile file = unzOpen2_64(filename.c_str(), FileStream::GetMinizipFilefunc());
+	CDefaultIOApi zipAPI;
+	auto zipStructure = zipAPI.getApiStructure();
+
+	unzFile file = unzOpen2_64(filename.c_str(), &zipStructure);
 
 	if (file == nullptr)
 	{
@@ -208,7 +210,10 @@ bool ZipArchive::extract(const boost::filesystem::path & from, const boost::file
 
 bool ZipArchive::extract(const boost::filesystem::path & from, const boost::filesystem::path & where, const std::vector<std::string> & what)
 {
-	unzFile archive = unzOpen2_64(from.c_str(), FileStream::GetMinizipFilefunc());
+	CDefaultIOApi zipAPI;
+	auto zipStructure = zipAPI.getApiStructure();
+
+	unzFile archive = unzOpen2_64(from.c_str(), &zipStructure);
 
 	auto onExit = vstd::makeScopeGuard([&]()
 	{
@@ -229,7 +234,7 @@ bool ZipArchive::extract(const boost::filesystem::path & from, const boost::file
 		if (boost::algorithm::ends_with(file, "/"))
 			continue;
 
-		FileStream destFile(fullName, std::ios::out | std::ios::binary);
+		std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
 		if (!destFile.good())
 			return false;
 

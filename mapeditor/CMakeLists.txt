@@ -12,7 +12,16 @@ set(editor_SRCS
 		generatorprogress.cpp
 		mapview.cpp
 		objectbrowser.cpp
-		mapsettings.cpp
+		mapsettings/abstractsettings.cpp
+		mapsettings/mapsettings.cpp
+		mapsettings/generalsettings.cpp
+		mapsettings/modsettings.cpp
+		mapsettings/timedevent.cpp
+		mapsettings/victoryconditions.cpp
+		mapsettings/loseconditions.cpp
+		mapsettings/eventsettings.cpp
+		mapsettings/rumorsettings.cpp
+		mapsettings/translations.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
@@ -24,6 +33,9 @@ set(editor_SRCS
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
+		inspector/heroskillswidget.cpp
+		inspector/PickObjectDelegate.cpp
+		inspector/portraitwidget.cpp
 		resourceExtractor/ResourceConverter.cpp
 )
 
@@ -40,7 +52,16 @@ set(editor_HEADERS
 		generatorprogress.h
 		mapview.h
 		objectbrowser.h
-		mapsettings.h
+		mapsettings/abstractsettings.h
+		mapsettings/mapsettings.h
+		mapsettings/generalsettings.h
+		mapsettings/modsettings.h
+		mapsettings/timedevent.h
+		mapsettings/victoryconditions.h
+		mapsettings/loseconditions.h
+		mapsettings/eventsettings.h
+		mapsettings/rumorsettings.h
+		mapsettings/translations.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
@@ -52,6 +73,9 @@ set(editor_HEADERS
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
 		inspector/questwidget.h
+		inspector/heroskillswidget.h
+		inspector/PickObjectDelegate.h
+		inspector/portraitwidget.h
 		resourceExtractor/ResourceConverter.h
 )
 
@@ -59,7 +83,15 @@ set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
 		generatorprogress.ui
-		mapsettings.ui
+		mapsettings/mapsettings.ui
+		mapsettings/generalsettings.ui
+		mapsettings/modsettings.ui
+		mapsettings/timedevent.ui
+		mapsettings/victoryconditions.ui
+		mapsettings/loseconditions.ui
+		mapsettings/eventsettings.ui
+		mapsettings/rumorsettings.ui
+		mapsettings/translations.ui
 		playersettings.ui
 		playerparams.ui
 		validator.ui
@@ -68,6 +100,8 @@ set(editor_FORMS
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui
 		inspector/questwidget.ui
+		inspector/heroskillswidget.ui
+		inspector/portraitwidget.ui
 )
 
 set(editor_TS
@@ -78,6 +112,7 @@ set(editor_TS
 	translation/russian.ts
 	translation/spanish.ts
 	translation/ukrainian.ts
+	translation/vietnamese.ts
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} mapeditor.rc)
@@ -151,8 +186,8 @@ enable_pch(vcmieditor)
 # Copy to build directory for easier debugging
 add_custom_command(TARGET vcmieditor POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/
-	COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/mapeditor/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/icons
-	COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/translation
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/mapeditor/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/icons
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/translation
 )
 
 install(TARGETS vcmieditor DESTINATION ${BIN_DIR})

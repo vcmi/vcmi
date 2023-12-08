@@ -97,7 +97,6 @@ public:
 
 	const Script * resolveScript(const std::string & name) const;
 
-	std::vector<bool> getDefaultAllowed() const override;
 	std::vector<JsonNode> loadLegacyData() override;
 
 	ScriptPtr loadFromJson(vstd::CLoggerBase * logger, const std::string & scope, const JsonNode & json, const std::string & identifier) const;

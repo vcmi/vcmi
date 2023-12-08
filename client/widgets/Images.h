@@ -11,12 +11,12 @@
 
 #include "../gui/CIntObject.h"
 #include "../battle/BattleConstants.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Color;
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -34,10 +34,6 @@ public:
 	/// If set to true, iamge will be redrawn on each frame
 	bool needRefresh;
 
-	/// If set to false, image will not be rendered
-	/// Deprecated, use CIntObject::disable()/enable() instead
-	bool visible;
-
 	std::shared_ptr<IImage> getSurface()
 	{
 		return bg;
@@ -50,13 +46,13 @@ public:
 	CPicture(std::shared_ptr<IImage> image, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
 
 	/// Loads image from specified file name
-	CPicture(const std::string & bmpname);
-	CPicture(const std::string & bmpname, const Point & position);
-	CPicture(const std::string & bmpname, int x, int y);
+	CPicture(const ImagePath & bmpname);
+	CPicture(const ImagePath & bmpname, const Point & position);
+	CPicture(const ImagePath & bmpname, int x, int y);
 
 	/// set alpha value for whole surface. Note: may be messed up if surface is shared
 	/// 0=transparent, 255=opaque
-	void setAlpha(int value);
+	void setAlpha(uint8_t value);
 	void scaleTo(Point size);
 	void colorize(PlayerColor player);
 
@@ -72,7 +68,7 @@ protected:
 	Rect imageArea;
 
 public:
-	CFilledTexture(std::string imageName, Rect position);
+	CFilledTexture(const ImagePath & imageName, Rect position);
 	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
 
 	void showAll(Canvas & to) override;
@@ -81,7 +77,7 @@ public:
 class FilledTexturePlayerColored : public CFilledTexture
 {
 public:
-	FilledTexturePlayerColored(std::string imageName, Rect position);
+	FilledTexturePlayerColored(const ImagePath & imageName, Rect position);
 
 	void playerColored(PlayerColor player);
 };
@@ -95,7 +91,7 @@ private:
 	size_t frame;
 	size_t group;
 	ui8 flags;
-	const Point scaledSize;
+	Point scaledSize;
 
 	/// If set, then image is colored using player-specific palette
 	std::optional<PlayerColor> player;
@@ -106,7 +102,7 @@ private:
 public:
 	bool visible;
 
-	CAnimImage(const std::string & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(const AnimationPath & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
@@ -124,6 +120,10 @@ public:
 	bool isPlayerColored() const;
 
 	void showAll(Canvas & to) override;
+
+	void setAnimationPath(const AnimationPath & name, size_t frame);
+
+	void setScale(Point scale);
 };
 
 /// Base class for displaying animation, used as superclass for different animations
@@ -167,7 +167,7 @@ public:
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
 	void setAlpha(ui32 alphaValue);
 
-	CShowableAnim(int x, int y, std::string name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
+	CShowableAnim(int x, int y, const AnimationPath & name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
 	~CShowableAnim();
 
 	//set animation to group or part of group
@@ -214,6 +214,6 @@ public:
 	//clear queue and set animation to this sequence
 	void clearAndSet(ECreatureAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, ui8 flags = 0, ECreatureAnimType = ECreatureAnimType::HOLDING);
+	CCreatureAnim(int x, int y, const AnimationPath & name, ui8 flags = 0, ECreatureAnimType = ECreatureAnimType::HOLDING);
 
 };

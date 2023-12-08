@@ -53,4 +53,7 @@ public:
 	bool canUninstallMod(QString mod);
 	bool canEnableMod(QString mod);
 	bool canDisableMod(QString mod);
+	
+signals:
+	void extractionProgress(qint64 currentAmount, qint64 maxAmount);
 };

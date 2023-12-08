@@ -17,22 +17,25 @@
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
-#include "../lib/NetPacks.h"
+#include "render/IRenderHandler.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "windows/CCastleInterface.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ContentTypeHandler.h"
+#include "../lib/modding/ModUtility.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CModHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "CMT.h"
 
@@ -71,7 +74,8 @@ void ClientCommandManager::handleGoSoloCommand()
 {
 	Settings session = settings.write["session"];
 
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	if(!CSH->client)
 	{
 		printCommandMessage("Game is not in playing state");
@@ -95,7 +99,7 @@ void ClientCommandManager::handleGoSoloCommand()
 			if(elem.second.human)
 			{
 				auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(elem.first), false, false);
-				printCommandMessage("Player " + elem.first.getStr() + " will be lead by " + AiToGive, ELogLevel::INFO);
+				printCommandMessage("Player " + elem.first.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
 				CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
 			}
 		}
@@ -117,7 +121,8 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 	singleWordBuffer >> colorName;
 	boost::to_lower(colorName);
 
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	if(!CSH->client)
 	{
 		printCommandMessage("Game is not in playing state");
@@ -180,12 +185,12 @@ void ClientCommandManager::handleNotDialogCommand()
 void ClientCommandManager::handleConvertTextCommand()
 {
 	logGlobal->info("Searching for available maps");
-	std::unordered_set<ResourceID> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
 	{
 		return ident.getType() == EResType::MAP;
 	});
 
-	std::unordered_set<ResourceID> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
 	{
 		return ident.getType() == EResType::CAMPAIGN;
 	});
@@ -229,7 +234,8 @@ void ClientCommandManager::handleGetConfigCommand()
 
 	for(auto contentName : contentNames)
 	{
-		auto& content = (*VLC->modh->content)[contentName];
+		auto const & handler = *VLC->modh->content;
+		auto const & content = handler[contentName];
 
 		auto contentOutPath = outPath / contentName;
 		boost::filesystem::create_directories(contentOutPath);
@@ -242,12 +248,12 @@ void ClientCommandManager::handleGetConfigCommand()
 			{
 				const JsonNode& object = nameAndObject.second;
 
-				std::string name = CModHandler::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
+				std::string name = ModUtility::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
 
 				boost::algorithm::replace_all(name, ":", "_");
 
 				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
-				boost::filesystem::ofstream file(filePath);
+				std::ofstream file(filePath.c_str());
 				file << object.toJson();
 			}
 		}
@@ -273,7 +279,7 @@ void ClientCommandManager::handleGetScriptsCommand()
 
 		const scripting::ScriptImpl * script = kv.second.get();
 		boost::filesystem::path filePath = outPath / (name + ".lua");
-		boost::filesystem::ofstream file(filePath);
+		std::ofstream file(filePath.c_str());
 		file << script->getSource();
 	}
 	printCommandMessage("\rExtracting done :)\n");
@@ -289,7 +295,7 @@ void ClientCommandManager::handleGetTextCommand()
 			VCMIDirs::get().userExtractedPath();
 
 	auto list =
-			CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
+			CResourceHandler::get()->getFilteredFiles([](const ResourcePath & ident)
 			{
 				return ident.getType() == EResType::TEXT && boost::algorithm::starts_with(ident.getName(), "DATA/");
 			});
@@ -300,7 +306,7 @@ void ClientCommandManager::handleGetTextCommand()
 
 		boost::filesystem::create_directories(filePath.parent_path());
 
-		boost::filesystem::ofstream file(filePath);
+		std::ofstream file(filePath.c_str());
 		auto text = CResourceHandler::get()->load(filename)->readAll();
 
 		file.write((char*)text.first.get(), text.second);
@@ -314,7 +320,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(URI);
+	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI));
 	anim->preload();
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
@@ -324,14 +330,14 @@ void ClientCommandManager::handleExtractCommand(std::istringstream& singleWordBu
 	std::string URI;
 	singleWordBuffer >> URI;
 
-	if(CResourceHandler::get()->existsResource(ResourceID(URI)))
+	if(CResourceHandler::get()->existsResource(ResourcePath(URI)))
 	{
 		const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / URI;
 
-		auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
+		auto data = CResourceHandler::get()->load(ResourcePath(URI))->readAll();
 
 		boost::filesystem::create_directories(outPath.parent_path());
-		boost::filesystem::ofstream outFile(outPath, boost::filesystem::ofstream::binary);
+		std::ofstream outFile(outPath.c_str(), std::ofstream::binary);
 		outFile.write((char*)data.first.get(), data.second);
 	}
 	else
@@ -412,14 +418,6 @@ void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer
 	}
 }
 
-void ClientCommandManager::handleUnlockCommand(std::istringstream& singleWordBuffer)
-{
-	std::string mxname;
-	singleWordBuffer >> mxname;
-	if(mxname == "pim" && LOCPLINT)
-		LOCPLINT->pim->unlock();
-}
-
 void ClientCommandManager::handleCrashCommand()
 {
 	int* ptr = nullptr;
@@ -456,7 +454,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 	if(currentCallFromIngameConsole)
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		if(LOCPLINT && LOCPLINT->cingconsole)
 		{
 			LOCPLINT->cingconsole->print(commandMessage);
@@ -466,9 +464,9 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 {
-	YourTurn yt;
+	PlayerStartsTurn yt;
 	yt.player = colorIdentifier;
-	yt.daysWithoutCastle = CSH->client->getPlayerState(colorIdentifier)->daysWithoutCastle;
+	yt.queryID = QueryID::NONE;
 
 	ApplyClientNetPackVisitor visitor(*CSH->client, *CSH->client->gameState());
 	yt.visit(visitor);
@@ -542,9 +540,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if (commandName == "set")
 		handleSetCommand(singleWordBuffer);
-
-	else if(commandName == "unlock")
-		handleUnlockCommand(singleWordBuffer);
 
 	else if(commandName == "crash")
 		handleCrashCommand();

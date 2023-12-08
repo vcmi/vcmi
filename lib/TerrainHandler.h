@@ -15,6 +15,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "Color.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +44,7 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 
 	enum PassabilityType : ui8
 	{
-		LAND = 1,
+		//LAND = 1,
 		WATER = 2,
 		SURFACE = 4,
 		SUBTERRANEAN = 8,
@@ -66,11 +67,11 @@ public:
 	ColorRGBA minimapBlocked;
 	ColorRGBA minimapUnblocked;
 	std::string shortIdentifier;
-	std::string musicFilename;
-	std::string tilesFilename;
+	AudioPath musicFilename;
+	AnimationPath tilesFilename;
 	std::string terrainViewPatterns;
-	std::string horseSound;
-	std::string horseSoundPenalty;
+	AudioPath horseSound;
+	AudioPath horseSoundPenalty;
 
 	std::vector<TerrainPaletteAnimation> paletteAnimation;
 
@@ -83,36 +84,13 @@ public:
 
 	bool isLand() const;
 	bool isWater() const;
+	bool isRock() const;
+
 	bool isPassable() const;
+
 	bool isSurface() const;
 	bool isUnderground() const;
 	bool isTransitionRequired() const;
-	bool isSurfaceCartographerCompatible() const;
-	bool isUndergroundCartographerCompatible() const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & battleFields;
-		h & prohibitTransitions;
-		h & minimapBlocked;
-		h & minimapUnblocked;
-		h & modScope;
-		h & identifier;
-		h & musicFilename;
-		h & tilesFilename;
-		h & shortIdentifier;
-		h & terrainViewPatterns;
-		h & rockTerrain;
-		h & river;
-		h & paletteAnimation;
-
-		h & id;
-		h & moveCost;
-		h & horseSound;
-		h & horseSoundPenalty;
-		h & passabilityType;
-		h & transitionRequired;
-	}
 };
 
 class DLL_LINKAGE TerrainTypeService : public EntityServiceT<TerrainId, TerrainType>
@@ -131,12 +109,6 @@ public:
 
 	virtual const std::vector<std::string> & getTypeNames() const override;
 	virtual std::vector<JsonNode> loadLegacyData() override;
-	virtual std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

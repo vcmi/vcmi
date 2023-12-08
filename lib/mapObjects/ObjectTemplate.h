@@ -11,6 +11,7 @@
 
 #include "../GameConstants.h"
 #include "../int3.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,15 +43,15 @@ class DLL_LINKAGE ObjectTemplate
 
 public:
 	/// H3 ID/subID of this object
-	Obj id;
-	si32 subid;
+	MapObjectID id;
+	MapObjectSubID subid;
 	/// print priority, objects with higher priority will be print first, below everything else
 	si32 printPriority;
 	/// animation file that should be used to display object
-	std::string animationFile;
+	AnimationPath animationFile;
 
 	/// map editor only animation file
-	std::string editorAnimationFile;
+	AnimationPath editorAnimationFile;
 
 	/// string ID, equals to def base name for h3m files (lower case, no extension) or specified in mod data
 	std::string stringID;
@@ -79,7 +80,7 @@ public:
 	bool isVisibleAt(si32 X, si32 Y) const;
 	bool isBlockedAt(si32 X, si32 Y) const;
 
-	inline std::set<int3> getBlockedOffsets() const
+	inline const std::set<int3> & getBlockedOffsets() const
 	{
 		return blockedOffsets;
 	};
@@ -163,7 +164,7 @@ public:
 		h & animationFile;
 		h & stringID;
 		h & id;
-		h & subid;
+		subid.serializeIdentifier(h, id, version);
 		h & printPriority;
 		h & visitDir;
 		h & editorAnimationFile;

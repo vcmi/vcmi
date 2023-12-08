@@ -11,6 +11,8 @@
 
 #include "RandomMapTab.h"
 #include "CSelectionBase.h"
+#include "CLobbyScreen.h"
+#include "SelectionTab.h"
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
@@ -18,6 +20,7 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
@@ -31,7 +34,6 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"
@@ -42,7 +44,6 @@ RandomMapTab::RandomMapTab():
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
 	
-	const JsonNode config(ResourceID("config/widgets/randomMapTab.json"));
 	addCallback("toggleMapSize", [&](int btnId)
 	{
 		auto mapSizeVal = getPossibleMapSizes();
@@ -64,7 +65,7 @@ RandomMapTab::RandomMapTab():
 	
 	addCallback("setPlayersCount", [&](int btnId)
 	{
-		mapGenOptions->setPlayerCount(btnId);
+		mapGenOptions->setHumanOrCpuPlayerCount(btnId);
 		setMapGenOptions(mapGenOptions);
 		updateMapInfoByHost();
 	});
@@ -104,14 +105,9 @@ RandomMapTab::RandomMapTab():
 	});
 	
 	//new callbacks available only from mod
-	addCallback("templateSelection", [&](int)
-	{
-		GH.windows().createAndPushWindow<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
-	});
-	
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
+		GH.windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
 	for(auto road : VLC->roadTypeHandler->objects)
@@ -124,7 +120,47 @@ RandomMapTab::RandomMapTab():
 		});
 	}
 	
+	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
+	
+	if(auto w = widget<CButton>("buttonShowRandomMaps"))
+	{
+		w->addCallback([&]()
+		{
+			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
+			(static_cast<CLobbyScreen *>(parent))->tabSel->showRandom = true;
+			(static_cast<CLobbyScreen *>(parent))->tabSel->filter(0, true);
+		});
+	}
+
+	//set combo box callbacks
+	if(auto w = widget<ComboBox>("templateList"))
+	{
+		w->onConstructItems = [](std::vector<const void *> & curItems){
+			auto templates = VLC->tplh->getTemplates();
+		
+			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
+				return a->getName() < b->getName();
+			});
+
+			curItems.push_back(nullptr); //default template
+			
+			for(auto & t : templates)
+				curItems.push_back(t);
+		};
+		
+		w->onSetItem = [&](const void * item){
+			this->setTemplate(reinterpret_cast<const CRmgTemplate *>(item));
+		};
+		
+		w->getItemText = [this](int idx, const void * item){
+			if(item)
+				return reinterpret_cast<const CRmgTemplate *>(item)->getName();
+			if(idx == 0)
+				return readText(variables["randomTemplate"]);
+			return std::string("");
+		};
+	}
 	
 	updateMapInfoByHost();
 }
@@ -139,63 +175,46 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
-	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];
+	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 	mapInfo->mapHeader->difficulty = 1; // Normal
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
 	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();
 
 	// Generate player information
-	int playersToGen = PlayerColor::PLAYER_LIMIT_I;
-	if(mapGenOptions->getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
-	{
-		if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE)
-			playersToGen = mapGenOptions->getPlayerCount() + mapGenOptions->getCompOnlyPlayerCount();
-		else
-			playersToGen = mapGenOptions->getPlayerCount();
-	}
+	int playersToGen = mapGenOptions->getMaxPlayersCount();
 
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
-	std::set<TeamID> occupiedTeams;
+	//TODO: Assign all human-controlled colors in first place
+
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		mapInfo->mapHeader->players[i].canComputerPlay = false;
 		mapInfo->mapHeader->players[i].canHumanPlay = false;
 	}
 
-	for(int i = 0; i < playersToGen; ++i)
+	std::vector<PlayerColor> availableColors;
+	for (ui8 color = 0; color < PlayerColor::PLAYER_LIMIT_I; color++)
 	{
-		PlayerInfo player;
-		player.isFactionRandom = true;
-		player.canComputerPlay = true;
-		if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE && i >= mapGenOptions->getPlayerCount())
-		{
-			player.canHumanPlay = false;
-		}
-		else
-		{
-			player.canHumanPlay = true;
-		}
-		auto team = mapGenOptions->getPlayersSettings().at(PlayerColor(i)).getTeam();
-		player.team = team;
-		occupiedTeams.insert(team);
-		player.hasMainTown = true;
-		player.generateHeroAtMainTown = true;
-		mapInfo->mapHeader->players[i] = player;
+		availableColors.push_back(PlayerColor(color));
 	}
-	for(auto & player : mapInfo->mapHeader->players)
+
+	//First restore known players
+	for (auto& player : mapGenOptions->getPlayersSettings())
 	{
-		for(int i = 0; player.team == TeamID::NO_TEAM; ++i)
-		{
-			TeamID team(i);
-			if(!occupiedTeams.count(team))
-			{
-				player.team = team;
-				occupiedTeams.insert(team);
-			}
-		}
+		PlayerInfo playerInfo;
+		playerInfo.isFactionRandom = (player.second.getStartingTown() == FactionID::RANDOM);
+		playerInfo.canComputerPlay = (player.second.getPlayerType() != EPlayerType::HUMAN);
+		playerInfo.canHumanPlay = (player.second.getPlayerType() != EPlayerType::COMP_ONLY);
+
+		auto team = player.second.getTeam();
+		playerInfo.team = team;
+		playerInfo.hasMainTown = true;
+		playerInfo.generateHeroAtMainTown = true;
+		mapInfo->mapHeader->players[player.first] = playerInfo;
+		vstd::erase(availableColors, player.first);
 	}
 
 	mapInfoChanged(mapInfo, mapGenOptions);
@@ -205,47 +224,72 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 {
 	mapGenOptions = opts;
 	
-	//prepare allowed options
+	//Prepare allowed options - add all, then erase the ones above the limit
 	for(int i = 0; i <= PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		playerCountAllowed.insert(i);
 		compCountAllowed.insert(i);
-		playerTeamsAllowed.insert(i);
-		compTeamsAllowed.insert(i);
+		if (i >= 2)
+		{
+			playerTeamsAllowed.insert(i);
+		}
+		if (i >= 1)
+		{
+			compTeamsAllowed.insert(i);
+		}
 	}
+	std::set<int> humanCountAllowed;
+
 	auto * tmpl = mapGenOptions->getMapTemplate();
 	if(tmpl)
 	{
 		playerCountAllowed = tmpl->getPlayers().getNumbers();
-		compCountAllowed = tmpl->getCpuPlayers().getNumbers();
+		humanCountAllowed = tmpl->getHumanPlayers().getNumbers(); // Unused now?
 	}
-	if(mapGenOptions->getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+	
+	si8 playerLimit = opts->getMaxPlayersCount();
+	si8 humanOrCpuPlayerCount = opts->getHumanOrCpuPlayerCount();
+	si8 compOnlyPlayersCount = opts->getCompOnlyPlayerCount();
+
+	if(humanOrCpuPlayerCount != CMapGenOptions::RANDOM_SIZE)
 	{
-		vstd::erase_if(compCountAllowed,
-		[opts](int el){
-			return PlayerColor::PLAYER_LIMIT_I - opts->getPlayerCount() < el;
+		vstd::erase_if(compCountAllowed, [playerLimit, humanOrCpuPlayerCount](int el)
+		{
+			return (playerLimit - humanOrCpuPlayerCount) < el;
 		});
-		vstd::erase_if(playerTeamsAllowed,
-		[opts](int el){
-			return opts->getPlayerCount() <= el;
+		vstd::erase_if(playerTeamsAllowed, [humanOrCpuPlayerCount](int el)
+		{
+			return humanOrCpuPlayerCount <= el;
 		});
-		
-		if(!playerTeamsAllowed.count(opts->getTeamCount()))
-		   opts->setTeamCount(CMapGenOptions::RANDOM_SIZE);
 	}
-	if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+	else // Random
 	{
-		vstd::erase_if(playerCountAllowed,
-		[opts](int el){
-			return PlayerColor::PLAYER_LIMIT_I - opts->getCompOnlyPlayerCount() < el;
+		vstd::erase_if(compCountAllowed, [playerLimit](int el)
+		{
+			return (playerLimit - 1) < el; // Must leave at least 1 human player
 		});
-		vstd::erase_if(compTeamsAllowed,
-		[opts](int el){
-			return opts->getCompOnlyPlayerCount() <= el;
+		vstd::erase_if(playerTeamsAllowed, [playerLimit](int el)
+		{
+			return playerLimit <= el;
+		});
+	}
+	if(!playerTeamsAllowed.count(opts->getTeamCount()))
+	{
+		opts->setTeamCount(CMapGenOptions::RANDOM_SIZE);
+	}
+
+	if(compOnlyPlayersCount != CMapGenOptions::RANDOM_SIZE)
+	{
+		// This setting doesn't impact total number of players
+		vstd::erase_if(compTeamsAllowed, [compOnlyPlayersCount](int el)
+		{
+			return compOnlyPlayersCount<= el;
 		});
 		
 		if(!compTeamsAllowed.count(opts->getCompOnlyTeamCount()))
+		{
 			opts->setCompOnlyTeamCount(CMapGenOptions::RANDOM_SIZE);
+		}
 	}
 	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
@@ -274,7 +318,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 	{
-		w->setSelected(opts->getPlayerCount());
+		w->setSelected(opts->getHumanOrCpuPlayerCount());
 		deactivateButtonsFrom(*w, playerCountAllowed);
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxTeams"))
@@ -308,9 +352,9 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	for(auto r : VLC->roadTypeHandler->objects)
 	{
@@ -328,9 +372,9 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	updateMapInfoByHost();
 }
@@ -361,181 +405,53 @@ std::vector<int> RandomMapTab::getPossibleMapSizes()
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }
 
-TemplatesDropBox::ListItem::ListItem(const JsonNode & config, TemplatesDropBox & _dropBox, Point position)
-	: InterfaceObjectConfigurable(LCLICK | HOVER, position),
-	dropBox(_dropBox)
+void TeamAlignmentsWidget::checkTeamCount()
 {
-	OBJ_CONSTRUCTION;
-	
-	build(config);
-	
-	if(auto w = widget<CPicture>("hoverImage"))
+	//Do not allow to select one team only
+	std::set<TeamID> teams;
+	for (int plId = 0; plId < players.size(); ++plId)
 	{
-		pos.w = w->pos.w;
-		pos.h = w->pos.h;
+		teams.insert(TeamID(players[plId]->getSelected()));
 	}
-	setRedrawParent(true);
-}
-
-void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)
-{
-	if(auto w = widget<CLabel>("labelName"))
+	if (teams.size() < 2)
 	{
-		item = _item;
-		if(item)
-		{
-			w->setText(item->getName());
-		}
-		else
-		{
-			if(idx)
-				w->setText("");
-			else
-				w->setText(readText(dropBox.variables["randomTemplate"]));
-		}
+		//Do not let player close the window
+		buttonOk->block(true);
+	}
+	else
+	{
+		buttonOk->block(false);
 	}
 }
 
-void TemplatesDropBox::ListItem::hover(bool on)
+TeamAlignments::TeamAlignments(RandomMapTab & randomMapTab)
+	: CWindowObject(BORDERED)
 {
-	auto h = widget<CPicture>("hoverImage");
-	auto w = widget<CLabel>("labelName");
-	if(h && w)
-	{
-		if(w->getText().empty())
-			h->visible = false;
-		else
-			h->visible = on;
-	}
-	redraw();
-}
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-void TemplatesDropBox::ListItem::clickPressed(const Point & cursorPosition)
-{
-	if(isHovered())
-		dropBox.setTemplate(item);
-}
+	widget = std::make_shared<TeamAlignmentsWidget>(randomMapTab);
+	pos = widget->pos;
 
-void TemplatesDropBox::ListItem::clickReleased(const Point & cursorPosition)
-{
-	dropBox.clickPressed(cursorPosition);
-	dropBox.clickReleased(cursorPosition);
-}
-
-TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
-	InterfaceObjectConfigurable(LCLICK | HOVER),
-	randomMapTab(randomMapTab)
-{
-	REGISTER_BUILDER("templateListItem", &TemplatesDropBox::buildListItem);
-	
-	curItems = VLC->tplh->getTemplates();
-
-	boost::range::sort(curItems, [](const CRmgTemplate * a, const CRmgTemplate * b){
-		return a->getName() < b->getName();
-	});
-
-	curItems.insert(curItems.begin(), nullptr); //default template
-	
-	const JsonNode config(ResourceID("config/widgets/randomMapTemplateWidget.json"));
-	
-	addCallback("sliderMove", std::bind(&TemplatesDropBox::sliderMove, this, std::placeholders::_1));
-	
-	OBJ_CONSTRUCTION;
-	pos = randomMapTab.pos;
-	
-	build(config);
-	
-	if(auto w = widget<CSlider>("slider"))
-	{
-		w->setAmount(curItems.size());
-	}
-
-	//FIXME: this should be done by InterfaceObjectConfigurable, but might have side-effects
-	pos = children.front()->pos;
-	for (auto const & child : children)
-		pos = pos.include(child->pos);
-	
-	updateListItems();
-}
-
-std::shared_ptr<CIntObject> TemplatesDropBox::buildListItem(const JsonNode & config)
-{
-	auto position = readPosition(config["position"]);
-	listItems.push_back(std::make_shared<ListItem>(config, *this, position));
-	return listItems.back();
-}
-
-void TemplatesDropBox::sliderMove(int slidPos)
-{
-	auto w = widget<CSlider>("slider");
-	if(!w)
-		return; // ignore spurious call when slider is being created
-	updateListItems();
-	redraw();
-}
-
-bool TemplatesDropBox::receiveEvent(const Point & position, int eventType) const
-{
-	if (eventType == LCLICK)
-		return true; // we want drop box to close when clicking outside drop box borders
-
-	return CIntObject::receiveEvent(position, eventType);
-}
-
-void TemplatesDropBox::clickPressed(const Point & cursorPosition)
-{
-	if (!pos.isInside(cursorPosition))
-	{
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
-	}
-}
-
-void TemplatesDropBox::updateListItems()
-{
-	if(auto w = widget<CSlider>("slider"))
-	{
-		int elemIdx = w->getValue();
-		for(auto item : listItems)
-		{
-			if(elemIdx < curItems.size())
-			{
-				item->updateItem(elemIdx, curItems[elemIdx]);
-				elemIdx++;
-			}
-			else
-			{
-				item->updateItem(elemIdx);
-			}
-		}
-	}
-}
-
-void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
-{
-	randomMapTab.setTemplate(tmpl);
-	assert(GH.windows().isTopWindow(this));
-	GH.windows().popWindows(1);
+	updateShadow();
+	center();
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	InterfaceObjectConfigurable()
 {
-	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];
 	
-	int humanPlayers = randomMapTab.obtainMapGenOptions().getPlayerCount();
-	int cpuPlayers = randomMapTab.obtainMapGenOptions().getCompOnlyPlayerCount();
-	int totalPlayers = humanPlayers == CMapGenOptions::RANDOM_SIZE || cpuPlayers == CMapGenOptions::RANDOM_SIZE
-	? PlayerColor::PLAYER_LIMIT_I : humanPlayers + cpuPlayers;
+	//int totalPlayers = randomMapTab.obtainMapGenOptions().getPlayerLimit();
+	int totalPlayers = randomMapTab.obtainMapGenOptions().getMaxPlayersCount();
 	assert(totalPlayers <= PlayerColor::PLAYER_LIMIT_I);
 	auto settings = randomMapTab.obtainMapGenOptions().getPlayersSettings();
 	variables["totalPlayers"].Integer() = totalPlayers;
 	
 	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
 	pos.h = variables["windowSize"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
-	variables["backgroundRect"]["x"].Integer() = pos.x;
-	variables["backgroundRect"]["y"].Integer() = pos.y;
+	variables["backgroundRect"]["x"].Integer() = 0;
+	variables["backgroundRect"]["y"].Integer() = 0;
 	variables["backgroundRect"]["w"].Integer() = pos.w;
 	variables["backgroundRect"]["h"].Integer() = pos.h;
 	variables["okButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["ok"]["x"].Integer();
@@ -550,14 +466,15 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
 		}
 		randomMapTab.updateMapInfoByHost();
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
+
+		for(auto & window : GH.windows().findWindows<TeamAlignments>())
+			GH.windows().popWindow(window);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
+		for(auto & window : GH.windows().findWindows<TeamAlignments>())
+			GH.windows().popWindow(window);
 	});
 	
 	build(config);
@@ -566,6 +483,27 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	
 	OBJ_CONSTRUCTION;
 	
+	// Window should have X * X columns, where X is max players allowed for current settings
+	// For random player count, X is 8
+
+	if (totalPlayers > settings.size())
+	{
+		auto savedPlayers = randomMapTab.obtainMapGenOptions().getSavedPlayersMap();
+		for (const auto & player : savedPlayers)
+		{
+			if (!vstd::contains(settings, player.first))
+			{
+				settings[player.first] = player.second;
+			}
+		}
+	}
+
+	std::vector<CMapGenOptions::CPlayerSettings> settingsVec;
+	for (const auto & player : settings)
+	{
+		settingsVec.push_back(player.second);
+	}
+
 	for(int plId = 0; plId < totalPlayers; ++plId)
 	{
 		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)
@@ -584,10 +522,15 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 				{
 					button->addOverlay(nullptr);
 				}
+				button->addCallback([this](bool)
+				{
+					checkTeamCount();
+				});
 			}
 		}));
 		
 		OBJ_CONSTRUCTION_TARGETED(players.back().get());
+
 		for(int teamId = 0; teamId < totalPlayers; ++teamId)
 		{
 			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer();
@@ -596,10 +539,17 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			players.back()->addToggle(teamId, std::dynamic_pointer_cast<CToggleBase>(button));
 		}
 		
-		auto team = settings.at(PlayerColor(plId)).getTeam();
+		// plId is not neccessarily player color, just an index
+		auto team = settingsVec.at(plId).getTeam();
 		if(team == TeamID::NO_TEAM)
+		{
+			logGlobal->warn("Player %d (id %d) has uninitialized team", settingsVec.at(plId).getColor(), plId);
 			players.back()->setSelected(plId);
+		}
 		else
 			players.back()->setSelected(team.getNum());
 	}
+
+	buttonOk = widget<CButton>("buttonOK");
+	buttonCancel = widget<CButton>("buttonCancel");
 }

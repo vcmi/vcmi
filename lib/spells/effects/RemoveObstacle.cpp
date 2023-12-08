@@ -14,10 +14,10 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/CObstacleInstance.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -44,6 +44,7 @@ bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const Ef
 void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & obstacle : getTargets(m, target, false))
 	{

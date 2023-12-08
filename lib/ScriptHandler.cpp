@@ -17,7 +17,6 @@
 
 #include "CGameInterface.h"
 #include "CScriptingModule.h"
-#include "CModHandler.h"
 
 #include "VCMIDirs.h"
 #include "serializer/JsonDeserializer.h"
@@ -91,7 +90,7 @@ void ScriptImpl::serializeJson(vstd::CLoggerBase * logger, JsonSerializeFormat &
 	{
 		resolveHost();
 
-		ResourceID sourcePathId("SCRIPTS/" + sourcePath);
+		ResourcePath sourcePathId("SCRIPTS/" + sourcePath);
 
 		auto rawData = CResourceHandler::get()->load(sourcePathId)->readAll();
 
@@ -116,7 +115,7 @@ void ScriptImpl::serializeJsonState(JsonSerializeFormat & handler)
 
 void ScriptImpl::resolveHost()
 {
-	ResourceID sourcePathId(sourcePath);
+	ResourcePath sourcePathId(sourcePath);
 
 	if(sourcePathId.getType() == EResType::ERM)
 		host = owner->erm;
@@ -216,11 +215,6 @@ const Script * ScriptHandler::resolveScript(const std::string & name) const
 	{
 		return iter->second.get();
 	}
-}
-
-std::vector<bool> ScriptHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>();
 }
 
 std::vector<JsonNode> ScriptHandler::loadLegacyData()

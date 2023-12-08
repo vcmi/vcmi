@@ -20,7 +20,6 @@
 #endif
 
 #include "../../lib/JsonNode.h"
-#include "../../lib/NetPacksBase.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 
 namespace test
@@ -87,6 +86,17 @@ public:
 	{
 		pack->applyBattle(this);
 	}
+
+	const IBattleInfo * getBattle() const override
+	{
+		return nullptr;
+	}
+
+	std::optional<PlayerColor> getPlayerID() const override
+	{
+		return std::nullopt;
+	}
+
 
 protected:
 

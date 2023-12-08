@@ -16,9 +16,13 @@
 
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
+#include "../../MetaString.h"
 #include "../../battle/IBattleState.h"
+#include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
+#include "../../bonuses/BonusList.h"
+#include "../../networkPacks/PacksForClientBattle.h"
+#include "../../networkPacks/SetStackEffect.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -33,6 +37,8 @@ void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	const bool describe = server->describeChanges();
 	SetStackEffect sse;
 	BattleLogMessage blm;
+	blm.battleID = m->battle()->getBattle()->getBattleID();
+	sse.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & t : target)
 	{
@@ -87,7 +93,7 @@ std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const b
 	{
 		if(bonus->source == BonusSource::SPELL_EFFECT)
 		{
-			const Spell * sourceSpell = SpellID(bonus->sid).toSpell(m->spells());
+			const Spell * sourceSpell = bonus->sid.as<SpellID>().toEntity(m->spells());
 			if(!sourceSpell)
 				return false;//error
 

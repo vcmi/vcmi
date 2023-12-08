@@ -19,13 +19,15 @@ To compile, the following packages (and their development counterparts) are need
 -   Boost C++ libraries v1.48+: program-options, filesystem, system, thread, locale
 -   Recommended, if you want to build launcher or map editor: Qt 5, widget and network modules
 -   Recommended, FFmpeg libraries, if you want to watch in-game videos: libavformat and libswscale. Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names. 
--   Optional, if you want to build scripting modules: LuaJIT
+-   Optional:
+    - if you want to build scripting modules: LuaJIT
+    - to speed up recompilation: Ccache
 
 ## On Debian-based systems (e.g. Ubuntu)
 
 For Ubuntu and Debian you need to install this list of packages:
 
-`sudo apt-get install cmake g++ libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev qtbase5-dev libtbb-dev libluajit-5.1-dev qttools5-dev`
+`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev qtbase5-dev libtbb-dev libluajit-5.1-dev qttools5-dev ninja-build ccache`
 
 Alternatively if you have VCMI installed from repository or PPA you can use:
 
@@ -33,7 +35,7 @@ Alternatively if you have VCMI installed from repository or PPA you can use:
 
 ## On RPM-based distributions (e.g. Fedora)
 
-`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel fuzzylite-devel`
+`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel fuzzylite-devel ccache`
 
 NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedora, for example Fedora 38. It's not a blocker because VCMI bundles fuzzylite lib in its source code.
 
@@ -69,9 +71,12 @@ cmake ../vcmi
 # Additional options that you may want to use:
 
 ## To enable debugging:
-`cmake ../vcmi -DCMAKE_BUILD_TYPE=Debug`
+`cmake ../vcmi -D CMAKE_BUILD_TYPE=Debug`
 
 **Notice**: The ../vcmi/ is not a typo, it will place makefile scripts into the build dir as the build dir is your working dir when calling CMake.
+
+## To use ccache:
+`cmake ../vcmi -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_C_COMPILER_LAUNCHER=ccache`
 
 ## Trigger build
 

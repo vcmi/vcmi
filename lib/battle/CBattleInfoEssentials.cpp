@@ -11,11 +11,17 @@
 #include "CBattleInfoEssentials.h"
 #include "../CStack.h"
 #include "BattleInfo.h"
-#include "../NetPacks.h"
+#include "CObstacleInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../gameState/InfoAboutArmy.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+bool CBattleInfoEssentials::duringBattle() const
+{
+	return getBattle() != nullptr;
+}
 
 TerrainId CBattleInfoEssentials::battleTerrainType() const
 {
@@ -47,7 +53,7 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::bat
 	}
 	else
 	{
-		if(!!player && *perspective != battleGetMySide())
+		if(!!getPlayerID() && *perspective != battleGetMySide())
 			logGlobal->warn("Unauthorized obstacles access attempt, assuming massive spell");
 	}
 
@@ -103,13 +109,13 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 	});
 }
 
-TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate) const
+TStacks CBattleInfoEssentials::battleGetStacksIf(const TStackFilter & predicate) const
 {
 	RETURN_IF_NOT_BATTLE(TStacks());
 	return getBattle()->getStacksIf(std::move(predicate));
 }
 
-battle::Units CBattleInfoEssentials::battleGetUnitsIf(battle::UnitFilter predicate)  const
+battle::Units CBattleInfoEssentials::battleGetUnitsIf(const battle::UnitFilter & predicate)  const
 {
 	RETURN_IF_NOT_BATTLE(battle::Units());
 	return getBattle()->getUnitsIf(predicate);
@@ -157,14 +163,14 @@ const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() const
 {
 	RETURN_IF_NOT_BATTLE(BattlePerspective::INVALID);
-	if(!player || player->isSpectator())
+	if(!getPlayerID() || getPlayerID()->isSpectator())
 		return BattlePerspective::ALL_KNOWING;
-	if(*player == getBattle()->getSidePlayer(BattleSide::ATTACKER))
+	if(*getPlayerID() == getBattle()->getSidePlayer(BattleSide::ATTACKER))
 		return BattlePerspective::LEFT_SIDE;
-	if(*player == getBattle()->getSidePlayer(BattleSide::DEFENDER))
+	if(*getPlayerID() == getBattle()->getSidePlayer(BattleSide::DEFENDER))
 		return BattlePerspective::RIGHT_SIDE;
 
-	logGlobal->error("Cannot find player %s in battle!", player->getStr());
+	logGlobal->error("Cannot find player %s in battle!", getPlayerID()->toString());
 	return BattlePerspective::INVALID;
 }
 
@@ -276,7 +282,7 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 		return false;
 
 	//we are besieged defender
-	if(side == BattleSide::DEFENDER && battleGetSiegeLevel())
+	if(side == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr)
 	{
 		const auto * town = battleGetDefendedTown();
 		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL))
@@ -296,7 +302,7 @@ BattleSideOpt CBattleInfoEssentials::playerToSide(const PlayerColor & player) co
 	if(getBattle()->getSidePlayer(BattleSide::DEFENDER) == player)
 		return BattleSideOpt(BattleSide::DEFENDER);
 
-	logGlobal->warn("Cannot find side for player %s", player.getStr());
+	logGlobal->warn("Cannot find side for player %s", player.toString());
 
 	return std::nullopt;
 }
@@ -351,7 +357,7 @@ bool CBattleInfoEssentials::battleCanSurrender(const PlayerColor & player) const
 	const auto side = playerToSide(player);
 	if(!side)
 		return false;
-	bool iAmSiegeDefender = (side.value() == BattleSide::DEFENDER && battleGetSiegeLevel());
+	bool iAmSiegeDefender = (side.value() == BattleSide::DEFENDER && getBattle()->getDefendedTown() != nullptr);
 	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
 	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(otherSide(side.value()));
 }

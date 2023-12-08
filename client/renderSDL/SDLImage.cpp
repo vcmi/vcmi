@@ -24,24 +24,6 @@
 
 class SDLImageLoader;
 
-std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
-{
-	return createFromFile(path, EImageBlitMode::ALPHA);
-}
-
-std::shared_ptr<IImage> IImage::createFromFile( const std::string & path, EImageBlitMode mode )
-{
-	return std::shared_ptr<IImage>(new SDLImage(path, mode));
-}
-
-std::shared_ptr<IImage> IImage::createFromSurface( SDL_Surface * source )
-{
-	return std::shared_ptr<IImage>(new SDLImage(source, EImageBlitMode::ALPHA));
-}
-
-IImage::IImage() = default;
-IImage::~IImage() = default;
-
 int IImage::width() const
 {
 	return dimensions().x;
@@ -89,9 +71,7 @@ SDLImage::SDLImage(const JsonNode & conf, EImageBlitMode mode)
 	fullSize(0, 0),
 	originalPalette(nullptr)
 {
-	std::string filename = conf["file"].String();
-
-	surf = BitmapHandler::loadBitmap(filename);
+	surf = BitmapHandler::loadBitmap(ImagePath::fromJson(conf["file"]));
 
 	if(surf == nullptr)
 		return;
@@ -118,7 +98,7 @@ SDLImage::SDLImage(const JsonNode & conf, EImageBlitMode mode)
 	}
 }
 
-SDLImage::SDLImage(std::string filename, EImageBlitMode mode)
+SDLImage::SDLImage(const ImagePath & filename, EImageBlitMode mode)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -128,7 +108,7 @@ SDLImage::SDLImage(std::string filename, EImageBlitMode mode)
 
 	if(surf == nullptr)
 	{
-		logGlobal->error("Error: failed to load image %s", filename);
+		logGlobal->error("Error: failed to load image %s", filename.getOriginalName());
 		return;
 	}
 	else
@@ -247,7 +227,7 @@ void SDLImage::setBlitMode(EImageBlitMode mode)
 
 void SDLImage::setFlagColor(PlayerColor player)
 {
-	if(player < PlayerColor::PLAYER_LIMIT || player==PlayerColor::NEUTRAL)
+	if(player.isValidPlayer() || player==PlayerColor::NEUTRAL)
 		CSDL_Ext::setPlayerColor(surf, player);
 }
 
@@ -327,7 +307,7 @@ void SDLImage::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipM
 		if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
 			continue;
 
-		palette->colors[i] = shifter.shiftColor(originalPalette->colors[i]);
+		palette->colors[i] = CSDL_Ext::toSDL(shifter.shiftColor(CSDL_Ext::fromSDL(originalPalette->colors[i])));
 	}
 }
 
@@ -358,7 +338,7 @@ void SDLImage::setSpecialPallete(const IImage::SpecialPalette & specialPalette, 
 		for (size_t i = 0; i < last; ++i)
 		{
 			if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
-				surf->format->palette->colors[i] = specialPalette[i];
+				surf->format->palette->colors[i] = CSDL_Ext::toSDL(specialPalette[i]);
 		}
 	}
 }

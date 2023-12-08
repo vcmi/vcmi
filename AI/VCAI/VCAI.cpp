@@ -14,6 +14,7 @@
 #include "BuildingManager.h"
 #include "Goals/Goals.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
@@ -21,12 +22,13 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/gameState/CGameState.h"
-#include "../../lib/NetPacksBase.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/bonuses/CBonusSystemNode.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
@@ -38,8 +40,8 @@ extern FuzzyHelper * fh;
 const double SAFE_ATTACK_CONSTANT = 1.5;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
-boost::thread_specific_ptr<CCallback> cb;
-boost::thread_specific_ptr<VCAI> ai;
+thread_local CCallback * cb = nullptr;
+thread_local VCAI * ai = nullptr;
 
 //std::map<int, std::map<int, int> > HeroView::infosCount;
 
@@ -48,18 +50,18 @@ struct SetGlobalState
 {
 	SetGlobalState(VCAI * AI)
 	{
-		assert(!ai.get());
-		assert(!cb.get());
+		assert(!ai);
+		assert(!cb);
 
-		ai.reset(AI);
-		cb.reset(AI->myCb.get());
+		ai = AI;
+		cb = AI->myCb.get();
 	}
 	~SetGlobalState()
 	{
 		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
 		//TODO: to ensure that, make rm unique_ptr
-		ai.release();
-		cb.release();
+		ai = nullptr;
+		cb = nullptr;
 	}
 };
 
@@ -165,10 +167,13 @@ void VCAI::artifactAssembled(const ArtifactLocation & al)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showTavernWindow(const CGObjectInstance * townOrTavern)
+void VCAI::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "TavernWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -204,7 +209,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf.toString());
 	NET_EVENT_HANDLER;
-	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(), (victoryLossCheckResult.victory() ? "won" : "lost"));
+	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.toString(), player, player.toString(), (victoryLossCheckResult.victory() ? "won" : "lost"));
 	if(player == playerID)
 	{
 		if(victoryLossCheckResult.victory())
@@ -214,7 +219,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 		}
 		else
 		{
-			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
+			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
 		finish();
@@ -351,16 +356,23 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	});
 }
 
-void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
+void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", static_cast<int>(which) % val);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
+void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "RecruitmentDialog");
+	requestActionASAP([=](){
+		recruitCreatures(dwelling, dst);
+		checkHeroArmy(dynamic_cast<const CGHeroInstance*>(dst));
+		answerQuery(queryID, 0);
+	});
 }
 
 void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)
@@ -385,7 +397,7 @@ void VCAI::newObject(const CGObjectInstance * obj)
 
 //to prevent AI from accessing objects that got deleted while they became invisible (Cover of Darkness, enemy hero moved etc.) below code allows AI to know deletion of objects out of sight
 //see: RemoveObject::applyFirstCl, to keep AI "not cheating" do not use advantage of this and use this function just to prevent crashes
-void VCAI::objectRemoved(const CGObjectInstance * obj)
+void VCAI::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -475,7 +487,7 @@ void VCAI::heroCreated(const CGHeroInstance * h)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::advmapSpellCast(const CGHeroInstance * caster, int spellID)
+void VCAI::advmapSpellCast(const CGHeroInstance * caster, SpellID spellID)
 {
 	LOG_TRACE_PARAMS(logAi, "spellID '%i", spellID);
 	NET_EVENT_HANDLER;
@@ -493,14 +505,14 @@ void VCAI::requestRealized(PackageApplied * pa)
 	NET_EVENT_HANDLER;
 	if(status.haveTurn())
 	{
-		if(pa->packType == typeList.getTypeID<EndTurn>())
+		if(pa->packType == CTypeList::getInstance().getTypeID<EndTurn>(nullptr))
 		{
 			if(pa->result)
 				status.madeTurn();
 		}
 	}
 
-	if(pa->packType == typeList.getTypeID<QueryReply>())
+	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 	{
 		status.receivedAnswerConfirmation(pa->requestID, pa->result);
 	}
@@ -512,10 +524,13 @@ void VCAI::receivedResource()
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
+void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "UniversityWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -549,7 +564,7 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		if(myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
+		if(myCb->getPlayerRelations(playerID, sop->identifier.as<PlayerColor>()) == PlayerRelations::ENEMIES)
 		{
 			//we want to visit objects owned by oppponents
 			auto obj = myCb->getObj(sop->id, false);
@@ -577,10 +592,13 @@ void VCAI::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bo
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
+void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	status.addQuery(queryID, "MarketWindow");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -600,7 +618,7 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	ah->init(CB.get());
 
 	NET_EVENT_HANDLER; //sets ah->rm->cb
-	playerID = *myCb->getMyColor();
+	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 
@@ -610,15 +628,17 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	retrieveVisitableObjs();
 }
 
-void VCAI::yourTurn()
+void VCAI::yourTurn(QueryID queryID)
 {
-	LOG_TRACE(logAi);
+	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
+	status.addQuery(queryID, "YourTurn");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 	status.startedTurn();
 	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
 
-void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
+void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -654,7 +674,7 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 	});
 }
 
-void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void VCAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 //	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
 	NET_EVENT_HANDLER;
@@ -764,7 +784,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 		{
 			UpgradeInfo ui;
 			cb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
+			if(ui.oldID != CreatureID::NONE && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
 				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 			}
@@ -776,8 +796,8 @@ void VCAI::makeTurn()
 {
 	MAKING_TURN;
 
-	auto day = cb->getDate(Date::EDateType::DAY);
-	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
+	auto day = cb->getDate(Date::DAY);
+	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("VCAI::makeTurn");
@@ -1042,10 +1062,6 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->getNameTranslated() % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
 	{
-	case Obj::CREATURE_GENERATOR1:
-		recruitCreatures(dynamic_cast<const CGDwelling *>(obj), h.get());
-		checkHeroArmy(h);
-		break;
 	case Obj::TOWN:
 		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
 		if(h->visitedTown) //we are inside, not just attacking
@@ -1151,21 +1167,21 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				for(auto p : h->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(h, p.first));
+						allArtifacts.push_back(ArtifactLocation(h->id, p.first));
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.artifact)));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(otherh, p.first));
+						allArtifacts.push_back(ArtifactLocation(otherh->id, p.first));
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh, otherh->getArtPos(slot.artifact)));
+					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.artifact)));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1180,10 +1196,10 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				if(location.slot == ArtifactPosition::MACH4 || location.slot == ArtifactPosition::SPELLBOOK)
 					continue; // don't attempt to move catapult and spellbook
 
-				if(location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
+				if(location.artHolder == target->id && ArtifactUtils::isSlotEquipment(location.slot))
 					continue; //don't reequip artifact we already wear
 
-				auto s = location.getSlot();
+				auto s = cb->getHero(location.artHolder)->getSlot(location.slot);
 				if(!s || s->locked) //we can't move locks
 					continue;
 				auto artifact = s->artifact;
@@ -1194,9 +1210,9 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				bool emptySlotFound = false;
 				for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
 				{
-					ArtifactLocation destLocation(target, slot);
-					if(target->isPositionFree(slot) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
+					if(target->isPositionFree(slot) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 					{
+						ArtifactLocation destLocation(target->id, slot);
 						cb->swapArtifacts(location, destLocation); //just put into empty slot
 						emptySlotFound = true;
 						changeMade = true;
@@ -1210,11 +1226,11 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
 						{
-							ArtifactLocation destLocation(target, slot);
 							//if that artifact is better than what we have, pick it
-							if(compareArtifacts(artifact, otherSlot->artifact) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
+							if(compareArtifacts(artifact, otherSlot->artifact) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 							{
-								cb->swapArtifacts(location, ArtifactLocation(target, target->getArtPos(otherSlot->artifact)));
+								ArtifactLocation destLocation(target->id, slot);
+								cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->artifact)));
 								changeMade = true;
 								break;
 							}
@@ -1496,7 +1512,7 @@ void VCAI::wander(HeroPtr h)
 					if(e.goal->goalType == Goals::EGoals::VISIT_TILE || e.goal->goalType == Goals::EGoals::VISIT_OBJ)
 						continue;
 
-					throw e;
+					throw;
 				}
 			}
 			else
@@ -1575,26 +1591,26 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 
 }
 
-void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+void VCAI::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
-	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
+	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
-	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
+	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
+void VCAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
-	bool won = br->winner == myCb->battleGetMySide();
-	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
+	bool won = br->winner == myCb->getBattle(battleID)->battleGetMySide();
+	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != -1)
+	if (queryID != QueryID::NONE)
 	{
 		status.addQuery(queryID, "Combat result dialog");
 		const int confirmAction = 0;
@@ -1603,7 +1619,7 @@ void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
 			answerQuery(queryID, confirmAction);
 		});
 	}
-	CAdventureAI::battleEnd(br, queryID);
+	CAdventureAI::battleEnd(battleID, br, queryID);
 }
 
 void VCAI::waitTillFree()
@@ -1744,11 +1760,11 @@ void VCAI::addVisitableObj(const CGObjectInstance * obj)
 		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
 }
 
-const CGObjectInstance * VCAI::lookForArt(int aid) const
+const CGObjectInstance * VCAI::lookForArt(ArtifactID aid) const
 {
 	for(const CGObjectInstance * obj : ai->visitableObjs)
 	{
-		if(obj->ID == Obj::ARTIFACT && obj->subID == aid)
+		if(obj->ID == Obj::ARTIFACT && dynamic_cast<const CGArtifact *>(obj)->getArtifact()  == aid)
 			return obj;
 	}
 
@@ -2144,7 +2160,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
+					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}
@@ -2184,8 +2200,8 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			auto ci = infoFromDC(t->creatures[i]);
 
 			if(!ci.count
-				|| ci.creID == -1
-				|| (g.objid != -1 && ci.creID != g.objid)
+				|| ci.creID == CreatureID::NONE
+				|| (g.objid != -1 && ci.creID.getNum() != g.objid)
 				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
 				continue;
 
@@ -2286,7 +2302,7 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-	logAi->info("Player %d (%s) ends turn", playerID, playerID.getStr());
+	logAi->info("Player %d (%s) ends turn", playerID, playerID.toString());
 	if(!status.haveTurn())
 	{
 		logAi->error("Not having turn at the end of turn???");
@@ -2298,7 +2314,7 @@ void VCAI::endTurn()
 	}
 	while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.getStr());
+	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.toString());
 }
 
 void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
@@ -2497,6 +2513,8 @@ void VCAI::requestActionASAP(std::function<void()> whatToDo)
 		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 		whatToDo();
 	});
+
+	newThread.detach();
 }
 
 void VCAI::lostHero(HeroPtr h)
@@ -2675,7 +2693,7 @@ void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-		cv.timed_wait(lock, boost::posix_time::milliseconds(100));
+		cv.wait_for(lock, boost::chrono::milliseconds(100));
 }
 
 bool AIStatus::haveTurn()
@@ -2890,4 +2908,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	return true;
 }
 
-
+std::optional<BattleAction> VCAI::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
+{
+	return std::nullopt;
+}

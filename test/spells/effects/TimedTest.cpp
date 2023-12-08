@@ -12,7 +12,7 @@
 #include "EffectFixture.h"
 
 #include <vstd/RNG.h>
-#include "lib/CModHandler.h"
+#include "lib/modding/ModScope.h"
 
 namespace test
 {
@@ -71,16 +71,16 @@ protected:
 
 TEST_P(TimedApplyTest, ChangesBonuses)
 {
-	Bonus testBonus1(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, 0, PrimarySkill::KNOWLEDGE);
+	Bonus testBonus1(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, BonusSourceID(), BonusSubtypeID(PrimarySkill::KNOWLEDGE));
 
-	Bonus testBonus2(BonusDuration::N_TURNS, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, 0, PrimarySkill::KNOWLEDGE);
+	Bonus testBonus2(BonusDuration::N_TURNS, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, BonusSourceID(), BonusSubtypeID(PrimarySkill::KNOWLEDGE));
 	testBonus2.turnsRemain = 4;
 
 	JsonNode options(JsonNode::JsonType::DATA_STRUCT);
 	options["cumulative"].Bool() = cumulative;
 	options["bonus"]["test1"] = testBonus1.toJsonNode();
 	options["bonus"]["test2"] = testBonus2.toJsonNode();
-	options.setMeta(CModHandler::scopeBuiltin());
+	options.setMeta(ModScope::scopeBuiltin());
 	setupEffect(options);
 
 	const uint32_t unitId = 42;
@@ -103,7 +103,7 @@ TEST_P(TimedApplyTest, ChangesBonuses)
 	for(auto & bonus : expectedBonus)
 	{
 		bonus.source = BonusSource::SPELL_EFFECT;
-		bonus.sid = spellIndex;
+		bonus.sid = BonusSourceID(SpellID(spellIndex));
 	}
 
 	if(cumulative)

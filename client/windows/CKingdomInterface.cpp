@@ -19,12 +19,14 @@
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
+#include "../windows/CTradeWindow.h"
 
 #include "../../CCallback.h"
 
@@ -32,7 +34,6 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CTownHandler.h"
@@ -170,7 +171,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	return "";
 }
 
-std::string InfoBoxAbstractHeroData::getImageName(InfoBox::InfoSize size)
+AnimationPath InfoBoxAbstractHeroData::getImageName(InfoBox::InfoSize size)
 {
 	//TODO: sizes
 	switch(size)
@@ -182,11 +183,11 @@ std::string InfoBoxAbstractHeroData::getImageName(InfoBox::InfoSize size)
 			case HERO_PRIMARY_SKILL:
 			case HERO_MANA:
 			case HERO_EXPERIENCE:
-				return "PSKIL32";
+				return AnimationPath::builtin("PSKIL32");
 			case HERO_SPECIAL:
-				return "UN32";
+				return AnimationPath::builtin("UN32");
 			case HERO_SECONDARY_SKILL:
-				return "SECSK32";
+				return AnimationPath::builtin("SECSK32");
 			default:
 				assert(0);
 			}
@@ -198,11 +199,11 @@ std::string InfoBoxAbstractHeroData::getImageName(InfoBox::InfoSize size)
 			case HERO_PRIMARY_SKILL:
 			case HERO_MANA:
 			case HERO_EXPERIENCE:
-				return "PSKIL42";
+				return AnimationPath::builtin("PSKIL42");
 			case HERO_SPECIAL:
-				return "UN44";
+				return AnimationPath::builtin("UN44");
 			case HERO_SECONDARY_SKILL:
-				return "SECSKILL";
+				return AnimationPath::builtin("SECSKILL");
 			default:
 				assert(0);
 			}
@@ -210,7 +211,7 @@ std::string InfoBoxAbstractHeroData::getImageName(InfoBox::InfoSize size)
 	default:
 		assert(0);
 	}
-	return "";
+	return {};
 }
 
 std::string InfoBoxAbstractHeroData::getHoverText()
@@ -255,7 +256,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 		break;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
-		comp = std::make_shared<CComponent>(CComponent::primskill, getSubID(), (int)getValue());
+		comp = std::make_shared<CComponent>(ComponentType::PRIM_SKILL, PrimarySkill(getSubID()), getValue());
 		break;
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[149];
@@ -270,7 +271,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 			if(value)
 			{
 				text = CGI->skillh->getByIndex(subID)->getDescriptionTranslated((int)value);
-				comp = std::make_shared<CComponent>(CComponent::secskill, subID, (int)value);
+				comp = std::make_shared<CComponent>(ComponentType::SEC_SKILL, SecondarySkill(subID), (int)value);
 			}
 			break;
 		}
@@ -316,7 +317,7 @@ si64 InfoBoxHeroData::getValue()
 	switch(type)
 	{
 	case HERO_PRIMARY_SKILL:
-		return hero->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(index));
+		return hero->getPrimSkillLevel(static_cast<PrimarySkill>(index));
 	case HERO_MANA:
 		return hero->mana;
 	case HERO_EXPERIENCE:
@@ -418,7 +419,7 @@ si64 InfoBoxCustomHeroData::getValue()
 	return value;
 }
 
-InfoBoxCustom::InfoBoxCustom(std::string ValueText, std::string NameText, std::string ImageName, size_t ImageIndex, std::string HoverText):
+InfoBoxCustom::InfoBoxCustom(std::string ValueText, std::string NameText, const AnimationPath & ImageName, size_t ImageIndex, std::string HoverText):
 	IInfoBoxData(CUSTOM),
 	valueText(ValueText),
 	nameText(NameText),
@@ -438,7 +439,7 @@ size_t InfoBoxCustom::getImageIndex()
 	return imageIndex;
 }
 
-std::string InfoBoxCustom::getImageName(InfoBox::InfoSize size)
+AnimationPath InfoBoxCustom::getImageName(InfoBox::InfoSize size)
 {
 	return imageName;
 }
@@ -458,7 +459,7 @@ void InfoBoxCustom::prepareMessage(std::string & text, std::shared_ptr<CComponen
 }
 
 CKingdomInterface::CKingdomInterface()
-	: CWindowObject(PLAYER_COLORED | BORDERED, OVERVIEW_BACKGROUND)
+	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(OVERVIEW_BACKGROUND))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	ui32 footerPos = OVERVIEW_SIZE * 116;
@@ -470,8 +471,10 @@ CKingdomInterface::CKingdomInterface()
 	generateMinesList(ownedObjects);
 	generateButtons();
 
-	statusbar = CGStatusBar::create(std::make_shared<CPicture>("KSTATBAR", 10,pos.h - 45));
-	resdatabar = std::make_shared<CResDataBar>("KRESBAR", 7, 111+footerPos, 29, 5, 76, 81);
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(ImagePath::builtin("KSTATBAR"), 10,pos.h - 45));
+	resdatabar = std::make_shared<CResDataBar>(ImagePath::builtin("KRESBAR"), 7, 111+footerPos, 29, 5, 76, 81);
+
+	activateTab(persistentStorage["gui"]["lastKindomInterface"].Integer());
 }
 
 void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects)
@@ -532,7 +535,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 	{
 		OwnedObjectInfo & obj = objects[index];
 		std::string value = std::to_string(obj.count);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
+		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("FLAGPORT"), obj.imageID, obj.hoverText);
 		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
 	return std::shared_ptr<CIntObject>();
@@ -576,7 +579,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(auto & heroe : heroes)
 	{
-		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
+		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, BonusSubtypeID(GameResID(EGameResID::GOLD))));
 	}
 
 	//Add town income of all towns
@@ -588,7 +591,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	for(int i=0; i<7; i++)
 	{
 		std::string value = std::to_string(minesCount[i]);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->translate("core.minename", i));
+		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, CGI->generaltexth->translate("core.minename", i));
 		minesBox[i] = std::make_shared<InfoBox>(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 		minesBox[i]->removeUsedEvents(LCLICK|SHOW_POPUP); //fixes #890 - mines boxes ignore clicks
 	}
@@ -603,35 +606,43 @@ void CKingdomInterface::generateButtons()
 	ui32 footerPos = OVERVIEW_SIZE * 116;
 
 	//Main control buttons
-	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
+	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
 		std::bind(&CKingdomInterface::activateTab, this, 0), EShortcut::KINGDOM_HEROES_TAB);
 	btnHeroes->block(true);
 
-	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), "OVBUTN6.DEF", CButton::tooltip(CGI->generaltexth->overview[12], CGI->generaltexth->overview[7]),
+	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), AnimationPath::builtin("OVBUTN6.DEF"), CButton::tooltip(CGI->generaltexth->overview[12], CGI->generaltexth->overview[7]),
 		std::bind(&CKingdomInterface::activateTab, this, 1), EShortcut::KINGDOM_TOWNS_TAB);
 
-	btnExit = std::make_shared<CButton>(Point(748,99+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[600]),
+	btnExit = std::make_shared<CButton>(Point(748,99+footerPos), AnimationPath::builtin("OVBUTN1.DEF"), CButton::tooltip(CGI->generaltexth->allTexts[600]),
 		std::bind(&CKingdomInterface::close, this), EShortcut::GLOBAL_RETURN);
 	btnExit->setImageOrder(3, 4, 5, 6);
 
 	//Object list control buttons
-	dwellTop = std::make_shared<CButton>(Point(733, 4), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToPos(0);});
+	dwellTop = std::make_shared<CButton>(Point(733, 4), AnimationPath::builtin("OVBUTN4.DEF"), CButton::tooltip(), [&](){ dwellingsList->moveToPos(0);});
 
-	dwellBottom = std::make_shared<CButton>(Point(733, footerPos+2), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToPos(-1); });
+	dwellBottom = std::make_shared<CButton>(Point(733, footerPos+2), AnimationPath::builtin("OVBUTN4.DEF"), CButton::tooltip(), [&](){ dwellingsList->moveToPos(-1); });
 	dwellBottom->setImageOrder(2, 3, 4, 5);
 
-	dwellUp = std::make_shared<CButton>(Point(733, 24), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToPrev(); });
+	dwellUp = std::make_shared<CButton>(Point(733, 24), AnimationPath::builtin("OVBUTN4.DEF"), CButton::tooltip(), [&](){ dwellingsList->moveToPrev(); });
 	dwellUp->setImageOrder(4, 5, 6, 7);
 
-	dwellDown = std::make_shared<CButton>(Point(733, footerPos-18), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToNext(); });
+	dwellDown = std::make_shared<CButton>(Point(733, footerPos-18), AnimationPath::builtin("OVBUTN4.DEF"), CButton::tooltip(), [&](){ dwellingsList->moveToNext(); });
 	dwellDown->setImageOrder(6, 7, 8, 9);
 }
 
 void CKingdomInterface::activateTab(size_t which)
 {
+	Settings s = persistentStorage.write["gui"]["lastKindomInterface"];
+	s->Integer() = which;
+
 	btnHeroes->block(which == 0);
 	btnTowns->block(which == 1);
 	tabArea->setActive(which);
+}
+
+void CKingdomInterface::buildChanged()
+{
+	tabArea->reset();
 }
 
 void CKingdomInterface::townChanged(const CGTownInstance *town)
@@ -649,6 +660,11 @@ void CKingdomInterface::updateGarrisons()
 {
 	if(auto garrison = std::dynamic_pointer_cast<IGarrisonHolder>(tabArea->getItem()))
 		garrison->updateGarrisons();
+}
+
+bool CKingdomInterface::holdsGarrison(const CArmedInstance * army)
+{
+	return army->getOwner() == LOCPLINT->playerID;
 }
 
 void CKingdomInterface::artifactAssembled(const ArtifactLocation& artLoc)
@@ -678,7 +694,7 @@ void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
 CKingdHeroList::CKingdHeroList(size_t maxSize)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	title = std::make_shared<CPicture>("OVTITLE",16,0);
+	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"),16,0);
 	title->colorize(LOCPLINT->playerID);
 	heroLabel = std::make_shared<CLabel>(150, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
 	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[1]);
@@ -698,6 +714,15 @@ void CKingdHeroList::updateGarrisons()
 	}
 }
 
+bool CKingdHeroList::holdsGarrison(const CArmedInstance * army)
+{
+	for(std::shared_ptr<CIntObject> object : heroes->getItems())
+		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
+			if (garrison->holdsGarrison(army))
+				return true;
+	return false;
+}
+
 std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 {
 	ui32 picCount = 4; // OVSLOT contains 4 images
@@ -707,19 +732,19 @@ std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 	if(index < heroesList.size())
 	{
 		auto hero = std::make_shared<CHeroItem>(heroesList[index]);
-		addSet(hero->heroArts);
+		addSetAndCallbacks(hero->heroArts);
 		return hero;
 	}
 	else
 	{
-		return std::make_shared<CAnimImage>("OVSLOT", (index-2) % picCount );
+		return std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), (index-2) % picCount );
 	}
 }
 
 CKingdTownList::CKingdTownList(size_t maxSize)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	title = std::make_shared<CPicture>("OVTITLE", 16, 0);
+	title = std::make_shared<CPicture>(ImagePath::builtin("OVTITLE"), 16, 0);
 	title->colorize(LOCPLINT->playerID);
 	townLabel = std::make_shared<CLabel>(146, 10,FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
 	garrHeroLabel = std::make_shared<CLabel>(375, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[4]);
@@ -750,6 +775,15 @@ void CKingdTownList::updateGarrisons()
 	}
 }
 
+bool CKingdTownList::holdsGarrison(const CArmedInstance * army)
+{
+	for(std::shared_ptr<CIntObject> object : towns->getItems())
+		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
+			if (garrison->holdsGarrison(army))
+				return true;
+	return false;
+}
+
 std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 {
 	ui32 picCount = 4; // OVSLOT contains 4 images
@@ -759,14 +793,14 @@ std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 	if(index < townsList.size())
 		return std::make_shared<CTownItem>(townsList[index]);
 	else
-		return std::make_shared<CAnimImage>("OVSLOT", (index-2) % picCount );
+		return std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), (index-2) % picCount );
 }
 
 CTownItem::CTownItem(const CGTownInstance * Town)
 	: town(Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background = std::make_shared<CAnimImage>("OVSLOT", 6);
+	background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 6);
 	name = std::make_shared<CLabel>(74, 8, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 
 	income = std::make_shared<CLabel>( 190, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(town->dailyIncome()[EGameResID::GOLD]));
@@ -778,7 +812,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
 
-	picture = std::make_shared<CAnimImage>("ITPT", iconIndex, 0, 5, 6);
+	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), iconIndex, 0, 5, 6);
 	openTown = std::make_shared<LRClickableAreaOpenTown>(Rect(5, 6, 58, 64), town);
 
 	for(size_t i=0; i<town->creatures.size(); i++)
@@ -786,6 +820,36 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		growth.push_back(std::make_shared<CCreaInfo>(Point(401+37*(int)i, 78), town, (int)i, true, true));
 		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*(int)i, 78), town, (int)i, true, false));
 	}
+
+	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
+	fastTownHall->setImageOrder(town->hallLevel(), town->hallLevel(), town->hallLevel(), town->hallLevel());
+	fastTownHall->setAnimateLonelyFrame(true);
+	int imageIndex = town->fortLevel() == CGTownInstance::EFortLevel::NONE ? 3 : town->fortLevel() - 1;
+	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
+	fastArmyPurchase->setImageOrder(imageIndex, imageIndex, imageIndex, imageIndex);
+	fastArmyPurchase->setAnimateLonelyFrame(true);
+	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
+	{
+		if(town->builtBuildings.count(BuildingID::TAVERN))
+			LOCPLINT->showTavernWindow(town, nullptr, QueryID::NONE);
+	});
+	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
+	{
+		std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
+		for(auto & town : towns)
+		{
+			if(town->builtBuildings.count(BuildingID::MARKETPLACE))
+			{
+				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, nullptr, nullptr, EMarketMode::RESOURCE_RESOURCE);
+				return;
+			}
+		}
+		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
+	});
+	fastTown = std::make_shared<LRClickableArea>(Rect(67, 6, 165, 20), [&]()
+	{
+		GH.windows().createAndPushWindow<CCastleInterface>(town);
+	});
 }
 
 void CTownItem::updateGarrisons()
@@ -794,6 +858,11 @@ void CTownItem::updateGarrisons()
 	garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);
 	garr->setArmy(town->visitingHero, EGarrisonType::LOWER);
 	garr->recreateSlots();
+}
+
+bool CTownItem::holdsGarrison(const CArmedInstance * army)
+{
+	return army == town || army == town->getUpperArmy() || army == town->visitingHero;
 }
 
 void CTownItem::update()
@@ -820,7 +889,7 @@ public:
 	ArtSlotsTab()
 	{
 		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-		background = std::make_shared<CAnimImage>("OVSLOT", 4);
+		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
 			arts.push_back(std::make_shared<CHeroArtPlace>(Point(269+i*48, 66)));
@@ -838,10 +907,10 @@ public:
 	BackpackTab()
 	{
 		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-		background = std::make_shared<CAnimImage>("OVSLOT", 5);
+		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 5);
 		pos = background->pos;
-		btnLeft = std::make_shared<CButton>(Point(269, 66), "HSBTNS3", CButton::tooltip(), 0);
-		btnRight = std::make_shared<CButton>(Point(675, 66), "HSBTNS5", CButton::tooltip(), 0);
+		btnLeft = std::make_shared<CButton>(Point(269, 66), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), 0);
+		btnRight = std::make_shared<CButton>(Point(675, 66), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), 0);
 		for(int i=0; i<8; i++)
 			arts.push_back(std::make_shared<CHeroArtPlace>(Point(294+i*48, 66)));
 	}
@@ -906,7 +975,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		std::string hover = CGI->generaltexth->overview[13+it];
 		std::string overlay = CGI->generaltexth->overview[8+it];
 
-		auto button = std::make_shared<CToggleButton>(Point(364+(int)it*112, 46), "OVBUTN3", CButton::tooltip(hover, overlay), 0);
+		auto button = std::make_shared<CToggleButton>(Point(364+(int)it*112, 46), AnimationPath::builtin("OVBUTN3"), CButton::tooltip(hover, overlay), 0);
 		button->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 		artButtons->addToggle((int)it, button);
 	}
@@ -916,7 +985,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 
 	garr = std::make_shared<CGarrisonInt>(Point(6, 78), 4, Point(), hero, nullptr, true, true);
 
-	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait, 0, 5, 6);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex(), 0, 5, 6);
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);
 
 	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
@@ -956,6 +1025,11 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 void CHeroItem::updateGarrisons()
 {
 	garr->recreateSlots();
+}
+
+bool CHeroItem::holdsGarrison(const CArmedInstance * army)
+{
+	return hero == army;
 }
 
 std::shared_ptr<CIntObject> CHeroItem::onTabSelected(size_t index)

@@ -131,6 +131,5 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 `activate <0/1/2>` - activate game windows (no current use, apparently broken long ago)  
 `redraw` - force full graphical redraw  
 `screen` - show value of screenBuf variable, which prints "screen" when adventure map has current focus, "screen2" otherwise, and dumps values of both screen surfaces to .bmp files  
-`unlock pim` - unlocks specific mutex known in VCMI code as "pim"  
 `not dialog` - set the state indicating if dialog box is active to "no"  
 `tell hs <hero ID> <artifact slot ID>` - write what artifact is present on artifact slot with specified ID for hero with specified ID. (must be called during gameplay)  

@@ -14,8 +14,10 @@
 #include "ui_validator.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/MapObjects.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/CModInfo.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CModHandler.h"
 
 Validator::Validator(const CMap * map, QWidget *parent) :
 	QDialog(parent),
@@ -96,14 +98,14 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			if(o->getOwner() != PlayerColor::NEUTRAL && o->getOwner().getNum() < map->players.size())
 			{
 				if(!map->players[o->getOwner().getNum()].canAnyonePlay())
-					issues.emplace_back(QString(tr("Object %1 is assigned to non-playable player %2")).arg(o->instanceName.c_str(), o->getOwner().getStr().c_str()), true);
+					issues.emplace_back(QString(tr("Object %1 is assigned to non-playable player %2")).arg(o->instanceName.c_str(), o->getOwner().toString().c_str()), true);
 			}
 			//checking towns
 			if(auto * ins = dynamic_cast<CGTownInstance*>(o.get()))
 			{
 				bool has = amountOfCastles.count(ins->getOwner().getNum());
 				if(!has && ins->getOwner() != PlayerColor::NEUTRAL)
-					issues.emplace_back(tr("Town %1 has undefined owner %2").arg(ins->instanceName.c_str(), ins->getOwner().getStr().c_str()), true);
+					issues.emplace_back(tr("Town %1 has undefined owner %2").arg(ins->instanceName.c_str(), ins->getOwner().toString().c_str()), true);
 				if(has)
 					++amountOfCastles[ins->getOwner().getNum()];
 			}
@@ -123,13 +125,13 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				}
 				if(ins->type)
 				{
-					if(!map->allowedHeroes[ins->type->getId().getNum()])
+					if(map->allowedHeroes.count(ins->getHeroType()) == 0)
 						issues.emplace_back(QString(tr("Hero %1 is prohibited by map settings")).arg(ins->type->getNameTranslated().c_str()), false);
 					
 					if(!allHeroesOnMap.insert(ins->type).second)
 						issues.emplace_back(QString(tr("Hero %1 has duplicate on map")).arg(ins->type->getNameTranslated().c_str()), false);
 				}
-				else
+				else if(ins->ID != Obj::RANDOM_HERO)
 					issues.emplace_back(QString(tr("Hero %1 has an empty type and must be removed")).arg(ins->instanceName.c_str()), true);
 			}
 			
@@ -140,15 +142,15 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->storedArtifact)
 					{
-						if(!map->allowedSpells[ins->storedArtifact->getId().getNum()])
-							issues.emplace_back(QString(tr("Spell scroll %1 is prohibited by map settings")).arg(ins->getObjectName().c_str()), false);
+						if(map->allowedSpells.count(ins->storedArtifact->getScrollSpellID()) == 0)
+							issues.emplace_back(QString(tr("Spell scroll %1 is prohibited by map settings")).arg(ins->storedArtifact->getScrollSpellID().toEntity(VLC->spells())->getNameTranslated().c_str()), false);
 					}
 					else
 						issues.emplace_back(QString(tr("Spell scroll %1 doesn't have instance assigned and must be removed")).arg(ins->instanceName.c_str()), true);
 				}
 				else
 				{
-					if(ins->ID == Obj::ARTIFACT && !map->allowedArtifact[ins->subID])
+					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifact()) == 0)
 					{
 						issues.emplace_back(QString(tr("Artifact %1 is prohibited by map settings")).arg(ins->getObjectName().c_str()), false);
 					}
@@ -172,7 +174,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 		{
 			if(!map->mods.count(mod.first))
 			{
-				issues.emplace_back(QString(tr("Map contains object from mod \"%1\", but doesn't require it")).arg(QString::fromStdString(VLC->modh->getModInfo(mod.first).name)), true);
+				issues.emplace_back(QString(tr("Map contains object from mod \"%1\", but doesn't require it")).arg(QString::fromStdString(VLC->modh->getModInfo(mod.first).getVerificationInfo().name)), true);
 			}
 		}
 	}

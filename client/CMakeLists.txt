@@ -12,6 +12,7 @@ set(client_SRCS
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
 	adventureMap/MapAudioPlayer.cpp
+	adventureMap/TurnTimerWidget.cpp
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
@@ -50,7 +51,9 @@ set(client_SRCS
 	lobby/CSavingScreen.cpp
 	lobby/CScenarioInfoScreen.cpp
 	lobby/CSelectionBase.cpp
+	lobby/TurnOptionsTab.cpp
 	lobby/OptionsTab.cpp
+	lobby/OptionsTabBase.cpp
 	lobby/RandomMapTab.cpp
 	lobby/SelectionTab.cpp
 
@@ -58,6 +61,7 @@ set(client_SRCS
 	mainmenu/CMainMenu.cpp
 	mainmenu/CPrologEpilogVideo.cpp
 	mainmenu/CreditsScreen.cpp
+	mainmenu/CHighScoreScreen.cpp
 
 	mapView/MapRenderer.cpp
 	mapView/MapRendererContext.cpp
@@ -83,6 +87,7 @@ set(client_SRCS
 	renderSDL/CTrueTypeFont.cpp
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
+	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
@@ -90,10 +95,14 @@ set(client_SRCS
 	renderSDL/SDL_Extensions.cpp
 
 	widgets/Buttons.cpp
+	widgets/CAltar.cpp
 	widgets/CArtifactHolder.cpp
 	widgets/CComponent.cpp
+	widgets/CExchangeController.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
+	widgets/ComboBox.cpp
+	widgets/CTradeBase.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
@@ -109,15 +118,19 @@ set(client_SRCS
 	widgets/CWindowWithArtifacts.cpp
 	widgets/RadialMenu.cpp
 
+	windows/CAltarWindow.cpp
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
+	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
+	windows/CMapOverview.cpp
 	windows/CMessage.cpp
 	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
 	windows/CTradeWindow.cpp
+	windows/CTutorialWindow.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
 	windows/GUIClasses.cpp
@@ -139,6 +152,7 @@ set(client_SRCS
 	CVideoHandler.cpp
 	Client.cpp
 	ClientCommandManager.cpp
+	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
 )
@@ -157,6 +171,7 @@ set(client_HEADERS
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
 	adventureMap/MapAudioPlayer.h
+	adventureMap/TurnTimerWidget.h
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
@@ -199,7 +214,9 @@ set(client_HEADERS
 	lobby/CSavingScreen.h
 	lobby/CScenarioInfoScreen.h
 	lobby/CSelectionBase.h
+	lobby/TurnOptionsTab.h
 	lobby/OptionsTab.h
+	lobby/OptionsTabBase.h
 	lobby/RandomMapTab.h
 	lobby/SelectionTab.h
 
@@ -207,6 +224,7 @@ set(client_HEADERS
 	mainmenu/CMainMenu.h
 	mainmenu/CPrologEpilogVideo.h
 	mainmenu/CreditsScreen.h
+	mainmenu/CHighScoreScreen.h
 
 	mapView/IMapRendererContext.h
 	mapView/IMapRendererObserver.h
@@ -226,11 +244,13 @@ set(client_HEADERS
 	render/Canvas.h
 	render/ColorFilter.h
 	render/Colors.h
+	render/EFont.h
 	render/Graphics.h
 	render/ICursor.h
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/IRenderHandler.h
 	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
@@ -238,6 +258,7 @@ set(client_HEADERS
 	renderSDL/CTrueTypeFont.h
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
+	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h
@@ -246,10 +267,14 @@ set(client_HEADERS
 	renderSDL/SDL_PixelAccess.h
 
 	widgets/Buttons.h
+	widgets/CAltar.h
 	widgets/CArtifactHolder.h
 	widgets/CComponent.h
+	widgets/CExchangeController.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
+	widgets/ComboBox.h
+	widgets/CTradeBase.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
@@ -265,15 +290,19 @@ set(client_HEADERS
 	widgets/CWindowWithArtifacts.h
 	widgets/RadialMenu.h
 
+	windows/CAltarWindow.h
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
+	windows/CHeroOverview.h
 	windows/CHeroWindow.h
 	windows/CKingdomInterface.h
 	windows/CMessage.h
+	windows/CMapOverview.h
 	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
 	windows/CTradeWindow.h
+	windows/CTutorialWindow.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h
 	windows/GUIClasses.h
@@ -296,6 +325,7 @@ set(client_HEADERS
 	Client.h
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
+	HeroMovementController.h
 	LobbyClientNetPackVisitors.h
 	resource.h
 )

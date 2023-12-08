@@ -14,10 +14,11 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -85,9 +86,9 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	serializeRelativeShape(handler, "shape", shape);
 	serializeRelativeShape(handler, "range", range);
 
-	handler.serializeString("appearSound", appearSound);
-	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("animation", animation);
+	handler.serializeStruct("appearSound", appearSound);
+	handler.serializeStruct("appearAnimation", appearAnimation);
+	handler.serializeStruct("animation", animation);
 
 	handler.serializeInt("offsetY", offsetY);
 }
@@ -270,6 +271,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 

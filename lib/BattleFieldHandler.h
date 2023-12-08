@@ -15,6 +15,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "battle/BattleHex.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,7 +25,7 @@ public:
 	BattleField battlefield;
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	bool isSpecial;
-	std::string graphics;
+	ImagePath graphics;
 	std::string name;
 	std::string identifier;
 	std::string icon;
@@ -52,19 +53,6 @@ public:
 	std::string getNameTranslated() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	BattleField getId() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & name;
-		h & identifier;
-		h & isSpecial;
-		h & graphics;
-		h & icon;
-		h & iconIndex;
-		h & battlefield;
-		h & impassableHexes;
-
-	}
 };
 
 class DLL_LINKAGE BattleFieldService : public EntityServiceT<BattleField, BattleFieldInfo>
@@ -83,12 +71,6 @@ public:
 
 	virtual const std::vector<std::string> & getTypeNames() const override;
 	virtual std::vector<JsonNode> loadLegacyData() override;
-	virtual std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

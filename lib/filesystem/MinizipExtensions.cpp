@@ -11,7 +11,6 @@
 #include "MinizipExtensions.h"
 
 #include "CMemoryBuffer.h"
-#include "FileStream.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -86,10 +85,59 @@ inline int streamProxyClose(voidpf opaque, voidpf stream)
 }
 
 ///CDefaultIOApi
+#define GETFILE static_cast<std::FILE*>(filePtr)
+
+#ifdef VCMI_WINDOWS
+	#ifndef _CRT_SECURE_NO_WARNINGS
+		#define _CRT_SECURE_NO_WARNINGS
+	#endif
+	#include <cwchar>
+	#define CHAR_LITERAL(s) L##s
+	using CharType = wchar_t;
+#else
+	#define CHAR_LITERAL(s) s
+	using CharType = char;
+#endif
+
+static inline FILE* do_open(const CharType* name, const CharType* mode)
+{
+	#ifdef VCMI_WINDOWS
+		return _wfopen(name, mode);
+	#else
+		return std::fopen(name, mode);
+	#endif
+}
+
+static voidpf ZCALLBACK MinizipOpenFunc(voidpf opaque, const void* filename, int mode)
+{
+	const CharType* mode_fopen = [mode]() -> const CharType*
+	{
+		if ((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER) == ZLIB_FILEFUNC_MODE_READ)
+			return CHAR_LITERAL("rb");
+		else if (mode & ZLIB_FILEFUNC_MODE_EXISTING)
+			return CHAR_LITERAL("r+b");
+		else if (mode & ZLIB_FILEFUNC_MODE_CREATE)
+			return CHAR_LITERAL("wb");
+		return nullptr;
+	}();
+
+	if (filename != nullptr && mode_fopen != nullptr)
+		return do_open(static_cast<const CharType*>(filename), mode_fopen);
+	else
+		return nullptr;
+}
 
 zlib_filefunc64_def CDefaultIOApi::getApiStructure()
 {
-	return * FileStream::GetMinizipFilefunc();
+	static zlib_filefunc64_def MinizipFilefunc;
+	static bool initialized = false;
+	if (!initialized)
+	{
+		fill_fopen64_filefunc(&MinizipFilefunc);
+		MinizipFilefunc.zopen64_file = &MinizipOpenFunc;
+		initialized = true;
+	}
+	return MinizipFilefunc;
 }
 
 ///CProxyIOApi

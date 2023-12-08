@@ -112,6 +112,86 @@ void PassabilityLayer::update()
 	redraw();
 }
 
+ObjectPickerLayer::ObjectPickerLayer(MapSceneBase * s): AbstractLayer(s)
+{
+}
+
+void ObjectPickerLayer::highlight(std::function<bool(const CGObjectInstance *)> predicate)
+{
+	if(!map)
+		return;
+	
+	if(scene->level == 0 || map->twoLevel)
+	{
+		for(int j = 0; j < map->height; ++j)
+		{
+			for(int i = 0; i < map->width; ++i)
+			{
+				auto tl = map->getTile(int3(i, j, scene->level));
+				auto * obj = tl.topVisitableObj();
+				if(!obj && !tl.blockingObjects.empty())
+					obj = tl.blockingObjects.front();
+				
+				if(obj && predicate(obj))
+					possibleObjects.insert(obj);
+			}
+		}
+	}
+	
+	isActive = true;
+}
+
+bool ObjectPickerLayer::isVisible() const
+{
+	return isShown && isActive;
+}
+
+void ObjectPickerLayer::clear()
+{
+	possibleObjects.clear();
+	isActive = false;
+}
+
+void ObjectPickerLayer::update()
+{
+	if(!map)
+		return;
+	
+	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap->fill(Qt::transparent);
+	if(isActive)
+		pixmap->fill(QColor(255, 255, 255, 128));
+	
+	
+	QPainter painter(pixmap.get());
+	painter.setCompositionMode(QPainter::CompositionMode_Source);
+	for(auto * obj : possibleObjects)
+	{
+		if(obj->pos.z != scene->level)
+			continue;
+		
+		for(auto & pos : obj->getBlockedPos())
+			painter.fillRect(pos.x * 32, pos.y * 32, 32, 32, QColor(255, 211, 0, 64));
+	}
+	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	redraw();
+}
+
+void ObjectPickerLayer::select(const CGObjectInstance * obj)
+{
+	if(obj && possibleObjects.count(obj))
+	{
+		clear();
+		emit selectionMade(obj);
+	}
+}
+
+void ObjectPickerLayer::discard()
+{
+	clear();
+	emit selectionMade(nullptr);
+}
+
 SelectionTerrainLayer::SelectionTerrainLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
@@ -297,8 +377,7 @@ void ObjectsLayer::draw(bool onlyDirty)
 		return;
 	
 	QPainter painter(pixmap.get());
-	std::set<const CGObjectInstance *> drawen;
-	
+
 	if(onlyDirty)
 	{
 		//objects could be modified
@@ -312,7 +391,7 @@ void ObjectsLayer::draw(bool onlyDirty)
 		painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 		
 		for(auto & p : dirty)
-			handler->drawObjects(painter, p.x, p.y, p.z);
+			handler->drawObjects(painter, p.x, p.y, p.z, lockedObjects);
 	}
 	else
 	{
@@ -321,7 +400,7 @@ void ObjectsLayer::draw(bool onlyDirty)
 		{
 			for(int i = 0; i < map->width; ++i)
 			{
-				handler->drawObjects(painter, i, j, scene->level);
+				handler->drawObjects(painter, i, j, scene->level, lockedObjects);
 			}
 		}
 	}
@@ -348,6 +427,19 @@ void ObjectsLayer::setDirty(const CGObjectInstance * object)
 			setDirty(object->getPosition().x - i, object->getPosition().y - j);
 		}
 	}
+}
+
+void ObjectsLayer::setLockObject(const CGObjectInstance * object, bool lock)
+{
+	if(lock)
+		lockedObjects.insert(object);
+	else
+		lockedObjects.erase(object);
+}
+
+void ObjectsLayer::unlockAll()
+{
+	lockedObjects.clear();
 }
 
 SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractLayer(s), newObject(nullptr)
@@ -421,36 +513,36 @@ CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGO
 	//visitable is most important
 	for(auto & object : objects)
 	{
-		if(!object.obj || object.obj == ignore)
+		if(!object.obj || object.obj == ignore || lockedObjects.count(object.obj))
 			continue;
 		
 		if(object.obj->visitableAt(x, y))
 		{
-			return object.obj;
+			return const_cast<CGObjectInstance*>(object.obj);
 		}
 	}
 	
 	//if not visitable tile - try to get blocked
 	for(auto & object : objects)
 	{
-		if(!object.obj || object.obj == ignore)
+		if(!object.obj || object.obj == ignore || lockedObjects.count(object.obj))
 			continue;
 		
 		if(object.obj->blockingAt(x, y))
 		{
-			return object.obj;
+			return const_cast<CGObjectInstance*>(object.obj);
 		}
 	}
 	
 	//finally, we can take any object
 	for(auto & object : objects)
 	{
-		if(!object.obj || object.obj == ignore)
+		if(!object.obj || object.obj == ignore || lockedObjects.count(object.obj))
 			continue;
 		
 		if(object.obj->coveringAt(x, y))
 		{
-			return object.obj;
+			return const_cast<CGObjectInstance*>(object.obj);
 		}
 	}
 	
@@ -475,7 +567,8 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 			if(map->isInTheMap(int3(i, j, scene->level)))
 			{
 				for(auto & o : handler->getObjects(i, j, scene->level))
-					selectObject(o.obj, false); //do not inform about each object added
+					if(!lockedObjects.count(o.obj))
+						selectObject(const_cast<CGObjectInstance*>(o.obj), false); //do not inform about each object added
 			}
 		}
 	}
@@ -517,6 +610,19 @@ void SelectionObjectsLayer::clear()
 void SelectionObjectsLayer::onSelection()
 {
 	emit selectionMade(!selectedObjects.empty());
+}
+
+void SelectionObjectsLayer::setLockObject(const CGObjectInstance * object, bool lock)
+{
+	if(lock)
+		lockedObjects.insert(object);
+	else
+		lockedObjects.erase(object);
+}
+
+void SelectionObjectsLayer::unlockAll()
+{
+	lockedObjects.clear();
 }
 
 MinimapLayer::MinimapLayer(MapSceneBase * s): AbstractLayer(s)

@@ -40,11 +40,11 @@ public class DialogAuthors extends DialogFragment
         try
         {
             // to be checked if this should be converted to async load (not really a file operation so it should be okay)
-            final String authorsContent = FileUtil.read(getResources().openRawResource(R.raw.authors));
+            final String authorsContent = "See ingame credits";
             vcmiAuthorsView.setText(authorsContent);
             launcherAuthorsView.setText("Fay"); // TODO hardcoded for now
         }
-        catch (final IOException e)
+        catch (final Exception e)
         {
             Log.e(this, "Could not load authors content", e);
         }

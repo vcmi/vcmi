@@ -18,6 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class BattleInfo;
 class CGameState;
+class JsonSerializeFormat;
 
 class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet, public IConstBonusProvider
 {
@@ -28,7 +29,7 @@ private:
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
-	void randomizeArmy(int type);
+	void randomizeArmy(FactionID type);
 	virtual void updateMoraleBonusFromArmy();
 
 	void armyChanged() override;
@@ -48,6 +49,8 @@ public:
 	{
 		return this->tempOwner;
 	}
+	
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

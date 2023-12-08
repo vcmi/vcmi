@@ -59,19 +59,7 @@ TResources ResourceManager::estimateIncome() const
 		if (obj->ID == Obj::MINE)
 		{
 			auto mine = dynamic_cast<const CGMine*>(obj);
-			switch (mine->producedResource.toEnum())
-			{
-			case EGameResID::WOOD:
-			case EGameResID::ORE:
-				ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
-				break;
-			case EGameResID::GOLD:
-				ret[EGameResID::GOLD] += GOLD_MINE_PRODUCTION;
-				break;
-			default:
-				ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
-				break;
-			}
+			ret += mine->dailyIncome();
 		}
 	}
 
@@ -90,7 +78,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 {
 	auto allResources = cb->getResourceAmount();
 	auto income = estimateIncome();
-	GameResID resourceType = EGameResID::INVALID;
+	GameResID resourceType = EGameResID::NONE;
 	TResource amountToCollect = 0;
 
 	using resPair = std::pair<GameResID, TResource>;
@@ -129,7 +117,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 			break;
 		}
 	}
-	if (resourceType == EGameResID::INVALID) //no needed resources has 0 income,
+	if (resourceType == EGameResID::NONE) //no needed resources has 0 income,
 	{
 		//find the one which takes longest to collect
 		using timePair = std::pair<GameResID, float>;

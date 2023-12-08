@@ -17,12 +17,14 @@
 #include "CList.h"
 #include "CInfoBar.h"
 #include "MapAudioPlayer.h"
+#include "TurnTimerWidget.h"
 #include "AdventureMapWidget.h"
 #include "AdventureMapShortcuts.h"
 
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
 #include "../windows/InfoWindows.h"
+#include "../widgets/RadialMenu.h"
 #include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
@@ -35,6 +37,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -48,7 +51,8 @@ AdventureMapInterface::AdventureMapInterface():
 	mapAudio(new MapAudioPlayer()),
 	spellBeingCasted(nullptr),
 	scrollingWasActive(false),
-	scrollingWasBlocked(false)
+	scrollingWasBlocked(false),
+	backgroundDimLevel(settings["adventure"]["backgroundDimLevel"].Integer())
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.x = pos.y = 0;
@@ -61,6 +65,9 @@ AdventureMapInterface::AdventureMapInterface():
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 
+	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.isEnabled() || LOCPLINT->cb->getStartInfo()->turnTimerInfo.isBattleEnabled())
+		watches = std::make_shared<TurnTimerWidget>();
+	
 	addUsedEvents(KEYBOARD | TIME);
 }
 
@@ -148,13 +155,30 @@ void AdventureMapInterface::deactivate()
 void AdventureMapInterface::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
+	dim(to);
 	LOCPLINT->cingconsole->show(to);
 }
 
 void AdventureMapInterface::show(Canvas & to)
 {
 	CIntObject::show(to);
+	dim(to);
 	LOCPLINT->cingconsole->show(to);
+}
+
+void AdventureMapInterface::dim(Canvas & to)
+{
+	for (auto window : GH.windows().findWindows<IShowActivatable>())
+	{
+		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow())
+		{
+			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
+			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
+			if(backgroundDimLevel > 0)
+				to.drawColorBlended(targetRect, colorToFill);
+			return;
+		}
+	}
 }
 
 void AdventureMapInterface::tick(uint32_t msPassed)
@@ -280,6 +304,7 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
 
 		widget->getInfoBar()->showTownSelection(town);
+		widget->getTownList()->updateWidget();;
 		widget->getTownList()->select(town);
 		widget->getHeroList()->select(nullptr);
 		onHeroChanged(nullptr);
@@ -301,6 +326,11 @@ void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 	widget->getTownList()->redraw();
 }
 
+void AdventureMapInterface::onTownOrderChanged()
+{
+	widget->getTownList()->updateWidget();
+}
+
 void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
 {
 	if (positions)
@@ -311,6 +341,8 @@ void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set
 
 void AdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
+	backgroundDimLevel = 255;
+
 	onCurrentPlayerChanged(playerID);
 	setState(EAdventureState::HOTSEAT_WAIT);
 }
@@ -322,7 +354,7 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 
 	mapAudio->onEnemyTurnStarted();
 	widget->getMinimap()->setAIRadar(!isHuman);
-	widget->getInfoBar()->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	widget->getInfoBar()->startEnemyTurn(playerID);
 	setState(isHuman ? EAdventureState::OTHER_HUMAN_PLAYER_TURN : EAdventureState::AI_PLAYER_TURN);
 }
 
@@ -355,11 +387,12 @@ void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 
 void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 {
+	backgroundDimLevel = settings["adventure"]["backgroundDimLevel"].Integer();
+
 	onCurrentPlayerChanged(playerID);
 
 	setState(EAdventureState::MAKING_TURN);
-	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID
-		|| settings["session"]["spectate"].Bool())
+	if(playerID == LOCPLINT->playerID || settings["session"]["spectate"].Bool())
 	{
 		widget->getMinimap()->setAIRadar(false);
 		widget->getInfoBar()->showSelection();
@@ -408,7 +441,10 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		if(auto iw = GH.windows().topWindow<CInfoWindow>())
 			iw->close();
 
-		hotkeyEndingTurn();
+		GH.dispatchMainThread([this]()
+		{
+			hotkeyEndingTurn();
+		});
 	}
 }
 
@@ -478,7 +514,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	}
 	//check if we can select this object
 	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
-	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner);
+	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner) != PlayerRelations::ENEMIES;
 
 	bool isHero = false;
 	if(LOCPLINT->localState->getCurrentArmy()->ID != Obj::HERO) //hero is not selected (presumably town)
@@ -508,14 +544,23 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 			if(LOCPLINT->localState->hasPath(currentHero) &&
 			   LOCPLINT->localState->getPath(currentHero).endPos() == mapPos)//we'll be moving
 			{
-				if(!CGI->mh->hasOngoingAnimations())
+				assert(!CGI->mh->hasOngoingAnimations());
+				if(!CGI->mh->hasOngoingAnimations() && LOCPLINT->localState->getPath(currentHero).nextNode().turns == 0)
 					LOCPLINT->moveHero(currentHero, LOCPLINT->localState->getPath(currentHero));
 				return;
 			}
-			else //remove old path and find a new one if we clicked on accessible tile
+			else
 			{
-				LOCPLINT->localState->setPath(currentHero, mapPos);
-				onHeroChanged(currentHero);
+				if(GH.isKeyboardCtrlDown()) //normal click behaviour (as no hero selected)
+				{
+					if(canSelect)
+						LOCPLINT->localState->setSelection(static_cast<const CArmedInstance*>(topBlocking));
+				}
+				else //remove old path and find a new one if we clicked on accessible tile
+				{
+					LOCPLINT->localState->setPath(currentHero, mapPos);
+					onHeroChanged(currentHero);
+				}
 			}
 		}
 	} //end of hero is selected "case"
@@ -588,7 +633,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		}
 	}
 
-	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN)
+	if(LOCPLINT->localState->getCurrentArmy()->ID == Obj::TOWN || GH.isKeyboardCtrlDown())
 	{
 		if(objAtTile)
 		{

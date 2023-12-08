@@ -9,9 +9,11 @@
  */
 #pragma once
 
-#include "../lib/NetPackVisitor.h"
+#include "../lib/networkPacks/NetPackVisitor.h"
+#include "../lib/networkPacks/PacksForLobby.h"
 
 class CClient;
+class CLobbyScreen;
 VCMI_LIB_NAMESPACE_BEGIN
 class CGameState;
 VCMI_LIB_NAMESPACE_END
@@ -53,6 +55,7 @@ public:
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) override;
 	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
+	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) override;
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) override;
 };

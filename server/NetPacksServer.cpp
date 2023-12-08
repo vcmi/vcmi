@@ -11,13 +11,17 @@
 #include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
-#include "HeroPoolProcessor.h"
-#include "PlayerMessageProcessor.h"
+#include "battles/BattleProcessor.h"
+#include "processors/HeroPoolProcessor.h"
+#include "processors/PlayerMessageProcessor.h"
+#include "processors/TurnOrderProcessor.h"
+#include "queries/QueriesProcessor.h"
+#include "queries/MapQueries.h"
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
-#include "../lib/battle/BattleInfo.h"
+#include "../lib/battle/IBattleState.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
 #include "../lib/serializer/Connection.h"
@@ -32,93 +36,91 @@ void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 	result = true;
 }
 
+void ApplyGhNetPackVisitor::visitGamePause(GamePause & pack)
+{
+	auto turnQuery = std::make_shared<TimerPauseQuery>(&gh, pack.player);
+	turnQuery->queryID = QueryID::CLIENT;
+	gh.queries->addQuery(turnQuery);
+	result = true;
+}
+
 void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
 {
-	PlayerColor currentPlayer = gs.currentPlayer;
-	if(pack.player != currentPlayer)
-	{
-		if(gh.getPlayerStatus(pack.player) == EPlayerStatus::INGAME)
-			gh.throwAndComplain(&pack, "pack.player attempted to end turn for another pack.player!");
-
-		logGlobal->debug("pack.player attempted to end turn after game over. Ignoring this request.");
-
-		result = true;
-		return;
-	}
-
-	gh.throwOnWrongPlayer(&pack, pack.player);
-	if(gh.queries.topQuery(pack.player))
-		gh.throwAndComplain(&pack, "Cannot end turn before resolving queries!");
-
-	gh.states.setFlag(gs.currentPlayer, &PlayerStatus::makingTurn, false);
-	result = true;
+	gh.throwIfWrongPlayer(&pack);
+	result = gh.turnOrder->onPlayerEndsTurn(pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.hid);
-	result = gh.removeObject(gh.getObj(pack.hid));
+	gh.throwIfWrongOwner(&pack, pack.hid);
+	result = gh.removeObject(gh.getObj(pack.hid), pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.hid);
-	result = gh.moveHero(pack.hid, pack.dest, 0, pack.transit, gh.getPlayerAt(pack.c));
+	gh.throwIfWrongOwner(&pack, pack.hid);
+	result = gh.moveHero(pack.hid, pack.dest, 0, pack.transit, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitCastleTeleportHero(CastleTeleportHero & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.hid);
+	gh.throwIfWrongOwner(&pack, pack.hid);
 
-	result = gh.teleportHero(pack.hid, pack.dest, pack.source, gh.getPlayerAt(pack.c));
+	result = gh.teleportHero(pack.hid, pack.dest, pack.source, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitArrangeStacks(ArrangeStacks & pack)
 {
-	//checks for owning in the gh func
-	result = gh.arrangeStacks(pack.id1, pack.id2, pack.what, pack.p1, pack.p2, pack.val, gh.getPlayerAt(pack.c));
+	gh.throwIfWrongPlayer(&pack);
+	result = gh.arrangeStacks(pack.id1, pack.id2, pack.what, pack.p1, pack.p2, pack.val, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitBulkMoveArmy(BulkMoveArmy & pack)
 {
+	gh.throwIfWrongOwner(&pack, pack.srcArmy);
 	result = gh.bulkMoveArmy(pack.srcArmy, pack.destArmy, pack.srcSlot);
 }
 
 void ApplyGhNetPackVisitor::visitBulkSplitStack(BulkSplitStack & pack)
 {
+	gh.throwIfWrongPlayer(&pack);
 	result = gh.bulkSplitStack(pack.src, pack.srcOwner, pack.amount);
 }
 
 void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 {
+	gh.throwIfWrongPlayer(&pack);
 	result = gh.bulkMergeStacks(pack.src, pack.srcOwner);
 }
 
 void ApplyGhNetPackVisitor::visitBulkSmartSplitStack(BulkSmartSplitStack & pack)
 {
+	gh.throwIfWrongPlayer(&pack);
 	result = gh.bulkSmartSplitStack(pack.src, pack.srcOwner);
 }
 
 void ApplyGhNetPackVisitor::visitDisbandCreature(DisbandCreature & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.id);
+	gh.throwIfWrongOwner(&pack, pack.id);
 	result = gh.disbandCreature(pack.id, pack.pos);
 }
 
 void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.tid);
+	gh.throwIfWrongOwner(&pack, pack.tid);
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
 void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
 {
-	result = gh.recruitCreatures(pack.tid, pack.dst, pack.crid, pack.amount, pack.level);
+	gh.throwIfWrongPlayer(&pack);
+	// ownership checks are inside recruitCreatures
+	result = gh.recruitCreatures(pack.tid, pack.dst, pack.crid, pack.amount, pack.level, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitUpgradeCreature(UpgradeCreature & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.id);
+	gh.throwIfWrongOwner(&pack, pack.id);
 	result = gh.upgradeCreature(pack.id, pack.pos, pack.cid);
 }
 
@@ -132,64 +134,86 @@ void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 
 void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
-	gh.throwOnWrongPlayer(&pack, pack.src.owningPlayer()); //second hero can be ally
+	gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
 	result = gh.moveArtifact(pack.src, pack.dst);
 }
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	const CGHeroInstance * pSrcHero = gh.getHero(pack.srcHero);
-	gh.throwOnWrongPlayer(&pack, pSrcHero->getOwner());
-	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap);
+	gh.throwIfWrongOwner(&pack, pack.srcHero);
+	if(pack.swap)
+		gh.throwIfWrongOwner(&pack, pack.dstHero);
+	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
 }
 
 void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.heroID);
+	gh.throwIfWrongOwner(&pack, pack.heroID);
 	result = gh.assembleArtifacts(pack.heroID, pack.artifactSlot, pack.assemble, pack.assembleTo);
 }
 
 void ApplyGhNetPackVisitor::visitEraseArtifactByClient(EraseArtifactByClient & pack)
 {
-	gh.throwOnWrongPlayer(&pack, pack.al.owningPlayer());
+	gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.al.artHolder));
 	result = gh.eraseArtifactByClient(pack.al);
 }
 
 void ApplyGhNetPackVisitor::visitBuyArtifact(BuyArtifact & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.hid);
+	gh.throwIfWrongOwner(&pack, pack.hid);
 	result = gh.buyArtifact(pack.hid, pack.aid);
 }
 
 void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
-	const CGObjectInstance * market = gh.getObj(pack.marketId);
-	if(!market)
-		gh.throwAndComplain(&pack, "Invalid market object");
+	const CGObjectInstance * object = gh.getObj(pack.marketId);
 	const CGHeroInstance * hero = gh.getHero(pack.heroId);
+	const IMarket * market = IMarket::castFrom(object);
 
-	//market must be owned or visited
-	const IMarket * m = IMarket::castFrom(market);
+	gh.throwIfWrongPlayer(&pack);
 
-	if(!m)
+	if(!object)
+		gh.throwAndComplain(&pack, "Invalid market object");
+
+	if(!market)
 		gh.throwAndComplain(&pack, "market is not-a-market! :/");
 
-	PlayerColor player = market->tempOwner;
+	bool heroCanBeInvalid = false;
 
-	if(player >= PlayerColor::PLAYER_LIMIT)
-		player = gh.getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
+	if (pack.mode == EMarketMode::RESOURCE_RESOURCE || pack.mode == EMarketMode::RESOURCE_PLAYER)
+	{
+		// For resource exchange we must use our own market or visit neutral market
+		if (object->getOwner().isValidPlayer())
+		{
+			gh.throwIfWrongOwner(&pack, pack.marketId);
+			heroCanBeInvalid = true;
+		}
+	}
 
-	if(player >= PlayerColor::PLAYER_LIMIT)
-		gh.throwAndComplain(&pack, "No player can use this market!");
+	if (pack.mode == EMarketMode::CREATURE_UNDEAD)
+	{
+		// For skeleton transformer, if hero is null then object must be owned
+		if (!hero)
+		{
+			gh.throwIfWrongOwner(&pack, pack.marketId);
+			heroCanBeInvalid = true;
+		}
+	}
 
-	bool allyTownSkillTrade = (pack.mode == EMarketMode::RESOURCE_SKILL && gh.getPlayerRelations(player, hero->tempOwner) == PlayerRelations::ALLIES);
+	if (!heroCanBeInvalid)
+	{
+		gh.throwIfWrongOwner(&pack, pack.heroId);
 
-	if(hero && (!(player == hero->tempOwner || allyTownSkillTrade)
-		|| hero->visitablePos() != market->visitablePos()))
-		gh.throwAndComplain(&pack, "This hero can't use this marketplace!");
+		if (!hero)
+			gh.throwAndComplain(&pack, "Can not trade - no hero!");
 
-	if(!allyTownSkillTrade)
-		gh.throwOnWrongPlayer(&pack, player);
+		// TODO: check that object is actually being visited (e.g. Query exists)
+		if (!object->visitableAt(hero->visitablePos().x, hero->visitablePos().y))
+			gh.throwAndComplain(&pack, "Can not trade - object not visited!");
+
+		if (object->getOwner().isValidPlayer() && gh.getPlayerRelations(object->getOwner(), hero->getOwner()) == PlayerRelations::ENEMIES)
+			gh.throwAndComplain(&pack, "Can not trade - market not owned!");
+	}
 
 	result = true;
 
@@ -197,43 +221,50 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.tradeResources(m, pack.val[i], player, pack.r1[i], pack.r2[i]);
+			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sendResources(pack.val[i], player, GameResID(pack.r1[i]), PlayerColor(pack.r2[i]));
+			result &= gh.sendResources(pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<PlayerColor>());
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellCreatures(pack.val[i], m, hero, SlotID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellCreatures(pack.val[i], market, hero, pack.r1[i].as<SlotID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.buyArtifact(m, hero, GameResID(pack.r1[i]), ArtifactID(pack.r2[i]));
+			result &= gh.buyArtifact(market, hero, pack.r1[i].as<GameResID>(), pack.r2[i].as<ArtifactID>());
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
+			result &= gh.sellArtifact(market, hero, pack.r1[i].as<ArtifactInstanceID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.transformInUndead(m, hero, SlotID(pack.r1[i]));
+			result &= gh.transformInUndead(market, hero, pack.r1[i].as<SlotID>());
 		break;
 	case EMarketMode::RESOURCE_SKILL:
 		for(int i = 0; i < pack.r2.size(); ++i)
-			result &= gh.buySecSkill(m, hero, SecondarySkill(pack.r2[i]));
+			result &= gh.buySecSkill(market, hero, pack.r2[i].as<SecondarySkill>());
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
-		std::vector<SlotID> slotIDs(pack.r1.begin(), pack.r1.end());
+		std::vector<SlotID> slotIDs;
 		std::vector<ui32> count(pack.val.begin(), pack.val.end());
-		result = gh.sacrificeCreatures(m, hero, slotIDs, count);
+
+		for(auto const & slot : pack.r1)
+			slotIDs.push_back(slot.as<SlotID>());
+
+		result = gh.sacrificeCreatures(market, hero, slotIDs, count);
 		return;
 	}
 	case EMarketMode::ARTIFACT_EXP:
 	{
-		std::vector<ArtifactPosition> positions(pack.r1.begin(), pack.r1.end());
-		result = gh.sacrificeArtifact(m, hero, positions);
+		std::vector<ArtifactPosition> positions;
+		for(auto const & slot : pack.r1)
+			positions.push_back(slot.as<ArtifactPosition>());
+
+		result = gh.sacrificeArtifact(market, hero, positions);
 		return;
 	}
 	default:
@@ -243,28 +274,31 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 
 void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.hid);
+	gh.throwIfWrongOwner(&pack, pack.hid);
 	result = gh.setFormation(pack.hid, pack.formation);
 }
 
 void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
-	if (!gh.hasPlayerAt(pack.player, pack.c))
-		gh.throwAndComplain(&pack, "No such pack.player!");
+	gh.throwIfWrongPlayer(&pack);
 
 	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
 {
-	if(gh.getPlayerRelations(gh.getOwner(pack.objid), gh.getPlayerAt(pack.c)) == PlayerRelations::ENEMIES)
+	gh.throwIfWrongPlayer(&pack);
+
+	if(gh.getPlayerRelations(gh.getOwner(pack.objid), pack.player) == PlayerRelations::ENEMIES)
 		gh.throwAndComplain(&pack, "Can't build boat at enemy shipyard");
 
-	result = gh.buildBoat(pack.objid, gh.getPlayerAt(pack.c));
+	result = gh.buildBoat(pack.objid, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 {
+	gh.throwIfWrongPlayer(&pack);
+
 	auto playerToConnection = gh.connections.find(pack.player);
 	if(playerToConnection == gh.connections.end())
 		gh.throwAndComplain(&pack, "No such pack.player!");
@@ -273,70 +307,25 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 	if(pack.qid == QueryID(-1))
 		gh.throwAndComplain(&pack, "Cannot answer the query with pack.id -1!");
 
-	assert(vstd::contains(gh.states.players, pack.player));
-
 	result = gh.queryReply(pack.qid, pack.reply, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
-	boost::unique_lock lock(gh.battleActionMutex);
+	gh.throwIfWrongPlayer(&pack);
 
-	const BattleInfo * b = gs.curB;
-	if(!b)
-		gh.throwAndComplain(&pack, "Can not make action - there is no battle ongoing!");
-
-	if(b->tacticDistance)
-	{
-		if(pack.ba.actionType != EActionType::WALK && pack.ba.actionType != EActionType::END_TACTIC_PHASE
-			&& pack.ba.actionType != EActionType::RETREAT && pack.ba.actionType != EActionType::SURRENDER)
-			gh.throwAndComplain(&pack, "Can not make actions while in tactics mode!");
-		if(!vstd::contains(gh.connections[b->sides[b->tacticsSide].color], pack.c))
-			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
-	}
-	else
-	{
-		auto active = b->battleActiveUnit();
-		if(!active)
-			gh.throwAndComplain(&pack, "No active unit in battle!");
-		auto unitOwner = b->battleGetOwner(active);
-		if(!vstd::contains(gh.connections[unitOwner], pack.c))
-			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
-	}
-
-	result = gh.makeBattleAction(pack.ba);
-}
-
-void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
-{
-	boost::unique_lock lock(gh.battleActionMutex);
-
-	const BattleInfo * b = gs.curB;
-	if(!b)
-		gh.throwNotAllowedAction(&pack);
-	if(b->tacticDistance)
-		gh.throwNotAllowedAction(&pack);
-	auto active = b->battleActiveUnit();
-	if(!active)
-		gh.throwNotAllowedAction(&pack);
-	auto unitOwner = b->battleGetOwner(active);
-	if(!vstd::contains(gh.connections[unitOwner], pack.c))
-		gh.throwNotAllowedAction(&pack);
-	if(pack.ba.actionType != EActionType::HERO_SPELL)
-		gh.throwNotAllowedAction(&pack);
-
-	result = gh.makeCustomAction(pack.ba);
+	result = gh.battles->makePlayerBattleAction(pack.battleID, pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.id);
+	gh.throwIfWrongOwner(&pack, pack.id);
 	result = gh.dig(gh.getHero(pack.id));
 }
 
 void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.hid);
+	gh.throwIfWrongOwner(&pack, pack.hid);
 
 	const CSpell * s = pack.sid.toSpell();
 	if(!s)
@@ -355,7 +344,7 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)
 {
 	if(!pack.player.isSpectator()) // TODO: clearly not a great way to verify permissions
-		gh.throwOnWrongPlayer(&pack, pack.player);
+		gh.throwIfWrongPlayer(&pack, pack.player);
 	
 	gh.playerMessages->playerMessage(pack.player, pack.text, pack.currObj);
 	result = true;

@@ -59,7 +59,7 @@ public:
 	void fractalize();
 	
 	FactionID getTownType() const;
-	void setTownType(si32 town);
+	void setTownType(FactionID town);
 	TerrainId getTerrainType() const;
 	void setTerrainType(TerrainId terrain);
 		
@@ -108,7 +108,7 @@ protected:
 	std::vector<int3> possibleQuestArtifactPos;
 	
 	//template info
-	si32 townType;
+	FactionID townType;
 	TerrainId terrainType;
 };
 

@@ -18,6 +18,7 @@
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
 #include "Color.h"
+#include "filesystem/ResourcePath.h"
 
 #include <vcmi/Creature.h>
 #include <vcmi/CreatureService.h>
@@ -57,7 +58,7 @@ public:
 
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
-	std::string animDefName; // creature animation used during battles
+	AnimationPath animDefName; // creature animation used during battles
 
 	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
@@ -82,11 +83,6 @@ public:
 		struct RayColor {
 			ColorRGBA start;
 			ColorRGBA end;
-
-			template <typename Handler> void serialize(Handler &h, const int version)
-			{
-				h & start & end;
-			}
 		};
 
 		double timeBetweenFidgets, idleAnimationTime,
@@ -95,62 +91,24 @@ public:
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
 		std::vector<double> missleFrameAngles;
-		int troopCountLocationOffset, attackClimaxFrame;
+		int attackClimaxFrame;
 
-		std::string projectileImageName;
+		AnimationPath projectileImageName;
 		std::vector<RayColor> projectileRay;
-		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & timeBetweenFidgets;
-			h & idleAnimationTime;
-			h & walkAnimationTime;
-			h & attackAnimationTime;
-
-			if (version < 814)
-			{
-				float unused = 0.f;
-				h & unused;
-			}
-
-			h & upperRightMissleOffsetX;
-			h & rightMissleOffsetX;
-			h & lowerRightMissleOffsetX;
-			h & upperRightMissleOffsetY;
-			h & rightMissleOffsetY;
-			h & lowerRightMissleOffsetY;
-			h & missleFrameAngles;
-			h & troopCountLocationOffset;
-			h & attackClimaxFrame;
-			h & projectileImageName;
-			h & projectileRay;
-		}
 	} animation;
 
 	//sound info
 	struct CreatureBattleSounds
 	{
-		std::string attack;
-		std::string defend;
-		std::string killed; // was killed or died
-		std::string move;
-		std::string shoot; // range attack
-		std::string wince; // attacked but did not die
-		std::string startMoving;
-		std::string endMoving;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & attack;
-			h & defend;
-			h & killed;
-			h & move;
-			h & shoot;
-			h & wince;
-			h & startMoving;
-			h & endMoving;
-		}
+		AudioPath attack;
+		AudioPath defend;
+		AudioPath killed; // was killed or died
+		AudioPath move;
+		AudioPath shoot; // range attack
+		AudioPath wince; // attacked but did not die
+		AudioPath startMoving;
+		AudioPath endMoving;
 	} sounds;
 
 	ArtifactID warMachine;
@@ -201,7 +159,8 @@ public:
 
 	bool valid() const;
 
-	void addBonus(int val, BonusType type, int subtype = -1);
+	void addBonus(int val, BonusType type);
+	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;
 
 	template<typename RanGen>
@@ -215,35 +174,6 @@ public:
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & cost;
-		h & upgrades;
-		h & fightValue;
-		h & AIValue;
-		h & growth;
-		h & hordeGrowth;
-		h & ammMin;
-		h & ammMax;
-		h & level;
-		h & animDefName;
-		h & iconIndex;
-		h & smallIconName;
-		h & largeIconName;
-
-		h & idNumber;
-		h & faction;
-		h & sounds;
-		h & animation;
-
-		h & doubleWide;
-		h & special;
-		h & identifier;
-		h & modScope;
-		h & warMachine;
-	}
 
 	CCreature();
 
@@ -308,20 +238,6 @@ public:
 
 	std::vector<JsonNode> loadLegacyData() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & doubledCreatures;
-		h & objects;
-		h & expRanks;
-		h & maxExpPerBattle;
-		h & expAfterUpgrade;
-		h & skillLevels;
-		h & skillRequirements;
-		h & commanderLevelPremy;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

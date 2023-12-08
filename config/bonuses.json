@@ -19,14 +19,6 @@
 		}
 	},
 
-	"AIR_IMMUNITY":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_SPAIR1"
-		}
-	},
-
 	"ATTACKS_ALL_ADJACENT":
 	{
 		"graphics":
@@ -137,14 +129,6 @@
 		"hidden": true
 	},
 
-	"EARTH_IMMUNITY":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_SPEATH1"
-		}
-	},
-
 	"ENCHANTER":
 	{
 		"graphics":
@@ -166,14 +150,6 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_RDEF"
-		}
-	},
-
-	"FIRE_IMMUNITY":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_SPFIRE1"
 		}
 	},
 
@@ -585,14 +561,6 @@
 		"hidden": true
 	},
 	
-	"WATER_IMMUNITY":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_SPWATER1"
-		}
-	},
-
 	"WIDE_BREATH":
 	{
 		"graphics":

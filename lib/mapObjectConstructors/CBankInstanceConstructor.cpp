@@ -37,22 +37,15 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRandomGenerator & rng) const
 {
 	BankConfig bc;
+	JsonRandom::Variables emptyVariables;
 
 	bc.chance = static_cast<ui32>(level["chance"].Float());
-
-	bc.guards = JsonRandom::loadCreatures(level["guards"], rng);
-	bc.upgradeChance = static_cast<ui32>(level["upgrade_chance"].Float());
-	bc.combatValue = static_cast<ui32>(level["combat_value"].Float());
-
-	std::vector<SpellID> spells;
-	IObjectInterface::cb->getAllowedSpells(spells);
+	bc.guards = JsonRandom::loadCreatures(level["guards"], rng, emptyVariables);
 
 	bc.resources = ResourceSet(level["reward"]["resources"]);
-	bc.creatures = JsonRandom::loadCreatures(level["reward"]["creatures"], rng);
-	bc.artifacts = JsonRandom::loadArtifacts(level["reward"]["artifacts"], rng);
-	bc.spells = JsonRandom::loadSpells(level["reward"]["spells"], rng, spells);
-
-	bc.value = static_cast<ui32>(level["value"].Float());
+	bc.creatures = JsonRandom::loadCreatures(level["reward"]["creatures"], rng, emptyVariables);
+	bc.artifacts = JsonRandom::loadArtifacts(level["reward"]["artifacts"], rng, emptyVariables);
+	bc.spells = JsonRandom::loadSpells(level["reward"]["spells"], rng, emptyVariables);
 
 	return bc;
 }
@@ -110,10 +103,12 @@ static void addStackToArmy(IObjectInfo::CArmyStructure & army, const CCreature *
 
 IObjectInfo::CArmyStructure CBankInfo::minGuards() const
 {
+	JsonRandom::Variables emptyVariables;
+
 	std::vector<IObjectInfo::CArmyStructure> armies;
 	for(auto configEntry : config)
 	{
-		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"]);
+		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"], emptyVariables);
 		IObjectInfo::CArmyStructure army;
 		for(auto & stack : stacks)
 		{
@@ -131,10 +126,12 @@ IObjectInfo::CArmyStructure CBankInfo::minGuards() const
 
 IObjectInfo::CArmyStructure CBankInfo::maxGuards() const
 {
+	JsonRandom::Variables emptyVariables;
+
 	std::vector<IObjectInfo::CArmyStructure> armies;
 	for(auto configEntry : config)
 	{
-		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"]);
+		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"], emptyVariables);
 		IObjectInfo::CArmyStructure army;
 		for(auto & stack : stacks)
 		{
@@ -152,12 +149,13 @@ IObjectInfo::CArmyStructure CBankInfo::maxGuards() const
 
 TPossibleGuards CBankInfo::getPossibleGuards() const
 {
+	JsonRandom::Variables emptyVariables;
 	TPossibleGuards out;
 
 	for(const JsonNode & configEntry : config)
 	{
 		const JsonNode & guardsInfo = configEntry["guards"];
-		auto stacks = JsonRandom::evaluateCreatures(guardsInfo);
+		auto stacks = JsonRandom::evaluateCreatures(guardsInfo, emptyVariables);
 		IObjectInfo::CArmyStructure army;
 
 
@@ -192,12 +190,13 @@ std::vector<PossibleReward<TResources>> CBankInfo::getPossibleResourcesReward() 
 
 std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreaturesReward() const
 {
+	JsonRandom::Variables emptyVariables;
 	std::vector<PossibleReward<CStackBasicDescriptor>> aproximateReward;
 
 	for(const JsonNode & configEntry : config)
 	{
 		const JsonNode & guardsInfo = configEntry["reward"]["creatures"];
-		auto stacks = JsonRandom::evaluateCreatures(guardsInfo);
+		auto stacks = JsonRandom::evaluateCreatures(guardsInfo, emptyVariables);
 
 		for(auto stack : stacks)
 		{

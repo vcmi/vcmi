@@ -153,7 +153,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	for(auto bonus : *bonusModifiers)
 	{
 		// army bonuses will change and object bonuses are temporary
-		if(bonus->source != BonusSource::ARMY && bonus->source != BonusSource::OBJECT)
+		if(bonus->source != BonusSource::ARMY && bonus->source != BonusSource::OBJECT_INSTANCE && bonus->source != BonusSource::OBJECT_TYPE)
 		{
 			newArmyInstance.addNewBonus(std::make_shared<Bonus>(*bonus));
 		}
@@ -225,7 +225,8 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		if(weakest->count == 1) 
 		{
-			assert(resultingArmy.size() > 1);
+			if (resultingArmy.size() == 1)
+				logAi->warn("Unexpected resulting army size!");
 
 			resultingArmy.erase(weakest);
 		}
@@ -255,7 +256,7 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(!ci.count || ci.creID == -1)
+		if(!ci.count || ci.creID == CreatureID::NONE)
 			continue;
 
 		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
@@ -315,7 +316,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(ci.creID == -1) continue;
+		if(ci.creID == CreatureID::NONE) continue;
 
 		if(i < GameConstants::CREATURES_PER_TOWN && countGrowth)
 		{
@@ -392,7 +393,7 @@ void ArmyManager::update()
 		}
 	}
 
-	for(auto army : totalArmy)
+	for(auto & army : totalArmy)
 	{
 		army.second.creature = army.first.toCreature();
 		army.second.power = evaluateStackPower(army.second.creature, army.second.count);

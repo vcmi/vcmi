@@ -24,7 +24,7 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
 
-	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
+	auto objectInfo = bank->getObjectHandler()->getObjectInfo(bank->appearance);
 
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 
@@ -111,7 +111,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 {
 	auto cb = ai->cb.get();
 
-	if(obj->tempOwner < PlayerColor::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
+	if(obj->tempOwner.isValidPlayer() && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
 
 	switch(obj->ID)
@@ -161,10 +161,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	}
 	case Obj::PYRAMID:
 	{
-		if(obj->subID == 0)
-			return estimateBankDanger(dynamic_cast<const CBank *>(obj));
-		else
-			return 0;
+		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
 	}
 	default:
 		return 0;

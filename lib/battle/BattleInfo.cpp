@@ -9,11 +9,11 @@
  */
 #include "StdInc.h"
 #include "BattleInfo.h"
+#include "CObstacleInstance.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
 #include "../CHeroHandler.h"
-#include "../NetPacks.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
@@ -26,42 +26,10 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleInfo
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack)
-{
-	auto reachability = getReachability(stack);
-
-	if(reachability.predecessors[dest] == -1) //cannot reach destination
-	{
-		return std::make_pair(std::vector<BattleHex>(), 0);
-	}
-
-	//making the Path
-	std::vector<BattleHex> path;
-	BattleHex curElem = dest;
-	while(curElem != start)
-	{
-		path.push_back(curElem);
-		curElem = reachability.predecessors[curElem];
-	}
-
-	return std::make_pair(path, reachability.distances[dest]);
-}
-
-void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
-{
-	for(const auto & st : stacks) //setting casualties
-	{
-		si32 killed = st->getKilled();
-		if(killed > 0)
-			casualties[st->unitSide()][st->creatureId()] += killed;
-	}
-}
-
 CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, ui8 side, const SlotID & slot, BattleHex position)
 {
 	PlayerColor owner = sides[side].color;
-	assert((owner >= PlayerColor::PLAYER_LIMIT) ||
-		(base.armyObj && base.armyObj->tempOwner == owner));
+	assert(!owner.isValidPlayer() || (base.armyObj && base.armyObj->tempOwner == owner));
 
 	auto * ret = new CStack(&base, owner, id, side, slot);
 	ret->initialPosition = getAvaliableHex(base.getCreatureID(), side, position); //TODO: what if no free tile on battlefield was found?
@@ -285,7 +253,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
 				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
-				logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place absolute obstacle");
+				logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occurred - cannot place absolute obstacle");
 			}
 		}
 
@@ -338,7 +306,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		}
 		catch(RangeGenerator::ExhaustedPossibilities &)
 		{
-			logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place usual obstacle");
+			logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occurred - cannot place usual obstacle");
 		}
 	}
 
@@ -349,7 +317,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	std::vector<std::vector<int>> creBankFormations[2];
 	std::vector<int> commanderField;
 	std::vector<int> commanderBank;
-	const JsonNode config(ResourceID("config/battleStartpos.json"));
+	const JsonNode config(JsonPath::builtin("config/battleStartpos.json"));
 	const JsonVector &positions = config["battle_positions"].Vector();
 
 	CGH::readBattlePositions(positions[0]["levels"], looseFormations[0]);
@@ -474,9 +442,9 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	//native terrain bonuses
 	static auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
 	
-	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1,  BonusSourceID())->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK))->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE))->addLimiter(nativeTerrain));
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics
@@ -533,7 +501,7 @@ const CGHeroInstance * BattleInfo::getHero(const PlayerColor & player) const
 		if(side.color == player)
 			return side.hero;
 
-	logGlobal->error("Player %s is not in battle!", player.getStr());
+	logGlobal->error("Player %s is not in battle!", player.toString());
 	return nullptr;
 }
 
@@ -543,7 +511,7 @@ ui8 BattleInfo::whatSide(const PlayerColor & player) const
 		if(sides[i].color == player)
 			return i;
 
-	logGlobal->warn("BattleInfo::whatSide: Player %s is not in battle!", player.getStr());
+	logGlobal->warn("BattleInfo::whatSide: Player %s is not in battle!", player.toString());
 	return -1;
 }
 
@@ -561,8 +529,22 @@ BattleInfo::BattleInfo():
 	tacticsSide(0),
 	tacticDistance(0)
 {
-	setBattle(this);
 	setNodeType(BATTLE);
+}
+
+BattleID BattleInfo::getBattleID() const
+{
+	return battleID;
+}
+
+const IBattleInfo * BattleInfo::getBattle() const
+{
+	return this;
+}
+
+std::optional<PlayerColor> BattleInfo::getPlayerID() const
+{
+	return std::nullopt;
 }
 
 BattleInfo::~BattleInfo()
@@ -580,14 +562,14 @@ int32_t BattleInfo::getActiveStackID() const
 	return activeStack;
 }
 
-TStacks BattleInfo::getStacksIf(TStackFilter predicate) const
+TStacks BattleInfo::getStacksIf(const TStackFilter & predicate) const
 {
 	TStacks ret;
 	vstd::copy_if(stacks, std::back_inserter(ret), predicate);
 	return ret;
 }
 
-battle::Units BattleInfo::getUnitsIf(battle::UnitFilter predicate) const
+battle::Units BattleInfo::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	battle::Units ret;
 	vstd::copy_if(stacks, std::back_inserter(ret), predicate);
@@ -690,14 +672,30 @@ int64_t BattleInfo::getActualDamage(const DamageRange & damage, int32_t attacker
 	}
 }
 
-void BattleInfo::nextRound(int32_t roundNr)
+int3 BattleInfo::getLocation() const
+{
+	return tile;
+}
+
+bool BattleInfo::isCreatureBank() const
+{
+	return creatureBank;
+}
+
+
+std::vector<SpellID> BattleInfo::getUsedSpells(ui8 side) const
+{
+	return sides.at(side).usedSpellsHistory;
+}
+
+void BattleInfo::nextRound()
 {
 	for(int i = 0; i < 2; ++i)
 	{
 		sides.at(i).castSpellsCount = 0;
 		vstd::amax(--sides.at(i).enchanterCounter, 0);
 	}
-	round = roundNr;
+	round += 1;
 
 	for(CStack * s : stacks)
 	{
@@ -804,7 +802,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: DISRUPTING_RAY is absolutely permanent
-			return b->source == BonusSource::SPELL_EFFECT && b->sid != SpellID::DISRUPTING_RAY;
+			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>() != SpellID::DISRUPTING_RAY;
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}

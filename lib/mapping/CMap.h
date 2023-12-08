@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CMapHeader.h"
+#include "../MetaString.h"
 #include "../mapObjects/MiscObjects.h" // To serialize static props
 #include "../mapObjects/CQuest.h" // To serialize static props
 #include "../mapObjects/CGTownInstance.h" // To serialize static props
@@ -36,7 +37,7 @@ struct TeleportChannel;
 struct DLL_LINKAGE Rumor
 {
 	std::string name;
-	std::string text;
+	MetaString text;
 
 	Rumor() = default;
 	~Rumor() = default;
@@ -59,7 +60,7 @@ struct DLL_LINKAGE DisposedHero
 	HeroTypeID heroId;
 	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
 	std::string name;
-	PlayerColor::Mask players; /// Who can hire this hero (bitfield).
+	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
 
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
@@ -94,7 +95,7 @@ public:
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
 	void calculateGuardingGreaturePositions();
 
-	void addNewArtifactInstance(CArtifactInstance * art);
+	void addNewArtifactInstance(ConstTransitivePtr<CArtifactInstance> art);
 	void eraseArtifactInstance(CArtifactInstance * art);
 
 	void addNewQuestInstance(CQuest * quest);
@@ -116,8 +117,8 @@ public:
 	void banWaterContent();
 
 	/// Gets object of specified type on requested position
-	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj::EObj type);
-	CGHeroInstance * getHero(int heroId);
+	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj type);
+	CGHeroInstance * getHero(HeroTypeID heroId);
 
 	/// Sets the victory/loss condition objectives ??
 	void checkForObjectives();
@@ -128,9 +129,9 @@ public:
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
-	std::vector<bool> allowedSpells;
-	std::vector<bool> allowedArtifact;
-	std::vector<bool> allowedAbilities;
+	std::set<SpellID> allowedSpells;
+	std::set<ArtifactID> allowedArtifact;
+	std::set<SecondarySkill> allowedAbilities;
 	std::list<CMapEvent> events;
 	int3 grailPos;
 	int grailRadius;
@@ -190,8 +191,6 @@ public:
 		h & artInstances;
 
 		// static members
-		h & CGKeys::playerKeyMap;
-		h & CGMagi::eyelist;
 		h & CGObelisk::obeliskCount;
 		h & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;

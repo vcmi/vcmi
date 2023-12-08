@@ -20,8 +20,6 @@ namespace AIPathfinding
 {
 	class VirtualBoatAction : public SpecialAction
 	{
-	public:
-		virtual const ChainActor * getActor(const ChainActor * sourceActor) const = 0;
 	};
 	
 	class SummonBoatAction : public VirtualBoatAction
@@ -43,7 +41,7 @@ namespace AIPathfinding
 		virtual std::string toString() const override;
 
 	private:
-		uint32_t getManaCost(const CGHeroInstance * hero) const;
+		int32_t getManaCost(const CGHeroInstance * hero) const;
 	};
 
 	class BuildBoatAction : public VirtualBoatAction

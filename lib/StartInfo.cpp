@@ -11,20 +11,41 @@
 #include "StartInfo.h"
 
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"
+#include "CTownHandler.h"
+#include "CHeroHandler.h"
 #include "VCMI_Lib.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
 #include "campaign/CampaignState.h"
 #include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
+#include "modding/ModIncompatibility.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerSettings::PlayerSettings()
-	: bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM), color(0), handicap(NO_HANDICAP), compOnly(false)
+	: bonus(PlayerStartingBonus::RANDOM), color(0), handicap(NO_HANDICAP), compOnly(false)
 {
+}
 
+FactionID PlayerSettings::getCastleValidated() const
+{
+	if (!castle.isValid())
+		return FactionID(0);
+	if (castle.getNum() < VLC->townh->size() && VLC->townh->objects[castle.getNum()]->town != nullptr)
+		return castle;
+
+	return FactionID(0);
+}
+
+HeroTypeID PlayerSettings::getHeroValidated() const
+{
+	if (!hero.isValid())
+		return HeroTypeID(0);
+	if (hero.getNum() < VLC->heroh->size())
+		return hero;
+
+	return HeroTypeID(0);
 }
 
 bool PlayerSettings::isControlledByAI() const
@@ -41,7 +62,7 @@ PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no)
 {
 	if(playerInfos.find(no) != playerInfos.end())
 		return playerInfos[no];
-	logGlobal->error("Cannot find info about player %s. Throwing...", no.getStr());
+	logGlobal->error("Cannot find info about player %s. Throwing...", no.toString());
 	throw std::runtime_error("Cannot find info about player");
 }
 const PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no) const
@@ -62,8 +83,8 @@ PlayerSettings * StartInfo::getPlayersSettings(const ui8 connectedPlayerId)
 
 std::string StartInfo::getCampaignName() const
 {
-	if(!campState->getName().empty())
-		return campState->getName();
+	if(!campState->getNameTranslated().empty())
+		return campState->getNameTranslated();
 	else
 		return VLC->generaltexth->allTexts[508];
 }
@@ -74,12 +95,12 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.529"));
 	
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
-	CModHandler::Incompatibility::ModList modList;
+	ModIncompatibility::ModListWithVersion modList;
 	for(const auto & m : missingMods)
-		modList.push_back({m.first, m.second.toString()});
+		modList.push_back({m.second.name, m.second.version.toString()});
 	
 	if(!modList.empty())
-		throw CModHandler::Incompatibility(std::move(modList));
+		throw ModIncompatibility(modList);
 
 	//there must be at least one human player before game can be started
 	std::map<PlayerColor, PlayerSettings>::const_iterator i;
@@ -196,15 +217,15 @@ ui8 LobbyInfo::clientFirstId(int clientId) const
 	return 0;
 }
 
-PlayerInfo & LobbyInfo::getPlayerInfo(int color)
+PlayerInfo & LobbyInfo::getPlayerInfo(PlayerColor color)
 {
-	return mi->mapHeader->players[color];
+	return mi->mapHeader->players[color.getNum()];
 }
 
 TeamID LobbyInfo::getPlayerTeamId(const PlayerColor & color)
 {
-	if(color < PlayerColor::PLAYER_LIMIT)
-		return getPlayerInfo(color.getNum()).team;
+	if(color.isValidPlayer())
+		return getPlayerInfo(color).team;
 	else
 		return TeamID::NO_TEAM;
 }

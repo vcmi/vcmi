@@ -182,7 +182,7 @@ public:
 
 	int32_t getCasterUnitId() const override;
 
-	int32_t getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
+	int32_t getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool = nullptr) const override;
 	int32_t getEffectLevel(const spells::Spell * spell) const override;
 
 	int64_t getSpellBonus(const spells::Spell * spell, int64_t base, const Unit * affectedStack) const override;

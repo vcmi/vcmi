@@ -15,7 +15,9 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
+#include "../modding/CModHandler.h"
 #include "../CHeroHandler.h"
+#include "../Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,29 +32,29 @@ PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	allowedFactions = VLC->townh->getAllowedFactions();
 }
 
-si8 PlayerInfo::defaultCastle() const
+FactionID PlayerInfo::defaultCastle() const
 {
 	//if random allowed set it as default
 	if(isFactionRandom)
-		return -1;
+		return FactionID::RANDOM;
 
 	if(!allowedFactions.empty())
 		return *allowedFactions.begin();
 
 	// fall back to random
-	return -1;
+	return FactionID::RANDOM;
 }
 
-si8 PlayerInfo::defaultHero() const
+HeroTypeID PlayerInfo::defaultHero() const
 {
 	// we will generate hero in front of main town
 	if((generateHeroAtMainTown && hasMainTown) || hasRandomHero)
 	{
 		//random hero
-		return -1;
+		return HeroTypeID::RANDOM;
 	}
 
-	return -2;
+	return HeroTypeID::NONE;
 }
 
 bool PlayerInfo::canAnyonePlay() const
@@ -62,26 +64,19 @@ bool PlayerInfo::canAnyonePlay() const
 
 bool PlayerInfo::hasCustomMainHero() const
 {
-	return !mainCustomHeroName.empty() && mainCustomHeroPortrait != -1;
+	return mainCustomHeroId.isValid();
 }
 
 EventCondition::EventCondition(EWinLoseType condition):
-	object(nullptr),
-	metaType(EMetaclass::INVALID),
 	value(-1),
-	objectType(-1),
-	objectSubtype(-1),
 	position(-1, -1, -1),
 	condition(condition)
 {
 }
 
-EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectType, const int3 & position):
-	object(nullptr),
-	metaType(EMetaclass::INVALID),
+EventCondition::EventCondition(EWinLoseType condition, si32 value, TargetTypeID objectType, const int3 & position):
 	value(value),
 	objectType(objectType),
-	objectSubtype(-1),
 	position(position),
 	condition(condition)
 {}
@@ -127,11 +122,90 @@ CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
+	VLC->generaltexth->addSubContainer(*this);
+}
+
+CMapHeader::~CMapHeader()
+{
+	VLC->generaltexth->removeSubContainer(*this);
 }
 
 ui8 CMapHeader::levels() const
 {
 	return (twoLevel ? 2 : 1);
+}
+
+void CMapHeader::registerMapStrings()
+{
+	VLC->generaltexth->removeSubContainer(*this);
+	VLC->generaltexth->addSubContainer(*this);
+	
+	//get supported languages. Assuming that translation containing most strings is the base language
+	std::set<std::string> mapLanguages, mapBaseLanguages;
+	int maxStrings = 0;
+	for(auto & translation : translations.Struct())
+	{
+		if(translation.first.empty() || !translation.second.isStruct() || translation.second.Struct().empty())
+			continue;
+		
+		if(translation.second.Struct().size() > maxStrings)
+			maxStrings = translation.second.Struct().size();
+		mapLanguages.insert(translation.first);
+	}
+	
+	if(maxStrings == 0 || mapLanguages.empty())
+	{
+		logGlobal->info("Map %s doesn't have any supported translation", name.toString());
+		return;
+	}
+	
+	//identifying base languages
+	for(auto & translation : translations.Struct())
+	{
+		if(translation.second.isStruct() && translation.second.Struct().size() == maxStrings)
+			mapBaseLanguages.insert(translation.first);
+	}
+	
+	std::string baseLanguage, language;
+	//english is preferrable as base language
+	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
+		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
+	else
+		baseLanguage = *mapBaseLanguages.begin();
+
+	if(mapBaseLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
+	{
+		language = CGeneralTextHandler::getPreferredLanguage(); //preferred language is base language - use it
+		baseLanguage = language;
+	}
+	else
+	{
+		if(mapLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
+			language = CGeneralTextHandler::getPreferredLanguage();
+		else
+			language = baseLanguage; //preferred language is not supported, use base language
+	}
+	
+	assert(!language.empty());
+	
+	JsonNode data = translations[baseLanguage];
+	if(language != baseLanguage)
+		JsonUtils::mergeCopy(data, translations[language]);
+	
+	for(auto & s : data.Struct())
+		registerString("map", TextIdentifier(s.first), s.second.String(), language);
+}
+
+std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized)
+{
+	return mapRegisterLocalizedString(modContext, mapHeader, UID, localized, VLC->modh->getModLanguage(modContext));
+}
+
+std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language)
+{
+	mapHeader.registerString(modContext, UID, localized, language);
+	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
+	return UID.get();
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -32,30 +32,31 @@ public:
 	void setIdentifierRemapper(const MapIdentifiersH3M & remapper);
 
 	ArtifactID readArtifact();
+	ArtifactID readArtifact8();
 	ArtifactID readArtifact32();
 	CreatureID readCreature();
 	HeroTypeID readHero();
-	int32_t readHeroPortrait();
+	HeroTypeID readHeroPortrait();
 	TerrainId readTerrain();
 	RoadId readRoad();
 	RiverId readRiver();
 	SecondarySkill readSkill();
 	SpellID readSpell();
 	SpellID readSpell32();
+	GameResID readGameResID();
 	PlayerColor readPlayer();
 	PlayerColor readPlayer32();
 
 	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);
+	void readBitmaskPlayers(std::set<PlayerColor> & dest, bool invert);
 	void readBitmaskResources(std::set<GameResID> & dest, bool invert);
 	void readBitmaskHeroClassesSized(std::set<HeroClassID> & dest, bool invert);
-	void readBitmaskHeroes(std::vector<bool> & dest, bool invert);
-	void readBitmaskHeroesSized(std::vector<bool> & dest, bool invert);
-	void readBitmaskArtifacts(std::vector<bool> & dest, bool invert);
-	void readBitmaskArtifactsSized(std::vector<bool> & dest, bool invert);
-	void readBitmaskSpells(std::vector<bool> & dest, bool invert);
+	void readBitmaskHeroes(std::set<HeroTypeID> & dest, bool invert);
+	void readBitmaskHeroesSized(std::set<HeroTypeID> & dest, bool invert);
+	void readBitmaskArtifacts(std::set<ArtifactID> & dest, bool invert);
+	void readBitmaskArtifactsSized(std::set<ArtifactID> & dest, bool invert);
 	void readBitmaskSpells(std::set<SpellID> & dest, bool invert);
-	void readBitmaskSkills(std::vector<bool> & dest, bool invert);
 	void readBitmaskSkills(std::set<SecondarySkill> & dest, bool invert);
 
 	int3 readInt3();
@@ -86,9 +87,6 @@ private:
 
 	template<class Identifier>
 	void readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert);
-
-	template<class Identifier>
-	void readBitmask(std::vector<bool> & dest, int bytesToRead, int objectsToRead, bool invert);
 
 	MapFormatFeaturesH3M features;
 	MapIdentifiersH3M remapper;

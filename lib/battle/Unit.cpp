@@ -14,7 +14,6 @@
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
 #include "../MetaString.h"
-#include "../NetPacksBase.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
@@ -188,11 +187,11 @@ void Unit::addText(MetaString & text, EMetaText type, int32_t serial, const boos
 void Unit::addNameReplacement(MetaString & text, const boost::logic::tribool & plural) const
 {
 	if(boost::logic::indeterminate(plural))
-		text.replaceCreatureName(creatureId(), getCount());
+		text.replaceName(creatureId(), getCount());
 	else if(plural)
-		text.replaceLocalString(EMetaText::CRE_PL_NAMES, creatureIndex());
+		text.replaceNamePlural(creatureIndex());
 	else
-		text.replaceLocalString(EMetaText::CRE_SING_NAMES, creatureIndex());
+		text.replaceNameSingular(creatureIndex());
 }
 
 std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
@@ -201,7 +200,7 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
 
 	MetaString text;
 	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
-	text.replaceCreatureName(creatureId(), getCount());
+	text.replaceName(creatureId(), getCount());
 
 	return text.toString();
 }
@@ -219,7 +218,7 @@ int Unit::getRawSurrenderCost() const
 void UnitInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("count", count);
-	handler.serializeId("type", type, CreatureID::NONE);
+	handler.serializeId("type", type, CreatureID(CreatureID::NONE));
 	handler.serializeInt("side", side);
 	handler.serializeInt("position", position);
 	handler.serializeBool("summoned", summoned);

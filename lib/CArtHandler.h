@@ -53,12 +53,6 @@ public:
 	bool isCombined() const;
 	const std::vector<CArtifact*> & getConstituents() const;
 	const std::vector<CArtifact*> & getPartOf() const;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & constituents;
-		h & partOf;
-	}
 };
 
 class DLL_LINKAGE CScrollArtifact
@@ -83,12 +77,6 @@ public:
 	const std::vector <std::pair<ui16, Bonus>> & getBonusesPerLevel() const;
 	std::vector <std::pair<ui16, Bonus>> & getThresholdBonuses();
 	const std::vector <std::pair<ui16, Bonus>> & getThresholdBonuses() const;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & bonusesPerLevel;
-		h & thresholdBonuses;
-	}
 };
 
 // Container for artifacts. Not for instances.
@@ -144,25 +132,6 @@ public:
 	// Is used for testing purposes only
 	void setImage(int32_t iconIndex, std::string image, std::string large);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & static_cast<CCombinedArtifact&>(*this);
-		h & static_cast<CGrowingArtifact&>(*this);
-		h & image;
-		h & large;
-		h & advMapDef;
-		h & iconIndex;
-		h & price;
-		h & possibleSlots;
-		h & aClass;
-		h & id;
-		h & modScope;
-		h & identifier;
-		h & warMachine;
-		h & onlyOnWaterMap;
-	}
-
 	CArtifact();
 	~CArtifact();
 
@@ -172,24 +141,15 @@ public:
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
-	std::vector<CArtifact*> treasures, minors, majors, relics; //tmp vectors!!! do not touch if you don't know what you are doing!!!
-
-	std::vector<CArtifact *> allowedArtifacts;
-	std::set<ArtifactID> growingArtifacts;
+	/// List of artifacts allowed on the map
+	std::vector<const CArtifact *> allowedArtifacts;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
-	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of given class. No side effects
-
 	static CArtifact::EartClass stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
 
-	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
-
 	bool legalArtifact(const ArtifactID & id);
-	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
+	void initAllowedArtifactsList(const std::set<ArtifactID> & allowed);
 	static void makeItCreatureArt(CArtifact * a, bool onlyCreature = true);
 	static void makeItCommanderArt(CArtifact * a, bool onlyCommander = true);
 
@@ -201,18 +161,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & objects;
-		h & allowedArtifacts;
-		h & treasures;
-		h & minors;
-		h & majors;
-		h & relics;
-		h & growingArtifacts;
-	}
+	std::set<ArtifactID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
@@ -224,8 +173,6 @@ private:
 	void loadClass(CArtifact * art, const JsonNode & node) const;
 	void loadType(CArtifact * art, const JsonNode & node) const;
 	void loadComponents(CArtifact * art, const JsonNode & node);
-
-	void erasePickedArt(const ArtifactID & id);
 };
 
 struct DLL_LINKAGE ArtSlotInfo
@@ -246,11 +193,13 @@ struct DLL_LINKAGE ArtSlotInfo
 class DLL_LINKAGE CArtifactSet
 {
 public:
+	using ArtPlacementMap = std::map<CArtifactInstance*, ArtifactPosition>;
+
 	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
 	std::map<ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<ArtSlotInfo> artifactsTransitionPos; // Used as transition position for dragAndDrop artifact exchange
 
-	void setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked);
+	void setNewArtSlot(const ArtifactPosition & slot, ConstTransitivePtr<CArtifactInstance> art, bool locked);
 	void eraseArtSlot(const ArtifactPosition & slot);
 
 	const ArtSlotInfo * getSlot(const ArtifactPosition & pos) const;
@@ -260,7 +209,6 @@ public:
 	/// (if more than one such artifact lower ID is returned)
 	ArtifactPosition getArtPos(const ArtifactID & aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
-	ArtifactPosition getArtBackpackPos(const ArtifactID & aid) const;
 	std::vector<ArtifactPosition> getAllArtPositions(const ArtifactID & aid, bool onlyWorn, bool allowLocked, bool getAll) const;
 	std::vector<ArtifactPosition> getBackpackArtPositions(const ArtifactID & aid) const;
 	const CArtifactInstance * getArtByInstanceId(const ArtifactInstanceID & artInstId) const;
@@ -275,7 +223,7 @@ public:
 	unsigned getArtPosCount(const ArtifactID & aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
-	virtual void putArtifact(ArtifactPosition slot, CArtifactInstance * art);
+	virtual ArtPlacementMap putArtifact(ArtifactPosition slot, CArtifactInstance * art);
 	virtual void removeArtifact(ArtifactPosition slot);
 	virtual ~CArtifactSet();
 

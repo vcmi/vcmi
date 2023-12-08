@@ -13,8 +13,10 @@
 #include "Buttons.h"
 
 #include "../CPlayerInterface.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 #include "../../CCallback.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
 	std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll)
@@ -29,16 +31,18 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
 		artPlace.second->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace.second->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace.second->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 	}
 	leftBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, -1));
 	rightBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, +1));
+
+	setRedrawParent(true);
 }
 
 CArtifactsOfHeroKingdom::~CArtifactsOfHeroKingdom()
@@ -53,7 +57,7 @@ void CArtifactsOfHeroKingdom::swapArtifacts(const ArtifactLocation & srcLoc, con
 
 void CArtifactsOfHeroKingdom::pickUpArtifact(CHeroArtPlace & artPlace)
 {
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, artPlace.slot),
-		ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
+		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 }
 

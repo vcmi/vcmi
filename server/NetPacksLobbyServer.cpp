@@ -13,7 +13,6 @@
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
 
-#include "../lib/NetPacksLobby.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
 
@@ -53,11 +52,11 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 		}
 	}
 	
-	if(srv.state == EServerState::LOBBY)
-		{
+	if(srv.getState() == EServerState::LOBBY)
+	{
 		result = true;
 		return;
-		}
+	}
 	
 	//disconnect immediately and ignore this client
 	srv.connections.erase(pack.c);
@@ -115,7 +114,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyCl
 	// Until UUID set we only pass LobbyClientConnected to this client
 	pack.c->uuid = pack.uuid;
 	srv.updateAndPropagateLobbyState();
-	if(srv.state == EServerState::GAMEPLAY)
+	if(srv.getState() == EServerState::GAMEPLAY)
 	{
 		//immediately start game
 		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
@@ -173,13 +172,13 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 	if(pack.shutdownServer)
 	{
 		logNetwork->info("Client requested shutdown, server will close itself...");
-		srv.state = EServerState::SHUTDOWN;
+		srv.setState(EServerState::SHUTDOWN);
 		return;
 	}
 	else if(srv.connections.empty())
 	{
 		logNetwork->error("Last connection lost, server will close itself...");
-		srv.state = EServerState::SHUTDOWN;
+		srv.setState(EServerState::SHUTDOWN);
 	}
 	else if(pack.c == srv.hostClient)
 	{
@@ -189,6 +188,12 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 		srv.addToAnnounceQueue(std::move(ph));
 	}
 	srv.updateAndPropagateLobbyState();
+	
+	if(srv.getState() != EServerState::SHUTDOWN && srv.remoteConnections.count(pack.c))
+	{
+		srv.remoteConnections -= pack.c;
+		srv.connectToRemote();
+	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
@@ -198,7 +203,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMess
 
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 {
-	if(srv.state != EServerState::LOBBY)
+	if(srv.getState() != EServerState::LOBBY)
 	{
 		result = false;
 		return;
@@ -214,7 +219,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 	srv.si->mapname = pack.ourCampaign->getFilename();
 	srv.si->mode = StartInfo::CAMPAIGN;
 	srv.si->campState = pack.ourCampaign;
-	srv.si->turnTime = 0;
+	srv.si->turnTimerInfo = TurnTimerInfo{};
 
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
@@ -289,6 +294,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 		result = false;
 		return;
 	}
+	
 	// Server will prepare gamestate and we announce StartInfo to clients
 	if(!srv.prepareToStartGame())
 	{
@@ -299,6 +305,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
 	pack.initializedGameState = srv.gh->gameState();
 
+	srv.setState(EServerState::GAMEPLAY_STARTING);
 	result = true;
 }
 
@@ -360,14 +367,23 @@ void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayer
 {
 	switch(pack.what)
 	{
+	case LobbyChangePlayerOption::TOWN_ID:
+		srv.optionSetCastle(pack.color, FactionID(pack.value));
+		break;
 	case LobbyChangePlayerOption::TOWN:
-		srv.optionNextCastle(pack.color, pack.direction);
+		srv.optionNextCastle(pack.color, pack.value);
+		break;
+	case LobbyChangePlayerOption::HERO_ID:
+		srv.optionSetHero(pack.color, HeroTypeID(pack.value));
 		break;
 	case LobbyChangePlayerOption::HERO:
-		srv.optionNextHero(pack.color, pack.direction);
+		srv.optionNextHero(pack.color, pack.value);
+		break;
+	case LobbyChangePlayerOption::BONUS_ID:
+		srv.optionSetBonus(pack.color, PlayerStartingBonus(pack.value));
 		break;
 	case LobbyChangePlayerOption::BONUS:
-		srv.optionNextBonus(pack.color, pack.direction);
+		srv.optionNextBonus(pack.color, pack.value);
 		break;
 	}
 	
@@ -380,9 +396,21 @@ void ApplyOnServerNetPackVisitor::visitLobbySetPlayer(LobbySetPlayer & pack)
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbySetPlayerName(LobbySetPlayerName & pack)
+{
+	srv.setPlayerName(pack.color, pack.name);
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbySetSimturns(LobbySetSimturns & pack)
+{
+	srv.si->simturnsInfo = pack.simturnsInfo;
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 {
-	srv.si->turnTime = pack.turnTime;
+	srv.si->turnTimerInfo = pack.turnTimerInfo;
 	result = true;
 }
 

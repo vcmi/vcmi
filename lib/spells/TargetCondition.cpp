@@ -18,9 +18,12 @@
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
 
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../VCMI_Lib.h"
-#include "../CModHandler.h"
+
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -154,7 +157,7 @@ protected:
 	{
 		std::stringstream cachingStr;
 		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
+		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()), 1), cachingStr.str());
 	}
 };
 
@@ -172,25 +175,25 @@ protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
 		bool elementalImmune = false;
+		auto bearer = target->getBonusBearer();
 
-		auto filter = m->getElementalImmunity();
-
-		for(auto element : filter)
+		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop) 
 		{
-			if(target->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
+			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, BonusSubtypeID(cnf)))
 			{
 				elementalImmune = true;
-				break;
+				stop = true; //only bonus from one school is used
 			}
 			else if(!m->isPositiveSpell()) //negative or indifferent
 			{
-				if(target->hasBonusOfType(element, 1))
+				if (bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(cnf)))
 				{
 					elementalImmune = true;
-					break;
+					stop = true; //only bonus from one school is used
 				}
 			}
-		}
+		});
+
 		return elementalImmune;
 	}
 };
@@ -228,7 +231,7 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return !target->hasBonusOfType(BonusType::SPELL_IMMUNITY, m->getSpellIndex());
+		return !target->hasBonusOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()));
 	}
 };
 
@@ -256,7 +259,7 @@ public:
 		builder << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 		cachingString = builder.str();
 
-		selector = Selector::source(BonusSource::SPELL_EFFECT, spellID.num);
+		selector = Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID));
 	}
 
 protected:
@@ -289,8 +292,8 @@ class ImmunityNegationCondition : public TargetConditionItemBase
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
-		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusCustomSubtype::immunityBattleWide);
+		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusCustomSubtype::immunityEnemyHero);
 		//Non-magical effects is not affected by orb of vulnerability
 		if(!m->isMagicalEffect())
 			return false;
@@ -371,7 +374,7 @@ public:
 		}
 		else if(type == "creature")
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
+			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
@@ -380,7 +383,7 @@ public:
 		}
 		else if(type == "spell")
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
+			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
@@ -539,7 +542,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 			std::string type;
 			std::string identifier;
 
-			CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
+			ModUtility::parseIdentifier(keyValue.first, scope, type, identifier);
 
 			item = itemFactory->createConfigurable(keyValue.second.meta, type, identifier);
 		}

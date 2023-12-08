@@ -68,3 +68,13 @@ void AEventsReceiver::deactivateEvents(ui16 what)
 //	if (!(activeState & HOVER))
 //		hoveredState = false;
 }
+
+void AEventsReceiver::clickPressed(const Point & cursorPosition, bool lastActivated)
+{
+	clickPressed(cursorPosition);
+}
+
+void AEventsReceiver::clickReleased(const Point & cursorPosition, bool lastActivated)
+{
+	clickReleased(cursorPosition);
+}

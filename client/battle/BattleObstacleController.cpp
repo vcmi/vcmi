@@ -22,16 +22,18 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
+#include "../../lib/serializer/JsonDeserializer.h"
 
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):
 	owner(owner),
 	timePassed(0.f)
 {
-	auto obst = owner.curInt->cb->battleGetAllObstacles();
+	auto obst = owner.getBattle()->battleGetAllObstacles();
 	for(auto & elem : obst)
 	{
 		if ( elem->obstacleType == CObstacleInstance::MOAT )
@@ -42,21 +44,21 @@ BattleObstacleController::BattleObstacleController(BattleInterface & owner):
 
 void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 {
-	std::string animationName = oi.getAnimation();
+	AnimationPath animationName = oi.getAnimation();
 
 	if (animationsCache.count(animationName) == 0)
 	{
 		if (oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
 			// obstacle uses single bitmap image for animations
-			auto animation = std::make_shared<CAnimation>();
-			animation->setCustom(animationName, 0, 0);
+			auto animation = GH.renderHandler().createAnimation();
+			animation->setCustom(animationName.getName(), 0, 0);
 			animationsCache[animationName] = animation;
 			animation->preload();
 		}
 		else
 		{
-			auto animation = std::make_shared<CAnimation>(animationName);
+			auto animation = GH.renderHandler().loadAnimation(animationName);
 			animationsCache[animationName] = animation;
 			animation->preload();
 		}
@@ -76,7 +78,14 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 			continue;
 		}
 
-		auto animation = std::make_shared<CAnimation>(obstacle["appearAnimation"].String());
+		AnimationPath animationPath;
+		JsonDeserializer ser(nullptr, obstacle);
+		ser.serializeStruct("appearAnimation", animationPath);
+
+		if(animationPath.empty())
+			continue;
+
+		auto animation = GH.renderHandler().loadAnimation(animationPath);
 		animation->preload();
 
 		auto first = animation->getImage(0, 0);
@@ -87,7 +96,7 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, obstacle);
 		//AFAIK, in H3 there is no sound of obstacle removal
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, obstacle["appearAnimation"].String(), whereTo, obstacle["position"].Integer(), 0, true));
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
 
 		obstacleAnimations.erase(oi.id);
 		//so when multiple obstacles are removed, they show up one after another
@@ -99,12 +108,12 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 {
 	for(const auto & oi : obstacles)
 	{
-		auto side = owner.curInt->cb->playerToSide(owner.curInt->playerID);
+		auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
 
-		if(!oi->visibleForSide(side.value(), owner.curInt->cb->battleHasNativeStack(side.value())))
+		if(!oi->visibleForSide(side.value(), owner.getBattle()->battleHasNativeStack(side.value())))
 			continue;
 
-		auto animation = std::make_shared<CAnimation>(oi->getAppearAnimation());
+		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation());
 		animation->preload();
 
 		auto first = animation->getImage(0, 0);
@@ -127,7 +136,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 {
 	//Blit absolute obstacles
-	for(auto & obstacle : owner.curInt->cb->battleGetAllObstacles())
+	for(auto & obstacle : owner.getBattle()->battleGetAllObstacles())
 	{
 		if(obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
@@ -153,7 +162,7 @@ void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 
 void BattleObstacleController::collectRenderableObjects(BattleRenderer & renderer)
 {
-	for (auto obstacle : owner.curInt->cb->battleGetAllObstacles())
+	for (auto obstacle : owner.getBattle()->battleGetAllObstacles())
 	{
 		if (obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 			continue;

@@ -12,6 +12,10 @@
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
+
 class CButton;
 class CAnimImage;
 class CToggleGroup;
@@ -99,7 +103,7 @@ public:
 	//methods that generate values for displaying
 	virtual std::string getValueText()=0;
 	virtual std::string getNameText()=0;
-	virtual std::string getImageName(InfoBox::InfoSize size)=0;
+	virtual AnimationPath getImageName(InfoBox::InfoSize size)=0;
 	virtual std::string getHoverText()=0;
 	virtual size_t getImageIndex()=0;
 
@@ -120,7 +124,7 @@ public:
 
 	std::string getValueText() override;
 	std::string getNameText() override;
-	std::string getImageName(InfoBox::InfoSize size) override;
+	AnimationPath getImageName(InfoBox::InfoSize size) override;
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
@@ -162,15 +166,15 @@ class InfoBoxCustom : public IInfoBoxData
 public:
 	std::string valueText;
 	std::string nameText;
-	std::string imageName;
+	AnimationPath imageName;
 	std::string hoverText;
 	size_t imageIndex;
 
-	InfoBoxCustom(std::string ValueText, std::string NameText, std::string ImageName, size_t ImageIndex, std::string HoverText="");
+	InfoBoxCustom(std::string ValueText, std::string NameText, const AnimationPath & ImageName, size_t ImageIndex, std::string HoverText="");
 
 	std::string getValueText() override;
 	std::string getNameText() override;
-	std::string getImageName(InfoBox::InfoSize size) override;
+	AnimationPath getImageName(InfoBox::InfoSize size) override;
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
@@ -190,13 +194,13 @@ public:
 
 	std::string getValueText() override;
 	std::string getNameText() override;
-	std::string getImageName(InfoBox::InfoSize size) override;
+	AnimationPath getImageName(InfoBox::InfoSize size) override;
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 };
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder
+class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder, public ITownHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -249,10 +253,12 @@ public:
 	void townChanged(const CGTownInstance *town);
 	void heroRemoved();
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 	void artifactRemoved(const ArtifactLocation &artLoc) override;
 	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
 	void artifactDisassembled(const ArtifactLocation &artLoc) override;
 	void artifactAssembled(const ArtifactLocation &artLoc) override;
+	void buildChanged() override;
 };
 
 /// List item with town
@@ -273,12 +279,19 @@ class CTownItem : public CIntObject, public IGarrisonHolder
 
 	std::shared_ptr<LRClickableAreaOpenTown> openTown;
 
+	std::shared_ptr<CButton> fastTownHall;
+	std::shared_ptr<CButton> fastArmyPurchase;
+	std::shared_ptr<LRClickableArea> fastMarket;
+	std::shared_ptr<LRClickableArea> fastTavern;
+	std::shared_ptr<LRClickableArea> fastTown;
+
 public:
 	const CGTownInstance * town;
 
 	CTownItem(const CGTownInstance * Town);
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 	void update();
 };
 
@@ -311,6 +324,7 @@ public:
 	std::shared_ptr<CArtifactsOfHeroKingdom> heroArts;
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 
 	CHeroItem(const CGHeroInstance * hero);
 };
@@ -329,6 +343,7 @@ public:
 	CKingdHeroList(size_t maxSize);
 
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 };
 
 /// Tab with all town-specific data
@@ -347,4 +362,5 @@ public:
 
 	void townChanged(const CGTownInstance * town);
 	void updateGarrisons() override;
+	bool holdsGarrison(const CArmedInstance * army) override;
 };

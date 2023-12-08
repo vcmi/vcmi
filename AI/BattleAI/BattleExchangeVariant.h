@@ -14,9 +14,37 @@
 #include "PotentialTargets.h"
 #include "StackWithBonuses.h"
 
+struct BattleScore
+{
+	float ourDamageReduce;
+	float enemyDamageReduce;
+
+	BattleScore(float enemyDamageReduce, float ourDamageReduce)
+		:enemyDamageReduce(enemyDamageReduce), ourDamageReduce(ourDamageReduce)
+	{
+	}
+
+	BattleScore() : BattleScore(0, 0) {}
+
+	float value()
+	{
+		return enemyDamageReduce - ourDamageReduce;
+	}
+
+	BattleScore  operator+(BattleScore & other)
+	{
+		BattleScore result = *this;
+
+		result.ourDamageReduce += other.ourDamageReduce;
+		result.enemyDamageReduce += other.enemyDamageReduce;
+
+		return result;
+	}
+};
+
 struct AttackerValue
 {
-	int64_t value;
+	float value;
 	bool isRetalitated;
 	BattleHex position;
 
@@ -25,20 +53,23 @@ struct AttackerValue
 
 struct MoveTarget
 {
-	int64_t score;
+	float score;
+	float scorePerTurn;
 	std::vector<BattleHex> positions;
+	std::optional<AttackPossibility> cachedAttack;
+	uint8_t turnsToRich;
 
 	MoveTarget();
 };
 
 struct EvaluationResult
 {
-	static const int64_t INEFFECTIVE_SCORE = -1000000;
+	static const int64_t INEFFECTIVE_SCORE = -10000;
 
 	AttackPossibility bestAttack;
 	MoveTarget bestMove;
 	bool wait;
-	int64_t score;
+	float score;
 	bool defend;
 
 	EvaluationResult(const AttackPossibility & ap)
@@ -56,19 +87,24 @@ struct EvaluationResult
 class BattleExchangeVariant
 {
 public:
-	BattleExchangeVariant(): dpsScore(0) {}
+	BattleExchangeVariant()
+		: dpsScore() {}
 
-	int64_t trackAttack(const AttackPossibility & ap, HypotheticBattle & state);
+	float trackAttack(
+		const AttackPossibility & ap,
+		std::shared_ptr<HypotheticBattle> hb,
+		DamageCache & damageCache);
 
-	int64_t trackAttack(
+	float trackAttack(
 		std::shared_ptr<StackWithBonuses> attacker,
 		std::shared_ptr<StackWithBonuses> defender,
 		bool shooting,
 		bool isOurAttack,
-		const CBattleInfoCallback & cb,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb,
 		bool evaluateOnly = false);
 
-	int64_t getScore() const { return dpsScore; }
+	const BattleScore & getScore() const { return dpsScore; }
 
 	void adjustPositions(
 		std::vector<const battle::Unit *> attackers,
@@ -76,8 +112,19 @@ public:
 		std::map<BattleHex, battle::Units> & reachabilityMap);
 
 private:
-	int64_t dpsScore;
+	BattleScore dpsScore;
 	std::map<uint32_t, AttackerValue> attackerValue;
+};
+
+struct ReachabilityData
+{
+	std::vector<const battle::Unit *> units;
+
+	// shooters which are within mellee attack and mellee units
+	std::vector<const battle::Unit *> melleeAccessible;
+
+	// far shooters
+	std::vector<const battle::Unit *> shooters;
 };
 
 class BattleExchangeEvaluator
@@ -85,17 +132,62 @@ class BattleExchangeEvaluator
 private:
 	std::shared_ptr<CBattleInfoCallback> cb;
 	std::shared_ptr<Environment> env;
+	std::map<uint32_t, ReachabilityInfo> reachabilityCache;
 	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
 	std::vector<battle::Units> turnOrder;
+	float negativeEffectMultiplier;
+
+	float scoreValue(const BattleScore & score) const;
+
+	BattleScore calculateExchange(
+		const AttackPossibility & ap,
+		uint8_t turn,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
+	bool canBeHitThisTurn(const AttackPossibility & ap);
 
 public:
-	BattleExchangeEvaluator(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env): cb(cb), env(env) {}
+	BattleExchangeEvaluator(
+		std::shared_ptr<CBattleInfoCallback> cb,
+		std::shared_ptr<Environment> env,
+		float strengthRatio): cb(cb), env(env) {
+		negativeEffectMultiplier = strengthRatio >= 1 ? 1 : strengthRatio;
+	}
 
-	EvaluationResult findBestTarget(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
-	int64_t calculateExchange(const AttackPossibility & ap, PotentialTargets & targets, HypotheticBattle & hb);
-	void updateReachabilityMap(HypotheticBattle & hb);
-	std::vector<const battle::Unit *> getExchangeUnits(const AttackPossibility & ap, PotentialTargets & targets, HypotheticBattle & hb);
+	EvaluationResult findBestTarget(
+		const battle::Unit * activeStack,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
+	float evaluateExchange(
+		const AttackPossibility & ap,
+		uint8_t turn,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
+	std::vector<const battle::Unit *> getOneTurnReachableUnits(uint8_t turn, BattleHex hex);
+	void updateReachabilityMap(std::shared_ptr<HypotheticBattle> hb);
+
+	ReachabilityData getExchangeUnits(
+		const AttackPossibility & ap,
+		uint8_t turn,
+		PotentialTargets & targets,
+		std::shared_ptr<HypotheticBattle> hb);
+
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
-	MoveTarget findMoveTowardsUnreachable(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
-	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit);
+
+	MoveTarget findMoveTowardsUnreachable(
+		const battle::Unit * activeStack,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
+	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit) const;
+
+	float getPositiveEffectMultiplier() const { return 1; }
+	float getNegativeEffectMultiplier() const { return negativeEffectMultiplier; }
 };

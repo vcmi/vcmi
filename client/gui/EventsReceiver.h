@@ -45,6 +45,8 @@ protected:
 public:
 	virtual void clickPressed(const Point & cursorPosition) {}
 	virtual void clickReleased(const Point & cursorPosition) {}
+	virtual void clickPressed(const Point & cursorPosition, bool lastActivated);
+	virtual void clickReleased(const Point & cursorPosition, bool lastActivated);
 	virtual void clickCancel(const Point & cursorPosition) {}
 	virtual void showPopupWindow(const Point & cursorPosition) {}
 	virtual void clickDouble(const Point & cursorPosition) {}

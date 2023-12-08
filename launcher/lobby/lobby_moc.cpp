@@ -34,9 +34,11 @@ Lobby::Lobby(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(sysMessage(QString)));
+	connect(&socketLobby, SIGNAL(text(QString)), ui->chatWidget, SLOT(sysMessage(QString)));
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
 	connect(&socketLobby, SIGNAL(disconnect()), this, SLOT(onDisconnected()));
+	connect(ui->chatWidget, SIGNAL(messageSent(QString)), this, SLOT(onMessageSent(QString)));
+	connect(ui->chatWidget, SIGNAL(channelSwitch(QString)), this, SLOT(onChannelSwitch(QString)));
 	
 	QString hostString("%1:%2");
 	hostString = hostString.arg(QString::fromStdString(settings["launcher"]["lobbyUrl"].String()));
@@ -110,7 +112,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	{
 	case SRVERROR:
 		protocolAssert(args.size());
-		chatMessage("System error", args[0], true);
+		ui->chatWidget->chatMessage("System error", args[0], true);
 		if(authentificationStatus == AuthStatus::AUTH_NONE)
 			authentificationStatus = AuthStatus::AUTH_ERROR;
 		break;
@@ -119,7 +121,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		protocolAssert(args.size());
 		hostSession = args[0];
 		session = args[0];
-		sysMessage("new session started");
+		ui->chatWidget->setSession(session);
 		break;
 
 	case SESSIONS:
@@ -151,15 +153,15 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case JOINED:
 	case KICKED:
 		protocolAssert(args.size() == 2);
-		joinStr = (command.command == JOINED ? "%1 joined to the session %2" : "%1 left session %2");
-
 		if(args[1] == username)
 		{
 			hostModsMap.clear();
+			session = "";
+			ui->chatWidget->setSession(session);
 			ui->buttonReady->setText("Ready");
 			ui->optNewGame->setChecked(true);
-			sysMessage(joinStr.arg("you", args[0]));
 			session = args[0];
+			ui->chatWidget->setSession(session);
 			bool isHost = command.command == JOINED && hostSession == session;
 			ui->optNewGame->setEnabled(isHost);
 			ui->optLoadGame->setEnabled(isHost);
@@ -167,7 +169,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		}
 		else
 		{
-			sysMessage(joinStr.arg(args[1], args[0]));
+			joinStr = (command.command == JOINED ? "%1 joined to the session %2" : "%1 left session %2");
+			ui->chatWidget->sysMessage(joinStr.arg(args[1], args[0]));
 		}
 		break;
 
@@ -186,10 +189,14 @@ void Lobby::serverCommand(const ServerCommand & command) try
 			
 	case CLIENTMODS: {
 		protocolAssert(args.size() >= 1);
+		auto & clientModsMap = clientsModsMap[args[0]];
 		amount = args[1].toInt();
 		protocolAssert(amount * 2 == (args.size() - 2));
 
 		tagPoint = 2;
+		for(int i = 0; i < amount; ++i, tagPoint += 2)
+			clientModsMap[args[tagPoint]] = args[tagPoint + 1];
+		
 		break;
 		}
 
@@ -244,7 +251,22 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		QString msg;
 		for(int i = 1; i < args.size(); ++i)
 			msg += args[i];
-		chatMessage(args[0], msg);
+		ui->chatWidget->chatMessage(args[0], msg);
+		break;
+		}
+			
+	case CHATCHANNEL: {
+		protocolAssert(args.size() > 2);
+		QString msg;
+		for(int i = 2; i < args.size(); ++i)
+			msg += args[i];
+		ui->chatWidget->chatMessage(args[0], args[1], msg);
+		break;
+		}
+			
+	case CHANNEL: {
+		protocolAssert(args.size() == 1);
+		ui->chatWidget->setChannel(args[0]);
 		break;
 		}
 			
@@ -258,10 +280,10 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		amount = args[0].toInt();
 		
 		protocolAssert(amount == (args.size() - 1));
-		ui->listUsers->clear();
+		ui->chatWidget->clearUsers();
 		for(int i = 0; i < amount; ++i)
 		{
-			ui->listUsers->addItem(new QListWidgetItem(args[i + 1]));
+			ui->chatWidget->addUser(args[i + 1]);
 		}
 		break;
 	}
@@ -277,7 +299,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	}
 
 	default:
-		sysMessage("Unknown server command");
+			ui->chatWidget->sysMessage("Unknown server command");
 	}
 
 	if(authentificationStatus == AuthStatus::AUTH_ERROR)
@@ -292,7 +314,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 }
 catch(const ProtocolError & e)
 {
-	chatMessage("System error", e.what(), true);
+	ui->chatWidget->chatMessage("System error", e.what(), true);
 }
 
 void Lobby::dispatchMessage(QString txt) try
@@ -316,12 +338,15 @@ void Lobby::dispatchMessage(QString txt) try
 }
 catch(const ProtocolError & e)
 {
-	chatMessage("System error", e.what(), true);
+	ui->chatWidget->chatMessage("System error", e.what(), true);
 }
 
 void Lobby::onDisconnected()
 {
 	authentificationStatus = AuthStatus::AUTH_NONE;
+	session = "";
+	ui->chatWidget->setSession(session);
+	ui->chatWidget->setChannel("global");
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 	ui->serverEdit->setEnabled(true);
@@ -331,35 +356,10 @@ void Lobby::onDisconnected()
 	ui->sessionsTable->setRowCount(0);
 }
 
-void Lobby::chatMessage(QString title, QString body, bool isSystem)
-{
-	QTextCharFormat fmtBody, fmtTitle;
-	fmtTitle.setFontWeight(QFont::Bold);
-	if(isSystem)
-		fmtBody.setFontWeight(QFont::DemiBold);
-	
-	QTextCursor curs(ui->chat->document());
-	curs.movePosition(QTextCursor::End);
-	curs.insertText(title + ": ", fmtTitle);
-	curs.insertText(body + "\n", fmtBody);
-	ui->chat->ensureCursorVisible();
-}
-
-void Lobby::sysMessage(QString body)
-{
-	chatMessage("System", body, true);
-}
-
 void Lobby::protocolAssert(bool expr)
 {
 	if(!expr)
 		throw ProtocolError("Protocol error");
-}
-
-void Lobby::on_messageEdit_returnPressed()
-{
-	socketLobby.send(ProtocolStrings[MESSAGE].arg(ui->messageEdit->text()));
-	ui->messageEdit->clear();
 }
 
 void Lobby::on_connectButton_toggled(bool checked)
@@ -369,6 +369,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 		ui->connectButton->setText(tr("Disconnect"));
 		authentificationStatus = AuthStatus::AUTH_NONE;
 		username = ui->userEdit->text();
+		ui->chatWidget->setUsername(username);
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
 		
 		auto serverStrings = ui->serverEdit->text().split(":");
@@ -389,9 +390,9 @@ void Lobby::on_connectButton_toggled(bool checked)
 		ui->serverEdit->setEnabled(false);
 		ui->userEdit->setEnabled(false);
 
-		sysMessage("Connecting to " + serverUrl + ":" + QString::number(serverPort));
+		ui->chatWidget->sysMessage("Connecting to " + serverUrl + ":" + QString::number(serverPort));
 		//show text immediately
-		ui->chat->repaint();
+		ui->chatWidget->repaint();
 		qApp->processEvents();
 		
 		socketLobby.connectServer(serverUrl, serverPort, username, connectionTimeout);
@@ -401,7 +402,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 		ui->connectButton->setText(tr("Connect"));
 		ui->serverEdit->setEnabled(true);
 		ui->userEdit->setEnabled(true);
-		ui->listUsers->clear();
+		ui->chatWidget->clearUsers();
 		hostModsMap.clear();
 		updateMods();
 		socketLobby.disconnectServer();
@@ -521,7 +522,14 @@ void Lobby::on_kickButton_clicked()
 void Lobby::on_buttonResolve_clicked()
 {
 	QStringList toEnableList, toDisableList;
-	for(auto * item : ui->modsList->selectedItems())
+	auto items = ui->modsList->selectedItems();
+	if(items.empty())
+	{
+		for(int i = 0; i < ui->modsList->count(); ++i)
+			items.push_back(ui->modsList->item(i));
+	}
+	
+	for(auto * item : items)
 	{
 		auto modName = item->data(ModResolutionRoles::ModNameRole);
 		if(modName.isNull())
@@ -564,3 +572,12 @@ void Lobby::on_optLoadGame_toggled(bool checked)
 	}
 }
 
+void Lobby::onMessageSent(QString message)
+{
+	socketLobby.send(ProtocolStrings[MESSAGE].arg(message));
+}
+
+void Lobby::onChannelSwitch(QString channel)
+{
+	socketLobby.send(ProtocolStrings[SETCHANNEL].arg(channel));
+}

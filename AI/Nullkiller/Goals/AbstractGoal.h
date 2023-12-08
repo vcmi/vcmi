@@ -71,7 +71,9 @@ namespace Goals
 		ARMY_UPGRADE,
 		DEFEND_TOWN,
 		CAPTURE_OBJECT,
-		SAVE_RESOURCES
+		SAVE_RESOURCES,
+		STAY_AT_TOWN_BEHAVIOR,
+		STAY_AT_TOWN
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>

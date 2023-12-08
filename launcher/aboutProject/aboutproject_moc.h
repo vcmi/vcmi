@@ -23,7 +23,7 @@ class AboutProjectView : public QWidget
 
 	void changeEvent(QEvent *event) override;
 public:
-	explicit AboutProjectView(QWidget * parent = 0);
+	explicit AboutProjectView(QWidget * parent = nullptr);
 
 public slots:
 

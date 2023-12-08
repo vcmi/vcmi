@@ -274,8 +274,14 @@ void ScreenHandler::initializeWindow()
 		handleFatalError(message, true);
 	}
 
-	//create first available renderer if preferred not set. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
-	mainRenderer = SDL_CreateRenderer(mainWindow, getPreferredRenderingDriver(), 0);
+	// create first available renderer if no preferred one is set
+	// use no SDL_RENDERER_SOFTWARE or SDL_RENDERER_ACCELERATED flag, so HW accelerated will be preferred but SW renderer will also be possible
+	uint32_t rendererFlags = 0;
+	if(settings["video"]["vsync"].Bool())
+	{
+		rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+	}
+	mainRenderer = SDL_CreateRenderer(mainWindow, getPreferredRenderingDriver(), rendererFlags);
 
 	if(mainRenderer == nullptr)
 		throw std::runtime_error("Unable to create renderer\n");
@@ -564,4 +570,10 @@ std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) con
 	result.erase(boost::unique(result).end(), result.end());
 
 	return result;
+}
+
+bool ScreenHandler::hasFocus()
+{
+	ui32 flags = SDL_GetWindowFlags(mainWindow);
+	return flags & SDL_WINDOW_INPUT_FOCUS;
 }

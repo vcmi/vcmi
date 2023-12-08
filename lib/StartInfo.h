@@ -9,7 +9,10 @@
  */
 #pragma once
 
+#include "vstd/DateUtils.h"
+
 #include "GameConstants.h"
+#include "TurnTimerInfo.h"
 #include "campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -19,27 +22,51 @@ class CampaignState;
 class CMapInfo;
 struct PlayerInfo;
 class PlayerColor;
-struct SharedMemory;
+
+struct DLL_LINKAGE SimturnsInfo
+{
+	/// Minimal number of turns that must be played simultaneously even if contact has been detected
+	int requiredTurns = 0;
+	/// Maximum number of turns that might be played simultaneously unless contact is detected
+	int optionalTurns = 0;
+	/// If set to true, human and 1 AI can act at the same time
+	bool allowHumanWithAI = false;
+
+	bool operator == (const SimturnsInfo & other) const
+	{
+		return requiredTurns == other.requiredTurns &&
+				optionalTurns == other.optionalTurns &&
+				allowHumanWithAI == other.allowHumanWithAI;
+	}
+
+	template <typename Handler>
+	void serialize(Handler &h, const int version)
+	{
+		h & requiredTurns;
+		h & optionalTurns;
+		h & allowHumanWithAI;
+	}
+};
+
+enum class PlayerStartingBonus : int8_t
+{
+	RANDOM   = -1,
+	ARTIFACT =  0,
+	GOLD     =  1,
+	RESOURCE =  2
+};
 
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings
 {
 	enum { PLAYER_AI = 0 }; // for use in playerID
 
-	enum Ebonus {
-		NONE     = -2,
-		RANDOM   = -1,
-		ARTIFACT =  0,
-		GOLD     =  1,
-		RESOURCE =  2
-	};
-
-	Ebonus bonus;
+	PlayerStartingBonus bonus;
 	FactionID castle;
 	HeroTypeID hero;
 	HeroTypeID heroPortrait; //-1 if default, else ID
 
-	std::string heroName;
+	std::string heroNameTextId;
 	PlayerColor color; //from 0 -
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
 	EHandicap handicap;//0-no, 1-mild, 2-severe
@@ -53,7 +80,7 @@ struct DLL_LINKAGE PlayerSettings
 		h & castle;
 		h & hero;
 		h & heroPortrait;
-		h & heroName;
+		h & heroNameTextId;
 		h & bonus;
 		h & color;
 		h & handicap;
@@ -65,6 +92,9 @@ struct DLL_LINKAGE PlayerSettings
 	PlayerSettings();
 	bool isControlledByAI() const;
 	bool isControlledByHuman() const;
+
+	FactionID getCastleValidated() const;
+	HeroTypeID getHeroValidated() const;
 };
 
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
@@ -81,7 +111,10 @@ struct DLL_LINKAGE StartInfo
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
 	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
 	ui32 mapfileChecksum; //0 if not relevant
-	ui8 turnTime; //in minutes, 0=unlimited
+	std::string startTimeIso8601;
+	std::string fileURI;
+	SimturnsInfo simturnsInfo;
+	TurnTimerInfo turnTimerInfo;
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
 	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
@@ -104,14 +137,17 @@ struct DLL_LINKAGE StartInfo
 		h & seedToBeUsed;
 		h & seedPostInit;
 		h & mapfileChecksum;
-		h & turnTime;
+		h & startTimeIso8601;
+		h & fileURI;
+		h & simturnsInfo;
+		h & turnTimerInfo;
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
 	}
 
 	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), turnTime(0)
+		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI("")
 	{
 
 	}
@@ -157,7 +193,6 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 {
 	boost::mutex stateMutex;
 	std::string uuid;
-	std::shared_ptr<SharedMemory> shm;
 
 	LobbyInfo() {}
 
@@ -172,7 +207,7 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	PlayerColor clientFirstColor(int clientId) const;
 	bool isClientColor(int clientId, const PlayerColor & color) const;
 	ui8 clientFirstId(int clientId) const; // Used by chat only!
-	PlayerInfo & getPlayerInfo(int color);
+	PlayerInfo & getPlayerInfo(PlayerColor color);
 	TeamID getPlayerTeamId(const PlayerColor & color);
 };
 

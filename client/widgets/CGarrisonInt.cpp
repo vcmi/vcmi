@@ -17,6 +17,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
+#include "../render/Graphics.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../CGameInfo.h"
@@ -29,6 +30,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/gameState/CGameState.h"
 
@@ -163,7 +165,7 @@ bool CGarrisonSlot::viewInfo()
 	UpgradeInfo pom;
 	LOCPLINT->cb->fillUpgradeInfo(getObj(), ID, pom);
 
-	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
+	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID != CreatureID::NONE; //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
 	auto dism = getDismiss();
 	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
@@ -194,16 +196,18 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 			artSelected = true;
 			if (myStack) // try dropping the artifact only if the slot isn't empty
 			{
-				ArtifactLocation src(srcHero, ArtifactPosition::TRANSITION_POS);
-				ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
-				if(pickedArtInst->canBePutAt(dst, true))
+				ArtifactLocation src(srcHero->id, ArtifactPosition::TRANSITION_POS);
+				ArtifactLocation dst(getObj()->id, ArtifactPosition::CREATURE_SLOT);
+				dst.creature = getSlot();
+
+				if(pickedArtInst->canBePutAt(myStack, ArtifactPosition::CREATURE_SLOT, true))
 				{	//equip clicked stack
-					if(dst.getArt())
+					if(auto dstArt = myStack->getArt(ArtifactPosition::CREATURE_SLOT))
 					{
 						//creature can wear only one active artifact
 						//if we are placing a new one, the old one will be returned to the hero's backpack
-						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero,
-							ArtifactUtils::getArtBackpackPosition(srcHero, dst.getArt()->getTypeId())));
+						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero->id,
+							ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId())));
 					}
 					LOCPLINT->cb->swapArtifacts(src, dst);
 				}
@@ -421,13 +425,14 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 	pos.x += x;
 	pos.y += y;
 
-	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
+	AnimationPath imgName = AnimationPath::builtin(owner->smallIcons ? "cprsmall" : "TWCRPORT");
 
 	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 0);
 	creatureImage->disable();
 
 	selectionImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 1);
 	selectionImage->disable();
+	selectionImage->center(creatureImage->pos.center());
 
 	if(Owner->smallIcons)
 	{

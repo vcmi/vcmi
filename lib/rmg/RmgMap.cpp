@@ -219,7 +219,7 @@ const CMapGenOptions& RmgMap::getMapGenOptions() const
 void RmgMap::assertOnMap(const int3& tile) const
 {
 	if (!mapInstance->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile.toString()));
+		throw rmgException(boost::str(boost::format("Tile %s is outside the map") % tile.toString()));
 }
 
 RmgMap::Zones & RmgMap::getZones()
@@ -269,7 +269,7 @@ bool RmgMap::isRoad(const int3& tile) const
 	return tiles[tile.x][tile.y][tile.z].isRoad();
 }
 
-void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
+void RmgMap::setOccupied(const int3 &tile, ETileType state)
 {
 	assertOnMap(tile);
 	
@@ -342,10 +342,10 @@ ui32 RmgMap::getTotalZoneCount() const
 
 bool RmgMap::isAllowedSpell(const SpellID & sid) const
 {
-	assert(sid >= 0);
-	if (sid < mapInstance->allowedSpells.size())
+	assert(sid.getNum() >= 0);
+	if (sid.getNum() < mapInstance->allowedSpells.size())
 	{
-		return mapInstance->allowedSpells[sid];
+		return mapInstance->allowedSpells.count(sid);
 	}
 	else
 		return false;
@@ -354,7 +354,7 @@ bool RmgMap::isAllowedSpell(const SpellID & sid) const
 void RmgMap::dump(bool zoneId) const
 {
 	static int id = 0;
-	std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id++));
+	std::ofstream out(boost::str(boost::format("zone_%d.txt") % id++));
 	int levels = mapInstance->levels();
 	int width =  mapInstance->width;
 	int height = mapInstance->height;

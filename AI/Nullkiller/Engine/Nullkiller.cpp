@@ -18,14 +18,12 @@
 #include "../Behaviors/BuildingBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
+#include "../Behaviors/StayAtTownBehavior.h"
 #include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -141,8 +139,8 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	{
 		memory->removeInvisibleObjects(cb.get());
 
-		dangerHitMap->calculateTileOwners();
 		dangerHitMap->updateHitMap();
+		dangerHitMap->calculateTileOwners();
 
 		boost::this_thread::interruption_point();
 
@@ -265,7 +263,8 @@ void Nullkiller::makeTurn()
 			choseBestTask(sptr(CaptureObjectsBehavior()), 1),
 			choseBestTask(sptr(ClusterBehavior()), MAX_DEPTH),
 			choseBestTask(sptr(DefenceBehavior()), MAX_DEPTH),
-			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH)
+			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH),
+			choseBestTask(sptr(StayAtTownBehavior()), MAX_DEPTH)
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
@@ -275,6 +274,7 @@ void Nullkiller::makeTurn()
 
 		bestTask = choseBestTask(bestTasks);
 
+		std::string taskDescription = bestTask->toString();
 		HeroPtr hero = bestTask->getHero();
 		HeroRole heroRole = HeroRole::MAIN;
 
@@ -293,7 +293,7 @@ void Nullkiller::makeTurn()
 
 			logAi->trace(
 				"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
-				bestTask->toString(),
+				taskDescription,
 				bestTask->priority);
 		}
 
@@ -309,7 +309,7 @@ void Nullkiller::makeTurn()
 			{
 				logAi->trace(
 					"Goal %s has too low priority %f so increasing scan depth to full.",
-					bestTask->toString(),
+					taskDescription,
 					bestTask->priority);
 
 				scanDepth = ScanDepth::ALL_FULL;
@@ -317,7 +317,7 @@ void Nullkiller::makeTurn()
 				continue;
 			}
 
-			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", bestTask->toString());
+			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", taskDescription);
 
 			return;
 		}
@@ -326,7 +326,7 @@ void Nullkiller::makeTurn()
 
 		if(i == MAXPASS)
 		{
-			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", bestTask->toString());
+			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", taskDescription);
 		}
 	}
 }
@@ -341,7 +341,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 
 	try
 	{
-		task->accept(ai.get());
+		task->accept(ai);
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)

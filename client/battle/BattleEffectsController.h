@@ -11,6 +11,7 @@
 
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/Point.h"
+#include "../../lib/filesystem/ResourcePath.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -60,11 +61,11 @@ public:
 
 	BattleEffectsController(BattleInterface & owner);
 
-	void startAction(const BattleAction* action);
+	void startAction(const BattleAction & action);
 
 	//displays custom effect on the battlefield
 	void displayEffect(EBattleEffect effect, const BattleHex & destTile);
-	void displayEffect(EBattleEffect effect, std::string soundFile, const BattleHex & destTile);
+	void displayEffect(EBattleEffect effect, const AudioPath & soundFile, const BattleHex & destTile);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 

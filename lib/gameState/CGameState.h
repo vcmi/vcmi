@@ -11,6 +11,8 @@
 
 #include "bonuses/CBonusSystemNode.h"
 #include "IGameCallback.h"
+#include "LoadProgress.h"
+#include "ConstTransitivePtr.h"
 
 namespace boost
 {
@@ -81,20 +83,29 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 	friend class CGameStateCampaign;
 
 public:
+	/// Stores number of times each artifact was placed on map via randomization
+	std::map<ArtifactID, int> allocatedArtifacts;
+
+	/// List of currently ongoing battles
+	std::vector<std::unique_ptr<BattleInfo>> currentBattles;
+	/// ID that can be allocated to next battle
+	BattleID nextBattleID = BattleID(0);
+
 	//we have here all heroes available on this map that are not hired
 	std::unique_ptr<TavernHeroesPool> heroesPool;
+
+	/// list of players currently making turn. Usually - just one, except for simturns
+	std::set<PlayerColor> actingPlayers;
 
 	CGameState();
 	virtual ~CGameState();
 
 	void preInit(Services * services);
 
-	void init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap = false);
+	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(StartInfo * si);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	PlayerColor currentPlayer; //ID of player currently having turn
-	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
 	std::map<PlayerColor, PlayerState> players;
@@ -107,18 +118,33 @@ public:
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
 	bool giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid);
+	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
+	HeroTypeID pickNextHeroType(const PlayerColor & owner);
 
 	void apply(CPack *pack);
 	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
 
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
-	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
+	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out) override; //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) override;
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 	void updateRumor();
+
+	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::set<ArtifactID> filtered);
+
+	/// Returns battle in which selected player is engaged, or nullptr if none.
+	/// Can NOT be used with neutral player, use battle by ID instead
+	const BattleInfo * getBattle(const PlayerColor & player) const;
+	/// Returns battle by its unique identifier, or nullptr if not found
+	const BattleInfo * getBattle(const BattleID & battle) const;
+	BattleInfo * getBattle(const BattleID & battle);
 
 	// ----- victory, loss condition checks -----
 
@@ -132,7 +158,7 @@ public:
 	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;
 	bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const override;
 
-	int getDate(Date::EDateType mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	int getDate(Date mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	// ----- getters, setters -----
 
@@ -149,7 +175,7 @@ public:
 	{
 		h & scenarioOps;
 		h & initialOpts;
-		h & currentPlayer;
+		h & actingPlayers;
 		h & day;
 		h & map;
 		h & players;
@@ -159,6 +185,7 @@ public:
 		h & rand;
 		h & rumor;
 		h & campaign;
+		h & allocatedArtifacts;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
@@ -166,18 +193,17 @@ public:
 private:
 	// ----- initialization -----
 	void preInitAuto();
-	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap);
+	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
 	void checkMapChecksum();
 	void initGlobalBonuses();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
 	void randomizeMapObjects();
-	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
 	void placeStartingHeroes();
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
 	void removeHeroPlaceholders();
-	void initStartingResources();
+	void initDifficulty();
 	void initHeroes();
 	void placeHeroesInTowns();
 	void initFogOfWar();
@@ -199,9 +225,7 @@ private:
 	CGHeroInstance * getUsedHero(const HeroTypeID & hid) const;
 	bool isUsedHero(const HeroTypeID & hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
-	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	HeroTypeID pickUnusedHeroTypeRandomly(const PlayerColor & owner); // picks a unused hero type randomly
-	HeroTypeID pickNextHeroType(const PlayerColor & owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----

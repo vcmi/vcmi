@@ -17,12 +17,19 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 BattleProxy::BattleProxy(Subject subject_): 
 	subject(std::move(subject_))
-{
-	setBattle(this);
-	player = subject->getPlayerID();
-}
+{}
 
 BattleProxy::~BattleProxy() = default;
+
+const IBattleInfo * BattleProxy::getBattle() const
+{
+	return this;
+}
+
+std::optional<PlayerColor> BattleProxy::getPlayerID() const
+{
+	return subject->getPlayerID();
+}
 
 int32_t BattleProxy::getActiveStackID() const
 {
@@ -33,12 +40,12 @@ int32_t BattleProxy::getActiveStackID() const
 		return -1;
 }
 
-TStacks BattleProxy::getStacksIf(TStackFilter predicate) const
+TStacks BattleProxy::getStacksIf(const TStackFilter & predicate) const
 {
 	return subject->battleGetStacksIf(predicate);
 }
 
-battle::Units BattleProxy::getUnitsIf(battle::UnitFilter predicate) const
+battle::Units BattleProxy::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	return subject->battleGetUnitsIf(predicate);
 }

@@ -13,7 +13,8 @@
 
 #include <vstd/RNG.h>
 
-#include "../../../lib/NetPacks.h"
+#include "../../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../../lib/networkPacks/SetStackEffect.h"
 
 #include "../../../lib/serializer/JsonDeserializer.h"
 

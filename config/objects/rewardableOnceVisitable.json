@@ -41,6 +41,7 @@
 		"index" : 22,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
 			"sounds" : {
 				"visit" : ["MYSTERY"]
 			}
@@ -54,9 +55,7 @@
 					"rarity"	: 100
 				},
 				"compatibilityIdentifiers" : [ "object" ],
-
 				"onVisitedMessage" : 38,
-				"blockedVisitable" : true,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -154,7 +153,7 @@
 				"onVisited" : [
 					{
 						"message" : 163,
-						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					}
 				],
 				"rewards" : [
@@ -162,25 +161,25 @@
 						"appearChance" : { "max" : 30 },
 						"message" : 162,
 						"artifacts" : [ { "class" : "TREASURE" } ],
-						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					},
 					{
 						"appearChance" : { "min" : 30, "max" : 80 },
 						"message" : 162,
 						"artifacts" : [ { "class" : "MINOR" } ],
-						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					},
 					{
 						"appearChance" : { "min" : 80, "max" : 95 },
 						"message" : 162,
 						"artifacts" : [ { "class" : "MAJOR" } ],
-						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					},
 					{
 						"appearChance" : { "min" : 95 },
 						"message" : 162,
 						"artifacts" : [ { "class" : "RELIC" } ],
-						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE" } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					}
 				]
 			}

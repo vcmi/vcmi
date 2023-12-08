@@ -60,7 +60,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			player = PlayerColor(player_id);
 			zone.setTownType(map.getMapGenOptions().getPlayersSettings().find(player)->second.getStartingTown());
 			
-			if(zone.getTownType() == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+			if(zone.getTownType() == FactionID::RANDOM)
 				zone.setTownType(getRandomTownType(true));
 		}
 		else //no player - randomize town
@@ -140,7 +140,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 {
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
-	rmgObject.setTemplate(zone.getTerrainType());
+	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 
 	int3 position(-1, -1, -1);
 	{
@@ -179,7 +179,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 {
 	for(int i = 0; i < count; i++)
 	{
-		si32 subType = zone.getTownType();
+		FactionID subType = zone.getTownType();
 		
 		if(totalTowns>0)
 		{
@@ -223,7 +223,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 	}
 }
 
-si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
+FactionID TownPlacer::getRandomTownType(bool matchUndergroundType)
 {
 	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes());
 	if(matchUndergroundType)

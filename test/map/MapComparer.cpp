@@ -56,7 +56,7 @@ void checkEqual(const std::set<Element> & actual, const std::set<Element> & expe
 	for(auto elem : expected)
 	{
 		if(!vstd::contains(actual, elem))
-			FAIL() << "Required element not found "+boost::to_string(elem);
+			FAIL() << "Required element not found "+std::to_string(elem);
 	}
 }
 
@@ -76,7 +76,7 @@ void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 
 	VCMI_CHECK_FIELD_EQUAL(isFactionRandom);
 	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroPortrait);
-	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroName);
+	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroNameTextId);
 
 	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroId);
 
@@ -202,8 +202,8 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 	EXPECT_EQ(actual->instanceName, expected->instanceName);
 	EXPECT_EQ(typeid(actual).name(), typeid(expected).name());//todo: remove and use just comparison
 
-	std::string actualFullID = boost::to_string(boost::format("%s(%d)|%s(%d) %d") % actual->typeName % actual->ID % actual->subTypeName % actual->subID % actual->tempOwner);
-	std::string expectedFullID = boost::to_string(boost::format("%s(%d)|%s(%d) %d") % expected->typeName % expected->ID % expected->subTypeName % expected->subID % expected->tempOwner);
+	std::string actualFullID = boost::str(boost::format("%s(%d)|%s(%d) %d") % actual->typeName % actual->ID % actual->subTypeName % actual->subID % actual->tempOwner);
+	std::string expectedFullID = boost::str(boost::format("%s(%d)|%s(%d) %d") % expected->typeName % expected->ID % expected->subTypeName % expected->subID % expected->tempOwner);
 
 	EXPECT_EQ(actualFullID, expectedFullID);
 

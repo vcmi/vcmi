@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleHex;
@@ -35,7 +37,7 @@ class BattleObstacleController
 	float timePassed;
 
 	/// cached animations of all obstacles in current battle
-	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> animationsCache;
 
 	/// list of all obstacles that are currently being rendered
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;

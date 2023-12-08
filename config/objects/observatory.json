@@ -1,0 +1,79 @@
+{
+	"redwoodObservatory" : {
+		"index" :58,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
+		"types" : {
+			"redwoodObservatory" : {
+				"index" : 0,
+				"aiValue" : 750,
+				"templates" :
+				{
+					"base" : { "animation" : "avxredw.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["grass", "swamp", "dirt", "sand", "lava", "rough"] },
+					"snow" : { "animation" : "avxreds0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["snow"] }
+				},
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 750,
+					"rarity"	: 100
+				},
+				
+				"compatibilityIdentifiers" : [ "object" ],
+				"visitMode" : "unlimited",
+				"rewards" : [
+					{
+						"message" : 98,
+						"revealTiles" : {
+							"radius" : 20,
+							"surface" : 1,
+							"subterra" : 1,
+							"water" : 1,
+							"rock" : 1
+						}
+					}
+				]
+			}
+		}
+	},
+
+	"pillarOfFire" : {
+		"index" :60,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFIRE"],
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
+		"types" : {
+			"pillarOfFire" : {
+				"index" : 0,
+				"aiValue" : 750,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 750,
+					"rarity"	: 100
+				},
+				
+				"compatibilityIdentifiers" : [ "object" ],
+				"visitMode" : "unlimited",
+				"rewards" : [
+					{
+						"message" : 99,
+						"revealTiles" : {
+							"radius" : 20,
+							"surface" : 1,
+							"subterra" : 1,
+							"water" : 1,
+							"rock" : 1
+						}
+					}
+				]
+			}
+		}
+	}
+}

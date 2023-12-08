@@ -26,6 +26,7 @@
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../render/IRenderHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -120,23 +121,23 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	//preparing cells and hexes
-	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);
-	cellShade = IImage::createFromFile("CCELLSHD.BMP");
-	cellUnitMovementHighlight = IImage::createFromFile("UnitMovementHighlight.PNG", EImageBlitMode::COLORKEY);
-	cellUnitMaxMovementHighlight = IImage::createFromFile("UnitMaxMovementHighlight.PNG", EImageBlitMode::COLORKEY);
+	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
+	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"));
+	cellUnitMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
-	attackCursors = std::make_shared<CAnimation>("CRCOMBAT");
+	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"));
 	attackCursors->preload();
 
-	spellCursors = std::make_shared<CAnimation>("CRSPELL");
+	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"));
 	spellCursors->preload();
 
 	initializeHexEdgeMaskToFrameIndex();
 
-	rangedFullDamageLimitImages = std::make_shared<CAnimation>("battle/rangeHighlights/rangeHighlightsGreen.json");
+	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
 	rangedFullDamageLimitImages->preload();
 
-	shootingRangeLimitImages = std::make_shared<CAnimation>("battle/rangeHighlights/rangeHighlightsRed.json");
+	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"));
 	shootingRangeLimitImages->preload();
 
 	flipRangeLimitImagesIntoPositions(rangedFullDamageLimitImages);
@@ -144,17 +145,17 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	if(!owner.siegeController)
 	{
-		auto bfieldType = owner.curInt->cb->battleGetBattlefieldType();
+		auto bfieldType = owner.getBattle()->battleGetBattlefieldType();
 
 		if(bfieldType == BattleField::NONE)
 			logGlobal->error("Invalid battlefield returned for current battle");
 		else
-			background = IImage::createFromFile(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
+			background = GH.renderHandler().loadImage(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
 	}
 	else
 	{
-		std::string backgroundName = owner.siegeController->getBattleBackgroundName();
-		background = IImage::createFromFile(backgroundName, EImageBlitMode::OPAQUE);
+		auto backgroundName = owner.siegeController->getBattleBackgroundName();
+		background = GH.renderHandler().loadImage(backgroundName, EImageBlitMode::OPAQUE);
 	}
 
 	pos.w = background->width();
@@ -287,7 +288,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
 	if(activeStack)
-		occupiableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
+		occupiableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
 
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -342,7 +343,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForActiveStack()
 
 	auto hoveredHex = getHoveredHex();
 
-	std::set<BattleHex> set = owner.curInt->cb->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
+	std::set<BattleHex> set = owner.getBattle()->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
 	for(BattleHex hex : set)
 		result.insert(hex);
 
@@ -362,10 +363,10 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	auto hoveredHex = getHoveredHex();
 
 	// add possible movement hexes for stack under mouse
-	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	const CStack * const hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 	if(hoveredStack)
 	{
-		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
+		std::vector<BattleHex> v = owner.getBattle()->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
 		for(BattleHex hex : v)
 			result.insert(hex);
 	}
@@ -390,7 +391,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 	if(caster && spell) //when casting spell
 	{
 		// printing shaded hex(es)
-		spells::BattleCast event(owner.curInt->cb.get(), caster, mode, spell);
+		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
 		auto shadedHexes = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
 
 		for(BattleHex shadedHex : shadedHexes)
@@ -410,10 +411,10 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 	if(!stack)
 		return {};
 
-	std::vector<BattleHex> availableHexes = owner.curInt->cb->battleGetAvailableHexes(stack, false, false, nullptr);
+	std::vector<BattleHex> availableHexes = owner.getBattle()->battleGetAvailableHexes(stack, false, false, nullptr);
 
-	auto hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-	if(owner.curInt->cb->battleCanAttack(stack, hoveredStack, hoveredHex))
+	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
+	if(owner.getBattle()->battleCanAttack(stack, hoveredStack, hoveredHex))
 	{
 		if(isTileAttackable(hoveredHex))
 		{
@@ -673,7 +674,7 @@ BattleHex BattleFieldController::getHoveredHex()
 const CStack* BattleFieldController::getHoveredStack()
 {
 	auto hoveredHex = getHoveredHex();
-	const CStack* hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	const CStack* hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
 	return hoveredStack;
 }
@@ -859,7 +860,7 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 
 void BattleFieldController::updateAccessibleHexes()
 {
-	auto accessibility = owner.curInt->cb->getAccesibility();
+	auto accessibility = owner.getBattle()->getAccesibility();
 
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE || (accessibility[i] == EAccessibility::SIDE_COLUMN));

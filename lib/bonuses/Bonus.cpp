@@ -24,10 +24,10 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
 #include "../CArtHandler.h"
-#include "../CModHandler.h"
 #include "../TerrainHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../battle/BattleInfo.h"
+#include "../modding/ModUtility.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -91,7 +91,7 @@ JsonNode CAddInfo::toJsonNode() const
 }
 std::string Bonus::Description(std::optional<si32> customValue) const
 {
-	std::ostringstream str;
+	std::string str;
 
 	if(description.empty())
 	{
@@ -100,61 +100,42 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 			switch(source)
 			{
 			case BonusSource::ARTIFACT:
-				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getNameTranslated();
+				str = sid.as<ArtifactID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::SPELL_EFFECT:
-				str << SpellID(sid).toSpell(VLC->spells())->getNameTranslated();
+				str = sid.as<SpellID>().toEntity(VLC)->getNameTranslated();
 				break;
 			case BonusSource::CREATURE_ABILITY:
-				str << CreatureID(sid).toCreature(VLC->creatures())->getNamePluralTranslated();
+				str = sid.as<CreatureID>().toEntity(VLC)->getNamePluralTranslated();
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				str << VLC->skills()->getByIndex(sid)->getNameTranslated();
+				str = VLC->skills()->getById(sid.as<SecondarySkill>())->getNameTranslated();
 				break;
 			case BonusSource::HERO_SPECIAL:
-				str << VLC->heroTypes()->getByIndex(sid)->getNameTranslated();
+				str = VLC->heroTypes()->getById(sid.as<HeroTypeID>())->getNameTranslated();
 				break;
 			default:
 				//todo: handle all possible sources
-				str << "Unknown";
+				str = "Unknown";
 				break;
 			}
 		}
 		else
-			str << stacking;
+			str = stacking;
 	}
 	else
 	{
-		str << description;
+		str = description;
 	}
 
-	if(auto value = customValue.value_or(val))
-		str << " " << std::showpos << value;
-
-	return str.str();
-}
-
-static JsonNode subtypeToJson(BonusType type, int subtype)
-{
-	switch(type)
-	{
-	case BonusType::PRIMARY_SKILL:
-		return JsonUtils::stringNode("primSkill." + PrimarySkill::names[subtype]);
-	case BonusType::SPECIAL_SPELL_LEV:
-	case BonusType::SPECIFIC_SPELL_DAMAGE:
-	case BonusType::SPELL:
-	case BonusType::SPECIAL_PECULIAR_ENCHANT:
-	case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
-	case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "spell", SpellID::encode(subtype)));
-	case BonusType::IMPROVED_NECROMANCY:
-	case BonusType::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(subtype)));
-	case BonusType::GENERATE_RESOURCE:
-		return JsonUtils::stringNode("resource." + GameConstants::RESOURCE_NAMES[subtype]);
-	default:
-		return JsonUtils::intNode(subtype);
+	if(auto value = customValue.value_or(val)) {
+		//arraytxt already contains +-value
+		std::string valueString = boost::str(boost::format(" %+d") % value);
+		if(!boost::algorithm::ends_with(str, valueString))
+			str += valueString;
 	}
+
+	return str;
 }
 
 static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
@@ -162,7 +143,7 @@ static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 	switch(type)
 	{
 	case BonusType::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
+		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
 	default:
 		return addInfo.toJsonNode();
 	}
@@ -173,18 +154,16 @@ JsonNode Bonus::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
-	if(subtype != -1)
-		root["subtype"] = subtypeToJson(type, subtype);
+	if(subtype != BonusSubtypeID())
+		root["subtype"].String() = subtype.toString();
 	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
-	if(turnsRemain != 0)
-		root["turns"].Integer() = turnsRemain;
 	if(source != BonusSource::OTHER)
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(targetSourceType != BonusSource::OTHER)
 		root["targetSourceType"].String() = vstd::findKey(bonusSourceMap, targetSourceType);
-	if(sid != 0)
-		root["sourceID"].Integer() = sid;
+	if(sid != BonusSourceID())
+		root["sourceID"].String() = sid.toString();
 	if(val != 0)
 		root["val"].Integer() = val;
 	if(valType != BonusValueType::ADDITIVE_VALUE)
@@ -208,7 +187,19 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID)
+	: Bonus(Duration, Type, Src, Val, ID, BonusSubtypeID(), std::string())
+{}
+
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, std::string Desc)
+	: Bonus(Duration, Type, Src, Val, ID, BonusSubtypeID(), Desc)
+{}
+
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype)
+	: Bonus(Duration, Type, Src, Val, ID, Subtype, std::string())
+{}
+
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype, std::string Desc):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -221,7 +212,7 @@ Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32
 	targetSourceType = BonusSource::OTHER;
 }
 
-Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, BonusValueType ValType):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID, BonusSubtypeID Subtype, BonusValueType ValType):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -249,10 +240,10 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
-	printField(subtype);
+	out << "\tSubtype: " << bonus.subtype.toString() << "\n";
 	printField(duration.to_ulong());
 	printField(source);
-	printField(sid);
+	out << "\tSource ID: " << bonus.sid.toString() << "\n";
 	if(bonus.additionalInfo != CAddInfo::NONE)
 		out << "\taddInfo: " << bonus.additionalInfo.toString() << "\n";
 	printField(turnsRemain);

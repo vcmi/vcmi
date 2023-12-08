@@ -20,8 +20,9 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
+#include "../render/Graphics.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
@@ -30,25 +31,23 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
 
-#include <SDL_pixels.h>
-
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 {
 	const TerrainTile * tile = LOCPLINT->cb->getTile(pos, false);
 
 	// if tile is not visible it will be black on minimap
 	if(!tile)
-		return CSDL_Ext::fromSDL(Colors::BLACK);
+		return Colors::BLACK;
 
 	// if object at tile is owned - it will be colored as its owner
 	for (const CGObjectInstance *obj : tile->blockingObjects)
 	{
 		PlayerColor player = obj->getOwner();
 		if(player == PlayerColor::NEUTRAL)
-			return CSDL_Ext::fromSDL(*graphics->neutralColor);
+			return graphics->neutralColor;
 
-		if (player < PlayerColor::PLAYER_LIMIT)
-			return CSDL_Ext::fromSDL(graphics->playerColors[player.getNum()]);
+		if (player.isValidPlayer())
+			return graphics->playerColors[player.getNum()];
 	}
 
 	if (tile->blocked && (!tile->visitable))
@@ -92,10 +91,19 @@ CMinimap::CMinimap(const Rect & position)
 	level(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	pos.w = position.w;
-	pos.h = position.h;
 
-	aiShield = std::make_shared<CPicture>("AIShield");
+	double maxSideLenghtSrc = std::max(LOCPLINT->cb->getMapSize().x, LOCPLINT->cb->getMapSize().y);
+	double maxSideLenghtDst = std::max(position.w, position.h);
+	double resize = maxSideLenghtSrc / maxSideLenghtDst;
+	Point newMinimapSize = Point(LOCPLINT->cb->getMapSize().x/ resize, LOCPLINT->cb->getMapSize().y / resize);
+	Point offset = Point((std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.x) / 2, (std::max(newMinimapSize.x, newMinimapSize.y) - newMinimapSize.y) / 2);
+
+	pos.x += offset.x;
+	pos.y += offset.y;
+	pos.w = newMinimapSize.x;
+	pos.h = newMinimapSize.y;
+
+	aiShield = std::make_shared<CPicture>(ImagePath::builtin("AIShield"), -offset);
 	aiShield->disable();
 }
 
@@ -168,7 +176,7 @@ void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpda
 
 void CMinimap::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), aiShield->pos);
 	CIntObject::showAll(to);
 
 	if(minimap)
@@ -185,7 +193,7 @@ void CMinimap::showAll(Canvas & to)
 		};
 
 		Canvas clippedTarget(to, pos);
-		clippedTarget.drawBorderDashed(radar, CSDL_Ext::fromSDL(Colors::PURPLE));
+		clippedTarget.drawBorderDashed(radar, Colors::PURPLE);
 	}
 }
 
@@ -239,4 +247,3 @@ void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
 	}
 	redraw();
 }
-

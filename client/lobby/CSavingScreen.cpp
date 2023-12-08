@@ -40,7 +40,9 @@ CSavingScreen::CSavingScreen()
 	tabSel->toggleMode();
 	curTab = tabSel;
 		
-	buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	
+	LOCPLINT->gamePause(true);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -65,12 +67,18 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 	card->redraw();
 }
 
+void CSavingScreen::close()
+{
+	LOCPLINT->gamePause(false);
+	CSelectionBase::close();
+}
+
 void CSavingScreen::saveGame()
 {
 	if(!(tabSel && tabSel->inputName && tabSel->inputName->getText().size()))
 		return;
 
-	std::string path = "Saves/" + tabSel->inputName->getText();
+	std::string path = "Saves/" + tabSel->curFolder + tabSel->inputName->getText();
 
 	auto overWrite = [this, path]() -> void
 	{
@@ -80,7 +88,7 @@ void CSavingScreen::saveGame()
 		close();
 	};
 
-	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::SAVEGAME)))
+	if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
 	{
 		std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());

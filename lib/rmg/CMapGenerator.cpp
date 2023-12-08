@@ -19,7 +19,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
 #include "TileInfo.h"
@@ -51,8 +51,7 @@ int CMapGenerator::getRandomSeed() const
 
 void CMapGenerator::loadConfig()
 {
-	static const ResourceID path("config/randomMap.json");
-	JsonNode randomMapJson(path);
+	JsonNode randomMapJson(JsonPath::builtin("config/randomMap.json"));
 
 	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
 	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
@@ -99,13 +98,8 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 
 void CMapGenerator::initPrisonsRemaining()
 {
-	allowedPrisons = 0;
-	for (auto isAllowed : map->getMap(this).allowedHeroes)
-	{
-		if (isAllowed)
-			allowedPrisons++;
-	}
-	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getPlayerCount()); //so at least 16 heroes will be available for every player
+	allowedPrisons = map->getMap(this).allowedHeroes.size();
+	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getHumanOrCpuPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
 void CMapGenerator::initQuestArtsRemaining()
@@ -163,7 +157,7 @@ std::string CMapGenerator::getMapDescription() const
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, size %dx%d") +
         ", levels %d, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		map->width() % map->height() % static_cast<int>(map->levels()) % static_cast<int>(mapGenOptions.getPlayerCount()) %
+		map->width() % map->height() % static_cast<int>(map->levels()) % static_cast<int>(mapGenOptions.getHumanOrCpuPlayerCount()) %
 		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
 
@@ -174,7 +168,7 @@ std::string CMapGenerator::getMapDescription() const
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
 		}
-		if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+		if(pSettings.getStartingTown() != FactionID::RANDOM)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
 			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->getNameTranslated();
@@ -186,84 +180,120 @@ std::string CMapGenerator::getMapDescription() const
 
 void CMapGenerator::addPlayerInfo()
 {
-	// Calculate which team numbers exist
+	// Teams are already configured in CMapGenOptions. However, it's not the case when it comes to map editor
 
-	enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2}; // Used as a kind of a local named array index, so left as enum, not enum class
-	std::array<std::list<int>, 2> teamNumbers;
-	std::set<int> teamsTotal;
+	std::set<TeamID> teamsTotal;
 
-	int teamOffset = 0;
-	int playerCount = 0;
-	int teamCount = 0;
-
-	for (int i = CPHUMAN; i < AFTER_LAST; ++i)
+	if (mapGenOptions.arePlayersCustomized())
 	{
-		if (i == CPHUMAN)
-		{
-			playerCount = mapGenOptions.getPlayerCount();
-			teamCount = mapGenOptions.getTeamCount();
-		}
-		else
-		{
-			playerCount = mapGenOptions.getCompOnlyPlayerCount();
-			teamCount = mapGenOptions.getCompOnlyTeamCount();
-		}
+		// Simply copy existing settings set in GUI
 
-		if(playerCount == 0)
+		for (const auto & player : mapGenOptions.getPlayersSettings())
 		{
-			continue;
+			PlayerInfo playerInfo;
+			playerInfo.team = player.second.getTeam();
+			if (player.second.getPlayerType() == EPlayerType::COMP_ONLY)
+			{
+				playerInfo.canHumanPlay = false;
+			}
+			else
+			{
+				playerInfo.canHumanPlay = true;
+			}
+			map->getMap(this).players[player.first.getNum()] = playerInfo;
+			teamsTotal.insert(player.second.getTeam());
 		}
-		int playersPerTeam = playerCount / (teamCount == 0 ? playerCount : teamCount);
-		int teamCountNorm = teamCount;
-		if(teamCountNorm == 0)
+	}
+	else
+	{
+		// Assign standard teams (in map editor)
+
+		// Calculate which team numbers exist
+
+		enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2}; // Used as a kind of a local named array index, so left as enum, not enum class
+		std::array<std::list<int>, 2> teamNumbers;
+		
+		int teamOffset = 0;
+		int playerCount = 0;
+		int teamCount = 0;
+
+		// FIXME: Player can be any color, not just 0
+		for (int i = CPHUMAN; i < AFTER_LAST; ++i)
 		{
-			teamCountNorm = playerCount;
-		}
-		for(int j = 0; j < teamCountNorm; ++j)
-		{
-			for(int k = 0; k < playersPerTeam; ++k)
+			if (i == CPHUMAN)
+			{
+				playerCount = mapGenOptions.getHumanOrCpuPlayerCount();
+				teamCount = mapGenOptions.getTeamCount();
+			}
+			else
+			{
+				playerCount = mapGenOptions.getCompOnlyPlayerCount();
+				teamCount = mapGenOptions.getCompOnlyTeamCount();
+			}
+
+			if(playerCount == 0)
+			{
+				continue;
+			}
+			int playersPerTeam = playerCount / (teamCount == 0 ? playerCount : teamCount);
+			int teamCountNorm = teamCount;
+			if(teamCountNorm == 0)
+			{
+				teamCountNorm = playerCount;
+			}
+			for(int j = 0; j < teamCountNorm; ++j)
+			{
+				for(int k = 0; k < playersPerTeam; ++k)
+				{
+					teamNumbers[i].push_back(j + teamOffset);
+				}
+			}
+			for(int j = 0; j < playerCount - teamCountNorm * playersPerTeam; ++j)
 			{
 				teamNumbers[i].push_back(j + teamOffset);
 			}
+			teamOffset += teamCountNorm;
 		}
-		for(int j = 0; j < playerCount - teamCountNorm * playersPerTeam; ++j)
-		{
-			teamNumbers[i].push_back(j + teamOffset);
-		}
-		teamOffset += teamCountNorm;
-	}
+		logGlobal->info("Current player settings size: %d",  mapGenOptions.getPlayersSettings().size());
 
-	// Team numbers are assigned randomly to every player
-	//TODO: allow customize teams in rmg template
-	for(const auto & pair : mapGenOptions.getPlayersSettings())
-	{
-		const auto & pSettings = pair.second;
-		PlayerInfo player;
-		player.canComputerPlay = true;
-		int j = (pSettings.getPlayerType() == EPlayerType::COMP_ONLY) ? CPUONLY : CPHUMAN;
-		if (j == CPHUMAN)
+		// Team numbers are assigned randomly to every player
+		//TODO: allow to customize teams in rmg template
+		for(const auto & pair : mapGenOptions.getPlayersSettings())
 		{
-			player.canHumanPlay = true;
-		}
-
-		if(pSettings.getTeam() != TeamID::NO_TEAM)
-		{
-			player.team = pSettings.getTeam();
-		}
-		else
-		{
-			if (teamNumbers[j].empty())
+			const auto & pSettings = pair.second;
+			PlayerInfo player;
+			player.canComputerPlay = true;
+			int j = (pSettings.getPlayerType() == EPlayerType::COMP_ONLY) ? CPUONLY : CPHUMAN;
+			if (j == CPHUMAN)
 			{
-				logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
-				assert (teamNumbers[j].size());
+				player.canHumanPlay = true;
 			}
-			auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
-			player.team = TeamID(*itTeam);
-			teamNumbers[j].erase(itTeam);
+
+			if(pSettings.getTeam() != TeamID::NO_TEAM)
+			{
+				player.team = pSettings.getTeam();
+			}
+			else
+			{
+				if (teamNumbers[j].empty())
+				{
+					logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
+					assert (teamNumbers[j].size());
+				}
+				auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+				player.team = TeamID(*itTeam);
+				teamNumbers[j].erase(itTeam);
+			}
+			teamsTotal.insert(player.team);
+			map->getMap(this).players[pSettings.getColor().getNum()] = player;
 		}
-		teamsTotal.insert(player.team.getNum());
-		map->getMap(this).players[pSettings.getColor().getNum()] = player;
+
+		logGlobal->info("Current team count: %d", teamsTotal.size());
+
 	}
+	// FIXME: 0
+	// Can't find info for player 0 (starting zone)
+	// Can't find info for player 1 (starting zone)
 
 	map->getMap(this).howManyTeams = teamsTotal.size();
 }
@@ -408,8 +438,8 @@ void CMapGenerator::addHeaderInfo()
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
 	m.twoLevel = mapGenOptions.getHasTwoLevels();
-	m.name = VLC->generaltexth->allTexts[740];
-	m.description = getMapDescription();
+	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	m.description.appendRawString(getMapDescription());
 	m.difficulty = 1;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
@@ -421,7 +451,7 @@ int CMapGenerator::getNextMonlithIndex()
 	while (true)
 	{
 		if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-			throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+			throw rmgException(boost::str(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
 		else
 		{
 			//Skip modded Monoliths which can't beplaced on every terrain
@@ -458,19 +488,16 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 	auto isWaterMap = map->getMap(this).isWaterMap();
 	//Skip heroes that were banned, including the ones placed in prisons
 	std::vector<HeroTypeID> ret;
-	for (int j = 0; j < map->getMap(this).allowedHeroes.size(); j++)
+	for (HeroTypeID hero : map->getMap(this).allowedHeroes)
 	{
-		if (map->getMap(this).allowedHeroes[j])
+		auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getById(hero));
+		if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap))
 		{
-			auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getByIndex(j));
-			if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap))
-			{
-				continue;
-			}
-			else
-			{
-				ret.push_back(HeroTypeID(j));
-			}
+			continue;
+		}
+		else
+		{
+			ret.push_back(hero);
 		}
 	}
 	return ret;
@@ -479,7 +506,7 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
 	//TODO: Protect with mutex
-	map->getMap(this).allowedArtifact[id] = false;
+	map->getMap(this).allowedArtifact.erase(id);
 }
 
 void CMapGenerator::banHero(const HeroTypeID & id)

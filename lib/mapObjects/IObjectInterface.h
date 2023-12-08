@@ -9,18 +9,24 @@
  */
 #pragma once
 
-#include "../NetPacksBase.h"
+#include "../networkPacks/EInfoWindowMode.h"
+#include "../networkPacks/ObjProperty.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleResult;
 struct UpgradeInfo;
+class BoatId;
 class CGObjectInstance;
 class CRandomGenerator;
+class CStackInstance;
+class CGHeroInstance;
 class IGameCallback;
 class ResourceSet;
 class int3;
 class MetaString;
+class PlayerColor;
 
 class DLL_LINKAGE IObjectInterface
 {
@@ -29,8 +35,8 @@ public:
 
 	virtual ~IObjectInterface() = default;
 
-	virtual int32_t getObjGroupIndex() const = 0;
-	virtual int32_t getObjTypeIndex() const = 0;
+	virtual MapObjectID getObjGroupIndex() const = 0;
+	virtual MapObjectSubID getObjTypeIndex() const = 0;
 
 	virtual PlayerColor getOwner() const = 0;
 	virtual int3 visitablePos() const = 0;
@@ -40,7 +46,8 @@ public:
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
 	virtual void newTurn(CRandomGenerator & rand) const;
 	virtual void initObj(CRandomGenerator & rand); //synchr
-	virtual void setProperty(ui8 what, ui32 val);//synchr
+	virtual void pickRandomObject(CRandomGenerator & rand);
+	virtual void setProperty(ObjProperty what, ObjPropertyID identifier);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query
@@ -51,9 +58,6 @@ public:
 
 	//unified helper to show info dialog for object owner
 	virtual void showInfoDialog(const ui32 txtID, const ui16 soundID = 0, EInfoWindowMode mode = EInfoWindowMode::AUTO) const;
-
-	//unified helper to show a specific window
-	static void openWindow(const EOpenWindowMode type, const int id1, const int id2 = -1);
 
 	//unified interface, AI helpers
 	virtual bool wasVisited (PlayerColor player) const;

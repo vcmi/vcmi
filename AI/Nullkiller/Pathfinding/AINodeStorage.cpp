@@ -90,7 +90,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 	const PlayerColor fowPlayer = ai->playerID;
-	const auto fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
+	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
 	const int3 sizes = gs->getMapSize();
 
 	//Each thread gets different x, but an array of y located next to each other in memory
@@ -279,9 +279,10 @@ void AINodeStorage::commit(
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 	logAi->trace(
-		"Commited %s -> %s, cost: %f, turn: %s, mp: %d, hero: %s, mask: %x, army: %lld",
+		"Commited %s -> %s, layer: %d, cost: %f, turn: %s, mp: %d, hero: %s, mask: %x, army: %lld",
 		source->coord.toString(),
 		destination->coord.toString(),
+		destination->layer,
 		destination->getCost(),
 		std::to_string(destination->turns),
 		destination->moveRemains,
@@ -983,7 +984,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 struct TowmPortalFinder
 {
 	const std::vector<CGPathNode *> & initialNodes;
-	SecSkillLevel::SecSkillLevel townPortalSkillLevel;
+	MasteryLevel::Type townPortalSkillLevel;
 	uint64_t movementNeeded;
 	const ChainActor * actor;
 	const CGHeroInstance * hero;
@@ -1005,8 +1006,8 @@ struct TowmPortalFinder
 		townPortal = spellID.toSpell();
 
 		// TODO: Copy/Paste from TownPortalMechanics
-		townPortalSkillLevel = SecSkillLevel::SecSkillLevel(hero->getSpellSchoolLevel(townPortal));
-		movementNeeded = GameConstants::BASE_MOVEMENT_COST * (townPortalSkillLevel >= SecSkillLevel::EXPERT ? 2 : 3);
+		townPortalSkillLevel = MasteryLevel::Type(hero->getSpellSchoolLevel(townPortal));
+		movementNeeded = GameConstants::BASE_MOVEMENT_COST * (townPortalSkillLevel >= MasteryLevel::EXPERT ? 2 : 3);
 	}
 
 	bool actorCanCastTownPortal()
@@ -1027,7 +1028,7 @@ struct TowmPortalFinder
 				continue;
 			}
 
-			if(townPortalSkillLevel < SecSkillLevel::ADVANCED)
+			if(townPortalSkillLevel < MasteryLevel::ADVANCED)
 			{
 				const CGTownInstance * nearestTown = *vstd::minElementByFun(targetTowns, [&](const CGTownInstance * t) -> int
 				{
@@ -1208,7 +1209,7 @@ bool AINodeStorage::hasBetterChain(
 					"Block ineficient battle move %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 					source->coord.toString(),
 					candidateNode->coord.toString(),
-					candidateNode->actor->hero->name,
+					candidateNode->actor->hero->getNameTranslated(),
 					candidateNode->actor->chainMask,
 					candidateNode->actor->armyValue,
 					node.moveRemains - candidateNode->moveRemains);
@@ -1232,7 +1233,7 @@ bool AINodeStorage::hasBetterChain(
 				"Block ineficient move because of stronger army %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 				source->coord.toString(),
 				candidateNode->coord.toString(),
-				candidateNode->actor->hero->name,
+				candidateNode->actor->hero->getNameTranslated(),
 				candidateNode->actor->chainMask,
 				candidateNode->actor->armyValue,
 				node.moveRemains - candidateNode->moveRemains);
@@ -1258,7 +1259,7 @@ bool AINodeStorage::hasBetterChain(
 					"Block ineficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 					source->coord.toString(),
 					candidateNode->coord.toString(),
-					candidateNode->actor->hero->name,
+					candidateNode->actor->hero->getNameTranslated(),
 					candidateNode->actor->chainMask,
 					candidateNode->actor->armyValue,
 					node.moveRemains - candidateNode->moveRemains);
@@ -1343,6 +1344,7 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 			pathNode.coord = node->coord;
 			pathNode.parentIndex = parentIndex;
 			pathNode.actionIsBlocked = false;
+			pathNode.layer = node->layer;
 
 			if(pathNode.specialAction)
 			{

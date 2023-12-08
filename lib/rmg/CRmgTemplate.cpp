@@ -16,10 +16,10 @@
 
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
-#include "../CModHandler.h"
 #include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../StringConstants.h"
+#include "../modding/ModScope.h"
+#include "../constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -64,35 +64,6 @@ void CTreasureInfo::serializeJson(JsonSerializeFormat & handler)
 
 namespace rmg
 {
-
-//FIXME: This is never used, instead TerrainID is used
-class TerrainEncoder
-{
-public:
-	static si32 decode(const std::string & identifier)
-	{
-		return *VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "terrain", identifier);
-	}
-
-	static std::string encode(const si32 index)
-	{
-		return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
-	}
-};
-
-class ZoneEncoder
-{
-public:
-	static si32 decode(const std::string & json)
-	{
-		return std::stoi(json);
-	}
-
-	static std::string encode(si32 id)
-	{
-		return std::to_string(id);
-	}
-};
 
 const TRmgTemplateZoneId ZoneOptions::NO_ZONE = -1;
 
@@ -156,7 +127,7 @@ TRmgTemplateZoneId ZoneOptions::getId() const
 void ZoneOptions::setId(TRmgTemplateZoneId value)
 {
 	if(value <= 0)
-		throw std::runtime_error(boost::to_string(boost::format("Zone %d id should be greater than 0.") % id));
+		throw std::runtime_error(boost::str(boost::format("Zone %d id should be greater than 0.") % id));
 	id = value;
 }
 
@@ -217,13 +188,7 @@ std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
 
 std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
 {
-	std::set<FactionID> defaultTowns;
-	auto towns = VLC->townh->getDefaultAllowed();
-	for(int i = 0; i < towns.size(); ++i)
-	{
-		if(towns[i]) defaultTowns.insert(FactionID(i));
-	}
-	return defaultTowns;
+	return VLC->townh->getDefaultAllowed();
 }
 
 const std::set<FactionID> ZoneOptions::getTownTypes() const
@@ -374,15 +339,15 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	if(terrainTypeLikeZone == NO_ZONE)
 	{
-		handler.serializeIdArray<TerrainId, TerrainID>("terrainTypes", terrainTypes, std::set<TerrainId>());
-		handler.serializeIdArray<TerrainId, TerrainID>("bannedTerrains", bannedTerrains, std::set<TerrainId>());
+		handler.serializeIdArray("terrainTypes", terrainTypes);
+		handler.serializeIdArray("bannedTerrains", bannedTerrains);
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
-	handler.serializeIdArray<FactionID>("bannedMonsters", bannedMonsters, std::set<FactionID>());
-	handler.serializeIdArray<FactionID>("allowedTowns", townTypes, std::set<FactionID>());
-	handler.serializeIdArray<FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
+	handler.serializeIdArray("allowedMonsters", monsterTypes);
+	handler.serializeIdArray("bannedMonsters", bannedMonsters);
+	handler.serializeIdArray("allowedTowns", townTypes);
+	handler.serializeIdArray("bannedTowns", bannedTownTypes);
 
 	{
 		//TODO: add support for std::map to serializeEnum
@@ -508,8 +473,24 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 		"random"
 	};
 
-	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("a", zoneA, -1);
-	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("b", zoneB, -1);
+	if (handler.saving)
+	{
+		std::string zoneNameA = std::to_string(zoneA);
+		std::string zoneNameB = std::to_string(zoneB);
+		handler.serializeString("a", zoneNameA);
+		handler.serializeString("b", zoneNameB);
+	}
+	else
+	{
+		std::string zoneNameA;
+		std::string zoneNameB;
+		handler.serializeString("a", zoneNameA);
+		handler.serializeString("b", zoneNameB);
+
+		zoneA = std::stoi(zoneNameA);
+		zoneB = std::stoi(zoneNameB);
+	}
+
 	handler.serializeInt("guard", guardStrength, 0);
 	handler.serializeEnum("type", connectionType, connectionTypes);
 	handler.serializeEnum("road", hasRoad, roadOptions);
@@ -570,9 +551,9 @@ const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getPlayers() const
 	return players;
 }
 
-const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getCpuPlayers() const
+const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getHumanPlayers() const
 {
-	return cpuPlayers;
+	return humanPlayers;
 }
 
 const CRmgTemplate::Zones & CRmgTemplate::getZones() const
@@ -650,7 +631,7 @@ std::string CRmgTemplate::CPlayerCountRange::toString() const
 		}
 		else
 		{
-			ret += boost::to_string(boost::format("%d-%d") % p.first % p.second);
+			ret += boost::str(boost::format("%d-%d") % p.first % p.second);
 		}
 	}
 
@@ -688,13 +669,23 @@ void CRmgTemplate::CPlayerCountRange::fromString(const std::string & value)
 	}
 }
 
+int CRmgTemplate::CPlayerCountRange::maxValue() const
+{
+	return *boost::max_element(getNumbers());
+}
+
+int CRmgTemplate::CPlayerCountRange::minValue() const
+{
+	return *boost::min_element(getNumbers());
+}
+
 void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
 	serializeSize(handler, minSize, "minSize");
 	serializeSize(handler, maxSize, "maxSize");
 	serializePlayers(handler, players, "players");
-	serializePlayers(handler, cpuPlayers, "cpu");
+	serializePlayers(handler, humanPlayers, "humans"); // TODO: Rename this parameter
 
 	{
 		auto connectionsData = handler.enterArray("connections");

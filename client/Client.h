@@ -13,8 +13,6 @@
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
-#include "../lib/battle/BattleAction.h"
-#include "../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,6 +23,8 @@ class CBattleGameInterface;
 class CGameInterface;
 class BinaryDeserializer;
 class BinarySerializer;
+class BattleAction;
+class BattleInfo;
 
 template<typename T> class CApplier;
 
@@ -105,12 +105,12 @@ public:
 	const Services * services() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
-	const BattleCb * battle() const override;
+	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
 };
 
 /// Class which handles client - server logic
-class CClient : public IGameCallback, public CBattleInfoCallback, public Environment
+class CClient : public IGameCallback, public Environment
 {
 public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
@@ -118,13 +118,13 @@ public:
 
 	std::map<PlayerColor, std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 
-	std::optional<BattleAction> curbaction;
+	std::unique_ptr<BattleAction> currentBattleAction;
 
 	CClient();
 	~CClient();
 
 	const Services * services() const override;
-	const BattleCb * battle() const override;
+	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
@@ -151,27 +151,26 @@ public:
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
-	void battleFinished();
-	void startPlayerBattleAction(PlayerColor color);
+	void battleFinished(const BattleID & battleID);
+	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 
 	void invalidatePaths();
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
-	virtual PlayerColor getLocalPlayer() const override;
 
 	friend class CCallback; //handling players actions
 	friend class CBattleCallback; //handling players actions
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> & spells) override {};
-	bool removeObject(const CGObjectInstance * obj) override {return false;};
-	void createObject(const int3 & visitablePosition, Obj type, int32_t subtype ) override {};
+	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;};
+	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
-	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs = false) override {};
+	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs = false) override {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs = false) override {};
 
 	void showBlockingDialog(BlockingDialog * iw) override {};
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog * iw) override {};
-	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
+	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
 	void giveResource(PlayerColor player, GameResID which, int val) override {};
 	virtual void giveResources(PlayerColor player, TResources resources) override {};
 
@@ -189,8 +188,7 @@ public:
 	void removeAfterVisit(const CGObjectInstance * object) override {};
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;};
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
-	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {return false;}
-	void putArtifact(const ArtifactLocation & al, const CArtifactInstance * a) override {};
+	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override {return false;};
 	void removeArtifact(const ArtifactLocation & al) override {};
 	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
 
@@ -205,23 +203,23 @@ public:
 	void setMovePoints(SetMovePoints * smp) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {};
-	void changeObjPos(ObjectInstanceID objid, int3 newPos) override {};
+	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {};
 	void sendAndApply(CPackForClient * pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 
-	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}
-	void changeFogOfWar(std::unordered_set<int3> & tiles, PlayerColor player, bool hide) override {}
+	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override {}
+	void changeFogOfWar(std::unordered_set<int3> & tiles, PlayerColor player, ETileVisibility mode) override {}
 
-	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override {}
+	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override {};
+	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {};
 
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
-	void removeGUI();
+	void removeGUI() const;
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
-	scripting::Pool * getContextPool() const override;
 #endif
 
 private:

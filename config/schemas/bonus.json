@@ -44,10 +44,7 @@
 			"description" : "type"
 		},
 		"subtype" : {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" }
-			],
+			"type" : "string",
 			"description" : "subtype"
 		},
 		"sourceID" : {

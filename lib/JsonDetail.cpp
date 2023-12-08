@@ -13,9 +13,10 @@
 
 #include "VCMI_Lib.h"
 #include "TextOperations.h"
-#include "CModHandler.h"
 
 #include "filesystem/Filesystem.h"
+#include "modding/ModScope.h"
+#include "modding/CModHandler.h"
 #include "ScopeGuard.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -727,7 +728,11 @@ namespace
 			//node must be validated using schema pointed by this reference and not by data here
 			//Local reference. Turn it into more easy to handle remote ref
 			if (boost::algorithm::starts_with(URI, "#"))
-				URI = validator.usedSchemas.back() + URI;
+			{
+				const std::string name = validator.usedSchemas.back();
+				const std::string nameClean = name.substr(0, name.find('#'));
+				URI = nameClean + URI;
+			}
 			return check(URI, data, validator);
 		}
 
@@ -738,9 +743,16 @@ namespace
 			auto checker = formats.find(schema.String());
 			if (checker != formats.end())
 			{
-				std::string result = checker->second(data);
-				if (!result.empty())
-					errors += validator.makeErrorMessage(result);
+				if (data.isString())
+				{
+					std::string result = checker->second(data);
+					if (!result.empty())
+						errors += validator.makeErrorMessage(result);
+				}
+				else
+				{
+					errors += validator.makeErrorMessage("Format value must be string: " + schema.String());
+				}
 			}
 			else
 				errors += validator.makeErrorMessage("Unsupported format type: " + schema.String());
@@ -1004,10 +1016,10 @@ namespace
 
 	namespace Formats
 	{
-		bool testFilePresence(const std::string & scope, const ResourceID & resource)
+		bool testFilePresence(const std::string & scope, const ResourcePath & resource)
 		{
 			std::set<std::string> allowedScopes;
-			if(scope != CModHandler::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
+			if(scope != ModScope::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
 			{
 				//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
 				bool found = true;
@@ -1016,7 +1028,7 @@ namespace
 				if(!found)
 					return false;
 
-				allowedScopes.insert(CModHandler::scopeBuiltin()); // all mods can use H3 files
+				allowedScopes.insert(ModScope::scopeBuiltin()); // all mods can use H3 files
 			}
 			allowedScopes.insert(scope); // mods can use their own files
 
@@ -1029,19 +1041,19 @@ namespace
 		}
 
 		#define TEST_FILE(scope, prefix, file, type) \
-			if (testFilePresence(scope, ResourceID(prefix + file, type))) \
+			if (testFilePresence(scope, ResourcePath(prefix + file, type))) \
 				return ""
 
 		std::string testAnimation(const std::string & path, const std::string & scope)
 		{
 			TEST_FILE(scope, "Sprites/", path, EResType::ANIMATION);
-			TEST_FILE(scope, "Sprites/", path, EResType::TEXT);
+			TEST_FILE(scope, "Sprites/", path, EResType::JSON);
 			return "Animation file \"" + path + "\" was not found";
 		}
 
 		std::string textFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "", node.String(), EResType::TEXT);
+			TEST_FILE(node.meta, "", node.String(), EResType::JSON);
 			return "Text file \"" + node.String() + "\" was not found";
 		}
 

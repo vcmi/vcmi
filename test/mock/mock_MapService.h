@@ -29,8 +29,8 @@ class MapServiceMock : public IMapService
 public:
 	MapServiceMock(const std::string & path, MapListener * mapListener_);
 
-	std::unique_ptr<CMap> loadMap(const ResourceID & name) const override;
-	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const override;
+	std::unique_ptr<CMap> loadMap(const ResourcePath & name) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name) const override;
 	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 

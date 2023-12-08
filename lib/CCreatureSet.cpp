@@ -14,16 +14,15 @@
 #include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/CGHeroInstance.h"
+#include "modding/ModScope.h"
 #include "IGameCallback.h"
 #include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"
 #include "serializer/JsonSerializeFormat.h"
-#include "NetPacksBase.h"
 
 #include <vcmi/FactionService.h>
 #include <vcmi/Faction.h>
@@ -80,7 +79,7 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 
 SlotID CCreatureSet::getSlotFor(const CreatureID & creature, ui32 slotsAmount) const /*returns -1 if no slot available */
 {
-	return getSlotFor(VLC->creh->objects[creature], slotsAmount);
+	return getSlotFor(creature.toCreature(), slotsAmount);
 }
 
 SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
@@ -305,7 +304,7 @@ void CCreatureSet::sweep()
 
 void CCreatureSet::addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging)
 {
-	const CCreature *c = VLC->creh->objects[cre];
+	const CCreature *c = cre.toCreature();
 
 	if(!hasStackAtSlot(slot))
 	{
@@ -416,12 +415,9 @@ int CCreatureSet::stacksCount() const
 	return static_cast<int>(stacks.size());
 }
 
-void CCreatureSet::setFormation(bool tight)
+void CCreatureSet::setFormation(EArmyFormation mode)
 {
-	if (tight)
-		formation = EArmyFormation::TIGHT;
-	else
-		formation = EArmyFormation::LOOSE;
+	formation = mode;
 }
 
 void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
@@ -459,7 +455,7 @@ const CStackInstance & CCreatureSet::getStack(const SlotID & slot) const
 	return *getStackPtr(slot);
 }
 
-const CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
+CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
 {
 	if(hasStackAtSlot(slot))
 		return stacks.find(slot)->second;
@@ -624,12 +620,13 @@ void CCreatureSet::armyChanged()
 
 }
 
-void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize)
+void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize)
 {
 	if(handler.saving && stacks.empty())
 		return;
 
-	auto a = handler.enterArray(fieldName);
+	handler.serializeEnum("formation", formation, NArmyFormation::names);
+	auto a = handler.enterArray(armyFieldName);
 
 
 	if(handler.saving)
@@ -752,10 +749,10 @@ void CStackInstance::giveStackExp(TExpType exp)
 
 void CStackInstance::setType(const CreatureID & creID)
 {
-	if(creID >= 0 && creID < VLC->creh->objects.size())
-		setType(VLC->creh->objects[creID]);
+	if (creID == CreatureID::NONE)
+		setType(nullptr);//FIXME: unused branch?
 	else
-		setType((const CCreature*)nullptr);
+		setType(creID.toCreature());
 }
 
 void CStackInstance::setType(const CCreature *c)
@@ -777,7 +774,7 @@ std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, b
 	return VLC->getBth()->bonusToString(bonus, this, description);
 }
 
-std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
+ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
 	return VLC->getBth()->bonusToGraphics(bonus);
 }
@@ -812,7 +809,7 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 {
 	if(!randomStack)
 	{
-		return (type  &&  type == VLC->creh->objects[type->getId()]);
+		return (type && type == type->getId().toEntity(VLC));
 	}
 	else
 		return allowUnrandomized;
@@ -867,14 +864,13 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
-void CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
+CStackInstance::ArtPlacementMap CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
 	assert(!getArt(pos));
-	assert(art->artType->canBePutAt(this, pos));
+	assert(art->canBePutAt(this, pos));
 
-	CArtifactSet::putArtifact(pos, art);
-	if(ArtifactUtils::isSlotEquipment(pos))
-		attachTo(*art);
+	attachTo(*art);
+	return CArtifactSet::putArtifact(pos, art);
 }
 
 void CStackInstance::removeArtifact(ArtifactPosition pos)
@@ -1003,7 +999,7 @@ bool CCommanderInstance::gainsLevel() const
 CStackBasicDescriptor::CStackBasicDescriptor() = default;
 
 CStackBasicDescriptor::CStackBasicDescriptor(const CreatureID & id, TQuantity Count):
-	type(VLC->creh->objects[id]), 
+	type(id.toCreature()),
 	count(Count)
 {
 }
@@ -1018,6 +1014,11 @@ const Creature * CStackBasicDescriptor::getType() const
 	return type;
 }
 
+CreatureID CStackBasicDescriptor::getId() const
+{
+	return type->getId();
+}
+
 TQuantity CStackBasicDescriptor::getCount() const
 {
 	return count;
@@ -1027,6 +1028,14 @@ TQuantity CStackBasicDescriptor::getCount() const
 void CStackBasicDescriptor::setType(const CCreature * c)
 {
 	type = c;
+}
+
+bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
+{
+	return (!l.type && !r.type)
+	|| (l.type && r.type
+		&& l.type->getId() == r.type->getId()
+		&& l.count == r.count);
 }
 
 void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
@@ -1046,7 +1055,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		std::string typeName;
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
-			setType(VLC->creh->getCreature(CModHandler::scopeMap(), typeName));
+			setType(VLC->creh->getCreature(ModScope::scopeMap(), typeName));
 	}
 }
 

@@ -24,6 +24,24 @@ static bool canSeeObj(const CGObjectInstance * obj)
 	return obj != nullptr && obj->ID != Obj::EVENT;
 }
 
+const CGPathNode & CGPath::currNode() const
+{
+	assert(nodes.size() > 1);
+	return nodes[nodes.size()-1];
+}
+
+const CGPathNode & CGPath::nextNode() const
+{
+	assert(nodes.size() > 1);
+	return nodes[nodes.size()-2];
+}
+
+const CGPathNode & CGPath::lastNode() const
+{
+	assert(nodes.size() > 1);
+	return nodes[0];
+}
+
 int3 CGPath::startPos() const
 {
 	return nodes[nodes.size()-1].coord;

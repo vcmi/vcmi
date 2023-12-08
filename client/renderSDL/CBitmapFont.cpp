@@ -14,17 +14,17 @@
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
 
-#include "../../lib/CModHandler.h"
 #include "../../lib/Languages.h"
 #include "../../lib/Rect.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/modding/CModHandler.h"
 #include "../../lib/vcmi_endian.h"
 #include "../../lib/VCMI_Lib.h"
 
 #include <SDL_surface.h>
 
-void CBitmapFont::loadModFont(const std::string & modName, const ResourceID & resource)
+void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & resource)
 {
 	if (!CResourceHandler::get(modName)->existsResource(resource))
 	{
@@ -72,7 +72,7 @@ void CBitmapFont::loadModFont(const std::string & modName, const ResourceID & re
 CBitmapFont::CBitmapFont(const std::string & filename):
 	maxHeight(0)
 {
-	ResourceID resource("data/" + filename, EResType::BMP_FONT);
+	ResourcePath resource("data/" + filename, EResType::BMP_FONT);
 
 	loadModFont("core", resource);
 
@@ -118,7 +118,7 @@ bool CBitmapFont::canRepresentString(const std::string & data) const
 	return true;
 }
 
-void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const
+void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const
 {
 	Rect clipRect;
 	CSDL_Ext::getClipRect(surface, clipRect);
@@ -168,7 +168,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 	posX += character.rightOffset;
 }
 
-void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
 	if (data.empty())
 		return;

@@ -134,7 +134,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	HMODULE hModule = nullptr;
 	GetModuleFileNameA(hModule, buffer, MAX_PATH);
 	mname = strrchr(buffer, '\\');
-	if (mname != 0)
+	if (mname != nullptr)
 		mname++;
 	else
 		mname = buffer;
@@ -214,7 +214,7 @@ void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 
 int CConsoleHandler::run() const
 {
-	setThreadName("CConsoleHandler::run");
+	setThreadName("consoleHandler");
 	//disabling sync to make in_avail() work (othervice always returns 0)
 	{
 		TLockGuard _(smx);
@@ -233,7 +233,7 @@ int CConsoleHandler::run() const
 					(*cb)(buffer, false);
 		}
 		else
-			boost::this_thread::sleep(boost::posix_time::millisec(100));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
 		boost::this_thread::interruption_point();
 #else

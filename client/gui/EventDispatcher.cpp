@@ -116,25 +116,9 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	}
 }
 
-void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
+void EventDispatcher::dispatchMouseDoubleClick(const Point & position, int tolerance)
 {
-	bool doubleClicked = false;
-	auto hlp = doubleClickInterested;
-
-	for(auto & i : hlp)
-	{
-		if(!vstd::contains(doubleClickInterested, i))
-			continue;
-
-		if(i->receiveEvent(position, AEventsReceiver::DOUBLECLICK))
-		{
-			i->clickDouble(position);
-			doubleClicked = true;
-		}
-	}
-
-	if(!doubleClicked)
-		handleLeftButtonClick(position, 0, true);
+	handleDoubleButtonClick(position, tolerance);
 }
 
 void EventDispatcher::dispatchMouseLeftButtonPressed(const Point & position, int tolerance)
@@ -219,6 +203,7 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 	// POSSIBLE SOLUTION: make EventReceivers inherit from create_shared_from this and store weak_ptr's in lists
 	AEventsReceiver * nearestElement = findElementInToleranceRange(lclickable, position, AEventsReceiver::LCLICK, tolerance);
 	auto hlp = lclickable;
+	bool lastActivated = true;
 
 	for(auto & i : hlp)
 	{
@@ -228,12 +213,13 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 		if( i->receiveEvent(position, AEventsReceiver::LCLICK) || i == nearestElement)
 		{
 			if(isPressed)
-				i->clickPressed(position);
+				i->clickPressed(position, lastActivated);
 
 			if (i->mouseClickedState && !isPressed)
-				i->clickReleased(position);
+				i->clickReleased(position, lastActivated);
 
 			i->mouseClickedState = isPressed;
+			lastActivated = false;
 		}
 		else
 		{
@@ -244,6 +230,38 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, int toleranc
 			}
 		}
 	}
+}
+
+void EventDispatcher::handleDoubleButtonClick(const Point & position, int tolerance)
+{
+	// WARNING: this approach is NOT SAFE
+	// 1) We allow (un)registering elements when list itself is being processed/iterated
+	// 2) To avoid iterator invalidation we create a copy of this list for processing
+	// HOWEVER it is completely possible (as in, actually happen, no just theory) to:
+	// 1) element gets unregistered and deleted from lclickable
+	// 2) element is completely deleted, as in - destructor called, memory freed
+	// 3) new element is created *with exactly same address(!)
+	// 4) new element is registered and code will incorrectly assume that this element is still registered
+	// POSSIBLE SOLUTION: make EventReceivers inherit from create_shared_from this and store weak_ptr's in lists
+
+	AEventsReceiver * nearestElement = findElementInToleranceRange(doubleClickInterested, position, AEventsReceiver::DOUBLECLICK, tolerance);
+	bool doubleClicked = false;
+	auto hlp = doubleClickInterested;
+
+	for(auto & i : hlp)
+	{
+		if(!vstd::contains(doubleClickInterested, i))
+			continue;
+
+		if(i->receiveEvent(position, AEventsReceiver::DOUBLECLICK) || i == nearestElement)
+		{
+			i->clickDouble(position);
+			doubleClicked = true;
+		}
+	}
+
+	if(!doubleClicked)
+		handleLeftButtonClick(position, tolerance, true);
 }
 
 void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)

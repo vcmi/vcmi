@@ -12,6 +12,7 @@
 
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/BattleAction.h"
 
 void CEmptyAI::saveGame(BinarySerializer & h, const int version)
 {
@@ -26,25 +27,26 @@ void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_p
 	cb = CB;
 	env = ENV;
 	human=false;
-	playerID = *cb->getMyColor();
+	playerID = *cb->getPlayerID();
 }
 
-void CEmptyAI::yourTurn()
+void CEmptyAI::yourTurn(QueryID queryID)
 {
+	cb->selectionMade(0, queryID);
 	cb->endTurn();
 }
 
-void CEmptyAI::activeStack(const CStack * stack)
+void CEmptyAI::activeStack(const BattleID & battleID, const CStack * stack)
 {
-	cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+	cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 }
 
-void CEmptyAI::yourTacticPhase(int distance)
+void CEmptyAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
-void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)
+void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)
 {
 	cb->selectionMade(CRandomGenerator::getDefault().nextInt((int)skills.size() - 1), queryID);
 }
@@ -59,7 +61,7 @@ void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Com
 	cb->selectionMade(0, askID);
 }
 
-void CEmptyAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void CEmptyAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	cb->selectionMade(0, askID);
 }
@@ -72,4 +74,9 @@ void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance
 void CEmptyAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
 	cb->selectionMade(0, askID);
+}
+
+std::optional<BattleAction> CEmptyAI::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
+{
+	return std::nullopt;
 }

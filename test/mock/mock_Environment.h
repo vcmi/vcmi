@@ -16,7 +16,7 @@ class EnvironmentMock : public Environment
 {
 public:
 	MOCK_CONST_METHOD0(services, const Services *());
-	MOCK_CONST_METHOD0(battle, const BattleCb *());
+	MOCK_CONST_METHOD1(battle, const BattleCb *(const BattleID & battleID));
 	MOCK_CONST_METHOD0(game, const GameCb *());
 	MOCK_CONST_METHOD0(logger, ::vstd::CLoggerBase *());
 	MOCK_CONST_METHOD0(eventBus, ::events::EventBus *());

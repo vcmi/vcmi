@@ -14,6 +14,7 @@
 #include <vcmi/Entity.h>
 #include "GameConstants.h"
 #include "IHandlerBase.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -35,20 +36,11 @@ public:
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
 
-	std::string tilesFilename;
+	AnimationPath tilesFilename;
 	std::string shortIdentifier;
 	ui8 movementCost;
 
 	RoadType();
-
-	template <typename Handler> void serialize(Handler& h, const int version)
-	{
-		h & tilesFilename;
-		h & identifier;
-		h & modScope;
-		h & id;
-		h & movementCost;
-	}
 };
 
 class DLL_LINKAGE RoadTypeService : public EntityServiceT<RoadId, RoadType>
@@ -69,12 +61,6 @@ public:
 
 	virtual const std::vector<std::string> & getTypeNames() const override;
 	virtual std::vector<JsonNode> loadLegacyData() override;
-	virtual std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

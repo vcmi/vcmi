@@ -13,11 +13,12 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
+#include "../../MetaString.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CUnitState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -35,7 +36,11 @@ void Heal::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 void Heal::apply(int64_t value, ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleLogMessage logMessage;
+	logMessage.battleID = m->battle()->getBattle()->getBattleID();
+
 	BattleUnitsChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
+
 	prepareHealEffect(value, pack, logMessage, *server->getRNG(), m, target);
 	if(!pack.changedStacks.empty())
 		server->apply(&pack);

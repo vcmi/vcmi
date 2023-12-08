@@ -10,9 +10,9 @@
 
 #include "StdInc.h"
 #include "RiverHandler.h"
-#include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
+#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,7 +36,7 @@ RiverType * RiverTypeHandler::loadFromJson(
 	info->id              = RiverId(index);
 	info->identifier      = identifier;
 	info->modScope        = scope;
-	info->tilesFilename   = json["tilesFilename"].String();
+	info->tilesFilename   = AnimationPath::fromJson(json["tilesFilename"]);
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->deltaName       = json["delta"].String();
 
@@ -65,11 +65,6 @@ std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_RIVER);
 
 	objects.resize(dataSize);
-	return {};
-}
-
-std::vector<bool> RiverTypeHandler::getDefaultAllowed() const
-{
 	return {};
 }
 

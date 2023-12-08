@@ -11,11 +11,15 @@
 #include "StdInc.h"
 #include "FramerateManager.h"
 
+#include "../../lib/CConfigHandler.h"
+#include <SDL_video.h>
+
 FramerateManager::FramerateManager(int targetFrameRate)
 	: targetFrameTime(Duration(boost::chrono::seconds(1)) / targetFrameRate)
 	, lastFrameIndex(0)
 	, lastFrameTimes({})
-	, lastTimePoint (Clock::now())
+	, lastTimePoint(Clock::now())
+	, vsyncEnabled(settings["video"]["vsync"].Bool())
 {
 	boost::range::fill(lastFrameTimes, targetFrameTime);
 }
@@ -24,9 +28,11 @@ void FramerateManager::framerateDelay()
 {
 	Duration timeSpentBusy = Clock::now() - lastTimePoint;
 
-	// FPS is higher than it should be, then wait some time
-	if(timeSpentBusy < targetFrameTime)
+	if(!vsyncEnabled && timeSpentBusy < targetFrameTime)
+	{
+		// if FPS is higher than it should be, then wait some time
 		boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
+	}
 
 	// compute actual timeElapsed taking into account actual sleep interval
 	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)

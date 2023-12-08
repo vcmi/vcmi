@@ -10,15 +10,17 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #include "../ResourceSet.h"
+#include "../MetaString.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class TerrainType;
 class RiverType;
 class RoadType;
 class CGObjectInstance;
 class CGTownInstance;
+class JsonSerializeFormat;
 
 /// The map event is an event which e.g. gives or takes resources of a specific
 /// amount to/from players and can appear regularly or once a time.
@@ -26,12 +28,13 @@ class DLL_LINKAGE CMapEvent
 {
 public:
 	CMapEvent();
+	virtual ~CMapEvent() = default;
 
 	bool earlierThan(const CMapEvent & other) const;
 	bool earlierThanOrEqual(const CMapEvent & other) const;
 
 	std::string name;
-	std::string message;
+	MetaString message;
 	TResources resources;
 	ui8 players; // affected players, bit field?
 	ui8 humanAffected;
@@ -51,17 +54,18 @@ public:
 		h & firstOccurence;
 		h & nextOccurence;
 	}
+	
+	virtual void serializeJson(JsonSerializeFormat & handler);
 };
 
 /// The castle event builds/adds buildings/creatures for a specific town.
 class DLL_LINKAGE CCastleEvent: public CMapEvent
 {
 public:
-	CCastleEvent();
+	CCastleEvent() = default;
 
 	std::set<BuildingID> buildings;
 	std::vector<si32> creatures;
-	CGTownInstance * town;
 
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
@@ -70,6 +74,8 @@ public:
 		h & buildings;
 		h & creatures;
 	}
+	
+	void serializeJson(JsonSerializeFormat & handler) override;
 };
 
 /// The terrain tile describes the terrain type and the visual representation of the terrain.

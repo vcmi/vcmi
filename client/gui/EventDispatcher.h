@@ -36,6 +36,7 @@ class EventDispatcher
 	EventReceiversList panningInterested;
 
 	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
+	void handleDoubleButtonClick(const Point & position, int tolerance);
 	AEventsReceiver * findElementInToleranceRange(const EventReceiversList & list, const Point & position, int eventToTest, int tolerance);
 
 	template<typename Functor>
@@ -59,7 +60,7 @@ public:
 	void dispatchMouseLeftButtonPressed(const Point & position, int tolerance);
 	void dispatchMouseLeftButtonReleased(const Point & position, int tolerance);
 	void dispatchMouseScrolled(const Point & distance, const Point & position);
-	void dispatchMouseDoubleClick(const Point & position);
+	void dispatchMouseDoubleClick(const Point & position, int tolerance);
 	void dispatchMouseMoved(const Point & distance, const Point & position);
 
 	void dispatchMouseDragged(const Point & currentPosition, const Point & lastUpdateDistance);

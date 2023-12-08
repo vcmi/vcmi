@@ -10,12 +10,14 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroAltar.h"
 
+#include "Buttons.h"
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 	: visibleArtSet(ArtBearer::ArtBearer::HERO)
@@ -26,6 +28,12 @@ CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 		position,
 		std::bind(&CArtifactsOfHeroAltar::scrollBackpack, this, _1));
 	pickedArtFromSlot = ArtifactPosition::PRE_FIRST;
+
+	// The backpack is in the altar window above and to the right
+	for(auto & slot : backpack)
+		slot->moveBy(Point(2, -1));
+	leftBackpackRoll->moveBy(Point(2, -1));
+	rightBackpackRoll->moveBy(Point(2, -1));
 };
 
 CArtifactsOfHeroAltar::~CArtifactsOfHeroAltar()
@@ -58,7 +66,7 @@ void CArtifactsOfHeroAltar::updateBackpackSlots()
 void CArtifactsOfHeroAltar::scrollBackpack(int offset)
 {
 	CArtifactsOfHeroBase::scrollBackpackForArtSet(offset, visibleArtSet);
-	safeRedraw();
+	redraw();
 }
 
 void CArtifactsOfHeroAltar::pickUpArtifact(CHeroArtPlace & artPlace)
@@ -71,7 +79,7 @@ void CArtifactsOfHeroAltar::pickUpArtifact(CHeroArtPlace & artPlace)
 		if(ArtifactUtils::isSlotBackpack(pickedArtFromSlot))
 			pickedArtFromSlot = curHero->getSlotByInstance(art);
 		assert(pickedArtFromSlot != ArtifactPosition::PRE_FIRST);
-		LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, pickedArtFromSlot), ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+		LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, pickedArtFromSlot), ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 	}
 }
 
@@ -88,7 +96,7 @@ void CArtifactsOfHeroAltar::pickedArtMoveToAltar(const ArtifactPosition & slot)
 	if(ArtifactUtils::isSlotBackpack(slot) || ArtifactUtils::isSlotEquipment(slot) || slot == ArtifactPosition::TRANSITION_POS)
 	{
 		assert(curHero->getSlot(slot)->getArt());
-		LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, slot), ArtifactLocation(curHero, pickedArtFromSlot));
+		LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, slot), ArtifactLocation(curHero->id, pickedArtFromSlot));
 		pickedArtFromSlot = ArtifactPosition::PRE_FIRST;
 	}
 }

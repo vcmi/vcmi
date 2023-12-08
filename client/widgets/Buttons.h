@@ -10,10 +10,9 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../render/Colors.h"
+#include "../render/EFont.h"
 #include "../../lib/FunctionList.h"
-
-#include <SDL_pixels.h>
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
@@ -37,15 +36,15 @@ public:
 		BLOCKED=2,
 		HIGHLIGHTED=3
 	};
-private:
-	std::vector<std::string> imageNames;//store list of images that can be used by this button
+protected:
+	std::vector<AnimationPath> imageNames;//store list of images that can be used by this button
 	size_t currentImage;
 
 	ButtonState state;//current state of button from enum
 
 	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
-	std::array<std::optional<SDL_Color>, 4> stateToBorderColor; // mapping of button state to border color
+	std::optional<ColorRGBA> borderColor; // mapping of button state to border color
 	std::string helpBox; //for right-click help
 
 	std::shared_ptr<CAnimImage> image; //image for this button
@@ -64,24 +63,17 @@ public:
 		hoverable,//if true, button will be highlighted when hovered (e.g. main menu)
 		soundDisabled;
 
-	// sets border color for each button state;
-	// if it's set, the button will have 1-px border around it with this color
-	void setBorderColor(std::optional<SDL_Color> normalBorderColor,
-						std::optional<SDL_Color> pressedBorderColor,
-						std::optional<SDL_Color> blockedBorderColor,
-						std::optional<SDL_Color> highlightedBorderColor);
-
 	// sets the same border color for all button states.
-	void setBorderColor(std::optional<SDL_Color> borderColor);
+	void setBorderColor(std::optional<ColorRGBA> borderColor);
 
 	/// adds one more callback to on-click actions
-	void addCallback(std::function<void()> callback);
+	void addCallback(const std::function<void()> & callback);
 
 	/// adds overlay on top of button image. Only one overlay can be active at once
 	void addOverlay(std::shared_ptr<CIntObject> newOverlay);
-	void addTextOverlay(const std::string & Text, EFonts font, SDL_Color color = Colors::WHITE);
+	void addTextOverlay(const std::string & Text, EFonts font, ColorRGBA color);
 
-	void addImage(std::string filename);
+	void addImage(const AnimationPath & filename);
 	void addHoverText(ButtonState state, std::string text);
 
 	void setImageOrder(int state1, int state2, int state3, int state4);
@@ -93,7 +85,7 @@ public:
 	bool isHighlighted();
 
 	/// Constructor
-	CButton(Point position, const std::string & defName, const std::pair<std::string, std::string> & help,
+	CButton(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help,
 			CFunctionList<void()> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
 
 	/// Appearance modifiers
@@ -154,7 +146,7 @@ class CToggleButton : public CButton, public CToggleBase
 	void setEnabled(bool enabled) override;
 
 public:
-	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+	CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
 				  CFunctionList<void(bool)> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
 
 	void clickPressed(const Point & cursorPosition) override;

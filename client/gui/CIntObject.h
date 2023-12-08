@@ -9,13 +9,19 @@
  */
 #pragma once
 
-#include "../render/Graphics.h"
-#include "../../lib/Rect.h"
 #include "EventsReceiver.h"
+
+#include "../../lib/Rect.h"
+#include "../../lib/Color.h"
+#include "../../lib/GameConstants.h"
 
 class CGuiHandler;
 class CPicture;
 class Canvas;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CArmedInstance;
+VCMI_LIB_NAMESPACE_END
 
 class IUpdateable
 {
@@ -142,13 +148,28 @@ class WindowBase : public CIntObject
 public:
 	WindowBase(int used_ = 0, Point pos_ = Point());
 protected:
-	void close();
+	virtual void close();
 };
 
 class IGarrisonHolder
 {
 public:
+	bool holdsGarrisons(std::vector<const CArmedInstance *> armies)
+	{
+		for (auto const * army : armies)
+			if (holdsGarrison(army))
+				return true;
+		return false;
+	}
+
+	virtual bool holdsGarrison(const CArmedInstance * army) = 0;
 	virtual void updateGarrisons() = 0;
+};
+
+class ITownHolder
+{
+public:
+	virtual void buildChanged() = 0;
 };
 
 class IStatusBar

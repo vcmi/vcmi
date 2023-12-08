@@ -250,7 +250,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 			return;
 		}
 
-		if(skillLevel < SecSkillLevel::ADVANCED)
+		if(skillLevel < MasteryLevel::ADVANCED)
 		{
 			const CGTownInstance * nearestTown = *vstd::minElementByFun(towns, [&](const CGTownInstance * t) -> int
 			{

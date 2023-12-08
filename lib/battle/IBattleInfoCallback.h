@@ -15,10 +15,13 @@
 
 #include <vcmi/Entity.h>
 
+#define RETURN_IF_NOT_BATTLE(...) if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return __VA_ARGS__; }
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CObstacleInstance;
 class BattleField;
+class IBattleInfo;
 
 namespace battle
 {
@@ -53,6 +56,10 @@ public:
 #if SCRIPTING_ENABLED
 	virtual scripting::Pool * getContextPool() const = 0;
 #endif
+	virtual ~IBattleInfoCallback() = default;
+
+	virtual const IBattleInfo * getBattle() const = 0;
+	virtual std::optional<PlayerColor> getPlayerID() const = 0;
 
 	virtual TerrainId battleTerrainType() const = 0;
 	virtual BattleField battleGetBattlefieldType() const = 0;
@@ -65,7 +72,7 @@ public:
 
 	virtual uint32_t battleNextUnitId() const = 0;
 
-	virtual battle::Units battleGetUnitsIf(battle::UnitFilter predicate) const = 0;
+	virtual battle::Units battleGetUnitsIf(const battle::UnitFilter & predicate) const = 0;
 
 	virtual const battle::Unit * battleGetUnitByID(uint32_t ID) const = 0;
 	virtual const battle::Unit * battleGetUnitByPos(BattleHex pos, bool onlyAlive = true) const = 0;

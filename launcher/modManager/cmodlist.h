@@ -60,10 +60,12 @@ public:
 	bool isEssential() const;
 	// checks if verison is compatible with vcmi
 	bool isCompatible() const;
-	// returns if has any data
-	bool isValid() const;
+	// returns true if mod should be visible in Launcher
+	bool isVisible() const;
 	// installed and enabled
 	bool isTranslation() const;
+	// returns true if this is a submod
+	bool isSubmod() const;
 
 	// see ModStatus enum
 	int getModStatus() const;
@@ -74,8 +76,8 @@ public:
 	QVariant getValue(QString value) const;
 	QVariant getBaseValue(QString value) const;
 
-	// returns true if less < greater comparing versions section by section
-	static bool compareVersions(QString lesser, QString greater);
+	QStringList getDependencies() const;
+	QStringList getConflicts() const;
 
 	static QString sizeToString(double size);
 };
@@ -86,7 +88,7 @@ class CModList
 	QVariantMap localModList;
 	QVariantMap modSettings;
 
-	QVariantMap copyField(QVariantMap data, QString from, QString to);
+	QVariantMap copyField(QVariantMap data, QString from, QString to) const;
 
 public:
 	virtual void resetRepositories();

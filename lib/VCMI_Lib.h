@@ -38,6 +38,7 @@ class CRmgTemplateStorage;
 class IHandlerBase;
 class IGameSettings;
 class GameSettings;
+class CIdentifierStorage;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -80,6 +81,7 @@ public:
 	spells::effects::Registry * spellEffects() override;
 
 	const IBonusTypeHandler * getBth() const; //deprecated
+	const CIdentifierStorage * identifiers() const;
 
 	CArtHandler * arth;
 	CHeroHandler * heroh;
@@ -95,6 +97,7 @@ public:
 	TerrainTypeHandler * terrainTypeHandler;
 	RoadTypeHandler * roadTypeHandler;
 	RiverTypeHandler * riverTypeHandler;
+	CIdentifierStorage * identifiersHandler;
 
 	CTerrainViewPatternConfig * terviewh;
 	CRmgTemplateStorage * tplh;
@@ -117,50 +120,6 @@ public:
 #if SCRIPTING_ENABLED
 	void scriptsLoaded();
 #endif
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-#if SCRIPTING_ENABLED
-		h & scriptHandler;//must be first (or second after modh), it can modify factories other handlers depends on
-		if(!h.saving)
-		{
-			scriptsLoaded();
-		}
-#endif
-
-		h & settingsHandler;
-		h & heroh;
-		h & arth;
-		h & creh;
-		h & townh;
-		h & objh;
-		h & objtypeh;
-		h & spellh;
-		h & skillh;
-		h & battlefieldsHandler;
-		h & obstacleHandler;
-		h & roadTypeHandler;
-		h & riverTypeHandler;
-		h & terrainTypeHandler;
-
-		if(!h.saving)
-		{
-			//modh will be changed and modh->content will be empty after deserialization
-			auto content = getContent();
-			h & modh;
-			setContent(content);
-		}
-		else
-			h & modh;
-
-		h & IS_AI_ENABLED;
-		h & bth;
-
-		if(!h.saving)
-		{
-			callWhenDeserializing();
-		}
-	}
 };
 
 extern DLL_LINKAGE LibClasses * VLC;

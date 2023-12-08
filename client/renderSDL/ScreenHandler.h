@@ -86,6 +86,9 @@ public:
 	/// Dimensions of render output, usually same as window size except for high-DPI screens on macOS / iOS
 	Point getRenderResolution() const final;
 
+	/// Window has focus
+	bool hasFocus() final;
+
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 	std::tuple<int, int> getSupportedScalingRange() const final;

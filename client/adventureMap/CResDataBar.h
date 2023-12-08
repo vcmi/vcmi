@@ -10,11 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-enum class EGameResID : int8_t;
-using GameResID = Identifier<EGameResID>;
-VCMI_LIB_NAMESPACE_END
+#include "../../lib/filesystem/ResourcePath.h"
 
 /// Resources bar which shows information about how many gold, crystals,... you have
 /// Current date is displayed too
@@ -30,10 +26,10 @@ class CResDataBar : public CIntObject
 public:
 
 	/// For dynamically-sized UI windows, e.g. adventure map interface
-	CResDataBar(const std::string & imageName, const Point & position);
+	CResDataBar(const ImagePath & imageName, const Point & position);
 
 	/// For fixed-size UI windows, e.g. CastleInterface
-	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
+	CResDataBar(const ImagePath & defname, int x, int y, int offx, int offy, int resdist, int datedist);
 
 	void setDatePosition(const Point & position);
 	void setResourcePosition(const GameResID & resource, const Point & position);

@@ -12,10 +12,11 @@
 #include "Teleport.h"
 #include "Registry.h"
 #include "../ISpellMechanics.h"
-#include "../../NetPacks.h"
+#include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
-#include "../../serializer/JsonSerializeFormat.h"
 #include "../../battle/Unit.h"
+#include "../../networkPacks/PacksForClientBattle.h"
+#include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -76,6 +77,7 @@ void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectT
 	const auto destination = target[1].hexValue;
 
 	BattleStackMoved pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 	pack.distance = 0;
 	pack.stack = targetUnit->unitId();
 	std::vector<BattleHex> tiles;

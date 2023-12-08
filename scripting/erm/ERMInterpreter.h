@@ -134,7 +134,7 @@ namespace VERMInterpreter
 				"TH", "TM"
 			};
 
-			for(int i=0; i<ARRAY_COUNT(validTriggers); ++i)
+			for(int i=0; i<std::size(validTriggers); ++i)
 			{
 				if(validTriggers[i] == trig)
 					return static_cast<ETrigType>(i);
@@ -276,17 +276,6 @@ namespace VERMInterpreter
 	public:
 		VermTreeIterator car();
 		VermTreeIterator cdr();
-	};
-
-	struct OptionConverterVisitor
-	{
-		VOption operator()(ERM const ::TVExp & cmd) const;
-		VOption operator()(ERM const ::TSymbol & cmd) const;
-		VOption operator()(const char & cmd) const;
-		VOption operator()(const double & cmd) const;
-		VOption operator()(const int & cmd) const;
-		VOption operator()(ERM const ::Tcommand & cmd) const;
-		VOption operator()(ERM const ::TStringConstant & cmd) const;
 	};
 
 	struct VNode

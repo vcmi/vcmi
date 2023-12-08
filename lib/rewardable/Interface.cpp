@@ -12,11 +12,17 @@
 #include "Interface.h"
 
 #include "../CHeroHandler.h"
+#include "../TerrainHandler.h"
+#include "../CPlayerState.h"
 #include "../CSoundBase.h"
-#include "../NetPacks.h"
+#include "../gameState/CGameState.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
+#include "../mapping/CMapDefines.h"
+#include "../networkPacks/StackLocation.h"
+#include "../networkPacks/PacksForClient.h"
 #include "../IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -29,7 +35,7 @@ std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstanc
 	{
 		const Rewardable::VisitInfo & visit = configuration.info[i];
 
-		if(event == visit.visitType && visit.limiter.heroAllowed(hero))
+		if(event == visit.visitType && (!hero || visit.limiter.heroAllowed(hero)))
 		{
 			logGlobal->trace("Reward %d is allowed", i);
 			ret.push_back(static_cast<ui32>(i));
@@ -46,6 +52,58 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
 
+	if (info.reward.revealTiles)
+	{
+		const auto & props = *info.reward.revealTiles;
+
+		const auto functor = [&props](const TerrainTile * tile)
+		{
+			int score = 0;
+			if (tile->terType->isSurface())
+				score += props.scoreSurface;
+
+			if (tile->terType->isUnderground())
+				score += props.scoreSubterra;
+
+			if (tile->terType->isWater())
+				score += props.scoreWater;
+
+			if (tile->terType->isRock())
+				score += props.scoreRock;
+
+			return score > 0;
+		};
+
+		std::unordered_set<int3> tiles;
+		if (props.radius > 0)
+		{
+			cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::HIDDEN, hero->getOwner());
+			if (props.hide)
+				cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::REVEALED, hero->getOwner());
+
+			vstd::erase_if(tiles, [&](const int3 & coord){
+				return !functor(cb->getTile(coord));
+			});
+		}
+		else
+		{
+			cb->getAllTiles(tiles, hero->tempOwner, -1, functor);
+		}
+
+		if (props.hide)
+		{
+			for (auto & player : cb->gameState()->players)
+			{
+				if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME && cb->getPlayerRelations(player.first, hero->getOwner()) == PlayerRelations::ENEMIES)
+					cb->changeFogOfWar(tiles, player.first, ETileVisibility::HIDDEN);
+			}
+		}
+		else
+		{
+			cb->changeFogOfWar(tiles, hero->getOwner(), ETileVisibility::REVEALED);
+		}
+	}
+
 	for(const auto & entry : info.reward.secondary)
 	{
 		int current = hero->getSecSkillLevel(entry.first);
@@ -57,7 +115,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
-		cb->changePrimSkill(hero, static_cast<PrimarySkill::PrimarySkill>(i), info.reward.primary[i], false);
+		cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
 
 	si64 expToGive = 0;
 
@@ -92,14 +150,14 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 	for(const Bonus & bonus : info.reward.bonuses)
 	{
 		GiveBonus gb;
-		gb.who = GiveBonus::ETarget::HERO;
+		gb.who = GiveBonus::ETarget::OBJECT;
 		gb.bonus = bonus;
-		gb.id = hero->id.getNum();
+		gb.id = hero->id;
 		cb->giveHeroBonus(&gb);
 	}
 
 	for(const ArtifactID & art : info.reward.artifacts)
-		cb->giveHeroNewArtifact(hero, VLC->arth->objects[art],ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(hero, art.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())
 	{
@@ -145,6 +203,11 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 	if(info.reward.removeObject)
 		if(auto * instance = dynamic_cast<const CGObjectInstance*>(this))
 			cb->removeAfterVisit(instance);
+}
+
+void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
+{
+	configuration.serializeJson(handler);
 }
 
 VCMI_LIB_NAMESPACE_END

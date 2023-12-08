@@ -24,15 +24,15 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	stretchedBackground = std::make_shared<CFilledTexture>("DIBOXBCK", Rect());
+	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 410, 425));
 
 	arts = std::make_shared<CArtifactsOfHeroBackpack>(Point(windowMargin, windowMargin));
 	arts->setHero(hero);
-	addSet(arts);
+	addSetAndCallbacks(arts);
 
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
 
-	quitButton = std::make_shared<CButton>(Point(), "IOKAY32.def", CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
 
 	stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;

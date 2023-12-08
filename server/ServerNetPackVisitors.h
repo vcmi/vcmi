@@ -9,18 +9,17 @@
  */
 #pragma once
 
-#include "../lib/NetPackVisitor.h"
+#include "../lib/networkPacks/NetPackVisitor.h"
 
 class ApplyGhNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
 	bool result;
 	CGameHandler & gh;
-	CGameState & gs;
 
 public:
-	ApplyGhNetPackVisitor(CGameHandler & gh, CGameState & gs)
-		:gh(gh), gs(gs), result(false)
+	ApplyGhNetPackVisitor(CGameHandler & gh)
+		:gh(gh), result(false)
 	{
 	}
 
@@ -30,6 +29,7 @@ public:
 	}
 
 	virtual void visitSaveGame(SaveGame & pack) override;
+	virtual void visitGamePause(GamePause & pack) override;
 	virtual void visitEndTurn(EndTurn & pack) override;
 	virtual void visitDismissHero(DismissHero & pack) override;
 	virtual void visitMoveHero(MoveHero & pack) override;
@@ -55,7 +55,6 @@ public:
 	virtual void visitBuildBoat(BuildBoat & pack) override;
 	virtual void visitQueryReply(QueryReply & pack) override;
 	virtual void visitMakeAction(MakeAction & pack) override;
-	virtual void visitMakeCustomAction(MakeCustomAction & pack) override;
 	virtual void visitDigWithHero(DigWithHero & pack) override;
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) override;
 	virtual void visitPlayerMessage(PlayerMessage & pack) override;

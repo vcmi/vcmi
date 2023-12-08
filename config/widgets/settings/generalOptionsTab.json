@@ -7,7 +7,7 @@
 			"name": "lineLabelsEnd",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
 		},
 		{
 			"type" : "labelTitle",
@@ -21,7 +21,7 @@
 		},
 		{
 			"type" : "labelTitle",
-			"position": {"x": 10, "y": 295},
+			"position": {"x": 10, "y": 355},
 			"text": "vcmi.systemOptions.townsGroup"
 		},
 /////////////////////////////////////// Left section - Video Settings
@@ -51,6 +51,9 @@
 					"text": "vcmi.systemOptions.framerateButton.hover"
 				},
 				{
+					"text": "vcmi.systemOptions.enableLargeSpellbookButton.hover"
+				},
+				{
 					"text": "core.genrltxt.577"
 				},
 				{
@@ -61,6 +64,9 @@
 				{
 					"text": "vcmi.systemOptions.hapticFeedbackButton.hover",
 					"created" : "mobile"
+				},
+				{
+					"text": "vcmi.systemOptions.enableUiEnhancementsButton.hover"
 				}
 			]
 		},
@@ -100,6 +106,11 @@
 					"callback": "framerateChanged"
 				},
 				{
+					"name": "enableLargeSpellbookCheckbox",
+					"help": "vcmi.systemOptions.enableLargeSpellbookButton",
+					"callback": "enableLargeSpellbookChanged"
+				},
+				{
 					"name": "spellbookAnimationCheckbox",
 					"help": "core.help.364",
 					"callback": "spellbookAnimationChanged"
@@ -116,6 +127,11 @@
 					"help": "vcmi.systemOptions.hapticFeedbackButton",
 					"callback": "hapticFeedbackChanged",
 					"created" : "mobile"
+				},
+				{
+					"name": "enableUiEnhancementsCheckbox",
+					"help": "vcmi.systemOptions.enableUiEnhancementsButton",
+					"callback": "enableUiEnhancementsChanged"
 				}
 			]
 		},
@@ -168,7 +184,7 @@
 		{
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 325},
+			"position": {"x": 45, "y": 385},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
@@ -181,7 +197,7 @@
 		{
 			"name": "availableCreaturesAsDwellingPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 323},
+			"position": {"x": 10, "y": 383},
 			"items":
 			[
 				{
@@ -203,7 +219,7 @@
 			"name": "compactTownCreatureInfoLabel",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 385},
+			"position": {"x": 45, "y": 445},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
@@ -214,7 +230,7 @@
 			"name": "compactTownCreatureInfoCheckbox",
 			"type": "checkbox",
 			"help": "vcmi.otherOptions.compactTownCreatureInfo",
-			"position": {"x": 10, "y": 383},
+			"position": {"x": 10, "y": 443},
 			"callback": "compactTownCreatureInfoChanged"
 		}
 	]

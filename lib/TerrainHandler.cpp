@@ -10,9 +10,10 @@
 
 #include "StdInc.h"
 #include "TerrainHandler.h"
-#include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
+#include "JsonNode.h"
+#include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,10 +27,10 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->identifier = identifier;
 	info->modScope = scope;
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
-	info->musicFilename = json["music"].String();
-	info->tilesFilename = json["tiles"].String();
-	info->horseSound = json["horseSound"].String();
-	info->horseSoundPenalty = json["horseSoundPenalty"].String();
+	info->musicFilename = AudioPath::fromJson(json["music"]);
+	info->tilesFilename = AnimationPath::fromJson(json["tiles"]);
+	info->horseSound = AudioPath::fromJson(json["horseSound"]);
+	info->horseSoundPenalty = AudioPath::fromJson(json["horseSoundPenalty"]);
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 
@@ -57,7 +58,6 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	{
 		//Set bits
 		const auto & s = node.String();
-		if (s == "LAND") info->passabilityType |= TerrainType::PassabilityType::LAND;
 		if (s == "WATER") info->passabilityType |= TerrainType::PassabilityType::WATER;
 		if (s == "ROCK") info->passabilityType |= TerrainType::PassabilityType::ROCK;
 		if (s == "SURFACE") info->passabilityType |= TerrainType::PassabilityType::SURFACE;
@@ -67,7 +67,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->river = River::NO_RIVER;
 	if(!json["river"].isNull())
 	{
-		VLC->modh->identifiers.requestIdentifier("river", json["river"], [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("river", json["river"], [info](int32_t identifier)
 		{
 			info->river = RiverId(identifier);
 		});
@@ -87,7 +87,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 
 	for(const auto & t : json["battleFields"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("battlefield", t, [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("battlefield", t, [info](int32_t identifier)
 		{
 			info->battleFields.emplace_back(identifier);
 		});
@@ -95,7 +95,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 
 	for(const auto & t : json["prohibitTransitions"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
 			info->prohibitTransitions.emplace_back(identifier);
 		});
@@ -105,7 +105,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 
 	if(!json["rockTerrain"].isNull())
 	{
-		VLC->modh->identifiers.requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
 		{
 			info->rockTerrain = TerrainId(identifier);
 		});
@@ -126,7 +126,7 @@ std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 
 	objects.resize(dataSize);
 
-	CLegacyConfigParser terrainParser("DATA/TERRNAME.TXT");
+	CLegacyConfigParser terrainParser(TextPath::builtin("DATA/TERRNAME.TXT"));
 
 	std::vector<JsonNode> result;
 	do
@@ -140,11 +140,6 @@ std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 	return result;
 }
 
-std::vector<bool> TerrainTypeHandler::getDefaultAllowed() const
-{
-	return {};
-}
-
 bool TerrainType::isLand() const
 {
 	return !isWater();
@@ -155,9 +150,14 @@ bool TerrainType::isWater() const
 	return passabilityType & PassabilityType::WATER;
 }
 
+bool TerrainType::isRock() const
+{
+	return passabilityType & PassabilityType::ROCK;
+}
+
 bool TerrainType::isPassable() const
 {
-	return !(passabilityType & PassabilityType::ROCK);
+	return !isRock();
 }
 
 bool TerrainType::isSurface() const
@@ -168,16 +168,6 @@ bool TerrainType::isSurface() const
 bool TerrainType::isUnderground() const
 {
 	return passabilityType & PassabilityType::SUBTERRANEAN;
-}
-
-bool TerrainType::isSurfaceCartographerCompatible() const
-{
-	return isSurface();
-}
-
-bool TerrainType::isUndergroundCartographerCompatible() const
-{
-	return isLand() && isPassable() && !isSurface();
 }
 
 bool TerrainType::isTransitionRequired() const

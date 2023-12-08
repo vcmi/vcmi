@@ -272,8 +272,8 @@
 			},
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			}
 		},
 		"upgrades": ["efreetSultan"],
@@ -315,8 +315,8 @@
 			},
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"fireShield" :
 			{
@@ -361,7 +361,7 @@
 			"FLYING_ARMY" :
 			{
 				// type loaded from crtraits
-				"subtype" : 1 // teleports
+				"subtype" : "movementTeleporting"
 			},
 			"descreaseLuck" :
 			{
@@ -415,7 +415,7 @@
 			"FLYING_ARMY" :
 			{
 				// type loaded from crtraits
-				"subtype" : 1 // teleports
+				"subtype" : "movementTeleporting"
 			},
 			"descreaseLuck" :
 			{

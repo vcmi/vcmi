@@ -19,6 +19,7 @@ class CSpell;
 VCMI_LIB_NAMESPACE_END
 
 class IImage;
+class CAnimation;
 class CAnimImage;
 class CPicture;
 class CLabel;
@@ -73,11 +74,19 @@ class CSpellWindow : public CWindowObject
 	std::shared_ptr<CAnimImage> schoolTab;
 	std::shared_ptr<CAnimImage> schoolPicture;
 
-	std::array<std::shared_ptr<SpellArea>, 12> spellAreas;
+	std::array<std::shared_ptr<SpellArea>, 24> spellAreas;
 	std::shared_ptr<CLabel> mana;
 	std::shared_ptr<CGStatusBar> statusBar;
 
 	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
+
+	bool isBigSpellbook;
+	int spellsPerPage;
+	int offL;
+	int offR;
+	int offRM;
+	int offT;
+	int offB;
 
 	int sitesPerTabAdv[5];
 	int sitesPerTabBattle[5];
@@ -95,6 +104,8 @@ class CSpellWindow : public CWindowObject
 	void setCurrentPage(int value);
 	void turnPageLeft();
 	void turnPageRight();
+
+	std::shared_ptr<IImage> createBigSpellBook();
 
 public:
 	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true);

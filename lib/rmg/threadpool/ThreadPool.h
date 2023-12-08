@@ -169,7 +169,7 @@ inline void ThreadPool::cancel()
 
 auto ThreadPool::async(std::function<void()>&& f) const -> boost::future<void>
 {
-    using TaskT = boost::packaged_task<void>;
+	using TaskT = boost::packaged_task<void>;
 
     {
         Lock lock(mx);

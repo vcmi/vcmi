@@ -115,8 +115,8 @@ public:
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const StackAttackInfo & info); //called when stack with id ID is attacking something on hex dest
 
-	void startAction(const BattleAction* action);
-	void endAction(const BattleAction* action);
+	void startAction(const BattleAction & action);
+	void endAction(const BattleAction & action);
 
 	void deactivateStack(); //copy activeStack to stackToActivate, then set activeStack to nullptr to temporary disable current stack
 

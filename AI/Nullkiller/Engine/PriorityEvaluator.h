@@ -8,13 +8,15 @@
 *
 */
 #pragma once
-#include "fl/Headers.h"
+#if __has_include(<fuzzylite/Headers.h>)
+#  include <fuzzylite/Headers.h>
+#else
+#  include <fl/Headers.h>
+#endif
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-class CGWitchHut;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -39,12 +41,13 @@ public:
 	float getResourceRequirementStrength(int resType) const;
 	float getStrategicalValue(const CGObjectInstance * target) const;
 	float getTotalResourceRequirementStrength(int resType) const;
-	float evaluateWitchHutSkillScore(const CGWitchHut * hut, const CGHeroInstance * hero, HeroRole role) const;
+	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
 	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
 	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
 	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
 	uint64_t townArmyGrowth(const CGTownInstance * town) const;
+	uint64_t getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
 };
 
 struct DLL_EXPORT EvaluationContext

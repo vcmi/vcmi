@@ -18,6 +18,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
 
 #include "../../CCallback.h"
 
@@ -38,11 +39,11 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 	{
 		const auto pos = Point(slotSizeWithMargin * (artPlaceIdx % HERO_BACKPACK_WINDOW_SLOT_COLUMNS),
 			slotSizeWithMargin * (artPlaceIdx / HERO_BACKPACK_WINDOW_SLOT_COLUMNS));
-		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>("heroWindow/artifactSlotEmpty", pos));
+		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
 		artPlace = std::make_shared<CHeroArtPlace>(pos);
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
-		artPlace->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
+		artPlace->showPopupCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 		artPlaceIdx++;
 	}
 
@@ -79,8 +80,8 @@ void CArtifactsOfHeroBackpack::swapArtifacts(const ArtifactLocation & srcLoc, co
 
 void CArtifactsOfHeroBackpack::pickUpArtifact(CHeroArtPlace & artPlace)
 {
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, artPlace.slot),
-		ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS));
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
+		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 }
 
 void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
@@ -88,7 +89,7 @@ void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 	if(backpackListBox)
 		backpackListBox->resize(getActiveSlotRowsNum());
 	backpackPos += offset;
-	auto slot = ArtifactPosition(GameConstants::BACKPACK_START + backpackPos);
+	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
 	for(auto artPlace : backpack)
 	{
 		setSlotData(artPlace, slot, *curHero);

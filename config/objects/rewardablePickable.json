@@ -5,6 +5,8 @@
 		"index" : 12,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"ambient" : ["LOOPCAMP"],
 				"visit" : ["EXPERNCE"],
@@ -20,8 +22,6 @@
 					"rarity"	: 500
 				},
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -48,6 +48,8 @@
 		"index" : 29,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["GENIE"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -62,15 +64,13 @@
 					"rarity"	: 100
 				},
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"message" : 51,
 						"appearChance" : { "max" : 25 },
-						"removeObject" : true,
+						"removeObject" : true
 					},
 					{
 						"message" : 52,
@@ -106,6 +106,8 @@
 		"index" : 82,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["CHEST"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -120,8 +122,6 @@
 					"rarity"	: 500
 				},
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -157,6 +157,8 @@
 		"index" : 86,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["TREASURE"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -171,8 +173,6 @@
 					"rarity"	: 50
 				},
 				"compatibilityIdentifiers" : [ "object" ],
-
-				"blockedVisitable" : true,
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -208,6 +208,7 @@
 		"index" : 101,
 		"handler": "configurable",
 		"base" : {
+			"removable": true,
 			"sounds" : {
 				"visit" : ["CHEST"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -235,7 +236,7 @@
 					},
 					{
 						"appearChance" : { "max" : 33 },
-						"gainedExp" : 1500,
+						"heroExperience" : 1500,
 						"removeObject" : true,
 					},
 					{
@@ -245,7 +246,7 @@
 					},
 					{
 						"appearChance" : { "min" : 33, "max" : 65 },
-						"gainedExp" : 1000,
+						"heroExperience" : 1000,
 						"removeObject" : true,
 					},
 					{
@@ -255,7 +256,7 @@
 					},
 					{
 						"appearChance" : { "min" : 65, "max" : 95 },
-						"gainedExp" : 500,
+						"heroExperience" : 500,
 						"removeObject" : true,
 					},
 					{

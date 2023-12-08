@@ -442,13 +442,17 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 			{
 				auto player = PlayerColor(*owner - 1);
 				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
-				si32 faction = CMapGenOptions::CPlayerSettings::RANDOM_TOWN;
+				FactionID faction = FactionID::RANDOM;
 				if (vstd::contains(playerSettings, player))
+				{
 					faction = playerSettings[player].getStartingTown();
+				}
 				else
-					logGlobal->error("Can't find info for player %d (starting zone)", player.getNum());
+				{
+					logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
+				}
 
-				if (faction == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) //TODO: check this after a town has already been randomized
+				if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
 					zonesToPlace.push_back(zone);
 				else
 				{

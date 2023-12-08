@@ -42,20 +42,29 @@
 		"config/heroes/stronghold.json",
 		"config/heroes/fortress.json",
 		"config/heroes/conflux.json",
-		"config/heroes/special.json"
+		"config/heroes/special.json",
+		"config/heroes/portraits.json"
 	],
 
 	"objects" :
 	[
-		"config/objects/generic.json",
-		"config/objects/moddables.json",
+		"config/objects/cartographer.json",
+		"config/objects/coverOfDarkness.json",
 		"config/objects/creatureBanks.json",
 		"config/objects/dwellings.json",
-		"config/objects/rewardableOncePerWeek.json",
-		"config/objects/rewardablePickable.json",
-		"config/objects/rewardableOnceVisitable.json",
+		"config/objects/generic.json",
+		"config/objects/magicSpring.json",
+		"config/objects/magicWell.json",
+		"config/objects/moddables.json",
+		"config/objects/observatory.json",
+		"config/objects/rewardableBonusing.json",
 		"config/objects/rewardableOncePerHero.json",
-		"config/objects/rewardableBonusing.json"
+		"config/objects/rewardableOncePerWeek.json",
+		"config/objects/rewardableOnceVisitable.json",
+		"config/objects/rewardablePickable.json",
+		"config/objects/scholar.json",
+		"config/objects/shrine.json",
+		"config/objects/witchHut.json"
 	],
 
 	"artifacts" :
@@ -218,6 +227,11 @@
 						"special2" : 19, // bloodObelisk
 						"special3" : 18  // glyphsOfFear
 					}
+				},
+
+				"portraits" : {
+					"catherine" : 128, // In "RoE" Catherine only has portrait
+					"portraitGeneralKendal" : 129
 				}
 			},
 			"armageddonsBlade" : {
@@ -228,11 +242,29 @@
 						"special1" : 10, // artifactMerchants
 						"special2" : 18  // magicUniversity
 					}
+				},
+				
+				"portraits" : {
+					"pasis" : 128,
+					"thunar" : 129,
+					"portraitGeneralKendal" : 156,
+					"portraitYoungCristian" : 157,
+					"portraitOrdwald" : 158
 				}
 			},
 			"shadowOfDeath" : { 
 				"supported" : true,
-				"iconIndex" : 2
+				"iconIndex" : 2,
+				
+				"portraits" : {
+					"portraitGeneralKendal" : 156,
+					"portraitYoungCristian" : 157,
+					"portraitOrdwald" : 158,
+					"portraitFinneas" : 159,
+					"portraitYoungGem" : 160,
+					"portraitYoungSandro" : 161,
+					"portraitYoungYog" : 162
+				}
 			},
 			"jsonVCMI" : { 
 				"supported" : true,
@@ -398,7 +430,7 @@
 				"landMovement" :
 				{
 					"type" : "MOVEMENT", //Basic land movement
-					"subtype" : 1,
+					"subtype" : "heroMovementLand",
 					"val" : 1300,
 					"valueType" : "BASE_NUMBER",
 					"updater" : {
@@ -414,7 +446,7 @@
 				"seaMovement" :
 				{
 					"type" : "MOVEMENT", //Basic sea movement
-					"subtype" : 0,
+					"subtype" : "heroMovementSea",
 					"val" : 1500,
 					"valueType" : "BASE_NUMBER"
 				}

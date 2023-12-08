@@ -14,7 +14,7 @@
 #include "Registry.h"
 
 #include "../LuaStack.h"
-#include "../../../lib/NetPacks.h"
+#include "../../../lib/networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -23,15 +23,15 @@ MapServiceMock::MapServiceMock(const std::string & path, MapListener * mapListen
 
 	CZipSaver saver(io, "_");
 
-	const JsonNode header(ResourceID(path+CMapFormatJson::HEADER_FILE_NAME));
-	const JsonNode objects(ResourceID(path+CMapFormatJson::OBJECTS_FILE_NAME));
-	const JsonNode surface(ResourceID(path+"surface_terrain.json"));
+	const JsonNode header(JsonPath::builtin(path+CMapFormatJson::HEADER_FILE_NAME));
+	const JsonNode objects(JsonPath::builtin(path+CMapFormatJson::OBJECTS_FILE_NAME));
+	const JsonNode surface(JsonPath::builtin(path+"surface_terrain.json"));
 
 	addToArchive(saver, header, CMapFormatJson::HEADER_FILE_NAME);
 	addToArchive(saver, objects, CMapFormatJson::OBJECTS_FILE_NAME);
 	addToArchive(saver, surface, "surface_terrain.json");
 
-	ResourceID undergroundPath(path+"underground_terrain.json");
+	auto undergroundPath = JsonPath::builtin(path+"underground_terrain.json");
 
     if(CResourceHandler::get()->existsResource(undergroundPath))
 	{
@@ -53,12 +53,12 @@ std::unique_ptr<CMap> MapServiceMock::loadMap() const
 	return res;
 }
 
-std::unique_ptr<CMap> MapServiceMock::loadMap(const ResourceID & name) const
+std::unique_ptr<CMap> MapServiceMock::loadMap(const ResourcePath & name) const
 {
 	return loadMap();
 }
 
-std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ResourceID & name) const
+std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ResourcePath & name) const
 {
 	initialBuffer.seek(0);
 	CMapLoaderJson initialLoader(&initialBuffer);

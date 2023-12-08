@@ -27,7 +27,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/NetPacksLobby.h"
 #include "../lib/serializer/Connection.h"
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
@@ -38,7 +37,9 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	if(pack.uuid == handler.c->uuid)
 	{
 		handler.c->connectionID = pack.clientId;
-		if(!settings["session"]["headless"].Bool())
+		if(handler.mapToStart)
+			handler.setMapInfo(handler.mapToStart);
+		else if(!settings["session"]["headless"].Bool())
 			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
 		handler.state = EClientState::LOBBY;
 	}
@@ -57,6 +58,9 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+		GH.windows().popWindow(w);
+	
 	if(GH.windows().count() > 0)
 		GH.windows().popWindows(1);
 }
@@ -68,7 +72,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & 
 		lobby->card->chat->addNewMessage(pack.playerName + ": " + pack.message);
 		lobby->card->setChat(true);
 		if(lobby->buttonChat)
-			lobby->buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
+			lobby->buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
 	}
 }
 
@@ -123,22 +127,38 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pac
 		handler.si = pack.initializedStartInfo;
 		handler.si->mode = modeBackup;
 	}
-	if(settings["session"]["headless"].Bool())
-		handler.startGameplay(pack.initializedGameState);
+	handler.startGameplay(pack.initializedGameState);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId != -1 && pack.clientId != handler.c->connectionID)
-		return;
-	
-	GH.windows().createAndPushWindow<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, &handler, pack.initializedGameState));
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	{
+		w->finish();
+		w->tick(0);
+		w->redraw();
+	}
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress & pack)
+{
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	{
+		w->set(pack.progress);
+		w->tick(0);
+		w->redraw();
+	}
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
 {
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
 	static_cast<LobbyState &>(handler) = pack.state;
+	if(handler.mapToStart && handler.mi)
+	{
+		handler.startMapAfterConnection(nullptr);
+		handler.sendStartGame();
+	}
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)

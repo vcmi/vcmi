@@ -44,13 +44,6 @@ public:
 	/// allows handler to do post-loading step for validation or integration of loaded data
 	virtual void afterLoadFinalization(){};
 
-	/**
-	 * Gets a list of objects that are allowed by default on maps
-	 *
-	 * @return a list of allowed objects, the index is the object id
-	 */
-	virtual std::vector<bool> getDefaultAllowed() const = 0;
-
 	virtual ~IHandlerBase(){}
 };
 
@@ -123,7 +116,7 @@ public:
 		if(index < 0 || index >= objects.size())
 		{
 			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
-			throw std::runtime_error("internal error");
+			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
 		}
 
 		return objects[index];

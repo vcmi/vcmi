@@ -19,6 +19,7 @@
 #include "VCMI_Lib.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "spells/CSpellHandler.h"
+#include "serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -50,8 +51,11 @@ void MetaString::appendRawString(const std::string & value)
 
 void MetaString::appendTextID(const std::string & value)
 {
-	message.push_back(EMessage::APPEND_TEXTID_STRING);
-	stringsTextID.push_back(value);
+	if (!value.empty())
+	{
+		message.push_back(EMessage::APPEND_TEXTID_STRING);
+		stringsTextID.push_back(value);
+	}
 }
 
 void MetaString::appendNumber(int64_t value)
@@ -101,7 +105,7 @@ void MetaString::clear()
 
 bool MetaString::empty() const
 {
-	return message.empty();
+	return message.empty() || toString().empty();
 }
 
 std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) const
@@ -111,74 +115,12 @@ std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) c
 
 	switch(type)
 	{
-		case EMetaText::ART_NAMES:
-		{
-			const auto * art = ArtifactID(ser).toArtifact(VLC->artifacts());
-			if(art)
-				return art->getNameTranslated();
-			return "#!#";
-		}
-		case EMetaText::ART_DESCR:
-		{
-			const auto * art = ArtifactID(ser).toArtifact(VLC->artifacts());
-			if(art)
-				return art->getDescriptionTranslated();
-			return "#!#";
-		}
-		case EMetaText::ART_EVNTS:
-		{
-			const auto * art = ArtifactID(ser).toArtifact(VLC->artifacts());
-			if(art)
-				return art->getEventTranslated();
-			return "#!#";
-		}
-		case EMetaText::CRE_PL_NAMES:
-		{
-			const auto * cre = CreatureID(ser).toCreature(VLC->creatures());
-			if(cre)
-				return cre->getNamePluralTranslated();
-			return "#!#";
-		}
-		case EMetaText::CRE_SING_NAMES:
-		{
-			const auto * cre = CreatureID(ser).toCreature(VLC->creatures());
-			if(cre)
-				return cre->getNameSingularTranslated();
-			return "#!#";
-		}
-		case EMetaText::MINE_NAMES:
-		{
-			return VLC->generaltexth->translate("core.minename", ser);
-		}
-		case EMetaText::MINE_EVNTS:
-		{
-			return VLC->generaltexth->translate("core.mineevnt", ser);
-		}
-		case EMetaText::SPELL_NAME:
-		{
-			const auto * spell = SpellID(ser).toSpell(VLC->spells());
-			if(spell)
-				return spell->getNameTranslated();
-			return "#!#";
-		}
-		case EMetaText::OBJ_NAMES:
-			return VLC->objtypeh->getObjectName(ser, 0);
-		case EMetaText::SEC_SKILL_NAME:
-			return VLC->skillh->getByIndex(ser)->getNameTranslated();
 		case EMetaText::GENERAL_TXT:
 			return VLC->generaltexth->translate("core.genrltxt", ser);
-		case EMetaText::RES_NAMES:
-			return VLC->generaltexth->translate("core.restypes", ser);
 		case EMetaText::ARRAY_TXT:
 			return VLC->generaltexth->translate("core.arraytxt", ser);
-		case EMetaText::CREGENS:
-			return VLC->objtypeh->getObjectName(Obj::CREATURE_GENERATOR1, ser);
-		case EMetaText::CREGENS4:
-			return VLC->objtypeh->getObjectName(Obj::CREATURE_GENERATOR4, ser);
 		case EMetaText::ADVOB_TXT:
 			return VLC->generaltexth->translate("core.advevent", ser);
-		case EMetaText::COLOR:
-			return VLC->generaltexth->translate("vcmi.capitalColors", ser);
 		case EMetaText::JK_TXT:
 			return VLC->generaltexth->translate("core.jktext", ser);
 		default:
@@ -286,20 +228,6 @@ DLL_LINKAGE std::string MetaString::buildList() const
 	return lista;
 }
 
-void MetaString::replaceCreatureName(const CreatureID & id, TQuantity count) //adds sing or plural name;
-{
-	if (count == 1)
-		replaceLocalString (EMetaText::CRE_SING_NAMES, id);
-	else
-		replaceLocalString (EMetaText::CRE_PL_NAMES, id);
-}
-
-void MetaString::replaceCreatureName(const CStackBasicDescriptor & stack)
-{
-	assert(stack.type); //valid type
-	replaceCreatureName(stack.type->getId(), stack.count);
-}
-
 bool MetaString::operator == (const MetaString & other) const
 {
 	return message == other.message && localStrings == other.localStrings && exactStrings == other.exactStrings && stringsTextID == other.stringsTextID && numbers == other.numbers;
@@ -383,6 +311,96 @@ void MetaString::jsonDeserialize(const JsonNode & source)
 
 	for (const auto & entry : source["numbers"].Vector() )
 		numbers.push_back(entry.Integer());
+}
+
+void MetaString::serializeJson(JsonSerializeFormat & handler)
+{
+	if(handler.saving)
+		jsonSerialize(const_cast<JsonNode&>(handler.getCurrent()));
+
+	if(!handler.saving)
+		jsonDeserialize(handler.getCurrent());
+}
+
+void MetaString::appendName(const SpellID & id)
+{
+	appendTextID(id.toEntity(VLC)->getNameTextID());
+}
+
+void MetaString::appendName(const PlayerColor & id)
+{
+	appendTextID(TextIdentifier("vcmi.capitalColors", id.getNum()).get());
+}
+
+void MetaString::appendName(const CreatureID & id, TQuantity count)
+{
+	if(count == 1)
+		appendNameSingular(id);
+	else
+		appendNamePlural(id);
+}
+
+void MetaString::appendNameSingular(const CreatureID & id)
+{
+	appendTextID(id.toEntity(VLC)->getNameSingularTextID());
+}
+
+void MetaString::appendNamePlural(const CreatureID & id)
+{
+	appendTextID(id.toEntity(VLC)->getNamePluralTextID());
+}
+
+void MetaString::replaceName(const ArtifactID & id)
+{
+	replaceTextID(id.toEntity(VLC)->getNameTextID());
+}
+
+void MetaString::replaceName(const MapObjectID& id)
+{
+	replaceTextID(VLC->objtypeh->getObjectName(id, 0));
+}
+
+void MetaString::replaceName(const PlayerColor & id)
+{
+	replaceTextID(TextIdentifier("vcmi.capitalColors", id.getNum()).get());
+}
+
+void MetaString::replaceName(const SecondarySkill & id)
+{
+	replaceTextID(VLC->skillh->getById(id)->getNameTextID());
+}
+
+void MetaString::replaceName(const SpellID & id)
+{
+	replaceTextID(id.toEntity(VLC)->getNameTextID());
+}
+
+void MetaString::replaceName(const GameResID& id)
+{
+	replaceTextID(TextIdentifier("core.restypes", id.getNum()).get());
+}
+
+void MetaString::replaceNameSingular(const CreatureID & id)
+{
+	replaceTextID(id.toEntity(VLC)->getNameSingularTextID());
+}
+
+void MetaString::replaceNamePlural(const CreatureID & id)
+{
+	replaceTextID(id.toEntity(VLC)->getNamePluralTextID());
+}
+
+void MetaString::replaceName(const CreatureID & id, TQuantity count) //adds sing or plural name;
+{
+	if(count == 1)
+		replaceNameSingular(id);
+	else
+		replaceNamePlural(id);
+}
+
+void MetaString::replaceName(const CStackBasicDescriptor & stack)
+{
+	replaceName(stack.type->getId(), stack.count);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -150,7 +150,7 @@ void FirstLaunchView::activateTabModPreset()
 
 void FirstLaunchView::exitSetup()
 {
-	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
+	if(auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow()))
 		mainWindow->exitSetup();
 }
 
@@ -160,7 +160,7 @@ void FirstLaunchView::languageSelected(const QString & selectedLanguage)
 	Settings node = settings.write["general"]["language"];
 	node->String() = selectedLanguage.toStdString();
 
-	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
+	if(auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow()))
 		mainWindow->updateTranslation();
 }
 
@@ -230,8 +230,8 @@ bool FirstLaunchView::heroesDataDetect()
 	CResourceHandler::load("config/filesystem.json");
 
 	// use file from lod archive to check presence of H3 data. Very rough estimate, but will work in majority of cases
-	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
-	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourceID("DATA/TENTCOLR.TXT"));
+	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
+	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
 
 	return heroesDataFoundROE && heroesDataFoundSOD;
 }
@@ -398,7 +398,7 @@ bool FirstLaunchView::checkCanInstallExtras()
 
 CModListView * FirstLaunchView::getModView()
 {
-	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+	auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow());
 
 	assert(mainWindow);
 	if (!mainWindow)

@@ -63,9 +63,25 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 
 	for(const si32 rawId : value)
 	{
-        JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
-        jsonElement.String() = encoder(rawId);
-        data.push_back(std::move(jsonElement));
+		JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
+		jsonElement.String() = encoder(rawId);
+		data.push_back(std::move(jsonElement));
+	}
+}
+
+void JsonSerializer::serializeInternal(const std::string & fieldName, std::vector<std::string> & value)
+{
+	if(value.empty())
+		return;
+
+	JsonVector & data = currentObject->operator[](fieldName).Vector();
+	data.reserve(value.size());
+
+	for(const auto & rawId : value)
+	{
+		JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
+		jsonElement.String() = rawId;
+		data.push_back(std::move(jsonElement));
 	}
 }
 
@@ -79,22 +95,12 @@ void JsonSerializer::serializeInternal(int64_t & value)
 	currentObject->Integer() = value;
 }
 
-void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)
+void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value)
 {
-	assert(standard.size() == value.size());
 	if(standard == value)
 		return;
 
 	writeLICPart(fieldName, "anyOf", encoder, value);
-}
-
-void JsonSerializer::serializeLIC(const std::string & fieldName, LIC & value)
-{
-	if(value.any != value.standard)
-		writeLICPart(fieldName, "anyOf", value.encoder, value.any);
-
-	writeLICPart(fieldName, "allOf", value.encoder, value.all);
-	writeLICPart(fieldName, "noneOf", value.encoder, value.none);
 }
 
 void JsonSerializer::serializeLIC(const std::string & fieldName, LICSet & value)

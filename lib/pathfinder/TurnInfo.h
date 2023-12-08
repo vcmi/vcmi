@@ -21,7 +21,7 @@ struct DLL_LINKAGE TurnInfo
 	/// This is certainly not the best design ever and certainly can be improved
 	/// Unfortunately for pathfinder that do hundreds of thousands calls onus system add too big overhead
 	struct BonusCache {
-		std::vector<bool> noTerrainPenalty;
+		std::set<TerrainId> noTerrainPenalty;
 		bool freeShipBoarding;
 		bool flyingMovement;
 		int flyingMovementVal;
@@ -42,8 +42,10 @@ struct DLL_LINKAGE TurnInfo
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
-	bool hasBonusOfType(const BonusType type, const int subtype = -1) const;
-	int valOfBonuses(const BonusType type, const int subtype = -1) const;
+	bool hasBonusOfType(const BonusType type) const;
+	bool hasBonusOfType(const BonusType type, const BonusSubtypeID subtype) const;
+	int valOfBonuses(const BonusType type) const;
+	int valOfBonuses(const BonusType type, const BonusSubtypeID subtype) const;
 	void updateHeroBonuses(BonusType type, const CSelector& sel) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };

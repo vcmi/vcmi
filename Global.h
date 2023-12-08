@@ -108,6 +108,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <cassert>
 #include <climits>
 #include <cmath>
+#include <codecvt>
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
@@ -121,6 +122,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <optional>
 #include <queue>
 #include <random>
+#include <regex>
 #include <set>
 #include <sstream>
 #include <string>
@@ -146,11 +148,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_ASIO_ENABLE_OLD_SERVICES
 #endif
 
+#include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/crc.hpp>
 #include <boost/current_function.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/date_time/posix_time/time_formatters.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/path.hpp>
@@ -165,7 +168,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
-#include <boost/thread.hpp>
+#include <boost/thread/thread_only.hpp>
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/once.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -458,6 +464,19 @@ namespace vstd
 
 	template<typename Elem, typename Predicate>
 	void erase_if(std::set<Elem> &setContainer, Predicate pred)
+	{
+		auto itr = setContainer.begin();
+		auto endItr = setContainer.end();
+		while(itr != endItr)
+		{
+			auto tmpItr = itr++;
+			if(pred(*tmpItr))
+				setContainer.erase(tmpItr);
+		}
+	}
+
+	template<typename Elem, typename Predicate>
+	void erase_if(std::unordered_set<Elem> &setContainer, Predicate pred)
 	{
 		auto itr = setContainer.begin();
 		auto endItr = setContainer.end();

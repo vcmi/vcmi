@@ -21,7 +21,11 @@
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
+#include "../render/EFont.h"
 #include "../renderSDL/ScreenHandler.h"
+#include "../renderSDL/RenderHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -33,7 +37,7 @@
 
 CGuiHandler GH;
 
-boost::thread_specific_ptr<bool> inGuiThread;
+static thread_local bool inGuiThread = false;
 
 SObjectConstruction::SObjectConstruction(CIntObject *obj)
 :myObj(obj)
@@ -66,10 +70,13 @@ SSetCaptureState::~SSetCaptureState()
 
 void CGuiHandler::init()
 {
+	inGuiThread = true;
+
 	inputHandlerInstance = std::make_unique<InputHandler>();
 	eventDispatcherInstance = std::make_unique<EventDispatcher>();
 	windowHandlerInstance = std::make_unique<WindowHandler>();
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
+	renderHandlerInstance = std::make_unique<RenderHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
 }
@@ -88,8 +95,6 @@ void CGuiHandler::handleEvents()
 void CGuiHandler::fakeMouseMove()
 {
 	dispatchMainThread([](){
-		assert(CPlayerInterface::pim);
-		boost::unique_lock lock(*CPlayerInterface::pim);
 		GH.events().dispatchMouseMoved(Point(0, 0), GH.getCursorPosition());
 	});
 }
@@ -106,39 +111,30 @@ void CGuiHandler::stopTextInput()
 
 void CGuiHandler::renderFrame()
 {
-	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
-	// During game:
-	// When ending the game, the pim mutex might be hold by other thread,
-	// that will notify us about the ending game by setting terminate_cond flag.
-	//in PreGame terminate_cond stay false
-
-	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
-	while(!terminate_cond->get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-
-	if(acquiredTheLockOnPim)
 	{
-		// If we are here, pim mutex has been successfully locked - let's store it in a safe RAII lock.
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim, boost::adopt_lock);
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-		if(nullptr != curInt)
+		if (nullptr != curInt)
 			curInt->update();
 
-		if(settings["video"]["showfps"].Bool())
+		if (settings["video"]["showfps"].Bool())
 			drawFPSCounter();
+	}
 
-		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
 
-		SDL_RenderClear(mainRenderer);
-		SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+
+	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 		CCS->curh->render();
-
-		SDL_RenderPresent(mainRenderer);
 
 		windows().onFrameRendered();
 	}
 
+	SDL_RenderPresent(mainRenderer);
 	framerate().framerateDelay(); // holds a constant FPS
 }
 
@@ -147,14 +143,10 @@ CGuiHandler::CGuiHandler()
 	, captureChildren(false)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
-	, terminate_cond (new CondSh<bool>(false))
 {
 }
 
-CGuiHandler::~CGuiHandler()
-{
-	delete terminate_cond;
-}
+CGuiHandler::~CGuiHandler() = default;
 
 ShortcutHandler & CGuiHandler::shortcuts()
 {
@@ -195,16 +187,22 @@ Point CGuiHandler::screenDimensions() const
 
 void CGuiHandler::drawFPSCounter()
 {
-	static SDL_Rect overlay = { 0, 0, 64, 32};
+	int x = 7;
+	int y = screen->h-20;
+	int width3digitFPSIncludingPadding = 48;
+	int heightFPSTextIncludingPadding = 11;
+	static SDL_Rect overlay = { x, y, width3digitFPSIncludingPadding, heightFPSTextIncludingPadding};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
-	std::string fps = std::to_string(framerate().getFramerate());
-	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(10, 10));
+
+	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
+
+	graphics->fonts[FONT_SMALL]->renderTextLeft(screen, fps, Colors::WHITE, Point(8, screen->h-22));
 }
 
 bool CGuiHandler::amIGuiThread()
 {
-	return inGuiThread.get() && *inGuiThread;
+	return inGuiThread;
 }
 
 void CGuiHandler::dispatchMainThread(const std::function<void()> & functor)
@@ -215,6 +213,11 @@ void CGuiHandler::dispatchMainThread(const std::function<void()> & functor)
 IScreenHandler & CGuiHandler::screenHandler()
 {
 	return *screenHandlerInstance;
+}
+
+IRenderHandler & CGuiHandler::renderHandler()
+{
+	return *renderHandlerInstance;
 }
 
 EventDispatcher & CGuiHandler::events()

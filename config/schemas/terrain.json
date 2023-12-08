@@ -22,7 +22,7 @@
 			"description" : "Type of this terrain. Can be land, water, subterranean or rock",
 			"items" :
 			{
-				"enum" : ["LAND", "WATER", "SUB", "ROCK", "SURFACE"],
+				"enum" : ["WATER", "SUB", "ROCK", "SURFACE"],
 				"type" : "string"
 			}
 		},
@@ -67,7 +67,7 @@
 		"battleFields" :
 		{
 			"type" : "array",
-			"description" : "array of battleFields for this terrain",
+			"description" : "List of battleFields that can be used on this terrain",
 			"items" :
 			{
 				"type" : "string"
@@ -76,7 +76,7 @@
 		"minimapUnblocked" :
 		{
 			"type" : "array",
-			"description" : "Color of terrain on minimap without unpassable objects",
+			"description" : "Color of terrain on minimap without unpassable objects. RGB triplet, 0-255 range",
 			"minItems" : 3,
 			"maxItems" : 3,
 			"items" :
@@ -87,7 +87,7 @@
 		"minimapBlocked" :
 		{
 			"type" : "array",
-			"description" : "Color of terrain on minimap with unpassable objects",
+			"description" : "Color of terrain on minimap with unpassable objects. RGB triplet, 0-255 range",
 			"minItems" : 3,
 			"maxItems" : 3,
 			"items" :
@@ -104,14 +104,14 @@
 		"sounds" :
 		{
 			"type" : "object",
-			"description" : "list of sounds for this terrain",
+			"description" : "List of sounds for this terrain",
 			"additionalProperties" : false,
 			"properties" :
 			{
 				"ambient" : 
 				{
 					"type" : "array",
-					"description" : "list of ambient sounds for this terrain",
+					"description" : "List of ambient sounds for this terrain",
 					"items" :
 					{
 						"type" : "string",
@@ -135,7 +135,7 @@
 		"prohibitTransitions" :
 		{
 			"type" : "array",
-			"description" : "array or terrain names, which is prohibited to make transition from/to",
+			"description" : "List or terrain names, which is prohibited to make transition from/to",
 			"items" :
 			{
 				"type" : "string"
@@ -149,7 +149,7 @@
 		"terrainViewPatterns" :
 		{
 			"type" : "string",
-			"description" : "Can be normal, dirt, water, rock"
+			"description" : "Represents layout of tile orientations in terrain tiles file"
 		},
 		"index" :
 		{

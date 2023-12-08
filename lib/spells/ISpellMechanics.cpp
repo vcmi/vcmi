@@ -36,7 +36,6 @@
 #include "effects/Timed.h"
 
 #include "CSpellHandler.h"
-#include "../NetPacks.h"
 
 #include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove
@@ -468,7 +467,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	return false;
 }
 
-bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const
+bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) const
 {
 	if(source == ESpellCastProblem::OK)
 		return true;
@@ -490,11 +489,11 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
 				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
-				text.replaceLocalString(EMetaText::ART_NAMES, b->sid);
+				text.replaceName(b->sid.as<ArtifactID>());
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
+			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
 			{
 				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);
@@ -620,18 +619,6 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 	return owner->calculateRawEffectValue(getEffectLevel(), basePowerMultiplier, levelPowerMultiplier);
 }
 
-std::vector<BonusType> BaseMechanics::getElementalImmunity() const
-{
-	std::vector<BonusType> ret;
-
-	owner->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
-	{
-		ret.push_back(cnf.immunityBonus);
-	});
-
-	return ret;
-}
-
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
     return ownerMatches(unit, owner->getPositiveness());
@@ -730,7 +717,7 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch (s->id)
+	switch(s->id.toEnum())
 	{
 	case SpellID::SUMMON_BOAT:
 		return std::make_unique<SummonBoatMechanics>(s);
@@ -750,7 +737,7 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 	case SpellID::VIEW_AIR:
 		return std::make_unique<ViewAirMechanics>(s);
 	default:
-		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
+		return s->isCombat() ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
 	}
 }
 

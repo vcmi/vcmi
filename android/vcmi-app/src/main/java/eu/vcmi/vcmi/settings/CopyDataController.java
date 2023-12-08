@@ -127,9 +127,21 @@ public class CopyDataController extends LauncherSettingController<Void, Void>
 
             for (DocumentFile child : sourceDir.listFiles())
             {
-                if (allowed != null && !allowed.contains(child.getName()))
+                if (allowed != null)
                 {
-                    continue;
+                    boolean fileAllowed = false;
+                    
+                    for (String str : allowed)
+                    {
+                        if (str.equalsIgnoreCase(child.getName()))
+                        {
+                            fileAllowed = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!fileAllowed)
+                        continue;
                 }
 
                 File exported = new File(targetDir, child.getName());

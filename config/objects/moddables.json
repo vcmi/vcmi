@@ -8,6 +8,7 @@
 		"index" :5, 
 		"handler": "artifact",
 		"base" : {
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VV", "VA"]
@@ -25,6 +26,7 @@
 		"handler": "hero",
 		"base" : {
 			"aiValue" : 7500,
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VVV", "VAV"]
@@ -40,6 +42,7 @@
 		"index" :54,
 		"handler": "monster",
 		"base" : {
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VV", "VA"]
@@ -55,6 +58,7 @@
 		"index" :76,
 		"handler": "randomResource",
 		"base" : {
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VA" ]
@@ -85,6 +89,7 @@
 		"handler": "resource",
 		"lastReservedIndex" : 6,
 		"base" : {
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VA" ]
@@ -138,6 +143,7 @@
 		"lastReservedIndex" : 2,
 		"base" : {
 			"aiValue" : 0,
+			"removable": true,
 			"layer" : "sail",
 			"onboardAssaultAllowed" : true,
 			"onboardVisitAllowed" : true,
@@ -175,6 +181,7 @@
 		"lastReservedIndex" : 7,
 		"base" : {
 			"aiValue" : 0,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -252,23 +259,6 @@
 			"0" :	{ "index" : 0 },
 			"1" :	{ "index" : 1 },
 			"2" :	{ "index" : 2 }
-		}
-	},
-
-	// subtype: different revealed areas
-	"cartographer" : {
-		"index" :13,
-		"handler": "cartographer",
-		"lastReservedIndex" : 2,
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"water" : { "index" : 0, "aiValue" : 5000, "rmg" : { "zoneLimit" : 1,  "value" : 5000, "rarity" : 20 } },
-			"land" : { "index" : 1, "aiValue": 10000, "rmg" : { "zoneLimit" : 1,  "value" : 10000, "rarity" : 20 } },
-			"subterra" : { "index" : 2, "aiValue" : 7500, "rmg" : { "zoneLimit" : 1,  "value" : 7500, "rarity" : 20 } }
 		}
 	},
 
