@@ -37,6 +37,7 @@ class PlayerMessageProcessor
 	void cheatVictory(PlayerColor player);
 	void cheatDefeat(PlayerColor player);
 	void cheatMapReveal(PlayerColor player, bool reveal);
+	void cheatPuzzleReveal(PlayerColor player);
 
 public:
 	CGameHandler * gameHandler;

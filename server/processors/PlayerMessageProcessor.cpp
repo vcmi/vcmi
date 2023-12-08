@@ -24,6 +24,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 
@@ -365,6 +366,23 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 	gameHandler->sendAndApply(&fc);
 }
 
+void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
+{
+	TeamState *t = gameHandler->gameState()->getPlayerTeam(player);
+
+	for(auto & obj : gameHandler->gameState()->map->objects)
+	{
+		if(obj->ID == Obj::OBELISK)
+		{
+			gameHandler->setObjPropertyID(obj->id, ObjProperty::OBELISK_VISITED, t->id);
+			for(const auto & color : t->players)
+			{
+				gameHandler->setObjPropertyID(obj->id, ObjProperty::VISITED, color);
+			}
+		}
+	}
+}
+
 bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerColor player, ObjectInstanceID currObj)
 {
 	std::vector<std::string> words;
@@ -383,7 +401,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcmimelkor",    "vcmilose",      "nwcbluepill",
 		"vcmisilmaril",  "vcmiwin",       "nwcredpill",
 		"vcmieagles",    "vcmimap",       "nwcwhatisthematrix",
-		"vcmiungoliant", "vcmihidemap",   "nwcignoranceisbliss"
+		"vcmiungoliant", "vcmihidemap",   "nwcignoranceisbliss",
+		"nwcoracle"
 	};
 	std::vector<std::string> heroTargetedCheats = {
 		"vcmiainur",             "vcmiarchangel",   "nwctrinity",
@@ -469,11 +488,11 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatDefeat = [&]() { cheatDefeat(player); };
 	const auto & doCheatMapReveal = [&]() { cheatMapReveal(player, true); };
 	const auto & doCheatMapHide = [&]() { cheatMapReveal(player, false); };
+	const auto & doCheatRevealPuzzle = [&]() { cheatPuzzleReveal(player); };
 
 	// Unimplemented H3 cheats:
 	// nwcfollowthewhiterabbit - The currently selected hero permanently gains maximum luck.
 	// nwcmorpheus - The currently selected hero permanently gains maximum morale.
-	// nwcoracle - The puzzle map is permanently revealed.
 	// nwcphisherprice - Changes and brightens the game colors.
 
 	std::map<std::string, std::function<void()>> callbacks = {
@@ -523,6 +542,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"vcmiungoliant",         doCheatMapHide        },
 		{"vcmihidemap",           doCheatMapHide        },
 		{"nwcignoranceisbliss",   doCheatMapHide        },
+		{"nwcoracle",             doCheatRevealPuzzle   },
 	};
 
 	assert(callbacks.count(cheatName));

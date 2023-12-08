@@ -57,6 +57,10 @@ Alternative usage: `vcmilevel <amount>` - advances hero by specified number of l
 - `vcmiolorin` or `vcmiexp` - gives selected hero 10000 experience
 Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of experience
 
+### Puzzle map
+
+`nwcoracle` - reveals the puzzle map
+
 ### Finishing the game
 
 `nwcredpill` or `vcmisilmaril` or `vcmiwin` - player wins  
