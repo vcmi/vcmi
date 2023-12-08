@@ -576,7 +576,8 @@
 				"compactTownCreatureInfo",
 				"infoBarPick",
 				"skipBattleIntroMusic",
-				"infoBarCreatureManagement"
+				"infoBarCreatureManagement",
+				"enableLargeSpellbook"
 			],
 			"properties" : {
 				"showGrid" : {
@@ -610,6 +611,10 @@
 				"infoBarCreatureManagement": {
 					"type" : "boolean",
 					"default" : false
+				},
+				"enableLargeSpellbook" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		}

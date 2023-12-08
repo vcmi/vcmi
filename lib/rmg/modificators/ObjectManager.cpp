@@ -546,8 +546,12 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		objects.push_back(&instance->object());
 		if(auto * m = zone.getModificator<RoadPlacer>())
 		{
-			//FIXME: Objects that can be removed, can be trespassed. Does not include Corpse
-			if(instance->object().appearance->isVisitableFromTop())
+			if (instance->object().blockVisit && !instance->object().removable)
+			{
+				//Cannot be trespassed (Corpse)
+				continue;
+			}
+			else if(instance->object().appearance->isVisitableFromTop())
 				m->areaForRoads().add(instance->getVisitablePosition());
 			else
 			{
@@ -664,7 +668,19 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	if(!guard)
 		return false;
 	
-	rmg::Area visitablePos({object.getVisitablePosition()});
+	// Prefer non-blocking tiles, if any
+	auto entrableTiles = object.getEntrableArea().getTiles();
+	int3 entrableTile(-1, -1, -1);
+	if (entrableTiles.empty())
+	{
+		entrableTile = object.getVisitablePosition();
+	}
+	else
+	{
+		entrableTile = *RandomGeneratorUtil::nextItem(entrableTiles, zone.getRand());
+	}
+
+	rmg::Area visitablePos({entrableTile});
 	visitablePos.unite(visitablePos.getBorderOutside());
 	
 	auto accessibleArea = object.getAccessibleArea();

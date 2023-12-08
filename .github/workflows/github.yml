@@ -84,6 +84,7 @@ jobs:
             os: macos-12
             test: 0
             pack: 1
+            pack_type: Release
             extension: dmg
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
@@ -93,6 +94,7 @@ jobs:
             os: macos-12
             test: 0
             pack: 1
+            pack_type: Release
             extension: dmg
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
@@ -102,6 +104,7 @@ jobs:
             os: macos-12
             test: 0
             pack: 1
+            pack_type: Release
             extension: ipa
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
@@ -110,12 +113,14 @@ jobs:
             os: windows-latest
             test: 0
             pack: 1
+            pack_type: RelWithDebInfo
             extension: exe
             preset: windows-msvc-release-ccache
           - platform: mingw-ubuntu
             os: ubuntu-22.04
             test: 0
             pack: 1
+            pack_type: Release
             extension: exe
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             cmake_args: -G Ninja
@@ -246,7 +251,7 @@ jobs:
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
-        "$CPACK_PATH" -C ${{env.BUILD_TYPE}} ${{ matrix.cpack_args }}
+        "$CPACK_PATH" -C ${{matrix.pack_type}} ${{ matrix.cpack_args }}
         test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
@@ -279,6 +284,14 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+          
+    - name: Symbols
+      if: ${{ matrix.platform == 'msvc' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
+        path: |
+            ${{github.workspace}}/**/*.pdb
 
     - name: Android JNI ${{matrix.platform}}
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}

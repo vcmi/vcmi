@@ -162,6 +162,11 @@ GeneralOptionsTab::GeneralOptionsTab()
 		setBoolSetting("general", "enableUiEnhancements", value);
 	});
 
+	addCallback("enableLargeSpellbookChanged", [](bool value)
+	{
+		setBoolSetting("gameTweaks", "enableLargeSpellbook", value);
+	});
+
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
 	{
@@ -205,6 +210,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CToggleButton> enableUiEnhancementsCheckbox = widget<CToggleButton>("enableUiEnhancementsCheckbox");
 	if (enableUiEnhancementsCheckbox)
 		enableUiEnhancementsCheckbox->setSelected(settings["general"]["enableUiEnhancements"].Bool());
+
+	std::shared_ptr<CToggleButton> enableLargeSpellbookCheckbox = widget<CToggleButton>("enableLargeSpellbookCheckbox");
+	if (enableLargeSpellbookCheckbox)
+		enableLargeSpellbookCheckbox->setSelected(settings["gameTweaks"]["enableLargeSpellbook"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());

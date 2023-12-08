@@ -72,6 +72,7 @@ void Catapult::applyMassive(ServerCallback * server, const Mechanics * m) const
 		return;
 
 	CatapultAttack ca;
+	ca.battleID = m->battle()->getBattle()->getBattleID();
 	ca.attacker = m->caster->getHeroCaster() ? -1 : m->caster->getCasterUnitId();
 
 	for(int i = 0; i < targetsToAttack; i++)

@@ -42,8 +42,6 @@ void ObjectDistributor::init()
 
 void ObjectDistributor::distributeLimitedObjects()
 {
-	//FIXME: Must be called after TerrainPainter::process()
-
 	ObjectInfo oi;
 	auto zones = map.getZones();
 
@@ -77,6 +75,8 @@ void ObjectDistributor::distributeLimitedObjects()
 
 					auto rmgInfo = handler->getRMGInfo();
 
+					// FIXME: Random order of distribution
+					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
 					{
 						oi.generateObject = [primaryID, secondaryID]() -> CGObjectInstance *

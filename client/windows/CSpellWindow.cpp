@@ -97,13 +97,13 @@ public:
 } spellsorter;
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
-	CWindowObject(PLAYER_COLORED | (settings["general"]["enableUiEnhancements"].Bool() ? BORDERED : 0)),
+	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
 	myHero(_myHero),
 	myInt(_myInt),
-	isBigSpellbook(settings["general"]["enableUiEnhancements"].Bool()),
+	isBigSpellbook(settings["gameTweaks"]["enableLargeSpellbook"].Bool()),
 	spellsPerPage(24),
 	offL(-11),
 	offR(195),
@@ -449,8 +449,16 @@ void CSpellWindow::setCurrentPage(int value)
 	schoolPicture->visible = selectedTab!=4 && currentPage == 0;
 	if(selectedTab != 4)
 		schoolPicture->setFrame(selectedTab, 0);
-	leftCorner->visible = currentPage != 0;
-	rightCorner->visible = (currentPage+1) < pagesWithinCurrentTab();
+
+	if (currentPage != 0)
+		leftCorner->enable();
+	else
+		leftCorner->disable();
+
+	if (currentPage + 1 < pagesWithinCurrentTab())
+		rightCorner->enable();
+	else
+		rightCorner->disable();
 
 	mana->setText(std::to_string(myHero->mana));//just in case, it will be possible to cast spell without closing book
 }
@@ -648,7 +656,14 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 
 		{
 			OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-			schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool.getNum() : owner->selectedTab], schoolLevel);
+			schoolBorder.reset();
+			if (owner->selectedTab >= 4)
+			{
+				if (whichSchool.getNum() != SpellSchool())
+					schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders.at(whichSchool.getNum()), schoolLevel);
+			}
+			else
+				schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders.at(owner->selectedTab), schoolLevel);
 		}
 
 		ColorRGBA firstLineColor, secondLineColor;

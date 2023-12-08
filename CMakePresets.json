@@ -327,8 +327,7 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
-            "inherits": "default-release",
-            "configuration": "Release"
+            "inherits": "default-release"
         },
         {
             "name": "windows-msvc-release-ccache",

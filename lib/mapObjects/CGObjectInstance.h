@@ -54,6 +54,7 @@ public:
 	int3 getSightCenter() const;
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
+	bool removable;
 
 	PlayerColor getOwner() const override
 	{
@@ -84,6 +85,9 @@ public:
 
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	virtual bool isBlockedVisitable() const;
+
+	// If true, can be possibly removed from the map
+	virtual bool isRemovable() const;
 
 	/// If true this object can be visited by hero standing on the coast
 	virtual bool isCoastVisitable() const;
@@ -144,6 +148,7 @@ public:
 		h & id;
 		h & tempOwner;
 		h & blockVisit;
+		h & removable;
 		h & appearance;
 		//definfo is handled by map serializer
 	}

@@ -432,6 +432,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 
 	selectionImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 1);
 	selectionImage->disable();
+	selectionImage->center(creatureImage->pos.center());
 
 	if(Owner->smallIcons)
 	{

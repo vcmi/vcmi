@@ -441,7 +441,10 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		if(auto iw = GH.windows().topWindow<CInfoWindow>())
 			iw->close();
 
-		hotkeyEndingTurn();
+		GH.dispatchMainThread([this]()
+		{
+			hotkeyEndingTurn();
+		});
 	}
 }
 

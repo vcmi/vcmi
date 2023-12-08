@@ -150,7 +150,9 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 	if(!text->slider)
 	{
-		text->resize(text->label->textSize);
+		int finalWidth = std::min(250, text->label->textSize.x + 32);
+		int finalHeight = text->label->textSize.y;
+		text->resize(Point(finalWidth, finalHeight));
 	}
 
 	if(buttons.size() == 1)

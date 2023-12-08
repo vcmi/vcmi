@@ -120,6 +120,10 @@ SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
 
 std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWidth, EFonts font )
 {
+	assert(maxLineWidth != 0);
+	if (maxLineWidth == 0)
+		return { text };
+
 	std::vector<std::string> ret;
 
 	boost::algorithm::trim_right_if(text,boost::algorithm::is_any_of(std::string(" ")));

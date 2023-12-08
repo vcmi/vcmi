@@ -51,6 +51,9 @@
 					"text": "vcmi.systemOptions.framerateButton.hover"
 				},
 				{
+					"text": "vcmi.systemOptions.enableLargeSpellbookButton.hover"
+				},
+				{
 					"text": "core.genrltxt.577"
 				},
 				{
@@ -101,6 +104,11 @@
 					"name": "framerateCheckbox",
 					"help": "vcmi.systemOptions.framerateButton",
 					"callback": "framerateChanged"
+				},
+				{
+					"name": "enableLargeSpellbookCheckbox",
+					"help": "vcmi.systemOptions.enableLargeSpellbookButton",
+					"callback": "enableLargeSpellbookChanged"
 				},
 				{
 					"name": "spellbookAnimationCheckbox",

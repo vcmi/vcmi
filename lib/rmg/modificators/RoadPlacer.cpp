@@ -85,7 +85,7 @@ bool RoadPlacer::createRoad(const int3 & dst)
 			{
 				if(areaIsolated().contains(dst) || areaIsolated().contains(src))
 				{
-					return 1e30;
+					return 1e12;
 				}
 			}
 			else

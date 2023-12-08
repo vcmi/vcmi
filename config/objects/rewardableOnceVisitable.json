@@ -41,6 +41,7 @@
 		"index" : 22,
 		"handler": "configurable",
 		"base" : {
+			"blockedVisitable" : true,
 			"sounds" : {
 				"visit" : ["MYSTERY"]
 			}
@@ -54,9 +55,7 @@
 					"rarity"	: 100
 				},
 				"compatibilityIdentifiers" : [ "object" ],
-
 				"onVisitedMessage" : 38,
-				"blockedVisitable" : true,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [

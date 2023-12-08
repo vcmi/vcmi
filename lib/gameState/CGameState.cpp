@@ -784,7 +784,7 @@ void CGameState::initTowns()
 		CGTownInstance * vti =(elem);
 		assert(vti->town);
 
-		if(vti->getNameTranslated().empty())
+		if(vti->getNameTextID().empty())
 		{
 			size_t nameID = getRandomGenerator().nextInt(vti->getTown()->getRandomNamesCount() - 1);
 			vti->setNameTextId(vti->getTown()->getRandomNameTextID(nameID));
@@ -1797,12 +1797,6 @@ void CGameState::buildBonusSystemTree()
 	{
 		t->deserializationFix();
 	}
-	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact
-	// are provided on initializing / deserializing
-
-	// NOTE: calling deserializationFix() might be more correct option, but might lead to side effects
-	for (auto hero : map->heroesOnMap)
-		hero->boatDeserializationFix();
 }
 
 void CGameState::deserializationFix()

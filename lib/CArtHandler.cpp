@@ -474,9 +474,6 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 			// Necessary for objects added via mods that don't have any templates in H3
 			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(templ);
 		}
-		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
-		if(VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, art->getIndex());
 	});
 
 	return art;

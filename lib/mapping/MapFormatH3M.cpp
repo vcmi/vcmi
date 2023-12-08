@@ -171,7 +171,7 @@ void CMapLoaderH3M::readHeader()
 		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
 	if (features.levelHOTA0)
 		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
-	
+
 	reader->setIdentifierRemapper(identifierMapper);
 
 	// include basic mod
@@ -898,7 +898,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
-		logGlobal->debug("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getNameTranslated(), hero->pos.toString());
+		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroType().getNum(), hero->pos.toString());
 
 		hero->artifactsInBackpack.clear();
 		while(!hero->artifactsWorn.empty())
@@ -1035,7 +1035,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	readMessageAndGuards(object->message, object, mapPosition);
 	Rewardable::VisitInfo vinfo;
 	auto & reward = vinfo.reward;
-	
+
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
 	if(auto val = reader->readUInt8())
@@ -1052,7 +1052,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	{
 		auto rId = reader->readSkill();
 		auto rVal = reader->readUInt8();
-		
+
 		reward.secondary[rId] = rVal;
 	}
 	int gart = reader->readUInt8(); //number of gained artifacts
@@ -1068,13 +1068,13 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	{
 		auto rId = reader->readCreature();
 		auto rVal = reader->readUInt16();
-		
+
 		reward.creatures.emplace_back(rId, rVal);
 	}
-	
+
 	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	object->configuration.info.push_back(vinfo);
-	
+
 	reader->skipZero(8);
 }
 
@@ -1162,18 +1162,24 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 					allowedAbilities.insert(SecondarySkill(skillID));
 		}
 
-		JsonVector anyOfList;
-
-		for (auto const & skill : allowedAbilities)
-		{
-			JsonNode entry;
-			entry.String() = VLC->skills()->getById(skill)->getJsonKey();
-			anyOfList.push_back(entry);
-		}
 		JsonNode variable;
-		variable["anyOf"].Vector() = anyOfList;
-		variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
+		if (allowedAbilities.size() == 1)
+		{
+			variable.String() = VLC->skills()->getById(*allowedAbilities.begin())->getJsonKey();
+		}
+		else
+		{
+			JsonVector anyOfList;
+			for (auto const & skill : allowedAbilities)
+			{
+				JsonNode entry;
+				entry.String() = VLC->skills()->getById(skill)->getJsonKey();
+				anyOfList.push_back(entry);
+			}
+			variable["anyOf"].Vector() = anyOfList;
+		}
 
+		variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
 		rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 	}
 	return object;
@@ -1846,7 +1852,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->debug("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTranslated(), object->subID );
+				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroType().getNum() );
 				for(const auto & b : *ps)
 					object->removeBonus(b);
 			}
@@ -2002,7 +2008,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			{
 				auto rId = reader->readUInt8();
 				auto rVal = reader->readUInt8();
-				
+
 				reward.primary.at(rId) = rVal;
 				break;
 			}
@@ -2010,7 +2016,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			{
 				auto rId = reader->readSkill();
 				auto rVal = reader->readUInt8();
-				
+
 				reward.secondary[rId] = rVal;
 				break;
 			}
@@ -2028,7 +2034,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			{
 				auto rId = reader->readCreature();
 				auto rVal = reader->readUInt16();
-				
+
 				reward.creatures.emplace_back(rId, rVal);
 				break;
 			}
@@ -2037,7 +2043,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 				assert(0);
 			}
 		}
-		
+
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 		hut->configuration.info.push_back(vinfo);
 	}

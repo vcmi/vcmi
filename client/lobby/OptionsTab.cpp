@@ -42,8 +42,16 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 
+static JsonPath optionsTabConfigLocation()
+{
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		return JsonPath::builtin("config/widgets/playerOptionsTab.json");
+	else
+		return JsonPath::builtin("config/widgets/advancedOptionsTab.json");
+}
+
 OptionsTab::OptionsTab()
-	: OptionsTabBase(JsonPath::builtin("config/widgets/playerOptionsTab.json"))
+	: OptionsTabBase(optionsTabConfigLocation())
 	, humanPlayers(0)
 {
 }
@@ -190,7 +198,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 					return CGI->generaltexth->allTexts[522];
 
 			if(!playerSettings.heroNameTextId.empty())
-				return playerSettings.heroNameTextId;
+				return CGI->generaltexth->translate(playerSettings.heroNameTextId);
 			auto index = playerSettings.getHeroValidated();
 			return (*CGI->heroh)[index]->getNameTranslated();
 		}

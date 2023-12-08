@@ -32,17 +32,18 @@ class ComboBox : public CButton
 		friend struct Item;
 		
 	public:
-		DropDown(const JsonNode &, ComboBox &);
+		DropDown(const JsonNode &, ComboBox &, Point dropDownPosition);
 		
 		bool receiveEvent(const Point & position, int eventType) const override;
 		void clickPressed(const Point & cursorPosition) override;
 		void setItem(const void *);
+
+		void updateListItems();
 			
 	private:
 		std::shared_ptr<DropDown::Item> buildItem(const JsonNode & config);
 		
 		void sliderMove(int slidPos);
-		void updateListItems();
 		
 		ComboBox & comboBox;
 		std::vector<std::shared_ptr<Item>> items;
@@ -54,7 +55,7 @@ class ComboBox : public CButton
 	void setItem(const void *);
 
 public:
-	ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, EShortcut key = {}, bool playerColoredButton = false);
+	ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, Point dropDownPosition, EShortcut key = {}, bool playerColoredButton = false);
 	
 	//define this callback to fill input vector with data for the combo box
 	std::function<void(std::vector<const void *> &)> onConstructItems;
@@ -66,4 +67,6 @@ public:
 	std::function<std::string(int, const void *)> getItemText;
 	
 	void setItem(int id);
+
+	void updateListItems();
 };

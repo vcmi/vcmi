@@ -221,10 +221,16 @@ int CConnection::read(void * data, unsigned size)
 
 CConnection::~CConnection()
 {
-	if(handler)
-		handler->join();
-
 	close();
+
+	if(handler)
+	{
+		// ugly workaround to avoid self-join if last strong reference to shared_ptr that owns this class has been released in this very thread, e.g. on netpack processing
+		if (boost::this_thread::get_id() != handler->get_id())
+			handler->join();
+		else
+			handler->detach();
+	}
 }
 
 template<class T>
@@ -240,6 +246,15 @@ void CConnection::close()
 {
 	if(socket)
 	{
+		try
+		{
+			socket->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
+		}
+		catch (const boost::system::system_error & e)
+		{
+			logNetwork->error("error closing socket: %s", e.what());
+		}
+
 		socket->close();
 		socket.reset();
 	}

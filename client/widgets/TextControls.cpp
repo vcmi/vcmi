@@ -376,6 +376,7 @@ void CTextBox::setText(const std::string & text)
 	{
 		// decrease width again if slider still used
 		label->pos.w = pos.w - 32;
+		assert(label->pos.w > 0);
 		label->setText(text);
 		slider->setAmount(label->textSize.y);
 	}
@@ -383,6 +384,7 @@ void CTextBox::setText(const std::string & text)
 	{
 		// create slider and update widget
 		label->pos.w = pos.w - 32;
+		assert(label->pos.w > 0);
 		label->setText(text);
 
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);

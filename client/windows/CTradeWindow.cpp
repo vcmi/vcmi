@@ -137,7 +137,23 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 {
 	std::vector<int> *ids = nullptr;
 
-	if(!Left)
+	if(Left)
+	{
+		switch(itemsType[1])
+		{
+		case CREATURE:
+			ids = new std::vector<int>;
+			for(int i = 0; i < 7; i++)
+			{
+				if(const CCreature *c = hero->getCreature(SlotID(i)))
+					ids->push_back(c->getId());
+				else
+					ids->push_back(-1);
+			}
+			break;
+		}
+	}
+	else
 	{
 		switch(itemsType[0])
 		{
