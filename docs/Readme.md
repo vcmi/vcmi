@@ -6,6 +6,13 @@
 
 VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities.
 
+<p>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Antagarich%20Burning%20Battle.jpg?raw=true" alt="Forge Town in battle" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Town%20and%20Unit.jpg?raw=true" alt="Asylum town with new creature dialog" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Quick%20Hero%20Select%20Bastion.jpg?raw=true" alt="Bastion Heroes" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Editor.jpg?raw=true" alt="Map editor" style="height:120px;"/>
+</p>
+
 ## Links
 
  * Homepage:   https://vcmi.eu/
@@ -26,6 +33,13 @@ Please see corresponding installation guide articles for details for your platfo
 - [Linux](players/Installation_Linux.md)
 - [Android](players/Installation_Android.md)
 - [iOS](players/Installation_iOS.md)
+
+<p>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Siege.jpg?raw=true" alt="Ruins town siege" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/New%20terrains%20-%204.jpg?raw=true" alt="Random map with new terrains" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Big%20spellbook.jpg?raw=true" alt="Large Spellbook with German translation" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.2.0/Launcher%20-%20language%20selection.jpg?raw=true" alt="Launcher with translation support" style="height:120px;"/>
+</p>
 
 ## Documentation and guidelines for players
 
