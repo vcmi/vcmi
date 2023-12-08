@@ -385,6 +385,9 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 
 void PlayerMessageProcessor::cheatMaxLuck(PlayerColor player, const CGHeroInstance * hero)
 {
+	if (!hero)
+		return;
+		
 	GiveBonus gb;
 	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::MAX_LUCK, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
 	gb.id = hero->id;
@@ -394,6 +397,9 @@ void PlayerMessageProcessor::cheatMaxLuck(PlayerColor player, const CGHeroInstan
 
 void PlayerMessageProcessor::cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero)
 {
+	if (!hero)
+		return;
+		
 	GiveBonus gb;
 	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::MAX_MORALE, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
 	gb.id = hero->id;
