@@ -42,6 +42,12 @@ void Summon::adjustTargetTypes(std::vector<TargetType> & types) const
 
 bool Summon::applicable(Problem & problem, const Mechanics * m) const
 {
+	if (creature == CreatureID::NONE)
+	{
+		logMod->error("Attempt to summon non-existing creature!");
+		return m->adaptGenericProblem(problem);
+	}
+
 	if(exclusive)
 	{
 		//check if there are summoned creatures of other type
