@@ -457,9 +457,7 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 
 		portalVec.push_back(newPortal);
 
-
 		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
-		//registerObject(ModScope::scopeBuiltin(), container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
 	}
 }
 
