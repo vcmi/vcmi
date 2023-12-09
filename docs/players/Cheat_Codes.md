@@ -59,12 +59,12 @@ Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of 
 
 ### Luck and morale
 
-`nwcfollowthewhiterabbit` - the currently selected hero permanently gains maximum luck
-`nwcmorpheus` - the currently selected hero permanently gains maximum morale
+`nwcfollowthewhiterabbit` or `vcmiluck` - the currently selected hero permanently gains maximum luck
+`nwcmorpheus` or `vcmimorale` - the currently selected hero permanently gains maximum morale
 
 ### Puzzle map
 
-`nwcoracle` - reveals the puzzle map
+`nwcoracle` or `vcmiobelisk` - reveals the puzzle map
 
 ### Finishing the game
 
@@ -72,7 +72,7 @@ Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of 
 `nwcbluepill` or `vcmimelkor` or `vcmilose` - player loses
 
 ### Misc
-`nwctheone` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
+`nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
 
 ## Using cheat codes on other players
 By default, all cheat codes apply to current player. Alternatively, it is possible to specify player that you want to target:

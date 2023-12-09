@@ -454,22 +454,22 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcmisilmaril",  "vcmiwin",       "nwcredpill",
 		"vcmieagles",    "vcmimap",       "nwcwhatisthematrix",
 		"vcmiungoliant", "vcmihidemap",   "nwcignoranceisbliss",
-		"nwcoracle"
+		"vcmiobelisk",                    "nwcoracle"
 	};
 	std::vector<std::string> heroTargetedCheats = {
-		"vcmiainur",             "vcmiarchangel",   "nwctrinity",
-		"vcmiangband",           "vcmiblackknight", "nwcagents",
-		"vcmiglaurung",          "vcmicrystal",     "vcmiazure",
-		"vcmifaerie",            "vcmiarmy",        "vcminissi",
-		"vcmiistari",            "vcmispells",      "nwcthereisnospoon",
-		"vcminoldor",            "vcmimachines",     "nwclotsofguns",
-		"vcmiglorfindel",        "vcmilevel",       "nwcneo",
-		"vcminahar",             "vcmimove",        "nwcnebuchadnezzar",
-		"vcmiforgeofnoldorking", "vcmiartifacts",
-		"vcmiolorin",            "vcmiexp",
-		"nwcfollowthewhiterabbit",
-		"nwcmorpheus",
-		"nwctheone"
+		"vcmiainur",               "vcmiarchangel",   "nwctrinity",
+		"vcmiangband",             "vcmiblackknight", "nwcagents",
+		"vcmiglaurung",            "vcmicrystal",     "vcmiazure",
+		"vcmifaerie",              "vcmiarmy",        "vcminissi",
+		"vcmiistari",              "vcmispells",      "nwcthereisnospoon",
+		"vcminoldor",              "vcmimachines",    "nwclotsofguns",
+		"vcmiglorfindel",          "vcmilevel",       "nwcneo",
+		"vcminahar",               "vcmimove",        "nwcnebuchadnezzar",
+		"vcmiforgeofnoldorking",   "vcmiartifacts",
+		"vcmiolorin",              "vcmiexp",
+		"vcmiluck",                                   "nwcfollowthewhiterabbit", 
+		"vcmimorale",                                 "nwcmorpheus",
+		"vcmigod",                                    "nwctheone"
 	};
 
 	if (!vstd::contains(townTargetedCheats, cheatName) && !vstd::contains(playerTargetedCheats, cheatName) && !vstd::contains(heroTargetedCheats, cheatName))
@@ -606,9 +606,13 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"vcmiungoliant",           doCheatMapHide        },
 		{"vcmihidemap",             doCheatMapHide        },
 		{"nwcignoranceisbliss",     doCheatMapHide        },
+		{"vcmiobelisk",             doCheatRevealPuzzle   },
 		{"nwcoracle",               doCheatRevealPuzzle   },
+		{"vcmiluck",                doCheatMaxLuck        },
 		{"nwcfollowthewhiterabbit", doCheatMaxLuck        },
+		{"vcmimorale",              doCheatMaxMorale      },
 		{"nwcmorpheus",             doCheatMaxMorale      },
+		{"vcmigod",                 doCheatTheOne         },
 		{"nwctheone",               doCheatTheOne         },
 	};
 
