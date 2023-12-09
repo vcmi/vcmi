@@ -234,7 +234,10 @@ int CGHeroInstance::movementPointsRemaining() const
 
 void CGHeroInstance::setMovementPoints(int points)
 {
-	movement = std::max(0, points);
+	if(getBonusBearer()->hasBonusOfType(BonusType::UNLIMITED_MOVEMENT))
+		movement = 1000000;
+	else
+		movement = std::max(0, points);
 }
 
 int CGHeroInstance::movementPointsLimit(bool onLand) const

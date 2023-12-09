@@ -36,7 +36,7 @@ Gives specific creature in every slot, with optional amount. Examples:
 
 ### Movement points
 
-`nwcnebuchadnezzar` or `vcminahar` or `vcmimove` - give 1000000 movement points and free ship boarding for 1 day  
+`nwcnebuchadnezzar` or `vcminahar` or `vcmimove` - give unlimited (or specified amount of) movement points and free ship boarding
 Alternative usage: `vcmimove <amount>` - gives specified amount of movement points
 
 ### Resources
@@ -72,7 +72,7 @@ Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of 
 `nwcbluepill` or `vcmimelkor` or `vcmilose` - player loses
 
 ### Misc
-`nwctheone` - reveals the whole map, gives 5 archangels in each empty slot, 1000000 movement points and permanent flight
+`nwctheone` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
 
 ## Using cheat codes on other players
 By default, all cheat codes apply to current player. Alternatively, it is possible to specify player that you want to target:

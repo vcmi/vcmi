@@ -290,6 +290,7 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 
 	SetMovePoints smp;
 	smp.hid = hero->id;
+	bool unlimited = false;
 	try
 	{
 		smp.val = std::stol(words.at(0));;
@@ -297,16 +298,27 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 	catch(std::logic_error&)
 	{
 		smp.val = 1000000;
+		unlimited = true;
 	}
 
 	gameHandler->sendAndApply(&smp);
 
 	GiveBonus gb(GiveBonus::ETarget::OBJECT);
 	gb.bonus.type = BonusType::FREE_SHIP_BOARDING;
-	gb.bonus.duration = BonusDuration::ONE_DAY;
+	gb.bonus.duration = unlimited ? BonusDuration::PERMANENT : BonusDuration::ONE_DAY;
 	gb.bonus.source = BonusSource::OTHER;
 	gb.id = hero->id;
 	gameHandler->giveHeroBonus(&gb);
+
+	if(unlimited)
+	{
+		GiveBonus gb(GiveBonus::ETarget::OBJECT);
+		gb.bonus.type = BonusType::UNLIMITED_MOVEMENT;
+		gb.bonus.duration = BonusDuration::PERMANENT;
+		gb.bonus.source = BonusSource::OTHER;
+		gb.id = hero->id;
+		gameHandler->giveHeroBonus(&gb);
+	}
 }
 
 void PlayerMessageProcessor::cheatResources(PlayerColor player, std::vector<std::string> words)

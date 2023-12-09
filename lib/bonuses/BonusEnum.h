@@ -30,6 +30,7 @@ class JsonNode;
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
+	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(SPELL_DURATION) \
 	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
