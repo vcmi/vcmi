@@ -150,6 +150,11 @@ bool CGHeroInstance::isCoastVisitable() const
 	return true;
 }
 
+bool CGHeroInstance::isBlockedVisitable() const
+{
+	return true;
+}
+
 BattleField CGHeroInstance::getBattlefield() const
 {
 	return BattleField::NONE;
@@ -281,6 +286,7 @@ CGHeroInstance::CGHeroInstance():
 	ID = Obj::HERO;
 	secSkills.emplace_back(SecondarySkill::NONE, -1);
 	blockVisit = true;
+	removable = true;
 }
 
 PlayerColor CGHeroInstance::getOwner() const
@@ -301,6 +307,7 @@ void CGHeroInstance::setHeroType(HeroTypeID heroType)
 
 void CGHeroInstance::initHero(CRandomGenerator & rand, const HeroTypeID & SUBID)
 {
+	blockVisit = true;
 	subID = SUBID.getNum();
 	initHero(rand);
 }
