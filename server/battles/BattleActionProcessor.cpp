@@ -1032,7 +1032,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			const CStack * actor = item.first;
 			int64_t rawDamage = item.second;
 
-			const CGHeroInstance * actorOwner = battle.battleGetFightingHero(actor->unitOwner());
+			const CGHeroInstance * actorOwner = battle.battleGetFightingHero(actor->unitSide());
 
 			if(actorOwner)
 			{
