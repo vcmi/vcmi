@@ -301,6 +301,7 @@ public:
 	void updateFrom(const JsonNode & data) override;
 
 	bool isCoastVisitable() const override;
+	bool isBlockedVisitable() const override;
 	BattleField getBattlefield() const override;
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;//synchr
