@@ -1088,7 +1088,10 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
 		for(const auto & sf : *spells)
 		{
-			spellsToCast.insert(sf->subtype.as<SpellID>());
+			if (sf->subtype.as<SpellID>() != SpellID())
+				spellsToCast.insert(sf->subtype.as<SpellID>());
+			else
+				logMod->error("Invalid spell to cast during attack!");
 		}
 		for(SpellID spellID : spellsToCast)
 		{
