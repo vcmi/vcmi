@@ -452,10 +452,12 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 		newPortal->type = portal->getIndex();
 
 		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
+		newPortal->blockVisit = portal->blockVisit;
+		newPortal->removable = portal->removable;
 
 		portalVec.push_back(newPortal);
 
-		registerObject(ModScope::scopeGame(), container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
+		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
 	}
 }
 
