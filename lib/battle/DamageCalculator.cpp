@@ -132,6 +132,9 @@ int DamageCalculator::getActorAttackSlayer() const
 	const std::string cachingStrSlayer = "type_SLAYER";
 	static const auto selectorSlayer = Selector::type()(BonusType::SLAYER);
 
+	if (!info.defender->hasBonusOfType(BonusType::KING))
+		return 0;
+
 	auto slayerEffects = info.attacker->getBonuses(selectorSlayer, cachingStrSlayer);
 	auto slayerAffected = info.defender->unitType()->valOfBonuses(Selector::type()(BonusType::KING));
 
