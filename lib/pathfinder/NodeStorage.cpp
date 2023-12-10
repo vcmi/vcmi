@@ -100,6 +100,12 @@ std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
 	{
 		auto * node = getNode(neighbour, source.node->layer);
 
+		if(!node->coord.valid())
+		{
+			logAi->debug("Teleportation exit is blocked " + neighbour.toString());
+			continue;
+		}
+
 		neighbours.push_back(node);
 	}
 
