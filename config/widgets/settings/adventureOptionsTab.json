@@ -391,6 +391,11 @@
 					"help": "vcmi.adventureOptions.leftButtonDrag",
 					"callback": "leftButtonDragChanged",
 					"created" : "desktop"
+				},
+				{
+					"name": "smoothDraggingCheckbox",
+					"help": "vcmi.adventureOptions.smoothDragging",
+					"callback": "smoothDraggingChanged"
 				}
 			]
 		}

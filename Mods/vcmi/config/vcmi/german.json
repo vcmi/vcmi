@@ -129,6 +129,8 @@
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Info-Panel Kreaturenmanagement}\n\nErmöglicht die Neuanordnung von Kreaturen im Info-Panel, anstatt zwischen den Standardkomponenten zu wechseln",
 	"vcmi.adventureOptions.leftButtonDrag.hover" : "Ziehen der Karte mit Links",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Ziehen der Karte mit Links}\n\nWenn aktiviert, wird die Maus bei gedrückter linker Taste in die Kartenansicht gezogen",
+	"vcmi.adventureOptions.smoothDragging.hover" : "Nahtloses Ziehen der Karte",
+	"vcmi.adventureOptions.smoothDragging.help" : "{Nahtloses Ziehen der Karte}\n\nWenn aktiviert hat das Ziehen der Karte einen sanften Auslaufeffekt.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
