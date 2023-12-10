@@ -1444,18 +1444,22 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		{
 			// list of players that need to control object to fulfull condition
 			// NOTE: cgameinfocallback specified explicitly in order to get const version
-			const auto & team = CGameInfoCallback::getPlayerTeam(player)->players;
+			const auto * team = CGameInfoCallback::getPlayerTeam(player);
 
 			if (condition.objectID != ObjectInstanceID::NONE) // mode A - flag one specific object, like town
 			{
-				return team.count(getObjInstance(condition.objectID)->tempOwner) != 0;
+				const auto * object = getObjInstance(condition.objectID);
+
+				if (!object)
+					return false;
+				return team->players.count(object->getOwner()) != 0;
 			}
 			else
 			{
 				for(const auto & elem : map->objects) // mode B - flag all objects of this type
 				{
 					 //check not flagged objs
-					if ( elem && elem->ID == condition.objectType.as<MapObjectID>() && team.count(elem->tempOwner) == 0 )
+					if ( elem && elem->ID == condition.objectType.as<MapObjectID>() && team->players.count(elem->getOwner()) == 0 )
 						return false;
 				}
 				return true;

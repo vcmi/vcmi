@@ -133,7 +133,7 @@ void CHeroInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [](const JsonNode & node)
 		{
-			return HeroTypeID(VLC->identifiers()->getIdentifier("hero", node.Vector()[0]).value());
+			return HeroTypeID(VLC->identifiers()->getIdentifier("hero", node.Vector()[0]).value_or(-1));
 		});
 	}
 }

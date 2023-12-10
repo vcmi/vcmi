@@ -313,7 +313,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	result += replaceIfNotEmpty(getModNames(mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(getModNames(mod.getConflicts()), lineTemplate.arg(tr("Conflicting mods")));
-	result += replaceIfNotEmpty(getModNames(mod.getValue("description").toStringList()), textTemplate.arg(tr("Description")));
+	result += replaceIfNotEmpty(mod.getValue("description"), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
 

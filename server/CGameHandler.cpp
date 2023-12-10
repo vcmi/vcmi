@@ -1133,7 +1133,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	if (guardian && getVisitingHero(guardian) != nullptr)
 		return complainRet("Cannot move hero, destination monster is busy!");
 
-	if (objectToVisit && getVisitingHero(objectToVisit) != nullptr)
+	if (objectToVisit && getVisitingHero(objectToVisit) != nullptr && getVisitingHero(objectToVisit) != h)
 		return complainRet("Cannot move hero, destination object is busy!");
 
 	if (objectToVisit &&
