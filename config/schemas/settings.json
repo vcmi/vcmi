@@ -39,7 +39,8 @@
 				"useSavePrefix",
 				"savePrefix",
 				"startTurnAutosave",
-				"enableUiEnhancements"
+				"enableUiEnhancements",
+				"audioMuteFocus"
 			],
 			"properties" : {
 				"playerName" : {
@@ -131,6 +132,10 @@
 				"enableUiEnhancements" : {
 					"type": "boolean",
 					"default": true
+				},
+				"audioMuteFocus" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},

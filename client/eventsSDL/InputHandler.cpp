@@ -170,7 +170,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-				if(settings["general"]["enableUiEnhancements"].Bool()) {
+				if(settings["general"]["audioMuteFocus"].Bool()) {
 					CCS->musich->setVolume(settings["general"]["music"].Integer());
 					CCS->soundh->setVolume(settings["general"]["sound"].Integer());
 				}
@@ -179,7 +179,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-				if(settings["general"]["enableUiEnhancements"].Bool()) {
+				if(settings["general"]["audioMuteFocus"].Bool()) {
 					CCS->musich->setVolume(0);
 					CCS->soundh->setVolume(0);
 				}

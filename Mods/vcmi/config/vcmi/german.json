@@ -114,6 +114,8 @@
 	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Interface Verbesserungen}\n\nSchaltet verschiedene Interface Verbesserungen um. Wie z.B. ein Rucksack-Button, etc. Deaktivieren, um ein klassischeres Erlebnis zu haben.",
 	"vcmi.systemOptions.enableLargeSpellbookButton.hover"  : "Großes Zauberbuch",
 	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Großes Zauberbuch}\n\nErmöglicht ein größeres Zauberbuch, in das mehr Zaubersprüche pro Seite passen. Die Animation des Seitenwechsels im Zauberbuch funktioniert nicht, wenn diese Einstellung aktiviert ist.",
+	"vcmi.systemOptions.audioMuteFocus.hover"  : "Stumm bei Inaktivität",
+	"vcmi.systemOptions.audioMuteFocus.help"   : "{Stumm bei Inaktivität}\n\nSchaltet Audio bei inaktiven Fenster-Fokus stumm. Ausnahmen sind Ingame-Nachrichten und der Neuer-Zug-Sound.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Meldungen im Infobereich anzeigen",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Meldungen im Infobereich anzeigen}\n\nWann immer möglich, werden Spielnachrichten von besuchten Kartenobjekten in der Infoleiste angezeigt, anstatt als Popup-Fenster zu erscheinen",
