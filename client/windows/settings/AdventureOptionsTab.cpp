@@ -126,6 +126,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "leftButtonDrag", value);
 	});
+	addCallback("smoothDraggingChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "smoothDragging", value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -164,4 +168,8 @@ AdventureOptionsTab::AdventureOptionsTab()
 	std::shared_ptr<CToggleButton> leftButtonDragCheckbox = widget<CToggleButton>("leftButtonDragCheckbox");
 	if (leftButtonDragCheckbox)
 		leftButtonDragCheckbox->setSelected(settings["adventure"]["leftButtonDrag"].Bool());
+
+	std::shared_ptr<CToggleButton> smoothDraggingCheckbox = widget<CToggleButton>("smoothDraggingCheckbox");
+	if (smoothDraggingCheckbox)
+		smoothDraggingCheckbox->setSelected(settings["adventure"]["smoothDragging"].Bool());
 }

@@ -131,6 +131,8 @@
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Info Panel Creature Management}\n\nAllows rearranging creatures in info panel instead of cycling between default components.",
 	"vcmi.adventureOptions.leftButtonDrag.hover" : "Left Click Drag Map",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Left Click Drag Map}\n\nWhen enabled, moving mouse with left button pressed will drag adventure map view.",
+	"vcmi.adventureOptions.smoothDragging.hover" : "Smooth Map Dragging",
+	"vcmi.adventureOptions.smoothDragging.help" : "{Smooth Map Dragging}\n\nWhen enabled, map dragging has a modern run out effect.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
