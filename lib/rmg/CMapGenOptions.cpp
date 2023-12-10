@@ -580,7 +580,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		}
 		logGlobal->trace("Player %d: %s", player.second.getColor(), playerType);
 	}
-	logGlobal->info("Final player config: %d total, %d cpu-only", players.size(), static_cast<int>(getCompOnlyPlayerCount()));
+	logGlobal->info("Final player config: %d total, %d cpu-only", players.size(), cpuOnlyPlayers);
 }
 
 void CMapGenOptions::updatePlayers()
