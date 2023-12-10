@@ -730,12 +730,6 @@ std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 				return true;
 		}
 
-		if(compOnlyPlayerCount != CMapGenOptions::RANDOM_SIZE)
-		{
-			if (!tmpl->getHumanPlayers().isInRange(compOnlyPlayerCount))
-				return true;
-		}
-
 		return false;
 	});
 
