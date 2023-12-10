@@ -347,6 +347,9 @@
 				{
 					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
 					"created" : "desktop"
+				},
+				{
+					"text": "vcmi.adventureOptions.smoothDragging.hover"
 				}
 			]
 		},
