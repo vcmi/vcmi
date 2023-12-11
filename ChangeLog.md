@@ -1,3 +1,27 @@
+# 1.4.0 -> 1.4.1
+
+### General
+* Fixed position for interaction with starting heroes
+* Fixed smooth map scrolling when running at high framerate
+* Fixed calculation of Fire Shield damage when caster has artifacts that increase its damage
+* Fixed untranslated message when visiting signs with random text
+* Fixed slider scrolling to maximum value when clicking on "scroll right" button
+* Fixed events and seer huts not activating in some cases
+* Fixed bug leading to Artifact Merchant selling Grails in loaded saved games
+* Creatures under Slayer spell will no longer deal additional damage to creatures not affected by Slayer
+* Description of a mod in Launcher will no longer be converted to lower-case
+* Game will no longer fail to generate random map when AI-only players option is set to non-zero value
+* Added option to mute audio when VCMI window is not active
+* Added option to disable smooth map scrolling
+* Reverted ban on U-turns in pathfinder
+
+### Stability
+* Fixed crash on using mods made for VCMI 1.3
+* Fixed crash on generating random map with large number of monoliths
+* Fixed crash on losing mission-critical hero in battle
+* Fixed crash on generating growth detalization in some localizations
+* Fixed crash on loading of some user-made maps
+
 # 1.3.2 -> 1.4.0
 
 ### General
