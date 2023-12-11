@@ -1,10 +1,19 @@
 [![GitHub](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.0)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.1)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 
 # VCMI Project
 
-VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities.
+VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving it new and extended possibilities.
+
+<p>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.3.0/Castle%20Siege.jpg?raw=true" alt="Vanilla town siege in extended window" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.3.0/Town%20Screen%20with%20Radial%20Menu.jpg?raw=true" alt="Vanilla town view with radial menu for touchscreen devices" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Big%20spellbook.jpg?raw=true" alt="Large Spellbook with German translation" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Quick%20Hero%20Select%20Bastion.jpg?raw=true" alt="New widget for Hero selection, featuring Pavillon Town" style="height:120px;"/>
+</p>
+
 
 ## Links
 
@@ -26,6 +35,13 @@ Please see corresponding installation guide articles for details for your platfo
 - [Linux](players/Installation_Linux.md)
 - [Android](players/Installation_Android.md)
 - [iOS](players/Installation_iOS.md)
+
+<p>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Antagarich%20Burning%20Battle.jpg?raw=true" alt="Forge Town in battle" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Town%20and%20Unit.jpg?raw=true" alt="Asylum town with new creature dialog" style="height:120px;"/>
+<img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Siege.jpg?raw=true" alt="Ruins town siege" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Editor.jpg?raw=true" alt="Map editor" style="height:120px;"/>
+</p>
 
 ## Documentation and guidelines for players
 

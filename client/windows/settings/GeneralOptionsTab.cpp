@@ -167,6 +167,11 @@ GeneralOptionsTab::GeneralOptionsTab()
 		setBoolSetting("gameTweaks", "enableLargeSpellbook", value);
 	});
 
+	addCallback("audioMuteFocusChanged", [](bool value)
+	{
+		setBoolSetting("general", "audioMuteFocus", value);
+	});
+
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
 	{
@@ -214,6 +219,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CToggleButton> enableLargeSpellbookCheckbox = widget<CToggleButton>("enableLargeSpellbookCheckbox");
 	if (enableLargeSpellbookCheckbox)
 		enableLargeSpellbookCheckbox->setSelected(settings["gameTweaks"]["enableLargeSpellbook"].Bool());
+
+	std::shared_ptr<CToggleButton> audioMuteFocusCheckbox = widget<CToggleButton>("audioMuteFocusCheckbox");
+	if (audioMuteFocusCheckbox)
+		audioMuteFocusCheckbox->setSelected(settings["general"]["audioMuteFocus"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());

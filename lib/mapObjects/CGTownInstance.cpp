@@ -1224,12 +1224,21 @@ TerrainId CGTownInstance::getNativeTerrain() const
 GrowthInfo::Entry::Entry(const std::string &format, int _count)
 	: count(_count)
 {
-	description = boost::str(boost::format(format) % count);
+	MetaString formatter;
+	formatter.appendRawString(format);
+	formatter.replacePositiveNumber(count);
+
+	description = formatter.toString();
 }
 
 GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): count(_count)
 {
-	description = boost::str(boost::format("%s %+d") % (*VLC->townh)[subID]->town->buildings.at(building)->getNameTranslated() % count);
+	MetaString formatter;
+	formatter.appendRawString("%s %+d");
+	formatter.replaceRawString((*VLC->townh)[subID]->town->buildings.at(building)->getNameTranslated());
+	formatter.replacePositiveNumber(count);
+
+	description = formatter.toString();
 }
 
 GrowthInfo::Entry::Entry(int _count, std::string fullDescription):

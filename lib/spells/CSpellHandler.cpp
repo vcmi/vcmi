@@ -107,8 +107,8 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int32_t level) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
-		logGlobal->error("CSpell::getLevelInfo: invalid school level %d", level);
-		return levels.at(0);
+		logGlobal->error("CSpell::getLevelInfo: invalid school mastery level %d", level);
+		return levels.at(MasteryLevel::EXPERT);
 	}
 
 	return levels.at(level);

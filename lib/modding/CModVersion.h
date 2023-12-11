@@ -10,7 +10,7 @@
 
 #pragma once
 
-#ifdef __UCLIBC__
+#if defined(__UCLIBC__) || defined(__FreeBSD__)
 #undef major
 #undef minor
 #undef patch
