@@ -935,5 +935,16 @@
 	"grassHills"					: { "index" :208, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"roughHills"					: { "index" :209, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"subterraneanRocks"				: { "index" :210, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } }
+	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	
+	/// special object to handle invalid / unknown objects on some user-made maps
+	"nothing" : {
+		"index" : 0,
+		"handler": "generic",
+		"types" : {
+			"nothing" : {
+				"index" : 0
+			}
+		}
+	}
 }
