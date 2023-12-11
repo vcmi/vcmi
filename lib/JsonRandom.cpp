@@ -384,8 +384,9 @@ namespace JsonRandom
 	ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::set<ArtifactID> allowedArts;
-		for (auto const * artifact : VLC->arth->allowedArtifacts)
-			allowedArts.insert(artifact->getId());
+		for(const auto & artifact : VLC->arth->objects)
+			if (IObjectInterface::cb->isAllowed(artifact->getId()) && VLC->arth->legalArtifact(artifact->getId()))
+				allowedArts.insert(artifact->getId());
 
 		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts, variables);
 

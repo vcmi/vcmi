@@ -141,15 +141,11 @@ public:
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
-	/// List of artifacts allowed on the map
-	std::vector<const CArtifact *> allowedArtifacts;
-
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
 	static CArtifact::EartClass stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
 
-	bool legalArtifact(const ArtifactID & id);
-	void initAllowedArtifactsList(const std::set<ArtifactID> & allowed);
+	bool legalArtifact(const ArtifactID & id) const;
 	static void makeItCreatureArt(CArtifact * a, bool onlyCreature = true);
 	static void makeItCommanderArt(CArtifact * a, bool onlyCommander = true);
 
