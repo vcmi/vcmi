@@ -95,7 +95,8 @@ void TreasurePlacer::addAllPossibleObjects()
 		PrisonHeroPlacer * prisonHeroPlacer = nullptr;
 		for(auto & z : map.getZones())
 		{
-		 	if (prisonHeroPlacer = z.second->getModificator<PrisonHeroPlacer>())
+			prisonHeroPlacer = z.second->getModificator<PrisonHeroPlacer>();
+		 	if (prisonHeroPlacer)
 			{
 				break;
 			}
@@ -640,11 +641,12 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		
 		auto * object = oi->generateObject();
 
-		// FIXME: Possible memory leak, but this is a weird case in first place
 		if(oi->templates.empty())
 		{
 			logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
-			delete object; // FIXME: We also lose randomized hero or quest artifact
+			// Possible memory leak, but this is a weird case in first place
+			delete object;
+			// FIXME: We also lose randomized hero or quest artifact
 			continue;
 		}
 		
