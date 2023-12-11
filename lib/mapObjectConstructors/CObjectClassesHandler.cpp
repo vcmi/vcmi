@@ -312,6 +312,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 {
 	try
 	{
+		if (objects.at(type.getNum()) == nullptr)
+			return objects.front()->objects.front();
+
 		auto result = objects.at(type.getNum())->objects.at(subtype.getNum());
 
 		if (result != nullptr)
@@ -467,8 +470,11 @@ std::string CObjectClassesHandler::getObjectName(MapObjectID type, MapObjectSubI
 	const auto handler = getHandlerFor(type, subtype);
 	if (handler && handler->hasNameTextID())
 		return handler->getNameTranslated();
-	else
+
+	if (objects[type.getNum()])
 		return objects[type.getNum()]->getNameTranslated();
+
+	return objects.front()->getNameTranslated();
 }
 
 SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObjectSubID subtype) const
@@ -480,19 +486,27 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObject
 	if(type == Obj::PRISON || type == Obj::HERO || type == Obj::SPELL_SCROLL)
 		subtype = 0;
 
-	assert(objects[type.getNum()]);
-
-	return getHandlerFor(type, subtype)->getSounds();
+	if(objects[type.getNum()])
+		return getHandlerFor(type, subtype)->getSounds();
+	else
+		return objects.front()->objects.front()->getSounds();
 }
 
 std::string CObjectClassesHandler::getObjectHandlerName(MapObjectID type) const
 {
-	return objects.at(type.getNum())->handlerName;
+	if (objects.at(type.getNum()))
+		return objects.at(type.getNum())->handlerName;
+	else
+		return objects.front()->handlerName;
 }
 
 std::string CObjectClassesHandler::getJsonKey(MapObjectID type) const
 {
-	return objects.at(type.getNum())->getJsonKey();
+	if (objects.at(type.getNum()) != nullptr)
+		return objects.at(type.getNum())->getJsonKey();
+
+	logGlobal->warn("Unknown object of type %d!", type);
+	return objects.front()->getJsonKey();
 }
 
 VCMI_LIB_NAMESPACE_END
