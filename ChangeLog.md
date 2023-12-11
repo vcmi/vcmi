@@ -8,6 +8,7 @@
 * Fixed slider scrolling to maximum value when clicking on "scroll right" button
 * Fixed events and seer huts not activating in some cases
 * Fixed bug leading to Artifact Merchant selling Grails in loaded saved games
+* Fixed placement of objects in random maps near the top border of the map
 * Creatures under Slayer spell will no longer deal additional damage to creatures not affected by Slayer
 * Description of a mod in Launcher will no longer be converted to lower-case
 * Game will no longer fail to generate random map when AI-only players option is set to non-zero value
