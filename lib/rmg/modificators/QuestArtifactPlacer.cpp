@@ -131,9 +131,10 @@ ArtifactID QuestArtifactPlacer::drawRandomArtifact()
 	RecursiveLock lock(externalAccessMutex);
 	if (!questArtifacts.empty())
 	{
+		RandomGeneratorUtil::randomShuffle(questArtifacts, zone.getRand());
 		ArtifactID ret = questArtifacts.back();
 		questArtifacts.pop_back();
-		RandomGeneratorUtil::randomShuffle(questArtifacts, zone.getRand());
+		generator.banQuestArt(ret);
 		return ret;
 	}
 	else

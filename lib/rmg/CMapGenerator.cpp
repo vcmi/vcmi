@@ -488,6 +488,7 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 	auto isWaterMap = map->getMap(this).isWaterMap();
 	//Skip heroes that were banned, including the ones placed in prisons
 	std::vector<HeroTypeID> ret;
+
 	for (HeroTypeID hero : map->getMap(this).allowedHeroes)
 	{
 		auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getById(hero));
@@ -505,13 +506,11 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
-	//TODO: Protect with mutex
 	map->getMap(this).allowedArtifact.erase(id);
 }
 
 void CMapGenerator::banHero(const HeroTypeID & id)
 {
-	//TODO: Protect with mutex
 	map->getMap(this).banHero(id);
 }
 

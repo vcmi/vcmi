@@ -75,7 +75,6 @@ void ObjectDistributor::distributeLimitedObjects()
 
 					auto rmgInfo = handler->getRMGInfo();
 
-					// FIXME: Random order of distribution
 					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
 					{

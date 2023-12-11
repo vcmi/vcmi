@@ -649,6 +649,8 @@ void CMap::banWaterHeroes()
 
 void CMap::banHero(const HeroTypeID & id)
 {
+	if (!vstd::contains(allowedHeroes, id))
+		logGlobal->warn("Attempt to ban hero %d, who is already not allowed", id.encode(id));
 	allowedHeroes.erase(id);
 }
 

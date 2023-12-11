@@ -18,6 +18,7 @@
 #include "../RmgMap.h"
 #include "../TileInfo.h"
 #include "../CZonePlacer.h"
+#include "PrisonHeroPlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../../ArtifactUtils.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
@@ -45,6 +46,7 @@ void TreasurePlacer::init()
 	maxPrisons = 0; //Should be in the constructor, but we use macro for that
 	DEPENDENCY(ObjectManager);
 	DEPENDENCY(ConnectionsPlacer);
+	DEPENDENCY_ALL(PrisonHeroPlacer);
 	POSTFUNCTION(RoadPlacer);
 }
 
@@ -90,6 +92,15 @@ void TreasurePlacer::addAllPossibleObjects()
 	auto prisonTemplates = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType());
 	if (!prisonTemplates.empty())
 	{
+		PrisonHeroPlacer * prisonHeroPlacer = nullptr;
+		for(auto & z : map.getZones())
+		{
+		 	if (prisonHeroPlacer = z.second->getModificator<PrisonHeroPlacer>())
+			{
+				break;
+			}
+		}
+
 		//prisons
 		//levels 1, 5, 10, 20, 30
 		static int prisonsLevels = std::min(generator.getConfig().prisonExperience.size(), generator.getConfig().prisonValues.size());
@@ -103,10 +114,11 @@ void TreasurePlacer::addAllPossibleObjects()
 				continue;
 			}
 
-			oi.generateObject = [i, this]() -> CGObjectInstance*
+			oi.generateObject = [i, this, prisonHeroPlacer]() -> CGObjectInstance*
 			{
 				auto possibleHeroes = generator.getAllPossibleHeroes();
-				HeroTypeID hid = *RandomGeneratorUtil::nextItem(possibleHeroes, zone.getRand());
+
+				HeroTypeID hid = prisonHeroPlacer->drawRandomHero();
 
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 				auto* obj = dynamic_cast<CGHeroInstance*>(factory->create());
@@ -114,7 +126,6 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->setHeroType(hid); //will be initialized later
 				obj->exp = generator.getConfig().prisonExperience[i];
 				obj->setOwner(PlayerColor::NEUTRAL);
-				generator.banHero(hid);
 
 				return obj;
 			};
@@ -464,7 +475,6 @@ void TreasurePlacer::addAllPossibleObjects()
 				ArtifactID artid = qap->drawRandomArtifact();
 				obj->quest->mission.artifacts.push_back(artid);
 				
-				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
 				
 				return obj;
@@ -512,7 +522,6 @@ void TreasurePlacer::addAllPossibleObjects()
 				ArtifactID artid = qap->drawRandomArtifact();
 				obj->quest->mission.artifacts.push_back(artid);
 				
-				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
 				
 				return obj;
@@ -534,7 +543,6 @@ void TreasurePlacer::addAllPossibleObjects()
 				ArtifactID artid = qap->drawRandomArtifact();
 				obj->quest->mission.artifacts.push_back(artid);
 				
-				generator.banQuestArt(artid);
 				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
 				
 				return obj;
@@ -631,8 +639,14 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			entrableArea.add(int3());
 		
 		auto * object = oi->generateObject();
+
+		// FIXME: Possible memory leak, but this is a weird case in first place
 		if(oi->templates.empty())
+		{
+			logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
+			delete object; // FIXME: We also lose randomized hero or quest artifact
 			continue;
+		}
 		
 		object->appearance = *RandomGeneratorUtil::nextItem(oi->templates, zone.getRand());
 
@@ -695,7 +709,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			
-			//first object is good
+			//Do not clean up after first object
 			if(rmgObject.instances().size() == 1)
 				break;
 
@@ -777,7 +791,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 			oi->maxPerZone++;
 		}
 	};
-
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	auto treasureInfo = zone.getTreasureInfo();
 	boost::sort(treasureInfo, valueComparator);
