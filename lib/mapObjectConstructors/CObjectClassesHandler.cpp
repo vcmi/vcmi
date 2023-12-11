@@ -451,7 +451,8 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size());
 		newPortal->type = portal->getIndex();
 
-		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
+		// Inconsintent original indexing: monolith1 has index 0
+		newPortal->subtype = portalVec.size() - 1; //indexes must be unique, they are returned as a set
 		newPortal->blockVisit = portal->blockVisit;
 		newPortal->removable = portal->removable;
 
