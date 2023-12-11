@@ -156,6 +156,11 @@ void CSlider::clickPressed(const Point & cursorPosition)
 
 bool CSlider::receiveEvent(const Point &position, int eventType) const
 {
+	if (eventType == LCLICK)
+	{
+		return pos.isInside(position) && !left->pos.isInside(position) && !right->pos.isInside(position);
+	}
+
 	if(eventType != WHEEL && eventType != GESTURE)
 	{
 		return CIntObject::receiveEvent(position, eventType);

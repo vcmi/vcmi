@@ -937,7 +937,7 @@ void CGSignBottle::initObj(CRandomGenerator & rand)
 	{
 		auto vector = VLC->generaltexth->findStringsWithPrefix("core.randsign");
 		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
-		message.appendTextID(TextIdentifier("core", "randsign", messageIdentifier).get());
+		message.appendTextID(messageIdentifier);
 	}
 
 	if(ID == Obj::OCEAN_BOTTLE)

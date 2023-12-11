@@ -30,6 +30,7 @@ Rewardable::Limiter::Limiter()
 	, heroLevel(-1)
 	, manaPercentage(0)
 	, manaPoints(0)
+	, canLearnSkills(false)
 	, primary(GameConstants::PRIMARY_SKILLS, 0)
 {
 }
@@ -45,6 +46,7 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.manaPoints == r.manaPoints
 	&& l.manaPercentage == r.manaPercentage
 	&& l.secondary == r.secondary
+	&& l.canLearnSkills == r.canLearnSkills
 	&& l.creatures == r.creatures
 	&& l.spells == r.spells
 	&& l.artifacts == r.artifacts

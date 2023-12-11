@@ -59,7 +59,7 @@ std::vector<Component> CRewardableObject::loadComponents(const CGHeroInstance * 
 	if (rewardIndices.empty())
 		return result;
 
-	if (configuration.selectMode != Rewardable::SELECT_FIRST)
+	if (configuration.selectMode != Rewardable::SELECT_FIRST && rewardIndices.size() > 1)
 	{
 		for (auto index : rewardIndices)
 			result.push_back(configuration.info.at(index).reward.getDisplayedComponent(contextHero));
