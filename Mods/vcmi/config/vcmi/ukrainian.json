@@ -114,6 +114,8 @@
 	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Розширення інтерфейсу}\n\nУвімкніть різні розширення інтерфейсу для покращення якості життя. Наприклад, більша книга заклинань, рюкзак тощо. Вимкнути, щоб отримати більш класичний досвід.",
 	"vcmi.systemOptions.enableLargeSpellbookButton.hover"  : "Велика книга заклять",
 	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Велика книга заклять}\n\nВмикає більшу книгу заклять, яка вміщує більше заклять на сторінці. Якщо цей параметр увімкнено, анімація зміни сторінок книги заклять не буде відображатися.",
+	"vcmi.systemOptions.audioMuteFocus.hover"  : "Тиша при втраті фокусу",
+	"vcmi.systemOptions.audioMuteFocus.help"   : "{Тиша при втраті фокусу}\n\nВимкнути звук коли вікно не у фокусі. Виняток становлять ігрові сповіщення та звук нового ходу.",
 
 	"vcmi.adventureOptions.infoBarPick.help" : "{Повідомлення у панелі статусу}\n\nЗа можливості, повідомлення про відвідування об'єктів карти пригод будуть відображені у панелі статусу замість окремого вікна",
 	"vcmi.adventureOptions.infoBarPick.hover" : "Повідомлення у панелі статусу",
@@ -129,6 +131,8 @@
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Керування істотами у вікні статусу}\n\nДозволяє впорядковувати істот у вікні статусу замість циклічного перемикання між типовими компонентами",
 	"vcmi.adventureOptions.leftButtonDrag.hover" : "Переміщення мапи лівою кнопкою",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Переміщення мапи лівою кнопкою}\n\nЯкщо увімкнено, переміщення миші з натиснутою лівою кнопкою буде перетягувати мапу пригод",
+	"vcmi.adventureOptions.smoothDragging.hover" : "Плавне перетягування мапи",
+	"vcmi.adventureOptions.smoothDragging.help" : "{Плавне перетягування мапи}\n\nЯкщо увімкнено, перетягування мапи має сучасний ефект завершення.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",

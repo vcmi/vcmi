@@ -168,7 +168,10 @@ DLL_LINKAGE std::string MetaString::toString() const
 				boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
 				break;
 			case EMessage::REPLACE_POSITIVE_NUMBER:
-				boost::replace_first(dst, "%+d", '+' + std::to_string(numbers[nums++]));
+				if (dst.find("%+d") != std::string::npos)
+					boost::replace_first(dst, "%+d", '+' + std::to_string(numbers[nums++]));
+				else
+					boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
 				break;
 			default:
 				logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));

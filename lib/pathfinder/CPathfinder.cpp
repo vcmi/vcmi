@@ -162,9 +162,6 @@ void CPathfinder::calculatePaths()
 			if(neighbour->locked)
 				continue;
 
-			if (source.node->theNodeBefore && source.node->theNodeBefore->coord == neighbour->coord )
-				continue; // block U-turns
-
 			if(!hlp->isLayerAvailable(neighbour->layer))
 				continue;
 

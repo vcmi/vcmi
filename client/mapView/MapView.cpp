@@ -122,7 +122,10 @@ void MapView::onMapLevelSwitched()
 void MapView::onMapScrolled(const Point & distance)
 {
 	if(!isGesturing())
+	{
+		postSwipeSpeed = 0.0;
 		controller->setViewCenter(model->getMapViewCenter() + distance, model->getLevel());
+	}
 }
 
 void MapView::onMapSwiped(const Point & viewPosition)
