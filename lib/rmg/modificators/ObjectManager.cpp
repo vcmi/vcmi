@@ -238,15 +238,14 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 	RecursiveLock lock(externalAccessMutex);
 	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		auto ti = map.getTileInfo(tile);
-		float dist = ti.getNearestObjectDistance();
-		if(dist < min_dist)
-			return -1.f;
-
+		float bestDistance = 10e9;
 		for(const auto & t : obj.getArea().getTilesVector())
 		{
-			if(map.getTileInfo(t).getNearestObjectDistance() < min_dist)
+			float distance = map.getTileInfo(t).getNearestObjectDistance();
+			if(distance < min_dist)
 				return -1.f;
+			else
+				vstd::amin(bestDistance, distance);
 		}
 		
 		rmg::Area perimeter;
@@ -298,7 +297,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			}
 		}
 		
-		return dist;
+		return bestDistance;
 	}, isGuarded, onlyStraight, optimizer);
 }
 
@@ -513,6 +512,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);
 	}
+	lock.unlock();
 	
 	if (updateDistance)
 	{
@@ -535,6 +535,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			auto manager = map.getZones().at(id)->getModificator<ObjectManager>();
 			if (manager)
 			{
+				// TODO: Update distances for perimeter of guarded object, not just treasures
 				manager->updateDistances(object);
 			}
 		}

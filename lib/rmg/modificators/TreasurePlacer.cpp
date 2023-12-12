@@ -837,7 +837,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo* oi) {return v + oi->value; });
 
 			const ui32 maxPileGenerationAttemps = 2;
-			for (ui32 attempt = 0; attempt <= maxPileGenerationAttemps; attempt++)
+			for (ui32 attempt = 0; attempt < maxPileGenerationAttemps; attempt++)
 			{
 				auto rmgObject = constructTreasurePile(treasurePileInfos, attempt == maxAttempts);
 
@@ -865,61 +865,67 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 		{
 			const bool guarded = rmgObject.isGuarded();
 
-			for (int attempt = 0; attempt <= maxAttempts;)
+			auto path = rmg::Path::invalid();
+
+			Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
+			auto possibleArea = zone.areaPossible();
+			possibleArea.erase_if([this, &minDistance](const int3& tile) -> bool
 			{
-				auto path = rmg::Path::invalid();
+				auto ti = map.getTileInfo(tile);
+				return (ti.getNearestObjectDistance() < minDistance);
+			});
 
-				Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
-				auto possibleArea = zone.areaPossible();
-
-				if (guarded)
-				{
-					path = manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3& tile)
-						{
-							auto ti = map.getTileInfo(tile);
-							if (ti.getNearestObjectDistance() < minDistance)
-								return -1.f;
-
-							for (const auto& t : rmgObject.getArea().getTilesVector())
-							{
-								if (map.getTileInfo(t).getNearestObjectDistance() < minDistance)
-									return -1.f;
-							}
-
-							auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
-							auto areaToBlock = rmgObject.getAccessibleArea(true);
-							areaToBlock.subtract(guardedArea);
-							if (areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
-								return -1.f;
-
-							return ti.getNearestObjectDistance();
-						}, guarded, false, ObjectManager::OptimizeType::DISTANCE);
-				}
-				else
-				{
-					path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
-				}
-
-				if (path.valid())
-				{
-					//debug purposes
-					treasureArea.unite(rmgObject.getArea());
-					if (guarded)
+			if (guarded)
+			{
+				path = manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3& tile)
 					{
-						guards.unite(rmgObject.instances().back()->getBlockedArea());
+						float bestDistance = 10e9;
+						for (const auto& t : rmgObject.getArea().getTilesVector())
+						{
+							float distance = map.getTileInfo(t).getNearestObjectDistance();
+							if (distance < minDistance)
+								return -1.f;
+							else
+								vstd::amin(bestDistance, distance);
+						}
+
 						auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
 						auto areaToBlock = rmgObject.getAccessibleArea(true);
 						areaToBlock.subtract(guardedArea);
-						treasureBlockArea.unite(areaToBlock);
-					}
-					zone.connectPath(path);
-					manager.placeObject(rmgObject, guarded, true);
-					break;
-				}
-				else
+
+						// TODO: Does it help?
+						areaToBlock.erase_if([this](const int3& tile) -> bool
+						{
+							//Don't block tiles outside the map
+							return (!map.isOnMap(tile));
+						});
+
+						if (areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
+							return -1.f;
+
+						return bestDistance;
+					}, guarded, false, ObjectManager::OptimizeType::BOTH);
+			}
+			else
+			{
+				path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
+			}
+			lock.unlock();
+
+			if (path.valid())
+			{
+				//debug purposes
+				treasureArea.unite(rmgObject.getArea());
+				if (guarded)
 				{
-					++attempt;
+					guards.unite(rmgObject.instances().back()->getBlockedArea());
+					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
+					auto areaToBlock = rmgObject.getAccessibleArea(true);
+					areaToBlock.subtract(guardedArea);
+					treasureBlockArea.unite(areaToBlock);
 				}
+				zone.connectPath(path);
+				manager.placeObject(rmgObject, guarded, true);
 			}
 		}
 	}

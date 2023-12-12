@@ -48,7 +48,8 @@ public:
 	{
 		NONE = 0x00000000,
 		WEIGHT = 0x00000001,
-		DISTANCE = 0x00000010
+		DISTANCE = 0x00000010,
+		BOTH = 0x00000011
 	};
 
 public:
