@@ -808,16 +808,17 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 		totalDensity += t->density;
 
-		size_t count = size * t->density / 500;
+		const int DENSITY_CONSTANT = 400;
+		size_t count = (size * t->density) / DENSITY_CONSTANT;
 
 		//Assure space for lesser treasures, if there are any left
+		const int averageValue = (t->min + t->max) / 2;
 		if (t != (treasureInfo.end() - 1))
 		{
-			const int averageValue = (t->min + t->max) / 2;
 			if (averageValue > 10000)
 			{
 				//Will surely be guarded => larger piles => less space inbetween
-				vstd::amin(count, size * (10.f / 500) / (std::sqrt((float)averageValue / 10000)));
+				vstd::amin(count, size * (10.f / DENSITY_CONSTANT) / (std::sqrt((float)averageValue / 10000)));
 			}
 		}
 		
