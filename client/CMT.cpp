@@ -487,7 +487,8 @@ static void quitApplication()
 	vstd::clear_pointer(CSH);
 	vstd::clear_pointer(VLC);
 
-	vstd::clear_pointer(console);// should be removed after everything else since used by logging
+	// sometimes leads to a hang. TODO: investigate
+	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
 	if(!settings["session"]["headless"].Bool())
 		GH.screenHandler().close();
@@ -501,10 +502,10 @@ static void quitApplication()
 
 	std::cout << "Ending...\n";
 
-	// this method is always called from event/network threads, which keep interface mutex locked
-	// unlock it here to avoid assertion failure on GH destruction in exit()
-	GH.interfaceMutex.unlock();
-	exit(0);
+	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
+	// We generally don't care about them and this leads to numerous issues, e.g.
+	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
+	std::quick_exit(0);
 }
 
 void handleQuit(bool ask)
