@@ -1145,42 +1145,47 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 	auto * object = readGeneric(position, objectTemplate);
 	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
 
-	assert(rewardable);
-
 	// AB and later maps have allowed abilities defined in H3M
 	if(features.levelAB)
 	{
 		std::set<SecondarySkill> allowedAbilities;
 		reader->readBitmaskSkills(allowedAbilities, false);
 
-		if(allowedAbilities.size() != 1)
+		if (rewardable)
 		{
-			auto defaultAllowed = VLC->skillh->getDefaultAllowed();
+			if(allowedAbilities.size() != 1)
+			{
+				auto defaultAllowed = VLC->skillh->getDefaultAllowed();
 
-			for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
-				if(defaultAllowed.count(skillID))
-					allowedAbilities.insert(SecondarySkill(skillID));
-		}
+				for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
+					if(defaultAllowed.count(skillID))
+						allowedAbilities.insert(SecondarySkill(skillID));
+			}
 
-		JsonNode variable;
-		if (allowedAbilities.size() == 1)
-		{
-			variable.String() = VLC->skills()->getById(*allowedAbilities.begin())->getJsonKey();
+			JsonNode variable;
+			if (allowedAbilities.size() == 1)
+			{
+				variable.String() = VLC->skills()->getById(*allowedAbilities.begin())->getJsonKey();
+			}
+			else
+			{
+				JsonVector anyOfList;
+				for (auto const & skill : allowedAbilities)
+				{
+					JsonNode entry;
+					entry.String() = VLC->skills()->getById(skill)->getJsonKey();
+					anyOfList.push_back(entry);
+				}
+				variable["anyOf"].Vector() = anyOfList;
+			}
+
+			variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
+			rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 		}
 		else
 		{
-			JsonVector anyOfList;
-			for (auto const & skill : allowedAbilities)
-			{
-				JsonNode entry;
-				entry.String() = VLC->skills()->getById(skill)->getJsonKey();
-				anyOfList.push_back(entry);
-			}
-			variable["anyOf"].Vector() = anyOfList;
+			logGlobal->warn("Failed to set allowed secondary skills to a Witch Hut! Object is not rewardable!");
 		}
-
-		variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
-		rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 	}
 	return object;
 }
@@ -1362,16 +1367,21 @@ CGObjectInstance * CMapLoaderH3M::readShrine(const int3 & position, std::shared_
 	auto * object = readGeneric(position, objectTemplate);
 	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
 
-	assert(rewardable);
-
 	SpellID spell = reader->readSpell32();
 
-	if(spell != SpellID::NONE)
+	if (rewardable)
 	{
-		JsonNode variable;
-		variable.String() = VLC->spells()->getById(spell)->getJsonKey();
-		variable.setMeta(ModScope::scopeGame()); // list may include spells from all mods
-		rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+		if(spell != SpellID::NONE)
+		{
+			JsonNode variable;
+			variable.String() = VLC->spells()->getById(spell)->getJsonKey();
+			variable.setMeta(ModScope::scopeGame()); // list may include spells from all mods
+			rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+		}
+	}
+	else
+	{
+		logGlobal->warn("Failed to set selected spell to a Shrine!. Object is not rewardable!");
 	}
 	return object;
 }

@@ -196,7 +196,10 @@ void TurnOrderProcessor::doStartNewDay()
 	}
 
 	if(!activePlayer)
+	{
 		gameHandler->gameLobby()->setState(EServerState::GAMEPLAY_ENDED);
+		return;
+	}
 
 	std::swap(actedPlayers, awaitingPlayers);
 
