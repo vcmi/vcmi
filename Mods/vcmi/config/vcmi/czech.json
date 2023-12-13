@@ -32,7 +32,7 @@
 
 	"vcmi.heroOverview.startingArmy" : "Počáteční jednotky",
 	"vcmi.heroOverview.warMachine" : "Bojové stroje",
-	"vcmi.heroOverview.secondarySkills" : "Secondary Skills",
+	"vcmi.heroOverview.secondarySkills" : "Druhotné schopnosti",
 	"vcmi.heroOverview.spells" : "Kouzla",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Sloučit stejné jednotky",
@@ -64,18 +64,18 @@
 	
 	"vcmi.lobby.filepath" : "Název souboru",
 	"vcmi.lobby.creationDate" : "Datum vytvoření",
-	"vcmi.lobby.scenarioName" : "Scenario name",
+	"vcmi.lobby.scenarioName" : "Název scénáře",
 	"vcmi.lobby.mapPreview" : "Náhled mapy",
-	"vcmi.lobby.noPreview" : "no preview",
-	"vcmi.lobby.noUnderground" : "no underground",
+	"vcmi.lobby.noPreview" : "bez náhledu",
+	"vcmi.lobby.noUnderground" : "bez podzemí",
 
 	"vcmi.server.errors.existingProcess" : "Již běží jiný server VCMI. Prosím, ukončete ho před startem nové hry.",
 	"vcmi.server.errors.modsToEnable"    : "{Následující modifikace jsou nutné pro načtení hry}",
 	"vcmi.server.errors.modsToDisable"   : "{Následující modifikace musí být zakázány}",
 	"vcmi.server.confirmReconnect"       : "Chcete se připojit k poslední relaci?",
-	"vcmi.server.errors.modNoDependency" : "Nelze načíst modifikaci {'%s'}!\n Závisí na modifikaci {'%s'}, která není načtená!\n",
-	"vcmi.server.errors.modConflict" : "Nelze načíst modifikaci {'%s'}!\n Je v kolizi s načtenou modifikací {'%s'}!\n",
-	"vcmi.server.errors.unknownEntity" : "Nelze načíst uloženou pozici! Neznámá entita '%s' nalezena v uložené pozici! Uložná pozice nemusí být kompatibilní s aktuálně načtenými verzemi modifikací!",
+	"vcmi.server.errors.modNoDependency" : "Nelze načíst modifikaci {'%s'}!\n Závisí na modifikaci {'%s'}, která není aktivní!\n",
+	"vcmi.server.errors.modConflict" : "Nelze načíst modifikaci {'%s'}!\n Je v kolizi s aktivní modifikací {'%s'}!\n",
+	"vcmi.server.errors.unknownEntity" : "Nelze načíst uloženou pozici! Neznámá entita '%s' nalezena v uložené pozici! Uložná pozice nemusí být kompatibilní s aktuálními verzemi modifikací!",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Obecné",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Přepne na kartu obecných nastavení, která obsahuje nastavení související s obecným chováním klienta hry",
@@ -113,7 +113,7 @@
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Vylepšení rozhraní",
 	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Vylepšení rozhraní}\n\nZapne různá vylepšení rozhraní, jako je tlačítko batohu atd. Zakažte pro zážitek klasické hry.",
 	"vcmi.systemOptions.enableLargeSpellbookButton.hover"  : "Velká kniha kouzel",
-	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Velká kniha kouzel}\n\nEnables larger spell book that fits more spells per page. Spell book page change animation does not work with this setting enabled.",
+	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Velká kniha kouzel}\n\nPovolí větší knihu kouzel, do které se jich více vleze na jednu stranu. Animace změny stránek s tímto nastavením nefunguje.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Zobrazit zprávy v panelu informací",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Zobrazit zprávy v panelu informací}\n\nKdyž bude možné, herní zprávy z návštěv míst na mapě budou zobrazeny v panelu informací místo ve zvláštním okně.",
