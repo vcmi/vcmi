@@ -177,6 +177,38 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::
 	return resultPath;
 }
 
+rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const rmg::Area & searchArea) const
+///connect current tile to any other free tile within searchArea
+{
+	auto movementCost = [this](const int3 & s, const int3 & d)
+	{
+		if(map.isFree(d))
+			return 1;
+		else if (map.isPossible(d))
+			return 2;
+		return 3;
+	};
+
+	rmg::Path freePath(searchArea);
+	rmg::Path resultPath(searchArea);
+	freePath.connect(dAreaFree);
+
+	//connect to all pieces
+	auto goals = connectedAreas(src, onlyStraight);
+	for(auto & goal : goals)
+	{
+		auto path = freePath.search(goal, onlyStraight, movementCost);
+		if(path.getPathArea().empty())
+			return rmg::Path::invalid();
+
+		freePath.connect(path.getPathArea());
+		resultPath.connect(path.getPathArea());
+	}
+
+	return resultPath;
+}
+
+
 rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {

@@ -95,7 +95,7 @@ void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> dista
 {
 	RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
-	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
+	for (const auto & tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = distanceFunction(tile);
 		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
@@ -305,6 +305,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 {
 	int3 pos;
 	auto possibleArea = searchArea;
+	auto cachedArea = zone.areaPossible() + zone.freePaths();
 	while(true)
 	{
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
@@ -322,21 +323,31 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			accessibleArea.add(obj.instances().back()->getPosition(true));
 		}
 
-		auto path = zone.searchPath(accessibleArea, onlyStraight, [&obj, isGuarded](const int3 & t)
+		rmg::Area subArea;
+		if (isGuarded)
 		{
-			if(isGuarded)
+			const auto & guardedArea = obj.instances().back()->getAccessibleArea();
+			const auto & unguardedArea = obj.getAccessibleArea(isGuarded);
+			subArea = cachedArea.getSubarea([guardedArea, unguardedArea, obj](const int3 & t)
 			{
-				const auto & guardedArea = obj.instances().back()->getAccessibleArea();
-				const auto & unguardedArea = obj.getAccessibleArea(isGuarded);
 				if(unguardedArea.contains(t) && !guardedArea.contains(t))
 					return false;
 				
 				//guard position is always target
 				if(obj.instances().back()->getPosition(true) == t)
 					return true;
-			}
-			return !obj.getArea().contains(t);
-		});
+
+				return !obj.getArea().contains(t);
+			});
+		}
+		else
+		{
+			subArea = cachedArea.getSubarea([obj](const int3 & t)
+			{
+				return !obj.getArea().contains(t);
+			});
+		}
+		auto path = zone.searchPath(accessibleArea, onlyStraight, cachedArea);
 		
 		if(path.valid())
 		{
@@ -670,7 +681,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 	
 	// Prefer non-blocking tiles, if any
-	auto entrableTiles = object.getEntrableArea().getTiles();
+	const auto & entrableTiles = object.getEntrableArea().getTiles();
 	int3 entrableTile(-1, -1, -1);
 	if (entrableTiles.empty())
 	{
