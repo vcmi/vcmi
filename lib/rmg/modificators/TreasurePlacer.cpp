@@ -890,18 +890,11 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 								vstd::amin(bestDistance, distance);
 						}
 
-						auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
+						const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();
 						auto areaToBlock = rmgObject.getAccessibleArea(true);
 						areaToBlock.subtract(guardedArea);
 
-						// TODO: Does it help?
-						areaToBlock.erase_if([this](const int3& tile) -> bool
-						{
-							//Don't block tiles outside the map
-							return (!map.isOnMap(tile));
-						});
-
-						if (areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
+						if (zone.freePaths().overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
 							return -1.f;
 
 						return bestDistance;
