@@ -199,20 +199,24 @@ Object::Object(const Object & object):
 	setPosition(object.getPosition());
 }
 
-std::list<Object::Instance*> Object::instances()
+std::list<Object::Instance*> & Object::instances()
 {
-	std::list<Object::Instance*> result;
-	for(auto & i : dInstances)
-		result.push_back(&i);
-	return result;
+	if (cachedInstanceList.empty())
+	{
+		for(auto & i : dInstances)
+			cachedInstanceList.push_back(&i);
+	}
+	return cachedInstanceList;
 }
 
-std::list<const Object::Instance*> Object::instances() const
+std::list<const Object::Instance*> & Object::instances() const
 {
-	std::list<const Object::Instance*> result;
-	for(const auto & i : dInstances)
-		result.push_back(&i);
-	return result;
+	if (cachedInstanceConstList.empty())
+	{
+		for(const auto & i : dInstances)
+			cachedInstanceConstList.push_back(&i);
+	}
+	return cachedInstanceConstList;
 }
 
 void Object::addInstance(Instance & object)
@@ -220,16 +224,22 @@ void Object::addInstance(Instance & object)
 	//assert(object.dParent == *this);
 	setGuardedIfMonster(object);
 	dInstances.push_back(object);
+	cachedInstanceList.push_back(&object);
+	cachedInstanceConstList.push_back(&object);
 
 	clearCachedArea();
+	visibleTopOffset.reset();
 }
 
 Object::Instance & Object::addInstance(CGObjectInstance & object)
 {
 	dInstances.emplace_back(*this, object);
 	setGuardedIfMonster(dInstances.back());
+	cachedInstanceList.push_back(&dInstances.back());
+	cachedInstanceConstList.push_back(&dInstances.back());
 
 	clearCachedArea();
+	visibleTopOffset.reset();
 	return dInstances.back();
 }
 
@@ -237,8 +247,11 @@ Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & p
 {
 	dInstances.emplace_back(*this, object, position);
 	setGuardedIfMonster(dInstances.back());
+	cachedInstanceList.push_back(&dInstances.back());
+	cachedInstanceConstList.push_back(&dInstances.back());
 
 	clearCachedArea();
+	visibleTopOffset.reset();
 	return dInstances.back();
 }
 
@@ -266,6 +279,7 @@ const rmg::Area & Object::getAccessibleArea(bool exceptLast) const
 	if(!exceptLast && !dAccessibleAreaFullCache.empty())
 		return dAccessibleAreaFullCache;
 	
+	// FIXME: This clears tiles for every consecutive object
 	for(auto i = dInstances.begin(); i != std::prev(dInstances.end()); ++i)
 		dAccessibleAreaCache.unite(i->getAccessibleArea());
 	
@@ -282,28 +296,27 @@ const rmg::Area & Object::getAccessibleArea(bool exceptLast) const
 
 const rmg::Area & Object::getBlockVisitableArea() const
 {
-	if(dInstances.empty())
-		return dBlockVisitableCache;
-
-	for(const auto & i : dInstances)
+	if(dBlockVisitableCache.empty())
 	{
-		// FIXME: Account for blockvis objects with multiple visitable tiles
-		if (i.isBlockedVisitable())
-			dBlockVisitableCache.add(i.getVisitablePosition());
+		for(const auto & i : dInstances)
+		{
+			// FIXME: Account for blockvis objects with multiple visitable tiles
+			if (i.isBlockedVisitable())
+				dBlockVisitableCache.add(i.getVisitablePosition());
+		}
 	}
-
 	return dBlockVisitableCache;
 }
 
 const rmg::Area & Object::getRemovableArea() const
 {
 	if(dInstances.empty())
-		return dRemovableAreaCache;
-
-	for(const auto & i : dInstances)
 	{
-		if (i.isRemovable())
-			dRemovableAreaCache.unite(i.getBlockedArea());
+		for(const auto & i : dInstances)
+		{
+			if (i.isRemovable())
+				dRemovableAreaCache.unite(i.getBlockedArea());
+		}
 	}
 
 	return dRemovableAreaCache;
@@ -341,6 +354,8 @@ void Object::setTemplate(const TerrainId & terrain, CRandomGenerator & rng)
 {
 	for(auto& i : dInstances)
 		i.setTemplate(terrain, rng);
+
+	visibleTopOffset.reset();
 }
 
 const Area & Object::getArea() const
@@ -358,15 +373,23 @@ const Area & Object::getArea() const
 
 const int3 Object::getVisibleTop() const
 {
-	int3 topTile(-1, 10000, -1); //Start at the bottom
-	for (const auto& i : dInstances)
+	if (visibleTopOffset)
 	{
-		if (i.getTopTile().y < topTile.y)
-		{
-			topTile = i.getTopTile();
-		}
+		return dPosition + visibleTopOffset.value();
 	}
-	return topTile;
+	else
+	{
+		int3 topTile(-1, 10000, -1); //Start at the bottom
+		for (const auto& i : dInstances)
+		{
+			if (i.getTopTile().y < topTile.y)
+			{
+				topTile = i.getTopTile();
+			}
+		}
+		visibleTopOffset = topTile - dPosition;
+		return topTile;
+	}
 }
 
 bool rmg::Object::isGuarded() const
@@ -444,6 +467,9 @@ void Object::clear()
 	for(auto & instance : dInstances)
 		instance.clear();
 	dInstances.clear();
+	cachedInstanceList.clear();
+	cachedInstanceConstList.clear();
+	visibleTopOffset.reset();
 
 	clearCachedArea();
 }

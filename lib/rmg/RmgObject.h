@@ -68,8 +68,8 @@ public:
 	Instance & addInstance(CGObjectInstance & object);
 	Instance & addInstance(CGObjectInstance & object, const int3 & position);
 	
-	std::list<Instance*> instances();
-	std::list<const Instance*> instances() const;
+	std::list<Instance*> & instances();
+	std::list<const Instance*> & instances() const;
 	
 	int3 getVisitablePosition() const;
 	const Area & getAccessibleArea(bool exceptLast = false) const;
@@ -98,7 +98,9 @@ private:
 	mutable Area dBlockVisitableCache;
 	mutable Area dRemovableAreaCache;
 	int3 dPosition;
-	ui32 dStrength;
+	mutable std::optional<int3> visibleTopOffset;
+	mutable std::list<Object::Instance*> cachedInstanceList;
+	mutable std::list<const Object::Instance*> cachedInstanceConstList;
 	bool guarded;
 };
 }

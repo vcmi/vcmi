@@ -238,6 +238,7 @@ bool Area::contains(const Area & area) const
 
 bool Area::overlap(const std::vector<int3> & tiles) const
 {
+	// Important: Make sure that tiles.size < area.size
 	for(const auto & t : tiles)
 	{
 		if(contains(t))
@@ -296,15 +297,14 @@ int3 Area::nearest(const Area & area) const
 Area Area::getSubarea(const std::function<bool(const int3 &)> & filter) const
 {
 	Area subset;
-	for(const auto & t : getTilesVector())
-		if(filter(t))
-			subset.add(t);
+	vstd::copy_if(getTilesVector(), vstd::set_inserter(subset.dTiles), filter);
 	return subset;
 }
 
 void Area::clear()
 {
 	dTiles.clear();
+	dTilesVectorCache.clear();
 	dTotalShiftCache = int3();
 	invalidate();
 }
@@ -329,11 +329,10 @@ void Area::erase(const int3 & tile)
 void Area::unite(const Area & area)
 {
 	invalidate();
-	for(const auto & t : area.getTilesVector())
-	{
-		dTiles.insert(t);
-	}
+	auto & vec = area.getTilesVector();
+	dTiles.insert(vec.begin(), vec.end());
 }
+
 void Area::intersect(const Area & area)
 {
 	invalidate();
@@ -359,7 +358,7 @@ void Area::translate(const int3 & shift)
 {
 	dBorderCache.clear();
 	dBorderOutsideCache.clear();
-	
+
 	if(dTilesVectorCache.empty())
 	{
 		getTiles();
@@ -373,7 +372,6 @@ void Area::translate(const int3 & shift)
 	{
 		t += shift;
 	}
-	//toAbsolute(dTiles, shift);
 }
 
 void Area::erase_if(std::function<bool(const int3&)> predicate)
