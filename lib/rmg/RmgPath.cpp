@@ -68,11 +68,12 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 	if(!dArea)
 		return Path::invalid();
 	
+	if(dst.empty()) // Skip construction of same area
+		return Path(*dArea);
+
 	auto resultArea = *dArea + dst;
 	Path result(resultArea);
-	if(dst.empty())
-		return result;
-	
+
 	int3 src = rmg::Area(dst).nearest(dPath);
 	result.connect(src);
 	

@@ -309,7 +309,7 @@ void RmgMap::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 	zoneColouring[tile.x][tile.y][tile.z] = zid;
 }
 
-void RmgMap::setNearestObjectDistance(int3 &tile, float value)
+void RmgMap::setNearestObjectDistance(const int3 &tile, float value)
 {
 	assertOnMap(tile);
 	
