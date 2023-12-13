@@ -84,16 +84,27 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, CRandomGenerator & rand
 			rmg::Object * rmgObject = &allObjects.back();
 			for(const auto & offset : obj->getBlockedOffsets())
 			{
-				rmgObject->setPosition(tile - offset);
+				auto newPos = tile - offset;
 
-				if(!isInTheMap(rmgObject->getPosition()))
+				if(!isInTheMap(newPos))
 					continue;
 
-				if(!rmgObject->getArea().getSubarea([this](const int3 & t)
+				rmgObject->setPosition(newPos);
+
+				bool isInTheMapEntirely = true;
+				for (const auto & t : rmgObject->getArea().getTiles())
 				{
-					return !isInTheMap(t);
-				}).empty())
+					if (!isInTheMap(t))
+					{
+						isInTheMapEntirely = false;
+						break;
+					}
+
+				}
+				if (!isInTheMapEntirely)
+				{
 					continue;
+				}
 
 				if(isProhibited(rmgObject->getArea()))
 					continue;
