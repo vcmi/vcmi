@@ -511,12 +511,12 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished"></translation>
+        <translation>Spojenci na mapě světa</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="638"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepřátelé na mapě světa</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="353"/>
@@ -594,7 +594,13 @@ Windowed - game will run inside a window that covers part of your screen
 Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
 
 Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte režim zobrazení pro hru
+
+V okně - hra bude běžet v okně zakrývajícím část vaší obrazovky
+
+Celá obrazovka bez okrajů-  hra poběží v okně, které zakryje vaši celou obrazovku se stejným rozlišením.
+
+Exkluzivní celá obrazovka - hra zakryje vaši celou obrazovku a použije vybrané rozlišení.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="631"/>
@@ -686,7 +692,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="415"/>
         <source>Enable</source>
-        <translation>Povolit</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="420"/>
