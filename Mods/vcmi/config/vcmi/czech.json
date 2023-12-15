@@ -174,7 +174,7 @@
 	"vcmi.battleWindow.damageEstimation.kills" : "%d zahyne",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d zahyne",
 
-	"vcmi.battleResultsWindow.applyResultsLabel" : "Použít výsledek bitv"object.core.garrisonVertical.name"y",
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Použít výsledek bitvy",
 
 	"vcmi.tutorialWindow.title" : "Úvod ovládání dotykem",
 	"vcmi.tutorialWindow.decription.RightClick" : "Klepněte a držte prvek, na který byste chtěli použít pravé tlačítko myši. Klepněte na volnou oblast pro zavření.",
