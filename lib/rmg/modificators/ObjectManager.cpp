@@ -347,7 +347,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 				return !obj.getArea().contains(t);
 			});
 		}
-		auto path = zone.searchPath(accessibleArea, onlyStraight, cachedArea);
+		auto path = zone.searchPath(accessibleArea, onlyStraight, subArea);
 		
 		if(path.valid())
 		{

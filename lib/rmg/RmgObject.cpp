@@ -191,7 +191,6 @@ Object::Object(CGObjectInstance & object):
 }
 
 Object::Object(const Object & object):
-	dStrength(object.dStrength),
 	guarded(false)
 {
 	for(const auto & i : object.dInstances)
