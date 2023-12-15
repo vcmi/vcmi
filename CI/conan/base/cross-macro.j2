@@ -17,4 +17,5 @@ RC={{ target_host }}-windres
 {% macro generate_conf(target_host) -%}
 tools.build:compiler_executables = {"c": "{{ target_host }}-gcc", "cpp": "{{ target_host }}-g++"}
 tools.build:sysroot = /usr/{{ target_host }}
+tools.build:defines = ["WINVER=0x0601", "_WIN32_WINNT=0x0601"]
 {%- endmacro -%}
