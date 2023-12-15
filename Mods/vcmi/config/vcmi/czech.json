@@ -180,9 +180,9 @@
 	"vcmi.tutorialWindow.decription.RightClick" : "Klepněte a držte prvek, na který byste chtěli použít pravé tlačítko myši. Klepněte na volnou oblast pro zavření.",
 	"vcmi.tutorialWindow.decription.MapPanning" : "Klepněte a držte jedním prstem pro posouvání mapy.",
 	"vcmi.tutorialWindow.decription.MapZooming" : "Přibližte dva prsty k sobě pro přiblížení mapy.",
-	"vcmi.tutorialWindow.decription.RadialWheel" : "Swiping opens radial wheel for various actions, such as creature/hero management and town ordering.",
-	"vcmi.tutorialWindow.decription.BattleDirection" : "To attack from a particular direction, swipe in the direction from which the attack is to be made.",
-	"vcmi.tutorialWindow.decription.BattleDirectionAbort" : "The attack direction gesture can be cancelled if the finger is far enough away.",
+	"vcmi.tutorialWindow.decription.RadialWheel" : "Přejetí otevře kruhovou nabídku pro různé akce, třeba správa hrdiny/bojovnínků a příkazy měst.",
+	"vcmi.tutorialWindow.decription.BattleDirection" : "Pro útok ze speifického úhlu, přejeďte směrem, ze kterého má být útok vykonán.",
+	"vcmi.tutorialWindow.decription.BattleDirectionAbort" : "Gesto útoku pod úhlem může být zrušeno, pokud, pokud je prst dostatečně daleko.",
 	"vcmi.tutorialWindow.decription.AbortSpell" : "Klepněte a držte pro zrušení kouzla.",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Zobrazit dostupné jednotky",
