@@ -255,7 +255,10 @@ endif()
 
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
-	add_definitions(-D_WIN32_WINNT=0x0600)
+	# Except for conan which already has this definition in its preset
+	if(NOT USING_CONAN)
+		add_definitions(-D_WIN32_WINNT=0x0600)
+	endif()
 
 	#delete lib prefix for dlls (libvcmi -> vcmi)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
