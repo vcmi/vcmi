@@ -261,7 +261,6 @@ int main(int argc, char * argv[])
 	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted! Built-in mod was not found!");
 	testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped! Please reinstall them.");
 	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped! Please reinstall them.");
-	testFile("DATA/AB.H3C", "Heroes III data files (Data/H3ab_bmp.lod) are incomplete or corruped! Please reinstall them.");
 
 	srand ( (unsigned int)time(nullptr) );
 
