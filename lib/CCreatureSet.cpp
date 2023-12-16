@@ -371,6 +371,14 @@ ui64 CCreatureSet::getPower(const SlotID & slot) const
 	return getStack(slot).getPower();
 }
 
+ui64 CCreatureSet::getEstimatedArmyStrength() const
+{
+	ui64 ret = 0;
+	for(const auto & elem : stacks)
+		ret += elem.second->getEstimatedPower();
+	return ret;
+}
+
 std::string CCreatureSet::getRoughAmount(const SlotID & slot, int mode) const
 {
 	/// Mode represent return string format
@@ -857,6 +865,12 @@ ui64 CStackInstance::getPower() const
 {
 	assert(type);
 	return type->getAIValue() * count;
+}
+
+ui64 CStackInstance::getEstimatedPower() const
+{
+	assert(type);
+	return type->getAIValue() * CCreature::estimateCreatureCount(CCreature::getQuantityID(count));
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const

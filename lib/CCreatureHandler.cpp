@@ -233,16 +233,16 @@ const std::string& CCreature::getQuantityRangeStringForId(const CCreature::Creat
 	return creatureQuantityRanges[quantityEnum];
 }
 
-int CCreature::estimateCreatureCount(CCreature::CreatureQuantityId quantityId)
+double CCreature::estimateCreatureCount(CCreature::CreatureQuantityId quantityId)
 {
 	unsigned quantityEnum = (unsigned) quantityId;
 	if (quantityEnum > (int)CreatureQuantityId::LEGION)
 		logGlobal->error("Wrong countID %d!", quantityEnum);
 
 	if (quantityEnum >= (int)CreatureQuantityId::LEGION)
-		return (int) quantityRangeLowerBounds[(int)CreatureQuantityId::LEGION] * maxQuantityEstimationMuliplier;
+		return quantityRangeLowerBounds[(int)CreatureQuantityId::LEGION] * maxQuantityEstimationMuliplier;
 
-	return (quantityRangeLowerBounds[quantityEnum] + quantityRangeLowerBounds[quantityEnum+1]+1)/2;
+	return (quantityRangeLowerBounds[quantityEnum] + quantityRangeLowerBounds[quantityEnum+1])/2.0;
 }
 
 bool CCreature::isDoubleWide() const

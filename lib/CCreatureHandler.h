@@ -155,7 +155,7 @@ public:
 	si32 maxAmount(const TResources &res) const; //how many creatures can be bought
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
 	static const std::string& getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
-	static int estimateCreatureCount(CreatureQuantityId countID); //reverse version of above function, returns middle of range
+	static double estimateCreatureCount(CreatureQuantityId countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
 	bool valid() const;
