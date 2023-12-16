@@ -27,6 +27,8 @@
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
 #include "../CHeroHandler.h"
+#include "../Languages.h"
+#include "../CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -64,7 +66,7 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file)).string();
 	countPlayers();
 	std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
-	date = vstd::getFormattedDateTime(time);
+	date = vstd::getFormattedDateTime(time, Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat);
 
 	// We absolutely not need this data for lobby and server will read it from save
 	// FIXME: actually we don't want them in CMapHeader!

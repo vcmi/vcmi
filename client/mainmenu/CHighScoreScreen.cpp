@@ -29,6 +29,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/TextOperations.h"
+#include "../../lib/Languages.h"
 
 #include "vstd/DateUtils.h"
 
@@ -264,7 +265,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 		newNode["scenarioName"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].scenarioName;
 	newNode["days"].Integer() = calc.calculate().sumDays;
 	newNode["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
-	newNode["datetime"].String() = vstd::getFormattedDateTime(std::time(nullptr));
+	newNode["datetime"].String() = vstd::getFormattedDateTime(std::time(nullptr), Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat);
 	newNode["posFlag"].Bool() = true;
 
 	baseNode.push_back(newNode);

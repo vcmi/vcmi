@@ -42,6 +42,7 @@
 #include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/rmg/CMapGenOptions.h"
+#include "../../lib/Languages.h"
 
 CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
@@ -199,7 +200,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		if(p.date.empty())
 		{
 			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
-			w->setText(vstd::getFormattedDateTime(time));
+			w->setText(vstd::getFormattedDateTime(time, Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat));
 		}
 		else
 			w->setText(p.date);

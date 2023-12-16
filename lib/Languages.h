@@ -68,6 +68,9 @@ struct Options
 	/// primary IETF language tag
 	std::string tagIETF;
 
+	/// DateTime format
+	std::string dateTimeFormat;
+
 	/// Ruleset for plural forms in this language
 	EPluralForms pluralForms = EPluralForms::NONE;
 
@@ -79,27 +82,27 @@ inline const auto & getLanguageList()
 {
 	static const std::array<Options, 20> languages
 	{ {
-		{ "czech",       "Czech",       "Čeština",    "CP1250", "cs", EPluralForms::CZ_3, true },
-		{ "chinese",     "Chinese",     "简体中文",       "GBK",    "zh", EPluralForms::VI_1, true }, // Note: actually Simplified Chinese
-		{ "english",     "English",     "English",    "CP1252", "en", EPluralForms::EN_2, true },
-		{ "finnish",     "Finnish",     "Suomi",      "CP1252", "fi", EPluralForms::EN_2, true },
-		{ "french",      "French",      "Français",   "CP1252", "fr", EPluralForms::FR_2, true },
-		{ "german",      "German",      "Deutsch",    "CP1252", "de", EPluralForms::EN_2, true },
-		{ "hungarian",   "Hungarian",   "Magyar",     "CP1250", "hu", EPluralForms::EN_2, true },
-		{ "italian",     "Italian",     "Italiano",   "CP1250", "it", EPluralForms::EN_2, true },
-		{ "korean",      "Korean",      "한국어",        "CP949",  "ko", EPluralForms::VI_1, true },
-		{ "polish",      "Polish",      "Polski",     "CP1250", "pl", EPluralForms::PL_3, true },
-		{ "portuguese",  "Portuguese",  "Português",  "CP1252", "pt", EPluralForms::EN_2, true }, // Note: actually Brazilian Portuguese
-		{ "russian",     "Russian",     "Русский",    "CP1251", "ru", EPluralForms::UK_3, true },
-		{ "spanish",     "Spanish",     "Español",    "CP1252", "es", EPluralForms::EN_2, true },
-		{ "swedish",     "Swedish",     "Svenska",    "CP1252", "sv", EPluralForms::EN_2, true },
-		{ "turkish",     "Turkish",     "Türkçe",     "CP1254", "tr", EPluralForms::EN_2, true },
-		{ "ukrainian",   "Ukrainian",   "Українська", "CP1251", "uk", EPluralForms::UK_3, true },
-		{ "vietnamese",  "Vietnamese",  "Tiếng Việt", "UTF-8",  "vi", EPluralForms::VI_1, true }, // Fan translation uses special encoding
+		{ "czech",       "Czech",       "Čeština",    "CP1250", "cs", "%d.%m.%Y %T", EPluralForms::CZ_3, true },
+		{ "chinese",     "Chinese",     "简体中文",       "GBK",    "zh", "%F %T", EPluralForms::VI_1, true }, // Note: actually Simplified Chinese
+		{ "english",     "English",     "English",    "CP1252", "en", "%F %T", EPluralForms::EN_2, true }, // English uses international date/time format here
+		{ "finnish",     "Finnish",     "Suomi",      "CP1252", "fi", "%d.%m.%Y %T", EPluralForms::EN_2, true },
+		{ "french",      "French",      "Français",   "CP1252", "fr", "%d/%m/%Y %T", EPluralForms::FR_2, true },
+		{ "german",      "German",      "Deutsch",    "CP1252", "de", "%d.%m.%Y %T", EPluralForms::EN_2, true },
+		{ "hungarian",   "Hungarian",   "Magyar",     "CP1250", "hu", "%Y. %m. %d. %T", EPluralForms::EN_2, true },
+		{ "italian",     "Italian",     "Italiano",   "CP1250", "it", "%d/%m/%Y %T", EPluralForms::EN_2, true },
+		{ "korean",      "Korean",      "한국어",        "CP949",  "ko", "%F %T", EPluralForms::VI_1, true },
+		{ "polish",      "Polish",      "Polski",     "CP1250", "pl", "%d.%m.%Y %T", EPluralForms::PL_3, true },
+		{ "portuguese",  "Portuguese",  "Português",  "CP1252", "pt", "%d/%m/%Y %T", EPluralForms::EN_2, true }, // Note: actually Brazilian Portuguese
+		{ "russian",     "Russian",     "Русский",    "CP1251", "ru", "%F %T", EPluralForms::UK_3, true },
+		{ "spanish",     "Spanish",     "Español",    "CP1252", "es", "%d/%m/%Y %T", EPluralForms::EN_2, true },
+		{ "swedish",     "Swedish",     "Svenska",    "CP1252", "sv", "%F %T", EPluralForms::EN_2, true },
+		{ "turkish",     "Turkish",     "Türkçe",     "CP1254", "tr", "%d.%m.%Y %T", EPluralForms::EN_2, true },
+		{ "ukrainian",   "Ukrainian",   "Українська", "CP1251", "uk", "%d.%m.%Y %T", EPluralForms::UK_3, true },
+		{ "vietnamese",  "Vietnamese",  "Tiếng Việt", "UTF-8",  "vi", "%d/%m/%Y %T", EPluralForms::VI_1, true }, // Fan translation uses special encoding
 
-		{ "other_cp1250", "Other (East European)",   "", "CP1250", "", EPluralForms::NONE, false },
-		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1251", "", EPluralForms::NONE, false },
-		{ "other_cp1252", "Other (West European)",   "", "CP1252", "", EPluralForms::NONE, false }
+		{ "other_cp1250", "Other (East European)",   "", "CP1250", "", "", EPluralForms::NONE, false },
+		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1251", "", "", EPluralForms::NONE, false },
+		{ "other_cp1252", "Other (West European)",   "", "CP1252", "", "", EPluralForms::NONE, false }
 	} };
 	static_assert(languages.size() == static_cast<size_t>(ELanguages::COUNT), "Languages array is missing a value!");
 

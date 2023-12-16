@@ -156,14 +156,6 @@ public class NativeMethods
         }
     }
 
-    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    public static String getFormattedDateTime()
-    {
-        String currentDate = new SimpleDateFormat((new SimpleDateFormat()).toLocalizedPattern(), Locale.getDefault()).format(new Date());
-
-        return currentDate;
-    }
-
     private static void internalProgressDisplay(final boolean show)
     {
         final Context ctx = SDL.getContext();
