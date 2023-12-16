@@ -68,7 +68,7 @@ public:
 class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 {
 	/// list of object handlers, each of them handles only one type
-	std::vector<ObjectClass * > objects;
+	std::vector< std::unique_ptr<ObjectClass> > objects;
 
 	/// map that is filled during contruction with all known handlers. Not serializeable due to usage of std::function
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
@@ -82,7 +82,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	void loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj);
 	void loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);
 
-	ObjectClass * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
+	std::unique_ptr<ObjectClass> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
 	void generateExtraMonolithsForRMG(ObjectClass * container);
 
