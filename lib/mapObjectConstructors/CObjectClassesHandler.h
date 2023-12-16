@@ -45,7 +45,7 @@ class CGObjectInstance;
 using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
 /// Class responsible for creation of adventure map objects of specific type
-class DLL_LINKAGE ObjectClass
+class DLL_LINKAGE ObjectClass : boost::noncopyable
 {
 public:
 	std::string modScope;
@@ -57,7 +57,8 @@ public:
 	JsonNode base;
 	std::vector<TObjectTypeHandler> objects;
 
-	ObjectClass() = default;
+	ObjectClass();
+	~ObjectClass();
 
 	std::string getJsonKey() const;
 	std::string getNameTextID() const;
@@ -65,7 +66,7 @@ public:
 };
 
 /// Main class responsible for creation of all adventure map objects
-class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
+class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase, boost::noncopyable
 {
 	/// list of object handlers, each of them handles only one type
 	std::vector< std::unique_ptr<ObjectClass> > objects;

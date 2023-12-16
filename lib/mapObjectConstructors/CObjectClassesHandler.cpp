@@ -221,6 +221,9 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	return createdObject;
 }
 
+ObjectClass::ObjectClass() = default;
+ObjectClass::~ObjectClass() = default;
+
 std::string ObjectClass::getJsonKey() const
 {
 	return modScope + ':' + identifier;
