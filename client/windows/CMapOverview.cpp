@@ -13,8 +13,6 @@
 
 #include "../lobby/SelectionTab.h"
 
-#include <vstd/DateUtils.h>
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -29,6 +27,7 @@
 #include "../render/Graphics.h"
 
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"
@@ -200,7 +199,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		if(p.date.empty())
 		{
 			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
-			w->setText(vstd::getFormattedDateTime(time, Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat));
+			w->setText(TextOperations::getFormattedDateTimeLocal(time));
 		}
 		else
 			w->setText(p.date);

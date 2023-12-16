@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CMapInfo.h"
 
-#include <vstd/DateUtils.h>
-
 #include "../filesystem/ResourcePath.h"
 #include "../StartInfo.h"
 #include "../GameConstants.h"
@@ -23,6 +21,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../serializer/CLoadFile.h"
 #include "../CGeneralTextHandler.h"
+#include "../TextOperations.h"
 #include "../rmg/CMapGenOptions.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
@@ -66,7 +65,7 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file)).string();
 	countPlayers();
 	std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
-	date = vstd::getFormattedDateTime(time, Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat);
+	date = TextOperations::getFormattedDateTimeLocal(time);
 
 	// We absolutely not need this data for lobby and server will read it from save
 	// FIXME: actually we don't want them in CMapHeader!
