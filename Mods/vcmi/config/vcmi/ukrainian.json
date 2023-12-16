@@ -69,6 +69,7 @@
 	"vcmi.lobby.noPreview" : "огляд недоступний",
 	"vcmi.lobby.noUnderground" : "немає підземелля",
 
+	"vcmi.client.errors.missingCampaigns" : "{Не вистачає файлів даних}\n\nФайли даних кампаній не знайдено! Можливо, ви використовуєте неповні або пошкоджені файли даних Heroes 3. Будь ласка, перевстановіть дані гри.",
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
 	"vcmi.server.errors.modsToDisable"   : "{Модифікації що мають бути вимкнені}",

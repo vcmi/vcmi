@@ -218,8 +218,7 @@ CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 
 CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 	: CListItem(parent),
-	hero(Hero),
-	parentList(parent)
+	hero(Hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	movement = std::make_shared<CAnimImage>(AnimationPath::builtin("IMOBIL"), 0, 0, 0, 1);
@@ -285,19 +284,17 @@ void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const
 	const CGHeroInstance * heroLower = (heroPos > heroes.size() - 2) ? nullptr : heroes[heroPos + 1];
 
 	std::vector<RadialMenuConfig> menuElements = {
-		{ RadialMenuConfig::ITEM_ALT_NN, heroUpper != nullptr, "altUpTop", "vcmi.radialWheel.moveTop", [this, heroPos]()
+		{ RadialMenuConfig::ITEM_ALT_NN, heroUpper != nullptr, "altUpTop", "vcmi.radialWheel.moveTop", [heroPos]()
 		{
 			for (int i = heroPos; i > 0; i--)
 				LOCPLINT->localState->swapWanderingHero(i, i - 1);
-			parentList->updateWidget();
 		} },
-		{ RadialMenuConfig::ITEM_ALT_NW, heroUpper != nullptr, "altUp", "vcmi.radialWheel.moveUp", [this, heroPos](){LOCPLINT->localState->swapWanderingHero(heroPos, heroPos - 1); parentList->updateWidget(); } },
-		{ RadialMenuConfig::ITEM_ALT_SW, heroLower != nullptr, "altDown", "vcmi.radialWheel.moveDown", [this, heroPos](){ LOCPLINT->localState->swapWanderingHero(heroPos, heroPos + 1); parentList->updateWidget(); } },
-		{ RadialMenuConfig::ITEM_ALT_SS, heroLower != nullptr, "altDownBottom", "vcmi.radialWheel.moveBottom", [this, heroPos, heroes]()
+		{ RadialMenuConfig::ITEM_ALT_NW, heroUpper != nullptr, "altUp", "vcmi.radialWheel.moveUp", [heroPos](){LOCPLINT->localState->swapWanderingHero(heroPos, heroPos - 1); } },
+		{ RadialMenuConfig::ITEM_ALT_SW, heroLower != nullptr, "altDown", "vcmi.radialWheel.moveDown", [heroPos](){ LOCPLINT->localState->swapWanderingHero(heroPos, heroPos + 1); } },
+		{ RadialMenuConfig::ITEM_ALT_SS, heroLower != nullptr, "altDownBottom", "vcmi.radialWheel.moveBottom", [heroPos, heroes]()
 		{
 			for (int i = heroPos; i < heroes.size() - 1; i++)
 				LOCPLINT->localState->swapWanderingHero(i, i + 1);
-			parentList->updateWidget();
 		} },
 	};
 
@@ -365,8 +362,7 @@ std::shared_ptr<CIntObject> CTownList::createItem(size_t index)
 }
 
 CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
-	CListItem(parent),
-	parentList(parent)
+	CListItem(parent)
 {
 	const std::vector<const CGTownInstance *> towns = LOCPLINT->localState->getOwnedTowns();
 	townIndex = std::distance(towns.begin(), std::find(towns.begin(), towns.end(), Town));
@@ -430,15 +426,13 @@ void CTownList::CTownItem::gesture(bool on, const Point & initialPosition, const
 		{
 			for (int i = townIndex; i > 0; i--)
 				LOCPLINT->localState->swapOwnedTowns(i, i - 1);
-			parentList->updateWidget();
 		} },
-		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.moveUp", [this, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos); parentList->updateWidget(); } },
-		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.moveDown", [this, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos); parentList->updateWidget(); } },
+		{ RadialMenuConfig::ITEM_ALT_NW, townUpperPos > -1, "altUp", "vcmi.radialWheel.moveUp", [this, townUpperPos](){LOCPLINT->localState->swapOwnedTowns(townIndex, townUpperPos); } },
+		{ RadialMenuConfig::ITEM_ALT_SW, townLowerPos > -1, "altDown", "vcmi.radialWheel.moveDown", [this, townLowerPos](){ LOCPLINT->localState->swapOwnedTowns(townIndex, townLowerPos); } },
 		{ RadialMenuConfig::ITEM_ALT_SS, townLowerPos > -1, "altDownBottom", "vcmi.radialWheel.moveBottom", [this, towns]()
 		{
 			for (int i = townIndex; i < towns.size() - 1; i++)
 				LOCPLINT->localState->swapOwnedTowns(i, i + 1);
-			parentList->updateWidget();
 		} },
 	};
 

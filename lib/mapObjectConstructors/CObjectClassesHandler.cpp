@@ -97,11 +97,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 #undef SET_HANDLER
 }
 
-CObjectClassesHandler::~CObjectClassesHandler()
-{
-	for(auto * p : objects)
-		delete p;
-}
+CObjectClassesHandler::~CObjectClassesHandler() = default;
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
@@ -225,6 +221,9 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	return createdObject;
 }
 
+ObjectClass::ObjectClass() = default;
+ObjectClass::~ObjectClass() = default;
+
 std::string ObjectClass::getJsonKey() const
 {
 	return modScope + ':' + identifier;
@@ -240,9 +239,9 @@ std::string ObjectClass::getNameTranslated() const
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
-ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
+std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
 {
-	auto * obj = new ObjectClass();
+	auto obj = std::make_unique<ObjectClass>();
 
 	obj->modScope = scope;
 	obj->identifier = name;
@@ -263,31 +262,31 @@ ObjectClass * CObjectClassesHandler::loadFromJson(const std::string & scope, con
 			if ( subMeta != "core")
 				logMod->warn("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
 			size_t subIndex = subData.second["index"].Integer();
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj, subIndex);
+			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get(), subIndex);
 		}
 		else
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj);
+			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
 	}
 
 	if (obj->id == MapObjectID::MONOLITH_TWO_WAY)
-		generateExtraMonolithsForRMG(obj);
+		generateExtraMonolithsForRMG(obj.get());
 
 	return obj;
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto * object = loadFromJson(scope, data, name, objects.size());
-	objects.push_back(object);
-	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
+	objects.push_back(loadFromJson(scope, data, name, objects.size()));
+
+	VLC->identifiersHandler->registerObject(scope, "object", name, objects.back()->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto * object = loadFromJson(scope, data, name, index);
-	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
-	objects[static_cast<si32>(index)] = object;
-	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
+	assert(objects[index] == nullptr); // ensure that this id was not loaded before
+
+	objects[index] = loadFromJson(scope, data, name, index);
+	VLC->identifiersHandler->registerObject(scope, "object", name, objects[index]->id);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
@@ -299,7 +298,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 		objects[ID.getNum()]->objects.resize(subID.getNum()+1);
 
 	JsonUtils::inherit(config, objects.at(ID.getNum())->base);
-	loadSubObject(config.meta, identifier, config, objects[ID.getNum()], subID.getNum());
+	loadSubObject(config.meta, identifier, config, objects[ID.getNum()].get(), subID.getNum());
 }
 
 void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
@@ -335,7 +334,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scop
 	std::optional<si32> id = VLC->identifiers()->getIdentifier(scope, "object", type);
 	if(id)
 	{
-		auto * object = objects[id.value()];
+		const auto & object = objects[id.value()];
 		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
@@ -356,7 +355,7 @@ std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
 {
 	std::set<MapObjectID> ret;
 
-	for(auto * entry : objects)
+	for(auto & entry : objects)
 		if (entry)
 			ret.insert(entry->id);
 
@@ -406,7 +405,7 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 
 void CObjectClassesHandler::afterLoadFinalization()
 {
-	for(auto * entry : objects)
+	for(auto & entry : objects)
 	{
 		if (!entry)
 			continue;

@@ -382,12 +382,29 @@ void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 
 void CMainMenu::openCampaignScreen(std::string name)
 {
-	if(vstd::contains(CMainMenuConfig::get().getCampaigns().Struct(), name))
+	auto const & config = CMainMenuConfig::get().getCampaigns();
+
+	if(!vstd::contains(config.Struct(), name))
 	{
-		GH.windows().createAndPushWindow<CCampaignScreen>(CMainMenuConfig::get().getCampaigns(), name);
+		logGlobal->error("Unknown campaign set: %s", name);
 		return;
 	}
-	logGlobal->error("Unknown campaign set: %s", name);
+
+	bool campaignsFound = true;
+	for (auto const & entry : config[name]["items"].Vector())
+	{
+		ResourcePath resourceID(entry["file"].String(), EResType::CAMPAIGN);
+		if (!CResourceHandler::get()->existsResource(resourceID))
+			campaignsFound = false;
+	}
+
+	if (!campaignsFound)
+	{
+		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.client.errors.missingCampaigns"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+		return;
+	}
+
+	GH.windows().createAndPushWindow<CCampaignScreen>(config, name);
 }
 
 void CMainMenu::startTutorial()
