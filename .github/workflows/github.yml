@@ -116,7 +116,7 @@ jobs:
             pack_type: RelWithDebInfo
             extension: exe
             preset: windows-msvc-release-ccache
-          - platform: mingw-ubuntu
+          - platform: mingw
             os: ubuntu-22.04
             test: 0
             pack: 1
@@ -126,7 +126,7 @@ jobs:
             cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
-          - platform: mingw-ubuntu-32
+          - platform: mingw-32
             os: ubuntu-22.04
             test: 0
             pack: 1
