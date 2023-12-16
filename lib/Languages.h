@@ -93,7 +93,7 @@ inline const auto & getLanguageList()
 		{ "korean",      "Korean",      "한국어",        "CP949",  "ko", "%F %T", EPluralForms::VI_1, true },
 		{ "polish",      "Polish",      "Polski",     "CP1250", "pl", "%d.%m.%Y %T", EPluralForms::PL_3, true },
 		{ "portuguese",  "Portuguese",  "Português",  "CP1252", "pt", "%d/%m/%Y %T", EPluralForms::EN_2, true }, // Note: actually Brazilian Portuguese
-		{ "russian",     "Russian",     "Русский",    "CP1251", "ru", "%F %T", EPluralForms::UK_3, true },
+		{ "russian",     "Russian",     "Русский",    "CP1251", "ru", "%d.%m.%Y %T", EPluralForms::UK_3, true },
 		{ "spanish",     "Spanish",     "Español",    "CP1252", "es", "%d/%m/%Y %T", EPluralForms::EN_2, true },
 		{ "swedish",     "Swedish",     "Svenska",    "CP1252", "sv", "%F %T", EPluralForms::EN_2, true },
 		{ "turkish",     "Turkish",     "Türkçe",     "CP1254", "tr", "%d.%m.%Y %T", EPluralForms::EN_2, true },
