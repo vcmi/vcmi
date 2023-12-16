@@ -117,7 +117,6 @@ class CHeroList	: public CList
 		std::shared_ptr<CAnimImage> movement;
 		std::shared_ptr<CAnimImage> mana;
 		std::shared_ptr<CAnimImage> portrait;
-		CHeroList *parentList;
 	public:
 		const CGHeroInstance * const hero;
 
@@ -152,7 +151,6 @@ class CTownList	: public CList
 	class CTownItem : public CListItem
 	{
 		std::shared_ptr<CAnimImage> picture;
-		CTownList *parentList;
 	public:
 		int townIndex;
 
