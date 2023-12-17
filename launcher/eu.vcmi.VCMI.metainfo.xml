@@ -4,6 +4,7 @@
 	<name>VCMI</name>
 	<summary>Open-source game engine for Heroes of Might and Magic III</summary>
 	<summary xml:lang="cs">Herní engine s otevřeným kódem pro Heroes of Might and Magic III</summary>
+	<summary xml:lang="de">Open-Source-Spielengine für Heroes of Might and Magic III</summary>
 	<developer_name>VCMI Team</developer_name>
 	<developer_name xml:lang="cs">Tým VCMI</developer_name>
 	<metadata_license>CC-BY-SA-4.0</metadata_license>
@@ -11,26 +12,36 @@
 	<description>
 		<p>VCMI is an open-source engine for Heroes of Might and Magic III with new possibilities. Years of intensive work resulted in an impressive amount of features. Among the current features are:</p>
 		<p xml:lang="cs">VCMI je engine s otevřeným kódem a novými možnostmi pro Heroes of Might and Magic III. Roky usilovné práce vyústily v úchvatném počtu nových funkcí. Mezi současnými funkcemi jsou:</p>
+		<p xml:lang="de">VCMI ist eine Open-Source-Engine für Heroes of Might and Magic III mit neuen Möglichkeiten. Jahrelange intensive Arbeit führte zu einer beeindruckenden Anzahl von Features. Zu den aktuellen Features gehören:</p>
 		<ul>
 			<li>Complete gameplay mechanics</li>
 			<li xml:lang="cs">Kompletní herní mechaniky</li>
+			<li xml:lang="de">Vollständige Spielmechanik</li>
 			<li>Almost all objects, abilities, spells and other content</li>
 			<li xml:lang="cs">Skoro všechny předměty, schopnosti, kouzla a ostatní obsah</li>
+			<li xml:lang="de">Fast alle Objekte, Fähigkeiten, Zaubersprüche und andere Inhalte</li>
 			<li>Basic battle AI and adventure AI</li>
 			<li xml:lang="cs">Základní AI boje a mapy světa</li>
+			<li xml:lang="de">Grundlegende Kampf- und Abenteuer-KI</li>
 			<li>Many GUI improvements: high resolutions, stack queue, creature window</li>
 			<li xml:lang="cs">Mnoho vylepšení rozhraní: vyšší rozlišení, fronta oddílů a okno bojovníků</li>
+			<li xml:lang="de">Viele GUI-Verbesserungen: hohe Auflösungen, Truppenwarteschlange, Kreaturenfenster</li>
 			<li>Advanced and easy mod support - add new towns, creatures, heroes, artifacts and spells without limits or conflicts</li>
 			<li xml:lang="cs">Pokročilá a jednoduchá podpora modifikací - přidání nových měst, bojovníků, hrdinů, artefaktů a kouzel bez limitů a konfliktů</li>
+			<li xml:lang="de">Erweiterte und einfache Mod-Unterstützung - fügt neue Städte, Kreaturen, Helden, Artefakte und Zaubersprüche ohne Einschränkungen oder Konflikte hinzu</li>
 			<li>Launcher for easy configuration - download mods from our server and install them immediately!</li>
 			<li xml:lang="cs">Spouštěč pro jednoduché nastavení - stahujte modifikace z našeho serveru a hned je instalujte!</li>
+			<li xml:lang="de">Launcher für einfache Konfiguration - Mods von unserem Server herunterladen und sofort installieren!</li>
 			<li>Random map generator that supports objects added by mods</li>
 			<li xml:lang="cs">Náhodný generátor map, který podporuje předměty přidané modifikacemi</li>
+			<li xml:lang="de">Zufallsgenerator für Karten, der von Mods hinzugefügte Objekte unterstützt</li>
 		</ul>
 		<p>Note: In order to play the game using VCMI you need to own data files for Heroes of Might and Magic III: The Shadow of Death.</p>
 		<p xml:lang="cs">Poznámka: pokud chcete hrát hru přes VCMI, musíte vlastnit datové soubory Heroes of Might and Magic III: The Shadow of Death.</p>
+		<p xml:lang="de">Hinweis: Um das Spiel mit VCMI spielen zu können, ist der Besitz von Originaldateien für Heroes of Might and Magic III: The Shadow of Death erforderlich.</p>
 		<p>If you want help, please check our forum, bug tracker or GitHub page.</p>
 		<p xml:lang="cs">Pokud chcete pomoct, prosíme, podívejte se na naše fórum nebo GitHub.</p>
+		<p xml:lang="de">Wird Hilfe benötigt, besucht bitte unser Forum, den Bugtracker oder die GitHub-Seite.</p>
 	</description>
 	<screenshots>
 		<screenshot type="default">
