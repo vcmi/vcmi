@@ -115,6 +115,8 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 
 void Nullkiller::resetAiState()
 {
+	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
+
 	lockedResources = TResources();
 	scanDepth = ScanDepth::MAIN_FULL;
 	playerID = ai->playerID;
@@ -126,6 +128,8 @@ void Nullkiller::resetAiState()
 void Nullkiller::updateAiState(int pass, bool fast)
 {
 	boost::this_thread::interruption_point();
+
+	std::unique_lock<std::mutex> lockGuard(aiStateMutex);
 
 	auto start = std::chrono::high_resolution_clock::now();
 

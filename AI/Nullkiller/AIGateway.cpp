@@ -588,6 +588,8 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 	{ 
 		if(hPtr.validAndSet())
 		{
+			std::unique_lock<std::mutex> lockGuard(nullkiller->aiStateMutex);
+
 			nullkiller->heroManager->update();
 			answerQuery(queryID, nullkiller->heroManager->selectBestSkill(hPtr, skills));
 		}
@@ -661,14 +663,18 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
 			sel = components.size();
 
-		// TODO: Find better way to understand it is Chest of Treasures
-		if(hero.validAndSet()
-			&& components.size() == 2
-			&& components.front().type == ComponentType::RESOURCE
-			&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
-			|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
 		{
-			sel = 1; // for now lets pick gold from a chest.
+				std::unique_lock<std::mutex>(nullkiller->aiStateMutex);
+
+				// TODO: Find better way to understand it is Chest of Treasures
+				if(hero.validAndSet()
+					&& components.size() == 2
+					&& components.front().type == ComponentType::RESOURCE
+					&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
+						|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
+				{
+					sel = 1; // for now lets pick gold from a chest.
+				}
 		}
 
 		answerQuery(askID, sel);
@@ -858,6 +864,8 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 		if(h->visitedTown) //we are inside, not just attacking
 		{
 			makePossibleUpgrades(h.get());
+
+			std::unique_lock<std::mutex>  lockGuard(nullkiller->aiStateMutex);
 
 			if(!h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
 				moveCreaturesToHero(h->visitedTown);
