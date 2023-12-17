@@ -137,8 +137,6 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, CGI->generaltexth->translate("vcmi.spellBook.search"));
 
 		searchBox = std::make_shared<CTextInput>(r, FONT_SMALL, std::bind(&CSpellWindow::searchInput, this));
-		searchBox->removeFocus();
-		searchBox->setText("");		
 	}
 
 	processSpells();
