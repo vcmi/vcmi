@@ -27,7 +27,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	RandomMapInfo rmgInfo;
 
-	JsonNode base; /// describes base template
+	std::unique_ptr<JsonNode> base; /// describes base template
 
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 
@@ -54,7 +54,8 @@ protected:
 	virtual void initTypeData(const JsonNode & input);
 public:
 
-	virtual ~AObjectTypeHandler() = default;
+	AObjectTypeHandler();
+	virtual ~AObjectTypeHandler();
 
 	si32 getIndex() const;
 	si32 getSubIndex() const;
