@@ -20,6 +20,8 @@ class JsonNode;
 	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
+	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
+	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
 	BONUS_NAME(SIGHT_RADIUS) \
 	BONUS_NAME(MANA_REGENERATION) /*points per turn*/  \
@@ -28,6 +30,7 @@ class JsonNode;
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
+	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(SPELL_DURATION) \
 	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
