@@ -136,14 +136,14 @@ void MainWindow::detectPreferredLanguage()
 		for (auto const & vcmiLang : Languages::getLanguageList())
 			if (vcmiLang.tagIETF == userLang.toStdString())
 				selectedLanguage = vcmiLang.identifier;
-	}
 
-	logGlobal->info("Selected language: %s", selectedLanguage);
-
-	if (!selectedLanguage.empty())
-	{
-		Settings node = settings.write["general"]["language"];
-		node->String() = selectedLanguage;
+		if (!selectedLanguage.empty())
+		{
+			logGlobal->info("Selected language: %s", selectedLanguage);
+			Settings node = settings.write["general"]["language"];
+			node->String() = selectedLanguage;
+			return;
+		}
 	}
 }
 
