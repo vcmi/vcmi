@@ -23,18 +23,18 @@
 
 #include "../../CCallback.h"
 
-CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
+CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax)
+	: slotsColumnsMax(slotsColumnsMax)
+	, slotsRowsMax(slotsRowsMax)
 {
 	setRedrawParent(true);
 }
 
-CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
-	: CArtifactsOfHeroBackpack()
+CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
+	: CArtifactsOfHeroBackpack(8, 8)
 {
-	pos += position;
-
 	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
-	auto visibleCapacityMax = slots_rows_max * slots_columns_max;
+	auto visibleCapacityMax = slotsRowsMax * slotsColumnsMax;
 	if(backpackCap >= 0)
 		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
 
@@ -75,7 +75,7 @@ void CArtifactsOfHeroBackpack::updateBackpackSlots()
 
 size_t CArtifactsOfHeroBackpack::getActiveSlotRowsNum()
 {
-	return (curHero->artifactsInBackpack.size() + slots_columns_max - 1) / slots_columns_max;
+	return (curHero->artifactsInBackpack.size() + slotsColumnsMax - 1) / slotsColumnsMax;
 }
 
 size_t CArtifactsOfHeroBackpack::getSlotsNum()
@@ -91,13 +91,13 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 	size_t artPlaceIdx = 0;
 	for(auto & artPlace : backpack)
 	{
-		const auto pos = Point(slotSizeWithMargin * (artPlaceIdx % slots_columns_max),
-			slotSizeWithMargin * (artPlaceIdx / slots_columns_max));
+		const auto pos = Point(slotSizeWithMargin * (artPlaceIdx % slotsColumnsMax),
+			slotSizeWithMargin * (artPlaceIdx / slotsColumnsMax));
 		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/artifactSlotEmpty"), pos));
 		artPlace = std::make_shared<CHeroArtPlace>(pos);
 		artPlace->setArtifact(nullptr);
-		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1, _2));
-		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1, _2));
+		artPlace->setClickPressedCallback(std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2));
+		artPlace->setShowPopupCallback(std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2));
 		artPlaceIdx++;
 	}
 
@@ -109,27 +109,36 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 		};
 		CListBoxWithCallback::MovedPosCallback posMoved = [this](size_t pos) -> void
 		{
-			scrollBackpack(static_cast<int>(pos) * slots_columns_max - backpackPos);
+			scrollBackpack(static_cast<int>(pos) * slotsColumnsMax - backpackPos);
 		};
 		backpackListBox = std::make_shared<CListBoxWithCallback>(
-			posMoved, onCreate, Point(0, 0), Point(0, 0), slots_rows_max, 0, 0, 1,
-			Rect(slots_columns_max * slotSizeWithMargin + sliderPosOffsetX, 0, slots_rows_max * slotSizeWithMargin - 2, 0));
+			posMoved, onCreate, Point(0, 0), Point(0, 0), slotsRowsMax, 0, 0, 1,
+			Rect(slotsColumnsMax * slotSizeWithMargin + sliderPosOffsetX, 0, slotsRowsMax * slotSizeWithMargin - 2, 0));
 	}
 
-	pos.w = slots > slots_columns_max ? slots_columns_max : slots;
+	pos.w = slots > slotsColumnsMax ? slotsColumnsMax : slots;
 	pos.w *= slotSizeWithMargin;
 	if(slider)
 		pos.w += sliderPosOffsetX + 16; // 16 is slider width. TODO: get it from CListBox directly;
-
-	pos.h = slots / slots_columns_max;
-	if(slots % slots_columns_max != 0)
-		pos.h += 1;
-	pos.h *= slotSizeWithMargin;
+	pos.h = calcRows(slots) * slotSizeWithMargin;
 }
 
-CArtifactsOfHeroQuickBackpack::CArtifactsOfHeroQuickBackpack(const Point & position, const ArtifactPosition filterBySlot)
+size_t CArtifactsOfHeroBackpack::calcRows(size_t slots)
 {
-	pos += position;
+	size_t rows = 0;
+	if(slotsColumnsMax != 0)
+	{
+		rows = slots / slotsColumnsMax;
+		if(slots % slotsColumnsMax != 0)
+			rows += 1;
+	}
+	return rows;
+}
+
+CArtifactsOfHeroQuickBackpack::CArtifactsOfHeroQuickBackpack(const ArtifactPosition filterBySlot)
+	: CArtifactsOfHeroBackpack(0, 0)
+{
+	assert(filterBySlot != ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!ArtifactUtils::isSlotEquipment(filterBySlot))
 		return;
@@ -153,12 +162,12 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 			scrollInSlotSpellId = artInSlot->getScrollSpellID();
 		}
 
-		std::map<const CArtifact*, const CArtifactInstance*> filteredArts;
+		std::map<const ArtifactID, const CArtifactInstance*> filteredArts;
 		for(auto & slotInfo : curHero->artifactsInBackpack)
 			if(slotInfo.artifact->getTypeId() != artInSlotId &&	!slotInfo.artifact->isScroll() &&
 				slotInfo.artifact->artType->canBePutAt(curHero, filterBySlot, true))
 			{
-				filteredArts.insert(std::pair(slotInfo.artifact->artType, slotInfo.artifact));
+				filteredArts.insert(std::pair(slotInfo.artifact->getTypeId(), slotInfo.artifact));
 			}
 
 		std::map<const SpellID, const CArtifactInstance*> filteredScrolls;
@@ -173,7 +182,10 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		}
 
 		backpack.clear();
-		initAOHbackpack(filteredArts.size() + filteredScrolls.size(), false);
+		auto requiredSlots = filteredArts.size() + filteredScrolls.size();
+		slotsColumnsMax = ceilf(sqrtf(requiredSlots));
+		slotsRowsMax = calcRows(requiredSlots);
+		initAOHbackpack(requiredSlots, false);
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
 			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
@@ -185,4 +197,23 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 ArtifactPosition CArtifactsOfHeroQuickBackpack::getFilterSlot()
 {
 	return filterBySlot;
+}
+
+void CArtifactsOfHeroQuickBackpack::selectSlotAt(const Point & position)
+{
+	for(auto & artPlace : backpack)
+		artPlace->selectSlot(artPlace->pos.isInside(position));
+}
+
+void CArtifactsOfHeroQuickBackpack::swapSelected()
+{
+	ArtifactLocation backpackLoc(curHero->id, ArtifactPosition::PRE_FIRST);
+	for(auto & artPlace : backpack)
+		if(artPlace->isSelected())
+		{
+			backpackLoc.slot = artPlace->slot;
+			break;
+		}
+	if(backpackLoc.slot != ArtifactPosition::PRE_FIRST && filterBySlot != ArtifactPosition::PRE_FIRST && curHero)
+		swapArtifacts(backpackLoc, ArtifactLocation(curHero->id, filterBySlot));
 }

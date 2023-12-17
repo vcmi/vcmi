@@ -33,8 +33,9 @@ public:
 	void addCloseCallback(CloseCallback callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
-	void leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
-	void rightClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 
 	void artifactRemoved(const ArtifactLocation & artLoc) override;
 	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;

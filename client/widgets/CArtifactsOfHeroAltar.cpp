@@ -23,8 +23,8 @@ CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 	: visibleArtSet(ArtBearer::ArtBearer::HERO)
 {
 	init(
-		std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1, _2),
-		std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1, _2),
+		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
+		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
 		position,
 		std::bind(&CArtifactsOfHeroAltar::scrollBackpack, this, _1));
 	pickedArtFromSlot = ArtifactPosition::PRE_FIRST;

@@ -17,7 +17,6 @@ class CFilledTexture;
 class CHeroBackpackWindow : public CWindowObject, public CWindowWithArtifacts
 {
 public:
-	CHeroBackpackWindow();
 	CHeroBackpackWindow(const CGHeroInstance * hero);
 	
 protected:
@@ -26,15 +25,20 @@ protected:
 	std::shared_ptr<CFilledTexture> stretchedBackground;
 	const int windowMargin = 5;
 
-	void init();
 	void showAll(Canvas & to) override;
 };
 
-class CHeroQuickBackpackWindow : public CHeroBackpackWindow
+class CHeroQuickBackpackWindow : public CWindowObject, public CWindowWithArtifacts
 {
 public:
 	CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot);
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 
 private:
+	std::shared_ptr<CArtifactsOfHeroQuickBackpack> arts;
+	std::shared_ptr<CFilledTexture> stretchedBackground;
+	const int windowMargin = 5;
+
 	void showAll(Canvas & to) override;
 };

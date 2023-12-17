@@ -22,8 +22,8 @@ class CListBoxWithCallback;
 class CArtifactsOfHeroBackpack : public CArtifactsOfHeroBase
 {
 public:
+	CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax);
 	CArtifactsOfHeroBackpack();
-	CArtifactsOfHeroBackpack(const Point & position);
 	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
 	void pickUpArtifact(CArtPlace & artPlace);
 	void scrollBackpack(int offset) override;
@@ -34,20 +34,23 @@ public:
 protected:
 	std::shared_ptr<CListBoxWithCallback> backpackListBox;
 	std::vector<std::shared_ptr<CPicture>> backpackSlotsBackgrounds;
-	const size_t slots_columns_max = 8;
-	const size_t slots_rows_max = 8;
+	size_t slotsColumnsMax;
+	size_t slotsRowsMax;
 	const int slotSizeWithMargin = 46;
 	const int sliderPosOffsetX = 5;
 
 	void initAOHbackpack(size_t slots, bool slider);
+	size_t calcRows(size_t slots);
 };
 
 class CArtifactsOfHeroQuickBackpack : public CArtifactsOfHeroBackpack
 {
 public:
-	CArtifactsOfHeroQuickBackpack(const Point & position, const ArtifactPosition filterBySlot);
+	CArtifactsOfHeroQuickBackpack(const ArtifactPosition filterBySlot);
 	void setHero(const CGHeroInstance * hero);
 	ArtifactPosition getFilterSlot();
+	void selectSlotAt(const Point & position);
+	void swapSelected();
 
 private:
 	ArtifactPosition filterBySlot;

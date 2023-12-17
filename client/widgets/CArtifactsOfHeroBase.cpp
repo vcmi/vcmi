@@ -95,16 +95,22 @@ void CArtifactsOfHeroBase::init(
 	setRedrawParent(true);
 }
 
-void CArtifactsOfHeroBase::leftClickArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::clickPrassedArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
-	if(leftClickCallback)
-		leftClickCallback(*this, artPlace, cursorPosition);
+	if(clickPressedCallback)
+		clickPressedCallback(*this, artPlace, cursorPosition);
 }
 
-void CArtifactsOfHeroBase::rightClickArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+void CArtifactsOfHeroBase::showPopupArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
 {
 	if(showPopupCallback)
 		showPopupCallback(*this, artPlace, cursorPosition);
+}
+
+void CArtifactsOfHeroBase::gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition)
+{
+	if(gestureCallback)
+		gestureCallback(*this, artPlace, cursorPosition);
 }
 
 void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
@@ -239,6 +245,15 @@ const CArtifactInstance * CArtifactsOfHeroBase::getPickedArtifact()
 		return nullptr;
 	else
 		return curHero->getArt(ArtifactPosition::TRANSITION_POS);
+}
+
+void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
+{
+	for(auto & artPlace : artWorn)
+	{
+		artPlace.second->setGestureCallback(callback);
+		artPlace.second->addUsedEvents(GESTURE);
+	}
 }
 
 void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet)

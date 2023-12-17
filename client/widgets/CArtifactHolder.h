@@ -46,8 +46,10 @@ public:
 	void setArtifact(const CArtifactInstance * art);
 	void setClickPressedCallback(ClickFunctor callback);
 	void setShowPopupCallback(ClickFunctor callback);
+	void setGestureCallback(ClickFunctor callback);
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 
 protected:
 	std::shared_ptr<CAnimImage> image;
@@ -57,6 +59,7 @@ protected:
 	bool locked;
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
+	ClickFunctor gestureCallback;
 
 	void setInternals(const CArtifactInstance * artInst);
 };

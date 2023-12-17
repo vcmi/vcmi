@@ -64,10 +64,7 @@ SpellID CScrollArtifactInstance::getScrollSpellID() const
 	auto artInst = static_cast<const CArtifactInstance*>(this);
 	const auto bonus = artInst->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
 	if(!bonus)
-	{
-		logMod->warn("Warning: %s doesn't bear any spell!", artInst->nodeName());
 		return SpellID::NONE;
-	}
 	return bonus->subtype.as<SpellID>();
 }
 

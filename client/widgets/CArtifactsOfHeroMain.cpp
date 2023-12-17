@@ -19,10 +19,11 @@
 CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
 {
 	init(
-		std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1, _2),
-		std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1, _2),
+		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
+		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
 		position,
 		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
+	addGestureCallback(std::bind(&CArtifactsOfHeroBase::gestureArtPlace, this, _1, _2));
 }
 
 CArtifactsOfHeroMain::~CArtifactsOfHeroMain()

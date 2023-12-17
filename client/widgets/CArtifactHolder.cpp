@@ -192,6 +192,15 @@ void CArtPlace::showPopupWindow(const Point & cursorPosition)
 		showPopupCallback(*this, cursorPosition);
 }
 
+void CArtPlace::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if(!on)
+		return;
+
+	if(gestureCallback)
+		gestureCallback(*this, initialPosition);
+}
+
 void CArtPlace::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
@@ -224,6 +233,11 @@ void CArtPlace::setClickPressedCallback(ClickFunctor callback)
 void CArtPlace::setShowPopupCallback(ClickFunctor callback)
 {
 	showPopupCallback = callback;
+}
+
+void CArtPlace::setGestureCallback(ClickFunctor callback)
+{
+	gestureCallback = callback;
 }
 
 void CHeroArtPlace::addCombinedArtInfo(std::map<const CArtifact*, int> & arts)

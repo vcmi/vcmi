@@ -19,34 +19,22 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
-CHeroBackpackWindow::CHeroBackpackWindow()
+CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 	: CWindowObject((EOptions)0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
 	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
-}
-
-CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
-	: CHeroBackpackWindow()
-{
-	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
-
-	arts = std::make_shared<CArtifactsOfHeroBackpack>(Point(windowMargin, windowMargin));
+	arts = std::make_shared<CArtifactsOfHeroBackpack>();
+	arts->moveBy(Point(windowMargin, windowMargin));
 	addSetAndCallbacks(arts);
 	arts->setHero(hero);
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
-
-	init();
-	center();
-}
-
-void CHeroBackpackWindow::init()
-{
 	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;
 	quitButton->moveTo(Point(pos.x + pos.w / 2 - quitButton->pos.w / 2, pos.y + arts->pos.h + 2 * windowMargin));
+	center();
 }
 
 void CHeroBackpackWindow::showAll(Canvas & to)
@@ -56,26 +44,44 @@ void CHeroBackpackWindow::showAll(Canvas & to)
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)
-	: CHeroBackpackWindow()
+	: CWindowObject((EOptions)0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	auto artsQuickBp = std::make_shared<CArtifactsOfHeroQuickBackpack>(Point(windowMargin, windowMargin), targetSlot);
-	addSetAndCallbacks(static_cast<std::weak_ptr<CArtifactsOfHeroQuickBackpack>>(artsQuickBp));
-	arts = artsQuickBp;
+	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
+	arts = std::make_shared<CArtifactsOfHeroQuickBackpack>(targetSlot);
+	arts->moveBy(Point(windowMargin, windowMargin));
+	addSetAndCallbacks(static_cast<std::weak_ptr<CArtifactsOfHeroQuickBackpack>>(arts));
 	arts->setHero(hero);
 	addCloseCallback(std::bind(&CHeroQuickBackpackWindow::close, this));
+	addUsedEvents(GESTURE);
+	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
+	pos.h = stretchedBackground->pos.h = arts->pos.h + windowMargin;
+}
 
-	init();
+void CHeroQuickBackpackWindow::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if(on)
+		return;
+
+	arts->swapSelected();
+	close();
+}
+
+void CHeroQuickBackpackWindow::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	arts->selectSlotAt(currentPosition);
+	redraw();
 }
 
 void CHeroQuickBackpackWindow::showAll(Canvas & to)
 {
 	if(arts->getSlotsNum() == 0)
 	{
+		// Dirty solution for closing that window
 		close();
 		return;
 	}
-
-	CHeroBackpackWindow::showAll(to);
+	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to.getInternalSurface(), pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
+	CIntObject::showAll(to);
 }
