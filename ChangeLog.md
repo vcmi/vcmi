@@ -1,3 +1,80 @@
+# 1.4.1 -> 1.4.2
+
+### General
+* Restored support for Windows 7
+* Restored support for 32-bit builds
+* Implemented quick backpack window for slot-specific artifact selection, activated via mouse wheel / swipe gesture
+* Added option to search for specific spell in the spellbook
+* Using alt-tab to switch to another application will no longer activate in-game console/chat
+* Increased frequency of checks for server startup to improve server connection time
+* added nwcfollowthewhiterabbit / vcmiluck cheat: the currently selected hero permanently gains maximum luck.
+* added nwcmorpheus / vcmimorale cheat: the currently selected hero permanently gains maximum morale.
+* added nwcoracle / vcmiobelisk cheat: the puzzle map is permanently revealed.
+* added nwctheone / vcmigod cheat: reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight to currently selected hero
+
+### Launcher
+* Launcher will now properly show mod installation progress
+* Launcher will now correctly select preferred language on first start
+
+### Multiplayer
+* Timers for all players will now be visible at once
+* Turn options menu will correctly open for guests when host switches to it
+* Guests will correctly see which roads are allowed for random maps by host
+* Game will now correctly deactivate unit when timer runs out in pvp battle
+* Game will show turn, battle and unit timers separately during battles
+* Timer in pvp battles will be only active if unit timer is non-zero
+* Timer during adventure map turn will be active only if turn timer is non-zero
+* Game will now send notifications to players when simultaneous turns end
+
+### Stability
+* Fixed crash on clicking town or hero list on MacOS and iOS
+* Fixed crash on closing vcmi on Android
+* Fixed crash on disconnection from multiplayer game
+* Fixed crash on finishing game on last day of the month
+* Fixed crash on loading h3m maps with mods that alter Witch Hut, Shrine or Scholar
+* Fixed crash on opening creature morale detalisation in some localizations
+* Fixed possible crash on starting a battle when opening sound from previous battle is still playing
+* Fixed crash on map loading in case if there is no suitable option for a random dwelling
+* Fixed crash on usage of radial wheel to reorder towns or heroes
+* Fixed possible crash on random map generation
+* Fixed crash on attempting to transfer last creature when stack experience is enabled
+* Fixed crash on accessing invalid settings options
+* Fixed server crash on receiving invalid message from player
+* Added check for presence of Armageddon Blade campaign files to avoid crash on some Heroes 3 versions
+
+### Random Maps Generator
+* Improved performance of random maps generation
+* Rebalance of treasure values and density
+* Improve junction zones generation by spacing Monoliths
+* Reduced amount of terrain decorations to level more in line with H3
+* Generator will now avoid path routing near map border
+* Generator will now check full object area for minimum distance requirement
+* Fixed routing of roads behind Subterranean Gates, Monoliths and Mines
+* Fixed remaining issues with placement of Corpse
+* Fixed placement of one-tile prisons from HotA
+* Fixed spawning of Armageddon's Blade and Vial of Dragon Blood on random maps
+
+### Interface
+* Right-clicking hero icon during levelup dialog will now show hero status window
+* Reduces upscaling artifacts on large spellbook
+* Game will now display correct date of saved games on Android
+* Fixed black screen appearing during spellbook page flip animation 
+* Fixed description of "Start map with hero" bonus in campaigns
+* Fixed invisible chat text input in game lobby
+* Fixed positioning of chat history in game lobby
+* "Infobar Creature Management" option is now enabled by default
+
+### Mechanics
+* Anti-magic garrison now actually blocks spell casting
+* Berserk spell will no longer cancel if affected unit performs counterattack
+* Frenzy spell can no longer be casted on units that should be immune to it
+* Master Genie will no longer attempt to cast beneficial spell on creatures immune to it
+* Vitality and damage skills of a commander will now correctly grow with level
+
+### Modding
+* Added UNTIL_OWN_ATTACK duration type for bonuses
+* Configurable objects with visit mode "first" and "random" now respect "canRefuse" flag
+
 # 1.4.0 -> 1.4.1
 
 ### General
