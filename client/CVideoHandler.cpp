@@ -637,7 +637,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 
 		SDL_Rect rect = CSDL_Ext::toSDL(pos);
 
-		SDL_RenderClear(mainRenderer);
+		SDL_RenderFillRect(mainRenderer, &rect);
 		SDL_RenderCopy(mainRenderer, texture, nullptr, &rect);
 		SDL_RenderPresent(mainRenderer);
 
