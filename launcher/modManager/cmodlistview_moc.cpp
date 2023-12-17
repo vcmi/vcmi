@@ -591,7 +591,7 @@ void CModListView::downloadFile(QString file, QString url, QString description, 
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
 		
 		connect(manager.get(), SIGNAL(extractionProgress(qint64,qint64)),
-			this, SLOT(downloadProgress(qint64,qint64)));
+			this, SLOT(extractionProgress(qint64,qint64)));
 		
 		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
@@ -611,6 +611,14 @@ void CModListView::downloadProgress(qint64 current, qint64 max)
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max / (1024 * 1024));
 	ui->progressBar->setValue(current / (1024 * 1024));
+}
+
+void CModListView::extractionProgress(qint64 current, qint64 max)
+{
+	// display progress, in extracted files
+	ui->progressBar->setVisible(true);
+	ui->progressBar->setMaximum(max);
+	ui->progressBar->setValue(current);
 }
 
 void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors)
