@@ -51,7 +51,7 @@ void ObstaclePlacer::process()
 		do
 		{
 			toBlock.clear();
-			for (const auto& tile : zone.areaPossible().getTiles())
+			for (const auto& tile : zone.areaPossible().getTilesVector())
 			{
 				rmg::Area neighbors;
 				rmg::Area t;
@@ -76,7 +76,7 @@ void ObstaclePlacer::process()
 				}
 			}
 			zone.areaPossible().subtract(toBlock);
-			for (const auto& tile : toBlock.getTiles())
+			for (const auto& tile : toBlock.getTilesVector())
 			{
 				map.setOccupied(tile, ETileType::BLOCKED);
 			}

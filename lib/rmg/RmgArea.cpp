@@ -19,12 +19,12 @@ namespace rmg
 
 void toAbsolute(Tileset & tiles, const int3 & position)
 {
-	Tileset temp;
-	for(const auto & tile : tiles)
+	std::vector vec(tiles.begin(), tiles.end());
+	tiles.clear();
+	std::transform(vec.begin(), vec.end(), vstd::set_inserter(tiles), [position](const int3 & tile)
 	{
-		temp.insert(tile + position);
-	}
-	tiles = std::move(temp);
+		return tile + position;
+	});
 }
 
 void toRelative(Tileset & tiles, const int3 & position)
@@ -161,6 +161,7 @@ const Tileset & Area::getBorder() const
 		return dBorderCache;
 	
 	//compute border cache
+	dBorderCache.reserve(dTiles.bucket_count());
 	for(const auto & t : dTiles)
 	{
 		for(auto & i : int3::getDirs())
@@ -182,6 +183,7 @@ const Tileset & Area::getBorderOutside() const
 		return dBorderOutsideCache;
 	
 	//compute outside border cache
+	dBorderOutsideCache.reserve(dBorderCache.bucket_count() * 2);
 	for(const auto & t : dTiles)
 	{
 		for(auto & i : int3::getDirs())
@@ -297,6 +299,7 @@ int3 Area::nearest(const Area & area) const
 Area Area::getSubarea(const std::function<bool(const int3 &)> & filter) const
 {
 	Area subset;
+	subset.dTiles.reserve(getTilesVector().size());
 	vstd::copy_if(getTilesVector(), vstd::set_inserter(subset.dTiles), filter);
 	return subset;
 }
@@ -329,7 +332,8 @@ void Area::erase(const int3 & tile)
 void Area::unite(const Area & area)
 {
 	invalidate();
-	auto & vec = area.getTilesVector();
+	const auto & vec = area.getTilesVector();
+	dTiles.reserve(dTiles.size() + vec.size());
 	dTiles.insert(vec.begin(), vec.end());
 }
 
@@ -337,6 +341,7 @@ void Area::intersect(const Area & area)
 {
 	invalidate();
 	Tileset result;
+	result.reserve(std::max(dTiles.size(), area.getTilesVector().size()));
 	for(const auto & t : area.getTilesVector())
 	{
 		if(dTiles.count(t))
@@ -361,7 +366,6 @@ void Area::translate(const int3 & shift)
 
 	if(dTilesVectorCache.empty())
 	{
-		getTiles();
 		getTilesVector();
 	}
 	
@@ -396,15 +400,22 @@ Area operator+ (const Area & l, const int3 & r)
 
 Area operator+ (const Area & l, const Area & r)
 {
-	Area result(l);
-	result.unite(r);
+	Area result;
+	const auto & lTiles = l.getTilesVector();
+	const auto & rTiles = r.getTilesVector();
+	result.dTiles.reserve(lTiles.size() + rTiles.size());
+	result.dTiles.insert(lTiles.begin(), lTiles.end());
+	result.dTiles.insert(rTiles.begin(), rTiles.end());
 	return result;
 }
 
 Area operator- (const Area & l, const Area & r)
 {
 	Area result(l);
-	result.subtract(r);
+	for(const auto & t : r.getTilesVector())
+	{
+		result.dTiles.erase(t);
+	}
 	return result;
 }
 
@@ -417,7 +428,7 @@ Area operator* (const Area & l, const Area & r)
 
 bool operator== (const Area & l, const Area & r)
 {
-	return l.getTiles() == r.getTiles();
+	return l.getTilesVector() == r.getTilesVector();
 }
 
 }

@@ -38,10 +38,11 @@ const Area & Object::Instance::getBlockedArea() const
 {
 	if(dBlockedAreaCache.empty())
 	{
-		dBlockedAreaCache.assign(dObject.getBlockedPos());
+		std::set<int3> blockedArea = dObject.getBlockedPos();
+		dBlockedAreaCache.assign(rmg::Tileset(blockedArea.begin(), blockedArea.end()));
 		if(dObject.isVisitable() || dBlockedAreaCache.empty())
 			if (!dObject.isBlockedVisitable())
-				// Do no assume blocked tile is accessible
+				// Do not assume blocked tile is accessible
 				dBlockedAreaCache.add(dObject.visitablePos());
 	}
 	return dBlockedAreaCache;
@@ -71,7 +72,8 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 	{
 		auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
 		rmg::Area visitable = rmg::Area(neighbours) - getBlockedArea();
-		for(const auto & from : visitable.getTiles())
+		// TODO: Add in one operation to avoid multiple invalidation
+		for(const auto & from : visitable.getTilesVector())
 		{
 			if(isVisitableFrom(from))
 				dAccessibleAreaCache.add(from);
@@ -277,16 +279,16 @@ const rmg::Area & Object::getAccessibleArea(bool exceptLast) const
 		return dAccessibleAreaCache;
 	if(!exceptLast && !dAccessibleAreaFullCache.empty())
 		return dAccessibleAreaFullCache;
-	
+
 	// FIXME: This clears tiles for every consecutive object
 	for(auto i = dInstances.begin(); i != std::prev(dInstances.end()); ++i)
 		dAccessibleAreaCache.unite(i->getAccessibleArea());
-	
+
 	dAccessibleAreaFullCache = dAccessibleAreaCache;
 	dAccessibleAreaFullCache.unite(dInstances.back().getAccessibleArea());
 	dAccessibleAreaCache.subtract(getArea());
 	dAccessibleAreaFullCache.subtract(getArea());
-	
+
 	if(exceptLast)
 		return dAccessibleAreaCache;
 	else

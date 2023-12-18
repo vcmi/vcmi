@@ -95,7 +95,7 @@ void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> dista
 {
 	RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
-	for (const auto & tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
+	for (const auto & tile : zone.areaPossible().getTilesVector()) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = distanceFunction(tile);
 		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
@@ -178,7 +178,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	}
 	else
 	{
-		for(const auto & tile : searchArea.getTiles())
+		for(const auto & tile : searchArea.getTilesVector())
 		{
 			obj.setPosition(tile);
 
@@ -469,7 +469,8 @@ bool ObjectManager::createRequiredObjects()
 		}
 
 		rmg::Object rmgNearObject(*nearby.obj);
-		rmg::Area possibleArea(rmg::Area(targetObject->getBlockedPos()).getBorderOutside());
+		std::set<int3> blockedArea = targetObject->getBlockedPos();
+		rmg::Area possibleArea(rmg::Area(rmg::Tileset(blockedArea.begin(), blockedArea.end())).getBorderOutside());
 		possibleArea.intersect(zone.areaPossible());
 		if(possibleArea.empty())
 		{
@@ -587,6 +588,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		}
 	}
 	
+	// TODO: Add multiple tiles in one operation to avoid multiple invalidation
 	for(auto * instance : object.instances())
 	{
 		objectsVisitableArea.add(instance->getVisitablePosition());
@@ -716,7 +718,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 	
 	// Prefer non-blocking tiles, if any
-	const auto & entrableTiles = object.getEntrableArea().getTiles();
+	const auto & entrableTiles = object.getEntrableArea().getTilesVector();
 	int3 entrableTile(-1, -1, -1);
 	if (entrableTiles.empty())
 	{

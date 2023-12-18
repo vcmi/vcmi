@@ -791,7 +791,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	size_t size = 0;
 	{
 		Zone::Lock lock(zone.areaMutex);
-		size = zone.getArea().getTiles().size();
+		size = zone.getArea().getTilesVector().size();
 	}
 
 	int totalDensity = 0;
@@ -891,8 +891,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 						}
 
 						const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();
-						auto areaToBlock = rmgObject.getAccessibleArea(true);
-						areaToBlock.subtract(guardedArea);
+						const auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
 
 						if (zone.freePaths().overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
 							return -1.f;
@@ -914,8 +913,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				{
 					guards.unite(rmgObject.instances().back()->getBlockedArea());
 					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
-					auto areaToBlock = rmgObject.getAccessibleArea(true);
-					areaToBlock.subtract(guardedArea);
+					auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
 					treasureBlockArea.unite(areaToBlock);
 				}
 				zone.connectPath(path);
