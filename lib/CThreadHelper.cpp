@@ -14,7 +14,8 @@
 	#include <windows.h>
 #elif defined(VCMI_HAIKU)
 	#include <OS.h>
-#elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD) && !defined(VCMI_HURD)
+#elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD) && \
+	!defined(VCMI_HURD) && !defined(VCMI_OPENBSD)
 	#include <sys/prctl.h>
 #endif
 
