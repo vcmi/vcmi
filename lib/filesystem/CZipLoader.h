@@ -61,16 +61,17 @@ public:
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 };
 
-namespace ZipArchive
+class DLL_LINKAGE ZipArchive : boost::noncopyable
 {
-	/// List all files present in archive
-	std::vector<std::string> DLL_LINKAGE listFiles(const boost::filesystem::path & filename);
+	unzFile archive;
 
-	/// extracts all files from archive "from" into destination directory "where". Directory must exist
-	bool DLL_LINKAGE extract(const boost::filesystem::path & from, const boost::filesystem::path & where);
+public:
+	ZipArchive(const boost::filesystem::path & from);
+	~ZipArchive();
 
-	///same as above, but extracts only files mentioned in "what" list
-	bool DLL_LINKAGE extract(const boost::filesystem::path & from, const boost::filesystem::path & where, const std::vector<std::string> & what);
-}
+	std::vector<std::string> listFiles();
+	bool extract(const boost::filesystem::path & where, const std::vector<std::string> & what);
+	bool extract(const boost::filesystem::path & where, const std::string & what);
+};
 
 VCMI_LIB_NAMESPACE_END
