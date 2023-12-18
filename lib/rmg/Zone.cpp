@@ -272,6 +272,16 @@ void Zone::fractalize()
 		{
 			//link tiles in random order
 			std::vector<int3> tilesToMakePath = possibleTiles.getTilesVector();
+
+			// Do not fractalize tiles near the edge of the map to avoid paths adjacent to map edge
+			const auto h = map.height();
+			const auto w = map.width();
+			const size_t MARGIN = 3;
+			vstd::erase_if(tilesToMakePath, [MARGIN, h, w](const int3 & tile)
+			{
+				return tile.x < MARGIN || tile.x > (w - MARGIN) ||
+					tile.y < MARGIN || tile.y > (h - MARGIN);
+			});
 			RandomGeneratorUtil::randomShuffle(tilesToMakePath, getRand());
 			
 			int3 nodeFound(-1, -1, -1);
