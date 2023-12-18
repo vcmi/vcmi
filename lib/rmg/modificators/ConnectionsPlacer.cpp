@@ -302,6 +302,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	if(zone.isUnderground() != otherZone->isUnderground())
 	{
 		int3 zShift(0, 0, zone.getPos().z - otherZone->getPos().z);
+
+		std::scoped_lock doubleLock(zone.areaMutex, otherZone->areaMutex);
 		auto commonArea = zone.areaPossible() * (otherZone->areaPossible() + zShift);
 		if(!commonArea.empty())
 		{
@@ -322,7 +324,6 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
 			int minDist = 3;
 			
-			std::scoped_lock doubleLock(zone.areaMutex, otherZone->areaMutex);
 			rmg::Path path2(otherZone->area());
 			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
 			{
