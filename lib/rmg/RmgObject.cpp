@@ -41,9 +41,7 @@ const Area & Object::Instance::getBlockedArea() const
 		std::set<int3> blockedArea = dObject.getBlockedPos();
 		dBlockedAreaCache.assign(rmg::Tileset(blockedArea.begin(), blockedArea.end()));
 		if(dObject.isVisitable() || dBlockedAreaCache.empty())
-			if (!dObject.isBlockedVisitable())
-				// Do not assume blocked tile is accessible
-				dBlockedAreaCache.add(dObject.visitablePos());
+			dBlockedAreaCache.add(dObject.visitablePos());
 	}
 	return dBlockedAreaCache;
 }
