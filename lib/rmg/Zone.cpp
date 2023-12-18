@@ -278,7 +278,7 @@ void Zone::fractalize()
 			const auto h = map.height();
 			const auto w = map.width();
 			const size_t MARGIN = 3;
-			vstd::erase_if(tilesToMakePath, [MARGIN, h, w](const int3 & tile)
+			vstd::erase_if(tilesToMakePath, [&, h, w](const int3 & tile)
 			{
 				return tile.x < MARGIN || tile.x > (w - MARGIN) ||
 					tile.y < MARGIN || tile.y > (h - MARGIN);
