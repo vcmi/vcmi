@@ -62,6 +62,7 @@ public:
 	void addCloseObject(const RequiredObjectInfo & info);
 	void addNearbyObject(const RequiredObjectInfo & info);
 
+	bool ObjectManager::createMonoliths();
 	bool createRequiredObjects();
 
 	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const;

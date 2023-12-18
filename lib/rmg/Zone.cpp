@@ -15,6 +15,7 @@
 #include "TileInfo.h"
 #include "CMapGenerator.h"
 #include "RmgPath.h"
+#include "modificators/ObjectManager.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -307,6 +308,16 @@ void Zone::fractalize()
 			tilesToIgnore.clear();
 		}
 	}
+	else
+	{
+		// Handle special case - place Monoliths at the edge of a zone
+		auto objectManager = getModificator<ObjectManager>();
+		if (objectManager)
+		{
+			objectManager->createMonoliths();
+		}
+	}
+
 	Lock lock(areaMutex);
 	//cut straight paths towards the center. A* is too slow for that.
 	auto areas = connectedAreas(clearedTiles, false);

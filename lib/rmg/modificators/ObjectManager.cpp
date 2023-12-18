@@ -356,6 +356,41 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 	}
 }
 
+bool ObjectManager::createMonoliths()
+{
+	// Special case for Junction zone only
+	logGlobal->trace("Creating Monoliths");
+	for(const auto & objInfo : requiredObjects)
+	{
+		if (objInfo.obj->ID != Obj::MONOLITH_TWO_WAY)
+		{
+			continue;
+		}
+
+		rmg::Object rmgObject(*objInfo.obj);
+		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
+		bool guarded = addGuard(rmgObject, objInfo.guardStrength, true);
+
+		Zone::Lock lock(zone.areaMutex);
+		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
+		
+		if(!path.valid())
+		{
+			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			return false;
+		}
+		
+		zone.connectPath(path);
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
+	}
+
+	vstd::erase_if(requiredObjects, [](const auto & objInfo)
+	{
+		return  objInfo.obj->ID == Obj::MONOLITH_TWO_WAY;
+	});
+	return true;
+}
+
 bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
