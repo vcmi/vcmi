@@ -191,7 +191,7 @@ public:
         std::size_t hz = v.z + 1000;
 
         // Combine the hash values, multiplying them by prime numbers
-        return (hx * 4000037u) ^ (hy * 2003u) + hz;
+        return ((hx * 4000037u) ^ (hy * 2003u)) + hz;
     }
 };
 
