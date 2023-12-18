@@ -615,7 +615,7 @@
 				},
 				"infoBarCreatureManagement": {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"enableLargeSpellbook" : {
 					"type": "boolean",
