@@ -80,6 +80,14 @@ TODO: how to test translation locally
 TODO
 see https://github.com/vcmi/vcmi/blob/develop/android/vcmi-app/src/main/res/values/strings.xml
 
+### Translation of Linux storefronts
+
+This will translate the appearance of VCMI in Linux package managers.
+
+- Install [jdAppStreamEdit](https://flathub.org/apps/page.codeberg.JakobDev.jdAppStreamEdit).
+- Open `<VCMI Sources>/launcher/eu.vcmi.VCMI.metainfo.xml`.
+- Translate and save the file.
+
 ### Submitting changes
 
 Once you have finished with translation you need to submit these changes to vcmi team using git or Github Desktop
