@@ -414,7 +414,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(true)
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
 	}
 
 	return 0;
