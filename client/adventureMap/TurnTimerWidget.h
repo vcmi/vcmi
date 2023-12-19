@@ -11,50 +11,42 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../gui/InterfaceObjectConfigurable.h"
-#include "../render/Canvas.h"
 #include "../render/Colors.h"
+#include "../../lib/TurnTimerInfo.h"
 
 class CAnimImage;
 class CLabel;
+class CFilledTexture;
+class TransparentFilledRectangle;
 
 VCMI_LIB_NAMESPACE_BEGIN
-
 class PlayerColor;
-
 VCMI_LIB_NAMESPACE_END
 
-class TurnTimerWidget : public InterfaceObjectConfigurable
+class TurnTimerWidget : public CIntObject
 {
-private:
-	
-	class DrawRect : public CIntObject
-	{
-		const Rect rect;
-		const ColorRGBA color;
-		
-	public:
-		DrawRect(const Rect &, const ColorRGBA &);
-		void showAll(Canvas & to) override;
-	};
+	int lastSoundCheckSeconds;
 
-	int turnTime;
-	int lastTurnTime;
-	int cachedTurnTime;
-	PlayerColor lastPlayer;
-	
-	std::set<int> notifications;
-	
-	std::shared_ptr<DrawRect> buildDrawRect(const JsonNode & config) const;
-	
+	std::set<int> notificationThresholds;
+	std::map<PlayerColor, TurnTimerInfo> lastUpdateTimers;
+	std::map<PlayerColor, TurnTimerInfo> countingDownTimers;
+
+	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabels;
+	std::shared_ptr<CFilledTexture> backgroundTexture;
+	std::shared_ptr<TransparentFilledRectangle> backgroundBorder;
+
 	void updateTimer(PlayerColor player, uint32_t msPassed);
-
-public:
 
 	void show(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 	
-	void setTime(PlayerColor player, int time);
+	void updateNotifications(PlayerColor player, int timeMs);
+	void updateTextLabel(PlayerColor player, int timeMs);
 
-	TurnTimerWidget();
+public:
+	/// Activates adventure map mode in which widget will display timer for all players
+	TurnTimerWidget(const Point & position);
+
+	/// Activates battle mode in which timer displays only timer of specific player
+	TurnTimerWidget(const Point & position, PlayerColor player);
 };
