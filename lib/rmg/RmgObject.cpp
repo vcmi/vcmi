@@ -309,7 +309,7 @@ const rmg::Area & Object::getBlockVisitableArea() const
 
 const rmg::Area & Object::getRemovableArea() const
 {
-	if(dInstances.empty())
+	if(dRemovableAreaCache.empty())
 	{
 		for(const auto & i : dInstances)
 		{
