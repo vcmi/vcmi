@@ -237,33 +237,38 @@ void Zone::fractalize()
 	rmg::Area tilesToIgnore; //will be erased in this iteration
 
 	//Squared
-	float minDistance = 10 * 10;
+	float minDistance = 9 * 9;
+	float freeDistance = pos.z ? (10 * 10) : 6 * 6;
 	float spanFactor = (pos.z ? 0.25 : 0.5f); //Narrower passages in the Underground
+	float marginFactor = 1.0f;
 
 	int treasureValue = 0;
 	int treasureDensity = 0;
-	for (auto t : treasureInfo)
+	for (const auto & t : treasureInfo)
 	{
 		treasureValue += ((t.min + t.max) / 2) * t.density / 1000.f; //Thousands
 		treasureDensity += t.density;
 	}
 
-	if (treasureValue > 200)
+	if (treasureValue > 400)
 	{
-		//Less obstacles - max span is 1 (no obstacles)
-		spanFactor = 1.0f - ((std::max(0, (1000 - treasureValue)) / (1000.f - 200)) * (1 - spanFactor));
+		// A quater at max density
+		marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
 	}
-	else if (treasureValue < 100)
+	else if (treasureValue < 125)
 	{
 		//Dense obstacles
-		spanFactor *= (treasureValue / 100.f);
-		vstd::amax(spanFactor, 0.2f);
+		spanFactor *= (treasureValue / 125.f);
+		vstd::amax(spanFactor, 0.15f);
 	}
 	if (treasureDensity <= 10)
 	{
-		vstd::amin(spanFactor, 0.25f); //Add extra obstacles to fill up space
+		vstd::amin(spanFactor, 0.1f + 0.01f * treasureDensity); //Add extra obstacles to fill up space
 	}
 	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
+	freeDistance = freeDistance * marginFactor;
+	vstd::amax(freeDistance, 4 * 4);
+	logGlobal->info("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -291,7 +296,7 @@ void Zone::fractalize()
 			{
 				//find closest free tile
 				int3 closestTile = clearedTiles.nearest(tileToMakePath);
-				if(closestTile.dist2dSQ(tileToMakePath) <= minDistance)
+				if(closestTile.dist2dSQ(tileToMakePath) <= freeDistance)
 					tilesToIgnore.add(tileToMakePath);
 				else
 				{

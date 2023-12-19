@@ -584,7 +584,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	int maxValue = treasureInfo.max;
 	int minValue = treasureInfo.min;
 	
-	const ui32 desiredValue =zone.getRand().nextInt(minValue, maxValue);
+	const ui32 desiredValue = zone.getRand().nextInt(minValue, maxValue);
 	
 	int currentValue = 0;
 	bool hasLargeObject = false;
@@ -614,6 +614,13 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		oi->maxPerZone--;
 		
 		currentValue += oi->value;
+
+		if (currentValue >= minValue)
+		{
+			// 50% chance to end right here
+			if (zone.getRand().nextInt() & 1)
+				break;
+		}
 	}
 	
 	return objectInfos;
@@ -808,7 +815,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 		totalDensity += t->density;
 
-		const int DENSITY_CONSTANT = 400;
+		const int DENSITY_CONSTANT = 300;
 		size_t count = (size * t->density) / DENSITY_CONSTANT;
 
 		//Assure space for lesser treasures, if there are any left
