@@ -1221,7 +1221,7 @@
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "UNTIL_ATTACK"
+						"duration" : "UNTIL_OWN_ATTACK"
 					}
 				}
 			},

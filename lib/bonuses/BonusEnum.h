@@ -215,7 +215,7 @@ enum class BonusType
 };
 namespace BonusDuration  //when bonus is automatically removed
 {
-	using Type = std::bitset<10>;
+	using Type = std::bitset<11>;
 	extern JsonNode toJson(const Type & duration);
 	constexpr Type PERMANENT = 1 << 0;
 	constexpr Type ONE_BATTLE = 1 << 1; //at the end of battle
@@ -227,6 +227,7 @@ namespace BonusDuration  //when bonus is automatically removed
 	constexpr Type UNTIL_ATTACK = 1 << 7; /*removed after attack and counterattacks are performed*/
 	constexpr Type STACK_GETS_TURN = 1 << 8; /*removed when stack gets its turn - used for defensive stance*/
 	constexpr Type COMMANDER_KILLED = 1 << 9;
+	constexpr Type UNTIL_OWN_ATTACK = 1 << 10; /*removed after attack is performed (not counterattack)*/;
 };
 enum class BonusSource
 {
