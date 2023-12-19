@@ -33,23 +33,49 @@ TurnTimerWidget::TurnTimerWidget(const Point & position)
 TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 	: CIntObject(TIME)
 	, lastSoundCheckSeconds(0)
+	, isBattleMode(player.isValidPlayer())
 {
-	pos += position;
-	pos.w = 50;
-	pos.h = 0;
-	recActions &= ~DEACTIVATE;
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos); // 1 px smaller on all sides
-	backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::METALLIC_GOLD);
+	pos += position;
+	pos.w = 0;
+	pos.h = 0;
+	recActions &= ~DEACTIVATE;
+	const auto & timers = LOCPLINT->cb->getStartInfo()->turnTimerInfo;
 
-	if (player.isValidPlayer())
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos); // 1 px smaller on all sides
+
+	if (isBattleMode)
+		backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::BRIGHT_YELLOW);
+	else
+		backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::BLACK);
+
+	if (isBattleMode)
 	{
+		pos.w = 76;
+
 		pos.h += 16;
-		playerLabels[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+
+		if (timers.battleTimer != 0)
+		{
+			pos.h += 16;
+			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		}
+
+		if (!timers.accumulatingUnitTimer && timers.unitTimer != 0)
+		{
+			pos.h += 16;
+			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		}
 	}
 	else
 	{
+		if (!timers.accumulatingTurnTimer && timers.baseTimer != 0)
+			pos.w = 120;
+		else
+			pos.w = 50;
+
 		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		{
 			if (LOCPLINT->cb->getStartInfo()->playerInfos.count(player) == 0)
@@ -59,7 +85,7 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 				continue;
 
 			pos.h += 16;
-			playerLabels[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 		}
 	}
 
@@ -84,14 +110,54 @@ void TurnTimerWidget::updateNotifications(PlayerColor player, int timeMs)
 	lastSoundCheckSeconds = newTimeSeconds;
 }
 
-void TurnTimerWidget::updateTextLabel(PlayerColor player, int timeMs)
+static std::string msToString(int timeMs)
 {
-	auto label = playerLabels[player];
-
+	int timeSeconds = timeMs / 1000;
 	std::ostringstream oss;
-	oss << lastSoundCheckSeconds / 60 << ":" << std::setw(2) << std::setfill('0') << lastSoundCheckSeconds % 60;
-	label->setText(oss.str());
-	label->setColor(graphics->playerColors[player]);
+	oss << timeSeconds / 60 << ":" << std::setw(2) << std::setfill('0') << timeSeconds % 60;
+	return oss.str();
+}
+
+void TurnTimerWidget::updateTextLabel(PlayerColor player, const TurnTimerInfo & timer)
+{
+	const auto & timerSettings = LOCPLINT->cb->getStartInfo()->turnTimerInfo;
+	auto mainLabel = playerLabelsMain[player];
+
+	if (isBattleMode)
+	{
+		mainLabel->setText(msToString(timer.baseTimer + timer.turnTimer));
+
+		if (timerSettings.battleTimer != 0)
+		{
+			auto battleLabel = playerLabelsBattle[player];
+			if (timer.battleTimer != 0)
+			{
+				if (timerSettings.accumulatingUnitTimer)
+					battleLabel->setText("+" + msToString(timer.battleTimer + timer.unitTimer));
+				else
+					battleLabel->setText("+" + msToString(timer.battleTimer));
+			}
+			else
+				battleLabel->setText("");
+		}
+
+		if (!timerSettings.accumulatingUnitTimer && timerSettings.unitTimer != 0)
+		{
+			auto unitLabel = playerLabelsUnit[player];
+			if (timer.unitTimer != 0)
+				unitLabel->setText("+" + msToString(timer.unitTimer));
+			else
+				unitLabel->setText("");
+		}
+	}
+	else
+	{
+		if (!timerSettings.accumulatingTurnTimer && timerSettings.baseTimer != 0)
+			mainLabel->setText(msToString(timer.baseTimer) + "+" + msToString(timer.turnTimer));
+		else
+			mainLabel->setText(msToString(timer.baseTimer + timer.turnTimer));
+	}
+
 }
 
 void TurnTimerWidget::updateTimer(PlayerColor player, uint32_t msPassed)
@@ -110,12 +176,12 @@ void TurnTimerWidget::updateTimer(PlayerColor player, uint32_t msPassed)
 		countingDownTimer.substractTimer(msPassed);
 	
 	updateNotifications(player, countingDownTimer.valueMs());
-	updateTextLabel(player, countingDownTimer.valueMs());
+	updateTextLabel(player, countingDownTimer);
 }
 
 void TurnTimerWidget::tick(uint32_t msPassed)
 {
-	for(const auto & player : playerLabels)
+	for(const auto & player : playerLabelsMain)
 	{
 		if (LOCPLINT->battleInt)
 		{
@@ -123,7 +189,7 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 
 			bool isDefender = battle->sideToPlayer(BattleSide::DEFENDER) == player.first;
 			bool isAttacker = battle->sideToPlayer(BattleSide::ATTACKER) == player.first;
-			bool isMakingUnitTurn = battle->battleActiveUnit()->unitOwner() == player.first;
+			bool isMakingUnitTurn = battle->battleActiveUnit() && battle->battleActiveUnit()->unitOwner() == player.first;
 			bool isEngagedInBattle = isDefender || isAttacker;
 
 			// Due to way our network message queue works during battle animation

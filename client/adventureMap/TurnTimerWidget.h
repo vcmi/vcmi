@@ -26,12 +26,15 @@ VCMI_LIB_NAMESPACE_END
 class TurnTimerWidget : public CIntObject
 {
 	int lastSoundCheckSeconds;
+	bool isBattleMode;
 
 	std::set<int> notificationThresholds;
 	std::map<PlayerColor, TurnTimerInfo> lastUpdateTimers;
 	std::map<PlayerColor, TurnTimerInfo> countingDownTimers;
 
-	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabels;
+	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsMain;
+	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsBattle;
+	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsUnit;
 	std::shared_ptr<CFilledTexture> backgroundTexture;
 	std::shared_ptr<TransparentFilledRectangle> backgroundBorder;
 
@@ -41,7 +44,7 @@ class TurnTimerWidget : public CIntObject
 	void tick(uint32_t msPassed) override;
 	
 	void updateNotifications(PlayerColor player, int timeMs);
-	void updateTextLabel(PlayerColor player, int timeMs);
+	void updateTextLabel(PlayerColor player, const TurnTimerInfo & timer);
 
 public:
 	/// Activates adventure map mode in which widget will display timer for all players

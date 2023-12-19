@@ -34,6 +34,8 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 	{
 		timers[player] = si->turnTimerInfo;
 		timers[player].turnTimer = 0;
+		timers[player].battleTimer = 0;
+		timers[player].unitTimer = 0;
 		timers[player].isActive = true;
 		timers[player].isBattle = false;
 		lastUpdate[player] = std::numeric_limits<int>::max();

@@ -31,6 +31,7 @@
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../adventureMap/TurnTimerWidget.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -39,6 +40,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/StartInfo.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
@@ -83,6 +85,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	createQueue();
 	createStickyHeroInfoWindows();
+	createTimerInfoWindows();
 
 	if ( owner.tacticsMode )
 		tacticPhaseStarted();
@@ -128,8 +131,8 @@ void BattleWindow::createStickyHeroInfoWindows()
 		InfoAboutHero info;
 		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
 		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, pos.y)
-				: Point(pos.x + pos.w -79, pos.y + 135);
+				? Point(pos.x + pos.w + 15, pos.y + 50)
+				: Point(pos.x + pos.w -79, pos.y + 185);
 		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
 	}
 	if(owner.attackingHeroInstance)
@@ -137,8 +140,8 @@ void BattleWindow::createStickyHeroInfoWindows()
 		InfoAboutHero info;
 		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
 		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, pos.y)
-				: Point(pos.x + 1, pos.y + 135);
+				? Point(pos.x - 93, pos.y + 50)
+				: Point(pos.x + 1, pos.y + 185);
 		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
 	}
 
@@ -151,6 +154,33 @@ void BattleWindow::createStickyHeroInfoWindows()
 
 		if(defenderHeroWindow)
 			defenderHeroWindow->disable();
+	}
+}
+
+void BattleWindow::createTimerInfoWindows()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
+	{
+		PlayerColor attacker = owner.getBattle()->sideToPlayer(BattleSide::ATTACKER);
+		PlayerColor defender = owner.getBattle()->sideToPlayer(BattleSide::DEFENDER);
+
+		if (attacker.isValidPlayer())
+		{
+			if (GH.screenDimensions().x >= 1000)
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-92, 1), attacker);
+			else
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(1, 135), attacker);
+		}
+
+		if (defender.isValidPlayer())
+		{
+			if (GH.screenDimensions().x >= 1000)
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 15, 1), defender);
+			else
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 79, 135), defender);
+		}
 	}
 }
 
