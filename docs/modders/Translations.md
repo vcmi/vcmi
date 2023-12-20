@@ -79,7 +79,10 @@ TODO: how to test translation locally
 
 The [AppStream](https://freedesktop.org/software/appstream/docs/chap-Metadata.html) [metainfo file](https://github.com/vcmi/vcmi/blob/develop/launcher/eu.vcmi.VCMI.metainfo.xml) is used for Linux software centers.
 
-It can be translated using a text editor or using [jdAppStreamEdit](https://flathub.org/apps/page.codeberg.JakobDev.jdAppStreamEdit).
+It can be translated using a text editor or using [jdAppStreamEdit](https://flathub.org/apps/page.codeberg.JakobDev.jdAppStreamEdit):
+- Install jdAppStreamEdit
+- Open `<VCMI>/launcher/eu.vcmi.VCMI.metainfo.xml`
+- Translate and save the file
 
 ### Translation of Android Launcher
 
