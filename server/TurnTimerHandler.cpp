@@ -105,11 +105,8 @@ bool TurnTimerHandler::timerCountDown(int & timer, int initialTimer, PlayerColor
 	{
 		timer -= waitTime;
 		lastUpdate[player] += waitTime;
-		int frequency = (timer > turnTimePropagateThreshold
-						 && initialTimer - timer > turnTimePropagateThreshold)
-		? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit;
 		
-		if(lastUpdate[player] >= frequency)
+		if(lastUpdate[player] >= turnTimePropagateFrequency)
 			sendTimerUpdate(player);
 
 		return true;

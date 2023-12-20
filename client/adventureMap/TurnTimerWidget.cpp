@@ -68,6 +68,8 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 			pos.h += 16;
 			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 		}
+
+		updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
 	}
 	else
 	{
@@ -86,6 +88,8 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 
 			pos.h += 16;
 			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+
+			updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
 		}
 	}
 
@@ -157,26 +161,13 @@ void TurnTimerWidget::updateTextLabel(PlayerColor player, const TurnTimerInfo & 
 		else
 			mainLabel->setText(msToString(timer.baseTimer + timer.turnTimer));
 	}
-
 }
 
 void TurnTimerWidget::updateTimer(PlayerColor player, uint32_t msPassed)
 {
 	const auto & gamestateTimer = LOCPLINT->cb->getPlayerTurnTime(player);
-
-	if (!(lastUpdateTimers[player] == gamestateTimer))
-	{
-		lastUpdateTimers[player] = gamestateTimer;
-		countingDownTimers[player] = gamestateTimer;
-	}
-
-	auto & countingDownTimer = countingDownTimers[player];
-
-	if(countingDownTimer.isActive && LOCPLINT->cb->isPlayerMakingTurn(player))
-		countingDownTimer.substractTimer(msPassed);
-	
-	updateNotifications(player, countingDownTimer.valueMs());
-	updateTextLabel(player, countingDownTimer);
+	updateNotifications(player, gamestateTimer.valueMs());
+	updateTextLabel(player, gamestateTimer);
 }
 
 void TurnTimerWidget::tick(uint32_t msPassed)

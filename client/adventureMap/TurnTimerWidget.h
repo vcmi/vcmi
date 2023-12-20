@@ -29,8 +29,6 @@ class TurnTimerWidget : public CIntObject
 	bool isBattleMode;
 
 	std::set<int> notificationThresholds;
-	std::map<PlayerColor, TurnTimerInfo> lastUpdateTimers;
-	std::map<PlayerColor, TurnTimerInfo> countingDownTimers;
 
 	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsMain;
 	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsBattle;
