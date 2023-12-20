@@ -75,6 +75,15 @@ Translation of Map Editor is identical, except for location of translation files
 
 TODO: how to test translation locally
 
+### Translation of AppStream metainfo
+
+The [AppStream](https://freedesktop.org/software/appstream/docs/chap-Metadata.html) [metainfo file](https://github.com/vcmi/vcmi/blob/develop/launcher/eu.vcmi.VCMI.metainfo.xml) is used for Linux software centers.
+
+It can be translated using a text editor or using [jdAppStreamEdit](https://flathub.org/apps/page.codeberg.JakobDev.jdAppStreamEdit):
+- Install jdAppStreamEdit
+- Open `<VCMI>/launcher/eu.vcmi.VCMI.metainfo.xml`
+- Translate and save the file
+
 ### Translation of Android Launcher
 
 TODO
