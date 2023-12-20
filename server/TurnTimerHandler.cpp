@@ -126,6 +126,10 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 	const auto * state = gameHandler.getPlayerState(player);
 	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{
+		// turn timers are only used if turn timer is non-zero
+		if (si->turnTimerInfo.turnTimer == 0)
+			return;
+
 		if(timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
 			return;
 
@@ -276,17 +280,21 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 	auto & timer = timers[player];
 	if(timer.isActive && timer.isBattle)
 	{
-		 if (timerCountDown(timer.unitTimer, si->turnTimerInfo.unitTimer, player, waitTime))
+		// in pvp battles, timers are only used if unit timer is non-zero
+		if(isPvpBattle(battleID) && si->turnTimerInfo.unitTimer == 0)
 			return;
 
-		 if (timerCountDown(timer.battleTimer, si->turnTimerInfo.battleTimer, player, waitTime))
-			 return;
+		if (timerCountDown(timer.unitTimer, si->turnTimerInfo.unitTimer, player, waitTime))
+			return;
 
-		 if (timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
-			 return;
+		if (timerCountDown(timer.battleTimer, si->turnTimerInfo.battleTimer, player, waitTime))
+			return;
 
-		 if (timerCountDown(timer.baseTimer, si->turnTimerInfo.baseTimer, player, waitTime))
-			 return;
+		if (timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
+			return;
+
+		if (timerCountDown(timer.baseTimer, si->turnTimerInfo.baseTimer, player, waitTime))
+			return;
 
 		if(isPvpBattle(battleID))
 		{
