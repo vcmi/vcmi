@@ -245,8 +245,8 @@ std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
 	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
 	// carpet
-	Canvas tmp6 = Canvas(Point(592, 59));
-	tmp6.draw(img, Point(0, 0), Rect(15, 484, 592, 59));
+	Canvas tmp6 = Canvas(Point(590, 59));
+	tmp6.draw(img, Point(0, 0), Rect(15, 484, 590, 59));
 	canvas.drawScaled(tmp6, Point(0, 545), Point(800, 59));
 	// remove bookmarks
 	for (int i = 0; i < 56; i++)
