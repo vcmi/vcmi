@@ -177,9 +177,9 @@ void BattleWindow::createTimerInfoWindows()
 		if (defender.isValidPlayer())
 		{
 			if (GH.screenDimensions().x >= 1000)
-				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 15, 1), defender);
+				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 16, 1), defender);
 			else
-				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 79, 135), defender);
+				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
 		}
 	}
 }
