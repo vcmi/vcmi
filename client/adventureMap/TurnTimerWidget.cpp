@@ -54,19 +54,19 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 	{
 		pos.w = 76;
 
-		pos.h += 16;
-		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		pos.h += 20;
+		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 
 		if (timers.battleTimer != 0)
 		{
-			pos.h += 16;
-			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			pos.h += 20;
+			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 		}
 
 		if (!timers.accumulatingUnitTimer && timers.unitTimer != 0)
 		{
-			pos.h += 16;
-			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			pos.h += 20;
+			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 		}
 
 		updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
@@ -76,7 +76,7 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 		if (!timers.accumulatingTurnTimer && timers.baseTimer != 0)
 			pos.w = 120;
 		else
-			pos.w = 50;
+			pos.w = 60;
 
 		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		{
@@ -86,8 +86,8 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 			if (!LOCPLINT->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman())
 				continue;
 
-			pos.h += 16;
-			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 8, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			pos.h += 20;
+			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
 
 			updateTextLabel(player, LOCPLINT->cb->getPlayerTurnTime(player));
 		}

@@ -131,8 +131,8 @@ void BattleWindow::createStickyHeroInfoWindows()
 		InfoAboutHero info;
 		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
 		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, pos.y + 50)
-				: Point(pos.x + pos.w -79, pos.y + 185);
+				? Point(pos.x + pos.w + 15, pos.y + 60)
+				: Point(pos.x + pos.w -79, pos.y + 195);
 		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
 	}
 	if(owner.attackingHeroInstance)
@@ -140,8 +140,8 @@ void BattleWindow::createStickyHeroInfoWindows()
 		InfoAboutHero info;
 		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
 		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, pos.y + 50)
-				: Point(pos.x + 1, pos.y + 185);
+				? Point(pos.x - 93, pos.y + 60)
+				: Point(pos.x + 1, pos.y + 195);
 		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
 	}
 
@@ -161,7 +161,7 @@ void BattleWindow::createTimerInfoWindows()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
+	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || LOCPLINT->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
 	{
 		PlayerColor attacker = owner.getBattle()->sideToPlayer(BattleSide::ATTACKER);
 		PlayerColor defender = owner.getBattle()->sideToPlayer(BattleSide::DEFENDER);
