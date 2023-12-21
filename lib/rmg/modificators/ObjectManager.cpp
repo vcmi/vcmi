@@ -600,11 +600,13 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				//Cannot be trespassed (Corpse)
 				continue;
 			}
-			else if(instance->object().appearance->isVisitableFromTop())
-				m->areaForRoads().add(instance->getVisitablePosition());
-			else
+			else if(!instance->object().appearance->isVisitableFromTop())
 			{
-				m->areaIsolated().add(instance->getVisitablePosition() + int3(0, -1, 0));
+				auto abovePos = instance->getVisitablePosition() + int3(0, -1, 0);
+				if (!instance->object().blockingAt(abovePos))
+				{
+					m->areaIsolated().add(abovePos);
+				}
 			}
 		}
 
@@ -718,22 +720,20 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 	
 	// Prefer non-blocking tiles, if any
-	const auto & entrableTiles = object.getEntrableArea().getTilesVector();
-	int3 entrableTile(-1, -1, -1);
-	if (entrableTiles.empty())
+	auto entrableArea = object.getEntrableArea();
+	if (entrableArea.empty())
 	{
-		entrableTile = object.getVisitablePosition();
-	}
-	else
-	{
-		entrableTile = *RandomGeneratorUtil::nextItem(entrableTiles, zone.getRand());
+		entrableArea.add(object.getVisitablePosition());
 	}
 
-	rmg::Area visitablePos({entrableTile});
-	visitablePos.unite(visitablePos.getBorderOutside());
+	rmg::Area entrableBorder = entrableArea.getBorderOutside();
 	
 	auto accessibleArea = object.getAccessibleArea();
-	accessibleArea.intersect(visitablePos);
+	accessibleArea.erase_if([&](const int3 & tile)
+	{
+		return !entrableBorder.contains(tile);
+	});
+	
 	if(accessibleArea.empty())
 	{
 		delete guard;

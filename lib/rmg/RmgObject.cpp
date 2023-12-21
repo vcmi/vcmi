@@ -313,6 +313,19 @@ const rmg::Area & Object::getRemovableArea() const
 	return dRemovableAreaCache;
 }
 
+const rmg::Area & Object::getVisitableArea() const
+{
+	if(dVisitableCache.empty())
+	{
+		for(const auto & i : dInstances)
+		{
+			// FIXME: Account for bjects with multiple visitable tiles
+			dVisitableCache.add(i.getVisitablePosition());
+		}
+	}
+	return dVisitableCache;
+}
+
 const rmg::Area Object::getEntrableArea() const
 {
 	// Calculate Area that hero can freely pass
@@ -320,7 +333,8 @@ const rmg::Area Object::getEntrableArea() const
 	// Do not use blockVisitTiles, unless they belong to removable objects (resources etc.)
 	// area = accessibleArea - (blockVisitableArea - removableArea)
 
-	rmg::Area entrableArea = getAccessibleArea();
+	// FIXME: What does it do? AccessibleArea means area AROUND the object 
+	rmg::Area entrableArea = getVisitableArea();
 	rmg::Area blockVisitableArea = getBlockVisitableArea();
 	blockVisitableArea.subtract(getRemovableArea());
 	entrableArea.subtract(blockVisitableArea);
@@ -330,11 +344,14 @@ const rmg::Area Object::getEntrableArea() const
 
 void Object::setPosition(const int3 & position)
 {
-	dAccessibleAreaCache.translate(position - dPosition);
-	dAccessibleAreaFullCache.translate(position - dPosition);
-	dBlockVisitableCache.translate(position - dPosition);
-	dRemovableAreaCache.translate(position - dPosition);
-	dFullAreaCache.translate(position - dPosition);
+	auto shift = position - dPosition;
+
+	dAccessibleAreaCache.translate(shift);
+	dAccessibleAreaFullCache.translate(shift);
+	dBlockVisitableCache.translate(shift);
+	dVisitableCache.translate(shift);
+	dRemovableAreaCache.translate(shift);
+	dFullAreaCache.translate(shift);
 	
 	dPosition = position;
 	for(auto& i : dInstances)
@@ -450,6 +467,7 @@ void Object::clearCachedArea() const
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
 	dBlockVisitableCache.clear();
+	dVisitableCache.clear();
 	dRemovableAreaCache.clear();
 }
 

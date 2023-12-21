@@ -74,6 +74,7 @@ public:
 	int3 getVisitablePosition() const;
 	const Area & getAccessibleArea(bool exceptLast = false) const;
 	const Area & getBlockVisitableArea() const;
+	const Area & getVisitableArea() const;
 	const Area & getRemovableArea() const;
 	const Area getEntrableArea() const;
 	
@@ -96,6 +97,7 @@ private:
 	mutable Area dFullAreaCache;
 	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
 	mutable Area dBlockVisitableCache;
+	mutable Area dVisitableCache;
 	mutable Area dRemovableAreaCache;
 	int3 dPosition;
 	mutable std::optional<int3> visibleTopOffset;

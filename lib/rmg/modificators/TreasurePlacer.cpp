@@ -633,9 +633,12 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 	{
 		auto blockedArea = rmgObject.getArea();
 		auto entrableArea = rmgObject.getEntrableArea();
+		auto accessibleArea = rmgObject.getAccessibleArea();
 		
 		if(rmgObject.instances().empty())
-			entrableArea.add(int3());
+		{
+			accessibleArea.add(int3());
+		}
 		
 		auto * object = oi->generateObject();
 		if(oi->templates.empty())
@@ -650,20 +653,21 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 
 		object->appearance = *RandomGeneratorUtil::nextItem(templates, zone.getRand());
 
-		auto blockingIssue = object->isBlockedVisitable() && !object->isRemovable();
-		if (blockingIssue)
+		//Put object in accessible area next to entrable area (excluding blockvis tiles)
+		if (!entrableArea.empty())
 		{
-			// Do not place next to another such object (Corpse issue)
-			// Calculate this before instance is added to rmgObject
-			auto blockVisitProximity = rmgObject.getBlockVisitableArea().getBorderOutside();
-			entrableArea.subtract(blockVisitProximity);
+			auto entrableBorder = entrableArea.getBorderOutside();
+			accessibleArea.erase_if([&](const int3 & tile)
+			{
+				return !entrableBorder.count(tile);
+			});
 		}
 
 		auto & instance = rmgObject.addInstance(*object);
 
 		do
 		{
-			if(entrableArea.empty())
+			if(accessibleArea.empty())
 			{
 				//fail - fallback
 				rmgObject.clear();
@@ -671,15 +675,24 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			}
 			
 			std::vector<int3> bestPositions;
-			if(densePlacement)
+			if(densePlacement && !entrableArea.empty())
 			{
+				// Choose positon which has access to as many entrable tiles as possible
 				int bestPositionsWeight = std::numeric_limits<int>::max();
-				for(const auto & t : entrableArea.getTilesVector())
+				for(const auto & t : accessibleArea.getTilesVector())
 				{
 					instance.setPosition(t);
-					int w = rmgObject.getEntrableArea().getTilesVector().size();
 
-					if(w && w < bestPositionsWeight)
+					auto currentAccessibleArea = rmgObject.getAccessibleArea();
+					auto currentEntrableBorder = rmgObject.getEntrableArea().getBorderOutside();
+					currentAccessibleArea.erase_if([&](const int3 & tile)
+					{
+						return !currentEntrableBorder.count(tile);
+					});
+
+					size_t w = currentAccessibleArea.getTilesVector().size();
+
+					if(w > bestPositionsWeight)
 					{
 						// Minimum 1 position must be entrable
 						bestPositions.clear();
@@ -691,12 +704,11 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 						bestPositions.push_back(t);
 					}
 				}
-
 			}
 
 			if (bestPositions.empty())
 			{
-				bestPositions = entrableArea.getTilesVector();
+				bestPositions = accessibleArea.getTilesVector();
 			}
 			
 			int3 nextPos = *RandomGeneratorUtil::nextItem(bestPositions, zone.getRand());
@@ -713,11 +725,11 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			if(rmgObject.instances().size() == 1)
 				break;
 
-			if(!blockedArea.overlap(instance.getBlockedArea()) && entrableArea.overlap(instanceAccessibleArea))
+			if(!blockedArea.overlap(instance.getBlockedArea()) && accessibleArea.overlap(instanceAccessibleArea))
 				break;
 
 			//fail - new position
-			entrableArea.erase(nextPos);
+			accessibleArea.erase(nextPos);
 		} while(true);
 	}
 	return rmgObject;
