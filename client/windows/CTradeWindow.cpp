@@ -331,7 +331,7 @@ void CTradeWindow::setMode(EMarketMode Mode)
 	}
 }
 
-void CTradeWindow::artifactSelected(CHeroArtPlace *slot)
+void CTradeWindow::artifactSelected(CArtPlace * slot)
 {
 	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
 	items[1][0]->setArtInstance(slot->getArt());
