@@ -358,7 +358,11 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	for(auto r : VLC->roadTypeHandler->objects)
 	{
-		if(auto w = widget<CToggleButton>(r->getJsonKey()))
+		// Workaround for vcmi-extras bug
+		std::string jsonKey = r->getJsonKey();
+		std::string identifier = jsonKey.substr(jsonKey.find(':')+1);
+
+		if(auto w = widget<CToggleButton>(identifier))
 		{
 			w->setSelected(opts->isRoadEnabled(r->getId()));
 		}
