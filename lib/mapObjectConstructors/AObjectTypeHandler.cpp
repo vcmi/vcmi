@@ -207,6 +207,26 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplat
 		return filtered;
 }
 
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getMostSpecificTemplates(TerrainId terrainType) const
+{
+	auto templates = getTemplates(terrainType);
+	if (!templates.empty())
+	{
+		//Get terrain-specific template if possible
+		int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
+		{
+			return tmp1->getAllowedTerrains().size() < tmp2->getAllowedTerrains().size();
+		}))->getAllowedTerrains().size();
+
+		vstd::erase_if(templates, [leastTerrains](const std::shared_ptr<const ObjectTemplate> & tmp)
+		{
+			return tmp->getAllowedTerrains().size() > leastTerrains;
+		});
+	}
+
+	return templates;
+}
+
 std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId terrainType, const CGObjectInstance * object) const
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> ret = getTemplates(terrainType);

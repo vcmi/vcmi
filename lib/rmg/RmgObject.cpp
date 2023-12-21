@@ -69,6 +69,7 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 	if(dAccessibleAreaCache.empty())
 	{
 		auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
+		// FIXME: Blocked area of removable object is also accessible area for neighbors
 		rmg::Area visitable = rmg::Area(neighbours) - getBlockedArea();
 		// TODO: Add in one operation to avoid multiple invalidation
 		for(const auto & from : visitable.getTilesVector())
@@ -122,22 +123,13 @@ void Object::Instance::setAnyTemplate(CRandomGenerator & rng)
 
 void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
 {
-	auto templates = dObject.getObjectHandler()->getTemplates(terrain);
+	auto templates = dObject.getObjectHandler()->getMostSpecificTemplates(terrain);
+
 	if (templates.empty())
 	{
 		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
 		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.getObjTypeIndex() % terrainName));
 	}
-	//Get terrain-specific template if possible
-	int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
-	{
-		return tmp1->getAllowedTerrains().size() < tmp2->getAllowedTerrains().size();
-	}))->getAllowedTerrains().size();
-
-	vstd::erase_if(templates, [leastTerrains](const std::shared_ptr<const ObjectTemplate> & tmp)
-	{
-		return tmp->getAllowedTerrains().size() > leastTerrains;
-	});
 	
 	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
 	dAccessibleAreaCache.clear();

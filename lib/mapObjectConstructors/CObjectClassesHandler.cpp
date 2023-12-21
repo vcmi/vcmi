@@ -315,7 +315,10 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 		if (objects.at(type.getNum()) == nullptr)
 			return objects.front()->objects.front();
 
-		auto result = objects.at(type.getNum())->objects.at(subtype.getNum());
+		auto subID = subtype.getNum();
+		if (type == Obj::PRISON)
+			subID = 0;
+		auto result = objects.at(type.getNum())->objects.at(subID);
 
 		if (result != nullptr)
 			return result;
