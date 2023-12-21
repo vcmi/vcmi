@@ -35,6 +35,7 @@ class CGStatusBar;
 class CTextBox;
 class CGarrisonInt;
 class CGarrisonSlot;
+class LRClickableArea;
 
 enum class EUserEvent;
 
@@ -130,6 +131,7 @@ public:
 class CLevelWindow : public CWindowObject
 {
 	std::shared_ptr<CAnimImage> portrait;
+	std::shared_ptr<LRClickableArea> portraitArea;
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CLabel> mainTitle;
 	std::shared_ptr<CLabel> levelTitle;
