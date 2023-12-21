@@ -412,10 +412,7 @@ Area operator+ (const Area & l, const Area & r)
 Area operator- (const Area & l, const Area & r)
 {
 	Area result(l);
-	for(const auto & t : r.getTilesVector())
-	{
-		result.dTiles.erase(t);
-	}
+	result.subtract(r);
 	return result;
 }
 
