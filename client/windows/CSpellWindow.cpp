@@ -244,6 +244,24 @@ std::shared_ptr<IImage> CSpellWindow::createBigSpellBook()
 	Canvas tmp5 = Canvas(Point(409, 141));
 	tmp5.draw(img, Point(0, 0), Rect(100, 38 + 45, 509 - 15, 400 - 38));
 	canvas.drawScaled(tmp5, Point(90, 45), Point(615, 415));
+	// carpet
+	Canvas tmp6 = Canvas(Point(590, 59));
+	tmp6.draw(img, Point(0, 0), Rect(15, 484, 590, 59));
+	canvas.drawScaled(tmp6, Point(0, 545), Point(800, 59));
+	// remove bookmarks
+	for (int i = 0; i < 56; i++)
+		canvas.draw(Canvas(canvas, Rect(i < 30 ? 268 : 327, 464, 1, 46)), Point(269 + i, 464));
+	for (int i = 0; i < 56; i++)
+		canvas.draw(Canvas(canvas, Rect(469, 464, 1, 42)), Point(470 + i, 464));
+	for (int i = 0; i < 57; i++)
+		canvas.draw(Canvas(canvas, Rect(i < 30 ? 564 : 630, 464, 1, 44)), Point(565 + i, 464));
+	for (int i = 0; i < 56; i++)
+		canvas.draw(Canvas(canvas, Rect(656, 464, 1, 47)), Point(657 + i, 464));
+	// draw bookmarks
+	canvas.draw(img, Point(278, 464), Rect(220, 405, 37, 47));
+	canvas.draw(img, Point(481, 465), Rect(354, 406, 37, 41));
+	canvas.draw(img, Point(575, 465), Rect(417, 406, 37, 45));
+	canvas.draw(img, Point(667, 465), Rect(478, 406, 37, 47));
 
 	return GH.renderHandler().createImage(canvas.getInternalSurface());
 }
