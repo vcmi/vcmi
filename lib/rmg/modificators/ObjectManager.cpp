@@ -600,13 +600,24 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				//Cannot be trespassed (Corpse)
 				continue;
 			}
+			else if(instance->object().appearance->isVisitableFromTop())
+			{
+				//Passable objects
+				m->areaForRoads().add(instance->getVisitablePosition());
+			}
 			else if(!instance->object().appearance->isVisitableFromTop())
 			{
-				auto abovePos = instance->getVisitablePosition() + int3(0, -1, 0);
-				if (!instance->object().blockingAt(abovePos))
+				// Do not route road behind visitable tile
+				int3 visitablePos = instance->getVisitablePosition();
+				auto areaVisitable = rmg::Area({visitablePos});
+				auto borderAbove = areaVisitable.getBorderOutside();
+				vstd::erase_if(borderAbove, [&](const int3 & tile)
 				{
-					m->areaIsolated().add(abovePos);
-				}
+					return tile.y >= visitablePos.y ||
+					(!instance->object().blockingAt(tile + int3(0, 1, 0)) && 
+					instance->object().blockingAt(tile));
+				});				
+				m->areaIsolated().unite(borderAbove);
 			}
 		}
 
