@@ -67,7 +67,8 @@ public:
 
 	enum class CreatureQuantityId
 	{
-		FEW = 1,
+		NONE = 0,
+		FEW,
 		SEVERAL,
 		PACK,
 		LOTS,
@@ -153,8 +154,8 @@ public:
 	bool isEvil () const;
 	si32 maxAmount(const TResources &res) const; //how many creatures can be bought
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
-	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
-	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
+	static const std::string& getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
+	static double estimateCreatureCount(CreatureQuantityId countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
 	bool valid() const;
@@ -178,7 +179,9 @@ public:
 	CCreature();
 
 private:
-	static const std::map<CreatureQuantityId, std::string> creatureQuantityRanges;
+	constexpr static double maxQuantityEstimationMuliplier = 2.5;
+	static const unsigned quantityRangeLowerBounds[];
+	static std::string creatureQuantityRanges[];
 };
 
 class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>

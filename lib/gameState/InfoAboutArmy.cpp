@@ -45,7 +45,7 @@ int ArmyDescriptor::getStrength() const
 	else
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.type->getAIValue() * CCreature::estimateCreatureCount(elem.second.count);
+			ret += elem.second.type->getAIValue() * CCreature::estimateCreatureCount((CCreature::CreatureQuantityId) elem.second.count);
 	}
 	return static_cast<int>(ret);
 }

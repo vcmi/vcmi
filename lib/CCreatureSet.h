@@ -107,6 +107,7 @@ public:
 	FactionID getFaction() const override;
 
 	virtual ui64 getPower() const;
+	virtual ui64 getEstimatedPower() const;
 	CCreature::CreatureQuantityId getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
@@ -273,6 +274,7 @@ public:
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
 	ui64 getArmyStrength() const; //sum of AI values of creatures
 	ui64 getPower(const SlotID & slot) const; //value of specific stack
+	ui64 getEstimatedArmyStrength() const; //if army is not detailed
 	std::string getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack
 	std::string getArmyDescription() const;
 	bool hasStackAtSlot(const SlotID & slot) const;

@@ -99,22 +99,25 @@ std::string CGCreature::getPopupText(const CGHeroInstance * hero) const
 	{
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.title");
 
+		ui64 armyStrength = 0;
+		if(hero->hasVisions(this, BonusCustomSubtype::visionsMonsters))
+		{
+			armyStrength = getArmyStrength();
+		}
+		else {
+			armyStrength = getEstimatedArmyStrength();
+		}
+
 		int choice;
-		double ratio = (static_cast<double>(getArmyStrength()) / hero->getTotalStrength());
-		if (ratio < 0.1)  choice = 0;
-		else if (ratio < 0.25) choice = 1;
-		else if (ratio < 0.6)  choice = 2;
-		else if (ratio < 0.9)  choice = 3;
-		else if (ratio < 1.1)  choice = 4;
-		else if (ratio < 1.3)  choice = 5;
-		else if (ratio < 1.8)  choice = 6;
-		else if (ratio < 2.5)  choice = 7;
-		else if (ratio < 4)    choice = 8;
-		else if (ratio < 8)    choice = 9;
-		else if (ratio < 20)   choice = 10;
-		else                   choice = 11;
+		double ratio = (static_cast<double>(armyStrength) / hero->getArmyStrength());
+		if (ratio < 0.9) choice = 2;
+		else if (ratio > 1.1) choice = 6;
+		else choice = 4;
 
 		hoverName += VLC->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
+
+		int percentDiff = static_cast<int>((ratio-1.0)*100+0.5);
+		hoverName += boost::str(boost::format(" (%+d%%)") % percentDiff);
 	}
 	return hoverName;
 }
