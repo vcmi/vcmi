@@ -314,7 +314,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			return rmg::Path::invalid();
 		}
 		possibleArea.erase(pos); //do not place again at this point
-		auto accessibleArea = obj.getAccessibleArea(isGuarded) * (zone.areaPossible() + zone.freePaths());
+		auto accessibleArea = obj.getAccessibleArea(isGuarded) * cachedArea;
 		//we should exclude tiles which will be covered
 		if(isGuarded)
 		{
