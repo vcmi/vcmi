@@ -40,7 +40,7 @@ void MapProxy::drawTerrain(CRandomGenerator & generator, std::vector<int3> & til
 {
     Lock lock(mx);
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);
-	map.getEditManager()->drawTerrain(terrain, &generator);
+	map.getEditManager()->drawTerrain(terrain, map.getDecorationsPercentage(), &generator);
 }
 
 void MapProxy::drawRivers(CRandomGenerator & generator, std::vector<int3> & tiles, TerrainId terrain)

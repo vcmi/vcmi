@@ -70,7 +70,7 @@ public:
 	void clearTerrain(CRandomGenerator * gen = nullptr);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(TerrainId terType, CRandomGenerator * gen = nullptr);
+	void drawTerrain(TerrainId terType, int decorationsPercentage, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(RoadId roadType, CRandomGenerator * gen = nullptr);

@@ -28,7 +28,7 @@ public:
     void insertObjects(std::set<CGObjectInstance*>& objects);
     void removeObject(CGObjectInstance* obj);
 
-    void drawTerrain(CRandomGenerator & generator, std::vector<int3> & tiles, TerrainId terrain);
+	void drawTerrain(CRandomGenerator & generator, std::vector<int3> & tiles, TerrainId terrain);
     void drawRivers(CRandomGenerator & generator, std::vector<int3> & tiles, TerrainId terrain);
     void drawRoads(CRandomGenerator & generator, std::vector<int3> & tiles, RoadId roadType);
 

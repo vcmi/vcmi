@@ -83,10 +83,11 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 	operations.push_back(std::move(operation));
 }
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, CRandomGenerator * gen):
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, CRandomGenerator * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
 	terType(terType),
+	decorationsPercentage(decorationsPercentage),
 	gen(gen)
 {
 
@@ -286,14 +287,19 @@ void CDrawTerrainOperation::updateTerrainViews()
 		// Get mapping
 		const TerrainViewPattern& pattern = patterns[bestPattern][valRslt.flip];
 		std::pair<int, int> mapping;
-		if(valRslt.transitionReplacement.empty())
+
+		mapping = pattern.mapping[0];
+
+		if(pattern.decoration)
 		{
-			mapping = pattern.mapping[0];
+			if (gen->nextInt(100) > decorationsPercentage)
+				mapping = pattern.mapping[0];
+			else
+				mapping = pattern.mapping[1];
 		}
-		else
-		{
+
+		if (!valRslt.transitionReplacement.empty())
 			mapping = valRslt.transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
-		}
 
 		// Set terrain view
 		auto & tile = map->getTile(pos);
@@ -555,12 +561,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap* map, CRandomGenerator* gen)
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::WATER, gen));
+	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::WATER, 0, gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::ROCK, gen));
+		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::ROCK, 0, gen));
 	}
 }
 
