@@ -43,7 +43,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();
-	CArmedInstance(bool isHypotetic);
+	CArmedInstance(bool isHypothetic);
 
 	PlayerColor getOwner() const override
 	{

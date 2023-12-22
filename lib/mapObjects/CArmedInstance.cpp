@@ -45,8 +45,8 @@ CArmedInstance::CArmedInstance()
 {
 }
 
-CArmedInstance::CArmedInstance(bool isHypotetic):
-	CBonusSystemNode(isHypotetic),
+CArmedInstance::CArmedInstance(bool isHypothetic):
+	CBonusSystemNode(isHypothetic),
 	nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector),
 	battle(nullptr)
 {

@@ -557,6 +557,15 @@ void BattleWindow::bSpellf()
 			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])
 										% heroName % CGI->artifacts()->getByIndex(artID)->getNameTranslated()));
 		}
+		else if(blockingBonus->source == BonusSource::OBJECT_TYPE)
+		{
+			if(blockingBonus->sid.as<MapObjectID>() == Obj::GARRISON || blockingBonus->sid.as<MapObjectID>() == Obj::GARRISON2)
+				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[684]);
+		}
+	}
+	else
+	{
+		logGlobal->warn("Unexpected problem with readiness to cast spell");
 	}
 }
 

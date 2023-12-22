@@ -60,6 +60,7 @@ class DLL_LINKAGE CGGarrison : public CArmedInstance
 public:
 	bool removableUnits;
 
+	void initObj(CRandomGenerator &rand) override;
 	bool passableFor(PlayerColor color) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -71,6 +72,7 @@ public:
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+	void addAntimagicGarrisonBonus();
 };
 
 class DLL_LINKAGE CGArtifact : public CArmedInstance
