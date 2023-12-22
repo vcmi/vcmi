@@ -25,7 +25,7 @@ class BattleConsole;
 class BattleRenderer;
 class StackQueue;
 class HeroInfoBasicPanel;
-class ArmyInfoBasicPanel;
+class StackInfoBasicPanel;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -36,8 +36,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<BattleConsole> console;
 	std::shared_ptr<HeroInfoBasicPanel> attackerHeroWindow;
 	std::shared_ptr<HeroInfoBasicPanel> defenderHeroWindow;
-	std::shared_ptr<ArmyInfoBasicPanel> attackerArmyWindow;
-	std::shared_ptr<ArmyInfoBasicPanel> defenderArmyWindow;
+	std::shared_ptr<StackInfoBasicPanel> attackerStackWindow;
+	std::shared_ptr<StackInfoBasicPanel> defenderStackWindow;
 
 	/// button press handling functions
 	void bOptionsf();
@@ -68,7 +68,6 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	void toggleStickyHeroWindowsVisibility();
 	void createStickyHeroInfoWindows();
-	void createStickyArmyInfoWindows(std::optional<uint32_t> unitId);
 
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
@@ -98,6 +97,9 @@ public:
 
 	/// Refresh sticky variant of hero info window after spellcast, side same as in BattleSpellCast::side
 	void updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero);
+
+	/// Refresh sticky variant of hero info window after spellcast, side same as in BattleSpellCast::side
+	void updateStackInfoWindow(const CStack * stack);
 
 	/// Get mouse-hovered battle queue unit ID if any found
 	std::optional<uint32_t> getQueueHoveredUnitId();

@@ -816,7 +816,10 @@ void BattleStacksController::updateHoveredStacks()
 			continue;
 
 		if (stack == activeStack)
+		{
+			owner.windowObject->updateStackInfoWindow(stack);
 			stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getGoldBorder());
+		}
 		else
 			stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getNoBorder());
 	}

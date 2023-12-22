@@ -154,41 +154,6 @@ void BattleWindow::createStickyHeroInfoWindows()
 	}
 }
 
-void BattleWindow::createStickyArmyInfoWindows(std::optional<uint32_t> unitId)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-
-	if(owner.defendingHeroInstance)
-	{
-		InfoAboutHero info;
-		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, pos.y + 250)
-				: Point(pos.x + pos.w -79, pos.y + 135);
-		defenderArmyWindow = std::make_shared<ArmyInfoBasicPanel>(info, &position);
-	}
-	if(owner.attackingHeroInstance)
-	{
-		InfoAboutHero info;
-		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, pos.y + 250)
-				: Point(pos.x + 1, pos.y + 135);
-		attackerArmyWindow = std::make_shared<ArmyInfoBasicPanel>(info, &position);
-	}
-
-	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
-
-	if(!showInfoWindows)
-	{
-		if(attackerArmyWindow)
-			attackerArmyWindow->disable();
-
-		if(defenderArmyWindow)
-			defenderArmyWindow->disable();
-	}
-}
-
 BattleWindow::~BattleWindow()
 {
 	CPlayerInterface::battleInt = nullptr;
@@ -290,6 +255,28 @@ void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero
 {
 	std::shared_ptr<HeroInfoBasicPanel> panelToUpdate = side == 0 ? attackerHeroWindow : defenderHeroWindow;
 	panelToUpdate->update(hero);
+}
+
+void BattleWindow::updateStackInfoWindow(const CStack * stack)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	Point position = (GH.screenDimensions().x >= 1000)
+			? Point(pos.x + pos.w + 15, pos.y + 250)
+			: Point(pos.x + pos.w -79, pos.y + 135);
+	defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
+	
+	position = (GH.screenDimensions().x >= 1000)
+			? Point(pos.x - 93, pos.y + 250)
+			: Point(pos.x + 1, pos.y + 135);
+	attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
+
+	//const CStack * stack = owner.getBattle()->battleGetStackByID(unitId.value(), true);
+
+	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
+
+	attackerStackWindow->setEnabled(showInfoWindows && stack && stack->unitSide() == BattleSide::ATTACKER);
+	defenderStackWindow->setEnabled(showInfoWindows && stack && stack->unitSide() == BattleSide::DEFENDER);
 }
 
 void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -706,9 +693,7 @@ void BattleWindow::blockUI(bool on)
 
 std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 {
-	std::optional<uint32_t> unitId = queue->getHoveredUnitIdIfAny();
-	createStickyArmyInfoWindows(unitId);
-	return unitId;
+	return queue->getHoveredUnitIdIfAny();
 }
 
 void BattleWindow::showAll(Canvas & to)

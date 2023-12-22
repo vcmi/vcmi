@@ -447,7 +447,7 @@ void HeroInfoBasicPanel::show(Canvas & to)
 }
 
 
-ArmyInfoBasicPanel::ArmyInfoBasicPanel(const InfoAboutArmy & army, Point * position, bool initializeBackground)
+StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground)
 	: CIntObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -458,18 +458,50 @@ ArmyInfoBasicPanel::ArmyInfoBasicPanel(const InfoAboutArmy & army, Point * posit
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
 		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
-		background->colorize(army.owner);
+		background->colorize(stack->getOwner());
 	}
 
-	initializeData(army);
+	initializeData(stack);
 }
 
-void ArmyInfoBasicPanel::initializeData(const InfoAboutArmy & army)
+void StackInfoBasicPanel::initializeData(const CStack * stack)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	/*auto attack = hero.details->primskills[0];
+	auto defense = hero.details->primskills[1];
+	auto power = hero.details->primskills[2];
+	auto knowledge = hero.details->primskills[3];
+	auto morale = hero.details->morale;
+	auto luck = hero.details->luck;
+	auto currentSpellPoints = hero.details->mana;
+	auto maxSpellPoints = hero.details->manaLimit;
+
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 10, 6));
+
+	//primary stats
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":"));
+
+	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
+	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
+	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(power)));
+	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
+
+	//morale+luck
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), morale + 3, 0, 47, 131));
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), luck + 3, 0, 47, 143));
+
+	//spell points
+	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
+	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));*/
 }
 
-void ArmyInfoBasicPanel::update(const InfoAboutArmy & updatedInfo)
+void StackInfoBasicPanel::update(const CStack * updatedInfo)
 {
 	icons.clear();
 	labels.clear();
@@ -477,7 +509,7 @@ void ArmyInfoBasicPanel::update(const InfoAboutArmy & updatedInfo)
 	initializeData(updatedInfo);
 }
 
-void ArmyInfoBasicPanel::show(Canvas & to)
+void StackInfoBasicPanel::show(Canvas & to)
 {
 	showAll(to);
 	CIntObject::show(to);

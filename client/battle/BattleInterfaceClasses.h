@@ -20,7 +20,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 struct BattleResult;
 struct InfoAboutHero;
-struct InfoAboutArmy;
 class CStack;
 
 namespace battle
@@ -145,19 +144,19 @@ public:
 	void update(const InfoAboutHero & updatedInfo);
 };
 
-class ArmyInfoBasicPanel : public CIntObject
+class StackInfoBasicPanel : public CIntObject
 {
 private:
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:
-	ArmyInfoBasicPanel(const InfoAboutArmy & army, Point * position, bool initializeBackground = true);
+	StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground = true);
 
 	void show(Canvas & to) override;
 
-	void initializeData(const InfoAboutArmy & army);
-	void update(const InfoAboutArmy & updatedInfo);
+	void initializeData(const CStack * stack);
+	void update(const CStack * updatedInfo);
 };
 
 class HeroInfoWindow : public CWindowObject
