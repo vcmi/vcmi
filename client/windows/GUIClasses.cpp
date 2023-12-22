@@ -409,7 +409,9 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 		box = std::make_shared<CComponentBox>(comps, Rect(75, 300, pos.w - 150, 100));
 	}
 
-	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex(), 0, 170, 66);
+	portrait = std::make_shared<CHeroArea>(170, 66, hero);
+	portrait->addClickCallback(nullptr);
+	portrait->addRClickCallback([hero](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
 	ok = std::make_shared<CButton>(Point(297, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.

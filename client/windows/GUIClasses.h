@@ -35,6 +35,7 @@ class CGStatusBar;
 class CTextBox;
 class CGarrisonInt;
 class CGarrisonSlot;
+class CHeroArea;
 
 enum class EUserEvent;
 
@@ -129,7 +130,7 @@ public:
 /// Raised up level window where you can select one out of two skills
 class CLevelWindow : public CWindowObject
 {
-	std::shared_ptr<CAnimImage> portrait;
+	std::shared_ptr<CHeroArea> portrait;
 	std::shared_ptr<CButton> ok;
 	std::shared_ptr<CLabel> mainTitle;
 	std::shared_ptr<CLabel> levelTitle;
