@@ -292,7 +292,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 
 		if(pattern.decoration)
 		{
-			if (gen->nextInt(100) > decorationsPercentage)
+			if (pattern.mapping.size() < 2 || gen->nextInt(100) > decorationsPercentage)
 				mapping = pattern.mapping[0];
 			else
 				mapping = pattern.mapping[1];

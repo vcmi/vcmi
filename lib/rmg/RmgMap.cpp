@@ -47,7 +47,7 @@ RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 
 int RmgMap::getDecorationsPercentage() const
 {
-	return 10; // arbitrary value to generate more readable map
+	return 15; // arbitrary value to generate more readable map
 }
 
 void RmgMap::foreach_neighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
