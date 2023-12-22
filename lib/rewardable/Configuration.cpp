@@ -34,14 +34,16 @@ std::optional<int> Rewardable::Configuration::getVariable(const std::string & ca
 	return std::nullopt;
 }
 
-JsonNode Rewardable::Configuration::getPresetVariable(const std::string & category, const std::string & name) const
+const JsonNode & Rewardable::Configuration::getPresetVariable(const std::string & category, const std::string & name) const
 {
+	static const JsonNode emptyNode;
+
 	std::string variableID = category + '@' + name;
 
 	if (variables.preset.count(variableID))
 		return variables.preset.at(variableID);
 	else
-		return JsonNode();
+		return emptyNode;
 }
 
 void Rewardable::Configuration::presetVariable(const std::string & category, const std::string & name, const JsonNode & value)

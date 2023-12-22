@@ -111,6 +111,5 @@ public:
 	void createBackpackWindow();
 
 	//friends
-	friend void CHeroArtPlace::clickPressed(const Point & cursorPosition);
 	friend class CPlayerInterface;
 };

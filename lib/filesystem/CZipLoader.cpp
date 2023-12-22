@@ -150,22 +150,11 @@ static bool extractCurrent(unzFile file, std::ostream & where)
 	return false;
 }
 
-std::vector<std::string> ZipArchive::listFiles(const boost::filesystem::path & filename)
+std::vector<std::string> ZipArchive::listFiles()
 {
 	std::vector<std::string> ret;
 
-	CDefaultIOApi zipAPI;
-	auto zipStructure = zipAPI.getApiStructure();
-
-	unzFile file = unzOpen2_64(filename.c_str(), &zipStructure);
-
-	if (file == nullptr)
-	{
-		logGlobal->error("Failed to open file '%s'! Unable to list files!", filename.string());
-		return {};
-	}
-
-	int result = unzGoToFirstFile(file);
+	int result = unzGoToFirstFile(archive);
 
 	if (result == UNZ_OK)
 	{
@@ -174,73 +163,66 @@ std::vector<std::string> ZipArchive::listFiles(const boost::filesystem::path & f
 			unz_file_info64 info;
 			std::vector<char> zipFilename;
 
-			unzGetCurrentFileInfo64 (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
+			unzGetCurrentFileInfo64 (archive, &info, nullptr, 0, nullptr, 0, nullptr, 0);
 
 			zipFilename.resize(info.size_filename);
 			// Get name of current file. Contrary to docs "info" parameter can't be null
-			unzGetCurrentFileInfo64(file, &info, zipFilename.data(), static_cast<uLong>(zipFilename.size()), nullptr, 0, nullptr, 0);
+			unzGetCurrentFileInfo64(archive, &info, zipFilename.data(), static_cast<uLong>(zipFilename.size()), nullptr, 0, nullptr, 0);
 
 			ret.emplace_back(zipFilename.data(), zipFilename.size());
 
-			result = unzGoToNextFile(file);
+			result = unzGoToNextFile(archive);
 		}
 		while (result == UNZ_OK);
-
-		if (result != UNZ_OK && result != UNZ_END_OF_LIST_OF_FILE)
-		{
-			logGlobal->error("Failed to list file from '%s'! Error code %d", filename.string(), result);
-		}
 	}
-	else
-	{
-		logGlobal->error("Failed to list files from '%s'! Error code %d", filename.string(), result);
-	}
-
-	unzClose(file);
-
 	return ret;
 }
 
-bool ZipArchive::extract(const boost::filesystem::path & from, const boost::filesystem::path & where)
-{
-	// Note: may not be fast enough for large archives (should NOT happen with mods)
-	// because locating each file by name may be slow. Unlikely slower than decompression though
-	return extract(from, where, listFiles(from));
-}
-
-bool ZipArchive::extract(const boost::filesystem::path & from, const boost::filesystem::path & where, const std::vector<std::string> & what)
+ZipArchive::ZipArchive(const boost::filesystem::path & from)
 {
 	CDefaultIOApi zipAPI;
 	auto zipStructure = zipAPI.getApiStructure();
 
-	unzFile archive = unzOpen2_64(from.c_str(), &zipStructure);
+	archive = unzOpen2_64(from.c_str(), &zipStructure);
 
-	auto onExit = vstd::makeScopeGuard([&]()
-	{
-		unzClose(archive);
-	});
+	if (archive == nullptr)
+		throw std::runtime_error("Failed to open file" + from.string() + "'%s'! Unable to list files!");
+}
 
+ZipArchive::~ZipArchive()
+{
+	unzClose(archive);
+}
+
+bool ZipArchive::extract(const boost::filesystem::path & where, const std::vector<std::string> & what)
+{
 	for (const std::string & file : what)
-	{
-		if (unzLocateFile(archive, file.c_str(), 1) != UNZ_OK)
+		if (!extract(where, file))
 			return false;
 
-		const boost::filesystem::path fullName = where / file;
-		const boost::filesystem::path fullPath = fullName.parent_path();
+	return true;
+}
 
-		boost::filesystem::create_directories(fullPath);
-		// directory. No file to extract
-		// TODO: better way to detect directory? Probably check return value of unzOpenCurrentFile?
-		if (boost::algorithm::ends_with(file, "/"))
-			continue;
+bool ZipArchive::extract(const boost::filesystem::path & where, const std::string & file)
+{
+	if (unzLocateFile(archive, file.c_str(), 1) != UNZ_OK)
+		return false;
 
-		std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
-		if (!destFile.good())
-			return false;
+	const boost::filesystem::path fullName = where / file;
+	const boost::filesystem::path fullPath = fullName.parent_path();
 
-		if (!extractCurrent(archive, destFile))
-			return false;
-	}
+	boost::filesystem::create_directories(fullPath);
+	// directory. No file to extract
+	// TODO: better way to detect directory? Probably check return value of unzOpenCurrentFile?
+	if (boost::algorithm::ends_with(file, "/"))
+		return true;
+
+	std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
+	if (!destFile.good())
+		return false;
+
+	if (!extractCurrent(archive, destFile))
+		return false;
 	return true;
 }
 

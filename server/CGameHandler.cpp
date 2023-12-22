@@ -489,11 +489,6 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	vstd::clear_pointer(pack);
 }
 
-
-CGameHandler::CGameHandler()
-	: turnTimerHandler(*this)
-{}
-
 CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
@@ -518,6 +513,7 @@ CGameHandler::~CGameHandler()
 {
 	delete spellEnv;
 	delete gs;
+	gs = nullptr;
 }
 
 void CGameHandler::reinitScripting()

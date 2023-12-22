@@ -14,7 +14,7 @@
 class CArtifactsOfHeroMarket : public CArtifactsOfHeroBase
 {
 public:
-	std::function<void(CHeroArtPlace*)> selectArtCallback;
+	std::function<void(CArtPlace*)> selectArtCallback;
 
 	CArtifactsOfHeroMarket(const Point & position);
 	void scrollBackpack(int offset) override;

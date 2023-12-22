@@ -13,8 +13,6 @@
 
 #include "../lobby/SelectionTab.h"
 
-#include <vstd/DateUtils.h>
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
@@ -29,6 +27,7 @@
 #include "../render/Graphics.h"
 
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"
@@ -42,6 +41,7 @@
 #include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/rmg/CMapGenOptions.h"
+#include "../../lib/Languages.h"
 
 CMapOverview::CMapOverview(std::string mapName, std::string fileName, std::string date, ResourcePath resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), tabType(tabType)
@@ -199,7 +199,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		if(p.date.empty())
 		{
 			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP)));
-			w->setText(vstd::getFormattedDateTime(time));
+			w->setText(TextOperations::getFormattedDateTimeLocal(time));
 		}
 		else
 			w->setText(p.date);

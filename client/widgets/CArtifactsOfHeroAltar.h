@@ -26,7 +26,7 @@ public:
 	void updateWornSlots() override;
 	void updateBackpackSlots() override;
 	void scrollBackpack(int offset) override;
-	void pickUpArtifact(CHeroArtPlace & artPlace);
+	void pickUpArtifact(CArtPlace & artPlace);
 	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
 	void pickedArtMoveToAltar(const ArtifactPosition & slot);
 	void deleteFromVisible(const CArtifactInstance * artInst);

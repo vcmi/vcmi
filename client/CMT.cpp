@@ -55,12 +55,14 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
+static std::atomic<bool> quitRequestedDuringOpeningPlayback = false;
 static po::variables_map vm;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
 #endif
 void playIntro();
+[[noreturn]] static void quitApplication();
 static void mainLoop();
 
 static CBasicLogConfigurator *logConfig;
@@ -313,7 +315,6 @@ int main(int argc, char * argv[])
 		GH.screenHandler().clearScreen();
 	}
 
-
 #ifndef VCMI_NO_THREADED_LOAD
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
 	{
@@ -326,6 +327,9 @@ int main(int argc, char * argv[])
 	}
 	#endif // ANDROID
 #endif // THREADED
+
+	if (quitRequestedDuringOpeningPlayback)
+		quitApplication();
 
 	if(!settings["session"]["headless"].Bool())
 	{
@@ -414,7 +418,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(true)
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
 	}
 
 	return 0;
@@ -451,7 +455,7 @@ static void mainLoop()
 	}
 }
 
-static void quitApplication()
+[[noreturn]] static void quitApplication()
 {
 	if(!settings["session"]["headless"].Bool())
 	{
@@ -516,6 +520,15 @@ static void quitApplication()
 
 void handleQuit(bool ask)
 {
+	// FIXME: avoids crash if player attempts to close game while opening is still playing
+	// use cursor handler as indicator that loading is not done yet
+	// proper solution would be to abort init thread (or wait for it to finish)
+	if (!CCS->curh)
+	{
+		quitRequestedDuringOpeningPlayback = true;
+		return;
+	}
+
 	if(ask)
 	{
 		CCS->curh->set(Cursor::Map::POINTER);

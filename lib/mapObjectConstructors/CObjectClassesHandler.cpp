@@ -443,7 +443,6 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 		//deep copy of noncopyable object :?
 		auto newPortal = std::make_shared<CDefaultObjectTypeHandler<CGMonolith>>();
 		newPortal->rmgInfo = portal->getRMGInfo();
-		newPortal->base = portal->base; //not needed?
 		newPortal->templates = portal->getTemplates();
 		newPortal->sounds = portal->getSounds();
 		newPortal->aiValue = portal->getAiValue();
