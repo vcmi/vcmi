@@ -48,7 +48,8 @@ public:
 	{
 		NONE = 0x00000000,
 		WEIGHT = 0x00000001,
-		DISTANCE = 0x00000010
+		DISTANCE = 0x00000010,
+		BOTH = 0x00000011
 	};
 
 public:
@@ -61,6 +62,7 @@ public:
 	void addCloseObject(const RequiredObjectInfo & info);
 	void addNearbyObject(const RequiredObjectInfo & info);
 
+	bool createMonoliths();
 	bool createRequiredObjects();
 
 	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const;

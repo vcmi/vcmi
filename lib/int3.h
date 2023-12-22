@@ -180,6 +180,19 @@ public:
 		return { { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 			int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) } };
 	}
+
+	// Solution by ChatGPT
+
+	// Assume values up to +- 1000
+    friend std::size_t hash_value(const int3& v) {
+        // Since the range is [-1000, 1000], offsetting by 1000 maps it to [0, 2000]
+        std::size_t hx = v.x + 1000;
+        std::size_t hy = v.y + 1000;
+        std::size_t hz = v.z + 1000;
+
+        // Combine the hash values, multiplying them by prime numbers
+        return ((hx * 4000037u) ^ (hy * 2003u)) + hz;
+    }
 };
 
 template<typename Container>
@@ -204,14 +217,9 @@ int3 findClosestTile (Container & container, int3 dest)
 
 VCMI_LIB_NAMESPACE_END
 
-
 template<>
 struct std::hash<VCMI_LIB_WRAP_NAMESPACE(int3)> {
-	size_t operator()(VCMI_LIB_WRAP_NAMESPACE(int3) const& pos) const
-	{
-		size_t ret = std::hash<int>()(pos.x);
-		VCMI_LIB_WRAP_NAMESPACE(vstd)::hash_combine(ret, pos.y);
-		VCMI_LIB_WRAP_NAMESPACE(vstd)::hash_combine(ret, pos.z);
-		return ret;
+	std::size_t operator()(VCMI_LIB_WRAP_NAMESPACE(int3) const& pos) const noexcept {
+		return hash_value(pos);
 	}
 };
