@@ -446,6 +446,43 @@ void HeroInfoBasicPanel::show(Canvas & to)
 	CIntObject::show(to);
 }
 
+
+ArmyInfoBasicPanel::ArmyInfoBasicPanel(const InfoAboutArmy & army, Point * position, bool initializeBackground)
+	: CIntObject(0)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	if (position != nullptr)
+		moveTo(*position);
+
+	if(initializeBackground)
+	{
+		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
+		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+		background->colorize(army.owner);
+	}
+
+	initializeData(army);
+}
+
+void ArmyInfoBasicPanel::initializeData(const InfoAboutArmy & army)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+}
+
+void ArmyInfoBasicPanel::update(const InfoAboutArmy & updatedInfo)
+{
+	icons.clear();
+	labels.clear();
+
+	initializeData(updatedInfo);
+}
+
+void ArmyInfoBasicPanel::show(Canvas & to)
+{
+	showAll(to);
+	CIntObject::show(to);
+}
+
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("CHRPOP"))
 {

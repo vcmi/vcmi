@@ -154,6 +154,41 @@ void BattleWindow::createStickyHeroInfoWindows()
 	}
 }
 
+void BattleWindow::createStickyArmyInfoWindows(std::optional<uint32_t> unitId)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	if(owner.defendingHeroInstance)
+	{
+		InfoAboutHero info;
+		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x + pos.w + 15, pos.y + 250)
+				: Point(pos.x + pos.w -79, pos.y + 135);
+		defenderArmyWindow = std::make_shared<ArmyInfoBasicPanel>(info, &position);
+	}
+	if(owner.attackingHeroInstance)
+	{
+		InfoAboutHero info;
+		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x - 93, pos.y + 250)
+				: Point(pos.x + 1, pos.y + 135);
+		attackerArmyWindow = std::make_shared<ArmyInfoBasicPanel>(info, &position);
+	}
+
+	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
+
+	if(!showInfoWindows)
+	{
+		if(attackerArmyWindow)
+			attackerArmyWindow->disable();
+
+		if(defenderArmyWindow)
+			defenderArmyWindow->disable();
+	}
+}
+
 BattleWindow::~BattleWindow()
 {
 	CPlayerInterface::battleInt = nullptr;
@@ -671,7 +706,9 @@ void BattleWindow::blockUI(bool on)
 
 std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 {
-	return queue->getHoveredUnitIdIfAny();
+	std::optional<uint32_t> unitId = queue->getHoveredUnitIdIfAny();
+	createStickyArmyInfoWindows(unitId);
+	return unitId;
 }
 
 void BattleWindow::showAll(Canvas & to)

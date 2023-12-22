@@ -25,6 +25,7 @@ class BattleConsole;
 class BattleRenderer;
 class StackQueue;
 class HeroInfoBasicPanel;
+class ArmyInfoBasicPanel;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -35,6 +36,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<BattleConsole> console;
 	std::shared_ptr<HeroInfoBasicPanel> attackerHeroWindow;
 	std::shared_ptr<HeroInfoBasicPanel> defenderHeroWindow;
+	std::shared_ptr<ArmyInfoBasicPanel> attackerArmyWindow;
+	std::shared_ptr<ArmyInfoBasicPanel> defenderArmyWindow;
 
 	/// button press handling functions
 	void bOptionsf();
@@ -65,6 +68,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	void toggleStickyHeroWindowsVisibility();
 	void createStickyHeroInfoWindows();
+	void createStickyArmyInfoWindows(std::optional<uint32_t> unitId);
 
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
