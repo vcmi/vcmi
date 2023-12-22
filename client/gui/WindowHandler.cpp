@@ -22,6 +22,9 @@
 
 void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {
+	IShowActivatable * rawPtr = top.get();
+	logGlobal->debug("Removing window: %s", typeid(*rawPtr).name());
+
 	assert(windowsStack.back() == top);
 	top->deactivate();
 	disposed.push_back(top);
@@ -39,6 +42,9 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 
 	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
 	screenBuf = screen2;
+
+	IShowActivatable * rawPtr = newInt.get();
+	logGlobal->debug("Displaying new window: %s", typeid(*rawPtr).name());
 
 	if(!windowsStack.empty())
 		windowsStack.back()->deactivate();

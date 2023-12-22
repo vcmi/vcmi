@@ -528,11 +528,11 @@ void CClient::handlePack(CPack * pack)
 	{
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		apply->applyOnClBefore(this, pack);
-		logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
+		logNetwork->trace("\tMade first apply on cl: %s", typeid(*pack).name());
 		gs->apply(pack);
-		logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
+		logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
 		apply->applyOnClAfter(this, pack);
-		logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
+		logNetwork->trace("\tMade second apply on cl: %s", typeid(*pack).name());
 	}
 	else
 	{

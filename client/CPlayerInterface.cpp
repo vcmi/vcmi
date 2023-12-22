@@ -207,6 +207,7 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
+	logGlobal->debug("Entering CPlayerInterface::playerStartsTurn");
 	if(GH.windows().findWindows<AdventureMapInterface>().empty())
 	{
 		// after map load - remove all active windows and replace them with adventure map
@@ -224,6 +225,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 		if (makingTurn == false)
 			adventureInt->onEnemyTurnStarted(player, isHuman);
 	}
+	logGlobal->debug("Leaving CPlayerInterface::playerStartsTurn");
 }
 
 void CPlayerInterface::performAutosave()
@@ -276,6 +278,8 @@ void CPlayerInterface::gamePause(bool pause)
 
 void CPlayerInterface::yourTurn(QueryID queryID)
 {
+	logGlobal->debug("Entering CPlayerInterface::yourTurn");
+
 	CTutorialWindow::openWindowFirstTime(TutorialMode::TOUCH_ADVENTUREMAP);
 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -291,6 +295,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 
 		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
 		{
+			logGlobal->debug("Displaying hotseat wait message");
 			adventureInt->onHotseatWaitStarted(playerID);
 
 			makingTurn = true;
@@ -307,10 +312,12 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 		}
 	}
 	acceptTurn(queryID);
+	logGlobal->debug("Leaving CPlayerInterface::yourTurn");
 }
 
 void CPlayerInterface::acceptTurn(QueryID queryID)
 {
+	logGlobal->debug("Entering CPlayerInterface::acceptTurn");
 	if (settings["session"]["autoSkip"].Bool())
 	{
 		while(auto iw = GH.windows().topWindow<CInfoWindow>())
@@ -319,6 +326,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 
 	if(CSH->howManyPlayerInterfaces() > 1)
 	{
+		logGlobal->debug("Waiting for player to accept turn in hotseat");
 		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
 
 		adventureInt->onPlayerTurnStarted(playerID);
@@ -327,6 +335,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 	// warn player if he has no town
 	if (cb->howManyTowns() == 0)
 	{
+		logGlobal->debug("No owned towns. Showing warning message");
 		auto playerColor = *cb->getPlayerID();
 
 		std::vector<Component> components;
@@ -356,8 +365,10 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
 	
+	logGlobal->debug("Accepting turn");
 	cb->selectionMade(0, queryID);
 	movementController->onPlayerTurnStarted();
+	logGlobal->debug("Leaving CPlayerInterface::yourTurn");
 }
 
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
@@ -994,6 +1005,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
+		logGlobal->debug("Displaying info dialog: %s", text);
 		showingDialog->set(true);
 		movementController->requestMovementAbort(); // interrupt movement to show dialog
 		GH.windows().pushWindow(temp);
@@ -1017,6 +1029,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
 	movementController->requestMovementAbort();
+	logGlobal->debug("Displaying yes/no dialog: %s", text);
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
@@ -1349,10 +1362,14 @@ void CPlayerInterface::waitWhileDialog()
 		return;
 	}
 
-	auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-	boost::unique_lock<boost::mutex> un(showingDialog->mx);
-	while(showingDialog->data)
-		showingDialog->cond.wait(un);
+	logGlobal->debug("Waiting for dialogs...");
+	{
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		boost::unique_lock<boost::mutex> un(showingDialog->mx);
+		while(showingDialog->data)
+			showingDialog->cond.wait(un);
+	}
+	logGlobal->debug("No more dialogs, resuming");
 }
 
 void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
@@ -1459,6 +1476,7 @@ void CPlayerInterface::update()
 	//if there are any waiting dialogs, show them
 	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
 	{
+		logGlobal->debug("Displaying waiting dialog: %s", dialogs.front()->text->label->getText());
 		showingDialog->set(true);
 		GH.windows().pushWindow(dialogs.front());
 		dialogs.pop_front();
