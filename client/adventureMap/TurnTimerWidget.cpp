@@ -104,13 +104,14 @@ void TurnTimerWidget::show(Canvas & to)
 
 void TurnTimerWidget::updateNotifications(PlayerColor player, int timeMs)
 {
+	if(player != LOCPLINT->playerID)
+		return;
+
 	int newTimeSeconds = timeMs / 1000;
-	if(player == LOCPLINT->playerID
-	   && newTimeSeconds != lastSoundCheckSeconds
-	   && notificationThresholds.count(newTimeSeconds))
-	{
+
+	if (newTimeSeconds != lastSoundCheckSeconds && notificationThresholds.count(newTimeSeconds))
 		CCS->soundh->playSound(AudioPath::builtin("WE5"));
-	}
+
 	lastSoundCheckSeconds = newTimeSeconds;
 }
 

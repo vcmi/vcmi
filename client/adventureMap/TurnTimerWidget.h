@@ -28,7 +28,7 @@ class TurnTimerWidget : public CIntObject
 	int lastSoundCheckSeconds;
 	bool isBattleMode;
 
-	const std::set<int> notificationThresholds = {0, 1, 2, 3, 4, 5, 10, 20, 30};
+	const std::set<int> notificationThresholds = {1, 2, 3, 4, 5, 10, 20, 30};
 
 	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsMain;
 	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsBattle;
