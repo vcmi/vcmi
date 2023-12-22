@@ -17,6 +17,7 @@
 #include "CObstacleInstance.h"
 #include "DamageCalculator.h"
 #include "PossiblePlayerBattleAction.h"
+#include "../constants/EntityIdentifiers.h"
 #include "../spells/ObstacleCasterProxy.h"
 #include "../spells/ISpellMechanics.h"
 #include "../spells/Problem.h"
@@ -1653,7 +1654,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 			return stacks.front();
 	};
 
-	for(const SpellID& spellID : allPossibleSpells)
+	for(const SpellID& spellID : allPossibleSpells) //todo: re-check original h3 behavior when orb of vulnerability is used
 	{
 		std::stringstream cachingStr;
 		cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
@@ -1663,7 +1664,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		|| !(spellID.toSpell()->canBeCast(this, spells::Mode::CREATURE_ACTIVE, subject)))
 			continue;
 
-		switch (spellID.toEnum())
+		switch (spellID.toEnum()) //todo: this does not filter spells based on spell immunities defined in spell configs
 		{
 		case SpellID::SHIELD:
 		case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
@@ -1673,7 +1674,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 				return !stack->canShoot();
 			});
 
-			if(!walker)
+			if(!walker || subject->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, SpellSchool::FIRE))
 				continue;
 		}
 			break;
@@ -1734,8 +1735,16 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 			break;
 
 		case SpellID::FRENZY:
+			if(subject->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, SpellSchool::FIRE))
+				continue;
+			[[fallthrough]];
 		case SpellID::MIRTH:
-			if(subject->hasBonusOfType(BonusType::MIND_IMMUNITY))
+			if(subject->hasBonusOfType(BonusType::MIND_IMMUNITY) || subject->hasBonusOfType(BonusType::NON_LIVING) || subject->hasBonusOfType(BonusType::UNDEAD))
+				continue;
+			break;
+
+		case SpellID::BLESS:
+			if(subject->hasBonusOfType(BonusType::UNDEAD))
 				continue;
 			break;
 		}
