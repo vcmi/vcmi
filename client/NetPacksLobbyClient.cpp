@@ -47,7 +47,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.clientId != pack.c->connectionID)
+	if(pack.clientId != handler.c->connectionID)
 	{
 		result = false;
 		return;
