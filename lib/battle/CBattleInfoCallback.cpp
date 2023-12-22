@@ -1732,6 +1732,12 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 				continue;
 		}
 			break;
+
+		case SpellID::FRENZY:
+		case SpellID::MIRTH:
+			if(subject->hasBonusOfType(BonusType::MIND_IMMUNITY))
+				continue;
+			break;
 		}
 		beneficialSpells.push_back(spellID);
 	}
