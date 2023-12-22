@@ -120,6 +120,8 @@ void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
 		CSH->sendGuiAction(LobbyGuiAction::OPEN_SCENARIO_LIST);
 	else if(tab == tabRand)
 		CSH->sendGuiAction(LobbyGuiAction::OPEN_RANDOM_MAP_OPTIONS);
+	else if(tab == tabTurnOptions)
+		CSH->sendGuiAction(LobbyGuiAction::OPEN_TURN_OPTIONS);
 	CSelectionBase::toggleTab(tab);
 }
 
