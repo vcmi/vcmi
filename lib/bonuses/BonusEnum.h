@@ -28,7 +28,6 @@ class JsonNode;
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
-	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(SPELL_DURATION) \
 	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
@@ -171,6 +170,7 @@ class JsonNode;
 	BONUS_NAME(SPELL_SCHOOL_IMMUNITY) /*This bonus will work as spell school immunity for all spells, subtype - spell school: 0 - air, 1 - fire, 2 - water, 3 - earth. Any is not handled for reducing overlap from LEVEL_SPELL_IMMUNITY*/\
 	BONUS_NAME(NEGATIVE_EFFECTS_IMMUNITY) /*This bonus will work as spell school immunity for negative effects from spells of school, subtype - spell school: -1 - any, 0 - air, 1 - fire, 2 - water, 3 - earth*/\
 	BONUS_NAME(TERRAIN_NATIVE) \
+	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
 	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
 	/* end of list */
