@@ -27,6 +27,8 @@ class playerInfo;
 class RmgMap
 {
 public:
+	int getDecorationsPercentage() const;
+
 	mutable std::unique_ptr<CMap> mapInstance;
 	std::shared_ptr<MapProxy> getMapProxy() const;
 	CMap & getMap(const CMapGenerator *) const; //limited access

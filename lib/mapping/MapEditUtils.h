@@ -199,6 +199,8 @@ struct DLL_LINKAGE TerrainViewPattern
 	/// If diffImages is true, different images/frames are used to place a rotated terrain view. If it's false
 	/// the same frame will be used and rotated.
 	bool diffImages;
+	/// If true, then this pattern describes decoration tiles and should be used with specified probability
+	bool decoration;
 	/// The rotationTypesCount is only used if diffImages is true and holds the number how many rotation types(horizontal, etc...)
 	/// are supported.
 	int rotationTypesCount;
