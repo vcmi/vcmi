@@ -121,9 +121,10 @@ void LRClickableAreaWTextComp::showPopupWindow(const Point & cursorPosition)
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * hero)
-	: CIntObject(LCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	hero(hero),
-	clickFunctor(nullptr)
+	clickFunctor(nullptr),
+	clickRFunctor(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -147,10 +148,21 @@ void CHeroArea::addClickCallback(ClickFunctor callback)
 	clickFunctor = callback;
 }
 
+void CHeroArea::addRClickCallback(ClickFunctor callback)
+{
+	clickRFunctor = callback;
+}
+
 void CHeroArea::clickPressed(const Point & cursorPosition)
 {
 	if(clickFunctor)
 		clickFunctor();
+}
+
+void CHeroArea::showPopupWindow(const Point & cursorPosition)
+{
+	if(clickRFunctor)
+		clickRFunctor();
 }
 
 void CHeroArea::hover(bool on)
