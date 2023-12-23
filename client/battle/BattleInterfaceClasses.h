@@ -39,6 +39,7 @@ class CToggleButton;
 class CLabel;
 class CTextBox;
 class CAnimImage;
+class TransparentFilledRectangle;
 class CPlayerInterface;
 class BattleRenderer;
 
@@ -206,6 +207,8 @@ class StackQueue : public CIntObject
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CLabel> amount;
 		std::shared_ptr<CAnimImage> stateIcon;
+		std::shared_ptr<CLabel> round;
+		std::shared_ptr<TransparentFilledRectangle> roundRect;
 
 		void show(Canvas & to) override;
 		void showAll(Canvas & to) override;
@@ -213,9 +216,8 @@ class StackQueue : public CIntObject
 		bool isBoundUnitHighlighted() const;
 	public:
 		StackBox(StackQueue * owner);
-		void setUnit(const battle::Unit * unit, size_t turn = 0);
+		void setUnit(const battle::Unit * unit, size_t turn = 0, std::optional<ui32> currentTurn = std::nullopt);
 		std::optional<uint32_t> getBoundUnitID() const;
-
 	};
 
 	static const int QUEUE_SIZE = 10;
