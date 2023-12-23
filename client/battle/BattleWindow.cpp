@@ -47,6 +47,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner),
 	defaultAction(PossiblePlayerBattleAction::INVALID)
 {
+	logGlobal->debug("Entering BattleWindow::BattleWindow");
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.w = 800;
 	pos.h = 600;
@@ -93,6 +94,8 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 		tacticPhaseEnded();
 
 	addUsedEvents(LCLICK | KEYBOARD);
+
+	logGlobal->debug("Leaving BattleWindow::BattleWindow");
 }
 
 void BattleWindow::createQueue()
@@ -304,16 +307,20 @@ void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
 
 void BattleWindow::activate()
 {
+	logGlobal->debug("Entering BattleWindow::activate");
 	GH.setStatusbar(console);
 	CIntObject::activate();
 	LOCPLINT->cingconsole->activate();
+	logGlobal->debug("Leaving BattleWindow::activate");
 }
 
 void BattleWindow::deactivate()
 {
+	logGlobal->debug("Entering BattleWindow::deactivate");
 	GH.setStatusbar(nullptr);
 	CIntObject::deactivate();
 	LOCPLINT->cingconsole->deactivate();
+	logGlobal->debug("Leaving BattleWindow::deactivate");
 }
 
 bool BattleWindow::captureThisKey(EShortcut key)

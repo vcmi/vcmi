@@ -89,6 +89,7 @@ void WindowHandler::createAndPushWindow(Args && ... args)
 template <typename T>
 std::vector<std::shared_ptr<T>> WindowHandler::findWindows() const
 {
+	logGlobal->debug("Searching for windows of type %s", typeid(T).name());
 	std::vector<std::shared_ptr<T>> result;
 
 	for(const auto & window : windowsStack)
@@ -98,6 +99,8 @@ std::vector<std::shared_ptr<T>> WindowHandler::findWindows() const
 		if (casted)
 			result.push_back(casted);
 	}
+
+	logGlobal->debug("Found %d matching windows", result.size());
 	return result;
 }
 

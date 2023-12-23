@@ -37,6 +37,7 @@ void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 
 void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 {
+	logGlobal->debug("Entering WindowHandler::pushWindow");
 	assert(newInt);
 	assert(!vstd::contains(windowsStack, newInt)); // do not add same object twice
 
@@ -50,8 +51,10 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 		windowsStack.back()->deactivate();
 	windowsStack.push_back(newInt);
 	CCS->curh->set(Cursor::Map::POINTER);
+	logGlobal->debug("Activating new window: %s", typeid(*rawPtr).name());
 	newInt->activate();
 	totalRedraw();
+	logGlobal->debug("Leaving WindowHandler::pushWindow");
 }
 
 bool WindowHandler::isTopWindowPopup() const
@@ -161,9 +164,26 @@ size_t WindowHandler::count() const
 
 void WindowHandler::clear()
 {
+	logGlobal->debug("Entering WindowHandler::clear");
 	if(!windowsStack.empty())
+	{
+		auto * rawPtr = windowsStack.back().get();
+		logGlobal->debug("Deactivating %s", typeid(*rawPtr).name());
 		windowsStack.back()->deactivate();
+	}
+	logGlobal->debug("Clearing windows stack");
 
-	windowsStack.clear();
-	disposed.clear();
+	while (!windowsStack.empty())
+	{
+		auto * rawPtr = windowsStack.back().get();
+		logGlobal->debug("Removing %s from window stack", typeid(*rawPtr).name());
+		windowsStack.pop_back();
+	}
+
+	while (!disposed.empty())
+	{
+		auto * rawPtr = disposed.back().get();
+		logGlobal->debug("Removing %s from disposed windows", typeid(*rawPtr).name());
+		disposed.pop_back();
+	}
 }
