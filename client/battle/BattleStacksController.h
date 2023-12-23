@@ -125,8 +125,8 @@ public:
 
 	void showAliveStack(Canvas & canvas, const CStack * stack);
 	void showStack(Canvas & canvas, const CStack * stack);
-	
-	void updateHoveredStacks(bool clear);
+
+	void updateHoveredStacks();
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 

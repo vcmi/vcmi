@@ -37,6 +37,7 @@ class CFilledTexture;
 class CButton;
 class CToggleButton;
 class CLabel;
+class CMultiLineLabel;
 class CTextBox;
 class CAnimImage;
 class CPlayerInterface;
@@ -150,6 +151,7 @@ private:
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CPicture> background2;
 	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CMultiLineLabel>> labelsMultiline;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:
 	StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground = true);

@@ -478,12 +478,12 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	auto attack = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
 	auto defense = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
 	auto damage = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
-	auto health = std::to_string(CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth());
+	auto health = CGI->creatures()->getByIndex(stack->creatureIndex())->getMaxHealth();
 	auto morale = stack->moraleVal();
 	auto luck = stack->luckVal();
 
 	auto killed = stack->getKilled();
-	auto healthRemaining = TextOperations::formatMetric(stack->getAvailableHealth(), 4);
+	auto healthRemaining = TextOperations::formatMetric(stack->getAvailableHealth() - (stack->getCount() - 1) * health, 4);
 
 	//primary stats*/
 	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
@@ -494,7 +494,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, attack));
 	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, defense));
 	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, damage));
-	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, health));
+	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(health)));
 
 	//morale+luck
 	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
@@ -505,16 +505,49 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 
 	//extra information
 	labels.push_back(std::make_shared<CLabel>(9, 168, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, std::string("Killed") + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 180, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, std::string("Rem He") + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 180, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[389] + ":"));
 
 	labels.push_back(std::make_shared<CLabel>(69, 180, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(killed)));
 	labels.push_back(std::make_shared<CLabel>(69, 192, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, healthRemaining));
+
+	//spells
+	static const Point firstPos(15, 206); // position of 1st spell box
+	static const Point offset(0, 38);  // offset of each spell box from previous
+
+	for(int i = 0; i < 3; i++)
+		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), 78, 0, firstPos.x + offset.x * i, firstPos.y + offset.y * i));
+
+	int printed=0; //how many effect pics have been printed
+	std::vector<SpellID> spells = stack->activeSpells();
+	for(SpellID effect : spells)
+	{
+		//not all effects have graphics (for eg. Acid Breath)
+		//for modded spells iconEffect is added to SpellInt.def
+		const bool hasGraphics = (effect < SpellID::THUNDERBOLT) || (effect >= SpellID::AFTER_LAST);
+
+		if (hasGraphics)
+		{
+			//FIXME: support permanent duration
+			int duration = stack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
+
+			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
+			labels.push_back(std::make_shared<CLabel>(firstPos.x + offset.x * printed + 46, firstPos.y + offset.y * printed + 36, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(duration)));
+			if(++printed >= 3 || (printed == 2 && spells.size() > 3)) // interface limit reached
+				break;
+		}
+	}
+
+	if(spells.size() == 0)
+		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x, firstPos.y, 48, 36), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[674]));
+	if(spells.size() > 3)
+		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x + offset.x * 2, firstPos.y + offset.y * 2 - 5, 48, 36), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "..."));
 }
 
 void StackInfoBasicPanel::update(const CStack * updatedInfo)
 {
 	icons.clear();
 	labels.clear();
+	labelsMultiline.clear();
 
 	initializeData(updatedInfo);
 }
