@@ -273,17 +273,15 @@ void CBonusSelection::createBonusesIcons()
 		}
 
 		case CampaignBonusType::HERO:
-
-			desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
-			desc.replaceTextID(TextIdentifier("core", "genrltxt", "capColors", bonDescs[i].info1).get());
 			if(bonDescs[i].info2 == 0xFFFF)
 			{
-				desc.replaceLocalString(EMetaText::GENERAL_TXT, 101);
+				desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
 				picNumber = -1;
 				picName = "CBONN1A3.BMP";
 			}
 			else
 			{
+				desc.appendLocalString(EMetaText::GENERAL_TXT, 715); // Start with %s
 				desc.replaceTextID(CGI->heroh->objects[bonDescs[i].info2]->getNameTextID());
 			}
 			break;
