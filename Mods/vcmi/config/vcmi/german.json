@@ -180,6 +180,7 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d Schaden",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d werden verenden",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d werden verenden",
+	"vcmi.battleWindow.killed" : "Getötet",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
 

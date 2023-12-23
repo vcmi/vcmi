@@ -266,8 +266,8 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	if(stack && stack->unitSide() == BattleSide::DEFENDER)
 	{
 		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, pos.y + 250)
-				: Point(pos.x + pos.w -79, pos.y + 135);
+				? Point(pos.x + pos.w + 15, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y)
+				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 135);
 		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
 		defenderStackWindow->setEnabled(showInfoWindows);
 	}
@@ -277,8 +277,8 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	if(stack && stack->unitSide() == BattleSide::ATTACKER)
 	{
 		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, pos.y + 250)
-				: Point(pos.x + 1, pos.y + 135);
+				? Point(pos.x - 93, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y)
+				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 135);
 		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
 		attackerStackWindow->setEnabled(showInfoWindows);
 	}

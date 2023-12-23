@@ -238,6 +238,7 @@ public:
 class MoraleLuckBox : public LRClickableAreaWTextComp
 {
 	std::shared_ptr<CAnimImage> image;
+	std::shared_ptr<CLabel> label;
 public:
 	bool morale; //true if morale, false if luck
 	bool small;

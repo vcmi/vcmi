@@ -72,6 +72,7 @@ class CStackWindow : public CWindowObject
 	{
 		std::vector<std::shared_ptr<CAnimImage>> spellIcons;
 		std::vector<std::shared_ptr<LRClickableAreaWText>> clickableAreas;
+		std::vector<std::shared_ptr<CLabel>> labels;
 	public:
 		ActiveSpellsSection(CStackWindow * owner, int yOffset);
 	};
