@@ -235,10 +235,10 @@
 	"vcmi.questLog.hideComplete.hover" : "Skrýt dokončené úkoly",
 	"vcmi.questLog.hideComplete.help"  : "Skrýt všechny dokončené úkoly.",
 
-	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Random)",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Náhodná)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Šablona",
-	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Setup...",
-	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team Alignments",
+	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Nastavit...",
+	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Přiřazení týmů",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Druhy cest",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Možnosti tahu",
