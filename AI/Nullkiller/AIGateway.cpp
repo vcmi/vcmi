@@ -586,13 +586,18 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 
 	requestActionASAP([=]()
 	{ 
+		int sel = 0;
+
 		if(hPtr.validAndSet())
 		{
 			std::unique_lock<std::mutex> lockGuard(nullkiller->aiStateMutex);
 
 			nullkiller->heroManager->update();
-			answerQuery(queryID, nullkiller->heroManager->selectBestSkill(hPtr, skills));
+
+			sel = nullkiller->heroManager->selectBestSkill(hPtr, skills);
 		}
+
+		answerQuery(queryID, sel);
 	});
 }
 

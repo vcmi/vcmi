@@ -137,7 +137,7 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 	return sum > 1 ? result / sum : result;
 }
 
-uint64_t getResourcesGoldReward(TResources & res)
+uint64_t getResourcesGoldReward(const TResources & res)
 {
 	int nonGoldResources = res[EGameResID::GEMS]
 		+ res[EGameResID::SULFUR]
@@ -540,6 +540,9 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? getEnemyHeroStrategicalValue(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
+
+	case Obj::KEYMASTER:
+		return 0.6f;
 
 	default:
 		return 0;

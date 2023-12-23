@@ -524,25 +524,24 @@ void handleQuit(bool ask)
 	// FIXME: avoids crash if player attempts to close game while opening is still playing
 	// use cursor handler as indicator that loading is not done yet
 	// proper solution would be to abort init thread (or wait for it to finish)
+	if(!ask)
+	{
+		quitApplication();
+		return;
+	}
+
 	if (!CCS->curh)
 	{
 		quitRequestedDuringOpeningPlayback = true;
 		return;
 	}
 
-	if(ask)
-	{
-		CCS->curh->set(Cursor::Map::POINTER);
+	CCS->curh->set(Cursor::Map::POINTER);
 
-		if (LOCPLINT)
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
-		else
-			CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
-	}
+	if (LOCPLINT)
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
-	{
-		quitApplication();
-	}
+		CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }
 
 void handleFatalError(const std::string & message, bool terminate)
