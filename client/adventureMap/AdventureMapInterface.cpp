@@ -331,6 +331,11 @@ void AdventureMapInterface::onTownOrderChanged()
 	widget->getTownList()->updateWidget();
 }
 
+void AdventureMapInterface::onHeroOrderChanged()
+{
+	widget->getHeroList()->updateWidget();
+}
+
 void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
 {
 	if (positions)

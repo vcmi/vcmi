@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "TurnOrderProcessor.h"
+#include "PlayerMessageProcessor.h"
 
 #include "../queries/QueriesProcessor.h"
 #include "../queries/MapQueries.h"
@@ -35,9 +36,9 @@ int TurnOrderProcessor::simturnsTurnsMinLimit() const
 	return gameHandler->getStartInfo()->simturnsInfo.requiredTurns;
 }
 
-void TurnOrderProcessor::updateContactStatus()
+std::vector<TurnOrderProcessor::PlayerPair> TurnOrderProcessor::computeContactStatus() const
 {
-	blockedContacts.clear();
+	std::vector<PlayerPair> result;
 
 	assert(actedPlayers.empty());
 	assert(actingPlayers.empty());
@@ -50,9 +51,40 @@ void TurnOrderProcessor::updateContactStatus()
 				continue;
 
 			if (computeCanActSimultaneously(left, right))
-				blockedContacts.push_back({left, right});
+				result.push_back({left, right});
 		}
 	}
+	return result;
+}
+
+void TurnOrderProcessor::updateAndNotifyContactStatus()
+{
+	auto newBlockedContacts = computeContactStatus();
+
+	if (newBlockedContacts.empty())
+	{
+		// Simturns between all players have ended - send single global notification
+		if (!blockedContacts.empty())
+			gameHandler->playerMessages->broadcastSystemMessage("Simultaneous turns have ended");
+	}
+	else
+	{
+		// Simturns between some players have ended - notify each pair
+		for (auto const & contact : blockedContacts)
+		{
+			if (vstd::contains(newBlockedContacts, contact))
+				continue;
+
+			MetaString message;
+			message.appendRawString("Simultaneous turns between players %s and %s have ended"); // FIXME: we should send MetaString itself and localize it on client side
+			message.replaceName(contact.a);
+			message.replaceName(contact.b);
+
+			gameHandler->playerMessages->broadcastSystemMessage(message.toString());
+		}
+	}
+
+	blockedContacts = newBlockedContacts;
 }
 
 bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) const
@@ -204,7 +236,7 @@ void TurnOrderProcessor::doStartNewDay()
 	std::swap(actedPlayers, awaitingPlayers);
 
 	gameHandler->onNewTurn();
-	updateContactStatus();
+	updateAndNotifyContactStatus();
 	tryStartTurnsForPlayers();
 }
 
@@ -301,7 +333,7 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 void TurnOrderProcessor::onGameStarted()
 {
 	if (actingPlayers.empty())
-		updateContactStatus();
+		blockedContacts = computeContactStatus();
 
 	// this may be game load - send notification to players that they can act
 	auto actingPlayersCopy = actingPlayers;

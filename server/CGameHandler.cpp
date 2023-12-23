@@ -2225,12 +2225,12 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 
 bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const
 {
-	return connections.at(player).count(c);
+	return connections.count(player) && connections.at(player).count(c);
 }
 
 bool CGameHandler::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const
 {
-	return connections.at(left) == connections.at(right);
+	return connections.count(left) && connections.count(right) && connections.at(left) == connections.at(right);
 }
 
 bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
