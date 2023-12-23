@@ -148,6 +148,7 @@ class StackInfoBasicPanel : public CIntObject
 {
 private:
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CPicture> background2;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:

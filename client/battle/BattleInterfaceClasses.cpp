@@ -456,9 +456,13 @@ StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, Point * position,
 
 	if(initializeBackground)
 	{
-		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
+		background = std::make_shared<CPicture>(ImagePath::builtin("CCRPOP"));
+		background->pos.y += 37;
 		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 		background->colorize(stack->getOwner());
+		background2 = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
+		background2->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+		background2->colorize(stack->getOwner());
 	}
 
 	initializeData(stack);
