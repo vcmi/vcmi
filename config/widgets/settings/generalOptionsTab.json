@@ -72,6 +72,35 @@
 		},
 		{
 			"type" : "verticalLayout",
+			"customType" : "checkboxFake",
+			"position" : {"x": 10, "y": 83},
+			"items" : [
+				{
+					"created" : "desktop"
+				},
+				{},
+				{
+					"created" : "desktop"
+				},
+				{
+					"created" : "desktop"
+				},
+				{},
+				{},
+				{
+					"name": "spellbookAnimationCheckboxPlaceholder"
+				},
+				{
+					"created" : "touchscreen"
+				},
+				{
+					"created" : "mobile"
+				},
+				{}
+			]
+		},
+		{
+			"type" : "verticalLayout",
 			"customType" : "checkbox",
 			"position" : {"x": 10, "y": 83},
 			"items" : [
