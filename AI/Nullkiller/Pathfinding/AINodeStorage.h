@@ -41,11 +41,19 @@ namespace AIPathfinding
 	const int CHAIN_MAX_DEPTH = 4;
 }
 
+enum DayFlags : ui8
+{
+	NONE = 0,
+	FLY_CASTED = 1,
+	WATER_WALK_CASTED = 2
+};
+
 struct AIPathNode : public CGPathNode
 {
 	uint64_t danger;
 	uint64_t armyLoss;
-	int32_t manaCost;
+	int16_t manaCost;
+	DayFlags dayFlags;
 	const AIPathNode * chainOther;
 	std::shared_ptr<const SpecialAction> specialAction;
 	const ChainActor * actor;

@@ -24,9 +24,10 @@ namespace AIPathfinding
 		SpellID spellToCast;
 		const CGHeroInstance * hero;
 		int manaCost;
+		DayFlags flagsToAdd;
 
 	public:
-		AdventureCastAction(SpellID spellToCast, const CGHeroInstance * hero);
+		AdventureCastAction(SpellID spellToCast, const CGHeroInstance * hero, DayFlags flagsToAdd = DayFlags::NONE);
 
 		virtual void execute(const CGHeroInstance * hero) const override;
 

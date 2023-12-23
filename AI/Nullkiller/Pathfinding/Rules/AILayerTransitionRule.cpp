@@ -61,6 +61,12 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::WATER)
 		{
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::WATER_WALK_CASTED)
+			{
+				destination.blocked = false;
+				return;
+			}
+
 			auto action = waterWalkingActions.find(nodeStorage->getHero(source.node));
 
 			if(action != waterWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
@@ -73,6 +79,12 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::AIR)
 		{
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::FLY_CASTED)
+			{
+				destination.blocked = false;
+				return;
+			}
+
 			auto action = airWalkingActions.find(nodeStorage->getHero(source.node));
 
 			if(action != airWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))

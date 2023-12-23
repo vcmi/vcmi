@@ -22,18 +22,18 @@ namespace NKAI
 
 namespace AIPathfinding
 {
-	AdventureCastAction::AdventureCastAction(SpellID spellToCast, const CGHeroInstance * hero)
-		:spellToCast(spellToCast), hero(hero)
+	AdventureCastAction::AdventureCastAction(SpellID spellToCast, const CGHeroInstance * hero, DayFlags flagsToAdd)
+		:spellToCast(spellToCast), hero(hero), flagsToAdd(flagsToAdd)
 	{
 		manaCost = hero->getSpellCost(spellToCast.toSpell());
 	}
 
 	WaterWalkingAction::WaterWalkingAction(const CGHeroInstance * hero)
-		:AdventureCastAction(SpellID::WATER_WALK, hero)
+		:AdventureCastAction(SpellID::WATER_WALK, hero, DayFlags::WATER_WALK_CASTED)
 	{ }
 
 	AirWalkingAction::AirWalkingAction(const CGHeroInstance * hero)
-		: AdventureCastAction(SpellID::FLY, hero)
+		: AdventureCastAction(SpellID::FLY, hero, DayFlags::FLY_CASTED)
 	{
 	}
 
@@ -41,11 +41,12 @@ namespace AIPathfinding
 		const CGHeroInstance * hero,
 		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
-		AIPathNode * dstMode,
+		AIPathNode * dstNode,
 		const AIPathNode * srcNode) const
 	{
-		dstMode->manaCost = srcNode->manaCost + manaCost;
-		dstMode->theNodeBefore = source.node;
+		dstNode->manaCost = srcNode->manaCost + manaCost;
+		dstNode->theNodeBefore = source.node;
+		dstNode->dayFlags = static_cast<DayFlags>(dstNode->dayFlags | flagsToAdd);
 	}
 
 	void AdventureCastAction::execute(const CGHeroInstance * hero) const

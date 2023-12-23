@@ -137,6 +137,18 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 	return sum > 1 ? result / sum : result;
 }
 
+uint64_t getResourcesGoldReward(TResources & res)
+{
+	int nonGoldResources = res[EGameResID::GEMS]
+		+ res[EGameResID::SULFUR]
+		+ res[EGameResID::WOOD]
+		+ res[EGameResID::ORE]
+		+ res[EGameResID::CRYSTAL]
+		+ res[EGameResID::MERCURY];
+
+	return res[EGameResID::GOLD] + 100 * nonGoldResources;
+}
+
 uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
 {
 	auto objectInfo = target->getObjectHandler()->getObjectInfo(target->appearance);
@@ -491,7 +503,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 			//Evaluate resources used for construction. Gold is evaluated separately.
 			if (it->resType != EGameResID::GOLD)
 			{
-				sum += 0.1f * getResourceRequirementStrength(it->resType);
+				sum += 0.1f * it->resVal * getResourceRequirementStrength(it->resType);
 			}
 		}
 		return sum;
@@ -662,7 +674,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::WAGON:
 		return 100;
 	case Obj::CREATURE_BANK:
-		return getCreatureBankResources(target, hero)[EGameResID::GOLD];
+		return getResourcesGoldReward(getCreatureBankResources(target, hero));
 	case Obj::CRYPT:
 	case Obj::DERELICT_SHIP:
 		return 3000;
