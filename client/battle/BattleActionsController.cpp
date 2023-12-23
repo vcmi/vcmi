@@ -864,6 +864,8 @@ void BattleActionsController::onHoverEnded()
 
 void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 {
+	owner.stacksController->updateHoveredStacks(true);
+
 	if (owner.stacksController->getActiveStack() == nullptr)
 		return;
 
@@ -994,6 +996,8 @@ void BattleActionsController::activateStack()
 
 void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 {
+	owner.stacksController->updateHoveredStacks(true);
+
 	auto spellcastActionPredicate = [](PossiblePlayerBattleAction & action)
 	{
 		return action.spellcast();

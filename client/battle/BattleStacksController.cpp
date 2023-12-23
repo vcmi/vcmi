@@ -346,7 +346,7 @@ void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 
 void BattleStacksController::tick(uint32_t msPassed)
 {
-	updateHoveredStacks();
+	updateHoveredStacks(false);
 	updateBattleAnimations(msPassed);
 }
 
@@ -806,20 +806,21 @@ void BattleStacksController::removeExpiredColorFilters()
 	});
 }
 
-void BattleStacksController::updateHoveredStacks()
+void BattleStacksController::updateHoveredStacks(bool clear)
 {
 	auto newStacks = selectHoveredStacks();
+
+	if(clear)
+		owner.windowObject->updateStackInfoWindow(nullptr);
 
 	for(const auto * stack : mouseHoveredStacks)
 	{
 		if (vstd::contains(newStacks, stack))
 			continue;
 
+		owner.windowObject->updateStackInfoWindow(nullptr);
 		if (stack == activeStack)
-		{
-			owner.windowObject->updateStackInfoWindow(stack);
 			stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getGoldBorder());
-		}
 		else
 			stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getNoBorder());
 	}
@@ -829,6 +830,7 @@ void BattleStacksController::updateHoveredStacks()
 		if (vstd::contains(mouseHoveredStacks, stack))
 			continue;
 
+		owner.windowObject->updateStackInfoWindow(newStacks.size() == 1 && vstd::find_pos(newStacks, stack) == 0 ? stack : nullptr);
 		stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getBlueBorder());
 		if (stackAnimation[stack->unitId()]->framesInGroup(ECreatureAnimType::MOUSEON) > 0 && stack->alive() && !stack->isFrozen())
 			stackAnimation[stack->unitId()]->playOnce(ECreatureAnimType::MOUSEON);
