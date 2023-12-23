@@ -257,6 +257,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				break;
 			case ECommander::DAMAGE:
 				scp.accumulatedBonus.type = BonusType::CREATURE_DAMAGE;
+				scp.accumulatedBonus.subtype = BonusCustomSubtype::creatureDamageBoth;
 				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_ALL;
 				break;
 			case ECommander::SPEED:
