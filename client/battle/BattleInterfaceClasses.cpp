@@ -795,7 +795,7 @@ void StackQueue::update()
 		for(size_t unitIndex = 0; unitIndex < queueData[turn].size() && boxIndex < stackBoxes.size(); boxIndex++, unitIndex++)
 		{
 			ui32 currentTurn = owner.round + turn;
-			stackBoxes[boxIndex]->setUnit(queueData[turn][unitIndex], turn, tmpTurn != currentTurn && owner.round != 0 ? (std::optional<ui32>)currentTurn : std::nullopt);
+			stackBoxes[boxIndex]->setUnit(queueData[turn][unitIndex], turn, tmpTurn != currentTurn && owner.round != 0 && (!embedded || tmpTurn != -1) ? (std::optional<ui32>)currentTurn : std::nullopt);
 			tmpTurn = currentTurn;
 		}
 	}
@@ -835,8 +835,7 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 	{
 		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 5, 2);
 		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 7, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 48, 15, 18), ColorRGBA(0, 0, 0, 255), ColorRGBA(241, 216, 120, 255));
-		round = std::make_shared<CLabel>(4, pos.h + 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		roundRect = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, 2, 48), ColorRGBA(0, 0, 0, 255), ColorRGBA(0, 255, 0, 255));
 	}
 	else
 	{
@@ -851,6 +850,7 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 		stateIcon = std::make_shared<CAnimImage>(owner->stateIcons, 0, 0, icon_x, icon_y);
 		stateIcon->visible = false;
 	}
+	roundRect->disable();
 }
 
 void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::optional<ui32> currentTurn)
@@ -871,7 +871,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
 		amount->setText(TextOperations::formatMetric(unit->getCount(), 4));
-		if(currentTurn)
+		if(currentTurn && !owner->embedded)
 		{
 			std::string tmp = std::to_string(*currentTurn);
 			int len = graphics->fonts[FONT_SMALL]->getStringWidth(tmp);
@@ -879,7 +879,8 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 			round->setText(tmp);
 		}
 		roundRect->setEnabled(currentTurn.has_value());
-		round->setEnabled(currentTurn.has_value());
+		if(!owner->embedded)
+			round->setEnabled(currentTurn.has_value());
 
 		if(stateIcon)
 		{
