@@ -313,7 +313,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Porazte všechny nepřátele a utužte Andělskou alianci",
 
 	// few strings from WoG used by vcmi
-	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i", //TODO
+	"vcmi.stackExperience.description" : "» P o d r o b n o s t i   z k u š e n o s t í   o d d í l u «\n\nDruh bojovníka ................... : %s\nÚroveň hodnosti ................. : %s (%i)\nBody zkušeností ............... : %i\nZkušenostních bodů do další úrovně hodnosti .. : %i\nMaximum zkušeností na bitvu ... : %i%% (%i)\nPočet bojovníků v oddílu .... : %i\nMaximum nových rekrutů\n bez ztráty současné hodnosti .... : %i\nNásobič zkušeností ........... : %.2f\nNásobič vylepšení .............. : %.2f\nZkušnosti po 10. úrovně hodnosti ........ : %i\nMaximální počet nových rekrutů pro zachování\n 10. úrovně hodnosti s maximálními zkušenostmi: %i",
 	"vcmi.stackExperience.rank.0" : "Začátečník",
 	"vcmi.stackExperience.rank.1" : "Učeň",
 	"vcmi.stackExperience.rank.2" : "Trénovaný",
@@ -400,7 +400,7 @@
 	"core.bonus.LIMITED_SHOOTING_RANGE.description" : "Nevystřelí na jednotky dále než ${val} polí",
 	"core.bonus.LIFE_DRAIN.name": "Vysátí životů (${val}%)",
 	"core.bonus.LIFE_DRAIN.description": "Vysaje ${val}% uděleného poškození",
-	"core.bonus.MANA_CHANNELING.name": "Magic Channel ${val}%", // TODO
+	"core.bonus.MANA_CHANNELING.name": "${val}% kouzelný kanál",
 	"core.bonus.MANA_CHANNELING.description": "Dá vašemu hrdinovi ${val} % many využité nepřítelem",
 	"core.bonus.MANA_DRAIN.name": "Vysátí many",
 	"core.bonus.MANA_DRAIN.description": "Každé kolo vysaje ${val} many",
