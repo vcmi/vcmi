@@ -253,7 +253,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				break;
 			case ECommander::HEALTH:
 				scp.accumulatedBonus.type = BonusType::STACK_HEALTH;
-				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_ALL;
+				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_ALL; //TODO: check how it accumulates in original WoG with artifacts such as vial of life blood, elixir of life etc.
 				break;
 			case ECommander::DAMAGE:
 				scp.accumulatedBonus.type = BonusType::CREATURE_DAMAGE;
