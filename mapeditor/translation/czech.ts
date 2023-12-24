@@ -217,7 +217,7 @@
     <message>
         <location filename="../mainwindow.ui" line="256"/>
         <source>Map Objects View</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazení objektů mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="300"/>
@@ -227,7 +227,7 @@
     <message>
         <location filename="../mainwindow.ui" line="378"/>
         <source>Inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>Inspektor</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="420"/>
@@ -348,7 +348,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1194"/>
         <source>Map title and description</source>
-        <translation type="unfinished"></translation>
+        <translation>Název a popis mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1205"/>
@@ -387,7 +387,7 @@
         <location filename="../mainwindow.cpp" line="1056"/>
         <location filename="../mainwindow.cpp" line="1113"/>
         <source>Update appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizovat vzhled</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1300"/>
@@ -651,7 +651,7 @@
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="179"/>
         <source>Abilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Schopnosti</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="214"/>
@@ -838,53 +838,53 @@
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="19"/>
         <source>Beginner</source>
-        <translation type="unfinished"></translation>
+        <translation>Začátečník</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="20"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokročilý</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="21"/>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>Expert</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="35"/>
         <source>Compliant</source>
-        <translation type="unfinished"></translation>
+        <translation>Ochotná</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="36"/>
         <source>Friendly</source>
-        <translation type="unfinished"></translation>
+        <translation>Přátelská</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="37"/>
         <source>Aggressive</source>
-        <translation type="unfinished"></translation>
+        <translation>Agresivní</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="38"/>
         <source>Hostile</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepřátelská</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="39"/>
         <source>Savage</source>
-        <translation type="unfinished"></translation>
+        <translation>Brutální</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="478"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>neutral</source>
-        <translation type="unfinished"></translation>
+        <translation>neutrální</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>UNFLAGGABLE</source>
-        <translation type="unfinished"></translation>
+        <translation>NEOZNAČITELNÝ</translation>
     </message>
 </context>
 <context>
@@ -1101,7 +1101,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="214"/>
         <source>Message to be displayed on granting of this reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazená zpráva při udělení odměny</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="225"/>
@@ -1482,32 +1482,32 @@
     <message>
         <location filename="../validator.cpp" line="101"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekt %1 je přiřazen nehratelnému hráči %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="108"/>
         <source>Town %1 has undefined owner %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Město %1 nemá definovaného vlastníka %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Prison %1 must be a NEUTRAL</source>
-        <translation type="unfinished"></translation>
+        <translation>Vězení %1 musí být NEUTRÁLNÍ</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="124"/>
         <source>Hero %1 must have an owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrdina %1 musí mít vlastníka</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="129"/>
         <source>Hero %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrdina %1 je zakázaný nastavením mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="132"/>
         <source>Hero %1 has duplicate on map</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrdina %1 má na mapě dvojníka</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="135"/>
@@ -1517,7 +1517,7 @@
     <message>
         <location filename="../validator.cpp" line="146"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Kouzlo %1 je zakázáno nastavením mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="149"/>
@@ -1527,32 +1527,32 @@
     <message>
         <location filename="../validator.cpp" line="155"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakt %1 je zakázán nastavením mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="164"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
-        <translation type="unfinished"></translation>
+        <translation>Hráč %1 nemá žádné počáteční město</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="168"/>
         <source>Map name is not specified</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa nemá název</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="170"/>
         <source>Map description is not specified</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa nemá popis</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="177"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa obsahuje objekt z modifikace &quot;%1&quot;. ale nevyžaduje ji</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="183"/>
         <source>Exception occurs during validation: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Při posudku nastala výjimka: %1</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="187"/>
@@ -1797,7 +1797,7 @@
     <message>
         <location filename="../windownewmap.cpp" line="296"/>
         <source>RMG failure</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba RMG</translation>
     </message>
 </context>
 <context>
@@ -1815,12 +1815,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="110"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation type="unfinished"></translation>
+        <translation>Z rozbaleného archivu rozdělí TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 a Un44 do jednotlivých PNG.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="111"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
-        <translation type="unfinished"></translation>
+        <translation>Z rozbaleného archivu převede jednoduché obrázky (nalezené ve složce Images) z .pcx do png.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="112"/>
