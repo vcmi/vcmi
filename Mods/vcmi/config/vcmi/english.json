@@ -136,6 +136,8 @@
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Left Click Drag Map}\n\nWhen enabled, moving mouse with left button pressed will drag adventure map view.",
 	"vcmi.adventureOptions.smoothDragging.hover" : "Smooth Map Dragging",
 	"vcmi.adventureOptions.smoothDragging.help" : "{Smooth Map Dragging}\n\nWhen enabled, map dragging has a modern run out effect.",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Skip delay-based animations",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.help" : "{Skip delay-based animations}\n\nWhen enabled, Skips object fadeout and similar effects (resource collection, ship embark etc). Makes UI more reactive in some cases at the expense of aesthetics. Especially useful in PvP games. For maximum movement speed skipping is active regardless of this setting.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",

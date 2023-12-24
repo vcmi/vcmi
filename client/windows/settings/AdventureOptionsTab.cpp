@@ -130,6 +130,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "smoothDragging", value);
 	});
+	addCallback("skipAdventureMapAnimationsChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "skipAdventureMapAnimations", value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -172,4 +176,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 	std::shared_ptr<CToggleButton> smoothDraggingCheckbox = widget<CToggleButton>("smoothDraggingCheckbox");
 	if (smoothDraggingCheckbox)
 		smoothDraggingCheckbox->setSelected(settings["adventure"]["smoothDragging"].Bool());
+
+	std::shared_ptr<CToggleButton> skipAdventureMapAnimationsCheckbox = widget<CToggleButton>("skipAdventureMapAnimationsCheckbox");
+	skipAdventureMapAnimationsCheckbox->setSelected(settings["gameTweaks"]["skipAdventureMapAnimations"].Bool());
 }

@@ -269,6 +269,9 @@ void MapViewController::afterRender()
 
 bool MapViewController::isEventInstant(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
+	if(settings["gameTweaks"]["skipAdventureMapAnimations"].Bool())
+		return true;
+
 	if (!isEventVisible(obj, initiator))
 		return true;
 
