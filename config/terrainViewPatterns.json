@@ -85,7 +85,8 @@
 				"N", "N", "N",
 				"N", "N", "N"
 			],
-			"mapping" : { "normal" : "49-72", "dirt" : "21-44", "sand" : "0-23", "water" : "20-32", "rock": "0-7", "hota" : "77-117" }
+			"decoration" : true,
+			"mapping" : { "normal" : "49-56,57-72", "dirt" : "21-28,29-44", "sand" : "0-11,12-23", "water" : "20-32", "rock": "0-7", "hota" : "77-101,102-117" }
 		},
 		// Mixed transitions
 		{

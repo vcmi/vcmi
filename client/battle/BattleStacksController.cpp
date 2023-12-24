@@ -691,6 +691,8 @@ void BattleStacksController::endAction(const BattleAction & action)
 
 void BattleStacksController::startAction(const BattleAction & action)
 {
+	// if timer run out and we did not act in time - deactivate current stack
+	setActiveStack(nullptr);
 	removeExpiredColorFilters();
 }
 

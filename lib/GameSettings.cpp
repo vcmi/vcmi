@@ -118,11 +118,10 @@ void GameSettings::load(const JsonNode & input)
 
 const JsonNode & GameSettings::getValue(EGameSettings option) const
 {
-	assert(option < EGameSettings::OPTIONS_COUNT);
 	auto index = static_cast<size_t>(option);
 
-	assert(!gameSettings[index].isNull());
-	return gameSettings[index];
+	assert(!gameSettings.at(index).isNull());
+	return gameSettings.at(index);
 }
 
 VCMI_LIB_NAMESPACE_END

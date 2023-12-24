@@ -272,6 +272,8 @@ void MapController::resetMapHandler()
 
 void MapController::commitTerrainChange(int level, const TerrainId & terrain)
 {
+	static const int terrainDecorationPercentageLevel = 10;
+
 	std::vector<int3> v(_scenes[level]->selectionTerrainView.selection().begin(),
 						_scenes[level]->selectionTerrainView.selection().end());
 	if(v.empty())
@@ -281,7 +283,7 @@ void MapController::commitTerrainChange(int level, const TerrainId & terrain)
 	_scenes[level]->selectionTerrainView.draw();
 	
 	_map->getEditManager()->getTerrainSelection().setSelection(v);
-	_map->getEditManager()->drawTerrain(terrain, &CRandomGenerator::getDefault());
+	_map->getEditManager()->drawTerrain(terrain, terrainDecorationPercentageLevel, &CRandomGenerator::getDefault());
 	
 	for(auto & t : v)
 		_scenes[level]->terrainView.setDirty(t);

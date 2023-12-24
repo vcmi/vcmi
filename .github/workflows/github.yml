@@ -116,7 +116,7 @@ jobs:
             pack_type: RelWithDebInfo
             extension: exe
             preset: windows-msvc-release-ccache
-          - platform: mingw-ubuntu
+          - platform: mingw
             os: ubuntu-22.04
             test: 0
             pack: 1
@@ -126,6 +126,16 @@ jobs:
             cmake_args: -G Ninja
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
+          - platform: mingw-32
+            os: ubuntu-22.04
+            test: 0
+            pack: 1
+            pack_type: Release
+            extension: exe
+            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
+            cmake_args: -G Ninja
+            preset: windows-mingw-conan-linux
+            conan_profile: mingw32-linux.jinja
           - platform: android-32
             os: ubuntu-22.04
             extension: apk

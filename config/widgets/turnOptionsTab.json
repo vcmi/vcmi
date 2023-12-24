@@ -222,7 +222,7 @@
 				{
 					"name": "chessFieldTurn",
 					"callback": "parseAndSetTimer_turn",
-					"help": "vcmi.optionsTab.chessFieldTurn.help"
+					"help": "vcmi.optionsTab.chessFieldTurnAccumulate.help"
 				},
 				{
 					"name": "chessFieldBattle",
@@ -232,7 +232,7 @@
 				{
 					"name": "chessFieldUnit",
 					"callback": "parseAndSetTimer_unit",
-					"help": "vcmi.optionsTab.chessFieldUnit.help"
+					"help": "vcmi.optionsTab.chessFieldUnitAccumulate.help"
 				}
 			]
 		},

@@ -49,7 +49,11 @@ CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
-	verificationInfo.name = config["name"].String();
+	if (!config["name"].String().empty())
+		verificationInfo.name = config["name"].String();
+	else
+		verificationInfo.name = identifier;
+
 	verificationInfo.version = CModVersion::fromString(config["version"].String());
 	verificationInfo.parent = identifier.substr(0, identifier.find_last_of('.'));
 	if(verificationInfo.parent == identifier)
@@ -189,6 +193,7 @@ bool CModInfo::checkModGameplayAffecting() const
 
 const ModVerificationInfo & CModInfo::getVerificationInfo() const
 {
+	assert(!verificationInfo.name.empty());
 	return verificationInfo;
 }
 

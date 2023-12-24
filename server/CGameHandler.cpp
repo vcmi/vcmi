@@ -489,11 +489,6 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	vstd::clear_pointer(pack);
 }
 
-
-CGameHandler::CGameHandler()
-	: turnTimerHandler(*this)
-{}
-
 CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
@@ -518,6 +513,7 @@ CGameHandler::~CGameHandler()
 {
 	delete spellEnv;
 	delete gs;
+	gs = nullptr;
 }
 
 void CGameHandler::reinitScripting()
@@ -1977,7 +1973,9 @@ bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destA
 		{
 			const bool needsLastStack = armySrc->needsLastStack();
 			const auto quantity = setSrc.getStackCount(srcSlot) - (needsLastStack ? 1 : 0);
-			moves.insert(std::make_pair(srcSlot, std::make_pair(slotToMove, quantity)));
+
+			if(quantity > 0) //0 may happen when we need last creature and we have exactly 1 amount of that creature - amount of "rest we can transfer" becomes 0
+				moves.insert(std::make_pair(srcSlot, std::make_pair(slotToMove, quantity)));
 		}
 	}
 	BulkRebalanceStacks bulkRS;
@@ -2227,12 +2225,12 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 
 bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const
 {
-	return connections.at(player).count(c);
+	return connections.count(player) && connections.at(player).count(c);
 }
 
 bool CGameHandler::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const
 {
-	return connections.at(left) == connections.at(right);
+	return connections.count(left) && connections.count(right) && connections.at(left) == connections.at(right);
 }
 
 bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)

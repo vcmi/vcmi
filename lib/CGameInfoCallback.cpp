@@ -721,6 +721,11 @@ bool CGameInfoCallback::isPlayerMakingTurn(PlayerColor player) const
 	return gs->actingPlayers.count(player);
 }
 
+CGameInfoCallback::CGameInfoCallback():
+	gs(nullptr)
+{
+}
+
 CGameInfoCallback::CGameInfoCallback(CGameState * GS):
 	gs(GS)
 {

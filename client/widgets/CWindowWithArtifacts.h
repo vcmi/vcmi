@@ -24,7 +24,8 @@ public:
 		std::weak_ptr<CArtifactsOfHeroAltar>,
 		std::weak_ptr<CArtifactsOfHeroKingdom>,
 		std::weak_ptr<CArtifactsOfHeroMain>,
-		std::weak_ptr<CArtifactsOfHeroBackpack>>;
+		std::weak_ptr<CArtifactsOfHeroBackpack>,
+		std::weak_ptr<CArtifactsOfHeroQuickBackpack>>;
 	using CloseCallback = std::function<void()>;
 
 	void addSet(CArtifactsOfHeroPtr artSet);
@@ -32,8 +33,9 @@ public:
 	void addCloseCallback(CloseCallback callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
-	void leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CHeroArtPlace & artPlace);
-	void rightClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CHeroArtPlace & artPlace);
+	void clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
+	void gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition);
 
 	void artifactRemoved(const ArtifactLocation & artLoc) override;
 	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;

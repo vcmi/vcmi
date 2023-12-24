@@ -325,7 +325,7 @@ void CQuest::defineQuestName()
 void CQuest::addKillTargetReplacements(MetaString &out) const
 {
 	if(!heroName.empty())
-		out.replaceTextID(heroName);
+		out.replaceRawString(heroName);
 	if(stackToKill != CreatureID::NONE)
 	{
 		out.replaceNamePlural(stackToKill);

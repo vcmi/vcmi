@@ -24,7 +24,9 @@ namespace
 {
 QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
 {
-	filesToExtract = ZipArchive::listFiles(qstringToPath(path));
+	ZipArchive archive(qstringToPath(path));
+
+	filesToExtract = archive.listFiles();
 
 	QString modDirName;
 
@@ -285,14 +287,23 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
 	
-	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesToExtract]()
+	std::atomic<int> filesCounter = 0;
+
+	auto futureExtract = std::async(std::launch::async, [&archivePath, &destDir, &filesCounter, &filesToExtract]()
 	{
-		return ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir), filesToExtract);
+		ZipArchive archive(qstringToPath(archivePath));
+		for (auto const & file : filesToExtract)
+		{
+			if (!archive.extract(qstringToPath(destDir), file))
+				return false;
+			++filesCounter;
+		}
+		return true;
 	});
 	
-	while(futureExtract.wait_for(std::chrono::milliseconds(50)) != std::future_status::ready)
+	while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 	{
-		emit extractionProgress(0, 0);
+		emit extractionProgress(filesCounter, filesToExtract.size());
 		qApp->processEvents();
 	}
 	

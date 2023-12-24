@@ -87,6 +87,7 @@ public:
 	bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
 		bool assumeDestRemoved = false) const;
 	bool isCombined() const;
+	bool isScroll() const;
 	void putAt(CArtifactSet & set, const ArtifactPosition slot);
 	void removeFrom(CArtifactSet & set, const ArtifactPosition slot);
 	void move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot);

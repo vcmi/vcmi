@@ -625,7 +625,7 @@ void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 		a->possibleSlots[ArtBearer::COMMANDER].push_back(ArtifactPosition(slot));
 }
 
-bool CArtHandler::legalArtifact(const ArtifactID & id)
+bool CArtHandler::legalArtifact(const ArtifactID & id) const
 {
 	auto art = id.toArtifact();
 	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
@@ -646,18 +646,6 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 		return true;
 
 	return false;
-}
-
-void CArtHandler::initAllowedArtifactsList(const std::set<ArtifactID> & allowed)
-{
-	allowedArtifacts.clear();
-
-	for (ArtifactID i : allowed)
-	{
-		if (legalArtifact(ArtifactID(i)))
-			allowedArtifacts.push_back(i.toArtifact());
-			//keep im mind that artifact can be worn by more than one type of bearer
-	}
 }
 
 std::set<ArtifactID> CArtHandler::getDefaultAllowed() const

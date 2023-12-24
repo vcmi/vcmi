@@ -32,14 +32,24 @@ public:
 class CArtPlace : public LRClickableAreaWTextComp
 {
 public:
+	using ClickFunctor = std::function<void(CArtPlace&, const Point&)>;
+
+	ArtifactPosition slot;
+
 	CArtPlace(Point position, const CArtifactInstance * art = nullptr);
-	const CArtifactInstance* getArt();
+	const CArtifactInstance * getArt();
 	void lockSlot(bool on);
 	bool isLocked() const;
 	void selectSlot(bool on);
 	bool isSelected() const;
 	void showAll(Canvas & to) override;
 	void setArtifact(const CArtifactInstance * art);
+	void setClickPressedCallback(ClickFunctor callback);
+	void setShowPopupCallback(ClickFunctor callback);
+	void setGestureCallback(ClickFunctor callback);
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 
 protected:
 	std::shared_ptr<CAnimImage> image;
@@ -47,6 +57,9 @@ protected:
 	int imageIndex;
 	std::shared_ptr<CAnimImage> selection;
 	bool locked;
+	ClickFunctor clickPressedCallback;
+	ClickFunctor showPopupCallback;
+	ClickFunctor gestureCallback;
 
 	void setInternals(const CArtifactInstance * artInst);
 };
@@ -68,15 +81,7 @@ public:
 class CHeroArtPlace: public CArtPlace
 {
 public:
-	using ClickFunctor = std::function<void(CHeroArtPlace&)>;
-
-	ArtifactPosition slot;
-	ClickFunctor leftClickCallback;
-	ClickFunctor showPopupCallback;
-
 	CHeroArtPlace(Point position, const CArtifactInstance * art = nullptr);
-	void clickPressed(const Point & cursorPosition) override;
-	void showPopupWindow(const Point & cursorPosition) override;
 	void addCombinedArtInfo(std::map<const CArtifact*, int> & arts);
 };
 

@@ -180,7 +180,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 
 void ObjectTemplate::readMsk()
 {
-	ResourcePath resID(animationFile.getName(), EResType::MASK);
+	ResourcePath resID("Sprites/" + animationFile.getName(), EResType::MASK);
 
 	if (CResourceHandler::get()->existsResource(resID))
 	{

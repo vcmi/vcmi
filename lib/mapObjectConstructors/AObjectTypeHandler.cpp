@@ -20,6 +20,19 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+AObjectTypeHandler::AObjectTypeHandler() = default;
+
+AObjectTypeHandler::~AObjectTypeHandler()
+{
+	// FIXME: currently on Android there is a weird crash in destructor of 'base' member
+	// this code attempts to localize and fix this crash
+	if (base)
+	{
+		base->clear();
+		base.reset();
+	}
+}
+
 std::string AObjectTypeHandler::getJsonKey() const
 {
 	return modScope + ':' + subTypeName;
@@ -55,7 +68,8 @@ static ui32 loadJsonOrMax(const JsonNode & input)
 
 void AObjectTypeHandler::init(const JsonNode & input)
 {
-	base = input["base"];
+	if (!input["base"].isNull())
+		base = std::make_unique<JsonNode>(input["base"]);
 
 	if (!input["rmg"].isNull())
 	{
@@ -72,7 +86,8 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	for (auto entry : input["templates"].Struct())
 	{
 		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
-		JsonUtils::inherit(entry.second, base);
+		if (base)
+			JsonUtils::inherit(entry.second, *base);
 
 		auto * tmpl = new ObjectTemplate;
 		tmpl->id = Obj(type);
@@ -171,7 +186,8 @@ void AObjectTypeHandler::addTemplate(const std::shared_ptr<const ObjectTemplate>
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
-	JsonUtils::inherit(config, base);
+	if (base)
+		JsonUtils::inherit(config, *base);
 	auto * tmpl = new ObjectTemplate;
 	tmpl->id = Obj(type);
 	tmpl->subid = subtype;
@@ -205,6 +221,26 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplat
 		return templates;
 	else
 		return filtered;
+}
+
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getMostSpecificTemplates(TerrainId terrainType) const
+{
+	auto templates = getTemplates(terrainType);
+	if (!templates.empty())
+	{
+		//Get terrain-specific template if possible
+		int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
+		{
+			return tmp1->getAllowedTerrains().size() < tmp2->getAllowedTerrains().size();
+		}))->getAllowedTerrains().size();
+
+		vstd::erase_if(templates, [leastTerrains](const std::shared_ptr<const ObjectTemplate> & tmp)
+		{
+			return tmp->getAllowedTerrains().size() > leastTerrains;
+		});
+	}
+
+	return templates;
 }
 
 std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId terrainType, const CGObjectInstance * object) const

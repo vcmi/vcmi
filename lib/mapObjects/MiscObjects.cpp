@@ -12,6 +12,7 @@
 #include "MiscObjects.h"
 
 #include "../ArtifactUtils.h"
+#include "../bonuses/Propagators.h"
 #include "../constants/StringConstants.h"
 #include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
@@ -1003,6 +1004,23 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 	handler.serializeBool("removableUnits", removableUnits);
 	serializeJsonOwner(handler);
 	CArmedInstance::serializeJsonOptions(handler);
+}
+
+void CGGarrison::initObj(CRandomGenerator &rand)
+{
+	if(this->subID == MapObjectSubID::decode(this->ID, "antiMagic"))
+		addAntimagicGarrisonBonus();
+}
+
+void CGGarrison::addAntimagicGarrisonBonus()
+{
+	auto bonus = std::make_shared<Bonus>();
+	bonus->type = BonusType::BLOCK_ALL_MAGIC;
+	bonus->source = BonusSource::OBJECT_TYPE;
+	bonus->sid = BonusSourceID(this->ID);
+	bonus->propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
+	bonus->duration = BonusDuration::PERMANENT;
+	this->addNewBonus(bonus);
 }
 
 void CGMagi::initObj(CRandomGenerator & rand)

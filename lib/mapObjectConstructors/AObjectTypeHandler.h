@@ -27,7 +27,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	RandomMapInfo rmgInfo;
 
-	JsonNode base; /// describes base template
+	std::unique_ptr<JsonNode> base; /// describes base template
 
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 
@@ -54,7 +54,8 @@ protected:
 	virtual void initTypeData(const JsonNode & input);
 public:
 
-	virtual ~AObjectTypeHandler() = default;
+	AObjectTypeHandler();
+	virtual ~AObjectTypeHandler();
 
 	si32 getIndex() const;
 	si32 getSubIndex() const;
@@ -78,6 +79,7 @@ public:
 	/// returns all templates matching parameters
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(const TerrainId terrainType) const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getMostSpecificTemplates(TerrainId terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)

@@ -272,18 +272,18 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
-		CRandomGenerator & rng, const
-		JsonNode & source,
+		CRandomGenerator & rng,
+		const JsonNode & source,
 		Rewardable::EEventType event,
 		const std::string & modeName) const
 {
 	for(size_t i = 0; i < source.Vector().size(); ++i)
 	{
-		const JsonNode reward = source.Vector()[i];
+		const JsonNode & reward = source.Vector().at(i);
 
 		if (!reward["appearChance"].isNull())
 		{
-			JsonNode chance = reward["appearChance"];
+			const JsonNode & chance = reward["appearChance"];
 			std::string diceID = std::to_string(chance["dice"].Integer());
 
 			auto diceValue = object.getVariable("dice", diceID);

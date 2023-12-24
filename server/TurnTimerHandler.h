@@ -25,9 +25,7 @@ class CGameHandler;
 class TurnTimerHandler
 {	
 	CGameHandler & gameHandler;
-	const int turnTimePropagateFrequency = 5000;
-	const int turnTimePropagateFrequencyCrit = 1000;
-	const int turnTimePropagateThreshold = 3000;
+	const int turnTimePropagateFrequency = 1000;
 	std::map<PlayerColor, TurnTimerInfo> timers;
 	std::map<PlayerColor, int> lastUpdate;
 	std::map<PlayerColor, bool> endTurnAllowed;

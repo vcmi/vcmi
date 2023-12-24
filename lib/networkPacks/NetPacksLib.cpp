@@ -2260,6 +2260,9 @@ void BattleAttack::applyGs(CGameState * gs)
 		stackAttacked.applyGs(gs);
 
 	attacker->removeBonusesRecursive(Bonus::UntilAttack);
+
+	if(!this->counter())
+		attacker->removeBonusesRecursive(Bonus::UntilOwnAttack);
 }
 
 void StartAction::applyGs(CGameState *gs)

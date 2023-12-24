@@ -92,8 +92,7 @@ public:
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
-	CGameHandler();
-	CGameHandler(CVCMIServer * lobby);
+	explicit CGameHandler(CVCMIServer * lobby);
 	~CGameHandler();
 
 	//////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@ namespace rmg
 	static const std::array<int3, 4> dirs4 = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0) };
 	static const std::array<int3, 4> dirsDiagonal= { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
 
-	using Tileset = std::set<int3>;
+	using Tileset = std::unordered_set<int3>;
 	using DistanceMap = std::map<int3, int>;
 	void toAbsolute(Tileset & tiles, const int3 & position);
 	void toRelative(Tileset & tiles, const int3 & position);

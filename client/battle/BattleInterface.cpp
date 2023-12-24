@@ -107,7 +107,8 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 {
 	auto onIntroPlayed = [this]()
 	{
-		if(LOCPLINT->battleInt)
+		// Make sure that battle have not ended while intro was playing AND that a different one has not started
+		if(LOCPLINT->battleInt.get() == this)
 			onIntroSoundPlayed();
 	};
 

@@ -162,6 +162,11 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		auto set = hb->duration & BonusDuration::COMMANDER_KILLED;
 		return set.any();
 	}
+	static bool UntilOwnAttack(const Bonus *hb)
+	{
+		auto set = hb->duration & BonusDuration::UNTIL_OWN_ATTACK;
+		return set.any();
+	}
 	inline bool operator == (const BonusType & cf) const
 	{
 		return type == cf;

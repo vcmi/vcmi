@@ -77,7 +77,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
-			return BuildingID(VLC->identifiers()->getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value());
+			return BuildingID(VLC->identifiers()->getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value_or(-1));
 		});
 	}
 }

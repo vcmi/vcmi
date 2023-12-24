@@ -195,7 +195,6 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 		logGlobal->error("Wrong mode: %d", static_cast<int>(scenarioOps->mode));
 		return;
 	}
-	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
 	logGlobal->info("Map loaded!");
 
 	checkMapChecksum();
@@ -1947,8 +1946,13 @@ ArtifactID CGameState::pickRandomArtifact(CRandomGenerator & rand, int flags, st
 	std::set<ArtifactID> potentialPicks;
 
 	// Select artifacts that satisfy provided criterias
-	for (auto const * artifact : VLC->arth->allowedArtifacts)
+	for (auto const & artifactID : map->allowedArtifact)
 	{
+		if (!VLC->arth->legalArtifact(artifactID))
+			continue;
+
+		auto const * artifact = artifactID.toArtifact();
+
 		assert(artifact->aClass != CArtifact::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
 
 		if ((flags & CArtifact::ART_TREASURE) == 0 && artifact->aClass == CArtifact::ART_TREASURE)
