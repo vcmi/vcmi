@@ -162,9 +162,15 @@ GeneralOptionsTab::GeneralOptionsTab()
 		setBoolSetting("general", "enableUiEnhancements", value);
 	});
 
-	addCallback("enableLargeSpellbookChanged", [](bool value)
+	addCallback("enableLargeSpellbookChanged", [this](bool value)
 	{
 		setBoolSetting("gameTweaks", "enableLargeSpellbook", value);
+		std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
+		if(value)
+			spellbookAnimationCheckbox->disable();
+		else
+			spellbookAnimationCheckbox->enable();
+		redraw();
 	});
 
 	addCallback("audioMuteFocusChanged", [](bool value)
@@ -196,6 +202,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
+	if(settings["gameTweaks"]["enableLargeSpellbook"].Bool())
+		spellbookAnimationCheckbox->disable();
+	else
+		spellbookAnimationCheckbox->enable();
 
 	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
 	if (fullscreenBorderlessCheckbox)
