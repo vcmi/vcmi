@@ -82,6 +82,13 @@ namespace Selector
 		return CSelectFieldEqual<BonusValueType>(&Bonus::valType)(valType);
 	}
 
+	CSelector DLL_LINKAGE typeSubtypeValueType(BonusType Type, BonusSubtypeID Subtype, BonusValueType valType)
+	{
+		return type()(Type)
+				.And(subtype()(Subtype))
+				.And(valueType(valType));
+	}
+
 	DLL_LINKAGE CSelector all([](const Bonus * b){return true;});
 	DLL_LINKAGE CSelector none([](const Bonus * b){return false;});
 }

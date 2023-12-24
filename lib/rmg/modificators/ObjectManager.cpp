@@ -95,7 +95,7 @@ void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> dista
 {
 	RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
-	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
+	for (const auto & tile : zone.areaPossible().getTilesVector()) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = distanceFunction(tile);
 		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
@@ -178,7 +178,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	}
 	else
 	{
-		for(const auto & tile : searchArea.getTiles())
+		for(const auto & tile : searchArea.getTilesVector())
 		{
 			obj.setPosition(tile);
 
@@ -238,15 +238,14 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 	RecursiveLock lock(externalAccessMutex);
 	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		auto ti = map.getTileInfo(tile);
-		float dist = ti.getNearestObjectDistance();
-		if(dist < min_dist)
-			return -1.f;
-
+		float bestDistance = 10e9;
 		for(const auto & t : obj.getArea().getTilesVector())
 		{
-			if(map.getTileInfo(t).getNearestObjectDistance() < min_dist)
+			float distance = map.getTileInfo(t).getNearestObjectDistance();
+			if(distance < min_dist)
 				return -1.f;
+			else
+				vstd::amin(bestDistance, distance);
 		}
 		
 		rmg::Area perimeter;
@@ -298,7 +297,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			}
 		}
 		
-		return dist;
+		return bestDistance;
 	}, isGuarded, onlyStraight, optimizer);
 }
 
@@ -306,6 +305,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 {
 	int3 pos;
 	auto possibleArea = searchArea;
+	auto cachedArea = zone.areaPossible() + zone.freePaths();
 	while(true)
 	{
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
@@ -314,7 +314,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			return rmg::Path::invalid();
 		}
 		possibleArea.erase(pos); //do not place again at this point
-		auto accessibleArea = obj.getAccessibleArea(isGuarded) * (zone.areaPossible() + zone.freePaths());
+		auto accessibleArea = obj.getAccessibleArea(isGuarded) * cachedArea;
 		//we should exclude tiles which will be covered
 		if(isGuarded)
 		{
@@ -323,27 +323,72 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			accessibleArea.add(obj.instances().back()->getPosition(true));
 		}
 
-		auto path = zone.searchPath(accessibleArea, onlyStraight, [&obj, isGuarded](const int3 & t)
+		rmg::Area subArea;
+		if (isGuarded)
 		{
-			if(isGuarded)
+			const auto & guardedArea = obj.instances().back()->getAccessibleArea();
+			const auto & unguardedArea = obj.getAccessibleArea(isGuarded);
+			subArea = cachedArea.getSubarea([guardedArea, unguardedArea, obj](const int3 & t)
 			{
-				const auto & guardedArea = obj.instances().back()->getAccessibleArea();
-				const auto & unguardedArea = obj.getAccessibleArea(isGuarded);
 				if(unguardedArea.contains(t) && !guardedArea.contains(t))
 					return false;
 				
 				//guard position is always target
 				if(obj.instances().back()->getPosition(true) == t)
 					return true;
-			}
-			return !obj.getArea().contains(t);
-		});
+
+				return !obj.getArea().contains(t);
+			});
+		}
+		else
+		{
+			subArea = cachedArea.getSubarea([obj](const int3 & t)
+			{
+				return !obj.getArea().contains(t);
+			});
+		}
+		auto path = zone.searchPath(accessibleArea, onlyStraight, subArea);
 		
 		if(path.valid())
 		{
 			return path;
 		}
 	}
+}
+
+bool ObjectManager::createMonoliths()
+{
+	// Special case for Junction zone only
+	logGlobal->trace("Creating Monoliths");
+	for(const auto & objInfo : requiredObjects)
+	{
+		if (objInfo.obj->ID != Obj::MONOLITH_TWO_WAY)
+		{
+			continue;
+		}
+
+		rmg::Object rmgObject(*objInfo.obj);
+		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
+		bool guarded = addGuard(rmgObject, objInfo.guardStrength, true);
+
+		Zone::Lock lock(zone.areaMutex);
+		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
+		
+		if(!path.valid())
+		{
+			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			return false;
+		}
+		
+		zone.connectPath(path);
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
+	}
+
+	vstd::erase_if(requiredObjects, [](const auto & objInfo)
+	{
+		return  objInfo.obj->ID == Obj::MONOLITH_TWO_WAY;
+	});
+	return true;
 }
 
 bool ObjectManager::createRequiredObjects()
@@ -424,7 +469,8 @@ bool ObjectManager::createRequiredObjects()
 		}
 
 		rmg::Object rmgNearObject(*nearby.obj);
-		rmg::Area possibleArea(rmg::Area(targetObject->getBlockedPos()).getBorderOutside());
+		std::set<int3> blockedArea = targetObject->getBlockedPos();
+		rmg::Area possibleArea(rmg::Area(rmg::Tileset(blockedArea.begin(), blockedArea.end())).getBorderOutside());
 		possibleArea.intersect(zone.areaPossible());
 		if(possibleArea.empty())
 		{
@@ -513,6 +559,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);
 	}
+	lock.unlock();
 	
 	if (updateDistance)
 	{
@@ -535,11 +582,13 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			auto manager = map.getZones().at(id)->getModificator<ObjectManager>();
 			if (manager)
 			{
+				// TODO: Update distances for perimeter of guarded object, not just treasures
 				manager->updateDistances(object);
 			}
 		}
 	}
 	
+	// TODO: Add multiple tiles in one operation to avoid multiple invalidation
 	for(auto * instance : object.instances())
 	{
 		objectsVisitableArea.add(instance->getVisitablePosition());
@@ -552,10 +601,23 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				continue;
 			}
 			else if(instance->object().appearance->isVisitableFromTop())
-				m->areaForRoads().add(instance->getVisitablePosition());
-			else
 			{
-				m->areaIsolated().add(instance->getVisitablePosition() + int3(0, -1, 0));
+				//Passable objects
+				m->areaForRoads().add(instance->getVisitablePosition());
+			}
+			else if(!instance->object().appearance->isVisitableFromTop())
+			{
+				// Do not route road behind visitable tile
+				int3 visitablePos = instance->getVisitablePosition();
+				auto areaVisitable = rmg::Area({visitablePos});
+				auto borderAbove = areaVisitable.getBorderOutside();
+				vstd::erase_if(borderAbove, [&](const int3 & tile)
+				{
+					return tile.y >= visitablePos.y ||
+					(!instance->object().blockingAt(tile + int3(0, 1, 0)) && 
+					instance->object().blockingAt(tile));
+				});				
+				m->areaIsolated().unite(borderAbove);
 			}
 		}
 
@@ -669,22 +731,20 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 	
 	// Prefer non-blocking tiles, if any
-	auto entrableTiles = object.getEntrableArea().getTiles();
-	int3 entrableTile(-1, -1, -1);
-	if (entrableTiles.empty())
+	auto entrableArea = object.getEntrableArea();
+	if (entrableArea.empty())
 	{
-		entrableTile = object.getVisitablePosition();
-	}
-	else
-	{
-		entrableTile = *RandomGeneratorUtil::nextItem(entrableTiles, zone.getRand());
+		entrableArea.add(object.getVisitablePosition());
 	}
 
-	rmg::Area visitablePos({entrableTile});
-	visitablePos.unite(visitablePos.getBorderOutside());
+	rmg::Area entrableBorder = entrableArea.getBorderOutside();
 	
 	auto accessibleArea = object.getAccessibleArea();
-	accessibleArea.intersect(visitablePos);
+	accessibleArea.erase_if([&](const int3 & tile)
+	{
+		return !entrableBorder.contains(tile);
+	});
+	
 	if(accessibleArea.empty())
 	{
 		delete guard;

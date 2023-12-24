@@ -384,7 +384,7 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 
 	for(auto & obj : gameHandler->gameState()->map->objects)
 	{
-		if(obj->ID == Obj::OBELISK)
+		if(obj && obj->ID == Obj::OBELISK)
 		{
 			gameHandler->setObjPropertyID(obj->id, ObjProperty::OBELISK_VISITED, t->id);
 			for(const auto & color : t->players)

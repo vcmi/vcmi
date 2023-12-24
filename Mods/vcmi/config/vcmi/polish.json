@@ -114,6 +114,8 @@
 	"vcmi.systemOptions.enableUiEnhancementsButton.help"   : "{Ulepszenia interfejsu}\n\nWłącza różne ulepszenia interfejsu poprawiające wygodę rozgrywki. Takie jak przycisk sakwy bohatera itp. Wyłącz jeśli szukasz bardziej klasycznej wersji gry.",
 	"vcmi.systemOptions.enableLargeSpellbookButton.hover"  : "Duża księga zaklęć",
 	"vcmi.systemOptions.enableLargeSpellbookButton.help"   : "{Duża księga zaklęć}\n\nWłącza dużą księgę czarów, która mieści więcej zaklęć na stronę. Animacja zmiany strony nie działa gdy ta opcja jest włączona.",
+	"vcmi.systemOptions.audioMuteFocus.hover"  : "Wycisz przy zdezaktywowaniu",
+	"vcmi.systemOptions.audioMuteFocus.help"   : "{Wycisz przy zdezaktywowaniu}\n\nWycisz dźwięk gdy okno gry staje się nieaktywne. Wyjątkiem są dźwięki wiadomości i nowej tury.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Pokaż komunikaty w panelu informacyjnym",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Pokaż komunikaty w panelu informacyjnym}\n\nGdy to możliwe, wiadomości z odwiedzania obiektów będą pokazywane w panelu informacyjnym zamiast w osobnym okienku.",
@@ -129,6 +131,8 @@
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Zarządzanie armią w panelu informacyjnym}\n\nPozwala zarządzać jednostkami w panelu informacyjnym, zamiast przełączać między domyślnymi informacjami.",
 	"vcmi.adventureOptions.leftButtonDrag.hover" : "Przeciąganie mapy lewym kliknięciem",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Przeciąganie mapy lewym kliknięciem}\n\nGdy włączone, umożliwia przesuwanie mapy przygody poprzez przeciąganie myszy z wciśniętym lewym przyciskiem.",
+	"vcmi.adventureOptions.smoothDragging.hover" : "'Pływające' przeciąganie mapy",
+	"vcmi.adventureOptions.smoothDragging.help" : "{'Pływające' przeciąganie mapy}\n\nGdy włączone, przeciąganie mapy następuje ze stopniowo zanikającym przyspieszeniem.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",

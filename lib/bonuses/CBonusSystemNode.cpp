@@ -356,7 +356,7 @@ void CBonusSystemNode::addNewBonus(const std::shared_ptr<Bonus>& b)
 
 void CBonusSystemNode::accumulateBonus(const std::shared_ptr<Bonus>& b)
 {
-	auto bonus = exportedBonuses.getFirst(Selector::typeSubtype(b->type, b->subtype)); //only local bonuses are interesting //TODO: what about value type?
+	auto bonus = exportedBonuses.getFirst(Selector::typeSubtypeValueType(b->type, b->subtype, b->valType)); //only local bonuses are interesting
 	if(bonus)
 		bonus->val += b->val;
 	else

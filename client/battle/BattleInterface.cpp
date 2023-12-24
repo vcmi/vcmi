@@ -58,6 +58,7 @@ BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *
 	, curInt(att)
 	, battleID(battleID)
 	, battleOpeningDelayActive(true)
+	, round(0)
 {
 	if(spectatorInt)
 	{
@@ -235,6 +236,7 @@ void BattleInterface::newRoundFirst()
 void BattleInterface::newRound()
 {
 	console->addText(CGI->generaltexth->allTexts[412]);
+	round++;
 }
 
 void BattleInterface::giveCommand(EActionType action, BattleHex tile, SpellID spell)

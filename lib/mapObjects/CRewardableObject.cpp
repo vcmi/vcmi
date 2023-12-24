@@ -111,11 +111,20 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						selectRewardWthMessage(h, rewards, configuration.onSelect);
 						break;
 					case Rewardable::SELECT_FIRST: // give first available
-						grantRewardWithMessage(h, rewards.front(), true);
+						if (configuration.canRefuse)
+							selectRewardWthMessage(h, { rewards.front() }, configuration.info.at(rewards.front()).message);
+						else
+							grantRewardWithMessage(h, rewards.front(), true);
 						break;
 					case Rewardable::SELECT_RANDOM: // give random
-						grantRewardWithMessage(h, *RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()), true);
+					{
+						ui32 rewardIndex = *RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator());
+						if (configuration.canRefuse)
+							selectRewardWthMessage(h, { rewardIndex }, configuration.info.at(rewardIndex).message);
+						else
+							grantRewardWithMessage(h, rewardIndex, true);
 						break;
+					}
 				}
 				break;
 			}

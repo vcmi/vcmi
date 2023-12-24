@@ -62,7 +62,9 @@ class TurnOrderProcessor : boost::noncopyable
 	/// Starts turn for all players that can start turn
 	void tryStartTurnsForPlayers();
 
-	void updateContactStatus();
+	void updateAndNotifyContactStatus();
+
+	std::vector<PlayerPair> computeContactStatus() const;
 
 	void doStartNewDay();
 	void doStartPlayerTurn(PlayerColor which);

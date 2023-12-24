@@ -582,7 +582,8 @@
 				"infoBarPick",
 				"skipBattleIntroMusic",
 				"infoBarCreatureManagement",
-				"enableLargeSpellbook"
+				"enableLargeSpellbook",
+				"skipAdventureMapAnimations"
 			],
 			"properties" : {
 				"showGrid" : {
@@ -618,6 +619,10 @@
 					"default" : true
 				},
 				"enableLargeSpellbook" : {
+					"type": "boolean",
+					"default": true
+				},
+				"skipAdventureMapAnimations": {
 					"type": "boolean",
 					"default": false
 				}

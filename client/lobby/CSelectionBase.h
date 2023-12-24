@@ -33,6 +33,7 @@ class CChatBox;
 class CLabel;
 class CFlagBox;
 class CLabelGroup;
+class TransparentFilledRectangle;
 
 class ISelectionScreenInfo
 {
@@ -122,6 +123,7 @@ class CChatBox : public CIntObject
 public:
 	std::shared_ptr<CTextBox> chatHistory;
 	std::shared_ptr<CTextInput> inputBox;
+	std::shared_ptr<TransparentFilledRectangle> inputBackground;
 
 	CChatBox(const Rect & rect);
 

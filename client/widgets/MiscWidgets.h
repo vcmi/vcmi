@@ -190,12 +190,15 @@ public:
 
 	CHeroArea(int x, int y, const CGHeroInstance * hero);
 	void addClickCallback(ClickFunctor callback);
+	void addRClickCallback(ClickFunctor callback);
 	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 private:
 	const CGHeroInstance * hero;
 	std::shared_ptr<CAnimImage> portrait;
 	ClickFunctor clickFunctor;
+	ClickFunctor clickRFunctor;
 	ClickFunctor showPopupHandler;
 };
 

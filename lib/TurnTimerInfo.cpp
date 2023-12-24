@@ -22,4 +22,41 @@ bool TurnTimerInfo::isBattleEnabled() const
 	return turnTimer > 0 || baseTimer > 0 || unitTimer > 0 || battleTimer > 0;
 }
 
+void TurnTimerInfo::substractTimer(int timeMs)
+{
+	auto const & substractTimer = [&timeMs](int & targetTimer)
+	{
+		if (targetTimer > timeMs)
+		{
+			targetTimer -= timeMs;
+			timeMs = 0;
+		}
+		else
+		{
+			timeMs -= targetTimer;
+			targetTimer = 0;
+		}
+	};
+
+	substractTimer(unitTimer);
+	substractTimer(battleTimer);
+	substractTimer(turnTimer);
+	substractTimer(baseTimer);
+}
+
+int TurnTimerInfo::valueMs() const
+{
+	return baseTimer + turnTimer + battleTimer + unitTimer;
+}
+
+bool TurnTimerInfo::operator == (const TurnTimerInfo & other) const
+{
+	return turnTimer == other.turnTimer &&
+			baseTimer == other.baseTimer &&
+			battleTimer == other.battleTimer &&
+			unitTimer == other.unitTimer &&
+			accumulatingTurnTimer == other.accumulatingTurnTimer &&
+			accumulatingUnitTimer == other.accumulatingUnitTimer;
+}
+
 VCMI_LIB_NAMESPACE_END

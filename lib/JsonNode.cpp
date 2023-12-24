@@ -310,63 +310,73 @@ JsonMap & JsonNode::Struct()
 const bool boolDefault = false;
 bool JsonNode::Bool() const
 {
-	if (getType() == JsonType::DATA_NULL)
-		return boolDefault;
-	assert(getType() == JsonType::DATA_BOOL);
-	return std::get<bool>(data);
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_BOOL);
+
+	if (getType() == JsonType::DATA_BOOL)
+		return std::get<bool>(data);
+
+	return boolDefault;
 }
 
 const double floatDefault = 0;
 double JsonNode::Float() const
 {
-	if(getType() == JsonType::DATA_NULL)
-		return floatDefault;
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT);
+
+	if(getType() == JsonType::DATA_FLOAT)
+		return std::get<double>(data);
 
 	if(getType() == JsonType::DATA_INTEGER)
 		return static_cast<double>(std::get<si64>(data));
 
-	assert(getType() == JsonType::DATA_FLOAT);
-	return std::get<double>(data);
+	return floatDefault;
 }
 
-const si64 integetDefault = 0;
+const si64 integerDefault = 0;
 si64 JsonNode::Integer() const
 {
-	if(getType() == JsonType::DATA_NULL)
-		return integetDefault;
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT);
+
+	if(getType() == JsonType::DATA_INTEGER)
+		return std::get<si64>(data);
 
 	if(getType() == JsonType::DATA_FLOAT)
 		return static_cast<si64>(std::get<double>(data));
 
-	assert(getType() == JsonType::DATA_INTEGER);
-	return std::get<si64>(data);
+	return integerDefault;
 }
 
 const std::string stringDefault = std::string();
 const std::string & JsonNode::String() const
 {
-	if (getType() == JsonType::DATA_NULL)
-		return stringDefault;
-	assert(getType() == JsonType::DATA_STRING);
-	return std::get<std::string>(data);
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRING);
+
+	if (getType() == JsonType::DATA_STRING)
+		return std::get<std::string>(data);
+
+	return stringDefault;
 }
 
 const JsonVector vectorDefault = JsonVector();
 const JsonVector & JsonNode::Vector() const
 {
-	if (getType() == JsonType::DATA_NULL)
-		return vectorDefault;
-	assert(getType() == JsonType::DATA_VECTOR);
-	return std::get<JsonVector>(data);
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_VECTOR);
+
+	if (getType() == JsonType::DATA_VECTOR)
+		return std::get<JsonVector>(data);
+
+	return vectorDefault;
 }
 
 const JsonMap mapDefault = JsonMap();
 const JsonMap & JsonNode::Struct() const
 {
-	if (getType() == JsonType::DATA_NULL)
-		return mapDefault;
-	assert(getType() == JsonType::DATA_STRUCT);
-	return std::get<JsonMap>(data);
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRUCT);
+
+	if (getType() == JsonType::DATA_STRUCT)
+		return std::get<JsonMap>(data);
+
+	return mapDefault;
 }
 
 JsonNode & JsonNode::operator[](const std::string & child)

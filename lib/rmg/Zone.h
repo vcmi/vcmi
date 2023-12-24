@@ -66,6 +66,7 @@ public:
 	void connectPath(const rmg::Path & path);
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 	rmg::Path searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
+	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const rmg::Area & searchArea) const;
 
 	TModificators getModificators();
 

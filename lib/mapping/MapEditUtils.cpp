@@ -145,6 +145,7 @@ const std::string TerrainViewPattern::RULE_ANY = "?";
 TerrainViewPattern::TerrainViewPattern()
 	: diffImages(false)
 	, rotationTypesCount(0)
+	, decoration(false)
 	, minPoints(0)
 	, maxPoints(std::numeric_limits<int>::max())
 {
@@ -209,6 +210,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 			// Read various properties
 			pattern.id = ptrnNode["id"].String();
 			assert(!pattern.id.empty());
+			pattern.decoration = ptrnNode["decoration"].Bool();
 			pattern.minPoints = static_cast<int>(ptrnNode["minPoints"].Float());
 			pattern.maxPoints = static_cast<int>(ptrnNode["maxPoints"].Float());
 			if (pattern.maxPoints == 0)

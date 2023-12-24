@@ -135,7 +135,7 @@ InfoCard::InfoCard()
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
-	chat = std::make_shared<CChatBox>(Rect(26, 132, 340, 132));
+	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 	{
@@ -332,9 +332,12 @@ CChatBox::CChatBox(const Rect & rect)
 	setRedrawParent(true);
 
 	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
-	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height), EFonts::FONT_SMALL, 0);
+	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
+	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
+	inputBackground = std::make_shared<TransparentFilledRectangle>(textInputArea, ColorRGBA(0,0,0,192));
+	inputBox = std::make_shared<CTextInput>(textInputArea, EFonts::FONT_SMALL, 0);
 	inputBox->removeUsedEvents(KEYBOARD);
-	chatHistory = std::make_shared<CTextBox>("", Rect(0, 0, rect.w, rect.h - height), 1);
+	chatHistory = std::make_shared<CTextBox>("", chatHistoryArea, 1);
 
 	chatHistory->label->color = Colors::GREEN;
 }

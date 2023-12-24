@@ -79,6 +79,7 @@ public:
 	/// returns all templates matching parameters
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(const TerrainId terrainType) const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getMostSpecificTemplates(TerrainId terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
