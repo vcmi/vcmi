@@ -33,6 +33,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+ObjectInfo::ObjectInfo():
+	destroyObject([](){})
+{
+
+}
+
 void TreasurePlacer::process()
 {
 	addAllPossibleObjects();
@@ -109,17 +115,23 @@ void TreasurePlacer::addAllPossibleObjects()
 		size_t prisonsLeft = getMaxPrisons();
 		for (int i = prisonsLevels - 1; i >= 0; i--)
 		{
+			ObjectInfo oi; // Create new instance which will hold destructor operation
+
 			oi.value = generator.getConfig().prisonValues[i];
 			if (oi.value > zone.getMaxTreasureValue())
 			{
 				continue;
 			}
 
-			oi.generateObject = [i, this, prisonHeroPlacer]() -> CGObjectInstance*
+			oi.generateObject = [i, this, prisonHeroPlacer, &oi]() -> CGObjectInstance*
 			{
 				auto possibleHeroes = generator.getAllPossibleHeroes();
 
 				HeroTypeID hid = prisonHeroPlacer->drawRandomHero();
+				oi.destroyObject = [hid, prisonHeroPlacer]()
+				{
+					prisonHeroPlacer->unbanHero(hid);
+				};
 
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 				auto* obj = dynamic_cast<CGHeroInstance*>(factory->create());
@@ -654,9 +666,8 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		if(oi->templates.empty())
 		{
 			logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
-			// Possible memory leak, but this is a weird case in first place
+			oi->destroyObject();
 			delete object;
-			// FIXME: We also lose randomized hero or quest artifact
 			continue;
 		}
 		
@@ -816,6 +827,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	{
 		for (auto* oi : treasurePile)
 		{
+			oi->destroyObject();
 			oi->maxPerZone++;
 		}
 	};

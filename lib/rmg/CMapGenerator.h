@@ -66,6 +66,7 @@ public:
 	const std::vector<HeroTypeID> getAllPossibleHeroes() const;
 	void banQuestArt(const ArtifactID & id);
 	void banHero(const HeroTypeID& id);
+	void unbanHero(const HeroTypeID & id);
 
 	Zone * getZoneWater() const;
 	void addWaterTreasuresInfo();
@@ -82,7 +83,6 @@ private:
 	
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
-	int allowedPrisons;
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts;
 

@@ -28,17 +28,30 @@ void PrisonHeroPlacer::process()
 
 void PrisonHeroPlacer::init()
 {
+	// Reserve at least 16 heroes for each player
+	reservedHeroes = 16 * generator.getMapGenOptions().getHumanOrCpuPlayerCount();
 }
 
 void PrisonHeroPlacer::getAllowedHeroes()
 {
-    allowedHeroes = generator.getAllPossibleHeroes();
+	// TODO: Give each zone unique HeroPlacer with private hero list?
+
+	// Call that only once
+	if (allowedHeroes.empty())
+	{
+    	allowedHeroes = generator.getAllPossibleHeroes();
+	}
+}
+
+int PrisonHeroPlacer::getPrisonsRemaning() const
+{
+	return std::max<int>(allowedHeroes.size() - reservedHeroes, 0);
 }
 
 HeroTypeID PrisonHeroPlacer::drawRandomHero()
 {
 	RecursiveLock lock(externalAccessMutex);
-	if (!allowedHeroes.empty())
+	if (getPrisonsRemaning() > 0)
 	{
 		RandomGeneratorUtil::randomShuffle(allowedHeroes, zone.getRand());
         HeroTypeID ret = allowedHeroes.back();
@@ -51,6 +64,12 @@ HeroTypeID PrisonHeroPlacer::drawRandomHero()
 	{
 		throw rmgException("No quest heroes left for prisons!");
 	}
+}
+
+void PrisonHeroPlacer::unbanHero(const HeroTypeID & hid)
+{
+	RecursiveLock lock(externalAccessMutex);
+	generator.unbanHero(hid);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -112,6 +112,7 @@ public:
 	void banWaterArtifacts();
 	void banWaterHeroes();
 	void banHero(const HeroTypeID& id);
+	void unbanHero(const HeroTypeID & id);
 	void banWaterSpells();
 	void banWaterSkills();
 	void banWaterContent();

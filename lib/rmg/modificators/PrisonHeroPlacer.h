@@ -25,16 +25,17 @@ public:
 	void process() override;
 	void init() override;
 
+	int getPrisonsRemaning() const;
 	HeroTypeID drawRandomHero();
+	void unbanHero(const HeroTypeID & hid);
 
 private:
     void getAllowedHeroes();
+	size_t reservedHeroes;
 
 protected:
 
     std::vector<HeroTypeID> allowedHeroes;
-
-	// TODO: Count allowed heroes?
 };
 
 VCMI_LIB_NAMESPACE_END
