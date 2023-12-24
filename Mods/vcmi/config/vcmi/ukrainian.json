@@ -54,6 +54,8 @@
 	"vcmi.radialWheel.moveDown" : "Перемістити вниз",
 	"vcmi.radialWheel.moveBottom" : "Перемістити у кінець",
 
+	"vcmi.spellBook.search" : "шукати...",
+
 	"vcmi.mainMenu.serverConnecting" : "Підключення...",
 	"vcmi.mainMenu.serverAddressEnter" : "Вкажіть адресу:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Помилка з'єднання",
@@ -134,6 +136,8 @@
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Переміщення мапи лівою кнопкою}\n\nЯкщо увімкнено, переміщення миші з натиснутою лівою кнопкою буде перетягувати мапу пригод",
 	"vcmi.adventureOptions.smoothDragging.hover" : "Плавне перетягування мапи",
 	"vcmi.adventureOptions.smoothDragging.help" : "{Плавне перетягування мапи}\n\nЯкщо увімкнено, перетягування мапи має сучасний ефект завершення.",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Вимкнути ефекти зникнення",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.help" : "{Вимкнути ефекти зникнення}\n\nЯкщо увімкнено, пропускає зникання об'єктів та подібні ефекти (збирання ресурсів, посадка на корабель тощо). У деяких випадках робить інтерфейс більш реактивним за рахунок естетики. Особливо корисно в PvP-іграх. При максимальній швидкості пересування цей параметр увімкнено завжди, незалежно від цього параметра.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
