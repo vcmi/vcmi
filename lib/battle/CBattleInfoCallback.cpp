@@ -324,22 +324,6 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const battle::Un
 	return attackedHexes;
 }
 
-SpellID CBattleInfoCallback::battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const
-{
-	switch (mode)
-	{
-	case RANDOM_GENIE:
-		return getRandomBeneficialSpell(rand, stack); //target
-		break;
-	case RANDOM_AIMED:
-		return getRandomCastedSpell(rand, stack); //caster
-		break;
-	default:
-		logGlobal->error("Incorrect mode of battleGetRandomSpell (%d)", static_cast<int>(mode));
-		return SpellID::NONE;
-	}
-}
-
 const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyAlive) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
@@ -1610,7 +1594,7 @@ std::set<const battle::Unit *> CBattleInfoCallback::battleAdjacentUnits(const ba
 	return ret;
 }
 
-SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const
+SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, const battle::Unit * caster, const battle::Unit * subject) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 	//This is complete list. No spells from mods.
@@ -1658,9 +1642,19 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		std::stringstream cachingStr;
 		cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 
-		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), Selector::all, cachingStr.str())
-		 //TODO: this ability has special limitations
-		|| !(spellID.toSpell()->canBeCast(this, spells::Mode::CREATURE_ACTIVE, subject)))
+		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), Selector::all, cachingStr.str()))
+			continue;
+
+		auto spellPtr = spellID.toSpell();
+		spells::Target target;
+		target.emplace_back(subject);
+
+		spells::BattleCast cast(this, caster, spells::Mode::CREATURE_ACTIVE, spellPtr);
+
+		auto m = spellPtr->battleMechanics(&cast);
+		spells::detail::ProblemImpl problem;
+
+		if (!m->canBeCastAt(target, problem))
 			continue;
 
 		switch (spellID.toEnum())
@@ -1703,7 +1697,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		case SpellID::CURE: //only damaged units
 		{
 			//do not cast on affected by debuffs
-			if(!subject->canBeHealed())
+			if(subject->getFirstHPleft() == subject->getMaxHealth())
 				continue;
 		}
 			break;
