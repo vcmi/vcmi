@@ -483,7 +483,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	auto luck = stack->luckVal();
 
 	auto killed = stack->getKilled();
-	auto healthRemaining = TextOperations::formatMetric(stack->getAvailableHealth() - (stack->getCount() - 1) * health, 4);
+	auto healthRemaining = TextOperations::formatMetric(std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, (si64)0), 4);
 
 	//primary stats*/
 	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
