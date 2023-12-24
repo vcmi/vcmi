@@ -45,7 +45,6 @@ Please see corresponding installation guide articles for details for your platfo
 
 ## Documentation and guidelines for players
 
-- [General information about VCMI Project](players/Manual.md)
 - [Frequently asked questions](https://vcmi.eu/faq/) (external link)
 - [Game mechanics](players/Game_Mechanics.md)
 - [Bug reporting guidelines](players/Bug_Reporting_Guidelines.md)
