@@ -117,7 +117,15 @@ void CGMine::initObj(CRandomGenerator & rand)
 		putStack(SlotID(0), troglodytes);
 
 		assert(!abandonedMineResources.empty());
-		producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+		if (!abandonedMineResources.empty())
+		{
+			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+		}
+		else
+		{
+			logGlobal->error("Abandoned mine at (%s) has no valid resource candidates!", pos.toString());
+			producedResource = GameResID::GOLD;
+		}
 	}
 	else
 	{

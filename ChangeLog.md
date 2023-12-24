@@ -5,6 +5,7 @@
 * Restored support for 32-bit builds
 * Implemented quick backpack window for slot-specific artifact selection, activated via mouse wheel / swipe gesture
 * Added option to search for specific spell in the spellbook
+* Added option to skip fading animation on adventure map
 * Using alt-tab to switch to another application will no longer activate in-game console/chat
 * Increased frequency of checks for server startup to improve server connection time
 * added nwcfollowthewhiterabbit / vcmiluck cheat: the currently selected hero permanently gains maximum luck.
@@ -56,6 +57,7 @@
 
 ### Interface
 * Right-clicking hero icon during levelup dialog will now show hero status window
+* Added indicator of current turn to unit turn order panel in battles
 * Reduces upscaling artifacts on large spellbook
 * Game will now display correct date of saved games on Android
 * Fixed black screen appearing during spellbook page flip animation 
@@ -63,6 +65,7 @@
 * Fixed invisible chat text input in game lobby
 * Fixed positioning of chat history in game lobby
 * "Infobar Creature Management" option is now enabled by default
+* "Large Spellbook" option is now enabled by default
 
 ### Mechanics
 * Anti-magic garrison now actually blocks spell casting

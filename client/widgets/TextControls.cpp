@@ -801,6 +801,9 @@ void CFocusable::moveFocus()
 		if(i == focusables.end())
 			i = focusables.begin();
 
+		if (*i == this)
+			return;
+
 		if((*i)->isActive())
 		{
 			(*i)->giveFocus();
