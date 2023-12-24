@@ -279,7 +279,7 @@
 			"callback": "mapScrollSpeedChanged"
 		},
 		
-/////////////////////////////////////// Right section - Original H3 options
+/////////////////////////////////////// Right section - Original H3 options + some custom
 		{
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
@@ -294,6 +294,9 @@
 				},
 				{
 					"text": "core.genrltxt.574" // quick combat
+				},
+				{
+					"text": "vcmi.adventureOptions.showGrid.hover"
 				}
 			]
 		},
@@ -305,7 +308,7 @@
 			[
 				{
 					"name": "showMovePathPlaceholder",
-					"type": "checkboxFake",
+					"type": "checkboxFake"
 				},
 				{
 					"name": "heroReminderCheckbox",
@@ -317,6 +320,11 @@
 					"help": "core.help.362",
 					"callback": "quickCombatChanged"
 				},
+				{
+					"name": "showGridCheckbox",
+					"help": "vcmi.adventureOptions.showGrid",
+					"callback": "showGridChanged"
+				}
 			]
 		},
 /////////////////////////////////////// Bottom section - VCMI Options
@@ -333,7 +341,7 @@
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
 				},
 				{
-					"text": "vcmi.adventureOptions.showGrid.hover"
+					"text": "vcmi.adventureOptions.skipAdventureMapAnimations.hover"
 				},
 				{
 					"text": "vcmi.adventureOptions.infoBarPick.hover"
@@ -370,9 +378,9 @@
 					"callback": "forceMovementInfoChanged"
 				},
 				{
-					"name": "showGridCheckbox",
-					"help": "vcmi.adventureOptions.showGrid",
-					"callback": "showGridChanged"
+					"name": "skipAdventureMapAnimationsCheckbox",
+					"help": "vcmi.adventureOptions.skipAdventureMapAnimations",
+					"callback": "skipAdventureMapAnimationsChanged"
 				},
 				{
 					"name": "infoBarPickCheckbox",
