@@ -83,21 +83,13 @@ public:
 /// structure to handle running server and connecting to it
 class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClientListener, boost::noncopyable
 {
-	std::unique_ptr<NetworkClient> networkClient;
-
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
-	
+
+	std::unique_ptr<NetworkClient> networkClient;
 	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
-
-	std::shared_ptr<boost::recursive_mutex> mx;
-	std::list<CPackForLobby *> packsForLobbyScreen; //protected by mx
-	
 	std::shared_ptr<CMapInfo> mapToStart;
-
 	std::vector<std::string> myNames;
-
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
-
 	std::function<void()> onConnectedCallback;
 
 	void threadRunNetwork();
@@ -110,6 +102,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
 	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
 
+	void applyPackOnLobbyScreen(CPackForLobby & pack);
 public:
 	std::shared_ptr<CConnection> c;
 
@@ -143,7 +136,6 @@ public:
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
 	void startLocalServerAndConnect(const std::function<void()> & onConnected);
 	void justConnectToServer(const std::string & addr, const ui16 port, const std::function<void()> & onConnected);
-	void applyPacksOnLobbyScreen();
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();

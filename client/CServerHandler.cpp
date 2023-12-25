@@ -76,8 +76,8 @@ extern std::atomic_bool androidTestServerReadyFlag;
 class CBaseForLobbyApply
 {
 public:
-	virtual bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const = 0;
-	virtual void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, void * pack) const = 0;
+	virtual bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const = 0;
+	virtual void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const = 0;
 	virtual ~CBaseForLobbyApply(){};
 	template<typename U> static CBaseForLobbyApply * getApplier(const U * t = nullptr)
 	{
@@ -88,40 +88,40 @@ public:
 template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
 {
 public:
-	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
+	bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const override
 	{
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-		T * ptr = static_cast<T *>(pack);
+		T & ptr = static_cast<T &>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
 
 		logNetwork->trace("\tImmediately apply on lobby: %s", typeid(ptr).name());
-		ptr->visit(visitor);
+		ptr.visit(visitor);
 
 		return visitor.getResult();
 	}
 
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, void * pack) const override
+	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const override
 	{
-		T * ptr = static_cast<T *>(pack);
+		T & ptr = static_cast<T &>(pack);
 		ApplyOnLobbyScreenNetPackVisitor visitor(*handler, lobby);
 
 		logNetwork->trace("\tApply on lobby from queue: %s", typeid(ptr).name());
-		ptr->visit(visitor);
+		ptr.visit(visitor);
 	}
 };
 
 template<> class CApplyOnLobby<CPack>: public CBaseForLobbyApply
 {
 public:
-	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
+	bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const override
 	{
 		logGlobal->error("Cannot apply plain CPack!");
 		assert(0);
 		return false;
 	}
 
-	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, void * pack) const override
+	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const override
 	{
 		logGlobal->error("Cannot apply plain CPack!");
 		assert(0);
@@ -139,7 +139,6 @@ CServerHandler::~CServerHandler()
 
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE)
-	, mx(std::make_shared<boost::recursive_mutex>())
 	, networkClient(std::make_unique<NetworkClient>(*this))
 	, client(nullptr)
 	, loadMode(0)
@@ -170,7 +169,6 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 	state = EClientState::NONE;
 	mapToStart = nullptr;
 	th = std::make_unique<CStopWatch>();
-	packsForLobbyScreen.clear();
 	c.reset();
 	si = std::make_shared<StartInfo>();
 	playerNames.clear();
@@ -321,19 +319,12 @@ void CServerHandler::onConnectionEstablished(const std::shared_ptr<NetworkConnec
 	}
 }
 
-void CServerHandler::applyPacksOnLobbyScreen()
+void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*mx);
-	while(!packsForLobbyScreen.empty())
-	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-		CPackForLobby * pack = packsForLobbyScreen.front();
-		packsForLobbyScreen.pop_front();
-		CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
-		apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
-		GH.windows().totalRedraw();
-		delete pack;
-	}
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(&pack)); //find the applier
+	apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
+	GH.windows().totalRedraw();
 }
 
 std::set<PlayerColor> CServerHandler::getHumanColors()
@@ -956,23 +947,19 @@ void CServerHandler::onDisconnected(const std::shared_ptr<NetworkConnection> &)
 		}
 		else
 		{
-			auto lcd = new LobbyClientDisconnected();
-			lcd->clientId = c->connectionID;
-			boost::unique_lock<boost::recursive_mutex> lock(*mx);
-			packsForLobbyScreen.push_back(lcd);
+			LobbyClientDisconnected lcd;
+			lcd.clientId = c->connectionID;
+			applyPackOnLobbyScreen(lcd);
 		}
 	}
 }
 
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 {
-	if(applier->getApplier(CTypeList::getInstance().getTypeID(&lobbyPack))->applyOnLobbyHandler(this, &lobbyPack))
+	if(applier->getApplier(CTypeList::getInstance().getTypeID(&lobbyPack))->applyOnLobbyHandler(this, lobbyPack))
 	{
 		if(!settings["session"]["headless"].Bool())
-		{
-			boost::unique_lock<boost::recursive_mutex> lock(*mx);
-			packsForLobbyScreen.push_back(&lobbyPack);
-		}
+			applyPackOnLobbyScreen(lobbyPack);
 	}
 }
 

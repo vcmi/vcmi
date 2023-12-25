@@ -451,7 +451,6 @@ static void mainLoop()
 	while(1) //main SDL events loop
 	{
 		GH.input().fetchEvents();
-		CSH->applyPacksOnLobbyScreen();
 		GH.renderFrame();
 	}
 }
