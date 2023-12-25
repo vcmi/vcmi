@@ -48,6 +48,46 @@ void CModListView::changeEvent(QEvent *event)
 	QWidget::changeEvent(event);
 }
 
+void CModListView::dragEnterEvent(QDragEnterEvent* event)
+{
+	event->acceptProposedAction();
+}
+ 
+void CModListView::dragMoveEvent(QDragMoveEvent* event)
+{
+	event->acceptProposedAction();
+}
+ 
+void CModListView::dragLeaveEvent(QDragLeaveEvent* event)
+{
+	event->accept();
+}
+
+void CModListView::dropEvent(QDropEvent* event)
+{
+	const QMimeData* mimeData = event->mimeData();
+
+	if(mimeData->hasUrls())
+	{
+		QStringList pathList;
+		QList<QUrl> urlList = mimeData->urls();
+
+		for (int i = 0; i < urlList.size(); i++)
+		{
+			QString url = urlList.at(i).toString();
+			if(url.endsWith(".zip", Qt::CaseInsensitive))
+				downloadFile(url.split("/").last().toLower()
+					// mod name currently comes from zip file -> remove suffixes from github zip download
+					.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+					.replace(QRegularExpression("-vcmi-.*\\.zip"), ".zip")
+					.replace(QRegularExpression("-main.zip"), ".zip")
+					, url, "mods", 0);
+			else
+				downloadFile(url.split("/").last(), url, "mods", 0);
+		}
+	}
+}
+
 void CModListView::setupFilterModel()
 {
 	filterModel = new CModFilterModel(modModel, this);
@@ -99,6 +139,8 @@ CModListView::CModListView(QWidget * parent)
 	, ui(new Ui::CModListView)
 {
 	ui->setupUi(this);
+
+	setAcceptDrops(true);
 
 	setupModModel();
 	setupFilterModel();
@@ -677,6 +719,7 @@ void CModListView::hideProgressBar()
 void CModListView::installFiles(QStringList files)
 {
 	QStringList mods;
+	QStringList maps;
 	QStringList images;
 	QVector<QVariantMap> repositories;
 
@@ -685,6 +728,8 @@ void CModListView::installFiles(QStringList files)
 	{
 		if(filename.endsWith(".zip"))
 			mods.push_back(filename);
+		if(filename.endsWith(".h3m") || filename.endsWith(".h3c") || filename.endsWith(".vmap") || filename.endsWith(".vcmp"))
+			maps.push_back(filename);
 		if(filename.endsWith(".json"))
 		{
 			//download and merge additional files
@@ -717,6 +762,9 @@ void CModListView::installFiles(QStringList files)
 
 	if(!mods.empty())
 		installMods(mods);
+
+	if(!maps.empty())
+		installMaps(maps);
 
 	if(!images.empty())
 		loadScreenshots();
@@ -792,6 +840,16 @@ void CModListView::installMods(QStringList archives)
 
 	for(QString archive : archives)
 		QFile::remove(archive);
+}
+
+void CModListView::installMaps(QStringList archives)
+{
+	QString destDir = CLauncherDirs::get().mapsPath() + "/";
+
+	for(QString archive : archives)
+	{
+		QFile(archive).rename(destDir + archive.section('/', -1, -1));
+	}
 }
 
 void CModListView::on_refreshButton_clicked()
