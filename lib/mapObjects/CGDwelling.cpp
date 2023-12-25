@@ -160,7 +160,7 @@ void CGDwelling::pickRandomObject(CRandomGenerator & rand)
 		if (subID == MapObjectSubID())
 		{
 			logGlobal->error("Error: failed to find dwelling for %s of level %d", (*VLC->townh)[faction]->getNameTranslated(), int(level));
-			ID = Obj::CREATURE_GENERATOR4;
+			ID = Obj::CREATURE_GENERATOR1;
 			subID = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand);
 		}
 

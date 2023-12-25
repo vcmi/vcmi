@@ -54,6 +54,8 @@
 	"vcmi.radialWheel.moveDown" : "Перемістити вниз",
 	"vcmi.radialWheel.moveBottom" : "Перемістити у кінець",
 
+	"vcmi.spellBook.search" : "шукати...",
+
 	"vcmi.mainMenu.serverConnecting" : "Підключення...",
 	"vcmi.mainMenu.serverAddressEnter" : "Вкажіть адресу:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Помилка з'єднання",
@@ -69,6 +71,7 @@
 	"vcmi.lobby.noPreview" : "огляд недоступний",
 	"vcmi.lobby.noUnderground" : "немає підземелля",
 
+	"vcmi.client.errors.missingCampaigns" : "{Не вистачає файлів даних}\n\nФайли даних кампаній не знайдено! Можливо, ви використовуєте неповні або пошкоджені файли даних Heroes 3. Будь ласка, перевстановіть дані гри.",
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
 	"vcmi.server.errors.modsToDisable"   : "{Модифікації що мають бути вимкнені}",
@@ -133,6 +136,8 @@
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Переміщення мапи лівою кнопкою}\n\nЯкщо увімкнено, переміщення миші з натиснутою лівою кнопкою буде перетягувати мапу пригод",
 	"vcmi.adventureOptions.smoothDragging.hover" : "Плавне перетягування мапи",
 	"vcmi.adventureOptions.smoothDragging.help" : "{Плавне перетягування мапи}\n\nЯкщо увімкнено, перетягування мапи має сучасний ефект завершення.",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Вимкнути ефекти зникнення",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.help" : "{Вимкнути ефекти зникнення}\n\nЯкщо увімкнено, пропускає зникання об'єктів та подібні ефекти (збирання ресурсів, посадка на корабель тощо). У деяких випадках робить інтерфейс більш реактивним за рахунок естетики. Особливо корисно в PvP-іграх. При максимальній швидкості пересування цей параметр увімкнено завжди, незалежно від цього параметра.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",

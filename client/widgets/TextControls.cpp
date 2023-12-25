@@ -375,7 +375,7 @@ void CTextBox::setText(const std::string & text)
 	else if(slider)
 	{
 		// decrease width again if slider still used
-		label->pos.w = pos.w - 32;
+		label->pos.w = pos.w - 16;
 		assert(label->pos.w > 0);
 		label->setText(text);
 		slider->setAmount(label->textSize.y);
@@ -383,12 +383,12 @@ void CTextBox::setText(const std::string & text)
 	else if(label->textSize.y > label->pos.h)
 	{
 		// create slider and update widget
-		label->pos.w = pos.w - 32;
+		label->pos.w = pos.w - 16;
 		assert(label->pos.w > 0);
 		label->setText(text);
 
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
-		slider = std::make_shared<CSlider>(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
+		slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
 			label->pos.h, label->textSize.y, 0, Orientation::VERTICAL, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep((int)graphics->fonts[label->font]->getLineHeight());
 		slider->setPanningStep(1);
@@ -800,6 +800,9 @@ void CFocusable::moveFocus()
 	{
 		if(i == focusables.end())
 			i = focusables.begin();
+
+		if (*i == this)
+			return;
 
 		if((*i)->isActive())
 		{

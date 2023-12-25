@@ -34,6 +34,8 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 	{
 		timers[player] = si->turnTimerInfo;
 		timers[player].turnTimer = 0;
+		timers[player].battleTimer = 0;
+		timers[player].unitTimer = 0;
 		timers[player].isActive = true;
 		timers[player].isBattle = false;
 		lastUpdate[player] = std::numeric_limits<int>::max();
@@ -103,11 +105,8 @@ bool TurnTimerHandler::timerCountDown(int & timer, int initialTimer, PlayerColor
 	{
 		timer -= waitTime;
 		lastUpdate[player] += waitTime;
-		int frequency = (timer > turnTimePropagateThreshold
-						 && initialTimer - timer > turnTimePropagateThreshold)
-		? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit;
 		
-		if(lastUpdate[player] >= frequency)
+		if(lastUpdate[player] >= turnTimePropagateFrequency)
 			sendTimerUpdate(player);
 
 		return true;
@@ -127,6 +126,10 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 	const auto * state = gameHandler.getPlayerState(player);
 	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{
+		// turn timers are only used if turn timer is non-zero
+		if (si->turnTimerInfo.turnTimer == 0)
+			return;
+
 		if(timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
 			return;
 
@@ -277,17 +280,21 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 	auto & timer = timers[player];
 	if(timer.isActive && timer.isBattle)
 	{
-		 if (timerCountDown(timer.unitTimer, si->turnTimerInfo.unitTimer, player, waitTime))
+		// in pvp battles, timers are only used if unit timer is non-zero
+		if(isPvpBattle(battleID) && si->turnTimerInfo.unitTimer == 0)
 			return;
 
-		 if (timerCountDown(timer.battleTimer, si->turnTimerInfo.battleTimer, player, waitTime))
-			 return;
+		if (timerCountDown(timer.unitTimer, si->turnTimerInfo.unitTimer, player, waitTime))
+			return;
 
-		 if (timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
-			 return;
+		if (timerCountDown(timer.battleTimer, si->turnTimerInfo.battleTimer, player, waitTime))
+			return;
 
-		 if (timerCountDown(timer.baseTimer, si->turnTimerInfo.baseTimer, player, waitTime))
-			 return;
+		if (timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
+			return;
+
+		if (timerCountDown(timer.baseTimer, si->turnTimerInfo.baseTimer, player, waitTime))
+			return;
 
 		if(isPvpBattle(battleID))
 		{

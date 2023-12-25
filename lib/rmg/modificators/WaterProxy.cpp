@@ -112,7 +112,7 @@ void WaterProxy::collectLakes()
 		for(const auto & t : lake.getBorderOutside())
 			if(map.isOnMap(t))
 				lakes.back().neighbourZones[map.getZoneID(t)].add(t);
-		for(const auto & t : lake.getTiles())
+		for(const auto & t : lake.getTilesVector())
 			lakeMap[t] = lakeId;
 		
 		//each lake must have at least one free tile
@@ -143,7 +143,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 		{
 			if(!lake.keepConnections.count(dst.getId()))
 			{
-				for(const auto & ct : lake.neighbourZones[dst.getId()].getTiles())
+				for(const auto & ct : lake.neighbourZones[dst.getId()].getTilesVector())
 				{
 					if(map.isPossible(ct))
 						map.setOccupied(ct, ETileType::BLOCKED);
@@ -155,7 +155,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			}
 
 			//Don't place shipyard or boats on the very small lake
-			if (lake.area.getTiles().size() < 25)
+			if (lake.area.getTilesVector().size() < 25)
 			{
 				logGlobal->info("Skipping very small lake at zone %d", dst.getId());
 				continue;
@@ -273,7 +273,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 
 	while(!boardingPositions.empty())
 	{
-		auto boardingPosition = *boardingPositions.getTiles().begin();
+		auto boardingPosition = *boardingPositions.getTilesVector().begin();
 		rmg::Area shipPositions({boardingPosition});
 		auto boutside = shipPositions.getBorderOutside();
 		shipPositions.assign(boutside);
@@ -336,7 +336,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 	
 	while(!boardingPositions.empty())
 	{
-		auto boardingPosition = *boardingPositions.getTiles().begin();
+		auto boardingPosition = *boardingPositions.getTilesVector().begin();
 		rmg::Area shipPositions({boardingPosition});
 		auto boutside = shipPositions.getBorderOutside();
 		shipPositions.assign(boutside);

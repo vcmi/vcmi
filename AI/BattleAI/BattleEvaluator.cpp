@@ -70,8 +70,9 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
 {
 	//TODO: faerie dragon type spell should be selected by server
-	SpellID creatureSpellToCast = cb->getBattle(battleID)->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
-	if(stack->hasBonusOfType(BonusType::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
+	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack);
+
+	if(stack->canCast() && creatureSpellToCast != SpellID::NONE)
 	{
 		const CSpell * spell = creatureSpellToCast.toSpell();
 
@@ -427,33 +428,36 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				state->nextTurn(unit->unitId());
 
-				PotentialTargets pt(unit, damageCache, state);
+				PotentialTargets potentialTargets(unit, damageCache, state);
 
-				if(!pt.possibleAttacks.empty())
+				if(!potentialTargets.possibleAttacks.empty())
 				{
-					AttackPossibility ap = pt.bestAction();
+					AttackPossibility attackPossibility = potentialTargets.bestAction();
 
-					auto swb = state->getForUpdate(unit->unitId());
-					*swb = *ap.attackerState;
+					auto stackWithBonuses = state->getForUpdate(unit->unitId());
+					*stackWithBonuses = *attackPossibility.attackerState;
 
-					if(ap.defenderDamageReduce > 0)
-						swb->removeUnitBonus(Bonus::UntilAttack);
-					if(ap.attackerDamageReduce > 0)
-						swb->removeUnitBonus(Bonus::UntilBeingAttacked);
-
-					for(auto affected : ap.affectedUnits)
+					if(attackPossibility.defenderDamageReduce > 0)
 					{
-						swb = state->getForUpdate(affected->unitId());
-						*swb = *affected;
+						stackWithBonuses->removeUnitBonus(Bonus::UntilAttack);
+						stackWithBonuses->removeUnitBonus(Bonus::UntilOwnAttack);
+					}
+					if(attackPossibility.attackerDamageReduce > 0)
+						stackWithBonuses->removeUnitBonus(Bonus::UntilBeingAttacked);
 
-						if(ap.defenderDamageReduce > 0)
-							swb->removeUnitBonus(Bonus::UntilBeingAttacked);
-						if(ap.attackerDamageReduce > 0 && ap.attack.defender->unitId() == affected->unitId())
-							swb->removeUnitBonus(Bonus::UntilAttack);
+					for(auto affected : attackPossibility.affectedUnits)
+					{
+						stackWithBonuses = state->getForUpdate(affected->unitId());
+						*stackWithBonuses = *affected;
+
+						if(attackPossibility.defenderDamageReduce > 0)
+							stackWithBonuses->removeUnitBonus(Bonus::UntilBeingAttacked);
+						if(attackPossibility.attackerDamageReduce > 0 && attackPossibility.attack.defender->unitId() == affected->unitId())
+							stackWithBonuses->removeUnitBonus(Bonus::UntilAttack);
 					}
 				}
 
-				auto bav = pt.bestActionValue();
+				auto bav = potentialTargets.bestActionValue();
 
 				//best action is from effective owner`s point if view, we need to convert to our point if view
 				if(state->battleGetOwner(unit) != playerID)

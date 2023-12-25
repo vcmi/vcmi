@@ -45,6 +45,11 @@ RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }
 
+int RmgMap::getDecorationsPercentage() const
+{
+	return 15; // arbitrary value to generate more readable map
+}
+
 void RmgMap::foreach_neighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
 {
 	for(const int3 &dir : int3::getDirs())
@@ -90,7 +95,7 @@ void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 	
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(ETerrainId::GRASS, &rand);
+	getEditManager()->drawTerrain(ETerrainId::GRASS, getDecorationsPercentage(), &rand);
 
 	const auto * tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -309,7 +314,7 @@ void RmgMap::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 	zoneColouring[tile.x][tile.y][tile.z] = zid;
 }
 
-void RmgMap::setNearestObjectDistance(int3 &tile, float value)
+void RmgMap::setNearestObjectDistance(const int3 &tile, float value)
 {
 	assertOnMap(tile);
 	

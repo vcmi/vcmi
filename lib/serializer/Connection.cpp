@@ -148,6 +148,9 @@ void CConnection::flushBuffers()
 	if(!enableBufferedWrite)
 		return;
 
+	if (!socket)
+		throw std::runtime_error("Can't write to closed socket!");
+
 	try
 	{
 		asio::write(*socket, connectionBuffers->writeBuffer);
@@ -164,6 +167,9 @@ void CConnection::flushBuffers()
 
 int CConnection::write(const void * data, unsigned size)
 {
+	if (!socket)
+		throw std::runtime_error("Can't write to closed socket!");
+
 	try
 	{
 		if(enableBufferedWrite)

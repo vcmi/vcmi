@@ -55,12 +55,14 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
+static std::atomic<bool> quitRequestedDuringOpeningPlayback = false;
 static po::variables_map vm;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
 #endif
 void playIntro();
+[[noreturn]] static void quitApplication();
 static void mainLoop();
 
 static CBasicLogConfigurator *logConfig;
@@ -257,10 +259,10 @@ int main(int argc, char * argv[])
 	};
 
 	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
-	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted! Built-in mod was not found!");
-	testFile("DATA/PLAYERS.PAL", "Heroes III data files are missing or corruped! Please reinstall them.");
-	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files are missing or corruped! Please reinstall them.");
 	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
+	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted! Built-in mod was not found!");
+	testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped! Please reinstall them.");
+	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped! Please reinstall them.");
 
 	srand ( (unsigned int)time(nullptr) );
 
@@ -313,7 +315,6 @@ int main(int argc, char * argv[])
 		GH.screenHandler().clearScreen();
 	}
 
-
 #ifndef VCMI_NO_THREADED_LOAD
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
 	{
@@ -326,6 +327,9 @@ int main(int argc, char * argv[])
 	}
 	#endif // ANDROID
 #endif // THREADED
+
+	if (quitRequestedDuringOpeningPlayback)
+		quitApplication();
 
 	if(!settings["session"]["headless"].Bool())
 	{
@@ -414,7 +418,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(true)
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
 	}
 
 	return 0;
@@ -451,7 +455,7 @@ static void mainLoop()
 	}
 }
 
-static void quitApplication()
+[[noreturn]] static void quitApplication()
 {
 	if(!settings["session"]["headless"].Bool())
 	{
@@ -487,7 +491,8 @@ static void quitApplication()
 	vstd::clear_pointer(CSH);
 	vstd::clear_pointer(VLC);
 
-	vstd::clear_pointer(console);// should be removed after everything else since used by logging
+	// sometimes leads to a hang. TODO: investigate
+	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
 	if(!settings["session"]["headless"].Bool())
 		GH.screenHandler().close();
@@ -501,14 +506,29 @@ static void quitApplication()
 
 	std::cout << "Ending...\n";
 
-	// this method is always called from event/network threads, which keep interface mutex locked
-	// unlock it here to avoid assertion failure on GH destruction in exit()
-	GH.interfaceMutex.unlock();
-	exit(0);
+	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
+	// We generally don't care about them and this leads to numerous issues, e.g.
+	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
+	// Android - std::quick_exit is available only starting from API level 21
+	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
+#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
+	::exit(0);
+#else
+	std::quick_exit(0);
+#endif
 }
 
 void handleQuit(bool ask)
 {
+	// FIXME: avoids crash if player attempts to close game while opening is still playing
+	// use cursor handler as indicator that loading is not done yet
+	// proper solution would be to abort init thread (or wait for it to finish)
+	if (!CCS->curh)
+	{
+		quitRequestedDuringOpeningPlayback = true;
+		return;
+	}
+
 	if(ask)
 	{
 		CCS->curh->set(Cursor::Map::POINTER);

@@ -15,6 +15,7 @@
 
 #include "lobby/OptionsTab.h"
 #include "lobby/RandomMapTab.h"
+#include "lobby/TurnOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
 
@@ -47,7 +48,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.clientId != pack.c->connectionID)
+	if(pack.clientId != handler.c->connectionID)
 	{
 		result = false;
 		return;
@@ -94,6 +95,9 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 		break;
 	case LobbyGuiAction::OPEN_RANDOM_MAP_OPTIONS:
 		lobby->toggleTab(lobby->tabRand);
+		break;
+	case LobbyGuiAction::OPEN_TURN_OPTIONS:
+		lobby->toggleTab(lobby->tabTurnOptions);
 		break;
 	}
 }

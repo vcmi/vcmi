@@ -1873,6 +1873,7 @@
 			}
 		],
 		"index" : 127,
+		"class" : "SPECIAL",
 		"type" : ["HERO"]
 	},
 	"armageddonsBlade":
@@ -1917,6 +1918,7 @@
 			}
 		],
 		"index" : 128,
+		"class" : "SPECIAL",
 		"type" : ["HERO"]
 	},
 	"angelicAlliance":

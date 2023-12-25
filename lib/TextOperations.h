@@ -56,6 +56,9 @@ namespace TextOperations
 
 	/// replaces all symbols that normally need escaping with appropriate escape sequences
 	std::string escapeString(std::string input);
+
+	/// get formatted DateTime depending on the language selected
+	DLL_LINKAGE std::string getFormattedDateTimeLocal(std::time_t dt);
 };
 
 

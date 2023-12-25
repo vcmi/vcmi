@@ -503,7 +503,7 @@ void OptionsTab::SelectionWindow::recreate()
 			int count = 0;
 			for(auto & elem : allowedHeroes)
 			{
-				CHero * type = VLC->heroh->objects[elem];
+				const CHero * type = elem.toHeroType();
 				if(type->heroClass->faction == selectedFaction)
 				{
 					count++;

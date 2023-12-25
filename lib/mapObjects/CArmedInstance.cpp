@@ -16,6 +16,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -44,8 +45,8 @@ CArmedInstance::CArmedInstance()
 {
 }
 
-CArmedInstance::CArmedInstance(bool isHypotetic):
-	CBonusSystemNode(isHypotetic),
+CArmedInstance::CArmedInstance(bool isHypothetic):
+	CBonusSystemNode(isHypothetic),
 	nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector),
 	battle(nullptr)
 {
@@ -110,7 +111,12 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
 		b->val = 2 - static_cast<si32>(factionsInArmy);
-		description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
+		MetaString formatter;
+		formatter.appendTextID("core.arraytxt.114"); //Troops of %d alignments %d
+		formatter.replaceNumber(factionsInArmy);
+		formatter.replaceNumber(b->val);
+
+		description = formatter.toString();
 		description = description.substr(0, description.size()-3);//trim value
 	}
 	
