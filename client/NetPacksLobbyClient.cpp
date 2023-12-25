@@ -43,7 +43,12 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 		if(handler.mapToStart)
 			handler.setMapInfo(handler.mapToStart);
 		else if(!settings["session"]["headless"].Bool())
+		{
+			if (GH.windows().topWindow<CSimpleJoinScreen>())
+				GH.windows().popWindows(1);
+
 			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
+		}
 		handler.state = EClientState::LOBBY;
 	}
 }

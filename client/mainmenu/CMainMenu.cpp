@@ -611,31 +611,10 @@ void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 	CVCMIServer::reuseClientJNIEnv(SDL_AndroidGetJNIEnv());
 #endif
 
-	auto const & onConnected = [this]()
-	{
-		// async call to prevent thread race
-		GH.dispatchMainThread([this](){
-			// FIXME: this enum value is never set!!!
-			if(CSH->state == EClientState::CONNECTION_FAILED)
-			{
-				CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
-
-				textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
-				GH.startTextInput(inputAddress->pos);
-				buttonOk->block(false);
-			}
-
-			if(GH.windows().isTopWindow(this))
-			{
-				close();
-			}
-		});
-	};
-
 	if(addr.empty())
-		CSH->startLocalServerAndConnect(onConnected);
+		CSH->startLocalServerAndConnect();
 	else
-		CSH->justConnectToServer(addr, port, onConnected);
+		CSH->justConnectToServer(addr, port);
 }
 
 CLoadingScreen::CLoadingScreen()

@@ -90,7 +90,6 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> myNames;
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
-	std::function<void()> onConnectedCallback;
 
 	void threadRunNetwork();
 	void threadRunServer();
@@ -134,8 +133,8 @@ public:
 	ui16 getHostPort() const;
 
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
-	void startLocalServerAndConnect(const std::function<void()> & onConnected);
-	void justConnectToServer(const std::string & addr, const ui16 port, const std::function<void()> & onConnected);
+	void startLocalServerAndConnect();
+	void justConnectToServer(const std::string & addr, const ui16 port);
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();

@@ -181,7 +181,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 		myNames.push_back(settings["general"]["playerName"].String());
 }
 
-void CServerHandler::startLocalServerAndConnect(const std::function<void()> & onConnected)
+void CServerHandler::startLocalServerAndConnect()
 {
 	if(threadRunLocalServer)
 		threadRunLocalServer->join();
@@ -260,12 +260,12 @@ void CServerHandler::startLocalServerAndConnect(const std::function<void()> & on
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-	justConnectToServer(localhostAddress, 0, onConnected);
+	justConnectToServer(localhostAddress, 0);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
 
-void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port, const std::function<void()> & onConnected)
+void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
 {
 	logNetwork->info("Establishing connection...");
 	state = EClientState::CONNECTING;
@@ -281,10 +281,6 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		serverPort->Integer() = port;
 	}
 
-	if (onConnectedCallback)
-		throw std::runtime_error("Attempt to connect while there is already a pending connection!");
-
-	onConnectedCallback = onConnected;
 	networkClient->start(addr.size() ? addr : getHostAddress(), port ? port : getHostPort());
 }
 
@@ -311,12 +307,6 @@ void CServerHandler::onConnectionEstablished(const std::shared_ptr<NetworkConnec
 	c = std::make_shared<CConnection>(netConnection);
 	c->enterLobbyConnectionMode();
 	sendClientConnecting();
-
-	if (onConnectedCallback)
-	{
-		onConnectedCallback();
-		onConnectedCallback = {};
-	}
 }
 
 void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
@@ -820,7 +810,7 @@ void CServerHandler::restoreLastSession()
 			myNames.push_back(name.String());
 		resetStateForLobby(StartInfo::LOAD_GAME, &myNames);
 		screenType = ESelectionScreen::loadGame;
-		justConnectToServer(settings["server"]["server"].String(), settings["server"]["port"].Integer(), {});
+		justConnectToServer(settings["server"]["server"].String(), settings["server"]["port"].Integer());
 	};
 	
 	auto cleanUpSession = []()
@@ -850,9 +840,9 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		screenType = ESelectionScreen::newGame;
 	}
 	if(settings["session"]["donotstartserver"].Bool())
-		justConnectToServer(localhostAddress, 3030, {});
+		justConnectToServer(localhostAddress, 3030);
 	else
-		startLocalServerAndConnect({});
+		startLocalServerAndConnect();
 
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
