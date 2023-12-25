@@ -34,14 +34,12 @@ protected:
 	~INetworkServerListener() = default;
 };
 
-class DLL_LINKAGE INetworkClientListener
+class DLL_LINKAGE INetworkClientListener : public INetworkConnectionListener
 {
 	friend class NetworkClient;
 protected:
-	virtual void onPacketReceived(const std::vector<uint8_t> & message) = 0;
 	virtual void onConnectionFailed(const std::string & errorMessage) = 0;
-	virtual void onConnectionEstablished() = 0;
-	virtual void onDisconnected() = 0;
+	virtual void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) = 0;
 
 	~INetworkClientListener() = default;
 };

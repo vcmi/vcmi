@@ -32,10 +32,10 @@ class LobbyClient : public INetworkClientListener
 	std::unique_ptr<NetworkClient> networkClient;
 	LobbyWindow * window;
 
-	void onPacketReceived(const std::vector<uint8_t> & message) override;
+	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
-	void onConnectionEstablished() override;
-	void onDisconnected() override;
+	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
+	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
 
 public:
 	explicit LobbyClient(LobbyWindow * window);

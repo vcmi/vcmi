@@ -210,10 +210,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 {
 	for(auto & c : srv.activeConnections)
-	{
 		c->enterLobbyConnectionMode();
-		c->disableStackSendingByID();
-	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)

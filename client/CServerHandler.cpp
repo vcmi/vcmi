@@ -131,7 +131,11 @@ public:
 static const std::string NAME_AFFIX = "client";
 static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
-CServerHandler::~CServerHandler() = default;
+CServerHandler::~CServerHandler()
+{
+	networkClient->stop();
+	threadNetwork->join();
+}
 
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE)
@@ -148,6 +152,16 @@ CServerHandler::CServerHandler()
 		uuid = settings["server"]["uuid"].String();
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
+
+	threadNetwork = std::make_unique<boost::thread>(&CServerHandler::threadRunNetwork, this);
+}
+
+void CServerHandler::threadRunNetwork()
+{
+	logGlobal->info("Starting network thread");
+	setThreadName("runNetwork");
+	networkClient->run();
+	logGlobal->info("Ending network thread");
 }
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
@@ -178,12 +192,13 @@ void CServerHandler::startLocalServerAndConnect(const std::function<void()> & on
 	
 	auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.existingProcess");
 
-	if (!checkNetworkPortIsFree(localhostAddress, getDefaultPort()))
-	{
-		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
-		CInfoWindow::showInfoDialog(errorMsg, {});
-		return;
-	}
+// TODO: restore
+//	if (!checkNetworkPortIsFree(localhostAddress, getDefaultPort()))
+//	{
+//		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
+//		CInfoWindow::showInfoDialog(errorMsg, {});
+//		return;
+//	}
 	
 #if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
@@ -195,7 +210,7 @@ void CServerHandler::startLocalServerAndConnect(const std::function<void()> & on
 		args.push_back("--lobby-port=" + std::to_string(settings["session"]["port"].Integer()));
 		args.push_back("--lobby-uuid=" + settings["session"]["hostUuid"].String());
 	}
-	threadRunLocalServer = std::make_shared<boost::thread>([&cond, args, this] {
+	threadRunLocalServer = std::make_unique<boost::thread>([&cond, args, this] {
 		setThreadName("CVCMIServer");
 		CVCMIServer::create(&cond, args);
 		onServerFinished();
@@ -207,7 +222,7 @@ void CServerHandler::startLocalServerAndConnect(const std::function<void()> & on
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
 #else
-	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
+	threadRunLocalServer = std::make_unique<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
 	logNetwork->trace("Setting up thread calling server: %d ms", th->getDiff());
 
@@ -268,6 +283,10 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		serverPort->Integer() = port;
 	}
 
+	if (onConnectedCallback)
+		throw std::runtime_error("Attempt to connect while there is already a pending connection!");
+
+	onConnectedCallback = onConnected;
 	networkClient->start(addr.size() ? addr : getHostAddress(), port ? port : getHostPort());
 }
 
@@ -288,14 +307,18 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 	networkClient->start(getHostAddress(), getHostPort());
 }
 
-void CServerHandler::onConnectionEstablished()
+void CServerHandler::onConnectionEstablished(const std::shared_ptr<NetworkConnection> & netConnection)
 {
+	logNetwork->info("Connection established");
+	c = std::make_shared<CConnection>(netConnection);
 	c->enterLobbyConnectionMode();
 	sendClientConnecting();
 
-	//FIXME: call functor provided in CServerHandler::justConnectToServer
-	assert(0);
-	//onConnected();
+	if (onConnectedCallback)
+	{
+		onConnectedCallback();
+		onConnectedCallback = {};
+	}
 }
 
 void CServerHandler::applyPacksOnLobbyScreen()
@@ -620,7 +643,6 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	}
 	sendLobbyPack(lsg);
 	c->enterLobbyConnectionMode();
-	c->disableStackSendingByID();
 }
 
 void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
@@ -699,10 +721,7 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	}
 	
 	if(c)
-	{
 		c->enterLobbyConnectionMode();
-		c->disableStackSendingByID();
-	}
 	
 	//reset settings
 	Settings saveSession = settings.write["server"]["reconnect"];
@@ -898,7 +917,7 @@ public:
 	}
 };
 
-void CServerHandler::onPacketReceived(const std::vector<uint8_t> & message)
+void CServerHandler::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
 {
 	CPack * pack = c->retrievePack(message);
 	if(state == EClientState::DISCONNECTING)
@@ -914,7 +933,7 @@ void CServerHandler::onPacketReceived(const std::vector<uint8_t> & message)
 	}
 }
 
-void CServerHandler::onDisconnected()
+void CServerHandler::onDisconnected(const std::shared_ptr<NetworkConnection> &)
 {
 	if(state == EClientState::DISCONNECTING)
 	{

@@ -615,6 +615,7 @@ void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 	{
 		// async call to prevent thread race
 		GH.dispatchMainThread([this](){
+			// FIXME: this enum value is never set!!!
 			if(CSH->state == EClientState::CONNECTION_FAILED)
 			{
 				CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});

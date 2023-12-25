@@ -177,7 +177,10 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<NetworkConnection> & con
 		establishOutgoingConnection();
 
 	if(state == EServerState::LOBBY)
+	{
 		activeConnections.push_back(std::make_shared<CConnection>(connection));//, SERVER_NAME, uuid);)
+		activeConnections.back()->enterLobbyConnectionMode();
+	}
 	// TODO: else: deny connection
 	// TODO: else: try to reconnect / send state to reconnected client
 }
@@ -193,24 +196,14 @@ void CVCMIServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & co
 	//FIXME: delete pack?
 }
 
-void CVCMIServer::onPacketReceived(const std::vector<uint8_t> & message)
-{
-	//TODO: handle pack received from lobby
-}
-
 void CVCMIServer::onConnectionFailed(const std::string & errorMessage)
 {
 	//TODO: handle failure to connect to lobby
 }
 
-void CVCMIServer::onConnectionEstablished()
+void CVCMIServer::onConnectionEstablished(const std::shared_ptr<NetworkConnection> &)
 {
 	//TODO: handle connection to lobby - login?
-}
-
-void CVCMIServer::onDisconnected()
-{
-	//TODO: handle disconnection from lobby
 }
 
 void CVCMIServer::setState(EServerState value)
@@ -225,9 +218,13 @@ EServerState CVCMIServer::getState() const
 
 std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<NetworkConnection> & netConnection)
 {
-	//TODO
-	assert(0);
-	return nullptr;
+	for (auto const & gameConnection : activeConnections)
+	{
+		if (gameConnection->isMyConnection(netConnection))
+			return gameConnection;
+	}
+
+	throw std::runtime_error("Unknown connection received in CVCMIServer::findConnection");
 }
 
 void CVCMIServer::run()
@@ -294,10 +291,8 @@ void CVCMIServer::prepareToRestart()
 	}
 	
 	for(auto c : activeConnections)
-	{
 		c->enterLobbyConnectionMode();
-		c->disableStackSendingByID();
-	}
+
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 	gh = nullptr;
 }
@@ -417,8 +412,8 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 	{
 		// FIXME: we need to avoid sending something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
-		if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
-			continue;
+		//if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
+		//	continue;
 
 		c->sendPack(pack.get());
 	}

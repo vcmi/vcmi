@@ -42,7 +42,7 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	return timeFormatted.toString();
 }
 
-void LobbyClient::onPacketReceived(const std::vector<uint8_t> & message)
+void LobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
 {
 	// FIXME: find better approach
 	const char * payloadBegin = reinterpret_cast<const char*>(message.data());
@@ -69,7 +69,7 @@ void LobbyClient::onPacketReceived(const std::vector<uint8_t> & message)
 	}
 }
 
-void LobbyClient::onConnectionEstablished()
+void LobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkConnection> &)
 {
 	JsonNode toSend;
 	toSend["type"].String() = "authentication";
@@ -84,7 +84,7 @@ void LobbyClient::onConnectionFailed(const std::string & errorMessage)
 	CInfoWindow::showInfoDialog("Failed to connect to game lobby!\n" + errorMessage, {});
 }
 
-void LobbyClient::onDisconnected()
+void LobbyClient::onDisconnected(const std::shared_ptr<NetworkConnection> &)
 {
 	GH.windows().popWindows(1);
 	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});

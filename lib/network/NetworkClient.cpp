@@ -56,17 +56,23 @@ void NetworkClient::onConnected(const boost::system::error_code & ec)
 	connection = std::make_shared<NetworkConnection>(socket, *this);
 	connection->start();
 
-	listener.onConnectionEstablished();
+	listener.onConnectionEstablished(connection);
 }
 
 void NetworkClient::run()
 {
+	boost::asio::executor_work_guard<decltype(io->get_executor())> work{io->get_executor()};
 	io->run();
 }
 
 void NetworkClient::poll()
 {
 	io->poll();
+}
+
+void NetworkClient::stop()
+{
+	io->stop();
 }
 
 void NetworkClient::sendPacket(const std::vector<uint8_t> & message)
@@ -76,12 +82,12 @@ void NetworkClient::sendPacket(const std::vector<uint8_t> & message)
 
 void NetworkClient::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
 {
-	listener.onDisconnected();
+	listener.onDisconnected(connection);
 }
 
 void NetworkClient::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
-	listener.onPacketReceived(message);
+	listener.onPacketReceived(connection, message);
 }
 
 

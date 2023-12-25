@@ -42,6 +42,7 @@ public:
 	void start(const std::string & host, uint16_t port);
 	void run();
 	void poll();
+	void stop();
 };
 
 VCMI_LIB_NAMESPACE_END

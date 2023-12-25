@@ -70,16 +70,12 @@ private:
 	std::unique_ptr<boost::thread> remoteConnectionsThread;
 	std::atomic<EServerState> state;
 
-	// INetworkServerListener impl
+	// INetworkListener impl
 	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) override;
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
-
-	// INetworkClientListener impl
-	void onPacketReceived(const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
-	void onConnectionEstablished() override;
-	void onDisconnected() override;
+	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
 
 	void establishOutgoingConnection();
 

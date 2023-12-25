@@ -16,7 +16,9 @@ NetworkConnection::NetworkConnection(const std::shared_ptr<NetworkSocket> & sock
 	: socket(socket)
 	, listener(listener)
 {
-
+	socket->set_option(boost::asio::ip::tcp::no_delay(true));
+	socket->set_option(boost::asio::socket_base::send_buffer_size(4194304));
+	socket->set_option(boost::asio::socket_base::receive_buffer_size(4194304));
 }
 
 void NetworkConnection::start()

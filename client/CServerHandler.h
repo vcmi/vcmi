@@ -98,14 +98,17 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
+	std::function<void()> onConnectedCallback;
+
+	void threadRunNetwork();
 	void threadRunServer();
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
-	void onPacketReceived(const std::vector<uint8_t> & message) override;
+	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
-	void onConnectionEstablished() override;
-	void onDisconnected() override;
+	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
+	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
 
 public:
 	std::shared_ptr<CConnection> c;
@@ -122,7 +125,8 @@ public:
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;
-	std::shared_ptr<boost::thread> threadRunLocalServer;
+	std::unique_ptr<boost::thread> threadRunLocalServer;
+	std::unique_ptr<boost::thread> threadNetwork;
 
 	CClient * client;
 
