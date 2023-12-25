@@ -50,7 +50,14 @@ void CModListView::changeEvent(QEvent *event)
 
 void CModListView::dragEnterEvent(QDragEnterEvent* event)
 {
-	event->acceptProposedAction();
+	if(event->mimeData()->hasUrls())
+		for(const auto & url : event->mimeData()->urls())
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp"}))
+				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
+				{
+					event->acceptProposedAction();
+					return;
+				}
 }
 
 void CModListView::dropEvent(QDropEvent* event)
@@ -61,7 +68,7 @@ void CModListView::dropEvent(QDropEvent* event)
 	{
 		const QList<QUrl> urlList = mimeData->urls();
 
-		for (auto & url : urlList)
+		for (const auto & url : urlList)
 		{
 			QString urlStr = url.toString();
 			QString fileName = url.fileName();
@@ -716,11 +723,11 @@ void CModListView::installFiles(QStringList files)
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
-		if(filename.endsWith(".zip"))
+		if(filename.endsWith(".zip", Qt::CaseInsensitive))
 			mods.push_back(filename);
-		else if(filename.endsWith(".h3m") || filename.endsWith(".h3c") || filename.endsWith(".vmap") || filename.endsWith(".vcmp"))
+		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
-		else if(filename.endsWith(".json"))
+		else if(filename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
 			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
@@ -744,7 +751,7 @@ void CModListView::installFiles(QStringList files)
 			}
 			repositories.push_back(repoData);
 		}
-		else if(filename.endsWith(".png"))
+		else if(filename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
@@ -832,13 +839,13 @@ void CModListView::installMods(QStringList archives)
 		QFile::remove(archive);
 }
 
-void CModListView::installMaps(QStringList archives)
+void CModListView::installMaps(QStringList maps)
 {
 	QString destDir = CLauncherDirs::get().mapsPath() + "/";
 
-	for(QString archive : archives)
+	for(QString map : maps)
 	{
-		QFile(archive).rename(destDir + archive.section('/', -1, -1));
+		QFile(map).rename(destDir + map.section('/', -1, -1));
 	}
 }
 
