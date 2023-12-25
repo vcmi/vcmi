@@ -52,16 +52,6 @@ void CModListView::dragEnterEvent(QDragEnterEvent* event)
 {
 	event->acceptProposedAction();
 }
- 
-void CModListView::dragMoveEvent(QDragMoveEvent* event)
-{
-	event->acceptProposedAction();
-}
- 
-void CModListView::dragLeaveEvent(QDragLeaveEvent* event)
-{
-	event->accept();
-}
 
 void CModListView::dropEvent(QDropEvent* event)
 {
@@ -69,21 +59,21 @@ void CModListView::dropEvent(QDropEvent* event)
 
 	if(mimeData->hasUrls())
 	{
-		QStringList pathList;
-		QList<QUrl> urlList = mimeData->urls();
+		const QList<QUrl> urlList = mimeData->urls();
 
-		for (int i = 0; i < urlList.size(); i++)
+		for (auto & url : urlList)
 		{
-			QString url = urlList.at(i).toString();
-			if(url.endsWith(".zip", Qt::CaseInsensitive))
-				downloadFile(url.split("/").last().toLower()
+			QString urlStr = url.toString();
+			QString fileName = url.fileName();
+			if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
+				downloadFile(fileName.toLower()
 					// mod name currently comes from zip file -> remove suffixes from github zip download
 					.replace(QRegularExpression("-[0-9a-f]{40}"), "")
-					.replace(QRegularExpression("-vcmi-.*\\.zip"), ".zip")
-					.replace(QRegularExpression("-main.zip"), ".zip")
-					, url, "mods", 0);
+					.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+					.replace("-main.zip", ".zip")
+					, urlStr, "mods", 0);
 			else
-				downloadFile(url.split("/").last(), url, "mods", 0);
+				downloadFile(fileName, urlStr, "mods", 0);
 		}
 	}
 }
@@ -1021,4 +1011,3 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 }
-

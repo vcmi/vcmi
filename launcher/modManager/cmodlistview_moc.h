@@ -62,8 +62,6 @@ class CModListView : public QWidget
 
 	void changeEvent(QEvent *event) override;
 	void dragEnterEvent(QDragEnterEvent* event) override;
-	void dragMoveEvent(QDragMoveEvent* event) override;
-	void dragLeaveEvent(QDragLeaveEvent* event) override;
 	void dropEvent(QDropEvent *event) override;
 signals:
 	void modsChanged();
