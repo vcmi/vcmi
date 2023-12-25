@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>832</width>
-    <height>350</height>
+    <width>985</width>
+    <height>683</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,65 +26,6 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item>
-    <widget class="QListWidget" name="listWidgetSettings">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="autoScroll">
-      <bool>false</bool>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="spacing">
-      <number>4</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>General</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Video</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Artificial Intelligence</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Mod Repositories</string>
-      </property>
-     </item>
-    </widget>
-   </item>
    <item>
     <widget class="QScrollArea" name="settingsScrollArea">
      <property name="sizePolicy">
@@ -106,9 +47,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-356</y>
-        <width>610</width>
-        <height>873</height>
+        <y>0</y>
+        <width>970</width>
+        <height>895</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="2,0,1,1,1">
