@@ -718,9 +718,9 @@ void CModListView::installFiles(QStringList files)
 	{
 		if(filename.endsWith(".zip"))
 			mods.push_back(filename);
-		if(filename.endsWith(".h3m") || filename.endsWith(".h3c") || filename.endsWith(".vmap") || filename.endsWith(".vcmp"))
+		else if(filename.endsWith(".h3m") || filename.endsWith(".h3c") || filename.endsWith(".vmap") || filename.endsWith(".vcmp"))
 			maps.push_back(filename);
-		if(filename.endsWith(".json"))
+		else if(filename.endsWith(".json"))
 		{
 			//download and merge additional files
 			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
@@ -744,7 +744,7 @@ void CModListView::installFiles(QStringList files)
 			}
 			repositories.push_back(repoData);
 		}
-		if(filename.endsWith(".png"))
+		else if(filename.endsWith(".png"))
 			images.push_back(filename);
 	}
 
