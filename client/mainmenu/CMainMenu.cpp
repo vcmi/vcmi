@@ -568,8 +568,8 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputPort->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
 		inputAddress->giveFocus();
 	}
-	inputAddress->setText(host ? CServerHandler::localhostAddress : CSH->getHostAddress(), true);
-	inputPort->setText(std::to_string(CSH->getHostPort()), true);
+	inputAddress->setText(host ? CSH->getLocalHostname() : CSH->getRemoteHostname(), true);
+	inputPort->setText(std::to_string(host ? CSH->getLocalPort() : CSH->getRemotePort()), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
@@ -614,7 +614,7 @@ void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 	if(addr.empty())
 		CSH->startLocalServerAndConnect();
 	else
-		CSH->justConnectToServer(addr, port);
+		CSH->connectToServer(addr, port);
 }
 
 CLoadingScreen::CLoadingScreen()

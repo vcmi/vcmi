@@ -405,12 +405,6 @@ int main(int argc, char * argv[])
 		ESelectionScreen sscreen = session["gamemode"].Integer() == 0 ? ESelectionScreen::newGame : ESelectionScreen::loadGame;
 		CMM->openLobby(sscreen, session["host"].Bool(), &names, ELoadMode::MULTI);
 	}
-	
-	// Restore remote session - start game immediately
-	if(settings["server"]["reconnect"].Bool())
-	{
-		CSH->restoreLastSession();
-	}
 
 	if(!settings["session"]["headless"].Bool())
 	{

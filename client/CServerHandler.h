@@ -103,6 +103,12 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	void onTimer() override;
 
 	void applyPackOnLobbyScreen(CPackForLobby & pack);
+
+	std::string serverHostname;
+	ui16 serverPort;
+
+	bool isServerLocal() const;
+
 public:
 	std::shared_ptr<CConnection> c;
 
@@ -125,17 +131,12 @@ public:
 
 	CondSh<bool> campaignServerRestartLock;
 
-	static const std::string localhostAddress;
-
 	CServerHandler();
 	~CServerHandler();
 	
-	std::string getHostAddress() const;
-	ui16 getHostPort() const;
-
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
 	void startLocalServerAndConnect();
-	void justConnectToServer(const std::string & addr, const ui16 port);
+	void connectToServer(const std::string & addr, const ui16 port);
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();
@@ -143,12 +144,16 @@ public:
 	bool isMyColor(PlayerColor color) const;
 	ui8 myFirstId() const; // Used by chat only!
 
-	bool isServerLocal() const;
 	bool isHost() const;
 	bool isGuest() const;
 
-	static ui16 getDefaultPort();
-	static std::string getDefaultPortStr();
+	const std::string & getCurrentHostname() const;
+	const std::string & getLocalHostname() const;
+	const std::string & getRemoteHostname() const;
+
+	ui16 getCurrentPort() const;
+	ui16 getLocalPort() const;
+	ui16 getRemotePort() const;
 
 	// Lobby server API for UI
 	void sendClientConnecting() const override;
@@ -181,8 +186,6 @@ public:
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
 	int howManyPlayerInterfaces();
 	ui8 getLoadMode();
-
-	void restoreLastSession();
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);

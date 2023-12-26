@@ -357,19 +357,23 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
 			"properties" : {
-				"server" : {
+				"localHostname" : {
 					"type" : "string",
 					"default" : "127.0.0.1"
 				},
-				"port" : {
+				"localPort" : {
 					"type" : "number",
 					"default" : 3030
 				},
-				"localInformation" : {
+				"remoteHostname" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"remotePort" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 3030
 				},
 				"playerAI" : {
 					"type" : "string",
@@ -390,23 +394,6 @@
 				"enemyAI" : {
 					"type" : "string",
 					"default" : "BattleAI"
-				},
-				"reconnect" : {
-					"type" : "boolean",
-					"default" : false
-				},
-				"uuid" : {
-					"type" : "string",
-					"default" : ""
-				},
-				"names" : {
-					"type" : "array",
-					"default" : [],
-					"items" :
-					{
-						"type" : "string",
-						"default" : ""
-					}
 				}
 			}
 		},

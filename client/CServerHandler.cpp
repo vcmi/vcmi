@@ -67,8 +67,6 @@
 
 template<typename T> class CApplyOnLobby;
 
-const std::string CServerHandler::localhostAddress{"127.0.0.1"};
-
 #if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 extern std::atomic_bool androidTestServerReadyFlag;
 #endif
@@ -200,7 +198,7 @@ void CServerHandler::startLocalServerAndConnect()
 	
 #if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
-	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPort())};
+	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getLocalPort())};
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
 	{
 		args.push_back("--lobby=" + settings["session"]["address"].String());
@@ -260,28 +258,28 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-	justConnectToServer(localhostAddress, 0);
+	connectToServer(getLocalHostname(), getLocalPort());
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
 
-void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
+void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 {
-	logNetwork->info("Establishing connection...");
+	logNetwork->info("Establishing connection to %s:%d...", addr, port);
 	state = EClientState::CONNECTING;
+	serverHostname = addr;
+	serverPort = port;
 
-	if(!addr.empty() && addr != getHostAddress())
+	if (!isServerLocal())
 	{
-		Settings serverAddress = settings.write["server"]["server"];
+		Settings serverAddress = settings.write["server"]["remoteHostname"];
 		serverAddress->String() = addr;
-	}
-	if(port && port != getHostPort())
-	{
-		Settings serverPort = settings.write["server"]["port"];
+
+		Settings serverPort = settings.write["server"]["remotePort"];
 		serverPort->Integer() = port;
 	}
 
-	networkClient->start(addr.size() ? addr : getHostAddress(), port ? port : getHostPort());
+	networkClient->start(addr, port);
 }
 
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
@@ -289,7 +287,7 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 	if (isServerLocal())
 	{
 		// retry - local server might be still starting up
-		logNetwork->debug("\nCannot establish connection. %s Retrying...", errorMessage);
+		logNetwork->debug("\nCannot establish connection. %s. Retrying...", errorMessage);
 		networkClient->setTimer(std::chrono::milliseconds(100));
 	}
 	else
@@ -308,8 +306,8 @@ void CServerHandler::onTimer()
 		return;
 	}
 
-	//FIXME: pass parameters from initial attempt
-	networkClient->start(getHostAddress(), getHostPort());
+	assert(isServerLocal());
+	networkClient->start(getLocalHostname(), getLocalPort());
 }
 
 void CServerHandler::onConnectionEstablished(const std::shared_ptr<NetworkConnection> & netConnection)
@@ -367,36 +365,34 @@ bool CServerHandler::isGuest() const
 	return !c || hostClientId != c->connectionID;
 }
 
-ui16 CServerHandler::getDefaultPort()
+const std::string & CServerHandler::getLocalHostname() const
 {
-	return static_cast<ui16>(settings["server"]["port"].Integer());
+	return settings["server"]["localHostname"].String();
 }
 
-std::string CServerHandler::getDefaultPortStr()
+ui16 CServerHandler::getLocalPort() const
 {
-	return std::to_string(getDefaultPort());
+	return settings["server"]["localPort"].Integer();
 }
 
-std::string CServerHandler::getHostAddress() const
+const std::string & CServerHandler::getRemoteHostname() const
 {
-	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
-		return settings["server"]["server"].String();
-	
-	if(settings["session"]["host"].Bool())
-		return localhostAddress;
-	
-	return settings["session"]["address"].String();
+	return settings["server"]["remoteHostname"].String();
 }
 
-ui16 CServerHandler::getHostPort() const
+ui16 CServerHandler::getRemotePort() const
 {
-	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
-		return getDefaultPort();
-	
-	if(settings["session"]["host"].Bool())
-		return getDefaultPort();
-	
-	return settings["session"]["port"].Integer();
+	return settings["server"]["remotePort"].Integer();
+}
+
+const std::string & CServerHandler::getCurrentHostname() const
+{
+	return serverHostname;
+}
+
+ui16 CServerHandler::getCurrentPort() const
+{
+	return serverPort;
 }
 
 void CServerHandler::sendClientConnecting() const
@@ -667,23 +663,6 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	// After everything initialized we can accept CPackToClient netpacks
 	c->enterGameplayConnectionMode(client->gameState());
 	state = EClientState::GAMEPLAY;
-	
-	//store settings to continue game
-	if(!isServerLocal() && isGuest())
-	{
-		Settings saveSession = settings.write["server"]["reconnect"];
-		saveSession->Bool() = true;
-		Settings saveUuid = settings.write["server"]["uuid"];
-		saveUuid->String() = uuid;
-		Settings saveNames = settings.write["server"]["names"];
-		saveNames->Vector().clear();
-		for(auto & name : myNames)
-		{
-			JsonNode jsonName;
-			jsonName.String() = name;
-			saveNames->Vector().push_back(jsonName);
-		}
-	}
 }
 
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
@@ -714,10 +693,6 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	
 	if(c)
 		c->enterLobbyConnectionMode();
-	
-	//reset settings
-	Settings saveSession = settings.write["server"]["reconnect"];
-	saveSession->Bool() = false;
 }
 
 void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
@@ -812,28 +787,6 @@ ui8 CServerHandler::getLoadMode()
 	return loadMode;
 }
 
-void CServerHandler::restoreLastSession()
-{
-	auto loadSession = [this]()
-	{
-		uuid = settings["server"]["uuid"].String();
-		for(auto & name : settings["server"]["names"].Vector())
-			myNames.push_back(name.String());
-		resetStateForLobby(StartInfo::LOAD_GAME, &myNames);
-		screenType = ESelectionScreen::loadGame;
-		justConnectToServer(settings["server"]["server"].String(), settings["server"]["port"].Integer());
-	};
-	
-	auto cleanUpSession = []()
-	{
-		//reset settings
-		Settings saveSession = settings.write["server"]["reconnect"];
-		saveSession->Bool() = false;
-	};
-	
-	CInfoWindow::showYesNoDialog(VLC->generaltexth->translate("vcmi.server.confirmReconnect"), {}, loadSession, cleanUpSession);
-}
-
 void CServerHandler::debugStartTest(std::string filename, bool save)
 {
 	logGlobal->info("Starting debug test with file: %s", filename);
@@ -851,7 +804,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		screenType = ESelectionScreen::newGame;
 	}
 	if(settings["session"]["donotstartserver"].Bool())
-		justConnectToServer(localhostAddress, 3030);
+		connectToServer(getLocalHostname(), getLocalPort());
 	else
 		startLocalServerAndConnect();
 
@@ -975,7 +928,7 @@ void CServerHandler::threadRunServer()
 	setThreadName("runServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
-		+ " --port=" + std::to_string(getHostPort())
+		+ " --port=" + std::to_string(getLocalPort())
 		+ " --run-by-client"
 		+ " --uuid=" + uuid;
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
