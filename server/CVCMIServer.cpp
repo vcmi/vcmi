@@ -236,29 +236,29 @@ void CVCMIServer::run()
 		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
 	}
 #endif
-
-	static const int serverUpdateIntervalMilliseconds = 50;
-	auto clockInitial = std::chrono::steady_clock::now();
-	int64_t msPassedLast = 0;
-
-	while(state != EServerState::SHUTDOWN)
-	{
-		networkServer->run(std::chrono::milliseconds(serverUpdateIntervalMilliseconds));
-
-		const auto clockNow = std::chrono::steady_clock::now();
-		const auto clockPassed = clockNow - clockInitial;
-		const int64_t msPassedNow = std::chrono::duration_cast<std::chrono::milliseconds>(clockPassed).count();
-		const int64_t msDelta = msPassedNow - msPassedLast;
-		msPassedLast = msPassedNow;
-
-		if (state == EServerState::GAMEPLAY)
-			gh->tick(msDelta);
-	}
+	networkServer->run();
 }
 
 void CVCMIServer::onTimer()
 {
-	// FIXME: move GameHandler updates here
+	if (state != EServerState::GAMEPLAY)
+		return;
+
+	static const auto serverUpdateInterval = std::chrono::milliseconds(100);
+
+	auto timeNow = std::chrono::steady_clock::now();
+	auto timePassedBefore = lastTimerUpdateTime - gameplayStartTime;
+	auto timePassedNow = timeNow - gameplayStartTime;
+
+	lastTimerUpdateTime = timeNow;
+
+	auto msPassedBefore = std::chrono::duration_cast<std::chrono::milliseconds>(timePassedBefore);
+	auto msPassedNow = std::chrono::duration_cast<std::chrono::milliseconds>(timePassedNow);
+	auto msDelta = msPassedNow - msPassedBefore;
+
+	if (msDelta.count())
+		gh->tick(msDelta.count());
+	networkServer->setTimer(serverUpdateInterval);
 }
 
 void CVCMIServer::establishOutgoingConnection()
@@ -372,6 +372,8 @@ void CVCMIServer::startGameImmediately()
 
 	gh->start(si->mode == StartInfo::LOAD_GAME);
 	state = EServerState::GAMEPLAY;
+	lastTimerUpdateTime = gameplayStartTime = std::chrono::steady_clock::now();
+	onTimer();
 }
 
 void CVCMIServer::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)

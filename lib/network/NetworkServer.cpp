@@ -80,4 +80,14 @@ void NetworkServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & 
 	listener.onPacketReceived(connection, message);
 }
 
+void NetworkServer::setTimer(std::chrono::milliseconds duration)
+{
+	auto timer = std::make_shared<NetworkTimer>(*io, duration);
+	timer->async_wait([this, timer](const boost::system::error_code& error){
+		if (!error)
+			listener.onTimer();
+	});
+}
+
+
 VCMI_LIB_NAMESPACE_END

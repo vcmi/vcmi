@@ -34,6 +34,7 @@ public:
 
 	void sendPacket(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message);
 	void closeConnection(const std::shared_ptr<NetworkConnection> &);
+	void setTimer(std::chrono::milliseconds duration);
 
 	void start(uint16_t port);
 	void run(std::chrono::milliseconds duration);

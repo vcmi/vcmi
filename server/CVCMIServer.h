@@ -55,6 +55,9 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	/// Outgoing connection established by this server to game lobby for proxy mode (only in lobby game)
 	std::unique_ptr<NetworkClient> outgoingConnection;
 
+	std::chrono::steady_clock::time_point gameplayStartTime;
+	std::chrono::steady_clock::time_point lastTimerUpdateTime;
+
 public:
 	/// List of all active connections
 	std::vector<std::shared_ptr<CConnection>> activeConnections;

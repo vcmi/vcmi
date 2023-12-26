@@ -56,6 +56,7 @@ class LobbyServer : public INetworkServerListener
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
 	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
+	void onTimer() override;
 
 	void sendMessage(const std::shared_ptr<NetworkConnection> & target, const JsonNode & json);
 public:

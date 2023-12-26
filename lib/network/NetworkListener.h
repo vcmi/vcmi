@@ -30,6 +30,7 @@ class DLL_LINKAGE INetworkServerListener : public INetworkConnectionListener
 	friend class NetworkServer;
 protected:
 	virtual void onNewConnection(const std::shared_ptr<NetworkConnection> &) = 0;
+	virtual void onTimer() = 0;
 
 	~INetworkServerListener() = default;
 };
@@ -38,9 +39,9 @@ class DLL_LINKAGE INetworkClientListener : public INetworkConnectionListener
 {
 	friend class NetworkClient;
 protected:
-	virtual void onTimer() = 0;
 	virtual void onConnectionFailed(const std::string & errorMessage) = 0;
 	virtual void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) = 0;
+	virtual void onTimer() = 0;
 
 	~INetworkClientListener() = default;
 };

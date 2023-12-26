@@ -107,6 +107,11 @@ void LobbyServer::sendMessage(const std::shared_ptr<NetworkConnection> & target,
 	networkServer->sendPacket(target, payloadBuffer);
 }
 
+void LobbyServer::onTimer()
+{
+	// no-op
+}
+
 void LobbyServer::onNewConnection(const std::shared_ptr<NetworkConnection> & connection)
 {
 }
