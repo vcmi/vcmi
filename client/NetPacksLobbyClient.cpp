@@ -36,8 +36,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	result = false;
 
 	// Check if it's LobbyClientConnected for our client
-	// TODO: restore
-	//if(pack.uuid == handler.c->uuid)
+	if(pack.uuid == handler.c->uuid)
 	{
 		handler.c->connectionID = pack.clientId;
 		if(handler.mapToStart)

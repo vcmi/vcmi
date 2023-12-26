@@ -138,18 +138,14 @@ CServerHandler::~CServerHandler()
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE)
 	, networkClient(std::make_unique<NetworkClient>(*this))
+	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, client(nullptr)
 	, loadMode(0)
 	, campaignStateToSend(nullptr)
 	, campaignServerRestartLock(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
-	//read from file to restore last session
-	if(!settings["server"]["uuid"].isNull() && !settings["server"]["uuid"].String().empty())
-		uuid = settings["server"]["uuid"].String();
-	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
-
 	threadNetwork = std::make_unique<boost::thread>(&CServerHandler::threadRunNetwork, this);
 }
 
@@ -314,6 +310,7 @@ void CServerHandler::onConnectionEstablished(const std::shared_ptr<NetworkConnec
 {
 	logNetwork->info("Connection established");
 	c = std::make_shared<CConnection>(netConnection);
+	c->uuid = uuid;
 	c->enterLobbyConnectionMode();
 	sendClientConnecting();
 }

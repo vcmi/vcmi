@@ -86,7 +86,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
 
 	std::unique_ptr<NetworkClient> networkClient;
-	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
+	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> myNames;
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
