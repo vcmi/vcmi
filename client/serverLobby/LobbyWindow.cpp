@@ -90,6 +90,11 @@ void LobbyClient::onDisconnected(const std::shared_ptr<NetworkConnection> &)
 	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
 }
 
+void LobbyClient::onTimer()
+{
+	// no-op
+}
+
 void LobbyClient::sendMessage(const JsonNode & data)
 {
 	std::string payloadString = data.toJson(true);

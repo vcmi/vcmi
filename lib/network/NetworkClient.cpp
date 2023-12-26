@@ -75,6 +75,15 @@ void NetworkClient::stop()
 	io->stop();
 }
 
+void NetworkClient::setTimer(std::chrono::milliseconds duration)
+{
+	auto timer = std::make_shared<NetworkTimer>(*io, duration);
+	timer->async_wait([this, timer](const boost::system::error_code& error){
+		if (!error)
+			listener.onTimer();
+	});
+}
+
 void NetworkClient::sendPacket(const std::vector<uint8_t> & message)
 {
 	connection->sendPacket(message);

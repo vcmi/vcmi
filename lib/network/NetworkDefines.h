@@ -14,8 +14,9 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 using NetworkService = boost::asio::io_service;
-using NetworkSocket = boost::asio::basic_stream_socket<boost::asio::ip::tcp>;
-using NetworkAcceptor = boost::asio::basic_socket_acceptor<boost::asio::ip::tcp>;
+using NetworkSocket = boost::asio::ip::tcp::socket;
+using NetworkAcceptor = boost::asio::ip::tcp::acceptor;
 using NetworkBuffer = boost::asio::streambuf;
+using NetworkTimer = boost::asio::steady_timer;
 
 VCMI_LIB_NAMESPACE_END

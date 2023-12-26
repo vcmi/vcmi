@@ -36,6 +36,7 @@ class LobbyClient : public INetworkClientListener
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
 	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
+	void onTimer() override;
 
 public:
 	explicit LobbyClient(LobbyWindow * window);
