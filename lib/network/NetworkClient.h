@@ -14,10 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-/// Function that attempts to open specified port on local system to determine whether port is in use
-/// Returns: true if port is free and can be used to receive connections
-DLL_LINKAGE bool checkNetworkPortIsFree(const std::string & host, uint16_t port);
-
 class NetworkConnection;
 
 class DLL_LINKAGE NetworkClient : boost::noncopyable, public INetworkConnectionListener

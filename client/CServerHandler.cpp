@@ -181,17 +181,7 @@ void CServerHandler::startLocalServerAndConnect()
 		threadRunLocalServer->join();
 
 	th->update();
-	
-	auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.existingProcess");
 
-// TODO: restore
-//	if (!checkNetworkPortIsFree(localhostAddress, getDefaultPort()))
-//	{
-//		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
-//		CInfoWindow::showInfoDialog(errorMsg, {});
-//		return;
-//	}
-	
 #if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
 	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getLocalPort())};
@@ -962,6 +952,14 @@ void CServerHandler::threadRunServer()
 	}
 	else
 	{
+		if (state != EClientState::DISCONNECTING)
+		{
+			if (state == EClientState::CONNECTING)
+				CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"), {});
+			else
+				CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.server.errors.serverCrashed"), {});
+		}
+
 		state = EClientState::CONNECTION_CANCELLED; // stop attempts to reconnect
 		logNetwork->error("Error: server failed to close correctly or crashed!");
 		logNetwork->error("Check %s for more info", logName);
