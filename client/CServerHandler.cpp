@@ -251,7 +251,7 @@ void CServerHandler::startLocalServerAndConnect()
 	while(!androidTestServerReadyFlag.load())
 	{
 		logNetwork->info("still waiting...");
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 	}
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
@@ -286,16 +286,27 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 {
+	if (isServerLocal())
+	{
+		// retry - local server might be still starting up
+		logNetwork->debug("\nCannot establish connection. %s Retrying...", errorMessage);
+		networkClient->setTimer(std::chrono::milliseconds(100));
+	}
+	else
+	{
+		// remote server refused connection - show error message
+		state = EClientState::CONNECTION_FAILED;
+		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
+	}
+}
+
+void CServerHandler::onTimer()
+{
 	if(state == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
 		return;
 	}
-
-	logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", errorMessage);
-
-	//FIXME: replace with asio timer
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 
 	//FIXME: pass parameters from initial attempt
 	networkClient->start(getHostAddress(), getHostPort());
@@ -1001,6 +1012,7 @@ void CServerHandler::threadRunServer()
 	}
 	else
 	{
+		state = EClientState::CONNECTION_CANCELLED; // stop attempts to reconnect
 		logNetwork->error("Error: server failed to close correctly or crashed!");
 		logNetwork->error("Check %s for more info", logName);
 	}

@@ -100,6 +100,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
 	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
+	void onTimer() override;
 
 	void applyPackOnLobbyScreen(CPackForLobby & pack);
 public:
