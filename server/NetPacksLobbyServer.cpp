@@ -63,15 +63,17 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyCl
 	// Until UUID set we only pass LobbyClientConnected to this client
 	pack.c->uuid = pack.uuid;
 	srv.updateAndPropagateLobbyState();
-	if(srv.getState() == EServerState::GAMEPLAY)
-	{
-		//immediately start game
-		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
-		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
-		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
-		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
-		srv.announcePack(std::move(startGameForReconnectedPlayer));
-	}
+
+// FIXME: what is this??? We do NOT support reconnection into ongoing game - at the very least queries and battles are NOT serialized
+//	if(srv.getState() == EServerState::GAMEPLAY)
+//	{
+//		//immediately start game
+//		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
+//		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
+//		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
+//		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
+//		srv.announcePack(std::move(startGameForReconnectedPlayer));
+//	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)

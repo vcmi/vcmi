@@ -63,12 +63,11 @@ private:
 	/// List of all connections that were closed (but can still reconnect later)
 	std::vector<std::shared_ptr<CConnection>> inactiveConnections;
 
-	std::atomic<bool> restartGameplay; // FIXME: this is just a hack
+	bool restartGameplay; // FIXME: this is just a hack
 
 	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
-	std::unique_ptr<boost::thread> remoteConnectionsThread;
-	std::atomic<EServerState> state;
+	EServerState state;
 
 	// INetworkListener impl
 	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
@@ -76,13 +75,14 @@ private:
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
+	void onTimer() override;
 
 	void establishOutgoingConnection();
 
 	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<NetworkConnection> &);
 
-	std::atomic<int> currentClientId;
-	std::atomic<ui8> currentPlayerId;
+	int currentClientId;
+	ui8 currentPlayerId;
 
 public:
 	std::shared_ptr<CGameHandler> gh;

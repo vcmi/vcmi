@@ -208,12 +208,12 @@ void CVCMIServer::onConnectionEstablished(const std::shared_ptr<NetworkConnectio
 
 void CVCMIServer::setState(EServerState value)
 {
-	state.store(value);
+	state = value;
 }
 
 EServerState CVCMIServer::getState() const
 {
-	return state.load();
+	return state;
 }
 
 std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<NetworkConnection> & netConnection)
@@ -254,6 +254,11 @@ void CVCMIServer::run()
 		if (state == EServerState::GAMEPLAY)
 			gh->tick(msDelta);
 	}
+}
+
+void CVCMIServer::onTimer()
+{
+	// FIXME: move GameHandler updates here
 }
 
 void CVCMIServer::establishOutgoingConnection()
@@ -456,8 +461,10 @@ bool CVCMIServer::passHost(int toConnectionId)
 
 void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode)
 {
-	if(state == EServerState::LOBBY)
-		c->connectionID = currentClientId++;
+	if(state != EServerState::LOBBY)
+		throw std::runtime_error("CVCMIServer::clientConnected called while game is not accepting clients!");
+
+	c->connectionID = currentClientId++;
 
 	if(hostClientId == -1)
 	{
@@ -467,27 +474,24 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 
 	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
 	
-	if(state == EServerState::LOBBY)
+	for(auto & name : names)
 	{
-		for(auto & name : names)
+		logNetwork->info("Client %d player: %s", c->connectionID, name);
+		ui8 id = currentPlayerId++;
+
+		ClientPlayer cp;
+		cp.connection = c->connectionID;
+		cp.name = name;
+		playerNames.insert(std::make_pair(id, cp));
+		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
+
+		//put new player in first slot with AI
+		for(auto & elem : si->playerInfos)
 		{
-			logNetwork->info("Client %d player: %s", c->connectionID, name);
-			ui8 id = currentPlayerId++;
-
-			ClientPlayer cp;
-			cp.connection = c->connectionID;
-			cp.name = name;
-			playerNames.insert(std::make_pair(id, cp));
-			announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
-
-			//put new player in first slot with AI
-			for(auto & elem : si->playerInfos)
+			if(elem.second.isControlledByAI() && !elem.second.compOnly)
 			{
-				if(elem.second.isControlledByAI() && !elem.second.compOnly)
-				{
-					setPlayerConnectedId(elem.second, id);
-					break;
-				}
+				setPlayerConnectedId(elem.second, id);
+				break;
 			}
 		}
 	}
@@ -1086,12 +1090,13 @@ int main(int argc, const char * argv[])
 	loadDLLClasses();
 	srand((ui32)time(nullptr));
 
+	CVCMIServer server(opts);
+
 #ifdef SINGLE_PROCESS_APP
 	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(const_cast<char *>(argv[0]));
 	cond->notify_one();
 #endif
 
-	CVCMIServer server(opts);
 	server.run();
 
 #if VCMI_ANDROID_DUAL_PROCESS
