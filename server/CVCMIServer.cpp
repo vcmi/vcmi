@@ -178,22 +178,22 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<NetworkConnection> & con
 
 	if(state == EServerState::LOBBY)
 	{
-		activeConnections.push_back(std::make_shared<CConnection>(connection));//, SERVER_NAME, uuid);)
+		activeConnections.push_back(std::make_shared<CConnection>(connection));
 		activeConnections.back()->enterLobbyConnectionMode();
 	}
-	// TODO: else: deny connection
-	// TODO: else: try to reconnect / send state to reconnected client
+	else
+	{
+		networkServer->closeConnection(connection);
+	}
 }
 
 void CVCMIServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
 	std::shared_ptr<CConnection> c = findConnection(connection);
-	CPack * pack = c->retrievePack(message);
+	auto pack = c->retrievePack(message);
 	pack->c = c;
 	CVCMIServerPackVisitor visitor(*this, this->gh);
 	pack->visit(visitor);
-
-	//FIXME: delete pack?
 }
 
 void CVCMIServer::onConnectionFailed(const std::string & errorMessage)

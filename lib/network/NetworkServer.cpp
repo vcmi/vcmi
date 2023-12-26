@@ -16,7 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 NetworkServer::NetworkServer(INetworkServerListener & listener)
 	:listener(listener)
 {
-
 }
 
 void NetworkServer::start(uint16_t port)
@@ -61,6 +60,12 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 void NetworkServer::sendPacket(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
 	connection->sendPacket(message);
+}
+
+void NetworkServer::closeConnection(const std::shared_ptr<NetworkConnection> & connection)
+{
+	assert(connections.count(connection));
+	connections.erase(connection);
 }
 
 void NetworkServer::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)

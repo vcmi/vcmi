@@ -33,6 +33,7 @@ public:
 	explicit NetworkServer(INetworkServerListener & listener);
 
 	void sendPacket(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message);
+	void closeConnection(const std::shared_ptr<NetworkConnection> &);
 
 	void start(uint16_t port);
 	void run(std::chrono::milliseconds duration);
