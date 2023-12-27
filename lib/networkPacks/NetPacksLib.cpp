@@ -770,6 +770,11 @@ void LobbySetTurnTime::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbySetTurnTime(*this);
 }
 
+void LobbySetCheatAllowed::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetCheatAllowed(*this);
+}
+
 void LobbySetDifficulty::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbySetDifficulty(*this);

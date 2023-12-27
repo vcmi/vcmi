@@ -72,6 +72,7 @@ public:
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnTimerInfo(const TurnTimerInfo &) const = 0;
 	virtual void setSimturnsInfo(const SimturnsInfo &) const = 0;
+	virtual void setCheatAllowedInfo(bool allowed) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
 	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
@@ -158,6 +159,7 @@ public:
 	void setDifficulty(int to) const override;
 	void setTurnTimerInfo(const TurnTimerInfo &) const override;
 	void setSimturnsInfo(const SimturnsInfo &) const override;
+	void setCheatAllowedInfo(bool allowed) const override;
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
 	void sendRestartGame() const override;

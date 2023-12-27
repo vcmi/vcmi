@@ -54,6 +54,7 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToServer, LobbySetPlayer>();
 	s.template registerType<CLobbyPackToServer, LobbySetPlayerName>();
 	s.template registerType<CLobbyPackToServer, LobbySetTurnTime>();
+	s.template registerType<CLobbyPackToServer, LobbySetCheatAllowed>();
 	s.template registerType<CLobbyPackToServer, LobbySetSimturns>();
 	s.template registerType<CLobbyPackToServer, LobbySetDifficulty>();
 	s.template registerType<CLobbyPackToServer, LobbyForceSetPlayer>();

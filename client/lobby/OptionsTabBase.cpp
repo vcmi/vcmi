@@ -90,6 +90,10 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		CSH->setSimturnsInfo(info);
 	});
 
+	addCallback("setCheatAllowed", [&](int index){
+		CSH->setCheatAllowedInfo(index);
+	});
+
 	addCallback("setTurnTimerAccumulate", [&](int index){
 		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
 		info.accumulatingTurnTimer = index;

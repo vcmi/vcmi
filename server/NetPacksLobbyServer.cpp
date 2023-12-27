@@ -414,6 +414,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbySetCheatAllowed(LobbySetCheatAllowed & pack)
+{
+	srv.si->cheatAllowed = pack.allowed;
+	result = true;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & pack)
 {
 	srv.si->difficulty = std::clamp<uint8_t>(pack.difficulty, 0, 4);

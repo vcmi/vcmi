@@ -283,9 +283,11 @@
 	"vcmi.optionsTab.simturnsMin.hover" : "Zumindest für",
 	"vcmi.optionsTab.simturnsMax.hover" : "Höchstens für",
 	"vcmi.optionsTab.simturnsAI.hover" : "(Experimentell) Simultane KI Züge",
+	"vcmi.optionsTab.cheatAllowed.hover" : "Cheats erlauben",
 	"vcmi.optionsTab.simturnsMin.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen. Die Kontakte zwischen den Spielern sind während dieser Zeit blockiert",
 	"vcmi.optionsTab.simturnsMax.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen oder bis zum Kontakt mit einem anderen Spieler",
 	"vcmi.optionsTab.simturnsAI.help" : "{Simultane KI Züge}\nExperimentelle Option. Ermöglicht es den KI-Spielern, gleichzeitig mit dem menschlichen Spieler zu agieren, wenn simultane Spielzüge aktiviert sind.",
+	"vcmi.optionsTab.cheatAllowed.help" : "{Cheats erlauben}\nErlaubt die Eingabe von Cheats während des Spiels.",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount

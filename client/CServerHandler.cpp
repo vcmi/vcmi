@@ -507,6 +507,13 @@ void CServerHandler::setTurnTimerInfo(const TurnTimerInfo & info) const
 	sendLobbyPack(lstt);
 }
 
+void CServerHandler::setCheatAllowedInfo(bool allowed) const
+{
+	LobbySetCheatAllowed lsca;
+	lsca.allowed = allowed;
+	sendLobbyPack(lsca);
+}
+
 void CServerHandler::sendMessage(const std::string & txt) const
 {
 	std::istringstream readed;

@@ -105,6 +105,8 @@ struct DLL_LINKAGE StartInfo
 	EMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
+	bool cheatAllowed;
+
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
 
@@ -141,13 +143,14 @@ struct DLL_LINKAGE StartInfo
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
+		h & cheatAllowed;
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
 	}
 
 	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI("")
+		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI(""), cheatAllowed(true)
 	{
 
 	}

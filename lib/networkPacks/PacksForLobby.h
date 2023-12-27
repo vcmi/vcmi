@@ -287,6 +287,18 @@ struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 	}
 };
 
+struct DLL_LINKAGE LobbySetCheatAllowed : public CLobbyPackToServer
+{
+	bool allowed;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & allowed;
+	}
+};
+
 struct DLL_LINKAGE LobbySetDifficulty : public CLobbyPackToServer
 {
 	ui8 difficulty = 0;
