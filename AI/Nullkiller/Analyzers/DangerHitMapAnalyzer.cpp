@@ -266,7 +266,7 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 	int3 tile = path.targetTile();
 	int turn = path.turn();
 	const auto & fastestDanger = hitMap[tile.x][tile.y][tile.z].fastestDanger;
-	const auto & maximumDanger = hitMap[tile.x][tile.y][tile.z].fastestDanger;
+	const auto & maximumDanger = hitMap[tile.x][tile.y][tile.z].maximumDanger;
 
 	return (fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, fastestDanger.danger))
 		|| (maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, maximumDanger.danger));
