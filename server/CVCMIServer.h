@@ -63,9 +63,6 @@ public:
 	std::vector<std::shared_ptr<CConnection>> activeConnections;
 
 private:
-	/// List of all connections that were closed (but can still reconnect later)
-	std::vector<std::shared_ptr<CConnection>> inactiveConnections;
-
 	bool restartGameplay; // FIXME: this is just a hack
 
 	boost::recursive_mutex mx;
