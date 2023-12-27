@@ -389,4 +389,7 @@ void OptionsTabBase::recreate()
 					w->setItem(1);
 		}
 	}
+
+	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
+		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->cheatAllowed);
 }
