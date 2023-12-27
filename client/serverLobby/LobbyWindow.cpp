@@ -20,7 +20,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/network/NetworkClient.h"
 
-LobbyClient::LobbyClient(LobbyWindow * window)
+GlobalLobbyClient::GlobalLobbyClient(GlobalLobbyWindow * window)
 	: networkClient(std::make_unique<NetworkClient>(*this))
 	, window(window)
 {}
@@ -42,7 +42,7 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	return timeFormatted.toString();
 }
 
-void LobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
+void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
 {
 	// FIXME: find better approach
 	const char * payloadBegin = reinterpret_cast<const char*>(message.data());
@@ -69,7 +69,7 @@ void LobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection> &, c
 	}
 }
 
-void LobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkConnection> &)
+void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkConnection> &)
 {
 	JsonNode toSend;
 	toSend["type"].String() = "authentication";
@@ -78,24 +78,24 @@ void LobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkConnectio
 	sendMessage(toSend);
 }
 
-void LobbyClient::onConnectionFailed(const std::string & errorMessage)
+void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 {
 	GH.windows().popWindows(1);
 	CInfoWindow::showInfoDialog("Failed to connect to game lobby!\n" + errorMessage, {});
 }
 
-void LobbyClient::onDisconnected(const std::shared_ptr<NetworkConnection> &)
+void GlobalLobbyClient::onDisconnected(const std::shared_ptr<NetworkConnection> &)
 {
 	GH.windows().popWindows(1);
 	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
 }
 
-void LobbyClient::onTimer()
+void GlobalLobbyClient::onTimer()
 {
 	// no-op
 }
 
-void LobbyClient::sendMessage(const JsonNode & data)
+void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
 	std::string payloadString = data.toJson(true);
 
@@ -108,22 +108,22 @@ void LobbyClient::sendMessage(const JsonNode & data)
 	networkClient->sendPacket(payloadBuffer);
 }
 
-void LobbyClient::start(const std::string & host, uint16_t port)
+void GlobalLobbyClient::start(const std::string & host, uint16_t port)
 {
 	networkClient->start(host, port);
 }
 
-void LobbyClient::run()
+void GlobalLobbyClient::run()
 {
 	networkClient->run();
 }
 
-void LobbyClient::poll()
+void GlobalLobbyClient::poll()
 {
 	networkClient->poll();
 }
 
-LobbyWidget::LobbyWidget(LobbyWindow * window)
+GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 	: window(window)
 {
 	addCallback("closeWindow", [](int) { GH.windows().popWindows(1); });
@@ -133,29 +133,29 @@ LobbyWidget::LobbyWidget(LobbyWindow * window)
 	build(config);
 }
 
-std::shared_ptr<CLabel> LobbyWidget::getAccountNameLabel()
+std::shared_ptr<CLabel> GlobalLobbyWidget::getAccountNameLabel()
 {
 	return widget<CLabel>("accountNameLabel");
 }
 
-std::shared_ptr<CTextInput> LobbyWidget::getMessageInput()
+std::shared_ptr<CTextInput> GlobalLobbyWidget::getMessageInput()
 {
 	return widget<CTextInput>("messageInput");
 }
 
-std::shared_ptr<CTextBox> LobbyWidget::getGameChat()
+std::shared_ptr<CTextBox> GlobalLobbyWidget::getGameChat()
 {
 	return widget<CTextBox>("gameChat");
 }
 
-LobbyWindow::LobbyWindow():
+GlobalLobbyWindow::GlobalLobbyWindow():
 	CWindowObject(BORDERED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	widget = std::make_shared<LobbyWidget>(this);
+	widget = std::make_shared<GlobalLobbyWidget>(this);
 	pos = widget->pos;
 	center();
-	connection = std::make_shared<LobbyClient>(this);
+	connection = std::make_shared<GlobalLobbyClient>(this);
 
 	connection->start("127.0.0.1", 30303);
 	widget->getAccountNameLabel()->setText(settings["general"]["playerName"].String());
@@ -163,12 +163,12 @@ LobbyWindow::LobbyWindow():
 	addUsedEvents(TIME);
 }
 
-void LobbyWindow::tick(uint32_t msPassed)
+void GlobalLobbyWindow::tick(uint32_t msPassed)
 {
 	connection->poll();
 }
 
-void LobbyWindow::doSendChatMessage()
+void GlobalLobbyWindow::doSendChatMessage()
 {
 	std::string messageText = widget->getMessageInput()->getText();
 
@@ -181,7 +181,7 @@ void LobbyWindow::doSendChatMessage()
 	widget->getMessageInput()->setText("");
 }
 
-void LobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)
+void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)
 {
 	MetaString chatMessageFormatted;
 	chatMessageFormatted.appendRawString("[%s] {%s}: %s\n");

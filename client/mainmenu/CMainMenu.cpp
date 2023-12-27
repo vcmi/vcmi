@@ -467,7 +467,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 void CMultiMode::openLobby()
 {
 	close();
-	GH.windows().createAndPushWindow<LobbyWindow>();
+	GH.windows().createAndPushWindow<GlobalLobbyWindow>();
 }
 
 void CMultiMode::hostTCP()

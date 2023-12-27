@@ -14,23 +14,23 @@
 
 #include "../../lib/network/NetworkListener.h"
 
-class LobbyWindow;
+class GlobalLobbyWindow;
 
-class LobbyWidget : public InterfaceObjectConfigurable
+class GlobalLobbyWidget : public InterfaceObjectConfigurable
 {
-	LobbyWindow * window;
+	GlobalLobbyWindow * window;
 public:
-	LobbyWidget(LobbyWindow * window);
+	GlobalLobbyWidget(GlobalLobbyWindow * window);
 
 	std::shared_ptr<CLabel> getAccountNameLabel();
 	std::shared_ptr<CTextInput> getMessageInput();
 	std::shared_ptr<CTextBox> getGameChat();
 };
 
-class LobbyClient : public INetworkClientListener
+class GlobalLobbyClient : public INetworkClientListener
 {
 	std::unique_ptr<NetworkClient> networkClient;
-	LobbyWindow * window;
+	GlobalLobbyWindow * window;
 
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
@@ -39,7 +39,7 @@ class LobbyClient : public INetworkClientListener
 	void onTimer() override;
 
 public:
-	explicit LobbyClient(LobbyWindow * window);
+	explicit GlobalLobbyClient(GlobalLobbyWindow * window);
 
 	void sendMessage(const JsonNode & data);
 	void start(const std::string & host, uint16_t port);
@@ -48,17 +48,17 @@ public:
 
 };
 
-class LobbyWindow : public CWindowObject
+class GlobalLobbyWindow : public CWindowObject
 {
 	std::string chatHistory;
 
-	std::shared_ptr<LobbyWidget> widget;
-	std::shared_ptr<LobbyClient> connection;
+	std::shared_ptr<GlobalLobbyWidget> widget;
+	std::shared_ptr<GlobalLobbyClient> connection;
 
 	void tick(uint32_t msPassed);
 
 public:
-	LobbyWindow();
+	GlobalLobbyWindow();
 
 	void doSendChatMessage();
 
