@@ -95,21 +95,18 @@ if(ENABLE_CCACHE AND LINUX)
 endif()
 
 if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
-	find_program(CCACHE ccache REQUIRED)
-	if(CCACHE)
-		# https://stackoverflow.com/a/36515503/2278742
-		# Set up wrapper scripts
-		configure_file(xcode/launch-c.in   xcode/launch-c)
-		configure_file(xcode/launch-cxx.in xcode/launch-cxx)
-		execute_process(COMMAND chmod a+rx
-												"${CMAKE_BINARY_DIR}/xcode/launch-c"
-												"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-		# Set Xcode project attributes to route compilation through our scripts
-		set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-		set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-	endif()
+	# https://stackoverflow.com/a/36515503/2278742
+	# Set up wrapper scripts
+	configure_file(xcode/launch-c.in   xcode/launch-c)
+	configure_file(xcode/launch-cxx.in xcode/launch-cxx)
+	execute_process(COMMAND chmod a+rx
+											"${CMAKE_BINARY_DIR}/xcode/launch-c"
+											"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+	# Set Xcode project attributes to route compilation through our scripts
+	set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+	set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+	set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+	set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
 endif()
 
 # Allow to pass package name from Travis CI
@@ -275,19 +272,16 @@ if(MINGW OR MSVC)
 	if(MSVC)
 		if(ENABLE_CCACHE)
 			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
-			find_program(CCACHE ccache REQUIRED)
-			if (CCACHE)
-				file(COPY_FILE
-					${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
-					ONLY_IF_DIFFERENT)
+			file(COPY_FILE
+				${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
+				ONLY_IF_DIFFERENT)
 
-				set(CMAKE_VS_GLOBALS
-					"CLToolExe=cl.exe"
-					"CLToolPath=${CMAKE_BINARY_DIR}"
-					"TrackFileAccess=false"
-					"UseMultiToolTask=true"
-				)
-			endif()
+			set(CMAKE_VS_GLOBALS
+				"CLToolExe=cl.exe"
+				"CLToolPath=${CMAKE_BINARY_DIR}"
+				"TrackFileAccess=false"
+				"UseMultiToolTask=true"
+			)
 		endif()
 
 		add_definitions(-DBOOST_ALL_NO_LIB)
