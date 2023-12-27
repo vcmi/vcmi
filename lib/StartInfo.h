@@ -143,7 +143,10 @@ struct DLL_LINKAGE StartInfo
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
-		h & cheatAllowed;
+		if(version >= 832)
+			h & cheatAllowed;
+		else
+			cheatAllowed = true;
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
