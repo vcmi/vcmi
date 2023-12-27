@@ -59,6 +59,9 @@ class LobbyServer : public INetworkServerListener
 	void onTimer() override;
 
 	void sendMessage(const std::shared_ptr<NetworkConnection> & target, const JsonNode & json);
+
+	void receiveSendChatMessage(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
+	void receiveAuthentication(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
 public:
 	LobbyServer();
 
