@@ -79,10 +79,19 @@ if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 endif()
 
-# On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
-# The XCode and MSVC builds each require some more configuration, which is enabled by the following option:
-if(MSVC OR (CMAKE_GENERATOR STREQUAL "Xcode"))
-  option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+if(ENABLE_CCACHE)
+	find_program(CCACHE ccache)
+	if(CCACHE-NOTFOUND)
+		message(FATAL_ERROR "'ccache' could not be found; install it or set ENABLE_CCACHE=OFF.")
+	endif()
+endif()
+
+# On Linux, use ccache via CMAKE_CXX_COMPILER_LAUNCHER.
+# The XCode and MSVC builds each require some more configuration further down.
+if(ENABLE_CCACHE AND LINUX)
+	set(CMAKE_C_COMPILER_LAUNCHER "ccache")
+	set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
 endif()
 
 if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
