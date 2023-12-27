@@ -1,5 +1,5 @@
 /*
- * LobbyWindow.h, part of VCMI engine
+ * GlobalLobbyClient.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,23 +9,13 @@
  */
 #pragma once
 
-#include "../gui/InterfaceObjectConfigurable.h"
-#include "../windows/CWindowObject.h"
-
 #include "../../lib/network/NetworkListener.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class JsonNode;
+VCMI_LIB_NAMESPACE_END
+
 class GlobalLobbyWindow;
-
-class GlobalLobbyWidget : public InterfaceObjectConfigurable
-{
-	GlobalLobbyWindow * window;
-public:
-	GlobalLobbyWidget(GlobalLobbyWindow * window);
-
-	std::shared_ptr<CLabel> getAccountNameLabel();
-	std::shared_ptr<CTextInput> getMessageInput();
-	std::shared_ptr<CTextBox> getGameChat();
-};
 
 class GlobalLobbyClient : public INetworkClientListener
 {
@@ -40,27 +30,11 @@ class GlobalLobbyClient : public INetworkClientListener
 
 public:
 	explicit GlobalLobbyClient(GlobalLobbyWindow * window);
+	~GlobalLobbyClient();
 
 	void sendMessage(const JsonNode & data);
 	void start(const std::string & host, uint16_t port);
 	void run();
 	void poll();
 
-};
-
-class GlobalLobbyWindow : public CWindowObject
-{
-	std::string chatHistory;
-
-	std::shared_ptr<GlobalLobbyWidget> widget;
-	std::shared_ptr<GlobalLobbyClient> connection;
-
-	void tick(uint32_t msPassed);
-
-public:
-	GlobalLobbyWindow();
-
-	void doSendChatMessage();
-
-	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when);
 };

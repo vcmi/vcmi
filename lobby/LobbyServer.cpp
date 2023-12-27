@@ -78,6 +78,11 @@ void LobbyDatabase::insertChatMessage(const std::string & sender, const std::str
 	insertChatMessageStatement->reset();
 }
 
+bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountName)
+{
+	return false; //TODO
+}
+
 std::vector<LobbyDatabase::ChatMessage> LobbyDatabase::getRecentMessageHistory()
 {
 	std::vector<LobbyDatabase::ChatMessage> result;
@@ -132,6 +137,9 @@ void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & co
 
 	if (json["type"].String() == "authentication")
 		return receiveAuthentication(connection, json);
+
+	if (json["type"].String() == "joinGameRoom")
+		return receiveJoinGameRoom(connection, json);
 }
 
 void LobbyServer::receiveSendChatMessage(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json)
@@ -157,6 +165,12 @@ void LobbyServer::receiveAuthentication(const std::shared_ptr<NetworkConnection>
 {
 	std::string accountName = json["accountName"].String();
 
+	// TODO: account cookie check
+	// TODO: account password check
+	// TODO: protocol version number
+	// TODO: client/server mode flag
+	// TODO: client language
+
 	activeAccounts[connection].accountName = accountName;
 
 	auto history = database->getRecentMessageHistory();
@@ -176,6 +190,21 @@ void LobbyServer::receiveAuthentication(const std::shared_ptr<NetworkConnection>
 	}
 
 	sendMessage(connection, reply);
+}
+
+void LobbyServer::receiveJoinGameRoom(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json)
+{
+	if (activeAccounts.count(connection) == 0)
+		return; // unauthenticated
+
+	std::string senderName = activeAccounts[connection].accountName;
+
+	if (database->isPlayerInGameRoom(senderName))
+		return; // only 1 room per player allowed
+
+	// TODO: roomType: private, public
+	// TODO: additional flags, e.g. allowCheats
+	// TODO: connection mode: direct or proxy
 }
 
 LobbyServer::LobbyServer()

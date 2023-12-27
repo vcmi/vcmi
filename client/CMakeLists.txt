@@ -95,7 +95,9 @@ set(client_SRCS
 	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
-	serverLobby/LobbyWindow.cpp
+	globalLobby/GlobalLobbyClient.cpp
+	globalLobby/GlobalLobbyWidget.cpp
+	globalLobby/GlobalLobbyWindow.cpp
 
 	widgets/Buttons.cpp
 	widgets/CArtifactHolder.cpp
@@ -272,7 +274,9 @@ set(client_HEADERS
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 
-	serverLobby/LobbyWindow.h
+	globalLobby/GlobalLobbyClient.h
+	globalLobby/GlobalLobbyWidget.h
+	globalLobby/GlobalLobbyWindow.h
 
 	widgets/Buttons.h
 	widgets/CArtifactHolder.h

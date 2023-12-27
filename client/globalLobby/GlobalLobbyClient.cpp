@@ -1,5 +1,5 @@
 /*
- * LobbyWindow.cpp, part of VCMI engine
+ * GlobalLobbyClient.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,16 +9,19 @@
  */
 
 #include "StdInc.h"
-#include "LobbyWindow.h"
+#include "GlobalLobbyClient.h"
+
+#include "GlobalLobbyWindow.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/MetaString.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/network/NetworkClient.h"
+
+GlobalLobbyClient::~GlobalLobbyClient() = default;
 
 GlobalLobbyClient::GlobalLobbyClient(GlobalLobbyWindow * window)
 	: networkClient(std::make_unique<NetworkClient>(*this))
@@ -121,75 +124,4 @@ void GlobalLobbyClient::run()
 void GlobalLobbyClient::poll()
 {
 	networkClient->poll();
-}
-
-GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
-	: window(window)
-{
-	addCallback("closeWindow", [](int) { GH.windows().popWindows(1); });
-	addCallback("sendMessage", [this](int) { this->window->doSendChatMessage(); });
-
-	const JsonNode config(JsonPath::builtin("config/widgets/lobbyWindow.json"));
-	build(config);
-}
-
-std::shared_ptr<CLabel> GlobalLobbyWidget::getAccountNameLabel()
-{
-	return widget<CLabel>("accountNameLabel");
-}
-
-std::shared_ptr<CTextInput> GlobalLobbyWidget::getMessageInput()
-{
-	return widget<CTextInput>("messageInput");
-}
-
-std::shared_ptr<CTextBox> GlobalLobbyWidget::getGameChat()
-{
-	return widget<CTextBox>("gameChat");
-}
-
-GlobalLobbyWindow::GlobalLobbyWindow():
-	CWindowObject(BORDERED)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	widget = std::make_shared<GlobalLobbyWidget>(this);
-	pos = widget->pos;
-	center();
-	connection = std::make_shared<GlobalLobbyClient>(this);
-
-	connection->start("127.0.0.1", 30303);
-	widget->getAccountNameLabel()->setText(settings["general"]["playerName"].String());
-
-	addUsedEvents(TIME);
-}
-
-void GlobalLobbyWindow::tick(uint32_t msPassed)
-{
-	connection->poll();
-}
-
-void GlobalLobbyWindow::doSendChatMessage()
-{
-	std::string messageText = widget->getMessageInput()->getText();
-
-	JsonNode toSend;
-	toSend["type"].String() = "sendChatMessage";
-	toSend["messageText"].String() = messageText;
-
-	connection->sendMessage(toSend);
-
-	widget->getMessageInput()->setText("");
-}
-
-void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)
-{
-	MetaString chatMessageFormatted;
-	chatMessageFormatted.appendRawString("[%s] {%s}: %s\n");
-	chatMessageFormatted.replaceRawString(when);
-	chatMessageFormatted.replaceRawString(sender);
-	chatMessageFormatted.replaceRawString(message);
-
-	chatHistory += chatMessageFormatted.toString();
-
-	widget->getGameChat()->setText(chatHistory);
 }

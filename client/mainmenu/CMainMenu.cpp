@@ -24,7 +24,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
-#include "../serverLobby/LobbyWindow.h"
+#include "../globalLobby/GlobalLobbyWindow.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"

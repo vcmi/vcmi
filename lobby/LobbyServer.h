@@ -39,6 +39,7 @@ public:
 
 	void insertChatMessage(const std::string & sender, const std::string & messageText);
 	std::vector<ChatMessage> getRecentMessageHistory();
+	bool isPlayerInGameRoom(const std::string & accountName);
 };
 
 class LobbyServer : public INetworkServerListener
@@ -62,6 +63,7 @@ class LobbyServer : public INetworkServerListener
 
 	void receiveSendChatMessage(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
 	void receiveAuthentication(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
+	void receiveJoinGameRoom(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
 public:
 	LobbyServer();
 
