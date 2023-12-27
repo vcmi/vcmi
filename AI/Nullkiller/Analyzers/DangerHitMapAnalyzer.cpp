@@ -265,10 +265,11 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 {
 	int3 tile = path.targetTile();
 	int turn = path.turn();
-	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
+	const auto & fastestDanger = hitMap[tile.x][tile.y][tile.z].fastestDanger;
+	const auto & maximumDanger = hitMap[tile.x][tile.y][tile.z].fastestDanger;
 
-	return (info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger))
-		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger));
+	return (fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, fastestDanger.danger))
+		|| (maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, maximumDanger.danger));
 }
 
 const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance * obj) const
@@ -280,9 +281,7 @@ const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance 
 
 const HitMapNode & DangerHitMapAnalyzer::getTileThreat(const int3 & tile) const
 {
-	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
-
-	return info;
+	return hitMap[tile.x][tile.y][tile.z];
 }
 
 const std::set<const CGObjectInstance *> empty = {};
