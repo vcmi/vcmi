@@ -183,6 +183,7 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d damage",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d will perish",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d will perish",
+	"vcmi.battleWindow.killed" : "Killed",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
 

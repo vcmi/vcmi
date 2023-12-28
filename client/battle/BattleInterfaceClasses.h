@@ -37,6 +37,7 @@ class CFilledTexture;
 class CButton;
 class CToggleButton;
 class CLabel;
+class CMultiLineLabel;
 class CTextBox;
 class CAnimImage;
 class TransparentFilledRectangle;
@@ -143,6 +144,23 @@ public:
 
 	void initializeData(const InfoAboutHero & hero);
 	void update(const InfoAboutHero & updatedInfo);
+};
+
+class StackInfoBasicPanel : public CIntObject
+{
+private:
+	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CPicture> background2;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CMultiLineLabel>> labelsMultiline;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
+public:
+	StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground = true);
+
+	void show(Canvas & to) override;
+
+	void initializeData(const CStack * stack);
+	void update(const CStack * updatedInfo);
 };
 
 class HeroInfoWindow : public CWindowObject
