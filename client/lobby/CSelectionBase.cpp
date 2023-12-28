@@ -335,7 +335,7 @@ CChatBox::CChatBox(const Rect & rect)
 	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
 	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
 	inputBackground = std::make_shared<TransparentFilledRectangle>(textInputArea, ColorRGBA(0,0,0,192));
-	inputBox = std::make_shared<CTextInput>(textInputArea, EFonts::FONT_SMALL, 0);
+	inputBox = std::make_shared<CTextInput>(textInputArea, EFonts::FONT_SMALL, nullptr, ETextAlignment::TOPLEFT, true);
 	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = std::make_shared<CTextBox>("", chatHistoryArea, 1);
 

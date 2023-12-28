@@ -21,6 +21,7 @@ GlobalLobbyWidget::GlobalLobbyWidget(GlobalLobbyWindow * window)
 {
 	addCallback("closeWindow", [](int) { GH.windows().popWindows(1); });
 	addCallback("sendMessage", [this](int) { this->window->doSendChatMessage(); });
+	addCallback("createGameRoom", [this](int) { this->window->doCreateGameRoom(); });
 
 	const JsonNode config(JsonPath::builtin("config/widgets/lobbyWindow.json"));
 	build(config);

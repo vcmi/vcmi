@@ -158,6 +158,7 @@
 			"position": {"x": 10, "y": 520},
 			"image": "settingsWindow/button190",
 			"help": "core.help.288",
+			"callback": "createGameRoom",
 			"items":
 			[
 				{
@@ -175,6 +176,7 @@
 			"position": {"x": 10, "y": 555},
 			"image": "settingsWindow/button190",
 			"help": "core.help.288",
+			"callback": "createGameRoom",
 			"items":
 			[
 				{

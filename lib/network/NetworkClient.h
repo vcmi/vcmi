@@ -33,6 +33,8 @@ public:
 	NetworkClient(INetworkClientListener & listener);
 	virtual ~NetworkClient() = default;
 
+	bool isConnected() const;
+
 	void setTimer(std::chrono::milliseconds duration);
 	void sendPacket(const std::vector<uint8_t> & message);
 

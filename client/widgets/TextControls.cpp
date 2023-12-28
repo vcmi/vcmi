@@ -551,8 +551,8 @@ Point CGStatusBar::getBorderSize()
 	return Point();
 }
 
-CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, bool giveFocusToInput)
-	: CLabel(Pos.x, Pos.y, font, ETextAlignment::CENTER),
+CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, ETextAlignment alignment, bool giveFocusToInput)
+	: CLabel(Pos.x, Pos.y, font, alignment),
 	cb(CB),
 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {

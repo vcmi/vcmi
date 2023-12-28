@@ -12,6 +12,7 @@
 #include "GlobalLobbyClient.h"
 
 #include "GlobalLobbyWindow.h"
+#include "GlobalLobbyLoginWindow.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
@@ -21,12 +22,19 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/network/NetworkClient.h"
 
-GlobalLobbyClient::~GlobalLobbyClient() = default;
+GlobalLobbyClient::~GlobalLobbyClient()
+{
+	networkClient->stop();
+	networkThread->join();
+}
 
-GlobalLobbyClient::GlobalLobbyClient(GlobalLobbyWindow * window)
+GlobalLobbyClient::GlobalLobbyClient()
 	: networkClient(std::make_unique<NetworkClient>(*this))
-	, window(window)
-{}
+{
+	networkThread = std::make_unique<boost::thread>([this](){
+		networkClient->run();
+	});
+}
 
 static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 {
@@ -47,9 +55,21 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 
 void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	// FIXME: find better approach
 	const char * payloadBegin = reinterpret_cast<const char*>(message.data());
 	JsonNode json(payloadBegin, message.size());
+
+	if (json["type"].String() == "authentication")
+	{
+		auto loginWindowPtr = loginWindow.lock();
+
+		if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+			throw std::runtime_error("lobby connection finished without active login window!");
+
+		loginWindowPtr->onConnectionSuccess();
+	}
 
 	if (json["type"].String() == "chatHistory")
 	{
@@ -59,7 +79,10 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection
 			std::string messageText = entry["messageText"].String();
 			int ageSeconds = entry["ageSeconds"].Integer();
 			std::string timeFormatted = getCurrentTimeFormatted(-ageSeconds);
-			window->onGameChatMessage(senderName, messageText, timeFormatted);
+
+			auto lobbyWindowPtr = lobbyWindow.lock();
+			if(lobbyWindowPtr)
+				lobbyWindowPtr->onGameChatMessage(senderName, messageText, timeFormatted);
 		}
 	}
 
@@ -68,7 +91,9 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection
 		std::string senderName = json["senderName"].String();
 		std::string messageText = json["messageText"].String();
 		std::string timeFormatted = getCurrentTimeFormatted();
-		window->onGameChatMessage(senderName, messageText, timeFormatted);
+		auto lobbyWindowPtr = lobbyWindow.lock();
+		if(lobbyWindowPtr)
+			lobbyWindowPtr->onGameChatMessage(senderName, messageText, timeFormatted);
 	}
 }
 
@@ -83,8 +108,13 @@ void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkCon
 
 void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 {
-	GH.windows().popWindows(1);
-	CInfoWindow::showInfoDialog("Failed to connect to game lobby!\n" + errorMessage, {});
+	auto loginWindowPtr = loginWindow.lock();
+
+	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+		throw std::runtime_error("lobby connection failed without active login window!");
+
+	logGlobal->warn("Connection to game lobby failed! Reason: %s", errorMessage);
+	loginWindowPtr->onConnectionFailed(errorMessage);
 }
 
 void GlobalLobbyClient::onDisconnected(const std::shared_ptr<NetworkConnection> &)
@@ -111,17 +141,37 @@ void GlobalLobbyClient::sendMessage(const JsonNode & data)
 	networkClient->sendPacket(payloadBuffer);
 }
 
-void GlobalLobbyClient::start(const std::string & host, uint16_t port)
+void GlobalLobbyClient::connect()
 {
-	networkClient->start(host, port);
+	networkClient->start("127.0.0.1", 30303);
 }
 
-void GlobalLobbyClient::run()
+bool GlobalLobbyClient::isConnected()
 {
-	networkClient->run();
+	return networkClient->isConnected();
 }
 
-void GlobalLobbyClient::poll()
+std::shared_ptr<GlobalLobbyLoginWindow> GlobalLobbyClient::createLoginWindow()
 {
-	networkClient->poll();
+	auto loginWindowPtr = loginWindow.lock();
+	if (loginWindowPtr)
+		return loginWindowPtr;
+
+	auto loginWindowNew = std::make_shared<GlobalLobbyLoginWindow>();
+	loginWindow = loginWindowNew;
+
+	return loginWindowNew;
 }
+
+std::shared_ptr<GlobalLobbyWindow> GlobalLobbyClient::createLobbyWindow()
+{
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if (lobbyWindowPtr)
+		return lobbyWindowPtr;
+
+	lobbyWindowPtr = std::make_shared<GlobalLobbyWindow>();
+	lobbyWindow = lobbyWindowPtr;
+	lobbyWindowLock = lobbyWindowPtr;
+	return lobbyWindowPtr;
+}
+

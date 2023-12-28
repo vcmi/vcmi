@@ -173,23 +173,32 @@ void LobbyServer::receiveAuthentication(const std::shared_ptr<NetworkConnection>
 
 	activeAccounts[connection].accountName = accountName;
 
-	auto history = database->getRecentMessageHistory();
-
-	JsonNode reply;
-	reply["type"].String() = "chatHistory";
-
-	for (auto const & message : boost::adaptors::reverse(history))
 	{
-		JsonNode jsonEntry;
+		JsonNode reply;
+		reply["type"].String() = "authentication";
 
-		jsonEntry["messageText"].String() = message.messageText;
-		jsonEntry["senderName"].String() = message.sender;
-		jsonEntry["ageSeconds"].Integer() = message.messageAgeSeconds;
-
-		reply["messages"].Vector().push_back(jsonEntry);
+		sendMessage(connection, reply);
 	}
 
-	sendMessage(connection, reply);
+	auto history = database->getRecentMessageHistory();
+
+	{
+		JsonNode reply;
+		reply["type"].String() = "chatHistory";
+
+		for (auto const & message : boost::adaptors::reverse(history))
+		{
+			JsonNode jsonEntry;
+
+			jsonEntry["messageText"].String() = message.messageText;
+			jsonEntry["senderName"].String() = message.sender;
+			jsonEntry["ageSeconds"].Integer() = message.messageAgeSeconds;
+
+			reply["messages"].Vector().push_back(jsonEntry);
+		}
+
+		sendMessage(connection, reply);
+	}
 }
 
 void LobbyServer::receiveJoinGameRoom(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json)

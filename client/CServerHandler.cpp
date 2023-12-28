@@ -16,6 +16,7 @@
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 
+#include "globalLobby/GlobalLobbyClient.h"
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 #include "windows/InfoWindows.h"
@@ -139,6 +140,7 @@ CServerHandler::CServerHandler()
 	: state(EClientState::NONE)
 	, networkClient(std::make_unique<NetworkClient>(*this))
 	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
+	, lobbyClient(std::make_unique<GlobalLobbyClient>())
 	, client(nullptr)
 	, loadMode(0)
 	, campaignStateToSend(nullptr)
@@ -173,6 +175,11 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 		myNames = *names;
 	else
 		myNames.push_back(settings["general"]["playerName"].String());
+}
+
+GlobalLobbyClient & CServerHandler::getGlobalLobby()
+{
+	return *lobbyClient;
 }
 
 void CServerHandler::startLocalServerAndConnect()

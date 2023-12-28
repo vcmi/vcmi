@@ -24,6 +24,8 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../globalLobby/GlobalLobbyLoginWindow.h"
+#include "../globalLobby/GlobalLobbyClient.h"
 #include "../globalLobby/GlobalLobbyWindow.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -467,7 +469,10 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 void CMultiMode::openLobby()
 {
 	close();
-	GH.windows().createAndPushWindow<GlobalLobbyWindow>();
+	if (CSH->getGlobalLobby().isConnected())
+		GH.windows().pushWindow(CSH->getGlobalLobby().createLobbyWindow());
+	else
+		GH.windows().pushWindow(CSH->getGlobalLobby().createLoginWindow());
 }
 
 void CMultiMode::hostTCP()

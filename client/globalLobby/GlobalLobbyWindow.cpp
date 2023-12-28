@@ -16,6 +16,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
+#include "../CServerHandler.h"
 
 #include "../../lib/MetaString.h"
 #include "../../lib/CConfigHandler.h"
@@ -27,17 +28,8 @@ GlobalLobbyWindow::GlobalLobbyWindow():
 	widget = std::make_shared<GlobalLobbyWidget>(this);
 	pos = widget->pos;
 	center();
-	connection = std::make_shared<GlobalLobbyClient>(this);
 
-	connection->start("127.0.0.1", 30303);
 	widget->getAccountNameLabel()->setText(settings["general"]["playerName"].String());
-
-	addUsedEvents(TIME);
-}
-
-void GlobalLobbyWindow::tick(uint32_t msPassed)
-{
-	connection->poll();
 }
 
 void GlobalLobbyWindow::doSendChatMessage()
@@ -48,9 +40,20 @@ void GlobalLobbyWindow::doSendChatMessage()
 	toSend["type"].String() = "sendChatMessage";
 	toSend["messageText"].String() = messageText;
 
-	connection->sendMessage(toSend);
+	CSH->getGlobalLobby().sendMessage(toSend);
 
 	widget->getMessageInput()->setText("");
+}
+
+void GlobalLobbyWindow::doCreateGameRoom()
+{
+	// TODO:
+	// start local server and supply our UUID / client credentials to it
+	// server logs into lobby ( uuid = client, mode = server ). This creates 'room' in mode 'empty'
+	// server starts accepting connections from players (including host)
+	// client connects to local server
+	// client sends createGameRoom query to lobby with own / server UUID and mode 'direct' (non-proxy)
+	// client requests to change room status to private or public
 }
 
 void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)

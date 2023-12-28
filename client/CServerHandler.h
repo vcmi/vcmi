@@ -35,6 +35,7 @@ VCMI_LIB_NAMESPACE_END
 
 class CClient;
 class CBaseForLobbyApply;
+class GlobalLobbyClient;
 
 class HighScoreCalculation;
 class HighScoreParameter;
@@ -86,6 +87,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
 
 	std::unique_ptr<NetworkClient> networkClient;
+	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> myNames;
@@ -137,6 +139,8 @@ public:
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
 	void startLocalServerAndConnect();
 	void connectToServer(const std::string & addr, const ui16 port);
+
+	GlobalLobbyClient & getGlobalLobby();
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();

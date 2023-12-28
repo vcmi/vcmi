@@ -372,7 +372,7 @@ CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std:
 	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CHighScoreInput::okay, this), EShortcut::GLOBAL_ACCEPT);
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], std::bind(&CHighScoreInput::abort, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
-	textInput = std::make_shared<CTextInput>(Rect(18, 104, 200, 25), FONT_SMALL, 0);
+	textInput = std::make_shared<CTextInput>(Rect(18, 104, 200, 25), FONT_SMALL, nullptr, ETextAlignment::CENTER, true);
 	textInput->setText(playerName);
 }
 

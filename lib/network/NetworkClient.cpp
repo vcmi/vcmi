@@ -22,6 +22,9 @@ NetworkClient::NetworkClient(INetworkClientListener & listener)
 
 void NetworkClient::start(const std::string & host, uint16_t port)
 {
+	if (isConnected())
+		throw std::runtime_error("Attempting to connect while already connected!");
+
 	boost::asio::ip::tcp::resolver resolver(*io);
 	auto endpoints = resolver.resolve(host, std::to_string(port));
 
@@ -58,6 +61,11 @@ void NetworkClient::stop()
 	io->stop();
 }
 
+bool NetworkClient::isConnected() const
+{
+	return connection != nullptr;
+}
+
 void NetworkClient::setTimer(std::chrono::milliseconds duration)
 {
 	auto timer = std::make_shared<NetworkTimer>(*io, duration);
@@ -74,6 +82,7 @@ void NetworkClient::sendPacket(const std::vector<uint8_t> & message)
 
 void NetworkClient::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
 {
+	this->connection.reset();
 	listener.onDisconnected(connection);
 }
 

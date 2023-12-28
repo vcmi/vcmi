@@ -12,21 +12,19 @@
 #include "../windows/CWindowObject.h"
 
 class GlobalLobbyWidget;
-class GlobalLobbyClient;
 
 class GlobalLobbyWindow : public CWindowObject
 {
 	std::string chatHistory;
 
 	std::shared_ptr<GlobalLobbyWidget> widget;
-	std::shared_ptr<GlobalLobbyClient> connection;
-
-	void tick(uint32_t msPassed);
 
 public:
 	GlobalLobbyWindow();
 
 	void doSendChatMessage();
+	void doCreateGameRoom();
 
 	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when);
+
 };
