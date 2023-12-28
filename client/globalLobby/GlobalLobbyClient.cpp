@@ -57,9 +57,7 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-	// FIXME: find better approach
-	const char * payloadBegin = reinterpret_cast<const char*>(message.data());
-	JsonNode json(payloadBegin, message.size());
+	JsonNode json(message.data(), message.size());
 
 	if (json["type"].String() == "authentication")
 	{

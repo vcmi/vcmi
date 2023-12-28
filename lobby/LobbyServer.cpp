@@ -129,8 +129,7 @@ void LobbyServer::onDisconnected(const std::shared_ptr<NetworkConnection> & conn
 void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
 	// FIXME: find better approach
-	const char * payloadBegin = reinterpret_cast<const char*>(message.data());
-	JsonNode json(payloadBegin, message.size());
+	JsonNode json(message.data(), message.size());
 
 	if (json["type"].String() == "sendChatMessage")
 		return receiveSendChatMessage(connection, json);

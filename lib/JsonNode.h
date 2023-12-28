@@ -51,6 +51,7 @@ public:
 	JsonNode(JsonType Type = JsonType::DATA_NULL);
 	//Create tree from Json-formatted input
 	explicit JsonNode(const char * data, size_t datasize);
+	explicit JsonNode(const uint8_t * data, size_t datasize);
 	//Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);
 	explicit JsonNode(const std::string & modName, const JsonPath & fileURI);

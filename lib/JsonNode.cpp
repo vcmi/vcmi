@@ -72,6 +72,10 @@ JsonNode::JsonNode(JsonType Type)
 	setType(Type);
 }
 
+JsonNode::JsonNode(const uint8_t *data, size_t datasize)
+	:JsonNode(reinterpret_cast<const char*>(data), datasize)
+{}
+
 JsonNode::JsonNode(const char *data, size_t datasize)
 {
 	JsonParser parser(data, datasize);
