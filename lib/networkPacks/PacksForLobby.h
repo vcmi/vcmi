@@ -287,15 +287,15 @@ struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 	}
 };
 
-struct DLL_LINKAGE LobbySetCheatAllowed : public CLobbyPackToServer
+struct DLL_LINKAGE LobbySetExtraOptions : public CLobbyPackToServer
 {
-	bool allowed;
+	ExtraOptionsInfo extraOptionsInfo;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & allowed;
+		h & extraOptionsInfo;
 	}
 };
 

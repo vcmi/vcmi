@@ -88,7 +88,7 @@ public:
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) override;
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) override;
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) override;
-	virtual void visitLobbySetCheatAllowed(LobbySetCheatAllowed & pack) override;
+	virtual void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) override;
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) override;
 	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) override;
 	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) override;

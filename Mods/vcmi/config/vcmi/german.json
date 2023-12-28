@@ -303,7 +303,9 @@
 	"vcmi.optionsTab.extraOptions.help" : "Zusätzliche Einstellungen für das Spiel.",
 	
 	"vcmi.optionsTab.cheatAllowed.hover" : "Cheats erlauben",
+	"vcmi.optionsTab.unlimitedReplay.hover" : "Unbegrenzte Kampfwiederholung",
 	"vcmi.optionsTab.cheatAllowed.help" : "{Cheats erlauben}\nErlaubt die Eingabe von Cheats während des Spiels.",
+	"vcmi.optionsTab.unlimitedReplay.help" : "{Unbegrenzte Kampfwiederholung}\nKämpfe lassen sich unbegrenzt wiederholen.",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Der Feind hat es geschafft, bis zum heutigen Tag zu überleben. Der Sieg gehört ihm!",

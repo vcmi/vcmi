@@ -13,6 +13,7 @@
 
 #include "GameConstants.h"
 #include "TurnTimerInfo.h"
+#include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -105,8 +106,6 @@ struct DLL_LINKAGE StartInfo
 	EMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
-	bool cheatAllowed;
-
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
 
@@ -117,6 +116,7 @@ struct DLL_LINKAGE StartInfo
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
+	ExtraOptionsInfo extraOptionsInfo;
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
 	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
@@ -144,16 +144,16 @@ struct DLL_LINKAGE StartInfo
 		h & simturnsInfo;
 		h & turnTimerInfo;
 		if(version >= 832)
-			h & cheatAllowed;
+			h & extraOptionsInfo;
 		else
-			cheatAllowed = true;
+			extraOptionsInfo = ExtraOptionsInfo();
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
 	}
 
 	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI(""), cheatAllowed(true)
+		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI("")
 	{
 
 	}

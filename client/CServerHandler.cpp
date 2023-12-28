@@ -507,11 +507,11 @@ void CServerHandler::setTurnTimerInfo(const TurnTimerInfo & info) const
 	sendLobbyPack(lstt);
 }
 
-void CServerHandler::setCheatAllowedInfo(bool allowed) const
+void CServerHandler::setExtraOptionsInfo(const ExtraOptionsInfo & info) const
 {
-	LobbySetCheatAllowed lsca;
-	lsca.allowed = allowed;
-	sendLobbyPack(lsca);
+	LobbySetExtraOptions lseo;
+	lseo.extraOptionsInfo = info;
+	sendLobbyPack(lseo);
 }
 
 void CServerHandler::sendMessage(const std::string & txt) const

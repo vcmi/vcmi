@@ -414,9 +414,9 @@ void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 	result = true;
 }
 
-void ApplyOnServerNetPackVisitor::visitLobbySetCheatAllowed(LobbySetCheatAllowed & pack)
+void ApplyOnServerNetPackVisitor::visitLobbySetExtraOptions(LobbySetExtraOptions & pack)
 {
-	srv.si->cheatAllowed = pack.allowed;
+	srv.si->extraOptionsInfo = pack.extraOptionsInfo;
 	result = true;
 }
 

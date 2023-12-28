@@ -440,7 +440,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 	std::vector<std::string> words;
 	boost::split(words, cheat, boost::is_any_of("\t\r\n "));
 
-	if (words.empty() || !gameHandler->getStartInfo()->cheatAllowed)
+	if (words.empty() || !gameHandler->getStartInfo()->extraOptionsInfo.cheatsAllowed)
 		return false;
 
 	//Make cheat name case-insensitive, but keep words/parameters (e.g. creature name) as it

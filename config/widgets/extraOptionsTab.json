@@ -1,4 +1,6 @@
 {
+	"library" : "config/widgets/settings/library.json",
+	
 	"items":
 	[
 		{
@@ -52,21 +54,48 @@
 			"color": [24, 41, 90, 255]
 		},
 		{
-			"name": "buttonCheatAllowed",
+			"name": "ExtraOptionsButtons",
+			"type" : "verticalLayout",
+			"customType" : "toggleButton",
 			"position": {"x": 70, "y": 100},
-			"type": "toggleButton",
-			"image": "lobby/checkbox",
-			"callback" : "setCheatAllowed",
-			"selected" : true
+			"items":
+			[
+				{
+					"name": "buttonCheatAllowed",
+					"image": "lobby/checkbox",
+					"callback" : "setCheatAllowed",
+					"selected" : true
+				},
+				{
+					"name": "buttonUnlimitedReplay",
+					"image": "lobby/checkbox",
+					"callback" : "setUnlimitedReplay",
+					"selected" : true
+				}
+			]
 		},
 		{
-			"name": "labelCheatAllowed",
-			"type": "label",
-			"font": "small",
-			"alignment": "left",
-			"color": "yellow",
-			"text": "vcmi.optionsTab.cheatAllowed.hover",
-			"position": {"x": 110, "y": 103}
+			"name": "ExtraOptionsLabels",
+			"type" : "verticalLayout",
+			"customType" : "label",
+			"position": {"x": 110, "y": 103},
+			"items":
+			[
+				{
+					"name": "labelCheatAllowed",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.cheatAllowed.hover"
+				},
+				{
+					"name": "labelUnlimitedReplay",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.unlimitedReplay.hover"
+				}
+			]
 		}
 	]
 }

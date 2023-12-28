@@ -91,7 +91,15 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	});
 
 	addCallback("setCheatAllowed", [&](int index){
-		CSH->setCheatAllowedInfo(index);
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.cheatsAllowed = index;
+		CSH->setExtraOptionsInfo(info);
+	});
+
+	addCallback("setUnlimitedReplay", [&](int index){
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.unlimitedReplay = index;
+		CSH->setExtraOptionsInfo(info);
 	});
 
 	addCallback("setTurnTimerAccumulate", [&](int index){
@@ -391,5 +399,8 @@ void OptionsTabBase::recreate()
 	}
 
 	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
-		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->cheatAllowed);
+		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
+
+	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
+		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 }
