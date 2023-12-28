@@ -283,11 +283,9 @@
 	"vcmi.optionsTab.simturnsMin.hover" : "Zumindest für",
 	"vcmi.optionsTab.simturnsMax.hover" : "Höchstens für",
 	"vcmi.optionsTab.simturnsAI.hover" : "(Experimentell) Simultane KI Züge",
-	"vcmi.optionsTab.cheatAllowed.hover" : "Cheats erlauben",
 	"vcmi.optionsTab.simturnsMin.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen. Die Kontakte zwischen den Spielern sind während dieser Zeit blockiert",
 	"vcmi.optionsTab.simturnsMax.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen oder bis zum Kontakt mit einem anderen Spieler",
 	"vcmi.optionsTab.simturnsAI.help" : "{Simultane KI Züge}\nExperimentelle Option. Ermöglicht es den KI-Spielern, gleichzeitig mit dem menschlichen Spieler zu agieren, wenn simultane Spielzüge aktiviert sind.",
-	"vcmi.optionsTab.cheatAllowed.help" : "{Cheats erlauben}\nErlaubt die Eingabe von Cheats während des Spiels.",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -300,6 +298,12 @@
 	"vcmi.optionsTab.simturns.months.0" : "%d Monate",
 	"vcmi.optionsTab.simturns.months.1" : "%d Monat",
 	"vcmi.optionsTab.simturns.months.2" : "%d Monate",
+
+	"vcmi.optionsTab.extraOptions.hover" : "Extra Optionen",
+	"vcmi.optionsTab.extraOptions.help" : "Zusätzliche Einstellungen für das Spiel.",
+	
+	"vcmi.optionsTab.cheatAllowed.hover" : "Cheats erlauben",
+	"vcmi.optionsTab.cheatAllowed.help" : "{Cheats erlauben}\nErlaubt die Eingabe von Cheats während des Spiels.",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Der Feind hat es geschafft, bis zum heutigen Tag zu überleben. Der Sieg gehört ihm!",

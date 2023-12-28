@@ -264,11 +264,9 @@
 	"vcmi.optionsTab.simturnsMin.hover" : "At least for",
 	"vcmi.optionsTab.simturnsMax.hover" : "At most for",
 	"vcmi.optionsTab.simturnsAI.hover" : "(Experimental) Simultaneous AI Turns",
-	"vcmi.optionsTab.cheatAllowed.hover" : "Allow cheats",
 	"vcmi.optionsTab.simturnsMin.help" : "Play simultaneously for specified number of days. Contacts between players during this period are blocked",
 	"vcmi.optionsTab.simturnsMax.help" : "Play simultaneously for specified number of days or until contact with another player",
 	"vcmi.optionsTab.simturnsAI.help" : "{Simultaneous AI Turns}\nExperimental option. Allows AI players to act at the same time as human player when simultaneous turns are enabled.",
-	"vcmi.optionsTab.cheatAllowed.help" : "{Allow cheats}\nAllows the inputs of cheats during the game.",
 
 	"vcmi.optionsTab.turnTime.select"     : "Select turn timer preset",
 	"vcmi.optionsTab.turnTime.unlimited"  : "Unlimited turn time",
@@ -306,6 +304,12 @@
 	"vcmi.optionsTab.simturns.months.0" : " %d months",
 	"vcmi.optionsTab.simturns.months.1" : " %d month",
 	"vcmi.optionsTab.simturns.months.2" : " %d months",
+
+	"vcmi.optionsTab.extraOptions.hover" : "Extra Options",
+	"vcmi.optionsTab.extraOptions.help" : "Additional settings for the game.",
+	
+	"vcmi.optionsTab.cheatAllowed.hover" : "Allow cheats",
+	"vcmi.optionsTab.cheatAllowed.help" : "{Allow cheats}\nAllows the inputs of cheats during the game.",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
