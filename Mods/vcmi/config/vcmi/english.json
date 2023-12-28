@@ -306,7 +306,7 @@
 	"vcmi.optionsTab.simturns.months.2" : " %d months",
 
 	"vcmi.optionsTab.extraOptions.hover" : "Extra Options",
-	"vcmi.optionsTab.extraOptions.help" : "Additional settings for the game.",
+	"vcmi.optionsTab.extraOptions.help" : "Additional settings for the game",
 
 	"vcmi.optionsTab.cheatAllowed.hover" : "Allow cheats",
 	"vcmi.optionsTab.unlimitedReplay.hover" : "Unlimited battle replay",

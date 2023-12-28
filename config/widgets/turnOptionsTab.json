@@ -316,7 +316,7 @@
 		},
 		{
 			"name": "buttonSimturnsAI",
-			"position": {"x": 70, "y": 530},
+			"position": {"x": 70, "y": 535},
 			"type": "toggleButton",
 			"image": "lobby/checkbox",
 			"callback" : "setSimturnAI"
@@ -328,7 +328,7 @@
 			"alignment": "left",
 			"color": "yellow",
 			"text": "vcmi.optionsTab.simturnsAI.hover",
-			"position": {"x": 110, "y": 533}
+			"position": {"x": 110, "y": 538}
 		}
 	],
 	
