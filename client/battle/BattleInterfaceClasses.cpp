@@ -983,6 +983,10 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		if (unit->unitType()->getId() == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
+		roundRect->setEnabled(currentTurn.has_value());
+		if(!owner->embedded)
+			round->setEnabled(currentTurn.has_value());
+
 		amount->setText(TextOperations::formatMetric(unit->getCount(), 4));
 		if(currentTurn && !owner->embedded)
 		{
@@ -991,9 +995,6 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 			roundRect->pos.w = len + 6;
 			round->setText(tmp);
 		}
-		roundRect->setEnabled(currentTurn.has_value());
-		if(!owner->embedded)
-			round->setEnabled(currentTurn.has_value());
 
 		if(stateIcon)
 		{
