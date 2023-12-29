@@ -110,6 +110,15 @@
             }
         },
         {
+            "name": "windows-mingw-release",
+            "displayName": "Windows x64 MinGW Release",
+            "description": "VCMI Windows Ninja using MinGW",
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
             "name": "windows-msvc-release",
             "displayName": "Windows x64 RelWithDebInfo",
             "description": "VCMI RelWithDebInfo build",
@@ -325,6 +334,11 @@
             "inherits": "default-release"
         },
         {
+            "name": "windows-mingw-release",
+            "configurePreset": "windows-mingw-release",
+            "inherits": "default-release"
+        },
+        {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
             "inherits": "default-release"
@@ -408,6 +422,11 @@
         {
             "name": "macos-ninja-release",
             "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-mingw-release",
+            "configurePreset": "windows-mingw-release",
             "inherits": "default-release"
         },
         {
