@@ -21,7 +21,7 @@ void LobbyServer::sendMessage(const std::shared_ptr<NetworkConnection> & target,
 	std::string payloadString = json.toJson(true);
 
 	// FIXME: find better approach
-	uint8_t * payloadBegin = reinterpret_cast<uint8_t*>(payloadString.data());
+	uint8_t * payloadBegin = reinterpret_cast<uint8_t *>(payloadString.data());
 	uint8_t * payloadEnd = payloadBegin + payloadString.size();
 
 	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
@@ -35,8 +35,7 @@ void LobbyServer::onTimer()
 }
 
 void LobbyServer::onNewConnection(const std::shared_ptr<NetworkConnection> & connection)
-{
-}
+{}
 
 void LobbyServer::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
 {
@@ -48,19 +47,19 @@ void LobbyServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & co
 	// FIXME: find better approach
 	JsonNode json(message.data(), message.size());
 
-	if (json["type"].String() == "sendChatMessage")
+	if(json["type"].String() == "sendChatMessage")
 		return receiveSendChatMessage(connection, json);
 
-	if (json["type"].String() == "authentication")
+	if(json["type"].String() == "authentication")
 		return receiveAuthentication(connection, json);
 
-	if (json["type"].String() == "joinGameRoom")
+	if(json["type"].String() == "joinGameRoom")
 		return receiveJoinGameRoom(connection, json);
 }
 
 void LobbyServer::receiveSendChatMessage(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json)
 {
-	if (activeAccounts.count(connection) == 0)
+	if(activeAccounts.count(connection) == 0)
 		return; // unauthenticated
 
 	std::string senderName = activeAccounts[connection].accountName;
@@ -73,7 +72,7 @@ void LobbyServer::receiveSendChatMessage(const std::shared_ptr<NetworkConnection
 	reply["messageText"].String() = messageText;
 	reply["senderName"].String() = senderName;
 
-	for (auto const & connection : activeAccounts)
+	for(const auto & connection : activeAccounts)
 		sendMessage(connection.first, reply);
 }
 
@@ -102,7 +101,7 @@ void LobbyServer::receiveAuthentication(const std::shared_ptr<NetworkConnection>
 		JsonNode reply;
 		reply["type"].String() = "chatHistory";
 
-		for (auto const & message : boost::adaptors::reverse(history))
+		for(const auto & message : boost::adaptors::reverse(history))
 		{
 			JsonNode jsonEntry;
 
@@ -119,12 +118,12 @@ void LobbyServer::receiveAuthentication(const std::shared_ptr<NetworkConnection>
 
 void LobbyServer::receiveJoinGameRoom(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json)
 {
-	if (activeAccounts.count(connection) == 0)
+	if(activeAccounts.count(connection) == 0)
 		return; // unauthenticated
 
 	std::string senderName = activeAccounts[connection].accountName;
 
-	if (database->isPlayerInGameRoom(senderName))
+	if(database->isPlayerInGameRoom(senderName))
 		return; // only 1 room per player allowed
 
 	// TODO: roomType: private, public

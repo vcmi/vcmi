@@ -41,6 +41,7 @@ class LobbyServer : public INetworkServerListener
 	void receiveSendChatMessage(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
 	void receiveAuthentication(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
 	void receiveJoinGameRoom(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
+
 public:
 	LobbyServer(const std::string & databasePath);
 	~LobbyServer();

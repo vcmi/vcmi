@@ -15,75 +15,73 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 class SQLiteInstance;
 class SQLiteStatement;
 
-using SQLiteInstancePtr = std::unique_ptr< SQLiteInstance >;
-using SQLiteStatementPtr = std::unique_ptr< SQLiteStatement >;
+using SQLiteInstancePtr = std::unique_ptr<SQLiteInstance>;
+using SQLiteStatementPtr = std::unique_ptr<SQLiteStatement>;
 
 class SQLiteStatement : boost::noncopyable
 {
 public:
 	friend class SQLiteInstance;
 
-	bool execute( );
-	void reset( );
-	void clear( );
+	bool execute();
+	void reset();
+	void clear();
 
 	~SQLiteStatement();
 
-	template<typename ... Args >
-	void setBinds( Args const & ... args )
+	template<typename... Args>
+	void setBinds(const Args &... args)
 	{
-		setBindSingle( 1, args... ); // The leftmost SQL parameter has an index of 1
+		setBindSingle(1, args...); // The leftmost SQL parameter has an index of 1
 	}
 
-	template<typename ... Args >
-	void getColumns( Args & ... args )
+	template<typename... Args>
+	void getColumns(Args &... args)
 	{
-		getColumnSingle( 0, args... ); // The leftmost column of the result set has the index 0
+		getColumnSingle(0, args...); // The leftmost column of the result set has the index 0
 	}
 
 private:
-	void setBindSingle( size_t index, double const & value );
-	void setBindSingle( size_t index, uint8_t const & value );
-	void setBindSingle( size_t index, uint16_t const & value );
-	void setBindSingle( size_t index, uint32_t const & value );
-	void setBindSingle( size_t index, int32_t const & value );
-	void setBindSingle( size_t index, int64_t const & value );
-	void setBindSingle( size_t index, std::string const & value );
-	void setBindSingle( size_t index, char const * value );
+	void setBindSingle(size_t index, const double & value);
+	void setBindSingle(size_t index, const uint8_t & value);
+	void setBindSingle(size_t index, const uint16_t & value);
+	void setBindSingle(size_t index, const uint32_t & value);
+	void setBindSingle(size_t index, const int32_t & value);
+	void setBindSingle(size_t index, const int64_t & value);
+	void setBindSingle(size_t index, const std::string & value);
+	void setBindSingle(size_t index, const char * value);
 
-	void getColumnSingle( size_t index, double & value );
-	void getColumnSingle( size_t index, uint8_t & value );
-	void getColumnSingle( size_t index, uint16_t & value );
-	void getColumnSingle( size_t index, uint32_t & value );
-	void getColumnSingle( size_t index, int32_t & value );
-	void getColumnSingle( size_t index, int64_t & value );
-	void getColumnSingle( size_t index, std::string & value );
+	void getColumnSingle(size_t index, double & value);
+	void getColumnSingle(size_t index, uint8_t & value);
+	void getColumnSingle(size_t index, uint16_t & value);
+	void getColumnSingle(size_t index, uint32_t & value);
+	void getColumnSingle(size_t index, int32_t & value);
+	void getColumnSingle(size_t index, int64_t & value);
+	void getColumnSingle(size_t index, std::string & value);
 
 	template<typename Rep, typename Period>
-	void getColumnSingle( size_t index, std::chrono::duration<Rep, Period> & value )
+	void getColumnSingle(size_t index, std::chrono::duration<Rep, Period> & value)
 	{
 		int64_t durationValue = 0;
 		getColumnSingle(index, durationValue);
 		value = std::chrono::duration<Rep, Period>(durationValue);
 	}
 
-	SQLiteStatement( SQLiteInstance & instance, sqlite3_stmt * statement );
+	SQLiteStatement(SQLiteInstance & instance, sqlite3_stmt * statement);
 
-	template<typename T, typename ... Args >
-	void setBindSingle( size_t index, T const & arg, Args const & ... args )
+	template<typename T, typename... Args>
+	void setBindSingle(size_t index, T const & arg, const Args &... args)
 	{
-		setBindSingle( index, arg );
-		setBindSingle( index + 1, args... );
+		setBindSingle(index, arg);
+		setBindSingle(index + 1, args...);
 	}
 
-	template<typename T, typename ... Args >
-	void getColumnSingle( size_t index, T & arg, Args & ... args )
+	template<typename T, typename... Args>
+	void getColumnSingle(size_t index, T & arg, Args &... args)
 	{
-		getColumnSingle( index, arg );
-		getColumnSingle( index + 1, args... );
+		getColumnSingle(index, arg);
+		getColumnSingle(index + 1, args...);
 	}
-
-	void getColumnBlob(size_t index, std::byte * value, size_t capacity);
 
 	SQLiteInstance & m_instance;
 	sqlite3_stmt * m_statement;
@@ -94,14 +92,14 @@ class SQLiteInstance : boost::noncopyable
 public:
 	friend class SQLiteStatement;
 
-	static SQLiteInstancePtr open(std::string const & db_path, bool allow_write );
+	static SQLiteInstancePtr open(const std::string & db_path, bool allow_write);
 
-	~SQLiteInstance( );
+	~SQLiteInstance();
 
-	SQLiteStatementPtr prepare( std::string const & statement );
+	SQLiteStatementPtr prepare(const std::string & statement);
 
 private:
-	SQLiteInstance( sqlite3 * connection );
+	SQLiteInstance(sqlite3 * connection);
 
 	sqlite3 * m_connection;
 };

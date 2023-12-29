@@ -77,7 +77,7 @@ public:
 	std::vector<GameRoom> getActiveGameRooms();
 	std::vector<ChatMessage> getRecentMessageHistory();
 
-	bool checkAccessCookie(const std::string & accountName,const std::string & accessCookieUUID);
+	bool checkAccessCookie(const std::string & accountName, const std::string & accessCookieUUID);
 	bool isPlayerInGameRoom(const std::string & accountName);
 	bool isAccountNameAvailable(const std::string & accountName);
 };

@@ -56,7 +56,7 @@ LobbyDatabase::LobbyDatabase(const std::string & databasePath)
 {
 	database = SQLiteInstance::open(databasePath, true);
 
-	if (!database)
+	if(!database)
 		throw std::runtime_error("Failed to open SQLite database!");
 
 	initializeDatabase();
