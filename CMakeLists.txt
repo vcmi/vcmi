@@ -81,10 +81,7 @@ endif()
 
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
 if(ENABLE_CCACHE)
-	find_program(CCACHE ccache)
-	if(CCACHE-NOTFOUND)
-		message(FATAL_ERROR "'ccache' could not be found; install it or set ENABLE_CCACHE=OFF.")
-	endif()
+	find_program(CCACHE ccache REQUIRED)
 endif()
 
 # On Linux, use ccache via CMAKE_CXX_COMPILER_LAUNCHER.
