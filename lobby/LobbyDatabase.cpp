@@ -12,80 +12,401 @@
 
 #include "SQLiteConnection.h"
 
+void LobbyDatabase::createTables()
+{
+	static const std::string createChatMessages = R"(
+		CREATE TABLE IF NOT EXISTS chatMessages (
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			senderName TEXT,
+			roomType TEXT,
+			messageText TEXT,
+			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+		);
+	)";
+
+	static const std::string createTableGameRooms = R"(
+		CREATE TABLE IF NOT EXISTS gameRooms (
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			roomID TEXT,
+			hostAccountID TEXT,
+			status INTEGER NOT NULL DEFAULT 0,
+			playerLimit INTEGER NOT NULL,
+			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+		);
+	)";
+
+	static const std::string createTableGameRoomPlayers = R"(
+		CREATE TABLE IF NOT EXISTS gameRoomPlayers (
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			roomID TEXT,
+			accountID TEXT
+		);
+	)";
+
+	static const std::string createTableAccounts = R"(
+		CREATE TABLE IF NOT EXISTS accounts (
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			accountID TEXT,
+			displayName TEXT,
+			online INTEGER NOT NULL,
+			lastLoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+		);
+	)";
+
+	static const std::string createTableAccountCookies = R"(
+		CREATE TABLE IF NOT EXISTS accountCookies (
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			accountID TEXT,
+			cookieUUID TEXT,
+			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+		);
+	)";
+
+	static const std::string createTableGameRoomInvites = R"(
+		CREATE TABLE IF NOT EXISTS gameRoomInvites (
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			roomID TEXT,
+			accountID TEXT
+		);
+	)";
+
+	database->prepare(createChatMessages)->execute();
+	database->prepare(createTableGameRoomPlayers)->execute();
+	database->prepare(createTableGameRooms)->execute();
+	database->prepare(createTableAccounts)->execute();
+	database->prepare(createTableAccountCookies)->execute();
+	database->prepare(createTableGameRoomInvites)->execute();
+}
+
 void LobbyDatabase::prepareStatements()
 {
+	// INSERT INTO
+
 	static const std::string insertChatMessageText = R"(
 		INSERT INTO chatMessages(senderName, messageText) VALUES( ?, ?);
 	)";
 
+	static const std::string insertAccountText = R"(
+		INSERT INTO accounts(accountID, displayName, online) VALUES(?,?,0);
+	)";
+
+	static const std::string insertAccessCookieText = R"(
+		INSERT INTO accountCookies(accountID, cookieUUID) VALUES(?,?);
+	)";
+
+	static const std::string insertGameRoomText = R"(
+		INSERT INTO gameRooms(roomID, hostAccountID, status, playerLimit) VALUES(?, ?, 'empty', 8);
+	)";
+
+	static const std::string insertGameRoomPlayersText = R"(
+		INSERT INTO gameRoomPlayers(roomID, accountID) VALUES(?,?);
+	)";
+
+	static const std::string insertGameRoomInvitesText = R"(
+		INSERT INTO gameRoomInvites(roomID, accountID) VALUES(?,?);
+	)";
+
+	// DELETE FROM
+
+	static const std::string deleteGameRoomPlayersText = R"(
+		 DELETE FROM gameRoomPlayers WHERE gameRoomID = ? AND accountID = ?
+	)";
+
+	static const std::string deleteGameRoomInvitesText = R"(
+		DELETE FROM gameRoomInvites WHERE gameRoomID = ? AND accountID = ?
+	)";
+
+	// UPDATE
+
+	static const std::string setGameRoomStatusText = R"(
+		UPDATE gameRooms
+		SET status = ?
+		WHERE roomID = ?
+	)";
+
+	static const std::string setGameRoomPlayerLimitText = R"(
+		UPDATE gameRooms
+		SET playerLimit = ?
+		WHERE roomID = ?
+	)";
+
+	// SELECT FROM
+
 	static const std::string getRecentMessageHistoryText = R"(
-		SELECT senderName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',sendTime)  AS secondsElapsed
+		SELECT senderName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',creationTime)  AS secondsElapsed
 		FROM chatMessages
-		WHERE secondsElapsed < 60*60*24
-		ORDER BY sendTime DESC
+		WHERE secondsElapsed < 60*60*18
+		ORDER BY creationTime DESC
 		LIMIT 100
 	)";
 
-	insertChatMessageStatement = database->prepare(insertChatMessageText);
-	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
-}
-
-void LobbyDatabase::createTableChatMessages()
-{
-	static const std::string statementText = R"(
-		CREATE TABLE IF NOT EXISTS chatMessages (
-			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			senderName TEXT,
-			messageText TEXT,
-			sendTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-		);
+	static const std::string getIdleGameRoomText = R"(
+		SELECT roomID
+		FROM gameRooms
+		WHERE hostAccountID = ? AND status = 'idle'
+		LIMIT 1
 	)";
 
-	auto statement = database->prepare(statementText);
-	statement->execute();
-}
+	static const std::string getAccountGameRoomText = R"(
+		SELECT roomID
+		FROM gameRoomPlayers grp
+		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
+		WHERE accountID = ? AND status IN ('public', 'private', 'busy')
+		LIMIT 1
+	)";
 
-void LobbyDatabase::initializeDatabase()
-{
-	createTableChatMessages();
+	static const std::string getActiveAccountsText = R"(
+		SELECT accountID, displayName
+		FROM accounts
+		WHERE online <> 1
+	)";
+
+	static const std::string isAccountCookieValidText = R"(
+		SELECT COUNT(accountID)
+		FROM accountCookies
+		WHERE accountID = ? AND cookieUUID = ? AND strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',creationTime) < ?
+	)";
+
+	static const std::string isGameRoomCookieValidText = R"(
+		SELECT COUNT(roomID)
+		FROM gameRooms
+		LEFT JOIN accountCookies ON accountCookies.accountID = gameRooms.hostAccountID
+		WHERE roomID = ? AND cookieUUID = ? AND strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',creationTime) < ?
+	)";
+
+	static const std::string isPlayerInGameRoomText = R"(
+		SELECT COUNT(accountID)
+		FROM gameRoomPlayers
+		WHERE accountID = ? AND roomID = ?
+	)";
+
+	static const std::string isPlayerInAnyGameRoomText = R"(
+		SELECT COUNT(accountID)
+		FROM gameRoomPlayers
+		WHERE accountID = ?
+	)";
+
+	static const std::string isAccountExistsText = R"(
+		SELECT COUNT(accountID)
+		FROM accounts
+		WHERE accountID = ?
+	)";
+
+	insertChatMessageStatement = database->prepare(insertChatMessageText);
+	insertAccountStatement = database->prepare(insertAccountText);
+	insertAccessCookieStatement = database->prepare(insertAccessCookieText);
+	insertGameRoomStatement = database->prepare(insertGameRoomText);
+	insertGameRoomPlayersStatement = database->prepare(insertGameRoomPlayersText);
+	insertGameRoomInvitesStatement = database->prepare(insertGameRoomInvitesText);
+
+	deleteGameRoomPlayersStatement = database->prepare(deleteGameRoomPlayersText);
+	deleteGameRoomInvitesStatement = database->prepare(deleteGameRoomInvitesText);
+
+	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
+	setGameRoomPlayerLimitStatement = database->prepare(setGameRoomPlayerLimitText);
+
+	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
+	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
+	getAccountGameRoomStatement = database->prepare(getAccountGameRoomText);
+	getActiveAccountsStatement = database->prepare(getActiveAccountsText);
+
+	isAccountCookieValidStatement = database->prepare(isAccountCookieValidText);
+	isPlayerInGameRoomStatement = database->prepare(isPlayerInGameRoomText);
+	isPlayerInAnyGameRoomStatement = database->prepare(isPlayerInAnyGameRoomText);
+	isAccountExistsStatement = database->prepare(isAccountExistsText);
 }
 
 LobbyDatabase::~LobbyDatabase() = default;
 
-LobbyDatabase::LobbyDatabase(const std::string & databasePath)
+LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath)
 {
 	database = SQLiteInstance::open(databasePath, true);
-
-	if(!database)
-		throw std::runtime_error("Failed to open SQLite database!");
-
-	initializeDatabase();
+	createTables();
 	prepareStatements();
 }
 
 void LobbyDatabase::insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomName, const std::string & messageText)
 {
-	insertChatMessageStatement->setBinds(sender, messageText);
-	insertChatMessageStatement->execute();
-	insertChatMessageStatement->reset();
+	insertChatMessageStatement->executeOnce(sender, messageText);
 }
 
-bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountName)
+bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountID)
 {
-	return false; //TODO
+	bool result = false;
+
+	isPlayerInAnyGameRoomStatement->setBinds(accountID);
+	if (isPlayerInAnyGameRoomStatement->execute())
+		isPlayerInAnyGameRoomStatement->getColumns(result);
+	isPlayerInAnyGameRoomStatement->reset();
+
+	return result;
 }
 
-std::vector<LobbyDatabase::ChatMessage> LobbyDatabase::getRecentMessageHistory()
+bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountID, const std::string & roomID)
 {
-	std::vector<LobbyDatabase::ChatMessage> result;
+	bool result = false;
+
+	isPlayerInGameRoomStatement->setBinds(accountID, roomID);
+	if (isPlayerInGameRoomStatement->execute())
+		isPlayerInGameRoomStatement->getColumns(result);
+	isPlayerInGameRoomStatement->reset();
+
+	return result;
+}
+
+std::vector<LobbyChatMessage> LobbyDatabase::getRecentMessageHistory()
+{
+	std::vector<LobbyChatMessage> result;
 
 	while(getRecentMessageHistoryStatement->execute())
 	{
-		LobbyDatabase::ChatMessage message;
+		LobbyChatMessage message;
 		getRecentMessageHistoryStatement->getColumns(message.sender, message.messageText, message.age);
 		result.push_back(message);
 	}
 	getRecentMessageHistoryStatement->reset();
 
+	return result;
+}
+
+void LobbyDatabase::setGameRoomStatus(const std::string & roomID, LobbyRoomState roomStatus)
+{
+	setGameRoomStatusStatement->executeOnce(vstd::to_underlying(roomStatus), roomID);
+}
+
+void LobbyDatabase::setGameRoomPlayerLimit(const std::string & roomID, uint32_t playerLimit)
+{
+	setGameRoomPlayerLimitStatement->executeOnce(playerLimit, roomID);
+}
+
+void LobbyDatabase::insertPlayerIntoGameRoom(const std::string & accountID, const std::string & roomID)
+{
+	insertGameRoomPlayersStatement->executeOnce(roomID, accountID);
+}
+
+void LobbyDatabase::deletePlayerFromGameRoom(const std::string & accountID, const std::string & roomID)
+{
+	deleteGameRoomPlayersStatement->executeOnce(roomID, accountID);
+}
+
+void LobbyDatabase::deleteGameRoomInvite(const std::string & targetAccountID, const std::string & roomID)
+{
+	deleteGameRoomInvitesStatement->executeOnce(roomID, targetAccountID);
+}
+
+void LobbyDatabase::insertGameRoomInvite(const std::string & targetAccountID, const std::string & roomID)
+{
+	insertGameRoomInvitesStatement->executeOnce(roomID, targetAccountID);
+}
+
+void LobbyDatabase::insertGameRoom(const std::string & roomID, const std::string & hostAccountID)
+{
+	insertGameRoomStatement->executeOnce(roomID, hostAccountID);
+}
+
+void LobbyDatabase::insertAccount(const std::string & accountID, const std::string & displayName)
+{
+	insertAccountStatement->executeOnce(accountID, displayName);
+}
+
+void LobbyDatabase::insertAccessCookie(const std::string & accountID, const std::string & accessCookieUUID)
+{
+	insertAccessCookieStatement->executeOnce(accountID, accessCookieUUID);
+}
+
+void LobbyDatabase::updateAccessCookie(const std::string & accountID, const std::string & accessCookieUUID)
+{
+
+}
+
+void LobbyDatabase::updateAccountLoginTime(const std::string & accountID)
+{
+
+}
+
+void LobbyDatabase::updateActiveAccount(const std::string & accountID, bool isActive)
+{
+
+}
+
+std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
+{
+	return {};
+}
+
+LobbyCookieStatus LobbyDatabase::getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime)
+{
+	return {};
+}
+
+LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime)
+{
+	return {};
+}
+
+LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & accountID, std::chrono::seconds cookieLifetime)
+{
+	return {};
+}
+
+LobbyInviteStatus LobbyDatabase::getAccountInviteStatus(const std::string & accountID, const std::string & roomID)
+{
+	return {};
+}
+
+LobbyRoomState LobbyDatabase::getGameRoomStatus(const std::string & roomID)
+{
+	return {};
+}
+
+uint32_t LobbyDatabase::getGameRoomFreeSlots(const std::string & roomID)
+{
+	return 0;
+}
+
+bool LobbyDatabase::isAccountExists(const std::string & accountID)
+{
+	return false;
+}
+
+std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
+{
+	return {};
+}
+
+std::vector<LobbyAccount> LobbyDatabase::getActiveAccounts()
+{
+	std::vector<LobbyAccount> result;
+
+	while(getActiveAccountsStatement->execute())
+	{
+		LobbyAccount entry;
+		getActiveAccountsStatement->getColumns(entry.accountID, entry.displayName);
+		result.push_back(entry);
+	}
+	getActiveAccountsStatement->reset();
+	return result;
+}
+
+std::string LobbyDatabase::getIdleGameRoom(const std::string & hostAccountID)
+{
+	std::string result;
+
+	if (getIdleGameRoomStatement->execute())
+		getIdleGameRoomStatement->getColumns(result);
+
+	getIdleGameRoomStatement->reset();
+	return result;
+}
+
+std::string LobbyDatabase::getAccountGameRoom(const std::string & accountID)
+{
+	std::string result;
+
+	if (getAccountGameRoomStatement->execute())
+		getAccountGameRoomStatement->getColumns(result);
+
+	getAccountGameRoomStatement->reset();
 	return result;
 }

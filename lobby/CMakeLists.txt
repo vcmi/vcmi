@@ -11,6 +11,7 @@ set(lobby_HEADERS
 		StdInc.h
 
 		LobbyDatabase.h
+		LobbyDefines.h
 		LobbyServer.h
 		SQLiteConnection.h
 )

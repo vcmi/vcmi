@@ -15,6 +15,9 @@ class NetworkConnection;
 class NetworkServer;
 class NetworkClient;
 
+using NetworkConnectionPtr = std::shared_ptr<NetworkConnection>;
+using NetworkConnectionWeakPtr = std::weak_ptr<NetworkConnection>;
+
 class DLL_LINKAGE INetworkConnectionListener
 {
 	friend class NetworkConnection;
@@ -22,7 +25,8 @@ protected:
 	virtual void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) = 0;
 	virtual void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) = 0;
 
-	~INetworkConnectionListener() = default;
+public:
+	virtual ~INetworkConnectionListener() = default;
 };
 
 class DLL_LINKAGE INetworkServerListener : public INetworkConnectionListener
@@ -32,7 +36,8 @@ protected:
 	virtual void onNewConnection(const std::shared_ptr<NetworkConnection> &) = 0;
 	virtual void onTimer() = 0;
 
-	~INetworkServerListener() = default;
+public:
+	virtual ~INetworkServerListener() = default;
 };
 
 class DLL_LINKAGE INetworkClientListener : public INetworkConnectionListener
@@ -43,7 +48,8 @@ protected:
 	virtual void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) = 0;
 	virtual void onTimer() = 0;
 
-	~INetworkClientListener() = default;
+public:
+	virtual ~INetworkClientListener() = default;
 };
 
 

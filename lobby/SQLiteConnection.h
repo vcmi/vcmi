@@ -30,6 +30,14 @@ public:
 	~SQLiteStatement();
 
 	template<typename... Args>
+	void executeOnce(const Args &... args)
+	{
+		setBinds(args...);
+		execute();
+		reset();
+	}
+
+	template<typename... Args>
 	void setBinds(const Args &... args)
 	{
 		setBindSingle(1, args...); // The leftmost SQL parameter has an index of 1
@@ -43,6 +51,7 @@ public:
 
 private:
 	void setBindSingle(size_t index, const double & value);
+	void setBindSingle(size_t index, const bool & value);
 	void setBindSingle(size_t index, const uint8_t & value);
 	void setBindSingle(size_t index, const uint16_t & value);
 	void setBindSingle(size_t index, const uint32_t & value);
@@ -52,6 +61,7 @@ private:
 	void setBindSingle(size_t index, const char * value);
 
 	void getColumnSingle(size_t index, double & value);
+	void getColumnSingle(size_t index, bool & value);
 	void getColumnSingle(size_t index, uint8_t & value);
 	void getColumnSingle(size_t index, uint16_t & value);
 	void getColumnSingle(size_t index, uint32_t & value);
@@ -92,7 +102,7 @@ class SQLiteInstance : boost::noncopyable
 public:
 	friend class SQLiteStatement;
 
-	static SQLiteInstancePtr open(const std::string & db_path, bool allow_write);
+	static SQLiteInstancePtr open(const boost::filesystem::path & db_path, bool allow_write);
 
 	~SQLiteInstance();
 

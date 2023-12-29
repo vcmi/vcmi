@@ -11,14 +11,15 @@
 
 #include "LobbyServer.h"
 
-static const std::string DATABASE_PATH = "/home/ivan/vcmi.db";
+#include "../lib/VCMIDirs.h"
+
 static const int LISTENING_PORT = 30303;
-//static const std::string SERVER_NAME = GameConstants::VCMI_VERSION + " (server)";
-//static const std::string SERVER_UUID = boost::uuids::to_string(boost::uuids::random_generator()());
 
 int main(int argc, const char * argv[])
 {
-	LobbyServer server(DATABASE_PATH);
+	auto databasePath = VCMIDirs::get().userDataPath() / "vcmiLobby.db";
+
+	LobbyServer server(databasePath);
 
 	server.start(LISTENING_PORT);
 	server.run();

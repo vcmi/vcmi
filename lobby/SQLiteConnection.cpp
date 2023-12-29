@@ -70,6 +70,12 @@ void SQLiteStatement::setBindSingle(size_t index, const double & value)
 	checkSQLiteError(m_instance.m_connection, result);
 }
 
+void SQLiteStatement::setBindSingle(size_t index, const bool & value)
+{
+	int result = sqlite3_bind_int(m_statement, static_cast<int>(value), value);
+	checkSQLiteError(m_instance.m_connection, result);
+}
+
 void SQLiteStatement::setBindSingle(size_t index, const uint8_t & value)
 {
 	int result = sqlite3_bind_int(m_statement, static_cast<int>(index), value);
@@ -116,6 +122,11 @@ void SQLiteStatement::getColumnSingle(size_t index, double & value)
 	value = sqlite3_column_double(m_statement, static_cast<int>(index));
 }
 
+void SQLiteStatement::getColumnSingle(size_t index, bool & value)
+{
+	value = sqlite3_column_int(m_statement, static_cast<int>(index)) != 0;
+}
+
 void SQLiteStatement::getColumnSingle(size_t index, uint8_t & value)
 {
 	value = static_cast<uint8_t>(sqlite3_column_int(m_statement, static_cast<int>(index)));
@@ -147,7 +158,7 @@ void SQLiteStatement::getColumnSingle(size_t index, std::string & value)
 	value = reinterpret_cast<const char *>(value_raw);
 }
 
-SQLiteInstancePtr SQLiteInstance::open(const std::string & db_path, bool allow_write)
+SQLiteInstancePtr SQLiteInstance::open(const boost::filesystem::path & db_path, bool allow_write)
 {
 	int flags = allow_write ? (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE) : SQLITE_OPEN_READONLY;
 

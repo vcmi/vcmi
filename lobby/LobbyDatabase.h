@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "LobbyDefines.h"
+
 class SQLiteInstance;
 class SQLiteStatement;
 
@@ -23,61 +25,68 @@ class LobbyDatabase
 	SQLiteStatementPtr insertAccountStatement;
 	SQLiteStatementPtr insertAccessCookieStatement;
 	SQLiteStatementPtr insertGameRoomStatement;
+	SQLiteStatementPtr insertGameRoomPlayersStatement;
+	SQLiteStatementPtr insertGameRoomInvitesStatement;
 
-	SQLiteStatementPtr checkAccessCookieStatement;
-	SQLiteStatementPtr isPlayerInGameRoomStatement;
-	SQLiteStatementPtr isAccountNameAvailableStatement;
+	SQLiteStatementPtr deleteGameRoomPlayersStatement;
+	SQLiteStatementPtr deleteGameRoomInvitesStatement;
 
-	SQLiteStatementPtr getRecentMessageHistoryStatement;
 	SQLiteStatementPtr setGameRoomStatusStatement;
 	SQLiteStatementPtr setGameRoomPlayerLimitStatement;
-	SQLiteStatementPtr insertPlayerIntoGameRoomStatement;
-	SQLiteStatementPtr removePlayerFromGameRoomStatement;
 
-	void initializeDatabase();
+	SQLiteStatementPtr getRecentMessageHistoryStatement;
+	SQLiteStatementPtr getIdleGameRoomStatement;
+	SQLiteStatementPtr getAccountGameRoomStatement;
+	SQLiteStatementPtr getActiveAccountsStatement;
+
+	SQLiteStatementPtr isAccountCookieValidStatement;
+	SQLiteStatementPtr isGameRoomCookieValidStatement;
+	SQLiteStatementPtr isPlayerInGameRoomStatement;
+	SQLiteStatementPtr isPlayerInAnyGameRoomStatement;
+	SQLiteStatementPtr isAccountExistsStatement;
+
 	void prepareStatements();
-
-	void createTableChatMessages();
-	void createTableGameRoomPlayers();
-	void createTableGameRooms();
-	void createTableAccounts();
-	void createTableAccountCookies();
+	void createTables();
 
 public:
-	struct GameRoom
-	{
-		std::string roomUUID;
-		std::string roomStatus;
-		std::chrono::seconds age;
-		uint32_t playersCount;
-		uint32_t playersLimit;
-	};
-
-	struct ChatMessage
-	{
-		std::string sender;
-		std::string messageText;
-		std::chrono::seconds age;
-	};
-
-	explicit LobbyDatabase(const std::string & databasePath);
+	explicit LobbyDatabase(const boost::filesystem::path & databasePath);
 	~LobbyDatabase();
 
-	void setGameRoomStatus(const std::string & roomUUID, const std::string & roomStatus);
-	void setGameRoomPlayerLimit(const std::string & roomUUID, uint32_t playerLimit);
+	void setGameRoomStatus(const std::string & roomID, LobbyRoomState roomStatus);
+	void setGameRoomPlayerLimit(const std::string & roomID, uint32_t playerLimit);
 
-	void insertPlayerIntoGameRoom(const std::string & accountName, const std::string & roomUUID);
-	void removePlayerFromGameRoom(const std::string & accountName, const std::string & roomUUID);
+	void insertPlayerIntoGameRoom(const std::string & accountID, const std::string & roomID);
+	void deletePlayerFromGameRoom(const std::string & accountID, const std::string & roomID);
 
-	void insertGameRoom(const std::string & roomUUID, const std::string & hostAccountName);
-	void insertAccount(const std::string & accountName);
-	void insertAccessCookie(const std::string & accountName, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime);
-	void insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomName, const std::string & messageText);
+	void deleteGameRoomInvite(const std::string & targetAccountID, const std::string & roomID);
+	void insertGameRoomInvite(const std::string & targetAccountID, const std::string & roomID);
 
-	std::vector<GameRoom> getActiveGameRooms();
-	std::vector<ChatMessage> getRecentMessageHistory();
+	void insertGameRoom(const std::string & roomID, const std::string & hostAccountID);
+	void insertAccount(const std::string & accountID, const std::string & displayName);
+	void insertAccessCookie(const std::string & accountID, const std::string & accessCookieUUID);
+	void insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomID, const std::string & messageText);
 
-	bool checkAccessCookie(const std::string & accountName, const std::string & accessCookieUUID);
-	bool isPlayerInGameRoom(const std::string & accountName);
-	bool isAccountNameAvailable(const std::string & accountName);
+	void updateAccessCookie(const std::string & accountID, const std::string & accessCookieUUID);
+	void updateAccountLoginTime(const std::string & accountID);
+	void updateActiveAccount(const std::string & accountID, bool isActive);
+
+	std::vector<LobbyGameRoom> getActiveGameRooms();
+	std::vector<LobbyAccount> getActiveAccounts();
+	std::vector<LobbyAccount> getAccountsInRoom(const std::string & roomID);
+	std::vector<LobbyChatMessage> getRecentMessageHistory();
+
+	std::string getIdleGameRoom(const std::string & hostAccountID);
+	std::string getAccountGameRoom(const std::string & accountID);
+	std::string getAccountDisplayName(const std::string & accountID);
+
+	LobbyCookieStatus getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime);
+	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime);
+	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, std::chrono::seconds cookieLifetime);
+	LobbyInviteStatus getAccountInviteStatus(const std::string & accountID, const std::string & roomID);
+	LobbyRoomState getGameRoomStatus(const std::string & roomID);
+	uint32_t getGameRoomFreeSlots(const std::string & roomID);
+
+	bool isPlayerInGameRoom(const std::string & accountID);
+	bool isPlayerInGameRoom(const std::string & accountID, const std::string & roomID);
+	bool isAccountExists(const std::string & accountID);
 };
