@@ -9,38 +9,13 @@
  */
 #pragma once
 
-#include "../lib/network/NetworkServer.h"
+#include "../lib/network/NetworkListener.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
-class SQLiteInstance;
-class SQLiteStatement;
-
-class LobbyDatabase
-{
-	std::unique_ptr<SQLiteInstance> database;
-	std::unique_ptr<SQLiteStatement> insertChatMessageStatement;
-	std::unique_ptr<SQLiteStatement> getRecentMessageHistoryStatement;
-
-	void initializeDatabase();
-	void prepareStatements();
-	void createTableChatMessages();
-public:
-	struct ChatMessage
-	{
-		std::string sender;
-		std::string messageText;
-		int messageAgeSeconds;
-	};
-
-	LobbyDatabase();
-
-	void insertChatMessage(const std::string & sender, const std::string & messageText);
-	std::vector<ChatMessage> getRecentMessageHistory();
-	bool isPlayerInGameRoom(const std::string & accountName);
-};
+class LobbyDatabase;
 
 class LobbyServer : public INetworkServerListener
 {
@@ -54,6 +29,8 @@ class LobbyServer : public INetworkServerListener
 	std::unique_ptr<LobbyDatabase> database;
 	std::unique_ptr<NetworkServer> networkServer;
 
+	bool isAccountNameValid(const std::string & accountName);
+
 	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
 	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
 	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
@@ -65,7 +42,8 @@ class LobbyServer : public INetworkServerListener
 	void receiveAuthentication(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
 	void receiveJoinGameRoom(const std::shared_ptr<NetworkConnection> & connection, const JsonNode & json);
 public:
-	LobbyServer();
+	LobbyServer(const std::string & databasePath);
+	~LobbyServer();
 
 	void start(uint16_t port);
 	void run();

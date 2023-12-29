@@ -59,6 +59,14 @@ private:
 	void getColumnSingle( size_t index, int64_t & value );
 	void getColumnSingle( size_t index, std::string & value );
 
+	template<typename Rep, typename Period>
+	void getColumnSingle( size_t index, std::chrono::duration<Rep, Period> & value )
+	{
+		int64_t durationValue = 0;
+		getColumnSingle(index, durationValue);
+		value = std::chrono::duration<Rep, Period>(durationValue);
+	}
+
 	SQLiteStatement( SQLiteInstance & instance, sqlite3_stmt * statement );
 
 	template<typename T, typename ... Args >

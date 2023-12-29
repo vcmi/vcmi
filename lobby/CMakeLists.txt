@@ -1,11 +1,16 @@
 set(lobby_SRCS
 		StdInc.cpp
+
+		EntryPoint.cpp
+		LobbyDatabase.cpp
 		LobbyServer.cpp
 		SQLiteConnection.cpp
 )
 
 set(lobby_HEADERS
 		StdInc.h
+
+		LobbyDatabase.h
 		LobbyServer.h
 		SQLiteConnection.h
 )
