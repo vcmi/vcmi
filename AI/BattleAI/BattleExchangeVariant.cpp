@@ -258,7 +258,9 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 	updateReachabilityMap(hb);
 
-	if(result.bestAttack.attack.shooting && hb->battleHasShootingPenalty(activeStack, result.bestAttack.dest))
+	if(result.bestAttack.attack.shooting
+		&& !activeStack->waited()
+		&& hb->battleHasShootingPenalty(activeStack, result.bestAttack.dest))
 	{
 		if(!canBeHitThisTurn(result.bestAttack))
 			return result; // lets wait
@@ -481,11 +483,6 @@ float BattleExchangeEvaluator::evaluateExchange(
 	DamageCache & damageCache,
 	std::shared_ptr<HypotheticBattle> hb)
 {
-	if(ap.from.hex == 127)
-	{
-		logAi->trace("x");
-	}
-
 	BattleScore score = calculateExchange(ap, turn, targets, damageCache, hb);
 
 #if BATTLE_TRACE_LEVEL >= 1
@@ -887,7 +884,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 				continue;
 
 			auto blockedUnitDamage = unit->getMinDamage(hb.battleCanShoot(unit)) * unit->getCount();
-			auto ratio = blockedUnitDamage / (blockedUnitDamage + activeUnitDamage);
+			float ratio = blockedUnitDamage / (float)(blockedUnitDamage + activeUnitDamage + 0.01);
 
 			auto unitReachability = turnBattle.getReachability(unit);
 			auto unitSpeed = unit->speed(turn); // Cached value, to avoid performance hit
