@@ -226,7 +226,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		handler.serializeInt("experience", vinfo.reward.heroExperience, 0);
 		handler.serializeInt("mana", vinfo.reward.manaDiff, 0);
 		
-		int val;
+		int val = 0;
 		handler.serializeInt("morale", val, 0);
 		if(val)
 			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
