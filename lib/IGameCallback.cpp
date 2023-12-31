@@ -16,7 +16,6 @@
 #include "CBonusTypeHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
-#include "bonuses/CBonusSystemNode.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"

@@ -20,16 +20,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 std::atomic<int64_t> CBonusSystemNode::treeChanged(1);
 constexpr bool CBonusSystemNode::cachingEnabled = true;
 
-#define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
-#define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
-
 std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & selector)
 {
 	auto ret = bonuses.getFirst(selector);
 	if(ret)
 		return ret;
 
-	FOREACH_PARENT(pname)
+	TNodes lparents;
+	getParents(lparents);
+	for(CBonusSystemNode *pname : lparents)
 	{
 		ret = pname->getBonusLocalFirst(selector);
 		if (ret)
@@ -227,39 +226,6 @@ CBonusSystemNode::CBonusSystemNode(ENodeTypes NodeType):
 {
 }
 
-CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other) noexcept:
-	bonuses(std::move(other.bonuses)),
-	exportedBonuses(std::move(other.exportedBonuses)),
-	nodeType(other.nodeType),
-	cachedLast(0),
-	isHypotheticNode(other.isHypotheticNode)
-{
-	std::swap(parents, other.parents);
-	std::swap(children, other.children);
-
-	//fixing bonus tree without recalculation
-
-	if(!isHypothetic())
-	{
-		for(CBonusSystemNode * n : parents)
-		{
-			n->children -= &other;
-			n->children.push_back(this);
-		}
-	}
-
-	for(CBonusSystemNode * n : children)
-	{
-		n->parents -= &other;
-		n->parents.push_back(this);
-	}
-
-	//cache ignored
-
-	//cachedBonuses
-	//cachedRequests
-}
-
 CBonusSystemNode::~CBonusSystemNode()
 {
 	detachFromAll();
@@ -405,8 +371,10 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(), nodeName());
 	}
 
-	FOREACH_RED_CHILD(child)
-		child->propagateBonus(b, source);
+	TNodes lchildren;
+	getRedChildren(lchildren);
+	for(CBonusSystemNode *pname : lchildren)
+		pname->propagateBonus(b, source);
 }
 
 void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
@@ -417,8 +385,10 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 		logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
 	}
 
-	FOREACH_RED_CHILD(child)
-		child->unpropagateBonus(b);
+	TNodes lchildren;
+	getRedChildren(lchildren);
+	for(CBonusSystemNode *pname : lchildren)
+		pname->unpropagateBonus(b);
 }
 
 void CBonusSystemNode::newChildAttached(CBonusSystemNode & child)
@@ -467,9 +437,11 @@ void CBonusSystemNode::deserializationFix()
 
 }
 
-void CBonusSystemNode::getRedParents(TNodes & out)
+void CBonusSystemNode::getRedParents(TCNodes & out) const
 {
-	FOREACH_PARENT(pname)
+	TCNodes lparents;
+	getParents(lparents);
+	for(const CBonusSystemNode *pname : lparents)
 	{
 		if(pname->actsAsBonusSourceOnly())
 		{
@@ -488,7 +460,9 @@ void CBonusSystemNode::getRedParents(TNodes & out)
 
 void CBonusSystemNode::getRedChildren(TNodes &out)
 {
-	FOREACH_PARENT(pname)
+	TNodes lparents;
+	getParents(lparents);
+	for(CBonusSystemNode *pname : lparents)
 	{
 		if(!pname->actsAsBonusSourceOnly())
 		{
@@ -512,7 +486,7 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant)
 		if(b->propagator)
 			descendant.propagateBonus(b, *this);
 	}
-	TNodes redParents;
+	TCNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
 
 	for(auto * parent : redParents)
@@ -531,7 +505,7 @@ void CBonusSystemNode::removedRedDescendant(CBonusSystemNode & descendant)
 		if(b->propagator)
 			descendant.unpropagateBonus(b);
 
-	TNodes redParents;
+	TCNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
 
 	for(auto * parent : redParents)
@@ -542,14 +516,14 @@ void CBonusSystemNode::removedRedDescendant(CBonusSystemNode & descendant)
 	}
 }
 
-void CBonusSystemNode::getRedAncestors(TNodes &out)
+void CBonusSystemNode::getRedAncestors(TCNodes &out) const
 {
 	getRedParents(out);
 
-	TNodes redParents; 
+	TCNodes redParents;
 	getRedParents(redParents);
 
-	for(CBonusSystemNode * parent : redParents)
+	for(const CBonusSystemNode * parent : redParents)
 		parent->getRedAncestors(out);
 }
 

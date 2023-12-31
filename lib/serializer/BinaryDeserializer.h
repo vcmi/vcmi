@@ -416,26 +416,10 @@ public:
 		ui32 length = readAndCheckLength();
 		data.clear();
 		T1 key;
-		T2 value;
 		for(ui32 i=0;i<length;i++)
 		{
 			load(key);
-			load(value);
-			data.insert(std::pair<T1, T2>(std::move(key), std::move(value)));
-		}
-	}
-	template <typename T1, typename T2>
-	void load(std::multimap<T1, T2> &data)
-	{
-		ui32 length = readAndCheckLength();
-		data.clear();
-		T1 key;
-		T2 value;
-		for(ui32 i = 0; i < length; i++)
-		{
-			load(key);
-			load(value);
-			data.insert(std::pair<T1, T2>(std::move(key), std::move(value)));
+			load(data[key]);
 		}
 	}
 	void load(std::string &data)

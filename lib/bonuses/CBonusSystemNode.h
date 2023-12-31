@@ -33,7 +33,7 @@ private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
 	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
 
-	TNodesVector parents; //parents -> we inherit bonuses from them, we may attach our bonuses to them
+	TNodesVector parents; // we inherit bonuses from them, we may attach our bonuses to them
 	TNodesVector children;
 
 	ENodeTypes nodeType;
@@ -54,8 +54,8 @@ private:
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
 
-	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
-	void getRedAncestors(TNodes &out);
+	void getRedParents(TCNodes &out) const;  //retrieves list of red parent nodes (nodes bonuses propagate from)
+	void getRedAncestors(TCNodes &out) const;
 	void getRedChildren(TNodes &out);
 
 	void getAllParents(TCNodes & out) const;
@@ -80,7 +80,6 @@ protected:
 public:
 	explicit CBonusSystemNode(bool isHypotetic = false);
 	explicit CBonusSystemNode(ENodeTypes NodeType);
-	CBonusSystemNode(CBonusSystemNode && other) noexcept;
 	virtual ~CBonusSystemNode();
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
@@ -128,11 +127,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-//		h & bonuses;
 		h & nodeType;
 		h & exportedBonuses;
 		BONUS_TREE_DESERIALIZATION_FIX
-		//h & parents & children;
 	}
 
 	friend class CBonusProxy;

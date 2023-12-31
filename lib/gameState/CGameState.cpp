@@ -1928,14 +1928,6 @@ TeamState::TeamState()
 	fogOfWarMap = std::make_unique<boost::multi_array<ui8, 3>>();
 }
 
-TeamState::TeamState(TeamState && other) noexcept:
-	CBonusSystemNode(std::move(other)),
-	id(other.id)
-{
-	std::swap(players, other.players);
-	std::swap(fogOfWarMap, other.fogOfWarMap);
-}
-
 CRandomGenerator & CGameState::getRandomGenerator()
 {
 	return rand;

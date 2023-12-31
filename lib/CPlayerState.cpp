@@ -23,8 +23,6 @@ PlayerState::PlayerState()
 	setNodeType(PLAYER);
 }
 
-PlayerState::PlayerState(PlayerState && other) noexcept = default;
-
 PlayerState::~PlayerState() = default;
 
 std::string PlayerState::nodeName() const
