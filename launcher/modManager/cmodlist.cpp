@@ -10,65 +10,17 @@
 #include "StdInc.h"
 #include "cmodlist.h"
 
+#include "../lib/CConfigHandler.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
-
-namespace
-{
-bool isCompatible(const QString & verMin, const QString & verMax)
-{
-	const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
-	QVersionNumber vcmiVersion(VCMI_VERSION_MAJOR,
-							   VCMI_VERSION_MINOR,
-							   VCMI_VERSION_PATCH);
-	
-	auto versionMin = QVersionNumber::fromString(verMin);
-	auto versionMax = QVersionNumber::fromString(verMax);
-	
-	auto buildVersion = [maxSections](QVersionNumber & ver)
-	{
-		if(ver.segmentCount() < maxSections)
-		{
-			auto segments = ver.segments();
-			for(int i = segments.size() - 1; i < maxSections; ++i)
-				segments.append(0);
-			ver = QVersionNumber(segments);
-		}
-	};
-
-	if(!versionMin.isNull())
-	{
-		buildVersion(versionMin);
-		if(vcmiVersion < versionMin)
-			return false;
-	}
-	
-	if(!versionMax.isNull())
-	{
-		buildVersion(versionMax);
-		if(vcmiVersion > versionMax)
-			return false;
-	}
-	return true;
-}
-}
-
-bool CModEntry::compareVersions(QString lesser, QString greater)
-{
-	auto versionLesser = QVersionNumber::fromString(lesser);
-	auto versionGreater = QVersionNumber::fromString(greater);
-	return versionLesser < versionGreater;
-}
+#include "../../lib/modding/CModVersion.h"
 
 QString CModEntry::sizeToString(double size)
 {
-	static const QString sizes[] =
-	{
-		/*"%1 B", */ "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB"
-	};
+	static const std::array<QString, 5> sizes { "%1 B", "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB" };
 	size_t index = 0;
-	while(size > 1024 && index < 4)
+	while(size > 1024 && index < sizes.size())
 	{
 		size /= 1024;
 		index++;
@@ -108,23 +60,29 @@ bool CModEntry::isUpdateable() const
 	if(!isInstalled())
 		return false;
 
-	QString installedVer = localData["installedVersion"].toString();
-	QString availableVer = repository["latestVersion"].toString();
+	auto installedVer = localData["installedVersion"].toString().toStdString();
+	auto availableVer = repository["latestVersion"].toString().toStdString();
 
-	if(compareVersions(installedVer, availableVer))
-		return true;
-	return false;
+	return (CModVersion::fromString(installedVer) < CModVersion::fromString(availableVer));
+}
+
+bool isCompatible(const QVariantMap & compatibility)
+{
+	auto compatibleMin = CModVersion::fromString(compatibility["min"].toString().toStdString());
+	auto compatibleMax = CModVersion::fromString(compatibility["max"].toString().toStdString());
+
+	return (compatibleMin.isNull() || CModVersion::GameVersion().compatible(compatibleMin, true, true))
+			&& (compatibleMax.isNull() || compatibleMax.compatible(CModVersion::GameVersion(), true, true));
 }
 
 bool CModEntry::isCompatible() const
 {
-	auto compatibility = localData["compatibility"].toMap();
-	return ::isCompatible(compatibility["min"].toString(), compatibility["max"].toString());
+	return ::isCompatible(localData["compatibility"].toMap());
 }
 
 bool CModEntry::isEssential() const
 {
-	return getValue("storedLocaly").toBool();
+	return getName() == "vcmi";
 }
 
 bool CModEntry::isInstalled() const
@@ -132,9 +90,32 @@ bool CModEntry::isInstalled() const
 	return !localData.isEmpty();
 }
 
-bool CModEntry::isValid() const
+bool CModEntry::isVisible() const
 {
-	return !localData.isEmpty() || !repository.isEmpty();
+	if (getBaseValue("modType").toString() == "Compatibility")
+	{
+		if (isSubmod())
+			return false;
+	}
+
+	if (getBaseValue("modType").toString() == "Translation")
+	{
+		// Do not show not installed translation mods to languages other than player language
+		if (localData.empty() && getBaseValue("language") != QString::fromStdString(settings["general"]["language"].String()) )
+			return false;
+	}
+
+	return !localData.isEmpty() || (!repository.isEmpty() && !repository.contains("mod"));
+}
+
+bool CModEntry::isTranslation() const
+{
+	return getBaseValue("modType").toString() == "Translation";
+}
+
+bool CModEntry::isSubmod() const
+{
+	return getName().contains('.');
 }
 
 int CModEntry::getModStatus() const
@@ -157,28 +138,66 @@ QString CModEntry::getName() const
 
 QVariant CModEntry::getValue(QString value) const
 {
+	return getValueImpl(value, true);
+}
+
+QStringList CModEntry::getDependencies() const
+{
+	QStringList result;
+	for (auto const & entry : getValue("depends").toStringList())
+		result.push_back(entry.toLower());
+	return result;
+}
+
+QStringList CModEntry::getConflicts() const
+{
+	QStringList result;
+	for (auto const & entry : getValue("conflicts").toStringList())
+		result.push_back(entry.toLower());
+	return result;
+}
+
+QVariant CModEntry::getBaseValue(QString value) const
+{
+	return getValueImpl(value, false);
+}
+
+QVariant CModEntry::getValueImpl(QString value, bool localized) const
+
+{
+	QString langValue = QString::fromStdString(settings["general"]["language"].String());
+
+	// Priorities
+	// 1) data from newest version
+	// 2) data from preferred language
+
+	bool useRepositoryData = repository.contains(value);
+
 	if(repository.contains(value) && localData.contains(value))
 	{
 		// value is present in both repo and locally installed. Select one from latest version
-		QString installedVer = localData["installedVersion"].toString();
-		QString availableVer = repository["latestVersion"].toString();
+		auto installedVer = localData["installedVersion"].toString().toStdString();
+		auto availableVer = repository["latestVersion"].toString().toStdString();
 
-		if(compareVersions(installedVer, availableVer))
-			return repository[value];
-		else
-			return localData[value];
+		useRepositoryData = CModVersion::fromString(installedVer) < CModVersion::fromString(availableVer);
 	}
 
-	if(repository.contains(value))
-		return repository[value];
+	auto & storage = useRepositoryData ? repository : localData;
 
-	if(localData.contains(value))
-		return localData[value];
+	if(localized && storage.contains(langValue))
+	{
+		auto langStorage = storage[langValue].toMap();
+		if (langStorage.contains(value))
+			return langStorage[value];
+	}
+
+	if(storage.contains(value))
+		return storage[value];
 
 	return QVariant();
 }
 
-QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
+QVariantMap CModList::copyField(QVariantMap data, QString from, QString to) const
 {
 	QVariantMap renamed;
 
@@ -251,7 +270,7 @@ CModEntry CModList::getMod(QString modname) const
 
 	if(conf.isNull())
 	{
-		settings["active"] = true; // default
+		settings["active"] = !local.value("keepDisabled").toBool();
 	}
 	else
 	{
@@ -259,7 +278,7 @@ CModEntry CModList::getMod(QString modname) const
 		{
 			settings = conf.toMap();
 			if(settings.value("active").isNull())
-				settings["active"] = true; // default
+				settings["active"] = !local.value("keepDisabled").toBool();
 		}
 		else
 			settings.insert("active", conf);
@@ -281,12 +300,9 @@ CModEntry CModList::getMod(QString modname) const
 
 	if(settings.value("active").toBool())
 	{
-		auto compatibility = local.value("compatibility").toMap();
-		if(compatibility["min"].isValid() || compatibility["max"].isValid())
-			if(!isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
-				settings["active"] = false;
+		if(!::isCompatible(local.value("compatibility").toMap()))
+			settings["active"] = false;
 	}
-
 
 	for(auto entry : repositories)
 	{
@@ -294,14 +310,16 @@ CModEntry CModList::getMod(QString modname) const
 		if(repoVal.isValid())
 		{
 			auto repoValMap = repoVal.toMap();
-			auto compatibility = repoValMap["compatibility"].toMap();
-			if(isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
+			if(::isCompatible(repoValMap["compatibility"].toMap()))
 			{
-				if(repo.empty() || CModEntry::compareVersions(repo["version"].toString(), repoValMap["version"].toString()))
+				if(repo.empty()
+					|| CModVersion::fromString(repo["version"].toString().toStdString())
+					 < CModVersion::fromString(repoValMap["version"].toString().toStdString()))
 				{
-					//take valid download link and screenshots before assignment
+					//take valid download link, screenshots and mod size before assignment
 					auto download = repo.value("download");
 					auto screenshots = repo.value("screenshots");
+					auto size = repo.value("downloadSize");
 					repo = repoValMap;
 					if(repo.value("download").isNull())
 					{
@@ -309,6 +327,8 @@ CModEntry CModList::getMod(QString modname) const
 						if(repo.value("screenshots").isNull()) //taking screenshot from the downloadable version
 							repo["screenshots"] = screenshots;
 					}
+					if(repo.value("downloadSize").isNull())
+						repo["downloadSize"] = size;
 				}
 			}
 		}
@@ -337,8 +357,8 @@ QStringList CModList::getRequirements(QString modname)
 	{
 		auto mod = getMod(modname);
 
-		for(auto entry : mod.getValue("depends").toStringList())
-			ret += getRequirements(entry);
+		for(auto entry : mod.getDependencies())
+			ret += getRequirements(entry.toLower());
 	}
 	ret += modname;
 

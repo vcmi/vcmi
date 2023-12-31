@@ -14,19 +14,24 @@
 #include "CMapGenOptions.h"
 #include "Zone.h"
 #include "../mapping/CMapEditManager.h"
+#include "../mapping/CMap.h"
 #include "../CTownHandler.h"
-#include "ObjectManager.h"
-#include "RoadPlacer.h"
-#include "TreasurePlacer.h"
-#include "ConnectionsPlacer.h"
-#include "TownPlacer.h"
-#include "WaterAdopter.h"
-#include "WaterProxy.h"
-#include "WaterRoutes.h"
-#include "RockPlacer.h"
-#include "ObstaclePlacer.h"
-#include "RiverPlacer.h"
-#include "TerrainPainter.h"
+#include "modificators/ObjectManager.h"
+#include "modificators/RoadPlacer.h"
+#include "modificators/TreasurePlacer.h"
+#include "modificators/QuestArtifactPlacer.h"
+#include "modificators/ConnectionsPlacer.h"
+#include "modificators/TownPlacer.h"
+#include "modificators/MinePlacer.h"
+#include "modificators/ObjectDistributor.h"
+#include "modificators/WaterAdopter.h"
+#include "modificators/WaterProxy.h"
+#include "modificators/WaterRoutes.h"
+#include "modificators/RockPlacer.h"
+#include "modificators/RockFiller.h"
+#include "modificators/ObstaclePlacer.h"
+#include "modificators/RiverPlacer.h"
+#include "modificators/TerrainPainter.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -36,10 +41,16 @@ RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
 	mapInstance = std::make_unique<CMap>();
+	mapProxy = std::make_shared<MapProxy>(*this);
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }
 
-void RmgMap::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
+int RmgMap::getDecorationsPercentage() const
+{
+	return 15; // arbitrary value to generate more readable map
+}
+
+void RmgMap::foreach_neighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
 {
 	for(const int3 &dir : int3::getDirs())
 	{
@@ -51,7 +62,7 @@ void RmgMap::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> f
 	}
 }
 
-void RmgMap::foreachDirectNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+void RmgMap::foreachDirectNeighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
 {
 	for(const int3 &dir : rmg::dirs4)
 	{
@@ -61,7 +72,7 @@ void RmgMap::foreachDirectNeighbour(const int3& pos, std::function<void(int3& po
 	}
 }
 
-void RmgMap::foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+void RmgMap::foreachDiagonalNeighbour(const int3 & pos, const std::function<void(int3 & pos)> & foo) const
 {
 	for (const int3 &dir : rmg::dirsDiagonal)
 	{
@@ -71,7 +82,7 @@ void RmgMap::foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& 
 	}
 }
 
-void RmgMap::initTiles(CMapGenerator & generator)
+void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 {
 	mapInstance->initTerrain();
 	
@@ -82,16 +93,16 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	for (auto faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
 	
-	getEditManager()->clearTerrain(&generator.rand);
+	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(Terrain::GRASS, &generator.rand);
-	
-	auto tmpl = mapGenOptions.getMapTemplate();
+	getEditManager()->drawTerrain(ETerrainId::GRASS, getDecorationsPercentage(), &rand);
+
+	const auto * tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
-		auto zone = std::make_shared<Zone>(*this, generator);
-		zone->setOptions(*option.second.get());
+		auto zone = std::make_shared<Zone>(*this, generator, rand);
+		zone->setOptions(*option.second);
 		zones[zone->getId()] = zone;
 	}
 	
@@ -103,8 +114,11 @@ void RmgMap::initTiles(CMapGenerator & generator)
 			rmg::ZoneOptions options;
 			options.setId(waterId);
 			options.setType(ETemplateZoneType::WATER);
-			auto zone = std::make_shared<Zone>(*this, generator);
+			auto zone = std::make_shared<Zone>(*this, generator, rand);
 			zone->setOptions(options);
+			//std::set<FactionID> allowedMonsterFactions({FactionID::CASTLE, FactionID::INFERNO}); // example of filling allowed monster factions
+			//zone->setMonsterTypes(allowedMonsterFactions); // can be set here, probably from template json, along with the treasure ranges and densities
+			zone->monsterStrength = EMonsterStrength::ZONE_NONE; // can be set to other value, probably from a new field in the template json
 			zones[zone->getId()] = zone;
 			break;
 	}
@@ -112,11 +126,19 @@ void RmgMap::initTiles(CMapGenerator & generator)
 
 void RmgMap::addModificators()
 {
+	bool hasObjectDistributor = false;
+	bool hasRockFiller = false;
+
 	for(auto & z : getZones())
 	{
 		auto zone = z.second;
 		
 		zone->addModificator<ObjectManager>();
+		if (!hasObjectDistributor)
+		{
+			zone->addModificator<ObjectDistributor>();
+			hasObjectDistributor = true;
+		}
 		zone->addModificator<TreasurePlacer>();
 		zone->addModificator<ObstaclePlacer>();
 		zone->addModificator<TerrainPainter>();
@@ -134,6 +156,8 @@ void RmgMap::addModificators()
 		else
 		{
 			zone->addModificator<TownPlacer>();
+			zone->addModificator<MinePlacer>();
+			zone->addModificator<QuestArtifactPlacer>();
 			zone->addModificator<ConnectionsPlacer>();
 			zone->addModificator<RoadPlacer>();
 			zone->addModificator<RiverPlacer>();
@@ -142,16 +166,42 @@ void RmgMap::addModificators()
 		if(zone->isUnderground())
 		{
 			zone->addModificator<RockPlacer>();
+			if (!hasRockFiller)
+			{
+				zone->addModificator<RockFiller>();
+				hasRockFiller = true;
+			}
 		}
 		
 	}
 }
 
-RmgMap::~RmgMap()
+int RmgMap::levels() const
 {
+	return mapInstance->levels();
 }
 
-CMap & RmgMap::map() const
+int RmgMap::width() const
+{
+	return mapInstance->width;
+}
+
+int RmgMap::height() const
+{
+	return mapInstance->height;
+}
+
+PlayerInfo & RmgMap::getPlayer(int playerId)
+{
+	return mapInstance->players.at(playerId);
+}
+
+std::shared_ptr<MapProxy> RmgMap::getMapProxy() const
+{
+	return mapProxy;
+}
+
+CMap& RmgMap::getMap(const CMapGenerator*) const
 {
 	return *mapInstance;
 }
@@ -174,7 +224,7 @@ const CMapGenOptions& RmgMap::getMapGenOptions() const
 void RmgMap::assertOnMap(const int3& tile) const
 {
 	if (!mapInstance->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile.toString()));
+		throw rmgException(boost::str(boost::format("Tile %s is outside the map") % tile.toString()));
 }
 
 RmgMap::Zones & RmgMap::getZones()
@@ -224,7 +274,7 @@ bool RmgMap::isRoad(const int3& tile) const
 	return tiles[tile.x][tile.y][tile.z].isRoad();
 }
 
-void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
+void RmgMap::setOccupied(const int3 &tile, ETileType state)
 {
 	assertOnMap(tile);
 	
@@ -238,11 +288,16 @@ void RmgMap::setRoad(const int3& tile, RoadId roadType)
 	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);
 }
 
-TileInfo RmgMap::getTile(const int3& tile) const
+TileInfo RmgMap::getTileInfo(const int3& tile) const
 {
 	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z];
+}
+
+TerrainTile & RmgMap::getTile(const int3& tile) const
+{
+	return mapInstance->getTile(tile);
 }
 
 TRmgTemplateZoneId RmgMap::getZoneID(const int3& tile) const
@@ -259,7 +314,7 @@ void RmgMap::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 	zoneColouring[tile.x][tile.y][tile.z] = zid;
 }
 
-void RmgMap::setNearestObjectDistance(int3 &tile, float value)
+void RmgMap::setNearestObjectDistance(const int3 &tile, float value)
 {
 	assertOnMap(tile);
 	
@@ -273,13 +328,14 @@ float RmgMap::getNearestObjectDistance(const int3 &tile) const
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }
 
-void RmgMap::registerZone(TFaction faction)
+void RmgMap::registerZone(FactionID faction)
 {
+	//FIXME: Protect with lock guard?
 	zonesPerFaction[faction]++;
 	zonesTotal++;
 }
 
-ui32 RmgMap::getZoneCount(TFaction faction)
+ui32 RmgMap::getZoneCount(FactionID faction)
 {
 	return zonesPerFaction[faction];
 }
@@ -289,12 +345,12 @@ ui32 RmgMap::getTotalZoneCount() const
 	return zonesTotal;
 }
 
-bool RmgMap::isAllowedSpell(SpellID sid) const
+bool RmgMap::isAllowedSpell(const SpellID & sid) const
 {
-	assert(sid >= 0);
-	if (sid < mapInstance->allowedSpell.size())
+	assert(sid.getNum() >= 0);
+	if (sid.getNum() < mapInstance->allowedSpells.size())
 	{
-		return mapInstance->allowedSpell[sid];
+		return mapInstance->allowedSpells.count(sid);
 	}
 	else
 		return false;
@@ -303,7 +359,7 @@ bool RmgMap::isAllowedSpell(SpellID sid) const
 void RmgMap::dump(bool zoneId) const
 {
 	static int id = 0;
-	std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id++));
+	std::ofstream out(boost::str(boost::format("zone_%d.txt") % id++));
 	int levels = mapInstance->levels();
 	int width =  mapInstance->width;
 	int height = mapInstance->height;
@@ -320,7 +376,7 @@ void RmgMap::dump(bool zoneId) const
 				else
 				{
 					char t = '?';
-					switch (getTile(int3(i, j, k)).getTileType())
+					switch (getTileInfo(int3(i, j, k)).getTileType())
 					{
 						case ETileType::FREE:
 							t = ' '; break;

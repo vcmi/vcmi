@@ -1,0 +1,101 @@
+{
+	"core:castle" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:rampart" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:tower" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:inferno" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:necropolis" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:dungeon" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:stronghold" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:fortress" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	},
+	"core:conflux" :
+	{
+		"town" :
+		{
+			"siege" :
+			{
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
+			}
+		}
+	}
+}

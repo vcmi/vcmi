@@ -127,6 +127,7 @@
 		</Linker>
 		<Unit filename="../CMakeLists.txt" />
 		<Unit filename="../Global.h" />
+		<Unit filename="../AUTHORS.h" />
 		<Unit filename="../Version.h" />
 		<Unit filename="../include/vcmi/Artifact.h" />
 		<Unit filename="../include/vcmi/ArtifactService.h" />
@@ -245,7 +246,7 @@
 		<Unit filename="GameConstants.cpp" />
 		<Unit filename="GameConstants.h" />
 		<Unit filename="HeroBonus.cpp" />
-		<Unit filename="HeroBonus.h" />
+		<Unit filename="Bonus.h" />
 		<Unit filename="IBonusTypeHandler.h" />
 		<Unit filename="IGameCallback.cpp" />
 		<Unit filename="IGameCallback.h" />
@@ -281,7 +282,6 @@
 		<Unit filename="VCMIDirs.h" />
 		<Unit filename="VCMI_Lib.cpp" />
 		<Unit filename="VCMI_Lib.h" />
-		<Unit filename="abilities/Ability.h" />
 		<Unit filename="battle/AccessibilityInfo.cpp" />
 		<Unit filename="battle/AccessibilityInfo.h" />
 		<Unit filename="battle/BattleAction.cpp" />

@@ -12,24 +12,30 @@
 
 #ifdef VCMI_WINDOWS
 	#include <windows.h>
-#elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD) && !defined(VCMI_HURD)
+#elif defined(VCMI_HAIKU)
+	#include <OS.h>
+#elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD) && \
+	!defined(VCMI_HURD) && !defined(VCMI_OPENBSD)
 	#include <sys/prctl.h>
 #endif
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads)
+CThreadHelper::CThreadHelper(std::vector<std::function<void()>> * Tasks, int Threads):
+	currentTask(0),
+	amount(static_cast<int>(Tasks->size())),
+	tasks(Tasks),
+	threads(Threads)
 {
-	currentTask = 0; amount = (int)Tasks->size();
-	tasks = Tasks;
-	threads = Threads;
 }
 void CThreadHelper::run()
 {
-	boost::thread_group grupa;
+	std::vector<boost::thread> group;
 	for(int i=0;i<threads;i++)
-		grupa.create_thread(std::bind(&CThreadHelper::processTasks,this));
-	grupa.join_all();
+		group.emplace_back(std::bind(&CThreadHelper::processTasks,this));
+
+	for (auto & thread : group)
+		thread.join();
 
 	//thread group deletes threads, do not free manually
 }
@@ -88,6 +94,8 @@ void setThreadName(const std::string &name)
 	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #elif defined(VCMI_APPLE)
 	pthread_setname_np(name.c_str());
+#elif defined(VCMI_HAIKU)
+	rename_thread(find_thread(NULL), name.c_str());
 #endif
 }
 

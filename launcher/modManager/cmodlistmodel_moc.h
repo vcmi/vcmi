@@ -23,8 +23,6 @@ enum EModFields
 	STATUS_UPDATE,
 	TYPE,
 	VERSION,
-	SIZE,
-	AUTHOR,
 	COUNT
 };
 }
@@ -50,6 +48,7 @@ class CModListModel : public QAbstractItemModel, public CModList
 	void endResetModel();
 
 	QString modIndexToName(const QModelIndex & index) const;
+	QString modTypeName(QString modTypeID) const;
 
 	QVariant getTextAlign(int field) const;
 	QVariant getValue(const CModEntry & mod, int field) const;
@@ -57,12 +56,11 @@ class CModListModel : public QAbstractItemModel, public CModList
 	QVariant getIcon(const CModEntry & mod, int field) const;
 
 public:
-	explicit CModListModel(QObject * parent = 0);
+	explicit CModListModel(QObject * parent = nullptr);
 
 	/// CModListContainer overrides
 	void resetRepositories() override;
 	void reloadRepositories() override;
-	void addRepository(QVariantMap data) override;
 	void modChanged(QString modID) override;
 
 	QVariant data(const QModelIndex & index, int role) const override;
@@ -95,5 +93,5 @@ class CModFilterModel : public QSortFilterProxyModel
 public:
 	void setTypeFilter(int filteredType, int filterMask);
 
-	CModFilterModel(CModListModel * model, QObject * parent = 0);
+	CModFilterModel(CModListModel * model, QObject * parent = nullptr);
 };

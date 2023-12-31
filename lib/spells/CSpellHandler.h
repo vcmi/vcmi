@@ -19,7 +19,8 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../battle/BattleHex.h"
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,14 +44,15 @@ class IBattleCast;
 
 struct SchoolInfo
 {
-	ESpellSchool id; //backlink
-	Bonus::BonusType damagePremyBonus;
-	Bonus::BonusType immunityBonus;
+	SpellSchool id; //backlink
 	std::string jsonName;
-	SecondarySkill::ESecondarySkill skill;
-	Bonus::BonusType knoledgeBonus;
 };
 
+}
+
+namespace SpellConfig
+{
+	extern const spells::SchoolInfo SCHOOL[4];
 }
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
@@ -64,7 +66,7 @@ public:
 		double minimumAngle;
 
 		///resource name
-		std::string resourceName;
+		AnimationPath resourceName;
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
@@ -75,7 +77,8 @@ public:
 
 	struct AnimationItem
 	{
-		std::string resourceName;
+		AnimationPath resourceName;
+		std::string effectName;
 		VerticalPosition verticalPosition;
 		int pause;
 
@@ -84,19 +87,18 @@ public:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & resourceName;
+			if (version > 806)
+				h & effectName;
 			h & verticalPosition;
 			h & pause;
 		}
 	};
 
-	typedef AnimationItem TAnimation;
-	typedef std::vector<TAnimation> TAnimationQueue;
+	using TAnimation = AnimationItem;
+	using TAnimationQueue = std::vector<TAnimation>;
 
 	struct DLL_LINKAGE AnimationInfo
 	{
-		AnimationInfo();
-		~AnimationInfo();
-
 		///displayed on all affected targets.
 		TAnimationQueue affect;
 
@@ -118,20 +120,20 @@ public:
 			h & affect;
 		}
 
-		std::string selectProjectile(const double angle) const;
+		AnimationPath selectProjectile(const double angle) const;
 	} animationInfo;
+
 public:
 	struct LevelInfo
 	{
-		std::string description; //descriptions of spell for skill level
-		si32 cost;
-		si32 power;
-		si32 AIValue;
+		si32 cost = 0;
+		si32 power = 0;
+		si32 AIValue = 0;
 
-		bool smartTarget;
-		bool clearTarget;
-		bool clearAffected;
-		std::string range;
+		bool smartTarget = true;
+		bool clearTarget = false;
+		bool clearAffected = false;
+		std::string range = "0";
 
 		//TODO: remove these two when AI will understand special effects
 		std::vector<std::shared_ptr<Bonus>> effects; //deprecated
@@ -139,12 +141,8 @@ public:
 
 		JsonNode battleEffects;
 
-		LevelInfo();
-		~LevelInfo();
-
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & description;
 			h & cost;
 			h & power;
 			h & AIValue;
@@ -165,6 +163,10 @@ public:
 	 *
 	 */
 	const CSpell::LevelInfo & getLevelInfo(const int32_t level) const;
+
+	SpellID id;
+	std::string identifier;
+	std::string modScope;
 public:
 	enum ESpellPositiveness
 	{
@@ -184,24 +186,13 @@ public:
 		TargetInfo(const CSpell * spell, const int32_t level, spells::Mode mode);
 	};
 
-	using BTVector = std::vector<Bonus::BonusType>;
+	using BTVector = std::vector<BonusType>;
 
-	SpellID id;
-	std::string identifier;
-	std::string name;
 
-	si32 level;
+	std::map<SpellSchool, bool> school;
+	std::map<FactionID, si32> probabilities; //% chance to gain for castles
 
-	std::map<ESpellSchool, bool> school;
-
-	si32 power; //spell's power
-
-	std::map<TFaction, si32> probabilities; //% chance to gain for castles
-
-	bool combat; //is this spell combat (true) or adventure (false)
-	bool creatureAbility; //if true, only creatures can use this spell
-	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
-
+	bool onlyOnWaterMap; //Spell will be banned on maps without water
 	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
 	JsonNode targetCondition; //custom condition on what spell can affect
@@ -211,42 +202,48 @@ public:
 
 	int64_t calculateDamage(const spells::Caster * caster) const override;
 
+	bool hasSchool(SpellSchool school) const override;
+
 	/**
 	 * Calls cb for each school this spell belongs to
 	 *
 	 * Set stop to true to abort looping
 	 */
-	void forEachSchool(const std::function<void(const spells::SchoolInfo &, bool &)> & cb) const override;
+	void forEachSchool(const std::function<void(const SpellSchool &, bool &)> & cb) const override;
 
 	spells::AimType getTargetType() const;
 
 	bool hasEffects() const;
-	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration = boost::none) const;
+	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, std::optional<si32 *> maxDuration = std::nullopt) const;
 
 	bool hasBattleEffects() const;
 
 	int32_t getCost(const int32_t skillLevel) const override;
 
-	si32 getProbability(const TFaction factionId) const;
+	si32 getProbability(const FactionID & factionId) const;
 
 	int32_t getBasePower() const override;
 	int32_t getLevelPower(const int32_t skillLevel) const override;
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	SpellID getId() const override;
 
-	int32_t getLevel() const override;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 
-	const std::string & getLevelDescription(const int32_t skillLevel) const override;
+	std::string getDescriptionTextID(int32_t level) const override;
+	std::string getDescriptionTranslated(int32_t level) const override;
+
+	int32_t getLevel() const override;
 
 	boost::logic::tribool getPositiveness() const override;
 
 	bool isPositive() const override;
 	bool isNegative() const override;
 	bool isNeutral() const override;
+	bool isMagical() const override;
 
 	bool isDamage() const override;
 	bool isOffensive() const override;
@@ -265,41 +262,11 @@ public:
 	const std::string & getIconScenarioBonus() const;
 	const std::string & getIconScroll() const;
 
-	const std::string & getCastSound() const override;
+	const AudioPath & getCastSound() const;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & identifier;
-		h & id;
-		h & name;
-		h & level;
-		h & power;
-		h & probabilities;
-		h & attributes;
-		h & combat;
-		h & creatureAbility;
-		h & positiveness;
-		h & counteredSpells;
-		h & rising;
-		h & damage;
-		h & offensive;
-		h & targetType;
-		h & targetCondition;
-		h & iconImmune;
-		h & defaultProbability;
-		h & special;
-		h & castSound;
-		h & iconBook;
-		h & iconEffect;
-		h & iconScenarioBonus;
-		h & iconScroll;
-		h & levels;
-		h & school;
-		h & animationInfo;
-	}
 	friend class CSpellHandler;
 	friend class Graphics;
 	friend class test::CSpellTest;
@@ -340,6 +307,7 @@ private:
 	bool damage;
 	bool offensive;
 	bool special;
+	bool nonMagical; //For creature abilities like bind
 
 	std::string attributes; //reference only attributes //todo: remove or include in configuration format, currently unused
 
@@ -353,9 +321,15 @@ private:
 	std::string iconScroll;
 
 	///sound related stuff
-	std::string castSound;
+	AudioPath castSound;
 
 	std::vector<LevelInfo> levels;
+
+	si32 level;
+	si32 power; //spell's power
+	bool combat; //is this spell combat (true) or adventure (false)
+	bool creatureAbility; //if true, only creatures can use this spell
+	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
 	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize
@@ -366,11 +340,8 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spe
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSpell, spells::Service>
 {
 public:
-	CSpellHandler();
-	virtual ~CSpellHandler();
-
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
 
@@ -378,16 +349,7 @@ public:
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.
 	 *
 	 */
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-		if(!h.saving)
-		{
-			afterLoadFinalization();
-		}
-	}
+	std::set<SpellID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

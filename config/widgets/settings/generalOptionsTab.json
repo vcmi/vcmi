@@ -1,0 +1,288 @@
+{
+	"library" : "config/widgets/settings/library.json",
+
+	"items":
+	[
+		{
+			"name": "lineLabelsEnd",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 10, "y": 55},
+			"text": "vcmi.systemOptions.videoGroup"
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 380, "y": 55},
+			"text": "vcmi.systemOptions.audioGroup"
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 10, "y": 355},
+			"text": "vcmi.systemOptions.townsGroup"
+		},
+/////////////////////////////////////// Left section - Video Settings
+		{
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position" : {"x": 45, "y": 85},
+			"items" : [
+				{
+					"name": "resolutionLabel",
+					"text": "vcmi.systemOptions.resolutionButton.hover",
+					"created" : "desktop"
+				},
+				{
+					"name": "scalingLabel",
+					"text": "vcmi.systemOptions.scalingButton.hover"
+				},
+				{
+					"text": "vcmi.systemOptions.fullscreenBorderless.hover",
+					"created" : "desktop"
+				},
+				{
+					"text": "vcmi.systemOptions.fullscreenExclusive.hover",
+					"created" : "desktop"
+				},
+				{
+					"text": "vcmi.systemOptions.framerateButton.hover"
+				},
+				{
+					"text": "vcmi.systemOptions.enableLargeSpellbookButton.hover"
+				},
+				{
+					"text": "core.genrltxt.577"
+				},
+				{
+					"name": "longTouchLabel",
+					"text": "vcmi.systemOptions.longTouchButton.hover",
+					"created" : "touchscreen"
+				},
+				{
+					"text": "vcmi.systemOptions.hapticFeedbackButton.hover",
+					"created" : "mobile"
+				},
+				{
+					"text": "vcmi.systemOptions.enableUiEnhancementsButton.hover"
+				}
+			]
+		},
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkboxFake",
+			"position" : {"x": 10, "y": 83},
+			"items" : [
+				{
+					"created" : "desktop"
+				},
+				{},
+				{
+					"created" : "desktop"
+				},
+				{
+					"created" : "desktop"
+				},
+				{},
+				{},
+				{
+					"name": "spellbookAnimationCheckboxPlaceholder"
+				},
+				{
+					"created" : "touchscreen"
+				},
+				{
+					"created" : "mobile"
+				},
+				{}
+			]
+		},
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
+			"position" : {"x": 10, "y": 83},
+			"items" : [
+				{
+					"name": "resolutionButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.resolutionButton",
+					"callback": "setGameResolution",
+					"created" : "desktop"
+				},
+				{
+					"name": "scalingButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.scalingButton",
+					"callback": "setGameScaling"
+				},
+				{
+					"name": "fullscreenBorderlessCheckbox",
+					"help": "vcmi.systemOptions.fullscreenBorderless",
+					"callback": "fullscreenBorderlessChanged",
+					"created" : "desktop"
+				},
+				{
+					"name": "fullscreenExclusiveCheckbox",
+					"help": "vcmi.systemOptions.fullscreenExclusive",
+					"callback": "fullscreenExclusiveChanged",
+					"created" : "desktop"
+				},
+				{
+					"name": "framerateCheckbox",
+					"help": "vcmi.systemOptions.framerateButton",
+					"callback": "framerateChanged"
+				},
+				{
+					"name": "enableLargeSpellbookCheckbox",
+					"help": "vcmi.systemOptions.enableLargeSpellbookButton",
+					"callback": "enableLargeSpellbookChanged"
+				},
+				{
+					"name": "spellbookAnimationCheckbox",
+					"help": "core.help.364",
+					"callback": "spellbookAnimationChanged"
+				},
+				{
+					"name": "longTouchButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.longTouchButton",
+					"callback": "setLongTouchDuration",
+					"created" : "touchscreen"
+				},
+				{
+					"name": "hapticFeedbackCheckbox",
+					"help": "vcmi.systemOptions.hapticFeedbackButton",
+					"callback": "hapticFeedbackChanged",
+					"created" : "mobile"
+				},
+				{
+					"name": "enableUiEnhancementsCheckbox",
+					"help": "vcmi.systemOptions.enableUiEnhancementsButton",
+					"callback": "enableUiEnhancementsChanged"
+				}
+			]
+		},
+/////////////////////////////////////// Right section - Audio Settings
+		{
+			"type" : "labelCentered",
+			"position": {"x": 460, "y": 98},
+			"text": "core.genrltxt.394" // Music Volume
+		},
+		{
+			"type" : "labelCentered",
+			"position": {"x": 460, "y": 158},
+			"text": "core.genrltxt.395" // Effects volume
+		},
+		{
+			"name": "frameMusic",
+			"type": "picture",
+			"image": "settingsWindow/frameAudio",
+			"position": {"x": 380, "y": 80 }
+		},
+		{
+			"name": "musicSlider",
+			"type": "audioSlider",
+			"position": {"x": 385, "y": 115},
+			"callback": "setMusic"
+		},
+		{
+			"name": "musicValueLabel",
+			"type": "labelCentered",
+			"position": {"x": 565, "y": 98}
+		},
+		{
+			"name": "frameSound",
+			"type": "picture",
+			"image": "settingsWindow/frameAudio",
+			"position": {"x": 380, "y": 140 }
+		},
+		{
+			"name": "soundVolumeSlider",
+			"type": "audioSlider",
+			"position": {"x": 385, "y": 175},
+			"callback": "setVolume"
+		},
+		{
+			"name": "soundValueLabel",
+			"type": "labelCentered",
+			"position": {"x": 565, "y": 158}
+		},
+		{
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position" : {"x": 415, "y": 202},
+			"items" : [
+				{
+					"text": "vcmi.systemOptions.audioMuteFocus.hover"
+				}
+			]
+		},
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
+			"position" : {"x": 380, "y": 200},
+			"items" : [
+				{
+					"name": "audioMuteFocusCheckbox",
+					"help": "vcmi.systemOptions.audioMuteFocus",
+					"callback": "audioMuteFocusChanged"
+				}
+			]
+		},
+/////////////////////////////////////// Bottom section - Towns Settings
+		{
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 385},
+			"items" : [
+				{
+					"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
+				},
+				{
+					"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
+				}
+			]
+		},
+		{
+			"name": "availableCreaturesAsDwellingPicker",
+			"type": "toggleGroup",
+			"position": {"x": 10, "y": 383},
+			"items":
+			[
+				{
+					"index": 0,
+					"type": "checkbox",
+					"help": "vcmi.otherOptions.creatureGrowthAsDwellingLabel",
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"index": 1,
+					"type": "checkbox",
+					"help": "vcmi.otherOptions.availableCreaturesAsDwellingLabel",
+					"position": {"x": 0, "y": 30}
+				},
+			],
+			"callback": "availableCreaturesAsDwellingChanged"
+		},
+		{
+			"name": "compactTownCreatureInfoLabel",
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 445},
+			"items" : [
+				{
+					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
+				}
+			]
+		},
+		{
+			"name": "compactTownCreatureInfoCheckbox",
+			"type": "checkbox",
+			"help": "vcmi.otherOptions.compactTownCreatureInfo",
+			"position": {"x": 10, "y": 443},
+			"callback": "compactTownCreatureInfoChanged"
+		}
+	]
+}

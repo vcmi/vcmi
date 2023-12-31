@@ -1,0 +1,126 @@
+{
+	"mysticalGarden" : {
+		"index" : 55,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPLEPR"],
+				"visit" : ["EXPERNCE"]
+			}
+		},
+		"types" : {
+			"mysticalGarden" : {
+				"index" : 0,
+				"aiValue" : 500,
+				"rmg" : {
+					"value"		: 500,
+					"rarity"	: 50
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 93,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true,
+					"rewards" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 92,
+						"appearChance" : { "max" : 50 },
+						"resources" : { "gems" : 5 }
+					},
+					{
+						"message" : 92,
+						"appearChance" : { "min" : 50 },
+						"resources" : { "gold" : 500 }
+					}
+				]
+			}
+		}
+	},
+	"windmill" :{
+		"index" : 112,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPWIND"],
+				"visit" : ["GENIE"]
+			}
+		},
+		"types" : {
+			"windmill" : {
+				"index" : 0,
+				"aiValue" : 1500,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 80
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 169,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true,
+					"rewards" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"message" : 170,
+						"resources" : [
+							{
+								"anyOf" : [ "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"min" : 3,
+								"max" : 6
+							}
+						]
+					}
+				]
+			}
+		}
+	},
+	"waterWheel" : {
+		"index" : 109,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMILL"],
+				"visit" : ["GENIE"]
+			}
+		},
+		"types" : {
+			"waterWheel" : {
+				"index" : 0,
+				"aiValue" : 750,
+				"rmg" : {
+					"value"		: 750,
+					"rarity"	: 50
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onVisitedMessage" : 165,
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"limiter" : { "daysPassed" : 8 },
+						"message" : 164,
+						"resources" : { "gold" : 1000 }
+					},
+					{
+						"message" : 164,
+						"resources" : { "gold" : 500 }
+					}
+				]
+			}
+		}
+	}
+}

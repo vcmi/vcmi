@@ -11,16 +11,11 @@
 #include "CompleteQuest.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/CGeneralTextHandler.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -42,41 +37,28 @@ TGoalVec CompleteQuest::decompose() const
 	}
 
 	logAi->debug("Trying to realize quest: %s", questToString());
-
-	switch(q.quest->missionType)
-	{
-	case CQuest::MISSION_ART:
+	
+	if(!q.quest->mission.artifacts.empty())
 		return missionArt();
 
-	case CQuest::MISSION_HERO:
+	if(!q.quest->mission.heroes.empty())
 		return missionHero();
 
-	case CQuest::MISSION_ARMY:
+	if(!q.quest->mission.creatures.empty())
 		return missionArmy();
 
-	case CQuest::MISSION_RESOURCES:
+	if(q.quest->mission.resources.nonZero())
 		return missionResources();
 
-	case CQuest::MISSION_KILL_HERO:
-	case CQuest::MISSION_KILL_CREATURE:
+	if(q.quest->killTarget != ObjectInstanceID::NONE)
 		return missionDestroyObj();
 
-	case CQuest::MISSION_PRIMARY_STAT:
-		return missionIncreasePrimaryStat();
+	for(auto & s : q.quest->mission.primary)
+		if(s)
+			return missionIncreasePrimaryStat();
 
-	case CQuest::MISSION_LEVEL:
+	if(q.quest->mission.heroLevel > 0)
 		return missionLevel();
-
-	case CQuest::MISSION_PLAYER:
-		if(ai->playerID.getNum() != q.quest->m13489val)
-			logAi->debug("Can't be player of color %d", q.quest->m13489val);
-
-		break;
-
-	case CQuest::MISSION_KEYMASTER:
-		return missionKeymaster();
-
-	} //end of switch
 
 	return TGoalVec();
 }
@@ -112,7 +94,7 @@ std::string CompleteQuest::questToString() const
 		return "find " + VLC->generaltexth->tentColors[q.obj->subID] + " keymaster tent";
 	}
 
-	if(q.quest->missionType == CQuest::MISSION_NONE)
+	if(q.quest->questName == CQuest::missionName(0))
 		return "inactive quest";
 
 	MetaString ms;
@@ -142,7 +124,7 @@ TGoalVec CompleteQuest::missionArt() const
 
 	CaptureObjectsBehavior findArts;
 
-	for(auto art : q.quest->m5arts)
+	for(auto art : q.quest->mission.artifacts)
 	{
 		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art)));
 	}
@@ -214,7 +196,7 @@ TGoalVec CompleteQuest::missionResources() const
 			for(int i = 0; i < q.quest->m7resources.size(); ++i)
 			{
 				if(q.quest->m7resources[i])
-					solutions.push_back(sptr(CollectRes(i, q.quest->m7resources[i])));
+					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->m7resources[i])));
 			}
 		}
 	}
@@ -228,7 +210,7 @@ TGoalVec CompleteQuest::missionResources() const
 
 TGoalVec CompleteQuest::missionDestroyObj() const
 {
-	auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
+	auto obj = cb->getObjByQuestIdentifier(q.quest->killTarget);
 
 	if(!obj)
 		return CaptureObjectsBehavior(q.obj).decompose();

@@ -10,14 +10,12 @@
 #include "StdInc.h"
 #include "CBinaryReader.h"
 
-//FIXME:library file depends on SDL - make cause troubles
-#include <SDL_endian.h>
 #include "CInputStream.h"
-#include "../CGeneralTextHandler.h"
+#include "../TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#ifdef VCMI_ENDIAN_BIG
 template <typename CData>
 CData readLE(CData data)
 {
@@ -56,7 +54,7 @@ si64 CBinaryReader::read(ui8 * data, si64 size)
 	si64 bytesRead = stream->read(data, size);
 	if(bytesRead != size)
 	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg((long)size));
+		throw std::runtime_error(getEndOfStreamExceptionMsg(static_cast<long>(size)));
 	}
 	return bytesRead;
 }
@@ -88,7 +86,7 @@ INSTANTIATE(si64, readInt64)
 
 #undef INSTANTIATE
 
-std::string CBinaryReader::readString()
+std::string CBinaryReader::readBaseString()
 {
 	unsigned int len = readUInt32();
 	assert(len <= 500000); //not too long
@@ -97,10 +95,7 @@ std::string CBinaryReader::readString()
 		std::string ret;
 		ret.resize(len);
 		read(reinterpret_cast<ui8*>(&ret[0]), len);
-		//FIXME: any need to move this into separate "read localized string" method?
-		if (Unicode::isValidASCII(ret))
-			return ret;
-		return Unicode::toUnicode(ret);
+		return ret;
 	}
 	return "";
 

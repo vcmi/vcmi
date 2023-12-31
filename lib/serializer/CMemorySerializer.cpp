@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CMemorySerializer.h"
 
-#include "../registerTypes/RegisterTypes.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 int CMemorySerializer::read(void * data, unsigned size)
@@ -32,13 +30,9 @@ int CMemorySerializer::write(const void * data, unsigned size)
 	return size;
 }
 
-CMemorySerializer::CMemorySerializer(): iser(this), oser(this)
+CMemorySerializer::CMemorySerializer(): iser(this), oser(this), readPos(0)
 {
-	readPos = 0;
-	registerTypes(iser);
-	registerTypes(oser);
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
-
 
 VCMI_LIB_NAMESPACE_END

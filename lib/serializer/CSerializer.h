@@ -14,8 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const ui32 SERIALIZATION_VERSION = 805;
-const ui32 MINIMAL_SERIALIZATION_VERSION = 805;
+const ui32 SERIALIZATION_VERSION = 831;
+const ui32 MINIMAL_SERIALIZATION_VERSION = 831;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 class CHero;
@@ -53,14 +53,14 @@ struct VectorizedObjectInfo
 /// Base class for serializers capable of reading or writing data
 class DLL_LINKAGE CSerializer
 {
-	template<typename T>
-	static si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si32> >::type * dummy = 0)
+	template<typename Numeric, std::enable_if_t<std::is_arithmetic_v<Numeric>, bool> = true>
+	static int32_t idToNumber(const Numeric &t)
 	{
 		return t;
 	}
 
-	template<typename T, typename NT>
-	static NT idToNumber(const BaseForID<T, NT> &t)
+	template<typename IdentifierType, std::enable_if_t<std::is_base_of_v<IdentifierBase, IdentifierType>, bool> = true>
+	static int32_t idToNumber(const IdentifierType &t)
 	{
 		return t.getNum();
 	}
@@ -76,14 +76,13 @@ class DLL_LINKAGE CSerializer
 		vectors[&typeid(T)] = VectorizedObjectInfo<T, U>(Vector, idRetriever);
 	}
 
-	typedef std::map<const std::type_info *, boost::any, TypeComparer> TTypeVecMap;
+	using TTypeVecMap = std::map<const std::type_info *, std::any, TypeComparer>;
 	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
 
 public:
-	bool smartVectorMembersSerialization;
-	bool sendStackInstanceByIds;
+	bool smartVectorMembersSerialization = false;
+	bool sendStackInstanceByIds = false;
 
-	CSerializer();
 	~CSerializer();
 
 	virtual void reportState(vstd::CLoggerBase * out){};
@@ -95,16 +94,16 @@ public:
 
 		myType = &typeid(T);
 
-		TTypeVecMap::iterator i = vectors.find(myType);
+		auto i = vectors.find(myType);
 		if(i == vectors.end())
 			return nullptr;
 		else
 		{
-			assert(!i->second.empty());
+			assert(i->second.has_value());
 #ifndef __APPLE__
 			assert(i->second.type() == typeid(VectorizedObjectInfo<T, U>));
 #endif
-			VectorizedObjectInfo<T, U> *ret = &(boost::any_cast<VectorizedObjectInfo<T, U>&>(i->second));
+			auto *ret = std::any_cast<VectorizedObjectInfo<T, U>>(&i->second);
 			return ret;
 		}
 	}
@@ -135,8 +134,8 @@ public:
 template<class S, class T>
 struct is_serializeable
 {
-	typedef char (&Yes)[1];
-	typedef char (&No)[2];
+	using Yes = char (&)[1];
+	using No = char (&)[2];
 
 	template<class U>
 	static Yes test(U * data, S* arg1 = 0,
@@ -150,42 +149,31 @@ struct is_serializeable
 template <typename T> //metafunction returning CGObjectInstance if T is its derivate or T elsewise
 struct VectorizedTypeFor
 {
-	typedef typename
-		//if
-		boost::mpl::eval_if<std::is_same<CGHeroInstance,T>,
-		boost::mpl::identity<CGHeroInstance>,
-		//else if
-		boost::mpl::eval_if<std::is_base_of<CGObjectInstance,T>,
-		boost::mpl::identity<CGObjectInstance>,
-		//else
-		boost::mpl::identity<T>
-		> >::type type;
+	using type = std::conditional_t<std::is_base_of_v<CGObjectInstance, T>, CGObjectInstance, T>;
 };
-template <typename U>
+
+template <>
+struct VectorizedTypeFor<CGHeroInstance>
+{
+	using type = CGHeroInstance;
+};
+
+template <typename T>
 struct VectorizedIDType
 {
-	typedef typename
-		//if
-		boost::mpl::eval_if<std::is_same<CArtifact,U>,
-		boost::mpl::identity<ArtifactID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CCreature,U>,
-		boost::mpl::identity<CreatureID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CHero,U>,
-		boost::mpl::identity<HeroTypeID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CArtifactInstance,U>,
-		boost::mpl::identity<ArtifactInstanceID>,
-		//else if
-		boost::mpl::eval_if<std::is_same<CGHeroInstance,U>,
-		boost::mpl::identity<HeroTypeID>,
-		//else if
-		boost::mpl::eval_if<std::is_base_of<CGObjectInstance,U>,
-		boost::mpl::identity<ObjectInstanceID>,
-		//else
-		boost::mpl::identity<si32>
-		> > > > > >::type type;
+	using type = std::conditional_t<std::is_base_of_v<CGObjectInstance, T>, ObjectInstanceID, int32_t>;
+};
+
+template <>
+struct VectorizedIDType<CArtifactInstance>
+{
+	using type = ArtifactInstanceID;
+};
+
+template <>
+struct VectorizedIDType<CGHeroInstance>
+{
+	using type = HeroTypeID;
 };
 
 /// Base class for deserializers

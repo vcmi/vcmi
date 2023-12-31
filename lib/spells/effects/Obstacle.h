@@ -11,6 +11,7 @@
 #pragma once
 
 #include "LocationEffect.h"
+#include "../../GameConstants.h"
 #include "../../battle/BattleHex.h"
 #include "../../battle/CObstacleInstance.h"
 
@@ -29,25 +30,18 @@ public:
 	RelativeShape shape; //shape of single obstacle relative to obstacle position
 	RelativeShape range; //position of obstacles relative to effect destination
 
-	std::string appearAnimation;
-	std::string animation;
+	AudioPath appearSound;
+	AnimationPath appearAnimation;
+	AnimationPath animation;
 
-	int offsetY;
-
-	ObstacleSideOptions();
+	int offsetY = 0;
 
 	void serializeJson(JsonSerializeFormat & handler);
-
-private:
-	void serializeRelativeShape(JsonSerializeFormat & handler, const std::string & fieldName, RelativeShape & value);
 };
 
 class Obstacle : public LocationEffect
 {
 public:
-	Obstacle();
-	virtual ~Obstacle();
-
 	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
@@ -59,22 +53,23 @@ public:
 
 protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
+	virtual void placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const;
 
+	bool hidden = false;
+	bool trigger = false;
+	bool trap = false;
+	bool removeOnTrigger = false;
+	bool hideNative = false;
+	SpellID triggerAbility;
 private:
-	bool hidden;
-	bool passable;
-	bool trigger;
-	bool trap;
-	bool removeOnTrigger;
-	int32_t patchCount;//random patches to place, only for massive spells
-	int32_t turnsRemaining;
+	int32_t patchCount = 0; //random patches to place, for massive spells should be >= 1, for non-massive ones if >= 1, then place only this number inside a target (like H5 landMine)
+	bool passable = false;
+	int32_t turnsRemaining = -1;
 
 	std::array<ObstacleSideOptions, 2> sideOptions;
 
 	static bool isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear);
 	static bool noRoomToPlace(Problem & problem, const Mechanics * m);
-
-	void placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const;
 };
 
 }

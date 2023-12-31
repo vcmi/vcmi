@@ -14,15 +14,9 @@
 #include <vcmi/Environment.h>
 #include <vcmi/ServerCallback.h>
 
-#include "../../lib/HeroBonus.h"
+#include "../../lib/bonuses/Bonus.h"
 #include "../../lib/battle/BattleProxy.h"
 #include "../../lib/battle/CUnitState.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CStack;
-
-VCMI_LIB_NAMESPACE_END
 
 class HypotheticBattle;
 
@@ -53,8 +47,11 @@ public:
 	std::vector<Bonus> bonusesToAdd;
 	std::vector<Bonus> bonusesToUpdate;
 	std::set<std::shared_ptr<Bonus>> bonusesToRemove;
+	int treeVersionLocal;
 
-	StackWithBonuses(const HypotheticBattle * Owner, const CStack * Stack);
+	StackWithBonuses(const HypotheticBattle * Owner, const battle::CUnitState * Stack);
+
+	StackWithBonuses(const HypotheticBattle * Owner, const battle::Unit * Stack);
 
 	StackWithBonuses(const HypotheticBattle * Owner, const battle::UnitInfo & info);
 
@@ -113,11 +110,13 @@ public:
 
 	std::shared_ptr<StackWithBonuses> getForUpdate(uint32_t id);
 
+	BattleID getBattleID() const override;
+
 	int32_t getActiveStackID() const override;
 
-	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
+	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
-	void nextRound(int32_t roundNr) override;
+	void nextRound() override;
 	void nextTurn(uint32_t unitId) override;
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
@@ -130,7 +129,7 @@ public:
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 
-	void setWallState(int partOfWall, si8 state) override;
+	void setWallState(EWallPart partOfWall, EWallState state) override;
 
 	void addObstacle(const ObstacleChanges & changes) override;
 	void updateObstacle(const ObstacleChanges& changes) override;
@@ -138,7 +137,10 @@ public:
 
 	uint32_t nextUnitId() const override;
 
-	int64_t getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
+	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
+	std::vector<SpellID> getUsedSpells(ui8 side) const override;
+	int3 getLocation() const override;
+	bool isCreatureBank() const override;
 
 	int64_t getTreeVersion() const;
 
@@ -180,7 +182,7 @@ private:
 		HypotheticEnvironment(HypotheticBattle * owner_, const Environment * upperEnvironment);
 
 		const Services * services() const override;
-		const BattleCb * battle() const override;
+		const BattleCb * battle(const BattleID & battleID) const override;
 		const GameCb * game() const override;
 		vstd::CLoggerBase * logger() const override;
 		events::EventBus * eventBus() const override;

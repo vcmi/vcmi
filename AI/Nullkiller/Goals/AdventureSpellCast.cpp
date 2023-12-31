@@ -10,14 +10,9 @@
 #include "StdInc.h"
 #include "AdventureSpellCast.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -33,19 +28,19 @@ void AdventureSpellCast::accept(AIGateway * ai)
 
 	auto spell = getSpell();
 
-	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->name, hero->name);
+	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getNameTranslated(), hero->getNameTranslated());
 
 	if(!spell->isAdventure())
-		throw cannotFulfillGoalException(spell->name + " is not an adventure spell.");
+		throw cannotFulfillGoalException(spell->getNameTranslated() + " is not an adventure spell.");
 
 	if(!hero->canCastThisSpell(spell))
-		throw cannotFulfillGoalException("Hero can not cast " + spell->name);
+		throw cannotFulfillGoalException("Hero can not cast " + spell->getNameTranslated());
 
 	if(hero->mana < hero->getSpellCost(spell))
-		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->name);
+		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->getNameTranslated());
 
 	if(spellID == SpellID::TOWN_PORTAL && town && town->visitingHero)
-		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->name);
+		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->getNameTranslated());
 
 	if(town && spellID == SpellID::TOWN_PORTAL)
 	{
@@ -70,7 +65,7 @@ void AdventureSpellCast::accept(AIGateway * ai)
 
 std::string AdventureSpellCast::toString() const
 {
-	return "AdventureSpellCast " + spellID.toSpell()->name;
+	return "AdventureSpellCast " + spellID.toSpell()->getNameTranslated();
 }
 
 }

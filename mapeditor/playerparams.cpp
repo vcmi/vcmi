@@ -11,7 +11,11 @@
 #include "StdInc.h"
 #include "playerparams.h"
 #include "ui_playerparams.h"
+#include "mapsettings/abstractsettings.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/constants/StringConstants.h"
+
+#include "../lib/mapping/CMap.h"
 
 PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) :
 	QWidget(parent),
@@ -19,17 +23,34 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	controller(ctrl)
 {
 	ui->setupUi(this);
+	
+	//set colors and teams
+	ui->teamId->addItem("No team", QVariant(TeamID::NO_TEAM));
+	for(int i = 0, index = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+	{
+		if(i == playerId || !controller.map()->players[i].canAnyonePlay())
+		{
+			ui->playerColorCombo->addItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]), QVariant(i));
+			if(i == playerId)
+				ui->playerColorCombo->setCurrentIndex(index);
+			++index;
+		}
+		
+		//add teams
+		ui->teamId->addItem(QString::number(i + 1), QVariant(i));
+	}
 
 	playerColor = playerId;
 	assert(controller.map()->players.size() > playerColor);
 	playerInfo = controller.map()->players[playerColor];
+	ui->teamId->setCurrentIndex(playerInfo.team == TeamID::NO_TEAM ? 0 : playerInfo.team.getNum() + 1);
 	
 	//load factions
 	for(auto idx : VLC->townh->getAllowedFactions())
 	{
 		CFaction * faction = VLC->townh->objects.at(idx);
-		auto * item = new QListWidgetItem(QString::fromStdString(faction->name));
-		item->setData(Qt::UserRole, QVariant::fromValue(idx));
+		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(idx.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		ui->allowedFactions->addItem(item);
 		if(playerInfo.allowedFactions.count(idx))
@@ -59,12 +80,16 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 		{
 			auto * ctown = town->town;
 			if(!ctown)
+			{
 				ctown = VLC->townh->randomTown;
+				town->town = ctown;
+			}
 			if(ctown && town->getOwner().getNum() == playerColor)
 			{
 				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
 					foundMainTown = townIndex;
-				const auto name = ctown->faction ? town->getObjectName() : town->name + ", (random)";
+				
+				const auto name = AbstractSettings::getTownName(*controller.map(), i);
 				ui->mainTown->addItem(tr(name.c_str()), QVariant::fromValue(i));
 				++townIndex;
 			}
@@ -121,13 +146,12 @@ void PlayerParams::on_randomFaction_stateChanged(int arg1)
 void PlayerParams::allowedFactionsCheck(QListWidgetItem * item)
 {
 	if(item->checkState() == Qt::Checked)
-		playerInfo.allowedFactions.insert(item->data(Qt::UserRole).toInt());
+		playerInfo.allowedFactions.insert(FactionID(item->data(Qt::UserRole).toInt()));
 	else
-		playerInfo.allowedFactions.erase(item->data(Qt::UserRole).toInt());
+		playerInfo.allowedFactions.erase(FactionID(item->data(Qt::UserRole).toInt()));
 }
 
-
-void PlayerParams::on_mainTown_activated(int index)
+void PlayerParams::on_mainTown_currentIndexChanged(int index)
 {
 	if(index == 0) //default
 	{
@@ -142,6 +166,71 @@ void PlayerParams::on_mainTown_activated(int index)
 		auto town = controller.map()->objects.at(ui->mainTown->currentData().toInt());
 		playerInfo.hasMainTown = true;
 		playerInfo.posOfMainTown = town->pos;
+	}
+}
+
+
+void PlayerParams::on_teamId_activated(int index)
+{
+	playerInfo.team.setNum(ui->teamId->currentData().toInt());
+}
+
+
+void PlayerParams::on_playerColorCombo_activated(int index)
+{
+	int data = ui->playerColorCombo->currentData().toInt();
+	if(data != playerColor)
+	{
+		controller.map()->players[playerColor].canHumanPlay = false;
+		controller.map()->players[playerColor].canComputerPlay = false;
+		playerColor = data;
+	}
+}
+
+
+void PlayerParams::on_townSelect_clicked()
+{
+	auto pred = [this](const CGObjectInstance * obj) -> bool
+	{
+		if(auto town = dynamic_cast<const CGTownInstance*>(obj))
+			return town->getOwner().getNum() == playerColor;
+		return false;
+	};
+	
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.highlight(pred);
+		l.update();
+		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+	}
+	
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->hide();
+}
+
+void PlayerParams::onTownPicked(const CGObjectInstance * obj)
+{
+	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent())->show();
+	
+	for(int lvl : {0, 1})
+	{
+		auto & l = controller.scene(lvl)->objectPickerView;
+		l.clear();
+		l.update();
+		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
+	}
+	
+	if(!obj) //discarded
+		return;
+	
+	for(int i = 0; i < ui->mainTown->count(); ++i)
+	{
+		auto town = controller.map()->objects.at(ui->mainTown->itemData(i).toInt());
+		if(town == obj)
+		{
+			ui->mainTown->setCurrentIndex(i);
+			break;
+		}
 	}
 }
 

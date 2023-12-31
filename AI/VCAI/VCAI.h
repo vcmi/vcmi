@@ -143,14 +143,14 @@ public:
 
 	std::string getBattleAIName() const override;
 
-	void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
-	void yourTurn() override;
+	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
+	void yourTurn(QueryID queryID) override;
 
-	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
+	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	void commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO
 	void showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
-	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
 	void saveGame(BinarySerializer & h, const int version) override; //saving
 	void loadGame(BinaryDeserializer & h, const int version) override; //loading
@@ -160,10 +160,10 @@ public:
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroInGarrisonChange(const CGTownInstance * town) override;
 	void centerView(int3 pos, int focusTime) override;
-	void tileHidden(const std::unordered_set<int3, ShashInt3> & pos) override;
+	void tileHidden(const std::unordered_set<int3> & pos) override;
 	void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	void artifactAssembled(const ArtifactLocation & al) override;
-	void showTavernWindow(const CGObjectInstance * townOrTavern) override;
+	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
 	void showThievesGuildWindow(const CGObjectInstance * obj) override;
 	void playerBlocked(int reason, bool start) override;
 	void showPuzzleMap() override;
@@ -175,33 +175,35 @@ public:
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void availableArtifactsChanged(const CGBlackMarket * bm = nullptr) override;
 	void heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town) override;
-	void tileRevealed(const std::unordered_set<int3, ShashInt3> & pos) override;
+	void tileRevealed(const std::unordered_set<int3> & pos) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
-	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) override;
-	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level) override;
+	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
+	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
 	void newObject(const CGObjectInstance * obj) override;
 	void showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor) override;
 	void playerBonusChanged(const Bonus & bonus, bool gain) override;
 	void heroCreated(const CGHeroInstance *) override;
-	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
-	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
+	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override;
+	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;
-	void objectRemoved(const CGObjectInstance * obj) override;
-	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor) override;
+	void objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void battleResultsApplied() override;
+	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
-	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
-	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
-	void battleEnd(const BattleResult * br) override;
+	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;
+	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
 	void makeTurn();
 	void mainLoop();
@@ -217,7 +219,7 @@ public:
 	void completeGoal(Goals::TSubgoal goal); //safely removes goal from reserved hero
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
-	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<float> movementCostLimit = boost::none);
+	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, std::optional<float> movementCostLimit = std::nullopt);
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath & path) const;
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
@@ -249,7 +251,7 @@ public:
 	void retrieveVisitableObjs();
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
-	const CGObjectInstance * lookForArt(int aid) const;
+	const CGObjectInstance * lookForArt(ArtifactID aid) const;
 	bool isAccessible(const int3 & pos) const;
 	HeroPtr getHeroWithGrail() const;
 
@@ -258,7 +260,7 @@ public:
 	//optimization - use one SM for every hero call
 
 	const CGTownInstance * findTownWithTavern() const;
-	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
+	bool canRecruitAnyHero(const CGTownInstance * t = nullptr) const;
 
 	Goals::TSubgoal getGoal(HeroPtr h) const;
 	bool canAct(HeroPtr h) const;

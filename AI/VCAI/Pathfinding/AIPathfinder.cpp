@@ -11,7 +11,7 @@
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
 #include "../../../CCallback.h"
-#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/mapping/CMapDefines.h"
 
 std::vector<std::shared_ptr<AINodeStorage>> AIPathfinder::storagePool;
 std::map<HeroPtr, std::shared_ptr<AINodeStorage>> AIPathfinder::storageMap;
@@ -55,7 +55,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 	auto calculatePaths = [&](const CGHeroInstance * hero, std::shared_ptr<AIPathfinding::AIPathfinderConfig> config)
 	{
-		logAi->debug("Recalculate paths for %s", hero->name);
+		logAi->debug("Recalculate paths for %s", hero->getNameTranslated());
 		
 		cb->calculatePaths(config);
 	};

@@ -8,6 +8,7 @@
 		"index" :5, 
 		"handler": "artifact",
 		"base" : {
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VV", "VA"]
@@ -23,11 +24,12 @@
 	"hero" : {
 		"index" :34,
 		"handler": "hero",
-		"defaultAiValue" : 7500,
 		"base" : {
+			"aiValue" : 7500,
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
-				"mask" : [ "VV", "AV"]
+				"mask" : [ "VVV", "VAV"]
 			},
 			"sounds" : {
 				"removal" : ["KILLFADE"]
@@ -40,6 +42,7 @@
 		"index" :54,
 		"handler": "monster",
 		"base" : {
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VV", "VA"]
@@ -50,11 +53,43 @@
 		}
 	},
 
+	"randomResource":
+	{
+		"index" :76,
+		"handler": "randomResource",
+		"base" : {
+			"removable": true,
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VA" ]
+			}
+		},
+		"types" : {
+			"randomResource" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 2000
+				},
+				"templates" :
+				{
+					"normal" : { 
+						"animation" : "AVTrndm0",
+						"visitableFrom" : [ "+++", "+-+", "+++" ],
+						"mask" : [ "VV", "VA"]
+					}
+				}
+			}
+		}
+	},
+
 	// subtype: resource ID
 	"resource" : {
 		"index" :79,
 		"handler": "resource",
+		"lastReservedIndex" : 6,
 		"base" : {
+			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VA" ]
@@ -67,8 +102,7 @@
 			"sulfur" :  { "index" : 3, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
 			"crystal" : { "index" : 4, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
 			"gems" :    { "index" : 5, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
-			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
-			"mithril" : { "index" : 7, "aiValue" : 3500 } // TODO: move to WoG?
+			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } }
 		}
 	},
 	
@@ -76,8 +110,8 @@
 	"town" : {
 		"index" :98,
 		"handler": "town",
-		"defaultAiValue" : 20000,
 		"base" : {
+			"aiValue" : 20000,
 			"filters" : {
 				// village image - fort not present
 				"village" : [ "noneOf", [ "fort" ] ],
@@ -106,17 +140,37 @@
 	"boat" : {
 		"index" :8,
 		"handler": "boat",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 2,
 		"base" : {
+			"aiValue" : 0,
+			"removable": true,
+			"layer" : "sail",
+			"onboardAssaultAllowed" : true,
+			"onboardVisitAllowed" : true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VVV", "VAV" ]
 			}
 		},
 		"types" : {
-			"evil" : { "index" : 0,	"rmg" : { "mapLimit" : 64 } },
-			"good" : { "index" : 1, "rmg" : { "mapLimit" : 64 } },
-			"neutral" : { "index" : 2, "rmg" : { "mapLimit" : 64 } },
+			"boatNecropolis" : { 
+				"index" : 0,
+				"actualAnimation" : "AB01_.def",
+				"overlayAnimation" : "ABM01_.def",
+				"flagAnimations" : ["ABF01L", "ABF01G", "ABF01R", "ABF01D", "ABF01B", "ABF01P", "ABF01W", "ABF01K"]
+			},
+			"boatCastle" : { 
+				"index" : 1, 
+				"actualAnimation" : "AB02_.def",
+				"overlayAnimation" : "ABM02_.def",
+				"flagAnimations" : ["ABF02L", "ABF02G", "ABF02R", "ABF02D", "ABF02B", "ABF02P", "ABF02W", "ABF02K"]
+			},
+			"boatFortress" : {
+				"index" : 2, 
+				"actualAnimation" : "AB03_.def",
+				"overlayAnimation" : "ABM03_.def",
+				"flagAnimations" : ["ABF03L", "ABF03G", "ABF03R", "ABF03D", "ABF03B", "ABF03P", "ABF03W", "ABF03K"]
+			},
 		}
 	},
 
@@ -124,8 +178,10 @@
 	"borderGuard" : {
 		"index" :9,
 		"handler": "borderGuard",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 0,
+			"removable": true,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -145,8 +201,9 @@
 	"borderGate" : {
 		"index" :212,
 		"handler": "borderGate",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"]
 			}
@@ -165,8 +222,9 @@
 	"keymasterTent" : {
 		"index" :10,
 		"handler": "keymaster",
-		"defaultAiValue" : 10000,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 10000,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"]
 			}
@@ -186,8 +244,9 @@
 	"seerHut" : {
 		"index" :83,
 		"handler": "seerHut",
-		"defaultAiValue" : 10000,
+		"lastReservedIndex" : 2,
 		"base" : {
+			"aiValue" : 10000,
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
 				"mask" : [ "VVV", "VVV", "VAV" ]
@@ -203,26 +262,11 @@
 		}
 	},
 
-	// subtype: different revealed areas
-	"cartographer" : {
-		"index" :13,
-		"handler": "cartographer",
-		"base" : {
-			"sounds" : {
-				"visit" : ["LIGHTHOUSE"]
-			}
-		},
-		"types" : {
-			"water" : { "index" : 0, "aiValue" : 5000, "rmg" : { "zoneLimit" : 1,  "value" : 5000, "rarity" : 20 } },
-			"land" : { "index" : 1, "aiValue": 10000, "rmg" : { "zoneLimit" : 1,  "value" : 10000, "rarity" : 20 } },
-			"subterra" : { "index" : 2, "aiValue" : 7500, "rmg" : { "zoneLimit" : 1,  "value" : 7500, "rarity" : 20 } }
-		}
-	},
-
 	// subtype: resource ID
 	"mine" : {
 		"index" :53,
 		"handler": "mine",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : {
 				"visit" : ["FLAGMINE"]
@@ -237,8 +281,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPLUMB"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"alchemistLab" : {
 				"index" : 1,
@@ -248,8 +291,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSTAR"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"orePit" : {
 				"index" : 2,
@@ -259,8 +301,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"sulfurDune" : {
 				"index" : 3,
@@ -270,8 +311,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"crystalCavern" : {
 				"index" : 4,
@@ -292,8 +332,7 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPGEMP"]
-				},
-				"battleground": "subterranean"
+				}
 			},
 			"goldMine" : {
 				"index" : 6,
@@ -320,8 +359,9 @@
 	"abandonedMine" : {
 		"index" :220,
 		"handler": "mine",
-		"defaultAiValue" : 3500,
+		"lastReservedIndex" : 7,
 		"base" : {
+			"aiValue" : 3500,
 			"sounds" : {
 				"ambient" : ["LOOPCAVE"]
 			}
@@ -334,8 +374,9 @@
 	"garrisonHorizontal": {
 		"index" :33,
 		"handler": "garrison",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 1,
 		"base" : {
+			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["MILITARY"]
 			}
@@ -358,8 +399,9 @@
 	"garrisonVertical" : {
 		"index" :219,
 		"handler": "garrison",
-		"defaultAiValue" : 0,
+		"lastReservedIndex" : 1,
 		"base" : {
+			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["MILITARY"]
 			}
@@ -384,6 +426,7 @@
 	"monolithOneWayEntrance" : {
 		"index" :43,
 		"handler": "monolith",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPMON1"],
@@ -404,6 +447,7 @@
 	"monolithOneWayExit" : {
 		"index" :44,
 		"handler": "monolith",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : { "ambient" : ["LOOPMON1"] }
 		},
@@ -421,6 +465,7 @@
 	"monolithTwoWay" : {
 		"index" :45,
 		"handler": "monolith",
+		"lastReservedIndex" : 7,
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPMON2"],
@@ -441,7 +486,9 @@
 
 	// subtype: level
 	"randomDwellingLvl" : {
-		"index" :217, "handler": "randomDwelling",
+		"index" :217, 
+		"handler": "randomDwelling",
+		"lastReservedIndex" : 6,
 			"types" : {
 				"objectLvl1" : { "index" : 0},
 				"objectLvl2" : { "index" : 1},
@@ -457,6 +504,7 @@
 	"randomDwellingFaction" : {
 		"index" :218,
 		"handler": "randomDwelling",
+		"lastReservedIndex" : 8,
 			"types" : {
 				"objectCastle"     : { "index" : 0},
 				"objectRampart"    : { "index" : 1},

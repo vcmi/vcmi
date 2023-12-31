@@ -12,7 +12,7 @@
 
 #include "../../LuaWrapper.h"
 
-#include "../../../../lib/NetPacks.h"
+#include "../../../../lib/networkPacks/NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

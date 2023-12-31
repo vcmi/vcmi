@@ -10,11 +10,13 @@
 
 #import <UIKit/UIKit.h>
 
+#include <SDL_events.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GameChatKeyboardHandler : NSObject
 
-- (void)triggerInput;
++ (void)sendKeyEventWithKeyCode:(SDL_KeyCode)keyCode;
 
 @end
 

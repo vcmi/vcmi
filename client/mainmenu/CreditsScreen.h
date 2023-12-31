@@ -12,7 +12,6 @@
 #include "../windows/CWindowObject.h"
 
 class CMultiLineLabel;
-struct SDL_Surface;
 
 class CreditsScreen : public CIntObject
 {
@@ -21,7 +20,6 @@ class CreditsScreen : public CIntObject
 
 public:
 	CreditsScreen(Rect rect);
-	void show(SDL_Surface * to) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void show(Canvas & to) override;
+	void clickPressed(const Point & cursorPosition) override;
 };

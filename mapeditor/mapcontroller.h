@@ -12,8 +12,13 @@
 
 #include "maphandler.h"
 #include "mapview.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/Terrain.h"
+
+#include "../lib/modding/CModInfo.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
+class EditorObstaclePlacer;
+VCMI_LIB_NAMESPACE_END
 
 class MainWindow;
 class MapController
@@ -25,7 +30,9 @@ public:
 	~MapController();
 	
 	void setMap(std::unique_ptr<CMap>);
+	void initObstaclePainters(CMap * map);
 	
+	void repairMap(CMap * map) const;
 	void repairMap();
 	
 	const std::unique_ptr<CMap> & getMapUniquePtr() const; //to be used for map saving
@@ -49,9 +56,15 @@ public:
 	void commitObjectCreate(int level);
 	void commitObjectChange(int level);
 	
+	void copyToClipboard(int level);
+	void pasteFromClipboard(int level);
+	
 	bool discardObject(int level) const;
 	void createObject(int level, CGObjectInstance * obj) const;
 	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
+	
+	static ModCompatibilityInfo modAssessmentAll();
+	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
 
 	void undo();
 	void redo();
@@ -64,6 +77,10 @@ private:
 	MainWindow * main;
 	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
 	mutable std::array<std::unique_ptr<MinimapScene>, 2> _miniscenes;
+	std::vector<std::unique_ptr<CGObjectInstance>> _clipboard;
+	int _clipboardShiftIndex = 0;
+
+	std::map<TerrainId, std::unique_ptr<EditorObstaclePlacer>> _obstaclePainters;
 
 	void connectScenes();
 };

@@ -10,9 +10,13 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../gui/SDL_Extensions.h"
+#include "../gui/TextAlignment.h"
+#include "../render/Colors.h"
+#include "../render/EFont.h"
 #include "../../lib/FunctionList.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
+class IImage;
 class CSlider;
 
 /// Base class for all text-related widgets.
@@ -23,14 +27,14 @@ protected:
 	/// returns size of border, for left- or right-aligned text
 	virtual Point getBorderSize() = 0;
 	/// do actual blitting of line. Text "what" will be placed at "where" and aligned according to alignment
-	void blitLine(SDL_Surface * to, Rect where, std::string what);
+	void blitLine(Canvas & to, Rect where, std::string what);
 
-	CTextContainer(EAlignment alignment, EFonts font, SDL_Color color);
+	CTextContainer(ETextAlignment alignment, EFonts font, ColorRGBA color);
 
 public:
-	EAlignment alignment;
+	ETextAlignment alignment;
 	EFonts font;
-	SDL_Color color; // default font color. Can be overridden by placing "{}" into the string
+	ColorRGBA color; // default font color. Can be overridden by placing "{}" into the string
 };
 
 /// Label which shows text
@@ -40,21 +44,21 @@ protected:
 	Point getBorderSize() override;
 	virtual std::string visibleText();
 
-	std::shared_ptr<CPicture> background;
-public:
-
+	std::shared_ptr<CIntObject> background;
 	std::string text;
 	bool autoRedraw;  //whether control will redraw itself on setTxt
+
+public:
 
 	std::string getText();
 	virtual void setAutoRedraw(bool option);
 	virtual void setText(const std::string & Txt);
-	virtual void setColor(const SDL_Color & Color);
+	virtual void setColor(const ColorRGBA & Color);
 	size_t getWidth();
 
-	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
-		const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
-	void showAll(SDL_Surface * to) override; //shows statusbar (with current text)
+	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT,
+		const ColorRGBA & Color = Colors::WHITE, const std::string & Text = "");
+	void showAll(Canvas & to) override; //shows statusbar (with current text)
 };
 
 /// Small helper class to manage group of similar labels
@@ -62,10 +66,10 @@ class CLabelGroup : public CIntObject
 {
 	std::vector<std::shared_ptr<CLabel>> labels;
 	EFonts font;
-	EAlignment align;
-	SDL_Color color;
+	ETextAlignment align;
+	ColorRGBA color;
 public:
-	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	CLabelGroup(EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE);
 	void add(int x = 0, int y = 0, const std::string & text = "");
 	size_t currentSize() const;
 };
@@ -86,10 +90,10 @@ public:
 	// total size of text, x = longest line of text, y = total height of lines
 	Point textSize;
 
-	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
+	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE, const std::string & Text = "");
 
 	void setText(const std::string & Txt) override;
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	void setVisibleSize(Rect visibleSize, bool redrawElement = true);
 	// scrolls text visible in widget. Positive value will move text up
@@ -106,7 +110,7 @@ public:
 	std::shared_ptr<CMultiLineLabel> label;
 	std::shared_ptr<CSlider> slider;
 
-	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE);
 
 	void resize(Point newSize);
 	void setText(const std::string & Txt);
@@ -114,30 +118,49 @@ public:
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
-class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusBar>
+class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusBar>, public IStatusBar
 {
-	bool textLock; //Used for blocking changes to the text
-	void init();
+	std::string hoverText;
+	std::string consoleText;
+	bool enteringText;
 
-	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE);
-	CGStatusBar(int x, int y, std::string name, int maxw = -1);
+	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const ColorRGBA & Color = Colors::WHITE);
+	CGStatusBar(int x, int y, const ImagePath & name, int maxw = -1);
+	CGStatusBar(int x, int y);
+
+	//make CLabel API private
+	using CLabel::getText;
+	using CLabel::setAutoRedraw;
+	using CLabel::setText;
+	using CLabel::setColor;
+	using CLabel::getWidth;
+
 protected:
 	Point getBorderSize() override;
 
+	void clickPressed(const Point & cursorPosition) override;
+
 public:
+	~CGStatusBar();
+
 	template<typename ...Args>
 	static std::shared_ptr<CGStatusBar> create(Args... args)
 	{
 		std::shared_ptr<CGStatusBar> ret{new CGStatusBar{args...}};
-		ret->init();
 		return ret;
 	}
-	void clear();//clears statusbar and refreshes
-	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
-	void show(SDL_Surface * to) override; //shows statusbar (with current text)
+	void show(Canvas & to) override;
+	void activate() override;
+	void deactivate() override;
 
-	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
+	// IStatusBar interface
+	void write(const std::string & Text) override;
+	void clearIfMatching(const std::string & Text) override;
+	void clear() override;
+	void setEnteringMode(bool on) override;
+	void setEnteredText(const std::string & text) override;
+
 };
 
 class CFocusable;
@@ -161,6 +184,7 @@ public:
 
 	void giveFocus(); //captures focus
 	void moveFocus(); //moves focus to next active control (may be used for tab switching)
+	void removeFocus(); //remove focus
 	bool hasFocus() const;
 
 	static std::list<CFocusable *> focusables; //all existing objs
@@ -188,27 +212,31 @@ public:
 class CTextInput : public CLabel, public CFocusable
 {
 	std::string newText;
+	std::string helpBox; //for right-click help
+	
 protected:
 	std::string visibleText() override;
 
-#ifdef VCMI_ANDROID
-	void notifyAndroidTextInputChanged(std::string & text);
-#endif
 public:
+	
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
-	void setText(const std::string & nText, bool callCb = false);
+	void setText(const std::string & nText) override;
+	void setText(const std::string & nText, bool callCb);
+	void setHelpText(const std::string &);
 
-	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
-	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
-	CTextInput(const Rect & Pos, SDL_Surface * srf = nullptr);
+	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, bool giveFocusToInput = true);
+	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB);
+	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void keyPressed(const SDL_KeyboardEvent & key) override;
-	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 
-	void textInputed(const SDL_TextInputEvent & event) override;
-	void textEdited(const SDL_TextEditingEvent & event) override;
+	//bool captureThisKey(EShortcut key) override;
+
+	void textInputed(const std::string & enteredText) override;
+	void textEdited(const std::string & enteredText) override;
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string & text, const std::string & oldText);

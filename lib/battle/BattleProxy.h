@@ -24,12 +24,14 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// IBattleInfo
+	const IBattleInfo * getBattle() const override;
+	std::optional<PlayerColor> getPlayerID() const override;
 
 	int32_t getActiveStackID() const override;
 
-	TStacks getStacksIf(TStackFilter predicate) const override;
+	TStacks getStacksIf(const TStackFilter & predicate) const override;
 
-	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
+	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	BattleField getBattlefieldType() const override;
 	TerrainId getTerrainType() const override;
@@ -44,13 +46,13 @@ public:
 	ui8 getTacticsSide() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
-	si8 getWallState(int partOfWall) const override;
+	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
 	uint32_t getCastSpells(ui8 side) const override;
 	int32_t getEnchanterCounter(ui8 side) const override;
 
-	const IBonusBearer * asBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 protected:
 	Subject subject;
 };

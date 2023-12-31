@@ -20,11 +20,6 @@ class DLL_LINKAGE CInputStream : public virtual CStream
 {
 public:
 	/**
-	 * D-tor.
-	 */
-	virtual ~CInputStream() {}
-
-	/**
 	 * Reads n bytes from the stream into the data buffer.
 	 *
 	 * @param data A pointer to the destination data array.
@@ -43,9 +38,8 @@ public:
 		std::unique_ptr<ui8[]> data(new ui8[getSize()]);
 
 		seek(0);
-		auto readSize = read(data.get(), getSize());
+		[[maybe_unused]] auto readSize = read(data.get(), getSize());
 		assert(readSize == getSize());
-		UNUSED(readSize);
 
 		return std::make_pair(std::move(data), getSize());
 	}

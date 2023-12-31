@@ -40,7 +40,7 @@ public:
 
 		auto storage = std::make_shared<PreHandlerStorage>(std::move(handler));
 		preHandlers[tag].push_back(storage);
-		return make_unique<PreSubscription>(tag, storage);
+		return std::make_unique<PreSubscription>(tag, storage);
 	}
 
 	std::unique_ptr<EventSubscription> subscribeAfter(BusTag tag, PostHandler && handler)
@@ -49,7 +49,7 @@ public:
 
 		auto storage = std::make_shared<PostHandlerStorage>(std::move(handler));
 		postHandlers[tag].push_back(storage);
-		return make_unique<PostSubscription>(tag, storage);
+		return std::make_unique<PostSubscription>(tag, storage);
 	}
 
 	void executeEvent(const EventBus * bus, E & event, const ExecHandler & execHandler)

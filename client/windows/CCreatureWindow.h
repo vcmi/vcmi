@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../../lib/HeroBonus.h"
+#include "../../lib/bonuses/Bonus.h"
+#include "../../lib/filesystem/ResourcePath.h"
 #include "../widgets/MiscWidgets.h"
 #include "CWindowObject.h"
 
@@ -32,15 +33,20 @@ class CCommanderArtPlace;
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
 	std::shared_ptr<CIntObject> object; // passive object that will be used to determine clickable area
+	bool isMasterAbility; // refers to WoG abilities obtainable via combining master skills (for example attack + speed unlocks shoot)
+	bool isSelected; // used only for programatically created border around selected "master abilities"
 public:
-	CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback);
+	CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, bool isMasterAbility_, std::function<void()> callback);
 
 	std::function<void()> callback;
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 
 	void setObject(std::shared_ptr<CIntObject> object);
+	void deselect(); //TODO: consider using observer pattern instead?
+	bool getIsMasterAbility();
+
+	void show(Canvas &to) override;
 };
 
 class CStackWindow : public CWindowObject
@@ -49,7 +55,7 @@ class CStackWindow : public CWindowObject
 	{
 		std::string name;
 		std::string description;
-		std::string imagePath;
+		ImagePath imagePath;
 	};
 
 	class CWindowSection : public CIntObject
@@ -59,7 +65,7 @@ class CStackWindow : public CWindowObject
 	protected:
 		CStackWindow * parent;
 	public:
-		CWindowSection(CStackWindow * parent, std::string backgroundPath, int yOffset);
+		CWindowSection(CStackWindow * parent, const ImagePath & backgroundPath, int yOffset);
 	};
 
 	class ActiveSpellsSection : public CWindowSection
@@ -83,7 +89,7 @@ class CStackWindow : public CWindowObject
 	{
 		std::shared_ptr<CListBox> lines;
 	public:
-		BonusesSection(CStackWindow * owner, int yOffset, boost::optional<size_t> preferredSize = boost::optional<size_t>());
+		BonusesSection(CStackWindow * owner, int yOffset, std::optional<size_t> preferredSize = std::optional<size_t>());
 	};
 
 	class ButtonsSection : public CWindowSection
@@ -139,7 +145,7 @@ class CStackWindow : public CWindowObject
 		void addStatLabel(EStat index, int64_t value1, int64_t value2);
 		void addStatLabel(EStat index, int64_t value);
 
-		static std::string getBackgroundName(bool showExp, bool showArt);
+		static ImagePath getBackgroundName(bool showExp, bool showArt);
 
 		std::array<std::string, 8> statNames;
 		std::array<std::string, 8> statFormats;

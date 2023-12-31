@@ -26,6 +26,9 @@ struct TerrainTile;
 struct PlayerInfo;
 class CGObjectInstance;
 class AObjectTypeHandler;
+class TerrainType;
+class RoadType;
+class RiverType;
 
 class JsonSerializeFormat;
 class JsonDeserializer;
@@ -39,6 +42,7 @@ public:
 
 	static const std::string HEADER_FILE_NAME;
 	static const std::string OBJECTS_FILE_NAME;
+	static const std::string TERRAIN_FILE_NAMES[2];
 
 	int fileVersionMajor;
 	int fileVersionMinor;
@@ -57,7 +61,11 @@ protected:
 
 	CMapFormatJson();
 
-	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value);
+	static TerrainType * getTerrainByCode(const std::string & code);
+	static RiverType * getRiverByCode(const std::string & code);
+	static RoadType * getRoadByCode(const std::string & code);
+
+	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const;
 
 	///common part of header saving/loading
 	void serializeHeader(JsonSerializeFormat & handler);
@@ -88,12 +96,12 @@ protected:
 	/**
 	 * Reads one of triggered events
 	 */
-	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source);
+	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source) const;
 
 	/**
 	 * Writes one of triggered events
 	 */
-	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest);
+	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest) const;
 
 	void writeDisposedHeroes(JsonSerializeFormat & handler);
 
@@ -102,6 +110,8 @@ protected:
 	void serializePredefinedHeroes(JsonSerializeFormat & handler);
 
 	void serializeRumors(JsonSerializeFormat & handler);
+	
+	void serializeTimedEvents(JsonSerializeFormat & handler);
 
 	///common part of map attributes saving/loading
 	void serializeOptions(JsonSerializeFormat & handler);
@@ -125,7 +135,7 @@ public:
 	 *
 	 * @param stream. A stream containing the map data.
 	 */
-	CMapPatcher(JsonNode stream);
+	CMapPatcher(const JsonNode & stream);
 
 public: //IMapPatcher
 	/**
@@ -192,6 +202,11 @@ public:
 	 * Reads complete map.
 	 */
 	void readMap();
+	
+	/**
+	 * Reads texts and translations
+	 */
+	void readTranslations();
 
 	static void readTerrainTile(const std::string & src, TerrainTile & tile);
 
@@ -204,6 +219,7 @@ public:
 	 */
 	void readObjects();
 
+	bool isExistArchive(const std::string & archiveFilename);
 	JsonNode getFromArchive(const std::string & archiveFilename);
 
 private:
@@ -239,6 +255,11 @@ public:
 	 * Saves header to zip archive
 	 */
 	void writeHeader();
+	
+	/**
+	 * Saves texts and translations to zip archive
+	 */
+	void writeTranslations();
 
 	/**
 	 * Encodes one tile into string

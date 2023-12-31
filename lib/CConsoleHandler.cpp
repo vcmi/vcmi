@@ -15,12 +15,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-boost::mutex CConsoleHandler::smx;
+std::mutex CConsoleHandler::smx;
 
 DLL_LINKAGE CConsoleHandler * console = nullptr;
 
+VCMI_LIB_NAMESPACE_END
+
 #ifndef VCMI_WINDOWS
-	typedef std::string TColor;
+	using TColor = std::string;
 	#define CONSOLE_GREEN "\x1b[1;32m"
 	#define CONSOLE_RED "\x1b[1;31m"
 	#define CONSOLE_MAGENTA "\x1b[1;35m"
@@ -50,6 +52,8 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 #endif
 
 static TColor defColor;
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 #ifdef VCMI_WINDOWS
 
@@ -130,7 +134,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	HMODULE hModule = nullptr;
 	GetModuleFileNameA(hModule, buffer, MAX_PATH);
 	mname = strrchr(buffer, '\\');
-	if (mname != 0)
+	if (mname != nullptr)
 		mname++;
 	else
 		mname = buffer;
@@ -208,9 +212,9 @@ void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 #endif
 }
 
-int CConsoleHandler::run()
+int CConsoleHandler::run() const
 {
-	setThreadName("CConsoleHandler::run");
+	setThreadName("consoleHandler");
 	//disabling sync to make in_avail() work (othervice always returns 0)
 	{
 		TLockGuard _(smx);
@@ -226,21 +230,23 @@ int CConsoleHandler::run()
 		{
 			if ( getline(std::cin, buffer).good() )
 				if ( cb && *cb )
-					(*cb)(buffer);
+					(*cb)(buffer, false);
 		}
 		else
-			boost::this_thread::sleep(boost::posix_time::millisec(100));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
 		boost::this_thread::interruption_point();
 #else
 		std::getline(std::cin, buffer);
 		if ( cb && *cb )
-			(*cb)(buffer);
+			(*cb)(buffer, false);
 #endif
 	}
 	return -1;
 }
-CConsoleHandler::CConsoleHandler() : thread(nullptr)
+CConsoleHandler::CConsoleHandler():
+	cb(new std::function<void(const std::string &, bool)>), 
+	thread(nullptr)
 {
 #ifdef VCMI_WINDOWS
 	handleIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -259,7 +265,6 @@ CConsoleHandler::CConsoleHandler() : thread(nullptr)
 #else
 	defColor = "\x1b[0m";
 #endif
-	cb = new std::function<void(const std::string &)>;
 }
 CConsoleHandler::~CConsoleHandler()
 {

@@ -26,38 +26,51 @@ typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>> TZoneV
 typedef std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>> TZoneMap;
 typedef std::map<std::shared_ptr<Zone>, float3> TForceVector;
 typedef std::map<std::shared_ptr<Zone>, float> TDistanceVector;
+typedef std::map<int, std::map<int, size_t>> TDistanceMap;
 
 class CZonePlacer
 {
 public:
 	explicit CZonePlacer(RmgMap & map);
-	int3 cords (const float3 f) const;
+	int3 cords(const float3 & f) const;
 	float metric (const int3 &a, const int3 &b) const;
 	float getDistance(float distance) const; //additional scaling without 0 divison
-	~CZonePlacer();
+	~CZonePlacer() = default;
 
 	void placeZones(CRandomGenerator * rand);
+	void findPathsBetweenZones();
+	void placeOnGrid(CRandomGenerator* rand);
+	float scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, const std::shared_ptr<Zone> zoneB) const;
 	void assignZones(CRandomGenerator * rand);
+
+	const TDistanceMap & getDistanceMap();
 	
 private:
 	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand);
-	void attractConnectedZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &distances);
+	void attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const;
 	void separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps);
-	void moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDistanceVector &distances, TDistanceVector &overlaps);
+	void moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps);
 
 private:
 	int width;
 	int height;
-	//metric coefiicients
+	//metric coeficients
 	float scaleX;
 	float scaleY;
 	float mapSize;
 
 	float gravityConstant;
 	float stiffnessConstant;
-    //float a1, b1, c1, a2, b2, c2;
-	//CMap * map;
-	//std::unique_ptr<CZoneGraph> graph;
+	float stifness;
+	float stiffnessIncreaseFactor;
+
+	//remember best solution
+	float bestTotalDistance;
+	float bestTotalOverlap;
+
+	//distance [a][b] = number of zone connections required to travel between the zones
+	TDistanceMap distancesBetweenZones;
+	std::set<TRmgTemplateZoneId> lastSwappedZones;
 	RmgMap & map;
 };
 

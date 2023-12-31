@@ -12,29 +12,19 @@
 #include "Clone.h"
 #include "Registry.h"
 #include "../ISpellMechanics.h"
-#include "../../NetPacks.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../battle/IBattleState.h"
 #include "../../battle/CUnitState.h"
+#include "../../networkPacks/PacksForClientBattle.h"
+#include "../../networkPacks/SetStackEffect.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-static const std::string EFFECT_NAME = "core:clone";
 
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Clone, EFFECT_NAME);
-
-Clone::Clone()
-	: UnitEffect(),
-	maxTier(0)
-{
-}
-
-Clone::~Clone() = default;
 
 void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
@@ -72,6 +62,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		info.summoned = true;
 
 		BattleUnitsChanged pack;
+		pack.battleID = m->battle()->getBattle()->getBattleID();
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		server->apply(&pack);
@@ -79,8 +70,9 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		//TODO: use BattleUnitsChanged with UPDATE operation
 
 		BattleUnitsChanged cloneFlags;
+		cloneFlags.battleID = m->battle()->getBattle()->getBattleID();
 
-		auto cloneUnit = m->battle()->battleGetUnitByID(unitId);
+		const auto *cloneUnit = m->battle()->battleGetUnitByID(unitId);
 
 		if(!cloneUnit)
 		{
@@ -101,11 +93,13 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		server->apply(&cloneFlags);
 
 		SetStackEffect sse;
-		Bonus lifeTimeMarker(Bonus::N_TURNS, Bonus::NONE, Bonus::SPELL_EFFECT, 0, SpellID::CLONE); //TODO: use special bonus type
+		sse.battleID = m->battle()->getBattle()->getBattleID();
+
+		Bonus lifeTimeMarker(BonusDuration::N_TURNS, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, BonusSourceID(SpellID(SpellID::CLONE))); //TODO: use special bonus type
 		lifeTimeMarker.turnsRemain = m->getEffectDuration();
 		std::vector<Bonus> buffer;
 		buffer.push_back(lifeTimeMarker);
-		sse.toAdd.push_back(std::make_pair(unitId, buffer));
+		sse.toAdd.emplace_back(unitId, buffer);
 		server->apply(&sse);
 	}
 }

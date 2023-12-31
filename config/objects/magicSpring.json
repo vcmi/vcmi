@@ -1,0 +1,44 @@
+{
+	"magicSpring" : {
+		"index" : 48,
+		"handler": "configurable",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFOUN"],
+				"visit" : ["FAERIE"]
+			}
+		},
+		"types" : {
+			"magicSpring" : {
+				"index" : 0,
+				"aiValue" : 500,
+				//banned due to problems with 2 viistable offsets
+				//"rmg" : {
+				//	"zoneLimit"	: 1,
+				//	"value"		: 500,
+				//	"rarity"	: 50
+				//},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onEmptyMessage" : 76,
+				"onVisitedMessage" : 75,
+				"description" : "@core.xtrainfo.15",
+				"resetParameters" : {
+					"period" : 7,
+					"visitors" : true
+				},
+				"visitMode" : "once",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"limiter" : {
+							"noneOf" : [ { "manaPercentage" : 200 } ]
+						},
+						"message" : 74,
+						"manaPercentage" : 200
+					}
+				]
+			}
+		}
+	}
+}

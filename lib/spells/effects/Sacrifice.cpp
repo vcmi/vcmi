@@ -13,31 +13,18 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-
-static const std::string EFFECT_NAME = "core:sacrifice";
 
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Sacrifice, EFFECT_NAME);
-
-Sacrifice::Sacrifice()
-	: Heal()
-{
-
-}
-
-Sacrifice::~Sacrifice() = default;
 
 void Sacrifice::adjustTargetTypes(std::vector<TargetType> & types) const
 {
@@ -84,12 +71,7 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m) const
 	}
 
 	if(!(targetExists && targetToSacrificeExists))
-	{
-		MetaString text;
-		text.addTxt(MetaString::GENERAL_TXT, 185);
-		problem.add(std::move(text), Problem::NORMAL);
-		return false;
-	}
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 
 	return true;
 }
@@ -109,7 +91,7 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m, const EffectT
 
 	if(target.size() == 2)
 	{
-		auto victim = target.at(1).unitValue;
+		const auto *victim = target.at(1).unitValue;
 		if(!victim)
 			return false;
 		
@@ -141,6 +123,7 @@ void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const Effect
 	Heal::apply(calculateHealEffectValue(m, victim), server, m, healTarget);
 
 	BattleUnitsChanged removeUnits;
+	removeUnits.battleID = m->battle()->getBattle()->getBattleID();
 	removeUnits.changedStacks.emplace_back(victim->unitId(), UnitChanges::EOperation::REMOVE);
 	server->apply(&removeUnits);
 }
@@ -160,7 +143,7 @@ EffectTarget Sacrifice::transformTarget(const Mechanics * m, const Target & aimP
 	//add victim
 	if(aimPoint.size() >= 2)
 	{
-		auto victim = aimPoint.at(1).unitValue;
+		const auto *victim = aimPoint.at(1).unitValue;
 		if(victim && getStackFilter(m, false, victim) && isReceptive(m, victim))
 			res.emplace_back(victim);
 	}
@@ -168,9 +151,9 @@ EffectTarget Sacrifice::transformTarget(const Mechanics * m, const Target & aimP
 	return res;
 }
 
-int64_t Sacrifice::calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim) const
+int64_t Sacrifice::calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim) 
 {
-	return (m->getEffectPower() + victim->MaxHealth() + m->calculateRawEffectValue(0, 1)) * victim->getCount();
+	return (m->getEffectPower() + victim->getMaxHealth() + m->calculateRawEffectValue(0, 1)) * victim->getCount();
 }
 
 

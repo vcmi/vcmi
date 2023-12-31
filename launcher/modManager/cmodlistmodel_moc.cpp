@@ -12,31 +12,6 @@
 
 #include <QIcon>
 
-namespace ModFields
-{
-static const QString names[ModFields::COUNT] =
-{
-	"name",
-	"",
-	"",
-	"modType",
-	"version",
-	"size",
-	"author"
-};
-
-static const QString header[ModFields::COUNT] =
-{
-	"Name",
-	"", // status icon
-	"", // status icon
-	"Type",
-	"Version",
-	"Size",
-	"Author"
-};
-}
-
 namespace ModStatus
 {
 static const QString iconDelete = "icons:mod-delete.png";
@@ -60,18 +35,61 @@ QString CModListModel::modIndexToName(const QModelIndex & index) const
 	return "";
 }
 
+
+QString CModListModel::modTypeName(QString modTypeID) const
+{
+	static QMap<QString, QString> modTypes = {
+		{"Translation", tr("Translation")},
+		{"Town",        tr("Town")       },
+		{"Test",        tr("Test")       },
+		{"Templates",   tr("Templates")  },
+		{"Spells",      tr("Spells")     },
+		{"Music",       tr("Music")      },
+		{"Maps",        tr("Maps")       },
+		{"Sounds",      tr("Sounds")     },
+		{"Skills",      tr("Skills")     },
+		{"Other",       tr("Other")      },
+		{"Objects",     tr("Objects")    },
+		{"Mechanical",  tr("Mechanics")  },
+		{"Mechanics",   tr("Mechanics")  },
+		{"Themes",      tr("Interface")  },
+		{"Interface",   tr("Interface")  },
+		{"Heroes",      tr("Heroes")     },
+		{"Graphic",     tr("Graphical")  },
+		{"Graphical",   tr("Graphical")  },
+		{"Expansion",   tr("Expansion")  },
+		{"Creatures",   tr("Creatures")  },
+		{"Compatibility", tr("Compatibility") },
+		{"Artifacts",   tr("Artifacts")  },
+		{"AI",          tr("AI")         },
+	};
+
+	if (modTypes.contains(modTypeID))
+		return modTypes[modTypeID];
+	return tr("Other");
+}
+
 QVariant CModListModel::getValue(const CModEntry & mod, int field) const
 {
 	switch(field)
 	{
-	case ModFields::STATUS_ENABLED:
-		return mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED);
+		case ModFields::STATUS_ENABLED:
+			return mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED);
 
-	case ModFields::STATUS_UPDATE:
-		return mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED);
+		case ModFields::STATUS_UPDATE:
+			return mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED);
 
-	default:
-		return mod.getValue(ModFields::names[field]);
+		case ModFields::NAME:
+			return mod.getValue("name");
+
+		case ModFields::VERSION:
+			return mod.getValue("version");
+
+		case ModFields::TYPE:
+			return modTypeName(mod.getValue("modType").toString());
+
+		default:
+			return QVariant();
 	}
 }
 
@@ -82,8 +100,6 @@ QVariant CModListModel::getText(const CModEntry & mod, int field) const
 	case ModFields::STATUS_ENABLED:
 	case ModFields::STATUS_UPDATE:
 		return "";
-	case ModFields::SIZE:
-		return CModEntry::sizeToString(getValue(mod, field).toDouble());
 	default:
 		return getValue(mod, field);
 	}
@@ -106,10 +122,6 @@ QVariant CModListModel::getIcon(const CModEntry & mod, int field) const
 
 QVariant CModListModel::getTextAlign(int field) const
 {
-	if(field == ModFields::SIZE)
-		return QVariant(Qt::AlignRight | Qt::AlignVCenter);
-	//if (field == ModFields::NAME)
-	//	return QVariant(Qt::AlignHCenter | Qt::AlignVCenter);
 	return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
 }
 
@@ -155,8 +167,17 @@ Qt::ItemFlags CModListModel::flags(const QModelIndex &) const
 
 QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	static const QString header[ModFields::COUNT] =
+	{
+		QT_TR_NOOP("Name"),
+		QT_TR_NOOP(""), // status icon
+		QT_TR_NOOP(""), // status icon
+		QT_TR_NOOP("Type"),
+		QT_TR_NOOP("Version"),
+	};
+
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return ModFields::header[section];
+		return QCoreApplication::translate("ModFields", header[section].toStdString().c_str());
 	return QVariant();
 }
 
@@ -170,13 +191,6 @@ void CModListModel::resetRepositories()
 {
 	beginResetModel();
 	CModList::resetRepositories();
-	endResetModel();
-}
-
-void CModListModel::addRepository(QVariantMap data)
-{
-	beginResetModel();
-	CModList::addRepository(data);
 	endResetModel();
 }
 
@@ -245,13 +259,16 @@ bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
 	CModEntry mod = base->getMod(source.data(ModRoles::ModNameRole).toString());
 	return (mod.getModStatus() & filterMask) == filteredType &&
-			mod.isValid() &&
 	       QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
 	QModelIndex index = base->index(source_row, 0, source_parent);
+
+	CModEntry mod = base->getMod(index.data(ModRoles::ModNameRole).toString());
+	if (!mod.isVisible())
+		return false;
 
 	if(filterMatchesThis(index))
 	{

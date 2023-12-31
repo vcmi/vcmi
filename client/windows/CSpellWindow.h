@@ -18,15 +18,16 @@ class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
-struct SDL_Rect;
 class IImage;
+class CAnimation;
 class CAnimImage;
 class CPicture;
 class CLabel;
 class CGStatusBar;
 class CPlayerInterface;
 class CSpellWindow;
+class CTextInput;
+class TransparentFilledRectangle;
 
 /// The spell window
 class CSpellWindow : public CWindowObject
@@ -42,12 +43,12 @@ class CSpellWindow : public CWindowObject
 		std::shared_ptr<CLabel> level;
 		std::shared_ptr<CLabel> cost;
 	public:
-		SpellArea(SDL_Rect pos, CSpellWindow * owner);
+		SpellArea(Rect pos, CSpellWindow * owner);
 		~SpellArea();
 		void setSpell(const CSpell * spell);
 
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 	};
 
@@ -59,11 +60,11 @@ class CSpellWindow : public CWindowObject
 		std::string hoverText;
 		std::string helpText;
 	public:
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 
-		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
+		InteractiveArea(const Rect &myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
 	};
 
 	std::shared_ptr<CAnimation> spellIcons;
@@ -75,28 +76,44 @@ class CSpellWindow : public CWindowObject
 	std::shared_ptr<CAnimImage> schoolTab;
 	std::shared_ptr<CAnimImage> schoolPicture;
 
-	std::array<std::shared_ptr<SpellArea>, 12> spellAreas;
+	std::array<std::shared_ptr<SpellArea>, 24> spellAreas;
 	std::shared_ptr<CLabel> mana;
 	std::shared_ptr<CGStatusBar> statusBar;
 
 	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
 
+	std::shared_ptr<CTextInput> searchBox;
+	std::shared_ptr<TransparentFilledRectangle> searchBoxRectangle;
+	std::shared_ptr<CLabel> searchBoxDescription;
+
+	bool isBigSpellbook;
+	int spellsPerPage;
+	int offL;
+	int offR;
+	int offRM;
+	int offT;
+	int offB;
+
 	int sitesPerTabAdv[5];
 	int sitesPerTabBattle[5];
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
-	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
+	uint8_t selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int currentPage; //changes when corners are clicked
 	std::vector<const CSpell *> mySpells; //all spels in this spellbook
 
 	const CGHeroInstance * myHero; //hero whose spells are presented
 	CPlayerInterface * myInt;
 
+	void processSpells();
+	void searchInput();
 	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
 
 	void setCurrentPage(int value);
 	void turnPageLeft();
 	void turnPageRight();
+
+	std::shared_ptr<IImage> createBigSpellBook();
 
 public:
 	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true);
@@ -113,6 +130,7 @@ public:
 	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int pagesWithinCurrentTab();
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
-	void show(SDL_Surface * to) override;
+	void keyPressed(EShortcut key) override;
+
+	void show(Canvas & to) override;
 };

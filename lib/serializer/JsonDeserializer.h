@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include  "JsonTreeSerializer.h"
+#include "JsonTreeSerializer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -18,27 +18,23 @@ class DLL_LINKAGE JsonDeserializer: public JsonTreeSerializer<const JsonNode *>
 public:
 	JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_);
 
-	void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value) override;
-	void serializeLIC(const std::string & fieldName, LIC & value) override;
+	void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value) override;
 	void serializeLIC(const std::string & fieldName, LICSet & value) override;
 	void serializeString(const std::string & fieldName, std::string & value) override;
 
-	void serializeRaw(const std::string & fieldName, JsonNode & value, const boost::optional<const JsonNode &> defaultValue) override;
+	void serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue) override;
 
 protected:
 	void serializeInternal(const std::string & fieldName, boost::logic::tribool & value) override;
-	void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)	override;
+	void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)	override;
 	void serializeInternal(const std::string & fieldName, std::vector<si32> & value, const TDecoder & decoder, const TEncoder & encoder) override;
-	void serializeInternal(const std::string & fieldName, double & value, const boost::optional<double> & defaultValue) override;
-	void serializeInternal(const std::string & fieldName, si64 & value, const boost::optional<si64> & defaultValue) override;
-	void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) override;
+	void serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue) override;
+	void serializeInternal(const std::string & fieldName, si64 & value, const std::optional<si64> & defaultValue) override;
+	void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) override;
+	void serializeInternal(const std::string & fieldName, std::vector<std::string> & value) override;
 
 	void serializeInternal(std::string & value) override;
 	void serializeInternal(int64_t & value) override;
-
-private:
-	void readLICPart(const JsonNode & part, const TDecoder & decoder, const bool val, std::vector<bool> & value);
-	void readLICPart(const JsonNode & part, const TDecoder & decoder, std::set<si32> & value);
 };
 
 VCMI_LIB_NAMESPACE_END

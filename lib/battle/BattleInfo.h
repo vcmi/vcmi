@@ -9,7 +9,8 @@
  */
 #pragma once
 #include "../int3.h"
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
+#include "../bonuses/CBonusSystemNode.h"
 #include "CBattleInfoCallback.h"
 #include "IBattleState.h"
 #include "SiegeInfo.h"
@@ -25,6 +26,8 @@ class BattleField;
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
 public:
+	BattleID battleID = BattleID(0);
+
 	enum BattleSide
 	{
 		ATTACKER = 0,
@@ -34,6 +37,8 @@ public:
 	si32 round, activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
+	bool creatureBank; //auxilary field, do not serialize
+	bool replayAllowed;
 	std::vector<CStack*> stacks;
 	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
 	SiegeInfo si;
@@ -46,6 +51,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & battleID;
 		h & sides;
 		h & round;
 		h & activeStack;
@@ -59,20 +65,29 @@ public:
 		h & tacticsSide;
 		h & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
+		if (version > 824)
+			h & replayAllowed;
+		else
+			replayAllowed = false;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	BattleInfo();
 	virtual ~BattleInfo();
 
+	const IBattleInfo * getBattle() const override;
+	std::optional<PlayerColor> getPlayerID() const override;
+
 	//////////////////////////////////////////////////////////////////////////
 	// IBattleInfo
 
+	BattleID getBattleID() const override;
+
 	int32_t getActiveStackID() const override;
 
-	TStacks getStacksIf(TStackFilter predicate) const override;
+	TStacks getStacksIf(const TStackFilter & predicate) const override;
 
-	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
+	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	BattleField getBattlefieldType() const override;
 	TerrainId getTerrainType() const override;
@@ -87,22 +102,27 @@ public:
 	ui8 getTacticsSide() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
-	si8 getWallState(int partOfWall) const override;
+	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
 	uint32_t getCastSpells(ui8 side) const override;
 	int32_t getEnchanterCounter(ui8 side) const override;
 
-	const IBonusBearer * asBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 
 	uint32_t nextUnitId() const override;
 
-	int64_t getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
+	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
+
+	int3 getLocation() const override;
+	bool isCreatureBank() const override;
+
+	std::vector<SpellID> getUsedSpells(ui8 side) const override;
 
 	//////////////////////////////////////////////////////////////////////////
 	// IBattleState
 
-	void nextRound(int32_t roundNr) override;
+	void nextRound() override;
 	void nextTurn(uint32_t unitId) override;
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
@@ -115,13 +135,13 @@ public:
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 
-	void setWallState(int partOfWall, si8 state) override;
+	void setWallState(EWallPart partOfWall, EWallState state) override;
 
 	void addObstacle(const ObstacleChanges & changes) override;
 	void updateObstacle(const ObstacleChanges& changes) override;
 	void removeObstacle(uint32_t id) override;
 
-	void addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd);
+	static void addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd);
 
 	//////////////////////////////////////////////////////////////////////////
 	CStack * getStack(int stackID, bool onlyAlive = true);
@@ -130,19 +150,15 @@ public:
 	using CBattleInfoEssentials::battleGetFightingHero;
 	CGHeroInstance * battleGetFightingHero(ui8 side) const;
 
-	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const CStack * stack); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
+	CStack * generateNewStack(uint32_t id, const CStackInstance & base, ui8 side, const SlotID & slot, BattleHex position);
+	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor & base, ui8 side, const SlotID & slot, BattleHex position);
 
-	void calculateCasualties(std::map<ui32,si32> * casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
-
-	CStack * generateNewStack(uint32_t id, const CStackInstance &base, ui8 side, SlotID slot, BattleHex position);
-	CStack * generateNewStack(uint32_t id, const CStackBasicDescriptor &base, ui8 side, SlotID slot, BattleHex position);
-
-	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
+	const CGHeroInstance * getHero(const PlayerColor & player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
 	static BattleInfo * setupBattle(const int3 & tile, TerrainId, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
-	ui8 whatSide(PlayerColor player) const;
+	ui8 whatSide(const PlayerColor & player) const;
 
 protected:
 #if SCRIPTING_ENABLED
@@ -157,8 +173,7 @@ class DLL_LINKAGE CMP_stack
 	int turn;
 	uint8_t side;
 public:
-
-	bool operator ()(const battle::Unit * a, const battle::Unit * b);
+	bool operator()(const battle::Unit * a, const battle::Unit * b) const;
 	CMP_stack(int Phase = 1, int Turn = 0, uint8_t Side = BattleSide::ATTACKER);
 };
 

@@ -68,7 +68,7 @@
       <enum>QFrame::Raised</enum>
      </property>
      <property name="text">
-      <string>You have latest version</string>
+      <string>You have the latest version</string>
      </property>
     </widget>
    </item>
@@ -98,7 +98,7 @@
    <item row="3" column="0" colspan="2">
     <widget class="QCheckBox" name="checkOnStartup">
      <property name="text">
-      <string>Check updates on startup</string>
+      <string>Check for updates on startup</string>
      </property>
     </widget>
    </item>

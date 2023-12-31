@@ -13,14 +13,9 @@
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "lib/mapping/CMap.h" //for victory conditions
-#include "lib/CPathfinder.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -53,7 +48,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 
 	for(auto town : towns)
 	{
-		if(ai->canRecruitAnyHero(town))
+		if(ai->nullkiller->heroManager->canRecruitHero(town))
 		{
 			auto availableHeroes = cb->getAvailableHeroes(town);
 
@@ -68,8 +63,29 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 				}
 			}
 
+			int treasureSourcesCount = 0;
+
+			for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
+			{
+				if((obj->ID == Obj::RESOURCE)
+					|| obj->ID == Obj::TREASURE_CHEST
+					|| obj->ID == Obj::CAMPFIRE
+					|| isWeeklyRevisitable(obj)
+					|| obj->ID ==Obj::ARTIFACT)
+				{
+					auto tile = obj->visitablePos();
+					auto closestTown = ai->nullkiller->dangerHitMap->getClosestTown(tile);
+
+					if(town == closestTown)
+						treasureSourcesCount++;
+				}
+			}
+
+			if(treasureSourcesCount < 5 && (town->garrisonHero || town->getUpperArmy()->getArmyStrength() < 10000))
+				continue;
+
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
-				|| (ai->nullkiller->getFreeResources()[Res::GOLD] > 10000
+				|| (ai->nullkiller->getFreeResources()[EGameResID::GOLD] > 10000
 					&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE))
 			{
 				tasks.push_back(Goals::sptr(Goals::RecruitHero(town).setpriority(3)));

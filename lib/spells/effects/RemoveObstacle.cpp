@@ -14,36 +14,26 @@
 #include "Registry.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/CObstacleInstance.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-static const std::string EFFECT_NAME = "core:removeObstacle";
 
 namespace spells
 {
 namespace effects
 {
 
-VCMI_REGISTER_SPELL_EFFECT(RemoveObstacle, EFFECT_NAME);
-
-RemoveObstacle::RemoveObstacle()
-	: LocationEffect(),
-	removeAbsolute(false),
-	removeUsual(false),
-	removeAllSpells(false)
-{
-}
-
-RemoveObstacle::~RemoveObstacle() = default;
-
 bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m) const
 {
-	return !getTargets(m, EffectTarget(), true).empty();
+	if (getTargets(m, EffectTarget(), true).empty())
+	{
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
+	}
+	return true;
 }
 
 bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
@@ -54,9 +44,14 @@ bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const Ef
 void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & obstacle : getTargets(m, target, false))
+	{
+		auto * serializable = const_cast<CObstacleInstance*>(obstacle); //Workaround
 		pack.changes.emplace_back(obstacle->uniqueID, BattleChanges::EOperation::REMOVE);
+		serializable->toInfo(pack.changes.back(), BattleChanges::EOperation::REMOVE);
+	}
 
 	if(!pack.changes.empty())
 		server->apply(&pack);
@@ -76,9 +71,9 @@ bool RemoveObstacle::canRemove(const CObstacleInstance * obstacle) const
 		return true;
 	if(removeUsual && obstacle->obstacleType == CObstacleInstance::USUAL)
 		return true;
-	auto spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle);
+	const auto *spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle);
 
-	if(removeAllSpells && spellObstacle)
+	if(removeAllSpells && obstacle->obstacleType == CObstacleInstance::SPELL_CREATED)
 		return true;
 
 	if(spellObstacle && !removeSpells.empty())
@@ -95,7 +90,7 @@ std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics *
 	std::set<const CObstacleInstance *> possibleTargets;
 	if(m->isMassive() || alwaysMassive)
 	{
-		for(const auto & obstacle : m->battle()->battleGetAllObstacles())
+		for(const auto & obstacle : m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING))
 			if(canRemove(obstacle.get()))
 				possibleTargets.insert(obstacle.get());
 	}

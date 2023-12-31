@@ -12,9 +12,11 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../CPlayerInterface.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CreatureCostBox.h"
+#include "../widgets/Slider.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../../CCallback.h"
-#include "../CreatureCostBox.h"
 #include "../../lib/ResourceSet.h"
 #include "../../lib/CCreatureHandler.h"
 #include "CreaturePurchaseCard.h"
@@ -29,20 +31,19 @@ void QuickRecruitmentWindow::setButtons()
 
 void QuickRecruitmentWindow::setCancelButton()
 {
-	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_ESCAPE);
+	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), AnimationPath::builtin("ICN6432.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 	cancelButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setBuyButton()
 {
-	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purchaseUnits(); }, SDLK_RETURN);
-	cancelButton->assignedKeys.insert(SDLK_ESCAPE);
+	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(), [&](){ purchaseUnits(); }, EShortcut::GLOBAL_ACCEPT);
 	buyButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setMaxButton()
 {
-	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); }, SDLK_m);
+	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), AnimationPath::builtin("IRCBTNS.DEF"), CButton::tooltip(), [&](){ maxAllCards(cards); }, EShortcut::RECRUITMENT_MAX);
 	maxButton->setImageOrder(0, 1, 2, 3);
 }
 
@@ -73,8 +74,8 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 		pos.w += 108 * (creaturesAmount - 3);
 		pos.x -= 55 * (creaturesAmount - 3);
 	}
-	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK.pcx", Rect(0, 0, pos.w, pos.h));
-	costBackground = std::make_shared<CPicture>("QuickRecruitmentWindow/costBackground.png", pos.w/2-113, 335);
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK.pcx"), Rect(0, 0, pos.w, pos.h));
+	costBackground = std::make_shared<CPicture>(ImagePath::builtin("QuickRecruitmentWindow/costBackground.png"), pos.w/2-113, 335);
 }
 
 void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)
@@ -88,12 +89,12 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 		i->slider->setAmount(maxAmount);
 
 		if(i->slider->getValue() != maxAmount)
-			i->slider->moveTo(maxAmount);
+			i->slider->scrollTo(maxAmount);
 		else
 			i->sliderMoved(maxAmount);
 
-		i->slider->moveToMax();
-		allAvailableResources -= (i->creatureOnTheCard->cost * maxAmount);
+		i->slider->scrollToMax();
+		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * maxAmount);
 	}
 	maxButton->block(allAvailableResources == LOCPLINT->cb->getResourceAmount());
 }
@@ -101,12 +102,12 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 
 void QuickRecruitmentWindow::purchaseUnits()
 {
-	for(auto selected : cards)
+	for(auto selected : boost::adaptors::reverse(cards))
 	{
 		if(selected->slider->getValue())
 		{
-			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creatureOnTheCard->level-1); };
-			CreatureID crid =  selected->creatureOnTheCard->idNumber;
+			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creatureOnTheCard->getLevel()-1); };
+			CreatureID crid =  selected->creatureOnTheCard->getId();
 			SlotID dstslot = town -> getSlotFor(crid);
 			if(!dstslot.validSlot())
 				continue;
@@ -129,7 +130,7 @@ void QuickRecruitmentWindow::updateAllSliders()
 {
 	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
 	for(auto i : boost::adaptors::reverse(cards))
-		allAvailableResources -= (i->creatureOnTheCard->cost * i->slider->getValue());
+		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * i->slider->getValue());
 	for(auto i : cards)
 	{
 		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);
@@ -140,7 +141,7 @@ void QuickRecruitmentWindow::updateAllSliders()
 			i->slider->setAmount(i->slider->getValue() + maxAmount);
 		else
 			i->slider->setAmount(i->maxAmount);
-		i->slider->moveTo(i->slider->getValue());
+		i->slider->scrollTo(i->slider->getValue());
 	}
 	totalCost->createItems(LOCPLINT->cb->getResourceAmount() - allAvailableResources);
 	totalCost->set(LOCPLINT->cb->getResourceAmount() - allAvailableResources);

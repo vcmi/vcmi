@@ -20,7 +20,7 @@ namespace events
 
 SubscriptionRegistry<TurnStarted> * TurnStarted::getRegistry()
 {
-	static std::unique_ptr<SubscriptionRegistry<TurnStarted>> Instance = make_unique<SubscriptionRegistry<TurnStarted>>();
+	static std::unique_ptr<SubscriptionRegistry<TurnStarted>> Instance = std::make_unique<SubscriptionRegistry<TurnStarted>>();
 	return Instance.get();
 }
 

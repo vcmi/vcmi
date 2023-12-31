@@ -37,7 +37,8 @@ namespace vstd
 		{}
 		~ScopeGuard()
 		{
-			f();
+			if(fire)
+				f();
 		}
 	};
 

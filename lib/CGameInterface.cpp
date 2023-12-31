@@ -13,35 +13,35 @@
 #include "CStack.h"
 #include "VCMIDirs.h"
 
-#ifdef VCMI_WINDOWS
-#include <windows.h> //for .dll libs
-#elif !defined VCMI_ANDROID
-#include <dlfcn.h>
-#endif
-
 #include "serializer/BinaryDeserializer.h"
 #include "serializer/BinarySerializer.h"
 
-#ifdef VCMI_ANDROID
-
-#include "AI/VCAI/VCAI.h"
-#include "AI/Nullkiller/AIGateway.h"
-#include "AI/BattleAI/BattleAI.h"
-
-#endif
+#ifdef STATIC_AI
+# include "AI/VCAI/VCAI.h"
+# include "AI/Nullkiller/AIGateway.h"
+# include "AI/BattleAI/BattleAI.h"
+# include "AI/StupidAI/StupidAI.h"
+# include "AI/EmptyAI/CEmptyAI.h"
+#else
+# ifdef VCMI_WINDOWS
+#  include <windows.h> //for .dll libs
+# else
+#  include <dlfcn.h>
+# endif // VCMI_WINDOWS
+#endif // STATIC_AI
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-#ifdef VCMI_ANDROID
+#ifdef STATIC_AI
 	// android currently doesn't support loading libs dynamically, so the access to the known libraries
 	// is possible only via specializations of this template
 	throw std::runtime_error("Could not resolve ai library " + libpath.generic_string());
 #else
-	typedef void(* TGetAIFun)(std::shared_ptr<rett> &);
-	typedef void(* TGetNameFun)(char *);
+	using TGetAIFun = void (*)(std::shared_ptr<rett> &);
+	using TGetNameFun = void (*)(char *);
 
 	char temp[150];
 
@@ -49,18 +49,25 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	TGetNameFun getName = nullptr;
 
 #ifdef VCMI_WINDOWS
+#ifdef __MINGW32__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 	HMODULE dll = LoadLibraryW(libpath.c_str());
 	if (dll)
 	{
-		getName = (TGetNameFun)GetProcAddress(dll, "GetAiName");
-		getAI = (TGetAIFun)GetProcAddress(dll, methodName.c_str());
+		getName = reinterpret_cast<TGetNameFun>(GetProcAddress(dll, "GetAiName"));
+		getAI = reinterpret_cast<TGetAIFun>(GetProcAddress(dll, methodName.c_str()));
 	}
+#ifdef __MINGW32__
+#pragma GCC diagnostic pop
+#endif
 #else // !VCMI_WINDOWS
 	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (dll)
 	{
-		getName = (TGetNameFun)dlsym(dll, "GetAiName");
-		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
+		getName = reinterpret_cast<TGetNameFun>(dlsym(dll, "GetAiName"));
+		getAI = reinterpret_cast<TGetAIFun>(dlsym(dll, methodName.c_str()));
 	}
 #endif // VCMI_WINDOWS
 
@@ -89,10 +96,10 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 		logGlobal->error("Cannot get AI!");
 
 	return ret;
-#endif //!VCMI_ANDROID
+#endif // STATIC_AI
 }
 
-#ifdef VCMI_ANDROID
+#ifdef STATIC_AI
 
 template<>
 std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
@@ -108,28 +115,32 @@ std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, co
 template<>
 std::shared_ptr<CBattleGameInterface> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-	return std::make_shared<CBattleAI>();
+	if(libpath.stem() == "libBattleAI")
+		return std::make_shared<CBattleAI>();
+	else if(libpath.stem() == "libStupidAI")
+		return std::make_shared<CStupidAI>();
+	return std::make_shared<CEmptyAI>();
 }
 
-#endif
+#endif // STATIC_AI
 
 template<typename rett>
-std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string & methodName)
+std::shared_ptr<rett> createAnyAI(const std::string & dllname, const std::string & methodName)
 {
 	logGlobal->info("Opening %s", dllname);
 
 	const boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("AI", dllname);
 	auto ret = createAny<rett>(filePath, methodName);
-	ret->dllName = std::move(dllname);
+	ret->dllName = dllname;
 	return ret;
 }
 
-std::shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(std::string dllname)
+std::shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(const std::string & dllname)
 {
 	return createAnyAI<CGlobalAI>(dllname, "GetNewAI");
 }
 
-std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string dllname)
+std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(const std::string & dllname)
 {
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
@@ -141,103 +152,95 @@ std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const b
 }
 #endif
 
-BattleAction CGlobalAI::activeStack(const CStack * stack)
-{
-	BattleAction ba;
-	ba.actionType = EActionType::DEFEND;
-	ba.stackNumber = stack->ID;
-	return ba;
-}
-
 CGlobalAI::CGlobalAI()
 {
 	human = false;
 }
 
-void CAdventureAI::battleNewRound(int round)
+void CAdventureAI::battleNewRound(const BattleID & battleID)
 {
-	battleAI->battleNewRound(round);
+	battleAI->battleNewRound(battleID);
 }
 
-void CAdventureAI::battleCatapultAttacked(const CatapultAttack & ca)
+void CAdventureAI::battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca)
 {
-	battleAI->battleCatapultAttacked(ca);
+	battleAI->battleCatapultAttacked(battleID, ca);
 }
 
-void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile,
-							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
+void CAdventureAI::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile,
+							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	assert(!battleAI);
 	assert(cbc);
 	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
-	battleAI->init(env, cbc);
-	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
+	battleAI->initBattleInterface(env, cbc);
+	battleAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CAdventureAI::battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
-	battleAI->battleStacksAttacked(bsa);
+	battleAI->battleStacksAttacked(battleID, bsa, ranged);
 }
 
-void CAdventureAI::actionStarted(const BattleAction & action)
+void CAdventureAI::actionStarted(const BattleID & battleID, const BattleAction & action)
 {
-	battleAI->actionStarted(action);
+	battleAI->actionStarted(battleID, action);
 }
 
-void CAdventureAI::battleNewRoundFirst(int round)
+void CAdventureAI::battleNewRoundFirst(const BattleID & battleID)
 {
-	battleAI->battleNewRoundFirst(round);
+	battleAI->battleNewRoundFirst(battleID);
 }
 
-void CAdventureAI::actionFinished(const BattleAction & action)
+void CAdventureAI::actionFinished(const BattleID & battleID, const BattleAction & action)
 {
-	battleAI->actionFinished(action);
+	battleAI->actionFinished(battleID, action);
 }
 
-void CAdventureAI::battleStacksEffectsSet(const SetStackEffect & sse)
+void CAdventureAI::battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse)
 {
-	battleAI->battleStacksEffectsSet(sse);
+	battleAI->battleStacksEffectsSet(battleID, sse);
 }
 
-void CAdventureAI::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
+void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
 {
-	battleAI->battleObstaclesChanged(obstacles);
+	battleAI->battleObstaclesChanged(battleID, obstacles);
 }
 
-void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
+void CAdventureAI::battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
-	battleAI->battleStackMoved(stack, dest, distance);
+	battleAI->battleStackMoved(battleID, stack, dest, distance, teleport);
 }
 
-void CAdventureAI::battleAttack(const BattleAttack * ba)
+void CAdventureAI::battleAttack(const BattleID & battleID, const BattleAttack * ba)
 {
-	battleAI->battleAttack(ba);
+	battleAI->battleAttack(battleID, ba);
 }
 
-void CAdventureAI::battleSpellCast(const BattleSpellCast * sc)
+void CAdventureAI::battleSpellCast(const BattleID & battleID, const BattleSpellCast * sc)
 {
-	battleAI->battleSpellCast(sc);
+	battleAI->battleSpellCast(battleID, sc);
 }
 
-void CAdventureAI::battleEnd(const BattleResult * br)
+void CAdventureAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
-	battleAI->battleEnd(br);
+	battleAI->battleEnd(battleID, br, queryID);
 	battleAI.reset();
 }
 
-void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects)
+void CAdventureAI::battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units)
 {
-	battleAI->battleUnitsChanged(units, customEffects);
+	battleAI->battleUnitsChanged(battleID, units);
 }
 
-BattleAction CAdventureAI::activeStack(const CStack * stack)
+void CAdventureAI::activeStack(const BattleID & battleID, const CStack * stack)
 {
-	return battleAI->activeStack(stack);
+	battleAI->activeStack(battleID, stack);
 }
 
-void CAdventureAI::yourTacticPhase(int distance)
+void CAdventureAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	battleAI->yourTacticPhase(distance);
+	battleAI->yourTacticPhase(battleID, distance);
 }
 
 void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
@@ -262,7 +265,7 @@ void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading
 		h & dllName;
 		battleAI = CDynLibHandler::getNewBattleAI(dllName);
 		assert(cbc); //it should have been set by the one who new'ed us
-		battleAI->init(env, cbc);
+		battleAI->initBattleInterface(env, cbc);
 	}
 }
 

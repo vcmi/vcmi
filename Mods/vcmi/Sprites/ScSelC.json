@@ -1,7 +1,7 @@
 {
-        "basepath" : "mapFormatIcons/",
+	"basepath" : "mapFormatIcons/",
 	"images" :
 	[
-		{ "group" : 1, "frame" : 0, "file" : "vcmi1.png"}
+		{ "frame" : 3, "file" : "vcmi1.png"}
 	]
 }

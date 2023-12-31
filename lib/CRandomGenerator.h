@@ -14,11 +14,15 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-typedef std::mt19937 TGenerator;
-typedef std::uniform_int_distribution<int> TIntDist;
-typedef std::uniform_int_distribution<int64_t> TInt64Dist;
-typedef std::uniform_real_distribution<double> TRealDist;
-typedef std::function<int()> TRandI;
+/// Generator to use for all randomization in game
+/// minstd_rand is selected due to following reasons:
+/// 1. Its randomization quality is below mt_19937 however this is unlikely to be noticeable in game
+/// 2. It has very low state size, leading to low overhead in size of saved games (due to large number of random generator instances in game)
+using TGenerator = std::minstd_rand;
+using TIntDist = std::uniform_int_distribution<int>;
+using TInt64Dist = std::uniform_int_distribution<int64_t>;
+using TRealDist = std::uniform_real_distribution<double>;
+using TRandI = std::function<int()>;
 
 /// The random generator randomly generates integers and real numbers("doubles") between
 /// a given range. This is a header only class and mainly a wrapper for
@@ -29,6 +33,9 @@ public:
 	/// Seeds the generator by default with the product of the current time in milliseconds and the
 	/// current thread ID.
 	CRandomGenerator();
+
+	/// Seeds the generator with provided initial seed
+	explicit CRandomGenerator(int seed);
 
 	void setSeed(int seed);
 
@@ -77,7 +84,6 @@ public:
 
 private:
 	TGenerator rand;
-	static boost::thread_specific_ptr<CRandomGenerator> defaultRand;
 
 public:
 	template <typename Handler>

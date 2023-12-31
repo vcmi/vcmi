@@ -320,10 +320,12 @@
     </ClCompile>
     <ClCompile Include="VCMIDirs.cpp" />
     <ClCompile Include="VCMI_Lib.cpp" />
+    <ClCompile Include="vstd\DateUtils.cpp" />
     <ClCompile Include="vstd\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
+    <ClInclude Include="..\AUTHORS.h" />
     <ClInclude Include="..\Version.h" />
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="battle\BattleAction.h" />
@@ -426,7 +428,7 @@
     <ClInclude Include="logging\CLogger.h" />
     <ClInclude Include="logging\CBasicLogConfigurator.h" />
     <ClInclude Include="GameConstants.h" />
-    <ClInclude Include="HeroBonus.h" />
+    <ClInclude Include="Bonus.h" />
     <ClInclude Include="IGameCallback.h" />
     <ClInclude Include="CGameInfoCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />

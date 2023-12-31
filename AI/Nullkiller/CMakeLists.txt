@@ -1,6 +1,4 @@
 set(Nullkiller_SRCS
-		StdInc.cpp
-
 		Pathfinding/AIPathfinderConfig.cpp
 		Pathfinding/AIPathfinder.cpp
 		Pathfinding/AINodeStorage.cpp
@@ -11,6 +9,7 @@ set(Nullkiller_SRCS
 		Pathfinding/Actions/BuyArmyAction.cpp
 		Pathfinding/Actions/BoatActions.cpp
 		Pathfinding/Actions/TownPortalAction.cpp
+		Pathfinding/Actions/AdventureSpellCastMovementActions.cpp
 		Pathfinding/Rules/AILayerTransitionRule.cpp
 		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
@@ -36,6 +35,7 @@ set(Nullkiller_SRCS
 		Goals/ExecuteHeroChain.cpp
 		Goals/ExchangeSwapTownHeroes.cpp
 		Goals/CompleteQuest.cpp
+		Goals/StayAtTown.cpp
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
@@ -54,7 +54,8 @@ set(Nullkiller_SRCS
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
-		main.cpp
+		Behaviors/StayAtTownBehavior.cpp
+		Helpers/ArmyFormation.cpp
 		AIGateway.cpp
 )
 
@@ -71,6 +72,7 @@ set(Nullkiller_HEADERS
 		Pathfinding/Actions/BuyArmyAction.h
 		Pathfinding/Actions/BoatActions.h
 		Pathfinding/Actions/TownPortalAction.h
+		Pathfinding/Actions/AdventureSpellCastMovementActions.h
 		Pathfinding/Rules/AILayerTransitionRule.h
 		Pathfinding/Rules/AIMovementAfterDestinationRule.h
 		Pathfinding/Rules/AIMovementToDestinationRule.h
@@ -99,6 +101,7 @@ set(Nullkiller_HEADERS
 		Goals/ExchangeSwapTownHeroes.h
 		Goals/CompleteQuest.h
 		Goals/Goals.h
+		Goals/StayAtTown.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
@@ -117,27 +120,29 @@ set(Nullkiller_HEADERS
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
 		Behaviors/ClusterBehavior.h
+		Behaviors/StayAtTownBehavior.h
+		Helpers/ArmyFormation.h
 		AIGateway.h
 )
 
+if(NOT ENABLE_STATIC_AI_LIBS)
+	list(APPEND Nullkiller_SRCS main.cpp StdInc.cpp)
+endif()
 assign_source_group(${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
-if(ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
-	return()
+if(ENABLE_STATIC_AI_LIBS)
+	add_library(Nullkiller STATIC ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
+else()
+	add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
+	install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 
-add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
-
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_link_libraries(Nullkiller PRIVATE ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
-
-target_link_libraries(Nullkiller PRIVATE TBB::tbb)
+target_link_libraries(Nullkiller PUBLIC ${VCMI_LIB_TARGET} fuzzylite::fuzzylite TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)
 
-install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 if(APPLE_IOS AND NOT USING_CONAN)
 	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
 endif()

@@ -27,13 +27,14 @@ struct DLL_LINKAGE BattleAttackInfo
 	BattleHex attackerPos;
 	BattleHex defenderPos;
 
-	bool shooting;
-	int chargedFields;
+	int chargeDistance = 0;
+	bool shooting      = false;
+	bool luckyStrike   = false;
+	bool unluckyStrike = false;
+	bool deathBlow     = false;
+	bool doubleDamage  = false;
 
-	double additiveBonus;
-	double multBonus;
-
-	BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, bool Shooting = false);
+	BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, int chargeDistance, bool Shooting);
 	BattleAttackInfo reverse() const;
 };
 

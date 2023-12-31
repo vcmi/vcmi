@@ -28,7 +28,7 @@ class CMemoryBuffer;
 class DLL_LINKAGE CIOApi
 {
 public:
-	virtual ~CIOApi(){};
+	virtual ~CIOApi() = default;
 
 	virtual zlib_filefunc64_def getApiStructure() = 0;
 };
@@ -38,9 +38,6 @@ public:
 class DLL_LINKAGE CDefaultIOApi: public CIOApi
 {
 public:
-	CDefaultIOApi();
-	~CDefaultIOApi();
-
 	zlib_filefunc64_def getApiStructure() override;
 };
 
@@ -49,7 +46,7 @@ class DLL_LINKAGE CProxyIOApi: public CIOApi
 {
 public:
 	CProxyIOApi(CInputOutputStream * buffer);
-	~CProxyIOApi();
+	~CProxyIOApi() override;
 
 	zlib_filefunc64_def getApiStructure() override;
 private:
@@ -71,7 +68,7 @@ class DLL_LINKAGE CProxyROIOApi: public CIOApi
 {
 public:
 	CProxyROIOApi(CInputStream * buffer);
-	~CProxyROIOApi();
+	~CProxyROIOApi() override;
 
 	zlib_filefunc64_def getApiStructure() override;
 private:

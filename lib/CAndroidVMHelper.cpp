@@ -10,20 +10,19 @@
 #include "CAndroidVMHelper.h"
 
 #ifdef VCMI_ANDROID
+VCMI_LIB_NAMESPACE_BEGIN
+
 static JavaVM * vmCache = nullptr;
 
 /// cached java classloader so that we can find our classes from other threads
 static jobject vcmiClassLoader;
 static jmethodID vcmiFindClassMethod;
 
+bool CAndroidVMHelper::alwaysUseLoadedClass = false;
+
 void CAndroidVMHelper::cacheVM(JNIEnv * env)
 {
 	env->GetJavaVM(&vmCache);
-}
-
-void CAndroidVMHelper::cacheVM(JavaVM * vm)
-{
-	vmCache = vm;
 }
 
 CAndroidVMHelper::CAndroidVMHelper()
@@ -94,16 +93,16 @@ void CAndroidVMHelper::callCustomMethod(const std::string & cls, const std::stri
 
 jclass CAndroidVMHelper::findClass(const std::string & name, bool classloaded)
 {
-	if(classloaded)
+	if(alwaysUseLoadedClass || classloaded)
 	{
 		return findClassloadedClass(name);
 	}
 	return get()->FindClass(name.c_str());
 }
 
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jobject * cls)
+void CAndroidVMHelper::initClassloader(void * baseEnv)
 {
-	CAndroidVMHelper::cacheVM(baseEnv);
+	CAndroidVMHelper::cacheVM(static_cast<JNIEnv *>(baseEnv));
 	CAndroidVMHelper envHelper;
 	auto env = envHelper.get();
 	auto anyVCMIClass = env->FindClass(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS);
@@ -113,4 +112,6 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloade
 	vcmiClassLoader = (jclass) env->NewGlobalRef(env->CallObjectMethod(anyVCMIClass, getClassLoaderMethod));
 	vcmiFindClassMethod = env->GetMethodID(classLoaderClass, "findClass", "(Ljava/lang/String;)Ljava/lang/Class;");
 }
+
+VCMI_LIB_NAMESPACE_END
 #endif

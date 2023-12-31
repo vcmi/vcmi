@@ -111,6 +111,8 @@ typedef uint64_t ZPOS64_T;
 #endif
 
 #if defined(_MSC_VER) 
+#pragma warning (push)
+#pragma warning (disable : 4005)
    /* If building or using zlib as a DLL, define ZLIB_DLL.
     * This is not mandatory, but it offers a little performance increase.
     */
@@ -121,6 +123,7 @@ typedef uint64_t ZPOS64_T;
 #        define ZEXPORT __declspec(dllimport)
 #      endif
 #  endif  /* ZLIB_DLL */
+#pragma warning (pop)
 
 #ifdef MINIZIP_DLL
 #define MINIZIP_EXPORT __declspec(dllexport)
@@ -198,7 +201,7 @@ typedef struct zlib_filefunc64_def_s
     voidpf              opaque;
 } zlib_filefunc64_def;
 
-void fill_fopen64_filefunc OF((zlib_filefunc64_def* pzlib_filefunc_def));
+void MINIZIP_EXPORT fill_fopen64_filefunc OF((zlib_filefunc64_def* pzlib_filefunc_def));
 void fill_fopen_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def));
 
 /* now internal definition, only for zip.c and unzip.h */

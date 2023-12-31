@@ -1,0 +1,10 @@
+{
+	"core:arrowTower" :
+	{
+		"graphics" :
+		{
+			"iconSmall" : "vcmi/creatureIcons/towerSmall",
+			"iconLarge" : "vcmi/creatureIcons/towerLarge",
+		}
+	}
+}

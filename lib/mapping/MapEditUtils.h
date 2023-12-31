@@ -11,8 +11,7 @@
 #pragma once
 
 #include "../int3.h"
-#include "../CRandomGenerator.h"
-#include "Terrain.h"
+#include "../GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -23,7 +22,7 @@ class CMap;
 struct DLL_LINKAGE MapRect
 {
 	MapRect();
-	MapRect(int3 pos, si32 width, si32 height);
+	MapRect(const int3 & pos, si32 width, si32 height);
 	si32 x, y, z;
 	si32 width, height;
 
@@ -200,6 +199,8 @@ struct DLL_LINKAGE TerrainViewPattern
 	/// If diffImages is true, different images/frames are used to place a rotated terrain view. If it's false
 	/// the same frame will be used and rotated.
 	bool diffImages;
+	/// If true, then this pattern describes decoration tiles and should be used with specified probability
+	bool decoration;
 	/// The rotationTypesCount is only used if diffImages is true and holds the number how many rotation types(horizontal, etc...)
 	/// are supported.
 	int rotationTypesCount;
@@ -212,14 +213,13 @@ struct DLL_LINKAGE TerrainViewPattern
 class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 {
 public:
-	typedef std::vector<TerrainViewPattern> TVPVector;
+	using TVPVector = std::vector<TerrainViewPattern>;
 
 	CTerrainViewPatternConfig();
-	~CTerrainViewPatternConfig();
 
 	const std::vector<TVPVector> & getTerrainViewPatterns(TerrainId terrain) const;
-	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(std::string patternId, const std::string & id) const;
-	boost::optional<const TVPVector &> getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const;
+	std::optional<const std::reference_wrapper<const TerrainViewPattern>> getTerrainViewPatternById(const std::string & patternId, const std::string & id) const;
+	std::optional<const std::reference_wrapper<const CTerrainViewPatternConfig::TVPVector>> getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const;
 	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
@@ -231,7 +231,7 @@ private:
 class DLL_LINKAGE CTerrainViewPatternUtils
 {
 public:
-	static void printDebuggingInfoAboutTile(const CMap * map, int3 pos);
+	static void printDebuggingInfoAboutTile(const CMap * map, const int3 & pos);
 };
 
 VCMI_LIB_NAMESPACE_END

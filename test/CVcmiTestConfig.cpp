@@ -25,7 +25,6 @@ void CVcmiTestConfig::SetUp()
 {
 	console = new CConsoleHandler();
 	preinitDLL(console, true);
-	settings.init();
 	loadDLLClasses(true);
 
 	/* TEST_DATA_DIR may be wrong, if yes below test don't run,
@@ -35,13 +34,13 @@ void CVcmiTestConfig::SetUp()
 	path+= "/" + TEST_DATA_DIR;
 	if(boost::filesystem::exists(path)){
 		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(loader, false);
 
 		loader = new CFilesystemLoader("scripts/test/erm/", TEST_DATA_DIR+"erm/");
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(loader, false);
 
 		loader = new CFilesystemLoader("scripts/test/lua/", TEST_DATA_DIR+"lua/");
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(loader, false);
 
 	}
 }

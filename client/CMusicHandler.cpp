@@ -9,17 +9,22 @@
  */
 #include "StdInc.h"
 #include <SDL_mixer.h>
+#include <SDL_timer.h>
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
-#include "SDLRWwrapper.h"
+#include "renderSDL/SDLRWwrapper.h"
+#include "eventsSDL/InputHandler.h"
+#include "gui/CGuiHandler.h"
+
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Terrain.h"
+#include "../lib/TerrainHandler.h"
+
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -32,17 +37,6 @@ static std::string sounds[] = {
 };
 #undef VCMI_SOUND_NAME
 #undef VCMI_SOUND_FILE
-
-// Not pretty, but there's only one music handler object in the game.
-static void soundFinishedCallbackC(int channel)
-{
-	CCS->soundh->soundFinishedCallback(channel);
-}
-
-static void musicFinishedCallbackC()
-{
-	CCS->musich->musicFinishedCallback();
-}
 
 void CAudioBase::init()
 {
@@ -81,17 +75,9 @@ void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 
 CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"]),
-	ambientConfig(JsonNode(ResourceID("config/ambientSounds.json")))
+	ambientConfig(JsonPath::builtin("config/ambientSounds.json"))
 {
-	allTilesSource = ambientConfig["allTilesSource"].Bool();
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
-
-	// Vectors for helper(s)
-	pickupSounds =
-	{
-		soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
-		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
-	};
 
 	battleIntroSounds =
 	{
@@ -99,36 +85,6 @@ CSoundHandler::CSoundHandler():
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
-	
-	//predefine terrain set
-	//TODO: support custom sounds for new terrains and load from json
-	horseSounds =
-	{
-		{Terrain::DIRT, soundBase::horseDirt},
-		{Terrain::SAND, soundBase::horseSand},
-		{Terrain::GRASS, soundBase::horseGrass},
-		{Terrain::SNOW, soundBase::horseSnow},
-		{Terrain::SWAMP, soundBase::horseSwamp},
-		{Terrain::ROUGH, soundBase::horseRough},
-		{Terrain::SUBTERRANEAN, soundBase::horseSubterranean},
-		{Terrain::LAVA, soundBase::horseLava},
-		{Terrain::WATER, soundBase::horseWater},
-		{Terrain::ROCK, soundBase::horseRock}
-	};
-}
-
-void CSoundHandler::loadHorseSounds()
-{
-	const auto & terrains = CGI->terrainTypeHandler->terrains();
-	for(const auto & terrain : terrains)
-	{
-		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain.id))
-			continue;
-
-		//Use already existing horse sound
-		horseSounds[terrain.id] = horseSounds.at(terrains[terrain.id].horseSoundId);
-	}
 }
 
 void CSoundHandler::init()
@@ -139,8 +95,10 @@ void CSoundHandler::init()
 
 	if (initialized)
 	{
-		// Load sounds
-		Mix_ChannelFinished(soundFinishedCallbackC);
+		Mix_ChannelFinished([](int channel)
+		{
+			CCS->soundh->soundFinishedCallback(channel);
+		});
 	}
 }
 
@@ -161,39 +119,65 @@ void CSoundHandler::release()
 }
 
 // Allocate an SDL chunk and cache it.
-Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
+Mix_Chunk *CSoundHandler::GetSoundChunk(const AudioPath & sound, bool cache)
 {
 	try
 	{
 		if (cache && soundChunks.find(sound) != soundChunks.end())
 			return soundChunks[sound].first;
 
-		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
+		auto data = CResourceHandler::get()->load(sound.addPrefix("SOUNDS/"))->readAll();
 		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), (int)data.second);
 		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
 		if (cache)
-			soundChunks.insert(std::pair<std::string, CachedChunk>(sound, std::make_pair (chunk, std::move (data.first))));
+			soundChunks.insert({sound, std::make_pair (chunk, std::move (data.first))});
 
 		return chunk;
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->warn("Cannot get sound %s chunk: %s", sound, e.what());
+		logGlobal->warn("Cannot get sound %s chunk: %s", sound.getOriginalName(), e.what());
+		return nullptr;
+	}
+}
+
+Mix_Chunk *CSoundHandler::GetSoundChunk(std::pair<std::unique_ptr<ui8 []>, si64> & data, bool cache)
+{
+	try
+	{
+		std::vector<ui8> startBytes = std::vector<ui8>(data.first.get(), data.first.get() + std::min((si64)100, data.second));
+
+		if (cache && soundChunksRaw.find(startBytes) != soundChunksRaw.end())
+			return soundChunksRaw[startBytes].first;
+
+		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), (int)data.second);
+		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
+
+		if (cache)
+			soundChunksRaw.insert({startBytes, std::make_pair (chunk, std::move (data.first))});
+
+		return chunk;
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->warn("Cannot get sound chunk: %s", e.what());
 		return nullptr;
 	}
 }
 
 int CSoundHandler::ambientDistToVolume(int distance) const
 {
-	if(distance >= ambientConfig["distances"].Vector().size())
+	const auto & distancesVector = ambientConfig["distances"].Vector();
+
+	if(distance >= distancesVector.size())
 		return 0;
 
-	int volume = static_cast<int>(ambientConfig["distances"].Vector()[distance].Integer());
-	return volume * (int)ambientConfig["volume"].Integer() * getVolume() / 10000;
+	int volume = static_cast<int>(distancesVector[distance].Integer());
+	return volume * (int)ambientConfig["volume"].Integer() / 100;
 }
 
-void CSoundHandler::ambientStopSound(std::string soundId)
+void CSoundHandler::ambientStopSound(const AudioPath & soundId)
 {
 	stopSound(ambientChannels[soundId]);
 	setChannelVolume(ambientChannels[soundId], volume);
@@ -203,13 +187,13 @@ void CSoundHandler::ambientStopSound(std::string soundId)
 int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {
 	assert(soundID < soundBase::sound_after_last);
-	auto sound = sounds[soundID];
-	logGlobal->trace("Attempt to play sound %d with file name %s with cache", soundID, sound);
+	auto sound = AudioPath::builtin(sounds[soundID]);
+	logGlobal->trace("Attempt to play sound %d with file name %s with cache", soundID, sound.getOriginalName());
 
 	return playSound(sound, repeats, true);
 }
 
-int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
+int CSoundHandler::playSound(const AudioPath & sound, int repeats, bool cache)
 {
 	if (!initialized || sound.empty())
 		return -1;
@@ -222,18 +206,38 @@ int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
 		{
-			logGlobal->error("Unable to play sound file %s , error %s", sound, Mix_GetError());
+			logGlobal->error("Unable to play sound file %s , error %s", sound.getOriginalName(), Mix_GetError());
 			if (!cache)
 				Mix_FreeChunk(chunk);
 		}
 		else if (cache)
-			callbacks[channel];
+			initCallback(channel);
 		else
-			callbacks[channel] = [chunk](){ Mix_FreeChunk(chunk);};
+			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
 	}
 	else
 		channel = -1;
 
+	return channel;
+}
+
+int CSoundHandler::playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, int repeats, bool cache)
+{
+	int channel = -1;
+	if (Mix_Chunk *chunk = GetSoundChunk(data, cache))
+	{
+		channel = Mix_PlayChannel(-1, chunk, repeats);
+		if (channel == -1)
+		{
+			logGlobal->error("Unable to play sound, error %s", Mix_GetError());
+			if (!cache)
+				Mix_FreeChunk(chunk);
+		}
+		else if (cache)
+			initCallback(channel);
+		else
+			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
+	}
 	return channel;
 }
 
@@ -243,7 +247,7 @@ int CSoundHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
 	return playSound(*RandomGeneratorUtil::nextItem(sound_vec, CRandomGenerator::getDefault()));
 }
 
-void CSoundHandler::stopSound( int handler )
+void CSoundHandler::stopSound(int handler)
 {
 	if (initialized && handler != -1)
 		Mix_HaltChannel(handler);
@@ -255,7 +259,20 @@ void CSoundHandler::setVolume(ui32 percent)
 	CAudioBase::setVolume(percent);
 
 	if (initialized)
+	{
 		setChannelVolume(-1, volume);
+
+		for (auto const & channel : channelVolumes)
+			updateChannelVolume(channel.first);
+	}
+}
+
+void CSoundHandler::updateChannelVolume(int channel)
+{
+	if (channelVolumes.count(channel))
+		setChannelVolume(channel, getVolume() * channelVolumes[channel] / 100);
+	else
+		setChannelVolume(channel, getVolume());
 }
 
 // Sets the sound volume, from 0 (mute) to 100
@@ -266,28 +283,50 @@ void CSoundHandler::setChannelVolume(int channel, ui32 percent)
 
 void CSoundHandler::setCallback(int channel, std::function<void()> function)
 {
-	std::map<int, std::function<void()> >::iterator iter;
-	iter = callbacks.find(channel);
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+
+	auto iter = callbacks.find(channel);
 
 	//channel not found. It may have finished so fire callback now
 	if(iter == callbacks.end())
 		function();
 	else
-		iter->second = function;
+		iter->second.push_back(function);
 }
 
 void CSoundHandler::soundFinishedCallback(int channel)
 {
-	std::map<int, std::function<void()> >::iterator iter;
-	iter = callbacks.find(channel);
-	if (iter == callbacks.end())
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+
+	if (callbacks.count(channel) == 0)
 		return;
 
-	auto callback = std::move(iter->second);
-	callbacks.erase(iter);
+	// store callbacks from container locally - SDL might reuse this channel for another sound
+	// but do actualy execution in separate thread, to avoid potential deadlocks in case if callback requires locks of its own
+	auto callback = callbacks.at(channel);
+	callbacks.erase(channel);
 
-	if (callback)
-		callback();
+	if (!callback.empty())
+	{
+		GH.dispatchMainThread([callback](){
+			for (auto entry : callback)
+				entry();
+		});
+	}
+}
+
+void CSoundHandler::initCallback(int channel)
+{
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+	assert(callbacks.count(channel) == 0);
+	callbacks[channel] = {};
+}
+
+void CSoundHandler::initCallback(int channel, const std::function<void()> & function)
+{
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
+	assert(callbacks.count(channel) == 0);
+	callbacks[channel].push_back(function);
 }
 
 int CSoundHandler::ambientGetRange() const
@@ -295,38 +334,47 @@ int CSoundHandler::ambientGetRange() const
 	return static_cast<int>(ambientConfig["range"].Integer());
 }
 
-bool CSoundHandler::ambientCheckVisitable() const
-{
-	return !allTilesSource;
-}
-
-void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
+void CSoundHandler::ambientUpdateChannels(std::map<AudioPath, int> soundsArg)
 {
 	boost::mutex::scoped_lock guard(mutex);
 
-	std::vector<std::string> stoppedSounds;
+	std::vector<AudioPath> stoppedSounds;
 	for(auto & pair : ambientChannels)
 	{
-		if(!vstd::contains(soundsArg, pair.first))
+		const auto & soundId = pair.first;
+		const int channel = pair.second;
+
+		if(!vstd::contains(soundsArg, soundId))
 		{
-			ambientStopSound(pair.first);
-			stoppedSounds.push_back(pair.first);
+			ambientStopSound(soundId);
+			stoppedSounds.push_back(soundId);
 		}
 		else
 		{
-			CCS->soundh->setChannelVolume(pair.second, ambientDistToVolume(soundsArg[pair.first]));
+			int volume = ambientDistToVolume(soundsArg[soundId]);
+			channelVolumes[channel] = volume;
+			updateChannelVolume(channel);
 		}
 	}
 	for(auto soundId : stoppedSounds)
+	{
+		channelVolumes.erase(ambientChannels[soundId]);
 		ambientChannels.erase(soundId);
+	}
 
 	for(auto & pair : soundsArg)
 	{
-		if(!vstd::contains(ambientChannels, pair.first))
+		const auto & soundId = pair.first;
+		const int distance = pair.second;
+
+		if(!vstd::contains(ambientChannels, soundId))
 		{
-			int channel = CCS->soundh->playSound(pair.first, -1);
-			CCS->soundh->setChannelVolume(channel, ambientDistToVolume(pair.second));
-			CCS->soundh->ambientChannels.insert(std::make_pair(pair.first, channel));
+			int channel = playSound(soundId, -1);
+			int volume = ambientDistToVolume(distance);
+			channelVolumes[channel] = volume;
+
+			updateChannelVolume(channel);
+			ambientChannels[soundId] = channel;
 		}
 	}
 }
@@ -339,6 +387,7 @@ void CSoundHandler::ambientStopAllChannels()
 	{
 		ambientStopSound(ch.first);
 	}
+	channelVolumes.clear();
 	ambientChannels.clear();
 }
 
@@ -352,9 +401,9 @@ CMusicHandler::CMusicHandler():
 {
 	listener(std::bind(&CMusicHandler::onVolumeChange, this, _1));
 
-	auto mp3files = CResourceHandler::get()->getFilteredFiles([](const ResourceID & id) ->  bool
+	auto mp3files = CResourceHandler::get()->getFilteredFiles([](const ResourcePath & id) ->  bool
 	{
-		if(id.getType() != EResType::MUSIC)
+		if(id.getType() != EResType::SOUND)
 			return false;
 
 		if(!boost::algorithm::istarts_with(id.getName(), "MUSIC/"))
@@ -364,27 +413,27 @@ CMusicHandler::CMusicHandler():
 		return true;
 	});
 
-	for(const ResourceID & file : mp3files)
+	for(const ResourcePath & file : mp3files)
 	{
 		if(boost::algorithm::istarts_with(file.getName(), "MUSIC/Combat"))
-			addEntryToSet("battle", file.getName(), file.getName());
+			addEntryToSet("battle", AudioPath::fromResource(file));
 		else if(boost::algorithm::istarts_with(file.getName(), "MUSIC/AITheme"))
-			addEntryToSet("enemy-turn", file.getName(), file.getName());
+			addEntryToSet("enemy-turn", AudioPath::fromResource(file));
 	}
 
 }
 
-void CMusicHandler::loadTerrainSounds()
+void CMusicHandler::loadTerrainMusicThemes()
 {
-	for (const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for (const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		addEntryToSet("terrain", terrain.name, "Music/" + terrain.musicFilename);
+		addEntryToSet("terrain_" + terrain->getJsonKey(), terrain->musicFilename);
 	}
 }
 
-void CMusicHandler::addEntryToSet(const std::string & set, const std::string & musicID, const std::string & musicURI)
+void CMusicHandler::addEntryToSet(const std::string & set, const AudioPath & musicURI)
 {
-	musicsSet[set][musicID] = musicURI;
+	musicsSet[set].push_back(musicURI);
 }
 
 void CMusicHandler::init()
@@ -392,7 +441,12 @@ void CMusicHandler::init()
 	CAudioBase::init();
 
 	if (initialized)
-		Mix_HookMusicFinished(musicFinishedCallbackC);
+	{
+		Mix_HookMusicFinished([]()
+		{
+			CCS->musich->musicFinishedCallback();
+		});
+	}
 }
 
 void CMusicHandler::release()
@@ -402,6 +456,7 @@ void CMusicHandler::release()
 		boost::mutex::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
+		current->stop();
 
 		current.reset();
 		next.reset();
@@ -410,16 +465,25 @@ void CMusicHandler::release()
 	CAudioBase::release();
 }
 
-void CMusicHandler::playMusic(const std::string & musicURI, bool loop)
+void CMusicHandler::playMusic(const AudioPath & musicURI, bool loop, bool fromStart)
 {
-	if (current && current->isTrack(musicURI))
+	boost::mutex::scoped_lock guard(mutex);
+
+	if (current && current->isPlaying() && current->isTrack(musicURI))
 		return;
 
-	queueNext(this, "", musicURI, loop);
+	queueNext(this, "", musicURI, loop, fromStart);
 }
 
-void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop, bool fromStart)
 {
+	playMusicFromSet(musicSet + "_" + entryID, loop, fromStart);
+}
+
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bool fromStart)
+{
+	boost::mutex::scoped_lock guard(mutex);
+
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
@@ -427,42 +491,17 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
 		return;
 	}
 
-	if (current && current->isSet(whichSet))
+	if (current && current->isPlaying() && current->isSet(whichSet))
 		return;
 
 	// in this mode - play random track from set
-	queueNext(this, whichSet, "", loop);
-}
-
-void CMusicHandler::playMusicFromSet(const std::string & whichSet, const std::string & entryID, bool loop)
-{
-	auto selectedSet = musicsSet.find(whichSet);
-	if (selectedSet == musicsSet.end())
-	{
-		logGlobal->error("Error: playing music from non-existing set: %s", whichSet);
-		return;
-	}
-
-	auto selectedEntry = selectedSet->second.find(entryID);
-	if (selectedEntry == selectedSet->second.end())
-	{
-		logGlobal->error("Error: playing non-existing entry %s from set: %s", entryID, whichSet);
-		return;
-	}
-
-	if (current && current->isTrack(selectedEntry->second))
-		return;
-
-	// in this mode - play specific track from set
-	queueNext(this, "", selectedEntry->second, loop);
+	queueNext(this, whichSet, AudioPath(), loop, fromStart);
 }
 
 void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 {
 	if (!initialized)
 		return;
-
-	boost::mutex::scoped_lock guard(mutex);
 
 	next = std::move(queued);
 
@@ -473,17 +512,9 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	}
 }
 
-void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped)
+void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const AudioPath & musicURI, bool looped, bool fromStart)
 {
-	try
-	{
-		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped));
-	}
-	catch(std::exception &e)
-	{
-		logGlobal->error("Failed to queue music. setName=%s\tmusicURI=%s", setName, musicURI);
-		logGlobal->error("Exception: %s", e.what());
-	}
+	queueNext(std::make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 }
 
 void CMusicHandler::stopMusic(int fade_ms)
@@ -508,28 +539,42 @@ void CMusicHandler::setVolume(ui32 percent)
 
 void CMusicHandler::musicFinishedCallback()
 {
-	boost::mutex::scoped_lock guard(mutex);
+	// call music restart in separate thread to avoid deadlock in some cases
+	// It is possible for:
+	// 1) SDL thread to call this method on end of playback
+	// 2) VCMI code to call queueNext() method to queue new file
+	// this leads to:
+	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
+	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
 
-	if (current.get() != nullptr)
+	GH.dispatchMainThread([this]()
 	{
-		//return if current music still not finished
-		if (current->play())
-			return;
-		else
-			current.reset();
-	}
+		boost::unique_lock lockGuard(mutex);
+		if (current.get() != nullptr)
+		{
+			// if music is looped, play it again
+			if (current->play())
+				return;
+			else
+				current.reset();
+		}
 
-	if (current.get() == nullptr && next.get() != nullptr)
-	{
-		current.reset(next.release());
-		current->play();
-	}
+		if (current.get() == nullptr && next.get() != nullptr)
+		{
+			current.reset(next.release());
+			current->play();
+		}
+	});
 }
 
-MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
+MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, const AudioPath & musicURI, bool looped, bool fromStart):
 	owner(owner),
 	music(nullptr),
+	playing(false),
+	startTime(uint32_t(-1)),
+	startPosition(0),
 	loop(looped ? -1 : 1),
+	fromStart(fromStart),
 	setName(std::move(setName))
 {
 	if (!musicURI.empty())
@@ -537,31 +582,57 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
-	logGlobal->trace("Del-ing music file %s", currentName);
+	if (playing && loop > 0)
+	{
+		assert(0);
+		logGlobal->error("Attempt to delete music while playing!");
+		Mix_HaltMusic();
+	}
+
+	if (loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
+	{
+		assert(0);
+		logGlobal->error("Attempt to delete music while fading out!");
+		Mix_HaltMusic();
+	}
+
+	logGlobal->trace("Del-ing music file %s", currentName.getOriginalName());
 	if (music)
 		Mix_FreeMusic(music);
 }
 
-void MusicEntry::load(std::string musicURI)
+void MusicEntry::load(const AudioPath & musicURI)
 {
 	if (music)
 	{
-		logGlobal->trace("Del-ing music file %s", currentName);
+		logGlobal->trace("Del-ing music file %s", currentName.getOriginalName());
 		Mix_FreeMusic(music);
 		music = nullptr;
 	}
 
-	currentName = musicURI;
+	if (CResourceHandler::get()->existsResource(musicURI))
+		currentName = musicURI;
+	else
+		currentName = musicURI.addPrefix("MUSIC/");
 
-	logGlobal->trace("Loading music file %s", musicURI);
+	music = nullptr;
 
-	auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::MUSIC)));
+	logGlobal->trace("Loading music file %s", currentName.getOriginalName());
 
-	music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
+	try
+	{
+		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(currentName));
+		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->error("Failed to load music. setName=%s\tmusicURI=%s", setName, currentName.getOriginalName());
+		logGlobal->error("Exception: %s", e.what());
+	}
 
 	if(!music)
 	{
-		logGlobal->warn("Warning: Cannot open %s: %s", currentName, Mix_GetError());
+		logGlobal->warn("Warning: Cannot open %s: %s", currentName.getOriginalName(), Mix_GetError());
 		return;
 	}
 }
@@ -574,15 +645,42 @@ bool MusicEntry::play()
 	if (!setName.empty())
 	{
 		const auto & set = owner->musicsSet[setName];
-		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
+		const auto & iter = RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault());
+		load(*iter);
 	}
 
-	logGlobal->trace("Playing music file %s", currentName);
-	if(Mix_PlayMusic(music, 1) == -1)
+	logGlobal->trace("Playing music file %s", currentName.getOriginalName());
+
+	if (!fromStart && owner->trackPositions.count(currentName) > 0 && owner->trackPositions[currentName] > 0)
 	{
-		logGlobal->error("Unable to play music (%s)", Mix_GetError());
-		return false;
+		float timeToStart = owner->trackPositions[currentName];
+		startPosition = std::round(timeToStart * 1000);
+
+		// erase stored position:
+		// if music track will be interrupted again - new position will be written in stop() method
+		// if music track is not interrupted and will finish by timeout/end of file - it will restart from begginning as it should
+		owner->trackPositions.erase(owner->trackPositions.find(currentName));
+
+		if (Mix_FadeInMusicPos(music, 1, 1000, timeToStart) == -1)
+		{
+			logGlobal->error("Unable to play music (%s)", Mix_GetError());
+			return false;
+		}
 	}
+	else
+	{
+		startPosition = 0;
+
+		if(Mix_PlayMusic(music, 1) == -1)
+		{
+			logGlobal->error("Unable to play music (%s)", Mix_GetError());
+			return false;
+		}
+	}
+
+	startTime = GH.input().getTicks();
+	
+	playing = true;
 	return true;
 }
 
@@ -590,12 +688,23 @@ bool MusicEntry::stop(int fade_ms)
 {
 	if (Mix_PlayingMusic())
 	{
-		logGlobal->trace("Stopping music file %s", currentName);
+		playing = false;
 		loop = 0;
+		uint32_t endTime = GH.input().getTicks();
+		assert(startTime != uint32_t(-1));
+		float playDuration = (endTime - startTime + startPosition) / 1000.f;
+		owner->trackPositions[currentName] = playDuration;
+		logGlobal->trace("Stopping music file %s at %f", currentName.getOriginalName(), playDuration);
+
 		Mix_FadeOutMusic(fade_ms);
 		return true;
 	}
 	return false;
+}
+
+bool MusicEntry::isPlaying()
+{
+	return playing;
 }
 
 bool MusicEntry::isSet(std::string set)
@@ -603,7 +712,7 @@ bool MusicEntry::isSet(std::string set)
 	return !setName.empty() && set == setName;
 }
 
-bool MusicEntry::isTrack(std::string track)
+bool MusicEntry::isTrack(const AudioPath & track)
 {
 	return setName.empty() && track == currentName;
 }

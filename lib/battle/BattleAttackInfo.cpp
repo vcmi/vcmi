@@ -13,31 +13,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleAttackInfo::BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, bool Shooting)
+BattleAttackInfo::BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, int chargeDistance, bool Shooting)
 	: attacker(Attacker),
-	defender(Defender)
-{
-	shooting = Shooting;
-	chargedFields = 0;
-	additiveBonus = 0.0;
-	multBonus = 1.0;
-	attackerPos = BattleHex::INVALID;
-	defenderPos = BattleHex::INVALID;
-}
+	defender(Defender),
+	shooting(Shooting),
+	attackerPos(BattleHex::INVALID),
+	defenderPos(BattleHex::INVALID),
+	chargeDistance(chargeDistance)
+{}
 
 BattleAttackInfo BattleAttackInfo::reverse() const
 {
-	BattleAttackInfo ret = *this;
+	BattleAttackInfo ret(defender, attacker, 0, false);
 
-	std::swap(ret.attacker, ret.defender);
-	std::swap(ret.defenderPos, ret.attackerPos);
-
-	ret.shooting = false;
-	ret.chargedFields = 0;
-
-	ret.additiveBonus = 0.0;
-	ret.multBonus = 1.0;
-
+	ret.defenderPos = attackerPos;
+	ret.attackerPos = defenderPos;
 	return ret;
 }
 

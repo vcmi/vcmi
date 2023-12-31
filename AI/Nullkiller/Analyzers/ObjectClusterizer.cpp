@@ -12,7 +12,6 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
-#include "lib/mapping/CMap.h" //for victory conditions
 
 namespace NKAI
 {
@@ -95,16 +94,22 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 {
 	for(auto node = path.nodes.rbegin(); node != path.nodes.rend(); node++)
 	{
-		auto guardPos = ai->cb->getGuardingCreaturePosition(node->coord);
-		auto blockers = ai->cb->getVisitableObjs(node->coord);
-		
-		if(guardPos.valid())
-		{
-			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node->coord));
+		std::vector<const CGObjectInstance *> blockers = {};
 
-			if(guard)
+		if(node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
+		{
+			auto guardPos = ai->cb->getGuardingCreaturePosition(node->coord);
+			
+			blockers = ai->cb->getVisitableObjs(node->coord);
+
+			if(guardPos.valid())
 			{
-				blockers.insert(blockers.begin(), guard);
+				auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node->coord));
+
+				if(guard)
+				{
+					blockers.insert(blockers.begin(), guard);
+				}
 			}
 		}
 
@@ -114,7 +119,7 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 
 			if(blockerObject)
 			{
-				blockers.push_back(blockerObject);
+				blockers.insert(blockers.begin(), blockerObject);
 			}
 		}
 
@@ -202,7 +207,6 @@ void ObjectClusterizer::clusterize()
 		Obj::WHIRLPOOL,
 		Obj::BUOY,
 		Obj::SIGN,
-		Obj::SIGN,
 		Obj::GARRISON,
 		Obj::MONSTER,
 		Obj::GARRISON2,
@@ -229,7 +233,12 @@ void ObjectClusterizer::clusterize()
 			auto obj = objs[i];
 
 			if(!shouldVisitObject(obj))
-				return;
+			{
+#if NKAI_TRACE_LEVEL >= 2
+				logAi->trace("Skip object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
+#endif
+				continue;
+			}
 
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
@@ -272,7 +281,7 @@ void ObjectClusterizer::clusterize()
 				if(!shouldVisit(ai, path.targetHero, obj))
 				{
 #if NKAI_TRACE_LEVEL >= 2
-					logAi->trace("Hero %s does not need to visit %s", path.targetHero->name, obj->getObjectName());
+					logAi->trace("Hero %s does not need to visit %s", path.targetHero->getObjectName(), obj->getObjectName());
 #endif
 					continue;
 				}
@@ -286,7 +295,7 @@ void ObjectClusterizer::clusterize()
 						if(vstd::contains(heroesProcessed, path.targetHero))
 						{
 #if NKAI_TRACE_LEVEL >= 2
-							logAi->trace("Hero %s is already processed.", path.targetHero->name);
+							logAi->trace("Hero %s is already processed.", path.targetHero->getObjectName());
 #endif
 							continue;
 						}

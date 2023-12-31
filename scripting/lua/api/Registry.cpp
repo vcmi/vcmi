@@ -28,12 +28,12 @@ Registry * Registry::get()
 
 void Registry::add(const std::string & name, std::shared_ptr<Registar> item)
 {
-	data[name] = item;
+	data[name] = std::move(item);
 }
 
 void Registry::addCore(const std::string & name, std::shared_ptr<Registar> item)
 {
-	coreData[name] = item;
+	coreData[name] = std::move(item);
 }
 
 const Registar * Registry::find(const std::string & name) const

@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/GameConstants.h"
 
 namespace NKAI
 {
@@ -28,10 +29,49 @@ public:
 	StackUpgradeInfo(CreatureID initial, CreatureID upgraded, int count)
 		:initialCreature(initial), upgradedCreature(upgraded), count(count)
 	{
-		cost = (upgradedCreature.toCreature()->cost - initialCreature.toCreature()->cost) * count;
-		upgradeValue = (upgradedCreature.toCreature()->AIValue - initialCreature.toCreature()->AIValue) * count;
+		cost = (upgradedCreature.toCreature()->getFullRecruitCost() - initialCreature.toCreature()->getFullRecruitCost()) * count;
+		upgradeValue = (upgradedCreature.toCreature()->getAIValue() - initialCreature.toCreature()->getAIValue()) * count;
 	}
 };
+
+void ArmyUpgradeInfo::addArmyToBuy(std::vector<SlotInfo> army)
+{
+	for(auto slot : army)
+	{
+		resultingArmy.push_back(slot);
+
+		upgradeValue += slot.power;
+		upgradeCost += slot.creature->getFullRecruitCost() * slot.count;
+	}
+}
+
+void ArmyUpgradeInfo::addArmyToGet(std::vector<SlotInfo> army)
+{
+	for(auto slot : army)
+	{
+		resultingArmy.push_back(slot);
+
+		upgradeValue += slot.power;
+	}
+}
+
+std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
+{
+	std::vector<SlotInfo> result;
+
+	for(auto i : army)
+	{
+		SlotInfo slot;
+
+		slot.creature = VLC->creh->objects[i.cre->getId()];
+		slot.count = i.count;
+		slot.power = evaluateStackPower(i.cre, i.count);
+
+		result.push_back(slot);
+	}
+
+	return result;
+}
 
 uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
 {
@@ -50,15 +90,16 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 	{
 		for(auto & i : armyPtr->Slots())
 		{
-			auto & slotInfp = creToPower[i.second->type];
+			auto cre = dynamic_cast<const CCreature*>(i.second->type);
+			auto & slotInfp = creToPower[cre];
 
-			slotInfp.creature = i.second->type;
+			slotInfp.creature = cre;
 			slotInfp.power += i.second->getPower();
 			slotInfp.count += i.second->count;
 		}
 	}
 
-	for(auto pair : creToPower)
+	for(auto & pair : creToPower)
 		resultingArmy.push_back(pair.second);
 
 	boost::sort(resultingArmy, [](const SlotInfo & left, const SlotInfo & right) -> bool
@@ -73,10 +114,10 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 {
 	auto weakest = boost::min_element(army, [](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
-		if(left.creature->level != right.creature->level)
-			return left.creature->level < right.creature->level;
+		if(left.creature->getLevel() != right.creature->getLevel())
+			return left.creature->getLevel() < right.creature->getLevel();
 		
-		return left.creature->Speed() > right.creature->Speed();
+		return left.creature->speed() > right.creature->speed();
 	});
 
 	return weakest;
@@ -95,24 +136,24 @@ public:
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
-	std::map<TFaction, uint64_t> alignmentMap;
+	std::map<FactionID, uint64_t> alignmentMap;
 
 	for(auto & slot : sortedSlots)
 	{
-		alignmentMap[slot.creature->faction] += slot.power;
+		alignmentMap[slot.creature->getFaction()] += slot.power;
 	}
 
-	std::set<TFaction> allowedFactions;
+	std::set<FactionID> allowedFactions;
 	std::vector<SlotInfo> resultingArmy;
 	uint64_t armyValue = 0;
 
 	TemporaryArmy newArmyInstance;
-	auto bonusModifiers = armyCarrier->getBonuses(Selector::type()(Bonus::MORALE));
+	auto bonusModifiers = armyCarrier->getBonuses(Selector::type()(BonusType::MORALE));
 
 	for(auto bonus : *bonusModifiers)
 	{
 		// army bonuses will change and object bonuses are temporary
-		if(bonus->source != Bonus::ARMY || bonus->source != Bonus::OBJECT)
+		if(bonus->source != BonusSource::ARMY && bonus->source != BonusSource::OBJECT_INSTANCE && bonus->source != BonusSource::OBJECT_TYPE)
 		{
 			newArmyInstance.addNewBonus(std::make_shared<Bonus>(*bonus));
 		}
@@ -120,7 +161,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 	while(allowedFactions.size() < alignmentMap.size())
 	{
-		auto strongestAlignment = vstd::maxElementByFun(alignmentMap, [&](std::pair<TFaction, uint64_t> pair) -> uint64_t
+		auto strongestAlignment = vstd::maxElementByFun(alignmentMap, [&](std::pair<FactionID, uint64_t> pair) -> uint64_t
 		{
 			return vstd::contains(allowedFactions, pair.first) ? 0 : pair.second;
 		});
@@ -129,17 +170,17 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		std::vector<SlotInfo> newArmy;
 		uint64_t newValue = 0;
-		newArmyInstance.clear();
+		newArmyInstance.clearSlots();
 
 		for(auto & slot : sortedSlots)
 		{
-			if(vstd::contains(allowedFactions, slot.creature->faction))
+			if(vstd::contains(allowedFactions, slot.creature->getFaction()))
 			{
-				auto slotID = newArmyInstance.getSlotFor(slot.creature);
+				auto slotID = newArmyInstance.getSlotFor(slot.creature->getId());
 
 				if(slotID.validSlot())
 				{
-					newArmyInstance.setCreature(slotID, slot.creature->idNumber, slot.count);
+					newArmyInstance.setCreature(slotID, slot.creature->getId(), slot.count);
 					newArmy.push_back(slot);
 				}
 			}
@@ -149,7 +190,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		for(auto & slot : newArmyInstance.Slots())
 		{
-			auto morale = slot.second->MoraleVal();
+			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
 			const float BadMoraleChance = 0.083f;
@@ -182,8 +223,11 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	{
 		auto weakest = getWeakestCreature(resultingArmy);
 
-		if(weakest->count == 1)
+		if(weakest->count == 1) 
 		{
+			if (resultingArmy.size() == 1)
+				logAi->warn("Unexpected resulting army size!");
+
 			resultingArmy.erase(weakest);
 		}
 		else
@@ -212,10 +256,10 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(!ci.count || ci.creID == -1)
+		if(!ci.count || ci.creID == CreatureID::NONE)
 			continue;
 
-		vstd::amin(ci.count, availableRes / ci.cre->cost); //max count we can afford
+		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
 
 		if(!ci.count)
 			continue;
@@ -226,7 +270,7 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 			break;
 
 		army->setCreature(dst, ci.creID, ci.count);
-		availableRes -= ci.cre->cost * ci.count;
+		availableRes -= ci.cre->getFullRecruitCost() * ci.count;
 	}
 
 	return army;
@@ -235,14 +279,15 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 ui64 ArmyManager::howManyReinforcementsCanBuy(
 	const CCreatureSet * targetArmy,
 	const CGDwelling * dwelling,
-	const TResources & availableResources) const
+	const TResources & availableResources,
+	uint8_t turn) const
 {
 	ui64 aivalue = 0;
 	auto army = getArmyAvailableToBuy(targetArmy, dwelling, availableResources);
 
 	for(const creInfo & ci : army)
 	{
-		aivalue += ci.count * ci.cre->AIValue;
+		aivalue += ci.count * ci.cre->getAIValue();
 	}
 
 	return aivalue;
@@ -256,17 +301,29 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * her
 std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	const CCreatureSet * hero,
 	const CGDwelling * dwelling,
-	TResources availableRes) const
+	TResources availableRes,
+	uint8_t turn) const
 {
 	std::vector<creInfo> creaturesInDwellings;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
+	bool countGrowth = (cb->getDate(Date::DAY_OF_WEEK) + turn) > 7;
+
+	const CGTownInstance * town = dwelling->ID == Obj::TOWN
+		? dynamic_cast<const CGTownInstance *>(dwelling)
+		: nullptr;
 
 	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(!ci.count || ci.creID == -1)
-			continue;
+		if(ci.creID == CreatureID::NONE) continue;
+
+		if(i < GameConstants::CREATURES_PER_TOWN && countGrowth)
+		{
+			ci.count += town ? town->creatureGrowth(i) : ci.cre->getGrowth();
+		}
+
+		if(!ci.count) continue;
 
 		SlotID dst = hero->getSlotFor(ci.creID);
 		if(!hero->hasStackAtSlot(dst)) //need another new slot for this stack
@@ -277,14 +334,13 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 				freeHeroSlots--; //new slot will be occupied
 		}
 
-		vstd::amin(ci.count, availableRes / ci.cre->cost); //max count we can afford
+		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
 
-		if(!ci.count)
-			continue;
+		if(!ci.count) continue;
 
 		ci.level = i; //this is important for Dungeon Summoning Portal
 		creaturesInDwellings.push_back(ci);
-		availableRes -= ci.cre->cost * ci.count;
+		availableRes -= ci.cre->getFullRecruitCost() * ci.count;
 	}
 
 	return creaturesInDwellings;
@@ -304,9 +360,9 @@ ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, 
 	return newArmy > oldArmy ? newArmy - oldArmy : 0;
 }
 
-uint64_t ArmyManager::evaluateStackPower(const CCreature * creature, int count) const
+uint64_t ArmyManager::evaluateStackPower(const Creature * creature, int count) const
 {
-	return creature->AIValue * count;
+	return creature->getAIValue() * count;
 }
 
 SlotInfo ArmyManager::getTotalCreaturesAvailable(CreatureID creatureID) const
@@ -337,7 +393,7 @@ void ArmyManager::update()
 		}
 	}
 
-	for(auto army : totalArmy)
+	for(auto & army : totalArmy)
 	{
 		army.second.creature = army.first.toCreature();
 		army.second.power = evaluateStackPower(army.second.creature, army.second.count);
@@ -376,12 +432,12 @@ std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSe
 
 		CreatureID strongestUpgrade = *vstd::minElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
 		{
-			return cre.toCreature()->AIValue;
+			return cre.toCreature()->getAIValue();
 		});
 
 		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
 
-		if(initial.toCreature()->level == 1)
+		if(initial.toCreature()->getLevel() == 1)
 			upgrade.cost = TResources();
 
 		upgrades.push_back(upgrade);
@@ -415,7 +471,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSe
 
 		CreatureID strongestUpgrade = *vstd::minElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
 		{
-			return cre.toCreature()->AIValue;
+			return cre.toCreature()->getAIValue();
 		});
 
 		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
@@ -486,7 +542,7 @@ ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 			upgradedArmy.power = evaluateStackPower(upgradedArmy.creature, upgradedArmy.count);
 
 			auto slotToReplace = std::find_if(result.resultingArmy.begin(), result.resultingArmy.end(), [&](const SlotInfo & slot) -> bool {
-				return slot.count == upgradedArmy.count && slot.creature->idNumber == upgrade.initialCreature;
+				return slot.count == upgradedArmy.count && slot.creature->getId() == upgrade.initialCreature;
 			});
 
 			resourcesLeft -= upgrade.cost;

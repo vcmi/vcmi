@@ -8,24 +8,23 @@
  *
  */
 #include "StdInc.h"
-#include "CObjectClassesHandler.h"
+#include "ObjectTemplate.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../CGeneralTextHandler.h"
-#include "CObjectHandler.h"
-#include "../CModHandler.h"
 #include "../JsonNode.h"
-#include "../Terrain.h"
+#include "../TerrainHandler.h"
 
-#include "CRewardableConstructor.h"
+#include "../mapObjectConstructors/CRewardableConstructor.h"
+#include "../modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static bool isOnVisitableFromTopList(int identifier, int type)
+static bool isOnVisitableFromTopList(Obj identifier, int type)
 {
 	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
 		return true;
@@ -117,8 +116,6 @@ void ObjectTemplate::afterLoadFixup()
 		usedTiles[0][0] = VISITABLE;
 		visitDir = 0xFF;
 	}
-	boost::algorithm::replace_all(animationFile, "\\", "/");
-	boost::algorithm::replace_all(editorAnimationFile, "\\", "/");
 }
 
 void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
@@ -128,7 +125,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	boost::split(strings, data, boost::is_any_of(" "));
 	assert(strings.size() == 9);
 
-	animationFile = strings[0];
+	animationFile = AnimationPath::builtin(strings[0]);
 	stringID = strings[0];
 
 	std::string & blockStr = strings[1]; //block map, 0 = blocked, 1 = unblocked
@@ -157,22 +154,15 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	// so these two fields can be interpreted as "strong affinity" and "weak affinity" towards terrains
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
-	assert(terrStr.size() == Terrain::ROCK); // all terrains but rock - counting from 0
-	for(TerrainId i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
+	assert(terrStr.size() == TerrainId(ETerrainId::ROCK).getNum()); // all terrains but rock - counting from 0
+	for(TerrainId i = TerrainId(0); i < ETerrainId::ORIGINAL_REGULAR_TERRAIN_COUNT; ++i)
 	{
-		if (terrStr[8-i] == '1')
+		if (terrStr[8-i.getNum()] == '1')
 			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
-	{
-		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-		{
-			if(terrain.isLand() && terrain.isPassable())
-				allowedTerrains.insert(terrain.id);
-		}
-	}
+	anyLandTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
 	subid = boost::lexical_cast<int>(strings[6]);
@@ -190,7 +180,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 
 void ObjectTemplate::readMsk()
 {
-	ResourceID resID("SPRITES/" + animationFile, EResType::MASK);
+	ResourcePath resID("Sprites/" + animationFile.getName(), EResType::MASK);
 
 	if (CResourceHandler::get()->existsResource(resID))
 	{
@@ -205,7 +195,7 @@ void ObjectTemplate::readMsk()
 
 void ObjectTemplate::readMap(CBinaryReader & reader)
 {
-	animationFile = reader.readString();
+	animationFile = AnimationPath::builtin(reader.readBaseString());
 
 	setSize(8, 6);
 	ui8 blockMask[6];
@@ -231,21 +221,14 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	reader.readUInt16();
 	ui16 terrMask = reader.readUInt16();
-	for(size_t i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
+	for(TerrainId i = ETerrainId::FIRST_REGULAR_TERRAIN; i < ETerrainId::ORIGINAL_REGULAR_TERRAIN_COUNT; ++i)
 	{
-		if (((terrMask >> i) & 1 ) != 0)
+		if (((terrMask >> i.getNum()) & 1 ) != 0)
 			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
-	{
-		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-		{
-			if(terrain.isLand() && terrain.isPassable())
-				allowedTerrains.insert(terrain.id);
-		}
-	}
+	anyLandTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
 
 	id = Obj(reader.readUInt32());
 	subid = reader.readUInt32();
@@ -266,8 +249,8 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 {
-	animationFile = node["animation"].String();
-	editorAnimationFile = node["editorAnimation"].String();
+	animationFile = AnimationPath::fromJson(node["animation"]);
+	editorAnimationFile = AnimationPath::fromJson(node["editorAnimation"]);
 
 	const JsonVector & visitDirs = node["visitableFrom"].Vector();
 	if (!visitDirs.empty())
@@ -286,21 +269,18 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
-		for(auto& entry : node["allowedTerrains"].Vector())
-			allowedTerrains.insert(VLC->terrainTypeHandler->getInfoByName(entry.String())->id);
+		for(const auto & entry : node["allowedTerrains"].Vector())
+		{
+			VLC->identifiers()->requestIdentifier("terrain", entry, [this](int32_t identifier){
+				allowedTerrains.insert(TerrainId(identifier));
+			});
+		}
+		anyLandTerrain = false;
 	}
 	else
 	{
-		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
-		{
-			if(!terrain.isPassable() || terrain.isWater())
-				continue;
-			allowedTerrains.insert(terrain.id);
-		}
+		anyLandTerrain = true;
 	}
-
-	if(withTerrain && allowedTerrains.empty())
-		logGlobal->warn("Loaded template without allowed terrains!");
 
 	auto charToTile = [&](const char & ch) -> ui8
 	{
@@ -323,10 +303,10 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	size_t height = mask.size();
 	size_t width  = 0;
-	for(auto & line : mask)
+	for(const auto & line : mask)
 		vstd::amax(width, line.String().size());
 
-	setSize((ui32)width, (ui32)height);
+	setSize(static_cast<ui32>(width), static_cast<ui32>(height));
 
 	for(size_t i = 0; i < mask.size(); i++)
 	{
@@ -343,8 +323,8 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 {
-	node["animation"].String() = animationFile;
-	node["editorAnimation"].String() = editorAnimationFile;
+	node["animation"].String() = animationFile.getOriginalName();
+	node["editorAnimation"].String() = editorAnimationFile.getOriginalName();
 
 	if(visitDir != 0x0 && isVisitable())
 	{
@@ -370,14 +350,14 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (VLC->terrainTypeHandler->terrains().size() - 2))
+		if(allowedTerrains.size() < (VLC->terrainTypeHandler->objects.size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
 			for(auto type : allowedTerrains)
 			{
 				JsonNode value(JsonNode::JsonType::DATA_STRING);
-				value.String() = type;
+				value.String() = VLC->terrainTypeHandler->getById(type)->getJsonKey();
 				data.push_back(value);
 			}
 		}
@@ -437,7 +417,7 @@ void ObjectTemplate::calculateWidth()
 	//TODO: Use 2D array
 	for(const auto& row : usedTiles) //copy is expensive
 	{
-		width = std::max<ui32>(width, (ui32)row.size());
+		width = std::max<ui32>(width, static_cast<ui32>(row.size()));
 	}
 }
 
@@ -454,7 +434,7 @@ void ObjectTemplate::setSize(ui32 width, ui32 height)
 		line.resize(width, 0);
 }
 
-void ObjectTemplate::calculateVsitable()
+void ObjectTemplate::calculateVisitable()
 {
 	for(auto& line : usedTiles)
 	{
@@ -474,7 +454,7 @@ bool ObjectTemplate::isWithin(si32 X, si32 Y) const
 {
 	if (X < 0 || Y < 0)
 		return false;
-	return !(X >= (si32)getWidth() || Y >= (si32)getHeight());
+	return X < static_cast<si32>(getWidth()) && Y < static_cast<si32>(getHeight());
 }
 
 bool ObjectTemplate::isVisitableAt(si32 X, si32 Y) const
@@ -495,9 +475,9 @@ bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 void ObjectTemplate::calculateBlockedOffsets()
 {
 	blockedOffsets.clear();
-	for(int w = 0; w < (int)getWidth(); ++w)
+	for(int w = 0; w < static_cast<int>(getWidth()); ++w)
 	{
-		for(int h = 0; h < (int)getHeight(); ++h)
+		for(int h = 0; h < static_cast<int>(getHeight()); ++h)
 		{
 			if (isBlockedAt(w, h))
 				blockedOffsets.insert(int3(-w, -h, 0));
@@ -507,9 +487,9 @@ void ObjectTemplate::calculateBlockedOffsets()
 
 void ObjectTemplate::calculateBlockMapOffset()
 {
-	for(int w = 0; w < (int)getWidth(); ++w)
+	for(int w = 0; w < static_cast<int>(getWidth()); ++w)
 	{
-		for(int h = 0; h < (int)getHeight(); ++h)
+		for(int h = 0; h < static_cast<int>(getHeight()); ++h)
 		{
 			if (isBlockedAt(w, h))
 			{
@@ -541,11 +521,27 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 	return dirMap[dy][dx] != 0;
 }
 
+void ObjectTemplate::calculateTopVisibleOffset()
+{
+	for(int y = static_cast<int>(getHeight()) - 1; y >= 0; y--) //Templates start from bottom-right corner
+	{
+		for(int x = 0; x < static_cast<int>(getWidth()); x++)
+		{
+			if (isVisibleAt(x, y))
+			{
+				topVisibleOffset = int3(x, y, 0);
+				return;
+			}
+		}
+	}
+	topVisibleOffset = int3(0, 0, 0);
+}
+
 void ObjectTemplate::calculateVisitableOffset()
 {
-	for(int y = 0; y < (int)getHeight(); y++)
+	for(int y = 0; y < static_cast<int>(getHeight()); y++)
 	{
-		for(int x = 0; x < (int)getWidth(); x++)
+		for(int x = 0; x < static_cast<int>(getWidth()); x++)
 		{
 			if (isVisitableAt(x, y))
 			{
@@ -557,20 +553,29 @@ void ObjectTemplate::calculateVisitableOffset()
 	visitableOffset = int3(0, 0, 0);
 }
 
-bool ObjectTemplate::canBePlacedAt(TerrainId terrain) const
+bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 {
-	return vstd::contains(allowedTerrains, terrain);
+	if (anyLandTerrain)
+	{
+		const auto & terrain = VLC->terrainTypeHandler->getById(terrainID);
+		return terrain->isLand() && terrain->isPassable();
+	}
+	return vstd::contains(allowedTerrains, terrainID);
 }
 
 void ObjectTemplate::recalculate()
 {
 	calculateWidth();
 	calculateHeight();
-	calculateVsitable();
+	calculateVisitable();
 	//The lines below use width and height
 	calculateBlockedOffsets();
 	calculateBlockMapOffset();
 	calculateVisitableOffset();
+	calculateTopVisibleOffset();
+
+	if (visitable && visitDir == 0)
+		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile.getOriginalName());
 }
 
 VCMI_LIB_NAMESPACE_END

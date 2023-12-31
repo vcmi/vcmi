@@ -16,14 +16,8 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
-#include "../../../lib/StringConstants.h"
-
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
+#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 
@@ -39,10 +33,10 @@ TGoalVec Build::getAllPossibleSubgoals()
 		auto expensiveBuilding = ai->ah->expensiveBuilding();
 
 		//handling for early town development to save money and focus on income
-		if(!t->hasBuilt(ai->ah->getMaxPossibleGoldBuilding(t)) && expensiveBuilding.is_initialized())
+		if(!t->hasBuilt(ai->ah->getMaxPossibleGoldBuilding(t)) && expensiveBuilding.has_value())
 		{
-			auto potentialBuilding = expensiveBuilding.get();
-			switch(expensiveBuilding.get().bid)
+			auto potentialBuilding = expensiveBuilding.value();
+			switch(expensiveBuilding.value().bid)
 			{
 			case BuildingID::TOWN_HALL:
 			case BuildingID::CITY_HALL:
@@ -58,15 +52,15 @@ TGoalVec Build::getAllPossibleSubgoals()
 			}
 		}
 
-		if(immediateBuilding.is_initialized())
+		if(immediateBuilding.has_value())
 		{
-			ret.push_back(sptr(BuildThis(immediateBuilding.get().bid, t).setpriority(2))); //prioritize buildings we can build quick
+			ret.push_back(sptr(BuildThis(immediateBuilding.value().bid, t).setpriority(2))); //prioritize buildings we can build quick
 		}
 		else //try build later
 		{
-			if(expensiveBuilding.is_initialized())
+			if(expensiveBuilding.has_value())
 			{
-				auto potentialBuilding = expensiveBuilding.get(); //gather resources for any we can't afford
+				auto potentialBuilding = expensiveBuilding.value(); //gather resources for any we can't afford
 				auto goal = ai->ah->whatToDo(potentialBuilding.price, sptr(BuildThis(potentialBuilding.bid, t).setpriority(0.5)));
 				ret.push_back(goal);
 			}

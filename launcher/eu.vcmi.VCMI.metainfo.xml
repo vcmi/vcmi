@@ -1,47 +1,110 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop-application">
+<?xml version='1.0' encoding='utf-8'?>
+<component type="desktop">
 	<id>eu.vcmi.VCMI</id>
-	<metadata_license>CC-BY-SA-4.0</metadata_license>
-	<project_license>GPL-2.0-or-later</project_license>
 	<name>VCMI</name>
 	<summary>Open-source game engine for Heroes of Might and Magic III</summary>
+	<summary xml:lang="cs">Herní engine s otevřeným kódem pro Heroes of Might and Magic III</summary>
+	<summary xml:lang="de">Open-Source-Spielengine für Heroes of Might and Magic III</summary>
+	<developer_name>VCMI Team</developer_name>
+	<developer_name xml:lang="cs">Tým VCMI</developer_name>
+	<metadata_license>CC-BY-SA-4.0</metadata_license>
+	<project_license>GPL-2.0-or-later</project_license>
 	<description>
 		<p>VCMI is an open-source engine for Heroes of Might and Magic III with new possibilities. Years of intensive work resulted in an impressive amount of features. Among the current features are:</p>
+		<p xml:lang="cs">VCMI je engine s otevřeným kódem a novými možnostmi pro Heroes of Might and Magic III. Roky usilovné práce vyústily v úchvatném počtu nových funkcí. Mezi současnými funkcemi jsou:</p>
+		<p xml:lang="de">VCMI ist eine Open-Source-Engine für Heroes of Might and Magic III mit neuen Möglichkeiten. Jahrelange intensive Arbeit führte zu einer beeindruckenden Anzahl von Features. Zu den aktuellen Features gehören:</p>
 		<ul>
 			<li>Complete gameplay mechanics</li>
+			<li xml:lang="cs">Kompletní herní mechaniky</li>
+			<li xml:lang="de">Vollständige Spielmechanik</li>
 			<li>Almost all objects, abilities, spells and other content</li>
+			<li xml:lang="cs">Skoro všechny předměty, schopnosti, kouzla a ostatní obsah</li>
+			<li xml:lang="de">Fast alle Objekte, Fähigkeiten, Zaubersprüche und andere Inhalte</li>
 			<li>Basic battle AI and adventure AI</li>
+			<li xml:lang="cs">Základní AI boje a mapy světa</li>
+			<li xml:lang="de">Grundlegende Kampf- und Abenteuer-KI</li>
 			<li>Many GUI improvements: high resolutions, stack queue, creature window</li>
+			<li xml:lang="cs">Mnoho vylepšení rozhraní: vyšší rozlišení, fronta oddílů a okno bojovníků</li>
+			<li xml:lang="de">Viele GUI-Verbesserungen: Hohe Auflösungen, Truppenwarteschlange, Kreaturenfenster</li>
 			<li>Advanced and easy mod support - add new towns, creatures, heroes, artifacts and spells without limits or conflicts</li>
+			<li xml:lang="cs">Pokročilá a jednoduchá podpora modifikací - přidání nových měst, bojovníků, hrdinů, artefaktů a kouzel bez limitů a konfliktů</li>
+			<li xml:lang="de">Erweiterte und einfache Mod-Unterstützung - füge neue Städte, Kreaturen, Helden, Artefakte und Zaubersprüche ohne Einschränkungen oder Konflikte hinzu</li>
 			<li>Launcher for easy configuration - download mods from our server and install them immediately!</li>
+			<li xml:lang="cs">Spouštěč pro jednoduché nastavení - stahujte modifikace z našeho serveru a hned je instalujte!</li>
+			<li xml:lang="de">Launcher für einfache Konfiguration - Mods von unserem Server herunterladen und sofort installieren!</li>
 			<li>Random map generator that supports objects added by mods</li>
+			<li xml:lang="cs">Náhodný generátor map, který podporuje předměty přidané modifikacemi</li>
+			<li xml:lang="de">Zufallsgenerator für Karten, der von Mods hinzugefügte Objekte unterstützt</li>
 		</ul>
 		<p>Note: In order to play the game using VCMI you need to own data files for Heroes of Might and Magic III: The Shadow of Death.</p>
-		<p>VCMI is an open-source project released under the GNU General Public License version 2 or later.</p>
+		<p xml:lang="cs">Poznámka: pokud chcete hrát hru přes VCMI, musíte vlastnit datové soubory Heroes of Might and Magic III: The Shadow of Death.</p>
+		<p xml:lang="de">Hinweis: Um das Spiel mit VCMI spielen zu können, sind die Originaldateien für Heroes of Might and Magic III: The Shadow of Death erforderlich.</p>
 		<p>If you want help, please check our forum, bug tracker or GitHub page.</p>
+		<p xml:lang="cs">Pokud chcete pomoct, prosíme, podívejte se na naše fórum nebo GitHub.</p>
+		<p xml:lang="de">Wird Hilfe benötigt, besucht bitte unser Forum, den Bugtracker oder die GitHub-Seite.</p>
 	</description>
 	<screenshots>
 		<screenshot type="default">
-			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_1.png</image>
+			<image type="source">https://play-lh.googleusercontent.com/-ZErg8hUyc3TScVQZYh30KzaUDWmnIGRcN3WPCQimdviOJVoMkjDdIW19WqX0KZO7mk=w2560-h1440</image>
 		</screenshot>
 		<screenshot>
-			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_2.png</image>
+			<image type="source">https://play-lh.googleusercontent.com/8Uuuir7_0pDCPohacS7nd6CQuvaOO7nKmKWo-A-EysRY8uIK5qLsv0cpMxT3AFu2DA=w2560-h1440</image>
 		</screenshot>
 		<screenshot>
-			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_3.png</image>
+			<image type="source">https://play-lh.googleusercontent.com/993tSmsQh1qgb1_XQUxD1wmS8Zuiydf0LsQK_nU2fAiJl62n0_Vl_5JMVK-J9lvVeQ=w2560-h1440</image>
 		</screenshot>
 		<screenshot>
-			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_4.png</image>
+			<image type="source">https://play-lh.googleusercontent.com/N3fn4cqX2iN0t9jzEo0vgEMBpUYWyRgOz8AtDsMLmF-BTyxO4l2uoAderEIhXPvPsg=w2560-h1440</image>
+		</screenshot>
+		<screenshot>
+			<image type="source">https://play-lh.googleusercontent.com/9wSQsPlMPSBAzekEcw1OVpzeOvYiHrYRYHgpa1aRk31pvR752gu_cUZws5x8JMCACw=w2560-h1440</image>
+		</screenshot>
+		<screenshot>
+			<image type="source">https://play-lh.googleusercontent.com/nU_MSwmEhiQ14Sx9xI3QFF1FhL7BYTDMbEYQg-XglSYwIMpYZDpP92_ybTtu4cVJSxo=w2560-h1440</image>
+		</screenshot>
+		<screenshot>
+			<image type="source">https://play-lh.googleusercontent.com/rhI5moPCKQpYdjnRaJJ_CdIxSAXUkrH7ddghuPWaW0vcyaltd-ZGZG4Kl6v3YKGVlzU=w2560-h1440</image>
+		</screenshot>
+		<screenshot>
+			<image type="source">https://play-lh.googleusercontent.com/1zecL5SvayVkNoIHijeS_rm0Yr_XyHbp_dmSx70NXhjckvnezwvWkpINYBHAy4o8EaM=w2560-h1440</image>
+		</screenshot>
+		<screenshot>
+			<image type="source">https://play-lh.googleusercontent.com/e5ibvuWm442dYN2z_pAwDC3Ktc7XOY6FEI4N7BkFB7DqGi3Q-Vl46KqoJ_EFSrXRNw=w2560-h1440</image>
+		</screenshot>
+		<screenshot>
+			<image type="source">https://play-lh.googleusercontent.com/wD6xJK2nuzVyKUFODfQs2SEbUuSyEglojpp_FE6GeAuzdA_R44Dp6gTyN70KCwpRtD9M=w2560-h1440</image>
 		</screenshot>
 	</screenshots>
+	<releases>
+		<release version="1.4.2" date="2023-12-25" type="stable"/>
+		<release version="1.4.1" date="2023-12-12" type="stable"/>
+		<release version="1.4.0" date="2023-12-08" type="stable"/>
+		<release version="1.3.2" date="2023-09-15" type="stable"/>
+		<release version="1.3.1" date="2023-08-18" type="stable"/>
+		<release version="1.3.0" date="2023-08-04" type="stable"/>
+		<release version="1.2.1" date="2023-04-28" type="stable"/>
+		<release version="1.2.0" date="2023-04-14" type="stable"/>
+		<release version="1.1.1" date="2023-02-03" type="stable"/>
+		<release version="1.1.0" date="2022-12-23" type="stable"/>
+		<release version="1.0.0" date="2022-09-11" type="stable"/>
+		<release version="0.99" date="2016-11-01" type="stable"/>
+	</releases>
 	<url type="homepage">https://vcmi.eu/</url>
 	<url type="bugtracker">https://github.com/vcmi/vcmi/issues</url>
 	<url type="faq">https://vcmi.eu/faq/</url>
-	<releases>
-		<release version="1.0.0" date="2022-09-11" />
-		<release version="0.99" date="2016-11-01" />
-	</releases>
-	<developer_name>VCMI Team</developer_name>
+	<url type="help">https://github.com/vcmi/vcmi/blob/master/docs/Readme.md</url>
+	<url type="translate">https://github.com/vcmi/vcmi/blob/master/docs/modders/Translations.md</url>
+	<url type="contact">https://discord.gg/chBT42V</url>
+	<url type="vcs-browser">https://github.com/vcmi/vcmi</url>
+	<categories>
+		<category>Game</category>
+		<category>StrategyGame</category>
+	</categories>
+	<recommends>
+		<control>pointing</control>
+		<control>keyboard</control>
+		<control>touch</control>
+	</recommends>
 	<content_rating type="oars-1.1">
 		<content_attribute id="violence-cartoon">moderate</content_attribute>
 		<content_attribute id="violence-fantasy">moderate</content_attribute>
@@ -55,4 +118,8 @@
 		<binary>vcmilauncher</binary>
 		<binary>vcmiserver</binary>
 	</provides>
+	<keywords>
+		<keyword>heroes3</keyword>
+		<keyword>homm3</keyword>
+	</keywords>
 </component>

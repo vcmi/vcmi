@@ -17,6 +17,8 @@ namespace Ui {
 class TownBulidingsWidget;
 }
 
+std::string defaultBuildingIdConversion(BuildingID bId);
+
 class TownBulidingsWidget : public QDialog
 {
 	Q_OBJECT

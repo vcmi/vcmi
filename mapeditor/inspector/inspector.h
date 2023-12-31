@@ -15,8 +15,12 @@
 #include <QStyledItemDelegate>
 #include "../lib/int3.h"
 #include "../lib/GameConstants.h"
+#include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/MapObjects.h"
+#include "../lib/mapObjects/CRewardableObject.h"
+#include "../lib/CGeneralTextHandler.h"
 #include "../lib/ResourceSet.h"
+#include "../lib/MetaString.h"
 
 #define DECLARE_OBJ_TYPE(x) void initialize(x*);
 #define DECLARE_OBJ_PROPERTY_METHODS(x) \
@@ -28,6 +32,7 @@ void setProperty(x*, const QString &, const QVariant &);
 #define SET_PROPERTIES(x) setProperty(dynamic_cast<x*>(obj), key, value)
 
 
+class MapController;
 class Initializer
 {
 public:
@@ -40,10 +45,12 @@ public:
 	DECLARE_OBJ_TYPE(CGResource);
 	DECLARE_OBJ_TYPE(CGDwelling);
 	DECLARE_OBJ_TYPE(CGGarrison);
+	DECLARE_OBJ_TYPE(CGHeroPlaceholder);
 	DECLARE_OBJ_TYPE(CGHeroInstance);
 	DECLARE_OBJ_TYPE(CGCreature);
 	DECLARE_OBJ_TYPE(CGSignBottle);
 	DECLARE_OBJ_TYPE(CGLighthouse);
+	//DECLARE_OBJ_TYPE(CRewardableObject);
 	//DECLARE_OBJ_TYPE(CGEvent);
 	//DECLARE_OBJ_TYPE(CGPandoraBox);
 	//DECLARE_OBJ_TYPE(CGSeerHut);
@@ -68,33 +75,39 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CGResource);
 	DECLARE_OBJ_PROPERTY_METHODS(CGDwelling);
 	DECLARE_OBJ_PROPERTY_METHODS(CGGarrison);
+	DECLARE_OBJ_PROPERTY_METHODS(CGHeroPlaceholder);
 	DECLARE_OBJ_PROPERTY_METHODS(CGHeroInstance);
 	DECLARE_OBJ_PROPERTY_METHODS(CGCreature);
 	DECLARE_OBJ_PROPERTY_METHODS(CGSignBottle);
 	DECLARE_OBJ_PROPERTY_METHODS(CGLighthouse);
+	DECLARE_OBJ_PROPERTY_METHODS(CRewardableObject);
 	DECLARE_OBJ_PROPERTY_METHODS(CGPandoraBox);
 	DECLARE_OBJ_PROPERTY_METHODS(CGEvent);
 	DECLARE_OBJ_PROPERTY_METHODS(CGSeerHut);
+	DECLARE_OBJ_PROPERTY_METHODS(CGQuestGuard);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);
 	QTableWidgetItem * addProperty(int value);
+	QTableWidgetItem * addProperty(const MetaString & value);
+	QTableWidgetItem * addProperty(const TextIdentifier & value);
 	QTableWidgetItem * addProperty(const std::string & value);
 	QTableWidgetItem * addProperty(const QString & value);
 	QTableWidgetItem * addProperty(const int3 & value);
 	QTableWidgetItem * addProperty(const PlayerColor & value);
-	QTableWidgetItem * addProperty(const Res::ERes & value);
+	QTableWidgetItem * addProperty(const GameResID & value);
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);
-	QTableWidgetItem * addProperty(CQuest::Emission value);
 	QTableWidgetItem * addProperty(PropertyEditorPlaceholder value);
 	
 //===============END OF DECLARATION=======================================
 	
 public:
-	Inspector(CMap *, CGObjectInstance *, QTableWidget *);
+	Inspector(MapController &, CGObjectInstance *, QTableWidget *);
 
+	void setProperty(const QString & key, const QTableWidgetItem * item);
+	
 	void setProperty(const QString & key, const QVariant & value);
 
 	void updateProperties();
@@ -105,8 +118,10 @@ protected:
 	void addProperty(const QString & key, const T & value, QAbstractItemDelegate * delegate, bool restricted)
 	{
 		auto * itemValue = addProperty(value);
-		if(restricted)
-			itemValue->setFlags(Qt::NoItemFlags);
+		if(!restricted)
+			itemValue->setFlags(itemValue->flags() | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+		if(!(itemValue->flags() & Qt::ItemIsUserCheckable))
+			itemValue->setFlags(itemValue->flags() | Qt::ItemIsEditable);
 		
 		QTableWidgetItem * itemKey = nullptr;
 		if(keyItems.contains(key))
@@ -119,15 +134,16 @@ protected:
 		else
 		{
 			itemKey = new QTableWidgetItem(key);
-			itemKey->setFlags(Qt::NoItemFlags);
 			keyItems[key] = itemKey;
 			
 			table->setRowCount(row + 1);
 			table->setItem(row, 0, itemKey);
 			table->setItem(row, 1, itemValue);
-			table->setItemDelegateForRow(row, delegate);
+			if(delegate)
+				table->setItemDelegateForRow(row, delegate);
 			++row;
 		}
+		itemKey->setFlags(restricted ? Qt::NoItemFlags : Qt::ItemIsEnabled);
 	}
 	
 	template<class T>
@@ -135,30 +151,25 @@ protected:
 	{
 		addProperty<T>(key, value, nullptr, restricted);
 	}
-
+	
 protected:
 	int row = 0;
 	QTableWidget * table;
 	CGObjectInstance * obj;
 	QMap<QString, QTableWidgetItem*> keyItems;
-	CMap * map;
+	MapController & controller;
 };
-
-
 
 
 class InspectorDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
-	static InspectorDelegate * boolDelegate();
-	
 	using QStyledItemDelegate::QStyledItemDelegate;
 
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 	
-	QStringList options;
+	QList<std::pair<QString, QVariant>> options;
 };
-

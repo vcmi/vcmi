@@ -11,7 +11,7 @@
 
 #include "CInputStream.h"
 #include "ISimpleResourceLoader.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,13 +21,13 @@ class JsonNode;
 /// Helper class that allows generation of a ISimpleResourceLoader entry out of Json config(s)
 class DLL_LINKAGE CFilesystemGenerator
 {
-	typedef std::function<void(const std::string &, const JsonNode &)> TLoadFunctor;
-	typedef std::map<std::string, TLoadFunctor> TLoadFunctorMap;
+	using TLoadFunctor = std::function<void(const std::string &, const JsonNode &)>;
+	using TLoadFunctorMap = std::map<std::string, TLoadFunctor>;
 
 	CFilesystemList * filesystem;
 	std::string prefix;
 
-	template<EResType::Type archiveType>
+	template<EResType archiveType>
 	void loadArchive(const std::string & mountPoint, const JsonNode & config);
 	void loadDirectory(const std::string & mountPoint, const JsonNode & config);
 	void loadZipArchive(const std::string & mountPoint, const JsonNode & config);
@@ -36,7 +36,8 @@ class DLL_LINKAGE CFilesystemGenerator
 	TLoadFunctorMap genFunctorMap();
 public:
 	/// prefix = prefix that will be given to file entries in all nodes of this filesystem
-	CFilesystemGenerator(std::string prefix);
+	/// extractArchives = Specifies if Original H3 archives should be extracted to a separate folder
+	CFilesystemGenerator(std::string prefix, bool extractArchives = false);
 
 	/// loads configuration from json
 	/// config - configuration to load, using format of "filesystem" entry in config/filesystem.json
@@ -44,6 +45,9 @@ public:
 
 	/// returns generated filesystem
 	CFilesystemList * getFilesystem();
+
+	/** Specifies if Original H3 archives should be extracted to a separate folder **/
+	bool extractArchives;
 };
 
 /**
@@ -68,7 +72,7 @@ public:
 	 * @return Returns an instance of resource loader.
 	 */
 	static ISimpleResourceLoader * get();
-	static ISimpleResourceLoader * get(std::string identifier);
+	static ISimpleResourceLoader * get(const std::string & identifier);
 
 	/**
 	 * Creates instance of initial resource loader.
@@ -78,10 +82,16 @@ public:
 	static void initialize();
 
 	/**
+	 * Destroys all existing data in filesystem, bringing it into uninitialized state
+	 *
+	 */
+	static void destroy();
+
+	/**
 	 * Will load all filesystem data from Json data at this path (normally - config/filesystem.json)
 	 * @param fsConfigURI - URI from which data will be loaded
 	 */
-	static void load(const std::string & fsConfigURI);
+	static void load(const std::string & fsConfigURI, bool extractArchives = false);
 
 	/**
 	 * @brief addFilesystem adds filesystem into global resource loader
@@ -104,7 +114,7 @@ public:
 	 * @param fsConfig - configuration to load
 	 * @return generated filesystem that contains all config entries
 	 */
-	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig);
+	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig, bool extractArchives = false);
 
 	~CResourceHandler() = default;
 private:

@@ -18,96 +18,28 @@
 
 #include "GameConstants.h"
 #include "CCreatureHandler.h"
+#include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
 
 template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-///MacroString
-
-MacroString::MacroString(const std::string & format)
-{
-	static const std::string MACRO_START = "${";
-	static const std::string MACRO_END = "}";
-	static const size_t MACRO_START_L = 2;
-	static const size_t MACRO_END_L = 1;
-
-	size_t end_pos = 0;
-	size_t start_pos = std::string::npos;
-	do
-	{
-		start_pos = format.find(MACRO_START, end_pos);
-
-		if(!(start_pos == std::string::npos))
-		{
-			//chunk before macro
-			items.push_back(Item(Item::STRING, format.substr(end_pos, start_pos - end_pos)));
-
-			start_pos += MACRO_START_L;
-			end_pos = format.find(MACRO_END, start_pos);
-
-			if(end_pos == std::string::npos)
-			{
-				logBonus->warn("Format error in: %s", format);
-				end_pos = start_pos;
-				break;
-			}
-			else
-			{
-				items.push_back(Item(Item::MACRO, format.substr(start_pos, end_pos - start_pos)));
-				end_pos += MACRO_END_L;
-			}
-		}
-	}
-	while(start_pos != std::string::npos);
-
-	//no more macros
-	items.push_back(Item(Item::STRING, format.substr(end_pos)));
-}
-
-std::string MacroString::build(const GetValue & getValue) const
-{
-	std::string result;
-
-	for(const Item & i : items)
-	{
-		switch(i.type)
-		{
-		case Item::MACRO:
-		{
-			result += getValue(i.value);
-			break;
-		}
-		case Item::STRING:
-		{
-			result += i.value;
-			break;
-		}
-		}
-	}
-	return result;
-}
-
 ///CBonusType
 
-CBonusType::CBonusType()
+CBonusType::CBonusType():
+	hidden(true)
+{}
+
+std::string CBonusType::getNameTextID() const
 {
-	hidden = true;
-	icon = nameTemplate = descriptionTemplate = "";
+	return TextIdentifier( "core", "bonus", identifier, "name").get();
 }
 
-CBonusType::~CBonusType()
+std::string CBonusType::getDescriptionTextID() const
 {
-
+	return TextIdentifier( "core", "bonus", identifier, "description").get();
 }
-
-void CBonusType::buildMacros()
-{
-	name = MacroString(nameTemplate);
-	description = MacroString(descriptionTemplate);
-}
-
 
 ///CBonusTypeHandler
 
@@ -134,140 +66,120 @@ CBonusTypeHandler::~CBonusTypeHandler()
 
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const
 {
-	auto getValue = [=](const std::string & name) -> std::string
-	{
-		if(name == "val")
-		{
-			 return boost::lexical_cast<std::string>(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype)));
-		}
-		else if(name == "subtype.creature")
-		{
-			 const CreatureID cre(bonus->subtype);
-			 return cre.toCreature()->namePl;
-		}
-		else if(name == "subtype.spell")
-		{
-			 const SpellID sp(bonus->subtype);
-			 return sp.toSpell()->name;
-		}
-		else if(name == "MR")
-		{
-			 return boost::lexical_cast<std::string>(bearer->magicResistance());
-		}
-		else
-		{
-			 logBonus->warn("Unknown macro in bonus config: %s", name);
-			 return "[error]";
-		}
-	};
-
-	const CBonusType & bt = bonusTypes[bonus->type];
+	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
 	if(bt.hidden)
 		return "";
-	const MacroString & macro = description ? bt.description : bt.name;
 
-	return macro.build(getValue);
+	std::string textID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
+	std::string text = VLC->generaltexth->translate(textID);
+
+	if (text.find("${val}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
+
+	if (text.find("${subtype.creature}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
+
+	if (text.find("${subtype.spell}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${subtype.spell}", bonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
+
+	return text;
 }
 
-std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
+ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
 	std::string fileName;
 	bool fullPath = false;
 
 	switch(bonus->type)
 	{
-	case Bonus::SECONDARY_SKILL_PREMY:
-		if(bonus->subtype == SecondarySkill::RESISTANCE)
-		{
-			fileName = "E_DWARF.bmp";
-		}
-		break;
-	case Bonus::SPELL_IMMUNITY:
+	case BonusType::SPELL_IMMUNITY:
 	{
 		fullPath = true;
-		const CSpell * sp = SpellID(bonus->subtype).toSpell();
+		const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
 		fileName = sp->getIconImmune();
 		break;
 	}
-	case Bonus::FIRE_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
-			fileName = "E_SPFIRE.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPFIRE1.bmp";
-			break;//not positive
-		case 2:
-			fileName = "E_FIRE.bmp";
-			break;//direct damage
-		}
-		break;
-	case Bonus::WATER_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
-			fileName = "E_SPWATER.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPWATER1.bmp";
-			break;//not positive
-		case 2:
-			fileName = "E_SPCOLD.bmp";
-			break;//direct damage
-		}
-		break;
-	case Bonus::AIR_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
-			fileName = "E_SPAIR.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPAIR1.bmp";
-			break;//not positive
-		case 2:
+	case BonusType::SPELL_DAMAGE_REDUCTION: //Spell damage reduction for all schools
+	{
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::ANY)
+			fileName = "E_GOLEM.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
 			fileName = "E_LIGHT.bmp";
-			break;//direct damage
-		}
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
+			fileName = "E_FIRE.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
+			fileName = "E_COLD.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
+			fileName = "E_SPEATH1.bmp"; //No separate icon for earth damage
+
 		break;
-	case Bonus::EARTH_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
+	}
+	case BonusType::SPELL_SCHOOL_IMMUNITY: //for all school
+	{
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
+			fileName = "E_SPAIR.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
+			fileName = "E_SPFIRE.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
+			fileName = "E_SPWATER.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
 			fileName = "E_SPEATH.bmp";
-			break;//all
-		case 1:
-		case 2://no specific icon for direct damage immunity
-			fileName = "E_SPEATH1.bmp";
-			break;//not positive
-		}
+
 		break;
-	case Bonus::LEVEL_SPELL_IMMUNITY:
+	}
+	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
+	{
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::AIR)
+			fileName = "E_SPAIR1.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::FIRE)
+			fileName = "E_SPFIRE1.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::WATER)
+			fileName = "E_SPWATER1.bmp";
+
+		if (bonus->subtype.as<SpellSchool>() == SpellSchool::EARTH)
+			fileName = "E_SPEATH1.bmp";
+
+		break;
+	}
+	case BonusType::LEVEL_SPELL_IMMUNITY:
 	{
 		if(vstd::iswithin(bonus->val, 1, 5))
 		{
-			fileName = "E_SPLVL" + boost::lexical_cast<std::string>(bonus->val) + ".bmp";
+			fileName = "E_SPLVL" + std::to_string(bonus->val) + ".bmp";
 		}
 		break;
 	}
-	case Bonus::GENERAL_DAMAGE_REDUCTION:
+	case BonusType::KING:
 	{
-		switch(bonus->subtype)
+		if(vstd::iswithin(bonus->val, 0, 3))
 		{
-		case 0:
-			fileName = "DamageReductionMelee.bmp";
-			break;
-		case 1:
-			fileName = "DamageReductionRanged.bmp";
-			break;
+			fileName = "E_KING" + std::to_string(std::max(1, bonus->val)) + ".bmp";
 		}
+		break;
+	}
+	case BonusType::GENERAL_DAMAGE_REDUCTION:
+	{
+		if (bonus->subtype == BonusCustomSubtype::damageTypeMelee)
+			fileName = "DamageReductionMelee.bmp";
+
+		if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
+			fileName = "DamageReductionRanged.bmp";
+
 		break;
 	}
 
 	default:
 		{
-			const CBonusType & bt = bonusTypes[bonus->type];
+			const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
 			fileName = bt.icon;
 			fullPath = true;
 		}
@@ -276,19 +188,19 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 
 	if(!fileName.empty() && !fullPath)
 		fileName = "zvs/Lib1.res/" + fileName;
-	return fileName;
+	return ImagePath::builtinTODO(fileName);
 }
 
 void CBonusTypeHandler::load()
 {
-	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
+	const JsonNode gameConf(JsonPath::builtin("config/gameConfig.json"));
 	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
 	load(config);
 }
 
 void CBonusTypeHandler::load(const JsonNode & config)
 {
-	for(auto & node : config.Struct())
+	for(const auto & node : config.Struct())
 	{
 		auto it = bonusNameMap.find(node.first);
 
@@ -302,31 +214,33 @@ void CBonusTypeHandler::load(const JsonNode & config)
 //
 //			bonusTypes.push_back(bt);
 
-			logBonus->warn("Adding new bonuses not implemented (%s)", node.first);
+			logBonus->warn("Unrecognized bonus name! (%s)", node.first);
 		}
 		else
 		{
-			CBonusType & bt = bonusTypes[it->second];
+			CBonusType & bt = bonusTypes[vstd::to_underlying(it->second)];
 
-			loadItem(node.second, bt);
+			loadItem(node.second, bt, node.first);
 			logBonus->trace("Loaded bonus type %s", node.first);
 		}
 	}
 }
 
-void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest)
+void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const
 {
-	dest.nameTemplate = source["name"].String();
-	dest.descriptionTemplate = source["description"].String();
+	dest.identifier = name;
 	dest.hidden = source["hidden"].Bool(); //Null -> false
+
+	if (!dest.hidden)
+	{
+		VLC->generaltexth->registerString( "core", dest.getNameTextID(), source["name"].String());
+		VLC->generaltexth->registerString( "core", dest.getDescriptionTextID(), source["description"].String());
+	}
 
 	const JsonNode & graphics = source["graphics"];
 
 	if(!graphics.isNull())
-	{
 		dest.icon = graphics["icon"].String();
-	}
-	dest.buildMacros();
 }
 
 VCMI_LIB_NAMESPACE_END

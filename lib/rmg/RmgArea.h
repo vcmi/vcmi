@@ -20,7 +20,7 @@ namespace rmg
 	static const std::array<int3, 4> dirs4 = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0) };
 	static const std::array<int3, 4> dirsDiagonal= { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
 
-	using Tileset = std::set<int3>;
+	using Tileset = std::unordered_set<int3>;
 	using DistanceMap = std::map<int3, int>;
 	void toAbsolute(Tileset & tiles, const int3 & position);
 	void toRelative(Tileset & tiles, const int3 & position);
@@ -30,9 +30,9 @@ namespace rmg
 	public:
 		Area() = default;
 		Area(const Area &);
-		Area(const Area &&);
-		Area(const Tileset & tiles);
-		Area(const Tileset & relative, const int3 & position); //create from relative positions
+		Area(Area &&) noexcept;
+		Area(Tileset tiles);
+		Area(Tileset relative, const int3 & position); //create from relative positions
 		Area & operator= (const Area &);
 		
 		const Tileset & getTiles() const;
@@ -41,10 +41,10 @@ namespace rmg
 		const Tileset & getBorderOutside() const; //lazy cache invalidation
 		
 		DistanceMap computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap) const;
-		
-		Area getSubarea(std::function<bool(const int3 &)> filter) const;
-		
-		bool connected() const; //is connected
+
+		Area getSubarea(const std::function<bool(const int3 &)> & filter) const;
+
+		bool connected(bool noDiagonals = false) const; //is connected
 		bool empty() const;
 		bool contains(const int3 & tile) const;
 		bool contains(const std::vector<int3> & tiles) const;
@@ -64,6 +64,7 @@ namespace rmg
 		void intersect(const Area & area);
 		void subtract(const Area & area);
 		void translate(const int3 & shift);
+		void erase_if(std::function<bool(const int3&)> predicate);
 		
 		friend Area operator+ (const Area & l, const int3 & r); //translation
 		friend Area operator- (const Area & l, const int3 & r); //translation

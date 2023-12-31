@@ -10,9 +10,12 @@
 #include "../StdInc.h"
 #include "FuzzyHelper.h"
 
-#include "../../../lib/mapObjects/CommonConstructors.h"
 #include "../Goals/Goals.h"
 #include "Nullkiller.h"
+
+#include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 
 namespace NKAI
 {
@@ -21,7 +24,7 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
 
-	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
+	auto objectInfo = bank->getObjectHandler()->getObjectInfo(bank->appearance);
 
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 
@@ -108,24 +111,35 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 {
 	auto cb = ai->cb.get();
 
-	if(obj->tempOwner < PlayerColor::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
+	if(obj->tempOwner.isValidPlayer() && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
 
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
 	{
-		const CGTownInstance * cre = dynamic_cast<const CGTownInstance *>(obj);
-		return cre->getUpperArmy()->getArmyStrength();
+		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
+		auto danger = town->getUpperArmy()->getArmyStrength();
+
+		if(danger || town->visitingHero)
+		{
+			auto fortLevel = town->fortLevel();
+
+			if(fortLevel == CGTownInstance::EFortLevel::CASTLE)
+				danger += 10000;
+			else if(fortLevel == CGTownInstance::EFortLevel::CITADEL)
+				danger += 4000;
+		}
+
+		return danger;
 	}
+
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
 	{
 		if(!vstd::contains(ai->memory->alreadyVisited, obj))
-		{
 			return 0;
-		}
-		// passthrough
+		[[fallthrough]];
 	}
 	case Obj::MONSTER:
 	case Obj::HERO:
@@ -135,23 +149,19 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	case Obj::CREATURE_GENERATOR4:
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
-	{
-		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
-		return a->getArmyStrength();
-	}
+	case Obj::PANDORAS_BOX:
 	case Obj::CRYPT: //crypt
 	case Obj::CREATURE_BANK: //crebank
 	case Obj::DRAGON_UTOPIA:
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
-							 //	case Obj::PYRAMID:
-		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
+	{
+		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
+		return a->getArmyStrength();
+	}
 	case Obj::PYRAMID:
 	{
-		if(obj->subID == 0)
-			return estimateBankDanger(dynamic_cast<const CBank *>(obj));
-		else
-			return 0;
+		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
 	}
 	default:
 		return 0;

@@ -9,10 +9,14 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
 #include "CArtHandler.h"
+#include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
+
+#include <vcmi/Entity.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,24 +30,27 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CStackBasicDescriptor
 {
 public:
-	const CCreature *type;
-	TQuantity count;
+	const CCreature *type = nullptr;
+	TQuantity count = -1; //exact quantity or quantity ID from CCreature::getQuantityID when getting info about enemy army
 
 	CStackBasicDescriptor();
-	CStackBasicDescriptor(CreatureID id, TQuantity Count);
+	CStackBasicDescriptor(const CreatureID & id, TQuantity Count);
 	CStackBasicDescriptor(const CCreature *c, TQuantity Count);
 	virtual ~CStackBasicDescriptor() = default;
 
 	const Creature * getType() const;
+	CreatureID getId() const;
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
+	
+	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		if(h.saving)
 		{
-			CreatureID idNumber = type ? type->idNumber : CreatureID(CreatureID::NONE);
+			auto idNumber = type ? type->getId() : CreatureID(CreatureID::NONE);
 			h & idNumber;
 		}
 		else
@@ -51,7 +58,7 @@ public:
 			CreatureID idNumber;
 			h & idNumber;
 			if(idNumber != CreatureID::NONE)
-				setType(VLC->creh->objects[idNumber]);
+				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getById(idNumber)));
 			else
 				type = nullptr;
 		}
@@ -61,17 +68,19 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 
 public:
-	// hlp variable used during loading map, when object (hero or town) have creatures that must have same alignment.
-	// idRand < 0 -> normal, non-random creature
-	// idRand / 2 -> level
-	// idRand % 2 -> upgrade number
-	int idRand;
+	struct RandomStackInfo
+	{
+		uint8_t level;
+		uint8_t upgrade;
+	};
+	// helper variable used during loading map, when object (hero or town) have creatures that must have same alignment.
+	std::optional<RandomStackInfo> randomStack;
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
 	TExpType experience;//commander needs same amount of exp as hero
@@ -90,28 +99,33 @@ public:
 
 	//overrides CBonusSystemNode
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
-	std::string bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const; //file name of graphics from StackSkills , in future possibly others
+	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
+
+	//IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
+	//INativeTerrainProvider
+	FactionID getFaction() const override;
 
 	virtual ui64 getPower() const;
-	int getQuantityID() const;
+	CCreature::CreatureQuantityId getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
 	virtual int getLevel() const; //different for regular stack and commander
-	si32 magicResistance() const override;
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
 	virtual void init();
 	CStackInstance();
-	CStackInstance(CreatureID id, TQuantity count, bool isHypothetic = false);
+	CStackInstance(const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	CStackInstance(const CCreature *cre, TQuantity count, bool isHypothetic = false);
-	virtual ~CStackInstance();
+	virtual ~CStackInstance() = default;
 
-	void setType(CreatureID creID);
+	void setType(const CreatureID & creID);
 	void setType(const CCreature * c) override;
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
-	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
+	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
+	void removeArtifact(ArtifactPosition pos) override;
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	virtual std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
@@ -128,12 +142,11 @@ public:
 	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
 	std::vector <ui8> secondarySkills; //ID -> level
-	std::set <ui8> specialSKills;
+	std::set <ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
 	void init() override;
 	CCommanderInstance();
-	CCommanderInstance (CreatureID id);
-	virtual ~CCommanderInstance();
+	CCommanderInstance(const CreatureID & id);
 	void setAlive (bool alive);
 	void giveStackExp (TExpType exp) override;
 	void levelUp ();
@@ -151,31 +164,27 @@ public:
 		h & level;
 		h & name;
 		h & secondarySkills;
-		h & specialSKills;
+		h & specialSkills;
 	}
 };
 
-typedef std::map<SlotID, CStackInstance*> TSlots;
-typedef std::map<SlotID, std::pair<CreatureID, TQuantity>> TSimpleSlots;
+using TSlots = std::map<SlotID, CStackInstance *>;
+using TSimpleSlots = std::map<SlotID, std::pair<CreatureID, TQuantity>>;
 
-typedef std::pair<const CCreature*, SlotID> TPairCreatureSlot;
-typedef std::map<const CCreature*, SlotID> TMapCreatureSlot;
+using TPairCreatureSlot = std::pair<const CCreature *, SlotID>;
+using TMapCreatureSlot = std::map<const CCreature *, SlotID>;
 
 struct DLL_LINKAGE CreatureSlotComparer
 {
 	bool operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs);
 };
 
-typedef std::priority_queue<
-	TPairCreatureSlot,
-	std::vector<TPairCreatureSlot>,
-	CreatureSlotComparer
-> TCreatureQueue;
+using TCreatureQueue = std::priority_queue<TPairCreatureSlot, std::vector<TPairCreatureSlot>, CreatureSlotComparer>;
 
 class IArmyDescriptor
 {
 public:
-	virtual void clear() = 0;
+	virtual void clearSlots() = 0;
 	virtual bool setCreature(SlotID slot, CreatureID cre, TQuantity count) = 0;
 };
 
@@ -184,7 +193,7 @@ class DLL_LINKAGE CSimpleArmy : public IArmyDescriptor
 {
 public:
 	TSimpleSlots army;
-	void clear() override;
+	void clearSlots() override;
 	bool setCreature(SlotID slot, CreatureID cre, TQuantity count) override;
 	operator bool() const;
 
@@ -194,53 +203,60 @@ public:
 	}
 };
 
+namespace NArmyFormation
+{
+	static const std::vector<std::string> names{ "wide", "tight" };
+}
+
 class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
-	CCreatureSet(const CCreatureSet&);
+	CCreatureSet(const CCreatureSet &) = delete;
 	CCreatureSet &operator=(const CCreatureSet&);
 public:
-	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
-	ui8 formation; //false - wide, true - tight
 
-	CCreatureSet();
+
+	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
+	EArmyFormation formation = EArmyFormation::LOOSE; //0 - wide, 1 - tight
+
+	CCreatureSet() = default; //Should be here to avoid compile errors
 	virtual ~CCreatureSet();
 	virtual void armyChanged();
 
-	const CStackInstance &operator[](SlotID slot) const;
+	const CStackInstance & operator[](const SlotID & slot) const;
 
 	const TSlots &Slots() const {return stacks;}
 
-	void addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void addToSlot(SlotID slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void clear() override;
-	void setFormation(bool tight);
+	void addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void clearSlots() override;
+	void setFormation(EArmyFormation tight);
 	CArmedInstance *castToArmyObj();
 
 	//basic operations
-	void putStack(SlotID slot, CStackInstance *stack); //adds new stack to the army, slot must be empty
-	void setStackCount(SlotID slot, TQuantity count); //stack must exist!
-	CStackInstance *detachStack(SlotID slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
-	void setStackType(SlotID slot, CreatureID type);
+	void putStack(const SlotID & slot, CStackInstance * stack); //adds new stack to the army, slot must be empty
+	void setStackCount(const SlotID & slot, TQuantity count); //stack must exist!
+	CStackInstance * detachStack(const SlotID & slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
+	void setStackType(const SlotID & slot, const CreatureID & type);
 	void giveStackExp(TExpType exp);
-	void setStackExp(SlotID slot, TExpType exp);
+	void setStackExp(const SlotID & slot, TExpType exp);
 
 	//derivative
-	void eraseStack(SlotID slot); //slot must be occupied
-	void joinStack(SlotID slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
-	void changeStackCount(SlotID slot, TQuantity toAdd); //stack must exist!
+	void eraseStack(const SlotID & slot); //slot must be occupied
+	void joinStack(const SlotID & slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
+	void changeStackCount(const SlotID & slot, TQuantity toAdd); //stack must exist!
 	bool setCreature (SlotID slot, CreatureID type, TQuantity quantity) override; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 
-	const CStackInstance& getStack(SlotID slot) const; //stack must exist
-	const CStackInstance* getStackPtr(SlotID slot) const; //if stack doesn't exist, returns nullptr
-	const CCreature* getCreature(SlotID slot) const; //workaround of map issue;
-	int getStackCount (SlotID slot) const;
-	TExpType getStackExperience(SlotID slot) const;
+	const CStackInstance & getStack(const SlotID & slot) const; //stack must exist
+	CStackInstance * getStackPtr(const SlotID & slot) const; //if stack doesn't exist, returns nullptr
+	const CCreature * getCreature(const SlotID & slot) const; //workaround of map issue;
+	int getStackCount(const SlotID & slot) const;
+	TExpType getStackExperience(const SlotID & slot) const;
 	SlotID findStack(const CStackInstance *stack) const; //-1 if none
-	SlotID getSlotFor(CreatureID creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
+	SlotID getSlotFor(const CreatureID & creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
 	SlotID getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
-	bool hasCreatureSlots(const CCreature * c, SlotID exclude) const;
-	std::vector<SlotID> getCreatureSlots(const CCreature * c, SlotID exclude, TQuantity ignoreAmount = -1) const;
+	bool hasCreatureSlots(const CCreature * c, const SlotID & exclude) const;
+	std::vector<SlotID> getCreatureSlots(const CCreature * c, const SlotID & exclude, TQuantity ignoreAmount = -1) const;
 	bool isCreatureBalanced(const CCreature* c, TQuantity ignoreAmount = 1) const; // Check if the creature is evenly distributed across slots
 
 	SlotID getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns first free slot
@@ -248,18 +264,18 @@ public:
 	std::queue<SlotID> getFreeSlotsQueue(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
 
 	TMapCreatureSlot getCreatureMap() const;
-	TCreatureQueue getCreatureQueue(SlotID exclude) const;
+	TCreatureQueue getCreatureQueue(const SlotID & exclude) const;
 
-	bool mergableStacks(std::pair<SlotID, SlotID> &out, SlotID preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
+	bool mergableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly
-	bool slotEmpty(SlotID slot) const;
+	bool slotEmpty(const SlotID & slot) const;
 	int stacksCount() const;
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
 	ui64 getArmyStrength() const; //sum of AI values of creatures
-	ui64 getPower (SlotID slot) const; //value of specific stack
-	std::string getRoughAmount(SlotID slot, int mode = 0) const; //rough size of specific stack
+	ui64 getPower(const SlotID & slot) const; //value of specific stack
+	std::string getRoughAmount(const SlotID & slot, int mode = 0) const; //rough size of specific stack
 	std::string getArmyDescription() const;
-	bool hasStackAtSlot(SlotID slot) const;
+	bool hasStackAtSlot(const SlotID & slot) const;
 
 	bool contains(const CStackInstance *stack) const;
 	bool canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks = true) const;
@@ -270,7 +286,7 @@ public:
 		h & formation;
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const boost::optional<int> fixedSize = boost::none);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize = std::nullopt);
 
 	operator bool() const
 	{

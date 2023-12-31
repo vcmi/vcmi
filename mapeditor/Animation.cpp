@@ -14,12 +14,14 @@
 #include "Animation.h"
 
 #include "BitmapHandler.h"
+#include "graphics.h"
 
+#include "../lib/vcmi_endian.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
 #include "../lib/CRandomGenerator.h"
-
+#include "../lib/VCMIDirs.h"
 
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
 
@@ -80,7 +82,7 @@ class FileCache
 	static const int cacheSize = 50; //Max number of cached files
 	struct FileData
 	{
-		ResourceID             name;
+		ResourcePath             name;
 		size_t                 size;
 		std::unique_ptr<ui8[]> data;
 
@@ -90,7 +92,7 @@ class FileCache
 			std::copy(data.get(), data.get() + size, ret.get());
 			return ret;
 		}
-		FileData(ResourceID name_, size_t size_, std::unique_ptr<ui8[]> data_):
+		FileData(ResourcePath name_, size_t size_, std::unique_ptr<ui8[]> data_):
 			name{std::move(name_)},
 			size{size_},
 			data{std::move(data_)}
@@ -99,7 +101,7 @@ class FileCache
 
 	std::deque<FileData> cache;
 public:
-	std::unique_ptr<ui8[]> getCachedFile(ResourceID rid)
+	std::unique_ptr<ui8[]> getCachedFile(ResourcePath rid)
 	{
 		for(auto & file : cache)
 		{
@@ -168,7 +170,7 @@ DefFile::DefFile(std::string Name):
 		qRgba(0, 0, 0, 128), //  50% - shadow body   below selection
 		qRgba(0, 0, 0,  64)  // 75% - shadow border below selection
 	};
-	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
+	data = animationCache.getCachedFile(AnimationPath::builtin("SPRITES/" + Name));
 
 	palette = std::make_unique<QVector<QRgb>>(256);
 	int it = 0;
@@ -450,10 +452,10 @@ void ImageLoader::init(QPoint SpriteSize, QPoint Margins, QPoint FullSize)
 	margins = Margins;
 	fullSize = FullSize;
 	
-	memset((void *)image->bits(), 0, fullSize.y() * fullSize.x());
+	memset((void *)image->bits(), 0, fullSize.y() * image->bytesPerLine());
 	
 	lineStart = image->bits();
-	lineStart += margins.y() * fullSize.x() + margins.x();
+	lineStart += margins.y() * image->bytesPerLine() + margins.x();
 	position = lineStart;
 }
 
@@ -477,7 +479,7 @@ inline void ImageLoader::Load(size_t size, ui8 color)
 
 inline void ImageLoader::EndLine()
 {
-	lineStart += fullSize.x();
+	lineStart += image->bytesPerLine();
 	position = lineStart;
 }
 
@@ -538,7 +540,6 @@ bool Animation::loadFrame(size_t frame, size_t group)
 				return true;
 			}
 		}
-		return false;
 		// still here? image is missing
 
 		printError(frame, group, "LoadFrame");
@@ -546,7 +547,14 @@ bool Animation::loadFrame(size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		images[group][frame] = getFromExtraDef(source[group][frame]["file"].String());;
+		auto img = getFromExtraDef(source[group][frame]["file"].String());
+		if(!img)
+		{
+			auto bitmap = BitmapHandler::loadBitmap(source[group][frame]["file"].String());
+			img.reset(new QImage(bitmap));
+		}
+
+		images[group][frame] = img;
 		return true;
 	}
 	return false;
@@ -576,11 +584,10 @@ void Animation::init()
 			source[defEntry.first].resize(defEntry.second);
 	}
 
-#if 0 //this code is not used but maybe requred if there will be configurable sprites
-	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
+	JsonPath resID = JsonPath::builtin("SPRITES/" + name);
 
-	//if(vstd::contains(graphics->imageLists, resID.getName()))
-		//initFromJson(graphics->imageLists[resID.getName()]);
+	if(vstd::contains(graphics->imageLists, resID.getName()))
+		initFromJson(graphics->imageLists[resID.getName()]);
 
 	auto configList = CResourceHandler::get()->getResourcesWithName(resID);
 
@@ -592,9 +599,47 @@ void Animation::init()
 
 		const JsonNode config((char*)textData.get(), stream->getSize());
 
-		//initFromJson(config);
+		initFromJson(config);
 	}
-#endif
+}
+
+void Animation::initFromJson(const JsonNode & config)
+{
+	std::string basepath;
+	basepath = config["basepath"].String();
+
+	JsonNode base(JsonNode::JsonType::DATA_STRUCT);
+	base["margins"] = config["margins"];
+	base["width"] = config["width"];
+	base["height"] = config["height"];
+
+	for(const JsonNode & group : config["sequences"].Vector())
+	{
+		size_t groupID = group["group"].Integer();//TODO: string-to-value conversion("moving" -> MOVING)
+		source[groupID].clear();
+
+		for(const JsonNode & frame : group["frames"].Vector())
+		{
+			JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
+			JsonUtils::inherit(toAdd, base);
+			toAdd["file"].String() = basepath + frame.String();
+			source[groupID].push_back(toAdd);
+		}
+	}
+
+	for(const JsonNode & node : config["images"].Vector())
+	{
+		size_t group = node["group"].Integer();
+		size_t frame = node["frame"].Integer();
+
+		if (source[group].size() <= frame)
+			source[group].resize(frame+1);
+
+		JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
+		JsonUtils::inherit(toAdd, base);
+		toAdd["file"].String() = basepath + node["file"].String();
+		source[group][frame] = toAdd;
+	}
 }
 
 void Animation::printError(size_t frame, size_t group, std::string type) const
@@ -612,7 +657,7 @@ Animation::Animation(std::string Name):
 		name.erase(dotPos);
 	std::transform(name.begin(), name.end(), name.begin(), toupper);
 
-	ResourceID resource(std::string("SPRITES/") + name, EResType::ANIMATION);
+	auto resource = AnimationPath::builtin("SPRITES/" + name);
 
 	if(CResourceHandler::get()->existsResource(resource))
 		defFile = std::make_shared<DefFile>(name);
@@ -652,7 +697,7 @@ void Animation::duplicateImage(const size_t sourceGroup, const size_t sourceFram
 
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
-		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
+		std::string temp =  name+":"+std::to_string(sourceGroup)+":"+std::to_string(sourceFrame);
 		clone["file"].String() = temp;
 	}
 
@@ -684,6 +729,39 @@ std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool ver
 	if(verbose)
 		printError(frame, group, "GetImage");
 	return nullptr;
+}
+
+void Animation::exportBitmaps(const QDir & path) const
+{
+	if(images.empty())
+	{
+		logGlobal->error("Nothing to export, animation is empty");
+		return;
+	}
+
+	QString actualPath = path.absolutePath() + "/" + QString::fromStdString(name);
+	QDir().mkdir(actualPath);
+
+	size_t counter = 0;
+
+	for(const auto& groupPair : images)
+	{
+		size_t group = groupPair.first;
+
+		for(const auto& imagePair : groupPair.second)
+		{
+			size_t frame = imagePair.first;
+			const auto img = imagePair.second;
+
+			QString filename = QString("%1_%2_%3.png").arg(QString::fromStdString(name)).arg(group).arg(frame);
+			QString filePath = actualPath + "/" + filename;
+			img->save(filePath, "PNG");
+
+			counter++;
+		}
+	}
+
+	logGlobal->info("Exported %d frames to %s", counter, actualPath.toStdString());
 }
 
 void Animation::load()

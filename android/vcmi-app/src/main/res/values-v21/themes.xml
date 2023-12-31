@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.VCMI" parent="@style/Base.Theme.VCMI">
+        <item name="android:listDivider">@drawable/recycler_divider_drawable</item>
+    </style>
+</resources>

@@ -1,22 +1,18 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-
 	"title" : "VCMI script format",
 	"description" : "Format used to configure script environment",
-
-
 	"required" : ["source"],
-
 	"properties" : {
 		"source" : {
-			"type": "string",
-			"description": "Full VFS path to script source (extension required)"
+			"type" : "string",
+			"description" : "Full VFS path to script source (extension required)"
 		},
-		"implements" :{
-			"type": "string",
-			"enum": ["ANYTHING", "BATTLE_EFFECT"],
-			"description": ""
+		"implements" : {
+			"type" : "string",
+			"enum" : ["ANYTHING", "BATTLE_EFFECT"],
+			"description" : ""
 		}
 	}
 }

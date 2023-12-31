@@ -47,7 +47,7 @@ int BattleLogMessageProxy::addText(lua_State * L)
 		{
 			if(object->lines.empty())
 				object->lines.emplace_back();
-			object->lines.back() << text;
+			object->lines.back().appendRawString(text);
 		}
 	}
 

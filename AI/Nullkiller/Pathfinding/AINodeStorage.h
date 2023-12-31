@@ -13,7 +13,8 @@
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
 #define NKAI_TRACE_LEVEL 0
 
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/pathfinder/CGPathNode.h"
+#include "../../../lib/pathfinder/INodeStorage.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 #include "../Engine/FuzzyHelper.h"
@@ -23,8 +24,8 @@
 
 namespace NKAI
 {
-	const int SCOUT_TURN_DISTANCE_LIMIT = 3;
-	const int MAIN_TURN_DISTANCE_LIMIT = 5;
+	const int SCOUT_TURN_DISTANCE_LIMIT = 5;
+	const int MAIN_TURN_DISTANCE_LIMIT = 10;
 
 namespace AIPathfinding
 {
@@ -44,7 +45,7 @@ struct AIPathNode : public CGPathNode
 {
 	uint64_t danger;
 	uint64_t armyLoss;
-	uint32_t manaCost;
+	int32_t manaCost;
 	const AIPathNode * chainOther;
 	std::shared_ptr<const SpecialAction> specialAction;
 	const ChainActor * actor;
@@ -52,9 +53,11 @@ struct AIPathNode : public CGPathNode
 	STRONG_INLINE
 	bool blocked() const
 	{
-		return accessible == CGPathNode::EAccessibility::NOT_SET
-			|| accessible == CGPathNode::EAccessibility::BLOCKED;
+		return accessible == EPathAccessibility::NOT_SET
+			|| accessible == EPathAccessibility::BLOCKED;
 	}
+
+	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
 };
 
 struct AIPathNodeInfo
@@ -62,6 +65,7 @@ struct AIPathNodeInfo
 	float cost;
 	uint8_t turns;
 	int3 coord;
+	EPathfindingLayer layer;
 	uint64_t danger;
 	const CGHeroInstance * targetHero;
 	int parentIndex;
@@ -135,6 +139,8 @@ class AISharedStorage
 	static std::shared_ptr<boost::multi_array<AIPathNode, 5>> shared;
 	std::shared_ptr<boost::multi_array<AIPathNode, 5>> nodes;
 public:
+	static boost::mutex locker;
+
 	AISharedStorage(int3 mapSize);
 	~AISharedStorage();
 
@@ -191,13 +197,29 @@ public:
 	void commit(
 		AIPathNode * destination,
 		const AIPathNode * source,
-		CGPathNode::ENodeAction action,
+		EPathNodeAction action,
 		int turn,
 		int movementLeft,
 		float cost) const;
 
-	const AIPathNode * getAINode(const CGPathNode * node) const;
-	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);
+	inline const AIPathNode * getAINode(const CGPathNode * node) const
+	{
+		return static_cast<const AIPathNode *>(node);
+	}
+
+	inline void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater)
+	{
+		auto * aiNode = static_cast<AIPathNode *>(node);
+
+		updater(aiNode);
+	}
+
+	inline const CGHeroInstance * getHero(const CGPathNode * node) const
+	{
+		const auto * aiNode = getAINode(node);
+
+		return aiNode->actor->hero;
+	}
 
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
@@ -214,7 +236,7 @@ public:
 		const AIPathNode * destinationNode,
 		const NodeRange & chains) const;
 
-	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
+	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
@@ -223,26 +245,26 @@ public:
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
 		const std::set<const CGObjectInstance *> & visitableObjs);
-	const CGHeroInstance * getHero(const CGPathNode * node) const;
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 	void clear();
 	bool calculateHeroChain();
 	bool calculateHeroChainFinal();
 
-	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero, bool checkGuards) const
+	inline uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero, bool checkGuards) const
 	{
 		return dangerEvaluator->evaluateDanger(tile, hero, checkGuards);
 	}
 
-	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
+	inline uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
 	{
 		double ratio = (double)danger / (armyValue * hero->getFightingStrength());
 
-		return (uint64_t)(armyValue * ratio * ratio * ratio);
+		return (uint64_t)(armyValue * ratio * ratio);
 	}
 
 	STRONG_INLINE
-	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+	void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility accessibility);
+
 	STRONG_INLINE int getBucket(const ChainActor * actor) const
 	{
 		return ((uintptr_t)actor * 395) % AIPathfinding::BUCKET_COUNT;

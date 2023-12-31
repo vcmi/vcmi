@@ -11,6 +11,7 @@
 #pragma once
 
 #include "AINodeStorage.h"
+#include "../../../lib/pathfinder/PathfinderOptions.h"
 
 namespace NKAI
 {
@@ -30,6 +31,8 @@ namespace AIPathfinding
 			CPlayerSpecificInfoCallback * cb,
 			Nullkiller * ai,
 			std::shared_ptr<AINodeStorage> nodeStorage);
+
+		~AIPathfinderConfig();
 
 		virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 	};

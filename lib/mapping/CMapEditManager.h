@@ -11,21 +11,19 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "CMapOperation.h"
-#include "Terrain.h"
+#include "../CRandomGenerator.h"
+#include "MapEditUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CGObjectInstance;
-class CTerrainViewPatternConfig;
-struct TerrainViewPattern;
-class CMap;
+class CMapOperation;
 
 /// The CMapUndoManager provides the functionality to save operations and undo/redo them.
 class DLL_LINKAGE CMapUndoManager : boost::noncopyable
 {
 public:
 	CMapUndoManager();
+	~CMapUndoManager();
 
 	void undo();
 	void redo();
@@ -47,7 +45,7 @@ public:
 	void setUndoCallback(std::function<void(bool, bool)> functor);
 
 private:
-	typedef std::list<std::unique_ptr<CMapOperation> > TStack;
+	using TStack = std::list<std::unique_ptr<CMapOperation>>;
 
 	void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
 	const CMapOperation * peek(const TStack & stack) const;
@@ -72,7 +70,7 @@ public:
 	void clearTerrain(CRandomGenerator * gen = nullptr);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(TerrainId terType, CRandomGenerator * gen = nullptr);
+	void drawTerrain(TerrainId terType, int decorationsPercentage, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(RoadId roadType, CRandomGenerator * gen = nullptr);

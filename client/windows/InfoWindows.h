@@ -10,16 +10,21 @@
 #pragma once
 
 #include "CWindowObject.h"
+#include "../gui/TextAlignment.h"
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGObjectInstance;
+class CGTownInstance;
+class CGHeroInstance;
 class CGGarrison;
+class CGCreature;
+class Rect;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -35,7 +40,7 @@ class CSimpleWindow : public WindowBase
 {
 public:
 	SDL_Surface * bitmap; //background
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	CSimpleWindow():bitmap(nullptr){};
 	virtual ~CSimpleWindow();
 };
@@ -44,17 +49,17 @@ public:
 class CInfoWindow : public CSimpleWindow
 {
 public:
-	typedef std::vector<std::pair<std::string, CFunctionList<void()> > > TButtonsInfo;
-	typedef std::vector<std::shared_ptr<CComponent>> TCompsInfo;
+	using TButtonsInfo = std::vector<std::pair<AnimationPath, CFunctionList<void()>>>;
+	using TCompsInfo = std::vector<std::shared_ptr<CComponent>>;
 	QueryID ID; //for identification
 	std::shared_ptr<CTextBox> text;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	TCompsInfo components;
 
-	virtual void close();
+	void close() override;
 
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 	void sliderMoved(int to);
 
 	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
@@ -74,16 +79,13 @@ public:
 class CRClickPopup : public WindowBase
 {
 public:
-	virtual void close();
-	void clickRight(tribool down, bool previousState) override;
+	virtual void close() override;
+	bool isPopupWindow() const override;
 
-	CRClickPopup();
-	virtual ~CRClickPopup();
-
-	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
+	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);
-	static void createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment = BOTTOMRIGHT);
+	static void createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment = ETextAlignment::BOTTOMRIGHT);
 };
 
 /// popup displayed on R-click
@@ -101,24 +103,25 @@ public:
 	bool free; //TODO: comment me
 	SDL_Surface * bitmap; //popup background
 	void close() override;
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false);
-	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false);
+	CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free=false);
 	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false);
 
 	void init(int x, int y);
 	~CInfoPopup();
 };
 
-/// popup on adventure map for town\hero objects
+/// popup on adventure map for town\hero and other objects with customized popup content
 class CInfoBoxPopup : public CWindowObject
 {
-	std::shared_ptr<CArmyTooltip> tooltip;
+	std::shared_ptr<CIntObject> tooltip;
 	Point toScreen(Point pos);
 public:
 	CInfoBoxPopup(Point position, const CGTownInstance * town);
 	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
 	CInfoBoxPopup(Point position, const CGGarrison * garr);
+	CInfoBoxPopup(Point position, const CGCreature * creature);
 };
 
 /// component selection window
@@ -127,7 +130,8 @@ class CSelWindow : public CInfoWindow
 public:
 	void selectionChange(unsigned to);
 	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID);
+	void madeChoiceAndClose();
+	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QueryID askID);
 
 	//notification - this class inherits important destructor from CInfoWindow
 };

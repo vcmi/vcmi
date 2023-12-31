@@ -13,14 +13,9 @@
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Engine/Nullkiller.h"
-#include "lib/mapping/CMap.h" //for victory conditions
-#include "lib/CPathfinder.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -57,8 +52,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose() const
 				continue;
 			}
 
-			if(ai->nullkiller->heroManager->getHeroRole(targetHero) == HeroRole::MAIN
-				&& targetHero->getArmyStrength() >= 300)
+			if(ai->nullkiller->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
 			{
 				auto reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanGet(
 					targetHero,

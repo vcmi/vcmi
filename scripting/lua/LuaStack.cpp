@@ -19,10 +19,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace scripting
 {
 
-LuaStack::LuaStack(lua_State * L_)
-	: L(L_)
+LuaStack::LuaStack(lua_State * L_):
+	L(L_),
+	initialTop(lua_gettop(L))
 {
-	initialTop = lua_gettop(L);
 }
 
 void LuaStack::balance()
@@ -94,7 +94,7 @@ void LuaStack::push(const JsonNode & value)
 	case JsonNode::JsonType::DATA_STRUCT:
 		{
 			lua_newtable(L);
-			for(auto & keyValue : value.Struct())
+			for(const auto & keyValue : value.Struct())
 			{
 				push(keyValue.first);
 				push(keyValue.second);
@@ -154,7 +154,7 @@ bool LuaStack::tryGet(int position, std::string & value)
 		return false;
 
 	size_t len = 0;
-	auto raw = lua_tolstring(L, position, &len);
+	const auto *raw = lua_tolstring(L, position, &len);
 	value = std::string(raw, len);
 
 	return true;

@@ -1,0 +1,156 @@
+{
+	"items":
+	[		
+		{
+			"name": "background",
+			"type": "texture",
+			"image": "DIBOXBCK",
+			"rect": {"w": 428, "h": 379}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 5, "y": 5, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.scenarioName",
+			"position": {"x": 214, "y": 15}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 5, "y": 30, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"name": "mapName",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 214, "y": 40}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 5, "y": 55, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.mapPreview",
+			"position": {"x": 214, "y": 65}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 29, "y": 79, "w": 171, "h": 171},
+			"color": [0, 0, 0, 255],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "vcmi.lobby.noPreview",
+			"position": {"x": 114, "y": 164}
+		},
+		{
+			"type": "drawMinimap",
+			"id": 0,
+			"rect": {"x": 30, "y": 80, "w": 169, "h": 169}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 228, "y": 79, "w": 171, "h": 171},
+			"color": [0, 0, 0, 255],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"name": "noUnderground",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "vcmi.lobby.noUnderground",
+			"position": {"x": 313, "y": 164}
+		},
+		{
+			"type": "drawMinimap",
+			"id": 1,
+			"rect": {"x": 229, "y": 80, "w": 169, "h": 169}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 5, "y": 254, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.creationDate",
+			"position": {"x": 214, "y": 264}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 5, "y": 279, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"name": "date",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"position": {"x": 214, "y": 289}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 5, "y": 304, "w": 418, "h": 20},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "label",
+			"font": "medium",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "vcmi.lobby.filepath",
+			"position": {"x": 214, "y": 314}
+		},
+		{
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 5, "y": 329, "w": 418, "h": 45},
+			"color": [0, 0, 0, 75],
+			"colorLine": [128, 100, 75, 255]
+		},
+		{
+			"type": "textBox",
+			"name": "fileName",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "",
+			"rect": {"x": 10, "y": 334, "w": 408, "h": 35}
+		}
+	],
+
+	"variables":
+	{
+		"mapPreviewForSaves": true
+	}
+}

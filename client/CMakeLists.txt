@@ -1,148 +1,333 @@
 set(client_SRCS
-		StdInc.cpp
-		../CCallback.cpp
+	StdInc.cpp
+	../CCallback.cpp
 
-		battle/CBattleAnimations.cpp
-		battle/CBattleInterfaceClasses.cpp
-		battle/CBattleInterface.cpp
-		battle/CCreatureAnimation.cpp
+	adventureMap/AdventureMapInterface.cpp
+	adventureMap/AdventureMapShortcuts.cpp
+	adventureMap/AdventureMapWidget.cpp
+	adventureMap/AdventureOptions.cpp
+	adventureMap/CInGameConsole.cpp
+	adventureMap/CInfoBar.cpp
+	adventureMap/CList.cpp
+	adventureMap/CMinimap.cpp
+	adventureMap/CResDataBar.cpp
+	adventureMap/MapAudioPlayer.cpp
+	adventureMap/TurnTimerWidget.cpp
 
-		gui/CAnimation.cpp
-		gui/CCursorHandler.cpp
-		gui/CGuiHandler.cpp
-		gui/CIntObject.cpp
-		gui/Fonts.cpp
-		gui/Geometries.cpp
-		gui/SDL_Extensions.cpp
-		gui/NotificationHandler.cpp
+	battle/BattleActionsController.cpp
+	battle/BattleAnimationClasses.cpp
+	battle/BattleEffectsController.cpp
+	battle/BattleFieldController.cpp
+	battle/BattleInterface.cpp
+	battle/BattleInterfaceClasses.cpp
+	battle/BattleObstacleController.cpp
+	battle/BattleProjectileController.cpp
+	battle/BattleRenderer.cpp
+	battle/BattleSiegeController.cpp
+	battle/BattleStacksController.cpp
+	battle/BattleWindow.cpp
+	battle/CreatureAnimation.cpp
 
-		widgets/AdventureMapClasses.cpp
-		widgets/Buttons.cpp
-		widgets/CArtifactHolder.cpp
-		widgets/CComponent.cpp
-		widgets/CGarrisonInt.cpp
-		widgets/Images.cpp
-		widgets/MiscWidgets.cpp
-		widgets/ObjectLists.cpp
-		widgets/TextControls.cpp
+	eventsSDL/NotificationHandler.cpp
+	eventsSDL/InputHandler.cpp
+	eventsSDL/InputSourceKeyboard.cpp
+	eventsSDL/InputSourceMouse.cpp
+	eventsSDL/InputSourceText.cpp
+	eventsSDL/InputSourceTouch.cpp
 
-		windows/CAdvmapInterface.cpp
-		windows/CCastleInterface.cpp
-		windows/CCreatureWindow.cpp
-		windows/CreaturePurchaseCard.cpp
-		windows/CHeroWindow.cpp
-		windows/CKingdomInterface.cpp
-		windows/CQuestLog.cpp
-		windows/CSpellWindow.cpp
-		windows/CTradeWindow.cpp
-		windows/CWindowObject.cpp
-		windows/GUIClasses.cpp
-		windows/InfoWindows.cpp
-		windows/QuickRecruitmentWindow.cpp
+	gui/CGuiHandler.cpp
+	gui/CIntObject.cpp
+	gui/CursorHandler.cpp
+	gui/EventDispatcher.cpp
+	gui/EventsReceiver.cpp
+	gui/InterfaceObjectConfigurable.cpp
+	gui/FramerateManager.cpp
+	gui/ShortcutHandler.cpp
+	gui/WindowHandler.cpp
 
-		mainmenu/CMainMenu.cpp
-		mainmenu/CCampaignScreen.cpp
-		mainmenu/CreditsScreen.cpp
-		mainmenu/CPrologEpilogVideo.cpp
+	lobby/CBonusSelection.cpp
+	lobby/CCampaignInfoScreen.cpp
+	lobby/CLobbyScreen.cpp
+	lobby/CSavingScreen.cpp
+	lobby/CScenarioInfoScreen.cpp
+	lobby/CSelectionBase.cpp
+	lobby/TurnOptionsTab.cpp
+	lobby/OptionsTab.cpp
+	lobby/OptionsTabBase.cpp
+	lobby/RandomMapTab.cpp
+	lobby/SelectionTab.cpp
 
-		lobby/CBonusSelection.cpp
-		lobby/CSelectionBase.cpp
-		lobby/CLobbyScreen.cpp
-		lobby/CSavingScreen.cpp
-		lobby/CScenarioInfoScreen.cpp
-		lobby/CCampaignInfoScreen.cpp
-		lobby/OptionsTab.cpp
-		lobby/RandomMapTab.cpp
-		lobby/SelectionTab.cpp
+	mainmenu/CCampaignScreen.cpp
+	mainmenu/CMainMenu.cpp
+	mainmenu/CPrologEpilogVideo.cpp
+	mainmenu/CreditsScreen.cpp
+	mainmenu/CHighScoreScreen.cpp
 
-		CBitmapHandler.cpp
-		CreatureCostBox.cpp
-		CGameInfo.cpp
-		Client.cpp
-		CMessage.cpp
-		CMT.cpp
-		CMusicHandler.cpp
-		CPlayerInterface.cpp
-		CVideoHandler.cpp
-		CServerHandler.cpp
-		Graphics.cpp
-		mapHandler.cpp
-		NetPacksClient.cpp
-		NetPacksLobbyClient.cpp
-		SDLRWwrapper.cpp
+	mapView/MapRenderer.cpp
+	mapView/MapRendererContext.cpp
+	mapView/MapRendererContextState.cpp
+	mapView/MapView.cpp
+	mapView/MapViewActions.cpp
+	mapView/MapViewCache.cpp
+	mapView/MapViewController.cpp
+	mapView/MapViewModel.cpp
+	mapView/mapHandler.cpp
+
+	render/CAnimation.cpp
+	render/CBitmapHandler.cpp
+	render/CDefFile.cpp
+	render/Canvas.cpp
+	render/ColorFilter.cpp
+	render/Colors.cpp
+	render/Graphics.cpp
+	render/IFont.cpp
+
+	renderSDL/CBitmapFont.cpp
+	renderSDL/CBitmapHanFont.cpp
+	renderSDL/CTrueTypeFont.cpp
+	renderSDL/CursorHardware.cpp
+	renderSDL/CursorSoftware.cpp
+	renderSDL/RenderHandler.cpp
+	renderSDL/SDLImage.cpp
+	renderSDL/SDLImageLoader.cpp
+	renderSDL/SDLRWwrapper.cpp
+	renderSDL/ScreenHandler.cpp
+	renderSDL/SDL_Extensions.cpp
+
+	widgets/Buttons.cpp
+	widgets/CAltar.cpp
+	widgets/CArtifactHolder.cpp
+	widgets/CComponent.cpp
+	widgets/CExchangeController.cpp
+	widgets/CGarrisonInt.cpp
+	widgets/CreatureCostBox.cpp
+	widgets/ComboBox.cpp
+	widgets/CTradeBase.cpp
+	widgets/Images.cpp
+	widgets/MiscWidgets.cpp
+	widgets/ObjectLists.cpp
+	widgets/TextControls.cpp
+	widgets/Scrollable.cpp
+	widgets/Slider.cpp
+	widgets/CArtifactsOfHeroBase.cpp
+	widgets/CArtifactsOfHeroMain.cpp
+	widgets/CArtifactsOfHeroKingdom.cpp
+	widgets/CArtifactsOfHeroAltar.cpp
+	widgets/CArtifactsOfHeroMarket.cpp
+	widgets/CArtifactsOfHeroBackpack.cpp
+	widgets/CWindowWithArtifacts.cpp
+	widgets/RadialMenu.cpp
+
+	windows/CAltarWindow.cpp
+	windows/CCastleInterface.cpp
+	windows/CCreatureWindow.cpp
+	windows/CHeroOverview.cpp
+	windows/CHeroWindow.cpp
+	windows/CKingdomInterface.cpp
+	windows/CMapOverview.cpp
+	windows/CMessage.cpp
+	windows/CPuzzleWindow.cpp
+	windows/CQuestLog.cpp
+	windows/CSpellWindow.cpp
+	windows/CTradeWindow.cpp
+	windows/CTutorialWindow.cpp
+	windows/CWindowObject.cpp
+	windows/CreaturePurchaseCard.cpp
+	windows/GUIClasses.cpp
+	windows/InfoWindows.cpp
+	windows/QuickRecruitmentWindow.cpp
+	windows/CHeroBackpackWindow.cpp
+	windows/settings/GeneralOptionsTab.cpp
+	windows/settings/OtherOptionsTab.cpp
+	windows/settings/SettingsMainWindow.cpp
+	windows/settings/BattleOptionsTab.cpp
+	windows/settings/AdventureOptionsTab.cpp
+
+	CGameInfo.cpp
+	CMT.cpp
+	CMusicHandler.cpp
+	CPlayerInterface.cpp
+	PlayerLocalState.cpp
+	CServerHandler.cpp
+	CVideoHandler.cpp
+	Client.cpp
+	ClientCommandManager.cpp
+	HeroMovementController.cpp
+	NetPacksClient.cpp
+	NetPacksLobbyClient.cpp
 )
 
 set(client_HEADERS
-		StdInc.h
+	StdInc.h
 
-		battle/CBattleAnimations.h
-		battle/CBattleInterfaceClasses.h
-		battle/CBattleInterface.h
-		battle/CCreatureAnimation.h
+	adventureMap/AdventureMapInterface.h
+	adventureMap/AdventureMapShortcuts.h
+	adventureMap/AdventureMapWidget.h
+	adventureMap/AdventureState.h
+	adventureMap/AdventureOptions.h
+	adventureMap/CInGameConsole.h
+	adventureMap/CInfoBar.h
+	adventureMap/CList.h
+	adventureMap/CMinimap.h
+	adventureMap/CResDataBar.h
+	adventureMap/MapAudioPlayer.h
+	adventureMap/TurnTimerWidget.h
 
-		gui/CAnimation.h
-		gui/CCursorHandler.h
-		gui/CGuiHandler.h
-		gui/CIntObject.h
-		gui/Fonts.h
-		gui/Geometries.h
-		gui/SDL_Compat.h
-		gui/SDL_Extensions.h
-		gui/SDL_Pixels.h
-		gui/NotificationHandler.h
+	battle/BattleActionsController.h
+	battle/BattleAnimationClasses.h
+	battle/BattleConstants.h
+	battle/BattleEffectsController.h
+	battle/BattleFieldController.h
+	battle/BattleInterface.h
+	battle/BattleInterfaceClasses.h
+	battle/BattleObstacleController.h
+	battle/BattleProjectileController.h
+	battle/BattleRenderer.h
+	battle/BattleSiegeController.h
+	battle/BattleStacksController.h
+	battle/BattleWindow.h
+	battle/CreatureAnimation.h
 
-		widgets/AdventureMapClasses.h
-		widgets/Buttons.h
-		widgets/CArtifactHolder.h
-		widgets/CComponent.h
-		widgets/CGarrisonInt.h
-		widgets/Images.h
-		widgets/MiscWidgets.h
-		widgets/ObjectLists.h
-		widgets/TextControls.h
-		windows/CAdvmapInterface.h
-		windows/CCastleInterface.h
-		windows/CCreatureWindow.h
-		windows/CreaturePurchaseCard.h
-		windows/CHeroWindow.h
-		windows/CKingdomInterface.h
-		windows/CQuestLog.h
-		windows/CSpellWindow.h
-		windows/CTradeWindow.h
-		windows/CWindowObject.h
-		windows/GUIClasses.h
-		windows/InfoWindows.h
-		windows/QuickRecruitmentWindow.h
+	eventsSDL/NotificationHandler.h
+	eventsSDL/InputHandler.h
+	eventsSDL/InputSourceKeyboard.h
+	eventsSDL/InputSourceMouse.h
+	eventsSDL/InputSourceText.h
+	eventsSDL/InputSourceTouch.h
 
-		mainmenu/CMainMenu.h
-		mainmenu/CCampaignScreen.h
-		mainmenu/CreditsScreen.h
-		mainmenu/CPrologEpilogVideo.h
+	gui/CGuiHandler.h
+	gui/CIntObject.h
+	gui/CursorHandler.h
+	gui/EventDispatcher.h
+	gui/EventsReceiver.h
+	gui/InterfaceObjectConfigurable.h
+	gui/FramerateManager.h
+	gui/MouseButton.h
+	gui/Shortcut.h
+	gui/ShortcutHandler.h
+	gui/TextAlignment.h
+	gui/WindowHandler.h
 
-		lobby/CBonusSelection.h
-		lobby/CSelectionBase.h
-		lobby/CLobbyScreen.h
-		lobby/CSavingScreen.h
-		lobby/CScenarioInfoScreen.h
-		lobby/CCampaignInfoScreen.h
-		lobby/OptionsTab.h
-		lobby/RandomMapTab.h
-		lobby/SelectionTab.h
+	lobby/CBonusSelection.h
+	lobby/CCampaignInfoScreen.h
+	lobby/CLobbyScreen.h
+	lobby/CSavingScreen.h
+	lobby/CScenarioInfoScreen.h
+	lobby/CSelectionBase.h
+	lobby/TurnOptionsTab.h
+	lobby/OptionsTab.h
+	lobby/OptionsTabBase.h
+	lobby/RandomMapTab.h
+	lobby/SelectionTab.h
 
-		CBitmapHandler.h
-		CreatureCostBox.h
-		CGameInfo.h
-		Client.h
-		CMessage.h
-		CMT.h
-		CMusicHandler.h
-		CPlayerInterface.h
-		CVideoHandler.h
-		CServerHandler.h
-		Graphics.h
-		mapHandler.h
-		resource.h
-		SDLRWwrapper.h
+	mainmenu/CCampaignScreen.h
+	mainmenu/CMainMenu.h
+	mainmenu/CPrologEpilogVideo.h
+	mainmenu/CreditsScreen.h
+	mainmenu/CHighScoreScreen.h
+
+	mapView/IMapRendererContext.h
+	mapView/IMapRendererObserver.h
+	mapView/MapRenderer.h
+	mapView/MapRendererContext.h
+	mapView/MapRendererContextState.h
+	mapView/MapView.h
+	mapView/MapViewActions.h
+	mapView/MapViewCache.h
+	mapView/MapViewController.h
+	mapView/MapViewModel.h
+	mapView/mapHandler.h
+
+	render/CAnimation.h
+	render/CBitmapHandler.h
+	render/CDefFile.h
+	render/Canvas.h
+	render/ColorFilter.h
+	render/Colors.h
+	render/EFont.h
+	render/Graphics.h
+	render/ICursor.h
+	render/IFont.h
+	render/IImage.h
+	render/IImageLoader.h
+	render/IRenderHandler.h
+	render/IScreenHandler.h
+
+	renderSDL/CBitmapFont.h
+	renderSDL/CBitmapHanFont.h
+	renderSDL/CTrueTypeFont.h
+	renderSDL/CursorHardware.h
+	renderSDL/CursorSoftware.h
+	renderSDL/RenderHandler.h
+	renderSDL/SDLImage.h
+	renderSDL/SDLImageLoader.h
+	renderSDL/SDLRWwrapper.h
+	renderSDL/ScreenHandler.h
+	renderSDL/SDL_Extensions.h
+	renderSDL/SDL_PixelAccess.h
+
+	widgets/Buttons.h
+	widgets/CAltar.h
+	widgets/CArtifactHolder.h
+	widgets/CComponent.h
+	widgets/CExchangeController.h
+	widgets/CGarrisonInt.h
+	widgets/CreatureCostBox.h
+	widgets/ComboBox.h
+	widgets/CTradeBase.h
+	widgets/Images.h
+	widgets/MiscWidgets.h
+	widgets/ObjectLists.h
+	widgets/TextControls.h
+	widgets/Scrollable.h
+	widgets/Slider.h
+	widgets/CArtifactsOfHeroBase.h
+	widgets/CArtifactsOfHeroMain.h
+	widgets/CArtifactsOfHeroKingdom.h
+	widgets/CArtifactsOfHeroAltar.h
+	widgets/CArtifactsOfHeroMarket.h
+	widgets/CArtifactsOfHeroBackpack.h
+	widgets/CWindowWithArtifacts.h
+	widgets/RadialMenu.h
+
+	windows/CAltarWindow.h
+	windows/CCastleInterface.h
+	windows/CCreatureWindow.h
+	windows/CHeroOverview.h
+	windows/CHeroWindow.h
+	windows/CKingdomInterface.h
+	windows/CMessage.h
+	windows/CMapOverview.h
+	windows/CPuzzleWindow.h
+	windows/CQuestLog.h
+	windows/CSpellWindow.h
+	windows/CTradeWindow.h
+	windows/CTutorialWindow.h
+	windows/CWindowObject.h
+	windows/CreaturePurchaseCard.h
+	windows/GUIClasses.h
+	windows/InfoWindows.h
+	windows/QuickRecruitmentWindow.h
+	windows/CHeroBackpackWindow.h
+	windows/settings/GeneralOptionsTab.h
+	windows/settings/OtherOptionsTab.h
+	windows/settings/SettingsMainWindow.h
+	windows/settings/BattleOptionsTab.h
+	windows/settings/AdventureOptionsTab.h
+
+	CGameInfo.h
+	CMT.h
+	CMusicHandler.h
+	CPlayerInterface.h
+	PlayerLocalState.h
+	CServerHandler.h
+	CVideoHandler.h
+	Client.h
+	ClientCommandManager.h
+	ClientNetPackVisitors.h
+	HeroMovementController.h
+	LobbyClientNetPackVisitors.h
+	resource.h
 )
 
 if(APPLE_IOS)
@@ -163,21 +348,24 @@ endif()
 
 assign_source_group(${client_SRCS} ${client_HEADERS} VCMI_client.rc)
 
-if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
-	return()
-endif()
-
-if(WIN32)
-	set(client_ICON "VCMI_client.rc")
-endif()
-
-if(ENABLE_DEBUG_CONSOLE)
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} ${client_ICON})
+if(ANDROID)
+	add_library(vcmiclient SHARED ${client_SRCS} ${client_HEADERS})
 else()
-	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
-endif(ENABLE_DEBUG_CONSOLE)
+	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
+endif()
 
-add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
+add_dependencies(vcmiclient vcmiserver)
+if(NOT ENABLE_STATIC_AI_LIBS)
+	add_dependencies(vcmiclient
+		BattleAI
+		EmptyAI
+		StupidAI
+		VCAI
+	)
+	if(ENABLE_NULLKILLER_AI)
+		add_dependencies(vcmiclient Nullkiller)
+	endif()
+endif()
 if(APPLE_IOS)
 	if(ENABLE_ERM)
 		add_dependencies(vcmiclient vcmiERM)
@@ -188,6 +376,7 @@ if(APPLE_IOS)
 endif()
 
 if(WIN32)
+	target_sources(vcmiclient PRIVATE "VCMI_client.rc")
 	set_target_properties(vcmiclient
 		PROPERTIES
 			OUTPUT_NAME "VCMI_client"
@@ -195,16 +384,17 @@ if(WIN32)
 	)
 	set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vcmiclient)
 	if(NOT ENABLE_DEBUG_CONSOLE)
+		set_target_properties(vcmiclient PROPERTIES WIN32_EXECUTABLE)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 
-	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
+# TODO: very hacky, find proper solution to copy AI dlls into bin dir
 	if(MSVC)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
 			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
-			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb.dll tbb.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb12.dll tbb12.dll
 		)
 	endif()
 elseif(APPLE_IOS)
@@ -234,8 +424,7 @@ elseif(APPLE_IOS)
 		set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 		# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
-		# add max version condition when https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7562 is merged
-		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0")
+		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0" AND CMAKE_VERSION VERSION_LESS "3.25.0")
 			set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES LANGUAGE CXX)
 		endif()
 	endforeach()
@@ -243,7 +432,7 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(BUILD_SINGLE_APP)
+if(ENABLE_SINGLE_APP_BUILD)
 	target_link_libraries(vcmiclient PRIVATE vcmiserver)
 	if(ENABLE_LAUNCHER)
 		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
@@ -261,8 +450,15 @@ else()
 	target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
 endif()
 
-target_include_directories(vcmiclient
-	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(vcmiclient PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+if (ffmpeg_INCLUDE_DIRS)
+	target_include_directories(vcmiclient PRIVATE
+		${ffmpeg_INCLUDE_DIRS}
+	)
+endif()
 
 vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)
@@ -277,16 +473,29 @@ if(APPLE_IOS)
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
+elseif(ANDROID)
+	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
+	add_custom_command(TARGET vcmiclient POST_BUILD
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main"
+	)
+	install(TARGETS vcmiclient DESTINATION ${LIB_DIR})
 else()
 	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
 endif()
 
 #install icons and desktop file on Linux
-if(NOT WIN32 AND NOT APPLE)
+if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
 	#FIXME: move to client makefile?
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.16x16.png"     DESTINATION share/icons/hicolor/16x16/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.22x22.png"     DESTINATION share/icons/hicolor/22x22/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"     DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"     DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"     DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.128x128.png"   DESTINATION share/icons/hicolor/128x128/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png"   DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.512x512.png"   DESTINATION share/icons/hicolor/512x512/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.1024x1024.png" DESTINATION share/icons/hicolor/1024x1024/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.2048x2048.png" DESTINATION share/icons/hicolor/2048x2048/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.svg"           DESTINATION share/icons/hicolor/scalable/apps RENAME vcmiclient.svg)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"       DESTINATION share/applications)
 endif()

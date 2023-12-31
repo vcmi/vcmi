@@ -12,6 +12,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CHeroHandler.h"
+#include "../../../lib/GameSettings.h"
 
 namespace NKAI
 {
@@ -70,18 +71,24 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
-	auto heroSpecial = Selector::source(Bonus::HERO_SPECIAL, hero->type->ID.getNum());
-	auto secondarySkillBonus = Selector::type()(Bonus::SECONDARY_SKILL_PREMY);
+	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, BonusSourceID(hero->type->getId()));
+	auto secondarySkillBonus = Selector::targetSourceType()(BonusSource::SECONDARY_SKILL);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus));
+	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(BonusSource::SECONDARY_SKILL));
 	float specialityScore = 0.0f;
 
-	for(auto bonus : *specialSecondarySkillBonuses)
+	for(auto bonus : *secondarySkillBonuses)
 	{
-		SecondarySkill bonusSkill = SecondarySkill(bonus->subtype);
-		float bonusScore = wariorSkillsScores.evaluateSecSkill(hero, bonusSkill);
+		auto hasBonus = !!specialSecondarySkillBonuses->getFirst(Selector::typeSubtype(bonus->type, bonus->subtype));
 
-		if(bonusScore > 0)
-			specialityScore += bonusScore * bonusScore * bonusScore;
+		if(hasBonus)
+		{
+			SecondarySkill bonusSkill = bonus->sid.as<SecondarySkill>();
+			float bonusScore = wariorSkillsScores.evaluateSecSkill(hero, bonusSkill);
+
+			if(bonusScore > 0)
+				specialityScore += bonusScore * bonusScore * bonusScore;
+		}
 	}
 
 	return specialityScore;
@@ -90,37 +97,6 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 {
 	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->level * 1.5f;
-}
-
-std::vector<std::vector<const CGHeroInstance *>> clusterizeHeroes(CCallback * cb, std::vector<const CGHeroInstance *> heroes)
-{
-	std::vector<std::vector<const CGHeroInstance *>> clusters;
-
-	for(auto hero : heroes)
-	{
-		auto paths = cb->getPathsInfo(hero);
-		std::vector<const CGHeroInstance *> newCluster = {hero};
-
-		for(auto cluster = clusters.begin(); cluster != clusters.end();)
-		{
-			auto hero = std::find_if(cluster->begin(), cluster->end(), [&](const CGHeroInstance * h) -> bool
-			{
-				return paths->getNode(h->visitablePos())->turns < SCOUT_TURN_DISTANCE_LIMIT;
-			});
-
-			if(hero != cluster->end())
-			{
-				vstd::concatenate(newCluster, *cluster);
-				clusters.erase(cluster);
-			}
-			else
-				cluster++;
-		}
-
-		clusters.push_back(newCluster);
-	}
-
-	return clusters;
 }
 
 void HeroManager::update()
@@ -140,39 +116,25 @@ void HeroManager::update()
 		return scores.at(h1) > scores.at(h2);
 	};
 
-	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 100 + 1);
+	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 50 + 1);
+
+	//vstd::amin(globalMainCount, 1 + (cb->getTownsInfo().size() / 3));
+	if(cb->getTownsInfo().size() < 4 && globalMainCount > 2)
+	{
+		globalMainCount = 2;
+	}
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
+	heroRoles.clear();
 
 	for(auto hero : myHeroes)
 	{
 		heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
 	}
 
-	for(auto cluster : clusterizeHeroes(cb, myHeroes))
-	{
-		std::sort(cluster.begin(), cluster.end(), scoreSort);
-
-		auto localMainCountMax = (cluster.size() + 2) / 3;
-
-		for(auto hero : cluster)
-		{
-			if(heroRoles[hero] != HeroRole::MAIN)
-			{
-				heroRoles[hero] = HeroRole::MAIN;
-				break;
-			}
-			
-			localMainCountMax--;
-
-			if(localMainCountMax == 0)
-				break;
-		}
-	}
-
 	for(auto hero : myHeroes)
 	{
-		logAi->trace("Hero %s has role %s", hero->name, heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
+		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
 	}
 }
 
@@ -219,6 +181,115 @@ float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 	return evaluateFightingStrength(hero);
 }
 
+bool HeroManager::heroCapReached() const
+{
+	const bool includeGarnisoned = true;
+	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
+
+	return heroCount >= ALLOWED_ROAMING_HEROES
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
+}
+
+float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
+{
+	auto hasFly = hero->spellbookContainsSpell(SpellID::FLY);
+	auto hasTownPortal = hero->spellbookContainsSpell(SpellID::TOWN_PORTAL);
+	auto manaLimit = hero->manaLimit();
+	auto spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	auto hasEarth = hero->getSpellSchoolLevel(SpellID(SpellID::TOWN_PORTAL).toSpell()) > 0;
+
+	auto score = 0.0f;
+
+	for(auto spellId : hero->getSpellsInSpellbook())
+	{
+		auto spell = spellId.toSpell();
+		auto schoolLevel = hero->getSpellSchoolLevel(spell);
+
+		score += (spell->getLevel() + 1) * (schoolLevel + 1) * 0.05f;
+	}
+
+	vstd::amin(score, 1);
+
+	score *= std::min(1.0f, spellPower / 10.0f);
+
+	if(hasFly)
+		score += 0.3f;
+
+	if(hasTownPortal && hasEarth)
+		score += 0.6f;
+
+	vstd::amin(score, 1);
+
+	score *= std::min(1.0f, manaLimit / 100.0f);
+
+	return std::min(score, 1.0f);
+}
+
+bool HeroManager::canRecruitHero(const CGTownInstance * town) const
+{
+	if(!town)
+		town = findTownWithTavern();
+
+	if(!town || !townHasFreeTavern(town))
+		return false;
+
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
+		return false;
+
+	if(heroCapReached())
+		return false;
+
+	if(!cb->getAvailableHeroes(town).size())
+		return false;
+
+	return true;
+}
+
+const CGTownInstance * HeroManager::findTownWithTavern() const
+{
+	for(const CGTownInstance * t : cb->getTownsInfo())
+		if(townHasFreeTavern(t))
+			return t;
+
+	return nullptr;
+}
+
+const CGHeroInstance * HeroManager::findHeroWithGrail() const
+{
+	for(const CGHeroInstance * h : cb->getHeroesInfo())
+	{
+		if(h->hasArt(ArtifactID::GRAIL))
+			return h;
+	}
+	return nullptr;
+}
+
+const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) const
+{
+	const CGHeroInstance * weakestHero = nullptr;
+	auto myHeroes = ai->cb->getHeroesInfo();
+
+	for(auto existingHero : myHeroes)
+	{
+		if(ai->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
+			|| existingHero->getArmyStrength() >armyLimit
+			|| getHeroRole(existingHero) == HeroRole::MAIN
+			|| existingHero->movementPointsRemaining()
+			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
+		{
+			continue;
+		}
+
+		if(!weakestHero || weakestHero->getFightingStrength() > existingHero->getFightingStrength())
+		{
+			weakestHero = existingHero;
+		}
+	}
+
+	return weakestHero;
+}
+
 SecondarySkillScoreMap::SecondarySkillScoreMap(std::map<SecondarySkill, float> scoreMap)
 	:scoreMap(scoreMap)
 {
@@ -243,7 +314,7 @@ void ExistingSkillRule::evaluateScore(const CGHeroInstance * hero, SecondarySkil
 		if(heroSkill.first == skill)
 			return;
 
-		upgradesLeft += SecSkillLevel::EXPERT - heroSkill.second;
+		upgradesLeft += MasteryLevel::EXPERT - heroSkill.second;
 	}
 
 	if(score >= 2 || (score >= 1 && upgradesLeft <= 1))
@@ -257,7 +328,7 @@ void WisdomRule::evaluateScore(const CGHeroInstance * hero, SecondarySkill skill
 
 	auto wisdomLevel = hero->getSecSkillLevel(SecondarySkill::WISDOM);
 
-	if(hero->level > 10 && wisdomLevel == SecSkillLevel::NONE)
+	if(hero->level > 10 && wisdomLevel == MasteryLevel::NONE)
 		score += 1.5;
 }
 
@@ -275,7 +346,7 @@ void AtLeastOneMagicRule::evaluateScore(const CGHeroInstance * hero, SecondarySk
 	
 	bool heroHasAnyMagic = vstd::contains_if(magicSchools, [&](SecondarySkill skill) -> bool
 	{
-		return hero->getSecSkillLevel(skill) > SecSkillLevel::NONE;
+		return hero->getSecSkillLevel(skill) > MasteryLevel::NONE;
 	});
 
 	if(!heroHasAnyMagic)

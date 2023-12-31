@@ -10,6 +10,7 @@
 #pragma once
 #include <QMainWindow>
 #include <QStringList>
+#include <QTranslator>
 
 namespace Ui
 {
@@ -19,22 +20,52 @@ const QString appName = "VCMI Launcher";
 }
 
 class QTableWidgetItem;
+class CModList;
+class CModListView;
 
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
+#ifdef ENABLE_QT_TRANSLATIONS
+	QTranslator translator;
+#endif
 private:
 	Ui::MainWindow * ui;
 	void load();
-#ifndef Q_OS_IOS
-	void startExecutable(QString name);
-#endif
+	
+	enum TabRows
+	{
+		MODS = 0,
+		SETTINGS = 1,
+		LOBBY = 2,
+		SETUP = 3,
+		ABOUT = 4,
+	};
 
+	void changeEvent(QEvent *event) override;
 public:
-	explicit MainWindow(QWidget * parent = 0);
-	~MainWindow();
+	explicit MainWindow(QWidget * parent = nullptr);
+	~MainWindow() override;
 
-private slots:
+	const CModList & getModList() const;
+	CModListView * getModView();
+
+	void updateTranslation();
+	void computeSidePanelSizes();
+	
+	void detectPreferredLanguage();
+	void enterSetup();
+	void exitSetup();
+	void switchToModsTab();
+
+public slots:
 	void on_startGameButton_clicked();
+	
+private slots:
+	void on_modslistButton_clicked();
+	void on_settingsButton_clicked();
+	void on_lobbyButton_clicked();
+	void on_startEditorButton_clicked();
+	void on_aboutButton_clicked();
 };

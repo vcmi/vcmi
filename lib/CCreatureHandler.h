@@ -9,17 +9,19 @@
  */
 #pragma once
 
-#include <vcmi/Creature.h>
-#include <vcmi/CreatureService.h>
-
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
-#include "Terrain.h"
+#include "Color.h"
+#include "filesystem/ResourcePath.h"
+
+#include <vcmi/Creature.h>
+#include <vcmi/CreatureService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,115 +32,100 @@ class JsonSerializeFormat;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
-public:
+	friend class CCreatureHandler;
+	std::string modScope;
 	std::string identifier;
 
-	std::string nameRef; // reference name, stringID
-	std::string nameSing;// singular name, e.g. Centaur
-	std::string namePl;  // plural name, e.g. Centaurs
-
-	std::string abilityText; //description of abilities
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
 
 	CreatureID idNumber;
-	TFaction faction;
-	ui8 level; // 0 - unknown; 1-7 for "usual" creatures
+
+	FactionID faction = FactionID::NEUTRAL;
+	ui8 level = 0; // 0 - unknown; 1-7 for "usual" creatures
 
 	//stats that are not handled by bonus system
 	ui32 fightValue, AIValue, growth, hordeGrowth;
-	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
 
-	bool doubleWide;
-	bool special; // Creature is not available normally (war machines, commanders, several unused creatures, etc
+	bool doubleWide = false;
 
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
+
+public:
+	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
+
+	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
+
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
-	std::string animDefName; // creature animation used during battles
-	std::string advMapDef; //for new creatures only, image for adventure map
-	si32 iconIndex; // index of icon in files like twcrport
+	AnimationPath animDefName; // creature animation used during battles
 
+	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
 	std::string smallIconName;
 	std::string largeIconName;
 
+	enum class CreatureQuantityId
+	{
+		FEW = 1,
+		SEVERAL,
+		PACK,
+		LOTS,
+		HORDE,
+		THRONG,
+		SWARM,
+		ZOUNDS,
+		LEGION
+	};
+
 	struct CreatureAnimation
 	{
+		struct RayColor {
+			ColorRGBA start;
+			ColorRGBA end;
+		};
+
 		double timeBetweenFidgets, idleAnimationTime,
-			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+			   walkAnimationTime, attackAnimationTime;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
 		std::vector<double> missleFrameAngles;
-		int troopCountLocationOffset, attackClimaxFrame;
+		int attackClimaxFrame;
 
-		std::string projectileImageName;
-		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
+		AnimationPath projectileImageName;
+		std::vector<RayColor> projectileRay;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & timeBetweenFidgets;
-			h & idleAnimationTime;
-			h & walkAnimationTime;
-			h & attackAnimationTime;
-			h & flightAnimationDistance;
-			h & upperRightMissleOffsetX;
-			h & rightMissleOffsetX;
-			h & lowerRightMissleOffsetX;
-			h & upperRightMissleOffsetY;
-			h & rightMissleOffsetY;
-			h & lowerRightMissleOffsetY;
-			h & missleFrameAngles;
-			h & troopCountLocationOffset;
-			h & attackClimaxFrame;
-			h & projectileImageName;
-		}
 	} animation;
 
 	//sound info
 	struct CreatureBattleSounds
 	{
-		std::string attack;
-		std::string defend;
-		std::string killed; // was killed or died
-		std::string move;
-		std::string shoot; // range attack
-		std::string wince; // attacked but did not die
-		std::string startMoving;
-		std::string endMoving;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & attack;
-			h & defend;
-			h & killed;
-			h & move;
-			h & shoot;
-			h & wince;
-			h & startMoving;
-			h & endMoving;
-		}
+		AudioPath attack;
+		AudioPath defend;
+		AudioPath killed; // was killed or died
+		AudioPath move;
+		AudioPath shoot; // range attack
+		AudioPath wince; // attacked but did not die
+		AudioPath startMoving;
+		AudioPath endMoving;
 	} sounds;
 
 	ArtifactID warMachine;
 
-	bool isItNativeTerrain(TerrainId terrain) const;
-	/**
-	Returns creature native terrain considering some terrain bonuses.
-	@param considerBonus is used to avoid Dead Lock when this method is called inside getAllBonuses
-	considerBonus = true is called from Pathfinder and fills actual nativeTerrain considering bonus(es).
-	considerBonus = false is called on Battle init and returns already prepared nativeTerrain without Bonus system calling.
-	*/
-	TerrainId getNativeTerrain() const;
+	std::string getNamePluralTranslated() const override;
+	std::string getNameSingularTranslated() const override;
+
+	std::string getNamePluralTextID() const override;
+	std::string getNameSingularTextID() const override;
+
+	FactionID getFaction() const override;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
-	virtual const IBonusBearer * accessBonuses() const override;
-	const std::string & getPluralName() const override;
-	const std::string & getSingularName() const override;
-	uint32_t getMaxHealth() const override;
+	virtual const IBonusBearer * getBonusBearer() const override;
 
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;
@@ -147,7 +134,6 @@ public:
 	int32_t getLevel() const override;
 	int32_t getGrowth() const override;
 	int32_t getHorde() const override;
-	int32_t getFactionIndex() const override;
 
 	int32_t getBaseAttack() const override;
 	int32_t getBaseDefense() const override;
@@ -158,19 +144,23 @@ public:
 	int32_t getBaseSpeed() const override;
 	int32_t getBaseShots() const override;
 
-	int32_t getCost(int32_t resIndex) const override;
+	int32_t getRecruitCost(GameResID resIndex) const override;
+	TResources getFullRecruitCost() const override;
 	bool isDoubleWide() const override; //returns true if unit is double wide on battlefield
+	bool hasUpgrades() const override;
 
 	bool isGood () const;
 	bool isEvil () const;
-	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
-	static int getQuantityID(const int & quantity); //1 - a few, 2 - several, 3 - pack, 4 - lots, 5 - horde, 6 - throng, 7 - swarm, 8 - zounds, 9 - legion
+	si32 maxAmount(const TResources &res) const; //how many creatures can be bought
+	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
+	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
 	bool valid() const;
 
-	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
+	void addBonus(int val, BonusType type);
+	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;
 
 	template<typename RanGen>
@@ -185,70 +175,34 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & namePl;
-		h & nameSing;
-		h & nameRef;
-		h & cost;
-		h & upgrades;
-		h & fightValue;
-		h & AIValue;
-		h & growth;
-		h & hordeGrowth;
-		h & ammMin;
-		h & ammMax;
-		h & level;
-		h & abilityText;
-		h & animDefName;
-		h & advMapDef;
-		h & iconIndex;
-		h & smallIconName;
-		h & largeIconName;
-
-		h & idNumber;
-		h & faction;
-		h & sounds;
-		h & animation;
-
-		h & doubleWide;
-		h & special;
-		h & identifier;
-		h & warMachine;
-	}
-
 	CCreature();
 
 private:
-	void fillWarMachine();
+	static const std::map<CreatureQuantityId, std::string> creatureQuantityRanges;
 };
 
 class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>
 {
 private:
-	CBonusSystemNode allCreatures;
-	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
-
-	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics);
-	void loadStackExperience(CCreature * creature, const JsonNode &input);
-	void loadCreatureJson(CCreature * creature, const JsonNode & config);
+	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics) const;
+	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
+	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
 
 	/// adding abilities from ZCRTRAIT.TXT
-	void loadBonuses(JsonNode & creature, std::string bonuses);
+	void loadBonuses(JsonNode & creature, std::string bonuses) const;
 	/// load all creatures from H3 files
 	void load();
 	void loadCommanders();
 	/// load creature from json structure
 	void load(std::string creatureID, const JsonNode & node);
 	/// read cranim.txt file from H3
-	void loadAnimationInfo(std::vector<JsonNode> & h3Data);
+	void loadAnimationInfo(std::vector<JsonNode> & h3Data) const;
 	/// read one line from cranim.txt
-	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser &parser);
+	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser & parser) const;
 	/// parse crexpbon.txt file from H3
-	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
+	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser) const;
 	/// help function for parsing CREXPBON.txt
-	int stringToNumber(std::string & s);
+	int stringToNumber(std::string & s) const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
@@ -269,41 +223,21 @@ public:
 
 	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
 
-	void deserializationFix();
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
-	void addBonusForTier(int tier, const std::shared_ptr<Bonus> & b); //tier must be <1-7>
-	void addBonusForAllCreatures(const std::shared_ptr<Bonus> & b); //due to CBonusSystem::addNewBonus(const std::shared_ptr<Bonus>& b);
-	void removeBonusesFromAllCreatures();
 
 	CCreatureHandler();
 	~CCreatureHandler();
 
-	/// load all creatures from H3 files
-	void loadCrExpBon();
-	/// generates tier-specific bonus tree entries
-	void buildBonusTreeForTiers();
+	/// load all stack experience bonuses from H3 files
+	void loadCrExpBon(CBonusSystemNode & globalEffects);
+
+	/// load all stack modifier bonuses from H3 files. TODO: move this to json
+	void loadCrExpMod();
 
 	void afterLoadFinalization() override;
 
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & doubledCreatures;
-		h & objects;
-		h & expRanks;
-		h & maxExpPerBattle;
-		h & expAfterUpgrade;
-		h & skillLevels;
-		h & skillRequirements;
-		h & commanderLevelPremy;
-		h & allCreatures;
-		h & creaturesOfLevel;
-		BONUS_TREE_DESERIALIZATION_FIX
-	}
 };
 
 VCMI_LIB_NAMESPACE_END

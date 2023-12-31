@@ -20,16 +20,15 @@ namespace events
 
 SubscriptionRegistry<PlayerGotTurn> * PlayerGotTurn::getRegistry()
 {
-	static std::unique_ptr<SubscriptionRegistry<PlayerGotTurn>> Instance = make_unique<SubscriptionRegistry<PlayerGotTurn>>();
+	static std::unique_ptr<SubscriptionRegistry<PlayerGotTurn>> Instance = std::make_unique<SubscriptionRegistry<PlayerGotTurn>>();
 	return Instance.get();
 }
 
-void PlayerGotTurn::defaultExecute(const EventBus * bus, const ExecHandler & execHandler, PlayerColor & player)
+void PlayerGotTurn::defaultExecute(const EventBus * bus, const PlayerColor & player)
 {
 	CPlayerGotTurn event;
 	event.setPlayer(player);
-	bus->executeEvent(event, execHandler);
-	player = event.getPlayer();
+	bus->executeEvent(event);
 }
 
 CPlayerGotTurn::CPlayerGotTurn() = default;

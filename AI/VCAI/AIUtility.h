@@ -15,19 +15,17 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
-#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/CPathfinder.h"
 #include "../../CCallback.h"
 
+class VCAI;
 class CCallback;
 struct creInfo;
 
-typedef const int3 & crint3;
-typedef const std::string & crstring;
-typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
+using crint3 = const int3 &;
+using crstring = const std::string &;
+using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
-const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
 const int ALLOWED_ROAMING_HEROES = 8;
 
@@ -35,7 +33,8 @@ const int ALLOWED_ROAMING_HEROES = 8;
 extern const double SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
 
-extern boost::thread_specific_ptr<CCallback> cb;
+extern thread_local CCallback * cb;
+extern thread_local VCAI * ai;
 
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
@@ -142,7 +141,7 @@ class ObjsVector : public std::vector<ObjectIdRef>
 {
 };
 
-template<int id>
+template<Obj::Type id>
 bool objWithID(const CGObjectInstance * obj)
 {
 	return obj->ID == id;
@@ -152,7 +151,7 @@ struct creInfo
 {
 	int count;
 	CreatureID creID;
-	CCreature * cre;
+	const Creature * cre;
 	int level;
 };
 creInfo infoFromDC(const dwellingContent & dc);
@@ -194,7 +193,7 @@ void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retriev
 template<class Func>
 void foreach_neighbour(const int3 & pos, const Func & foo)
 {
-	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
+	CCallback * cbp = cb; // avoid costly retrieval of thread-specific pointer
 	for(const int3 & dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;

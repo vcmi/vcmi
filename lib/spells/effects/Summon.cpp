@@ -13,38 +13,22 @@
 #include "Registry.h"
 
 #include "../ISpellMechanics.h"
+#include "../../MetaString.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../battle/BattleInfo.h"
 #include "../../battle/Unit.h"
-#include "../../NetPacks.h"
 #include "../../serializer/JsonSerializeFormat.h"
-
 #include "../../CCreatureHandler.h"
 #include "../../CHeroHandler.h"
 #include "../../mapObjects/CGHeroInstance.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-
-static const std::string EFFECT_NAME = "core:summon";
 
 namespace spells
 {
 namespace effects
 {
-
-VCMI_REGISTER_SPELL_EFFECT(Summon, EFFECT_NAME);
-
-Summon::Summon()
-	: Effect(),
-	creature(),
-	permanent(false),
-	exclusive(true),
-	summonByHealth(false),
-	summonSameUnit(false)
-{
-}
-
-Summon::~Summon() = default;
 
 void Summon::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
 {
@@ -58,6 +42,12 @@ void Summon::adjustTargetTypes(std::vector<TargetType> & types) const
 
 bool Summon::applicable(Problem & problem, const Mechanics * m) const
 {
+	if (creature == CreatureID::NONE)
+	{
+		logMod->error("Attempt to summon non-existing creature!");
+		return m->adaptGenericProblem(problem);
+	}
+
 	if(exclusive)
 	{
 		//check if there are summoned creatures of other type
@@ -72,22 +62,22 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 
 		if(!otherSummoned.empty())
 		{
-			auto elemental = otherSummoned.front();
+			const auto *elemental = otherSummoned.front();
 
 			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 538);
+			text.appendLocalString(EMetaText::GENERAL_TXT, 538);
 
-			auto caster = dynamic_cast<const CGHeroInstance *>(m->caster);
+			const auto *caster = dynamic_cast<const CGHeroInstance *>(m->caster);
 			if(caster)
 			{
-				text.addReplacement(caster->name);
+				text.replaceRawString(caster->getNameTranslated());
 
-				text.addReplacement(MetaString::CRE_PL_NAMES, elemental->creatureIndex());
+				text.replaceNamePlural(elemental->creatureId());
 
-				if(caster->type->sex)
-					text.addReplacement(MetaString::GENERAL_TXT, 540);
+				if(caster->type->gender == EHeroGender::FEMALE)
+					text.replaceLocalString(EMetaText::GENERAL_TXT, 540);
 				else
-					text.addReplacement(MetaString::GENERAL_TXT, 539);
+					text.replaceLocalString(EMetaText::GENERAL_TXT, 539);
 
 			}
 			problem.add(std::move(text), Problem::NORMAL);
@@ -104,14 +94,15 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));//TODO: consider use base power too
 
 	BattleUnitsChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
-	for(auto & dest : target)
+	for(const auto & dest : target)
 	{
 		if(dest.unitValue)
 		{
 			const battle::Unit * summoned = dest.unitValue;
 			std::shared_ptr<battle::Unit> state = summoned->acquire();
-			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->MaxHealth()));
+			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->getMaxHealth()));
 			state->heal(healthValue, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 			pack.changedStacks.emplace_back(summoned->unitId(), UnitChanges::EOperation::RESET_STATE);
 			state->save(pack.changedStacks.back().data);
@@ -122,7 +113,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 			if(summonByHealth)
 			{
-				auto creatureType = creature.toCreature(m->creatures());
+				const auto *creatureType = creature.toEntity(m->creatures());
 				auto creatureMaxHealth = creatureType->getMaxHealth();
 				amount = static_cast<int32_t>(valueWithBonus / creatureMaxHealth);
 			}

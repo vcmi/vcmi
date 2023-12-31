@@ -94,7 +94,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 	if(target.empty())
 		return false;
 
-	for(auto & dest : target)
+	for(const auto & dest : target)
 	{
 		JsonNode targetData;
 		targetData.Vector().push_back(JsonUtils::intNode(dest.hexValue.hex));
@@ -137,7 +137,7 @@ void LuaSpellEffect::apply(ServerCallback * server, const Mechanics * m, const E
 
 	JsonNode requestP;
 
-	for(auto & dest : target)
+	for(const auto & dest : target)
 	{
 		JsonNode targetData;
 		targetData.Vector().push_back(JsonUtils::intNode(dest.hexValue.hex));
@@ -176,7 +176,7 @@ std::shared_ptr<Context> LuaSpellEffect::resolveScript(const Mechanics * m) cons
 	return m->battle()->getContextPool()->getContext(script);
 }
 
-void LuaSpellEffect::setContextVariables(const Mechanics * m, std::shared_ptr<Context> context) const
+void LuaSpellEffect::setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context) 
 {
 	context->setGlobal("effectLevel", m->getEffectLevel());
 	context->setGlobal("effectRangeLevel", m->getRangeLevel());

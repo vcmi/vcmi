@@ -11,40 +11,33 @@
 
 #include "Damage.h"
 #include "Registry.h"
+#include "../CSpellHandler.h"
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
+#include "../../MetaString.h"
 #include "../../CStack.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../CGeneralTextHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include <vcmi/spells/Spell.h>
 
-static const std::string EFFECT_NAME = "core:damage";
+VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells
 {
 namespace effects
 {
 
-VCMI_REGISTER_SPELL_EFFECT(Damage, EFFECT_NAME);
-
-Damage::Damage()
-	: UnitEffect(),
-	customEffectId(-1),
-	killByPercentage(false),
-	killByCount(false)
-{
-}
-
-Damage::~Damage() = default;
-
 void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	StacksInjured stacksInjured;
 	BattleLogMessage blm;
+	stacksInjured.battleID = m->battle()->getBattle()->getBattleID();
+	blm.battleID = m->battle()->getBattle()->getBattleID();
+
 	size_t targetIndex = 0;
 	const battle::Unit * firstTarget = nullptr;
 	const bool describe = server->describeChanges();
@@ -53,12 +46,13 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	uint32_t killed = 0;
 	bool multiple = false;
 
-	for(auto & t : target)
+	for(const auto & t : target)
 	{
 		const battle::Unit * unit = t.unitValue;
 		if(unit && unit->alive())
 		{
 			BattleStackAttacked bsa;
+			bsa.battleID = m->battle()->getBattle()->getBattleID();
 			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
 			bsa.stackAttacked = unit->unitId();
 			bsa.attackerID = -1;
@@ -74,12 +68,6 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 				damageToDisplay += bsa.damageAmount;
 				killed += bsa.killedAmount;
 			}
-			if(customEffectId >= 0)
-			{
-				bsa.effect = 82;
-				bsa.flags |= BattleStackAttacked::EFFECT;
-			}
-
 			stacksInjured.stacks.push_back(bsa);
 		}
 		targetIndex++;
@@ -102,21 +90,18 @@ bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 	if(!UnitEffect::isReceptive(m, unit))
 		return false;
 
+	bool isImmune = m->getSpell()->isMagical() && (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(SpellSchool::ANY)) >= 100); //General spell damage immunity
 	//elemental immunity for damage
-	auto filter = m->getElementalImmunity();
-
-	for(auto element : filter)
+	m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop)
 	{
-		if(!m->isPositiveSpell() && unit->hasBonusOfType(element, 2))
-			return false;
-	}
+		isImmune |= (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, BonusSubtypeID(cnf)) >= 100); //100% reduction is immunity
+	});
 
-	return true;
+	return !isImmune;
 }
 
 void Damage::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
-	handler.serializeInt("customEffectId", customEffectId, -1);
 	handler.serializeBool("killByPercentage", killByPercentage);
 	handler.serializeBool("killByCount", killByCount);
 }
@@ -128,11 +113,11 @@ int64_t Damage::damageForTarget(size_t targetIndex, const Mechanics * m, const b
 	if(killByPercentage)
 	{
 		int64_t amountToKill = target->getCount() * m->getEffectValue() / 100;
-		baseDamage = amountToKill * target->MaxHealth();
+		baseDamage = amountToKill * target->getMaxHealth();
 	}
 	else if(killByCount)
 	{
-		baseDamage = m->getEffectValue() * target->MaxHealth();
+		baseDamage = m->getEffectValue() * target->getMaxHealth();
 	}
 	else
 	{
@@ -141,8 +126,8 @@ int64_t Damage::damageForTarget(size_t targetIndex, const Mechanics * m, const b
 
 	if(chainLength > 1 && targetIndex > 0)
 	{
-		double indexedFactor = std::pow(chainFactor, (double) targetIndex);
-		return (int64_t) (indexedFactor * baseDamage);
+		double indexedFactor = std::pow(chainFactor, static_cast<double>(targetIndex));
+		return static_cast<int64_t>(indexedFactor * baseDamage);
 	}
 
 	return baseDamage;
@@ -155,13 +140,13 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		MetaString line;
 		if(kills > 1)
 		{
-			line.addTxt(MetaString::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
-			line.addReplacement(kills);
+			line.appendLocalString(EMetaText::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
+			line.replaceNumber(kills);
 			firstTarget->addNameReplacement(line, true);
 		}
 		else
 		{
-			line.addTxt(MetaString::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
+			line.appendLocalString(EMetaText::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
 			firstTarget->addNameReplacement(line, false);
 		}
 		m->caster->getCasterName(line);
@@ -171,7 +156,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			firstTarget->addText(line, MetaString::GENERAL_TXT, -367, true);
+			firstTarget->addText(line, EMetaText::GENERAL_TXT, -367, true);
 			firstTarget->addNameReplacement(line, true);
 			log.push_back(line);
 		}
@@ -179,10 +164,10 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		{
 			MetaString line;
 			//todo: handle newlines in metastring
-			std::string text = VLC->generaltexth->allTexts.at(343); //Does %d points of damage.
+			std::string text = VLC->generaltexth->allTexts[343]; //Does %d points of damage.
 			boost::algorithm::trim(text);
-			line << text;
-			line.addReplacement((int)damage); //no more text afterwards
+			line.appendRawString(text);
+			line.replaceNumber(static_cast<int>(damage)); //no more text afterwards
 			log.push_back(line);
 		}
 	}
@@ -190,32 +175,32 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			line.addTxt(MetaString::GENERAL_TXT, 376);
-			line.addReplacement(MetaString::SPELL_NAME, m->getSpellIndex());
-			line.addReplacement((int)damage);
+			line.appendLocalString(EMetaText::GENERAL_TXT, 376); // Spell %s does %d damage
+			line.replaceName(m->getSpellId());
+			line.replaceNumber(static_cast<int>(damage));
 
 			log.push_back(line);
 		}
 
+		if (kills > 0)
 		{
 			MetaString line;
-			const int textId = (kills > 1) ? 379 : 378;
-			line.addTxt(MetaString::GENERAL_TXT, textId);
-
-			if(kills > 1)
-				line.addReplacement(kills);
 
 			if(kills > 1)
 			{
+				line.appendLocalString(EMetaText::GENERAL_TXT, 379); // %d %s perishes
+				line.replaceNumber(kills);
+
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 43);
+					line.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				else
 					firstTarget->addNameReplacement(line, true);
 			}
-			else
+			else // single creature killed
 			{
+				line.appendLocalString(EMetaText::GENERAL_TXT, 378); // one %s perishes
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 42);
+					line.replaceLocalString(EMetaText::GENERAL_TXT, 42); // creature
 				else
 					firstTarget->addNameReplacement(line, false);
 			}

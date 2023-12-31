@@ -11,7 +11,6 @@
 #pragma once
 
 #include "SpecialAction.h"
-#include "../../../../lib/CGameState.h"
 
 namespace NKAI
 {

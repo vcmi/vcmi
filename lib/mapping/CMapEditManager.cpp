@@ -10,12 +10,9 @@
 #include "StdInc.h"
 #include "CMapEditManager.h"
 
-
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../VCMI_Lib.h"
 #include "CDrawRoadsOperation.h"
-#include "../mapping/CMap.h"
 #include "CMapOperation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,6 +22,8 @@ CMapUndoManager::CMapUndoManager() :
 	undoCallback([](bool, bool) {})
 {
 }
+
+CMapUndoManager::~CMapUndoManager() = default;
 
 void CMapUndoManager::undo()
 {
@@ -106,7 +105,7 @@ void CMapUndoManager::onUndoRedo()
 
 void CMapUndoManager::setUndoCallback(std::function<void(bool, bool)> functor)
 {
-	undoCallback = functor;
+	undoCallback = std::move(functor);
 	onUndoRedo(); //inform immediately
 }
 
@@ -123,60 +122,58 @@ CMap * CMapEditManager::getMap()
 
 void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 {
-	execute(make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::drawTerrain(TerrainId terType, CRandomGenerator * gen)
+void CMapEditManager::drawTerrain(TerrainId terType, int decorationsPercentage, CRandomGenerator * gen)
 {
-	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CDrawTerrainOperation>(map, terrainSel, terType, decorationsPercentage, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
 
 void CMapEditManager::drawRoad(RoadId roadType, CRandomGenerator* gen)
 {
-	execute(make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
 
 void CMapEditManager::drawRiver(RiverId riverType, CRandomGenerator* gen)
 {
-	execute(make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
+	execute(std::make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
 
-
-
 void CMapEditManager::insertObject(CGObjectInstance * obj)
 {
-	execute(make_unique<CInsertObjectOperation>(map, obj));
+	execute(std::make_unique<CInsertObjectOperation>(map, obj));
 }
 
 void CMapEditManager::insertObjects(std::set<CGObjectInstance*>& objects)
 {
-	auto composedOperation = make_unique<CComposedOperation>(map);
-	for (auto obj : objects)
+	auto composedOperation = std::make_unique<CComposedOperation>(map);
+	for(auto * obj : objects)
 	{
-		composedOperation->addOperation(make_unique<CInsertObjectOperation>(map, obj));
+		composedOperation->addOperation(std::make_unique<CInsertObjectOperation>(map, obj));
 	}
 	execute(std::move(composedOperation));
 }
 
 void CMapEditManager::moveObject(CGObjectInstance * obj, const int3 & pos)
 {
-	execute(make_unique<CMoveObjectOperation>(map, obj, pos));
+	execute(std::make_unique<CMoveObjectOperation>(map, obj, pos));
 }
 
 void CMapEditManager::removeObject(CGObjectInstance * obj)
 {
-	execute(make_unique<CRemoveObjectOperation>(map, obj));
+	execute(std::make_unique<CRemoveObjectOperation>(map, obj));
 }
 
 void CMapEditManager::removeObjects(std::set<CGObjectInstance*> & objects)
 {
-	auto composedOperation = make_unique<CComposedOperation>(map);
-	for (auto obj : objects)
+	auto composedOperation = std::make_unique<CComposedOperation>(map);
+	for(auto * obj : objects)
 	{
-		composedOperation->addOperation(make_unique<CRemoveObjectOperation>(map, obj));
+		composedOperation->addOperation(std::make_unique<CRemoveObjectOperation>(map, obj));
 	}
 	execute(std::move(composedOperation));
 }

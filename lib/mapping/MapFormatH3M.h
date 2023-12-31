@@ -11,17 +11,13 @@
 #pragma once
 
 #include "CMapService.h"
-#include "../GameConstants.h"
-#include "../ResourceSet.h"
-#include "../mapObjects/ObjectTemplate.h"
-
-#include "../int3.h"
-
-#include "../filesystem/CBinaryReader.h"
+#include "MapFeaturesH3M.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
+class MapReaderH3M;
+class MetaString;
 class CArtifactInstance;
 class CGObjectInstance;
 class CGSeerHut;
@@ -29,7 +25,15 @@ class IQuestObject;
 class CGTownInstance;
 class CCreatureSet;
 class CInputStream;
+class TextIdentifier;
+class CGPandoraBox;
 
+class ObjectInstanceID;
+class BuildingID;
+class ObjectTemplate;
+class SpellID;
+class PlayerColor;
+class int3;
 
 class DLL_LINKAGE CMapLoaderH3M : public IMapLoader
 {
@@ -39,7 +43,7 @@ public:
 	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderH3M(CInputStream * stream);
+	CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream);
 
 	/**
 	 * Destructor.
@@ -59,9 +63,6 @@ public:
 	 * @return a unique ptr of the loaded map header class
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
-
-	/** true if you want to enable the map loader profiler to see how long a specific part took; default=false */
-	static const bool IS_PROFILING_ENABLED;
 
 private:
 	/**
@@ -88,6 +89,11 @@ private:
 	 * Reads team information.
 	 */
 	void readTeamInfo();
+
+	/**
+	 * Reads the list of map flags.
+	 */
+	void readMapOptions();
 
 	/**
 	 * Reads the list of allowed heroes.
@@ -143,12 +149,40 @@ private:
 	/**
 	 * Reads custom(map) def information.
 	 */
-	void readDefInfo();
+	void readObjectTemplates();
 
 	/**
 	 * Reads objects(towns, mines,...).
 	 */
 	void readObjects();
+
+	/// Reads single object from input stream based on template
+	CGObjectInstance * readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+
+	CGObjectInstance * readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readSeerHut(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readSign(const int3 & position);
+	CGObjectInstance * readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readGarrison(const int3 & mapPosition);
+	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
+	CGObjectInstance * readDwelling(const int3 & position);
+	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readHeroPlaceholder(const int3 & position);
+	CGObjectInstance * readGrail(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	CGObjectInstance * readQuestGuard(const int3 & position);
+	CGObjectInstance * readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readLighthouse(const int3 & mapPosition);
+	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
 	/**
 	 * Reads a creature set.
@@ -159,44 +193,20 @@ private:
 	void readCreatureSet(CCreatureSet * out, int number);
 
 	/**
-	 * Reads a hero.
+	 * Reads a quest for the given quest guard.
 	 *
-	 * @param idToBeGiven the object id which should be set for the hero
-	 * @return a object instance
+	 * @param guard the quest guard where that quest should be applied to
 	 */
-	CGObjectInstance * readHero(ObjectInstanceID idToBeGiven, const int3 & initialPos);
-
-	/**
-	 * Reads a seer hut.
-	 *
-	 * @return the initialized seer hut object
-	 */
-	CGSeerHut * readSeerHut();
+	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/**
 	 * Reads a quest for the given quest guard.
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	void readQuest(IQuestObject * guard);
+	int readQuest(IQuestObject * guard, const int3 & position);
 
-	/**
-	 * Reads a town.
-	 *
-	 * @param castleID the id of the castle type
-	 * @return the loaded town object
-	 */
-	CGTownInstance * readTown(int castleID);
-
-	/**
-	 * Converts buildings to the specified castle id.
-	 *
-	 * @param h3m the ids of the buildings
-	 * @param castleID the castle id
-	 * @param addAuxiliary true if the village hall should be added
-	 * @return the converted buildings
-	 */
-	std::set<BuildingID> convertBuildings(const std::set<BuildingID> h3m, int castleID, bool addAuxiliary = true);
+	void readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/**
 	 * Reads events.
@@ -206,44 +216,19 @@ private:
 	/**
 	* read optional message and optional guards
 	*/
-	void readMessageAndGuards(std::string& message, CCreatureSet * guards);
+	void readMessageAndGuards(MetaString & message, CCreatureSet * guards, const int3 & position);
 
-	void readSpells(std::set<SpellID> & dest);
+	/// reads string from input stream and converts it to unicode
+	std::string readBasicString();
 
-	void readResourses(TResources& resources);
+	/// reads string from input stream, converts it to unicode and attempts to translate it
+	std::string readLocalizedString(const TextIdentifier & identifier);
 
-	template <class Indenifier>
-	void readBitmask(std::set<Indenifier> &dest, const int byteCount, const int limit, bool negate = true);
-
-	/** Reads bitmask to boolean vector
-	* @param dest destination vector, shall be filed with "true" values
-	* @param byteCount size in bytes of bimask
-	* @param limit max count of vector elements to alter
-	* @param negate if true then set bit in mask means clear flag in vertor
-	*/
-	void readBitmask(std::vector<bool> & dest, const int byteCount, const int limit, bool negate = true);
-
-	/**
-	 * Reverses the input argument.
-	 *
-	 * @param arg the input argument
-	 * @return the reversed 8-bit integer
-	 */
-	ui8 reverse(ui8 arg);
-
-	/**
-	* Helper to read map position
-	*/
-	inline int3 readInt3()
-	{
-		int3 p;
-		p.x = reader.readUInt8();
-		p.y = reader.readUInt8();
-		p.z = reader.readUInt8();
-		return p;
-	}
+	void setOwnerAndValidate(const int3 & mapPosition, CGObjectInstance * object, const PlayerColor & owner);
 
 	void afterRead();
+
+	MapFormatFeaturesH3M features;
 
 	/** List of templates loaded from the map, used on later stage to create
 	 *  objects but not needed for fully functional CMap */
@@ -257,9 +242,12 @@ private:
 	 * (when loading a map then the mapHeader ptr points to the same object)
 	 */
 	std::unique_ptr<CMapHeader> mapHeader;
-
-	CBinaryReader reader;
+	std::unique_ptr<MapReaderH3M> reader;
 	CInputStream * inputStream;
+
+	std::string mapName;
+	std::string modName;
+	std::string fileEncoding;
 
 };
 

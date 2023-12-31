@@ -14,60 +14,95 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 
-#include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
-#include "CommonConstructors.h"
+#include "../GameSettings.h"
+#include "../CPlayerState.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../networkPacks/Component.h"
+#include "../networkPacks/PacksForClient.h"
+#include "../networkPacks/PacksForClientBattle.h"
+#include "../MetaString.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///helpers
-static std::string & visitedTxt(const bool visited)
+static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
 	return VLC->generaltexth->allTexts[id];
 }
 
-CBank::CBank()
-{
-	daycounter = 0;
-	resetDuration = 0;
-}
-
-CBank::~CBank()
-{
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+CBank::CBank() = default;
+//must be instantiated in .cpp file for access to complete types of all member fields
+CBank::~CBank() = default;
 
 void CBank::initObj(CRandomGenerator & rand)
 {
 	daycounter = 0;
 	resetDuration = 0;
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, rand);
+}
+
+bool CBank::isCoastVisitable() const
+{
+	return coastVisitable;
 }
 
 std::string CBank::getHoverText(PlayerColor player) const
 {
-	// TODO: record visited players
-	return getObjectName() + " " + visitedTxt(bc == nullptr);
+	if (!wasVisited(player))
+		return getObjectName();
+
+	return getObjectName() + "\n" + visitedTxt(bc == nullptr);
+}
+
+std::vector<Component> CBank::getPopupComponents(PlayerColor player) const
+{
+	if (!wasVisited(player))
+		return {};
+
+	if (!VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
+		return {};
+
+	if (bc == nullptr)
+		return {};
+
+	std::map<CreatureID, int> guardsAmounts;
+	std::vector<Component> result;
+
+	for (auto const & slot : Slots())
+		if (slot.second)
+			guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
+
+	for (auto const & guard : guardsAmounts)
+	{
+		Component comp(ComponentType::CREATURE, guard.first, guard.second);
+		result.push_back(comp);
+	}
+	return result;
 }
 
 void CBank::setConfig(const BankConfig & config)
 {
-	bc.reset(new BankConfig(config));
-	clear(); // remove all stacks, if any
+	bc = std::make_unique<BankConfig>(config);
+	clearSlots(); // remove all stacks, if any
 
-	for (auto & stack : config.guards)
-		setCreature (SlotID(stacksCount()), stack.type->idNumber, stack.count);
+	for(const auto & stack : config.guards)
+		setCreature (SlotID(stacksCount()), stack.type->getId(), stack.count);
 }
 
-void CBank::setPropertyDer (ui8 what, ui32 val)
+void CBank::setPropertyDer (ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
 		case ObjProperty::BANK_DAYCOUNTER: //daycounter
-				daycounter+=val;
+				daycounter+= identifier.getNum();
 			break;
 		case ObjProperty::BANK_RESET:
 			// FIXME: Object reset must be done by separate netpack from server
@@ -87,22 +122,25 @@ void CBank::newTurn(CRandomGenerator & rand) const
 		if (resetDuration != 0)
 		{
 			if (daycounter >= resetDuration)
-				cb->setObjProperty (id, ObjProperty::BANK_RESET, 0); //daycounter 0
+				cb->setObjPropertyValue(id, ObjProperty::BANK_RESET); //daycounter 0
 			else
-				cb->setObjProperty (id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
+				cb->setObjPropertyValue(id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
 		}
 	}
 }
 
 bool CBank::wasVisited (PlayerColor player) const
 {
-	return !bc; //FIXME: player A should not know about visit done by player B
+	return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
 }
 
 void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+	cb->sendAndApply(&cov);
+
 	int banktext = 0;
-	switch (ID)
+	switch (ID.toEnum())
 	{
 	case Obj::DERELICT_SHIP:
 		banktext = 41;
@@ -127,9 +165,11 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	BlockingDialog bd(true, false);
 	bd.player = h->getOwner();
 	bd.soundID = soundBase::invalid; // Sound is handled in json files, else two sounds are played
-	bd.text.addTxt(MetaString::ADVOB_TXT, banktext);
+	bd.text.appendLocalString(EMetaText::ADVOB_TXT, banktext);
+	bd.components = getPopupComponents(h->getOwner());
 	if (banktext == 32)
-		bd.text.addReplacement(getObjectName());
+		bd.text.replaceRawString(getObjectName());
+
 	cb->showBlockingDialog(&bd);
 }
 
@@ -137,12 +177,13 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 {
 	int textID = -1;
 	InfoWindow iw;
+	iw.type = EInfoWindowMode::AUTO;
 	iw.player = hero->getOwner();
 	MetaString loot;
 
 	if (bc)
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::DERELICT_SHIP:
 			textID = 43;
@@ -165,58 +206,58 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	}
 	else
 	{
-		switch (ID)
+		switch (ID.toEnum())
 		{
 		case Obj::SHIPWRECK:
 		case Obj::DERELICT_SHIP:
 		case Obj::CRYPT:
 		{
 			GiveBonus gbonus;
-			gbonus.id = hero->id.getNum();
-			gbonus.bonus.duration = Bonus::ONE_BATTLE;
-			gbonus.bonus.source = Bonus::OBJECT;
-			gbonus.bonus.sid = ID;
-			gbonus.bonus.type = Bonus::MORALE;
+			gbonus.id = hero->id;
+			gbonus.bonus.duration = BonusDuration::ONE_BATTLE;
+			gbonus.bonus.source = BonusSource::OBJECT_TYPE;
+			gbonus.bonus.sid = BonusSourceID(ID);
+			gbonus.bonus.type = BonusType::MORALE;
 			gbonus.bonus.val = -1;
-			switch (ID)
+			switch (ID.toEnum())
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
-				gbonus.bdescr << VLC->generaltexth->arraytxt[99];
+				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[99]);
 				break;
 			case Obj::DERELICT_SHIP:
 				textID = 42;
-				gbonus.bdescr << VLC->generaltexth->arraytxt[101];
+				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[101]);
 				break;
 			case Obj::CRYPT:
 				textID = 120;
-				gbonus.bdescr << VLC->generaltexth->arraytxt[98];
+				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[98]);
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
-			iw.components.push_back(Component(Component::MORALE, 0, -1, 0));
+			iw.components.emplace_back(ComponentType::MORALE, -1);
 			iw.soundID = soundBase::GRAVEYARD;
 			break;
 		}
 		case Obj::PYRAMID:
 		{
 			GiveBonus gb;
-			gb.bonus = Bonus(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::OBJECT, -2, id.getNum(), VLC->generaltexth->arraytxt[70]);
-			gb.id = hero->id.getNum();
+			gb.bonus = Bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, -2, BonusSourceID(id), VLC->generaltexth->arraytxt[70]);
+			gb.id = hero->id;
 			cb->giveHeroBonus(&gb);
 			textID = 107;
-			iw.components.push_back(Component(Component::LUCK, 0, -2, 0));
+			iw.components.emplace_back(ComponentType::LUCK, -2);
 			break;
 		}
 		case Obj::CREATURE_BANK:
 		case Obj::DRAGON_UTOPIA:
 		default:
-			iw.text << VLC->generaltexth->advobtxt[33];// This was X, now is completely empty
-			iw.text.addReplacement(getObjectName());
+			iw.text.appendRawString(VLC->generaltexth->advobtxt[33]);// This was X, now is completely empty
+			iw.text.replaceRawString(getObjectName());
 		}
 		if(textID != -1)
 		{
-			iw.text.addTxt(MetaString::ADVOB_TXT, textID);
+			iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID);
 		}
 		cb->showInfoDialog(&iw);
 	}
@@ -225,38 +266,38 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	//grant resources
 	if (bc)
 	{
-		for (int it = 0; it < bc->resources.size(); it++)
+		for (GameResID it : GameResID::ALL_RESOURCES())
 		{
 			if (bc->resources[it] != 0)
 			{
-				iw.components.push_back(Component(Component::RESOURCE, it, bc->resources[it], 0));
-				loot << "%d %s";
-				loot.addReplacement(iw.components.back().val);
-				loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
-				cb->giveResource(hero->getOwner(), static_cast<Res::ERes>(it), bc->resources[it]);
+				iw.components.emplace_back(ComponentType::RESOURCE, it, bc->resources[it]);
+				loot.appendRawString("%d %s");
+				loot.replaceNumber(bc->resources[it]);
+				loot.replaceName(it);
+				cb->giveResource(hero->getOwner(), it, bc->resources[it]);
 			}
 		}
 		//grant artifacts
 		for (auto & elem : bc->artifacts)
 		{
-			iw.components.push_back(Component(Component::ARTIFACT, elem, 0, 0));
-			loot << "%s";
-			loot.addReplacement(MetaString::ART_NAMES, elem);
-			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
+			iw.components.emplace_back(ComponentType::ARTIFACT, elem);
+			loot.appendRawString("%s");
+			loot.replaceName(elem);
+			cb->giveHeroNewArtifact(hero, elem.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
 		{
-			iw.text.addTxt(MetaString::ADVOB_TXT, textID);
+			iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID);
 			if (textID == 34)
 			{
-				const CCreature * strongest = boost::range::max_element(bc->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
+				const auto * strongest = boost::range::max_element(bc->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
 				{
-					return a.type->fightValue < b.type->fightValue;
+					return a.type->getFightValue() < b.type->getFightValue();
 				})->type;
 
-				iw.text.addReplacement(MetaString::CRE_PL_NAMES, strongest->idNumber);
-				iw.text.addReplacement(loot.buildList());
+				iw.text.replaceNamePlural(strongest->getId());
+				iw.text.replaceRawString(loot.buildList());
 			}
 			cb->showInfoDialog(&iw);
 		}
@@ -272,18 +313,18 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			bool noWisdom = false;
 			if(textID == 106)
 			{
-				iw.text.addTxt(MetaString::ADVOB_TXT, textID); //pyramid
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID); //pyramid
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				auto spell = spellId.toSpell(VLC->spells());
-				iw.text.addTxt(MetaString::SPELL_NAME, spellId);
+				const auto * spell = spellId.toEntity(VLC);
+				iw.text.appendName(spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{
 					if(hero->canLearnSpell(spell))
 					{
 						spells.insert(spellId);
-						iw.components.push_back(Component(Component::SPELL, spellId, 0, 0));
+						iw.components.emplace_back(ComponentType::SPELL, spellId);
 					}
 				}
 				else
@@ -291,9 +332,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 
 			if (!hero->getArt(ArtifactPosition::SPELLBOOK))
-				iw.text.addTxt(MetaString::ADVOB_TXT, 109); //no spellbook
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 109); //no spellbook
 			else if(noWisdom)
-				iw.text.addTxt(MetaString::ADVOB_TXT, 108); //no expert Wisdom
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 108); //no expert Wisdom
 
 			if(!iw.components.empty() || !iw.text.toString().empty())
 				cb->showInfoDialog(&iw);
@@ -307,31 +348,31 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 
 		//grant creatures
 		CCreatureSet ourArmy;
-		for (auto slot : bc->creatures)
+		for(const auto & slot : bc->creatures)
 		{
-			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->idNumber), slot.type->idNumber, slot.count);
+			ourArmy.addToSlot(ourArmy.getSlotFor(slot.type->getId()), slot.type->getId(), slot.count);
 		}
 
-		for (auto & elem : ourArmy.Slots())
+		for(const auto & elem : ourArmy.Slots())
 		{
-			iw.components.push_back(Component(*elem.second));
-			loot << "%s";
-			loot.addReplacement(*elem.second);
+			iw.components.emplace_back(ComponentType::CREATURE, elem.second->getId(), elem.second->getCount());
+			loot.appendRawString("%s");
+			loot.replaceName(*elem.second);
 		}
 
 		if(ourArmy.stacksCount())
 		{
 			if(ourArmy.stacksCount() == 1 && ourArmy.Slots().begin()->second->count == 1)
-				iw.text.addTxt(MetaString::ADVOB_TXT, 185);
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 185);
 			else
-				iw.text.addTxt(MetaString::ADVOB_TXT, 186);
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 186);
 
-			iw.text.addReplacement(loot.buildList());
-			iw.text.addReplacement(hero->name);
+			iw.text.replaceRawString(loot.buildList());
+			iw.text.replaceRawString(hero->getNameTranslated());
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, hero, ourArmy, false);
 		}
-		cb->setObjProperty(id, ObjProperty::BANK_CLEAR, 0); //bc = nullptr
+		cb->setObjPropertyValue(id, ObjProperty::BANK_CLEAR); //bc = nullptr
 	}
 }
 

@@ -17,23 +17,28 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleStateInfoForRetreat::BattleStateInfoForRetreat()
-: canFlee(false), canSurrender(false), isLastTurnBeforeDie(false), ourStacks(), enemyStacks(), ourHero(nullptr), enemyHero(nullptr), ourSide(-1)
+BattleStateInfoForRetreat::BattleStateInfoForRetreat():
+	canFlee(false),
+	canSurrender(false),
+	isLastTurnBeforeDie(false),
+	ourHero(nullptr),
+	enemyHero(nullptr),
+	ourSide(-1)
 {
 }
 
-uint64_t getFightingStrength(std::vector<const battle::Unit *> stacks, const CGHeroInstance * hero = nullptr)
+uint64_t getFightingStrength(const std::vector<const battle::Unit *> & stacks, const CGHeroInstance * hero = nullptr)
 {
 	uint64_t result = 0;
 
 	for(const battle::Unit * stack : stacks)
 	{
-		result += stack->creatureId().toCreature()->AIValue * stack->getCount();
+		result += stack->creatureId().toCreature()->getAIValue() * stack->getCount();
 	}
 
 	if(hero)
 	{
-		result = (uint64_t)(result * hero->getFightingStrength());
+		result = static_cast<uint64_t>(result * hero->getFightingStrength());
 	}
 
 	return result;

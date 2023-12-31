@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="?attr/selectableItemBackground"
+    android:minHeight="@dimen/entry_min_height"
+    android:orientation="horizontal">
+
+    <View
+        android:id="@+id/mods_adapter_item_nesting"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/accent" />
+
+    <LinearLayout
+        style="@style/VCMI.Entry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingLeft="@dimen/side_margin"
+        android:paddingTop="5dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/mods_adapter_item_status"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_star_full" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/mods_adapter_item_name"
+                style="@style/VCMI.Text.ModName"
+                android:ellipsize="end"
+                android:lines="1"
+                android:text="mod name, v1.0" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/mods_adapter_item_author"
+                style="@style/VCMI.Text.ModAuthor"
+                android:ellipsize="end"
+                android:lines="1"
+                android:text="by mod author" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/mods_adapter_item_modtype"
+                style="@style/VCMI.Text.ModType"
+                android:layout_width="wrap_content"
+                android:layout_gravity="right"
+                android:text="tools" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/mods_adapter_item_size"
+                style="@style/VCMI.Text.ModSize"
+                android:layout_width="wrap_content"
+                android:layout_gravity="right"
+                android:text="1000 MB" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/mods_adapter_item_btn_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/side_margin"
+            android:src="@android:drawable/stat_sys_download" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/mods_adapter_item_btn_uninstall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/side_margin"
+            android:src="@android:drawable/ic_menu_delete" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/mods_adapter_item_install_progress"
+            android:padding="@dimen/side_margin" />
+
+    </LinearLayout>
+</LinearLayout>

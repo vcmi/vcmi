@@ -50,17 +50,17 @@ BuildingID AIhelper::getMaxPossibleGoldBuilding(const CGTownInstance * t)
 	return buildingManager->getMaxPossibleGoldBuilding(t);
 }
 
-boost::optional<PotentialBuilding> AIhelper::immediateBuilding() const
+std::optional<PotentialBuilding> AIhelper::immediateBuilding() const
 {
 	return buildingManager->immediateBuilding();
 }
 
-boost::optional<PotentialBuilding> AIhelper::expensiveBuilding() const
+std::optional<PotentialBuilding> AIhelper::expensiveBuilding() const
 {
 	return buildingManager->expensiveBuilding();
 }
 
-boost::optional<BuildingID> AIhelper::canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const
+std::optional<BuildingID> AIhelper::canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const
 {
 	return buildingManager->canBuildAnyStructure(t, buildList, maxDays);
 }

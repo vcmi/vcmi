@@ -10,6 +10,9 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../render/EFont.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/networkPacks/Component.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,11 +27,6 @@ class CLabel;
 class CComponent : public virtual CIntObject
 {
 public:
-	enum Etype
-	{
-		primskill, secskill, resource, creature, artifact, experience, spell, morale, luck, building, hero, flag, typeInvalid
-	};
-
 	//NOTE: not all types have exact these sizes or have less than 4 of them. In such cases closest one will be used
 	enum ESize
 	{
@@ -42,29 +40,27 @@ public:
 private:
 	std::vector<std::shared_ptr<CLabel>> lines;
 
-	size_t getIndex();
-	const std::vector<std::string> getFileName();
-	void setSurface(std::string defName, int imgPos);
-	std::string getSubtitleInternal();
+	size_t getIndex() const;
+	std::vector<AnimationPath> getFileName() const;
+	void setSurface(const AnimationPath & defName, int imgPos);
 
-	void init(Etype Type, int Subtype, int Val, ESize imageSize);
+	void init(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val, ESize imageSize, EFonts font, const std::string & ValText);
 
 public:
 	std::shared_ptr<CAnimImage> image;
-
-	Etype compType; //component type
+	Component data;
+	std::string customSubtitle;
 	ESize size; //component size.
-	int subtype; //type-dependant subtype. See getSomething methods for details
-	int val; // value \ strength \ amount of component. See getSomething methods for details
-	bool perDay; // add "per day" text to subtitle
+	EFonts font; //Font size of label
 
-	std::string getDescription();
-	std::string getSubtitle();
+	std::string getDescription() const;
+	std::string getSubtitle() const;
 
-	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);
-	CComponent(const Component &c, ESize imageSize=large);
+	CComponent(ComponentType Type, ComponentSubType Subtype, std::optional<int32_t> Val = std::nullopt, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(ComponentType Type, ComponentSubType Subtype, const std::string & Val, ESize imageSize=large, EFonts font = FONT_SMALL);
+	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
-	void clickRight(tribool down, bool previousState) override; //call-in
+	void showPopupWindow(const Point & cursorPosition) override; //call-in
 };
 
 /// component that can be selected or deselected
@@ -74,12 +70,14 @@ class CSelectableComponent : public CComponent, public CKeyShortcut
 public:
 	bool selected; //if true, this component is selected
 	std::function<void()> onSelect; //function called on selection change
+	std::function<void()> onChoose; //function called on doubleclick
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	void select(bool on);
 
-	void clickLeft(tribool down, bool previousState) override; //call-in
-	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
+	void clickPressed(const Point & cursorPosition) override; //call-in
+	void clickDouble(const Point & cursorPosition) override; //call-in
+	CSelectableComponent(ComponentType Type, ComponentSubType Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
 	CSelectableComponent(const Component & c, std::function<void()> OnSelect = nullptr);
 };
 
@@ -93,6 +91,16 @@ class CComponentBox : public CIntObject
 
 	std::shared_ptr<CSelectableComponent> selected;
 	std::function<void(int newID)> onSelect;
+
+	static constexpr int defaultBetweenImagesMin = 20;
+	static constexpr int defaultBetweenSubtitlesMin = 10;
+	static constexpr int defaultBetweenRows = 22;
+	static constexpr int defaultComponentsInRow = 4;
+
+	int betweenImagesMin;
+	int betweenSubtitlesMin;
+	int betweenRows;
+	int componentsInRow;
 
 	void selectionChanged(std::shared_ptr<CSelectableComponent> newSelection);
 
@@ -108,11 +116,13 @@ public:
 	/// return index of selected item
 	int selectedIndex();
 
-	/// constructor for non-selectable components
+	/// constructors for non-selectable components
 	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position);
+	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows, int componentsInRow);
 
 	/// constructor for selectable components
 	/// will also create "or" labels between components
 	/// onSelect - optional function that will be called every time on selection change
 	CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
+	CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> components, Rect position, std::function<void(int newID)> onSelect, int betweenImagesMin, int betweenSubtitlesMin, int betweenRows, int componentsInRow);
 };

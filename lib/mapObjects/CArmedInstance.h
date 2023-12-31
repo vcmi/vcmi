@@ -9,15 +9,18 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
+#include "CGObjectInstance.h"
 #include "../CCreatureSet.h"
+#include "../bonuses/CBonusProxy.h"
+#include "../bonuses/CBonusSystemNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class BattleInfo;
 class CGameState;
+class JsonSerializeFormat;
 
-class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
+class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet, public IConstBonusProvider
 {
 private:
 	CCheckProxy nonEvilAlignmentMix;
@@ -26,24 +29,28 @@ private:
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
-	void randomizeArmy(int type);
+	void randomizeArmy(FactionID type);
 	virtual void updateMoraleBonusFromArmy();
 
 	void armyChanged() override;
 
 	//////////////////////////////////////////////////////////////////////////
+	//IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
 //	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
-	virtual CBonusSystemNode *whereShouldBeAttached(CGameState *gs);
-	virtual CBonusSystemNode *whatShouldBeAttached();
+	virtual CBonusSystemNode & whereShouldBeAttached(CGameState * gs);
+	virtual CBonusSystemNode & whatShouldBeAttached();
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();
-	CArmedInstance(bool isHypotetic);
+	CArmedInstance(bool isHypothetic);
 
 	PlayerColor getOwner() const override
 	{
 		return this->tempOwner;
 	}
+	
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

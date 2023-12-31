@@ -37,7 +37,20 @@
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.armageddon",
 				"val" : 100
+			},
+			"oppositeEarth" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.earthElemental",
+				"val" : 100
+			},
+			"oppositeMagma" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.magmaElemental",
+				"val" : 100
 			}
+
 		},
 		"upgrades": ["stormElemental"],
 		"graphics" :
@@ -92,6 +105,18 @@
 			{
 				"type" : "SPELL_IMMUNITY",
 				"subtype" : "spell.armageddon"
+			},
+			"oppositeAir" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.airElemental",
+				"val" : 100
+			},
+			"oppositeStorm" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.stormElemental",
+				"val" : 100
 			}
 		},
 		"upgrades": ["magmaElemental"],
@@ -129,8 +154,8 @@
 			},
 			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"frostRingVulnerablity" :
 			{
@@ -142,6 +167,18 @@
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.iceBolt",
+				"val" : 100
+			},
+			"oppositeWater" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.waterElemental",
+				"val" : 100
+			},
+			"oppositeIce" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.iceElemental",
 				"val" : 100
 			}
 		},
@@ -200,7 +237,7 @@
 			"fireWallVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWall",
+				"subtype" : "spell.fireWallTrigger",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
@@ -209,10 +246,27 @@
 				"subtype" : "spell.armageddon",
 				"val" : 100
 			},
-			"immuneToWater" :
+			"immuneToIceBolt" :
 			{
-				"type" : "WATER_IMMUNITY",
-				"subtype" : 2 //immune to damage spells only
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.iceBolt"
+			},
+			"immuneToFrostRing" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.frostRing"
+			},
+			"oppositeFire" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.fireElemental",
+				"val" : 100
+			},
+			"oppositeEnergy" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.energyElemental",
+				"val" : 100
 			}
 		},
 		"doubleWide" : true,
@@ -382,7 +436,7 @@
 			"fireWallVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWall",
+				"subtype" : "spell.fireWallTrigger",
 				"val" : 100
 			},
 			"armageddonVulnerablity" :
@@ -391,10 +445,27 @@
 				"subtype" : "spell.armageddon",
 				"val" : 100
 			},
-			"immuneToWater" :
+			"immuneToIceBolt" :
 			{
-				"type" : "WATER_IMMUNITY",
-				"subtype" : 2 //immune to damage spells only
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.iceBolt"
+			},
+			"immuneToFrostRing" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.frostRing"
+			},
+			"oppositeFire" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.fireElemental",
+				"val" : 100
+			},
+			"oppositeEnergy" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.energyElemental",
+				"val" : 100
 			}
 		},
 		"doubleWide" : true,
@@ -467,6 +538,18 @@
 			{
 				"type" : "SPELL_IMMUNITY",
 				"subtype" : "spell.armageddon"
+			},
+			"oppositeAir" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.airElemental",
+				"val" : 100
+			},
+			"oppositeStorm" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.stormElemental",
+				"val" : 100
 			}
 		},
 		"graphics" :
@@ -535,6 +618,18 @@
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.armageddon",
 				"val" : 100
+			},
+			"oppositeEarth" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.earthElemental",
+				"val" : 100
+			},
+			"oppositeMagma" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.magmaElemental",
+				"val" : 100
 			}
 		},
 		"graphics" :
@@ -576,8 +671,8 @@
 			},
 			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"frostRingVulnerablity" :
 			{
@@ -606,6 +701,18 @@
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.protectFire",
 				"val" : 2
+			},
+			"oppositeWater" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.waterElemental",
+				"val" : 100
+			},
+			"oppositeIce" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.iceElemental",
+				"val" : 100
 			}
 		},
 		"graphics" :
@@ -635,8 +742,8 @@
 		{
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0 //this IS important
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			}
 		},
 		"graphics" :
@@ -666,8 +773,8 @@
 			},
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0 //this IS important
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"rebirth" : 
 			{

@@ -12,7 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<BuildingID> builtBuildings )
+BuildingID CBuildingHandler::campToERMU(int camp, FactionID townType, const std::set<BuildingID> & builtBuildings)
 {
 	static const std::vector<BuildingID> campToERMU = 
 	{
@@ -47,22 +47,26 @@ BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<Buildi
 
 		if (i < 5) // last two levels don't have reserved horde ID. Yet another H3C weirdeness
 		{
-			if (vstd::contains(hordeLvlsPerTType[townType], i))
+			if (vstd::contains(hordeLvlsPerTType[townType.getNum()], i))
 			{
 				if (camp == curPos)
 				{
-					if (hordeLvlsPerTType[townType][0] == i)
+					if (hordeLvlsPerTType[townType.getNum()][0] == i)
 					{
-						if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][0])) //if upgraded dwelling is built
+						BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType.getNum()][0]);
+
+						if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 							return BuildingID::HORDE_1_UPGR;
 						else //upgraded dwelling not presents
 							return BuildingID::HORDE_1;
 					}
 					else
 					{
-						if(hordeLvlsPerTType[townType].size() > 1)
+						if(hordeLvlsPerTType[townType.getNum()].size() > 1)
 						{
-							if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][1])) //if upgraded dwelling is built
+							BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType.getNum()][1]);
+
+							if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 								return BuildingID::HORDE_2_UPGR;
 							else //upgraded dwelling not presents
 								return BuildingID::HORDE_2;

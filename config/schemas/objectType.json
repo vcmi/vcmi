@@ -1,58 +1,74 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object type format",
 	"description" : "Description of map object type, used only as sub-schema of object",
-	"required": [ ],
+	"required" : [ ],
 	"additionalProperties" : true, // may have type-dependant properties
-
-	"properties":{
-		"index": {
-			"type":"number"
+	"properties" : {
+		"index" : {
+			"type" : "number"
 		},
-		"name": {
-			"type":"string"
+		"aiValue" : {
+			"type" : "number"
 		},
-		"aiValue": {
-			"type":"number"
+		"base" : {
+			"additionalProperties" : true, // Not validated on its own - instead data copied to main object and validated as part of it
+			"type" : "object"
 		},
-
-		"sounds": {
-			"type":"object",
+		"rmg" : {
 			"additionalProperties" : false,
-			"description": "Sounds used by this object",
+			"type" : "object",
 			"properties" : {
-				"ambient": {
-					"type":"array",
-					"description": "Background sound of an object",
-					"items": {
-						"type": "string"
-					}
+				"value" : {
+					"type" : "number"
 				},
-				"visit": {
-					"type":"array",
-					"description": "Sound that played on object visit",
-					"items": {
-						"type": "string"
-					}
+				"mapLimit" : {
+					"type" : "number"
 				},
-				"removal": {
-					"type":"array",
-					"description": "Sound that played on object removal",
-					"items": {
-						"type": "string"
-					}
+				"zoneLimit" : {
+					"type" : "number"
+				},
+				"rarity" : {
+					"type" : "number"
 				}
 			}
 		},
-
-		"base": {
-			"type" : "object"
-		},
-		"templates": {
-			"type":"object",
-			"additionalProperties": {
+		"templates" : {
+			"type" : "object",
+			"additionalProperties" : {
 				"$ref" : "objectTemplate.json"
+			}
+		},
+		"sounds" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Sounds used by this object",
+			"properties" : {
+				"ambient" : {
+					"type" : "array",
+					"description" : "Background sound of an object",
+					"items" : {
+						"type" : "string",
+						"format" : "soundFile"
+					}
+				},
+				"visit" : {
+					"type" : "array",
+					"description" : "Sound that played on object visit",
+					"items" : {
+						"type" : "string",
+						"format" : "soundFile"
+					}
+				},
+				"removal" : {
+					"type" : "array",
+					"description" : "Sound that played on object removal",
+					"items" : {
+						"type" : "string",
+						"format" : "soundFile"
+					}
+				}
 			}
 		}
 	}

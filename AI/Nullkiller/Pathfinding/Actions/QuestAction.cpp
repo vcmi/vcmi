@@ -12,13 +12,9 @@
 #include "QuestAction.h"
 #include "../../AIGateway.h"
 #include "../../Goals/CompleteQuest.h"
-#include "../../../../lib/mapping/CMap.h" //for victory conditions
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 namespace AIPathfinding
 {
@@ -29,7 +25,7 @@ namespace AIPathfinding
 			return dynamic_cast<const IQuestObject *>(questInfo.obj)->checkQuest(node->actor->hero);
 		}
 
-		return questInfo.quest->progress == CQuest::NOT_ACTIVE 
+		return questInfo.quest->activeForPlayers.count(node->actor->hero->getOwner())
 			|| questInfo.quest->checkQuest(node->actor->hero);
 	}
 

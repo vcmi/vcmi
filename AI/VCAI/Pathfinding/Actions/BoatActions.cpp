@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "../../Goals/AdventureSpellCast.h"
 #include "../../Goals/BuildBoat.h"
-#include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "BoatActions.h"
 

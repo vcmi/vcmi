@@ -10,10 +10,13 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../gui/SDL_Extensions.h"
+#include "../battle/BattleConstants.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
-struct SDL_Surface;
-struct Rect;
+VCMI_LIB_NAMESPACE_BEGIN
+class Rect;
+VCMI_LIB_NAMESPACE_END
+
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -22,47 +25,61 @@ class IImage;
 // Image class
 class CPicture : public CIntObject
 {
-	void setSurface(SDL_Surface *to);
+	std::shared_ptr<IImage> bg;
+
 public:
-	SDL_Surface * bg;
-	Rect * srcRect; //if nullptr then whole surface will be used
-	bool freeSurf; //whether surface will be freed upon CPicture destruction
-	bool needRefresh;//Surface needs to be displayed each frame
-	bool visible;
-	operator SDL_Surface*()
+	/// if set, only specified section of internal image will be rendered
+	std::optional<Rect> srcRect;
+
+	/// If set to true, iamge will be redrawn on each frame
+	bool needRefresh;
+
+	std::shared_ptr<IImage> getSurface()
 	{
 		return bg;
 	}
 
-	CPicture(const Rect & r, const SDL_Color & color, bool screenFormat = false); //rect filled with given color
-	CPicture(const Rect & r, ui32 color, bool screenFormat = false); //rect filled with given color
-	CPicture(SDL_Surface * BG, int x = 0, int y=0, bool Free = true); //wrap existing SDL_Surface
-	CPicture(const std::string &bmpname, int x=0, int y=0);
-	CPicture(SDL_Surface *BG, const Rect &SrcRext, int x = 0, int y = 0, bool free = false); //wrap subrect of given surface
-	~CPicture();
-	void init();
+	/// wrap existing image
+	CPicture(std::shared_ptr<IImage> image, const Point & position);
 
-	//set alpha value for whole surface. Note: may be messed up if surface is shared
-	// 0=transparent, 255=opaque
-	void setAlpha(int value);
+	/// wrap section of an existing Image
+	CPicture(std::shared_ptr<IImage> image, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
 
+	/// Loads image from specified file name
+	CPicture(const ImagePath & bmpname);
+	CPicture(const ImagePath & bmpname, const Point & position);
+	CPicture(const ImagePath & bmpname, int x, int y);
+
+	/// set alpha value for whole surface. Note: may be messed up if surface is shared
+	/// 0=transparent, 255=opaque
+	void setAlpha(uint8_t value);
 	void scaleTo(Point size);
-	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
-	void convertToScreenBPP();
 	void colorize(PlayerColor player);
+
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 };
 
 /// area filled with specific texture
-class CFilledTexture : CIntObject
+class CFilledTexture : public CIntObject
 {
-	SDL_Surface * texture;
+protected:
+	std::shared_ptr<IImage> texture;
+	Rect imageArea;
 
 public:
-	CFilledTexture(std::string imageName, Rect position);
-	~CFilledTexture();
-	void showAll(SDL_Surface *to) override;
+	CFilledTexture(const ImagePath & imageName, Rect position);
+	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
+
+	void showAll(Canvas & to) override;
+};
+
+class FilledTexturePlayerColored : public CFilledTexture
+{
+public:
+	FilledTexturePlayerColored(const ImagePath & imageName, Rect position);
+
+	void playerColored(PlayerColor player);
 };
 
 /// Class for displaying one image from animation
@@ -73,9 +90,11 @@ private:
 	//displayed frame/group
 	size_t frame;
 	size_t group;
-	PlayerColor player;
 	ui8 flags;
-	const Point scaledSize;
+	Point scaledSize;
+
+	/// If set, then image is colored using player-specific palette
+	std::optional<PlayerColor> player;
 
 	bool isScaled() const;
 	void setSizeFromImage(const IImage &img);
@@ -83,21 +102,28 @@ private:
 public:
 	bool visible;
 
-	CAnimImage(const std::string & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(const AnimationPath & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
 
-	//size of animation
+	/// size of animation
 	size_t size();
 
-	//change displayed frame on this one
+	/// change displayed frame on this one
 	void setFrame(size_t Frame, size_t Group=0);
 
-	//makes image player-colored
+	/// makes image player-colored to specific player
 	void playerColored(PlayerColor player);
 
-	void showAll(SDL_Surface * to) override;
+	/// returns true if image has player-colored effect applied
+	bool isPlayerColored() const;
+
+	void showAll(Canvas & to) override;
+
+	void setAnimationPath(const AnimationPath & name, size_t frame);
+
+	void setScale(Point scale);
 };
 
 /// Base class for displaying animation, used as superclass for different animations
@@ -109,7 +135,6 @@ public:
 		BASE=1,            //base frame will be blitted before current one
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
-		PLAYER_COLORED=16, //TODO: all loaded images will be player-colored
 		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:
@@ -119,14 +144,16 @@ protected:
 
 	size_t first, last; //animation range
 
-	//TODO: replace with time delay(needed for battles)
-	ui32 frameDelay;//delay in frames of each image
-	ui32 value;//how many times current frame was showed
+	/// total time on scren for each frame in animation
+	ui32 frameTimeTotal;
+
+	/// how long was current frame visible on screen
+	ui32 frameTimePassed;
 
 	ui8 flags;//Flags from EFlags enum
 
 	//blit image with optional rotation, fitting into rect, etc
-	void blitImage(size_t frame, size_t group, SDL_Surface *to);
+	void blitImage(size_t frame, size_t group, Canvas & to);
 
 	//For clipping in rect, offsets of picture coordinates
 	int xOffset, yOffset;
@@ -140,7 +167,7 @@ public:
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
 	void setAlpha(ui32 alphaValue);
 
-	CShowableAnim(int x, int y, std::string name, ui8 flags=0, ui32 Delay=4, size_t Group=0);
+	CShowableAnim(int x, int y, const AnimationPath & name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
 	~CShowableAnim();
 
 	//set animation to group or part of group
@@ -156,64 +183,21 @@ public:
 	//set frame to first, call callback
 	virtual void reset();
 
+	//set animation duration
+	void setDuration(int durationMs);
+
 	//show current frame and increase counter
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
+	void tick(uint32_t msPassed) override;
 };
 
 /// Creature-dependend animations like attacking, moving,...
 class CCreatureAnim: public CShowableAnim
 {
-public:
-
-	enum EHeroAnimType
-	{
-		HERO_HOLDING = 0,
-		HERO_IDLE = 1, // idling movement that happens from time to time
-		HERO_DEFEAT = 2, // played when army loses stack or on friendly fire
-		HERO_VICTORY = 3, // when enemy stack killed or huge damage is dealt
-		HERO_CAST_SPELL = 4 // spellcasting
-	};
-
-	enum EAnimType // list of creature animations, numbers were taken from def files
-	{
-		MOVING=0,
-		MOUSEON=1,
-		HOLDING=2,
-		HITTED=3,
-		DEFENCE=4,
-		DEATH=5,
-		DEATH_RANGED=6,
-		TURN_L=7,
-		TURN_R=8, //same
-		//TURN_L2=9, //identical to previous?
-		//TURN_R2=10,
-		ATTACK_UP=11,
-		ATTACK_FRONT=12,
-		ATTACK_DOWN=13,
-		SHOOT_UP=14,
-		SHOOT_FRONT=15,
-		SHOOT_DOWN=16,
-		CAST_UP=17,
-		CAST_FRONT=18,
-		CAST_DOWN=19,
-		MOVE_START=20,
-		MOVE_END=21,
-
-		DEAD = 22, // new group, used to show dead stacks. If empty - last frame from "DEATH" will be copied here
-		DEAD_RANGED = 23, // new group, used to show dead stacks (if DEATH_RANGED was used). If empty - last frame from "DEATH_RANGED" will be copied here
-
-		VCMI_CAST_UP    = 30,
-		VCMI_CAST_FRONT = 31,
-		VCMI_CAST_DOWN  = 32,
-		VCMI_2HEX_UP    = 40,
-		VCMI_2HEX_FRONT = 41,
-		VCMI_2HEX_DOWN  = 42
-	};
-
 private:
 	//queue of animations waiting to be displayed
-	std::queue<EAnimType> queue;
+	std::queue<ECreatureAnimType> queue;
 
 	//this function is used as callback if preview flag was set during construction
 	void loopPreview(bool warMachine);
@@ -223,13 +207,13 @@ public:
 	void reset() override;
 
 	//add sequence to the end of queue
-	void addLast(EAnimType newType);
+	void addLast(ECreatureAnimType newType);
 
 	void startPreview(bool warMachine);
 
 	//clear queue and set animation to this sequence
-	void clearAndSet(EAnimType type);
+	void clearAndSet(ECreatureAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, ui8 flags = 0, EAnimType = HOLDING);
+	CCreatureAnim(int x, int y, const AnimationPath & name, ui8 flags = 0, ECreatureAnimType = ECreatureAnimType::HOLDING);
 
 };

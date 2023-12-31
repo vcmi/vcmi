@@ -9,15 +9,9 @@
  */
 #pragma once
 
-
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
-#include "../lib/NetPacksBase.h"
 #include "gui/CIntObject.h"
-
-#ifdef __GNUC__
-#define sprintf_s snprintf
-#endif
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,12 +31,10 @@ struct CPathsInfo;
 VCMI_LIB_NAMESPACE_END
 
 class CButton;
-class CToggleGroup;
-class CAdvMapInt;
+class AdventureMapInterface;
 class CCastleInterface;
-class CBattleInterface;
+class BattleInterface;
 class CComponent;
-class CCreatureAnimation;
 class CSelectableComponent;
 class CSlider;
 class CInGameConsole;
@@ -53,11 +45,9 @@ class ClickableR;
 class Hoverable;
 class KeyInterested;
 class MotionInterested;
+class PlayerLocalState;
 class TimeInterested;
-class IShowable;
-
-struct SDL_Surface;
-union SDL_Event;
+class HeroMovementController;
 
 namespace boost
 {
@@ -68,186 +58,149 @@ namespace boost
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
-	const CArmedInstance * currentSelection;
+	bool ignoreEvents;
+	size_t numOfMovedArts;
 
-public:
+	// -1 - just loaded game; 1 - just started game; 0 otherwise
+	int firstCall;
+	int autosaveCount;
+
+	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
+
+	std::unique_ptr<HeroMovementController> movementController;
+public: // TODO: make private
 	std::shared_ptr<Environment> env;
-	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
-	int3 destinationTeleportPos;
+
+	std::unique_ptr<PlayerLocalState> localState;
 
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
 
-	static boost::recursive_mutex *pim;
 	bool makingTurn; //if player is already making his turn
-	int firstCall; // -1 - just loaded game; 1 - just started game; 0 otherwise
-	int autosaveCount;
-	static const int SAVES_COUNT = 5;
 
 	CCastleInterface * castleInt; //nullptr if castle window isn't opened
-	static CBattleInterface * battleInt; //nullptr if no battle
+	static std::shared_ptr<BattleInterface> battleInt; //nullptr if no battle
 	CInGameConsole * cingconsole;
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine
-	const BattleAction *curAction; //during the battle - action currently performed by active stack (or nullptr)
-
-	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
-
-	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
-	std::vector<const CGTownInstance *> towns; //our towns on the adventure map
-	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
-	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
 
-	const CArmedInstance * getSelection();
-	void setSelection(const CArmedInstance * obj);
-
-	struct SpellbookLastSetting
-	{
-		int spellbookLastPageBattle, spellbokLastPageAdvmap; //on which page we left spellbook
-		int spellbookLastTabBattle, spellbookLastTabAdvmap; //on which page we left spellbook
-
-		SpellbookLastSetting();
-		template <typename Handler> void serialize( Handler &h, const int version )
-		{
-			h & spellbookLastPageBattle;
-			h & spellbokLastPageAdvmap;
-			h & spellbookLastTabBattle;
-			h & spellbookLastTabAdvmap;
-		}
-	} spellbookSettings;
+protected: // Call-ins from server, should not be called directly, but only via GameInterface
 
 	void update() override;
-	void initializeHeroTownList();
-	int getLastIndex(std::string namePrefix);
+	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 
-	//overridden funcs from CGameInterface
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
-
 	void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) override; //what: 1 - built, 2 - demolished
 
 	void artifactPut(const ArtifactLocation &al) override;
 	void artifactRemoved(const ArtifactLocation &al) override;
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
+	void bulkArtMovementStart(size_t numOfArts) override;
 	void artifactAssembled(const ArtifactLocation &al) override;
+	void askToAssembleArtifact(const ArtifactLocation & dst) override;
 	void artifactDisassembled(const ArtifactLocation &al) override;
 
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void heroCreated(const CGHeroInstance* hero) override;
-	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
+	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override;
 	void heroInGarrisonChange(const CGTownInstance *town) override;
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
-	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) override;
+	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
 	void receivedResource() override;
-	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
-	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
-	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
+	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
+	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level, QueryID queryID) override;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
+	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	void showPuzzleMap() override;
-	void viewWorldMap() override;
-	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
-	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
+	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
+	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
-	void showTavernWindow(const CGObjectInstance *townOrTavern) override;
-	void showThievesGuildWindow (const CGObjectInstance * obj) override;
-	void showQuestLog() override;
-	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override; //called when a hero casts a spell
-	void tileHidden(const std::unordered_set<int3, ShashInt3> &pos) override; //called when given tiles become hidden under fog of war
-	void tileRevealed(const std::unordered_set<int3, ShashInt3> &pos) override; //called when fog of war disappears from given tiles
+	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell
+	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
+	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;
 	void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
-	void yourTurn() override;
+	void yourTurn(QueryID queryID) override;
 	void availableCreaturesChanged(const CGDwelling *town) override;
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) override;
 	void requestRealized(PackageApplied *pa) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void centerView (int3 pos, int focusTime) override;
+	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
-	void objectRemoved(const CGObjectInstance *obj) override;
+	void objectRemoved(const CGObjectInstance *obj, const PlayerColor & initiator) override;
+	void objectRemovedAfter() override;
 	void playerBlocked(int reason, bool start) override;
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
-	void showComp(const Component &comp, std::string message) override; //display component in the advmapint infobox
+	void playerEndsTurn(PlayerColor player) override;
 	void saveGame(BinarySerializer & h, const int version) override; //saving
 	void loadGame(BinaryDeserializer & h, const int version) override; //loading
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	//for battles
-	void actionFinished(const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
-	void actionStarted(const BattleAction& action) override;//occurs BEFORE action taken by active stack or by the hero
-	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
-	void battleAttack(const BattleAttack *ba) override; //stack performs attack
-	void battleEnd(const BattleResult *br) override; //end of battle
-	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
-	void battleNewRound(int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleLogMessage(const std::vector<MetaString> & lines) override;
-	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
-	void battleSpellCast(const BattleSpellCast *sc) override;
-	void battleStacksEffectsSet(const SetStackEffect & sse) override; //called when a specific effect is set to stacks
-	void battleTriggerEffect(const BattleTriggerEffect & bte) override; //various one-shot effect
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
-	void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
-	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
-	void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
-	void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
-	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
-	void battleGateStateChanged(const EGateState state) override;
-	void yourTacticPhase(int distance) override;
+	void actionFinished(const BattleID & battleID, const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
+	void actionStarted(const BattleID & battleID, const BattleAction& action) override;//occurs BEFORE action taken by active stack or by the hero
+	void activeStack(const BattleID & battleID, const CStack * stack) override; //called when it's turn of that stack
+	void battleAttack(const BattleID & battleID, const BattleAttack *ba) override; //stack performs attack
+	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override; //end of battle
+	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
+	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines) override;
+	void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
+	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
+	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override; //called when a specific effect is set to stacks
+	void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte) override; //various one-shot effect
+	void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
+	void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
+	void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed) override; //called by engine when battle starts; side=0 - left, side=1 - right
+	void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
+	void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;
+	void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca) override; //called when catapult makes an attack
+	void battleGateStateChanged(const BattleID & battleID, const EGateState state) override;
+	void yourTacticPhase(const BattleID & battleID, int distance) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-	//-------------//
-	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);
-	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
-	void garrisonChanged(const CGObjectInstance * obj);
-	void heroKilled(const CGHeroInstance* hero);
-	void waitWhileDialog(bool unlockPim = true);
-	void waitForAllDialogs(bool unlockPim = true);
-	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
-	bool ctrlPressed() const; //determines if ctrl key is pressed (left or right or both)
-	bool altPressed() const; //determines if alt key is pressed (left or right or both)
-	void redrawHeroWin(const CGHeroInstance * hero);
+public: // public interface for use by client via LOCPLINT access
+
+	// part of GameInterface that is also used by client code
+	void showPuzzleMap() override;
+	void viewWorldMap() override;
+	void showQuestLog() override;
+	void showThievesGuildWindow (const CGObjectInstance * obj) override;
+	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
+	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
+
+	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);
+	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<void()> onYes);
+	void waitWhileDialog();
+	void waitForAllDialogs();
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
-	void updateInfo(const CGObjectInstance * specific);
-	void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
-	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
-	void activateForSpectator(); // TODO: spectator probably need own player interface class
 
-	// show dialogs
 	void showInfoDialog(const std::string &text, std::shared_ptr<CComponent> component);
 	void showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>(), int soundID = 0);
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
-	void stopMovement();
-	void moveHero(const CGHeroInstance *h, CGPath path);
-	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
-	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
-	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
-	void eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath = true );
+	void moveHero(const CGHeroInstance *h, const CGPath& path);
 
-	void removeLastNodeFromPath(const CGHeroInstance *ho);
-	CGPath *getAndVerifyPath( const CGHeroInstance * h );
-	void acceptTurn(); //used during hot seat after your turn message is close
-	void tryDiggging(const CGHeroInstance *h);
+	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
-	void requestReturningToMainMenu(bool won);
-	void sendCustomEvent(int code);
 	void proposeLoadingGame();
-
-	// Ambient sounds
-	void updateAmbientSounds(bool resetAll = false);
+	void performAutosave();
+	void gamePause(bool pause);
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
@@ -256,11 +209,6 @@ public:
 	~CPlayerInterface();
 
 private:
-
-	template <typename Handler> void serializeTempl(Handler &h, const int version);
-
-private:
-
 	struct IgnoreEvents
 	{
 		CPlayerInterface & owner;
@@ -272,17 +220,15 @@ private:
 		{
 			owner.ignoreEvents = false;
 		};
-
 	};
 
-
-
-	bool duringMovement;
-	bool ignoreEvents;
-
-	void doMoveHero(const CGHeroInstance *h, CGPath path);
-	void setMovementStatus(bool value);
-	void askToAssembleArtifact(const ArtifactLocation &al);
+	void heroKilled(const CGHeroInstance* hero);
+	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
+	void requestReturningToMainMenu(bool won);
+	void acceptTurn(QueryID queryID); //used during hot seat after your turn message is close
+	void initializeHeroTownList();
+	int getLastIndex(std::string namePrefix);
 };
 
+/// Provides global access to instance of interface of currently active player
 extern CPlayerInterface * LOCPLINT;

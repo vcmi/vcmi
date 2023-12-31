@@ -14,7 +14,7 @@
 #include "../CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/IBattleState.h"
 #include "../battle/Unit.h"
@@ -36,7 +36,6 @@
 #include "effects/Timed.h"
 
 #include "CSpellHandler.h"
-#include "../NetPacks.h"
 
 #include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove
@@ -62,7 +61,7 @@ class CustomMechanicsFactory : public ISpellMechanicsFactory
 public:
 	std::unique_ptr<Mechanics> create(const IBattleCast * event) const override
 	{
-		BattleSpellMechanics * ret = new BattleSpellMechanics(event, effects, targetCondition);
+		auto * ret = new BattleSpellMechanics(event, effects, targetCondition);
 		return std::unique_ptr<Mechanics>(ret);
 	}
 protected:
@@ -117,7 +116,7 @@ public:
 
 			if(!levelInfo.effects.empty())
 			{
-				auto timed = new effects::Timed();
+				auto * timed = new effects::Timed();
 				timed->cumulative = false;
 				timed->bonus = levelInfo.effects;
 				effect.reset(timed);
@@ -125,7 +124,7 @@ public:
 
 			if(!levelInfo.cumulativeEffects.empty())
 			{
-				auto timed = new effects::Timed();
+				auto * timed = new effects::Timed();
 				timed->cumulative = true;
 				timed->bonus = levelInfo.cumulativeEffects;
 				effect.reset(timed);
@@ -137,20 +136,15 @@ public:
 	}
 };
 
-
-BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_)
-	: spell(spell_),
+BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_):
+	spell(spell_),
 	cb(cb_),
+	gameCb(IObjectInterface::cb), //FIXME: pass player callback (problem is that BattleAI do not have one)
 	caster(caster_),
 	mode(mode_),
-	magicSkillLevel(),
-	effectPower(),
-	effectDuration(),
-	effectValue(),
 	smart(boost::logic::indeterminate),
 	massive(boost::logic::indeterminate)
 {
-	gameCb = IObjectInterface::cb; //FIXME: pass player callback (problem is that BattleAI do not have one)
 }
 
 BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
@@ -227,25 +221,25 @@ boost::logic::tribool BattleCast::isMassive() const
 
 void BattleCast::setSpellLevel(BattleCast::Value value)
 {
-	magicSkillLevel = boost::make_optional(value);
+	magicSkillLevel = std::make_optional(value);
 }
 
 void BattleCast::setEffectPower(BattleCast::Value value)
 {
-	effectPower = boost::make_optional(value);
+	effectPower = std::make_optional(value);
 }
 
 void BattleCast::setEffectDuration(BattleCast::Value value)
 {
-	effectDuration = boost::make_optional(value);
+	effectDuration = std::make_optional(value);
 }
 
 void BattleCast::setEffectValue(BattleCast::Value64 value)
 {
-	effectValue = boost::make_optional(value);
+	effectValue = std::make_optional(value);
 }
 
-void BattleCast::applyEffects(ServerCallback * server, Target target,  bool indirect, bool ignoreImmunity) const
+void BattleCast::applyEffects(ServerCallback * server, const Target & target, bool indirect, bool ignoreImmunity) const
 {
 	auto m = spell->battleMechanics(this);
 
@@ -279,7 +273,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 	if(tryMagicMirror)
 	{
 		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
-		static const auto magicMirrorSelector = Selector::type()(Bonus::MAGIC_MIRROR);
+		static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
 
 		auto rangeGen = server->getRNG()->getInt64Range(0, 99);
 
@@ -296,7 +290,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 
 			if(!mirrorTargets.empty())
 			{
-				auto mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
+				const auto * mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
 
 				Target mirrorTarget;
 				mirrorTarget.emplace_back(mirrorDestination);
@@ -325,13 +319,13 @@ bool BattleCast::castIfPossible(ServerCallback * server, Target target)
 {
 	if(spell->canBeCast(cb, mode, caster))
 	{
-		cast(server, target);
+		cast(server, std::move(target));
 		return true;
 	}
 	return false;
 }
 
-std::vector<Target> BattleCast::findPotentialTargets() const
+std::vector<Target> BattleCast::findPotentialTargets(bool fast) const
 {
 	//TODO: for more than 2 destinations per target much more efficient algorithm is required
 
@@ -359,7 +353,7 @@ std::vector<Target> BattleCast::findPotentialTargets() const
 			if(previous.empty())
 			{
 				Target empty;
-				destinations = m->getPossibleDestinations(index, targetTypes.at(index), empty);
+				destinations = m->getPossibleDestinations(index, targetTypes.at(index), empty, fast);
 
 				for(auto & destination : destinations)
 				{
@@ -372,7 +366,7 @@ std::vector<Target> BattleCast::findPotentialTargets() const
 			{
 				for(const Target & current : previous)
 				{
-					destinations = m->getPossibleDestinations(index, targetTypes.at(index), current);
+					destinations = m->getPossibleDestinations(index, targetTypes.at(index), current, fast);
 
 					for(auto & destination : destinations)
 					{
@@ -397,17 +391,15 @@ ISpellMechanicsFactory::ISpellMechanicsFactory(const CSpell * s)
 
 }
 
-ISpellMechanicsFactory::~ISpellMechanicsFactory()
-{
-
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+ISpellMechanicsFactory::~ISpellMechanicsFactory() = default;
 
 std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell * s)
 {
 	if(s->hasBattleEffects())
-		return make_unique<ConfigurableMechanicsFactory>(s);
+		return std::make_unique<ConfigurableMechanicsFactory>(s);
 	else
-		return make_unique<FallbackMechanicsFactory>(s);
+		return std::make_unique<FallbackMechanicsFactory>(s);
 }
 
 ///Mechanics
@@ -420,67 +412,43 @@ Mechanics::Mechanics()
 
 Mechanics::~Mechanics() = default;
 
-BaseMechanics::BaseMechanics(const IBattleCast * event)
-	: Mechanics(),
+BaseMechanics::BaseMechanics(const IBattleCast * event):
 	owner(event->getSpell()),
 	mode(event->getMode()),
 	smart(event->isSmart()),
-	massive(event->isMassive())
+	massive(event->isMassive()),
+	cb(event->getBattle()),
+	gameCb(event->getGame())
 {
-	cb = event->getBattle();
-	gameCb = event->getGame();
-
 	caster = event->getCaster();
 
 	//FIXME: do not crash on invalid side
-	casterSide = cb->playerToSide(caster->getCasterOwner()).get();
+	casterSide = cb->playerToSide(caster->getCasterOwner()).value();
 
 	{
 		auto value = event->getSpellLevel();
-		if(value)
-			rangeLevel = value.get();
-		else
-			rangeLevel = caster->getSpellSchoolLevel(owner);
+		rangeLevel = value.value_or(caster->getSpellSchoolLevel(owner));
 		vstd::abetween(rangeLevel, 0, 3);
 	}
 	{
 		auto value = event->getSpellLevel();
-        if(value)
-			effectLevel = value.get();
-		else
-			effectLevel = caster->getEffectLevel(owner);
+		effectLevel = value.value_or(caster->getEffectLevel(owner));
 		vstd::abetween(effectLevel, 0, 3);
 	}
 	{
 		auto value = event->getEffectPower();
-		if(value)
-			effectPower = value.get();
-		else
-			effectPower = caster->getEffectPower(owner);
+		effectPower = value.value_or(caster->getEffectPower(owner));
 		vstd::amax(effectPower, 0);
 	}
 	{
 		auto value = event->getEffectDuration();
-		if(value)
-			effectDuration = value.get();
-		else
-			effectDuration = caster->getEnchantPower(owner);
+		effectDuration = value.value_or(caster->getEnchantPower(owner));
 		vstd::amax(effectDuration, 0); //???
 	}
 	{
 		auto value = event->getEffectValue();
-		if(value)
-		{
-			effectValue = value.get();
-		}
-		else
-		{
-			auto casterValue = caster->getEffectValue(owner);
-			if(casterValue == 0)
-				effectValue = owner->calculateRawEffectValue(effectLevel, effectPower, 1);
-			else
-				effectValue = casterValue;
-		}
+		auto casterValue = caster->getEffectValue(owner) ? caster->getEffectValue(owner) : owner->calculateRawEffectValue(effectLevel, effectPower, 1);
+		effectValue = value.value_or(casterValue);
 		vstd::amax(effectValue, 0);
 	}
 }
@@ -491,7 +459,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 {
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
-	text.addTxt(MetaString::GENERAL_TXT, 541);
+	text.appendLocalString(EMetaText::GENERAL_TXT, 541);
 	assert(caster);
 	caster->getCasterName(text);
 
@@ -499,7 +467,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	return false;
 }
 
-bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const
+bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) const
 {
 	if(source == ESpellCastProblem::OK)
 		return true;
@@ -510,24 +478,24 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 		{
 			MetaString text;
 			//TODO: refactor
-			auto hero = dynamic_cast<const CGHeroInstance *>(caster);
+			const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
 			if(!hero)
 				return adaptGenericProblem(target);
 
 			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_MAGIC_ABOVE));
+			const auto b = hero->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
 			//TODO what about other values and non-artifact sources?
-			if(b && b->val == 2 && b->source == Bonus::ARTIFACT)
+			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
-				text.addTxt(MetaString::GENERAL_TXT, 536);
-				text.addReplacement(MetaString::ART_NAMES, b->sid);
+				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
+				text.replaceName(b->sid.as<ArtifactID>());
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == Bonus::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
+			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
 			{
-				text.addTxt(MetaString::GENERAL_TXT, 537);
+				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else
@@ -541,14 +509,14 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 	case ESpellCastProblem::NO_APPROPRIATE_TARGET:
 		{
 			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 185);
+			text.appendLocalString(EMetaText::GENERAL_TXT, 185);
 			target.add(std::move(text), spells::Problem::NORMAL);
 		}
 		break;
 	case ESpellCastProblem::INVALID:
 		{
 			MetaString text;
-			text.addReplacement("Internal error during check of spell cast.");
+			text.appendRawString("Internal error during check of spell cast.");
 			target.add(std::move(text), spells::Problem::CRITICAL);
 		}
 		break;
@@ -571,7 +539,7 @@ SpellID BaseMechanics::getSpellId() const
 
 std::string BaseMechanics::getSpellName() const
 {
-	return owner->getName();
+	return owner->getNameTranslated();
 }
 
 int32_t BaseMechanics::getSpellLevel() const
@@ -626,6 +594,11 @@ bool BaseMechanics::isPositiveSpell() const
 	return owner->isPositive();
 }
 
+bool BaseMechanics::isMagicalEffect() const
+{
+	return owner->isMagical();
+}
+
 int64_t BaseMechanics::adjustEffectValue(const battle::Unit * target) const
 {
 	return owner->adjustRawDamage(caster, target, getEffectValue());
@@ -644,18 +617,6 @@ int64_t BaseMechanics::applySpecificSpellBonus(int64_t value) const
 int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const
 {
 	return owner->calculateRawEffectValue(getEffectLevel(), basePowerMultiplier, levelPowerMultiplier);
-}
-
-std::vector<Bonus::BonusType> BaseMechanics::getElementalImmunity() const
-{
-	std::vector<Bonus::BonusType> ret;
-
-	owner->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
-	{
-		ret.push_back(cnf.immunityBonus);
-	});
-
-	return ret;
 }
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
@@ -701,9 +662,9 @@ PlayerColor BaseMechanics::getCasterColor() const
 std::vector<AimType> BaseMechanics::getTargetTypes() const
 {
 	std::vector<AimType> ret;
-	detail::ProblemImpl ingored;
+	detail::ProblemImpl ignored;
 
-	if(canBeCast(ingored))
+	if(canBeCast(ignored))
 	{
 		auto spellTargetType = owner->getTargetType();
 
@@ -756,27 +717,27 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch (s->id)
+	switch(s->id.toEnum())
 	{
 	case SpellID::SUMMON_BOAT:
-		return make_unique<SummonBoatMechanics>(s);
+		return std::make_unique<SummonBoatMechanics>(s);
 	case SpellID::SCUTTLE_BOAT:
-		return make_unique<ScuttleBoatMechanics>(s);
+		return std::make_unique<ScuttleBoatMechanics>(s);
 	case SpellID::DIMENSION_DOOR:
-		return make_unique<DimensionDoorMechanics>(s);
+		return std::make_unique<DimensionDoorMechanics>(s);
 	case SpellID::FLY:
 	case SpellID::WATER_WALK:
 	case SpellID::VISIONS:
 	case SpellID::DISGUISE:
-		return make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
+		return std::make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
 	case SpellID::TOWN_PORTAL:
-		return make_unique<TownPortalMechanics>(s);
+		return std::make_unique<TownPortalMechanics>(s);
 	case SpellID::VIEW_EARTH:
-		return make_unique<ViewEarthMechanics>(s);
+		return std::make_unique<ViewEarthMechanics>(s);
 	case SpellID::VIEW_AIR:
-		return make_unique<ViewAirMechanics>(s);
+		return std::make_unique<ViewAirMechanics>(s);
 	default:
-		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : make_unique<AdventureSpellMechanics>(s);
+		return s->isCombat() ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
 	}
 }
 

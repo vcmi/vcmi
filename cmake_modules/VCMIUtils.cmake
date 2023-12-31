@@ -39,23 +39,10 @@ function(assign_source_group)
 endfunction(assign_source_group)
 
 # Macro to add subdirectory and set appropriate FOLDER for generated projects files
-function(add_subdirectory_with_folder _folder_name _folder)
+macro(add_subdirectory_with_folder _folder_name _folder)
 	add_subdirectory(${_folder} ${ARGN})
 	set_property(DIRECTORY "${_folder}" PROPERTY FOLDER "${_folder_name}")
-endfunction()
-
-# Macro for Xcode Projects generation
-# Slightly outdated, but useful reference for all options available here:
-# https://pewpewthespells.com/blog/buildsettings.html
-# https://github.com/samdmarshall/Xcode-Build-Settings-Reference
-if(${CMAKE_GENERATOR} MATCHES "Xcode")
-
-	macro(set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
-		set_property(TARGET ${TARGET} PROPERTY
-			XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
-	endmacro(set_xcode_property)
-
-endif(${CMAKE_GENERATOR} MATCHES "Xcode")
+endmacro()
 
 #######################################
 #        CMake debugging              #

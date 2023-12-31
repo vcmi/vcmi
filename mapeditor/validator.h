@@ -11,7 +11,10 @@
 #pragma once
 
 #include <QDialog>
-#include "../lib/mapping/CMap.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
+VCMI_LIB_NAMESPACE_END
 
 namespace Ui {
 class Validator;

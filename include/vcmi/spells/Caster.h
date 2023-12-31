@@ -13,8 +13,11 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PlayerColor;
-struct MetaString;
+class MetaString;
 class ServerCallback;
+class CGHeroInstance;
+class Spell;
+class SpellSchool;
 
 namespace battle
 {
@@ -36,7 +39,7 @@ public:
 	/// returns level on which given spell would be cast by this(0 - none, 1 - basic etc);
 	/// caster may not know this spell at all
 	/// optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic
-	virtual int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const = 0;
+	virtual int32_t getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool = nullptr) const = 0;
 
 	///default spell school level for effect calculation
 	virtual int32_t getEffectLevel(const Spell * spell) const = 0;
@@ -65,6 +68,11 @@ public:
 	virtual void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const = 0;
 
 	virtual void spendMana(ServerCallback * server, const int32_t spellCost) const = 0;
+
+	virtual int32_t manaLimit() const = 0;
+	
+	///used to identify actual hero caster
+	virtual const CGHeroInstance * getHeroCaster() const = 0;
 };
 
 }

@@ -10,36 +10,42 @@
 #include "StdInc.h"
 #include "BattleProxy.h"
 #include "Unit.h"
-#include "Terrain.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleProxy
 
-BattleProxy::BattleProxy(Subject subject_)
-	: subject(subject_)
-{
-	setBattle(this);
-	player = subject->getPlayerID();
-}
+BattleProxy::BattleProxy(Subject subject_): 
+	subject(std::move(subject_))
+{}
 
 BattleProxy::~BattleProxy() = default;
 
+const IBattleInfo * BattleProxy::getBattle() const
+{
+	return this;
+}
+
+std::optional<PlayerColor> BattleProxy::getPlayerID() const
+{
+	return subject->getPlayerID();
+}
+
 int32_t BattleProxy::getActiveStackID() const
 {
-	auto ret = subject->battleActiveUnit();
+	const auto * ret = subject->battleActiveUnit();
 	if(ret)
 		return ret->unitId();
 	else
 		return -1;
 }
 
-TStacks BattleProxy::getStacksIf(TStackFilter predicate) const
+TStacks BattleProxy::getStacksIf(const TStackFilter & predicate) const
 {
 	return subject->battleGetStacksIf(predicate);
 }
 
-battle::Units BattleProxy::getUnitsIf(battle::UnitFilter predicate) const
+battle::Units BattleProxy::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	return subject->battleGetUnitsIf(predicate);
 }
@@ -89,7 +95,7 @@ const CGTownInstance * BattleProxy::getDefendedTown() const
 	return subject->battleGetDefendedTown();
 }
 
-si8 BattleProxy::getWallState(int partOfWall) const
+EWallState BattleProxy::getWallState(EWallPart partOfWall) const
 {
 	return subject->battleGetWallState(partOfWall);
 }
@@ -109,9 +115,9 @@ int32_t BattleProxy::getEnchanterCounter(ui8 side) const
 	return subject->battleGetEnchanterCounter(side);
 }
 
-const IBonusBearer * BattleProxy::asBearer() const
+const IBonusBearer * BattleProxy::getBonusBearer() const
 {
-	return subject->getBattleNode();
+	return subject->getBonusBearer();
 }
 
 

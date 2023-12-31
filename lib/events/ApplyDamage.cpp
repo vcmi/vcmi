@@ -12,8 +12,7 @@
 #include <vcmi/Environment.h>
 
 #include "ApplyDamage.h"
-
-#include "../../lib/NetPacks.h"
+#include "../networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,13 +21,13 @@ namespace events
 
 SubscriptionRegistry<ApplyDamage> * ApplyDamage::getRegistry()
 {
-	static std::unique_ptr<SubscriptionRegistry<ApplyDamage>> Instance = make_unique<SubscriptionRegistry<ApplyDamage>>();
+	static std::unique_ptr<SubscriptionRegistry<ApplyDamage>> Instance = std::make_unique<SubscriptionRegistry<ApplyDamage>>();
 	return Instance.get();
 }
 
 CApplyDamage::CApplyDamage(const Environment * env_, BattleStackAttacked * pack_, std::shared_ptr<battle::Unit> target_)
 	: pack(pack_),
-	target(target_)
+	target(std::move(target_))
 {
 	initalDamage = pack->damageAmount;
 }

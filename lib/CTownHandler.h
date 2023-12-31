@@ -19,8 +19,11 @@
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
-#include "HeroBonus.h"
-#include "Terrain.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/BonusList.h"
+#include "Point.h"
+#include "rewardable/Info.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,23 +37,18 @@ class JsonSerializeFormat;
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
 /// contains all mechanics-related data about town structures
-
-
-
 class DLL_LINKAGE CBuilding
 {
-
-	std::string name;
-	std::string description;
+	std::string modScope;
+	std::string identifier;
 
 public:
-	typedef LogicalExpression<BuildingID> TRequired;
+	using TRequired = LogicalExpression<BuildingID>;
 
 	CTown * town; // town this building belongs to
 	TResources resources;
 	TResources produce;
 	TRequired requirements;
-	std::string identifier;
 
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
@@ -58,6 +56,8 @@ public:
 	std::set<BuildingID> overrideBids; /// the building which bonuses should be overridden with bonuses of the current building
 	BonusList buildingBonuses;
 	BonusList onVisitBonuses;
+	
+	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings
 
 	enum EBuildMode
 	{
@@ -81,14 +81,22 @@ public:
 
 	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
 
-	const std::string &Name() const;
-	const std::string &Description() const;
+	const BuildingTypeUniqueID getUniqueTypeID() const;
+
+	std::string getJsonKey() const;
+
+	std::string getNameTranslated() const;
+	std::string getDescriptionTranslated() const;
+
+	std::string getBaseTextID() const;
+	std::string getNameTextID() const;
+	std::string getDescriptionTextID() const;
 
 	//return base of upgrade(s) or this
 	BuildingID getBase() const;
 
 	// returns how many times build has to be upgraded to become build
-	si32 getDistance(BuildingID build) const;
+	si32 getDistance(const BuildingID & build) const;
 
 	STRONG_INLINE
 	bool IsTradeBuilding() const
@@ -113,26 +121,7 @@ public:
 			subId == BuildingSubID::CUSTOM_VISITING_BONUS;
 	}
 
-	void addNewBonus(std::shared_ptr<Bonus> b, BonusList & bonusList);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & identifier;
-		h & town;
-		h & bid;
-		h & resources;
-		h & produce;
-		h & name;
-		h & description;
-		h & requirements;
-		h & upgrade;
-		h & mode;
-		h & subId;
-		h & height;
-		h & overrideBids;
-		h & buildingBonuses;
-		h & onVisitBonuses;
-	}
+	void addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusList) const;
 
 	friend class CTownHandler;
 };
@@ -146,20 +135,12 @@ struct DLL_LINKAGE CStructure
 	CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
 
 	int3 pos;
-	std::string defName, borderName, areaName, identifier;
+	AnimationPath defName;
+	ImagePath borderName;
+	ImagePath areaName;
+	std::string identifier;
 
 	bool hiddenUpgrade; // used only if "building" is upgrade, if true - structure on town screen will behave exactly like parent (mouse clicks, hover texts, etc)
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & pos;
-		h & defName;
-		h & borderName;
-		h & areaName;
-		h & identifier;
-		h & building;
-		h & buildable;
-		h & hiddenUpgrade;
-	}
 };
 
 struct DLL_LINKAGE SPuzzleInfo
@@ -167,85 +148,80 @@ struct DLL_LINKAGE SPuzzleInfo
 	ui16 number; //type of puzzle
 	si16 x, y; //position
 	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
-	std::string filename; //file with graphic of this puzzle
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & number;
-		h & x;
-		h & y;
-		h & whenUncovered;
-		h & filename;
-	}
+	ImagePath filename; //file with graphic of this puzzle
 };
 
 class DLL_LINKAGE CFaction : public Faction
 {
-public:
-	std::string name; //town name, by default - from TownName.txt
+	friend class CTownHandler;
+	friend class CBuilding;
+	friend class CTown;
+
+	std::string modScope;
 	std::string identifier;
 
-	TFaction index;
+	FactionID index = FactionID::NEUTRAL;
 
+	FactionID getFaction() const override; //This function should not be used
+
+public:
 	TerrainId nativeTerrain;
-	EAlignment::EAlignment alignment;
-	bool preferUndergroundPlacement;
+	EAlignment alignment = EAlignment::NEUTRAL;
+	bool preferUndergroundPlacement = false;
 
-	CTown * town; //NOTE: can be null
+	/// Boat that will be used by town shipyard (if any)
+	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
+	BoatId boatType = BoatId::CASTLE;
 
-	std::string creatureBg120;
-	std::string creatureBg130;
+	CTown * town = nullptr; //NOTE: can be null
+
+	ImagePath creatureBg120;
+	ImagePath creatureBg130;
 
 	std::vector<SPuzzleInfo> puzzleMap;
 
-	CFaction();
+	CFaction() = default;
 	~CFaction();
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	FactionID getId() const override;
 
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
+
 	bool hasTown() const override;
+	TerrainId getNativeTerrain() const override;
+	EAlignment getAlignment() const override;
+	BoatId getBoatType() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & name;
-		h & identifier;
-		h & index;
-		h & nativeTerrain;
-		h & alignment;
-		h & town;
-		h & creatureBg120;
-		h & creatureBg130;
-		h & puzzleMap;
-	}
 };
 
 class DLL_LINKAGE CTown
 {
+	friend class CTownHandler;
+	size_t namesCount = 0;
+
 public:
 	CTown();
 	~CTown();
-	// TODO: remove once save and mod compatability not needed
-	static std::vector<BattleHex> defaultMoatHexes();
 
-	std::string getLocalizedFactionName() const;
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
-	const std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
-	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string message) const; //may affect only mutable field
-	BuildingID::EBuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
+	std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
+	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const; //may affect only mutable field
+	BuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
+
+	std::string getRandomNameTranslated(size_t index) const;
+	std::string getRandomNameTextID(size_t index) const;
+	size_t getRandomNamesCount() const;
 
 	CFaction * faction;
-
-	std::vector<std::string> names; //names of the town instances
 
 	/// level -> list of creatures on this tier
 	// TODO: replace with pointers to CCreature
@@ -259,10 +235,10 @@ public:
 	// should be removed at least from configs in favor of auto-detection
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
-	ui16 primaryRes;
+	GameResID primaryRes;
 	ArtifactID warMachine;
-	si32 moatDamage;
-	std::vector<BattleHex> moatHexes;
+	SpellID moatAbility;
+
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -270,29 +246,17 @@ public:
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
 	{
-		struct Point
-		{
-			si32 x;
-			si32 y;
-
-			template <typename Handler> void serialize(Handler &h, const int version)
-			{
-				h & x;
-				h & y;
-			}
-		};
-
 		//icons [fort is present?][build limit reached?] -> index of icon in def files
 		int icons[2][2];
 		std::string iconSmall[2][2]; /// icon names used during loading
 		std::string iconLarge[2][2];
-		std::string tavernVideo;
-		std::string musicTheme;
-		std::string townBackground;
-		std::string guildBackground;
-		std::string guildWindow;
-		std::string buildingsIcons;
-		std::string hallBackground;
+		VideoPath tavernVideo;
+		AudioPath musicTheme;
+		ImagePath townBackground;
+		ImagePath guildBackground;
+		ImagePath guildWindow;
+		AnimationPath buildingsIcons;
+		ImagePath hallBackground;
 		/// vector[row][column] = list of buildings in this slot
 		std::vector< std::vector< std::vector<BuildingID> > > hallSlots;
 
@@ -303,44 +267,10 @@ public:
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
 		CreatureID siegeShooter; // shooter creature ID
+		std::string towerIconSmall;
+		std::string towerIconLarge;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & icons;
-			h & iconSmall;
-			h & iconLarge;
-			h & tavernVideo;
-			h & musicTheme;
-			h & townBackground;
-			h & guildBackground;
-			h & guildWindow;
-			h & buildingsIcons;
-			h & hallBackground;
-			h & hallSlots;
-			h & structures;
-			h & siegePrefix;
-			h & siegePositions;
-			h & siegeShooter;
-		}
 	} clientInfo;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & names;
-		h & faction;
-		h & creatures;
-		h & dwellings;
-		h & dwellingNames;
-		h & buildings;
-		h & hordeLvl;
-		h & mageLevel;
-		h & primaryRes;
-		h & warMachine;
-		h & clientInfo;
-		h & moatDamage;
-		h & moatHexes;
-		h & defaultTavernChance;
-	}
 	
 private:
 	///generated bonusing buildings messages for all towns of this type.
@@ -360,10 +290,6 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
-	const static TerrainId defaultGoodTerrain;
-	const static TerrainId defaultEvilTerrain;
-	const static TerrainId defaultNeutralTerrain;
-
 	static TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
@@ -371,29 +297,35 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	void initializeWarMachines();
 
 	/// loads CBuilding's into town
-	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad);
+	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad) const;
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
 
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, int subtype = -1);
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype = -1);
-	std::shared_ptr<Bonus> createBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype = -1);
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, TPropagatorPtr & prop) const;
+	std::shared_ptr<Bonus> createBonusImpl(const BuildingID & building,
+										   const FactionID & faction,
+												  BonusType type,
+												  int val,
+												  TPropagatorPtr & prop,
+												  const std::string & description,
+												  BonusSubtypeID subtype) const;
 
 	/// loads CStructure's into town
-	void loadStructure(CTown &town, const std::string & stringID, const JsonNode & source);
-	void loadStructures(CTown &town, const JsonNode & source);
+	void loadStructure(CTown & town, const std::string & stringID, const JsonNode & source) const;
+	void loadStructures(CTown & town, const JsonNode & source) const;
 
 	/// loads town hall vector (hallSlots)
-	void loadTownHall(CTown &town, const JsonNode & source);
-	void loadSiegeScreen(CTown &town, const JsonNode & source);
+	void loadTownHall(CTown & town, const JsonNode & source) const;
+	void loadSiegeScreen(CTown & town, const JsonNode & source) const;
 
-	void loadClientData(CTown &town, const JsonNode & source);
+	void loadClientData(CTown & town, const JsonNode & source) const;
 
 	void loadTown(CTown * town, const JsonNode & source);
 
-	void loadPuzzle(CFaction & faction, const JsonNode & source);
+	void loadPuzzle(CFaction & faction, const JsonNode & source) const;
 
-	TerrainId getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
 	void loadRandomFaction();
 
 
@@ -404,29 +336,24 @@ public:
 	static R getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required = true);
 
 	CTown * randomTown;
+	CFaction * randomFaction;
 
 	CTownHandler();
 	~CTownHandler();
 
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	std::vector<JsonNode> loadLegacyData() override;
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
-	void addBonusesForVanilaBuilding(CBuilding * building);
+	void addBonusesForVanilaBuilding(CBuilding * building) const;
 
 	void loadCustom() override;
 	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const override;
-	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
+	std::set<FactionID> getDefaultAllowed() const;
+	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
 
 	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & objects;
-		h & randomTown;
-	}
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;

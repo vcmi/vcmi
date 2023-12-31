@@ -26,13 +26,14 @@
 #include "../../mock/mock_battle_IBattleState.h"
 #include "../../mock/mock_battle_Unit.h"
 #include "../../mock/mock_vstd_RNG.h"
+#if SCRIPTING_ENABLED
 #include "../../mock/mock_scripting_Pool.h"
+#endif
 #include "../../mock/BattleFake.h"
 #include "../../mock/mock_ServerCallback.h"
 
 
 #include "../../../lib/JsonNode.h"
-#include "../../../lib/NetPacksBase.h"
 #include "../../../lib/battle/CBattleInfoCallback.h"
 
 namespace battle
@@ -48,7 +49,9 @@ namespace test
 using namespace ::testing;
 using namespace ::spells;
 using namespace ::spells::effects;
+#if SCRIPTING_ENABLED
 using namespace ::scripting;
+#endif
 
 class EffectFixture
 {
@@ -65,7 +68,9 @@ public:
 
 	battle::UnitsFake unitsFake;
 
+#if SCRIPTING_ENABLED
 	std::shared_ptr<PoolMock> pool;
+#endif
 	std::shared_ptr<battle::BattleFake> battleFake;
 
 	StrictMock<ServerCallbackMock> serverMock;

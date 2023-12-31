@@ -23,6 +23,7 @@ class SkillService;
 class JsonNode;
 class BattleFieldService;
 class ObstacleService;
+class IGameSettings;
 
 namespace spells
 {
@@ -58,6 +59,7 @@ public:
 	virtual const SkillService * skills() const = 0;
 	virtual const BattleFieldService * battlefields() const = 0;
 	virtual const ObstacleService * obstacles() const = 0;
+	virtual const IGameSettings * settings() const = 0;
 
 	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
 

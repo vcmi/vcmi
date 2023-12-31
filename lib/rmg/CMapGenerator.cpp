@@ -11,32 +11,37 @@
 #include "CMapGenerator.h"
 
 #include "../mapping/CMap.h"
+#include "../mapping/MapFormat.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../CTownHandler.h"
-#include "../StringConstants.h"
+#include "../CHeroHandler.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "TileInfo.h"
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
-#include "ObjectManager.h"
-#include "TreasurePlacer.h"
-#include "RoadPlacer.h"
+#include "threadpool/ThreadPool.h"
+#include "modificators/ObjectManager.h"
+#include "modificators/TreasurePlacer.h"
+#include "modificators/RoadPlacer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
-	prisonsRemaining(0), monolithIndex(0)
+	allowedPrisons(0), monolithIndex(0)
 {
 	loadConfig();
 	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
 	map = std::make_unique<RmgMap>(mapGenOptions);
+	placer = std::make_shared<CZonePlacer>(*map);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -46,8 +51,7 @@ int CMapGenerator::getRandomSeed() const
 
 void CMapGenerator::loadConfig()
 {
-	static const ResourceID path("config/randomMap.json");
-	JsonNode randomMapJson(path);
+	JsonNode randomMapJson(JsonPath::builtin("config/randomMap.json"));
 
 	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
 	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
@@ -76,6 +80,7 @@ void CMapGenerator::loadConfig()
 	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
+	config.singleThread = randomMapJson["singleThread"].Bool();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
@@ -83,9 +88,8 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 	return config;
 }
 
-CMapGenerator::~CMapGenerator()
-{
-}
+//must be instantiated in .cpp file for access to complete types of all member fields
+CMapGenerator::~CMapGenerator() = default;
 
 const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 {
@@ -94,21 +98,18 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 
 void CMapGenerator::initPrisonsRemaining()
 {
-	prisonsRemaining = 0;
-	for (auto isAllowed : map->map().allowedHeroes)
-	{
-		if (isAllowed)
-			prisonsRemaining++;
-	}
-	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * mapGenOptions.getPlayerCount()); //so at least 16 heroes will be available for every player
+	allowedPrisons = map->getMap(this).allowedHeroes.size();
+	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getHumanOrCpuPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
 void CMapGenerator::initQuestArtsRemaining()
 {
+	//TODO: Move to QuestArtifactPlacer?
 	for (auto art : VLC->arth->objects)
 	{
-		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->id) && art->constituentOf.empty()) //don't use parts of combined artifacts
-			questArtifacts.push_back(art->id);
+		//Don't use parts of combined artifacts
+		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->getPartOf().empty())
+			questArtifacts.push_back(art->getId());
 	}
 }
 
@@ -119,13 +120,13 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	try
 	{
 		addHeaderInfo();
-		map->initTiles(*this);
+		map->initTiles(*this, rand);
 		Load::Progress::step();
 		initPrisonsRemaining();
 		initQuestArtsRemaining();
 		genZones();
 		Load::Progress::step();
-		map->map().calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
+		map->getMap(this).calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		map->addModificators();
 		Load::Progress::step(3);
 		fillZones();
@@ -154,9 +155,9 @@ std::string CMapGenerator::getMapDescription() const
 		throw rmgException("Map template for Random Map Generator is not found. Could not start the game.");
 
     std::stringstream ss;
-    ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
+    ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, size %dx%d") +
         ", levels %d, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		randomSeed % map->map().width % map->map().height % map->map().levels() % static_cast<int>(mapGenOptions.getPlayerCount()) %
+		map->width() % map->height() % static_cast<int>(map->levels()) % static_cast<int>(mapGenOptions.getHumanOrCpuPlayerCount()) %
 		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
 
@@ -167,10 +168,10 @@ std::string CMapGenerator::getMapDescription() const
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
 		}
-		if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+		if(pSettings.getStartingTown() != FactionID::RANDOM)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
-			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->name;
+			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->getNameTranslated();
 		}
 	}
 
@@ -179,96 +180,139 @@ std::string CMapGenerator::getMapDescription() const
 
 void CMapGenerator::addPlayerInfo()
 {
-	// Calculate which team numbers exist
+	// Teams are already configured in CMapGenOptions. However, it's not the case when it comes to map editor
 
-	enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2};
-	std::array<std::list<int>, 2> teamNumbers;
+	std::set<TeamID> teamsTotal;
 
-	int teamOffset = 0;
-	int playerCount = 0;
-	int teamCount = 0;
-
-	for (int i = CPHUMAN; i < AFTER_LAST; ++i)
+	if (mapGenOptions.arePlayersCustomized())
 	{
-		if (i == CPHUMAN)
-		{
-			playerCount = mapGenOptions.getPlayerCount();
-			teamCount = mapGenOptions.getTeamCount();
-		}
-		else
-		{
-			playerCount = mapGenOptions.getCompOnlyPlayerCount();
-			teamCount = mapGenOptions.getCompOnlyTeamCount();
-		}
+		// Simply copy existing settings set in GUI
 
-		if(playerCount == 0)
+		for (const auto & player : mapGenOptions.getPlayersSettings())
 		{
-			continue;
+			PlayerInfo playerInfo;
+			playerInfo.team = player.second.getTeam();
+			if (player.second.getPlayerType() == EPlayerType::COMP_ONLY)
+			{
+				playerInfo.canHumanPlay = false;
+			}
+			else
+			{
+				playerInfo.canHumanPlay = true;
+			}
+			map->getMap(this).players[player.first.getNum()] = playerInfo;
+			teamsTotal.insert(player.second.getTeam());
 		}
-		int playersPerTeam = playerCount / (teamCount == 0 ? playerCount : teamCount);
-		int teamCountNorm = teamCount;
-		if(teamCountNorm == 0)
+	}
+	else
+	{
+		// Assign standard teams (in map editor)
+
+		// Calculate which team numbers exist
+
+		enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2}; // Used as a kind of a local named array index, so left as enum, not enum class
+		std::array<std::list<int>, 2> teamNumbers;
+		
+		int teamOffset = 0;
+		int playerCount = 0;
+		int teamCount = 0;
+
+		// FIXME: Player can be any color, not just 0
+		for (int i = CPHUMAN; i < AFTER_LAST; ++i)
 		{
-			teamCountNorm = playerCount;
-		}
-		for(int j = 0; j < teamCountNorm; ++j)
-		{
-			for(int k = 0; k < playersPerTeam; ++k)
+			if (i == CPHUMAN)
+			{
+				playerCount = mapGenOptions.getHumanOrCpuPlayerCount();
+				teamCount = mapGenOptions.getTeamCount();
+			}
+			else
+			{
+				playerCount = mapGenOptions.getCompOnlyPlayerCount();
+				teamCount = mapGenOptions.getCompOnlyTeamCount();
+			}
+
+			if(playerCount == 0)
+			{
+				continue;
+			}
+			int playersPerTeam = playerCount / (teamCount == 0 ? playerCount : teamCount);
+			int teamCountNorm = teamCount;
+			if(teamCountNorm == 0)
+			{
+				teamCountNorm = playerCount;
+			}
+			for(int j = 0; j < teamCountNorm; ++j)
+			{
+				for(int k = 0; k < playersPerTeam; ++k)
+				{
+					teamNumbers[i].push_back(j + teamOffset);
+				}
+			}
+			for(int j = 0; j < playerCount - teamCountNorm * playersPerTeam; ++j)
 			{
 				teamNumbers[i].push_back(j + teamOffset);
 			}
+			teamOffset += teamCountNorm;
 		}
-		for(int j = 0; j < playerCount - teamCountNorm * playersPerTeam; ++j)
+		logGlobal->info("Current player settings size: %d",  mapGenOptions.getPlayersSettings().size());
+
+		// Team numbers are assigned randomly to every player
+		//TODO: allow to customize teams in rmg template
+		for(const auto & pair : mapGenOptions.getPlayersSettings())
 		{
-			teamNumbers[i].push_back(j + teamOffset);
+			const auto & pSettings = pair.second;
+			PlayerInfo player;
+			player.canComputerPlay = true;
+			int j = (pSettings.getPlayerType() == EPlayerType::COMP_ONLY) ? CPUONLY : CPHUMAN;
+			if (j == CPHUMAN)
+			{
+				player.canHumanPlay = true;
+			}
+
+			if(pSettings.getTeam() != TeamID::NO_TEAM)
+			{
+				player.team = pSettings.getTeam();
+			}
+			else
+			{
+				if (teamNumbers[j].empty())
+				{
+					logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
+					assert (teamNumbers[j].size());
+				}
+				auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+				player.team = TeamID(*itTeam);
+				teamNumbers[j].erase(itTeam);
+			}
+			teamsTotal.insert(player.team);
+			map->getMap(this).players[pSettings.getColor().getNum()] = player;
 		}
-		teamOffset += teamCountNorm;
+
+		logGlobal->info("Current team count: %d", teamsTotal.size());
+
 	}
+	// FIXME: 0
+	// Can't find info for player 0 (starting zone)
+	// Can't find info for player 1 (starting zone)
 
-	// Team numbers are assigned randomly to every player
-	//TODO: allow customize teams in rmg template
-	for(const auto & pair : mapGenOptions.getPlayersSettings())
-	{
-		const auto & pSettings = pair.second;
-		PlayerInfo player;
-		player.canComputerPlay = true;
-		int j = (pSettings.getPlayerType() == EPlayerType::COMP_ONLY) ? CPUONLY : CPHUMAN;
-		if (j == CPHUMAN)
-		{
-			player.canHumanPlay = true;
-		}
-
-		if (teamNumbers[j].empty())
-		{
-			logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
-			assert (teamNumbers[j].size());
-		}
-		auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
-		player.team = TeamID(*itTeam);
-		teamNumbers[j].erase(itTeam);
-		map->map().players[pSettings.getColor().getNum()] = player;
-	}
-
-	map->map().howManyTeams = (mapGenOptions.getTeamCount() == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getTeamCount())
-			+ (mapGenOptions.getCompOnlyTeamCount() == 0 ? mapGenOptions.getCompOnlyPlayerCount() : mapGenOptions.getCompOnlyTeamCount());
+	map->getMap(this).howManyTeams = teamsTotal.size();
 }
 
 void CMapGenerator::genZones()
 {
-	CZonePlacer placer(*map);
-	placer.placeZones(&rand);
-	placer.assignZones(&rand);
+	placer->placeZones(&rand);
+	placer->assignZones(&rand);
 
 	logGlobal->info("Zones generated successfully");
 }
 
-void CMapGenerator::createWaterTreasures()
+void CMapGenerator::addWaterTreasuresInfo()
 {
-	if(!getZoneWater())
+	if (!getZoneWater())
 		return;
-	
+
 	//add treasures on water
-	for(auto & treasureInfo : getConfig().waterTreasure)
+	for (const auto& treasureInfo : getConfig().waterTreasure)
 	{
 		getZoneWater()->addTreasureInfo(treasureInfo);
 	}
@@ -276,110 +320,199 @@ void CMapGenerator::createWaterTreasures()
 
 void CMapGenerator::fillZones()
 {
-	findZonesForQuestArts();
-	createWaterTreasures();
+	addWaterTreasuresInfo();
 
 	logGlobal->info("Started filling zones");
 
+	size_t numZones = map->getZones().size();
+
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	Load::Progress::setupStepsTill(map->getZones().size(), 50);
-	for(auto it : map->getZones())
+
+	Load::Progress::setupStepsTill(numZones, 50);
+	for (const auto& it : map->getZones())
 	{
 		it.second->initFreeTiles();
 		it.second->initModificators();
 		Progress::Progress::step();
 	}
 
-	Load::Progress::setupStepsTill(map->getZones().size(), 240);
 	std::vector<std::shared_ptr<Zone>> treasureZones;
-	for(auto it : map->getZones())
+
+	TModificators allJobs;
+	for (auto& it : map->getZones())
 	{
-		it.second->processModificators();
-		
+		allJobs.splice(allJobs.end(), it.second->getModificators());
+	}
+
+	Load::Progress::setupStepsTill(allJobs.size(), 240);
+
+	if (config.singleThread) //No thread pool, just queue with deterministic order
+	{
+		while (!allJobs.empty())
+		{
+			for (auto it = allJobs.begin(); it != allJobs.end();)
+			{
+				if ((*it)->isReady())
+				{
+					auto jobCopy = *it;
+					jobCopy->run();
+					Progress::Progress::step(); //Update progress bar
+					allJobs.erase(it);
+					break; //Restart from the first job
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+	}
+	else
+	{
+		ThreadPool pool;
+		std::vector<boost::future<void>> futures;
+		//At most one Modificator can run for every zone
+		pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
+
+		while (!allJobs.empty())
+		{
+			for (auto it = allJobs.begin(); it != allJobs.end();)
+			{
+				if ((*it)->isFinished())
+				{
+					it = allJobs.erase(it);
+					Progress::Progress::step();
+				}
+				else if ((*it)->isReady())
+				{
+					auto jobCopy = *it;
+					futures.emplace_back(pool.async([this, jobCopy]() -> void
+						{
+							jobCopy->run();
+							Progress::Progress::step(); //Update progress bar
+						}
+					));
+					it = allJobs.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+
+		//Wait for all the tasks
+		for (auto& fut : futures)
+		{
+			fut.get();
+		}
+	}
+
+	for (const auto& it : map->getZones())
+	{
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
-
-		Progress::Progress::step();
 	}
 
 	//find place for Grail
-	if(treasureZones.empty())
+	if (treasureZones.empty())
 	{
-		for(auto it : map->getZones())
-			if(it.second->getType() != ETemplateZoneType::WATER)
+		for (const auto& it : map->getZones())
+			if (it.second->getType() != ETemplateZoneType::WATER)
 				treasureZones.push_back(it.second);
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
-	map->map().grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
+	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
 
 	logGlobal->info("Zones filled successfully");
 
 	Load::Progress::set(250);
 }
 
-void CMapGenerator::findZonesForQuestArts()
-{
-	//we want to place arties in zones that were not yet filled (higher index)
-
-	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
-	{
-		auto zoneA = map->getZones()[connection.getZoneA()];
-		auto zoneB = map->getZones()[connection.getZoneB()];
-
-		if (zoneA->getId() > zoneB->getId())
-		{
-			if(auto * m = zoneB->getModificator<TreasurePlacer>())
-				zoneB->getModificator<TreasurePlacer>()->setQuestArtZone(zoneA.get());
-		}
-		else if (zoneA->getId() < zoneB->getId())
-		{
-			if(auto * m = zoneA->getModificator<TreasurePlacer>())
-				zoneA->getModificator<TreasurePlacer>()->setQuestArtZone(zoneB.get());
-		}
-	}
-}
-
 void CMapGenerator::addHeaderInfo()
 {
-	map->map().version = EMapFormat::VCMI;
-	map->map().width = mapGenOptions.getWidth();
-	map->map().height = mapGenOptions.getHeight();
-	map->map().twoLevel = mapGenOptions.getHasTwoLevels();
-	map->map().name = VLC->generaltexth->allTexts[740];
-	map->map().description = getMapDescription();
-	map->map().difficulty = 1;
+	auto& m = map->getMap(this);
+	m.version = EMapFormat::VCMI;
+	m.width = mapGenOptions.getWidth();
+	m.height = mapGenOptions.getHeight();
+	m.twoLevel = mapGenOptions.getHasTwoLevels();
+	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
+	m.description.appendRawString(getMapDescription());
+	m.difficulty = 1;
 	addPlayerInfo();
+	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
+	m.banWaterContent();
 }
 
 int CMapGenerator::getNextMonlithIndex()
 {
-	if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
-	else
-		return monolithIndex++;
+	while (true)
+	{
+		if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
+			throw rmgException(boost::str(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+		else
+		{
+			//Skip modded Monoliths which can't beplaced on every terrain
+			auto templates = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, monolithIndex)->getTemplates();
+			if (templates.empty() || !templates[0]->canBePlacedAtAnyTerrain())
+			{
+				monolithIndex++;
+			}
+			else
+			{
+				return monolithIndex++;
+			}
+		}
+	}
 }
 
 int CMapGenerator::getPrisonsRemaning() const
 {
-	return prisonsRemaining;
+	return allowedPrisons;
 }
 
-void CMapGenerator::decreasePrisonsRemaining()
+std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
 {
-	prisonsRemaining = std::max (0, prisonsRemaining - 1);
+	return placer;
 }
 
-const std::vector<ArtifactID> & CMapGenerator::getQuestArtsRemaning() const
+const std::vector<ArtifactID> & CMapGenerator::getAllPossibleQuestArtifacts() const
 {
 	return questArtifacts;
 }
 
-void CMapGenerator::banQuestArt(ArtifactID id)
+const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 {
-	map->map().allowedArtifact[id] = false;
-	vstd::erase_if_present(questArtifacts, id);
+	auto isWaterMap = map->getMap(this).isWaterMap();
+	//Skip heroes that were banned, including the ones placed in prisons
+	std::vector<HeroTypeID> ret;
+	for (HeroTypeID hero : map->getMap(this).allowedHeroes)
+	{
+		auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getById(hero));
+		if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap))
+		{
+			continue;
+		}
+		else
+		{
+			ret.push_back(hero);
+		}
+	}
+	return ret;
+}
+
+void CMapGenerator::banQuestArt(const ArtifactID & id)
+{
+	//TODO: Protect with mutex
+	map->getMap(this).allowedArtifact.erase(id);
+}
+
+void CMapGenerator::banHero(const HeroTypeID & id)
+{
+	//TODO: Protect with mutex
+	map->getMap(this).banHero(id);
 }
 
 Zone * CMapGenerator::getZoneWater() const

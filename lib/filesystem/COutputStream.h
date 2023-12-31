@@ -20,11 +20,6 @@ class DLL_LINKAGE COutputStream : public virtual CStream
 {
 public:
 	/**
-	 * D-tor.
-	 */
-	virtual ~COutputStream() {}
-
-	/**
 	 * Write n bytes from the stream into the data buffer.
 	 *
 	 * @param data A pointer to the destination data array.

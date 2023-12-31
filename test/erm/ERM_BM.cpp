@@ -34,7 +34,7 @@ TEST_F(ERM_BM, GetAttack)
 	const uint32_t UNIT_ID = 42;
 
 	battle::UnitFake & unit1 = unitsFake.add(0);
-	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CREATURE_ABILITY, ATTACK_VALUE, 0, PrimarySkill::ATTACK));
+	unit1.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CREATURE_ABILITY, ATTACK_VALUE, 0, PrimarySkill::ATTACK));
 
 	EXPECT_CALL(binfoMock, battleGetUnitByID(Eq(UNIT_ID))).WillOnce(Return(&unit1));
 
@@ -74,9 +74,9 @@ TEST_F(ERM_BM, SetAttack)
 
 		const Bonus & actual = pack->toAdd.back().second.back();
 
-		EXPECT_EQ(actual.type, Bonus::PRIMARY_SKILL);
+		EXPECT_EQ(actual.type, BonusType::PRIMARY_SKILL);
 		EXPECT_EQ(actual.subtype, PrimarySkill::ATTACK);
-		EXPECT_EQ(actual.valType, Bonus::BASE_NUMBER);
+		EXPECT_EQ(actual.valType, BonusValueType::BASE_NUMBER);
 		EXPECT_EQ(actual.val, ATTACK_VALUE);
 	};
 

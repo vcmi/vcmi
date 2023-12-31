@@ -30,10 +30,15 @@ class BattleFieldHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
 class TerrainTypeHandler;
+class RoadTypeHandler;
+class RiverTypeHandler;
 class ObstacleHandler;
 class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
 class IHandlerBase;
+class IGameSettings;
+class GameSettings;
+class CIdentifierStorage;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -54,7 +59,7 @@ class DLL_LINKAGE LibClasses : public Services
 	void setContent(std::shared_ptr<CContentHandler> content);
 
 public:
-	bool IS_AI_ENABLED; //unused?
+	bool IS_AI_ENABLED = false; //unused?
 
 	const ArtifactService * artifacts() const override;
 	const CreatureService * creatures() const override;
@@ -68,6 +73,7 @@ public:
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
+	const IGameSettings * settings() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -75,6 +81,7 @@ public:
 	spells::effects::Registry * spellEffects() override;
 
 	const IBonusTypeHandler * getBth() const; //deprecated
+	const CIdentifierStorage * identifiers() const;
 
 	CArtHandler * arth;
 	CHeroHandler * heroh;
@@ -86,11 +93,17 @@ public:
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
 	CModHandler * modh;
+
 	TerrainTypeHandler * terrainTypeHandler;
+	RoadTypeHandler * roadTypeHandler;
+	RiverTypeHandler * riverTypeHandler;
+	CIdentifierStorage * identifiersHandler;
+
 	CTerrainViewPatternConfig * terviewh;
 	CRmgTemplateStorage * tplh;
 	BattleFieldHandler * battlefieldsHandler;
 	ObstacleHandler * obstacleHandler;
+	GameSettings * settingsHandler;
 #if SCRIPTING_ENABLED
 	scripting::ScriptHandler * scriptHandler;
 #endif
@@ -100,58 +113,18 @@ public:
 	void init(bool onlyEssential); //uses standard config file
 	void clear(); //deletes all handlers and its data
 
-
-	void loadFilesystem(bool onlyEssential);// basic initialization. should be called before init()
+	// basic initialization. should be called before init(). Can also extract original H3 archives
+	void loadFilesystem(bool extractArchives);
+	void loadModFilesystem(bool onlyEssential);
 
 #if SCRIPTING_ENABLED
 	void scriptsLoaded();
 #endif
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-#if SCRIPTING_ENABLED
-		h & scriptHandler;//must be first (or second after modh), it can modify factories other handlers depends on
-		if(!h.saving)
-		{
-			scriptsLoaded();
-		}
-#endif
-
-		h & heroh;
-		h & arth;
-		h & creh;
-		h & townh;
-		h & objh;
-		h & objtypeh;
-		h & spellh;
-		h & skillh;
-		h & battlefieldsHandler;
-		h & obstacleHandler;
-		h & terrainTypeHandler;
-
-		if(!h.saving)
-		{
-			//modh will be changed and modh->content will be empty after deserialization
-			auto content = getContent();
-			h & modh;
-			setContent(content);
-		}
-		else
-			h & modh;
-
-		h & IS_AI_ENABLED;
-		h & bth;
-
-		if(!h.saving)
-		{
-			callWhenDeserializing();
-		}
-	}
 };
 
 extern DLL_LINKAGE LibClasses * VLC;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential = false);
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential = false, bool extractArchives = false);
 DLL_LINKAGE void loadDLLClasses(bool onlyEssential = false);
 
 

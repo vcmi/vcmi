@@ -22,9 +22,6 @@ namespace effects
 class Sacrifice : public Heal
 {
 public:
-	Sacrifice();
-	virtual ~Sacrifice();
-
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
@@ -38,7 +35,7 @@ protected:
 	bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const override;
 
 private:
-	int64_t calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim ) const;
+	static int64_t calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim);
 };
 
 }

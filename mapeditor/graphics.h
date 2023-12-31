@@ -11,23 +11,29 @@
 //code is copied from vcmiclient/Graphics.h with minimal changes
 
 #include "../lib/GameConstants.h"
+#include "../lib/filesystem/ResourcePath.h"
 #include <QImage>
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 class CGTownInstance;
+class CGObjectInstance;
+class EntityService;
+class JsonNode;
+class ObjectTemplate;
+
+VCMI_LIB_NAMESPACE_END
+
 class CHeroClass;
 struct InfoAboutHero;
 struct InfoAboutTown;
-class CGObjectInstance;
-class ObjectTemplate;
 class Animation;
-class EntityService;
-class JsonNode;
 
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
 {
-	void addImageListEntry(size_t index, const std::string & listName, const std::string & imageName);
+	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	
 	void addImageListEntries(const EntityService * service);
 	

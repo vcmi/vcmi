@@ -13,11 +13,6 @@
 #include "../AIhelper.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
-
 using namespace Goals;
 
 bool BuyArmy::operator==(const BuyArmy & other) const
@@ -35,11 +30,11 @@ TSubgoal BuyArmy::whatToDoToAchieve()
 {
 	//TODO: calculate the actual cost of units instead
 	TResources price;
-	price[Res::GOLD] = static_cast<int>(value * 0.4f); //some approximate value
+	price[EGameResID::GOLD] = static_cast<int>(value * 0.4f); //some approximate value
 	return ai->ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
 }
 
 std::string BuyArmy::completeMessage() const
 {
-	return boost::format("Bought army of value %d in town of %s") % value, town->name;
+	return boost::format("Bought army of value %d in town of %s") % value, town->getNameTranslated();
 }

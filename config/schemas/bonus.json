@@ -1,10 +1,9 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI bonus system format",
 	"description" : "Subsection of several formats, used to add generic bonuses to objects",
-	"required": ["type"],
-
+	"required" : ["type"],
 	"definitions" :
 	{
 		"nestedLimiter" : {
@@ -38,55 +37,39 @@
 			]
 		}
 	},
-
 	"additionalProperties" : false,
-	"properties":{
-		"addInfo": {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" },
-				{
-					"type" : "array",
-					"items" : {
-						"anyof" : [
-							{ "type" : "string" },
-							{ "type" : "number" }
-						]
-					}
-				}
-			],
-			"description": "addInfo"
+	"properties" : {
+		"type" : {
+			"type" : "string",
+			"description" : "type"
 		},
-		"description": {
-			"type":"string",
-			"description": "description"
+		"subtype" : {
+			"type" : "string",
+			"description" : "subtype"
 		},
-		"duration": {
-                        "anyOf" : [
-                                { "type": "string"},
-                                { "type": "array", "items": {"type": "string"} }
-                        ],
-			"description": "duration"
+		"sourceID" : {
+			"type" : "number",
+			"description" : "sourceID"
 		},
-		"effectRange": {
-			"type":"string",
-			"description": "effectRange"
+		"sourceType" : {
+			"type" : "string",
+			"description" : "sourceType"
 		},
-		"limiters" : {
-			"$ref" : "#/definitions/nestedLimiter",
-			"description" : "limiter"
+		"targetSourceType" : {
+			"type" : "string",
+			"description" : "targetSourceType"
 		},
-		"propagator": {
-			"description": "propagator",
+		"propagator" : {
+			"description" : "propagator",
 			"anyOf" : [
 				{
 					"type" : "string"
 				},
 				{
-					"type":"array",
-					"items": {
-							"type":"string",
-							"description": "0"
+					"type" : "array",
+					"items" : {
+							"type" : "string",
+							"description" : "0"
 					}
 				}
 			]
@@ -106,7 +89,7 @@
 							"type" : "string",
 							"description" : "type"
 						},
-						"parameters": {
+						"parameters" : {
 							"type" : "array",
 							"description" : "parameters",
 							"additionalItems" : true
@@ -115,40 +98,80 @@
 				}
 			]
 		},
-		"sourceID": {
-			"type":"number",
-			"description": "sourceID"
+		"propagationUpdater" : {
+			"anyOf" : [
+				{
+					"type" : "string"
+				},
+				{
+					"description" : "propagationUpdater",
+					"type" : "object",
+					"required" : ["type", "parameters"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"description" : "type"
+						},
+						"parameters" : {
+							"type" : "array",
+							"description" : "parameters",
+							"additionalItems" : true
+						}
+					}
+				}
+			]
 		},
-		"sourceType": {
-			"type":"string",
-			"description": "sourceType"
+		"limiters" : {
+			"$ref" : "#/definitions/nestedLimiter",
+			"description" : "limiter"
+		},
+		"effectRange" : {
+			"type" : "string",
+			"description" : "effectRange"
+		},
+		"val" : {
+			"type" : "number",
+			"description" : "val"
+		},
+		"valueType" : {
+			"type" : "string",
+			"description" : "valueType"
+		},
+		"addInfo" : {
+			"anyOf" : [
+				{ "type" : "string" },
+				{ "type" : "number" },
+				{
+					"type" : "array",
+					"items" : {
+						"anyof" : [
+							{ "type" : "string" },
+							{ "type" : "number" }
+						]
+					}
+				}
+			],
+			"description" : "addInfo"
+		},
+		"duration" : {
+			"anyOf" : [
+				{ "type" : "string"},
+				{ "type" : "array", "items" : {"type" : "string"} }
+			],
+			"description" : "duration"
+		},
+		"turns" : {
+			"type" : "number",
+			"description" : "turns"
 		},
 		"stacking" : {
 			"type" : "string",
 			"description" : "stacking"
 		},
-		"subtype": {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" }
-			],
-			"description": "subtype"
-		},
-		"turns": {
-			"type":"number",
-			"description": "turns"
-		},
-		"type": {
-			"type":"string",
-			"description": "type"
-		},
-		"val": {
-			"type":"number",
-			"description": "val"
-		},
-		"valueType": {
-			"type":"string",
-			"description": "valueType"
+		"description" : {
+			"type" : "string",
+			"description" : "description"
 		}
 	}
 }

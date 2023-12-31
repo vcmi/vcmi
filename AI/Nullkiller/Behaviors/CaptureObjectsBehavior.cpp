@@ -19,9 +19,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 using namespace Goals;
 
 template <typename T>
@@ -56,7 +53,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 	tasks.reserve(paths.size());
 
-	const AIPath * closestWay = nullptr;
+	std::unordered_map<HeroRole, const AIPath *> closestWaysByRole;
 	std::vector<ExecuteHeroChain *> waysToVisitObj;
 
 	for(auto & path : paths)
@@ -70,7 +67,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
+			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.getHeroStrength());
 #endif
 			continue;
 		}
@@ -81,7 +78,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
 
-		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
+		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && path.exchangeCount > 1)
 			continue;
 
 		auto firstBlockedAction = path.getFirstBlockedAction();
@@ -113,7 +110,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
 			objToVisit ? objToVisit->getObjectName() : path.targetTile().toString(),
-			hero->name,
+			hero->getObjectName(),
 			path.getHeroStrength(),
 			danger,
 			path.getTotalArmyLoss());
@@ -126,8 +123,14 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 			sharedPtr.reset(newWay);
 
+			auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+
+			auto & closestWay = closestWaysByRole[heroRole];
+
 			if(!closestWay || closestWay->movementCost() > path.movementCost())
+			{
 				closestWay = &path;
+			}
 
 			if(!ai->nullkiller->arePathHeroesLocked(path))
 			{
@@ -137,11 +140,16 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		}
 	}
 
-	assert(closestWay || waysToVisitObj.empty());
 	for(auto way : waysToVisitObj)
 	{
-		way->closestWayRatio
-			= closestWay->movementCost() / way->getPath().movementCost();
+		auto heroRole = ai->nullkiller->heroManager->getHeroRole(way->getPath().targetHero);
+		auto closestWay = closestWaysByRole[heroRole];
+
+		if(closestWay)
+		{
+			way->closestWayRatio
+				= closestWay->movementCost() / way->getPath().movementCost();
+		}
 	}
 
 	return tasks;
@@ -202,7 +210,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 	{
 		captureObjects(ai->nullkiller->objectClusterizer->getNearbyObjects());
 
-		if(tasks.empty())
+		if(tasks.empty() || ai->nullkiller->getScanDepth() != ScanDepth::SMALL)
 			captureObjects(ai->nullkiller->objectClusterizer->getFarObjects());
 	}
 

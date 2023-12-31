@@ -10,15 +10,10 @@
 #include "StdInc.h"
 #include "SaveResources.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 

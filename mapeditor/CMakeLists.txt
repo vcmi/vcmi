@@ -12,7 +12,16 @@ set(editor_SRCS
 		generatorprogress.cpp
 		mapview.cpp
 		objectbrowser.cpp
-		mapsettings.cpp
+		mapsettings/abstractsettings.cpp
+		mapsettings/mapsettings.cpp
+		mapsettings/generalsettings.cpp
+		mapsettings/modsettings.cpp
+		mapsettings/timedevent.cpp
+		mapsettings/victoryconditions.cpp
+		mapsettings/loseconditions.cpp
+		mapsettings/eventsettings.cpp
+		mapsettings/rumorsettings.cpp
+		mapsettings/translations.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
@@ -24,6 +33,10 @@ set(editor_SRCS
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
+		inspector/heroskillswidget.cpp
+		inspector/PickObjectDelegate.cpp
+		inspector/portraitwidget.cpp
+		resourceExtractor/ResourceConverter.cpp
 )
 
 set(editor_HEADERS
@@ -39,7 +52,16 @@ set(editor_HEADERS
 		generatorprogress.h
 		mapview.h
 		objectbrowser.h
-		mapsettings.h
+		mapsettings/abstractsettings.h
+		mapsettings/mapsettings.h
+		mapsettings/generalsettings.h
+		mapsettings/modsettings.h
+		mapsettings/timedevent.h
+		mapsettings/victoryconditions.h
+		mapsettings/loseconditions.h
+		mapsettings/eventsettings.h
+		mapsettings/rumorsettings.h
+		mapsettings/translations.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
@@ -51,13 +73,25 @@ set(editor_HEADERS
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
 		inspector/questwidget.h
+		inspector/heroskillswidget.h
+		inspector/PickObjectDelegate.h
+		inspector/portraitwidget.h
+		resourceExtractor/ResourceConverter.h
 )
 
 set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
 		generatorprogress.ui
-		mapsettings.ui
+		mapsettings/mapsettings.ui
+		mapsettings/generalsettings.ui
+		mapsettings/modsettings.ui
+		mapsettings/timedevent.ui
+		mapsettings/victoryconditions.ui
+		mapsettings/loseconditions.ui
+		mapsettings/eventsettings.ui
+		mapsettings/rumorsettings.ui
+		mapsettings/translations.ui
 		playersettings.ui
 		playerparams.ui
 		validator.ui
@@ -66,6 +100,19 @@ set(editor_FORMS
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui
 		inspector/questwidget.ui
+		inspector/heroskillswidget.ui
+		inspector/portraitwidget.ui
+)
+
+set(editor_TS
+	translation/english.ts
+	translation/french.ts
+	translation/german.ts
+	translation/polish.ts
+	translation/russian.ts
+	translation/spanish.ts
+	translation/ukrainian.ts
+	translation/vietnamese.ts
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} mapeditor.rc)
@@ -85,13 +132,28 @@ if(TARGET Qt6::Core)
 	qt_wrap_ui(editor_UI_HEADERS ${editor_FORMS})
 else()
 	qt5_wrap_ui(editor_UI_HEADERS ${editor_FORMS})
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		qt5_add_translation( editor_QM ${editor_TS} )
+	endif()
 endif()
 
 if(WIN32)
 	set(editor_ICON mapeditor.rc)
 endif()
 
-add_executable(vcmieditor WIN32 ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
+add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
+
+if(TARGET Qt6::Core)
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		qt_add_translations(vcmieditor
+			TS_FILES ${editor_TS}
+			QM_FILES_OUTPUT_VARIABLE editor_QM
+			INCLUDE_DIRECTORIES
+				${CMAKE_CURRENT_BINARY_DIR})
+	endif()
+endif()
 
 if(WIN32)
 	set_target_properties(vcmieditor
@@ -110,11 +172,11 @@ if(WIN32)
 endif()
 
 if(APPLE)
-	# This makes Xcode project prettier by moving vcmilauncher_autogen directory into vcmiclient subfolder
+	# This makes Xcode project prettier by moving mapeditor_autogen directory into vcmiclient subfolder
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
-target_link_libraries(vcmieditor vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(vcmieditor ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmieditor
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -123,13 +185,15 @@ enable_pch(vcmieditor)
 
 # Copy to build directory for easier debugging
 add_custom_command(TARGET vcmieditor POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/icons
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/mapeditor/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/icons
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/mapeditor/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/icons
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/mapeditor/translation
 )
 
 install(TARGETS vcmieditor DESTINATION ${BIN_DIR})
 # copy whole directory
 install(DIRECTORY icons DESTINATION ${DATA_DIR}/mapeditor)
+install(FILES ${editor_QM} DESTINATION ${DATA_DIR}/mapeditor/translation)
 # Install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE)
 	install(FILES "vcmieditor.desktop" DESTINATION share/applications)

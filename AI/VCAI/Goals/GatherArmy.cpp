@@ -15,14 +15,8 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
-#include "../../../lib/StringConstants.h"
-
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
+#include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 
@@ -33,7 +27,7 @@ bool GatherArmy::operator==(const GatherArmy & other) const
 
 std::string GatherArmy::completeMessage() const
 {
-	return "Hero " + hero.get()->name + " gathered army of value " + boost::lexical_cast<std::string>(value);
+	return "Hero " + hero.get()->getNameTranslated() + " gathered army of value " + std::to_string(value);
 }
 
 TSubgoal GatherArmy::whatToDoToAchieve()
@@ -90,11 +84,11 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			}
 			//build dwelling
 			//TODO: plan building over multiple turns?
-			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + std::size(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
 
 			//Do not use below code for now, rely on generic Build. Code below needs to know a lot of town/resource context to do more good than harm
-			/*auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
-			if (bid.is_initialized())
+			/*auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + std::size(unitsSource)), 1);
+			if (bid.has_value())
 			{
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
 				if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
@@ -159,7 +153,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 							for(auto & creatureID : creLevel.second)
 							{
 								auto creature = VLC->creh->objects[creatureID];
-								if(ai->ah->freeResources().canAfford(creature->cost))
+								if(ai->ah->freeResources().canAfford(creature->getFullRecruitCost()))
 									objs.push_back(obj); //TODO: reserve resources?
 							}
 						}

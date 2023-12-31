@@ -34,12 +34,10 @@ static const std::vector<std::string> IMPLEMENTS_MAP =
 namespace scripting
 {
 
-ScriptImpl::ScriptImpl(const ScriptHandler * owner_)
-	:owner(owner_),
-	host(),
+ScriptImpl::ScriptImpl(const ScriptHandler * owner_): 
+	owner(owner_),
 	implements(Implements::ANYTHING)
 {
-
 }
 
 ScriptImpl::~ScriptImpl() = default;
@@ -92,11 +90,11 @@ void ScriptImpl::serializeJson(vstd::CLoggerBase * logger, JsonSerializeFormat &
 	{
 		resolveHost();
 
-		ResourceID sourcePathId("SCRIPTS/" + sourcePath);
+		ResourcePath sourcePathId("SCRIPTS/" + sourcePath);
 
 		auto rawData = CResourceHandler::get()->load(sourcePathId)->readAll();
 
-		sourceText = std::string((char *)rawData.first.get(), rawData.second);
+		sourceText = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
 
 		compile(logger);
 	}
@@ -117,7 +115,7 @@ void ScriptImpl::serializeJsonState(JsonSerializeFormat & handler)
 
 void ScriptImpl::resolveHost()
 {
-	ResourceID sourcePathId(sourcePath);
+	ResourcePath sourcePathId(sourcePath);
 
 	if(sourcePathId.getType() == EResType::ERM)
 		host = owner->erm;
@@ -148,7 +146,7 @@ std::shared_ptr<Context> PoolImpl::getContext(const Script * script)
 		auto context = script->createContext(env);
 		cache[script] = context;
 
-		auto & key = script->getName();
+		const auto & key = script->getName();
 		const JsonNode & scriptState = state[key];
 
 		if(srv)
@@ -170,7 +168,7 @@ void PoolImpl::serializeState(const bool saving, JsonNode & data)
 	{
         for(auto & scriptAndContext : cache)
 		{
-			auto script = scriptAndContext.first;
+			const auto * script = scriptAndContext.first;
 			auto context = scriptAndContext.second;
 
 			state[script->getName()] = context->saveState();
@@ -219,12 +217,7 @@ const Script * ScriptHandler::resolveScript(const std::string & name) const
 	}
 }
 
-std::vector<bool> ScriptHandler::getDefaultAllowed() const
-{
-	return std::vector<bool>();
-}
-
-std::vector<JsonNode> ScriptHandler::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> ScriptHandler::loadLegacyData()
 {
 	return std::vector<JsonNode>();
 }
@@ -242,7 +235,7 @@ ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::str
 
 void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(logMod, scope, data, normalizeIdentifier(scope, "core", name));
+	auto object = loadFromJson(logMod, scope, data, name);
 	objects[object->identifier] = object;
 }
 
@@ -253,7 +246,7 @@ void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNo
 
 void ScriptHandler::performRegistration(Services * services) const
 {
-	for(auto & keyValue : objects)
+	for(const auto & keyValue : objects)
 	{
 		auto script = keyValue.second;
 		script->performRegistration(services);
@@ -262,7 +255,7 @@ void ScriptHandler::performRegistration(Services * services) const
 
 void ScriptHandler::run(std::shared_ptr<Pool> pool) const
 {
-	for(auto & keyValue : objects)
+	for(const auto & keyValue : objects)
 	{
 		auto script = keyValue.second;
 
@@ -280,7 +273,7 @@ void ScriptHandler::loadState(const JsonNode & state)
 
 	const JsonNode & scriptsData = state["scripts"];
 
-	for(auto & keyValue : scriptsData.Struct())
+	for(const auto & keyValue : scriptsData.Struct())
 	{
 		std::string name = keyValue.first;
 
@@ -307,7 +300,7 @@ void ScriptHandler::saveState(JsonNode & state)
 		JsonSerializer handler(nullptr, scriptData);
 		script->serializeJsonState(handler);
 
-		scriptsData[name] = std::move(scriptData);
+		scriptsData[name] = scriptData;
 	}
 
 }

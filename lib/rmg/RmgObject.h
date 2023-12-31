@@ -17,6 +17,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
+class CRandomGenerator;
 class RmgMap;
 
 namespace rmg {
@@ -34,17 +35,20 @@ public:
 		
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
+		bool isBlockedVisitable() const;
+		bool isRemovable() const;
 		const Area & getAccessibleArea() const;
-		void setTemplate(TerrainId terrain); //cache invalidation
-		void setAnyTemplate(); //cache invalidation
+		void setTemplate(TerrainId terrain, CRandomGenerator &); //cache invalidation
+		void setAnyTemplate(CRandomGenerator &); //cache invalidation
 		
+		int3 getTopTile() const;
 		int3 getPosition(bool isAbsolute = false) const;
 		void setPosition(const int3 & position); //cache invalidation
 		void setPositionRaw(const int3 & position); //no cache invalidation
 		const CGObjectInstance & object() const;
 		CGObjectInstance & object();
 		
-		void finalize(RmgMap & map); //cache invalidation
+		void finalize(RmgMap & map, CRandomGenerator &); //cache invalidation
 		void clear();
 		
 	private:
@@ -64,27 +68,42 @@ public:
 	Instance & addInstance(CGObjectInstance & object);
 	Instance & addInstance(CGObjectInstance & object, const int3 & position);
 	
-	std::list<Instance*> instances();
-	std::list<const Instance*> instances() const;
+	std::list<Instance*> & instances();
+	std::list<const Instance*> & instances() const;
 	
 	int3 getVisitablePosition() const;
 	const Area & getAccessibleArea(bool exceptLast = false) const;
+	const Area & getBlockVisitableArea() const;
+	const Area & getVisitableArea() const;
+	const Area & getRemovableArea() const;
+	const Area getEntrableArea() const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
-	void setTemplate(const TerrainId & terrain);
+	void setTemplate(const TerrainId & terrain, CRandomGenerator &);
 	
 	const Area & getArea() const;  //lazy cache invalidation
+	const int3 getVisibleTop() const;
+
+	bool isGuarded() const;
+	void setGuardedIfMonster(const Instance & object);
 	
-	void finalize(RmgMap & map);
+	void finalize(RmgMap & map, CRandomGenerator &);
+	void clearCachedArea() const;
 	void clear();
 	
 private:
 	std::list<Instance> dInstances;
 	mutable Area dFullAreaCache;
 	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
+	mutable Area dBlockVisitableCache;
+	mutable Area dVisitableCache;
+	mutable Area dRemovableAreaCache;
 	int3 dPosition;
-	ui32 dStrenght;
+	mutable std::optional<int3> visibleTopOffset;
+	mutable std::list<Object::Instance*> cachedInstanceList;
+	mutable std::list<const Object::Instance*> cachedInstanceConstList;
+	bool guarded;
 };
 }
 

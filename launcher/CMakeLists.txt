@@ -1,57 +1,72 @@
-set(launcher_modmanager_SRCS
+set(launcher_SRCS
+		StdInc.cpp
+		aboutProject/aboutproject_moc.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/cmodlist.cpp
 		modManager/cmodlistmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
 		modManager/cmodmanager.cpp
 		modManager/imageviewer_moc.cpp
+		settingsView/csettingsview_moc.cpp
+		firstLaunch/firstlaunch_moc.cpp
+		main.cpp
+		mainwindow_moc.cpp
+		languages.cpp
+		launcherdirs.cpp
+		jsonutils.cpp
+		updatedialog_moc.cpp
+		lobby/lobby.cpp
+		lobby/lobby_moc.cpp
+		lobby/lobbyroomrequest_moc.cpp
+		lobby/chat_moc.cpp
 )
 
-set(launcher_modmanager_HEADERS
+set(launcher_HEADERS
+		StdInc.h
+		aboutProject/aboutproject_moc.h
 		modManager/cdownloadmanager_moc.h
 		modManager/cmodlist.h
 		modManager/cmodlistmodel_moc.h
 		modManager/cmodlistview_moc.h
 		modManager/cmodmanager.h
 		modManager/imageviewer_moc.h
-)
-
-set(launcher_settingsview_SRCS
-		settingsView/csettingsview_moc.cpp
-)
-
-set(launcher_settingsview_HEADERS
 		settingsView/csettingsview_moc.h
-)
-
-set(launcher_SRCS
-		StdInc.cpp
-		${launcher_modmanager_SRCS}
-		${launcher_settingsview_SRCS}
-		main.cpp
-		mainwindow_moc.cpp
-		launcherdirs.cpp
-		jsonutils.cpp
-		updatedialog_moc.cpp
-)
-
-set(launcher_HEADERS
-		StdInc.h
-		${launcher_modmanager_HEADERS}
-		${launcher_settingsview_HEADERS}
+		firstLaunch/firstlaunch_moc.h
 		mainwindow_moc.h
+		languages.h
 		launcherdirs.h
 		jsonutils.h
 		updatedialog_moc.h
+		lobby/lobby.h
+		lobby/lobby_moc.h
+		lobby/lobbyroomrequest_moc.h
+		lobby/chat_moc.h
 		main.h
 )
 
 set(launcher_FORMS
+		aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
 		modManager/imageviewer_moc.ui
 		settingsView/csettingsview_moc.ui
+		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
 		updatedialog_moc.ui
+		lobby/lobby_moc.ui
+		lobby/lobbyroomrequest_moc.ui
+		lobby/chat_moc.ui
+)
+
+set(launcher_TS
+	translation/chinese.ts
+	translation/english.ts
+	translation/french.ts
+	translation/german.ts
+	translation/polish.ts
+	translation/russian.ts
+	translation/spanish.ts
+	translation/ukrainian.ts
+	translation/vietnamese.ts
 )
 
 if(APPLE_IOS)
@@ -77,16 +92,32 @@ if(TARGET Qt6::Core)
 	qt_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 else()
 	qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		qt5_add_translation( launcher_QM ${launcher_TS} )
+	endif()
 endif()
+
 
 if(WIN32)
 	set(launcher_ICON VCMI_launcher.rc)
 endif()
 
-if(BUILD_SINGLE_APP)
-	add_library(vcmilauncher STATIC ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
+if(ENABLE_SINGLE_APP_BUILD)
+	add_library(vcmilauncher STATIC ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
 else()
-	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
+	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
+endif()
+
+if(TARGET Qt6::Core)
+	if(ENABLE_TRANSLATIONS)
+		set_source_files_properties(${launcher_TS} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translation)
+		qt_add_translations(vcmilauncher
+			TS_FILES ${launcher_TS}
+			QM_FILES_OUTPUT_VARIABLE launcher_QM
+			INCLUDE_DIRECTORIES
+				${CMAKE_CURRENT_BINARY_DIR})
+	endif()
 endif()
 
 if(WIN32)
@@ -110,6 +141,10 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
 endif()
 
+if (NOT APPLE_IOS AND NOT ANDROID)
+	target_link_libraries(vcmilauncher SDL2::SDL2)
+endif()
+
 target_link_libraries(vcmilauncher ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
@@ -118,7 +153,12 @@ vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
 if(APPLE_IOS)
-	set(ICONS_DESTINATION ${DATA_DIR})
+	set(RESOURCES_DESTINATION ${DATA_DIR})
+
+	# TODO: remove after fixing Conan's Qt recipe
+	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
+		target_link_libraries(vcmilauncher "-framework IOKit")
+	endif()
 
 	# workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)
@@ -132,12 +172,13 @@ if(APPLE_IOS)
 		)
 	endif()
 else()
-	set(ICONS_DESTINATION ${DATA_DIR}/launcher)
+	set(RESOURCES_DESTINATION ${DATA_DIR}/launcher)
 
-	# Copy to build directory for easier debugging
+	# Link to build directory for easier debugging
 	add_custom_command(TARGET vcmilauncher POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher
+		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_CURRENT_BINARY_DIR}/translation ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/translation
 	)
 
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
@@ -148,4 +189,8 @@ else()
 		install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 	endif()
 endif()
-install(DIRECTORY icons DESTINATION ${ICONS_DESTINATION})
+
+install(DIRECTORY icons DESTINATION ${RESOURCES_DESTINATION})
+if(ENABLE_TRANSLATIONS)
+	install(FILES ${launcher_QM} DESTINATION ${RESOURCES_DESTINATION}/translation)
+endif()

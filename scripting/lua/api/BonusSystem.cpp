@@ -11,7 +11,11 @@
 
 #include "BonusSystem.h"
 
-#include "../../../lib/HeroBonus.h"
+#include "../../../lib/JsonNode.h"
+
+#include "../../../lib/bonuses/BonusList.h"
+#include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/bonuses/IBonusBearer.h"
 
 #include "Registry.h"
 
@@ -58,7 +62,7 @@ int BonusProxy::getSubtype(lua_State * L)
 	std::shared_ptr<const Bonus> object;
 	if(!S.tryGet(1, object))
 		return S.retNil();
-	return LuaStack::quickRetInt(L, object->subtype);
+	return LuaStack::quickRetInt(L, object->subtype.getNum());
 }
 
 int BonusProxy::getDuration(lua_State * L)
@@ -112,7 +116,7 @@ int BonusProxy::getSourceID(lua_State * L)
 	std::shared_ptr<const Bonus> object;
 	if(!S.tryGet(1, object))
 		return S.retNil();
-	return LuaStack::quickRetInt(L, object->sid);
+	return LuaStack::quickRetInt(L, object->sid.getNum());
 }
 
 int BonusProxy::getEffectRange(lua_State * L)
@@ -153,13 +157,27 @@ int BonusProxy::toJsonNode(lua_State * L)
 	return 1;
 }
 
-template <typename T>
-static void publishMap(lua_State * L, const T & map)
+template <typename T, typename N>
+static void publishMap(lua_State * L, const std::map<T , N> & map)
 {
 	for(auto & p : map)
 	{
 		const std::string & name = p.first;
-		int32_t id = static_cast<int32_t>(p.second);
+		auto id = static_cast<int32_t>(p.second);
+
+		lua_pushstring(L, name.c_str());
+		lua_pushinteger(L, id);
+		lua_rawset(L, -3);
+	}
+}
+
+template <typename T, std::size_t N>
+static void publishMap(lua_State * L, const std::map<T , std::bitset<N>> & map)
+{
+	for(auto & p : map)
+	{
+		const std::string & name = p.first;
+		auto id = static_cast<int32_t>(p.second.to_ulong());
 
 		lua_pushstring(L, name.c_str());
 		lua_pushinteger(L, id);

@@ -28,11 +28,13 @@ class WindowNewMap : public QDialog
 	const QString newMapGenerateRandom = "NewMapWindow/GenerateRandom";
 	const QString newMapPlayers = "NewMapWindow/Players";		//map index
 	const QString newMapCpuPlayers = "NewMapWindow/CpuPlayers"; //map index
+	const QString newMapHumanTeams = "NewMapWindow/HumanTeams"; //map index
+	const QString newMapCpuTeams = "NewMapWindow/CpuTeams";     //map index
 	const QString newMapWaterContent = "NewMapWindow/WaterContent";
 	const QString newMapMonsterStrength = "NewMapWindow/MonsterStrength";
 	const QString newMapTemplate = "NewMapWindow/Template";
-
-	const int playerLimit = 8;
+	
+	const QString randomString = "Random";
 
 	const std::map<int, int> players
 	{
@@ -58,6 +60,14 @@ class WindowNewMap : public QDialog
 		{6, 5},
 		{7, 6},
 		{8, 7}
+	};
+	
+	const std::map<int, std::pair<int, int>> mapSizes
+	{
+		{0, {36, 36}},
+		{1, {72, 72}},
+		{2, {108, 108}},
+		{3, {144, 144}},
 	};
 
 public:
@@ -86,6 +96,10 @@ private slots:
 	void on_heightTxt_textChanged(const QString &arg1);
 
 	void on_checkSeed_toggled(bool checked);
+
+	void on_humanTeamsCombo_activated(int index);
+
+	void on_cpuTeamsCombo_activated(int index);
 
 private:
 

@@ -15,20 +15,22 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 SiegeInfo::SiegeInfo()
 {
-	for(int i = 0; i < wallState.size(); ++i)
+	for(int i = 0; i < static_cast<int>(EWallPart::PARTS_COUNT); ++i)
 	{
-		wallState[i] = EWallState::NONE;
+		wallState[static_cast<EWallPart>(i)] = EWallState::NONE;
 	}
 	gateState = EGateState::NONE;
 }
 
-EWallState::EWallState SiegeInfo::applyDamage(EWallState::EWallState state, unsigned int value)
+EWallState SiegeInfo::applyDamage(EWallState state, unsigned int value)
 {
 	if(value == 0)
 		return state;
 
 	switch(applyDamage(state, value - 1))
 	{
+	case EWallState::REINFORCED:
+		return EWallState::INTACT;
 	case EWallState::INTACT:
 		return EWallState::DAMAGED;
 	case EWallState::DAMAGED:

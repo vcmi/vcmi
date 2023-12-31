@@ -15,14 +15,7 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
-#include "../../../lib/StringConstants.h"
-
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 
@@ -33,7 +26,7 @@ bool VisitTile::operator==(const VisitTile & other) const
 
 std::string VisitTile::completeMessage() const
 {
-	return "Hero " + hero.get()->name + " visited tile " + tile.toString();
+	return "Hero " + hero.get()->getNameTranslated() + " visited tile " + tile.toString();
 }
 
 TSubgoal VisitTile::whatToDoToAchieve()

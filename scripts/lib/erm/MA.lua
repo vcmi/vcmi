@@ -80,7 +80,7 @@ MA.I = createModifier({}, "aiValue" ,"getAIValue")
 MA.L = createModifier({}, "level" , "getLevel")
 MA.M = createModifier({"damage"}, "min", "getBaseDamageMin")
 MA.N = createModifier({}, "shots" , "getBaseShots")
-MA.O = createModifier({}, "faction" ,"getFactionIndex")
+MA.O = createModifier({}, "faction" ,"getFaction")
 MA.P = createModifier({}, "hitPoints" ,"getBaseHitPoints")
 MA.R = createModifier({}, "horde" , "getHorde")
 MA.S = createModifier({}, "speed" , "getBaseSpeed")
@@ -149,7 +149,7 @@ end
 function MA:X(x, creatureIndex, flagsMask)
 	local creatureIndex = checkCreatureIndex(creatureIndex)
 	local creature = creatureByIndex(creatureIndex)
-	local creatureBonuses = creature:accessBonuses()
+	local creatureBonuses = creature:getBonusBearer()
 	local all = creatureBonuses:getBonuses()
 
 	local currentMask = 0

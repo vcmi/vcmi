@@ -13,10 +13,13 @@
 
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
-#include "../NetPacksBase.h"
+#include "../MetaString.h"
 
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
+
+#include <vcmi/Faction.h>
+#include <vcmi/FactionService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,6 +46,12 @@ std::string Unit::getDescription() const
 	return fmt.str();
 }
 
+//TODO: deduplicate these functions
+const IBonusBearer* Unit::getBonusBearer() const
+{
+	return this;
+}
+
 std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex assumedPosition) const
 {
 	BattleHex hex = (assumedPosition != BattleHex::INVALID) ? assumedPosition : getPosition(); //use hypothetical position
@@ -59,7 +68,7 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex
 
 		if(side == BattleSide::ATTACKER)
 		{
-			for(BattleHex::EDir dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
+			for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
 				BattleHex::checkAndPush(position.cloneInDirection(dir, false), hexes);
 
 			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), hexes);
@@ -70,7 +79,7 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex
 		{
 			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::TOP_LEFT, false), hexes);
 
-			for(BattleHex::EDir dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
+			for(auto dir = static_cast<BattleHex::EDir>(0); dir <= static_cast<BattleHex::EDir>(4); dir = static_cast<BattleHex::EDir>(dir + 1))
 				BattleHex::checkAndPush(otherHex.cloneInDirection(dir, false), hexes);
 
 			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), hexes);
@@ -163,7 +172,7 @@ BattleHex Unit::occupiedHex(BattleHex assumedPos, bool twoHex, ui8 side)
 	}
 }
 
-void Unit::addText(MetaString & text, ui8 type, int32_t serial, const boost::logic::tribool & plural) const
+void Unit::addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural) const
 {
 	if(boost::logic::indeterminate(plural))
 		serial = VLC->generaltexth->pluralText(serial, getCount());
@@ -172,17 +181,17 @@ void Unit::addText(MetaString & text, ui8 type, int32_t serial, const boost::log
 	else
 		serial = VLC->generaltexth->pluralText(serial, 1);
 
-	text.addTxt(type, serial);
+	text.appendLocalString(type, serial);
 }
 
 void Unit::addNameReplacement(MetaString & text, const boost::logic::tribool & plural) const
 {
 	if(boost::logic::indeterminate(plural))
-		text.addCreReplacement(creatureId(), getCount());
+		text.replaceName(creatureId(), getCount());
 	else if(plural)
-		text.addReplacement(MetaString::CRE_PL_NAMES, creatureIndex());
+		text.replaceNamePlural(creatureIndex());
 	else
-		text.addReplacement(MetaString::CRE_SING_NAMES, creatureIndex());
+		text.replaceNameSingular(creatureIndex());
 }
 
 std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
@@ -190,8 +199,8 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
 	const int32_t textId = VLC->generaltexth->pluralText(baseTextId, getCount());
 
 	MetaString text;
-	text.addTxt(MetaString::GENERAL_TXT, textId);
-	text.addCreReplacement(creatureId(), getCount());
+	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
+	text.replaceName(creatureId(), getCount());
 
 	return text.toString();
 }
@@ -206,20 +215,10 @@ int Unit::getRawSurrenderCost() const
 }
 
 ///UnitInfo
-UnitInfo::UnitInfo()
-	: id(0),
-	count(0),
-	type(),
-	side(0),
-	position(),
-	summoned(false)
-{
-}
-
 void UnitInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("count", count);
-	handler.serializeId("type", type, CreatureID::NONE);
+	handler.serializeId("type", type, CreatureID(CreatureID::NONE));
 	handler.serializeInt("side", side);
 	handler.serializeInt("position", position);
 	handler.serializeBool("summoned", summoned);

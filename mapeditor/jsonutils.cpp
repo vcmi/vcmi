@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "jsonutils.h"
-#include "../lib/filesystem/FileStream.h"
 
 static QVariantMap JsonToMap(const JsonMap & json)
 {
@@ -50,6 +49,8 @@ static JsonMap VariantToMap(QVariantMap variant)
 	}
 	return map;
 }
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 namespace JsonUtils
 {
@@ -118,8 +119,10 @@ JsonNode toJson(QVariant object)
 
 void JsonToFile(QString filename, QVariant object)
 {
-	FileStream file(qstringToPath(filename), std::ios::out | std::ios_base::binary);
+	std::fstream file(qstringToPath(filename).c_str(), std::ios::out | std::ios_base::binary);
 	file << toJson(object).toJson();
 }
 
 }
+
+VCMI_LIB_NAMESPACE_END

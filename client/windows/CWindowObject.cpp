@@ -10,23 +10,21 @@
 #include "StdInc.h"
 #include "CWindowObject.h"
 
-#include "CAdvmapInterface.h"
-
 #include "../widgets/MiscWidgets.h"
-
-#include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
+#include "../gui/CursorHandler.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../windows/CMessage.h"
+#include "../renderSDL/SDL_PixelAccess.h"
+#include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
+#include "../render/Canvas.h"
 
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
-
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 
 #include "../../CCallback.h"
@@ -34,12 +32,15 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
-CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
-	WindowBase(getUsedEvents(options_), Point()),
+#include <SDL_surface.h>
+
+CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point centerAt):
+	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	if(!(options & NEEDS_ANIMATED_BACKGROUND)) //currently workaround for highscores (currently uses window as normal control, because otherwise videos are not played in background yet)
+		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -55,12 +56,13 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 		setShadow(true);
 }
 
-CWindowObject::CWindowObject(int options_, std::string imageName):
-	WindowBase(getUsedEvents(options_), Point()),
+CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
+	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	if(!(options & NEEDS_ANIMATED_BACKGROUND)) //currently workaround for highscores (currently uses window as normal control, because otherwise videos are not played in background yet)
+		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -70,15 +72,19 @@ CWindowObject::CWindowObject(int options_, std::string imageName):
 	if(background)
 		pos = background->center();
 	else
-		center(Point(screen->w/2, screen->h/2));
+		center(GH.screenDimensions() / 2);
 
 	if(!(options & SHADOW_DISABLED))
 		setShadow(true);
 }
 
-CWindowObject::~CWindowObject() = default;
+CWindowObject::~CWindowObject()
+{
+	if(options & RCLICK_POPUP)
+		CCS->curh->show();
+}
 
-std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool playerColored)
+std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, bool playerColored)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -86,12 +92,13 @@ std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool pl
 		return nullptr;
 
 	auto image = std::make_shared<CPicture>(imageName);
+	image->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 	if(playerColored)
 		image->colorize(LOCPLINT->playerID);
 	return image;
 }
 
-void CWindowObject::setBackground(std::string filename)
+void CWindowObject::setBackground(const ImagePath & filename)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -101,13 +108,6 @@ void CWindowObject::setBackground(std::string filename)
 		pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
 	updateShadow();
-}
-
-int CWindowObject::getUsedEvents(int options)
-{
-	if (options & RCLICK_POPUP)
-		return RCLICK;
-	return 0;
 }
 
 void CWindowObject::updateShadow()
@@ -137,7 +137,7 @@ void CWindowObject::setShadow(bool on)
 		//helper to set last row
 		auto blitAlphaRow = [](SDL_Surface *surf, size_t row)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + surf->pitch * (row);
+			uint8_t * ptr = (uint8_t*)surf->pixels + surf->pitch * (row);
 
 			for (size_t i=0; i< surf->w; i++)
 			{
@@ -149,7 +149,7 @@ void CWindowObject::setShadow(bool on)
 		// helper to set last column
 		auto blitAlphaCol = [](SDL_Surface *surf, size_t col)
 		{
-			Uint8 * ptr = (Uint8*)surf->pixels + 4 * (col);
+			uint8_t * ptr = (uint8_t*)surf->pixels + 4 * (col);
 
 			for (size_t i=0; i< surf->h; i++)
 			{
@@ -170,12 +170,10 @@ void CWindowObject::setShadow(bool on)
 			shadowBottomTempl = CSDL_Ext::createSurfaceWithBpp<4>(1, size);
 			shadowRightTempl  = CSDL_Ext::createSurfaceWithBpp<4>(size, 1);
 
-			Uint32 shadowColor = SDL_MapRGBA(shadowCornerTempl->format, 0, 0, 0, 192);
-
 			//fill with shadow body color
-			SDL_FillRect(shadowCornerTempl, nullptr, shadowColor);
-			SDL_FillRect(shadowBottomTempl, nullptr, shadowColor);
-			SDL_FillRect(shadowRightTempl,  nullptr, shadowColor);
+			CSDL_Ext::fillSurface(shadowCornerTempl, { 0, 0, 0, 192 } );
+			CSDL_Ext::fillSurface(shadowBottomTempl, { 0, 0, 0, 192 } );
+			CSDL_Ext::fillSurface(shadowRightTempl,  { 0, 0, 0, 192 } );
 
 			//fill last row and column with more transparent color
 			blitAlphaCol(shadowRightTempl , size-1);
@@ -215,41 +213,37 @@ void CWindowObject::setShadow(bool on)
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-			shadowParts.push_back(std::make_shared<CPicture>(shadowCorner, shadowPos.x, shadowPos.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowRight, shadowPos.x, shadowStart.y));
-			shadowParts.push_back(std::make_shared<CPicture>(shadowBottom, shadowStart.x, shadowPos.y));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowBottom), Point(shadowStart.x, shadowPos.y)));
 
 		}
+		SDL_FreeSurface(shadowCorner);
+		SDL_FreeSurface(shadowBottom);
+		SDL_FreeSurface(shadowRight);
 	}
 }
 
-void CWindowObject::showAll(SDL_Surface *to)
+void CWindowObject::showAll(Canvas & to)
 {
 	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
-		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	if ((options & BORDERED) && (pos.dimensions() != GH.screenDimensions()))
+		CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void CWindowObject::clickRight(tribool down, bool previousState)
+bool CWindowObject::isPopupWindow() const
 {
-	close();
-	CCS->curh->show();
+	return options & RCLICK_POPUP;
 }
 
-CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
-{
-}
-
-CStatusbarWindow::CStatusbarWindow(int options, std::string imageName) : CWindowObject(options, imageName)
+CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
 {
 }
 
-void CStatusbarWindow::activate()
+CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName) : CWindowObject(options, imageName)
 {
-	CIntObject::activate();
-	GH.statusbar = statusbar;
 }

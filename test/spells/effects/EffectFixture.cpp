@@ -13,7 +13,8 @@
 
 #include <vstd/RNG.h>
 
-#include "../../../lib/NetPacks.h"
+#include "../../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../../lib/networkPacks/SetStackEffect.h"
 
 #include "../../../lib/serializer/JsonDeserializer.h"
 
@@ -72,9 +73,12 @@ void EffectFixture::setupEffect(Registry * registry, const JsonNode & effectConf
 
 void EffectFixture::setUp()
 {
+#if SCRIPTING_ENABLED
 	pool = std::make_shared<PoolMock>();
-
 	battleFake = std::make_shared<battle::BattleFake>(pool);
+#else
+	battleFake = std::make_shared<battle::BattleFake>();
+#endif
 	battleFake->setUp();
 
 	EXPECT_CALL(mechanicsMock, game()).WillRepeatedly(Return(&gameMock));

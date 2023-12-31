@@ -10,8 +10,7 @@
  
 #pragma once
  
-#include "../CRandomGenerator.h"
-#include "CMapEditManager.h"
+#include "CMapOperation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -39,9 +38,9 @@ protected:
 		bool result;
 		int flip;
 	};
-	
-	CDrawLinesOperation(CMap * map, const CTerrainSelection & terrainSel, CRandomGenerator * gen);
-	
+
+	CDrawLinesOperation(CMap * map, CTerrainSelection terrainSel, CRandomGenerator * gen);
+
 	virtual void executeTile(TerrainTile & tile) = 0;
 	virtual bool canApplyPattern(const CDrawLinesOperation::LinePattern & pattern) const = 0;
 	virtual bool needUpdateTile(const TerrainTile & tile) const = 0;
@@ -80,7 +79,7 @@ private:
 class CDrawRiversOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen);
+	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId roadType, CRandomGenerator * gen);
 	std::string getLabel() const override;
 	
 protected:

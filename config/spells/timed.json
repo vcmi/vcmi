@@ -17,7 +17,7 @@
 				"effects" : {
 					"generalDamageReduction" : {
 						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 0,
+						"subtype" : "damageTypeMelee",
 						"duration" : "N_TURNS"
 					}
 				}
@@ -48,7 +48,7 @@
 				"effects" : {
 					"generalDamageReduction" : {
 						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 1,
+						"subtype" : "damageTypeRanged",
 						"duration" : "N_TURNS"
 					}
 				}
@@ -69,11 +69,8 @@
 			"affect":["C05SPF0"]
 		},
 		"sounds": {
-			"cast": "FIRESHIE"
+			"cast": "FIRESHLD"
 		},
-		// It looks that fireshield has two separate sounds
-		//			"soundfile":"FIRESHLD.wav"
-		//
 		"levels" : {
 			"base":{
 				"range" : "0",
@@ -107,7 +104,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 0,
+						"subtype" : "spellSchool.air",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -150,7 +147,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 1,
+						"subtype" : "spellSchool.fire",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -193,7 +190,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 2,
+						"subtype" : "spellSchool.water",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -236,7 +233,7 @@
 				"effects" : {
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 3,
+						"subtype" : "spellSchool.earth",
 						"duration" : "N_TURNS",
 						"val" : 30
 					}
@@ -370,14 +367,25 @@
 					"alwaysMaximumDamage" : {
 						"val" : 0,
 						"type" : "ALWAYS_MAXIMUM_DAMAGE",
-						"subtype" : -1,
 						"valueType" : "INDEPENDENT_MAX",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
+			"advanced":{ 
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 1
+					}
+				}
+			},
 			"expert":{
-				"range" : "X"
+				"range" : "X",
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 1
+					}
+				}
 			}
 		},
 		"counters" : {
@@ -412,14 +420,25 @@
 						"addInfo" : 0,
 						"val" : 0,
 						"type" : "ALWAYS_MINIMUM_DAMAGE",
-						"subtype" : -1,
 						"valueType" : "INDEPENDENT_MAX",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
+			"advanced":{ 
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"val" : 1
+					}
+				}
+			},
 			"expert":{
-				"range" : "X"
+				"range" : "X",
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"val" : 1
+					}
+				}
 			}
 		},
 		"counters" : {
@@ -440,7 +459,9 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["SP12_"] //???
+			"affect":[ {
+				"effectName" : "bloodlust"
+			} ]
 		},
 		"sounds": {
 			"cast": "BLOODLUS"
@@ -453,7 +474,7 @@
 					"primarySkill" : {
 						"val" : 3,
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"effectRange" : "ONLY_MELEE_FIGHT",
 						"duration" : "N_TURNS"
 					}
@@ -504,7 +525,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"val" : 3,
 						"effectRange" : "ONLY_DISTANCE_FIGHT",
 						"duration" : "N_TURNS"
@@ -541,7 +562,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":["C0ACID"]
+			"affect":["C17SPW0"]
 		},
 		"sounds": {
 			"cast": "WEAKNESS"
@@ -553,7 +574,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"val" : -3,
 						"duration" : "N_TURNS"
 					}
@@ -600,7 +621,7 @@
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"subtype" : "primarySkill.defence",
 						"val" : 3,
 						"duration" : "N_TURNS"
 					}
@@ -644,7 +665,7 @@
 				"cumulativeEffects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"subtype" : "primarySkill.defence",
 						"val" : -3,
 						"valueType" : "ADDITIVE_VALUE",
 						"duration" : "PERMANENT"
@@ -687,13 +708,13 @@
 				"effects" : {
 					"attack" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primarySkill.attack",
 						"val" : 2,
 						"duration" : "N_TURNS"
 					},
 					"defence" : {
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"subtype" : "primarySkill.defence",
 						"val" : 2,
 						"duration" : "N_TURNS"
 					},
@@ -1132,7 +1153,10 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.SIEGE_WEAPON" : "absolute"
+				"bonus.MIND_IMMUNITY" : "absolute",
+				"bonus.NON_LIVING" : "absolute",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
 			}
 		}
 	},
@@ -1200,7 +1224,7 @@
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "STACK_GETS_TURN"
+						"duration" : "UNTIL_OWN_ATTACK"
 					}
 				}
 			},
@@ -1378,7 +1402,7 @@
 					"notActive" : {
 						"val" : 0,
 						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
+						"subtype" : "blind",
 						"duration" : [
 							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"

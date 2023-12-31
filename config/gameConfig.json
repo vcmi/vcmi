@@ -42,16 +42,29 @@
 		"config/heroes/stronghold.json",
 		"config/heroes/fortress.json",
 		"config/heroes/conflux.json",
-		"config/heroes/special.json"
+		"config/heroes/special.json",
+		"config/heroes/portraits.json"
 	],
 
 	"objects" :
 	[
-		"config/objects/generic.json",
-		"config/objects/moddables.json",
+		"config/objects/cartographer.json",
+		"config/objects/coverOfDarkness.json",
 		"config/objects/creatureBanks.json",
 		"config/objects/dwellings.json",
-		"config/objects/rewardable.json"
+		"config/objects/generic.json",
+		"config/objects/magicSpring.json",
+		"config/objects/magicWell.json",
+		"config/objects/moddables.json",
+		"config/objects/observatory.json",
+		"config/objects/rewardableBonusing.json",
+		"config/objects/rewardableOncePerHero.json",
+		"config/objects/rewardableOncePerWeek.json",
+		"config/objects/rewardableOnceVisitable.json",
+		"config/objects/rewardablePickable.json",
+		"config/objects/scholar.json",
+		"config/objects/shrine.json",
+		"config/objects/witchHut.json"
 	],
 
 	"artifacts" :
@@ -66,8 +79,7 @@
 
 	"bonuses" :
 	[
-		"config/bonuses.json",
-		"config/bonuses_texts.json"
+		"config/bonuses.json"
 	],
 	"spells" :
 	[
@@ -75,15 +87,25 @@
 		"config/spells/offensive.json",
 		"config/spells/other.json",
 		"config/spells/timed.json",
-		"config/spells/ability.json"
+		"config/spells/ability.json",
+		"config/spells/vcmiAbility.json",
+		"config/spells/moats.json"
 	],
 	"skills" :
 	[
-        "config/skills.json"
+		"config/skills.json"
 	],
 	"terrains":
 	[
 		"config/terrains.json"
+	],
+	"roads":
+	[
+		"config/roads.json"
+	],
+	"rivers":
+	[
+		"config/rivers.json"
 	],
 	"battlefields":
 	[
@@ -92,5 +114,343 @@
 	"obstacles":
 	[
 		"config/obstacles.json"
-	]
+	],
+	
+	"settings":
+	{
+		// Number of entries of each type to load from Heroes III text files
+		"textData" :
+		{
+			"heroClass"  : 18,
+			"artifact"   : 144,
+			"creature"   : 150,
+			"faction"    : 9,
+			"hero"       : 156,
+			"spell"      : 81,
+			"object"     : 256,
+			"terrain"    : 10,
+			"river"      : 5,
+			"road"       : 4,
+		},
+		
+		"mapFormat" : {
+			"restorationOfErathia" : { 
+				"supported" : true,
+				"iconIndex" : 0,
+
+				"buildingsCommon": {
+					"townHall"       : 0,
+					"cityHall"       : 1,
+					"capitol"        : 2,
+
+					"fort"           : 3,
+					"citadel"        : 4,
+					"castle"         : 5,
+
+					"tavern"         : 6,
+					"blacksmith"     : 7,
+					"marketplace"    : 8,
+					"resourceSilo"   : 9,
+
+					"mageGuild1"     : 11,
+					"mageGuild2"     : 12,
+					"mageGuild3"     : 13,
+					"mageGuild4"     : 14,
+					"mageGuild5"     : 15,
+
+					"shipyard"       : 16,
+					"grail"          : 17,
+
+					"dwellingLvl1"   : 22,
+					"dwellingUpLvl1" : 23,
+					"horde1"         : 24,
+					"dwellingLvl2"   : 25,
+					"dwellingUpLvl2" : 26,
+					"horde2"         : 27,
+					"dwellingLvl3"   : 28,
+					"dwellingUpLvl3" : 29,
+					"horde3"         : 30,
+					"dwellingLvl4"   : 31,
+					"dwellingUpLvl4" : 32,
+					"horde4"         : 33,
+					"dwellingLvl5"   : 34,
+					"dwellingUpLvl5" : 35,
+					"horde5"         : 36,
+
+					"dwellingLvl6"   : 37,
+					"dwellingUpLvl6" : 38,
+					"dwellingLvl7"   : 39,
+					"dwellingUpLvl7" : 40
+				},
+
+				"buildings" : {
+					"castle" : {
+						"special1" : 18, // lighthouse
+						"special2" : 20, // stables
+						"special3" : 19  // brotherhoodOfSword
+					},
+					"rampart" : {
+						"special1" : 18, // mysticPond
+						"special2" : 19, // fountainOfFortune
+						"special3" : 20  // treasury
+					},
+					"tower" : {
+						"special1" : 10, // artifactMerchants
+						"special2" : 20, // lookoutTower
+						"special3" : 18, // library
+						"special4" : 19  // wallOfKnowledge
+					},
+					"inferno" : {
+						"special2" : 18, // brimstoneStormclouds
+						"special3" : 19, // castleGate
+						"special4" : 20  // orderOfFire
+					},
+					"necropolis" : {
+						"special1" : 18, // coverOfDarkness
+						"special2" : 19, // necromancyAmplifier
+						"special3" : 20  // skeletonTransformer
+					},
+					"dungeon" : {
+						"special1" : 10, // artifactMerchants
+						"special2" : 18, // manaVortex
+						"special3" : 19, // portalOfSummoning
+						"special4" : 20  // battleScholarAcademy
+					},
+					"stronghold" : {
+						"special1" : 18, // escapeTunnel
+						"special2" : 19, // freelancersGuild
+						"special3" : 20, // ballistaYard
+						"special4" : 21  // hallOfValhalla
+					},
+					"fortress" : {
+						"special1" : 20, // cageOfWarlords
+						"special2" : 19, // bloodObelisk
+						"special3" : 18  // glyphsOfFear
+					}
+				},
+
+				"portraits" : {
+					"catherine" : 128, // In "RoE" Catherine only has portrait
+					"portraitGeneralKendal" : 129
+				}
+			},
+			"armageddonsBlade" : {
+				"supported" : true,
+				"iconIndex" : 1,
+				"buildings" : {
+					"conflux" : {
+						"special1" : 10, // artifactMerchants
+						"special2" : 18  // magicUniversity
+					}
+				},
+				
+				"portraits" : {
+					"pasis" : 128,
+					"thunar" : 129,
+					"portraitGeneralKendal" : 156,
+					"portraitYoungCristian" : 157,
+					"portraitOrdwald" : 158
+				}
+			},
+			"shadowOfDeath" : { 
+				"supported" : true,
+				"iconIndex" : 2,
+				
+				"portraits" : {
+					"portraitGeneralKendal" : 156,
+					"portraitYoungCristian" : 157,
+					"portraitOrdwald" : 158,
+					"portraitFinneas" : 159,
+					"portraitYoungGem" : 160,
+					"portraitYoungSandro" : 161,
+					"portraitYoungYog" : 162
+				}
+			},
+			"jsonVCMI" : { 
+				"supported" : true,
+				"iconIndex" : 3
+			},
+			"hornOfTheAbyss" : { 
+				"supported" : false
+			},
+			"inTheWakeOfGods" : { 
+				"supported" : false
+			}
+		},
+
+		"heroes" :
+		{
+			// number of heroes that player can have active on map at the same time
+			"perPlayerOnMapCap" : 8,
+			// number of heroes that player can have in total, including garrisoned
+			"perPlayerTotalCap" : 16,
+			// if enabled, hero that wins a battle without any non-summoned troops left will retreat and become available in tavern instead of being lost
+			"retreatOnWinWithoutTroops" : true,
+			// Chances for a hero with default army to receive corresponding stack out of his predefined starting troops
+			"startingStackChances": [ 100, 88, 25],
+			// number of artifacts that can fit in a backpack. -1 is unlimited.
+			"backpackSize"		: -1
+		},
+
+		"towns":
+		{
+			// How many new building can be built in a town per day
+			"buildingsPerTurnCap" : 1,
+			// Chances for a town with default buildings to receive corresponding dwelling level built in start
+			"startingDwellingChances": [100, 50] 
+		},
+
+		"combat":
+		{
+			// defines dice size of a morale roll, based on creature's morale.
+			// Resulting chance is 1/(value). If list contains 0 values, option will be disabled
+			"goodMoraleDice" : [ 24, 12, 8 ],
+			"badMoraleDice" : [ 12, 6, 4],
+
+			// defines dice size of a luck roll, based on creature's luck
+			"goodLuckDice" : [ 24, 12, 8 ],
+			"badLuckDice" : [],
+			
+			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
+			"attackPointDamageFactor": 0.05, 
+			// limit of damage increase that can be achieved by overpowering attack points
+			"attackPointDamageFactorCap": 4.0, 
+			// every 1 defense point damage influence in battle when defense points > attack points during creature attack
+			"defensePointDamageFactor": 0.025, 
+			// limit of damage reduction that can be achieved by overpowering defense points
+			"defensePointDamageFactorCap": 0.7,
+			// If set to true, double-wide creatures will trigger obstacle effect when moving one tile forward or backwards
+			"oneHexTriggersObstacles": false
+		},	
+
+		"creatures":
+		{
+			// creatures on map will grow by specified percentage each week
+			"weeklyGrowthPercent" : 10,
+			// creatures on map will not grow if their quantity is greater than this value
+			"weeklyGrowthCap" : 4000,
+			// if stack experience is on, creatures on map will get specified amount of experience daily 
+			"dailyStackExperience" : 100,
+			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire" 
+			"allowRandomSpecialWeeks" : true,
+			// if enabled, every creature can get double growth month, ignoring predefined list
+			"allowAllForDoubleMonth" : false
+		},
+		
+		"dwellings" :
+		{
+			// if enabled, neutral dwellings will accumulate creatures 
+			"accumulateWhenNeutral" : false,
+			// if enabled, dwellings owned by players will accumulate creatures 
+			"accumulateWhenOwned" : false,
+			// if enabled, game will attempt to merge slots in army on recruit if all slots in hero army are in use
+			"mergeOnRecruit" : true
+		},
+		
+		"markets" : 
+		{
+			// period between restocking of "Black Market" object found on adventure map
+			"blackMarketRestockPeriod" : 0
+		},
+		
+		"banks" : 
+		{
+			// show guards composition when visiting creature banks
+			"showGuardsComposition" : true
+		},
+
+		"modules":
+		{
+			// if enabled, creatures may collect experience (WoG feature)
+			"stackExperience": false,
+			// if enabled, certain artifacts can be granted to creatures (WoG feature)
+			"stackArtifact": false,
+			// if enabled, all heroes gain commander creature in battle (WoG feature)
+			"commanders": false
+		},
+		
+		"pathfinder" :
+		{
+			// if enabled, pathfinder will take use of any available boats
+			"useBoat" : true,
+			// if enabled, pathfinder will take use of any bidirectional monoliths 
+			"useMonolithTwoWay" : true,
+			// if enabled, pathfinder will take use of one-way monolith that only have one known exit
+			"useMonolithOneWayUnique" : false,
+			// if enabled, pathfinder will take use of one-way monoliths with multiple exits.
+			"useMonolithOneWayRandom" : false,
+			// if enabled and hero has whirlpool protection effect, pathfinder will take use of whirpools
+			"useWhirlpool" : true
+		},
+		
+		"bonuses" : 
+		{
+			"global" : 
+			{
+				"spellDamage" : 
+				{
+					"type" : "SPELL_DAMAGE",
+					"subtype" : "spellSchool.any",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				},
+				"wisdom" : 
+				{
+					"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
+					"val" : 2,
+					"valueType" : "BASE_NUMBER"
+				}
+			},
+			"perHero":
+			{
+				"manaRegeneration" :
+				{
+					"type" : "MANA_REGENERATION", //default mana regeneration
+					"val" : 1,
+					"valueType" : "BASE_NUMBER"
+				},
+				"sightRadius" :
+				{
+					"type" : "SIGHT_RADIUS", //default sight radius
+					"val" : 5,
+					"valueType" : "BASE_NUMBER"
+				},
+				"experienceGain" : 
+				{
+					"type" : "HERO_EXPERIENCE_GAIN_PERCENT", //default hero xp
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				},
+				"manaPerKnowledge" :
+				{
+					"type" : "MANA_PER_KNOWLEDGE", //10 mana per knowledge
+					"val" : 10,
+					"valueType" : "BASE_NUMBER"
+				},
+				"landMovement" :
+				{
+					"type" : "MOVEMENT", //Basic land movement
+					"subtype" : "heroMovementLand",
+					"val" : 1300,
+					"valueType" : "BASE_NUMBER",
+					"updater" : {
+						"type" : "ARMY_MOVEMENT", //Enable army movement bonus
+						"parameters" : [
+							20, // Movement points for lowest speed numerator
+							3,  // Movement points for lowest speed denominator
+							10, // Resulting value, rounded down, will be multiplied by this number
+							700 // All army movement bonus cannot be higher than this value (so, max movement will be 1300 + 700 for this settings)
+						]
+					}
+				},
+				"seaMovement" :
+				{
+					"type" : "MOVEMENT", //Basic sea movement
+					"subtype" : "heroMovementSea",
+					"val" : 1500,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		}
+	}
 }

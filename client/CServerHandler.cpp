@@ -14,42 +14,50 @@
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 #include "windows/InfoWindows.h"
 
 #include "mainmenu/CMainMenu.h"
+#include "mainmenu/CPrologEpilogVideo.h"
+#include "mainmenu/CHighScoreScreen.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
 #elif defined(VCMI_IOS)
 #include "ios/utils.h"
-#include "../server/CVCMIServer.h"
-
 #include <dispatch/dispatch.h>
-#else
-#include "../lib/Interprocess.h"
 #endif
+
+#ifdef SINGLE_PROCESS_APP
+#include "../server/CVCMIServer.h"
+#endif
+
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/NetPacks.h"
 #include "../lib/StartInfo.h"
+#include "../lib/TurnTimerInfo.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/mapping/CCampaignHandler.h"
-#include "../lib/mapping/CMap.h"
+#include "../lib/campaign/CampaignState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/registerTypes/RegisterTypesLobbyPacks.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CMemorySerializer.h"
+#include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/asio.hpp>
 #include "../lib/serializer/Cast.h"
+#include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
 
@@ -61,7 +69,7 @@ template<typename T> class CApplyOnLobby;
 
 const std::string CServerHandler::localhostAddress{"127.0.0.1"};
 
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 extern std::atomic_bool androidTestServerReadyFlag;
 #endif
 
@@ -82,16 +90,24 @@ template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
 public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 		T * ptr = static_cast<T *>(pack);
-		logNetwork->trace("\tImmediately apply on lobby: %s", typeList.getTypeInfo(ptr)->name());
-		return ptr->applyOnLobbyHandler(handler);
+		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
+
+		logNetwork->trace("\tImmediately apply on lobby: %s", typeid(ptr).name());
+		ptr->visit(visitor);
+
+		return visitor.getResult();
 	}
 
 	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		logNetwork->trace("\tApply on lobby from queue: %s", typeList.getTypeInfo(ptr)->name());
-		ptr->applyOnLobbyScreen(lobby, handler);
+		ApplyOnLobbyScreenNetPackVisitor visitor(*handler, lobby);
+
+		logNetwork->trace("\tApply on lobby from queue: %s", typeid(ptr).name());
+		ptr->visit(visitor);
 	}
 };
 
@@ -112,12 +128,16 @@ public:
 	}
 };
 
-extern std::string NAME;
+static const std::string NAME_AFFIX = "client";
+static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
+	//read from file to restore last session
+	if(!settings["server"]["uuid"].isNull() && !settings["server"]["uuid"].String().empty())
+		uuid = settings["server"]["uuid"].String();
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
 }
@@ -126,7 +146,8 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 {
 	hostClientId = -1;
 	state = EClientState::NONE;
-	th = make_unique<CStopWatch>();
+	mapToStart = nullptr;
+	th = std::make_unique<CStopWatch>();
 	packsForLobbyScreen.clear();
 	c.reset();
 	si = std::make_shared<StartInfo>();
@@ -138,29 +159,6 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 		myNames = *names;
 	else
 		myNames.push_back(settings["general"]["playerName"].String());
-
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
-	shm.reset();
-
-	if(!settings["session"]["disable-shm"].Bool())
-	{
-		std::string sharedMemoryName = "vcmi_memory";
-		if(settings["session"]["enable-shm-uuid"].Bool())
-		{
-			//used or automated testing when multiple clients start simultaneously
-			sharedMemoryName += "_" + uuid;
-		}
-		try
-		{
-			shm = std::make_shared<SharedMemory>(sharedMemoryName, true);
-		}
-		catch(...)
-		{
-			shm.reset();
-			logNetwork->error("Cannot open interprocess memory. Continue without it...");
-		}
-	}
-#endif
 }
 
 void CServerHandler::startLocalServerAndConnect()
@@ -170,7 +168,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 	
-	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
+	auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.existingProcess");
 	try
 	{
 		CConnection testConnection(localhostAddress, getDefaultPort(), NAME, uuid);
@@ -178,24 +176,32 @@ void CServerHandler::startLocalServerAndConnect()
 		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
 	}
-	catch(...)
+	catch(std::runtime_error & error)
 	{
 		//no connection means that port is not busy and we can start local server
 	}
 	
-#ifdef VCMI_ANDROID
+#if defined(SINGLE_PROCESS_APP)
+	boost::condition_variable cond;
+	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPort())};
+	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
+	{
+		args.push_back("--lobby=" + settings["session"]["address"].String());
+		args.push_back("--connections=" + settings["session"]["hostConnections"].String());
+		args.push_back("--lobby-port=" + std::to_string(settings["session"]["port"].Integer()));
+		args.push_back("--lobby-uuid=" + settings["session"]["hostUuid"].String());
+	}
+	threadRunLocalServer = std::make_shared<boost::thread>([&cond, args, this] {
+		setThreadName("CVCMIServer");
+		CVCMIServer::create(&cond, args);
+		onServerFinished();
+	});
+	threadRunLocalServer->detach();
+#elif defined(VCMI_ANDROID)
 	{
 		CAndroidVMHelper envHelper;
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
-#elif defined(SINGLE_PROCESS_APP)
-	boost::condition_variable cond;
-	threadRunLocalServer = std::make_shared<boost::thread>([&cond, this] {
-		setThreadName("CVCMIServer");
-		CVCMIServer::create(&cond, uuid);
-		onServerFinished();
-	});
-	threadRunLocalServer->detach();
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
@@ -203,16 +209,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 
-#ifdef VCMI_ANDROID
-	logNetwork->info("waiting for server");
-	while(!androidTestServerReadyFlag.load())
-	{
-		logNetwork->info("still waiting...");
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-	}
-	logNetwork->info("waiting for server finished...");
-	androidTestServerReadyFlag = false;
-#elif defined(SINGLE_PROCESS_APP)
+#ifdef SINGLE_PROCESS_APP
 	{
 #ifdef VCMI_IOS
 		dispatch_sync(dispatch_get_main_queue(), ^{
@@ -232,20 +229,21 @@ void CServerHandler::startLocalServerAndConnect()
 		});
 #endif
 	}
-#else
-	if(shm)
-		shm->sr->waitTillReady();
+#elif defined(VCMI_ANDROID)
+	logNetwork->info("waiting for server");
+	while(!androidTestServerReadyFlag.load())
+	{
+		logNetwork->info("still waiting...");
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+	}
+	logNetwork->info("waiting for server finished...");
+	androidTestServerReadyFlag = false;
 #endif
 	logNetwork->trace("Waiting for server: %d ms", th->getDiff());
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
-	const ui16 port = shm ? shm->sr->port : 0;
-#else
-	const ui16 port = 0;
-#endif
-	justConnectToServer(localhostAddress, port);
+	justConnectToServer(localhostAddress, 0);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
@@ -259,14 +257,14 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		{
 			logNetwork->info("Establishing connection...");
 			c = std::make_shared<CConnection>(
-					addr.size() ? addr : settings["server"]["server"].String(),
-					port ? port : getDefaultPort(),
+					addr.size() ? addr : getHostAddress(),
+					port ? port : getHostPort(),
 					NAME, uuid);
 		}
-		catch(...)
+		catch(std::runtime_error & error)
 		{
-			logNetwork->error("\nCannot establish connection! Retrying within 1 second");
-			boost::this_thread::sleep(boost::posix_time::seconds(1));
+			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 		}
 	}
 
@@ -278,12 +276,12 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 
 	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
-	if(!addr.empty() && addr != localhostAddress)
+	if(!addr.empty() && addr != getHostAddress())
 	{
 		Settings serverAddress = settings.write["server"]["server"];
 		serverAddress->String() = addr;
 	}
-	if(port && port != getDefaultPort())
+	if(port && port != getHostPort())
 	{
 		Settings serverPort = settings.write["server"]["port"];
 		serverPort->Integer() = port;
@@ -298,11 +296,12 @@ void CServerHandler::applyPacksOnLobbyScreen()
 	boost::unique_lock<boost::recursive_mutex> lock(*mx);
 	while(!packsForLobbyScreen.empty())
 	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		CPackForLobby * pack = packsForLobbyScreen.front();
 		packsForLobbyScreen.pop_front();
-		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
-		apply->applyOnLobbyScreen(static_cast<CLobbyScreen *>(SEL), this, pack);
-		GH.totalRedraw();
+		CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
+		apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
+		GH.windows().totalRedraw();
 		delete pack;
 	}
 }
@@ -311,7 +310,7 @@ void CServerHandler::stopServerConnection()
 {
 	if(c->handler)
 	{
-		while(!c->handler->timed_join(boost::posix_time::milliseconds(50)))
+		while(!c->handler->timed_join(boost::chrono::milliseconds(50)))
 			applyPacksOnLobbyScreen();
 		c->handler->join();
 	}
@@ -358,15 +357,34 @@ bool CServerHandler::isGuest() const
 
 ui16 CServerHandler::getDefaultPort()
 {
-	if(settings["session"]["serverport"].Integer())
-		return static_cast<ui16>(settings["session"]["serverport"].Integer());
-	else
-		return static_cast<ui16>(settings["server"]["port"].Integer());
+	return static_cast<ui16>(settings["server"]["port"].Integer());
 }
 
 std::string CServerHandler::getDefaultPortStr()
 {
-	return boost::lexical_cast<std::string>(getDefaultPort());
+	return std::to_string(getDefaultPort());
+}
+
+std::string CServerHandler::getHostAddress() const
+{
+	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
+		return settings["server"]["server"].String();
+	
+	if(settings["session"]["host"].Bool())
+		return localhostAddress;
+	
+	return settings["session"]["address"].String();
+}
+
+ui16 CServerHandler::getHostPort() const
+{
+	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
+		return getDefaultPort();
+	
+	if(settings["session"]["host"].Bool())
+		return getDefaultPort();
+	
+	return settings["session"]["port"].Integer();
 }
 
 void CServerHandler::sendClientConnecting() const
@@ -385,6 +403,7 @@ void CServerHandler::sendClientDisconnecting()
 		return;
 
 	state = EClientState::DISCONNECTING;
+	mapToStart = nullptr;
 	LobbyClientDisconnected lcd;
 	lcd.clientId = c->connectionID;
 	logNetwork->info("Connection has been requested to be closed.");
@@ -398,9 +417,16 @@ void CServerHandler::sendClientDisconnecting()
 		logNetwork->info("Sent leaving signal to the server");
 	}
 	sendLobbyPack(lcd);
+	
+	{
+		// Network thread might be applying network pack at this moment
+		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		c->close();
+		c.reset();
+	}
 }
 
-void CServerHandler::setCampaignState(std::shared_ptr<CCampaignState> newCampaign)
+void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
 {
 	state = EClientState::LOBBY_CAMPAIGN;
 	LobbySetCampaign lsc;
@@ -408,7 +434,7 @@ void CServerHandler::setCampaignState(std::shared_ptr<CCampaignState> newCampaig
 	sendLobbyPack(lsc);
 }
 
-void CServerHandler::setCampaignMap(int mapId) const
+void CServerHandler::setCampaignMap(CampaignScenarioID mapId) const
 {
 	if(state == EClientState::GAMEPLAY) // FIXME: UI shouldn't sent commands in first place
 		return;
@@ -443,11 +469,19 @@ void CServerHandler::setPlayer(PlayerColor color) const
 	sendLobbyPack(lsp);
 }
 
-void CServerHandler::setPlayerOption(ui8 what, ui8 dir, PlayerColor player) const
+void CServerHandler::setPlayerName(PlayerColor color, const std::string & name) const
+{
+	LobbySetPlayerName lspn;
+	lspn.color = color;
+	lspn.name = name;
+	sendLobbyPack(lspn);
+}
+
+void CServerHandler::setPlayerOption(ui8 what, int32_t value, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
 	lcpo.what = what;
-	lcpo.direction = dir;
+	lcpo.value = value;
 	lcpo.color = player;
 	sendLobbyPack(lcpo);
 }
@@ -459,11 +493,17 @@ void CServerHandler::setDifficulty(int to) const
 	sendLobbyPack(lsd);
 }
 
-void CServerHandler::setTurnLength(int npos) const
+void CServerHandler::setSimturnsInfo(const SimturnsInfo & info) const
 {
-	vstd::amin(npos, GameConstants::POSSIBLE_TURNTIME.size() - 1);
+	LobbySetSimturns pack;
+	pack.simturnsInfo = info;
+	sendLobbyPack(pack);
+}
+
+void CServerHandler::setTurnTimerInfo(const TurnTimerInfo & info) const
+{
 	LobbySetTurnTime lstt;
-	lstt.turnTime = GameConstants::POSSIBLE_TURNTIME[npos];
+	lstt.turnTimerInfo = info;
 	sendLobbyPack(lstt);
 }
 
@@ -489,7 +529,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		std::string connectedId, playerColorId;
 		readed >> connectedId;
 		readed >> playerColorId;
-		if(connectedId.length(), playerColorId.length()) // BUG https://bugs.vcmi.eu/view.php?id=3144
+		if(connectedId.length() && playerColorId.length())
 		{
 			ui8 connected = boost::lexical_cast<int>(connectedId);
 			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));
@@ -520,15 +560,52 @@ void CServerHandler::sendGuiAction(ui8 action) const
 
 void CServerHandler::sendRestartGame() const
 {
+	GH.windows().createAndPushWindow<CLoadingScreen>();
+	
 	LobbyEndGame endGame;
 	endGame.closeConnection = false;
 	endGame.restart = true;
 	sendLobbyPack(endGame);
 }
 
+bool CServerHandler::validateGameStart(bool allowOnlyAI) const
+{
+	try
+	{
+		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	}
+	catch(ModIncompatibility & e)
+	{
+		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
+		std::string errorMsg;
+		if(!e.whatMissing().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
+			errorMsg += e.whatMissing();
+		}
+		if(!e.whatExcessive().empty())
+		{
+			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
+			errorMsg += e.whatExcessive();
+		}
+		showServerError(errorMsg);
+		return false;
+	}
+	catch(std::exception & e)
+	{
+		logGlobal->error("Exception during startScenario: %s", e.what());
+		showServerError( std::string("Unable to start map! Reason: ") + e.what());
+		return false;
+	}
+
+	return true;
+}
+
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	GH.windows().createAndPushWindow<CLoadingScreen>();
+	
 	LobbyStartGame lsg;
 	if(client)
 	{
@@ -542,11 +619,18 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	c->disableStackSendingByID();
 }
 
-void CServerHandler::startGameplay(CGameState * gameState)
+void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
+{
+	mapToStart = to;
+}
+
+void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
 {
 	if(CMM)
 		CMM->disable();
 	client = new CClient();
+
+	highScoreCalc = nullptr;
 
 	switch(si->mode)
 	{
@@ -586,9 +670,6 @@ void CServerHandler::startGameplay(CGameState * gameState)
 
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
 {
-	client->endGame();
-	vstd::clear_pointer(client);
-
 	if(closeConnection)
 	{
 		// Game is ending
@@ -596,11 +677,14 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 		CSH->sendClientDisconnecting();
 		logNetwork->info("Closed connection.");
 	}
+
+	client->endGame();
+	vstd::clear_pointer(client);
+
 	if(!restart)
 	{
 		if(CMM)
 		{
-			GH.terminate_cond->setn(false);
 			GH.curInt = CMM.get();
 			CMM->enable();
 		}
@@ -610,28 +694,75 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 		}
 	}
 	
-	c->enterLobbyConnectionMode();
-	c->disableStackSendingByID();
+	if(c)
+	{
+		c->enterLobbyConnectionMode();
+		c->disableStackSendingByID();
+	}
 	
 	//reset settings
 	Settings saveSession = settings.write["server"]["reconnect"];
 	saveSession->Bool() = false;
 }
 
-void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
+void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
 {
-	SDL_Event event;
-	event.type = SDL_USEREVENT;
-	event.user.code = EUserEvent::CAMPAIGN_START_SCENARIO;
-	if(cs)
-		event.user.data1 = CMemorySerializer::deepCopy(*cs.get()).release();
-	else
-		event.user.data1 = CMemorySerializer::deepCopy(*si->campState.get()).release();
-	SDL_PushEvent(&event);
+	std::shared_ptr<CampaignState> ourCampaign = cs;
+
+	if (!cs)
+		ourCampaign = si->campState;
+
+	if(highScoreCalc == nullptr)
+	{
+		highScoreCalc = std::make_shared<HighScoreCalculation>();
+		highScoreCalc->isCampaign = true;
+		highScoreCalc->parameters.clear();
+	}
+	param.campaignName = cs->getNameTranslated();
+	highScoreCalc->parameters.push_back(param);
+
+	GH.dispatchMainThread([ourCampaign, this]()
+	{
+		CSH->campaignServerRestartLock.set(true);
+		CSH->endGameplay();
+
+		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
+		auto finisher = [=]()
+		{
+			if(ourCampaign->campaignSet != "")
+			{
+				Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
+				entry->Bool() = true;
+			}
+
+			GH.windows().pushWindow(CMM);
+			GH.windows().pushWindow(CMM->menu);
+
+			if(!ourCampaign->isCampaignFinished())
+				CMM->openCampaignLobby(ourCampaign);
+			else
+			{
+				CMM->openCampaignScreen(ourCampaign->campaignSet);
+				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *highScoreCalc);
+			}
+		};
+		if(epilogue.hasPrologEpilog)
+		{
+			GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
+		}
+		else
+		{
+			CSH->campaignServerRestartLock.waitUntil(false);
+			finisher();
+		}
+	});
 }
 
-void CServerHandler::showServerError(std::string txt)
+void CServerHandler::showServerError(const std::string & txt) const
 {
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+		GH.windows().popWindow(w);
+	
 	CInfoWindow::showInfoDialog(txt, {});
 }
 
@@ -649,7 +780,7 @@ int CServerHandler::howManyPlayerInterfaces()
 
 ui8 CServerHandler::getLoadMode()
 {
-	if(state == EClientState::GAMEPLAY)
+	if(loadMode != ELoadMode::TUTORIAL && state == EClientState::GAMEPLAY)
 	{
 		if(si->campState)
 			return ELoadMode::CAMPAIGN;
@@ -685,7 +816,7 @@ void CServerHandler::restoreLastSession()
 		saveSession->Bool() = false;
 	};
 	
-	CInfoWindow::showYesNoDialog(VLC->generaltexth->localizedTexts["server"]["confirmReconnect"].String(), {}, loadSession, cleanUpSession);
+	CInfoWindow::showYesNoDialog(VLC->generaltexth->translate("vcmi.server.confirmReconnect"), {}, loadSession, cleanUpSession);
 }
 
 void CServerHandler::debugStartTest(std::string filename, bool save)
@@ -695,7 +826,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	if(save)
 	{
 		resetStateForLobby(StartInfo::LOAD_GAME);
-		mapInfo->saveInit(ResourceID(filename, EResType::CLIENT_SAVEGAME));
+		mapInfo->saveInit(ResourcePath(filename, EResType::SAVEGAME));
 		screenType = ESelectionScreen::loadGame;
 	}
 	else
@@ -709,19 +840,20 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	else
 		startLocalServerAndConnect();
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
-	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.topInt().get()))
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
 	{
 		setMapInfo(mapInfo);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 	// "Click" on color to remove us from it
 	setPlayer(myFirstColor());
 	while(myFirstColor() != PlayerColor::CANNOT_DETERMINE)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
 	while(true)
 	{
@@ -734,22 +866,46 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		{
 
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 }
 
+class ServerHandlerCPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+{
+private:
+	CServerHandler & handler;
+
+public:
+	ServerHandlerCPackVisitor(CServerHandler & handler)
+			:handler(handler)
+	{
+	}
+
+	virtual bool callTyped() override { return false; }
+
+	virtual void visitForLobby(CPackForLobby & lobbyPack) override
+	{
+		handler.visitForLobby(lobbyPack);
+	}
+
+	virtual void visitForClient(CPackForClient & clientPack) override
+	{
+		handler.visitForClient(clientPack);
+	}
+};
+
 void CServerHandler::threadHandleConnection()
 {
-	setThreadName("CServerHandler::threadHandleConnection");
+	setThreadName("handleConnection");
 	c->enterLobbyConnectionMode();
 
 	try
 	{
 		sendClientConnecting();
-		while(c->connected)
+		while(c && c->connected)
 		{
 			while(state == EClientState::STARTING)
-				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 
 			CPack * pack = c->retrievePack();
 			if(state == EClientState::DISCONNECTING)
@@ -758,20 +914,10 @@ void CServerHandler::threadHandleConnection()
 				// Though currently they'll be delivered and might cause crash.
 				vstd::clear_pointer(pack);
 			}
-			else if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
+			else
 			{
-				if(applier->getApplier(typeList.getTypeID(pack))->applyOnLobbyHandler(this, pack))
-				{
-					if(!settings["session"]["headless"].Bool())
-					{
-						boost::unique_lock<boost::recursive_mutex> lock(*mx);
-						packsForLobbyScreen.push_back(lobbyPack);
-					}
-				}
-			}
-			else if(auto clientPack = dynamic_ptr_cast<CPackForClient>(pack))
-			{
-				client->handlePack(clientPack);
+				ServerHandlerCPackVisitor visitor(*this);
+				pack->visit(visitor);
 			}
 		}
 	}
@@ -784,12 +930,21 @@ void CServerHandler::threadHandleConnection()
 		}
 		else
 		{
-			logNetwork->error("Lost connection to server, ending listening thread!");
-			logNetwork->error(e.what());
+			if (e.code() == boost::asio::error::eof)
+				logNetwork->error("Lost connection to server, ending listening thread! Connection has been closed");
+			else
+				logNetwork->error("Lost connection to server, ending listening thread! Reason: %s", e.what());
+
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;
-				CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
+
+				GH.dispatchMainThread([]()
+				{
+					CSH->endGameplay();
+					GH.defActionsDef = 63;
+					CMM->menu->switchToTab("main");
+				});
 			}
 			else
 			{
@@ -800,29 +955,44 @@ void CServerHandler::threadHandleConnection()
 			}
 		}
 	}
-	catch(...)
+}
+
+void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
+{
+	if(applier->getApplier(CTypeList::getInstance().getTypeID(&lobbyPack))->applyOnLobbyHandler(this, &lobbyPack))
 	{
-		handleException();
-		throw;
+		if(!settings["session"]["headless"].Bool())
+		{
+			boost::unique_lock<boost::recursive_mutex> lock(*mx);
+			packsForLobbyScreen.push_back(&lobbyPack);
+		}
 	}
+}
+
+void CServerHandler::visitForClient(CPackForClient & clientPack)
+{
+	client->handlePack(&clientPack);
 }
 
 void CServerHandler::threadRunServer()
 {
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
-	setThreadName("CServerHandler::threadRunServer");
+#if !defined(VCMI_MOBILE)
+	setThreadName("runServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
-		+ " --port=" + getDefaultPortStr()
+		+ " --port=" + std::to_string(getHostPort())
 		+ " --run-by-client"
 		+ " --uuid=" + uuid;
-	if(shm)
+	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
 	{
-		comm += " --enable-shm";
-		if(settings["session"]["enable-shm-uuid"].Bool())
-			comm += " --enable-shm-uuid";
+		comm += " --lobby=" + settings["session"]["address"].String();
+		comm += " --connections=" + settings["session"]["hostConnections"].String();
+		comm += " --lobby-port=" + std::to_string(settings["session"]["port"].Integer());
+		comm += " --lobby-uuid=" + settings["session"]["hostUuid"].String();
 	}
+
 	comm += " > \"" + logName + '\"';
+	logGlobal->info("Server command line: %s", comm);
 
 #ifdef VCMI_WINDOWS
 	int result = -1;
@@ -857,7 +1027,8 @@ void CServerHandler::threadRunServer()
 void CServerHandler::onServerFinished()
 {
 	threadRunLocalServer.reset();
-	CSH->campaignServerRestartLock.setn(false);
+	if (CSH)
+		CSH->campaignServerRestartLock.setn(false);
 }
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const

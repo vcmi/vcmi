@@ -10,14 +10,18 @@
 
 #include "StdInc.h"
 #include "objectbrowser.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
 
-ObjectBrowser::ObjectBrowser(QObject *parent)
-	: QSortFilterProxyModel{parent}, terrain(Terrain::ANY_TERRAIN)
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/VCMI_Lib.h"
+
+ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
+	: QSortFilterProxyModel{parent}, terrain(ETerrainId::ANY_TERRAIN)
 {
 }
 
-bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
+bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
 	bool result = QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 
@@ -33,7 +37,7 @@ bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_
 	if(!filterAcceptsRowText(source_row, source_parent))
 		return false;
 
-	if(terrain == Terrain::ANY_TERRAIN)
+	if(terrain == ETerrainId::ANY_TERRAIN)
 		return result;
 
 	auto data = item->data().toJsonObject();
@@ -51,13 +55,13 @@ bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_
 	auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
 	auto templ = factory->getTemplates()[templateId];
 
-	result = result & templ->canBePlacedAt(terrain);
+	result = result && templ->canBePlacedAt(terrain);
 
 	//if we are here, just text filter will be applied
 	return result;
 }
 
-bool ObjectBrowser::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const
+bool ObjectBrowserProxyModel::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const
 {
 	if(source_parent.isValid())
 	{
@@ -72,7 +76,59 @@ bool ObjectBrowser::filterAcceptsRowText(int source_row, const QModelIndex &sour
 	auto item = dynamic_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(index);
 	if(!item)
 		return false;
+	
+	auto data = item->data().toJsonObject();
 
-	return (filter.isNull() || filter.isEmpty() || item->text().contains(filter, Qt::CaseInsensitive));
+	return (filter.isNull() || filter.isEmpty()
+			|| item->text().contains(filter, Qt::CaseInsensitive)
+			|| data["typeName"].toString().contains(filter, Qt::CaseInsensitive));
 }
 
+Qt::ItemFlags ObjectBrowserProxyModel::flags(const QModelIndex & index) const
+{
+	Qt::ItemFlags defaultFlags = QSortFilterProxyModel::flags(index);
+
+	if (index.isValid())
+		return Qt::ItemIsDragEnabled | defaultFlags;
+	
+	return defaultFlags;
+}
+
+QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) const
+{
+	assert(indexes.size() == 1);
+	
+	auto * standardModel = qobject_cast<QStandardItemModel*>(sourceModel());
+	assert(standardModel);
+	
+	QModelIndex index = indexes.front();
+	
+	if(!index.isValid())
+		return nullptr;
+
+	QMimeData * mimeData = new QMimeData;
+	mimeData->setImageData(standardModel->itemFromIndex(mapToSource(index))->data());
+	return mimeData;
+}
+
+ObjectBrowser::ObjectBrowser(QWidget * parent):
+	QTreeView(parent)
+{
+	setDropIndicatorShown(false);
+}
+
+void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
+{
+	logGlobal->info("Drag'n'drop: Start dragging object from ObjectBrowser");
+	auto indexes = selectedIndexes();
+	if(indexes.isEmpty())
+		return;
+	
+	QMimeData * mimeData = model()->mimeData(indexes);
+	if(!mimeData)
+		return;
+		
+	QDrag *drag = new QDrag(this);
+	drag->setMimeData(mimeData);
+	drag->exec(supportedActions);
+}

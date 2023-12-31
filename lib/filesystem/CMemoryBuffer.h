@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CMemoryBuffer : public CInputOutputStream
 {
 public:
-	typedef std::vector<ui8> TBuffer;
+	using TBuffer = std::vector<ui8>;
 
 	/**
 	 * C-tor.

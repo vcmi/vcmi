@@ -38,7 +38,7 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 
 	for (BuildingID buildID : toBuild)
 	{
-		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+		EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::HAVE_CAPITAL || canBuild == EBuildingState::FORBIDDEN || canBuild == EBuildingState::NO_WATER)
 			return false; //we won't be able to build this
 	}
@@ -52,7 +52,7 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 	{
 		const CBuilding * b = t->town->buildings.at(buildID);
 
-		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+		EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::ALLOWED)
 		{
 			PotentialBuilding pb;
@@ -99,7 +99,7 @@ bool BuildingManager::tryBuildAnyStructure(const CGTownInstance * t, std::vector
 	return false; //Can't build anything
 }
 
-boost::optional<BuildingID> BuildingManager::canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const
+std::optional<BuildingID> BuildingManager::canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const
 {
 	for (const auto & building : buildList)
 	{
@@ -109,11 +109,11 @@ boost::optional<BuildingID> BuildingManager::canBuildAnyStructure(const CGTownIn
 		{
 			case EBuildingState::ALLOWED:
 			case EBuildingState::NO_RESOURCES: //TODO: allow this via optional parameter?
-				return boost::optional<BuildingID>(building);
+				return std::optional<BuildingID>(building);
 				break;
 		}
 	}
-	return boost::optional<BuildingID>(); //Can't build anything
+	return std::optional<BuildingID>(); //Can't build anything
 }
 
 bool BuildingManager::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
@@ -166,8 +166,8 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	//below algorithm focuses on economy growth at start of the game, saving money instead of build rushing is handled by Build goal
 	//changing code blocks order will alter behavior by changing order of adding elements to immediateBuildings / expensiveBuildings
 
-	TResources currentRes = cb->getResourceAmount();
-	TResources currentIncome = t->dailyIncome();
+	// TResources currentRes = cb->getResourceAmount();
+	// TResources currentIncome = t->dailyIncome();
 
 	if(tryBuildAnyStructure(t, essential))
 		return true;
@@ -222,7 +222,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	std::vector<BuildingID> extraBuildings;
 	for (auto buildingInfo : t->town->buildings)
 	{
-		if (buildingInfo.first > 43)
+		if (buildingInfo.first > BuildingID::DWELL_UP2_FIRST)
 			extraBuildings.push_back(buildingInfo.first);
 	}
 	return tryBuildAnyStructure(t, extraBuildings);
@@ -240,18 +240,18 @@ BuildingID BuildingManager::getMaxPossibleGoldBuilding(const CGTownInstance * t)
 		return BuildingID::VILLAGE_HALL;
 }
 
-boost::optional<PotentialBuilding> BuildingManager::immediateBuilding() const
+std::optional<PotentialBuilding> BuildingManager::immediateBuilding() const
 {
 	if (immediateBuildings.size())
-		return boost::optional<PotentialBuilding>(immediateBuildings.front()); //back? whatever
+		return std::optional<PotentialBuilding>(immediateBuildings.front()); //back? whatever
 	else
-		return boost::optional<PotentialBuilding>();
+		return std::optional<PotentialBuilding>();
 }
 
-boost::optional<PotentialBuilding> BuildingManager::expensiveBuilding() const
+std::optional<PotentialBuilding> BuildingManager::expensiveBuilding() const
 {
 	if (expensiveBuildings.size())
-		return boost::optional<PotentialBuilding>(expensiveBuildings.front());
+		return std::optional<PotentialBuilding>(expensiveBuildings.front());
 	else
-		return boost::optional<PotentialBuilding>();
+		return std::optional<PotentialBuilding>();
 }

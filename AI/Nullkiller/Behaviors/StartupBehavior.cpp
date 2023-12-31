@@ -15,16 +15,11 @@
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
-#include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/mapObjects/MapObjects.h" //for victory conditions
-#include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -66,36 +61,31 @@ const CGHeroInstance * getNearestHero(const CGTownInstance * town)
 
 bool needToRecruitHero(const CGTownInstance * startupTown)
 {
-	if(!ai->canRecruitAnyHero(startupTown))
+	if(!ai->nullkiller->heroManager->canRecruitHero(startupTown))
 		return false;
 
 	if(!startupTown->garrisonHero && !startupTown->visitingHero)
-		return false;
-
-	auto heroToCheck = startupTown->garrisonHero ? startupTown->garrisonHero.get() : startupTown->visitingHero.get();
-	auto paths = cb->getPathsInfo(heroToCheck);
+		return true;
 
 	int treasureSourcesCount = 0;
 
 	for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
 	{
-		if((obj->ID == Obj::RESOURCE && obj->subID == Res::GOLD)
+		if((obj->ID == Obj::RESOURCE && dynamic_cast<const CGResource *>(obj)->resourceID() == EGameResID::GOLD)
 			|| obj->ID == Obj::TREASURE_CHEST
 			|| obj->ID == Obj::CAMPFIRE
 			|| obj->ID == Obj::WATER_WHEEL)
 		{
-			auto path = paths->getPathInfo(obj->visitablePos());
-			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISITABLE) 
-				&& path->reachable())
-			{
-				treasureSourcesCount++;
-			}
+			treasureSourcesCount++;
 		}
 	}
 
 	auto basicCount = cb->getTownsInfo().size() + 2;
-	auto boost = (int)std::floor(std::pow(treasureSourcesCount / 2.0, 2));
+	auto boost = std::min(
+		(int)std::floor(std::pow(1 + (cb->getMapSize().x / 50), 2)),
+		treasureSourcesCount / 2);
 
+	logAi->trace("Treasure sources found %d", treasureSourcesCount);
 	logAi->trace("Startup allows %d+%d heroes", basicCount, boost);
 
 	return cb->getHeroCount(ai->playerID, true) < basicCount + boost;
@@ -213,7 +203,7 @@ Goals::TGoalVec StartupBehavior::decompose() const
 		for(const CGTownInstance * town : towns)
 		{
 			if(town->garrisonHero
-				&& town->garrisonHero->movement
+				&& town->garrisonHero->movementPointsRemaining()
 				&& !town->visitingHero
 				&& ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
 			{

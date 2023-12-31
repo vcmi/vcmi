@@ -23,7 +23,10 @@
                 "PACKAGE_FILE_NAME" : "$env{VCMI_PACKAGE_FILE_NAME}",
                 "PACKAGE_NAME_SUFFIX" : "$env{VCMI_PACKAGE_NAME_SUFFIX}",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "ENABLE_TEST": "OFF"
+                "ENABLE_TEST": "OFF",
+                "ENABLE_STRICT_COMPILATION": "ON",
+                "ENABLE_GITVERSION": "$env{VCMI_PACKAGE_GITVERSION}",
+                "ENABLE_PCH" : "OFF"
             }
         },
         {
@@ -44,6 +47,15 @@
             }
         },
         {
+            "name": "linux-test",
+            "inherits": "linux-release",
+            "hidden": true,
+            "cacheVariables": {
+                "ENABLE_TEST": "ON",
+                "ENABLE_LUA": "ON"
+            }
+        },
+        {
             "name": "linux-clang-release",
             "displayName": "Clang x86_64-pc-linux-gnu",
             "description": "VCMI Linux Clang",
@@ -54,11 +66,63 @@
             }
         },
         {
+            "name": "linux-clang-release-ccache",
+            "displayName": "Clang x86_64-pc-linux-gnu with ccache",
+            "description": "VCMI Linux Clang with ccache",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "ENABLE_CCACHE": "ON"
+            }
+        },
+        {
             "name": "linux-gcc-release",
             "displayName": "GCC x86_64-pc-linux-gnu",
             "description": "VCMI Linux GCC",
             "inherits": "linux-release",
             "cacheVariables": {
+                "ENABLE_LUA" : "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-gcc-release-ccache",
+            "displayName": "GCC x86_64-pc-linux-gnu with ccache",
+            "description": "VCMI Linux GCC with ccache",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "ENABLE_CCACHE": "ON"
+            }
+        },
+        {
+            "name": "linux-gcc-debug",
+            "displayName": "GCC x86_64-pc-linux-gnu (debug)",
+            "description": "VCMI Linux GCC (Debug)",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ENABLE_LUA" : "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-clang-test",
+            "displayName": "Clang x86_64-pc-linux-gnu with unit testing",
+            "description": "VCMI Linux Clang",
+            "inherits": "linux-test",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+            }
+        },
+        {
+            "name": "linux-gcc-test",
+            "displayName": "GCC x86_64-pc-linux-gnu with unit testing",
+            "description": "VCMI Linux GCC",
+            "inherits": "linux-test",
+            "cacheVariables": {
+                "ENABLE_LUA" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -77,6 +141,30 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
                 "FORCE_BUNDLED_MINIZIP": "ON"
+
+            }
+        },
+        {
+            "name": "windows-msvc-release-ccache",
+            "displayName": "Windows x64 RelWithDebInfo with ccache",
+            "description": "VCMI RelWithDebInfo build with ccache",
+            "inherits": "windows-msvc-release",
+            "cacheVariables": {
+                "ENABLE_CCACHE": "ON"
+
+            }
+        },
+        {
+            "name": "windows-mingw-conan-linux",
+            "displayName": "Ninja+Conan release",
+            "description": "VCMI Windows Ninja using Conan on Linux",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "FORCE_BUNDLED_FL": "ON"
             }
         },
         {
@@ -158,7 +246,20 @@
             "inherits": [
                 "base-ios-release",
                 "ios-device-conan"
-            ]
+            ],
+            "cacheVariables": {
+                "ENABLE_PCH" : "ON"
+            }
+        },
+        {
+            "name": "ios-release-conan-ccache",
+            "displayName": "iOS+Conan release using ccache",
+            "description": "VCMI iOS release using Conan and ccache",
+            "inherits": "ios-release-conan",
+            "cacheVariables": {
+                "ENABLE_PCH" : "OFF",
+                "ENABLE_CCACHE": "ON"
+            }
         },
         {
             "name": "ios-release-legacy",
@@ -171,6 +272,18 @@
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
             }
+        },
+        {
+            "name": "android-conan-ninja-release",
+            "displayName": "Android release",
+            "description": "VCMI Android Ninja using Conan",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
         }
     ],
     "buildPresets": [
@@ -180,14 +293,44 @@
             "configuration": "RelWithDebInfo"
         },
         {
+            "name": "default-debug",
+            "hidden": true,
+            "configuration": "Debug"
+        },
+        {
             "name": "linux-clang-release",
             "configurePreset": "linux-clang-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-clang-release-ccache",
+            "configurePreset": "linux-clang-release-ccache",
+            "inherits": "linux-clang-release"
+        },
+        {
+            "name": "linux-clang-test",
+            "configurePreset": "linux-clang-test",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-test",
+            "configurePreset": "linux-gcc-test",
             "inherits": "default-release"
         },
         {
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release-ccache",
+            "configurePreset": "linux-gcc-release-ccache",
+            "inherits": "linux-gcc-release"
+        },
+        {
+            "name": "linux-gcc-debug",
+            "configurePreset": "linux-gcc-debug",
+            "inherits": "default-debug"
         },
         {
             "name": "macos-xcode-release",
@@ -212,13 +355,23 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
-            "inherits": "default-release",
-            "configuration": "Release"
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-release-ccache",
+            "configurePreset": "windows-msvc-release-ccache",
+            "inherits": "windows-msvc-release"
         },
         {
             "name": "windows-msvc-relwithdebinfo",
             "configurePreset": "windows-msvc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "windows-mingw-conan-linux",
+            "configurePreset": "windows-mingw-conan-linux",
+            "inherits": "default-release",
+            "configuration": "Release"
         },
         {
             "name": "ios-release-conan",
@@ -231,9 +384,19 @@
             ]
         },
         {
+            "name": "ios-release-conan-ccache",
+            "configurePreset": "ios-release-conan-ccache",
+            "inherits": "ios-release-conan"
+        },
+        {
             "name": "ios-release-legacy",
             "configurePreset": "ios-release-legacy",
             "inherits": "ios-release-conan"
+        },
+        {
+            "name": "android-conan-ninja-release",
+            "configurePreset": "android-conan-ninja-release",
+            "inherits": "default-release"
         }
     ],
     "testPresets": [
@@ -256,6 +419,16 @@
             "inherits": "default-release"
         },
         {
+            "name": "linux-clang-test",
+            "configurePreset": "linux-clang-test",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-test",
+            "configurePreset": "linux-gcc-test",
+            "inherits": "default-release"
+        },
+        {
             "name": "macos-xcode-release",
             "configurePreset": "macos-xcode-release",
             "inherits": "default-release"
@@ -268,6 +441,11 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-mingw-conan-linux",
+            "configurePreset": "windows-mingw-conan-linux",
             "inherits": "default-release"
         }
     ]

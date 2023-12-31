@@ -10,6 +10,7 @@
 			"120px" : "TPCASINF",
 			"130px" : "CRBKGINF"
 		},
+		"boat" : "boatCastle",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZINF",
@@ -98,7 +99,7 @@
 				"horde1":         { "animation" : "TBINHRD1.def", "x" : 614, "y" : 256, "border" : "TOIMP1HA.bmp", "area" : "TZIMP1HA.bmp", "hidden" : true },
 				"horde1Upgr":     { "animation" : "TBINHRD2.def", "x" : 614, "y" : 221, "border" : "TOIMP2HA.bmp", "area" : "TZIMP2HA.bmp", "hidden" : true, "builds" : "horde1" },
 				"special2":       { "animation" : "TBINEXT0.def", "x" : 297, "y" : 0,   "z" : -1, "border" : "TOICAB1A.bmp", "area" : "TZICAB1A.bmp" },
-				"special3":       { "animation" : "TBINEXT1.def", "x" : 227, "y" : 174, "z" : 2,  "border" : "TOICASGA.bmp", "area" : "TZICASGA.bmp" },
+				"special3":       { "animation" : "TBINEXT1.def", "x" : 227, "y" : 174, "z" : -1,  "border" : "TOICASGA.bmp", "area" : "TZICASGA.bmp" },
 				"special4":       { "animation" : "TBINEXT2.def", "x" : 593, "y" : 104, "border" : "TOIPAIN.bmp",  "area" : "TZIPAIN.bmp"  },
 				"horde2":         { "animation" : "TBINHRD3.def", "x" : 10,  "y" : 301, "border" : "TOIHND1H.bmp", "area" : "TZIHND1H.bmp", "hidden" : true },
 				"horde2Upgr":     { "animation" : "TBINHRD4.def", "x" : 9,   "y" : 273, "border" : "TOIHND2H.bmp", "area" : "TZIHND2H.bmp", "hidden" : true, "builds" : "horde2" },
@@ -149,8 +150,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
 			"warMachine" : "ammoCart",
-			"moatDamage" : 90,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
+			"moatAbility" : "infernoMoat",
 
 			"buildings" :
 			{

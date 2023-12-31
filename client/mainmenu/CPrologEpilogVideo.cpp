@@ -16,34 +16,39 @@
 #include "../CVideoHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
+#include "../render/Canvas.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
 
-
-CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback)
-	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), exitCb(callback)
+CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
+	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	addUsedEvents(LCLICK);
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
-	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
-	CCS->musich->playMusic("Music/" + CCampaignHandler::prologMusicName(spe.prologMusic), true);
-	// MPTODO: Custom campaign crashing on this?
-//	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
+	auto audioData = CCS->videoh->getAudio(spe.prologVideo);
+	videoSoundHandle = CCS->soundh->playSound(audioData);
+	CCS->videoh->open(spe.prologVideo);
+	CCS->musich->playMusic(spe.prologMusic, true, true);
+	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
+	auto onVoiceStop = [this]()
+	{
+		voiceStopped = true;
+	};
+	CCS->soundh->setCallback(voiceSoundHandle, onVoiceStop);
 
-	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, CENTER, Colors::METALLIC_GOLD, spe.prologText);
+	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText.toString());
 	text->scrollTextTo(-100);
 }
 
-void CPrologEpilogVideo::show(SDL_Surface * to)
+void CPrologEpilogVideo::show(Canvas & to)
 {
-	CSDL_Ext::fillRectBlack(to, &pos);
+	to.drawColor(pos, Colors::BLACK);
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
 	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player
-	CCS->videoh->update(pos.x, pos.y, to, true, false);
+	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false);
 
 	//move text every 5 calls/frames; seems to be good enough
 	++positionCounter;
@@ -52,13 +57,14 @@ void CPrologEpilogVideo::show(SDL_Surface * to)
 	else
 		text->showAll(to); // blit text over video, if needed
 
-	if(text->textSize.y + 100 < positionCounter / 5)
-		clickLeft(false, false);
+	if(text->textSize.y + 100 < positionCounter / 5 && voiceStopped)
+		clickPressed(GH.getCursorPosition());
 }
 
-void CPrologEpilogVideo::clickLeft(tribool down, bool previousState)
+void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
 	close();
 	CCS->soundh->stopSound(voiceSoundHandle);
+	CCS->soundh->stopSound(videoSoundHandle);
 	exitCb();
 }

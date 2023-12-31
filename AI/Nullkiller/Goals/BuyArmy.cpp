@@ -17,9 +17,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 using namespace Goals;
 
 bool BuyArmy::operator==(const BuyArmy & other) const
@@ -29,7 +26,7 @@ bool BuyArmy::operator==(const BuyArmy & other) const
 
 std::string BuyArmy::toString() const
 {
-	return "Buy army at " + town->name;
+	return "Buy army at " + town->getNameTranslated();
 }
 
 void BuyArmy::accept(AIGateway * ai)
@@ -54,15 +51,15 @@ void BuyArmy::accept(AIGateway * ai)
 		auto res = cb->getResourceAmount();
 		auto & ci = armyToBuy[i];
 
-		if(objid != -1 && ci.creID != objid)
+		if(objid != CreatureID::NONE && ci.creID.getNum() != objid)
 			continue;
 
-		vstd::amin(ci.count, res / ci.cre->cost);
+		vstd::amin(ci.count, res / ci.cre->getFullRecruitCost());
 
 		if(ci.count)
 		{
 			cb->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
-			valueBought += ci.count * ci.cre->AIValue;
+			valueBought += ci.count * ci.cre->getAIValue();
 		}
 	}
 
@@ -71,7 +68,7 @@ void BuyArmy::accept(AIGateway * ai)
 		throw cannotFulfillGoalException("No creatures to buy.");
 	}
 
-	if(town->visitingHero)
+	if(town->visitingHero && !town->garrisonHero)
 	{
 		ai->moveHeroToTile(town->visitablePos(), town->visitingHero.get());
 	}

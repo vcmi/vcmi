@@ -13,10 +13,9 @@
 #include "RmgMap.h"
 #include "Functions.h"
 #include "TileInfo.h"
-#include "../mapping/CMap.h"
-#include "../CStopWatch.h"
 #include "CMapGenerator.h"
 #include "RmgPath.h"
+#include "modificators/ObjectManager.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,14 +24,14 @@ std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 	return true;
 };
 
-Zone::Zone(RmgMap & map, CMapGenerator & generator)
-					: ZoneOptions(),
-					townType(ETownType::NEUTRAL),
-					terrainType(Terrain::GRASS),
-					map(map),
-					generator(generator)
+Zone::Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & r)
+	: finished(false)
+	, townType(ETownType::NEUTRAL)
+	, terrainType(ETerrainId::GRASS)
+	, map(map)
+	, generator(generator)
 {
-	
+	rand.setSeed(r.nextInt());
 }
 
 bool Zone::isUnderground() const
@@ -88,6 +87,7 @@ rmg::Area & Zone::area()
 
 rmg::Area & Zone::areaPossible()
 {
+	//FIXME: make const, only modify via mutex-protected interface
 	return dAreaPossible;
 }
 
@@ -98,6 +98,7 @@ rmg::Area & Zone::areaUsed()
 
 void Zone::clearTiles()
 {
+	//Lock lock(mx);
 	dArea.clear();
 	dAreaPossible.clear();
 	dAreaFree.clear();
@@ -106,6 +107,7 @@ void Zone::clearTiles()
 void Zone::initFreeTiles()
 {
 	rmg::Tileset possibleTiles;
+	//Lock lock(mx);
 	vstd::copy_if(dArea.getTiles(), vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
 	{
 		return map.isPossible(tile);
@@ -124,12 +126,12 @@ rmg::Area & Zone::freePaths()
 	return dAreaFree;
 }
 
-si32 Zone::getTownType() const
+FactionID Zone::getTownType() const
 {
 	return townType;
 }
 
-void Zone::setTownType(si32 town)
+void Zone::setTownType(FactionID town)
 {
 	townType = town;
 }
@@ -144,7 +146,7 @@ void Zone::setTerrainType(TerrainId terrain)
 	terrainType = terrain;
 }
 
-rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
+rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {
 	auto movementCost = [this](const int3 & s, const int3 & d)
@@ -155,11 +157,12 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::functi
 			return 2;
 		return 3;
 	};
-	
+
 	auto area = (dAreaPossible + dAreaFree).getSubarea(areafilter);
-	rmg::Path freePath(area), resultPath(area);
+	rmg::Path freePath(area);
+	rmg::Path resultPath(area);
 	freePath.connect(dAreaFree);
-	
+
 	//connect to all pieces
 	auto goals = connectedAreas(src, onlyStraight);
 	for(auto & goal : goals)
@@ -167,18 +170,55 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::functi
 		auto path = freePath.search(goal, onlyStraight, movementCost);
 		if(path.getPathArea().empty())
 			return rmg::Path::invalid();
-		
+
 		freePath.connect(path.getPathArea());
 		resultPath.connect(path.getPathArea());
 	}
-	
+
 	return resultPath;
 }
 
-rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
+rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const rmg::Area & searchArea) const
+///connect current tile to any other free tile within searchArea
+{
+	auto movementCost = [this](const int3 & s, const int3 & d)
+	{
+		if(map.isFree(d))
+			return 1;
+		else if (map.isPossible(d))
+			return 2;
+		return 3;
+	};
+
+	rmg::Path freePath(searchArea);
+	rmg::Path resultPath(searchArea);
+	freePath.connect(dAreaFree);
+
+	//connect to all pieces
+	auto goals = connectedAreas(src, onlyStraight);
+	for(auto & goal : goals)
+	{
+		auto path = freePath.search(goal, onlyStraight, movementCost);
+		if(path.getPathArea().empty())
+			return rmg::Path::invalid();
+
+		freePath.connect(path.getPathArea());
+		resultPath.connect(path.getPathArea());
+	}
+
+	return resultPath;
+}
+
+
+rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {
-	return searchPath(rmg::Area({src}), onlyStraight, areafilter);
+	return searchPath(rmg::Area({ src }), onlyStraight, areafilter);
+}
+
+TModificators Zone::getModificators()
+{
+	return modificators;
 }
 
 void Zone::connectPath(const rmg::Path & path)
@@ -186,7 +226,7 @@ void Zone::connectPath(const rmg::Path & path)
 {
 	dAreaPossible.subtract(path.getPathArea());
 	dAreaFree.unite(path.getPathArea());
-	for(auto & t : path.getPathArea().getTilesVector())
+	for(const auto & t : path.getPathArea().getTilesVector())
 		map.setOccupied(t, ETileType::FREE);
 }
 
@@ -196,7 +236,39 @@ void Zone::fractalize()
 	rmg::Area possibleTiles(dAreaPossible);
 	rmg::Area tilesToIgnore; //will be erased in this iteration
 
-	const float minDistance = 10 * 10; //squared
+	//Squared
+	float minDistance = 9 * 9;
+	float freeDistance = pos.z ? (10 * 10) : 6 * 6;
+	float spanFactor = (pos.z ? 0.25 : 0.5f); //Narrower passages in the Underground
+	float marginFactor = 1.0f;
+
+	int treasureValue = 0;
+	int treasureDensity = 0;
+	for (const auto & t : treasureInfo)
+	{
+		treasureValue += ((t.min + t.max) / 2) * t.density / 1000.f; //Thousands
+		treasureDensity += t.density;
+	}
+
+	if (treasureValue > 400)
+	{
+		// A quater at max density
+		marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
+	}
+	else if (treasureValue < 125)
+	{
+		//Dense obstacles
+		spanFactor *= (treasureValue / 125.f);
+		vstd::amax(spanFactor, 0.15f);
+	}
+	if (treasureDensity <= 10)
+	{
+		vstd::amin(spanFactor, 0.1f + 0.01f * treasureDensity); //Add extra obstacles to fill up space
+	}
+	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
+	freeDistance = freeDistance * marginFactor;
+	vstd::amax(freeDistance, 4 * 4);
+	logGlobal->info("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -206,15 +278,25 @@ void Zone::fractalize()
 		{
 			//link tiles in random order
 			std::vector<int3> tilesToMakePath = possibleTiles.getTilesVector();
-			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator.rand);
+
+			// Do not fractalize tiles near the edge of the map to avoid paths adjacent to map edge
+			const auto h = map.height();
+			const auto w = map.width();
+			const size_t MARGIN = 3;
+			vstd::erase_if(tilesToMakePath, [&, h, w](const int3 & tile)
+			{
+				return tile.x < MARGIN || tile.x > (w - MARGIN) ||
+					tile.y < MARGIN || tile.y > (h - MARGIN);
+			});
+			RandomGeneratorUtil::randomShuffle(tilesToMakePath, getRand());
 			
 			int3 nodeFound(-1, -1, -1);
-			
-			for(auto tileToMakePath : tilesToMakePath)
+
+			for(const auto & tileToMakePath : tilesToMakePath)
 			{
 				//find closest free tile
 				int3 closestTile = clearedTiles.nearest(tileToMakePath);
-				if(closestTile.dist2dSQ(tileToMakePath) <= minDistance)
+				if(closestTile.dist2dSQ(tileToMakePath) <= freeDistance)
 					tilesToIgnore.add(tileToMakePath);
 				else
 				{
@@ -231,7 +313,17 @@ void Zone::fractalize()
 			tilesToIgnore.clear();
 		}
 	}
-	
+	else
+	{
+		// Handle special case - place Monoliths at the edge of a zone
+		auto objectManager = getModificator<ObjectManager>();
+		if (objectManager)
+		{
+			objectManager->createMonoliths();
+		}
+	}
+
+	Lock lock(areaMutex);
 	//cut straight paths towards the center. A* is too slow for that.
 	auto areas = connectedAreas(clearedTiles, false);
 	for(auto & area : areas)
@@ -247,28 +339,29 @@ void Zone::fractalize()
 		{
 			dAreaPossible.subtract(area);
 			dAreaFree.subtract(area);
-			for(auto & t : area.getTiles())
+			for(const auto & t : area.getTiles())
 				map.setOccupied(t, ETileType::BLOCKED);
 		}
 		else
 		{
 			dAreaPossible.subtract(res.getPathArea());
 			dAreaFree.unite(res.getPathArea());
-			for(auto & t : res.getPathArea().getTiles())
+			for(const auto & t : res.getPathArea().getTiles())
 				map.setOccupied(t, ETileType::FREE);
 		}
 	}
 	
 	//now block most distant tiles away from passages
-	float blockDistance = minDistance * 0.25f;
 	auto areaToBlock = dArea.getSubarea([this, blockDistance](const int3 & t)
 	{
-		float distance = static_cast<float>(dAreaFree.distanceSqr(t));
+		auto distance = static_cast<float>(dAreaFree.distanceSqr(t));
 		return distance > blockDistance;
 	});
 	dAreaPossible.subtract(areaToBlock);
 	dAreaFree.subtract(areaToBlock);
-	for(auto & t : areaToBlock.getTiles())
+
+	lock.unlock();
+	for(const auto & t : areaToBlock.getTiles())
 		map.setOccupied(t, ETileType::BLOCKED);
 }
 
@@ -281,131 +374,9 @@ void Zone::initModificators()
 	logGlobal->info("Zone %d modificators initialized", getId());
 }
 
-void Zone::processModificators()
+CRandomGenerator& Zone::getRand()
 {
-	for(auto & modificator : modificators)
-	{
-		try
-		{
-			modificator->run();
-		}
-		catch (const rmgException & e)
-		{
-			logGlobal->info("Zone %d, modificator %s - FAILED: %s", getId(), e.what());
-			throw e;
-		}
-	}
-	logGlobal->info("Zone %d filled successfully", getId());
-}
-
-Modificator::Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
-{
-}
-
-void Modificator::setName(const std::string & n)
-{
-	name = n;
-}
-
-const std::string & Modificator::getName() const
-{
-	return name;
-}
-
-bool Modificator::isFinished() const
-{
-	return finished;
-}
-
-void Modificator::run()
-{
-	started = true;
-	if(!finished)
-	{
-		for(auto * modificator : preceeders)
-		{
-			if(!modificator->started)
-				modificator->run();
-		}
-		logGlobal->info("Modificator zone %d - %s - started", zone.getId(), getName());
-		CStopWatch processTime;
-		try
-		{
-			process();
-		}
-		catch(rmgException &e)
-		{
-			logGlobal->error("Modificator %s, exception: %s", getName(), e.what());
-		}
-#ifdef RMG_DUMP
-		dump();
-#endif
-		finished = true;
-		logGlobal->info("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
-	}
-}
-
-void Modificator::dependency(Modificator * modificator)
-{
-	if(modificator && modificator != this)
-	{
-		if(std::find(preceeders.begin(), preceeders.end(), modificator) == preceeders.end())
-			preceeders.push_back(modificator);
-	}
-}
-
-void Modificator::postfunction(Modificator * modificator)
-{
-	if(modificator && modificator != this)
-	{
-		if(std::find(modificator->preceeders.begin(), modificator->preceeders.end(), this) == modificator->preceeders.end())
-			modificator->preceeders.push_back(this);
-	}
-}
-
-void Modificator::dump()
-{
-	std::ofstream out(boost::to_string(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
-	auto & mapInstance = map.map();
-	int levels = mapInstance.levels();
-	int width =  mapInstance.width;
-	int height = mapInstance.height;
-	for(int z = 0; z < levels; z++)
-	{
-		for(int j=0; j<height; j++)
-		{
-			for(int i=0; i<width; i++)
-			{
-				out << dump(int3(i, j, z));
-			}
-			out << std::endl;
-		}
-		out << std::endl;
-	}
-	out << std::endl;
-}
-
-char Modificator::dump(const int3 & t)
-{
-	if(zone.freePaths().contains(t))
-		return '.'; //free path
-	if(zone.areaPossible().contains(t))
-		return ' '; //possible
-	if(zone.areaUsed().contains(t))
-		return 'U'; //used
-	if(zone.area().contains(t))
-	{
-		if(map.shouldBeBlocked(t))
-			return '#'; //obstacle
-		else
-			return '^'; //visitable points?
-	}
-	return '?';
-}
-
-Modificator::~Modificator()
-{
-	
+	return rand;
 }
 
 VCMI_LIB_NAMESPACE_END

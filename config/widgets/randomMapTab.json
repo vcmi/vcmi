@@ -1,0 +1,510 @@
+{
+	"items":
+	[
+		{
+			"name": "background",
+			"type": "picture",
+			"image": "RANMAPBK",
+			"position": {"x": 0, "y": 6}
+		},
+
+		{
+			"name": "labelHeadlineBig",
+			"type": "label",
+			"font": "big",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.738",
+			"position": {"x": 222, "y": 36}
+		},
+
+		{
+			"name": "labelHeadlineSmall",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "core.genrltxt.739",
+			"position": {"x": 222, "y": 56}
+		},
+
+		{
+			"name": "labelMapSize",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "white",
+			"text": "core.genrltxt.752",
+			"position": {"x": 104, "y": 97}
+		},
+
+		{
+			"name": "groupMapSize",
+			"type": "toggleGroup",
+			"position": {"x": 158, "y": 81},
+			"items":
+			[
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"image": "RANSIZS",
+					"help": "core.help.198",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 0, "y": 0},
+				},
+
+				{
+					"type": "toggleButton",
+					"image": "RANSIZM",
+					"help": "core.help.199",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 47, "y": 0},
+				},
+
+				{
+					"type": "toggleButton",
+					"image": "RANSIZL",
+					"help": "core.help.200",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 94, "y": 0},
+				},
+
+				{
+					"type": "toggleButton",
+					"image": "RANSIZX",
+					"help": "core.help.201",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 141, "y": 0}
+				}
+			],
+			"selected": 1,
+			"callback": "toggleMapSize"
+		},
+
+		{
+			"name": "buttonTwoLevels",
+			"type": "toggleButton",
+			"image": "RANUNDR",
+			"position": {"x": 346, "y": 81},
+			"selected": true,
+			"callback": "toggleTwoLevels"
+		},
+
+		{
+			"name": "groupMaxPlayers",
+			"type": "toggleGroup",
+			"position": {"x": 67, "y": 153},
+			"items": 
+			[
+				{
+					"index": 1,
+					"type": "toggleButton",
+					"image": "RANNUM1",
+					"help": "core.help.204",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM2",
+					"help": "core.help.205",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 32, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM3",
+					"help": "core.help.206",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 64, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM4",
+					"help": "core.help.207",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 96, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM5",
+					"help": "core.help.208",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 128, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM6",
+					"help": "core.help.209",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 160, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM7",
+					"help": "core.help.210",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 192, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM8",
+					"help": "core.help.211",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 224, "y": 0}
+				},
+				{
+					"index": -1,
+					"type": "toggleButton",
+					"image": "RANRAND",
+					"help": "core.help.212",
+					"position": {"x": 256, "y": 0},
+				}
+			],
+			"selected": 7,
+			"callback": "setPlayersCount"
+		},
+
+		{
+			"name": "groupMaxTeams",
+			"type": "toggleGroup",
+			"position": {"x": 67, "y": 219},
+			"items": 
+			[
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"image": "RANNUM0",
+					"help": "core.help.214",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM1",
+					"help": "core.help.215",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 32, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM2",
+					"help": "core.help.216",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 64, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM3",
+					"help": "core.help.217",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 96, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM4",
+					"help": "core.help.218",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 128, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM5",
+					"help": "core.help.219",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 160, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM6",
+					"help": "core.help.220",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 192, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM7",
+					"help": "core.help.221",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 224, "y": 0}
+				},
+				{
+					"index": -1,
+					"type": "toggleButton",
+					"image": "RANRAND",
+					"help": "core.help.222",
+					"position": {"x": 256, "y": 0},
+				}
+			],
+			"selected": 7,
+			"callback": "setTeamsCount"
+		},
+
+		{
+			"name": "groupCompOnlyPlayers",
+			"type": "toggleGroup",
+			"position": {"x": 67, "y": 285},
+			"items": 
+			[
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"image": "RANNUM0",
+					"help": "core.help.224",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM1",
+					"help": "core.help.225",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 32, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM2",
+					"help": "core.help.226",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 64, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM3",
+					"help": "core.help.227",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 96, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM4",
+					"help": "core.help.228",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 128, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM5",
+					"help": "core.help.229",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 160, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM6",
+					"help": "core.help.230",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 192, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM7",
+					"help": "core.help.231",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 224, "y": 0}
+				},
+				{
+					"index": -1,
+					"type": "toggleButton",
+					"image": "RANRAND",
+					"help": "core.help.232",
+					"position": {"x": 256, "y": 0},
+				}
+			],
+			"selected": 7,
+			"callback": "setCompOnlyPlayers"
+		},
+
+		{
+			"name": "groupCompOnlyTeams",
+			"type": "toggleGroup",
+			"position": {"x": 67, "y": 351},
+			"items": 
+			[
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"image": "RANNUM0",
+					"help": 234,
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM1",
+					"help": "core.help.235",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 32, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM2",
+					"help": "core.help.236",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 64, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM3",
+					"help": "core.help.237",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 96, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM4",
+					"help": "core.help.238",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 128, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM5",
+					"help": "core.help.239",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 160, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNUM6",
+					"help": "core.help.240",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 192, "y": 0}
+				},
+				{
+					"index": -1,
+					"type": "toggleButton",
+					"image": "RANRAND",
+					"help": "core.help.241",
+					"position": {"x": 256, "y": 0},
+				}
+			],
+			"selected": 7,
+			"callback": "setCompOnlyTeams"
+		},
+
+		{
+			"name": "groupWaterContent",
+			"type": "toggleGroup",
+			"position": {"x": 67, "y": 419},
+			"items": 
+			[
+				{
+					"index": 0,
+					"type": "toggleButton",
+					"image": "RANNONE",
+					"help": "core.help.243",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANNORM",
+					"help": "core.help.244",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 85, "y": 0}
+				},
+				{
+					"type": "toggleButton",
+					"image": "RANISLD",
+					"help": "core.help.245",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 170, "y": 0}
+				},
+				{
+					"index": -1,
+					"type": "toggleButton",
+					"image": "RANRAND",
+					"help": "core.help.246",
+					"position": {"x": 256, "y": 0},
+				}
+			],
+			"selected": 3,
+			"callback": "setWaterContent"
+		},
+
+		{
+			"name": "groupMonsterStrength",
+			"type": "toggleGroup",
+			"position": {"x": 67, "y": 485},
+			"items":
+			[
+				{
+					"index": 2,
+					"type": "toggleButton",
+					"image": "RANWEAK",
+					"help": "core.help.248",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"index": 3,
+					"type": "toggleButton",
+					"image": "RANNORM",
+					"help": "core.help.249",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 85, "y": 0}
+				},
+				{
+					"index": 4,
+					"type": "toggleButton",
+					"image": "RANSTRG",
+					"help": "core.help.250",
+					"imageOrder": [0, 1, 1, 3],
+					"position": {"x": 170, "y": 0}
+				},
+				{
+					"index": -2,
+					"type": "toggleButton",
+					"image": "RANRAND",
+					"help": "core.help.251",
+					"position": {"x": 256, "y": 0},
+				}
+			],
+			"selected": 3,
+			"callback": "setMonsterStrength"
+		},
+
+		{
+			"name": "buttonShowRandomMaps",
+			"type": "button",
+			"position": {"x": 54, "y": 535},
+			"image": "RANSHOW",
+			"help": "core.help.252"
+		},
+
+		{
+			"type": "labelGroup",
+			"font": "small",
+			"alignment": "left",
+			"color": "white",
+			"items":
+			[
+				{
+					"position": {"x": 68, "y": 133},
+					"text": "core.genrltxt.753"
+				},
+				{
+					"position": {"x": 68, "y": 199},
+					"text": "core.genrltxt.754"
+				},
+				{
+					"position": {"x": 68, "y": 265},
+					"text": "core.genrltxt.755"
+				},
+				{
+					"position": {"x": 68, "y": 331},
+					"text": "core.genrltxt.756"
+				},
+				{
+					"position": {"x": 68, "y": 398},
+					"text": "core.genrltxt.757"
+				},
+				{
+					"position": {"x": 68, "y": 465},
+					"text": "core.genrltxt.758"
+				}
+			]
+		}
+	]
+}

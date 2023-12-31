@@ -61,6 +61,11 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	storage->setScoutTurnDistanceLimit(pathfinderSettings.scoutTurnDistanceLimit);
 	storage->setMainTurnDistanceLimit(pathfinderSettings.mainTurnDistanceLimit);
 
+	logAi->trace(
+		"Scout turn distance: %s, main %s",
+		std::to_string(pathfinderSettings.scoutTurnDistanceLimit),
+		std::to_string(pathfinderSettings.mainTurnDistanceLimit));
+
 	if(pathfinderSettings.useHeroChain)
 	{
 		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->memory->visitableObjs);
@@ -80,6 +85,8 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 
 		do
 		{
+			boost::this_thread::interruption_point();
+
 			while(storage->calculateHeroChain())
 			{
 				boost::this_thread::interruption_point();
@@ -90,6 +97,8 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 
 			logAi->trace("Select next actor");
 		} while(storage->selectNextActor());
+
+		boost::this_thread::interruption_point();
 
 		if(storage->calculateHeroChainFinal())
 		{

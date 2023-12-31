@@ -10,7 +10,7 @@
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
-				"subtype" : -1,
+				"subtype" : "spellSchool.any",
 				"val" : 85
 			},
 			"nonliving" :
@@ -41,7 +41,7 @@
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
-				"subtype" : -1,
+				"subtype" : "spellSchool.any",
 				"val" : 95
 			},
 			"nonliving" :
@@ -400,7 +400,9 @@
 		{
 			"lucky" :
 			{
-				"type" : "SELF_LUCK"
+				"type" : "LUCK",
+				"val" : 1,
+				"valueType" : "INDEPENDENT_MAX"
 			}
 		 },
 		"graphics" :
@@ -527,7 +529,7 @@
 			"visionsMonsters" :
 			{
 				"type" : "VISIONS",
-				"subtype" : 0,
+				"subtype" : "visionsMonsters",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
 				"propagator" : "HERO"
@@ -535,7 +537,7 @@
 			"visionsHeroes" :
 			{
 				"type" : "VISIONS",
-				"subtype" : 1,
+				"subtype" : "visionsHeroes",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
 				"propagator" : "HERO"				
@@ -543,7 +545,7 @@
 			"visionsTowns" :
 			{
 				"type" : "VISIONS",
-				"subtype" : 2,
+				"subtype" : "visionsTowns",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
 				"propagator" : "HERO"				
@@ -571,7 +573,8 @@
 		{
 			"regenerates" :
 			{
-				"type" : "FULL_HP_REGENERATION"
+				"type" : "HP_REGENERATION",
+				"val" : 50
 			}
 		},
 		"graphics" :

@@ -19,6 +19,7 @@ class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
+class CRandomGenerator;
 
 class rmgException : public std::exception
 {
@@ -39,12 +40,6 @@ public:
 };
 
 rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
-
-void createBorder(RmgMap & gen, Zone & zone);
-
-void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TerrainId terrainType);
-
-void initTerrainType(Zone & zone, CMapGenerator & gen);
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TerrainId terrain);
 

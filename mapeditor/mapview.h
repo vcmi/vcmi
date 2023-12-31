@@ -16,7 +16,10 @@
 #include "../lib/int3.h"
 
 
+VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
+
 class MainWindow;
 class MapController;
 
@@ -63,6 +66,7 @@ public:
 	TerrainLayer terrainView;
 	ObjectsLayer objectsView;
 	SelectionObjectsLayer selectionObjectsView;
+	ObjectPickerLayer objectPickerView;
 
 signals:
 	void selected(bool anything);
@@ -85,7 +89,7 @@ class MapView : public QGraphicsView
 public:
 	enum class SelectionTool
 	{
-		None, Brush, Brush2, Brush4, Area, Lasso
+		None, Brush, Brush2, Brush4, Area, Lasso, Line, Fill
 	};
 
 public:
@@ -98,11 +102,16 @@ public slots:
 	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
+	void dragEnterEvent(QDragEnterEvent * event) override;
+	void dragMoveEvent(QDragMoveEvent *event) override;
+	void dragLeaveEvent(QDragLeaveEvent *event) override;
+	void dropEvent(QDropEvent * event) override;
 	
 	void cameraChanged(const QPointF & pos);
 	
 signals:
 	void openObjectProperties(CGObjectInstance *, bool switchTab);
+	void currentCoordinates(int, int);
 	//void viewportChanged(const QRectF & rect);
 
 protected:
@@ -110,10 +119,13 @@ protected:
 	
 private:
 	MapController * controller = nullptr;
+	QRubberBand * rubberBand = nullptr;
 	QPointF mouseStart;
 	int3 tileStart;
 	int3 tilePrev;
 	bool pressedOnSelected;
+	
+	std::set<int3> temporaryTiles;
 };
 
 class MinimapView : public QGraphicsView
@@ -127,7 +139,7 @@ public:
 	
 public slots:
 	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
-	void mousePressEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent * event) override;
 	
 signals:
 	void cameraPositionChanged(const QPointF & newPosition);

@@ -9,51 +9,40 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
+#include "CGObjectInstance.h"
+#include "IMarket.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-class DLL_LINKAGE IMarket
-{
-public:
-	const CGObjectInstance *o;
-
-	IMarket(const CGObjectInstance *O);
-	virtual ~IMarket() {}
-
-	virtual int getMarketEfficiency() const =0;
-	virtual bool allowsTrade(EMarketMode::EMarketMode mode) const;
-	virtual int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
-	virtual std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
-
-	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
-	std::vector<EMarketMode::EMarketMode> availableModes() const;
-
-	static const IMarket *castFrom(const CGObjectInstance *obj, bool verbose = true);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & o;
-	}
-};
 
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
 public:
+	
+	std::set<EMarketMode> marketModes;
+	int marketEfficiency;
+	
+	//window variables
+	std::string title;
+	std::string speech; //currently shown only in university
+	
 	CGMarket();
-	///IObjectIntercae
+	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
+	void initObj(CRandomGenerator & rand) override;//set skills for trade
 
 	///IMarket
 	int getMarketEfficiency() const override;
-	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
-	int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
+	bool allowsTrade(EMarketMode mode) const override;
+	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
+	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & static_cast<IMarket&>(*this);
+		h & marketModes;
+		h & marketEfficiency;
+		h & title;
+		h & speech;
 	}
 };
 
@@ -63,7 +52,7 @@ public:
 	std::vector<const CArtifact *> artifacts; //available artifacts
 
 	void newTurn(CRandomGenerator & rand) const override; //reset artifacts for black market every month
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
+	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -75,10 +64,9 @@ public:
 class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
-	std::vector<int> skills; //available skills
+	std::vector<TradeItemBuy> skills; //available skills
 
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
-	void initObj(CRandomGenerator & rand) override;//set skills for trade
+	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override; //open window
 
 	template <typename Handler> void serialize(Handler &h, const int version)

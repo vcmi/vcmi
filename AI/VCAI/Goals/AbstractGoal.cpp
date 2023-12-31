@@ -14,13 +14,7 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
-#include "../../../lib/StringConstants.h"
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 
@@ -61,7 +55,7 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	case BUILD_STRUCTURE:
 		return "BUILD STRUCTURE";
 	case COLLECT_RES:
-		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + boost::lexical_cast<std::string>(value) + ")";
+		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + std::to_string(value) + ")";
 		break;
 	case TRADE:
 	{
@@ -81,7 +75,7 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	}
 	break;
 	case FIND_OBJ:
-		desc = "FIND OBJ " + boost::lexical_cast<std::string>(objid);
+		desc = "FIND OBJ " + std::to_string(objid);
 		break;
 	case VISIT_HERO:
 	{
@@ -91,7 +85,7 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	}
 	break;
 	case GET_ART_TYPE:
-		desc = "GET ARTIFACT OF TYPE " + VLC->artifacts()->getByIndex(aid)->getName();
+		desc = "GET ARTIFACT OF TYPE " + VLC->artifacts()->getByIndex(aid)->getNameTranslated();
 		break;
 	case VISIT_TILE:
 		desc = "VISIT TILE " + tile.toString();
@@ -103,10 +97,10 @@ std::string AbstractGoal::name() const //TODO: virtualize
 		desc = "DIG AT TILE " + tile.toString();
 		break;
 	default:
-		return boost::lexical_cast<std::string>(goalType);
+		return std::to_string(goalType);
 	}
 	if(hero.get(true)) //FIXME: used to crash when we lost hero and failed goal
-		desc += " (" + hero->name + ")";
+		desc += " (" + hero->getNameTranslated() + ")";
 	return desc;
 }
 

@@ -13,6 +13,11 @@
 #include "../../AIUtility.h"
 #include "../../Goals/AbstractGoal.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+struct PathNodeInfo;
+struct CDestinationNodeInfo;
+VCMI_LIB_NAMESPACE_END
+
 struct AIPathNode;
 
 class ISpecialAction

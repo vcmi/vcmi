@@ -26,12 +26,14 @@ class CAnimImage;
 class CToggleGroup;
 class RandomMapTab;
 class OptionsTab;
+class TurnOptionsTab;
 class SelectionTab;
 class InfoCard;
 class CChatBox;
 class CLabel;
 class CFlagBox;
 class CLabelGroup;
+class TransparentFilledRectangle;
 
 class ISelectionScreenInfo
 {
@@ -44,7 +46,7 @@ public:
 	virtual const StartInfo * getStartInfo() = 0;
 
 	virtual int getCurrentDifficulty();
-	virtual PlayerInfo getPlayerInfo(int color);
+	virtual PlayerInfo getPlayerInfo(PlayerColor color);
 
 };
 
@@ -57,11 +59,14 @@ public:
 	std::shared_ptr<CButton> buttonSelect;
 	std::shared_ptr<CButton> buttonRMG;
 	std::shared_ptr<CButton> buttonOptions;
+	std::shared_ptr<CButton> buttonTurnOptions;
 	std::shared_ptr<CButton> buttonStart;
 	std::shared_ptr<CButton> buttonBack;
+	std::shared_ptr<CButton> buttonSimturns;
 
 	std::shared_ptr<SelectionTab> tabSel;
 	std::shared_ptr<OptionsTab> tabOpt;
+	std::shared_ptr<TurnOptionsTab> tabTurnOptions;
 	std::shared_ptr<RandomMapTab> tabRand;
 	std::shared_ptr<CIntObject> curTab;
 
@@ -79,6 +84,7 @@ class InfoCard : public CIntObject
 	std::shared_ptr<CAnimImage> iconsMapSizes;
 
 	std::shared_ptr<CLabel> labelSaveDate;
+	std::shared_ptr<CLabel> labelMapSize;
 	std::shared_ptr<CLabel> labelScenarioName;
 	std::shared_ptr<CLabel> labelScenarioDescription;
 	std::shared_ptr<CLabel> labelVictoryCondition;
@@ -117,11 +123,12 @@ class CChatBox : public CIntObject
 public:
 	std::shared_ptr<CTextBox> chatHistory;
 	std::shared_ptr<CTextInput> inputBox;
+	std::shared_ptr<TransparentFilledRectangle> inputBackground;
 
 	CChatBox(const Rect & rect);
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
-
+	void keyPressed(EShortcut key) override;
+	bool captureThisKey(EShortcut key) override;
 	void addNewMessage(const std::string & text);
 };
 
@@ -136,7 +143,7 @@ class CFlagBox : public CIntObject
 public:
 	CFlagBox(const Rect & rect);
 	void recreate();
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void showTeamsPopup();
 
 	class CFlagBoxTooltipBox : public CWindowObject

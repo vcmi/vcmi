@@ -20,12 +20,17 @@ class CreatureID;
 class DLL_LINKAGE Artifact : public EntityWithBonuses<ArtifactID>
 {
 public:
+
 	virtual bool isBig() const = 0;
 	virtual bool isTradable() const = 0;
-	virtual const std::string & getDescription() const = 0;
-	virtual const std::string & getEventText() const = 0;
 	virtual uint32_t getPrice() const = 0;
 	virtual CreatureID getWarMachine() const = 0;
+
+	virtual std::string getDescriptionTranslated() const = 0;
+	virtual std::string getEventTranslated() const = 0;
+
+	virtual std::string getDescriptionTextID() const = 0;
+	virtual std::string getEventTextID() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -18,14 +18,14 @@ CDownloadManager::CDownloadManager()
 		SLOT(downloadFinished(QNetworkReply *)));
 }
 
-void CDownloadManager::downloadFile(const QUrl & url, const QString & file)
+void CDownloadManager::downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal)
 {
-	filename = file;
 	QNetworkRequest request(url);
 	FileEntry entry;
 	entry.file.reset(new QFile(CLauncherDirs::get().downloadsPath() + '/' + file));
 	entry.bytesReceived = 0;
-	entry.totalSize = 0;
+	entry.totalSize = bytesTotal;
+	entry.filename = file;
 
 	if(entry.file->open(QIODevice::WriteOnly | QIODevice::Truncate))
 	{
@@ -62,21 +62,24 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
 void CDownloadManager::downloadFinished(QNetworkReply * reply)
 {
 	FileEntry & file = getEntry(reply);
-	
+
 	QVariant possibleRedirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
 	QUrl qurl = possibleRedirectUrl.toUrl();
-	
+
 	if(possibleRedirectUrl.isValid())
 	{
+		QString filename;
+
 		for(int i = 0; i< currentDownloads.size(); ++i)
 		{
 			if(currentDownloads[i].file == file.file)
 			{
+				filename = currentDownloads[i].filename;
 				currentDownloads.removeAt(i);
 				break;
 			}
 		}
-		downloadFile(qurl, filename);
+		downloadFile(qurl, filename, file.totalSize);
 		return;
 	}
 
@@ -128,20 +131,24 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 
 	entry.file->write(entry.reply->readAll());
 	entry.bytesReceived = bytesReceived;
-	entry.totalSize = bytesTotal;
+	if(bytesTotal > entry.totalSize)
+		entry.totalSize = bytesTotal;
 
 	quint64 total = 0;
 	for(auto & entry : currentDownloads)
-		total += entry.totalSize > 0 ? entry.totalSize : 0;
+		total += entry.totalSize > 0 ? entry.totalSize : entry.bytesReceived;
 
 	quint64 received = 0;
 	for(auto & entry : currentDownloads)
 		received += entry.bytesReceived > 0 ? entry.bytesReceived : 0;
+	
+	if(received > total)
+		total = received;
 
 	emit downloadProgress(received, total);
 }
 
-bool CDownloadManager::downloadInProgress(const QUrl & url)
+bool CDownloadManager::downloadInProgress(const QUrl & url) const
 {
 	for(auto & entry : currentDownloads)
 	{

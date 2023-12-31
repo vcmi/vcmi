@@ -82,6 +82,7 @@ public:
 protected:
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 	virtual bool filterObject(const CGObjectInstance * obj, const int32_t spellLevel) const = 0;
+	virtual bool showTerrain(const int32_t spellLevel) const = 0;
 };
 
 class DLL_LINKAGE ViewAirMechanics : public ViewMechanics
@@ -90,6 +91,7 @@ public:
 	ViewAirMechanics(const CSpell * s);
 protected:
 	bool filterObject(const CGObjectInstance * obj, const int32_t spellLevel) const override;
+	bool showTerrain(const int32_t spellLevel) const override;
 };
 
 class DLL_LINKAGE ViewEarthMechanics : public ViewMechanics
@@ -98,6 +100,7 @@ public:
 	ViewEarthMechanics(const CSpell * s);
 protected:
 	bool filterObject(const CGObjectInstance * obj, const int32_t spellLevel) const override;
+	bool showTerrain(const int32_t spellLevel) const override;
 };
 
 

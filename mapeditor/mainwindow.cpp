@@ -23,11 +23,17 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
-#include "../lib/Terrain.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapping/MapFormat.h"
+#include "../lib/modding/ModIncompatibility.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/RiverHandler.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/filesystem/CFilesystemLoader.h"
 
 #include "maphandler.h"
@@ -35,7 +41,8 @@
 #include "windownewmap.h"
 #include "objectbrowser.h"
 #include "inspector/inspector.h"
-#include "mapsettings.h"
+#include "mapsettings/mapsettings.h"
+#include "mapsettings/translations.h"
 #include "playersettings.h"
 #include "validator.h"
 
@@ -61,6 +68,10 @@ QPixmap pixmapFromJson(const QJsonValue &val)
 void init()
 {
 	loadDLLClasses();
+
+	Settings config = settings.write["session"]["editor"];
+	config->Bool() = true;
+
 	logGlobal->info("Initializing VCMI_Lib");
 }
 
@@ -88,18 +99,75 @@ void MainWindow::saveUserSettings()
 	s.setValue(mainWindowPositionSetting, pos());
 }
 
-MainWindow::MainWindow(QWidget *parent) :
+void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
+{
+	QCommandLineParser parser;
+	parser.addHelpOption();
+	parser.addPositionalArgument("map", QCoreApplication::translate("main", "Filepath of the map to open."));
+
+	parser.addOptions({
+		{"e", QCoreApplication::translate("main", "Extract original H3 archives into a separate folder.")},
+		{"s", QCoreApplication::translate("main", "From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's.")},
+		{"c", QCoreApplication::translate("main", "From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.")},
+		{"d", QCoreApplication::translate("main", "Delete original files, for the ones split / converted.")},
+		});
+
+	parser.process(qApp->arguments());
+
+	const QStringList positionalArgs = parser.positionalArguments();
+
+	if(!positionalArgs.isEmpty())
+		mapFilePath = positionalArgs.at(0);
+
+	extractionOptions = {
+		parser.isSet("e"), {
+			parser.isSet("s"),
+			parser.isSet("c"),
+			parser.isSet("d")}};
+}
+
+void MainWindow::loadTranslation()
+{
+#ifdef ENABLE_QT_TRANSLATIONS
+	std::string translationFile = settings["general"]["language"].String() + ".qm";
+
+	QVector<QString> searchPaths;
+
+	for(auto const & string : VCMIDirs::get().dataPaths())
+		searchPaths.push_back(pathToQString(string / "mapeditor" / "translation" / translationFile));
+	searchPaths.push_back(pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "translation" / translationFile));
+
+	for(auto const & string : boost::adaptors::reverse(searchPaths))
+	{
+		if (translator.load(string))
+		{
+			if (!qApp->installTranslator(&translator))
+				logGlobal->error("Failed to install translator");
+			return;
+		}
+	}
+
+	logGlobal->error("Failed to find translation");
+#endif
+}
+
+MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	controller(this)
 {
-	ui->setupUi(this);
-	loadUserSettings(); //For example window size
-	setTitle();
-	
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
+	
+	for(auto & string : VCMIDirs::get().dataPaths())
+		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
+	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
+	
+	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
+	
+	ExtractionOptions extractionOptions;
+	parseCommandLine(extractionOptions);
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
@@ -107,43 +175,49 @@ MainWindow::MainWindow(QWidget *parent) :
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("The log file will be saved to %s", logPath);
-	
+
 	//init
-	preinitDLL(::console);
-	settings.init();
-	
+	preinitDLL(::console, false, extractionOptions.extractArchives);
+
 	// Initialize logging based on settings
 	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
-	
+
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool
 	{
-		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+		if (CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			return true;
-		
+
 		logGlobal->error("Error: %s was not found!", message);
 		return false;
 	};
-	
-	if(!testFile("DATA/HELP.TXT", "Heroes III data") ||
-	   !testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
+
+	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
+		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
 	{
 		QApplication::quit();
 	}
-	
-	conf.init();
-	logGlobal->info("Loading settings");
-	
+
+	loadTranslation();
+
+	ui->setupUi(this);
+	loadUserSettings(); //For example window size
+	setTitle();
+
 	init();
-	
+
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
+
+	if (extractionOptions.extractArchives)
+		ResourceConverter::convertExtractedResourceFiles(extractionOptions.conversionOptions);
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
 	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
+	connect(ui->mapView, &MapView::currentCoordinates, this, &MainWindow::currentCoordinatesChanged);
 	
 	ui->minimapView->setScene(controller.miniScene(0));
 	ui->minimapView->setController(&controller);
@@ -167,8 +241,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	show();
 	
 	//Load map from command line
-	if(qApp->arguments().size() >= 2)
-		openMap(qApp->arguments().at(1));
+	if(!mapFilePath.isEmpty())
+		openMap(mapFilePath);
 }
 
 MainWindow::~MainWindow()
@@ -181,7 +255,7 @@ bool MainWindow::getAnswerAboutUnsavedChanges()
 {
 	if(unsaved)
 	{
-		auto sure = QMessageBox::question(this, "Confirmation", "Unsaved changes will be lost, are you sure?");
+		auto sure = QMessageBox::question(this, tr("Confirmation"), tr("Unsaved changes will be lost, are you sure?"));
 		if(sure == QMessageBox::No)
 		{
 			return false;
@@ -226,23 +300,33 @@ void MainWindow::initializeMap(bool isNew)
 	ui->mapView->setScene(controller.scene(mapLevel));
 	ui->minimapView->setScene(controller.miniScene(mapLevel));
 	ui->minimapView->dimensions();
+	if(initialScale.isValid())
+		on_actionZoom_reset_triggered();
+	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
 	
-	setStatusMessage(QString("Scene objects: %1").arg(ui->mapView->scene()->items().size()));
-
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
+	ui->actionTranslations->setEnabled(true);
+	ui->actionLevel->setEnabled(controller.map()->twoLevel);
+	
+	//set minimal players count
+	if(isNew)
+	{
+		controller.map()->players[0].canComputerPlay = true;
+		controller.map()->players[0].canHumanPlay = true;
+	}
 	
 	onPlayersChanged();
 }
 
-bool MainWindow::openMap(const QString & filenameSelect)
+std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect)
 {
 	QFileInfo fi(filenameSelect);
 	std::string fname = fi.fileName().toStdString();
 	std::string fdir = fi.dir().path().toStdString();
 	
-	ResourceID resId("MAPEDITOR/" + fname, EResType::MAP);
+	ResourcePath resId("MAPEDITOR/" + fname, EResType::MAP);
 	
 	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
 	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
@@ -250,19 +334,40 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
 	
 	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-	{
-		QMessageBox::warning(this, "Failed to open map", "Cannot open map from this folder");
-		return false;
-	}
+		throw std::runtime_error("Cannot open map from this folder");
 	
 	CMapService mapService;
+	if(auto header = mapService.loadMapHeader(resId))
+	{
+		auto missingMods = CMapService::verifyMapHeaderMods(*header);
+		ModIncompatibility::ModListWithVersion modList;
+		for(const auto & m : missingMods)
+			modList.push_back({m.second.name, m.second.version.toString()});
+		
+		if(!modList.empty())
+			throw ModIncompatibility(modList);
+		
+		return mapService.loadMap(resId);
+	}
+	else
+		throw std::runtime_error("Corrupted map");
+}
+
+bool MainWindow::openMap(const QString & filenameSelect)
+{
 	try
 	{
-		controller.setMap(mapService.loadMap(resId));
+		controller.setMap(openMapInternal(filenameSelect));
+	}
+	catch(const ModIncompatibility & e)
+	{
+		assert(e.whatExcessive().empty());
+		QMessageBox::warning(this, "Mods are required", QString::fromStdString(e.whatMissing()));
+		return false;
 	}
 	catch(const std::exception & e)
 	{
-		QMessageBox::critical(this, "Failed to open map", e.what());
+		QMessageBox::critical(this, "Failed to open map", tr(e.what()));
 		return false;
 	}
 	
@@ -306,6 +411,8 @@ void MainWindow::saveMap()
 		else
 			QMessageBox::information(this, "Map validation", "Map has some errors. Open Validator from the Map menu to see issues found");
 	}
+	
+	Translations::cleanupRemovedItems(*controller.map());
 
 	CMapService mapService;
 	try
@@ -327,7 +434,7 @@ void MainWindow::on_actionSave_as_triggered()
 	if(!controller.map())
 		return;
 
-	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), "", tr("VCMI maps (*.vmap)"));
+	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), lastSavingDir, tr("VCMI maps (*.vmap)"));
 
 	if(filenameSelect.isNull())
 		return;
@@ -336,6 +443,7 @@ void MainWindow::on_actionSave_as_triggered()
 		return;
 
 	filename = filenameSelect;
+	lastSavingDir = filenameSelect.remove(QUrl(filenameSelect).fileName());
 
 	saveMap();
 }
@@ -353,16 +461,14 @@ void MainWindow::on_actionSave_triggered()
 		return;
 
 	if(filename.isNull())
-	{
-		auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), "", tr("VCMI maps (*.vmap)"));
+		on_actionSave_as_triggered();
+	else
+		saveMap();
+}
 
-		if(filenameSelect.isNull())
-			return;
-
-		filename = filenameSelect;
-	}
-
-	saveMap();
+void MainWindow::currentCoordinatesChanged(int x, int y)
+{
+	setStatusMessage(QString("x: %1   y: %2").arg(x).arg(y));
 }
 
 void MainWindow::terrainButtonClicked(TerrainId terrain)
@@ -401,6 +507,9 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 		itemGroup = itms.front();
 	}
 
+	if (VLC->objtypeh->knownObjects().count(ID) == 0)
+		return;
+
 	auto knownSubObjects = VLC->objtypeh->knownSubObjects(ID);
 	for(auto secondaryID : knownSubObjects)
 	{
@@ -410,10 +519,7 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 		if(staticOnly && !factory->isStaticObject())
 			continue;
 
-		auto subGroupName = QString::fromStdString(factory->subTypeName);
-		auto customName = factory->getCustomName();
-		if(customName)
-			subGroupName = tr(customName->c_str());
+		auto subGroupName = QString::fromStdString(VLC->objtypeh->getObjectName(ID, secondaryID));
 		
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
@@ -421,13 +527,13 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			auto templ = templates[templateId];
 
 			//selecting file
-			const std::string & afile = templ->editorAnimationFile.empty() ? templ->animationFile : templ->editorAnimationFile;
+			const AnimationPath & afile = templ->editorAnimationFile.empty() ? templ->animationFile : templ->editorAnimationFile;
 
 			//creating picture
 			QPixmap preview(128, 128);
 			preview.fill(QColor(255, 255, 255));
 			QPainter painter(&preview);
-			Animation animation(afile);
+			Animation animation(afile.getOriginalName());
 			animation.preload();
 			auto picture = animation.getImage(0);
 			if(picture && picture->width() && picture->height())
@@ -437,31 +543,30 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 				painter.scale(scale, scale);
 				painter.drawImage(QPoint(0, 0), *picture);
 			}
-
+			
+			//create object to extract name
+			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
+			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
+			itemType->setText(translated);
+			
 			//add parameters
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
 							 {"template", QJsonValue(templateId)},
-							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile)},
-							 {"animation", QString::fromStdString(templ->animationFile)},
-							 {"preview", jsonFromPixmap(preview)}};
-			
-			//create object to extract name
-			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
-			QString translated = useCustomName ? tr(temporaryObj->getObjectName().c_str()) : subGroupName;
+							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile.getOriginalName())},
+							 {"animation", QString::fromStdString(templ->animationFile.getOriginalName())},
+							 {"preview", jsonFromPixmap(preview)},
+							 {"typeName", QString::fromStdString(factory->getJsonKey())}
+			};
 
 			//do not have extra level
 			if(singleTemplate)
 			{
-				if(useCustomName)
-					itemType->setText(translated);
 				itemType->setIcon(QIcon(preview));
 				itemType->setData(data);
 			}
 			else
 			{
-				if(useCustomName)
-					itemType->setText(translated);
 				auto * item = new QStandardItem(QIcon(preview), QString::fromStdString(templ->stringID));
 				item->setData(data);
 				itemType->appendRow(item);
@@ -478,32 +583,35 @@ void MainWindow::loadObjectsTree()
 	{
 	ui->terrainFilterCombo->addItem("");
 	//adding terrains
-	for(auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain.name));
+		QPushButton *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain.id); });
+		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->getId()); });
 
 		//filter
-		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain));
+		QString displayName = QString::fromStdString(terrain->getNameTranslated());
+		QString uniqueName = QString::fromStdString(terrain->getJsonKey());
+
+		ui->terrainFilterCombo->addItem(displayName, QVariant(uniqueName));
 	}
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding roads
-	for(auto & road : VLC->terrainTypeHandler->roads())
+	for(auto & road : VLC->roadTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(road.fileName));
+		QPushButton *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
 		ui->roadLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road.id, true); });
+		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->getIndex(), true); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding rivers
-	for(auto & river : VLC->terrainTypeHandler->rivers())
+	for(auto & river : VLC->riverTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(river.fileName));
+		QPushButton *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
 		ui->riverLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river.id, false); });
+		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->getIndex(), false); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->riverLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -513,7 +621,7 @@ void MainWindow::loadObjectsTree()
 
 	//model
 	objectsModel.setHorizontalHeaderLabels(QStringList() << tr("Type"));
-	objectBrowser = new ObjectBrowser(this);
+	objectBrowser = new ObjectBrowserProxyModel(this);
 	objectBrowser->setSourceModel(&objectsModel);
 	objectBrowser->setDynamicSortFilter(false);
 	objectBrowser->setRecursiveFilteringEnabled(true);
@@ -529,9 +637,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("TOWNS", true, false, Obj::SHIPYARD);
 	addGroupIntoCatalog("TOWNS", true, false, Obj::GARRISON);
 	addGroupIntoCatalog("TOWNS", true, false, Obj::GARRISON2);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::ALTAR_OF_SACRIFICE);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::ARENA);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::BLACK_MARKET);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::BUOY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::CARTOGRAPHER);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::SWAN_POND);
@@ -568,17 +674,13 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::TAVERN);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::TEMPLE);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::DEN_OF_THIEVES);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::TRADING_POST);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::TRADING_POST_SNOW);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::LEARNING_STONE);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::TREE_OF_KNOWLEDGE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::UNIVERSITY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WAGON);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::SCHOOL_OF_WAR);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WAR_MACHINE_FACTORY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WARRIORS_TOMB);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WITCH_HUT);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::FREELANCERS_GUILD);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::SANCTUARY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::MARLETTO_TOWER);
 	addGroupIntoCatalog("HEROES", true, false, Obj::PRISON);
@@ -661,7 +763,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("OBSTACLES", true);
 	addGroupIntoCatalog("OTHER", false);
 	}
-	catch(const std::exception & e)
+	catch(const std::exception &)
 	{
 		QMessageBox::critical(this, "Mods loading problem", "Critical error during Mods loading. Disable invalid mods and restart.");
 	}
@@ -737,91 +839,19 @@ void MainWindow::changeBrushState(int idx)
 
 }
 
-void MainWindow::on_toolBrush_clicked(bool checked)
-{
-	//ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolBrush2_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	//ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-
-void MainWindow::on_toolBrush4_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	//ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::on_toolArea_clicked(bool checked)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	//ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
-
-	if(checked)
-		ui->mapView->selectionTool = MapView::SelectionTool::Area;
-	else
-		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
-	ui->tabWidget->setCurrentIndex(0);
-}
-
 void MainWindow::on_actionErase_triggered()
-{
-	on_toolErase_clicked();
-}
-
-void MainWindow::on_toolErase_clicked()
 {
 	if(controller.map())
 	{
 		controller.commitObjectErase(mapLevel);
 	}
-	ui->tabWidget->setCurrentIndex(0);
 }
 
-void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
+void MainWindow::preparePreview(const QModelIndex &index)
 {
 	scenePreview->clear();
 
 	auto data = objectsModel.itemFromIndex(objectBrowser->mapToSource(index))->data().toJsonObject();
-
 	if(!data.empty())
 	{
 		auto preview = data["preview"];
@@ -829,51 +859,38 @@ void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 		{
 			QPixmap objPreview = pixmapFromJson(preview);
 			scenePreview->addPixmap(objPreview);
-
-			auto objId = data["id"].toInt();
-			auto objSubId = data["subid"].toInt();
-			auto templateId = data["template"].toInt();
-
-			if(controller.discardObject(mapLevel) || createNew)
-			{
-				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
-				auto templ = factory->getTemplates()[templateId];
-				controller.createObject(mapLevel, factory->create(templ));
-			}
 		}
 	}
+
+	ui->objectPreview->fitInView(scenePreview->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 
 void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
 {
-	preparePreview(index, false);
-}
-
-
-void MainWindow::on_treeView_activated(const QModelIndex &index)
-{
-	ui->toolBrush->setChecked(false);
-	ui->toolBrush2->setChecked(false);
-	ui->toolBrush4->setChecked(false);
-	ui->toolArea->setChecked(false);
-	ui->toolLasso->setChecked(false);
+	ui->toolSelect->setChecked(true);
 	ui->mapView->selectionTool = MapView::SelectionTool::None;
-
-	preparePreview(index, true);
+	
+	preparePreview(index);
 }
 
-
-void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
+void MainWindow::on_terrainFilterCombo_currentIndexChanged(int index)
 {
 	if(!objectBrowser)
 		return;
 
-	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY_TERRAIN : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
+	QString uniqueName = ui->terrainFilterCombo->itemData(index).toString();
+
+	objectBrowser->terrain = TerrainId(ETerrainId::ANY_TERRAIN);
+	if (!uniqueName.isEmpty())
+	{
+		for (auto const & terrain : VLC->terrainTypeHandler->objects)
+			if (terrain->getJsonKey() == uniqueName.toStdString())
+				objectBrowser->terrain = terrain->getId();
+	}
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }
-
 
 void MainWindow::on_filter_textChanged(const QString &arg1)
 {
@@ -901,13 +918,13 @@ void MainWindow::loadInspector(CGObjectInstance * obj, bool switchTab)
 {
 	if(switchTab)
 		ui->tabWidget->setCurrentIndex(1);
-	Inspector inspector(controller.map(), obj, ui->inspectorWidget);
+	Inspector inspector(controller, obj, ui->inspectorWidget);
 	inspector.updateProperties();
 }
 
 void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 {
-	if(!item->isSelected())
+	if(!item->isSelected() && !(item->flags() & Qt::ItemIsUserCheckable))
 		return;
 
 	int r = item->row();
@@ -925,8 +942,8 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 	auto param = tableWidget->item(r, c - 1)->text();
 
 	//set parameter
-	Inspector inspector(controller.map(), obj, tableWidget);
-	inspector.setProperty(param, item->text());
+	Inspector inspector(controller, obj, tableWidget);
+	inspector.setProperty(param, item);
 	controller.commitObjectChange(mapLevel);
 }
 
@@ -1011,11 +1028,7 @@ void MainWindow::onSelectionMade(int level, bool anythingSelected)
 {
 	if (level == mapLevel)
 	{
-		auto info = QString::asprintf("Selection on layer %d: %s", level, anythingSelected ? "true" : "false");
-		setStatusMessage(info);
-
 		ui->actionErase->setEnabled(anythingSelected);
-		ui->toolErase->setEnabled(anythingSelected);
 	}
 }
 void MainWindow::displayStatus(const QString& message, int timeout /* = 2000 */)
@@ -1036,11 +1049,11 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	
 	if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
 	{
-		QMessageBox::information(this, "Update appearance", "No objects selected");
+		QMessageBox::information(this, tr("Update appearance"), tr("No objects selected"));
 		return;
 	}
 	
-	if(QMessageBox::Yes != QMessageBox::question(this, "Update appearance", "This operation is irreversible. Do you want to continue?"))
+	if(QMessageBox::Yes != QMessageBox::question(this, tr("Update appearance"), tr("This operation is irreversible. Do you want to continue?")))
 		return;
 	
 	controller.scene(mapLevel)->selectionTerrainView.clear();
@@ -1061,7 +1074,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		if(handler->isStaticObject())
 		{
 			staticObjects.insert(obj);
-			if(obj->appearance->canBePlacedAt(terrain->id))
+			if(obj->appearance->canBePlacedAt(terrain->getId()))
 			{
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
@@ -1072,13 +1085,13 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		}
 		else
 		{
-			auto app = handler->getOverride(terrain->id, obj);
+			auto app = handler->getOverride(terrain->getId(), obj);
 			if(!app)
 			{
-				if(obj->appearance->canBePlacedAt(terrain->id))
+				if(obj->appearance->canBePlacedAt(terrain->getId()))
 					continue;
 				
-				auto templates = handler->getTemplates(terrain->id);
+				auto templates = handler->getTemplates(terrain->getId());
 				if(templates.empty())
 				{
 					++errors;
@@ -1086,9 +1099,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 				}
 				app = templates.front();
 			}
-			auto tiles = controller.mapHandler()->getTilesUnderObject(obj);
 			obj->appearance = app;
-			controller.mapHandler()->invalidate(tiles);
 			controller.mapHandler()->invalidate(obj);
 			controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 		}
@@ -1099,12 +1110,231 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	
 	
 	if(errors)
-		QMessageBox::warning(this, "Update appearance", QString("Errors occured. %1 objects were not updated").arg(errors));
+		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occurred. %1 objects were not updated")).arg(errors));
 }
 
 
 void MainWindow::on_actionRecreate_obstacles_triggered()
 {
 
+}
+
+
+void MainWindow::on_actionCut_triggered()
+{
+	if(controller.map())
+	{
+		controller.copyToClipboard(mapLevel);
+		controller.commitObjectErase(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionCopy_triggered()
+{
+	if(controller.map())
+	{
+		controller.copyToClipboard(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionPaste_triggered()
+{
+	if(controller.map())
+	{
+		controller.pasteFromClipboard(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionExport_triggered()
+{
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), lastSavingDir, "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
+	if(!fileName.isNull())
+	{
+		QImage image(ui->mapView->scene()->sceneRect().size().toSize(), QImage::Format_RGB888);
+		QPainter painter(&image);
+		ui->mapView->scene()->render(&painter);
+		image.save(fileName);
+	}
+}
+
+
+void MainWindow::on_actionTranslations_triggered()
+{
+	auto translationsDialog = new Translations(*controller.map(), this);
+	translationsDialog->show();
+}
+
+void MainWindow::on_actionh3m_converter_triggered()
+{
+	auto mapFiles = QFileDialog::getOpenFileNames(this, tr("Select maps to convert"),
+		QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()),
+		tr("HoMM3 maps(*.h3m)"));
+	if(mapFiles.empty())
+		return;
+	
+	auto saveDirectory = QFileDialog::getExistingDirectory(this, tr("Choose directory to save converted maps"), QCoreApplication::applicationDirPath());
+	if(saveDirectory.isEmpty())
+		return;
+	
+	try
+	{
+		for(auto & m : mapFiles)
+		{
+			CMapService mapService;
+			auto map = openMapInternal(m);
+			controller.repairMap(map.get());
+			mapService.saveMap(map, (saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap").toStdString());
+		}
+		QMessageBox::information(this, tr("Operation completed"), tr("Successfully converted %1 maps").arg(mapFiles.size()));
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(this, tr("Failed to convert the map. Abort operation"), tr(e.what()));
+	}
+}
+
+
+void MainWindow::on_actionLock_triggered()
+{
+	if(controller.map())
+	{
+		if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
+		{
+			for(auto obj : controller.map()->objects)
+			{
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+			}
+		}
+		else
+		{
+			for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
+			{
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+			}
+			controller.scene(mapLevel)->selectionObjectsView.clear();
+		}
+		controller.scene(mapLevel)->objectsView.update();
+		controller.scene(mapLevel)->selectionObjectsView.update();
+	}
+}
+
+
+void MainWindow::on_actionUnlock_triggered()
+{
+	if(controller.map())
+	{
+		controller.scene(mapLevel)->selectionObjectsView.unlockAll();
+		controller.scene(mapLevel)->objectsView.unlockAll();
+	}
+	controller.scene(mapLevel)->objectsView.update();
+}
+
+
+void MainWindow::on_actionZoom_in_triggered()
+{
+	auto rect = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
+	rect -= QMargins{32 + 1, 32 + 1, 32 + 2, 32 + 2}; //compensate bounding box
+	ui->mapView->fitInView(rect, Qt::KeepAspectRatioByExpanding);
+}
+
+
+void MainWindow::on_actionZoom_out_triggered()
+{
+	auto rect = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
+	rect += QMargins{32 - 1, 32 - 1, 32 - 2, 32 - 2}; //compensate bounding box
+	ui->mapView->fitInView(rect, Qt::KeepAspectRatioByExpanding);
+}
+
+
+void MainWindow::on_actionZoom_reset_triggered()
+{
+	auto center = ui->mapView->mapToScene(ui->mapView->viewport()->geometry().center());
+	ui->mapView->fitInView(initialScale, Qt::KeepAspectRatioByExpanding);
+	ui->mapView->centerOn(center);
+}
+
+
+void MainWindow::on_toolLine_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Line;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush2_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolBrush4_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolLasso_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Lasso;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolArea_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Area;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolFill_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Fill;
+		ui->tabWidget->setCurrentIndex(0);
+	}
+}
+
+
+void MainWindow::on_toolSelect_toggled(bool checked)
+{
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+		ui->tabWidget->setCurrentIndex(0);
+	}
 }
 

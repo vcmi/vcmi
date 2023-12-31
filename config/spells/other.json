@@ -4,7 +4,7 @@
 		"targetType" : "NO_TARGET",
 
 		"sounds": {
-			"cast": "QUIKSAND"
+			"cast": "" // no casting sound, only obstacle placement sound
 		},
 		"levels" : {
 			"base":{
@@ -15,17 +15,18 @@
 						"hidden" : true,
 						"passable" : true,
 						"trap" : true,
-						"trigger" : false,
 						"patchCount" : 4,
 						"turnsRemaining" : -1,
 						"attacker" :{
 							"animation" : "C17SPE1",
 							"appearAnimation" : "C17SPE0",
+							"appearSound" : "QUIKSAND",
 							"offsetY" : -42
 						},
 						"defender" :{
 							"animation" : "C17SPE1",
 							"appearAnimation" : "C17SPE0",
+							"appearSound" : "QUIKSAND",
 							"offsetY" : -42
 						}
 					}
@@ -50,12 +51,68 @@
 			"indifferent": true
 		}
 	},
+	"landMineTrigger" :
+	{
+		"targetType" : "CREATURE",
+		"type": "combat",
+		"name": "Land Mine",
+		"school":
+		{
+			"air": false,
+			"earth": false,
+			"fire": true,
+			"water": false
+		},
+		"level": 3,
+		"power": 10,
+		"gainChance": {},
+		"animation" : {
+			"hit" : ["C09SPF3"]
+		},
+		"sounds" : {
+		   "cast" : "LANDKILL"
+		},
+		"levels" : {
+			"base": {
+				"power" : 25,
+				"range" : "0",
+				"description" : "", //For validation
+				"cost" : 0, //For validation
+				"aiValue" : 0, //For validation
+				"battleEffects" : {
+					"directDamage" : {
+						"type":"core:damage"
+					}
+				},
+				"targetModifier":{"smart":false}
+			},
+			"none" : {
+				"power" : 25
+			},
+			"basic" : {
+				"power" : 25
+			},
+			"advanced" : {
+				"power" : 50
+			},
+			"expert" : {
+				"power" : 100
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"negative": true,
+			"special": true
+		},
+		"targetCondition" : {
+		}
+	},
 	"landMine" : {
 		"index" : 11,
 		"targetType" : "NO_TARGET",
 
 		"sounds": {
-			"cast": ""
+			"cast": "" // no casting sound, only obstacle placement sound
 		},
 		"levels" : {
 			"base":{
@@ -66,24 +123,20 @@
 						"hidden" : true,
 						"passable" : true,
 						"trap" : false,
-						"trigger" : true,
+						"triggerAbility" : "core:landMineTrigger",
 						"removeOnTrigger" : true,
 						"patchCount" : 4,
 						"turnsRemaining" : -1,
 						"attacker" :{
 							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"appearAnimation" : "C09SPF0",
+							"appearSound" : "LANDMINE"
 						},
 						"defender" :{
 							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"appearAnimation" : "C09SPF0",
+							"appearSound" : "LANDMINE"
 						}
-					},
-					"damage":{
-						"type":"core:damage",
-						"optional":false,
-						"indirect":true,
-						"customEffectId" : 82
 					}
 				}
 			},
@@ -107,9 +160,6 @@
 			"indifferent": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"forceField" : {
@@ -131,8 +181,6 @@
 						"hidden" : false,
 						"passable" : false,
 						"trap" : false,
-						"trigger" : false,
-						"patchCount" : 1,
 						"turnsRemaining" : 2,
 						"attacker" :{
 							"range" : [[""]],
@@ -186,6 +234,55 @@
 			"indifferent": true
 		}
 	},
+	"fireWallTrigger" : {
+		"targetType" : "CREATURE",
+		"type": "combat",
+		"name": "Fire Wall",
+		"school":
+		{
+			"air": false,
+			"earth": false,
+			"fire": true,
+			"water": false
+		},
+		"level": 2,
+		"power": 10,
+		"gainChance": {},
+		"levels" : {
+			"base": {
+				"power" : 10,
+				"range" : "0",
+				"description" : "", //For validation
+				"cost" : 0, //For validation
+				"aiValue" : 0, //For validation
+				"battleEffects" : {
+					"directDamage" : {
+						"type":"core:damage"
+					}
+				},
+				"targetModifier":{"smart":false}
+			},
+			"none" : {
+				"power" : 10
+			},
+			"basic" : {
+				"power" : 10
+			},
+			"advanced" : {
+				"power" : 20
+			},
+			"expert" : {
+				"power" : 50
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"negative": true,
+			"special": true
+		},
+		"targetCondition" : {
+		}
+	},
 	"fireWall" : {
 		"index" : 13,
 		"targetType" : "LOCATION",
@@ -205,8 +302,7 @@
 						"hidden" : false,
 						"passable" : true,
 						"trap" : false,
-						"trigger" : true,
-						"patchCount" : 1,
+						"triggerAbility" : "core:fireWallTrigger",
 						"turnsRemaining" : 2,
 						"attacker" :{
 							"shape" : [[""]],
@@ -220,11 +316,6 @@
 							"animation" : "C07SPF61",
 							"appearAnimation" : "C07SPF60"
 						}
-					},
-					"damage":{
-						"type":"core:damage",
-						"optional":false,
-						"indirect":true
 					}
 				}
 			},
@@ -258,9 +349,6 @@
 			"indifferent": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"earthquake" : {
@@ -276,7 +364,9 @@
 				"battleEffects":{
 					"catapult":{
 						"type":"core:catapult",
-						"targetsToAttack": 2
+						"targetsToAttack": 2,
+						"chanceToCrit" : 0,
+						"chanceToNormalHit" : 100
 					}
 				},
 				"range" : "X"
@@ -534,6 +624,21 @@
 					}
 				},
 				"targetModifier":{"smart":true}
+			},
+			"advanced" :{
+				"battleEffects":{
+					"teleport":{
+						"isMoatPassable" : true
+					}
+				}
+			},
+			"expert" : {
+				"battleEffects":{
+					"teleport":{
+						"isWallPassable" : true,
+						"isMoatPassable" : true
+					}
+				}
 			}
 		},
 		"flags" : {
@@ -588,7 +693,6 @@
 		"index" : 65,
 		"targetType" : "CREATURE",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "CLONE"
@@ -632,7 +736,6 @@
 		"index" : 66,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -658,7 +761,6 @@
 		"index" : 67,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -684,7 +786,6 @@
 		"index" : 68,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -710,7 +811,6 @@
 		"index" : 69,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"

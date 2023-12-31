@@ -21,11 +21,13 @@
 
 find_path(fuzzylite_INCLUDE_DIR 
     fl/fuzzylite.h
+    fuzzylite/fuzzylite.h
   HINTS
     ENV FLDIR
   PATH_SUFFIXES
     fl
-    include/fl 
+    include/fl
+    include/fuzzylite 
     include
 )
 

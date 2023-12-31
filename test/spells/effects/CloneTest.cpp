@@ -134,11 +134,11 @@ public:
 
 		const Bonus & marker = bonus.front();
 
-		EXPECT_EQ(marker.type, Bonus::NONE);
-		EXPECT_EQ(marker.duration, Bonus::N_TURNS);
+		EXPECT_EQ(marker.type, BonusType::NONE);
+		EXPECT_EQ(marker.duration, BonusDuration::N_TURNS);
 		EXPECT_EQ(marker.turnsRemain, effectDuration);
-		EXPECT_EQ(marker.source, Bonus::SPELL_EFFECT);
-		EXPECT_EQ(marker.sid, SpellID::CLONE);
+		EXPECT_EQ(marker.source, BonusSource::SPELL_EFFECT);
+		EXPECT_EQ(marker.sid, BonusSourceID(SpellID(SpellID::CLONE)));
 	}
 
 	void setDefaultExpectations()

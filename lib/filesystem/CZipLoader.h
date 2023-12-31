@@ -11,7 +11,7 @@
 
 #include "ISimpleResourceLoader.h"
 #include "CInputStream.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 #include "CCompressedStream.h"
 
 #include "MinizipExtensions.h"
@@ -29,7 +29,7 @@ public:
 	 * @param archive path to archive to open
 	 * @param filepos position of file to open
 	 */
-	CZipStream(std::shared_ptr<CIOApi> api, const boost::filesystem::path & archive, unz64_file_pos filepos);
+	CZipStream(const std::shared_ptr<CIOApi> & api, const boost::filesystem::path & archive, unz64_file_pos filepos);
 	~CZipStream();
 
 	si64 getSize() override;
@@ -46,31 +46,32 @@ class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 	boost::filesystem::path archiveName;
 	std::string mountPoint;
 
-	std::unordered_map<ResourceID, unz64_file_pos> files;
+	std::unordered_map<ResourcePath, unz64_file_pos> files;
 
-	std::unordered_map<ResourceID, unz64_file_pos> listFiles(const std::string & mountPoint, const boost::filesystem::path &archive);
+	std::unordered_map<ResourcePath, unz64_file_pos> listFiles(const std::string & mountPoint, const boost::filesystem::path &archive);
 public:
 	CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive, std::shared_ptr<CIOApi> api = std::shared_ptr<CIOApi>(new CDefaultIOApi()));
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
-	bool existsResource(const ResourceID & resourceName) const override;
+	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
+	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 };
 
-namespace ZipArchive
+class DLL_LINKAGE ZipArchive : boost::noncopyable
 {
-	/// List all files present in archive
-	std::vector<std::string> DLL_LINKAGE listFiles(boost::filesystem::path filename);
+	unzFile archive;
 
-	/// extracts all files from archive "from" into destination directory "where". Directory must exist
-	bool DLL_LINKAGE extract(boost::filesystem::path from, boost::filesystem::path where);
+public:
+	ZipArchive(const boost::filesystem::path & from);
+	~ZipArchive();
 
-	///same as above, but extracts only files mentioned in "what" list
-	bool DLL_LINKAGE extract(boost::filesystem::path from, boost::filesystem::path where, std::vector<std::string> what);
-}
+	std::vector<std::string> listFiles();
+	bool extract(const boost::filesystem::path & where, const std::vector<std::string> & what);
+	bool extract(const boost::filesystem::path & where, const std::string & what);
+};
 
 VCMI_LIB_NAMESPACE_END

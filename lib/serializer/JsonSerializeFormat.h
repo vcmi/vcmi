@@ -10,6 +10,9 @@
 #pragma once
 
 #include "../JsonNode.h"
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
+#include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,7 +31,7 @@ public:
 class DLL_LINKAGE JsonSerializeHelper: public boost::noncopyable
 {
 public:
-	JsonSerializeHelper(JsonSerializeHelper && other);
+	JsonSerializeHelper(JsonSerializeHelper && other) noexcept;
 	virtual ~JsonSerializeHelper();
 
 	JsonSerializeFormat * operator->();
@@ -44,8 +47,8 @@ private:
 class DLL_LINKAGE JsonStructSerializer: public JsonSerializeHelper
 {
 public:
-	JsonStructSerializer(JsonStructSerializer && other);
-	~JsonStructSerializer();
+	JsonStructSerializer(JsonStructSerializer && other) noexcept;
+
 protected:
 	JsonStructSerializer(JsonSerializeFormat * owner_);
 
@@ -56,7 +59,7 @@ protected:
 class DLL_LINKAGE JsonArraySerializer: public JsonSerializeHelper
 {
 public:
-	JsonArraySerializer(JsonArraySerializer && other);
+	JsonArraySerializer(JsonArraySerializer && other) noexcept;
 
 	JsonStructSerializer enterStruct(const size_t index);
 	JsonArraySerializer enterArray(const size_t index);
@@ -71,17 +74,43 @@ public:
 	///String <-> Json string
 	void serializeString(const size_t index, std::string & value);
 
-	///vector of serializable <-> Json vector of structs
+	///vector of anything int-convertible <-> Json vector of integers
+	template<typename T>
+	void serializeArray(std::vector<T> & value)
+	{
+		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
+
+		for(size_t idx = 0; idx < size(); idx++)
+			serializeInt(idx, value[idx]);
+	}
+	
+	///vector of strings <-> Json vector of strings
+	void serializeArray(std::vector<std::string> & value)
+	{
+		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
+
+		for(size_t idx = 0; idx < size(); idx++)
+			serializeString(idx, value[idx]);
+	}
+	
+	///vector of anything with custom serializing function <-> Json vector of structs
 	template <typename Element>
-	void serializeStruct(std::vector<Element> & value)
+	void serializeStruct(std::vector<Element> & value, std::function<void(JsonSerializeFormat&, Element&)> serializer)
 	{
 		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
 
 		for(size_t idx = 0; idx < size(); idx++)
 		{
 			auto s = enterStruct(idx);
-			value[idx].serializeJson(*owner);
+			serializer(*owner, value[idx]);
 		}
+	}
+	
+	///vector of serializable <-> Json vector of structs
+	template <typename Element>
+	void serializeStruct(std::vector<Element> & value)
+	{
+		serializeStruct<Element>(value, [](JsonSerializeFormat & h, Element & e){e.serializeJson(h);});
 	}
 
 	void resize(const size_t newSize);
@@ -102,27 +131,15 @@ class DLL_LINKAGE JsonSerializeFormat: public boost::noncopyable
 public:
 	///user-provided callback to resolve string identifier
 	///returns resolved identifier or -1 on error
-	typedef std::function<si32(const std::string &)> TDecoder;
+	using TDecoder = std::function<si32(const std::string &)>;
 
 	///user-provided callback to get string identifier
 	///may assume that object index is valid
-	typedef std::function<std::string(si32)> TEncoder;
-
-	typedef std::function<void(JsonSerializeFormat &)> TSerialize;
-
-	struct LIC
-	{
-		LIC(const std::vector<bool> & Standard, const TDecoder Decoder, const TEncoder Encoder);
-
-		const std::vector<bool> & standard;
-		const TDecoder decoder;
-		const TEncoder encoder;
-		std::vector<bool> all, any, none;
-	};
+	using TEncoder = std::function<std::string(si32)>;
 
 	struct LICSet
 	{
-		LICSet(const std::set<si32> & Standard, const TDecoder Decoder, const TEncoder Encoder);
+		LICSet(const std::set<si32> & Standard, TDecoder Decoder, TEncoder Encoder);
 
 		const std::set<si32> & standard;
 		const TDecoder decoder;
@@ -182,13 +199,28 @@ public:
 	 * @param value target value, must be resized properly
 	 *
 	 */
-	virtual void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value) = 0;
+	virtual void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value) = 0;
 
-	/** @brief Complete serialization of Logical identifier condition
-	 */
-	virtual void serializeLIC(const std::string & fieldName, LIC & value) = 0;
+	template<typename T>
+	void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<T> & standard, std::set<T> & value)
+	{
+		std::set<int32_t> standardInt;
+		std::set<int32_t> valueInt;
 
-	/** @brief Complete serialization of Logical identifier condition. (Special version)
+		for (auto entry : standard)
+			standardInt.insert(entry.getNum());
+
+		for (auto entry : value)
+			valueInt.insert(entry.getNum());
+
+		serializeLIC(fieldName, decoder, encoder, standardInt, valueInt);
+
+		value.clear();
+		for (auto entry : valueInt)
+			value.insert(T(entry));
+	}
+
+	/** @brief Complete serialization of Logical identifier condition.
 	 * Assumes that all values are allowed by default, and standard contains them
 	 */
 	virtual void serializeLIC(const std::string & fieldName, LICSet & value) = 0;
@@ -200,7 +232,7 @@ public:
 	template <typename T>
 	void serializeEnum(const std::string & fieldName, T & value, const std::vector<std::string> & enumMap)
 	{
-		doSerializeInternal<T, T, si32>(fieldName, value, boost::none, enumMap);
+		doSerializeInternal<T, T, si32>(fieldName, value, std::nullopt, enumMap);
 	};
 
 	///si32-convertible enum <-> Json string enum
@@ -224,7 +256,7 @@ public:
 	template <typename T>
 	void serializeFloat(const std::string & fieldName, T & value)
 	{
-		doSerializeInternal<T, T, double>(fieldName, value, boost::none);
+		doSerializeInternal<T, T, double>(fieldName, value, std::nullopt);
 	};
 
 	///Anything double-convertible <-> Json double
@@ -239,7 +271,7 @@ public:
 	template <typename T>
 	void serializeInt(const std::string & fieldName, T & value)
 	{
-		doSerializeInternal<T, T, si64>(fieldName, value, boost::none);
+		doSerializeInternal<T, T, si64>(fieldName, value, std::nullopt);
 	};
 
 	///Anything int64-convertible <-> Json integer
@@ -251,9 +283,9 @@ public:
 	};
 
 	///Anything int64-convertible <-> Json integer
-	///default value is boost::none
-	template <typename T>
-	void serializeInt(const std::string & fieldName, boost::optional<T> & value)
+	///default value is std::nullopt
+	template<typename T>
+	void serializeInt(const std::string & fieldName, std::optional<T> & value)
 	{
 		dispatchOptional<T, si64>(fieldName, value);
 	};
@@ -266,39 +298,62 @@ public:
 	}
 
 	///si32-convertible identifier <-> Json string
-	template <typename T, typename U, typename E = T>
-	void serializeId(const std::string & fieldName, T & value, const U & defaultValue)
+	template <typename IdentifierType, typename IdentifierTypeBase = IdentifierType>
+	void serializeId(const std::string & fieldName, IdentifierType & value, const IdentifierTypeBase & defaultValue = IdentifierType::NONE)
 	{
-		doSerializeInternal<T, U, si32>(fieldName, value, defaultValue, &E::decode, &E::encode);
+		static_assert(std::is_base_of_v<IdentifierBase, IdentifierType>, "This method can only serialize Identifier classes!");
+
+		if (saving)
+		{
+			if (value != defaultValue)
+			{
+				std::string fieldValue = IdentifierType::encode(value.getNum());
+				serializeString(fieldName, fieldValue);
+			}
+		}
+		else
+		{
+			std::string fieldValue;
+			serializeString(fieldName, fieldValue);
+
+			if (!fieldValue.empty())
+			{
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+					value = IdentifierType(index);
+				});
+			}
+			else
+			{
+				value = IdentifierType(defaultValue);
+			}
+		}
 	}
 
 	///si32-convertible identifier vector <-> Json array of string
 	template <typename T, typename E = T>
 	void serializeIdArray(const std::string & fieldName, std::vector<T> & value)
 	{
-		std::vector<si32> temp;
-
-		if(saving)
+		if (saving)
 		{
-			temp.reserve(value.size());
+			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
+				fieldValue.push_back(E::encode(vitem.getNum()));
+
+			serializeInternal(fieldName, fieldValue);
 		}
-
-		serializeInternal(fieldName, temp, &E::decode, &E::encode);
-		if(!saving)
+		else
 		{
-			value.clear();
-			value.reserve(temp.size());
+			std::vector<std::string> fieldValue;
+			serializeInternal(fieldName, fieldValue);
 
-			for(const si32 item : temp)
+			value.resize(fieldValue.size());
+
+			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				T vitem = static_cast<T>(item);
-				value.push_back(vitem);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue[i], [&value, i](int32_t index){
+					value[i] = T(index);
+				});
 			}
 		}
 	}
@@ -307,97 +362,25 @@ public:
 	template <typename T, typename U = T>
 	void serializeIdArray(const std::string & fieldName, std::set<T> & value)
 	{
-		std::vector<si32> temp;
-
-		if(saving)
+		if (saving)
 		{
-			temp.reserve(value.size());
+			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
+				fieldValue.push_back(U::encode(vitem.getNum()));
+
+			serializeInternal(fieldName, fieldValue);
 		}
-
-		serializeInternal(fieldName, temp, &U::decode, &U::encode);
-		if(!saving)
+		else
 		{
-			value.clear();
+			std::vector<std::string> fieldValue;
+			serializeInternal(fieldName, fieldValue);
 
-			for(const si32 item : temp)
+			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				T vitem = static_cast<T>(item);
-				value.insert(vitem);
-			}
-		}
-	}
-
-	///si32-convertible identifier set <-> Json array of string
-	template <typename T, typename U = T>
-	void serializeIdArray(const std::string & fieldName, std::set<T> & value, const std::set<T> & defaultValue)
-	{
-		std::vector<si32> temp;
-
-		if(saving && value != defaultValue)
-		{
-			temp.reserve(value.size());
-
-			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
-		}
-
-		serializeInternal(fieldName, temp, &U::decode, &U::encode);
-		if(!saving)
-		{
-			if(temp.empty())
-			{
-				value = defaultValue;
-			}
-			else
-			{
-				value.clear();
-
-				for(const si32 item : temp)
-				{
-					T vitem = static_cast<T>(item);
-					value.insert(vitem);
-				}
-			}
-		}
-	}
-
-	///bitmask <-> Json array of string
-	template <typename T, int Size>
-	void serializeIdArray(const std::string & fieldName, T & value, const T & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
-	{
-		static_assert(8 * sizeof(T) >= Size, "Mask size too small");
-
-		std::vector<si32> temp;
-		temp.reserve(Size);
-
-		if(saving && value != defaultValue)
-		{
-			for(si32 i = 0; i < Size; i++)
-				if(value & (1 << i))
-					temp.push_back(i);
-			serializeInternal(fieldName, temp, decoder, encoder);
-		}
-
-		if(!saving)
-		{
-			serializeInternal(fieldName, temp, decoder, encoder);
-
-			if(temp.empty())
-				value = defaultValue;
-			else
-			{
-				value = 0;
-				for(auto i : temp)
-					value |= (1 << i);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), U::entityType(), fieldValue[i], [&value](int32_t index){
+					value.insert(T(index));
+				});
 			}
 		}
 	}
@@ -407,9 +390,26 @@ public:
 	void serializeInstance(const std::string & fieldName, T & value, const T & defaultValue)
 	{
 		const TDecoder decoder = std::bind(&IInstanceResolver::decode, instanceResolver, _1);
-		const TEncoder endoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
+		const TEncoder encoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
 
-		serializeId<T>(fieldName, value, defaultValue, decoder, endoder);
+		if (saving)
+		{
+			if (value != defaultValue)
+			{
+				std::string fieldValue = encoder(value.getNum());
+				serializeString(fieldName, fieldValue);
+			}
+		}
+		else
+		{
+			std::string fieldValue;
+			serializeString(fieldName, fieldValue);
+
+			if (!fieldValue.empty())
+				value = T(decoder(fieldValue));
+			else
+				value = T(defaultValue);
+		}
 	}
 
 	///any serializable object <-> Json struct
@@ -420,7 +420,7 @@ public:
 		value.serializeJson(*this);
 	}
 
-	virtual void serializeRaw(const std::string & fieldName, JsonNode & value, const boost::optional<const JsonNode &> defaultValue) = 0;
+	virtual void serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue) = 0;
 
 protected:
 	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_, const bool updating_);
@@ -429,19 +429,22 @@ protected:
 	virtual void serializeInternal(const std::string & fieldName, boost::logic::tribool & value) = 0;
 
 	///Numeric Id <-> String Id
-	virtual void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder) = 0;
+	virtual void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder) = 0;
 
 	///Numeric Id vector <-> String Id vector
 	virtual void serializeInternal(const std::string & fieldName, std::vector<si32> & value, const TDecoder & decoder, const TEncoder & encoder) = 0;
 
 	///Numeric <-> Json double
-	virtual void serializeInternal(const std::string & fieldName, double & value, const boost::optional<double> & defaultValue) = 0;
+	virtual void serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue) = 0;
 
 	///Numeric <-> Json integer
-	virtual void serializeInternal(const std::string & fieldName, si64 & value, const boost::optional<si64> & defaultValue) = 0;
+	virtual void serializeInternal(const std::string & fieldName, si64 & value, const std::optional<si64> & defaultValue) = 0;
 
 	///Enum/Numeric <-> Json string enum
-	virtual void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) = 0;
+	virtual void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) = 0;
+
+	///String vector <-> Json string vector
+	virtual void serializeInternal(const std::string & fieldName, std::vector<std::string> & value) = 0;
 
 	virtual void pop() = 0;
 	virtual void pushStruct(const std::string & fieldName) = 0;
@@ -454,14 +457,16 @@ protected:
 	virtual void serializeInternal(std::string & value) = 0;
 	virtual void serializeInternal(int64_t & value) = 0;
 
+	void readLICPart(const JsonNode & part, const JsonSerializeFormat::TDecoder & decoder, std::set<si32> & value) const;
+
 private:
 	const IInstanceResolver * instanceResolver;
 
-	template <typename VType, typename DVType, typename IType, typename... Args>
-	void doSerializeInternal(const std::string & fieldName, VType & value, const boost::optional<DVType> & defaultValue, Args ... args)
+	template<typename VType, typename DVType, typename IType, typename... Args>
+	void doSerializeInternal(const std::string & fieldName, VType & value, const std::optional<DVType> & defaultValue, Args... args)
 	{
-		const boost::optional<IType> tempDefault = defaultValue ? boost::optional<IType>(static_cast<IType>(defaultValue.get())) : boost::none;
-		IType temp = static_cast<IType>(value);
+		const std::optional<IType> tempDefault = defaultValue ? std::optional<IType>(static_cast<IType>(defaultValue.value())) : std::nullopt;
+		auto temp = static_cast<IType>(value);
 
 		serializeInternal(fieldName, temp, tempDefault, args...);
 
@@ -469,14 +474,14 @@ private:
 			value = static_cast<VType>(temp);
 	}
 
-	template <typename VType, typename IType, typename... Args>
-	void dispatchOptional(const std::string & fieldName, boost::optional<VType> & value, Args ... args)
+	template<typename VType, typename IType, typename... Args>
+	void dispatchOptional(const std::string & fieldName, std::optional<VType> & value, Args... args)
 	{
 		if(saving)
 		{
 			if(value)
 			{
-				IType temp = static_cast<IType>(value.get());
+				auto temp = static_cast<IType>(value.value());
 				pushField(fieldName);
 				serializeInternal(temp, args...);
 				pop();
@@ -488,13 +493,13 @@ private:
 
 			if(getCurrent().getType() == JsonNode::JsonType::DATA_NULL)
 			{
-				value = boost::none;
+				value = std::nullopt;
 			}
 			else
 			{
 				IType temp = IType();
 				serializeInternal(temp, args...);
-				value = boost::make_optional(temp);
+				value = std::make_optional(temp);
 			}
 
 			pop();
@@ -518,7 +523,7 @@ void JsonArraySerializer::syncSize(Container & c, JsonNode::JsonType type)
 template <typename T>
 void JsonArraySerializer::serializeInt(const size_t index, T & value)
 {
-	int64_t temp = static_cast<int64_t>(value);
+	auto temp = static_cast<int64_t>(value);
 
 	serializeInt64(index, temp);
 

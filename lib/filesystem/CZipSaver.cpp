@@ -72,7 +72,7 @@ CZipOutputStream::~CZipOutputStream()
 
 si64 CZipOutputStream::write(const ui8 * data, si64 size)
 {
-	int ret = zipWriteInFileInZip(handle, (const void*)data, (unsigned)size);
+	int ret = zipWriteInFileInZip(handle, data, static_cast<unsigned>(size));
 
 	if (ret == ZIP_OK)
 		return size;
@@ -82,12 +82,11 @@ si64 CZipOutputStream::write(const ui8 * data, si64 size)
 
 ///CZipSaver
 CZipSaver::CZipSaver(std::shared_ptr<CIOApi> api, const boost::filesystem::path & path):
-	ioApi(api),
+	ioApi(std::move(api)),
 	zipApi(ioApi->getApiStructure()),
-	handle(nullptr),
+	handle(zipOpen2_64(path.c_str(), APPEND_STATUS_CREATE, nullptr, &zipApi)),
 	activeStream(nullptr)
 {
-	handle = zipOpen2_64((const void *) & path, APPEND_STATUS_CREATE, nullptr, &zipApi);
 
 	if (handle == nullptr)
 		throw std::runtime_error("CZipSaver: Failed to create archive");

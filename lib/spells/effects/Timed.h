@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct Bonus;
 struct SetStackEffect;
-struct MetaString;
+class MetaString;
 
 namespace spells
 {
@@ -26,11 +26,8 @@ namespace effects
 class Timed : public UnitEffect
 {
 public:
-	bool cumulative;
+	bool cumulative = false;
 	std::vector<std::shared_ptr<Bonus>> bonus;
-
-	Timed();
-	virtual ~Timed();
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
@@ -39,8 +36,6 @@ protected:
 
 private:
 	void convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bonus> & converted) const;
-	void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target) const;
-
 };
 
 }

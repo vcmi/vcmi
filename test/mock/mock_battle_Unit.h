@@ -19,7 +19,7 @@ public:
 	MOCK_CONST_METHOD0(getTreeVersion, int64_t());
 
 	MOCK_CONST_METHOD0(getCasterUnitId, int32_t());
-	MOCK_CONST_METHOD2(getSpellSchoolLevel, int32_t(const spells::Spell *, int32_t *));
+	MOCK_CONST_METHOD2(getSpellSchoolLevel, int32_t(const spells::Spell *, SpellSchool *));
 	MOCK_CONST_METHOD1(getEffectLevel, int32_t(const spells::Spell *));
 	MOCK_CONST_METHOD3(getSpellBonus, int64_t(const spells::Spell *, int64_t, const battle::Unit *));
 	MOCK_CONST_METHOD2(getSpecificSpellBonus, int64_t(const spells::Spell *, int64_t));
@@ -30,6 +30,11 @@ public:
 	MOCK_CONST_METHOD1(getCasterName, void(MetaString &));
 	MOCK_CONST_METHOD3(getCastDescription, void(const spells::Spell *, const std::vector<const battle::Unit *> &, MetaString &));
 	MOCK_CONST_METHOD2(spendMana, void(ServerCallback *, const int32_t));
+	MOCK_CONST_METHOD0(manaLimit, int32_t());
+	MOCK_CONST_METHOD0(getHeroCaster, CGHeroInstance*());
+
+	//ACreature
+	MOCK_CONST_METHOD0(magicResistance, int32_t());
 
 	MOCK_CONST_METHOD0(unitBaseAmount, int32_t());
 	MOCK_CONST_METHOD0(unitId, uint32_t());
@@ -49,6 +54,7 @@ public:
 	MOCK_CONST_METHOD0(ableToRetaliate, bool());
 	MOCK_CONST_METHOD0(alive, bool());
 	MOCK_CONST_METHOD0(isGhost, bool());
+	MOCK_CONST_METHOD0(isFrozen, bool());
 	MOCK_CONST_METHOD1(isValidTarget, bool(bool));
 
 	MOCK_CONST_METHOD0(isClone, bool());
@@ -76,7 +82,9 @@ public:
 	MOCK_CONST_METHOD1(willMove, bool(int));
 	MOCK_CONST_METHOD1(waited, bool(int));
 
-	MOCK_CONST_METHOD1(battleQueuePhase, int(int));
+	MOCK_CONST_METHOD0(getFaction, FactionID());
+
+	MOCK_CONST_METHOD1(battleQueuePhase, battle::BattlePhases::Type(int));
 
 	MOCK_CONST_METHOD0(acquire, std::shared_ptr<battle::Unit>());
 	MOCK_CONST_METHOD0(acquireState, std::shared_ptr<battle::CUnitState>());

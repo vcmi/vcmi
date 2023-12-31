@@ -11,26 +11,38 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "../lib/mapObjects/CQuest.h"
-#include "../lib/mapping/CMap.h"
 
 namespace Ui {
 class QuestWidget;
 }
+
+class MapController;
 
 class QuestWidget : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit QuestWidget(const CMap &, CGSeerHut &, QWidget *parent = nullptr);
+	explicit QuestWidget(MapController &, CQuest &, QWidget *parent = nullptr);
 	~QuestWidget();
 	
 	void obtainData();
-	QString commitChanges();
+	bool commitChanges();
+
+private slots:
+	void onTargetPicked(const CGObjectInstance *);
+	
+	void on_lKillTargetSelect_clicked();
+
+	void on_lCreatureAdd_clicked();
+
+	void on_lCreatureRemove_clicked();
 
 private:
-	CGSeerHut & seerhut;
-	const CMap & map;
+	void onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidget, QSpinBox * spinWidget);
+	
+	CQuest & quest;
+	MapController & controller;
 	Ui::QuestWidget *ui;
 };
 
@@ -40,13 +52,16 @@ class QuestDelegate : public QStyledItemDelegate
 public:
 	using QStyledItemDelegate::QStyledItemDelegate;
 	
-	QuestDelegate(const CMap &, CGSeerHut &);
+	QuestDelegate(MapController &, CQuest &);
 	
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
 	
+protected:
+	bool eventFilter(QObject * object, QEvent * event) override;
+
 private:
-	CGSeerHut & seerhut;
-	const CMap & map;
+	CQuest & quest;
+	MapController & controller;
 };

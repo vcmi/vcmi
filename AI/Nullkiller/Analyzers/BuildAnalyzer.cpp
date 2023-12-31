@@ -9,7 +9,6 @@
 */
 #include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI
@@ -25,7 +24,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 
 	for(auto &pair : townInfo->buildings)
 	{
-		if(pair.second->upgrade != -1)
+		if(pair.second->upgrade != BuildingID::NONE)
 		{
 			parentMap[pair.second->upgrade] = pair.first;
 		}
@@ -69,19 +68,22 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 	logAi->trace("Checking other buildings");
 
 	std::vector<std::vector<BuildingID>> otherBuildings = {
-		{BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL}
+		{BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL},
+		{BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_5}
 	};
 
 	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
 	{
 		otherBuildings.push_back({BuildingID::CITADEL, BuildingID::CASTLE});
+		otherBuildings.push_back({BuildingID::HORDE_1});
+		otherBuildings.push_back({BuildingID::HORDE_2});
 	}
 
 	for(auto & buildingSet : otherBuildings)
 	{
 		for(auto & buildingID : buildingSet)
 		{
-			if(!developmentInfo.town->hasBuilt(buildingID))
+			if(!developmentInfo.town->hasBuilt(buildingID) && developmentInfo.town->town->buildings.count(buildingID))
 			{
 				developmentInfo.addBuildingToBuild(getBuildingOrPrerequisite(developmentInfo.town, buildingID));
 
@@ -93,9 +95,9 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 
 int32_t convertToGold(const TResources & res)
 {
-	return res[Res::GOLD] 
-		+ 75 * (res[Res::WOOD] + res[Res::ORE]) 
-		+ 125 * (res[Res::GEMS] + res[Res::CRYSTAL] + res[Res::MERCURY] + res[Res::SULFUR]);
+	return res[EGameResID::GOLD] 
+		+ 75 * (res[EGameResID::WOOD] + res[EGameResID::ORE]) 
+		+ 125 * (res[EGameResID::GEMS] + res[EGameResID::CRYSTAL] + res[EGameResID::MERCURY] + res[EGameResID::SULFUR]);
 }
 
 TResources BuildAnalyzer::getResourcesRequiredNow() const
@@ -130,7 +132,7 @@ void BuildAnalyzer::update()
 
 	for(const CGTownInstance* town : towns)
 	{
-		logAi->trace("Checking town %s", town->name);
+		logAi->trace("Checking town %s", town->getNameTranslated());
 
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
@@ -158,14 +160,14 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	if(ai->cb->getDate(Date::EDateType::DAY) == 1)
+	if(ai->cb->getDate(Date::DAY) == 1)
 	{
 		goldPreasure = 1;
 	}
 	else
 	{
-		goldPreasure = ai->getLockedResources()[Res::GOLD] / 10000.0f
-			+ (float)armyCost[Res::GOLD] / (1 + ai->getFreeGold() + (float)dailyIncome[Res::GOLD] * 7.0f);
+		goldPreasure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
+			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 	}
 
 	logAi->trace("Gold preasure: %f", goldPreasure);
@@ -191,12 +193,28 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	const CCreature * creature = nullptr;
 	CreatureID baseCreatureID;
 
+	int creatureLevel = -1;
+	int creatureUpgrade = 0;
+
 	if(BuildingID::DWELL_FIRST <= toBuild && toBuild <= BuildingID::DWELL_UP_LAST)
 	{
-		int level = toBuild - BuildingID::DWELL_FIRST;
-		auto creatures = townInfo->creatures.at(level % GameConstants::CREATURES_PER_TOWN);
-		auto creatureID = creatures.size() > level / GameConstants::CREATURES_PER_TOWN
-			? creatures.at(level / GameConstants::CREATURES_PER_TOWN)
+		creatureLevel = (toBuild - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
+		creatureUpgrade = (toBuild - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+	}
+	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
+	{
+		creatureLevel = townInfo->hordeLvl.at(0);
+	}
+	else if(toBuild == BuildingID::HORDE_2 || toBuild == BuildingID::HORDE_2_UPGR)
+	{
+		creatureLevel = townInfo->hordeLvl.at(1);
+	}
+
+	if(creatureLevel >=  0)
+	{
+		auto creatures = townInfo->creatures.at(creatureLevel);
+		auto creatureID = creatures.size() > creatureUpgrade
+			? creatures.at(creatureUpgrade)
 			: creatures.front();
 
 		baseCreatureID = creatures.front();
@@ -238,7 +256,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			{
 				logAi->trace("cant build. Need other dwelling");
 			}
-			else
+			else if(missingBuildings[0] != toBuild)
 			{
 				logAi->trace("cant build. Need %d", missingBuildings[0].num);
 
@@ -255,6 +273,12 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				prerequisite.dailyIncome = info.dailyIncome;
 
 				return prerequisite;
+			}
+			else
+			{
+				logAi->trace("Cant build. The building requires itself as prerequisite");
+
+				return info;
 			}
 		}
 	}
@@ -280,7 +304,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 		if(mine)
 		{
-			dailyIncome[mine->producedResource] += mine->producedQuantity;
+			dailyIncome[mine->producedResource.getNum()] += mine->producedQuantity;
 		}
 	}
 
@@ -294,7 +318,7 @@ bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
-		if(tdi.town->alignment == alignment && tdi.town->hasBuilt(bid))
+		if(tdi.town->getFaction() == alignment && tdi.town->hasBuilt(bid))
 			return true;
 	}
 
@@ -334,7 +358,7 @@ BuildingInfo::BuildingInfo()
 	buildCost = 0;
 	buildCostWithPrerequisits = 0;
 	prerequisitesCount = 0;
-	name = "";
+	name.clear();
 	armyStrength = 0;
 }
 
@@ -351,14 +375,14 @@ BuildingInfo::BuildingInfo(
 	dailyIncome = building->produce;
 	exists = town->hasBuilt(id);
 	prerequisitesCount = 1;
-	name = building->Name();
+	name = building->getNameTranslated();
 
 	if(creature)
 	{
-		creatureGrows = creature->growth;
-		creatureID = creature->idNumber;
-		creatureCost = creature->cost;
-		creatureLevel = creature->level;
+		creatureGrows = creature->getGrowth();
+		creatureID = creature->getId();
+		creatureCost = creature->getFullRecruitCost();
+		creatureLevel = creature->getLevel();
 		baseCreatureID = baseCreature;
 
 		if(exists)
@@ -367,12 +391,19 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			creatureGrows = creature->growth;
+			if(BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST)
+			{
+				creatureGrows = creature->getGrowth();
 
-			if(town->hasBuilt(BuildingID::CASTLE))
-				creatureGrows *= 2;
-			else if(town->hasBuilt(BuildingID::CITADEL))
-				creatureGrows += creatureGrows / 2;
+				if(town->hasBuilt(BuildingID::CASTLE))
+					creatureGrows *= 2;
+				else if(town->hasBuilt(BuildingID::CITADEL))
+					creatureGrows += creatureGrows / 2;
+			}
+			else
+			{
+				creatureGrows = creature->getHorde();
+			}
 		}
 
 		armyStrength = ai->armyManager->evaluateStackPower(creature, creatureGrows);

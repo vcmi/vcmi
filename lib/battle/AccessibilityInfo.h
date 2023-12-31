@@ -31,12 +31,15 @@ enum class EAccessibility
 };
 
 
-typedef std::array<EAccessibility, GameConstants::BFIELD_SIZE> TAccessibilityArray;
+using TAccessibilityArray = std::array<EAccessibility, GameConstants::BFIELD_SIZE>;
 
 struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 {
-	bool accessible(BattleHex tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
-	bool accessible(BattleHex tile, bool doubleWide, ui8 side) const; //checks for both tiles if stack is double wide
+	public:
+		bool accessible(BattleHex tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
+		bool accessible(BattleHex tile, bool doubleWide, ui8 side) const; //checks for both tiles if stack is double wide
+	private:
+		bool tileAccessibleWithGate(BattleHex tile, ui8 side) const;
 };
 
 VCMI_LIB_NAMESPACE_END

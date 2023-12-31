@@ -25,7 +25,7 @@ public:
 	
 	Path(const Area & area);
 	Path(const Area & area, const int3 & src);
-	Path(const Path & path);
+	Path(const Path & path) = default;
 	Path & operator= (const Path & path);
 	bool valid() const;
 	

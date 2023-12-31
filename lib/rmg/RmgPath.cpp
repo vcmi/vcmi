@@ -23,7 +23,7 @@ const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FU
 };
 
 //A* priority queue
-typedef std::pair<int3, float> TDistance;
+using TDistance = std::pair<int3, float>;
 struct NodeComparer
 {
 	bool operator()(const TDistance & lhs, const TDistance & rhs) const
@@ -43,11 +43,6 @@ Path::Path(const Area & area): dArea(&area)
 Path::Path(const Area & area, const int3 & src): dArea(&area)
 {
 	dPath.add(src);
-}
-
-Path::Path(const Path & path): dArea(path.dArea), dPath(path.dPath)
-{
-	
 }
 
 Path & Path::operator= (const Path & path)
@@ -73,11 +68,12 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 	if(!dArea)
 		return Path::invalid();
 	
+	if(dst.empty()) // Skip construction of same area
+		return Path(*dArea);
+
 	auto resultArea = *dArea + dst;
 	Path result(resultArea);
-	if(dst.empty())
-		return result;
-	
+
 	int3 src = rmg::Area(dst).nearest(dPath);
 	result.connect(src);
 	
@@ -154,18 +150,18 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 
 Path Path::search(const int3 & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
-	return search(Tileset{dst}, straight, moveCostFunction);
+	return search(Tileset{dst}, straight, std::move(moveCostFunction));
 }
 
 Path Path::search(const Area & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
-	return search(dst.getTiles(), straight, moveCostFunction);
+	return search(dst.getTiles(), straight, std::move(moveCostFunction));
 }
 
 Path Path::search(const Path & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
 	assert(dst.dArea == dArea);
-	return search(dst.dPath, straight, moveCostFunction);
+	return search(dst.dPath, straight, std::move(moveCostFunction));
 }
 
 void Path::connect(const int3 & path)

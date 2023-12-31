@@ -29,7 +29,7 @@ const std::vector<SkillProxy::CustomRegType> SkillProxy::REGISTER_CUSTOM =
 	{"getIconIndex", LuaMethodWrapper<Skill, decltype(&Entity::getIconIndex), &Entity::getIconIndex>::invoke, false},
 	{"getIndex", LuaMethodWrapper<Skill, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
 	{"getJsonKey", LuaMethodWrapper<Skill, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
-	{"getName", LuaMethodWrapper<Skill, decltype(&Entity::getName), &Entity::getName>::invoke, false},
+	{"getName", LuaMethodWrapper<Skill, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
 };
 
 }

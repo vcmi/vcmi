@@ -9,13 +9,10 @@
  */
 #pragma once
 
-#include "battle/BattleAction.h"
+#include "battle/AutocombatPreferences.h"
 #include "IGameEventsReceiver.h"
-#include "CGameStateFwd.h"
 
 #include "spells/ViewSpellInt.h"
-
-#include "mapObjects/CObjectHandler.h"
 
 class CBattleCallback;
 class CCallback;
@@ -39,6 +36,7 @@ class CCreatureSet;
 class CArmedInstance;
 class IShipyard;
 class IMarket;
+class BattleAction;
 struct BattleResult;
 struct BattleAttack;
 struct BattleStackAttacked;
@@ -52,7 +50,6 @@ struct StackLocation;
 class CStackInstance;
 class CCommanderInstance;
 class CStack;
-struct CPathsInfo;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
@@ -69,6 +66,7 @@ namespace scripting
 }
 #endif
 
+using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {
@@ -78,11 +76,12 @@ public:
 	std::string dllName;
 
 	virtual ~CBattleGameInterface() {};
-	virtual void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
+	virtual void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
+	virtual void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences){};
 
 	//battle call-ins
-	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
-	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
+	virtual void activeStack(const BattleID & battleID, const CStack * stack)=0; //called when it's turn of that stack
+	virtual void yourTacticPhase(const BattleID & battleID, int distance)=0; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
 };
 
 /// Central class for managing human player / AI interface logic
@@ -90,11 +89,11 @@ class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEven
 {
 public:
 	virtual ~CGameInterface() = default;
-	virtual void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB){};
-	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
+	virtual void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB){};
+	virtual void yourTurn(QueryID askID){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
-	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)=0;
+	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)=0;
 	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)=0;
 
 	// Show a dialog, player must take decision. If selection then he has to choose between one of given components,
@@ -104,16 +103,13 @@ public:
 
 	// all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) = 0;
-	virtual void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) = 0;
+	virtual void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) = 0;
 	virtual void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) = 0;
 	virtual void finish(){}; //if for some reason we want to end
 
-	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions){};
+	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
-	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
-	{
-		return boost::none;
-	}
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
 
 	virtual void saveGame(BinarySerializer & h, const int version) = 0;
 	virtual void loadGame(BinaryDeserializer & h, const int version) = 0;
@@ -122,8 +118,8 @@ public:
 class DLL_LINKAGE CDynLibHandler
 {
 public:
-	static std::shared_ptr<CGlobalAI> getNewAI(std::string dllname);
-	static std::shared_ptr<CBattleGameInterface> getNewBattleAI(std::string dllname);
+	static std::shared_ptr<CGlobalAI> getNewAI(const std::string & dllname);
+	static std::shared_ptr<CBattleGameInterface> getNewBattleAI(const std::string & dllname);
 #if SCRIPTING_ENABLED
 	static std::shared_ptr<scripting::Module> getNewScriptingModule(const boost::filesystem::path & dllname);
 #endif
@@ -134,14 +130,13 @@ class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 public:
 	std::shared_ptr<Environment> env;
 	CGlobalAI();
-	virtual BattleAction activeStack(const CStack * stack) override;
 };
 
 //class to  be inherited by adventure-only AIs, it cedes battle actions to given battle-AI
 class DLL_LINKAGE CAdventureAI : public CGlobalAI
 {
 public:
-	CAdventureAI() {};
+	CAdventureAI() = default;
 
 	std::shared_ptr<CBattleGameInterface> battleAI;
 	std::shared_ptr<CBattleCallback> cbc;
@@ -149,22 +144,23 @@ public:
 	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used
 
 	//battle interface
-	virtual BattleAction activeStack(const CStack * stack) override;
-	virtual void yourTacticPhase(int distance) override;
-	virtual void battleNewRound(int round) override;
-	virtual void battleCatapultAttacked(const CatapultAttack & ca) override;
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
-	virtual void actionStarted(const BattleAction &action) override;
-	virtual void battleNewRoundFirst(int round) override;
-	virtual void actionFinished(const BattleAction &action) override;
-	virtual void battleStacksEffectsSet(const SetStackEffect & sse) override;
-	virtual void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
-	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
-	virtual void battleAttack(const BattleAttack *ba) override;
-	virtual void battleSpellCast(const BattleSpellCast *sc) override;
-	virtual void battleEnd(const BattleResult *br) override;
-	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
+	virtual void activeStack(const BattleID & battleID, const CStack * stack) override;
+	virtual void yourTacticPhase(const BattleID & battleID, int distance) override;
+
+	virtual void battleNewRound(const BattleID & battleID) override;
+	virtual void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca) override;
+	virtual void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed) override;
+	virtual void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
+	virtual void actionStarted(const BattleID & battleID, const BattleAction &action) override;
+	virtual void battleNewRoundFirst(const BattleID & battleID) override;
+	virtual void actionFinished(const BattleID & battleID, const BattleAction &action) override;
+	virtual void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override;
+	virtual void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;
+	virtual void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
+	virtual void battleAttack(const BattleID & battleID, const BattleAttack *ba) override;
+	virtual void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
+	virtual void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override;
+	virtual void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
 
 	virtual void saveGame(BinarySerializer & h, const int version) override;
 	virtual void loadGame(BinaryDeserializer & h, const int version) override;

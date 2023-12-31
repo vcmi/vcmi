@@ -44,7 +44,7 @@ private:
 	bool unloadFrame(size_t frame, size_t group);
 
 	//initialize animation from file
-	//void initFromJson(const JsonNode & input);
+	void initFromJson(const JsonNode & input);
 	void init();
 
 	//to get rid of copy-pasting error message :]
@@ -82,6 +82,8 @@ public:
 	//single image
 	void load  (size_t frame, size_t group = 0);
 	void unload(size_t frame, size_t group = 0);
+
+	void exportBitmaps(const QDir & path) const;
 
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group = 0) const;

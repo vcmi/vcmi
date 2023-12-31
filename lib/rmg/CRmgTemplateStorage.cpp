@@ -25,15 +25,25 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	loadObject(scope, name, data);
 }
 
+void CRmgTemplateStorage::afterLoadFinalization()
+{
+	for (auto& temp : templates)
+	{
+		temp.second->afterLoad();
+	}
+}
+
 void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	try
 	{
 		JsonDeserializer handler(nullptr, data);
-		auto fullKey = normalizeIdentifier(scope, "core", name); //actually it's not used
-		templates[fullKey].setId(name);
-		templates[fullKey].serializeJson(handler);
-		templates[fullKey].validate();
+		auto fullKey = scope + ":" + name; //actually it's not used
+		templates[fullKey] = std::make_shared<CRmgTemplate>();
+		templates[fullKey]->setId(fullKey);
+		templates[fullKey]->serializeJson(handler);
+		templates[fullKey]->setName(name);
+		templates[fullKey]->validate();
 	}
 	catch(const std::exception & e)
 	{
@@ -41,13 +51,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	}
 }
 
-std::vector<bool> CRmgTemplateStorage::getDefaultAllowed() const
-{
-	//all templates are allowed
-	return std::vector<bool>();
-}
-
-std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
+std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData()
 {
 	return std::vector<JsonNode>();
 	//it would be cool to load old rmg.txt files
@@ -58,15 +62,16 @@ const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templa
 	auto iter = templates.find(templateName);
 	if(iter==templates.end())
 		return nullptr;
-	return &iter->second;
+	return iter->second.get();
 }
 
 std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 {
 	std::vector<const CRmgTemplate *> result;
-	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
+	result.reserve(templates.size());
+	for(const auto & i : templates)
 	{
-		result.push_back(&i->second);
+		result.push_back(i.second.get());
 	}
 	return result;
 }

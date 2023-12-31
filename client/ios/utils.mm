@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "utils.h"
 
 #import <UIKit/UIKit.h>
@@ -42,5 +43,11 @@ void hideLoadingIndicator()
 	[indicator stopAnimating];
 	[indicator removeFromSuperview];
 	indicator = nil;
+}
+
+void hapticFeedback()
+{
+    auto hapticGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+    [hapticGen impactOccurred];
 }
 }

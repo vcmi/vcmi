@@ -12,9 +12,10 @@
 
 #include <vcmi/events/EventBus.h>
 
-#include "../../lib/NetPacks.h"
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/networkPacks/SetStackEffect.h"
 
 #if SCRIPTING_ENABLED
 using scripting::Pool;
@@ -24,7 +25,7 @@ void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 {
 	for(auto & bonus : *target) //TODO: optimize
 	{
-		if(bonus->source == Bonus::SPELL_EFFECT && bonus->type == ef.type && bonus->subtype == ef.subtype)
+		if(bonus->source == BonusSource::SPELL_EFFECT && bonus->type == ef.type && bonus->subtype == ef.subtype)
 		{
 			if(bonus->turnsRemain < ef.turnsRemain)
 			{
@@ -36,20 +37,39 @@ void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 	}
 }
 
-StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const CStack * Stack)
+StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::CUnitState * Stack)
 	: battle::CUnitState(),
-	origBearer(Stack),
+	origBearer(Stack->getBonusBearer()),
 	owner(Owner),
 	type(Stack->unitType()),
 	baseAmount(Stack->unitBaseAmount()),
 	id(Stack->unitId()),
 	side(Stack->unitSide()),
 	player(Stack->unitOwner()),
-	slot(Stack->unitSlot())
+	slot(Stack->unitSlot()),
+	treeVersionLocal(0)
 {
 	localInit(Owner);
 
 	battle::CUnitState::operator=(*Stack);
+}
+
+StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::Unit * Stack)
+	: battle::CUnitState(),
+	origBearer(Stack->getBonusBearer()),
+	owner(Owner),
+	type(Stack->unitType()),
+	baseAmount(Stack->unitBaseAmount()),
+	id(Stack->unitId()),
+	side(Stack->unitSide()),
+	player(Stack->unitOwner()),
+	slot(Stack->unitSlot()),
+	treeVersionLocal(0)
+{
+	localInit(Owner);
+
+	auto state = Stack->acquireState();
+	battle::CUnitState::operator=(*state);
 }
 
 StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::UnitInfo & info)
@@ -59,7 +79,8 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	baseAmount(info.count),
 	id(info.id),
 	side(info.side),
-	slot(SlotID::SUMMONED_SLOT_PLACEHOLDER)
+	slot(SlotID::SUMMONED_SLOT_PLACEHOLDER),
+	treeVersionLocal(0)
 {
 	type = info.type.toCreature();
 	origBearer = type;
@@ -124,9 +145,9 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 
 	for(const Bonus & bonus : bonusesToUpdate)
 	{
-		if(selector(&bonus) && (!limit || !limit(&bonus)))
+		if(selector(&bonus) && (!limit || limit(&bonus)))
 		{
-			if(ret->getFirst(Selector::source(Bonus::SPELL_EFFECT, bonus.sid).And(Selector::typeSubtype(bonus.type, bonus.subtype))))
+			if(ret->getFirst(Selector::source(BonusSource::SPELL_EFFECT, bonus.sid).And(Selector::typeSubtype(bonus.type, bonus.subtype))))
 			{
 				actualizeEffect(ret, bonus);
 			}
@@ -150,12 +171,18 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 
 int64_t StackWithBonuses::getTreeVersion() const
 {
-	return owner->getTreeVersion();
+	auto result = owner->getTreeVersion();
+
+	if(bonusesToAdd.empty() && bonusesToUpdate.empty() && bonusesToRemove.empty())
+		return result;
+	else
+		return result + treeVersionLocal;
 }
 
 void StackWithBonuses::addUnitBonus(const std::vector<Bonus> & bonus)
 {
 	vstd::concatenate(bonusesToAdd, bonus);
+	treeVersionLocal++;
 }
 
 void StackWithBonuses::updateUnitBonus(const std::vector<Bonus> & bonus)
@@ -163,6 +190,7 @@ void StackWithBonuses::updateUnitBonus(const std::vector<Bonus> & bonus)
 	//TODO: optimize, actualize to last value
 
 	vstd::concatenate(bonusesToUpdate, bonus);
+	treeVersionLocal++;
 }
 
 void StackWithBonuses::removeUnitBonus(const std::vector<Bonus> & bonus)
@@ -197,15 +225,17 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 
 	vstd::erase_if(bonusesToAdd, [&](const Bonus & b){return selector(&b);});
 	vstd::erase_if(bonusesToUpdate, [&](const Bonus & b){return selector(&b);});
+
+	treeVersionLocal++;
 }
 
 std::string StackWithBonuses::getDescription() const
 {
 	std::ostringstream oss;
-	oss << unitOwner().getStr();
+	oss << unitOwner().toString();
 	oss << " battle stack [" << unitId() << "]: " << getCount() << " of ";
 	if(type)
-		oss << type->namePl;
+		oss << type->getJsonKey();
 	else
 		oss << "[UNDEFINED TYPE]";
 
@@ -256,7 +286,7 @@ std::shared_ptr<StackWithBonuses> HypotheticBattle::getForUpdate(uint32_t id)
 
 	if(iter == stackStates.end())
 	{
-		const CStack * s = subject->battleGetStackByID(id, false);
+		const battle::Unit * s = subject->battleGetUnitByID(id);
 
 		auto ret = std::make_shared<StackWithBonuses>(this, s);
 		stackStates[id] = ret;
@@ -268,7 +298,7 @@ std::shared_ptr<StackWithBonuses> HypotheticBattle::getForUpdate(uint32_t id)
 	}
 }
 
-battle::Units HypotheticBattle::getUnitsIf(battle::UnitFilter predicate) const
+battle::Units HypotheticBattle::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	battle::Units proxyed = BattleProxy::getUnitsIf(predicate);
 
@@ -291,12 +321,17 @@ battle::Units HypotheticBattle::getUnitsIf(battle::UnitFilter predicate) const
 	return ret;
 }
 
+BattleID HypotheticBattle::getBattleID() const
+{
+	return subject->getBattle()->getBattleID();
+}
+
 int32_t HypotheticBattle::getActiveStackID() const
 {
 	return activeUnitId;
 }
 
-void HypotheticBattle::nextRound(int32_t roundNr)
+void HypotheticBattle::nextRound()
 {
 	//TODO:HypotheticBattle::nextRound
 	for(auto unit : battleAliveUnits())
@@ -403,7 +438,7 @@ void HypotheticBattle::removeUnitBonus(uint32_t id, const std::vector<Bonus> & b
 	bonusTreeVersion++;
 }
 
-void HypotheticBattle::setWallState(int partOfWall, si8 state)
+void HypotheticBattle::setWallState(EWallPart partOfWall, EWallState state)
 {
 	//TODO:HypotheticBattle::setWallState
 }
@@ -428,14 +463,32 @@ uint32_t HypotheticBattle::nextUnitId() const
 	return nextId++;
 }
 
-int64_t HypotheticBattle::getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const
+int64_t HypotheticBattle::getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const
 {
-	return (damage.first + damage.second) / 2;
+	return (damage.min + damage.max) / 2;
+}
+
+std::vector<SpellID> HypotheticBattle::getUsedSpells(ui8 side) const
+{
+	// TODO
+	return {};
+}
+
+int3 HypotheticBattle::getLocation() const
+{
+	// TODO
+	return int3(-1, -1, -1);
+}
+
+bool HypotheticBattle::isCreatureBank() const
+{
+	// TODO
+	return false;
 }
 
 int64_t HypotheticBattle::getTreeVersion() const
 {
-	return getBattleNode()->getTreeVersion() + bonusTreeVersion;
+	return getBonusBearer()->getTreeVersion() + bonusTreeVersion;
 }
 
 #if SCRIPTING_ENABLED
@@ -523,8 +576,9 @@ const Services * HypotheticBattle::HypotheticEnvironment::services() const
 	return env->services();
 }
 
-const Environment::BattleCb * HypotheticBattle::HypotheticEnvironment::battle() const
+const Environment::BattleCb * HypotheticBattle::HypotheticEnvironment::battle(const BattleID & battleID) const
 {
+	assert(battleID == owner->getBattleID());
 	return owner;
 }
 

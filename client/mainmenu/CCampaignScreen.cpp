@@ -14,14 +14,13 @@
 #include "CMainMenu.h"
 
 #include "../CGameInfo.h"
-#include "../CMessage.h"
-#include "../CBitmapHandler.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -43,17 +42,17 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapService.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CCampaignScreen::CCampaignScreen(const JsonNode & config)
-	: CWindowObject(BORDERED)
+CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
+	: CWindowObject(BORDERED), campaignSet(name)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	for(const JsonNode & node : config["images"].Vector())
+	for(const JsonNode & node : config[name]["images"].Vector())
 		images.push_back(CMainMenu::createPicture(node));
 
 	if(!images.empty())
@@ -64,14 +63,21 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config)
 		pos = images[0]->pos; // fix height\width of this window
 	}
 
-	if(!config["exitbutton"].isNull())
+	if(!config[name]["exitbutton"].isNull())
 	{
-		buttonBack = createExitButton(config["exitbutton"]);
+		buttonBack = createExitButton(config[name]["exitbutton"]);
 		buttonBack->hoverable = true;
 	}
 
-	for(const JsonNode & node : config["items"].Vector())
-		campButtons.push_back(std::make_shared<CCampaignButton>(node));
+	for(const JsonNode & node : config[name]["items"].Vector())
+		campButtons.push_back(std::make_shared<CCampaignButton>(node, config, campaignSet));
+}
+
+void CCampaignScreen::activate()
+{
+	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, false);
+
+	CWindowObject::activate();
 }
 
 std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & button)
@@ -80,10 +86,11 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	if(!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, (int)button["hotkey"].Float());
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
-CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
+CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const JsonNode & parentConfig, std::string campaignSet)
+	: campaignSet(campaignSet)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -93,27 +100,43 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 	pos.h = 116;
 
 	campFile = config["file"].String();
-	video = config["video"].String();
+	video = VideoPath::fromJson(config["video"]);
 
-	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
+	status = CCampaignScreen::ENABLED;
 
-	CCampaignHeader header = CCampaignHandler::getHeader(campFile);
-	hoverText = header.name;
+	auto header = CampaignHandler::getHeader(campFile);
+	hoverText = header->getNameTranslated();
+
+	if(persistentStorage["completedCampaigns"][header->getFilename()].Bool())
+		status = CCampaignScreen::COMPLETED;
+
+	for(const JsonNode & node : parentConfig[campaignSet]["items"].Vector())
+	{
+		for(const JsonNode & requirement : config["requires"].Vector())
+		{
+			if(node["id"].Integer() == requirement.Integer())
+				if(!persistentStorage["completedCampaigns"][node["file"].String()].Bool())
+					status = CCampaignScreen::DISABLED;
+		}
+	}
+
+	if(persistentStorage["unlockAllCampaigns"].Bool())
+		status = CCampaignScreen::ENABLED;
 
 	if(status != CCampaignScreen::DISABLED)
 	{
 		addUsedEvents(LCLICK | HOVER);
-		graphicsImage = std::make_shared<CPicture>(config["image"].String());
+		graphicsImage = std::make_shared<CPicture>(ImagePath::fromJson(config["image"]));
 
-		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, Colors::YELLOW, "");
+		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "");
 		parent->addChild(hoverLabel.get());
 	}
 
 	if(status == CCampaignScreen::COMPLETED)
-		graphicsCompleted = std::make_shared<CPicture>("CAMPCHK");
+		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
 }
 
-void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
+void CCampaignScreen::CCampaignButton::show(Canvas & to)
 {
 	if(status == CCampaignScreen::DISABLED)
 		return;
@@ -121,31 +144,23 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	CIntObject::show(to);
 
 	// Play the campaign button video when the mouse cursor is placed over the button
-	if(hovered)
-	{
-		if(CCS->videoh->fname != video)
-			CCS->videoh->open(video);
-
-		CCS->videoh->update(pos.x, pos.y, to, true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
-	}
-	else if(CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
-	{
-		CCS->videoh->close();
-		redraw();
-	}
+	if(isHovered())
+		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
 }
 
-void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
+void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
-	if(down)
-	{
-		CCS->videoh->close();
-		CMainMenu::openCampaignLobby(campFile);
-	}
+	CCS->videoh->close();
+	CMainMenu::openCampaignLobby(campFile, campaignSet);
 }
 
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
+	if (on)
+		CCS->videoh->open(video);
+	else
+		CCS->videoh->close();
+
 	if(hoverLabel)
 	{
 		if(on)

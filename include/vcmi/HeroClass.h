@@ -18,8 +18,6 @@ class HeroClassID;
 
 class DLL_LINKAGE HeroClass : public EntityT<HeroClassID>
 {
-public:
-
 };
 
 

@@ -1,0 +1,39 @@
+{
+	"magicWell" : {
+		"index" :49,
+		"handler" : "configurable",
+		"base" : {
+			"sounds" : {
+				"visit" : ["FAERIE"]
+			}
+		},
+		"types" : {
+			"magicWell" : {
+				"index" : 0,
+				"aiValue" : 250,
+				"rmg" : {
+					"zoneLimit" : 1,
+					"value"		: 250,
+					"rarity"	: 100
+				},
+				"compatibilityIdentifiers" : [ "object" ],
+
+				"onEmptyMessage" : 79,
+				"onVisitedMessage" : 78,
+				"description" : "@core.xtrainfo.25",
+				"visitMode" : "bonus",
+				"selectMode" : "selectFirst",
+				"rewards" : [
+					{
+						"limiter" : {
+							"noneOf" : [ { "manaPercentage" : 100 } ]
+						},
+						"bonuses" : [ { "type" : "NONE", "duration" : "ONE_DAY"} ],
+						"message" : 77,
+						"manaPercentage" : 100
+					}
+				]	
+			},
+		}
+	}
+}

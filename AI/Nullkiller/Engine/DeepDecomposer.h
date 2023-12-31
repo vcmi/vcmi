@@ -22,7 +22,7 @@ struct GoalHash
 	}
 };
 
-typedef std::unordered_map<Goals::TSubgoal, Goals::TGoalVec, GoalHash> TGoalHashSet;
+using TGoalHashSet = std::unordered_map<Goals::TSubgoal, Goals::TGoalVec, GoalHash>;
 
 class DeepDecomposer
 {

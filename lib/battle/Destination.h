@@ -23,14 +23,14 @@ class DLL_LINKAGE Destination
 {
 public:
 	Destination();
-	~Destination();
+	~Destination() = default;
 	explicit Destination(const Unit * destination);
 	explicit Destination(const BattleHex & destination);
 	explicit Destination(const Unit * destination, const BattleHex & exactHex);
 
-	Destination(const Destination & other);
+	Destination(const Destination & other) = default;
 
-	Destination & operator=(const Destination & other);
+	Destination & operator=(const Destination & other) = default;
 
 	const Unit * unitValue;
 	BattleHex hexValue;

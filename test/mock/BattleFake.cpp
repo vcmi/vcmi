@@ -76,30 +76,32 @@ void UnitsFake::setDefaultBonusExpectations()
 
 BattleFake::~BattleFake() = default;
 
-BattleFake::BattleFake(std::shared_ptr<scripting::PoolMock> pool_)
-	: CBattleInfoCallback(),
-	BattleStateMock(),
+#if SCRIPTING_ENABLED
+BattleFake::BattleFake(std::shared_ptr<scripting::PoolMock> pool_):
 	pool(pool_)
 {
 }
+#else
+BattleFake::BattleFake() = default;
+#endif
 
 void BattleFake::setUp()
 {
-	CBattleInfoCallback::setBattle(this);
 }
 
 void BattleFake::setupEmptyBattlefield()
 {
 	EXPECT_CALL(*this, getDefendedTown()).WillRepeatedly(Return(nullptr));
 	EXPECT_CALL(*this, getAllObstacles()).WillRepeatedly(Return(IBattleInfo::ObstacleCList()));
-	EXPECT_CALL(*this, getBattlefieldType()).WillRepeatedly(Return(BattleField::fromString("grass_hills")));
+	EXPECT_CALL(*this, getBattlefieldType()).WillRepeatedly(Return(BattleField(0)));
 }
 
-
+#if SCRIPTING_ENABLED
 scripting::Pool * BattleFake::getContextPool() const
 {
 	return pool.get();
 }
+#endif
 
 }
 }

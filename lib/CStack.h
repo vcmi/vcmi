@@ -10,11 +10,11 @@
 
 #pragma once
 #include "JsonNode.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "CCreatureHandler.h" //todo: remove
 #include "battle/BattleHex.h"
 #include "mapObjects/CGHeroInstance.h" // for commander serialization
-#include "Terrain.h"
 
 #include "battle/CUnitState.h"
 
@@ -26,25 +26,26 @@ class BattleInfo;
 //Represents STACK_BATTLE nodes
 class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
 {
-public:
-	const CStackInstance * base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
-
-	ui32 ID; //unique ID of stack
-	const CCreature * type;
+private:
+	ui32 ID = -1; //unique ID of stack
+	const CCreature * type = nullptr;
 	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
-	ui32 baseAmount;
+	ui32 baseAmount = -1;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
+	ui8 side = 1;
+
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
-	ui8 side;
+
+public:
+	const CStackInstance * base = nullptr; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
+	
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 
-	CStack(const CStackInstance * base, PlayerColor O, int I, ui8 Side, SlotID S);
-	CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255));
+	CStack(const CStackInstance * base, const PlayerColor & O, int I, ui8 Side, const SlotID & S);
+	CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, ui8 Side, const SlotID & S = SlotID(255));
 	CStack();
 	~CStack();
-
-	const CCreature * getCreature() const; //deprecated
 
 	std::string nodeName() const override;
 
@@ -57,7 +58,7 @@ public:
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
-	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
+	std::vector<SpellID> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 
 	static std::vector<BattleHex> meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
@@ -66,7 +67,9 @@ public:
 	BattleHex::EDir destShiftDir() const;
 
 	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmout filled
-	static void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::shared_ptr<battle::CUnitState> customState); //requires bsa.damageAmout filled
+	static void prepareAttacked(BattleStackAttacked & bsa,
+								vstd::RNG & rand,
+								const std::shared_ptr<battle::CUnitState> & customState); //requires bsa.damageAmout filled
 
 	const CCreature * unitType() const override;
 	int32_t unitBaseAmount() const override;
@@ -83,6 +86,8 @@ public:
 
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
+	const IBonusBearer* getBonusBearer() const override;
+	
 	PlayerColor getOwner() const override
 	{
 		return this->owner;
@@ -117,7 +122,7 @@ public:
 
 			if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 			{
-				auto hero = dynamic_cast<const CGHeroInstance *>(army);
+				const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
 				assert(hero);
 				base = hero->commander;
 			}
@@ -129,7 +134,7 @@ public:
 			else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
 			{
 				base = nullptr;
-				logGlobal->warn("%s doesn't have a base stack!", type->nameSing);
+				logGlobal->warn("%s doesn't have a base stack!", type->getNameSingularTranslated());
 			}
 			else
 			{

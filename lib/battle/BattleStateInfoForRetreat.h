@@ -29,6 +29,7 @@ public:
 	std::vector<const battle::Unit *> enemyStacks;
 	const CGHeroInstance * ourHero;
 	const CGHeroInstance * enemyHero;
+	int turnsSkippedByDefense;
 
 	BattleStateInfoForRetreat();
 	uint64_t getOurStrength() const;

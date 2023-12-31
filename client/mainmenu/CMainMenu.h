@@ -11,10 +11,11 @@
 
 #include "../windows/CWindowObject.h"
 #include "../../lib/JsonNode.h"
+#include "../../lib/LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CCampaignState;
+class CampaignState;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -22,9 +23,11 @@ class CTextInput;
 class CGStatusBar;
 class CTextBox;
 class CTabbedInt;
+class CAnimImage;
 class CAnimation;
 class CButton;
 class CFilledTexture;
+class CLabel;
 
 
 // TODO: Find new location for these enums
@@ -34,7 +37,7 @@ enum ESelectionScreen : ui8 {
 
 enum ELoadMode : ui8
 {
-	NONE = 0, SINGLE, MULTI, CAMPAIGN
+	NONE = 0, SINGLE, MULTI, CAMPAIGN, TUTORIAL
 };
 
 /// The main menu screens listed in the EState enum
@@ -54,7 +57,7 @@ public:
 
 	CMenuScreen(const JsonNode & configNode);
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	void activate() override;
 	void deactivate() override;
 
@@ -80,6 +83,7 @@ class CMultiMode : public WindowBase
 public:
 	ESelectionScreen screenType;
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CPicture> picture;
 	std::shared_ptr<CTextInput> playerName;
 	std::shared_ptr<CButton> buttonHotseat;
 	std::shared_ptr<CButton> buttonHost;
@@ -90,6 +94,7 @@ public:
 	CMultiMode(ESelectionScreen ScreenType);
 	void hostTCP();
 	void joinTCP();
+	std::string getPlayerName();
 
 	void onNameChange(std::string newText);
 };
@@ -140,10 +145,14 @@ public:
 	std::shared_ptr<CMenuScreen> menu;
 
 	~CMainMenu();
+	void activate() override;
+	void onScreenResize() override;
 	void update() override;
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode);
-	static void openCampaignLobby(const std::string & campaignFileName);
-	static void openCampaignLobby(std::shared_ptr<CCampaignState> campaign);
+	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
+	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
+	static void startTutorial();
+	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);
 
 	static std::shared_ptr<CMainMenu> create();
@@ -166,23 +175,24 @@ class CSimpleJoinScreen : public WindowBase
 	void connectToServer();
 	void leaveScreen();
 	void onChange(const std::string & newText);
-	void connectThread(const std::string addr = "", const ui16 inputPort = 0);
+	void startConnectThread(const std::string & addr = {}, ui16 port = 0);
+	void connectThread(const std::string & addr, ui16 port);
 
 public:
 	CSimpleJoinScreen(bool host = true);
 };
 
-class CLoadingScreen : public CWindowObject
+class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progress
 {
-	boost::thread loadingThread;
+	std::vector<std::shared_ptr<CAnimImage>> progressBlocks;
+	
+	ImagePath getBackground();
 
-	std::string getBackground();
-
-public:
-	CLoadingScreen(std::function<void()> loader);
+public:	
+	CLoadingScreen();
 	~CLoadingScreen();
 
-	void showAll(SDL_Surface * to) override;
+	void tick(uint32_t msPassed) override;
 };
 
 extern std::shared_ptr<CMainMenu> CMM;

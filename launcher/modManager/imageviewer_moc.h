@@ -21,13 +21,14 @@ class ImageViewer : public QDialog
 {
 	Q_OBJECT
 
+	void changeEvent(QEvent *event) override;
 public:
-	explicit ImageViewer(QWidget * parent = 0);
+	explicit ImageViewer(QWidget * parent = nullptr);
 	~ImageViewer();
 
 	void setPixmap(QPixmap & pixmap);
 
-	static void showPixmap(QPixmap & pixmap, QWidget * parent = 0);
+	static void showPixmap(QPixmap & pixmap, QWidget * parent = nullptr);
 
 protected:
 	void mousePressEvent(QMouseEvent * event) override;

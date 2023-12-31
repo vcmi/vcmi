@@ -13,13 +13,18 @@
 
 #include "ScopeGuard.h"
 
-#include "HeroBonus.h"
+#include "bonuses/BonusParams.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Propagators.h"
+#include "bonuses/Updaters.h"
 #include "filesystem/Filesystem.h"
+#include "modding/IdentifierStorage.h"
 #include "VCMI_Lib.h" //for identifier resolution
-#include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "JsonDetail.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
+#include "battle/BattleHex.h"
 
 namespace
 {
@@ -44,7 +49,7 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 		if(entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
 			throw std::runtime_error("Invalid Json pointer");
 
-		size_t index = boost::lexical_cast<size_t>(entry);
+		auto index = boost::lexical_cast<size_t>(entry);
 
 		if (in.Vector().size() > index)
 			return in.Vector()[index].resolvePointer(remainer);
@@ -62,21 +67,18 @@ class CModHandler;
 
 static const JsonNode nullNode;
 
-JsonNode::JsonNode(JsonType Type):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(JsonType Type)
 {
 	setType(Type);
 }
 
-JsonNode::JsonNode(const char *data, size_t datasize):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const char *data, size_t datasize)
 {
 	JsonParser parser(data, datasize);
 	*this = parser.parse("<unknown>");
 }
 
-JsonNode::JsonNode(ResourceID && fileURI):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const JsonPath & fileURI)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
@@ -84,17 +86,7 @@ JsonNode::JsonNode(ResourceID && fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const ResourceID & fileURI):
-	type(JsonType::DATA_NULL)
-{
-	auto file = CResourceHandler::get()->load(fileURI)->readAll();
-
-	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
-	*this = parser.parse(fileURI.getName());
-}
-
-JsonNode::JsonNode(const std::string & idx, const ResourceID & fileURI):
-type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const std::string & idx, const JsonPath & fileURI)
 {
 	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
 	
@@ -102,8 +94,7 @@ type(JsonType::DATA_NULL)
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
-	type(JsonType::DATA_NULL)
+JsonNode::JsonNode(const JsonPath & fileURI, bool &isValidSyntax)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
@@ -112,60 +103,9 @@ JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
 	isValidSyntax = parser.isValid();
 }
 
-JsonNode::JsonNode(const JsonNode &copy):
-	type(JsonType::DATA_NULL),
-	meta(copy.meta),
-	flags(copy.flags)
-{
-	setType(copy.getType());
-	switch(type)
-	{
-		break; case JsonType::DATA_NULL:
-		break; case JsonType::DATA_BOOL:   Bool()    = copy.Bool();
-		break; case JsonType::DATA_FLOAT:  Float()   = copy.Float();
-		break; case JsonType::DATA_STRING: String()  = copy.String();
-		break; case JsonType::DATA_VECTOR: Vector()  = copy.Vector();
-		break; case JsonType::DATA_STRUCT: Struct()  = copy.Struct();
-		break; case JsonType::DATA_INTEGER:Integer() = copy.Integer();
-	}
-}
-
-JsonNode::~JsonNode()
-{
-	setType(JsonType::DATA_NULL);
-}
-
-void JsonNode::swap(JsonNode &b)
-{
-	using std::swap;
-	swap(meta, b.meta);
-	swap(data, b.data);
-	swap(type, b.type);
-	swap(flags, b.flags);
-}
-
-JsonNode & JsonNode::operator =(JsonNode node)
-{
-	swap(node);
-	return *this;
-}
-
 bool JsonNode::operator == (const JsonNode &other) const
 {
-	if (getType() == other.getType())
-	{
-		switch(type)
-		{
-			case JsonType::DATA_NULL:   return true;
-			case JsonType::DATA_BOOL:   return Bool() == other.Bool();
-			case JsonType::DATA_FLOAT:  return Float() == other.Float();
-			case JsonType::DATA_STRING: return String() == other.String();
-			case JsonType::DATA_VECTOR: return Vector() == other.Vector();
-			case JsonType::DATA_STRUCT: return Struct() == other.Struct();
-			case JsonType::DATA_INTEGER:return Integer()== other.Integer();
-		}
-	}
-	return false;
+	return data == other.data;
 }
 
 bool JsonNode::operator != (const JsonNode &other) const
@@ -175,15 +115,15 @@ bool JsonNode::operator != (const JsonNode &other) const
 
 JsonNode::JsonType JsonNode::getType() const
 {
-	return type;
+	return static_cast<JsonType>(data.index());
 }
 
-void JsonNode::setMeta(std::string metadata, bool recursive)
+void JsonNode::setMeta(const std::string & metadata, bool recursive)
 {
 	meta = metadata;
 	if (recursive)
 	{
-		switch (type)
+		switch (getType())
 		{
 			break; case JsonType::DATA_VECTOR:
 			{
@@ -205,69 +145,69 @@ void JsonNode::setMeta(std::string metadata, bool recursive)
 
 void JsonNode::setType(JsonType Type)
 {
-	if (type == Type)
+	if (getType() == Type)
 		return;
 
 	//float<->int conversion
-	if(type == JsonType::DATA_FLOAT && Type == JsonType::DATA_INTEGER)
+	if(getType() == JsonType::DATA_FLOAT && Type == JsonType::DATA_INTEGER)
 	{
-		si64 converted = static_cast<si64>(data.Float);
-		type = Type;
-		data.Integer = converted;
+		si64 converted = static_cast<si64>(std::get<double>(data));
+		data = JsonData(converted);
 		return;
 	}
-	else if(type == JsonType::DATA_INTEGER && Type == JsonType::DATA_FLOAT)
+	else if(getType() == JsonType::DATA_INTEGER && Type == JsonType::DATA_FLOAT)
 	{
-		double converted = static_cast<double>(data.Integer);
-		type = Type;
-		data.Float = converted;
+		double converted = static_cast<double>(std::get<si64>(data));
+		data = JsonData(converted);
 		return;
 	}
 
-	//Reset node to nullptr
-	if (Type != JsonType::DATA_NULL)
-		setType(JsonType::DATA_NULL);
-
-	switch (type)
-	{
-		break; case JsonType::DATA_STRING:  delete data.String;
-		break; case JsonType::DATA_VECTOR:  delete data.Vector;
-		break; case JsonType::DATA_STRUCT:  delete data.Struct;
-		break; default:
-		break;
-	}
 	//Set new node type
-	type = Type;
-	switch(type)
+	switch(Type)
 	{
-		break; case JsonType::DATA_NULL:
-		break; case JsonType::DATA_BOOL:   data.Bool = false;
-		break; case JsonType::DATA_FLOAT:  data.Float = 0;
-		break; case JsonType::DATA_STRING: data.String = new std::string();
-		break; case JsonType::DATA_VECTOR: data.Vector = new JsonVector();
-		break; case JsonType::DATA_STRUCT: data.Struct = new JsonMap();
-		break; case JsonType::DATA_INTEGER: data.Integer = 0;
+		break; case JsonType::DATA_NULL:    data = JsonData();
+		break; case JsonType::DATA_BOOL:    data = JsonData(false);
+		break; case JsonType::DATA_FLOAT:   data = JsonData(static_cast<double>(0.0));
+		break; case JsonType::DATA_STRING:  data = JsonData(std::string());
+		break; case JsonType::DATA_VECTOR:  data = JsonData(JsonVector());
+		break; case JsonType::DATA_STRUCT:  data = JsonData(JsonMap());
+		break; case JsonType::DATA_INTEGER: data = JsonData(static_cast<si64>(0));
 	}
 }
 
 bool JsonNode::isNull() const
 {
-	return type == JsonType::DATA_NULL;
+	return getType() == JsonType::DATA_NULL;
 }
 
 bool JsonNode::isNumber() const
 {
-	return type == JsonType::DATA_INTEGER || type == JsonType::DATA_FLOAT;
+	return getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT;
+}
+
+bool JsonNode::isString() const
+{
+	return getType() == JsonType::DATA_STRING;
+}
+
+bool JsonNode::isVector() const
+{
+	return getType() == JsonType::DATA_VECTOR;
+}
+
+bool JsonNode::isStruct() const
+{
+	return getType() == JsonType::DATA_STRUCT;
 }
 
 bool JsonNode::containsBaseData() const
 {
-	switch(type)
+	switch(getType())
 	{
 	case JsonType::DATA_NULL:
 		return false;
 	case JsonType::DATA_STRUCT:
-		for(auto elem : *data.Struct)
+		for(const auto & elem : Struct())
 		{
 			if(elem.second.containsBaseData())
 				return true;
@@ -281,10 +221,10 @@ bool JsonNode::containsBaseData() const
 
 bool JsonNode::isCompact() const
 {
-	switch(type)
+	switch(getType())
 	{
 	case JsonType::DATA_VECTOR:
-		for(JsonNode & elem : *data.Vector)
+		for(const JsonNode & elem : Vector())
 		{
 			if(!elem.isCompact())
 				return false;
@@ -292,11 +232,11 @@ bool JsonNode::isCompact() const
 		return true;
 	case JsonType::DATA_STRUCT:
 		{
-			auto propertyCount = data.Struct->size();
+			auto propertyCount = Struct().size();
 			if(propertyCount == 0)
 				return true;
 			else if(propertyCount == 1)
-				return data.Struct->begin()->second.isCompact();
+				return Struct().begin()->second.isCompact();
 		}
 		return false;
 	default:
@@ -307,10 +247,10 @@ bool JsonNode::isCompact() const
 bool JsonNode::TryBoolFromString(bool & success) const
 {
 	success = true;
-	if(type == JsonNode::JsonType::DATA_BOOL)
+	if(getType() == JsonNode::JsonType::DATA_BOOL)
 		return Bool();
 
-	success = type == JsonNode::JsonType::DATA_STRING;
+	success = getType() == JsonNode::JsonType::DATA_STRING;
 	if(success)
 	{
 		auto boolParamStr = String();
@@ -334,109 +274,136 @@ void JsonNode::clear()
 bool & JsonNode::Bool()
 {
 	setType(JsonType::DATA_BOOL);
-	return data.Bool;
+	return std::get<bool>(data);
 }
 
 double & JsonNode::Float()
 {
 	setType(JsonType::DATA_FLOAT);
-	return data.Float;
+	return std::get<double>(data);
 }
 
 si64 & JsonNode::Integer()
 {
 	setType(JsonType::DATA_INTEGER);
-	return data.Integer;
+	return std::get<si64>(data);
 }
 
 std::string & JsonNode::String()
 {
 	setType(JsonType::DATA_STRING);
-	return *data.String;
+	return std::get<std::string>(data);
 }
 
 JsonVector & JsonNode::Vector()
 {
 	setType(JsonType::DATA_VECTOR);
-	return *data.Vector;
+	return std::get<JsonVector>(data);
 }
 
 JsonMap & JsonNode::Struct()
 {
 	setType(JsonType::DATA_STRUCT);
-	return *data.Struct;
+	return std::get<JsonMap>(data);
 }
 
 const bool boolDefault = false;
 bool JsonNode::Bool() const
 {
-	if (type == JsonType::DATA_NULL)
-		return boolDefault;
-	assert(type == JsonType::DATA_BOOL);
-	return data.Bool;
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_BOOL);
+
+	if (getType() == JsonType::DATA_BOOL)
+		return std::get<bool>(data);
+
+	return boolDefault;
 }
 
 const double floatDefault = 0;
 double JsonNode::Float() const
 {
-	if(type == JsonType::DATA_NULL)
-		return floatDefault;
-	else if(type == JsonType::DATA_INTEGER)
-		return static_cast<double>(data.Integer);
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT);
 
-	assert(type == JsonType::DATA_FLOAT);
-	return data.Float;
+	if(getType() == JsonType::DATA_FLOAT)
+		return std::get<double>(data);
+
+	if(getType() == JsonType::DATA_INTEGER)
+		return static_cast<double>(std::get<si64>(data));
+
+	return floatDefault;
 }
 
-const si64 integetDefault = 0;
+const si64 integerDefault = 0;
 si64 JsonNode::Integer() const
 {
-	if(type == JsonType::DATA_NULL)
-		return integetDefault;
-	else if(type == JsonType::DATA_FLOAT)
-		return static_cast<si64>(data.Float);
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT);
 
-	assert(type == JsonType::DATA_INTEGER);
-	return data.Integer;
+	if(getType() == JsonType::DATA_INTEGER)
+		return std::get<si64>(data);
+
+	if(getType() == JsonType::DATA_FLOAT)
+		return static_cast<si64>(std::get<double>(data));
+
+	return integerDefault;
 }
 
 const std::string stringDefault = std::string();
 const std::string & JsonNode::String() const
 {
-	if (type == JsonType::DATA_NULL)
-		return stringDefault;
-	assert(type == JsonType::DATA_STRING);
-	return *data.String;
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRING);
+
+	if (getType() == JsonType::DATA_STRING)
+		return std::get<std::string>(data);
+
+	return stringDefault;
 }
 
 const JsonVector vectorDefault = JsonVector();
 const JsonVector & JsonNode::Vector() const
 {
-	if (type == JsonType::DATA_NULL)
-		return vectorDefault;
-	assert(type == JsonType::DATA_VECTOR);
-	return *data.Vector;
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_VECTOR);
+
+	if (getType() == JsonType::DATA_VECTOR)
+		return std::get<JsonVector>(data);
+
+	return vectorDefault;
 }
 
 const JsonMap mapDefault = JsonMap();
 const JsonMap & JsonNode::Struct() const
 {
-	if (type == JsonType::DATA_NULL)
-		return mapDefault;
-	assert(type == JsonType::DATA_STRUCT);
-	return *data.Struct;
+	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRUCT);
+
+	if (getType() == JsonType::DATA_STRUCT)
+		return std::get<JsonMap>(data);
+
+	return mapDefault;
 }
 
-JsonNode & JsonNode::operator[](std::string child)
+JsonNode & JsonNode::operator[](const std::string & child)
 {
 	return Struct()[child];
 }
 
-const JsonNode & JsonNode::operator[](std::string child) const
+const JsonNode & JsonNode::operator[](const std::string & child) const
 {
 	auto it = Struct().find(child);
 	if (it != Struct().end())
 		return it->second;
+	return nullNode;
+}
+
+JsonNode & JsonNode::operator[](size_t child)
+{
+	if (child >= Vector().size() )
+		Vector().resize(child + 1);
+	return Vector()[child];
+}
+
+const JsonNode & JsonNode::operator[](size_t child) const
+{
+	if (child < Vector().size() )
+		return Vector()[child];
+
 	return nullNode;
 }
 
@@ -460,13 +427,243 @@ std::string JsonNode::toJson(bool compact) const
 
 ///JsonUtils
 
-void JsonUtils::parseTypedBonusShort(const JsonVector& source, std::shared_ptr<Bonus> dest)
+static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node)
 {
-	dest->val = static_cast<si32>(source[1].Float());
-	resolveIdentifier(source[2],dest->subtype);
-	dest->additionalInfo = static_cast<si32>(source[3].Float());
-	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
-	dest->turnsRemain = 0;
+	if (node.isNull())
+	{
+		subtype = BonusSubtypeID();
+		return;
+	}
+
+	if (node.isNumber()) // Compatibility code for 1.3 or older
+	{
+		logMod->warn("Bonus subtype must be string! (%s)", node.meta);
+		subtype = BonusCustomSubtype(node.Integer());
+		return;
+	}
+
+	if (!node.isString())
+	{
+		logMod->warn("Bonus subtype must be string! (%s)", node.meta);
+		subtype = BonusSubtypeID();
+		return;
+	}
+
+	switch (type)
+	{
+		case BonusType::MAGIC_SCHOOL_SKILL:
+		case BonusType::SPELL_DAMAGE:
+		case BonusType::SPELLS_OF_SCHOOL:
+		case BonusType::SPELL_DAMAGE_REDUCTION:
+		case BonusType::SPELL_SCHOOL_IMMUNITY:
+		case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
+		{
+			VLC->identifiers()->requestIdentifier( "spellSchool", node, [&subtype](int32_t identifier)
+			{
+				subtype = SpellSchool(identifier);
+			});
+			break;
+		}
+		case BonusType::NO_TERRAIN_PENALTY:
+		{
+			VLC->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)
+			{
+				subtype = TerrainId(identifier);
+			});
+			break;
+		}
+		case BonusType::PRIMARY_SKILL:
+		{
+			VLC->identifiers()->requestIdentifier( "primarySkill", node, [&subtype](int32_t identifier)
+			{
+				subtype = PrimarySkill(identifier);
+			});
+			break;
+		}
+		case BonusType::IMPROVED_NECROMANCY:
+		case BonusType::HERO_GRANTS_ATTACKS:
+		case BonusType::BONUS_DAMAGE_CHANCE:
+		case BonusType::BONUS_DAMAGE_PERCENTAGE:
+		case BonusType::SPECIAL_UPGRADE:
+		case BonusType::HATE:
+		case BonusType::SUMMON_GUARDIANS:
+		case BonusType::MANUAL_CONTROL:
+		{
+			VLC->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
+			{
+				subtype = CreatureID(identifier);
+			});
+			break;
+		}
+		case BonusType::SPELL_IMMUNITY:
+		case BonusType::SPELL_DURATION:
+		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
+		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::SPECIAL_SPELL_LEV:
+		case BonusType::SPECIFIC_SPELL_DAMAGE:
+		case BonusType::SPELL:
+		case BonusType::OPENING_BATTLE_SPELL:
+		case BonusType::SPELL_LIKE_ATTACK:
+		case BonusType::CATAPULT:
+		case BonusType::CATAPULT_EXTRA_SHOTS:
+		case BonusType::HEALER:
+		case BonusType::SPELLCASTER:
+		case BonusType::ENCHANTER:
+		case BonusType::SPELL_AFTER_ATTACK:
+		case BonusType::SPELL_BEFORE_ATTACK:
+		case BonusType::SPECIFIC_SPELL_POWER:
+		case BonusType::ENCHANTED:
+		case BonusType::MORE_DAMAGE_FROM_SPELL:
+		case BonusType::NOT_ACTIVE:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
+			{
+				subtype = SpellID(identifier);
+			});
+			break;
+		}
+		case BonusType::GENERATE_RESOURCE:
+		{
+			VLC->identifiers()->requestIdentifier( "resource", node, [&subtype](int32_t identifier)
+			{
+				subtype = GameResID(identifier);
+			});
+			break;
+		}
+		case BonusType::MOVEMENT:
+		case BonusType::WATER_WALKING:
+		case BonusType::FLYING_MOVEMENT:
+		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
+		case BonusType::CREATURE_DAMAGE:
+		case BonusType::FLYING:
+		case BonusType::GENERAL_DAMAGE_REDUCTION:
+		case BonusType::PERCENTAGE_DAMAGE_BOOST:
+		case BonusType::SOUL_STEAL:
+		case BonusType::TRANSMUTATION:
+		case BonusType::DESTRUCTION:
+		case BonusType::DEATH_STARE:
+		case BonusType::REBIRTH:
+		case BonusType::VISIONS:
+		case BonusType::SPELLS_OF_LEVEL: // spell level
+		case BonusType::CREATURE_GROWTH: // creature level
+		{
+			VLC->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
+			{
+				subtype = BonusCustomSubtype(identifier);
+			});
+			break;
+		}
+		default:
+			for(const auto & i : bonusNameMap)
+				if(i.second == type)
+					logMod->warn("Bonus type %s does not supports subtypes!", i.first );
+			subtype =  BonusSubtypeID();
+	}
+}
+
+static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
+{
+	if (node.isNull())
+	{
+		sourceInstance = BonusCustomSource();
+		return;
+	}
+
+	if (node.isNumber()) // Compatibility code for 1.3 or older
+	{
+		logMod->warn("Bonus source must be string!");
+		sourceInstance = BonusCustomSource(node.Integer());
+		return;
+	}
+
+	if (!node.isString())
+	{
+		logMod->warn("Bonus source must be string!");
+		sourceInstance = BonusCustomSource();
+		return;
+	}
+
+	switch (sourceType)
+	{
+		case BonusSource::ARTIFACT:
+		case BonusSource::ARTIFACT_INSTANCE:
+		{
+			VLC->identifiers()->requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = ArtifactID(identifier);
+			});
+			break;
+		}
+		case BonusSource::OBJECT_TYPE:
+		{
+			VLC->identifiers()->requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = Obj(identifier);
+			});
+			break;
+		}
+		case BonusSource::OBJECT_INSTANCE:
+		case BonusSource::HERO_BASE_SKILL:
+			sourceInstance = ObjectInstanceID(ObjectInstanceID::decode(node.String()));
+			break;
+		case BonusSource::CREATURE_ABILITY:
+		{
+			VLC->identifiers()->requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = CreatureID(identifier);
+			});
+			break;
+		}
+		case BonusSource::TERRAIN_OVERLAY:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = BattleField(identifier);
+			});
+			break;
+		}
+		case BonusSource::SPELL_EFFECT:
+		{
+			VLC->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = SpellID(identifier);
+			});
+			break;
+		}
+		case BonusSource::TOWN_STRUCTURE:
+			assert(0); // TODO
+			sourceInstance = BuildingTypeUniqueID();
+			break;
+		case BonusSource::SECONDARY_SKILL:
+		{
+			VLC->identifiers()->requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = SecondarySkill(identifier);
+			});
+			break;
+		}
+		case BonusSource::HERO_SPECIAL:
+		{
+			VLC->identifiers()->requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
+			{
+				sourceInstance = HeroTypeID(identifier);
+			});
+			break;
+		}
+		case BonusSource::CAMPAIGN_BONUS:
+			sourceInstance = CampaignScenarioID(CampaignScenarioID::decode(node.String()));
+			break;
+		case BonusSource::ARMY:
+		case BonusSource::STACK_EXPERIENCE:
+		case BonusSource::COMMANDER:
+		case BonusSource::GLOBAL:
+		case BonusSource::TERRAIN_NATIVE:
+		case BonusSource::OTHER:
+		default:
+			sourceInstance = BonusSourceID();
+			break;
+	}
 }
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
@@ -481,17 +678,21 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	}
 	b->type = it->second;
 
-	parseTypedBonusShort(ability_vec, b);
+	b->val = static_cast<si32>(ability_vec[1].Float());
+	loadBonusSubtype(b->subtype, b->type, ability_vec[2]);
+	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
+	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
+	b->turnsRemain = 0;
 	return b;
 }
 
 template <typename T>
-const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
+const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
 {
 	static T defaultValue = T();
 	if (!val->isNull())
 	{
-		std::string type = val->String();
+		const std::string & type = val->String();
 		auto it = map.find(type);
 		if (it == map.end())
 		{
@@ -508,37 +709,12 @@ const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, s
 }
 
 template <typename T>
-const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
+const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
 {
 	if(val->isNumber())
 		return static_cast<T>(val->Integer());
 	else
 		return parseByMap<T>(map, val, err);
-}
-
-void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string name)
-{
-	const JsonNode &value = node[name];
-	if (!value.isNull())
-	{
-		switch (value.getType())
-		{
-			case JsonNode::JsonType::DATA_INTEGER:
-				var = static_cast<si32>(value.Integer());
-				break;
-			case JsonNode::JsonType::DATA_FLOAT:
-				var = static_cast<si32>(value.Float());
-				break;
-			case JsonNode::JsonType::DATA_STRING:
-				VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
-				{
-					var = identifier;
-				});
-				break;
-			default:
-				logMod->error("Error! Wrong identifier used for value of %s.", name);
-		}
-	}
 }
 
 void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
@@ -555,7 +731,7 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 			var = static_cast<si32>(value.Float());
 			break;
 		case JsonNode::JsonType::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
+			VLC->identifiers()->requestIdentifier(value, [&](si32 identifier)
 			{
 				var = identifier;
 			});
@@ -575,7 +751,7 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 							var[i] = static_cast<si32>(vec[i].Float());
 							break;
 						case JsonNode::JsonType::DATA_STRING:
-							VLC->modh->identifiers.requestIdentifier(vec[i], [&var,i](si32 identifier)
+							VLC->identifiers()->requestIdentifier(vec[i], [&var,i](si32 identifier)
 							{
 								var[i] = identifier;
 							});
@@ -592,27 +768,6 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 	}
 }
 
-void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
-{
-	switch (node.getType())
-	{
-		case JsonNode::JsonType::DATA_INTEGER:
-			var = static_cast<si32>(node.Integer());
-			break;
-		case JsonNode::JsonType::DATA_FLOAT:
-			var = static_cast<si32>(node.Float());
-			break;
-		case JsonNode::JsonType::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier(node, [&](si32 identifier)
-			{
-				var = identifier;
-			});
-			break;
-		default:
-			logMod->error("Error! Wrong identifier used for identifier!");
-	}
-}
-
 std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 {
 	switch(limiter.getType())
@@ -620,7 +775,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 	case JsonNode::JsonType::DATA_VECTOR:
 		{
 			const JsonVector & subLimiters = limiter.Vector();
-			if(subLimiters.size() == 0)
+			if(subLimiters.empty())
 			{
 				logMod->warn("Warning: empty limiter list");
 				return std::make_shared<AllOfLimiter>();
@@ -664,7 +819,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			if(limiterType == "CREATURE_TYPE_LIMITER")
 			{
 				std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
-				VLC->modh->identifiers.requestIdentifier("creature", parameters[0], [=](si32 creature)
+				VLC->identifiers()->requestIdentifier("creature", parameters[0], [=](si32 creature)
 				{
 					creatureLimiter->setCreature(CreatureID(creature));
 				});
@@ -693,43 +848,89 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				{
 					std::shared_ptr<HasAnotherBonusLimiter> bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 					bonusLimiter->type = it->second;
+					auto findSource = [&](const JsonNode & parameter)
+					{
+						if(parameter.getType() == JsonNode::JsonType::DATA_STRUCT)
+						{
+							auto sourceIt = bonusSourceMap.find(parameter["type"].String());
+							if(sourceIt != bonusSourceMap.end())
+							{
+								bonusLimiter->source = sourceIt->second;
+								bonusLimiter->isSourceRelevant = true;
+								if(!parameter["id"].isNull()) {
+									loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, parameter["id"]);
+									bonusLimiter->isSourceIDRelevant = true;
+								}
+							}
+						}
+						return false;
+					};
 					if(parameters.size() > 1)
 					{
-						resolveIdentifier(parameters[1], bonusLimiter->subtype);
-						bonusLimiter->isSubtypeRelevant = true;
+						if(findSource(parameters[1]) && parameters.size() == 2)
+							return bonusLimiter;
+						else
+						{
+							loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, parameters[1]);
+							bonusLimiter->isSubtypeRelevant = true;
+							if(parameters.size() > 2)
+								findSource(parameters[2]);
+						}
 					}
 					return bonusLimiter;
 				}
 			}
 			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
 			{
-				int alignment = vstd::find_pos(EAlignment::names, parameters[0].String());
+				int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, parameters[0].String());
 				if(alignment == -1)
 					logMod->error("Error: invalid alignment %s.", parameters[0].String());
 				else
-					return std::make_shared<CreatureAlignmentLimiter>(alignment);
+					return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
 			}
-			else if(limiterType == "CREATURE_FACTION_LIMITER")
+			else if(limiterType == "FACTION_LIMITER" || limiterType == "CREATURE_FACTION_LIMITER") //Second name is deprecated, 1.2 compat
 			{
-				std::shared_ptr<CreatureFactionLimiter> factionLimiter = std::make_shared<CreatureFactionLimiter>();
-				VLC->modh->identifiers.requestIdentifier("faction", parameters[0], [=](si32 faction)
+				std::shared_ptr<FactionLimiter> factionLimiter = std::make_shared<FactionLimiter>();
+				VLC->identifiers()->requestIdentifier("faction", parameters[0], [=](si32 faction)
 				{
-					factionLimiter->faction = faction;
+					factionLimiter->faction = FactionID(faction);
 				});
 				return factionLimiter;
+			}
+			else if(limiterType == "CREATURE_LEVEL_LIMITER")
+			{
+				auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
+				if(!parameters.empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
+				{
+					levelLimiter->minLevel = parameters[0].Integer();
+					if(parameters[1].isNumber())
+						levelLimiter->maxLevel = parameters[1].Integer();
+				}
+				return levelLimiter;
 			}
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
 				std::shared_ptr<CreatureTerrainLimiter> terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
-				if(parameters.size())
+				if(!parameters.empty())
 				{
-					VLC->modh->identifiers.requestIdentifier("terrain", parameters[0], [=](si32 terrain)
+					VLC->identifiers()->requestIdentifier("terrain", parameters[0], [=](si32 terrain)
 					{
 						//TODO: support limiters
 						//terrainLimiter->terrainType = terrain;
 					});
 				}
 				return terrainLimiter;
+			}
+			else if(limiterType == "UNIT_ON_HEXES") {
+				auto hexLimiter = std::make_shared<UnitOnHexLimiter>();
+				if(!parameters.empty())
+				{
+					for (const auto & parameter: parameters){
+						if(parameter.isNumber())
+							hexLimiter->applicableHexes.insert(BattleHex(parameter.Integer()));
+					}
+				}
+				return hexLimiter;
 			}
 			else
 			{
@@ -748,44 +949,130 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	auto b = std::make_shared<Bonus>();
 	if (!parseBonus(ability, b.get()))
 	{
-		return nullptr;
+		// caller code can not handle this case and presumes that returned bonus is always valid
+		logGlobal->error("Failed to parse bonus! Json config was %S ", ability.toJson());
+		b->type = BonusType::NONE;
+		return b;
 	}
 	return b;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode &ability, BuildingID building, std::string description)
+std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const FactionID & faction, const BuildingID & building, const std::string & description)
 {
-	/*	duration = Bonus::PERMANENT
-		source = Bonus::TOWN_STRUCTURE
+	/*	duration = BonusDuration::PERMANENT
+		source = BonusSource::TOWN_STRUCTURE
 		bonusType, val, subtype - get from json
 	*/
-	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NONE, Bonus::TOWN_STRUCTURE, 0, building, description, -1);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BuildingTypeUniqueID(faction, building), description);
 
 	if(!parseBonus(ability, b.get()))
 		return nullptr;
 	return b;
 }
 
+static BonusParams convertDeprecatedBonus(const JsonNode &ability)
+{
+	if(vstd::contains(deprecatedBonusSet, ability["type"].String()))
+	{
+		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toJson());
+		auto params = BonusParams(ability["type"].String(),
+											ability["subtype"].isString() ? ability["subtype"].String() : "",
+											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
+		if(params.isConverted)
+		{
+			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && bonusValueMap.find(ability["valueType"].String())->second == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
+			{
+				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+				params.targetType = BonusSource::SECONDARY_SKILL;
+			}
+
+			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toJson());
+			return params;
+		}
+		else
+			logMod->error("Cannot convert bonus!\n%s", ability.toJson());
+	}
+	BonusParams ret;
+	ret.isConverted = false;
+	return ret;
+}
+
+static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
+{
+	switch(updaterJson.getType())
+	{
+	case JsonNode::JsonType::DATA_STRING:
+		return parseByMap(bonusUpdaterMap, &updaterJson, "updater type ");
+		break;
+	case JsonNode::JsonType::DATA_STRUCT:
+		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+		{
+			std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
+			const JsonVector param = updaterJson["parameters"].Vector();
+			updater->valPer20 = static_cast<int>(param[0].Integer());
+			if(param.size() > 1)
+				updater->stepSize = static_cast<int>(param[1].Integer());
+			return updater;
+		}
+		else if (updaterJson["type"].String() == "ARMY_MOVEMENT")
+		{
+			std::shared_ptr<ArmyMovementUpdater> updater = std::make_shared<ArmyMovementUpdater>();
+			if(updaterJson["parameters"].isVector())
+			{
+				const auto & param = updaterJson["parameters"].Vector();
+				if(param.size() < 4)
+					logMod->warn("Invalid ARMY_MOVEMENT parameters, using default!");
+				else
+				{
+					updater->base = static_cast<si32>(param.at(0).Integer());
+					updater->divider = static_cast<si32>(param.at(1).Integer());
+					updater->multiplier = static_cast<si32>(param.at(2).Integer());
+					updater->max = static_cast<si32>(param.at(3).Integer());
+				}
+				return updater;
+			}
+		}
+		else
+			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
+		break;
+	}
+	return nullptr;
+}
+
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
-	const JsonNode *value;
+	const JsonNode * value = nullptr;
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
+	auto params = std::make_unique<BonusParams>(false);
 	if (it == bonusNameMap.end())
 	{
-		logMod->error("Error: invalid ability type %s.", type);
-		return false;
+		params = std::make_unique<BonusParams>(convertDeprecatedBonus(ability));
+		if(!params->isConverted)
+		{
+			logMod->error("Error: invalid ability type %s.", type);
+			return false;
+		}
+		b->type = params->type;
+		b->val = params->val.value_or(0);
+		b->valType = params->valueType.value_or(BonusValueType::ADDITIVE_VALUE);
+		if(params->targetType)
+			b->targetSourceType = params->targetType.value();
 	}
-	b->type = it->second;
+	else
+		b->type = it->second;
 
-	resolveIdentifier(b->subtype, ability, "subtype");
+	loadBonusSubtype(b->subtype, b->type, params->isConverted ? params->toJson()["subtype"] : ability["subtype"]);
 
-	b->val = static_cast<si32>(ability["val"].Float());
+	if(!params->isConverted)
+	{
+		b->val = static_cast<si32>(ability["val"].Float());
 
-	value = &ability["valueType"];
-	if (!value->isNull())
-		b->valType = static_cast<Bonus::ValueType>(parseByMapN(bonusValueMap, value, "value type "));
+		value = &ability["valueType"];
+		if (!value->isNull())
+			b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
+	}
 
 	b->stacking = ability["stacking"].String();
 
@@ -793,14 +1080,17 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	b->turnsRemain = static_cast<si32>(ability["turns"].Float());
 
-	b->sid = static_cast<si32>(ability["sourceID"].Float());
-
 	if(!ability["description"].isNull())
-		b->description = ability["description"].String();
+	{
+		if (ability["description"].isString())
+			b->description = ability["description"].String();
+		if (ability["description"].isNumber())
+			b->description = VLC->generaltexth->translate("core.arraytxt", ability["description"].Integer());
+	}
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
-		b->effectRange = static_cast<Bonus::LimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
+		b->effectRange = static_cast<BonusLimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
 
 	value = &ability["duration"];
 	if (!value->isNull())
@@ -808,16 +1098,14 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		switch (value->getType())
 		{
 		case JsonNode::JsonType::DATA_STRING:
-			b->duration = (Bonus::BonusDuration)parseByMap(bonusDurationMap, value, "duration type ");
+			b->duration = parseByMap(bonusDurationMap, value, "duration type ");
 			break;
 		case JsonNode::JsonType::DATA_VECTOR:
 			{
-				ui16 dur = 0;
+				BonusDuration::Type dur = 0;
 				for (const JsonNode & d : value->Vector())
-				{
 					dur |= parseByMapN(bonusDurationMap, &d, "duration type ");
-				}
-				b->duration = (Bonus::BonusDuration)dur;
+				b->duration = dur;
 			}
 			break;
 		default:
@@ -825,9 +1113,16 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		}
 	}
 
-	value = &ability["source"];
+	value = &ability["sourceType"];
 	if (!value->isNull())
-		b->source = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
+		b->source = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
+
+	if (!ability["sourceID"].isNull())
+		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"]);
+
+	value = &ability["targetSourceType"];
+	if (!value->isNull())
+		b->targetSourceType = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "target type "));
 
 	value = &ability["limiters"];
 	if (!value->isNull())
@@ -835,34 +1130,137 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["propagator"];
 	if (!value->isNull())
-		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	{
+		//ALL_CREATURES old propagator compatibility
+		if(value->String() == "ALL_CREATURES") 
+		{
+			logMod->warn("ALL_CREATURES propagator is deprecated. Use GLOBAL_EFFECT propagator with CREATURES_ONLY limiter");
+			b->addLimiter(std::make_shared<CreatureLevelLimiter>());
+			b->propagator = bonusPropagatorMap.at("GLOBAL_EFFECT");
+		}
+		else
+			b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	}
 
 	value = &ability["updater"];
 	if(!value->isNull())
+		b->addUpdater(parseUpdater(*value));
+	value = &ability["propagationUpdater"];
+	if(!value->isNull())
+		b->propagationUpdater = parseUpdater(*value);
+	return true;
+}
+
+CSelector JsonUtils::parseSelector(const JsonNode & ability)
+{
+	CSelector ret = Selector::all;
+
+	// Recursive parsers for anyOf, allOf, noneOf
+	const auto * value = &ability["allOf"];
+	if(value->isVector())
 	{
-		const JsonNode & updaterJson = *value;
-		switch(updaterJson.getType())
+		for(const auto & andN : value->Vector())
+			ret = ret.And(parseSelector(andN));
+	}
+
+	value = &ability["anyOf"];
+	if(value->isVector())
+	{
+		CSelector base = Selector::none;
+		for(const auto & andN : value->Vector())
+			base = base.Or(parseSelector(andN));
+		
+		ret = ret.And(base);
+	}
+
+	value = &ability["noneOf"];
+	if(value->isVector())
+	{
+		CSelector base = Selector::none;
+		for(const auto & andN : value->Vector())
+			base = base.Or(parseSelector(andN));
+		
+		ret = ret.And(base.Not());
+	}
+
+	BonusType type = BonusType::NONE;
+
+	// Actual selector parser
+	value = &ability["type"];
+	if(value->isString())
+	{
+		auto it = bonusNameMap.find(value->String());
+		if(it != bonusNameMap.end())
 		{
-		case JsonNode::JsonType::DATA_STRING:
-			b->addUpdater(parseByMap(bonusUpdaterMap, &updaterJson, "updater type "));
-			break;
-		case JsonNode::JsonType::DATA_STRUCT:
-			if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
-			{
-				std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
-				const JsonVector param = updaterJson["parameters"].Vector();
-				updater->valPer20 = static_cast<int>(param[0].Integer());
-				if(param.size() > 1)
-					updater->stepSize = static_cast<int>(param[1].Integer());
-				b->addUpdater(updater);
-			}
-			else
-				logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
-			break;
+			type = it->second;
+			ret = ret.And(Selector::type()(it->second));
 		}
 	}
-	b->updateOppositeBonuses();
-	return true;
+	value = &ability["subtype"];
+	if(!value->isNull() && type != BonusType::NONE)
+	{
+		BonusSubtypeID subtype;
+		loadBonusSubtype(subtype, type, ability);
+		ret = ret.And(Selector::subtype()(subtype));
+	}
+	value = &ability["sourceType"];
+	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
+	std::optional<BonusSourceID> id = std::nullopt;
+	if(value->isString())
+	{
+		auto it = bonusSourceMap.find(value->String());
+		if(it != bonusSourceMap.end())
+			src = it->second;
+	}
+
+	value = &ability["sourceID"];
+	if(!value->isNull() && src.has_value())
+	{
+		loadBonusSourceInstance(*id, *src, ability);
+	}
+
+	if(src && id)
+		ret = ret.And(Selector::source(*src, *id));
+	else if(src)
+		ret = ret.And(Selector::sourceTypeSel(*src));
+
+	
+	value = &ability["targetSourceType"];
+	if(value->isString())
+	{
+		auto it = bonusSourceMap.find(value->String());
+		if(it != bonusSourceMap.end())
+			ret = ret.And(Selector::targetSourceType()(it->second));
+	}
+	value = &ability["valueType"];
+	if(value->isString())
+	{
+		auto it = bonusValueMap.find(value->String());
+		if(it != bonusValueMap.end())
+			ret = ret.And(Selector::valueType(it->second));
+	}
+	CAddInfo info;
+	value = &ability["addInfo"];
+	if(!value->isNull())
+	{
+		resolveAddInfo(info, ability["addInfo"]);
+		ret = ret.And(Selector::info()(info));
+	}
+	value = &ability["effectRange"];
+	if(value->isString())
+	{
+		auto it = bonusLimitEffect.find(value->String());
+		if(it != bonusLimitEffect.end())
+			ret = ret.And(Selector::effectRange()(it->second));
+	}
+	value = &ability["lastsTurns"];
+	if(value->isNumber())
+		ret = ret.And(Selector::turns(value->Integer()));
+	value = &ability["lastsDays"];
+	if(value->isNumber())
+		ret = ret.And(Selector::days(value->Integer()));
+
+	return ret;
 }
 
 //returns first Key with value equal to given one
@@ -880,81 +1278,84 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
 	return "";
 }
 
-void minimizeNode(JsonNode & node, const JsonNode & schema)
+static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 {
-	if (schema["type"].String() == "object")
-	{
-		std::set<std::string> foundEntries;
+	const JsonNode & fieldProps = schema["properties"][fieldName];
 
-		for(auto & entry : schema["required"].Vector())
-		{
-			std::string name = entry.String();
-			foundEntries.insert(name);
-
-			minimizeNode(node[name], schema["properties"][name]);
-
-			if (vstd::contains(node.Struct(), name) &&
-				node[name] == schema["properties"][name]["default"])
-			{
-				node.Struct().erase(name);
-			}
-		}
-
-		// erase all unhandled entries
-		for (auto it = node.Struct().begin(); it != node.Struct().end();)
-		{
-			if (!vstd::contains(foundEntries, it->first))
-				it = node.Struct().erase(it);
-			else
-				it++;
-		}
-	}
+#if defined(VCMI_IOS)
+	if (!fieldProps["defaultIOS"].isNull())
+		return fieldProps["defaultIOS"];
+#elif defined(VCMI_ANDROID)
+	if (!fieldProps["defaultAndroid"].isNull())
+		return fieldProps["defaultAndroid"];
+#elif !defined(VCMI_MOBILE)
+	if (!fieldProps["defaultDesktop"].isNull())
+		return fieldProps["defaultDesktop"];
+#endif
+	return fieldProps["default"];
 }
 
-void JsonUtils::minimize(JsonNode & node, std::string schemaName)
+static void eraseOptionalNodes(JsonNode & node, const JsonNode & schema)
+{
+	assert(schema["type"].String() == "object");
+
+	std::set<std::string> foundEntries;
+
+	for(const auto & entry : schema["required"].Vector())
+		foundEntries.insert(entry.String());
+
+	vstd::erase_if(node.Struct(), [&](const auto & node){
+		return !vstd::contains(foundEntries, node.first);
+	});
+}
+
+static void minimizeNode(JsonNode & node, const JsonNode & schema)
+{
+	if (schema["type"].String() != "object")
+		return;
+
+	for(const auto & entry : schema["required"].Vector())
+	{
+		const std::string & name = entry.String();
+		minimizeNode(node[name], schema["properties"][name]);
+
+		if (vstd::contains(node.Struct(), name) && node[name] == getDefaultValue(schema, name))
+			node.Struct().erase(name);
+	}
+	eraseOptionalNodes(node, schema);
+}
+
+static void maximizeNode(JsonNode & node, const JsonNode & schema)
+{
+	// "required" entry can only be found in object/struct
+	if (schema["type"].String() != "object")
+		return;
+
+	// check all required entries that have default version
+	for(const auto & entry : schema["required"].Vector())
+	{
+		const std::string & name = entry.String();
+
+		if (node[name].isNull() && !getDefaultValue(schema, name).isNull())
+			node[name] = getDefaultValue(schema, name);
+
+		maximizeNode(node[name], schema["properties"][name]);
+	}
+
+	eraseOptionalNodes(node, schema);
+}
+
+void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
 {
 	minimizeNode(node, getSchema(schemaName));
 }
 
-// FIXME: except for several lines function is identical to minimizeNode. Some way to reduce duplication?
-void maximizeNode(JsonNode & node, const JsonNode & schema)
-{
-	// "required" entry can only be found in object/struct
-	if (schema["type"].String() == "object")
-	{
-		std::set<std::string> foundEntries;
-
-		// check all required entries that have default version
-		for(auto & entry : schema["required"].Vector())
-		{
-			std::string name = entry.String();
-			foundEntries.insert(name);
-
-			if (node[name].isNull() &&
-				!schema["properties"][name]["default"].isNull())
-			{
-				node[name] = schema["properties"][name]["default"];
-			}
-			maximizeNode(node[name], schema["properties"][name]);
-		}
-
-		// erase all unhandled entries
-		for (auto it = node.Struct().begin(); it != node.Struct().end();)
-		{
-			if (!vstd::contains(foundEntries, it->first))
-				it = node.Struct().erase(it);
-			else
-				it++;
-		}
-	}
-}
-
-void JsonUtils::maximize(JsonNode & node, std::string schemaName)
+void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)
 {
 	maximizeNode(node, getSchema(schemaName));
 }
 
-bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::string dataName)
+bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
 {
 	std::string log = Validation::check(schemaName, node);
 	if (!log.empty())
@@ -966,7 +1367,7 @@ bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::stri
 	return log.empty();
 }
 
-const JsonNode & getSchemaByName(std::string name)
+const JsonNode & getSchemaByName(const std::string & name)
 {
 	// cached schemas to avoid loading json data multiple times
 	static std::map<std::string, JsonNode> loadedSchemas;
@@ -974,11 +1375,11 @@ const JsonNode & getSchemaByName(std::string name)
 	if (vstd::contains(loadedSchemas, name))
 		return loadedSchemas[name];
 
-	std::string filename = "config/schemas/" + name;
+	auto filename = JsonPath::builtin("config/schemas/" + name);
 
-	if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+	if (CResourceHandler::get()->existsResource(filename))
 	{
-		loadedSchemas[name] = JsonNode(ResourceID(filename));
+		loadedSchemas[name] = JsonNode(filename);
 		return loadedSchemas[name];
 	}
 
@@ -987,7 +1388,7 @@ const JsonNode & getSchemaByName(std::string name)
 	return nullNode;
 }
 
-const JsonNode & JsonUtils::getSchema(std::string URI)
+const JsonNode & JsonUtils::getSchema(const std::string & URI)
 {
 	size_t posColon = URI.find(':');
 	size_t posHash  = URI.find('#');
@@ -1009,12 +1410,22 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 
 	// check if json pointer if present (section after hash in string)
 	if(posHash == std::string::npos || posHash == URI.size() - 1)
-		return getSchemaByName(filename);
+	{
+		auto const & result = getSchemaByName(filename);
+		if (result.isNull())
+			logMod->error("Error: missing schema %s", URI);
+		return result;
+	}
 	else
-		return getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
+	{
+		auto const & result = getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
+		if (result.isNull())
+			logMod->error("Error: missing schema %s", URI);
+		return result;
+	}
 }
 
-void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
+void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, bool copyMeta)
 {
 	if (dest.getType() == JsonNode::JsonType::DATA_NULL)
 	{
@@ -1040,36 +1451,39 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
-			if(!noOverride && vstd::contains(source.flags, "override"))
+			if(!ignoreOverride && vstd::contains(source.flags, "override"))
 			{
 				std::swap(dest, source);
 			}
 			else
 			{
+				if (copyMeta)
+					dest.meta = source.meta;
+
 				//recursively merge all entries from struct
 				for(auto & node : source.Struct())
-					merge(dest[node.first], node.second, noOverride);
+					merge(dest[node.first], node.second, ignoreOverride);
 			}
 		}
 	}
 }
 
-void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source, bool noOverride)
+void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source, bool ignoreOverride, bool copyMeta)
 {
 	// uses copy created in stack to safely merge two nodes
-	merge(dest, source, noOverride);
+	merge(dest, source, ignoreOverride, copyMeta);
 }
 
 void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 {
 	JsonNode inheritedNode(base);
-	merge(inheritedNode, descendant, true);
-	descendant.swap(inheritedNode);
+	merge(inheritedNode, descendant, true, true);
+	std::swap(descendant, inheritedNode);
 }
 
 JsonNode JsonUtils::intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty)
 {
-	if(nodes.size() == 0)
+	if(nodes.empty())
 		return nullNode;
 
 	JsonNode result = nodes[0];
@@ -1088,7 +1502,7 @@ JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool prune
 	{
 		// intersect individual properties
 		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
-		for(auto property : a.Struct())
+		for(const auto & property : a.Struct())
 		{
 			if(vstd::contains(b.Struct(), property.first))
 			{
@@ -1118,7 +1532,7 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 		case JsonNode::JsonType::DATA_NULL:
 			return false;
 		case JsonNode::JsonType::DATA_STRUCT:
-			return diff.Struct().size() > 0;
+			return !diff.Struct().empty();
 		default:
 			return true;
 		}
@@ -1128,7 +1542,7 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 	{
 		// subtract individual properties
 		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
-		for(auto property : node.Struct())
+		for(const auto & property : node.Struct())
 		{
 			if(vstd::contains(base.Struct(), property.first))
 			{
@@ -1151,31 +1565,31 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 	return node;
 }
 
-JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
 {
-	bool isValid;
+	bool isValid = false;
 	return assembleFromFiles(files, isValid);
 }
 
-JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files, bool &isValid)
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bool & isValid)
 {
 	isValid = true;
 	JsonNode result;
 
-	for(std::string file : files)
+	for(const auto & file : files)
 	{
-		bool isValidFile;
-		JsonNode section(ResourceID(file, EResType::TEXT), isValidFile);
+		bool isValidFile = false;
+		JsonNode section(JsonPath::builtinTODO(file), isValidFile);
 		merge(result, section);
 		isValid |= isValidFile;
 	}
 	return result;
 }
 
-JsonNode JsonUtils::assembleFromFiles(std::string filename)
+JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 {
 	JsonNode result;
-	ResourceID resID(filename, EResType::TEXT);
+	JsonPath resID = JsonPath::builtinTODO(filename);
 
 	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
 	{
@@ -1184,7 +1598,7 @@ JsonNode JsonUtils::assembleFromFiles(std::string filename)
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		JsonNode section((char*)textData.get(), stream->getSize());
+		JsonNode section(reinterpret_cast<char *>(textData.get()), stream->getSize());
 		merge(result, section);
 	}
 	return result;
@@ -1204,7 +1618,7 @@ DLL_LINKAGE JsonNode JsonUtils::floatNode(double value)
 	return node;
 }
 
-DLL_LINKAGE JsonNode JsonUtils::stringNode(std::string value)
+DLL_LINKAGE JsonNode JsonUtils::stringNode(const std::string & value)
 {
 	JsonNode node;
 	node.String() = value;

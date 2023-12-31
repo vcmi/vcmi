@@ -16,37 +16,31 @@
 
 #include "../ISpellMechanics.h"
 
-#include "../../NetPacks.h"
+#include "../../MetaString.h"
 #include "../../battle/IBattleState.h"
+#include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
+#include "../../bonuses/BonusList.h"
+#include "../../networkPacks/PacksForClientBattle.h"
+#include "../../networkPacks/SetStackEffect.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-static const std::string EFFECT_NAME = "core:dispel";
 
 namespace spells
 {
 namespace effects
 {
 
-VCMI_REGISTER_SPELL_EFFECT(Dispel, EFFECT_NAME);
-
-Dispel::Dispel()
-	: UnitEffect()
-{
-
-}
-
-Dispel::~Dispel() = default;
-
 void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	const bool describe = server->describeChanges();
 	SetStackEffect sse;
 	BattleLogMessage blm;
+	blm.battleID = m->battle()->getBattle()->getBattleID();
+	sse.battleID = m->battle()->getBattle()->getBattleID();
 
-	for(auto & t : target)
+	for(const auto & t : target)
 	{
 		const battle::Unit * unit = t.unitValue;
 		if(unit)
@@ -55,7 +49,7 @@ void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 			if(describe && positive && !negative && !neutral)
 			{
 				MetaString line;
-				unit->addText(line, MetaString::GENERAL_TXT, -555, true);
+				unit->addText(line, EMetaText::GENERAL_TXT, -555, true);
 				unit->addNameReplacement(line, true);
 				blm.lines.push_back(std::move(line));
 			}
@@ -63,11 +57,11 @@ void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 			std::vector<Bonus> buffer;
 			auto bl = getBonuses(m, unit);
 
-			for(auto item : *bl)
+			for(const auto& item : *bl)
 				buffer.emplace_back(*item);
 
 			if(!buffer.empty())
-				sse.toRemove.push_back(std::make_pair(unit->unitId(), buffer));
+				sse.toRemove.emplace_back(unit->unitId(), buffer);
 		}
 	}
 
@@ -97,9 +91,9 @@ std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const b
 {
 	auto sel = [=](const Bonus * bonus)
 	{
-		if(bonus->source == Bonus::SPELL_EFFECT)
+		if(bonus->source == BonusSource::SPELL_EFFECT)
 		{
-			const Spell * sourceSpell = SpellID(bonus->sid).toSpell(m->spells());
+			const Spell * sourceSpell = bonus->sid.as<SpellID>().toEntity(m->spells());
 			if(!sourceSpell)
 				return false;//error
 

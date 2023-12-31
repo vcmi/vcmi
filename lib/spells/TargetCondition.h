@@ -30,9 +30,6 @@ class Mechanics;
 class DLL_LINKAGE TargetConditionItem : public IReceptiveCheck
 {
 public:
-	TargetConditionItem();
-	virtual ~TargetConditionItem();
-
 	virtual void setInverted(bool value) = 0;
 	virtual void setExclusive(bool value) = 0;
 
@@ -52,8 +49,10 @@ public:
 	virtual Object createElemental() const = 0;
 	virtual Object createNormalLevel() const = 0;
 	virtual Object createNormalSpell() const = 0;
+	virtual Object createResistance() const = 0;
 
 	virtual Object createConfigurable(std::string scope, std::string type, std::string identifier) const = 0;
+	virtual Object createFromJsonStruct(const JsonNode & jsonStruct) const = 0;
 
 	virtual Object createReceptiveFeature() const = 0;
 	virtual Object createImmunityNegation() const = 0;
@@ -69,9 +68,6 @@ public:
 	ItemVector normal;
 	ItemVector absolute;
 	ItemVector negation;
-
-	TargetCondition();
-	virtual ~TargetCondition();
 
 	bool isReceptive(const Mechanics * m, const battle::Unit * target) const override;
 

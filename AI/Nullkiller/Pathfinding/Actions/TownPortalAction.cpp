@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include "../../Goals/AdventureSpellCast.h"
-#include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "TownPortalAction.h"
 
@@ -19,9 +18,6 @@ namespace NKAI
 
 using namespace AIPathfinding;
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 void TownPortalAction::execute(const CGHeroInstance * hero) const
 {
 	auto goal = Goals::AdventureSpellCast(hero, SpellID::TOWN_PORTAL);
@@ -29,12 +25,12 @@ void TownPortalAction::execute(const CGHeroInstance * hero) const
 	goal.town = target;
 	goal.tile = target->visitablePos();
 
-	goal.accept(ai.get());
+	goal.accept(ai);
 }
 
 std::string TownPortalAction::toString() const
 {
-	return "Town Portal to " + target->name;
+	return "Town Portal to " + target->getNameTranslated();
 }
 /*
 bool TownPortalAction::canAct(const CGHeroInstance * hero, const AIPathNode * source) const

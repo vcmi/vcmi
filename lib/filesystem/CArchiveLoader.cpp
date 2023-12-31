@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CArchiveLoader.h"
 
+#include "VCMIDirs.h"
 #include "CFileInputStream.h"
 #include "CCompressedStream.h"
 
@@ -23,9 +24,10 @@ ArchiveEntry::ArchiveEntry()
 
 }
 
-CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path _archive) :
+CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path _archive, bool _extractArchives) :
     archive(std::move(_archive)),
-    mountPoint(std::move(_mountPoint))
+    mountPoint(std::move(_mountPoint)),
+	extractArchives(_extractArchives)
 {
 	// Open archive file(.snd, .vid, .lod)
 	CFileInputStream fileStream(archive);
@@ -76,7 +78,26 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 		entry.compressedSize     = reader.readUInt32();
 
 		// Add lod entry to local entries map
-		entries[ResourceID(mountPoint + entry.name)] = entry;
+		entries[ResourcePath(mountPoint + entry.name)] = entry;
+
+		if(extractArchives)
+		{
+			si64 currentPosition = fileStream.tell(); // save filestream position
+
+			std::string fName = filename;
+			boost::to_upper(fName);
+
+			if(fName.find(".PCX") != std::string::npos)
+				extractToFolder("IMAGES", mountPoint, entry);
+			else if ((fName.find(".DEF") != std::string::npos ) || (fName.find(".MSK") != std::string::npos) || (fName.find(".FNT") != std::string::npos) || (fName.find(".PAL") != std::string::npos))
+				extractToFolder("SPRITES", mountPoint, entry);
+			else if ((fName.find(".H3C") != std::string::npos))
+				extractToFolder("SPRITES", mountPoint, entry);
+			else
+				extractToFolder("MISC", mountPoint, entry);
+
+			fileStream.seek(currentPosition); // restore filestream position
+		}
 	}
 }
 
@@ -102,9 +123,9 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 		entry.compressedSize = 0;
 
 		offsets.insert(entry.offset);
-		entries[ResourceID(mountPoint + entry.name)] = entry;
+		entries[ResourcePath(mountPoint + entry.name)] = entry;
 	}
-	offsets.insert((int)fileStream.getSize());
+	offsets.insert(static_cast<int>(fileStream.getSize()));
 
 	// now when we know position of all files their sizes can be set correctly
 	for (auto & entry : entries)
@@ -112,6 +133,9 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 		auto it = offsets.find(entry.second.offset);
 		it++;
 		entry.second.fullSize = *it - entry.second.offset;
+
+		if(extractArchives)
+			extractToFolder("VIDEO", fileStream, entry.second);
 	}
 }
 
@@ -128,21 +152,24 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 		char filename[40];
 		reader.read(reinterpret_cast<ui8*>(filename), 40);
 
-		//for some reason entries in snd have format NAME\0WAVRUBBISH....
-		//we need to replace first \0 with dot and take the 3 chars with extension (and drop the rest)
+		// for some reason entries in snd have format NAME\0WAVRUBBISH....
+		// and Polish version does not have extension at all
+		// we need to replace first \0 with dot and add wav extension manuall - we don't expect other types here anyway
 		ArchiveEntry entry;
 		entry.name  = filename; // till 1st \0
-		entry.name += '.';
-		entry.name += std::string(filename + entry.name.size(), 3);
+		entry.name += ".wav";
 
 		entry.offset = reader.readInt32();
 		entry.fullSize = reader.readInt32();
 		entry.compressedSize = 0;
-		entries[ResourceID(mountPoint + entry.name)] = entry;
+		entries[ResourcePath(mountPoint + entry.name)] = entry;
+
+		if(extractArchives)
+			extractToFolder("SOUND", fileStream, entry);
 	}
 }
 
-std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceName) const
+std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourcePath & resourceName) const
 {
 	assert(existsResource(resourceName));
 
@@ -150,17 +177,17 @@ std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceNa
 
 	if (entry.compressedSize != 0) //compressed data
 	{
-		auto fileStream = make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
+		auto fileStream = std::make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
 
-		return make_unique<CCompressedStream>(std::move(fileStream), false, entry.fullSize);
+		return std::make_unique<CCompressedStream>(std::move(fileStream), false, entry.fullSize);
 	}
 	else
 	{
-		return make_unique<CFileInputStream>(archive, entry.offset, entry.fullSize);
+		return std::make_unique<CFileInputStream>(archive, entry.offset, entry.fullSize);
 	}
 }
 
-bool CArchiveLoader::existsResource(const ResourceID & resourceName) const
+bool CArchiveLoader::existsResource(const ResourcePath & resourceName) const
 {
 	return entries.count(resourceName) != 0;
 }
@@ -170,16 +197,52 @@ std::string CArchiveLoader::getMountPoint() const
 	return mountPoint;
 }
 
-std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
+std::unordered_set<ResourcePath> CArchiveLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
-	std::unordered_set<ResourceID> foundID;
+	std::unordered_set<ResourcePath> foundID;
 
-	for (auto & file : entries)
+	for(const auto & file : entries)
 	{
 		if (filter(file.first))
 			foundID.insert(file.first);
 	}
 	return foundID;
+}
+
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry) const
+{
+	si64 currentPosition = fileStream.tell(); // save filestream position
+
+	std::vector<ui8> data(entry.fullSize);
+	fileStream.seek(entry.offset);
+	fileStream.read(data.data(), entry.fullSize);
+
+	boost::filesystem::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
+
+	// writeToOutputFile
+	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
+	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	out.write(reinterpret_cast<char *>(data.data()), entry.fullSize);
+
+	fileStream.seek(currentPosition); // restore filestream position
+}
+
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry) const
+{
+	std::unique_ptr<CInputStream> inputStream = load(ResourcePath(mountPoint + entry.name));
+
+	entry.offset = 0;
+	extractToFolder(outputSubFolder, *inputStream, entry);
+}
+
+boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
+{
+	boost::filesystem::path extractionFolderPath = VCMIDirs::get().userExtractedPath() / outputSubFolder;
+	boost::filesystem::path extractedFilePath = extractionFolderPath / entryName;
+
+	boost::filesystem::create_directories(extractionFolderPath);
+
+	return extractedFilePath;
 }
 
 VCMI_LIB_NAMESPACE_END

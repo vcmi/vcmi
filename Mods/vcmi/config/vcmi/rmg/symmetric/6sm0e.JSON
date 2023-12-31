@@ -1,0 +1,175 @@
+{
+	"6SM0e" :
+	{
+		"minSize" : "m", "maxSize" : "m+u",
+		"players" : "2-6",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 11,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"mines" : { "wood" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 10000, "max" : 15000, "density" : 1 },
+					{ "min" : 3000, "max" : 6000, "density" : 6 },
+					{ "min" : 500, "max" : 3000, "density" : 9 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 11,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "playerStart",
+				"size" : 11,
+				"owner" : 3,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"4" :
+			{
+				"type" : "playerStart",
+				"size" : 11,
+				"owner" : 4,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"5" :
+			{
+				"type" : "playerStart",
+				"size" : 11,
+				"owner" : 5,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"6" :
+			{
+				"type" : "playerStart",
+				"size" : 11,
+				"owner" : 6,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"7" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 20000, "max" : 30000, "density" : 1 },
+					{ "min" : 15000, "max" : 20000, "density" : 6 },
+					{ "min" : 10000, "max" : 15000, "density" : 9 }
+				]
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "crystal" : 1 },
+				"treasureLikeZone" : 7
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "sulfur" : 1, "gold" : 1 },
+				"treasureLikeZone" : 7
+			},
+			"10" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "mercury" : 1 },
+				"treasureLikeZone" : 7
+			},
+			"11" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "mercury" : 1, "gold" : 1 },
+				"treasureLikeZone" : 7
+			},
+			"12" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "sulfur" : 1, "gold" : 1 },
+				"treasureLikeZone" : 7
+			},
+			"13" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "crystal" : 1 },
+				"treasureLikeZone" : 7
+			},
+			"14" :
+			{
+				"type" : "treasure",
+				"size" : 11,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"mines" : { "gems" : 1 },
+				"treasureLikeZone" : 7
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "7", "guard" : 3000 },
+			{ "a" : "1", "b" : "9", "guard" : 3000 },
+			{ "a" : "2", "b" : "8", "guard" : 3000 },
+			{ "a" : "2", "b" : "10", "guard" : 3000 },
+			{ "a" : "3", "b" : "7", "guard" : 3000 },
+			{ "a" : "3", "b" : "8", "guard" : 3000 },
+			{ "a" : "3", "b" : "9", "guard" : 3000 },
+			{ "a" : "3", "b" : "10", "guard" : 3000 },
+			{ "a" : "4", "b" : "11", "guard" : 3000 },
+			{ "a" : "4", "b" : "12", "guard" : 3000 },
+			{ "a" : "4", "b" : "13", "guard" : 3000 },
+			{ "a" : "4", "b" : "14", "guard" : 3000 },
+			{ "a" : "5", "b" : "11", "guard" : 3000 },
+			{ "a" : "5", "b" : "13", "guard" : 3000 },
+			{ "a" : "6", "b" : "12", "guard" : 3000 },
+			{ "a" : "6", "b" : "14", "guard" : 3000 },
+			{ "a" : "7", "b" : "8", "guard" : 3000 },
+			{ "a" : "9", "b" : "11", "guard" : 3000 },
+			{ "a" : "10", "b" : "12", "guard" : 3000 },
+			{ "a" : "13", "b" : "14", "guard" : 3000 }
+		]
+	}
+}

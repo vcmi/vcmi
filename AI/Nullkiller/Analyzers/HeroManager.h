@@ -30,6 +30,11 @@ public:
 	virtual void update() = 0;
 	virtual float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const = 0;
 	virtual float evaluateHero(const CGHeroInstance * hero) const = 0;
+	virtual bool canRecruitHero(const CGTownInstance * t = nullptr) const = 0;
+	virtual bool heroCapReached() const = 0;
+	virtual const CGHeroInstance * findHeroWithGrail() const = 0;
+	virtual const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const = 0;
+	virtual float getMagicStrength(const CGHeroInstance * hero) const = 0;
 };
 
 class DLL_EXPORT ISecondarySkillRule
@@ -57,20 +62,27 @@ private:
 	static SecondarySkillEvaluator scountSkillsScores;
 
 	CCallback * cb; //this is enough, but we downcast from CCallback
+	const Nullkiller * ai;
 	std::map<HeroPtr, HeroRole> heroRoles;
 
 public:
-	HeroManager(CCallback * CB, const Nullkiller * ai) : cb(CB) {}
+	HeroManager(CCallback * CB, const Nullkiller * ai) : cb(CB), ai(ai) {}
 	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
 	HeroRole getHeroRole(const HeroPtr & hero) const override;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
 	void update() override;
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
 	float evaluateHero(const CGHeroInstance * hero) const override;
+	bool canRecruitHero(const CGTownInstance * t = nullptr) const override;
+	bool heroCapReached() const override;
+	const CGHeroInstance * findHeroWithGrail() const override;
+	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const override;
+	float getMagicStrength(const CGHeroInstance * hero) const override;
 
 private:
 	float evaluateFightingStrength(const CGHeroInstance * hero) const;
 	float evaluateSpeciality(const CGHeroInstance * hero) const;
+	const CGTownInstance * findTownWithTavern() const;
 };
 
 // basic skill scores. missing skills will have score of 0

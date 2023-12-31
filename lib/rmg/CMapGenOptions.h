@@ -11,46 +11,18 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "CRmgTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRmgTemplate;
 class CRandomGenerator;
 
-namespace EWaterContent
+enum class EPlayerType
 {
-	enum EWaterContent
-	{
-		RANDOM = -1,
-		NONE,
-		NORMAL,
-		ISLANDS
-	};
-}
-
-namespace EMonsterStrength
-{
-	enum EMonsterStrength
-	{
-		RANDOM = -2,
-		ZONE_WEAK = -1,
-		ZONE_NORMAL = 0,
-		ZONE_STRONG = 1,
-		GLOBAL_WEAK = 2,
-		GLOBAL_NORMAL = 3,
-		GLOBAL_STRONG = 4
-	};
-}
-
-namespace EPlayerType
-{
-	enum EPlayerType
-	{
-		HUMAN,
-		AI,
-		COMP_ONLY
-	};
-}
+	HUMAN,
+	AI,
+	COMP_ONLY
+};
 
 /// The map gen options class holds values about general map generation settings
 /// e.g. the size of the map, the count of players,...
@@ -66,24 +38,26 @@ public:
 		/// The color of the player ranging from 0 to PlayerColor::PLAYER_LIMIT - 1.
 		/// The default value is 0.
 		PlayerColor getColor() const;
-		void setColor(PlayerColor value);
+		void setColor(const PlayerColor & value);
 
 		/// The starting town of the player ranging from 0 to town max count or RANDOM_TOWN.
 		/// The default value is RANDOM_TOWN.
-		si32 getStartingTown() const;
-		void setStartingTown(si32 value);
+		FactionID getStartingTown() const;
+		void setStartingTown(FactionID value);
 
 		/// The default value is EPlayerType::AI.
-		EPlayerType::EPlayerType getPlayerType() const;
-		void setPlayerType(EPlayerType::EPlayerType value);
-
-		/// Constant for a random town selection.
-		static const si32 RANDOM_TOWN = -1;
+		EPlayerType getPlayerType() const;
+		void setPlayerType(EPlayerType value);
+		
+		/// Team id for this player. TeamID::NO_TEAM by default - team will be randomly assigned
+		TeamID getTeam() const;
+		void setTeam(const TeamID & value);
 
 	private:
 		PlayerColor color;
-		si32 startingTown;
-		EPlayerType::EPlayerType playerType;
+		FactionID startingTown;
+		EPlayerType playerType;
+		TeamID team;
 
 	public:
 		template <typename Handler>
@@ -92,6 +66,8 @@ public:
 			h & color;
 			h & startingTown;
 			h & playerType;
+			if(version >= 806)
+				h & team;
 		}
 	};
 
@@ -109,8 +85,12 @@ public:
 
 	/// The count of all (human or computer) players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random. If you call
 	/// this method, all player settings are reset to default settings.
-	si8 getPlayerCount() const;
-	void setPlayerCount(si8 value);
+	si8 getHumanOrCpuPlayerCount() const;
+	void setHumanOrCpuPlayerCount(si8 value);
+
+	si8 getMinPlayersCount(bool withTemplateLimit = true) const;
+	si8 getMaxPlayersCount(bool withTemplateLimit = true) const;
+	si8 getPlayerLimit() const;
 
 	/// The count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random.
 	si8 getTeamCount() const;
@@ -130,19 +110,27 @@ public:
 
 	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
 	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
+	
+	bool isRoadEnabled(const RoadId & roadType) const;
+	bool isRoadEnabled() const;
+	void setRoadEnabled(const RoadId & roadType, bool enable);
 
 	/// The first player colors belong to standard players and the last player colors belong to comp only players.
 	/// All standard players are by default of type EPlayerType::AI.
 	const std::map<PlayerColor, CPlayerSettings> & getPlayersSettings() const;
-	void setStartingTownForPlayer(PlayerColor color, si32 town);
+	const std::map<PlayerColor, CPlayerSettings> & getSavedPlayersMap() const;
+	void setStartingTownForPlayer(const PlayerColor & color, FactionID town);
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
 	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
-	void setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType);
+	void setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType);
+
+	void setPlayerTeam(const PlayerColor & color, const TeamID & team = TeamID::NO_TEAM);
 
 	/// The random map template to generate the map with or empty/not set if the template should be chosen randomly.
 	/// Default: Not set/random.
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
+	void setMapTemplate(const std::string & name);
 
 	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
 
@@ -153,11 +141,15 @@ public:
 
 	/// Returns false if there is no template available which fits to the currently selected options.
 	bool checkOptions() const;
+	/// Returns true if player colors or teams were set in game GUI
+	bool arePlayersCustomized() const;
 
 	static const si8 RANDOM_SIZE = -1;
 
 private:
+	void initPlayersMap();
 	void resetPlayersMap();
+	void savePlayersMap();
 	int countHumanPlayers() const;
 	int countCompOnlyPlayers() const;
 	PlayerColor getNextPlayerColor() const;
@@ -167,10 +159,14 @@ private:
 
 	si32 width, height;
 	bool hasTwoLevels;
-	si8 playerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
+	si8 humanOrCpuPlayerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
+	std::map<PlayerColor, CPlayerSettings> savedPlayerSettings;
+	std::set<RoadId> enabledRoads;
+	bool customizedPlayers;
+	
 	const CRmgTemplate * mapTemplate;
 
 public:
@@ -180,14 +176,28 @@ public:
 		h & width;
 		h & height;
 		h & hasTwoLevels;
-		h & playerCount;
+		h & humanOrCpuPlayerCount;
 		h & teamCount;
 		h & compOnlyPlayerCount;
 		h & compOnlyTeamCount;
 		h & waterContent;
 		h & monsterStrength;
 		h & players;
-		//TODO add name of template to class, enables selection of a template by a user
+		std::string templateName;
+		if(mapTemplate && h.saving)
+		{
+			templateName = mapTemplate->getId();
+		}
+		if(version >= 806)
+		{
+			h & templateName;
+			if(!h.saving)
+			{
+				setMapTemplate(templateName);
+			}
+			
+			h & enabledRoads;
+		}
 	}
 };
 

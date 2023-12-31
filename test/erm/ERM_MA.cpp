@@ -76,7 +76,7 @@ TEST_F(ERM_MA, Example)
 	const int32_t LEVEL = 7;
 	const int32_t FACTION = 35;
 
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::DESTRUCTION, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::DESTRUCTION, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	const int32_t FLAG_MASK = 394370;
 	const int32_t FLAG_MASK_NEW = 397443;
@@ -84,19 +84,19 @@ TEST_F(ERM_MA, Example)
 	static_assert(FLAG_MASK == (1 << 1 | 1 << 7 | 1 << 10 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 	static_assert(FLAG_MASK_NEW == (1 << 0 | 1 << 1 | 1 << 7 | 1 << 12 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::FLYING, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING1, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::FLYING, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::KING, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MIND_IMMUNITY, Bonus::CREATURE_ABILITY, 0, 0);
+	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::MIND_IMMUNITY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 	creatureBonuses.addNewBonus(removed);
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_MORALE, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::UNDEAD, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MORALE, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::UNDEAD, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> added = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_MELEE_PENALTY, Bonus::CREATURE_ABILITY, 0, 0);
+	std::shared_ptr<Bonus> added = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MELEE_PENALTY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 
-	EXPECT_CALL(oldCreature, getCost(Eq(6))).WillOnce(Return(COST));
+	EXPECT_CALL(oldCreature, getRecruitCost(Eq(6))).WillOnce(Return(COST));
 	EXPECT_CALL(oldCreature, getBaseAttack()).WillOnce(Return(ATTACK));
 	EXPECT_CALL(oldCreature, getBaseDefense()).WillOnce(Return(DEFENSE));
 	EXPECT_CALL(oldCreature, getBaseHitPoints()).WillOnce(Return(HIT_POINTS));
@@ -111,11 +111,11 @@ TEST_F(ERM_MA, Example)
 	EXPECT_CALL(oldCreature, getAIValue()).WillOnce(Return(AI_VALUE));
 	EXPECT_CALL(oldCreature, getFightValue()).WillOnce(Return(FIGHT_VALUE));
 	EXPECT_CALL(oldCreature, getLevel()).WillOnce(Return(LEVEL));
-	EXPECT_CALL(oldCreature, getFactionIndex()).WillOnce(Return(FACTION));
+	EXPECT_CALL(oldCreature, getFaction()).WillOnce(Return(FACTION));
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
 
-	EXPECT_CALL(oldCreature, accessBonuses()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
+	EXPECT_CALL(oldCreature, getBonusBearer()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
 
 	EXPECT_CALL(serverMock, apply(Matcher<CPackForClient *>(_))).Times(AtLeast(1)).WillRepeatedly(Invoke(this, &ERM_MA::onCommit));
 
@@ -195,7 +195,7 @@ TEST_F(ERM_MA, Example)
 
 TEST_F(ERM_MA, Bonuses)
 {
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::DESTRUCTION, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::DESTRUCTION, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	const int32_t FLAG_MASK = 394370;
 	const int32_t FLAG_MASK_NEW = 397442;
@@ -203,20 +203,20 @@ TEST_F(ERM_MA, Bonuses)
 	static_assert(FLAG_MASK == (1 << 1 | 1 << 7 | 1 << 10 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 	static_assert(FLAG_MASK_NEW == ( 1 << 1 | 1 << 7 | 1 << 12 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::FLYING, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING1, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::FLYING, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::KING, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MIND_IMMUNITY, Bonus::CREATURE_ABILITY, 0, 0);
+	std::shared_ptr<Bonus> removed = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::MIND_IMMUNITY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 	creatureBonuses.addNewBonus(removed);
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_MORALE, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::UNDEAD, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MORALE, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::UNDEAD, BonusSource::CREATURE_ABILITY, 0, 0));
 
-	std::shared_ptr<Bonus> added = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_MELEE_PENALTY, Bonus::CREATURE_ABILITY, 0, 0);
+	std::shared_ptr<Bonus> added = std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MELEE_PENALTY, BonusSource::CREATURE_ABILITY, 0, 0);
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
 
-	EXPECT_CALL(oldCreature, accessBonuses()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
+	EXPECT_CALL(oldCreature, getBonusBearer()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
 
 	EXPECT_CALL(serverMock, apply(Matcher<CPackForClient *>(_))).WillOnce(Invoke(this, &ERM_MA::onCommit));
 
@@ -259,20 +259,20 @@ TEST_F(ERM_MA, Bonuses)
 
 TEST_F(ERM_MA, BonusesNoChanges)
 {
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::DESTRUCTION, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::DESTRUCTION, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	const int32_t FLAG_MASK = 394370;
 
 	static_assert(FLAG_MASK == (1 << 1 | 1 << 7 | 1 << 10 | 1 << 17 | 1 << 18), "Wrong flag mask meaning");
 
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::FLYING, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::KING1, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MIND_IMMUNITY, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_MORALE, Bonus::CREATURE_ABILITY, 0, 0));
-	creatureBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::UNDEAD, Bonus::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::FLYING, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::KING, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::MIND_IMMUNITY, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, Bonus::NO_MORALE, BonusSource::CREATURE_ABILITY, 0, 0));
+	creatureBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::UNDEAD, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	EXPECT_CALL(oldCreature, isDoubleWide()).WillRepeatedly(Return(false));
-	EXPECT_CALL(oldCreature, accessBonuses()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
+	EXPECT_CALL(oldCreature, getBonusBearer()).Times(AtLeast(1)).WillRepeatedly(Return(&creatureBonuses));
 	EXPECT_CALL(serverMock, apply(Matcher<CPackForClient *>(_))).Times(0);
 
 	std::stringstream source;

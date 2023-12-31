@@ -14,8 +14,8 @@
 
 #if BOOST_VERSION >= 107000  // Boost version >= 1.70
 #include <boost/asio.hpp>
-typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp > TSocket;
-typedef boost::asio::basic_socket_acceptor < boost::asio::ip::tcp > TAcceptor;
+using TSocket = boost::asio::basic_stream_socket<boost::asio::ip::tcp>;
+using TAcceptor = boost::asio::basic_socket_acceptor<boost::asio::ip::tcp>;
 #else
 namespace boost
 {
@@ -52,6 +52,7 @@ typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::so
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CPack;
+struct ConnectionBuffers;
 
 /// Main class for network communication
 /// Allows establishing connection and bidirectional read-write
@@ -63,8 +64,14 @@ class DLL_LINKAGE CConnection
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;
+	void flushBuffers();
 
 	std::shared_ptr<boost::asio::io_service> io_service; //can be empty if connection made from socket
+
+	bool enableBufferedWrite;
+	bool enableBufferedRead;
+	std::unique_ptr<ConnectionBuffers> connectionBuffers;
+
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
@@ -81,8 +88,8 @@ public:
 	int connectionID;
 	std::shared_ptr<boost::thread> handler;
 
-	CConnection(std::string host, ui16 port, std::string Name, std::string UUID);
-	CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<boost::asio::io_service> Io_service, std::string Name, std::string UUID);
+	CConnection(const std::string & host, ui16 port, std::string Name, std::string UUID);
+	CConnection(const std::shared_ptr<TAcceptor> & acceptor, const std::shared_ptr<boost::asio::io_service> & Io_service, std::string Name, std::string UUID);
 	CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID); //use immediately after accepting connection into socket
 
 	void close();

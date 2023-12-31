@@ -1,61 +1,30 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object format",
 	"description" : "Description of map object class",
-	"required": [ "handler", "name" ],
+	"required" : [ "name", "handler" ],
 	"additionalProperties" : false,
 
-	"properties":{
-		"index": {
-			"type":"number"
+	"properties" : {
+		"name" : {
+			"type" : "string"
 		},
-		"name": {
-			"type":"string"
+		"index" : {
+			"type" : "number"
 		},
-		"defaultAiValue": {
-			"type":"number"
+		"lastReservedIndex" : {
+			"type" : "number"
 		},
-
-		"handler": {
-			"type":"string"
+		"handler" : {
+			"type" : "string"
 		},
-
-		"sounds": {
-			"type":"object",
-			"additionalProperties" : false,
-			"description": "Sounds used by this object",
-			"properties" : {
-				"ambient": {
-					"type":"array",
-					"description": "Background sound of an object",
-					"items": {
-						"type": "string"
-					}
-				},
-				"visit": {
-					"type":"array",
-					"description": "Sound that played on object visit",
-					"items": {
-						"type": "string"
-					}
-				},
-				"removal": {
-					"type":"array",
-					"description": "Sound that played on object removal",
-					"items": {
-						"type": "string"
-					}
-				}
-			}
-		},
-
-		"base": {
+		"base" : {
 			"type" : "object"
 		},
-		"types": {
-			"type":"object",
-			"additionalProperties": {
+		"types" : {
+			"type" : "object",
+			"additionalProperties" : {
 				"$ref" : "objectType.json"
 			}
 		}

@@ -2,6 +2,7 @@
 	"creatureBank" : {
 		"index" :16,
 		"handler": "bank",
+		"lastReservedIndex" : 6,
 		"base" : {
 			"sounds" : {
 				"visit" : ["ROGUE"]
@@ -639,6 +640,8 @@
 			"shipwreck" : {
 				"index" : 0,
 				"resetDuration" : 0,
+				"blockedVisitable" : true,
+				"coastVisitable" : true,
 				"name" : "Shipwreck",
 				"aiValue" : 2000,
 				"rmg" : {
@@ -731,6 +734,7 @@
 			"derelictShip" : {
 				"index" : 0,
 				"resetDuration" : 0,
+				"blockedVisitable" : true,
 				"name" : "Derelict Ship",
 				"aiValue" : 4000,
 				"rmg" : {
@@ -1051,9 +1055,8 @@
 					{
 						"chance": 100,
 						"guards": [
-							{ "amount": 20, "type": "goldGolem" },
+							{ "amount": 40, "type": "goldGolem" },
 							{ "amount": 10, "type": "diamondGolem" },
-							{ "amount": 20, "type": "goldGolem" },
 							{ "amount": 10, "type": "diamondGolem" }
 						],
 						"combat_value": 786,

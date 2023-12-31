@@ -12,26 +12,27 @@
 #include "StdInc.h"
 #include "maphandler.h"
 #include "graphics.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/RiverHandler.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/CModHandler.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/GameConstants.h"
 #include "../lib/JsonDetail.h"
 
 const int tileSize = 32;
 
-static bool objectBlitOrderSorter(const TileObject & a, const TileObject & b)
+static bool objectBlitOrderSorter(const ObjectRect & a, const ObjectRect & b)
 {
 	return MapHandler::compareObjectBlitOrder(a.obj, b.obj);
 }
 
 int MapHandler::index(int x, int y, int z) const
 {
-	return z * (sizes.x * sizes.y) + y * sizes.x + x;
+	return z * (map->width * map->height) + y * map->width + x;
 }
 
 int MapHandler::index(const int3 & p) const
@@ -47,14 +48,7 @@ MapHandler::MapHandler()
 
 void MapHandler::reset(const CMap * Map)
 {
-	ttiles.clear();
 	map = Map;
-	
-	//sizes of terrain
-	sizes.x = map->width;
-	sizes.y = map->height;
-	sizes.z = map->twoLevel ? 2 : 1;
-	
 	initObjectRects();
 	logGlobal->info("\tMaking object rects");
 }
@@ -65,7 +59,7 @@ void MapHandler::initTerrainGraphics()
 	{
 		for(auto & type : files)
 		{
-			animation[type.first] = make_unique<Animation>(type.second);
+			animation[type.first] = std::make_unique<Animation>(type.second);
 			animation[type.first]->preload();
 			const size_t views = animation[type.first]->size(0);
 			cache[type.first].resize(views);
@@ -78,17 +72,17 @@ void MapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> roadFiles;
 	std::map<std::string, std::string> riverFiles;
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain.name] = terrain.tilesFilename;
+		terrainFiles[terrain->getJsonKey()] = terrain->tilesFilename.getName();
 	}
-	for(const auto & river : VLC->terrainTypeHandler->rivers())
+	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
-		riverFiles[river.fileName] = river.fileName;
+		riverFiles[river->getJsonKey()] = river->tilesFilename.getName();
 	}
-	for(const auto & road : VLC->terrainTypeHandler->roads())
+	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
-		roadFiles[road.fileName] = road.fileName;
+		roadFiles[road->getJsonKey()] = road->tilesFilename.getName();
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
@@ -101,8 +95,7 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	//TODO: use ui8 instead of string key
-	auto terrainName = tinfo.terType->name;
+	auto terrainName = tinfo.terType->getJsonKey();
 	
 	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
@@ -116,9 +109,9 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
 	
-	if(tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
+	if(tinfoUpper && tinfoUpper->roadType)
 	{
-		auto roadName = tinfoUpper->roadType->fileName;
+		auto roadName = tinfoUpper->roadType->getJsonKey();
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
@@ -128,9 +121,9 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 		}
 	}
 	
-	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
+	if(tinfo.roadType) //print road from this tile
 	{
-		auto roadName = tinfo.roadType->fileName;
+		auto roadName = tinfo.roadType->getJsonKey();;
 		QRect source(0, 0, tileSize, tileSize / 2);
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
@@ -145,11 +138,11 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 {
 	auto & tinfo = map->getTile(int3(x, y, z));
 
-	if(tinfo.riverType->id == River::NO_RIVER)
+	if(tinfo.riverType->getId() == River::NO_RIVER)
 		return;
 	
 	//TODO: use ui8 instead of string key
-	auto riverName = tinfo.riverType->fileName;
+	auto riverName = tinfo.riverType->getJsonKey();
 
 	if(riverImages.at(riverName).size() <= tinfo.riverDir)
 		return;
@@ -176,67 +169,101 @@ void setPlayerColor(QImage * sur, PlayerColor player)
 		logGlobal->warn("Warning, setPlayerColor called on not 8bpp surface!");
 }
 
-void MapHandler::initObjectRects()
+std::shared_ptr<QImage> MapHandler::getObjectImage(const CGObjectInstance * obj)
 {
-	ttiles.resize(sizes.x * sizes.y * sizes.z);
-	
-	//initializing objects / rects
-	for(const CGObjectInstance * elem : map->objects)
+	if(	!obj
+	   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
+	   || (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
 	{
-		CGObjectInstance *obj = const_cast<CGObjectInstance *>(elem);
-		if(	!obj
-		   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-		   || (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
+		return nullptr;
+	}
+	
+	std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
+	
+	//no animation at all
+	if(!animation)
+		return nullptr;
+	
+	//empty animation
+	if(animation->size(0) == 0)
+		return nullptr;
+	
+	auto image = animation->getImage(0, obj->ID == Obj::HERO ? 2 : 0);
+	if(!image)
+	{
+		//workaround for prisons
+		image = animation->getImage(0, 0);
+	}
+	
+	return image;
+}
+
+std::set<int3> MapHandler::removeObject(const CGObjectInstance *object)
+{
+	std::set<int3> result = tilesCache[object];
+	for(auto & t : result)
+	{
+		auto & objects = getObjects(t);
+		for(auto iter = objects.begin(); iter != objects.end(); ++iter)
 		{
-			continue;
-		}
-		
-		std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
-		
-		//no animation at all
-		if(!animation)
-			continue;
-		
-		//empty animation
-		if(animation->size(0) == 0)
-			continue;
-		
-		auto image = animation->getImage(0, obj->ID == Obj::HERO ? 2 : 0);
-		if(!image)
-		{
-			//workaround for prisons
-			image = animation->getImage(0, 0);
-			if(!image)
-				continue;
-		}
-			
-		
-		for(int fx=0; fx < obj->getWidth(); ++fx)
-		{
-			for(int fy=0; fy < obj->getHeight(); ++fy)
+			if(iter->obj == object)
 			{
-				int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-				QRect cr(image->width() - fx * tileSize - tileSize,
-						 image->height() - fy * tileSize - tileSize,
-						 image->width(),
-						 image->height());
-				
-				TileObject toAdd(obj, cr);
-				
-				if( map->isInTheMap(currTile) && // within map
-				   cr.x() + cr.width() > 0 &&           // image has data on this tile
-				   cr.y() + cr.height() > 0)
-				{
-					ttiles[index(currTile)].push_back(toAdd);
-				}
+				objects.erase(iter);
+				break;
 			}
 		}
 	}
 	
-	for(auto & tt : ttiles)
+	tilesCache.erase(object);
+	return result;
+}
+
+std::set<int3> MapHandler::addObject(const CGObjectInstance * object)
+{
+	auto image = getObjectImage(object);
+	if(!image)
+		return std::set<int3>{};
+	
+	for(int fx = 0; fx < object->getWidth(); ++fx)
 	{
-		stable_sort(tt.begin(), tt.end(), objectBlitOrderSorter);
+		for(int fy = 0; fy < object->getHeight(); ++fy)
+		{
+			int3 currTile(object->pos.x - fx, object->pos.y - fy, object->pos.z);
+			QRect cr(image->width() - fx * tileSize - tileSize,
+					 image->height() - fy * tileSize - tileSize,
+					 tileSize,
+					 tileSize);
+							
+			if( map->isInTheMap(currTile) && // within map
+			   cr.x() + cr.width() > 0 &&    // image has data on this tile
+			   cr.y() + cr.height() > 0)
+			{
+				getObjects(currTile).emplace_back(object, cr);
+				tilesCache[object].insert(currTile);
+			}
+		}
 	}
+	
+	return tilesCache[object];
+}
+
+void MapHandler::initObjectRects()
+{
+	tileObjects.clear();
+	tilesCache.clear();
+	if(!map)
+		return;
+	
+	tileObjects.resize(map->width * map->height * (map->twoLevel ? 2 : 1));
+	
+	//initializing objects / rects
+	for(const CGObjectInstance * elem : map->objects)
+	{
+		addObject(elem);
+	}
+	
+	for(auto & tt : tileObjects)
+		stable_sort(tt.begin(), tt.end(), objectBlitOrderSorter);
 }
 
 bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
@@ -265,13 +292,13 @@ bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObje
 	return false;
 }
 
-TileObject::TileObject(CGObjectInstance * obj_, QRect rect_)
+ObjectRect::ObjectRect(const CGObjectInstance * obj_, QRect rect_)
 : obj(obj_),
 rect(rect_)
 {
 }
 
-TileObject::~TileObject()
+ObjectRect::~ObjectRect()
 {
 }
 
@@ -280,7 +307,7 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, 
 	if(!hero || hero->boat)
 		return std::shared_ptr<QImage>();
 	
-	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, !hero->isStanding);
+	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, true);
 }
 
 std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const
@@ -295,35 +322,43 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Anima
 		return animation->getImage((anim / 4) % groupSize, group);
 }
 
-MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance * obj, int anim, int group) const
+MapHandler::BitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance * obj, int anim, int group) const
 {
 	if(!obj)
-		return MapHandler::AnimBitmapHolder();
+		return MapHandler::BitmapHolder();
 
 	// normal object
 	std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
 	size_t groupSize = animation->size(group);
 	if(groupSize == 0)
-		return MapHandler::AnimBitmapHolder();
+		return MapHandler::BitmapHolder();
 	
 	animation->playerColored(obj->tempOwner);
 	auto bitmap = animation->getImage(anim % groupSize, group);
 	
 	if(!bitmap)
-		return MapHandler::AnimBitmapHolder();
+		return MapHandler::BitmapHolder();
 
 	setPlayerColor(bitmap.get(), obj->tempOwner);
 	
-	return MapHandler::AnimBitmapHolder(bitmap);
+	return MapHandler::BitmapHolder(bitmap);
 }
 
-std::vector<TileObject> & MapHandler::getObjects(int x, int y, int z)
+std::vector<ObjectRect> & MapHandler::getObjects(const int3 & tile)
 {
-	return ttiles[index(x, y, z)];
+	return tileObjects[index(tile)];
 }
 
-void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
+std::vector<ObjectRect> & MapHandler::getObjects(int x, int y, int z)
 {
+	return tileObjects[index(x, y, z)];
+}
+
+void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std::set<const CGObjectInstance *> & locked)
+{
+	painter.setRenderHint(QPainter::Antialiasing, false);
+	painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
+
 	for(auto & object : getObjects(x, y, z))
 	{
 		const CGObjectInstance * obj = object.obj;
@@ -343,8 +378,15 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 		{
 			auto pos = obj->getPosition();
 
-			painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.objBitmap, object.rect);
-			
+			painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.objBitmap, object.rect, Qt::AutoColor | Qt::NoOpaqueDetection);
+
+			if(locked.count(obj))
+			{
+				painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+				painter.fillRect(x * tileSize, y * tileSize, object.rect.width(), object.rect.height(), Qt::Dense4Pattern);
+				painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+			}
+
 			if(objData.flagBitmap)
 			{
 				if(x == pos.x && y == pos.y)
@@ -353,36 +395,6 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 		}
 	}
 }
-
-void MapHandler::drawObject(QPainter & painter, const TileObject & object)
-{
-	const CGObjectInstance * obj = object.obj;
-	if (!obj)
-	{
-		logGlobal->error("Stray map object that isn't fading");
-		return;
-	}
-
-	uint8_t animationFrame = 0;
-
-	auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
-	if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
-		objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 0);
-	
-	if (objData.objBitmap)
-	{
-		auto pos = obj->getPosition();
-
-		painter.drawImage(pos.x * tileSize - object.rect.x(), pos.y * tileSize - object.rect.y(), *objData.objBitmap);
-		
-		if (objData.flagBitmap)
-		{
-			if(object.rect.x() == pos.x && object.rect.y() == pos.y)
-				painter.drawImage(pos.x * tileSize - object.rect.x(), pos.y * tileSize - object.rect.y(), *objData.flagBitmap);
-		}
-	}
-}
-
 
 void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y)
 {
@@ -400,10 +412,10 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 	
 	if (objData.objBitmap)
 	{
-		painter.drawImage(QPoint((x + 1) * 32 - objData.objBitmap->width(), (y + 1) * 32 - objData.objBitmap->height()), *objData.objBitmap);
+		painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width(), (y + 1) * tileSize - objData.objBitmap->height()), *objData.objBitmap);
 		
 		if (objData.flagBitmap)
-			painter.drawImage(QPoint((x + 1) * 32 - objData.objBitmap->width(), (y + 1) * 32 - objData.objBitmap->height()), *objData.flagBitmap);
+			painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width(), (y + 1) * tileSize - objData.objBitmap->height()), *objData.flagBitmap);
 	}
 }
 
@@ -419,7 +431,7 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 		if(player == PlayerColor::NEUTRAL)
 			return graphics->neutralColor;
 		else
-			if (player < PlayerColor::PLAYER_LIMIT)
+			if (player.isValidPlayer())
 				return graphics->playerColors[player.getNum()];
 	}
 	
@@ -431,7 +443,7 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 	if (tile.blocked && (!tile.visitable))
 		color = tile.terType->minimapBlocked;
 	
-	return qRgb(color[0], color[1], color[2]);
+	return qRgb(color.r, color.g, color.b);
 }
 
 void MapHandler::drawMinimapTile(QPainter & painter, int x, int y, int z)
@@ -440,107 +452,19 @@ void MapHandler::drawMinimapTile(QPainter & painter, int x, int y, int z)
 	painter.drawPoint(x, y);
 }
 
-void MapHandler::invalidate(int x, int y, int z)
+std::set<int3> MapHandler::invalidate(const CGObjectInstance * obj)
 {
-	auto & objects = getObjects(x, y, z);
+	auto t1 = removeObject(obj);
+	auto t2 = addObject(obj);
+	t1.insert(t2.begin(), t2.end());
 	
-	for(auto obj = objects.begin(); obj != objects.end();)
-	{
-		//object was removed
-		if(std::find(map->objects.begin(), map->objects.end(), obj->obj) == map->objects.end())
-		{
-			obj = objects.erase(obj);
-			continue;
-		}
-			
-		//object was moved
-		auto & pos = obj->obj->pos;
-		if(pos.z != z || pos.x < x || pos.y < y || pos.x - obj->obj->getWidth() >= x || pos.y - obj->obj->getHeight() >= y)
-		{
-			obj = objects.erase(obj);
-			continue;
-		}
-		
-		++obj;
-	}
+	for(auto & tt : t2)
+		stable_sort(tileObjects[index(tt)].begin(), tileObjects[index(tt)].end(), objectBlitOrderSorter);
 	
-	stable_sort(objects.begin(), objects.end(), objectBlitOrderSorter);
-}
-
-void MapHandler::invalidate(CGObjectInstance * obj)
-{
-	std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
-		
-	//no animation at all or empty animation
-	if(!animation || animation->size(0) == 0)
-		return;
-		
-	auto image = animation->getImage(0, obj->ID == Obj::HERO ? 2 : 0);
-	if(!image)
-		return;
-	
-	for(int fx=0; fx < obj->getWidth(); ++fx)
-	{
-		for(int fy=0; fy < obj->getHeight(); ++fy)
-		{
-			//object presented on the tile
-			int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-			QRect cr(image->width() - fx * tileSize - tileSize, image->height() - fy * tileSize - tileSize, image->width(), image->height());
-			
-			if( map->isInTheMap(currTile) && // within map
-			   cr.x() + cr.width() > 0 &&           // image has data on this tile
-			   cr.y() + cr.height() > 0)
-			{
-				auto & objects = ttiles[index(currTile)];
-				bool found = false;
-				for(auto & o : objects)
-				{
-					if(o.obj == obj)
-					{
-						o.rect = cr;
-						found = true;
-						break;
-					}
-				}
-				if(!found)
-					objects.emplace_back(obj, cr);
-				
-				stable_sort(objects.begin(), objects.end(), objectBlitOrderSorter);
-			}
-		}
-	}
-}
-
-std::vector<int3> MapHandler::getTilesUnderObject(CGObjectInstance * obj) const
-{
-	std::vector<int3> result;
-	for(int fx=0; fx < obj->getWidth(); ++fx)
-	{
-		for(int fy=0; fy < obj->getHeight(); ++fy)
-		{
-			//object presented on the tile
-			int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-			if(map->isInTheMap(currTile)) // within map
-			{
-				result.push_back(currTile);
-			}
-		}
-	}
-	return result;
+	return t1;
 }
 
 void MapHandler::invalidateObjects()
 {
-	for(auto obj : map->objects)
-	{
-		invalidate(obj);
-	}
-}
-
-void MapHandler::invalidate(const std::vector<int3> & tiles)
-{
-	for(auto & currTile : tiles)
-	{
-		invalidate(currTile.x, currTile.y, currTile.z);
-	}
+	initObjectRects();
 }

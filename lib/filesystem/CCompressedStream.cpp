@@ -26,7 +26,7 @@ si64 CBufferedStream::read(ui8 * data, si64 size)
 {
 	ensureSize(position + size);
 
-	auto start = buffer.data() + position;
+	auto * start = buffer.data() + position;
 	si64 toRead = std::min<si64>(size, buffer.size() - position);
 
 	std::copy(start, start + toRead, data);
@@ -62,7 +62,7 @@ si64 CBufferedStream::getSize()
 
 void CBufferedStream::ensureSize(si64 size)
 {
-	while ((si64)buffer.size() < size && !endOfFileReached)
+	while(static_cast<si64>(buffer.size()) < size && !endOfFileReached)
 	{
 		si64 initialSize = buffer.size();
 		si64 currentStep = std::min<si64>(size, buffer.size());
@@ -127,7 +127,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 
 	int decompressed = inflateState->total_out;
 
-	inflateState->avail_out = (uInt)size;
+	inflateState->avail_out = static_cast<uInt>(size);
 	inflateState->next_out = data;
 
 	do
@@ -140,7 +140,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 			if (availSize != compressedBuffer.size())
 				gzipStream.reset();
 
-			inflateState->avail_in = (uInt)availSize;
+			inflateState->avail_in = static_cast<uInt>(availSize);
 			inflateState->next_in  = compressedBuffer.data();
 		}
 
@@ -162,7 +162,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 			break;
 		default:
 			if (inflateState->msg == nullptr)
-				throw std::runtime_error("Decompression error. Return code was " + boost::lexical_cast<std::string>(ret));
+				throw std::runtime_error("Decompression error. Return code was " + std::to_string(ret));
 			else
 				throw std::runtime_error(std::string("Decompression error: ") + inflateState->msg);
 		}

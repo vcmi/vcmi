@@ -10,44 +10,61 @@
 #include "StdInc.h"
 
 #include "CPlayerState.h"
-#include "CGameStateFwd.h"
+#include "gameState/QuestInfo.h"
+#include "CGeneralTextHandler.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerState::PlayerState()
- : color(-1), human(false), enteredWinningCheatCode(false),
+ : color(-1), human(false), cheated(false), enteredWinningCheatCode(false),
    enteredLosingCheatCode(false), status(EPlayerStatus::INGAME)
 {
 	setNodeType(PLAYER);
 }
 
-PlayerState::PlayerState(PlayerState && other):
-	CBonusSystemNode(std::move(other)),
-	color(other.color),
-	human(other.human),
-	team(other.team),
-	resources(other.resources),
-	enteredWinningCheatCode(other.enteredWinningCheatCode),
-	enteredLosingCheatCode(other.enteredLosingCheatCode),
-	status(other.status),
-	daysWithoutCastle(other.daysWithoutCastle)
-{
-	std::swap(visitedObjects, other.visitedObjects);
-	std::swap(heroes, other.heroes);
-	std::swap(towns, other.towns);
-	std::swap(availableHeroes, other.availableHeroes);
-	std::swap(dwellings, other.dwellings);
-	std::swap(quests, other.quests);
-}
+PlayerState::PlayerState(PlayerState && other) noexcept = default;
+
+PlayerState::~PlayerState() = default;
 
 std::string PlayerState::nodeName() const
 {
-	return "Player " + color.getStrCap(false);
+	return "Player " + color.toString();
 }
 
-PlayerColor PlayerState::getColor() const
+PlayerColor PlayerState::getId() const
 {
 	return color;
+}
+
+int32_t PlayerState::getIndex() const
+{
+	return color.getNum();
+}
+
+int32_t PlayerState::getIconIndex() const 
+{
+	return color.getNum();
+}
+
+std::string PlayerState::getJsonKey() const
+{
+	return color.toString();
+}
+
+std::string PlayerState::getNameTranslated() const
+{
+	return VLC->generaltexth->translate(getNameTextID());
+}
+
+std::string PlayerState::getNameTextID() const
+{
+	return TextIdentifier("core.plcolors", color.getNum()).get();
+}
+
+void PlayerState::registerIcons(const IconRegistar & cb) const
+{
+	//We cannot register new icons for players
 }
 
 TeamID PlayerState::getTeam() const
@@ -60,7 +77,7 @@ bool PlayerState::isHuman() const
 	return human;
 }
 
-const IBonusBearer * PlayerState::accessBonuses() const
+const IBonusBearer * PlayerState::getBonusBearer() const
 {
 	return this;
 }

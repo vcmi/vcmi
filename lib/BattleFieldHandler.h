@@ -11,11 +11,11 @@
 
 #include <vcmi/EntityService.h>
 #include <vcmi/Entity.h>
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
-#include "Terrain.h"
 #include "battle/BattleHex.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +25,7 @@ public:
 	BattleField battlefield;
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	bool isSpecial;
-	std::string graphics;
+	ImagePath graphics;
 	std::string name;
 	std::string identifier;
 	std::string icon;
@@ -37,30 +37,22 @@ public:
 	{
 	}
 
-	BattleFieldInfo(BattleField battlefield, std::string identifier)
-		:bonuses(), isSpecial(false), battlefield(battlefield), identifier(identifier), graphics(), icon(), iconIndex(battlefield.getNum()), impassableHexes(), name(identifier)
+	BattleFieldInfo(BattleField battlefield, std::string identifier):
+		isSpecial(false),
+		battlefield(battlefield),
+		identifier(identifier),
+		iconIndex(battlefield.getNum()),
+		name(identifier)
 	{
 	}
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
-	const std::string & getName() const override;
-	const std::string & getJsonKey() const override;
+	std::string getJsonKey() const override;
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	BattleField getId() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & name;
-		h & identifier;
-		h & isSpecial;
-		h & graphics;
-		h & icon;
-		h & iconIndex;
-		h & battlefield;
-		h & impassableHexes;
-
-	}
 };
 
 class DLL_LINKAGE BattleFieldService : public EntityServiceT<BattleField, BattleFieldInfo>
@@ -78,13 +70,7 @@ public:
 		size_t index) override;
 
 	virtual const std::vector<std::string> & getTypeNames() const override;
-	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
-	virtual std::vector<bool> getDefaultAllowed() const override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & objects;
-	}
+	virtual std::vector<JsonNode> loadLegacyData() override;
 };
 
 VCMI_LIB_NAMESPACE_END

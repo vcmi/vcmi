@@ -12,6 +12,7 @@
 #include "SetResources.h"
 
 #include "../../LuaStack.h"
+#include "../../../../lib/networkPacks/PacksForClient.h"
 
 #include "../Registry.h"
 
@@ -102,7 +103,7 @@ int SetResourcesProxy::getAmount(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	Res::ERes type = Res::ERes::INVALID;
+	auto type = EGameResID::NONE;
 
 	if(!S.tryGet(2, type))
 		return S.retVoid();
@@ -122,7 +123,7 @@ int SetResourcesProxy::setAmount(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	Res::ERes type = Res::ERes::INVALID;
+	auto type = EGameResID::NONE;
 
 	if(!S.tryGet(2, type))
 		return S.retVoid();
@@ -137,7 +138,7 @@ int SetResourcesProxy::setAmount(lua_State * L)
 	if(!S.tryGet(3, amount))
 		return S.retVoid();
 
-	object->res.at(typeIdx) = amount;
+	object->res[typeIdx] = amount;
 
 	return S.retVoid();
 }

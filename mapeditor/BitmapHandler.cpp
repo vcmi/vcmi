@@ -14,6 +14,7 @@
 #include "BitmapHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/vcmi_endian.h"
 
 #include <QBitmap>
 #include <QImage>
@@ -41,8 +42,6 @@ namespace BitmapHandler
 
 	QImage loadH3PCX(ui8 * pcx, size_t size)
 	{
-		//SDL_Surface * ret;
-		
 		Epcxformat format;
 		int it = 0;
 		
@@ -63,7 +62,7 @@ namespace BitmapHandler
 		{
 			it = 0xC;
 			//auto bitmap = QBitmap::fromData(qsize, pcx + it);
-			QImage image(pcx + it, width, height, QImage::Format_Indexed8);
+			QImage image(pcx + it, width, height, width, QImage::Format_Indexed8);
 			
 			//palette - last 256*3 bytes
 			QVector<QRgb> colorTable;
@@ -81,7 +80,7 @@ namespace BitmapHandler
 		}
 		else
 		{
-			QImage image(pcx + it, width, height, QImage::Format_RGB32);
+			QImage image(pcx + it, width, height, width * 3, QImage::Format_RGB888);
 			return image;
 		}
 	}
@@ -93,13 +92,13 @@ namespace BitmapHandler
 			logGlobal->warn("Call to loadBitmap with void fname!");
 			return QImage();
 		}
-		if(!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
+		if(!CResourceHandler::get()->existsResource(ResourcePath(path + fname, EResType::IMAGE)))
 		{
 			return QImage();
 		}
 		
-		auto fullpath = CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE));
-		auto readFile = CResourceHandler::get()->load(ResourceID(path + fname, EResType::IMAGE))->readAll();
+		auto fullpath = CResourceHandler::get()->getResourceName(ResourcePath(path + fname, EResType::IMAGE));
+		auto readFile = CResourceHandler::get()->load(ResourcePath(path + fname, EResType::IMAGE))->readAll();
 		
 		if(isPCX(readFile.first.get()))
 		{//H3-style PCX
@@ -117,7 +116,7 @@ namespace BitmapHandler
 			{
 				logGlobal->error("Failed to open %s as H3 PCX!", fname);
 			}
-			return image;
+			return image.copy(); //copy must be returned here because buffer readFile.first used to build QImage will be cleaned after this line
 		}
 		else
 		{ //loading via QImage
@@ -132,6 +131,7 @@ namespace BitmapHandler
 						c = qRgb(qRed(c), qGreen(c), qBlue(c));
 					image.setColorTable(colorTable);
 				}
+				return image;
 			}
 			else
 			{

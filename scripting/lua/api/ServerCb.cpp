@@ -14,7 +14,7 @@
 #include "Registry.h"
 
 #include "../LuaStack.h"
-#include "../../../lib/NetPacks.h"
+#include "../../../lib/networkPacks/PacksForClientBattle.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -72,7 +72,7 @@ int ServerCbProxy::commitPackage(lua_State * L)
 		return S.retVoid();
 
 
-	CPackForClient * pack = static_cast<CPackForClient *>(lua_touserdata(L, 1));
+	auto * pack = static_cast<CPackForClient *>(lua_touserdata(L, 1));
 
 	object->apply(pack);
 

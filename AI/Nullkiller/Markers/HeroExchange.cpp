@@ -17,9 +17,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 using namespace Goals;
 
 bool HeroExchange::operator==(const HeroExchange & other) const
@@ -29,7 +26,7 @@ bool HeroExchange::operator==(const HeroExchange & other) const
 
 std::string HeroExchange::toString() const
 {
-	return "Hero exchange " + exchangePath.toString();
+	return "Hero exchange for " +hero.get()->getObjectName() + " by " + exchangePath.toString();
 }
 
 uint64_t HeroExchange::getReinforcementArmyStrength() const

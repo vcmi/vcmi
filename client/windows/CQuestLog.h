@@ -9,10 +9,10 @@
  */
 #pragma once
 
-#include "../widgets/AdventureMapClasses.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
+#include "../adventureMap/CMinimap.h"
 #include "CWindowObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -43,10 +43,10 @@ class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 public:
 	std::function<void()> callback;
 
-	CQuestLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
-		: CMultiLineLabel (position, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
-	void clickLeft(tribool down, bool previousState) override;
-	void showAll(SDL_Surface * to) override;
+	CQuestLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA &Color = Colors::WHITE, const std::string &Text =  "")
+		: CMultiLineLabel (position, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, Text){};
+	void clickPressed(const Point & cursorPosition) override;
+	void showAll(Canvas & to) override;
 };
 
 class CQuestIcon : public CAnimImage
@@ -54,19 +54,19 @@ class CQuestIcon : public CAnimImage
 public:
 	std::function<void()> callback; //TODO: merge with other similar classes?
 
-	CQuestIcon(const std::string &defname, int index, int x=0, int y=0);
+	CQuestIcon(const AnimationPath & defname, int index, int x=0, int y=0);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void showAll(SDL_Surface * to) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showAll(Canvas & to) override;
 };
 
 class CQuestMinimap : public CMinimap
 {
 	std::vector<std::shared_ptr<CQuestIcon>> icons;
 
-	void clickLeft(tribool down, bool previousState) override{}; //minimap ignores clicking on its surface
+	void clickPressed(const Point & cursorPosition) override{}; //minimap ignores clicking on its surface
 	void iconClicked();
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override{};
+	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override{};
 
 public:
 	const QuestInfo * currentQuest;
@@ -76,7 +76,7 @@ public:
 	void update();
 	void addQuestMarks (const QuestInfo * q);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 
 class CQuestLog : public CWindowObject
@@ -107,5 +107,5 @@ public:
 	void recreateLabelList();
 	void recreateQuestList (int pos);
 	void toggleComplete(bool on);
-	void showAll (SDL_Surface * to) override;
+	void showAll (Canvas & to) override;
 };

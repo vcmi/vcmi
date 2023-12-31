@@ -1,8 +1,4 @@
 {
-  // By default visitable objects only have ambient sound source on visitable tile
-  // Static objects and special terrains that have ambient sound have source on all tiles
-  // If set to true then all tiles will become source for visitable objects
-  "allTilesSource": false,
   // By default SDL2_Mixer allocate 8 channels, but more sounds require more channels
   "allocateChannels" : 16,
   // Maximal ambient sounds volume must be about 20% of global effects volume

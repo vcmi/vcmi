@@ -130,7 +130,9 @@ namespace AIPathfinding
 		auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
 		QuestAction questAction(questInfo);
 
-		if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->missionType == CQuest::MISSION_NONE)
+		if(destination.nodeObject->ID == Obj::QUEST_GUARD
+		   && questObj->quest->mission == Rewardable::Limiter{}
+		   && questObj->quest->killTarget == ObjectInstanceID::NONE)
 		{
 			return false;
 		}
@@ -139,17 +141,17 @@ namespace AIPathfinding
 		{
 			if(!destinationNode->actor->allowUseResources)
 			{
-				boost::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
+				std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
 					destination.coord,
 					destination.node->layer,
 					destinationNode->actor->resourceActor);
 
-				if(!questNode || questNode.get()->getCost() < destination.cost)
+				if(!questNode || questNode.value()->getCost() < destination.cost)
 				{
 					return false;
 				}
 
-				destination.node = questNode.get();
+				destination.node = questNode.value();
 
 				nodeStorage->commit(destination, source);
 				AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
@@ -157,7 +159,7 @@ namespace AIPathfinding
 
 			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
-				node->specialAction.reset(new QuestAction(questAction));
+				node->addSpecialAction(std::make_shared<QuestAction>(questAction));
 			});
 		}
 
@@ -259,7 +261,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		AIPathNode * battleNode = battleNodeOptional.get();
+		auto * battleNode = battleNodeOptional.value();
 
 		if(battleNode->locked)
 		{
@@ -279,6 +281,11 @@ namespace AIPathfinding
 
 		if(loss < actualArmyValue)
 		{
+			if(destNode->specialAction)
+			{
+				battleNode->specialAction = destNode->specialAction;
+			}
+
 			destination.node = battleNode;
 			nodeStorage->commit(destination, source);
 
@@ -288,7 +295,7 @@ namespace AIPathfinding
 
 			AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
 
-			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
+			battleNode->addSpecialAction(std::make_shared<BattleAction>(destination.coord));
 
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(

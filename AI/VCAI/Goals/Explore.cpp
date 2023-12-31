@@ -15,14 +15,8 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/CPlayerState.h"
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -43,14 +37,14 @@ namespace Goals
 
 		ExplorationHelper(HeroPtr h, bool gatherArmy)
 		{
-			cbp = cb.get();
-			aip = ai.get();
+			cbp = cb;
+			aip = ai;
 			hero = h;
 			ts = cbp->getPlayerTeam(ai->playerID);
 			sightRadius = hero->getSightRadius();
 			bestGoal = sptr(Goals::Invalid());
 			bestValue = 0;
-			ourPos = h->convertPosition(h->pos, false);
+			ourPos = h->visitablePos();
 			allowDeadEndCancellation = true;
 			allowGatherArmy = gatherArmy;
 		}
@@ -157,7 +151,7 @@ namespace Goals
 
 					// picking up resources does not yield any exploration at all.
 					// if it blocks the way to some explorable tile AIPathfinder will take care of it
-					if(obj && obj->blockVisit)
+					if(obj && obj->isBlockedVisitable())
 					{
 						continue;
 					}
@@ -240,7 +234,7 @@ bool Explore::operator==(const Explore & other) const
 
 std::string Explore::completeMessage() const
 {
-	return "Hero " + hero.get()->name + " completed exploration";
+	return "Hero " + hero.get()->getNameTranslated() + " completed exploration";
 }
 
 TSubgoal Explore::whatToDoToAchieve()
@@ -269,7 +263,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 			if(!ai->isAbleToExplore(h))
 				return true;
 
-			return !h->movement; //saves time, immobile heroes are useless anyway
+			return !h->movementPointsRemaining(); //saves time, immobile heroes are useless anyway
 		});
 	}
 
@@ -339,7 +333,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	{
 		for(auto h : heroes)
 		{
-			logAi->trace("Exploration searching for a new point for hero %s", h->name);
+			logAi->trace("Exploration searching for a new point for hero %s", h->getNameTranslated());
 
 			TSubgoal goal = explorationNewPoint(h);
 

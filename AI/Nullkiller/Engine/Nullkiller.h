@@ -18,13 +18,14 @@
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/HeroManager.h"
 #include "../Analyzers/ObjectClusterizer.h"
+#include "../Helpers/ArmyFormation.h"
 
 namespace NKAI
 {
 
 const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
-const float NEXT_SCAN_MIN_PRIORITY = 0.4f;
+const float SMALL_SCAN_MIN_PRIORITY = 0.4f;
 
 enum class HeroLockedReason
 {
@@ -39,11 +40,11 @@ enum class HeroLockedReason
 
 enum class ScanDepth
 {
-	SMALL = 0,
+	MAIN_FULL = 0,
 
-	MEDIUM = 1,
+	SMALL = 1,
 
-	FULL = 2
+	ALL_FULL = 2
 };
 
 class Nullkiller
@@ -51,6 +52,7 @@ class Nullkiller
 private:
 	const CGHeroInstance * activeHero;
 	int3 targetTile;
+	ObjectInstanceID targetObject;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
 	ScanDepth scanDepth;
 	TResources lockedResources;
@@ -68,6 +70,7 @@ public:
 	std::unique_ptr<AIMemory> memory;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::unique_ptr<DeepDecomposer> decomposer;
+	std::unique_ptr<ArmyFormation> armyFormation;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
 
@@ -79,14 +82,17 @@ public:
 	HeroPtr getActiveHero() { return activeHero; }
 	HeroLockedReason getHeroLockedReason(const CGHeroInstance * hero) const;
 	int3 getTargetTile() const { return targetTile; }
+	ObjectInstanceID getTargetObject() const { return targetObject; }
+	void setTargetObject(int objid) { targetObject = ObjectInstanceID(objid); }
 	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason) { lockedHeroes[hero] = lockReason; }
 	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
 	bool arePathHeroesLocked(const AIPath & path) const;
 	TResources getFreeResources() const;
-	int32_t getFreeGold() const { return getFreeResources()[Res::GOLD]; }
+	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);
 	const TResources & getLockedResources() const { return lockedResources; }
+	ScanDepth getScanDepth() const { return scanDepth; }
 
 private:
 	void resetAiState();

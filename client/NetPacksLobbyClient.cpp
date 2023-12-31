@@ -9,145 +9,171 @@
  */
 #include "StdInc.h"
 
+#include "LobbyClientNetPackVisitors.h"
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 
 #include "lobby/OptionsTab.h"
 #include "lobby/RandomMapTab.h"
+#include "lobby/TurnOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
 
 #include "CServerHandler.h"
 #include "CGameInfo.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/NetPacksLobby.h"
 #include "../lib/serializer/Connection.h"
 
-bool LobbyClientConnected::applyOnLobbyHandler(CServerHandler * handler)
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
+	result = false;
+
 	// Check if it's LobbyClientConnected for our client
-	if(uuid == handler->c->uuid)
+	if(pack.uuid == handler.c->uuid)
 	{
-		handler->c->connectionID = clientId;
-		if(!settings["session"]["headless"].Bool())
-			GH.pushIntT<CLobbyScreen>(static_cast<ESelectionScreen>(handler->screenType));
-		handler->state = EClientState::LOBBY;
-		return true;
+		handler.c->connectionID = pack.clientId;
+		if(handler.mapToStart)
+			handler.setMapInfo(handler.mapToStart);
+		else if(!settings["session"]["headless"].Bool())
+			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
+		handler.state = EClientState::LOBBY;
 	}
-	return false;
 }
 
-void LobbyClientConnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-}
-
-bool LobbyClientDisconnected::applyOnLobbyHandler(CServerHandler * handler)
-{
-	if(clientId != c->connectionID)
-		return false;
-
-	handler->stopServerConnection();
-	return true;
-}
-
-void LobbyClientDisconnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
-{
-	if(GH.listInt.size())
-		GH.popInts(1);
-}
-
-void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
-{
-	if(lobby)
+	if(pack.clientId != handler.c->connectionID)
 	{
-		lobby->card->chat->addNewMessage(playerName + ": " + message);
+		result = false;
+		return;
+	}
+
+	handler.stopServerConnection();
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
+{
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+		GH.windows().popWindow(w);
+	
+	if(GH.windows().count() > 0)
+		GH.windows().popWindows(1);
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
+{
+	if(lobby && lobby->card)
+	{
+		lobby->card->chat->addNewMessage(pack.playerName + ": " + pack.message);
 		lobby->card->setChat(true);
 		if(lobby->buttonChat)
-			lobby->buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
+			lobby->buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
 	}
 }
 
-void LobbyGuiAction::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack)
 {
-	if(!lobby || !handler->isGuest())
+	if(!lobby || !handler.isGuest())
 		return;
 
-	switch(action)
+	switch(pack.action)
 	{
-	case NO_TAB:
+	case LobbyGuiAction::NO_TAB:
 		lobby->toggleTab(lobby->curTab);
 		break;
-	case OPEN_OPTIONS:
+	case LobbyGuiAction::OPEN_OPTIONS:
 		lobby->toggleTab(lobby->tabOpt);
 		break;
-	case OPEN_SCENARIO_LIST:
+	case LobbyGuiAction::OPEN_SCENARIO_LIST:
 		lobby->toggleTab(lobby->tabSel);
 		break;
-	case OPEN_RANDOM_MAP_OPTIONS:
+	case LobbyGuiAction::OPEN_RANDOM_MAP_OPTIONS:
 		lobby->toggleTab(lobby->tabRand);
+		break;
+	case LobbyGuiAction::OPEN_TURN_OPTIONS:
+		lobby->toggleTab(lobby->tabTurnOptions);
 		break;
 	}
 }
 
-bool LobbyEndGame::applyOnLobbyHandler(CServerHandler * handler)
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 {
-	if(handler->state == EClientState::GAMEPLAY)
+	if(handler.state == EClientState::GAMEPLAY)
 	{
-		handler->endGameplay(closeConnection, restart);
+		handler.endGameplay(pack.closeConnection, pack.restart);
 	}
 	
-	if(restart)
-		handler->sendStartGame();
-	
-	return true;
-}
-
-bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
-{
-	if(clientId != -1 && clientId != handler->c->connectionID)
-		return false;
-	
-	handler->state = EClientState::STARTING;
-	if(handler->si->mode != StartInfo::LOAD_GAME || clientId == handler->c->connectionID)
+	if(pack.restart)
 	{
-		auto modeBackup = handler->si->mode;
-		handler->si = initializedStartInfo;
-		handler->si->mode = modeBackup;
+		if (handler.validateGameStart())
+			handler.sendStartGame();
 	}
-	if(settings["session"]["headless"].Bool())
-		handler->startGameplay(initializedGameState);
-	return true;
 }
 
-void LobbyStartGame::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(clientId != -1 && clientId != handler->c->connectionID)
+	if(pack.clientId != -1 && pack.clientId != handler.c->connectionID)
+	{
+		result = false;
 		return;
+	}
 	
-	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler, initializedGameState));
+	handler.state = EClientState::STARTING;
+	if(handler.si->mode != StartInfo::LOAD_GAME || pack.clientId == handler.c->connectionID)
+	{
+		auto modeBackup = handler.si->mode;
+		handler.si = pack.initializedStartInfo;
+		handler.si->mode = modeBackup;
+	}
+	handler.startGameplay(pack.initializedGameState);
 }
 
-bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	hostChanged = state.hostClientId != handler->hostClientId;
-	static_cast<LobbyState &>(*handler) = state;
-	return true;
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	{
+		w->finish();
+		w->tick(0);
+		w->redraw();
+	}
 }
 
-void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress & pack)
+{
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	{
+		w->set(pack.progress);
+		w->tick(0);
+		w->redraw();
+	}
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
+{
+	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
+	static_cast<LobbyState &>(handler) = pack.state;
+	if(handler.mapToStart && handler.mi)
+	{
+		handler.startMapAfterConnection(nullptr);
+		handler.sendStartGame();
+	}
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
 {
 	if(!lobby) //stub: ignore message for game mode
 		return;
 		
-	if(!lobby->bonusSel && handler->si->campState && handler->state == EClientState::LOBBY_CAMPAIGN)
+	if(!lobby->bonusSel && handler.si->campState && handler.state == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
-		GH.pushInt(lobby->bonusSel);
+		GH.windows().pushWindow(lobby->bonusSel);
 	}
 
 	if(lobby->bonusSel)
@@ -155,15 +181,15 @@ void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler *
 	else
 		lobby->updateAfterStateChange();
 
-	if(hostChanged)
-		lobby->toggleMode(handler->isHost());
+	if(pack.hostChanged)
+		lobby->toggleMode(handler.isHost());
 }
 
-void LobbyShowMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & pack)
 {
 	if(!lobby) //stub: ignore message for game mode
 		return;
 	
 	lobby->buttonStart->block(false);
-	handler->showServerError(message);
+	handler.showServerError(pack.message);
 }

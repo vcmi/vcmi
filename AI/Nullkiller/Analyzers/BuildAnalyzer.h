@@ -62,8 +62,11 @@ public:
 	HeroRole townRole;
 	bool hasSomethingToBuild;
 
-	TownDevelopmentInfo(const CGTownInstance* town)
-		:town(town), armyStrength(0), toBuild(), townDevelopmentCost(), requiredResources(), townRole(HeroRole::SCOUT), hasSomethingToBuild(false)
+	TownDevelopmentInfo(const CGTownInstance * town):
+		town(town),
+		armyStrength(0),
+		townRole(HeroRole::SCOUT),
+		hasSomethingToBuild(false)
 	{
 	}
 

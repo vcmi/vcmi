@@ -10,40 +10,43 @@
 #include "StdInc.h"
 #include "InfoWindows.h"
 
-#include "CAdvmapInterface.h"
-
-#include "../CBitmapHandler.h"
-#include "../Graphics.h"
 #include "../CGameInfo.h"
+#include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
-#include "../CMessage.h"
 #include "../CMusicHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-
-#include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCursorHandler.h"
-
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
+#include "../gui/WindowHandler.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../adventureMap/AdventureMapInterface.h"
+#include "../windows/CMessage.h"
+#include "../render/Canvas.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/CursorHandler.h"
+#include "../gui/Shortcut.h"
 
 #include "../../CCallback.h"
 
-#include "../../lib/CGameState.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+#include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 
-void CSimpleWindow::show(SDL_Surface * to)
+#include <SDL_surface.h>
+
+void CSimpleWindow::show(Canvas & to)
 {
 	if(bitmap)
-		blitAt(bitmap,pos.x,pos.y,to);
+		CSDL_Ext::blitAt(bitmap, pos.x, pos.y, to.getInternalSurface());
 }
 CSimpleWindow::~CSimpleWindow()
 {
@@ -66,7 +69,7 @@ void CSelWindow::selectionChange(unsigned to)
 	redraw();
 }
 
-CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<std::string, CFunctionList<void()> > > &Buttons, QueryID askID)
+CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()> > > &Buttons, QueryID askID)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	ID = askID;
@@ -78,10 +81,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		buttons[i]->addCallback(std::bind(&CInfoWindow::close, this)); //each button will close the window apart from call-defined actions
 	}
 
-	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
-
-	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
-	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
+	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	if (buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
 	{
@@ -91,14 +91,24 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		//buttons.back()->addCallback(std::bind(&CCallback::selectionMade, LOCPLINT->cb.get(), 0, askID));
 	}
 
+	if(buttons.size() == 1)
+		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
+
+	if(buttons.size() == 2)
+	{
+		buttons.front()->assignedKey = EShortcut::GLOBAL_ACCEPT;
+		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
+	}
+
 	for(int i=0;i<comps.size();i++)
 	{
 		comps[i]->recActions = 255-DISPOSE;
 		addChild(comps[i].get());
 		components.push_back(comps[i]);
 		comps[i]->onSelect = std::bind(&CSelWindow::selectionChange,this,i);
-		if(i<9)
-			comps[i]->assignedKeys.insert(SDLK_1+i);
+		comps[i]->onChoose = std::bind(&CSelWindow::madeChoiceAndClose,this);
+		if(i<8)
+			comps[i]->assignedKey = vstd::next(EShortcut::SELECT_INDEX_1,i);
 	}
 	CMessage::drawIWindow(this, Text, player);
 }
@@ -118,11 +128,16 @@ void CSelWindow::madeChoice()
 	LOCPLINT->cb->selectionMade(ret+1,ID);
 }
 
+void CSelWindow::madeChoiceAndClose()
+{
+	madeChoice();
+	close();
+}
+
 CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	type |= BLOCK_ADV_HOTKEYS;
 	ID = QueryID(-1);
 	for(auto & Button : Buttons)
 	{
@@ -132,16 +147,21 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		buttons.push_back(button);
 	}
 
-	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 	if(!text->slider)
 	{
-		text->resize(text->label->textSize);
+		int finalWidth = std::min(250, text->label->textSize.x + 32);
+		int finalHeight = text->label->textSize.y;
+		text->resize(Point(finalWidth, finalHeight));
 	}
 
-	if(buttons.size())
+	if(buttons.size() == 1)
+		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
+
+	if(buttons.size() == 2)
 	{
-		buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
-		buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
+		buttons.front()->assignedKey = EShortcut::GLOBAL_ACCEPT;
+		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
 	}
 
 	for(auto & comp : comps)
@@ -168,14 +188,14 @@ void CInfoWindow::close()
 		LOCPLINT->showingDialog->setn(false);
 }
 
-void CInfoWindow::show(SDL_Surface * to)
+void CInfoWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
 }
 
 CInfoWindow::~CInfoWindow() = default;
 
-void CInfoWindow::showAll(SDL_Surface * to)
+void CInfoWindow::showAll(Canvas & to)
 {
 	CSimpleWindow::show(to);
 	CIntObject::showAll(to);
@@ -183,27 +203,27 @@ void CInfoWindow::showAll(SDL_Surface * to)
 
 void CInfoWindow::showInfoDialog(const std::string &text, const TCompsInfo & components, PlayerColor player)
 {
-	GH.pushInt(CInfoWindow::create(text, player, components));
+	GH.windows().pushWindow(CInfoWindow::create(text, player, components));
 }
 
 void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, PlayerColor player)
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
-	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+	std::vector<std::pair<AnimationPath,CFunctionList<void()> > > pom;
+	pom.push_back( { AnimationPath::builtin("IOKAY.DEF"), 0 });
+	pom.push_back( { AnimationPath::builtin("ICANCEL.DEF"), 0 });
 	std::shared_ptr<CInfoWindow> temp =  std::make_shared<CInfoWindow>(text, player, components, pom);
 
 	temp->buttons[0]->addCallback( onYes );
 	temp->buttons[1]->addCallback( onNo );
 
-	GH.pushInt(temp);
+	GH.windows().pushWindow(temp);
 }
 
 std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string &text, PlayerColor playerID, const TCompsInfo & components)
 {
-	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	std::vector<std::pair<AnimationPath,CFunctionList<void()> > > pom;
+	pom.push_back({AnimationPath::builtin("IOKAY.DEF"), 0});
 	return std::make_shared<CInfoWindow>(text, playerID, components, pom);
 }
 
@@ -219,19 +239,22 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 }
 
 
-CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free)
+CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free)
  : free(Free),bitmap(Bitmap)
 {
 	switch(alignment)
 	{
-	case BOTTOMRIGHT:
+	case ETextAlignment::BOTTOMRIGHT:
 		init(p.x - Bitmap->w, p.y - Bitmap->h);
 		break;
-	case CENTER:
+	case ETextAlignment::CENTER:
 		init(p.x - Bitmap->w/2, p.y - Bitmap->h/2);
 		break;
-	case TOPLEFT:
+	case ETextAlignment::TOPLEFT:
 		init(p.x, p.y);
+		break;
+	case ETextAlignment::TOPCENTER:
+		init(p.x - Bitmap->w/2, p.y);
 		break;
 	default:
 		assert(0); //not implemented
@@ -247,8 +270,8 @@ CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 
 	if(bitmap)
 	{
-		pos.x = screen->w/2 - bitmap->w/2;
-		pos.y = screen->h/2 - bitmap->h/2;
+		pos.x = GH.screenDimensions().x / 2 - bitmap->w / 2;
+		pos.y = GH.screenDimensions().y / 2 - bitmap->h / 2;
 		pos.h = bitmap->h;
 		pos.w = bitmap->w;
 	}
@@ -261,9 +284,9 @@ void CInfoPopup::close()
 	WindowBase::close();
 }
 
-void CInfoPopup::show(SDL_Surface * to)
+void CInfoPopup::show(Canvas & to)
 {
-	blitAt(bitmap,pos.x,pos.y,to);
+	CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to.getInternalSurface());
 }
 
 CInfoPopup::~CInfoPopup()
@@ -283,16 +306,13 @@ void CInfoPopup::init(int x, int y)
 	// Put the window back on screen if necessary
 	vstd::amax(pos.x, 0);
 	vstd::amax(pos.y, 0);
-	vstd::amin(pos.x, screen->w - bitmap->w);
-	vstd::amin(pos.y, screen->h - bitmap->h);
+	vstd::amin(pos.x, GH.screenDimensions().x - bitmap->w);
+	vstd::amin(pos.y, GH.screenDimensions().y - bitmap->h);
 }
 
-
-void CRClickPopup::clickRight(tribool down, bool previousState)
+bool CRClickPopup::isPopupWindow() const
 {
-	if(down)
-		return;
-	close();
+	return true;
 }
 
 void CRClickPopup::close()
@@ -307,14 +327,13 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(Point(GH.current->motion)); //center on mouse
-#ifdef VCMI_IOS
-    // TODO: enable also for android?
-    temp->moveBy({0, -temp->pos.h / 2});
+	temp->center(GH.getCursorPosition()); //center on mouse
+#ifdef VCMI_MOBILE
+	temp->moveBy({0, -temp->pos.h / 2});
 #endif
 	temp->fitToScreen(10);
 
-	GH.pushIntT<CRClickPopupInt>(temp);
+	GH.windows().createAndPushWindow<CRClickPopupInt>(temp);
 }
 
 void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CComponent> component)
@@ -325,29 +344,33 @@ void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CCompo
 	createAndPush(txt, intComps);
 }
 
-void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment)
+void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment)
 {
-	auto iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
+	auto iWin = createCustomInfoWindow(p, obj); //try get custom infowindow for this obj
 	if(iWin)
 	{
-		GH.pushInt(iWin);
+		GH.windows().pushWindow(iWin);
 	}
 	else
 	{
-		if(adventureInt->curHero())
-			CRClickPopup::createAndPush(obj->getHoverText(adventureInt->curHero()));
+		std::vector<Component> components;
+		if (settings["general"]["enableUiEnhancements"].Bool())
+		{
+			if(LOCPLINT->localState->getCurrentHero())
+				components = obj->getPopupComponents(LOCPLINT->localState->getCurrentHero());
+			else
+				components = obj->getPopupComponents(LOCPLINT->playerID);
+		}
+
+		std::vector<std::shared_ptr<CComponent>> guiComponents;
+		for (auto & component : components)
+			guiComponents.push_back(std::make_shared<CComponent>(component));
+
+		if(LOCPLINT->localState->getCurrentHero())
+			CRClickPopup::createAndPush(obj->getPopupText(LOCPLINT->localState->getCurrentHero()), guiComponents);
 		else
-			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
+			CRClickPopup::createAndPush(obj->getPopupText(LOCPLINT->playerID), guiComponents);
 	}
-}
-
-CRClickPopup::CRClickPopup()
-{
-	addUsedEvents(RCLICK);
-}
-
-CRClickPopup::~CRClickPopup()
-{
 }
 
 CRClickPopupInt::CRClickPopupInt(std::shared_ptr<CIntObject> our)
@@ -366,34 +389,36 @@ CRClickPopupInt::~CRClickPopupInt()
 
 Point CInfoBoxPopup::toScreen(Point p)
 {
-	vstd::abetween(p.x, adventureInt->terrain.pos.x + 100, adventureInt->terrain.pos.x + adventureInt->terrain.pos.w - 100);
-	vstd::abetween(p.y, adventureInt->terrain.pos.y + 100, adventureInt->terrain.pos.y + adventureInt->terrain.pos.h - 100);
+	auto bounds = adventureInt->terrainAreaPixels();
+
+	vstd::abetween(p.x, bounds.top() + 100, bounds.bottom() - 100);
+	vstd::abetween(p.y, bounds.left() + 100, bounds.right() - 100);
 
 	return p;
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
-	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
+	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), toScreen(position))
 {
 	InfoAboutTown iah;
-	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->selection); //todo: should this be nearest hero?
+	LOCPLINT->cb->getTownInfo(town, iah, LOCPLINT->localState->getCurrentTown()); //todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
-	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
+	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("HEROQVBK"), toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->selection);//todo: should this be nearest hero?
+	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentHero());//todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
-	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
+	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), toScreen(position))
 {
 	InfoAboutTown iah;
 	LOCPLINT->cb->getTownInfo(garr, iah);
@@ -402,14 +427,21 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 	tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
 }
 
-std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
+CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
+		: CWindowObject(RCLICK_POPUP | BORDERED, ImagePath::builtin("DIBOXBCK"), toScreen(position))
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	tooltip = std::make_shared<CreatureTooltip>(Point(9, 10), creature);
+}
+
+std::shared_ptr<WindowBase> CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if(nullptr == specific)
-		specific = adventureInt->selection;
+		specific = LOCPLINT->localState->getCurrentArmy();
 
 	if(nullptr == specific)
 	{
-		logGlobal->error("createInfoWin: no object to describe");
+		logGlobal->error("createCustomInfoWindow: no object to describe");
 		return nullptr;
 	}
 
@@ -419,6 +451,8 @@ std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CG
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGHeroInstance *>(specific));
 	case Obj::TOWN:
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGTownInstance *>(specific));
+	case Obj::MONSTER:
+		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGCreature *>(specific));
 	case Obj::GARRISON:
 	case Obj::GARRISON2:
 		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGGarrison *>(specific));

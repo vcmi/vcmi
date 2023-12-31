@@ -393,6 +393,9 @@
     <ClCompile Include="registerTypes\TypesLobbyPacks.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
+    <ClCompile Include="vstd\DateUtils.cpp">
+      <Filter>vstd</Filter>
+    </ClCompile>
     <ClCompile Include="vstd\StringUtils.cpp">
       <Filter>vstd</Filter>
     </ClCompile>
@@ -407,7 +410,7 @@
     <ClInclude Include="CondSh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HeroBonus.h">
+    <ClInclude Include="Bonus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IGameCallback.h">
@@ -465,6 +468,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AUTHORS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AI_Base.h">

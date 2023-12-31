@@ -10,15 +10,10 @@
 #include "StdInc.h"
 #include "ExecuteHeroChain.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -52,6 +47,21 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 	logAi->debug("Executing hero chain towards %s. Path %s", targetName, chainPath.toString());
 
 	ai->nullkiller->setActive(chainPath.targetHero, tile);
+	ai->nullkiller->setTargetObject(objid);
+
+	auto targetObject = ai->myCb->getObj(static_cast<ObjectInstanceID>(objid), false);
+
+	if(chainPath.turn() == 0 && targetObject && targetObject->ID == Obj::TOWN)
+	{
+		auto relations = ai->myCb->getPlayerRelations(ai->playerID, targetObject->getOwner());
+
+		if(relations == PlayerRelations::ENEMIES)
+		{
+			ai->nullkiller->armyFormation->rearrangeArmyForSiege(
+				dynamic_cast<const CGTownInstance *>(targetObject),
+				chainPath.targetHero);
+		}
+	}
 
 	std::set<int> blockedIndexes;
 
@@ -75,11 +85,11 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			continue;
 		}
 
-		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->name, node.coord.toString());
+		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->getNameTranslated(), node.coord.toString());
 
 		try
 		{
-			if(hero->movement)
+			if(hero->movementPointsRemaining() > 0)
 			{
 				ai->nullkiller->setActive(hero, node.coord);
 
@@ -104,21 +114,21 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 				{
 					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node.coord);
 
-					if(targetNode->accessible == CGPathNode::EAccessibility::NOT_SET
-						|| targetNode->accessible == CGPathNode::EAccessibility::BLOCKED
-						|| targetNode->accessible == CGPathNode::EAccessibility::FLYABLE
+					if(targetNode->accessible == EPathAccessibility::NOT_SET
+						|| targetNode->accessible == EPathAccessibility::BLOCKED
+						|| targetNode->accessible == EPathAccessibility::FLYABLE
 						|| targetNode->turns != 0)
 					{
 						logAi->error(
 							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
-							hero->name,
+							hero->getNameTranslated(),
 							node.coord.toString());
 
 						return;
 					}
 				}
 
-				if(hero->movement)
+				if(hero->movementPointsRemaining())
 				{
 					try
 					{
@@ -127,7 +137,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 							continue;
 						}
 					}
-					catch(cannotFulfillGoalException)
+					catch(const cannotFulfillGoalException &)
 					{
 						if(!heroPtr.validAndSet())
 						{
@@ -136,14 +146,14 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 							return;
 						}
 
-						if(hero->movement > 0)
+						if(hero->movementPointsRemaining() > 0)
 						{
 							CGPath path;
 							bool isOk = cb->getPathsInfo(hero)->getPath(path, node.coord);
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->name, hero->movement, node.coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node.coord.toString());
 
 								ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;
@@ -161,23 +171,23 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			if(node.turns == 0)
 			{
 				logAi->error(
-					"Enable to complete chain. Expected hero %s to arive to %s but he is at %s", 
-					hero->name, 
+					"Unable to complete chain. Expected hero %s to arive to %s but he is at %s",
+					hero->getNameTranslated(),
 					node.coord.toString(),
 					hero->visitablePos().toString());
 
 				return;
 			}
 			
-			// no exception means we were not able to rich the tile
+			// no exception means we were not able to reach the tile
 			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node.parentIndex);
 		}
-		catch(goalFulfilledException)
+		catch(const goalFulfilledException &)
 		{
 			if(!heroPtr.validAndSet())
 			{
-				logAi->debug("Hero %s was killed while attempting to rich %s", heroPtr.name, node.coord.toString());
+				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.name, node.coord.toString());
 
 				return;
 			}
@@ -187,14 +197,14 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 std::string ExecuteHeroChain::toString() const
 {
-	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->name;
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTranslated();
 }
 
 bool ExecuteHeroChain::moveHeroToTile(const CGHeroInstance * hero, const int3 & tile)
 {
 	if(tile == hero->visitablePos() && cb->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->name, tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTranslated(), tile.toString());
 
 		return true;
 	}

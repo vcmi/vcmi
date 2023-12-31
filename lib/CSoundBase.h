@@ -1044,21 +1044,6 @@ public:
 		VCMI_SOUND_LIST
 		sound_after_last
 	};
-#undef VCMI_SOUND_NAME
-#define VCMI_SOUND_NAME(sequence) sounds.push_back("" #sequence "");
-
-	static std::vector<std::string> & stringsList()
-	{
-		static std::vector<std::string> sounds;
-		if(!sounds.size())
-		{
-			sounds.push_back("invalid");
-			sounds.push_back("sound_todo");
-			VCMI_SOUND_LIST
-			sounds.push_back("sound_after_last");
-		}
-		return sounds;
-	}
 #undef VCMI_SOUND_FILE
 #undef VCMI_SOUND_NAME
 };

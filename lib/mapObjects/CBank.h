@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -22,13 +21,14 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	std::unique_ptr<BankConfig> bc;
 	ui32 daycounter;
 	ui32 resetDuration;
+	bool coastVisitable;
 
-	void setPropertyDer(ui8 what, ui32 val) override;
+	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void doVisit(const CGHeroInstance * hero) const;
 
 public:
 	CBank();
-	~CBank();
+	~CBank() override;
 
 	void setConfig(const BankConfig & bc);
 
@@ -36,9 +36,12 @@ public:
 	std::string getHoverText(PlayerColor player) const override;
 	void newTurn(CRandomGenerator & rand) const override;
 	bool wasVisited (PlayerColor player) const override;
+	bool isCoastVisitable() const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -46,6 +49,7 @@ public:
 		h & daycounter;
 		h & bc;
 		h & resetDuration;
+		h & coastVisitable;
 	}
 
 	friend class CBankInstanceConstructor;

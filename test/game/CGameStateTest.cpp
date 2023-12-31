@@ -15,14 +15,17 @@
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/gameState/CGameState.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/networkPacks/SetStackEffect.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/TerrainHandler.h"
 
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/CStack.h"
 
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 #include "../../lib/mapping/CMap.h"
 
@@ -125,7 +128,7 @@ public:
 		return false;
 	}
 
-	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) override
+	void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override
 	{
 		//todo:
 	}
@@ -145,7 +148,7 @@ public:
 		si.mode = StartInfo::NEW_GAME;
 		si.seedToBeUsed = 42;
 
-		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourceID(si.mapname));
+		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourcePath(si.mapname));
 
 		ASSERT_NE(header.get(), nullptr);
 
@@ -166,18 +169,19 @@ public:
 			pset.castle = pinfo.defaultCastle();
 			pset.hero = pinfo.defaultHero();
 
-			if(pset.hero != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
+			if(pset.hero != HeroTypeID::RANDOM && pinfo.hasCustomMainHero())
 			{
 				pset.hero = pinfo.mainCustomHeroId;
-				pset.heroName = pinfo.mainCustomHeroName;
-				pset.heroPortrait = pinfo.mainCustomHeroPortrait;
+				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
+				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
 			}
 
 			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
 
-		gameState->init(&mapService, &si, false);
+		Load::ProgressAccumulator progressTracker;
+		gameState->init(&mapService, &si, progressTracker, false);
 
 		ASSERT_NE(map, nullptr);
 		ASSERT_EQ(map->heroesOnMap.size(), 2);
@@ -193,8 +197,8 @@ public:
 
 		const auto & t = *gameCallback->getTile(tile);
 
-		TerrainId terrain = t.terType->id;
-		BattleField terType = BattleField::fromString("grass_hills");
+		auto terrain = t.terType->getId();
+		BattleField terType(0);
 
 		//send info about battles
 
@@ -202,9 +206,9 @@ public:
 
 		BattleStart bs;
 		bs.info = battle;
-		ASSERT_EQ(gameState->curB, nullptr);
+		ASSERT_EQ(gameState->currentBattles.size(), 0);
 		gameCallback->sendAndApply(&bs);
-		ASSERT_EQ(gameState->curB, battle);
+		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
 	std::shared_ptr<CGameState> gameState;
@@ -236,7 +240,7 @@ TEST_F(CGameStateTest, issue2765)
 		gameCallback->sendAndApply(&na);
 
 		PutArtifact pack;
-		pack.al = ArtifactLocation(defender, ArtifactPosition::MACH1);
+		pack.al = ArtifactLocation(defender->id, ArtifactPosition::MACH1);
 		pack.art = a;
 		gameCallback->sendAndApply(&pack);
 	}
@@ -245,11 +249,11 @@ TEST_F(CGameStateTest, issue2765)
 
 	{
 		battle::UnitInfo info;
-		info.id = gameState->curB->battleNextUnitId();
+		info.id = gameState->currentBattles.front()->battleNextUnitId();
 		info.count = 1;
 		info.type = CreatureID(69);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->curB->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -261,11 +265,11 @@ TEST_F(CGameStateTest, issue2765)
 	const CStack * att = nullptr;
 	const CStack * def = nullptr;
 
-	for(const CStack * s : gameState->curB->stacks)
+	for(const CStack * s : gameState->currentBattles.front()->stacks)
 	{
-		if(s->type->idNumber == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
+		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
 			def = s;
-		else if(s->type->idNumber == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
+		else if(s->unitType()->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
 			att = s;
 	}
 	ASSERT_NE(att, nullptr);
@@ -290,7 +294,7 @@ TEST_F(CGameStateTest, issue2765)
 		spells::AbilityCaster caster(att, 3);
 
 		//here tested ballista, but this applied to all war machines
-		spells::BattleCast cast(gameState->curB, &caster, spells::Mode::PASSIVE, age);
+		spells::BattleCast cast(gameState->currentBattles.front().get(), &caster, spells::Mode::PASSIVE, age);
 
 		spells::Target target;
 		target.emplace_back(def);
@@ -330,14 +334,14 @@ TEST_F(CGameStateTest, battleResurrection)
 		gameCallback->sendAndApply(&na);
 
 		PutArtifact pack;
-		pack.al = ArtifactLocation(attacker, ArtifactPosition::SPELLBOOK);
+		pack.al = ArtifactLocation(attacker->id, ArtifactPosition::SPELLBOOK);
 		pack.art = a;
 		gameCallback->sendAndApply(&pack);
 	}
 
 	startTestBattle(attacker, defender);
 
-	uint32_t unitId = gameState->curB->battleNextUnitId();
+	uint32_t unitId = gameState->currentBattles.front()->battleNextUnitId();
 
 	{
 		battle::UnitInfo info;
@@ -345,7 +349,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->curB->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -356,11 +360,11 @@ TEST_F(CGameStateTest, battleResurrection)
 
 	{
 		battle::UnitInfo info;
-		info.id = gameState->curB->battleNextUnitId();
+		info.id = gameState->currentBattles.front()->battleNextUnitId();
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::DEFENDER;
-		info.position = gameState->curB->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -369,11 +373,11 @@ TEST_F(CGameStateTest, battleResurrection)
 		gameCallback->sendAndApply(&pack);
 	}
 
-	CStack * unit = gameState->curB->getStack(unitId);
+	CStack * unit = gameState->currentBattles.front()->getStack(unitId);
 
 	ASSERT_NE(unit, nullptr);
 
-	int64_t damage = unit->MaxHealth() + 1;
+	int64_t damage = unit->getMaxHealth() + 1;
 
 	unit->damage(damage);
 
@@ -388,7 +392,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		const CSpell * spell = SpellID(SpellID::RESURRECTION).toSpell();
 		ASSERT_NE(spell, nullptr);
 
-			spells::BattleCast cast(gameState->curB, attacker, spells::Mode::HERO, spell);
+			spells::BattleCast cast(gameState->currentBattles.front().get(), attacker, spells::Mode::HERO, spell);
 
 		spells::Target target;
 		target.emplace_back(unit);

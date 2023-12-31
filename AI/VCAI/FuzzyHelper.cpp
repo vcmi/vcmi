@@ -10,14 +10,18 @@
 #include "StdInc.h"
 #include "FuzzyHelper.h"
 
-#include "../../lib/mapObjects/CommonConstructors.h"
 #include "Goals/Goals.h"
 #include "VCAI.h"
 
-FuzzyHelper * fh;
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../../lib/mapObjects/CBank.h"
+#include "../../lib/mapObjects/CGCreature.h"
+#include "../../lib/mapObjects/CGDwelling.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 
-extern boost::thread_specific_ptr<VCAI> ai;
-extern boost::thread_specific_ptr<CCallback> cb;
+FuzzyHelper * fh;
 
 Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 {
@@ -62,7 +66,7 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
 
-	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
+	auto objectInfo = bank->getObjectHandler()->getObjectInfo(bank->appearance);
 
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 
@@ -209,7 +213,7 @@ void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pa
 
 ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 {
-	return evaluateDanger(tile, visitor, ai.get());
+	return evaluateDanger(tile, visitor, ai);
 }
 
 ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai)
@@ -278,7 +282,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 {
 	auto cb = ai->myCb;
 
-	if(obj->tempOwner < PlayerColor::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
+	if(obj->tempOwner.isValidPlayer() && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
 
 	switch(obj->ID)
@@ -320,15 +324,8 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 	case Obj::DRAGON_UTOPIA:
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
-							 //	case Obj::PYRAMID:
-		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
 	case Obj::PYRAMID:
-	{
-		if(obj->subID == 0)
-			return estimateBankDanger(dynamic_cast<const CBank *>(obj));
-		else
-			return 0;
-	}
+		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
 	default:
 		return 0;
 	}

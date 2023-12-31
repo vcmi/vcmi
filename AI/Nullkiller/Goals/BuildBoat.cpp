@@ -10,21 +10,16 @@
 #include "StdInc.h"
 #include "BuildBoat.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 using namespace Goals;
 
 bool BuildBoat::operator==(const BuildBoat & other) const
 {
-	return shipyard->o->id == other.shipyard->o->id;
+	return shipyard == other.shipyard;
 }
 //
 //TSubgoal BuildBoat::decomposeSingle() const
@@ -55,7 +50,7 @@ void BuildBoat::accept(AIGateway * ai)
 		throw cannotFulfillGoalException("Can not afford boat");
 	}
 
-	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+	if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 	{
 		throw cannotFulfillGoalException("Can not build boat in enemy shipyard");
 	}
@@ -66,9 +61,8 @@ void BuildBoat::accept(AIGateway * ai)
 	}
 
 	logAi->trace(
-		"Building boat at shipyard %s located at %s, estimated boat position %s", 
-		shipyard->o->getObjectName(),
-		shipyard->o->visitablePos().toString(),
+		"Building boat at shipyard located at %s, estimated boat position %s",
+		shipyard->getObject()->visitablePos().toString(),
 		shipyard->bestLocation().toString());
 
 	cb->buildBoat(shipyard);

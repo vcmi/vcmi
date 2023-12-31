@@ -22,7 +22,7 @@ struct ClusterObjectInfo
 	uint8_t turn;
 };
 
-typedef tbb::concurrent_hash_map<const CGObjectInstance *, ClusterObjectInfo> ClusterObjects;
+using ClusterObjects = tbb::concurrent_hash_map<const CGObjectInstance *, ClusterObjectInfo>;
 
 struct ObjectCluster
 {
@@ -36,11 +36,8 @@ public:
 	}
 
 	void addObject(const CGObjectInstance * object, const AIPath & path, float priority);
-	
-	ObjectCluster(const CGObjectInstance * blocker)
-		:objects(), blocker(blocker)
-	{
-	}
+
+	ObjectCluster(const CGObjectInstance * blocker): blocker(blocker) {}
 
 	ObjectCluster() : ObjectCluster(nullptr)
 	{
@@ -50,7 +47,7 @@ public:
 	const CGObjectInstance * calculateCenter() const;
 };
 
-typedef tbb::concurrent_hash_map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>> ClusterMap;
+using ClusterMap = tbb::concurrent_hash_map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>>;
 
 class ObjectClusterizer
 {
@@ -67,10 +64,7 @@ public:
 	std::vector<std::shared_ptr<ObjectCluster>> getLockedClusters() const;
 	const CGObjectInstance * getBlocker(const AIPath & path) const;
 
-	ObjectClusterizer(const Nullkiller * ai)
-		:nearObjects(), farObjects(), blockedObjects(), ai(ai)
-	{
-	}
+	ObjectClusterizer(const Nullkiller * ai): ai(ai) {}
 
 private:
 	bool shouldVisitObject(const CGObjectInstance * obj) const;

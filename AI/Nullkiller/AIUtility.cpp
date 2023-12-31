@@ -17,15 +17,13 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/gameState/QuestInfo.h"
+#include "../../lib/GameSettings.h"
 
-#include "../../lib/CModHandler.h"
+#include <vcmi/CreatureService.h>
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<AIGateway> ai;
-
-//extern static const int3 dirs[8];
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
@@ -69,7 +67,7 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 	}
 
 	h = H;
-	name = h->name;
+	name = h->getNameTranslated();
 	hid = H->id;
 //	infosCount[ai->playerID][hid]++;
 }
@@ -109,7 +107,9 @@ const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 		}
 		else
 		{
-			assert(obj);
+			if (!obj)
+				logAi->error("Accessing no longer accessible hero %s!", h->getNameTranslated());
+			//assert(obj);
 			//assert(owned);
 		}
 	}
@@ -237,11 +237,11 @@ bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
 
 bool isObjectPassable(const CGObjectInstance * obj)
 {
-	return isObjectPassable(obj, ai->playerID, cb->getPlayerRelations(obj->tempOwner, ai->playerID));
+	return isObjectPassable(obj, ai->playerID, ai->myCb->getPlayerRelations(obj->tempOwner, ai->playerID));
 }
 
 // Pathfinder internal helper
-bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations)
+bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations)
 {
 	if((obj->ID == Obj::GARRISON || obj->ID == Obj::GARRISON2)
 		&& objectRelations != PlayerRelations::ENEMIES)
@@ -251,7 +251,7 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 	{
 		auto quest = dynamic_cast<const CGKeys *>(obj);
 
-		if(quest->passableFor(playerColor))
+		if(quest->wasMyColorVisited(playerColor))
 			return true;
 	}
 
@@ -262,7 +262,7 @@ bool isBlockVisitObj(const int3 & pos)
 {
 	if(auto obj = cb->getTopObj(pos))
 	{
-		if(obj->blockVisit) //we can't stand on that object
+		if(obj->isBlockedVisitable()) //we can't stand on that object
 			return true;
 	}
 
@@ -274,10 +274,10 @@ creInfo infoFromDC(const dwellingContent & dc)
 	creInfo ci;
 	ci.count = dc.first;
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
-	if (ci.creID != -1)
+	if (ci.creID != CreatureID::NONE)
 	{
-		ci.cre = VLC->creh->objects[ci.creID].get();
-		ci.level = ci.cre->level; //this is cretaure tier, while tryRealize expects dwelling level. Ignore.
+		ci.cre = VLC->creatures()->getById(ci.creID);
+		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else
 	{
@@ -302,10 +302,10 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 	auto art1 = a1->artType;
 	auto art2 = a2->artType;
 
-	if(art1->price == art2->price)
-		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
+	if(art1->getPrice() == art2->getPrice())
+		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
 	else
-		return art1->price > art2->price;
+		return art1->getPrice() > art2->getPrice();
 }
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj)
@@ -314,17 +314,14 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 		return false;
 
 	//TODO: allow polling of remaining creatures in dwelling
-	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
-		return true;
+	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
+		return rewardable->configuration.getResetDuration() == 7;
+
 	if(dynamic_cast<const CGDwelling *>(obj))
-		return true;
-	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
 		return true;
 
 	switch(obj->ID)
 	{
-	case Obj::STABLES:
-	case Obj::MAGIC_WELL:
 	case Obj::HILL_FORT:
 		return true;
 	case Obj::BORDER_GATE:
@@ -344,11 +341,14 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
+	auto relations = ai->cb->getPlayerRelations(obj->tempOwner, h->tempOwner);
+
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
 	case Obj::HERO: //never visit our heroes at random
-		return obj->tempOwner != h->tempOwner; //do not visit our towns at random
+		return relations == PlayerRelations::ENEMIES; //do not visit our towns at random
+
 	case Obj::BORDER_GATE:
 	{
 		for(auto q : ai->cb->getMyQuests())
@@ -378,8 +378,11 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	}
 	case Obj::CREATURE_GENERATOR1:
 	{
-		if(obj->tempOwner != h->tempOwner)
+		if(relations == PlayerRelations::ENEMIES)
 			return true; //flag just in case
+
+		if(relations == PlayerRelations::ALLIES)
+			return false;
 
 		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
 
@@ -389,7 +392,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			{
 				if(level.first
 					&& h->getSlotFor(CreatureID(c)) != SlotID()
-					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->cost))
+					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;
 				}
@@ -402,7 +405,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->upgrades.size())
+			if(slot.second->type->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;
@@ -420,7 +423,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		break;
 	}
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		if(h->level < 12)
+		if(h->level < 10)
 			return false;
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
@@ -429,14 +432,14 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			return false;
 
 		TResources myRes = ai->getFreeResources();
-		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
+		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
 			return false;
 		break;
 	}
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->cb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
+		return ai->cb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:

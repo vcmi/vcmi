@@ -21,14 +21,15 @@ class Entity;
 class DLL_LINKAGE IHandlerBase
 {
 protected:
+	static std::string getScopeBuiltin();
+
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
-	void registerObject(std::string scope, std::string type_name, std::string name, si32 index);
-	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
+	static void registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index);
 
 public:
 	/// loads all original game data in vector of json nodes
 	/// dataSize - is number of items that must be loaded (normally - constant from GameConstants)
-	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) = 0;
+	virtual std::vector<JsonNode> loadLegacyData() = 0;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) = 0;
@@ -42,13 +43,6 @@ public:
 
 	/// allows handler to do post-loading step for validation or integration of loaded data
 	virtual void afterLoadFinalization(){};
-
-	/**
-	 * Gets a list of objects that are allowed by default on maps
-	 *
-	 * @return a list of allowed objects, the index is the object id
-	 */
-	virtual std::vector<bool> getDefaultAllowed() const = 0;
 
 	virtual ~IHandlerBase(){}
 };
@@ -92,22 +86,22 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
-		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
+		auto object = loadFromJson(scope, data, name, objects.size());
 
 		objects.push_back(object);
 
-		for(auto type_name : getTypeNames())
+		for(const auto & type_name : getTypeNames())
 			registerObject(scope, type_name, name, object->getIndex());
 	}
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
-		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+		auto object = loadFromJson(scope, data, name, index);
 
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
 
-		for(auto type_name : getTypeNames())
+		for(const auto & type_name : getTypeNames())
 			registerObject(scope, type_name, name, object->getIndex());
 	}
 
@@ -122,7 +116,7 @@ public:
 		if(index < 0 || index >= objects.size())
 		{
 			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
-			throw std::runtime_error("internal error");
+			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
 		}
 
 		return objects[index];

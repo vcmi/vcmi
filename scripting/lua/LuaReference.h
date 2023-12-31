@@ -21,7 +21,7 @@ public:
 	//pop from the top of stack
 	LuaReference(lua_State * L);
 
-	LuaReference(LuaReference && other);
+	LuaReference(LuaReference && other) noexcept;
 	~LuaReference();
 
 	void push();

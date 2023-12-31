@@ -15,4 +15,6 @@ double screenScale();
 
 void showLoadingIndicator();
 void hideLoadingIndicator();
+
+void hapticFeedback();
 }

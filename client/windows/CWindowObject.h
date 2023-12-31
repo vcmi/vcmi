@@ -10,14 +10,12 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class CGStatusBar;
 
 class CWindowObject : public WindowBase
 {
-	std::shared_ptr<CPicture> createBg(std::string imageName, bool playerColored);
-	int getUsedEvents(int options);
-
 	std::vector<std::shared_ptr<CPicture>> shadowParts;
 
 	void setShadow(bool on);
@@ -28,17 +26,19 @@ protected:
 	std::shared_ptr<CPicture> background;
 
 	//Used only if RCLICK_POPUP was set
-	void clickRight(tribool down, bool previousState) override;
+	bool isPopupWindow() const override;
 	//To display border
 	void updateShadow();
-	void setBackground(std::string filename);
+	void setBackground(const ImagePath & filename);
+	std::shared_ptr<CPicture> createBg(const ImagePath & imageName, bool playerColored);
 public:
 	enum EOptions
 	{
 		PLAYER_COLORED=1, //background will be player-colored
 		RCLICK_POPUP=2, // window will behave as right-click popup
 		BORDERED=4, // window will have border if current resolution is bigger than size of window
-		SHADOW_DISABLED=8 //this window won't display any shadow
+		SHADOW_DISABLED=8, //this window won't display any shadow
+		NEEDS_ANIMATED_BACKGROUND=16 //there are videos in the background that have to be played
 	};
 
 	/*
@@ -46,19 +46,18 @@ public:
 	 * imageName - name for background image, can be empty
 	 * centerAt - position of window center. Default - center of the screen
 	*/
-	CWindowObject(int options, std::string imageName, Point centerAt);
-	CWindowObject(int options, std::string imageName = "");
+	CWindowObject(int options, const ImagePath & imageName, Point centerAt);
+	CWindowObject(int options, const ImagePath & imageName = {});
 	~CWindowObject();
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 
 class CStatusbarWindow : public CWindowObject
 {
 public:
-	CStatusbarWindow(int options, std::string imageName, Point centerAt);
-	CStatusbarWindow(int options, std::string imageName = "");
-	void activate() override;
+	CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt);
+	CStatusbarWindow(int options, const ImagePath & imageName = {});
 protected:
 	std::shared_ptr<CGStatusBar> statusbar;
 };

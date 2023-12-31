@@ -27,22 +27,36 @@ public:
 	BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_);
 	virtual ~BattleSpellMechanics();
 
+	// TODO: ??? (what's the difference compared to cast?)
 	void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const override;
 
+	/// Returns false if spell can not be cast at all, e.g. due to not having any possible target on battlefield
 	bool canBeCast(Problem & problem) const override;
+
+	/// Returns false if spell can not be cast at specifid target
 	bool canBeCastAt(const Target & target, Problem & problem) const override;
 
+	// TODO: ??? (what's the difference compared to applyEffects?)
 	void cast(ServerCallback * server, const Target & target) override final;
+	// TODO: ??? (what's the difference compared to cast?)
 	void castEval(ServerCallback * server, const Target & target) override final;
 
+	/// Returns list of affected stack using currently configured target
 	std::vector<const CStack *> getAffectedStacks(const Target & target) const override final;
 
+	/// Returns list of target types that can be targeted by spell
 	std::vector<AimType> getTargetTypes() const override final;
-	std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current) const override final;
 
+	/// Returns vector of all possible destinations for specified aim type
+	/// index - ???
+	/// current - ???
+	std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast) const override final;
+
+	/// Returns true if spell can be cast on unit
 	bool isReceptive(const battle::Unit * target) const override;
 
-	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, bool * outDroppedHexes = nullptr) const override;
+	/// Returns list of hexes that are affected by spell assuming cast at centralHex
+	std::vector<BattleHex> rangeInHexes(BattleHex centralHex) const override;
 
 	const Spell * getSpell() const override;
 
@@ -57,12 +71,9 @@ private:
 
 	void beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target);
 
-	void addCustomEffect(BattleSpellCast & sc, const battle::Unit * target, ui32 effect);
-	void addCustomEffect(BattleSpellCast & sc, ui32 targetId, ui32 effect);
-
 	std::set<const battle::Unit *> collectTargets() const;
 
-	static void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
+	void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
 
 	std::set<BattleHex> spellRangeInHexes(BattleHex centralHex) const;
 

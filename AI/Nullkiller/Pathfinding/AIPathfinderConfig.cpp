@@ -15,6 +15,8 @@
 #include "Rules/AIPreviousNodeRule.h"
 #include "../Engine//Nullkiller.h"
 
+#include "../../../lib/pathfinder/CPathfinder.h"
+
 namespace NKAI
 {
 namespace AIPathfinding
@@ -42,7 +44,10 @@ namespace AIPathfinding
 		std::shared_ptr<AINodeStorage> nodeStorage)
 		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), aiNodeStorage(nodeStorage)
 	{
+		options.canUseCast = true;
 	}
+
+	AIPathfinderConfig::~AIPathfinderConfig() = default;
 
 	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
 	{

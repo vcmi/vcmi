@@ -13,20 +13,22 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-SideInBattle::SideInBattle()
-{
-	color = PlayerColor::CANNOT_DETERMINE;
-	hero = nullptr;
-	armyObject = nullptr;
-	castSpellsCount = 0;
-	enchanterCounter = 0;
-}
-
 void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army)
 {
 	hero = Hero;
 	armyObject = Army;
-	color = armyObject->getOwner();
+
+	switch(armyObject->ID.toEnum())
+	{
+		case Obj::CREATURE_GENERATOR1:
+		case Obj::CREATURE_GENERATOR2:
+		case Obj::CREATURE_GENERATOR3:
+		case Obj::CREATURE_GENERATOR4:
+			color = PlayerColor::NEUTRAL;
+			break;
+		default:
+			color = armyObject->getOwner();
+	}
 
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;

@@ -2,8 +2,8 @@
 // Any new settings should be added in this file for correct serialization and initialization
 {
 	"type" : "object",
-	"$schema": "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher" ],
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -11,21 +11,41 @@
 		}
 	},
 	"additionalProperties" : false,
-	"properties":
+	"properties" :
 	{
 		"general" : {
 			"type" : "object",
-			"default": {},
+			"default" : {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
+			"required" : [
+				"playerName",
+				"music",
+				"sound",
+				"saveRandomMaps",
+				"lastMap",
+				"language",
+				"gameDataLanguage",
+				"lastSave",
+				"lastSettingsTab",
+				"lastCampaign",
+				"saveFrequency",
+				"notifications",
+				"extraDump",
+				"userRelativePointer",
+				"relativePointerSpeedMultiplier",
+				"hapticFeedback",
+				"longTouchTimeMilliseconds",
+				"autosaveCountLimit",
+				"useSavePrefix",
+				"savePrefix",
+				"startTurnAutosave",
+				"enableUiEnhancements",
+				"audioMuteFocus"
+			],
 			"properties" : {
 				"playerName" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "Player"
-				},
-				"showfps" : {
-					"type" : "boolean",
-					"default" : false
 				},
 				"music" : {
 					"type" : "number",
@@ -35,28 +55,34 @@
 					"type" : "number",
 					"default" : 88
 				},
-				"encoding" : {
-					"type" : "string",
-					"default" : "CP1252"
-				},
-				"swipe" : {
-					"type" : "boolean",
-					"default" : true
-				},
 				"saveRandomMaps" : {
 					"type" : "boolean",
 					"default" : false
 				},
 				"lastMap" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "Maps/Arrogance"
 				},
+				"language" : {
+					"type" : "string",
+					"enum" : [ "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
+					"default" : "english"
+				},
+				"gameDataLanguage" : {
+					"type" : "string",
+					"enum" : [ "auto", "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese", "other_cp1250", "other_cp1251", "other_cp1252" ],
+					"default" : "auto"
+				},
 				"lastSave" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "NEWGAME"
 				},
+				"lastSettingsTab" : {
+					"type" : "number",
+					"default" : 0
+				},
 				"lastCampaign" : {
-					"type":"string",
+					"type" : "string",
 					"default" : ""
 				},
 				"saveFrequency" : {
@@ -70,36 +96,98 @@
 				"extraDump" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"userRelativePointer" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"relativePointerSpeedMultiplier" : {
+					"type" : "number",
+					"default" : 1
+				},
+				"longTouchTimeMilliseconds" : {
+					"type" : "number",
+					"default" : 1000
+				},
+				"hapticFeedback" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"autosaveCountLimit" : {
+					"type" : "number",
+					"default": 5
+				},
+				"useSavePrefix" : {
+					"type": "boolean",
+					"default": true
+				},
+				"savePrefix" : {
+					"type": "string",
+					"default": ""
+				},
+				"startTurnAutosave" : {
+					"type": "boolean",
+					"default": false
+				},
+				"enableUiEnhancements" : {
+					"type": "boolean",
+					"default": true
+				},
+				"audioMuteFocus" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
 		"video" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
+			"default" : {},
+			"required" : [ 
+				"resolution",
+				"reservedWidth",
+				"fullscreen",
+				"realFullscreen",
+				"cursor",
+				"showIntro",
+				"spellbookAnimation",
+				"driver",
+				"displayIndex",
+				"showfps",
+				"targetfps",
+				"vsync"
+			],
 			"properties" : {
-				"screenRes" : {
+				"resolution" : {
 					"type" : "object",
 					"additionalProperties" : false,
-					"required" : [ "width", "height" ],
+					"required" : [ "width", "height", "scaling" ],
 					"properties" : {
 						"width"  : { "type" : "number" },
-						"height" : { "type" : "number" }
+						"height" : { "type" : "number" },
+						"scaling" : { "type" : "number" }
 					},
-					"default": {"width" : 800, "height": 600 }
+					"defaultIOS" : {"width" : 800, "height" : 600, "scaling" : 200 },
+					"defaultAndroid" : {"width" : 800, "height" : 600, "scaling" : 200 },
+					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
 				},
-				"bitsPerPixel" : {
+				"reservedWidth" : {
 					"type" : "number",
-					"default" : 32
+					"defaultIOS" : 0.1, // iOS camera cutout / notch is excluded from available area by SDL
+					"default" : 0
 				},
-				"fullscreen": {
-					"type": "boolean",
-					"default": false
+				"fullscreen" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"realFullscreen" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"cursor" :  {
+					"type" : "string",
+					"enum" : [ "hardware", "software" ],
+					"default" : "hardware"
 				},
 				"showIntro" : {
 					"type" : "boolean",
@@ -109,7 +197,7 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"driver":{
+				"driver" : {
 					"type" : "string",
 					"default" : "opengl",
 					"description" : "preferred graphics backend driver name for SDL2"
@@ -117,26 +205,54 @@
 				"displayIndex" : {
 					"type" : "number",
 					"default" : 0
+				},
+				"showfps" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"targetfps" : {
+					"type" : "number",
+					"default" : 60
+				},
+				"vsync" : {
+					"type" : "boolean",
+					"default" : true
+				}
+			}
+		},
+		"input" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "radialWheelGarrisonSwipe", "touchToleranceDistance" ],
+			"properties" : {
+				"radialWheelGarrisonSwipe" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"touchToleranceDistance" : {
+					"type" : "number",
+					"default" : 20
 				}
 			}
 		},
 		"adventure" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat" ],
+			"default" : {},
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel" ],
 			"properties" : {
-				"heroSpeed" : {
+				"heroMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"enemySpeed" : {
+				"enemyMoveTime" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 150
 				},
-				"scrollSpeed" : {
+				"scrollSpeedPixels" : {
 					"type" : "number",
-					"default" : 1
+					"default" : 800
 				},
 				"heroReminder" : {
 					"type" : "boolean",
@@ -145,89 +261,52 @@
 				"quickCombat" : {
 					"type" : "boolean",
 					"default" : false
-				}
-			}
-		},
-		"pathfinder" : {
-			"type" : "object",
-			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "teleports", "layers", "oneTurnSpecialLayersLimit", "originalMovementRules", "lightweightFlyingMode" ],
-			"properties" : {
-				"layers" : {
-					"type" : "object",
-					"additionalProperties" : false,
-					"default": {},
-					"required" : [ "sailing", "waterWalking", "flying" ],
-					"properties" : {
-						"sailing" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"waterWalking" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"flying" : {
-							"type" : "boolean",
-							"default" : true
-						}
-					}
 				},
-				"teleports" : {
-					"type" : "object",
-					"additionalProperties" : false,
-					"default": {},
-					"required" : [ "twoWay", "oneWay", "oneWayRandom", "whirlpool", "castleGate" ],
-					"properties" : {
-						"twoWay" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"oneWay" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"oneWayRandom" : {
-							"type" : "boolean",
-							"default" : false
-						},
-						"whirlpool" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"castleGate" : {
-							"type" : "boolean",
-							"default" : false
-						}
-					}
-				},
-				"oneTurnSpecialLayersLimit" : {
+				"objectAnimation" : {
 					"type" : "boolean",
 					"default" : true
 				},
-				"originalMovementRules" : {
+				"terrainAnimation" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"forceQuickCombat" : {
 					"type" : "boolean",
 					"default" : false
 				},
-				"lightweightFlyingMode" : {
+				"borderScroll" : 
+				{
+					"type" : "boolean",
+					"defaultIOS" : false,
+					"defaultAndroid" : false,
+					"default" : true
+				},
+				"leftButtonDrag" : {
 					"type" : "boolean",
 					"default" : false
-				}
+				},
+				"smoothDragging" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"backgroundDimLevel" : {
+					"type" : "number",
+					"default" : 128
+				},
 			}
 		},
 		"battle" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "animationSpeed", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
+			"default" : {},
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells" ],
 			"properties" : {
-				"animationSpeed" : {
+				"speedFactor" : {
 					"type" : "number",
-					"default" : 0.63
+					"default" : 2
 				},
 				"mouseShadow" : {
-					"type":"boolean",
+					"type" : "boolean",
 					"default" : true
 				},
 				"cellBorders" : {
@@ -238,25 +317,45 @@
 					"type" : "boolean",
 					"default" : true
 				},
+				"movementHighlightOnHover" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"rangeLimitHighlightOnHover" : {
+					"type" : "boolean",
+					"default" : false
+				},
 				"showQueue" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"swipeAttackDistance" : {
+					"type" : "number",
+					"default" : 250
 				},
 				"queueSize" : {
 					"type" : "string",
 					"default" : "auto",
 					"enum" : [ "auto", "small", "big" ]
+				},
+				"stickyHeroInfoWindows" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"enableAutocombatSpells" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
 		"server" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
+			"default" : {},
+			"required" : [ "server", "port", "localInformation", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "127.0.0.1"
 				},
 				"port" : {
@@ -268,6 +367,10 @@
 					"default" : 2
 				},
 				"playerAI" : {
+					"type" : "string",
+					"default" : "Nullkiller"
+				},
+				"alliedAI" : {
 					"type" : "string",
 					"default" : "VCAI"
 				},
@@ -293,8 +396,8 @@
 				},
 				"names" : {
 					"type" : "array",
-					"default" : {},
-					"items":
+					"default" : [],
+					"items" :
 					{
 						"type" : "string",
 						"default" : ""
@@ -356,7 +459,7 @@
 					"properties" : {
 						"format" : {
 							"type" : "string",
-							"default" : "%l %n [%t] - %m"
+							"default" : "[%c] %l %n - %m"
 						}
 					}
 				},
@@ -378,26 +481,47 @@
 		},
 		"launcher" : {
 			"type" : "object",
-			"default": {},
+			"default" : {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
+			"required" : [ 
+				"setupCompleted", 
+				"defaultRepositoryEnabled", 
+				"defaultRepositoryURL", 
+				"extraRepositoryURL", 
+				"extraRepositoryEnabled", 
+				"enableInstalledMods", 
+				"autoCheckRepositories", 
+				"updateOnStartup", 
+				"updateConfigUrl", 
+				"lobbyUrl", 
+				"lobbyPort", 
+				"lobbyUsername", 
+				"connectionTimeout"
+			],
 			"properties" : {
-				"repositoryURL" : {
-					"type" : "array",
-					"default" : [
-						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/github.json"
-					],
-					"items" : {
-						"type" : "string"
-					},
+				"defaultRepositoryEnabled" : {
+					"type" : "boolean",
+					"default" : true,
+				},
+				"defaultRepositoryURL" : {
+					"type" : "string",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.4.json",
+				},
+				"extraRepositoryEnabled" : {
+					"type" : "boolean",
+					"default" : false,
+				},
+				"extraRepositoryURL" : {
+					"type" : "string",
+					"default" : "",
+				},
+				"setupCompleted" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"enableInstalledMods" : {
 					"type" : "boolean",
 					"default" : true
-				},
-				"extraResolutionsModPath" : {
-					"type" : "string",
-					"default" : "/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"
 				},
 				"autoCheckRepositories" : {
 					"type" : "boolean",
@@ -410,6 +534,97 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
+				},
+				"lobbyUrl" : {
+					"type" : "string",
+					"description" : "ip address or web link to remote proxy server",
+					"default" : "beholder.vcmi.eu"
+				},
+				"lobbyPort" : {
+					"type" : "number",
+					"description" : "connection port for remote proxy server",
+					"default" : 5002
+				},
+				"lobbyUsername" : {
+					"type" : "string",
+					"description" : "username for the client on the remote proxy server",
+					"default" : ""
+				},
+				"connectionTimeout" : {
+					"type" : "number",
+					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
+					"default" : 2000
+				}
+			}
+		},
+		"lobby" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "mapPreview" ],
+			"properties" : {
+				"mapPreview" : {
+					"type" : "boolean",
+					"default" : true
+				}
+			}
+		},
+		"gameTweaks" : {
+			"type" : "object",
+			"default" : {},
+			"additionalProperties" : false,
+			"required" : [
+				"showGrid",
+				"forceMovementInfo",
+				"numericCreaturesQuantities",
+				"availableCreaturesAsDwellingLabel",
+				"compactTownCreatureInfo",
+				"infoBarPick",
+				"skipBattleIntroMusic",
+				"infoBarCreatureManagement",
+				"enableLargeSpellbook",
+				"skipAdventureMapAnimations"
+			],
+			"properties" : {
+				"showGrid" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"forceMovementInfo" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"numericCreaturesQuantities" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"availableCreaturesAsDwellingLabel" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"compactTownCreatureInfo" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"infoBarPick" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"skipBattleIntroMusic" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"infoBarCreatureManagement": {
+					"type" : "boolean",
+					"default" : true
+				},
+				"enableLargeSpellbook" : {
+					"type": "boolean",
+					"default": true
+				},
+				"skipAdventureMapAnimations": {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		}

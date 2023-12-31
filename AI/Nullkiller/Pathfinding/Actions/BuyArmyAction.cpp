@@ -12,13 +12,9 @@
 #include "BuyArmyAction.h"
 #include "../../AIGateway.h"
 #include "../../Goals/CompleteQuest.h"
-#include "../../../../lib/mapping/CMap.h" //for victory conditions
 
 namespace NKAI
 {
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
 
 namespace AIPathfinding
 {
@@ -27,7 +23,7 @@ namespace AIPathfinding
 		if(!hero->visitedTown)
 		{
 			throw cannotFulfillGoalException(
-				hero->name + " being at " + hero->visitablePos().toString() + " has no town to recruit creatures.");
+				hero->getNameTranslated() + " being at " + hero->visitablePos().toString() + " has no town to recruit creatures.");
 		}
 
 		ai->recruitCreatures(hero->visitedTown, hero);

@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "townbulidingswidget.h"
 #include "ui_townbulidingswidget.h"
-#include "../lib/CModHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 
 std::string defaultBuildingIdConversion(BuildingID bId)
@@ -95,7 +94,7 @@ QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, s
 		return nullptr;
 	}
 	
-	QString name = tr(building->Name().c_str());
+	QString name = tr(building->getNameTranslated().c_str());
 	
 	if(name.isEmpty())
 		name = QString::fromStdString(defaultBuildingIdConversion(buildingId));
@@ -131,7 +130,7 @@ QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, s
 			for(int i = 0; i < model.rowCount(pindex); ++i)
 			{
 				QModelIndex index = model.index(i, 0, pindex);
-				if(building->upgrade == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
+				if(building->upgrade.getNum() == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
 				{
 					parent = model.itemFromIndex(index);
 					break;
@@ -172,11 +171,22 @@ void TownBulidingsWidget::addBuildings(const CTown & ctown)
 std::set<BuildingID> TownBulidingsWidget::getBuildingsFromModel(int modelColumn, Qt::CheckState checkState)
 {
 	std::set<BuildingID> result;
-	for(int i = 0; i < model.rowCount(); ++i)
+	std::vector<QModelIndex> stack;
+	stack.push_back(QModelIndex());
+	while(!stack.empty())
 	{
-		if(auto * item = model.item(i, modelColumn))
-			if(item->checkState() == checkState)
-				result.emplace(item->data(Qt::UserRole).toInt());
+		auto pindex = stack.back();
+		stack.pop_back();
+		for(int i = 0; i < model.rowCount(pindex); ++i)
+		{
+			QModelIndex index = model.index(i, modelColumn, pindex);
+			if(auto * item = model.itemFromIndex(index))
+				if(item->checkState() == checkState)
+					result.emplace(item->data(Qt::UserRole).toInt());
+			index = model.index(i, 0, pindex); //children are linked to first column of the model
+			if(model.hasChildren(index))
+				stack.push_back(index);
+		}
 	}
 	
 	return result;
@@ -236,10 +246,6 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 	{
 		town.forbiddenBuildings = ed->getForbiddenBuildings();
 		town.builtBuildings = ed->getBuiltBuildings();
-		
-		auto data = model->itemData(index);
-		model->setData(index, "dummy");
-		model->setItemData(index, data); //dummy change to trigger signal
 	}
 	else
 	{

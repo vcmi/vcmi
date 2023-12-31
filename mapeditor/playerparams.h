@@ -11,7 +11,7 @@
 #pragma once
 
 #include <QWidget>
-#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "mapcontroller.h"
 
 namespace Ui {
@@ -28,19 +28,27 @@ public:
 
 	PlayerInfo playerInfo;
 	int playerColor;
+	
+	void onTownPicked(const CGObjectInstance *);
 
 private slots:
 	void on_radioHuman_toggled(bool checked);
 
 	void on_radioCpu_toggled(bool checked);
 
-	void on_mainTown_activated(int index);
+	void on_mainTown_currentIndexChanged(int index);
 
 	void on_generateHero_stateChanged(int arg1);
 
 	void on_randomFaction_stateChanged(int arg1);
 	
 	void allowedFactionsCheck(QListWidgetItem *);
+
+	void on_teamId_activated(int index);
+
+	void on_playerColorCombo_activated(int index);
+
+	void on_townSelect_clicked();
 
 private:
 	Ui::PlayerParams *ui;

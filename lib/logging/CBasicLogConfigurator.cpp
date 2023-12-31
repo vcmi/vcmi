@@ -20,8 +20,8 @@ CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, C
 
 void CBasicLogConfigurator::configureDefault()
 {
-	CLogger::getGlobalLogger()->addTarget(make_unique<CLogConsoleTarget>(console));
-	CLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(filePath, appendToLogFile));
+	CLogger::getGlobalLogger()->addTarget(std::make_unique<CLogConsoleTarget>(console));
+	CLogger::getGlobalLogger()->addTarget(std::make_unique<CLogFileTarget>(filePath, appendToLogFile));
 	appendToLogFile = true;
 }
 
@@ -37,7 +37,7 @@ void CBasicLogConfigurator::configure()
 		const JsonNode & loggers = loggingNode["loggers"];
 		if(!loggers.isNull())
 		{
-			for(auto & loggerNode : loggers.Vector())
+			for(const auto & loggerNode : loggers.Vector())
 			{
 				// Get logger
 				std::string name = loggerNode["domain"].String();
@@ -52,7 +52,7 @@ void CBasicLogConfigurator::configure()
 		CLogger::getGlobalLogger()->clearTargets();
 
 		// Add console target
-		auto consoleTarget = make_unique<CLogConsoleTarget>(console);
+		auto consoleTarget = std::make_unique<CLogConsoleTarget>(console);
 		const JsonNode & consoleNode = loggingNode["console"];
 		if(!consoleNode.isNull())
 		{
@@ -80,7 +80,7 @@ void CBasicLogConfigurator::configure()
 		CLogger::getGlobalLogger()->addTarget(std::move(consoleTarget));
 
 		// Add file target
-		auto fileTarget = make_unique<CLogFileTarget>(filePath, appendToLogFile);
+		auto fileTarget = std::make_unique<CLogFileTarget>(filePath, appendToLogFile);
 		const JsonNode & fileNode = loggingNode["file"];
 		if(!fileNode.isNull())
 		{
@@ -148,6 +148,7 @@ void CBasicLogConfigurator::deconfigure()
 	auto l = CLogger::getGlobalLogger();
 	if(l != nullptr)
 		l->clearTargets();
+	appendToLogFile = true;
 }
 
 VCMI_LIB_NAMESPACE_END

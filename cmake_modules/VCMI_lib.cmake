@@ -15,16 +15,34 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleStateInfoForRetreat.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.cpp
-		${MAIN_LIB_DIR}/battle/CCallbackBase.cpp
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.cpp
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.cpp
 		${MAIN_LIB_DIR}/battle/CUnitState.cpp
+		${MAIN_LIB_DIR}/battle/DamageCalculator.cpp
 		${MAIN_LIB_DIR}/battle/Destination.cpp
 		${MAIN_LIB_DIR}/battle/IBattleState.cpp
 		${MAIN_LIB_DIR}/battle/ReachabilityInfo.cpp
 		${MAIN_LIB_DIR}/battle/SideInBattle.cpp
 		${MAIN_LIB_DIR}/battle/SiegeInfo.cpp
 		${MAIN_LIB_DIR}/battle/Unit.cpp
+
+		${MAIN_LIB_DIR}/bonuses/Bonus.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusEnum.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusList.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusParams.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusSelector.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusCustomTypes.cpp
+		${MAIN_LIB_DIR}/bonuses/CBonusProxy.cpp
+		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.cpp
+		${MAIN_LIB_DIR}/bonuses/IBonusBearer.cpp
+		${MAIN_LIB_DIR}/bonuses/Limiters.cpp
+		${MAIN_LIB_DIR}/bonuses/Propagators.cpp
+		${MAIN_LIB_DIR}/bonuses/Updaters.cpp
+
+		${MAIN_LIB_DIR}/campaign/CampaignHandler.cpp
+		${MAIN_LIB_DIR}/campaign/CampaignState.cpp
+
+		${MAIN_LIB_DIR}/constants/EntityIdentifiers.cpp
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
@@ -44,49 +62,82 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/CZipLoader.cpp
 		${MAIN_LIB_DIR}/filesystem/CZipSaver.cpp
 		${MAIN_LIB_DIR}/filesystem/FileInfo.cpp
-		${MAIN_LIB_DIR}/filesystem/FileStream.cpp
 		${MAIN_LIB_DIR}/filesystem/Filesystem.cpp
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.cpp
-		${MAIN_LIB_DIR}/filesystem/ResourceID.cpp
+		${MAIN_LIB_DIR}/filesystem/ResourcePath.cpp
+
+		${MAIN_LIB_DIR}/gameState/CGameState.cpp
+		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.cpp
+		${MAIN_LIB_DIR}/gameState/InfoAboutArmy.cpp
+		${MAIN_LIB_DIR}/gameState/TavernHeroesPool.cpp
 
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.cpp
 		${MAIN_LIB_DIR}/logging/CLogger.cpp
 
+		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CBankInstanceConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/DwellingInstanceConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/HillFortInstanceConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/ShipyardInstanceConstructor.cpp
+
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGCreature.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGObjectInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.cpp
-		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.cpp
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.cpp
-		${MAIN_LIB_DIR}/mapObjects/CommonConstructors.cpp
 		${MAIN_LIB_DIR}/mapObjects/CQuest.cpp
-		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.cpp
-		${MAIN_LIB_DIR}/mapObjects/JsonRandom.cpp
+		${MAIN_LIB_DIR}/mapObjects/IMarket.cpp
+		${MAIN_LIB_DIR}/mapObjects/IObjectInterface.cpp
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.cpp
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.cpp
 
-		${MAIN_LIB_DIR}/mapping/CCampaignHandler.cpp
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.cpp
 		${MAIN_LIB_DIR}/mapping/CMap.cpp
+		${MAIN_LIB_DIR}/mapping/CMapHeader.cpp
 		${MAIN_LIB_DIR}/mapping/CMapEditManager.cpp
 		${MAIN_LIB_DIR}/mapping/CMapInfo.cpp
 		${MAIN_LIB_DIR}/mapping/CMapOperation.cpp
 		${MAIN_LIB_DIR}/mapping/CMapService.cpp
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.cpp
+		${MAIN_LIB_DIR}/mapping/MapIdentifiersH3M.cpp
+		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.cpp
+		${MAIN_LIB_DIR}/mapping/MapReaderH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
+		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
 
-		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesClientPacks1.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesClientPacks2.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects1.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects2.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects3.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesLobbyPacks.cpp
-		${MAIN_LIB_DIR}/registerTypes/TypesServerPacks.cpp
+		${MAIN_LIB_DIR}/modding/ActiveModsInSaveList.cpp
+		${MAIN_LIB_DIR}/modding/CModHandler.cpp
+		${MAIN_LIB_DIR}/modding/CModInfo.cpp
+		${MAIN_LIB_DIR}/modding/CModVersion.cpp
+		${MAIN_LIB_DIR}/modding/ContentTypeHandler.cpp
+		${MAIN_LIB_DIR}/modding/IdentifierStorage.cpp
+		${MAIN_LIB_DIR}/modding/ModUtility.cpp
+
+		${MAIN_LIB_DIR}/networkPacks/NetPacksLib.cpp
+
+		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
+		${MAIN_LIB_DIR}/pathfinder/CPathfinder.cpp
+		${MAIN_LIB_DIR}/pathfinder/NodeStorage.cpp
+		${MAIN_LIB_DIR}/pathfinder/PathfinderOptions.cpp
+		${MAIN_LIB_DIR}/pathfinder/PathfindingRules.cpp
+		${MAIN_LIB_DIR}/pathfinder/TurnInfo.cpp
+
+		${MAIN_LIB_DIR}/rewardable/Configuration.cpp
+		${MAIN_LIB_DIR}/rewardable/Info.cpp
+		${MAIN_LIB_DIR}/rewardable/Interface.cpp
+		${MAIN_LIB_DIR}/rewardable/Limiter.cpp
+		${MAIN_LIB_DIR}/rewardable/Reward.cpp
 
 		${MAIN_LIB_DIR}/rmg/RmgArea.cpp
 		${MAIN_LIB_DIR}/rmg/RmgObject.cpp
@@ -99,25 +150,32 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/TileInfo.cpp
 		${MAIN_LIB_DIR}/rmg/Zone.cpp
 		${MAIN_LIB_DIR}/rmg/Functions.cpp
-		${MAIN_LIB_DIR}/rmg/ObjectManager.cpp
-		${MAIN_LIB_DIR}/rmg/RoadPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/TreasurePlacer.cpp
 		${MAIN_LIB_DIR}/rmg/RmgMap.cpp
-		${MAIN_LIB_DIR}/rmg/ConnectionsPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/WaterAdopter.cpp
-		${MAIN_LIB_DIR}/rmg/TownPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/WaterProxy.cpp
-		${MAIN_LIB_DIR}/rmg/WaterRoutes.cpp
-		${MAIN_LIB_DIR}/rmg/RockPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/ObstaclePlacer.cpp
-		${MAIN_LIB_DIR}/rmg/RiverPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/TerrainPainter.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/Modificator.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RoadPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/TreasurePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/QuestArtifactPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ConnectionsPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/WaterAdopter.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/MinePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/TownPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/WaterProxy.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/WaterRoutes.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RockPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RockFiller.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ObstaclePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RiverPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/TerrainPainter.cpp
+		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.cpp
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.cpp
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.cpp
-		${MAIN_LIB_DIR}/serializer/CLoadIntegrityValidator.cpp
+		${MAIN_LIB_DIR}/serializer/CLoadFile.cpp
 		${MAIN_LIB_DIR}/serializer/CMemorySerializer.cpp
 		${MAIN_LIB_DIR}/serializer/Connection.cpp
+		${MAIN_LIB_DIR}/serializer/CSaveFile.cpp
 		${MAIN_LIB_DIR}/serializer/CSerializer.cpp
 		${MAIN_LIB_DIR}/serializer/CTypeList.cpp
 		${MAIN_LIB_DIR}/serializer/JsonDeserializer.cpp
@@ -130,7 +188,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/BattleSpellMechanics.cpp
 		${MAIN_LIB_DIR}/spells/BonusCaster.cpp
 		${MAIN_LIB_DIR}/spells/CSpellHandler.cpp
+		${MAIN_LIB_DIR}/spells/ExternalCaster.cpp
 		${MAIN_LIB_DIR}/spells/ISpellMechanics.cpp
+		${MAIN_LIB_DIR}/spells/ObstacleCasterProxy.cpp
 		${MAIN_LIB_DIR}/spells/Problem.cpp
 		${MAIN_LIB_DIR}/spells/ProxyCaster.cpp
 		${MAIN_LIB_DIR}/spells/TargetCondition.cpp
@@ -139,11 +199,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Catapult.cpp
 		${MAIN_LIB_DIR}/spells/effects/Clone.cpp
 		${MAIN_LIB_DIR}/spells/effects/Damage.cpp
+		${MAIN_LIB_DIR}/spells/effects/DemonSummon.cpp
 		${MAIN_LIB_DIR}/spells/effects/Dispel.cpp
 		${MAIN_LIB_DIR}/spells/effects/Effect.cpp
 		${MAIN_LIB_DIR}/spells/effects/Effects.cpp
 		${MAIN_LIB_DIR}/spells/effects/Heal.cpp
 		${MAIN_LIB_DIR}/spells/effects/LocationEffect.cpp
+		${MAIN_LIB_DIR}/spells/effects/Moat.cpp
 		${MAIN_LIB_DIR}/spells/effects/Obstacle.cpp
 		${MAIN_LIB_DIR}/spells/effects/Registry.cpp
 		${MAIN_LIB_DIR}/spells/effects/UnitEffect.cpp
@@ -153,11 +215,15 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/RemoveObstacle.cpp
 		${MAIN_LIB_DIR}/spells/effects/Sacrifice.cpp
 
+		${MAIN_LIB_DIR}/vstd/DateUtils.cpp
 		${MAIN_LIB_DIR}/vstd/StringUtils.cpp
 
+		${MAIN_LIB_DIR}/ArtifactUtils.cpp
+		${MAIN_LIB_DIR}/BasicTypes.cpp
 		${MAIN_LIB_DIR}/BattleFieldHandler.cpp
 		${MAIN_LIB_DIR}/CAndroidVMHelper.cpp
 		${MAIN_LIB_DIR}/CArtHandler.cpp
+		${MAIN_LIB_DIR}/CArtifactInstance.cpp
 		${MAIN_LIB_DIR}/CBonusTypeHandler.cpp
 		${MAIN_LIB_DIR}/CBuildingHandler.cpp
 		${MAIN_LIB_DIR}/CConfigHandler.cpp
@@ -166,11 +232,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CCreatureSet.cpp
 		${MAIN_LIB_DIR}/CGameInfoCallback.cpp
 		${MAIN_LIB_DIR}/CGameInterface.cpp
-		${MAIN_LIB_DIR}/CGameState.cpp
 		${MAIN_LIB_DIR}/CGeneralTextHandler.cpp
 		${MAIN_LIB_DIR}/CHeroHandler.cpp
-		${MAIN_LIB_DIR}/CModHandler.cpp
-		${MAIN_LIB_DIR}/CPathfinder.cpp
 		${MAIN_LIB_DIR}/CPlayerState.cpp
 		${MAIN_LIB_DIR}/CRandomGenerator.cpp
 		${MAIN_LIB_DIR}/CScriptingModule.cpp
@@ -178,24 +241,26 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CStack.cpp
 		${MAIN_LIB_DIR}/CThreadHelper.cpp
 		${MAIN_LIB_DIR}/CTownHandler.cpp
-		${MAIN_LIB_DIR}/GameConstants.cpp
-		${MAIN_LIB_DIR}/HeroBonus.cpp
+		${MAIN_LIB_DIR}/GameSettings.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
 		${MAIN_LIB_DIR}/IHandlerBase.cpp
 		${MAIN_LIB_DIR}/JsonDetail.cpp
 		${MAIN_LIB_DIR}/JsonNode.cpp
+		${MAIN_LIB_DIR}/JsonRandom.cpp
 		${MAIN_LIB_DIR}/LoadProgress.cpp
 		${MAIN_LIB_DIR}/LogicalExpression.cpp
-		${MAIN_LIB_DIR}/NetPacksLib.cpp
+		${MAIN_LIB_DIR}/MetaString.cpp
 		${MAIN_LIB_DIR}/ObstacleHandler.cpp
 		${MAIN_LIB_DIR}/StartInfo.cpp
 		${MAIN_LIB_DIR}/ResourceSet.cpp
+		${MAIN_LIB_DIR}/RiverHandler.cpp
+		${MAIN_LIB_DIR}/RoadHandler.cpp
 		${MAIN_LIB_DIR}/ScriptHandler.cpp
-		${MAIN_LIB_DIR}/Terrain.cpp
+		${MAIN_LIB_DIR}/TerrainHandler.cpp
+		${MAIN_LIB_DIR}/TextOperations.cpp
+		${MAIN_LIB_DIR}/TurnTimerInfo.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
-
-		${VCMILIB_ADDITIONAL_SOURCES}
 	)
 
 	# Version.cpp is a generated file
@@ -209,16 +274,26 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	set(lib_HEADERS
 		${MAIN_LIB_DIR}/../include/vstd/CLoggerBase.h
 		${MAIN_LIB_DIR}/../Global.h
+		${MAIN_LIB_DIR}/../AUTHORS.h
 		${MAIN_LIB_DIR}/StdInc.h
 
 		${MAIN_LIB_DIR}/../include/vstd/ContainerUtils.h
 		${MAIN_LIB_DIR}/../include/vstd/RNG.h
+		${MAIN_LIB_DIR}/../include/vstd/DateUtils.h
 		${MAIN_LIB_DIR}/../include/vstd/StringUtils.h
 
+		${MAIN_LIB_DIR}/../include/vcmi/events/AdventureEvents.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/ApplyDamage.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/BattleEvents.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/Event.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/EventBus.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/GameResumed.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/GenericEvents.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/ObjectVisitEnded.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/ObjectVisitStarted.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/PlayerGotTurn.h
 		${MAIN_LIB_DIR}/../include/vcmi/events/SubscriptionRegistry.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/TurnStarted.h
 
 		${MAIN_LIB_DIR}/../include/vcmi/scripting/Service.h
 
@@ -233,11 +308,22 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/CreatureService.h
 		${MAIN_LIB_DIR}/../include/vcmi/Entity.h
 		${MAIN_LIB_DIR}/../include/vcmi/Environment.h
+		${MAIN_LIB_DIR}/../include/vcmi/Faction.h
+		${MAIN_LIB_DIR}/../include/vcmi/FactionService.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroClass.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroClassService.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroType.h
+		${MAIN_LIB_DIR}/../include/vcmi/HeroTypeService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Metatype.h
+		${MAIN_LIB_DIR}/../include/vcmi/Player.h
+		${MAIN_LIB_DIR}/../include/vcmi/ServerCallback.h
 		${MAIN_LIB_DIR}/../include/vcmi/Services.h
-
-		${MAIN_LIB_DIR}/abilities/Ability.h
+		${MAIN_LIB_DIR}/../include/vcmi/Skill.h
+		${MAIN_LIB_DIR}/../include/vcmi/SkillService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Team.h
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
+		${MAIN_LIB_DIR}/battle/AutocombatPreferences.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.h
 		${MAIN_LIB_DIR}/battle/BattleHex.h
@@ -246,18 +332,44 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleProxy.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.h
-		${MAIN_LIB_DIR}/battle/CCallbackBase.h
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.h
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.h
 		${MAIN_LIB_DIR}/battle/CUnitState.h
+		${MAIN_LIB_DIR}/battle/DamageCalculator.h
 		${MAIN_LIB_DIR}/battle/Destination.h
 		${MAIN_LIB_DIR}/battle/IBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/IBattleState.h
 		${MAIN_LIB_DIR}/battle/IUnitInfo.h
+		${MAIN_LIB_DIR}/battle/PossiblePlayerBattleAction.h
 		${MAIN_LIB_DIR}/battle/ReachabilityInfo.h
 		${MAIN_LIB_DIR}/battle/SideInBattle.h
 		${MAIN_LIB_DIR}/battle/SiegeInfo.h
 		${MAIN_LIB_DIR}/battle/Unit.h
+
+		${MAIN_LIB_DIR}/bonuses/Bonus.h
+		${MAIN_LIB_DIR}/bonuses/BonusEnum.h
+		${MAIN_LIB_DIR}/bonuses/BonusList.h
+		${MAIN_LIB_DIR}/bonuses/BonusParams.h
+		${MAIN_LIB_DIR}/bonuses/BonusSelector.h
+		${MAIN_LIB_DIR}/bonuses/BonusCustomTypes.h
+		${MAIN_LIB_DIR}/bonuses/CBonusProxy.h
+		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.h
+		${MAIN_LIB_DIR}/bonuses/IBonusBearer.h
+		${MAIN_LIB_DIR}/bonuses/Limiters.h
+		${MAIN_LIB_DIR}/bonuses/Propagators.h
+		${MAIN_LIB_DIR}/bonuses/Updaters.h
+
+		${MAIN_LIB_DIR}/campaign/CampaignConstants.h
+		${MAIN_LIB_DIR}/campaign/CampaignHandler.h
+		${MAIN_LIB_DIR}/campaign/CampaignScenarioPrologEpilog.h
+		${MAIN_LIB_DIR}/campaign/CampaignState.h
+
+		${MAIN_LIB_DIR}/constants/EntityIdentifiers.h
+		${MAIN_LIB_DIR}/constants/Enumerations.h
+		${MAIN_LIB_DIR}/constants/IdentifierBase.h
+		${MAIN_LIB_DIR}/constants/VariantIdentifier.h
+		${MAIN_LIB_DIR}/constants/NumericConstants.h
+		${MAIN_LIB_DIR}/constants/StringConstants.h
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.h
 		${MAIN_LIB_DIR}/events/GameResumed.h
@@ -281,45 +393,120 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/CZipLoader.h
 		${MAIN_LIB_DIR}/filesystem/CZipSaver.h
 		${MAIN_LIB_DIR}/filesystem/FileInfo.h
-		${MAIN_LIB_DIR}/filesystem/FileStream.h
 		${MAIN_LIB_DIR}/filesystem/Filesystem.h
 		${MAIN_LIB_DIR}/filesystem/ISimpleResourceLoader.h
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.h
-		${MAIN_LIB_DIR}/filesystem/ResourceID.h
+		${MAIN_LIB_DIR}/filesystem/ResourcePath.h
+
+		${MAIN_LIB_DIR}/gameState/CGameState.h
+		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.h
+		${MAIN_LIB_DIR}/gameState/EVictoryLossCheckResult.h
+		${MAIN_LIB_DIR}/gameState/InfoAboutArmy.h
+		${MAIN_LIB_DIR}/gameState/SThievesGuildInfo.h
+		${MAIN_LIB_DIR}/gameState/TavernHeroesPool.h
+		${MAIN_LIB_DIR}/gameState/TavernSlot.h
+		${MAIN_LIB_DIR}/gameState/QuestInfo.h
 
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.h
 		${MAIN_LIB_DIR}/logging/CLogger.h
 
+		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CBankInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CDefaultObjectTypeHandler.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/DwellingInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/HillFortInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/IObjectInfo.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/RandomMapInfo.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/ShipyardInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/SObjectSounds.h
+
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CBank.h
+		${MAIN_LIB_DIR}/mapObjects/CGCreature.h
+		${MAIN_LIB_DIR}/mapObjects/CGDwelling.h
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.h
+		${MAIN_LIB_DIR}/mapObjects/CGObjectInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.h
+		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.h
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.h
-		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.h
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.h
-		${MAIN_LIB_DIR}/mapObjects/CommonConstructors.h
 		${MAIN_LIB_DIR}/mapObjects/CQuest.h
-		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.h
-		${MAIN_LIB_DIR}/mapObjects/JsonRandom.h
+		${MAIN_LIB_DIR}/mapObjects/IMarket.h
+		${MAIN_LIB_DIR}/mapObjects/IObjectInterface.h
 		${MAIN_LIB_DIR}/mapObjects/MapObjects.h
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.h
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.h
 
-		${MAIN_LIB_DIR}/mapping/CCampaignHandler.h
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.h
 		${MAIN_LIB_DIR}/mapping/CMapDefines.h
 		${MAIN_LIB_DIR}/mapping/CMapEditManager.h
+		${MAIN_LIB_DIR}/mapping/CMapHeader.h
 		${MAIN_LIB_DIR}/mapping/CMap.h
 		${MAIN_LIB_DIR}/mapping/CMapInfo.h
 		${MAIN_LIB_DIR}/mapping/CMapOperation.h
 		${MAIN_LIB_DIR}/mapping/CMapService.h
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.h
+		${MAIN_LIB_DIR}/mapping/MapIdentifiersH3M.h
+		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.h
+		${MAIN_LIB_DIR}/mapping/MapFormat.h
+		${MAIN_LIB_DIR}/mapping/MapReaderH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
+		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
+
+		${MAIN_LIB_DIR}/modding/ActiveModsInSaveList.h
+		${MAIN_LIB_DIR}/modding/CModHandler.h
+		${MAIN_LIB_DIR}/modding/CModInfo.h
+		${MAIN_LIB_DIR}/modding/CModVersion.h
+		${MAIN_LIB_DIR}/modding/ContentTypeHandler.h
+		${MAIN_LIB_DIR}/modding/IdentifierStorage.h
+		${MAIN_LIB_DIR}/modding/ModIncompatibility.h
+		${MAIN_LIB_DIR}/modding/ModScope.h
+		${MAIN_LIB_DIR}/modding/ModUtility.h
+		${MAIN_LIB_DIR}/modding/ModVerificationInfo.h
+
+		${MAIN_LIB_DIR}/networkPacks/ArtifactLocation.h
+		${MAIN_LIB_DIR}/networkPacks/BattleChanges.h
+		${MAIN_LIB_DIR}/networkPacks/Component.h
+		${MAIN_LIB_DIR}/networkPacks/EInfoWindowMode.h
+		${MAIN_LIB_DIR}/networkPacks/EntityChanges.h
+		${MAIN_LIB_DIR}/networkPacks/EOpenWindowMode.h
+		${MAIN_LIB_DIR}/networkPacks/NetPacksBase.h
+		${MAIN_LIB_DIR}/networkPacks/NetPackVisitor.h
+		${MAIN_LIB_DIR}/networkPacks/ObjProperty.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForClient.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForClientBattle.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForLobby.h
+		${MAIN_LIB_DIR}/networkPacks/PacksForServer.h
+		${MAIN_LIB_DIR}/networkPacks/SetStackEffect.h
+		${MAIN_LIB_DIR}/networkPacks/StackLocation.h
+		${MAIN_LIB_DIR}/networkPacks/TradeItem.h
+
+		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h
+		${MAIN_LIB_DIR}/pathfinder/CGPathNode.h
+		${MAIN_LIB_DIR}/pathfinder/CPathfinder.h
+		${MAIN_LIB_DIR}/pathfinder/NodeStorage.h
+		${MAIN_LIB_DIR}/pathfinder/PathfinderOptions.h
+		${MAIN_LIB_DIR}/pathfinder/PathfinderUtil.h
+		${MAIN_LIB_DIR}/pathfinder/PathfindingRules.h
+		${MAIN_LIB_DIR}/pathfinder/TurnInfo.h
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesClientPacks.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesLobbyPacks.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesMapObjects.h
+		${MAIN_LIB_DIR}/registerTypes/RegisterTypesServerPacks.h
+
+		${MAIN_LIB_DIR}/rewardable/Configuration.h
+		${MAIN_LIB_DIR}/rewardable/Info.h
+		${MAIN_LIB_DIR}/rewardable/Interface.h
+		${MAIN_LIB_DIR}/rewardable/Limiter.h
+		${MAIN_LIB_DIR}/rewardable/Reward.h
 
 		${MAIN_LIB_DIR}/rmg/RmgArea.h
 		${MAIN_LIB_DIR}/rmg/RmgObject.h
@@ -331,27 +518,36 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/CZonePlacer.h
 		${MAIN_LIB_DIR}/rmg/TileInfo.h
 		${MAIN_LIB_DIR}/rmg/Zone.h
-		${MAIN_LIB_DIR}/rmg/Functions.h
-		${MAIN_LIB_DIR}/rmg/ObjectManager.h
-		${MAIN_LIB_DIR}/rmg/RoadPlacer.h
-		${MAIN_LIB_DIR}/rmg/TreasurePlacer.h
 		${MAIN_LIB_DIR}/rmg/RmgMap.h
-		${MAIN_LIB_DIR}/rmg/ConnectionsPlacer.h
-		${MAIN_LIB_DIR}/rmg/WaterAdopter.h
-		${MAIN_LIB_DIR}/rmg/TownPlacer.h
-		${MAIN_LIB_DIR}/rmg/WaterProxy.h
-		${MAIN_LIB_DIR}/rmg/WaterRoutes.h
-		${MAIN_LIB_DIR}/rmg/RockPlacer.h
-		${MAIN_LIB_DIR}/rmg/ObstaclePlacer.h
-		${MAIN_LIB_DIR}/rmg/RiverPlacer.h
-		${MAIN_LIB_DIR}/rmg/TerrainPainter.h
 		${MAIN_LIB_DIR}/rmg/float3.h
+		${MAIN_LIB_DIR}/rmg/Functions.h
+		${MAIN_LIB_DIR}/rmg/modificators/Modificator.h
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.h
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.h
+		${MAIN_LIB_DIR}/rmg/modificators/RoadPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/TreasurePlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/QuestArtifactPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/ConnectionsPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/WaterAdopter.h
+		${MAIN_LIB_DIR}/rmg/modificators/MinePlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/TownPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/WaterProxy.h
+		${MAIN_LIB_DIR}/rmg/modificators/WaterRoutes.h
+		${MAIN_LIB_DIR}/rmg/modificators/RockPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/RockFiller.h
+		${MAIN_LIB_DIR}/rmg/modificators/ObstaclePlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/RiverPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/TerrainPainter.h
+		${MAIN_LIB_DIR}/rmg/threadpool/BlockingQueue.h
+		${MAIN_LIB_DIR}/rmg/threadpool/ThreadPool.h
+		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.h
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.h
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.h
-		${MAIN_LIB_DIR}/serializer/CLoadIntegrityValidator.h
+		${MAIN_LIB_DIR}/serializer/CLoadFile.h
 		${MAIN_LIB_DIR}/serializer/CMemorySerializer.h
 		${MAIN_LIB_DIR}/serializer/Connection.h
+		${MAIN_LIB_DIR}/serializer/CSaveFile.h
 		${MAIN_LIB_DIR}/serializer/CSerializer.h
 		${MAIN_LIB_DIR}/serializer/CTypeList.h
 		${MAIN_LIB_DIR}/serializer/JsonDeserializer.h
@@ -365,7 +561,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/BattleSpellMechanics.h
 		${MAIN_LIB_DIR}/spells/BonusCaster.h
 		${MAIN_LIB_DIR}/spells/CSpellHandler.h
+		${MAIN_LIB_DIR}/spells/ExternalCaster.h
 		${MAIN_LIB_DIR}/spells/ISpellMechanics.h
+		${MAIN_LIB_DIR}/spells/ObstacleCasterProxy.h
 		${MAIN_LIB_DIR}/spells/Problem.h
 		${MAIN_LIB_DIR}/spells/ProxyCaster.h
 		${MAIN_LIB_DIR}/spells/TargetCondition.h
@@ -374,6 +572,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Catapult.h
 		${MAIN_LIB_DIR}/spells/effects/Clone.h
 		${MAIN_LIB_DIR}/spells/effects/Damage.h
+		${MAIN_LIB_DIR}/spells/effects/DemonSummon.h
 		${MAIN_LIB_DIR}/spells/effects/Dispel.h
 		${MAIN_LIB_DIR}/spells/effects/Effect.h
 		${MAIN_LIB_DIR}/spells/effects/Effects.h
@@ -390,9 +589,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Sacrifice.h
 
 		${MAIN_LIB_DIR}/AI_Base.h
+		${MAIN_LIB_DIR}/ArtifactUtils.h
 		${MAIN_LIB_DIR}/BattleFieldHandler.h
 		${MAIN_LIB_DIR}/CAndroidVMHelper.h
 		${MAIN_LIB_DIR}/CArtHandler.h
+		${MAIN_LIB_DIR}/CArtifactInstance.h
 		${MAIN_LIB_DIR}/CBonusTypeHandler.h
 		${MAIN_LIB_DIR}/CBuildingHandler.h
 		${MAIN_LIB_DIR}/CConfigHandler.h
@@ -401,14 +602,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CCreatureSet.h
 		${MAIN_LIB_DIR}/CGameInfoCallback.h
 		${MAIN_LIB_DIR}/CGameInterface.h
-		${MAIN_LIB_DIR}/CGameStateFwd.h
-		${MAIN_LIB_DIR}/CGameState.h
 		${MAIN_LIB_DIR}/CGeneralTextHandler.h
 		${MAIN_LIB_DIR}/CHeroHandler.h
-		${MAIN_LIB_DIR}/CModHandler.h
 		${MAIN_LIB_DIR}/CondSh.h
 		${MAIN_LIB_DIR}/ConstTransitivePtr.h
-		${MAIN_LIB_DIR}/CPathfinder.h
+		${MAIN_LIB_DIR}/Color.h
 		${MAIN_LIB_DIR}/CPlayerState.h
 		${MAIN_LIB_DIR}/CRandomGenerator.h
 		${MAIN_LIB_DIR}/CScriptingModule.h
@@ -420,28 +618,32 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CTownHandler.h
 		${MAIN_LIB_DIR}/FunctionList.h
 		${MAIN_LIB_DIR}/GameConstants.h
-		${MAIN_LIB_DIR}/HeroBonus.h
+		${MAIN_LIB_DIR}/GameSettings.h
 		${MAIN_LIB_DIR}/IBonusTypeHandler.h
 		${MAIN_LIB_DIR}/IGameCallback.h
 		${MAIN_LIB_DIR}/IGameEventsReceiver.h
 		${MAIN_LIB_DIR}/IHandlerBase.h
 		${MAIN_LIB_DIR}/int3.h
-		${MAIN_LIB_DIR}/Interprocess.h
 		${MAIN_LIB_DIR}/JsonDetail.h
 		${MAIN_LIB_DIR}/JsonNode.h
+		${MAIN_LIB_DIR}/JsonRandom.h
+		${MAIN_LIB_DIR}/Languages.h
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h
-		${MAIN_LIB_DIR}/NetPacksBase.h
-		${MAIN_LIB_DIR}/NetPacks.h
-		${MAIN_LIB_DIR}/NetPacksLobby.h
+		${MAIN_LIB_DIR}/MetaString.h
 		${MAIN_LIB_DIR}/ObstacleHandler.h
-		${MAIN_LIB_DIR}/PathfinderUtil.h
+		${MAIN_LIB_DIR}/Point.h
+		${MAIN_LIB_DIR}/Rect.h
+		${MAIN_LIB_DIR}/Rect.cpp
 		${MAIN_LIB_DIR}/ResourceSet.h
+		${MAIN_LIB_DIR}/RiverHandler.h
+		${MAIN_LIB_DIR}/RoadHandler.h
 		${MAIN_LIB_DIR}/ScriptHandler.h
 		${MAIN_LIB_DIR}/ScopeGuard.h
 		${MAIN_LIB_DIR}/StartInfo.h
-		${MAIN_LIB_DIR}/StringConstants.h
-		${MAIN_LIB_DIR}/Terrain.h
+		${MAIN_LIB_DIR}/TerrainHandler.h
+		${MAIN_LIB_DIR}/TextOperations.h
+		${MAIN_LIB_DIR}/TurnTimerInfo.h
 		${MAIN_LIB_DIR}/UnlockGuard.h
 		${MAIN_LIB_DIR}/VCMIDirs.h
 		${MAIN_LIB_DIR}/vcmi_endian.h
@@ -465,7 +667,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		PUBLIC ${MAIN_LIB_DIR}/..
 		PUBLIC ${MAIN_LIB_DIR}/../include
 		PUBLIC ${MAIN_LIB_DIR}
-		PRIVATE ${SDL2_INCLUDE_DIR}
 	)
 
 	if(WIN32)
@@ -476,21 +677,17 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		)
 	endif()
 
-	if(ANDROID)
-		return()
-	endif()
-
 	vcmi_set_output_dir(${TARGET_NAME} "")
 
 	enable_pch(${TARGET_NAME})
 
 	# We want to deploy assets into build directory for easier debugging without install
-	if(NOT APPLE_IOS)
+	if(COPY_CONFIG_ON_BUILD)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${MAIN_LIB_DIR}/../config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${MAIN_LIB_DIR}/../Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
+			COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${MAIN_LIB_DIR}/../config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
+			COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${MAIN_LIB_DIR}/../Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
 		)
 	endif()
 

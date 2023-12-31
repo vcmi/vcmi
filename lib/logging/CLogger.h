@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../CConsoleHandler.h"
-#include "../filesystem/FileStream.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -78,8 +77,8 @@ private:
 	CLogger * parent;
 	ELogLevel::ELogLevel level;
 	std::vector<std::unique_ptr<ILogTarget> > targets;
-	mutable boost::mutex mx;
-	static boost::recursive_mutex smx;
+	mutable std::mutex mx;
+	static std::recursive_mutex smx;
 };
 
 /* ---------------------------------------------------------------------------- */
@@ -101,8 +100,8 @@ private:
 	virtual ~CLogManager();
 
 	std::map<std::string, CLogger *> loggers;
-	mutable boost::mutex mx;
-	static boost::recursive_mutex smx;
+	mutable std::mutex mx;
+	static std::recursive_mutex smx;
 };
 
 /// The struct LogRecord holds the log message and additional logging information.
@@ -134,13 +133,8 @@ class DLL_LINKAGE CLogFormatter
 {
 public:
 	CLogFormatter();
-	CLogFormatter(const CLogFormatter & copy);
-	CLogFormatter(CLogFormatter && move);
 
-	CLogFormatter(const std::string & pattern);
-
-	CLogFormatter & operator=(const CLogFormatter & copy);
-	CLogFormatter & operator=(CLogFormatter && move);
+	CLogFormatter(std::string pattern);
 
 	void setPattern(const std::string & pattern);
 	void setPattern(std::string && pattern);
@@ -198,14 +192,14 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-#ifndef VCMI_IOS
+#if !defined(VCMI_MOBILE)
 	CConsoleHandler * console;
 #endif
 	ELogLevel::ELogLevel threshold;
 	bool coloredOutputEnabled;
 	CLogFormatter formatter;
 	CColorMapping colorMapping;
-	mutable boost::mutex mx;
+	mutable std::mutex mx;
 };
 
 /// This target is a logging target which writes messages to a log file.
@@ -216,7 +210,7 @@ class DLL_LINKAGE CLogFileTarget : public ILogTarget
 public:
 	/// Constructs a CLogFileTarget and opens the file designated by filePath. If the append parameter is true, the file
 	/// will be appended to. Otherwise the file designated by filePath will be truncated before being opened.
-	explicit CLogFileTarget(boost::filesystem::path filePath, bool append = true);
+	explicit CLogFileTarget(const boost::filesystem::path & filePath, bool append = true);
 	~CLogFileTarget();
 
 	const CLogFormatter & getFormatter() const;
@@ -225,9 +219,9 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-	FileStream file;
+	std::fstream file;
 	CLogFormatter formatter;
-	mutable boost::mutex mx;
+	mutable std::mutex mx;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -11,12 +11,16 @@
 #pragma once
 
 #include <QSortFilterProxyModel>
-#include "../lib/Terrain.h"
+#include "../lib/GameConstants.h"
 
-class ObjectBrowser : public QSortFilterProxyModel
+class ObjectBrowserProxyModel : public QSortFilterProxyModel
 {
 public:
-	explicit ObjectBrowser(QObject *parent = nullptr);
+	explicit ObjectBrowserProxyModel(QObject *parent = nullptr);
+	
+	Qt::ItemFlags flags(const QModelIndex &index) const override;
+		
+	QMimeData * mimeData(const QModelIndexList & indexes) const override;
 
 	TerrainId terrain;
 	QString filter;
@@ -24,4 +28,13 @@ public:
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 	bool filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const;
+};
+
+class ObjectBrowser : public QTreeView
+{
+public:
+	ObjectBrowser(QWidget * parent);
+	
+protected:
+	void startDrag(Qt::DropActions supportedActions) override;
 };

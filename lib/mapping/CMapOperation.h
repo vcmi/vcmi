@@ -63,7 +63,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, TerrainId terType, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -73,7 +73,7 @@ public:
 private:
 	struct ValidationResult
 	{
-		ValidationResult(bool result, const std::string & transitionReplacement = "");
+		ValidationResult(bool result, std::string transitionReplacement = "");
 
 		bool result;
 		/// The replacement of a T rule, either D or S.
@@ -101,6 +101,7 @@ private:
 
 	CTerrainSelection terrainSel;
 	TerrainId terType;
+	int decorationsPercentage;
 	CRandomGenerator* gen;
 	std::set<int3> invalidatedTerViews;
 };

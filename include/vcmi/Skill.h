@@ -19,7 +19,8 @@ class SecondarySkill;
 class DLL_LINKAGE Skill : public EntityT<SecondarySkill>
 {
 public:
-
+	virtual std::string getDescriptionTextID(int level) const = 0;
+	virtual std::string getDescriptionTranslated(int level) const = 0;
 };
 
 
