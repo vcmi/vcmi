@@ -57,7 +57,7 @@ protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CFaction * faction = nullptr;
+	const CFaction * faction = nullptr;
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
@@ -76,7 +76,7 @@ protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	CHeroClass * heroClass = nullptr;
+	const CHeroClass * heroClass = nullptr;
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
 	void initializeObject(CGHeroInstance * object) const override;

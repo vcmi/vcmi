@@ -189,23 +189,23 @@ void ContentTypeHandler::afterLoadFinalization()
 
 void CContentHandler::init()
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
-	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
-	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
-	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
-	handlers.insert(std::make_pair("templates", ContentTypeHandler(VLC->tplh, "template")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(VLC->heroclassesh.get(), "heroClass")));
+	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth.get(), "artifact")));
+	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh.get(), "creature")));
+	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh.get(), "faction")));
+	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh.get(), "object")));
+	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh.get(), "hero")));
+	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh.get(), "spell")));
+	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh.get(), "skill")));
+	handlers.insert(std::make_pair("templates", ContentTypeHandler(VLC->tplh.get(), "template")));
 #if SCRIPTING_ENABLED
 	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
 #endif
-	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler, "battlefield")));
-	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler, "terrain")));
-	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler, "river")));
-	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler, "road")));
-	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler, "obstacle")));
+	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler.get(), "battlefield")));
+	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler.get(), "terrain")));
+	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler.get(), "river")));
+	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler.get(), "road")));
+	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler.get(), "obstacle")));
 	//TODO: any other types of moddables?
 }
 

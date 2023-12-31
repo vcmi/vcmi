@@ -316,7 +316,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
 	if(!type)
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 
 	if (ID == Obj::HERO)
 		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -590,11 +590,11 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 	{
 		ID = Obj::HERO;
 		subID = cb->gameState()->pickNextHeroType(getOwner());
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 		randomizeArmy(type->heroClass->faction);
 	}
 	else
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 
 	auto oldSubID = subID;
 
@@ -879,7 +879,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double necromancySkill = valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE) / 100.0;
 		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
-		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
+		const std::map<CreatureID,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
@@ -888,7 +888,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, VLC->creatures()->getByIndex(casualty.first)->getLevel());
+				vstd::amax(maxCasualtyLevel, VLC->creatures()->getById(casualty.first)->getLevel());
 			// pick best bonus available
 			std::shared_ptr<Bonus> topPick;
 			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
@@ -936,7 +936,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double raisedUnits = 0;
 		for(const auto & casualty : casualties)
 		{
-			const CCreature * c = VLC->creh->objects[casualty.first];
+			const CCreature * c = casualty.first.toCreature();
 			double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
 			if(c->getLevel() < requiredCasualtyLevel)
 				raisedFromCasualty *= 0.5;
@@ -1742,7 +1742,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(!appearance)
 			{
 				// crossoverDeserialize
-				type = VLC->heroh->objects[getHeroType().getNum()];
+				type = getHeroType().toHeroType();
 				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			}
 

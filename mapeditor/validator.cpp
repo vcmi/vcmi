@@ -78,7 +78,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 		if(!hplayers)
 			issues.emplace_back(tr("No human players allowed to play this map"), true);
 
-		std::set<CHero*> allHeroesOnMap; //used to find hero duplicated
+		std::set<const CHero*> allHeroesOnMap; //used to find hero duplicated
 		
 		//checking all objects in the map
 		for(auto o : map->objects)

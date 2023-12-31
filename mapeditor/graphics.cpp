@@ -125,7 +125,7 @@ void Graphics::load()
 
 void Graphics::loadHeroAnimations()
 {
-	for(auto & elem : VLC->heroh->classes.objects)
+	for(auto & elem : VLC->heroclassesh->objects)
 	{
 		for(auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{

@@ -107,7 +107,7 @@ void CArtifactInstance::init()
 	setNodeType(ARTIFACT_INSTANCE);
 }
 
-CArtifactInstance::CArtifactInstance(CArtifact * art)
+CArtifactInstance::CArtifactInstance(const CArtifact * art)
 {
 	init();
 	setType(art);
@@ -118,10 +118,10 @@ CArtifactInstance::CArtifactInstance()
 	init();
 }
 
-void CArtifactInstance::setType(CArtifact * art)
+void CArtifactInstance::setType(const CArtifact * art)
 {
 	artType = art;
-	attachTo(*art);
+	attachTo(const_cast<CArtifact&>(*art));
 }
 
 std::string CArtifactInstance::nodeName() const

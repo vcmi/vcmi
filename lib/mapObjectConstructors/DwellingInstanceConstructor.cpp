@@ -45,7 +45,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 		{
 			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [=] (si32 index)
 			{
-				availableCreatures[currentLevel][currentCreature] = VLC->creh->objects[index];
+				availableCreatures[currentLevel][currentCreature] = CreatureID(index).toCreature();
 			});
 		}
 		assert(!availableCreatures[currentLevel].empty());

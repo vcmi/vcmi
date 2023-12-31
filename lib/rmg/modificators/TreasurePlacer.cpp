@@ -159,12 +159,12 @@ void TreasurePlacer::addAllPossibleObjects()
 	//all following objects are unlimited
 	oi.maxPerZone = std::numeric_limits<ui32>::max();
 
-	std::vector<CCreature *> creatures; //native creatures for this zone
+	std::vector<const CCreature *> creatures; //native creatures for this zone
 	for(auto cre : VLC->creh->objects)
 	{
 		if(!cre->special && cre->getFaction() == zone.getTownType())
 		{
-			creatures.push_back(cre);
+			creatures.push_back(cre.get());
 		}
 	}
 	
@@ -283,7 +283,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	//pandora box with creatures
 	const std::vector<int> & tierValues = generator.getConfig().pandoraCreatureValues;
 	
-	auto creatureToCount = [tierValues](CCreature * creature) -> int
+	auto creatureToCount = [tierValues](const CCreature * creature) -> int
 	{
 		if(!creature->getAIValue() || tierValues.empty()) //bug #2681
 			return 0; //this box won't be generated
@@ -350,11 +350,11 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
 
-			std::vector <CSpell *> spells;
+			std::vector <const CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
 				if(map.isAllowedSpell(spell->id) && spell->getLevel() == i)
-					spells.push_back(spell);
+					spells.push_back(spell.get());
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
@@ -383,11 +383,11 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
 
-			std::vector <CSpell *> spells;
+			std::vector <const CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(map.isAllowedSpell(spell->id) && spell->school[SpellSchool(i)])
-					spells.push_back(spell);
+				if(map.isAllowedSpell(spell->id) && spell->hasSchool(SpellSchool(i)))
+					spells.push_back(spell.get());
 			}
 			
 			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
@@ -415,11 +415,11 @@ void TreasurePlacer::addAllPossibleObjects()
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 		auto * obj = dynamic_cast<CGPandoraBox *>(factory->create());
 
-		std::vector <CSpell *> spells;
+		std::vector <const CSpell *> spells;
 		for(auto spell : VLC->spellh->objects)
 		{
 			if(map.isAllowedSpell(spell->id))
-				spells.push_back(spell);
+				spells.push_back(spell.get());
 		}
 		
 		RandomGeneratorUtil::randomShuffle(spells, zone.getRand());

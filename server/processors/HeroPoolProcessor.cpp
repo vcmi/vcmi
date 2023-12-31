@@ -253,7 +253,7 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 			continue;
 
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, player);
-		bool heroClassBanned = elem.second->type->heroClass->selectionProbability[factionID] == 0;
+		bool heroClassBanned = elem.second->type->heroClass->tavernProbability(factionID) == 0;
 
 		if(heroAvailable && !heroClassBanned)
 			result.push_back(elem.second->type->heroClass);
@@ -326,13 +326,13 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 
 	int totalWeight = 0;
 	for(const auto & heroClass : possibleClasses)
-		totalWeight += heroClass->selectionProbability.at(factionID);
+		totalWeight += heroClass->tavernProbability(factionID);
 
 	int roll = getRandomGenerator(player).nextInt(totalWeight - 1);
 
 	for(const auto & heroClass : possibleClasses)
 	{
-		roll -= heroClass->selectionProbability.at(factionID);
+		roll -= heroClass->tavernProbability(factionID);
 		if(roll < 0)
 			return heroClass;
 	}

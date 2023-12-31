@@ -760,7 +760,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	// ban combo artifacts
 	if(!features.levelSOD)
 	{
-		for(CArtifact * artifact : VLC->arth->objects)
+		for(auto const & artifact : VLC->arth->objects)
 			if(artifact->isCombined())
 				map->allowedArtifact.erase(artifact->getId());
 	}

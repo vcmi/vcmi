@@ -510,7 +510,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 		{
 			if(map->isInTheMap(pos))
 			{
-				auto * ptrConfig = VLC->terviewh;
+				const auto & ptrConfig = VLC->terviewh;
 				const auto * terType = map->getTile(pos).terType;
 				auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
 

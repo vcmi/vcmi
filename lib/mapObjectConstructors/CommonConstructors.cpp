@@ -122,7 +122,7 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 	VLC->identifiers()->requestIdentifier(
 		"heroClass",
 		input["heroClass"],
-		[&](si32 index) { heroClass = VLC->heroh->classes[index]; });
+		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
 
 	filtersJson = input["filters"];
 }

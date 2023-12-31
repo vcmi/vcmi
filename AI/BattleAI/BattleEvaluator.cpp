@@ -350,10 +350,11 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
-	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [hero, this](const CSpell *s) -> bool
-	{
-		return s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero);
-	});
+
+	for (auto const & s : VLC->spellh->objects)
+		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
+			possibleSpells.push_back(s.get());
+
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
 	vstd::erase_if(possibleSpells, [](const CSpell *s)

@@ -44,11 +44,21 @@ public:
 	/// allows handler to do post-loading step for validation or integration of loaded data
 	virtual void afterLoadFinalization(){};
 
-	virtual ~IHandlerBase(){}
+	virtual ~IHandlerBase() = default;
 };
 
 template <class _ObjectID, class _ObjectBase, class _Object, class _ServiceBase> class CHandlerBase : public _ServiceBase, public IHandlerBase
 {
+	const _Object * getObjectImpl(const int32_t index) const
+	{
+		if(index < 0 || index >= objects.size())
+		{
+			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
+			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
+		}
+		return objects[index].get();
+	}
+
 public:
 	virtual ~CHandlerBase()
 	{
@@ -56,22 +66,31 @@ public:
 		{
 			o.dellNull();
 		}
+	}
 
+	_Object * getObjectWriteable(const int32_t index)
+	{
+		if(index < 0 || index >= objects.size())
+		{
+			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
+			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
+		}
+		return objects[index].get();
 	}
 
 	const Entity * getBaseByIndex(const int32_t index) const override
 	{
-		return getByIndex(index);
+		return getObjectImpl(index);
 	}
 
 	const _ObjectBase * getById(const _ObjectID & id) const override
 	{
-		return (*this)[id].get();
+		return getObjectImpl(id.getNum());
 	}
 
 	const _ObjectBase * getByIndex(const int32_t index) const override
 	{
-		return (*this)[_ObjectID(index)].get();
+		return getObjectImpl(index);
 	}
 
 	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override
@@ -105,21 +124,14 @@ public:
 			registerObject(scope, type_name, name, object->getIndex());
 	}
 
-	ConstTransitivePtr<_Object> operator[] (const _ObjectID id) const
+	const _Object * operator[] (const _ObjectID id) const
 	{
-		const int32_t raw_id = id.getNum();
-		return operator[](raw_id);
+		return getObjectImpl(id.getNum());
 	}
 
-	ConstTransitivePtr<_Object> operator[] (int32_t index) const
+	const _Object * operator[] (int32_t index) const
 	{
-		if(index < 0 || index >= objects.size())
-		{
-			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
-			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
-		}
-
-		return objects[index];
+		return getObjectImpl(index);
 	}
 
 	void updateEntity(int32_t index, const JsonNode & data)

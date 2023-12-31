@@ -1118,7 +1118,7 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 struct DLL_LINKAGE AssembledArtifact : CArtifactOperationPack
 {
 	ArtifactLocation al; //where assembly will be put
-	CArtifact * builtArt;
+	const CArtifact * builtArt;
 
 	void applyGs(CGameState * gs);
 

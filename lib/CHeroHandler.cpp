@@ -155,6 +155,13 @@ bool CHeroClass::isMagicHero() const
 	return affinity == MAGIC;
 }
 
+int CHeroClass::tavernProbability(FactionID faction) const
+{
+	if (selectionProbability.count(faction))
+		return selectionProbability.at(faction);
+	return 0;
+}
+
 EAlignment CHeroClass::getAlignment() const
 {
 	return VLC->factions()->getById(faction)->getAlignment();
@@ -292,7 +299,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	VLC->identifiers()->requestIdentifier ("creature", node["commander"],
 	[=](si32 commanderID)
 	{
-		heroClass->commander = VLC->creh->objects[commanderID];
+		heroClass->commander = CreatureID(commanderID).toCreature();
 	});
 
 	heroClass->defaultTavernChance = static_cast<ui32>(node["defaultTavern"].Float());
@@ -369,9 +376,9 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 void CHeroClassHandler::afterLoadFinalization()
 {
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
-	for(CHeroClass * heroClass : objects)
+	for(auto & heroClass : objects)
 	{
-		for(CFaction * faction : VLC->townh->objects)
+		for(auto & faction : VLC->townh->objects)
 		{
 			if (!faction->town)
 				continue;
@@ -394,7 +401,7 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 	}
 
-	for(CHeroClass * hc : objects)
+	for(auto const & hc : objects)
 	{
 		if (!hc->imageMapMale.empty())
 		{
@@ -454,7 +461,7 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	VLC->identifiers()->requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
-		hero->heroClass = classes[HeroClassID(classID)];
+		hero->heroClass = HeroClassID(classID).toHeroClass();
 	});
 
 	return hero;
@@ -790,7 +797,7 @@ std::set<HeroTypeID> CHeroHandler::getDefaultAllowed() const
 {
 	std::set<HeroTypeID> result;
 
-	for(const CHero * hero : objects)
+	for(auto & hero : objects)
 		if (hero && !hero->special)
 			result.insert(hero->getId());
 

@@ -347,7 +347,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders(const std::vector<CampaignHer
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->pos = heroPlaceholder->pos;
-		heroToPlace->type = VLC->heroh->objects[heroToPlace->getHeroType().getNum()];
+		heroToPlace->type = heroToPlace->getHeroType().toHeroType();
 		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);

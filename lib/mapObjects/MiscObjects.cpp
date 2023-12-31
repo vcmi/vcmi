@@ -769,7 +769,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 			storedArtifact = a;
 		}
 		if(!storedArtifact->artType)
-			storedArtifact->setType(VLC->arth->objects[getArtifact().getNum()]);
+			storedArtifact->setType(getArtifact().toArtifact());
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;

@@ -163,7 +163,6 @@ struct creInfo
 {
 	int count;
 	CreatureID creID;
-	const Creature * cre;
 	int level;
 };
 creInfo infoFromDC(const dwellingContent & dc);

@@ -66,11 +66,6 @@ class DLL_LINKAGE CSerializer
 	}
 
 	template <typename T, typename U>
-	void registerVectoredType(const std::vector<T*> *Vector, const std::function<U(const T&)> &idRetriever)
-	{
-		vectors[&typeid(T)] = VectorizedObjectInfo<T, U>(Vector, idRetriever);
-	}
-	template <typename T, typename U>
 	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const std::function<U(const T&)> &idRetriever)
 	{
 		vectors[&typeid(T)] = VectorizedObjectInfo<T, U>(Vector, idRetriever);

@@ -49,12 +49,12 @@ bool CCombinedArtifact::isCombined() const
 	return !(constituents.empty());
 }
 
-const std::vector<CArtifact*> & CCombinedArtifact::getConstituents() const
+const std::vector<const CArtifact*> & CCombinedArtifact::getConstituents() const
 {
 	return constituents;
 }
 
-const std::vector<CArtifact*> & CCombinedArtifact::getPartOf() const
+const std::vector<const CArtifact*> & CCombinedArtifact::getPartOf() const
 {
 	return partOf;
 }
@@ -597,7 +597,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
-				art->constituents.push_back(objects[id]);
+				art->constituents.push_back(ArtifactID(id).toArtifact());
 				objects[id]->partOf.push_back(art);
 			});
 		}

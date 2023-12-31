@@ -54,12 +54,12 @@ void BuyArmy::accept(AIGateway * ai)
 		if(objid != CreatureID::NONE && ci.creID.getNum() != objid)
 			continue;
 
-		vstd::amin(ci.count, res / ci.cre->getFullRecruitCost());
+		vstd::amin(ci.count, res / ci.creID.toCreature()->getFullRecruitCost());
 
 		if(ci.count)
 		{
 			cb->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
-			valueBought += ci.count * ci.cre->getAIValue();
+			valueBought += ci.count * ci.creID.toCreature()->getAIValue();
 		}
 	}
 

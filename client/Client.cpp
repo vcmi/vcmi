@@ -370,7 +370,7 @@ void CClient::endGame()
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
-		vstd::clear_pointer(const_cast<CGameInfo *>(CGI)->mh);
+		const_cast<CGameInfo *>(CGI)->mh.reset();
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
@@ -392,7 +392,7 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler(gs->map);
+		const_cast<CGameInfo *>(CGI)->mh = std::make_shared<CMapHandler>(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
 	}
 

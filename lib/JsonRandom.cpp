@@ -519,7 +519,8 @@ namespace JsonRandom
 				info.minAmount = static_cast<si32>(node["min"].Float());
 				info.maxAmount = static_cast<si32>(node["max"].Float());
 			}
-			const CCreature * crea = VLC->creh->objects[VLC->identifiers()->getIdentifier("creature", node["type"]).value()];
+			CreatureID creatureID(VLC->identifiers()->getIdentifier("creature", node["type"]).value());
+			const CCreature * crea = creatureID.toCreature();
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)
 			{

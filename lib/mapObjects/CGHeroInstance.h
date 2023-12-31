@@ -69,7 +69,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	ConstTransitivePtr<CHero> type;
+	const CHero * type;
 	TExpType exp; //experience points
 	ui32 level; //current level of hero
 

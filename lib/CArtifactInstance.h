@@ -73,11 +73,11 @@ protected:
 
 	ArtifactInstanceID id;
 public:
-	ConstTransitivePtr<CArtifact> artType;
+	const CArtifact * artType;
 
-	CArtifactInstance(CArtifact * art);
+	CArtifactInstance(const CArtifact * art);
 	CArtifactInstance();
-	void setType(CArtifact * art);
+	void setType(const CArtifact * art);
 	std::string nodeName() const override;
 	std::string getDescription() const;
 	ArtifactID getTypeId() const;

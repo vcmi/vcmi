@@ -739,11 +739,10 @@ void CStackInstance::giveStackExp(TExpType exp)
 	if (!vstd::iswithin(level, 1, 7))
 		level = 0;
 
-	CCreatureHandler * creh = VLC->creh;
-	ui32 maxExp = creh->expRanks[level].back();
+	ui32 maxExp = VLC->creh->expRanks[level].back();
 
 	vstd::amin(exp, static_cast<TExpType>(maxExp)); //prevent exp overflow due to different types
-	vstd::amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
+	vstd::amin(exp, (maxExp * VLC->creh->maxExpPerBattle[level])/100);
 	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
@@ -1055,7 +1054,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		std::string typeName;
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
-			setType(VLC->creh->getCreature(ModScope::scopeMap(), typeName));
+			setType(CreatureID(CreatureID::decode(typeName)).toCreature());
 	}
 }
 
