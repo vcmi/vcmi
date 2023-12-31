@@ -244,7 +244,7 @@ jobs:
 
     - name: CMake Preset with ccache
       run: |
-        cmake -DCMAKE_CXX_COMPILER_LAUNCHER=ccache --preset ${{ matrix.preset }}
+        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
 
     - name: Build Preset
       run: |
