@@ -380,7 +380,7 @@
 	"core.bonus.FEARLESS.name": "Fearless",
 	"core.bonus.FEARLESS.description": "Immune to Fear ability",
 	"core.bonus.FEROCITY.name": "Ferocity",
-	"core.bonus.FEROCITY.description": "DESCRIPTION TO BE ADDED",
+	"core.bonus.FEROCITY.description": "Attacks ${val} additional times if killed anybody",
 	"core.bonus.FLYING.name": "Fly",
 	"core.bonus.FLYING.description": "Flies when moving (ignores obstacles)",
 	"core.bonus.FREE_SHOOTING.name": "Shoot Close",

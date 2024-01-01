@@ -608,6 +608,13 @@ Affected unit can use ranged attacks only within specified range
 - val: max shooting range in hexes
 - addInfo: optional, range at which ranged penalty will trigger (default is 10)
 
+### FEROCITY
+
+Affected unit will attack additional times if killed creatures during attacking (including ADDITIONAL_ATTACK bonus attacks)
+
+- val: amount of additional attacks (negative number will reduce number of unperformed attacks if any left)
+- addInfo: optional, amount of creatures needed to kill (default is 1)
+
 ## Special abilities
 
 ### CATAPULT

@@ -173,7 +173,7 @@ class JsonNode;
 	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
 	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
-	BONUS_NAME(FEROCITY) /*extra attack, only if at least 1 creature killed in opponent target unit*/ \
+	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed in opponent target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
 	/* end of list */
 
 

@@ -271,7 +271,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	const bool firstStrike = destinationStack->hasBonusOfType(BonusType::FIRST_STRIKE);
 	const bool retaliation = destinationStack->ableToRetaliate();
 	bool ferocityApplied = false;
-	int32_t defenderCreatureQuantity = destinationStack->getCount();
+	int32_t defenderInitialQuantity = destinationStack->getCount();
 
 	for (int i = 0; i < totalAttacks; ++i)
 	{
@@ -286,10 +286,16 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		{
 			makeAttack(battle, stack, destinationStack, (i ? 0 : distance), destinationTile, i==0, false, false);//no distance travelled on second attack
 
-			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY) && destinationStack->getCount() < defenderCreatureQuantity)
+			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
 			{
-				ferocityApplied = true;
-				++totalAttacks;
+				auto ferocityBonus = stack->getBonus(Selector::type()(BonusType::FEROCITY));
+				int32_t requiredCreaturesToKill = ferocityBonus->additionalInfo != CAddInfo::NONE ? ferocityBonus->additionalInfo[0] : 1;
+				if(defenderInitialQuantity - destinationStack->getCount() >= requiredCreaturesToKill)
+				{
+					ferocityApplied = true;
+					int additionalAttacksCount = stack->valOfBonuses(BonusType::FEROCITY);
+					totalAttacks += additionalAttacksCount;
+				}
 			}
 		}
 
