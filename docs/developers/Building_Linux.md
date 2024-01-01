@@ -76,7 +76,7 @@ cmake ../vcmi
 **Notice**: The ../vcmi/ is not a typo, it will place makefile scripts into the build dir as the build dir is your working dir when calling CMake.
 
 ## To use ccache:
-`cmake ../vcmi -D CMAKE_CXX_COMPILER_LAUNCHER=ccache -D CMAKE_C_COMPILER_LAUNCHER=ccache`
+`cmake ../vcmi -D ENABLE_CCACHE:BOOL=ON`
 
 ## Trigger build
 

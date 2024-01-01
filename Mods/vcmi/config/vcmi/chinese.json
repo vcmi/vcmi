@@ -54,6 +54,8 @@
 	"vcmi.radialWheel.moveDown" : "下移",
 	"vcmi.radialWheel.moveBottom" : "移到底端",
 	
+	"vcmi.spellBook.search" : "搜索中...",
+	
 	"vcmi.mainMenu.serverConnecting" : "连接中...",
 	"vcmi.mainMenu.serverAddressEnter" : "使用地址:",
 	"vcmi.mainMenu.serverConnectionFailed" : "连接失败",
@@ -69,6 +71,7 @@
 	"vcmi.lobby.noPreview" : "无地上部分",
 	"vcmi.lobby.noUnderground" : "无地下部分",
 
+	"vcmi.client.errors.missingCampaigns" : "{找不到数据文件}\n\n没有找到战役数据文件！你可能使用了不完整或损坏的英雄无敌3数据文件，请重新安装数据文件。",
 	"vcmi.server.errors.existingProcess"     : "一个VCMI进程已经在运行，启动新进程前请结束它。",
 	"vcmi.server.errors.modsToEnable"    : "{需要启用的mod列表}",
 	"vcmi.server.errors.modsToDisable"   : "{需要禁用的mod列表}",
@@ -301,7 +304,6 @@
 	"vcmi.optionsTab.simturns.months.0" : " %d 月",
 	"vcmi.optionsTab.simturns.months.1" : " %d 月",
 	"vcmi.optionsTab.simturns.months.2" : " %d 月",
-
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "敌人依然存活至今，你失败了！",
