@@ -37,8 +37,10 @@ static std::string visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-//must be instantiated in .cpp file for access to complete types of all member fields
-CBank::CBank() = default;
+CBank::CBank(IGameCallback *cb)
+	: CArmedInstance(cb)
+{}
+
 //must be instantiated in .cpp file for access to complete types of all member fields
 CBank::~CBank() = default;
 

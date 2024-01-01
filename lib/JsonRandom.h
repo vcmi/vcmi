@@ -11,6 +11,7 @@
 
 #include "GameConstants.h"
 #include "ResourceSet.h"
+#include "GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,9 +23,28 @@ struct Bonus;
 struct Component;
 class CStackBasicDescriptor;
 
-namespace JsonRandom
+class DLL_LINKAGE JsonRandom : public GameCallbackHolder
 {
+public:
 	using Variables = std::map<std::string, int>;
+
+private:
+	template<typename IdentifierType>
+	std::set<IdentifierType> filterKeys(const JsonNode & value, const std::set<IdentifierType> & valuesSet, const Variables & variables);
+
+	template<typename IdentifierType>
+	std::set<IdentifierType> filterKeysTyped(const JsonNode & value, const std::set<IdentifierType> & valuesSet);
+
+	template<typename IdentifierType>
+	IdentifierType decodeKey(const std::string & modScope, const std::string & value, const Variables & variables);
+
+	template<typename IdentifierType>
+	IdentifierType decodeKey(const JsonNode & value, const Variables & variables);
+
+	si32 loadVariable(std::string variableGroup, const std::string & value, const Variables & variables, si32 defaultValue);
+
+public:
+	using GameCallbackHolder::GameCallbackHolder;
 
 	struct DLL_LINKAGE RandomStackInfo
 	{
@@ -33,30 +53,30 @@ namespace JsonRandom
 		si32 maxAmount;
 	};
 
-	DLL_LINKAGE si32 loadValue(const JsonNode & value, CRandomGenerator & rng, const Variables & variables, si32 defaultValue = 0);
+	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, const Variables & variables, si32 defaultValue = 0);
 
-	DLL_LINKAGE TResources loadResources(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE TResources loadResource(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE PrimarySkill loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::vector<si32> loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE SecondarySkill loadSecondary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::map<SecondarySkill, si32> loadSecondaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	TResources loadResources(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	TResources loadResource(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	PrimarySkill loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	std::vector<si32> loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	SecondarySkill loadSecondary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	std::map<SecondarySkill, si32> loadSecondaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
 
-	DLL_LINKAGE ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::vector<ArtifactID> loadArtifacts(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	std::vector<ArtifactID> loadArtifacts(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
 
-	DLL_LINKAGE SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
 
-	DLL_LINKAGE CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::vector<RandomStackInfo> evaluateCreatures(const JsonNode & value, const Variables & variables);
+	CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	std::vector<RandomStackInfo> evaluateCreatures(const JsonNode & value, const Variables & variables);
 
-	DLL_LINKAGE std::vector<PlayerColor> loadColors(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
-	DLL_LINKAGE std::vector<HeroTypeID> loadHeroes(const JsonNode & value, CRandomGenerator & rng);
-	DLL_LINKAGE std::vector<HeroClassID> loadHeroClasses(const JsonNode & value, CRandomGenerator & rng);
+	std::vector<PlayerColor> loadColors(const JsonNode & value, CRandomGenerator & rng, const Variables & variables);
+	std::vector<HeroTypeID> loadHeroes(const JsonNode & value, CRandomGenerator & rng);
+	std::vector<HeroClassID> loadHeroClasses(const JsonNode & value, CRandomGenerator & rng);
 
-	DLL_LINKAGE std::vector<Bonus> loadBonuses(const JsonNode & value);
-}
+	static std::vector<Bonus> loadBonuses(const JsonNode & value);
+};
 
 VCMI_LIB_NAMESPACE_END

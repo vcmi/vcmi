@@ -66,7 +66,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		return text;
 	};
 	
-	auto sendInfoWindow = [h](const MetaString & text, const Rewardable::Reward & reward)
+	auto sendInfoWindow = [&](const MetaString & text, const Rewardable::Reward & reward)
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;

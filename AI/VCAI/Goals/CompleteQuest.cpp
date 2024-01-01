@@ -103,7 +103,7 @@ std::string CompleteQuest::questToString() const
 		return "inactive quest";
 
 	MetaString ms;
-	q.quest->getRolloverText(ms, false);
+	q.quest->getRolloverText(q.obj->cb, ms, false);
 
 	return ms.toString();
 }

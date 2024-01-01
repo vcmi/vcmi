@@ -274,7 +274,8 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 	return ti->valOfBonuses(BonusType::MOVEMENT, onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea);
 }
 
-CGHeroInstance::CGHeroInstance():
+CGHeroInstance::CGHeroInstance(IGameCallback * cb)
+	: CArmedInstance(cb),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),
@@ -789,7 +790,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = IObjectInterface::cb->isAllowed(spell->getId());
+	const bool isAllowed = cb->isAllowed(spell->getId());
 
 	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
 	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
@@ -853,7 +854,7 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
 		return false;//creature abilities can not be learned
 	}
 
-	if(!allowBanned && !IObjectInterface::cb->isAllowed(spell->getId()))
+	if(!allowBanned && !cb->isAllowed(spell->getId()))
 	{
 		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned
@@ -1760,7 +1761,7 @@ void CGHeroInstance::serializeJsonDefinition(JsonSerializeFormat & handler)
 
 bool CGHeroInstance::isMissionCritical() const
 {
-	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
+	for(const TriggeredEvent & event : cb->getMapHeader()->triggeredEvents)
 	{
 		if (event.effect.type != EventEffect::DEFEAT)
 			continue;

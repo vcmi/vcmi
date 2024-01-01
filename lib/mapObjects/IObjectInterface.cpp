@@ -21,8 +21,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-IGameCallback * IObjectInterface::cb = nullptr;
-
 void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;
@@ -30,7 +28,7 @@ void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInf
 	iw.player = getOwner();
 	iw.type = mode;
 	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txtID);
-	IObjectInterface::cb->sendAndApply(&iw);
+	cb->sendAndApply(&iw);
 }
 
 ///IObjectInterface
@@ -117,7 +115,7 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	if(!tile.valid())
 		return TILE_BLOCKED; //no available water
 
-	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
+	const TerrainTile *t = getObject()->cb->getTile(tile);
 	if(!t)
 		return TILE_BLOCKED; //no available water
 

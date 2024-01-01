@@ -584,13 +584,13 @@ void CGSubterraneanGate::initObj(CRandomGenerator & rand)
 	type = BOTH;
 }
 
-void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
+void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
 	for(auto & obj : cb->gameState()->map->objects)
 	{
-		if(!obj) // FIXME: Find out why there are nullptr objects right after initialization
+		if(!obj)
 			continue;
 
 		auto * hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
@@ -1081,7 +1081,8 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 	}
 }
 
-CGBoat::CGBoat()
+CGBoat::CGBoat(IGameCallback * cb)
+	: CGObjectInstance(cb)
 {
 	hero = nullptr;
 	direction = 4;

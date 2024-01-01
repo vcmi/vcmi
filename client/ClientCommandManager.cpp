@@ -203,7 +203,7 @@ void ClientCommandManager::handleConvertTextCommand()
 		try
 		{
 			// load and drop loaded map - we only need loader to run over all maps
-			mapService.loadMap(mapName);
+			mapService.loadMap(mapName, nullptr);
 		}
 		catch(std::exception & e)
 		{
@@ -216,7 +216,7 @@ void ClientCommandManager::handleConvertTextCommand()
 	{
 		auto state = CampaignHandler::getCampaign(campaignName.getName());
 		for (auto const & part : state->allScenarios())
-			state->getMap(part);
+			state->getMap(part, nullptr);
 	}
 
 	VLC->generaltexth->dumpAllTexts();

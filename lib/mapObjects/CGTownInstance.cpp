@@ -228,7 +228,8 @@ bool CGTownInstance::hasCapitol() const
 	return hasBuilt(BuildingID::CAPITOL);
 }
 
-CGTownInstance::CGTownInstance():
+CGTownInstance::CGTownInstance(IGameCallback *cb):
+	CGDwelling(cb),
 	town(nullptr),
 	builded(0),
 	destroyed(0),

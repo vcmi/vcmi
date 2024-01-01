@@ -71,10 +71,10 @@ CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & mo
 //must be instantiated in .cpp file for access to complete types of all member fields
 CMapLoaderH3M::~CMapLoaderH3M() = default;
 
-std::unique_ptr<CMap> CMapLoaderH3M::loadMap()
+std::unique_ptr<CMap> CMapLoaderH3M::loadMap(IGameCallback * cb)
 {
 	// Init map object by parsing the input buffer
-	map = new CMap();
+	map = new CMap(cb);
 	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
 	init();
 
@@ -831,7 +831,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		if(!custom)
 			continue;
 
-		auto * hero = new CGHeroInstance();
+		auto * hero = new CGHeroInstance(map->cb);
 		hero->ID = Obj::HERO;
 		hero->subID = heroID;
 
@@ -1005,7 +1005,7 @@ void CMapLoaderH3M::readObjectTemplates()
 
 CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition, const ObjectInstanceID & idToBeGiven)
 {
-	auto * object = new CGEvent();
+	auto * object = new CGEvent(map->cb);
 
 	readBoxContent(object, mapPosition, idToBeGiven);
 
@@ -1025,7 +1025,7 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition, const Obje
 
 CGObjectInstance * CMapLoaderH3M::readPandora(const int3 & mapPosition, const ObjectInstanceID & idToBeGiven)
 {
-	auto * object = new CGPandoraBox();
+	auto * object = new CGPandoraBox(map->cb);
 	readBoxContent(object, mapPosition, idToBeGiven);
 	return object;
 }
@@ -1080,7 +1080,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 
 CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
-	auto * object = new CGCreature();
+	auto * object = new CGCreature(map->cb);
 
 	if(features.levelAB)
 	{
@@ -1134,7 +1134,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 
 CGObjectInstance * CMapLoaderH3M::readSign(const int3 & mapPosition)
 {
-	auto * object = new CGSignBottle();
+	auto * object = new CGSignBottle(map->cb);
 	object->message.appendTextID(readLocalizedString(TextIdentifier("sign", mapPosition.x, mapPosition.y, mapPosition.z, "message")));
 	reader->skipZero(4);
 	return object;
@@ -1260,7 +1260,7 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared
 
 CGObjectInstance * CMapLoaderH3M::readGarrison(const int3 & mapPosition)
 {
-	auto * object = new CGGarrison();
+	auto * object = new CGGarrison(map->cb);
 
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	readCreatureSet(object, 7);
@@ -1277,7 +1277,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 {
 	ArtifactID artID = ArtifactID::NONE; //random, set later
 	SpellID spellID = SpellID::NONE;
-	auto * object = new CGArtifact();
+	auto * object = new CGArtifact(map->cb);
 
 	readMessageAndGuards(object->message, object, mapPosition);
 
@@ -1298,7 +1298,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 
 CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGResource();
+	auto * object = new CGResource(map->cb);
 
 	readMessageAndGuards(object->message, object, mapPosition);
 
@@ -1314,7 +1314,7 @@ CGObjectInstance * CMapLoaderH3M::readResource(const int3 & mapPosition, std::sh
 
 CGObjectInstance * CMapLoaderH3M::readMine(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGMine();
+	auto * object = new CGMine(map->cb);
 	if(objectTemplate->subid < 7)
 	{
 		setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
@@ -1329,14 +1329,14 @@ CGObjectInstance * CMapLoaderH3M::readMine(const int3 & mapPosition, std::shared
 
 CGObjectInstance * CMapLoaderH3M::readDwelling(const int3 & position)
 {
-	auto * object = new CGDwelling();
+	auto * object = new CGDwelling(map->cb);
 	setOwnerAndValidate(position, object, reader->readPlayer32());
 	return object;
 }
 
 CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGDwelling();
+	auto * object = new CGDwelling(map->cb);
 
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 
@@ -1395,7 +1395,7 @@ CGObjectInstance * CMapLoaderH3M::readShrine(const int3 & position, std::shared_
 
 CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 {
-	auto * object = new CGHeroPlaceholder();
+	auto * object = new CGHeroPlaceholder(map->cb);
 
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer());
 
@@ -1433,23 +1433,23 @@ CGObjectInstance * CMapLoaderH3M::readGrail(const int3 & mapPosition, std::share
 CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	if(VLC->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
-		return VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(objectTemplate);
+		return VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(map->cb, objectTemplate);
 
 	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile.getOriginalName(), mapPosition.toString());
-	return new CGObjectInstance();
+	return new CGObjectInstance(map->cb);
 }
 
 CGObjectInstance * CMapLoaderH3M::readPyramid(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	if(objectTemplate->subid == 0)
-		return new CBank();
+		return new CBank(map->cb);
 
-	return new CGObjectInstance();
+	return new CGObjectInstance(map->cb);
 }
 
 CGObjectInstance * CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
 {
-	auto * guard = new CGQuestGuard();
+	auto * guard = new CGQuestGuard(map->cb);
 	readQuest(guard, mapPosition);
 	return guard;
 }
@@ -1463,7 +1463,7 @@ CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::sh
 
 CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition)
 {
-	auto * object = new CGLighthouse();
+	auto * object = new CGLighthouse(map->cb);
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	return object;
 }
@@ -1733,7 +1733,7 @@ void CMapLoaderH3M::setOwnerAndValidate(const int3 & mapPosition, CGObjectInstan
 
 CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
 {
-	auto * object = new CGHeroInstance();
+	auto * object = new CGHeroInstance(map->cb);
 
 	if(features.levelAB)
 	{
@@ -1892,7 +1892,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 CGObjectInstance * CMapLoaderH3M::readSeerHut(const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
-	auto * hut = new CGSeerHut();
+	auto * hut = new CGSeerHut(map->cb);
 
 	uint32_t questsCount = 1;
 
@@ -2176,7 +2176,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 
 CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGTownInstance();
+	auto * object = new CGTownInstance(map->cb);
 	if(features.levelAB)
 		object->identifier = reader->readUInt32();
 

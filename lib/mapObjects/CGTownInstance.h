@@ -200,7 +200,7 @@ public:
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
 
-	CGTownInstance();
+	CGTownInstance(IGameCallback *cb);
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides

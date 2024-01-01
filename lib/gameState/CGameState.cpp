@@ -169,14 +169,16 @@ CGameState::~CGameState()
 	initialOpts.dellNull();
 }
 
-void CGameState::preInit(Services * services)
+void CGameState::preInit(Services * services, IGameCallback * callback)
 {
 	this->services = services;
+	this->callback = callback;
 }
 
 void CGameState::init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator & progressTracking, bool allowSavingRandomMap)
 {
-	preInitAuto();
+	assert(services);
+	assert(callback);
 	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
 	getRandomGenerator().setSeed(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
@@ -284,19 +286,11 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 
 void CGameState::updateOnLoad(StartInfo * si)
 {
-	preInitAuto();
+	assert(services);
+	assert(callback);
 	scenarioOps->playerInfos = si->playerInfos;
 	for(auto & i : si->playerInfos)
 		gs->players[i.first].human = i.second.isControlledByHuman();
-}
-
-void CGameState::preInitAuto()
-{
-	if(services == nullptr)
-	{
-		logGlobal->error("Game state preinit missing");
-		preInit(VLC);
-	}
 }
 
 void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
@@ -307,7 +301,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, scenarioOps->seedToBeUsed);
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, callback, scenarioOps->seedToBeUsed);
 		progressTracking.include(mapGenerator);
 
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
@@ -370,7 +364,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 	{
 		logGlobal->info("Open map file: %s", scenarioOps->mapname);
 		const ResourcePath mapURI(scenarioOps->mapname, EResType::MAP);
-		map = mapService->loadMap(mapURI).release();
+		map = mapService->loadMap(mapURI, callback).release();
 	}
 }
 
@@ -561,7 +555,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	}
 
 	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
-	CGObjectInstance * obj = handler->create(handler->getTemplates().front());
+	CGObjectInstance * obj = handler->create(callback, handler->getTemplates().front());
 	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
 
 	hero->ID = Obj::HERO;
@@ -635,7 +629,7 @@ void CGameState::initHeroes()
 		if (tile.terType->isWater())
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
-			CGBoat * boat = dynamic_cast<CGBoat*>(handler->create());
+			CGBoat * boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
 			handler->configureObject(boat, gs->getRandomGenerator());
 
 			boat->pos = hero->pos;
@@ -673,7 +667,7 @@ void CGameState::initHeroes()
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
-		auto * vhi = new CGHeroInstance();
+		auto * vhi = new CGHeroInstance(callback);
 		vhi->initHero(getRandomGenerator(), htype);
 
 		int typeID = htype.getNum();
@@ -936,7 +930,7 @@ void CGameState::initMapObjects()
 			}
 		}
 	}
-	CGSubterraneanGate::postInit(); //pairing subterranean gates
+	CGSubterraneanGate::postInit(callback); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
 }

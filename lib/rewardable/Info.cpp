@@ -123,28 +123,29 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
+	JsonRandom randomizer(nullptr);
 
-	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng, variables);
-	limiter.daysPassed = JsonRandom::loadValue(source["daysPassed"], rng, variables);
-	limiter.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
-	limiter.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
+	limiter.dayOfWeek = randomizer.loadValue(source["dayOfWeek"], rng, variables);
+	limiter.daysPassed = randomizer.loadValue(source["daysPassed"], rng, variables);
+	limiter.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
+	limiter.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
 	limiter.canLearnSkills = source["canLearnSkills"].Bool();
 
-	limiter.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables);
-	limiter.manaPoints = JsonRandom::loadValue(source["manaPoints"], rng, variables);
+	limiter.manaPercentage = randomizer.loadValue(source["manaPercentage"], rng, variables);
+	limiter.manaPoints = randomizer.loadValue(source["manaPoints"], rng, variables);
 
-	limiter.resources = JsonRandom::loadResources(source["resources"], rng, variables);
+	limiter.resources = randomizer.loadResources(source["resources"], rng, variables);
 
-	limiter.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
-	limiter.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
-	limiter.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
-	limiter.spells  = JsonRandom::loadSpells(source["spells"], rng, variables);
-	limiter.canLearnSpells  = JsonRandom::loadSpells(source["canLearnSpells"], rng, variables);
-	limiter.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
+	limiter.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
+	limiter.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
+	limiter.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	limiter.spells  = randomizer.loadSpells(source["spells"], rng, variables);
+	limiter.canLearnSpells  = randomizer.loadSpells(source["canLearnSpells"], rng, variables);
+	limiter.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
 	
-	limiter.players = JsonRandom::loadColors(source["colors"], rng, variables);
-	limiter.heroes = JsonRandom::loadHeroes(source["heroes"], rng);
-	limiter.heroClasses = JsonRandom::loadHeroClasses(source["heroClasses"], rng);
+	limiter.players = randomizer.loadColors(source["colors"], rng, variables);
+	limiter.heroes = randomizer.loadHeroes(source["heroes"], rng);
+	limiter.heroClasses = randomizer.loadHeroClasses(source["heroClasses"], rng);
 
 	limiter.allOf  = configureSublimiters(object, rng, source["allOf"] );
 	limiter.anyOf  = configureSublimiters(object, rng, source["anyOf"] );
@@ -154,31 +155,32 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
+	JsonRandom randomizer(nullptr);
 
-	reward.resources = JsonRandom::loadResources(source["resources"], rng, variables);
+	reward.resources = randomizer.loadResources(source["resources"], rng, variables);
 
-	reward.heroExperience = JsonRandom::loadValue(source["heroExperience"], rng, variables);
-	reward.heroLevel = JsonRandom::loadValue(source["heroLevel"], rng, variables);
+	reward.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
+	reward.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
 
-	reward.manaDiff = JsonRandom::loadValue(source["manaPoints"], rng, variables);
-	reward.manaOverflowFactor = JsonRandom::loadValue(source["manaOverflowFactor"], rng, variables);
-	reward.manaPercentage = JsonRandom::loadValue(source["manaPercentage"], rng, variables, -1);
+	reward.manaDiff = randomizer.loadValue(source["manaPoints"], rng, variables);
+	reward.manaOverflowFactor = randomizer.loadValue(source["manaOverflowFactor"], rng, variables);
+	reward.manaPercentage = randomizer.loadValue(source["manaPercentage"], rng, variables, -1);
 
-	reward.movePoints = JsonRandom::loadValue(source["movePoints"], rng, variables);
-	reward.movePercentage = JsonRandom::loadValue(source["movePercentage"], rng, variables, -1);
+	reward.movePoints = randomizer.loadValue(source["movePoints"], rng, variables);
+	reward.movePercentage = randomizer.loadValue(source["movePercentage"], rng, variables, -1);
 
 	reward.removeObject = source["removeObject"].Bool();
-	reward.bonuses = JsonRandom::loadBonuses(source["bonuses"]);
+	reward.bonuses = randomizer.loadBonuses(source["bonuses"]);
 
-	reward.primary = JsonRandom::loadPrimaries(source["primary"], rng, variables);
-	reward.secondary = JsonRandom::loadSecondaries(source["secondary"], rng, variables);
+	reward.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
+	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 
-	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng, variables);
-	reward.spells = JsonRandom::loadSpells(source["spells"], rng, variables);
-	reward.creatures = JsonRandom::loadCreatures(source["creatures"], rng, variables);
+	reward.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
+	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
 	{
-		reward.spellCast.first = JsonRandom::loadSpell(source["spellCast"]["spell"], rng, variables);
+		reward.spellCast.first = randomizer.loadSpell(source["spellCast"]["spell"], rng, variables);
 		reward.spellCast.second = source["spellCast"]["schoolLevel"].Integer();
 	}
 
@@ -187,13 +189,13 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 		auto const & entry = source["revealTiles"];
 
 		reward.revealTiles = RewardRevealTiles();
-		reward.revealTiles->radius = JsonRandom::loadValue(entry["radius"], rng, variables);
+		reward.revealTiles->radius = randomizer.loadValue(entry["radius"], rng, variables);
 		reward.revealTiles->hide = entry["hide"].Bool();
 
-		reward.revealTiles->scoreSurface = JsonRandom::loadValue(entry["surface"], rng, variables);
-		reward.revealTiles->scoreSubterra = JsonRandom::loadValue(entry["subterra"], rng, variables);
-		reward.revealTiles->scoreWater = JsonRandom::loadValue(entry["water"], rng, variables);
-		reward.revealTiles->scoreRock = JsonRandom::loadValue(entry["rock"], rng, variables);
+		reward.revealTiles->scoreSurface = randomizer.loadValue(entry["surface"], rng, variables);
+		reward.revealTiles->scoreSubterra = randomizer.loadValue(entry["subterra"], rng, variables);
+		reward.revealTiles->scoreWater = randomizer.loadValue(entry["water"], rng, variables);
+		reward.revealTiles->scoreRock = randomizer.loadValue(entry["rock"], rng, variables);
 	}
 
 	for ( auto node : source["changeCreatures"].Struct() )
@@ -216,6 +218,8 @@ void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CR
 
 void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
 {
+	JsonRandom randomizer(nullptr);
+
 	for(const auto & category : source.Struct())
 	{
 		for(const auto & entry : category.second.Struct())
@@ -225,19 +229,19 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CR
 			int32_t value = -1;
 
 			if (category.first == "number")
-				value = JsonRandom::loadValue(input, rng, object.variables.values);
+				value = randomizer.loadValue(input, rng, object.variables.values);
 
 			if (category.first == "artifact")
-				value = JsonRandom::loadArtifact(input, rng, object.variables.values).getNum();
+				value = randomizer.loadArtifact(input, rng, object.variables.values).getNum();
 
 			if (category.first == "spell")
-				value = JsonRandom::loadSpell(input, rng, object.variables.values).getNum();
+				value = randomizer.loadSpell(input, rng, object.variables.values).getNum();
 
 			if (category.first == "primarySkill")
-				value = JsonRandom::loadPrimary(input, rng, object.variables.values).getNum();
+				value = randomizer.loadPrimary(input, rng, object.variables.values).getNum();
 
 			if (category.first == "secondarySkill")
-				value = JsonRandom::loadSecondary(input, rng, object.variables.values).getNum();
+				value = randomizer.loadSecondary(input, rng, object.variables.values).getNum();
 
 			object.initVariable(category.first, entry.first, value);
 		}

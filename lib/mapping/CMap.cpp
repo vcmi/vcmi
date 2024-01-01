@@ -160,8 +160,9 @@ bool TerrainTile::isWater() const
 	return terType->isWater();
 }
 
-CMap::CMap()
-	: checksum(0)
+CMap::CMap(IGameCallback * cb)
+	: GameCallbackHolder(cb)
+	, checksum(0)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)
 	, uidCounter(0)

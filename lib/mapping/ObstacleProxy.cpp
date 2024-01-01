@@ -79,7 +79,7 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, CRandomGenerator & rand
 		for(const auto & temp : shuffledObstacles)
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(temp->id, temp->subid);
-			auto * obj = handler->create(temp);
+			auto * obj = handler->create(nullptr, temp);
 			allObjects.emplace_back(*obj);
 			rmg::Object * rmgObject = &allObjects.back();
 			for(const auto & offset : obj->getBlockedOffsets())

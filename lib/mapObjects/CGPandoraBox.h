@@ -19,6 +19,8 @@ struct InfoWindow;
 class DLL_LINKAGE CGPandoraBox : public CRewardableObject
 {
 public:
+	using CRewardableObject::CRewardableObject;
+
 	MetaString message;
 
 	void initObj(CRandomGenerator & rand) override;
@@ -41,6 +43,8 @@ protected:
 class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
 {
 public:
+	using CGPandoraBox::CGPandoraBox;
+
 	bool removeAfterVisit = false; //true if event is removed after occurring
 	std::set<PlayerColor> availableFor; //players whom this event is available for
 	bool computerActivate = false; //true if computer player can activate this event

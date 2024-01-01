@@ -402,7 +402,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 			continue;
 		}
 
-		CGHeroInstance * hero = CampaignState::crossoverDeserialize(node, gameState->map);
+		CGHeroInstance * hero = campaignState->crossoverDeserialize(node, gameState->map);
 
 		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
@@ -427,7 +427,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 			if (nodeListIter == nodeList.end())
 				break;
 
-			CGHeroInstance * hero = CampaignState::crossoverDeserialize(*nodeListIter, gameState->map);
+			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map);
 			nodeListIter++;
 
 			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
@@ -599,7 +599,7 @@ bool CGameStateCampaign::playerHasStartingHero(PlayerColor playerColor) const
 
 std::unique_ptr<CMap> CGameStateCampaign::getCurrentMap() const
 {
-	return gameState->scenarioOps->campState->getMap(CampaignScenarioID::NONE);
+	return gameState->scenarioOps->campState->getMap(CampaignScenarioID::NONE, gameState->callback);
 }
 
 VCMI_LIB_NAMESPACE_END

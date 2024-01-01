@@ -69,19 +69,30 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	template <typename T, typename Enable = void>
 	struct ClassObjectCreator
 	{
-		static T *invoke()
+		static T *invoke(IGameCallback *cb)
 		{
-			static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+			static_assert(!std::is_base_of_v<GameCallbackHolder, T>, "Cannot call new upon map objects!");
+			static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
 			return new T();
 		}
 	};
 
 	template<typename T>
-	struct ClassObjectCreator<T, typename std::enable_if<std::is_abstract<T>::value>::type>
+	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_abstract_v<T>>>
 	{
-		static T *invoke()
+		static T *invoke(IGameCallback *cb)
 		{
 			throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
+		}
+	};
+
+	template<typename T>
+	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCallbackHolder, T> && !std::is_abstract_v<T>>>
+	{
+		static T *invoke(IGameCallback *cb)
+		{
+			static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+			return new T(cb);
 		}
 	};
 
@@ -121,7 +132,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 			auto & s = static_cast<BinaryDeserializer &>(ar);
 
 			//create new object under pointer
-			Type * ptr = ClassObjectCreator<Type>::invoke(); //does new npT or throws for abstract classes
+			Type * ptr = ClassObjectCreator<Type>::invoke(nullptr); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
 
 			assert(s.fileVersion != 0);
@@ -281,7 +292,7 @@ public:
 		{
 			typedef typename std::remove_pointer<T>::type npT;
 			typedef typename std::remove_const<npT>::type ncpT;
-			data = ClassObjectCreator<ncpT>::invoke();
+			data = ClassObjectCreator<ncpT>::invoke(nullptr);
 			ptrAllocated(data, pid);
 			load(*data);
 		}

@@ -24,6 +24,8 @@ using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 class DLL_LINKAGE CTeamVisited: public CGObjectInstance
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	std::set<PlayerColor> players; //players that visited this object
 
 	bool wasVisited (const CGHeroInstance * h) const override;
@@ -41,6 +43,8 @@ public:
 class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -58,6 +62,8 @@ protected:
 class DLL_LINKAGE CGGarrison : public CArmedInstance
 {
 public:
+	using CArmedInstance::CArmedInstance;
+
 	bool removableUnits;
 
 	void initObj(CRandomGenerator &rand) override;
@@ -78,6 +84,8 @@ protected:
 class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
 public:
+	using CArmedInstance::CArmedInstance;
+
 	CArtifactInstance * storedArtifact = nullptr;
 	MetaString message;
 
@@ -112,6 +120,8 @@ protected:
 class DLL_LINKAGE CGResource : public CArmedInstance
 {
 public:
+	using CArmedInstance::CArmedInstance;
+
 	static constexpr ui32 RANDOM_AMOUNT = 0;
 	ui32 amount = RANDOM_AMOUNT; //0 if random
 	
@@ -148,6 +158,8 @@ public:
 	ResourceSet dailyIncome() const;
 
 private:
+	using CArmedInstance::CArmedInstance;
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
@@ -204,6 +216,8 @@ protected:
 	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
 
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	TeleportChannelID channel;
 
 	bool isEntrance() const;
@@ -236,6 +250,8 @@ protected:
 	void initObj(CRandomGenerator & rand) override;
 
 public:
+	using CGTeleport::CGTeleport;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGTeleport&>(*this);
@@ -248,7 +264,9 @@ class DLL_LINKAGE CGSubterraneanGate : public CGMonolith
 	void initObj(CRandomGenerator & rand) override;
 
 public:
-	static void postInit();
+	using CGMonolith::CGMonolith;
+
+	static void postInit(IGameCallback * cb);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -263,6 +281,8 @@ class DLL_LINKAGE CGWhirlpool : public CGMonolith
 	static bool isProtected( const CGHeroInstance * h );
 
 public:
+	using CGMonolith::CGMonolith;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGMonolith&>(*this);
@@ -272,6 +292,8 @@ public:
 class DLL_LINKAGE CGSirens : public CGObjectInstance
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	void initObj(CRandomGenerator & rand) override;
@@ -285,6 +307,8 @@ public:
 class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
@@ -296,7 +320,7 @@ public:
 	AnimationPath overlayAnimation; //waves animations
 	std::array<AnimationPath, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
-	CGBoat();
+	CGBoat(IGameCallback * cb);
 	bool isCoastVisitable() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -327,6 +351,8 @@ protected:
 	BoatId getBoatType() const override;
 
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
@@ -340,6 +366,8 @@ protected:
 class DLL_LINKAGE CGMagi : public CGObjectInstance
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
@@ -352,11 +380,15 @@ public:
 class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 {
 	void onHeroVisit(const CGHeroInstance * h) const override;
+public:
+	using CGObjectInstance::CGObjectInstance;
 };
 
 class DLL_LINKAGE CGObelisk : public CTeamVisited
 {
 public:
+	using CTeamVisited::CTeamVisited;
+
 	static ui8 obeliskCount; //how many obelisks are on map
 	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 
@@ -376,6 +408,8 @@ protected:
 class DLL_LINKAGE CGLighthouse : public CGObjectInstance
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 
@@ -392,7 +426,7 @@ protected:
 class DLL_LINKAGE CGTerrainPatch : public CGObjectInstance
 {
 public:
-	CGTerrainPatch() = default;
+	using CGObjectInstance::CGObjectInstance;
 
 	virtual bool isTile2Terrain() const override
 	{
@@ -411,6 +445,8 @@ protected:
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);

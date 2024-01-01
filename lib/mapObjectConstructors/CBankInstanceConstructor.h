@@ -55,13 +55,9 @@ class DLL_LINKAGE CBankInfo : public IObjectInfo
 public:
 	CBankInfo(const JsonVector & Config);
 
-	TPossibleGuards getPossibleGuards() const;
+	TPossibleGuards getPossibleGuards(IGameCallback * cb) const;
 	std::vector<PossibleReward<TResources>> getPossibleResourcesReward() const;
 	std::vector<PossibleReward<CStackBasicDescriptor>> getPossibleCreaturesReward() const;
-
-	// These functions should try to evaluate minimal possible/max possible guards to give provide information on possible thread to AI
-	CArmyStructure minGuards() const override;
-	CArmyStructure maxGuards() const override;
 
 	bool givesResources() const override;
 	bool givesArtifacts() const override;

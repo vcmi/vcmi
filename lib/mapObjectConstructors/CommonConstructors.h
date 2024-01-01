@@ -121,7 +121,7 @@ protected:
 	std::string speech;
 	
 public:
-	CGMarket * createObject() const override;
+	CGMarket * createObject(IGameCallback * cb) const override;
 	void initializeObject(CGMarket * object) const override;
 	void randomizeObject(CGMarket * object, CRandomGenerator & rng) const override;
 

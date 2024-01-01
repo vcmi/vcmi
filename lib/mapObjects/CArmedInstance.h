@@ -42,8 +42,8 @@ public:
 	virtual CBonusSystemNode & whatShouldBeAttached();
 	//////////////////////////////////////////////////////////////////////////
 
-	CArmedInstance();
-	CArmedInstance(bool isHypothetic);
+	CArmedInstance(IGameCallback *cb);
+	CArmedInstance(IGameCallback *cb, bool isHypothetic);
 
 	PlayerColor getOwner() const override
 	{

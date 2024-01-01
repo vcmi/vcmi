@@ -27,7 +27,6 @@ class CreatureService;
 class CMap;
 class CGameInfoCallback;
 class CBattleInfoCallback;
-class IGameInfoCallback;
 class JsonNode;
 class CStack;
 class CGObjectInstance;
@@ -81,7 +80,6 @@ public:
 	virtual Mode getMode() const = 0;
 	virtual const Caster * getCaster() const = 0;
 	virtual const CBattleInfoCallback * getBattle() const = 0;
-	virtual const IGameInfoCallback * getGame() const = 0;
 
 	virtual OptionalValue getSpellLevel() const = 0;
 
@@ -114,7 +112,6 @@ public:
 	Mode getMode() const override;
 	const Caster * getCaster() const override;
 	const CBattleInfoCallback * getBattle() const override;
-	const IGameInfoCallback * getGame() const override;
 
 	OptionalValue getSpellLevel() const override;
 
@@ -162,7 +159,6 @@ private:
 	Mode mode;
 	const CSpell * spell;
 	const CBattleInfoCallback * cb;
-	const IGameInfoCallback * gameCb;
 	const Caster * caster;
 };
 
@@ -252,7 +248,6 @@ public:
 #endif
 	virtual const Service * spells() const = 0;
 
-	virtual const IGameInfoCallback * game() const = 0;
 	virtual const CBattleInfoCallback * battle() const = 0;
 
 	const Caster * caster;
@@ -311,7 +306,6 @@ public:
 #endif
 	const Service * spells() const override;
 
-	const IGameInfoCallback * game() const override;
 	const CBattleInfoCallback * battle() const override;
 
 protected:
@@ -335,7 +329,6 @@ private:
 	boost::logic::tribool smart;
 	boost::logic::tribool massive;
 
-	const IGameInfoCallback * gameCb;
 	const CBattleInfoCallback * cb;
 };
 

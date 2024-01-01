@@ -28,7 +28,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 //TODO: remove constructor
-CGObjectInstance::CGObjectInstance():
+CGObjectInstance::CGObjectInstance(IGameCallback *cb):
+	IObjectInterface(cb),
 	pos(-1,-1,-1),
 	ID(Obj::NO_OBJ),
 	subID(-1),

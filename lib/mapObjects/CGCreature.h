@@ -18,6 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
 {
 public:
+	using CArmedInstance::CArmedInstance;
+
 	enum Action {
 		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
 	};

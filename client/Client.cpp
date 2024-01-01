@@ -139,14 +139,10 @@ CClient::CClient()
 	waitingRequest.clear();
 	applier = std::make_shared<CApplier<CBaseForCLApply>>();
 	registerTypesClientPacks(*applier);
-	IObjectInterface::cb = this;
 	gs = nullptr;
 }
 
-CClient::~CClient()
-{
-	IObjectInterface::cb = nullptr;
-}
+CClient::~CClient() = default;
 
 const Services * CClient::services() const
 {
@@ -178,7 +174,7 @@ void CClient::newGame(CGameState * initializedGameState)
 	CSH->th->update();
 	CMapService mapService;
 	gs = initializedGameState ? initializedGameState : new CGameState();
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
 	if(!initializedGameState)
 	{
@@ -200,7 +196,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gs = initializedGameState;
 
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	gs->updateOnLoad(CSH->si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
 

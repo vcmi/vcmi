@@ -38,10 +38,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
+RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
-	mapInstance = std::make_unique<CMap>();
+	mapInstance = std::make_unique<CMap>(cb);
 	mapProxy = std::make_shared<MapProxy>(*this);
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }

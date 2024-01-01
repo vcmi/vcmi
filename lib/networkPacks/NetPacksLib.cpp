@@ -1497,7 +1497,7 @@ void NewObject::applyGs(CGameState *gs)
 
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
 
-	CGObjectInstance * o = handler->create();
+	CGObjectInstance * o = handler->create(gs->callback, nullptr);
 	handler->configureObject(o, gs->getRandomGenerator());
 	assert(o->ID == this->ID);
 	

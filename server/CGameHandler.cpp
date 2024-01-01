@@ -511,7 +511,6 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, turnTimerHandler(*this)
 {
 	QID = 1;
-	IObjectInterface::cb = this;
 	applier = std::make_shared<CApplier<CBaseForGHApply>>();
 	registerTypesServerPacks(*applier);
 
@@ -541,7 +540,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	}
 	CMapService mapService;
 	gs = new CGameState();
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
@@ -1838,7 +1837,7 @@ bool CGameHandler::load(const std::string & filename)
 		lobby->announceMessage(std::string("Failed to load game: ") + e.what());
 		return false;
 	}
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	gs->updateOnLoad(lobby->si.get());
 	return true;
 }

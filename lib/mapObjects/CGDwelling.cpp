@@ -43,7 +43,10 @@ void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-CGDwelling::CGDwelling() = default;
+CGDwelling::CGDwelling(IGameCallback *cb):
+	CArmedInstance(cb)
+{}
+
 CGDwelling::~CGDwelling() = default;
 
 FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)

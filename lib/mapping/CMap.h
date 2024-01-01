@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CMapHeader.h"
+#include "../GameCallbackHolder.h"
 #include "../MetaString.h"
 #include "../mapObjects/MiscObjects.h" // To serialize static props
 #include "../mapObjects/CQuest.h" // To serialize static props
@@ -73,10 +74,10 @@ struct DLL_LINKAGE DisposedHero
 };
 
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
-class DLL_LINKAGE CMap : public CMapHeader
+class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 {
 public:
-	CMap();
+	explicit CMap(IGameCallback *cb);
 	~CMap();
 	void initTerrain();
 
