@@ -615,6 +615,14 @@ std::pair<std::unique_ptr<ui8 []>, si64> CVideoPlayer::getAudio(const VideoPath 
 	return dat;
 }
 
+Point CVideoPlayer::size()
+{
+	if(frame)
+		return Point(frame->width, frame->height);
+	else
+		return Point(0, 0);
+}
+
 // Plays a video. Only works for overlays.
 bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 {

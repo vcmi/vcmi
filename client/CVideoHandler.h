@@ -38,6 +38,7 @@ public:
 		return false;
 	}
 	virtual std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) { return std::make_pair(nullptr, 0); };
+	virtual Point size() { return Point(0, 0); };
 };
 
 class CEmptyVideoPlayer final : public IMainVideoPlayer
@@ -108,6 +109,8 @@ public:
 	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false) override;
 
 	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) override;
+
+	Point size() override;
 
 	//TODO:
 	bool wait() override {return false;};
