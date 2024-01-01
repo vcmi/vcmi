@@ -610,7 +610,7 @@ Affected unit can use ranged attacks only within specified range
 
 ### FEROCITY
 
-Affected unit will attack additional times if killed creatures during attacking (including ADDITIONAL_ATTACK bonus attacks)
+Affected unit will attack additional times if killed creatures in target unit during attacking (including ADDITIONAL_ATTACK bonus attacks)
 
 - val: amount of additional attacks (negative number will reduce number of unperformed attacks if any left)
 - addInfo: optional, amount of creatures needed to kill (default is 1)
