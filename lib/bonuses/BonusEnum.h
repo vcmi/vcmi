@@ -48,7 +48,7 @@ class JsonNode;
 	BONUS_NAME(FLYING)									\
 	BONUS_NAME(SHOOTER)									\
 	BONUS_NAME(CHARGE_IMMUNITY)							\
-	BONUS_NAME(ADDITIONAL_ATTACK)						\
+	BONUS_NAME(ADDITIONAL_ATTACK) /*val: number of additional attacks to perform*/ \
 	BONUS_NAME(UNLIMITED_RETALIATIONS)					\
 	BONUS_NAME(NO_MELEE_PENALTY)						\
 	BONUS_NAME(JOUSTING) /*for champions*/				\
@@ -173,6 +173,7 @@ class JsonNode;
 	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
 	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
+	BONUS_NAME(FEROCITY) /*extra attack, only if at least 1 creature killed in opponent target unit*/ \
 	/* end of list */
 
 

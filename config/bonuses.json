@@ -185,6 +185,14 @@
 		}
 	},
 
+	"FEROCITY":
+	{
+		"graphics":
+		{
+			"icon":  ""
+		}
+	},
+
 	"FLYING":
 	{
 		"graphics":
