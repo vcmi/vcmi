@@ -121,7 +121,7 @@ CArtifactInstance::CArtifactInstance()
 void CArtifactInstance::setType(const CArtifact * art)
 {
 	artType = art;
-	attachTo(const_cast<CArtifact&>(*art));
+	attachToSource(*art);
 }
 
 std::string CArtifactInstance::nodeName() const

@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 using TNodes = std::set<CBonusSystemNode *>;
 using TCNodes = std::set<const CBonusSystemNode *>;
 using TNodesVector = std::vector<CBonusSystemNode *>;
+using TCNodesVector = std::vector<const CBonusSystemNode *>;
 
 class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public boost::noncopyable
 {
@@ -33,7 +34,8 @@ private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
 	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
 
-	TNodesVector parents; // we inherit bonuses from them, we may attach our bonuses to them
+	TCNodesVector parentsToInherit; // we inherit bonuses from them
+	TNodesVector parentsToPropagate; // we may attach our bonuses to them
 	TNodesVector children;
 
 	ENodeTypes nodeType;
@@ -66,8 +68,8 @@ private:
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
 	bool actsAsBonusSourceOnly() const;
 
-	void newRedDescendant(CBonusSystemNode & descendant); //propagation needed
-	void removedRedDescendant(CBonusSystemNode & descendant); //de-propagation needed
+	void newRedDescendant(CBonusSystemNode & descendant) const; //propagation needed
+	void removedRedDescendant(CBonusSystemNode & descendant) const; //de-propagation needed
 
 	std::string nodeShortInfo() const;
 
@@ -89,11 +91,12 @@ public:
 	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector & selector) const;
 
 	//non-const interface
-	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
 	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
 
 	void attachTo(CBonusSystemNode & parent);
+	void attachToSource(const CBonusSystemNode & parent);
 	void detachFrom(CBonusSystemNode & parent);
+	void detachFromSource(const CBonusSystemNode & parent);
 	void detachFromAll();
 	virtual void addNewBonus(const std::shared_ptr<Bonus>& b);
 	void accumulateBonus(const std::shared_ptr<Bonus>& b); //add value of bonus with same type/subtype or create new

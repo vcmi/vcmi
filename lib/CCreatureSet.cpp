@@ -758,7 +758,7 @@ void CStackInstance::setType(const CCreature *c)
 {
 	if(type)
 	{
-		detachFrom(const_cast<CCreature&>(*type));
+		detachFromSource(*type);
 		if (type->isMyUpgrade(c) && VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
@@ -766,7 +766,7 @@ void CStackInstance::setType(const CCreature *c)
 	CStackBasicDescriptor::setType(c);
 
 	if(type)
-		attachTo(const_cast<CCreature&>(*type));
+		attachToSource(*type);
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {

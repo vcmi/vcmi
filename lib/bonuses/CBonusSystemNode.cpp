@@ -25,10 +25,18 @@ std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & se
 	auto ret = bonuses.getFirst(selector);
 	if(ret)
 		return ret;
+	return nullptr;
+}
 
-	TNodes lparents;
+std::shared_ptr<const Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & selector) const
+{
+	auto ret = bonuses.getFirst(selector);
+	if(ret)
+		return ret;
+
+	TCNodes lparents;
 	getParents(lparents);
-	for(CBonusSystemNode *pname : lparents)
+	for(const CBonusSystemNode *pname : lparents)
 	{
 		ret = pname->getBonusLocalFirst(selector);
 		if (ret)
@@ -38,28 +46,15 @@ std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & se
 	return nullptr;
 }
 
-std::shared_ptr<const Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & selector) const
-{
-	return (const_cast<CBonusSystemNode*>(this))->getBonusLocalFirst(selector);
-}
-
 void CBonusSystemNode::getParents(TCNodes & out) const /*retrieves list of parent nodes (nodes to inherit bonuses from) */
 {
-	for(const auto * elem : parents)
+	for(const auto * elem : parentsToInherit)
 		out.insert(elem);
-}
-
-void CBonusSystemNode::getParents(TNodes &out)
-{
-	for (auto * elem : parents)
-	{
-		out.insert(elem);
-	}
 }
 
 void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of parent nodes (nodes to inherit bonuses from)
 {
-	for(auto * parent : parents)
+	for(auto * parent : parentsToInherit)
 	{
 		out.insert(parent);
 		parent->getAllParents(out);
@@ -239,14 +234,14 @@ CBonusSystemNode::~CBonusSystemNode()
 
 void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 {
-	assert(!vstd::contains(parents, &parent));
-	parents.push_back(&parent);
+	assert(!vstd::contains(parentsToPropagate, &parent));
+	parentsToPropagate.push_back(&parent);
+
+	attachToSource(parent);
 
 	if(!isHypothetic())
 	{
-		if(parent.actsAsBonusSourceOnly())
-			parent.newRedDescendant(*this);
-		else
+		if(!parent.actsAsBonusSourceOnly())
 			newRedDescendant(parent);
 
 		parent.newChildAttached(*this);
@@ -255,21 +250,35 @@ void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 	CBonusSystemNode::treeHasChanged();
 }
 
-void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
+void CBonusSystemNode::attachToSource(const CBonusSystemNode & parent)
 {
-	assert(vstd::contains(parents, &parent));
+	assert(!vstd::contains(parentsToInherit, &parent));
+	parentsToInherit.push_back(&parent);
 
 	if(!isHypothetic())
 	{
 		if(parent.actsAsBonusSourceOnly())
-			parent.removedRedDescendant(*this);
-		else
+			parent.newRedDescendant(*this);
+	}
+
+	CBonusSystemNode::treeHasChanged();
+}
+
+void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
+{
+	assert(vstd::contains(parentsToPropagate, &parent));
+
+	if(!isHypothetic())
+	{
+		if(!parent.actsAsBonusSourceOnly())
 			removedRedDescendant(parent);
 	}
 
-	if (vstd::contains(parents, &parent))
+	detachFromSource(parent);
+
+	if (vstd::contains(parentsToPropagate, &parent))
 	{
-		parents -= &parent;
+		parentsToPropagate -= &parent;
 	}
 	else
 	{
@@ -281,6 +290,30 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 	{
 		parent.childDetached(*this);
 	}
+	CBonusSystemNode::treeHasChanged();
+}
+
+
+void CBonusSystemNode::detachFromSource(const CBonusSystemNode & parent)
+{
+	assert(vstd::contains(parentsToInherit, &parent));
+
+	if(!isHypothetic())
+	{
+		if(parent.actsAsBonusSourceOnly())
+			parent.removedRedDescendant(*this);
+	}
+
+	if (vstd::contains(parentsToPropagate, &parent))
+	{
+		parentsToInherit -= &parent;
+	}
+	else
+	{
+		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)"
+			, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
+	}
+
 	CBonusSystemNode::treeHasChanged();
 }
 
@@ -410,13 +443,16 @@ void CBonusSystemNode::childDetached(CBonusSystemNode & child)
 
 void CBonusSystemNode::detachFromAll()
 {
-	while(!parents.empty())
-		detachFrom(*parents.front());
+	while(!parentsToPropagate.empty())
+		detachFrom(*parentsToPropagate.front());
+
+	while(!parentsToInherit.empty())
+		detachFromSource(*parentsToInherit.front());
 }
 
 bool CBonusSystemNode::isIndependentNode() const
 {
-	return parents.empty() && children.empty();
+	return parentsToInherit.empty() && parentsToPropagate.empty() && children.empty();
 }
 
 std::string CBonusSystemNode::nodeName() const
@@ -434,7 +470,6 @@ std::string CBonusSystemNode::nodeShortInfo() const
 void CBonusSystemNode::deserializationFix()
 {
 	exportBonuses();
-
 }
 
 void CBonusSystemNode::getRedParents(TCNodes & out) const
@@ -460,9 +495,7 @@ void CBonusSystemNode::getRedParents(TCNodes & out) const
 
 void CBonusSystemNode::getRedChildren(TNodes &out)
 {
-	TNodes lparents;
-	getParents(lparents);
-	for(CBonusSystemNode *pname : lparents)
+	for(CBonusSystemNode *pname : parentsToPropagate)
 	{
 		if(!pname->actsAsBonusSourceOnly())
 		{
@@ -479,7 +512,7 @@ void CBonusSystemNode::getRedChildren(TNodes &out)
 	}
 }
 
-void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant)
+void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant) const
 {
 	for(const auto & b : exportedBonuses)
 	{
@@ -489,7 +522,7 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant)
 	TCNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
 
-	for(auto * parent : redParents)
+	for(const auto * parent : redParents)
 	{
 		for(const auto & b : parent->exportedBonuses)
 		{
@@ -499,7 +532,7 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant)
 	}
 }
 
-void CBonusSystemNode::removedRedDescendant(CBonusSystemNode & descendant)
+void CBonusSystemNode::removedRedDescendant(CBonusSystemNode & descendant) const
 {
 	for(const auto & b : exportedBonuses)
 		if(b->propagator)
@@ -550,7 +583,7 @@ CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
 
 const TNodesVector& CBonusSystemNode::getParentNodes() const
 {
-	return parents;
+	return parentsToPropagate;
 }
 
 void CBonusSystemNode::setNodeType(CBonusSystemNode::ENodeTypes type)
