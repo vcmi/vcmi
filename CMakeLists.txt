@@ -74,6 +74,16 @@ option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
 
+option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." OFF)
+
+if(${ENABLE_COLORIZED_COMPILER_OUTPUT})
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		add_compile_options(-fcolor-diagnostics)
+	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+		add_compile_options(-fdiagnostics-color=always)
+	endif()
+endif()
+
 # Used for Snap packages and also useful for debugging
 if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
