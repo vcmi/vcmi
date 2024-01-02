@@ -76,10 +76,10 @@ option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
 
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." OFF)
 
-if(${ENABLE_COLORIZED_COMPILER_OUTPUT})
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(ENABLE_COLORIZED_COMPILER_OUTPUT)
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		add_compile_options(-fcolor-diagnostics)
-	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		add_compile_options(-fdiagnostics-color=always)
 	endif()
 endif()
