@@ -609,7 +609,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 						if(ourUnit * goodEffect == 1)
 						{
-							if(ourUnit && goodEffect && (unit->isClone() || unit->isGhost() || !unit->unitSlot().validSlot()))
+							if(ourUnit && goodEffect && (unit->isClone() || unit->isGhost()))
 								continue;
 
 							ps.value += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
