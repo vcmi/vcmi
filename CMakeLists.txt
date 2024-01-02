@@ -114,7 +114,7 @@ if(ENABLE_EXPORT_COMPILE_COMMANDS)
 	#       so put a symlink at CMAKE_BINARY_DIR to help tooling.
 	set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 	execute_process(
-		COMMAND cmake -E create_symlink "${CMAKE_BINARY_DIR}/compile_commands.json" "${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json"
+		COMMAND cmake -E create_symlink "${CMAKE_BINARY_DIR}/compile_commands.json" "${CMAKE_SOURCE_DIR}/compile_commands.json"
 	)
 endif()
 
