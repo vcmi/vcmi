@@ -111,6 +111,12 @@ Extract `ccache` to a folder of your choosing, add the folder to the `PATH` envi
 - Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer.
 - VCMI will be built in `%VCMI_DIR%/build/bin` folder!
 
+## Compile VCMI with MinGW via MSYS2
+- Install MSYS2 from https://www.msys2.org/
+- Start the `MSYS MinGW x64`-shell
+- Install dependencies: `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-base mingw-w64-x86_64-qt5-tools`
+- Generate and build solution from VCMI-root dir: `cmake --preset windows-mingw-release && cmake --build --preset windows-mingw-release`
+
 # Create VCMI installer (This step is not required for just building & development)
 
 Make sure NSIS is installed to default directory or have registry entry so CMake can find it.
