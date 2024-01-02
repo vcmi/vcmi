@@ -106,6 +106,18 @@ if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
 	set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
 endif()
 
+option(ENABLE_EXPORT_COMPILE_COMMANDS "Enable export of 'compile_commands.json', used by C++ tooling such as clangd or cppcheck" ON)
+if(ENABLE_EXPORT_COMPILE_COMMANDS)
+	# NOTE: compile_commands.json is generated during configuration-time
+	#       in the build directory (same directory as CMakeCache.txt)
+	#       Many tools look recursively upwards to find compile_commands.json,
+	#       so put a symlink at CMAKE_BINARY_DIR to help tooling.
+	set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+	execute_process(
+		COMMAND cmake -E create_symlink "${CMAKE_BINARY_DIR}/compile_commands.json" "${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json"
+	)
+endif()
+
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
