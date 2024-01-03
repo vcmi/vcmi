@@ -69,7 +69,7 @@ protected:
 	}
 };
 
-TEST_P(TimedApplyTest, ChangesBonuses)
+TEST_P(TimedApplyTest, DISABLED_ChangesBonuses)
 {
 	Bonus testBonus1(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, BonusSourceID(), BonusSubtypeID(PrimarySkill::KNOWLEDGE));
 

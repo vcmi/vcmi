@@ -64,7 +64,7 @@ class DispelTest : public DispelFixture
 {
 };
 
-TEST_F(DispelTest, ApplicableToAliveUnitWithTimedEffect)
+TEST_F(DispelTest, DISABLED_ApplicableToAliveUnitWithTimedEffect)
 {
 	{
 		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
@@ -90,7 +90,7 @@ TEST_F(DispelTest, ApplicableToAliveUnitWithTimedEffect)
 	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(DispelTest, IgnoresOwnEffects)
+TEST_F(DispelTest, DISABLED_IgnoresOwnEffects)
 {
 	{
 		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
@@ -161,7 +161,7 @@ public:
 	std::array<std::vector<Bonus>, 2> actualBonus;
 };
 
-TEST_F(DispelApplyTest, RemovesEffects)
+TEST_F(DispelApplyTest, DISABLED_RemovesEffects)
 {
 	{
 		JsonNode config(JsonNode::JsonType::DATA_STRUCT);

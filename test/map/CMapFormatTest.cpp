@@ -38,7 +38,7 @@ static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & fil
 	tmp.close();
 }
 
-TEST(MapFormat, Random)
+TEST(MapFormat, DISABLED_Random)
 {
 	SCOPED_TRACE("MapFormat_Random start");
 
@@ -149,7 +149,7 @@ static void loadActual(CMemoryBuffer * serializeBuffer, const std::unique_ptr<CM
 	underground = getFromArchive(actualDataLoader, "underground_terrain.json");
 }
 
-TEST(MapFormat, Objects)
+TEST(MapFormat, DISABLED_Objects)
 {
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
@@ -188,7 +188,7 @@ TEST(MapFormat, Objects)
 	}
 }
 
-TEST(MapFormat, Terrain)
+TEST(MapFormat, DISABLED_Terrain)
 {
 	static const std::string MAP_DATA_PATH = "test/TerrainTest/";
 

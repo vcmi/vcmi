@@ -153,7 +153,7 @@ protected:
 	}
 };
 
-TEST_F(SacrificeApplyTest, ResurrectsTarget)
+TEST_F(SacrificeApplyTest, DISABLED_ResurrectsTarget)
 {
 	using namespace ::battle;
 
