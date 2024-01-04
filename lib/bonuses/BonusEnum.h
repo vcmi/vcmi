@@ -174,6 +174,7 @@ class JsonNode;
 	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
 	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
 	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed while attacking target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
+	BONUS_NAME(ACCURATE_SHOT) /*HotA Sea Dog-like ability - ranged only, val = full arrow trigger percent, subtype = spell identifier that killed value goes through (death stare by default) - use 'accurateShot' as part of spell name for proper battle log description*/ \
 	/* end of list */
 
 

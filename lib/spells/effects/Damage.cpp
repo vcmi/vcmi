@@ -152,6 +152,22 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		m->caster->getCasterName(line);
 		log.push_back(line);
 	}
+	else if(m->getSpell()->getJsonKey().find("accurateShot") != std::string::npos && !multiple)
+	{
+		MetaString line;
+		if(kills > 1)
+		{
+			line.appendTextID("vcmi.battleWindow.accurateShot.resultDescription"); //(number) (unit type) was killed with an accurate shot!
+			line.replaceNumber(kills);
+			firstTarget->addNameReplacement(line, true);
+		}
+		else
+		{
+			line.appendTextID("vcmi.battleWindow.accurateShot.resultDescription.1"); //1 (unit type) were killed by accurate shots!
+			firstTarget->addNameReplacement(line, false);
+		}
+		log.push_back(line);
+	}
 	else if(m->getSpellIndex() == SpellID::THUNDERBOLT && !multiple)
 	{
 		{

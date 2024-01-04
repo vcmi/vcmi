@@ -1214,7 +1214,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
 		//original formula x = min(x, (gorgons_count + 9)/10);
 
-		double chanceToKill = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon) / 100.0f;
+		double chanceToKill = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon) / 100.0;
 		vstd::amin(chanceToKill, 1); //cap at 100%
 
 		std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
@@ -1237,6 +1237,53 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 			spells::Target target;
 			target.emplace_back(defender);
 			parameters.setEffectValue(staredCreatures);
+			parameters.cast(gameHandler->spellEnv, target);
+		}
+	}
+
+	if(attacker->hasBonusOfType(BonusType::ACCURATE_SHOT))
+	{
+		/* Intended to match HotA Sea Dogs
+		 * The Sea Dog's Accurate Shot is triggered after a shot:
+		 * each creature in an attacking stack has a X% chance of killing a creature in the attacked squad,
+		 * but the total number of killed creatures cannot be more than (number of creatures in an attacking squad) * X/100 (rounded up).
+		 * X = 3 multiplier for shooting without penalty and X = 2 if shooting with penalty. Ability doesn't work if shooting at creatures behind walls.
+		*/
+
+		if(!ranged || battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition()))
+			return;
+
+		int singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::ACCURATE_SHOT);
+
+		if(battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition()))
+			singleCreatureKillChancePercent = (singleCreatureKillChancePercent * 2) / 3;
+
+		double chanceToKill = singleCreatureKillChancePercent / 100.0;
+		vstd::amin(chanceToKill, 1); //cap at 100%
+
+		std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
+		int killedCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
+		bool isMaxToKillRounded = attacker->getCount() * singleCreatureKillChancePercent % 100 == 0;
+		int maxToKill = attacker->getCount() * singleCreatureKillChancePercent / 100 + (isMaxToKillRounded ? 0 : 1);
+		vstd::amin(killedCreatures, maxToKill);
+
+		if(killedCreatures)
+		{
+			//TODO: accurate shot was not originally available for multiple-hex attacks, but...
+			const auto bonus = attacker->getBonus(Selector::type()(BonusType::ACCURATE_SHOT));
+
+			auto spellID = bonus->subtype.as<SpellID>();
+			if(spellID == SpellID::NONE)
+				spellID = SpellID(SpellID::DEATH_STARE); //fallback for spell not specified
+
+			const CSpell * spell = spellID.toSpell();
+
+			spells::AbilityCaster caster(attacker, 0);
+
+			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
+			spells::Target target;
+			target.emplace_back(defender);
+			parameters.setEffectValue(killedCreatures);
 			parameters.cast(gameHandler->spellEnv, target);
 		}
 	}

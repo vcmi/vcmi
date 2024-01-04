@@ -184,6 +184,8 @@
 	"vcmi.battleWindow.damageEstimation.kills" : "%d will perish",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d will perish",
 	"vcmi.battleWindow.killed" : "Killed",
+	"vcmi.battleWindow.accurateShot.resultDescription" : "%d %s were killed by accurate shots!",
+	"vcmi.battleWindow.accurateShot.resultDescription.1" : "1 %s was killed with an accurate shot!",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
 
@@ -328,7 +330,9 @@
 	"vcmi.stackExperience.rank.8" : "Elite",
 	"vcmi.stackExperience.rank.9" : "Master",
 	"vcmi.stackExperience.rank.10" : "Ace",
-	
+
+	"core.bonus.ACCURATE_SHOT.name": "Accurate Shot",
+	"core.bonus.ACCURATE_SHOT.description": "Has (${val}% - penalties) extra kills chance",
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",

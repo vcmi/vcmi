@@ -732,6 +732,15 @@ If player has affected unit under his control in any army, he will receive addit
 
 Affected unit will not use spellcast as default attack option
 
+### ACCURATE_SHOT
+
+Affected unit will kill additional units after attack, similar to death stare - works only for ranged attack
+
+- subtype:
+	spell identifier for spell that receives value that should be killed on input, spell.deathStare is used by default, use 'accurateShot' as part of spell name to allow detection for proper battle log description
+- val:
+	chance to kill, counted separately for each unit in attacking stack, percentage. Chance gets lessened by 2/3 with range penalty and effect won't trigger with wall penalty. At most (stack size \* chance / 100 **[rounded up]**) units can be killed at once. TODO: recheck formula
+
 ## Creature spellcasting and activated abilities
 
 ### SPELLCASTER
