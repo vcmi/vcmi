@@ -84,9 +84,8 @@ if(ENABLE_CCACHE)
 	find_program(CCACHE ccache REQUIRED)
 endif()
 
-# On Linux and MinGW, use ccache via CMAKE_CXX_COMPILER_LAUNCHER.
 # The XCode and MSVC builds each require some more configuration further down.
-if(ENABLE_CCACHE AND (LINUX OR MINGW))
+if(ENABLE_CCACHE)
 	set(CMAKE_C_COMPILER_LAUNCHER "ccache")
 	set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
 endif()
