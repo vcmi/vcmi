@@ -237,19 +237,12 @@ void CModHandler::loadOneMod(std::string modName, const std::string & parent, co
 	}
 }
 
-void CModHandler::loadMods(bool onlyEssential)
+void CModHandler::loadMods()
 {
 	JsonNode modConfig;
 
-	if(onlyEssential)
-	{
-		loadOneMod("vcmi", "", modConfig, true);//only vcmi and submods
-	}
-	else
-	{
-		modConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
-		loadMods("", "", modConfig["activeMods"], true);
-	}
+	modConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
+	loadMods("", "", modConfig["activeMods"], true);
 
 	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")));
 }
