@@ -712,6 +712,11 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			}
 		}
 		BonusList bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTER)));
+		bl.remove_if([](const Bonus * b)
+		{
+			return b->subtype.as<SpellID>() == SpellID::NONE;
+		});
+
 		int side = *battle.playerToSide(st->unitOwner());
 		if(st->canCast() && battle.battleGetEnchanterCounter(side) == 0)
 		{
