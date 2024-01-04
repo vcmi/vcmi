@@ -115,11 +115,13 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			continue;
 		}
 
-		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
-		{
-			if (modName != "core")
-				logMod->warn("Mod %s is attempting to load original data! This should be reserved for built-in mod.", modName);
+		bool hasIndex = vstd::contains(data.Struct(), "index") && !data["index"].isNull();
 
+		if (hasIndex && modName != "core")
+			logMod->error("Mod %s is attempting to load original data! This option is reserved for built-in mod.", modName);
+
+		if (hasIndex && modName == "core")
+		{
 			// try to add H3 object data
 			size_t index = static_cast<size_t>(data["index"].Float());
 

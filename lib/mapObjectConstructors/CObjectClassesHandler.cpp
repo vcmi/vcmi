@@ -177,8 +177,10 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	auto object = loadSubObjectFromJson(scope, identifier, entry, obj, index);
 
 	assert(object);
-	assert(obj->objects[index] == nullptr); // ensure that this id was not loaded before
-	obj->objects[index] = object;
+	if (obj->objects.at(index) != nullptr)
+		throw std::runtime_error("Attempt to load already loaded object:" + identifier);
+
+	obj->objects.at(index) = object;
 
 	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
 	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
@@ -259,10 +261,16 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 		{
 			const std::string & subMeta = subData.second["index"].meta;
 
-			if ( subMeta != "core")
-				logMod->warn("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
-			size_t subIndex = subData.second["index"].Integer();
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get(), subIndex);
+			if ( subMeta == "core")
+			{
+				size_t subIndex = subData.second["index"].Integer();
+				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get(), subIndex);
+			}
+			else
+			{
+				logMod->error("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
+				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
+			}
 		}
 		else
 			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
