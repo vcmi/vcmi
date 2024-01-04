@@ -94,8 +94,14 @@ void TurnTimerHandler::update(int waitTime)
 			if(gs->isPlayerMakingTurn(player))
 				onPlayerMakingTurn(player, waitTime);
 		
+		// create copy for iterations - battle might end during onBattleLoop call
+		std::vector<BattleID> ongoingBattles;
+
 		for (auto & battle : gs->currentBattles)
-			onBattleLoop(battle->battleID, waitTime);
+			ongoingBattles.push_back(battle->battleID);
+
+		for (auto & battleID : ongoingBattles)
+			onBattleLoop(battleID, waitTime);
 	}
 }
 
