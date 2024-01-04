@@ -339,20 +339,25 @@ void CModHandler::loadModFilesystems()
 
 TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 {
-	for(const auto & modID : boost::adaptors::reverse(activeMods))
+	try
 	{
-		if(CResourceHandler::get(modID)->existsResource(name))
-			return modID;
+		for(const auto & modID : boost::adaptors::reverse(activeMods))
+		{
+			if(CResourceHandler::get(modID)->existsResource(name))
+				return modID;
+		}
+
+		if(CResourceHandler::get("core")->existsResource(name))
+			return "core";
+
+		if(CResourceHandler::get("mapEditor")->existsResource(name))
+			return "core"; // Workaround for loading maps via map editor
 	}
-
-	if(CResourceHandler::get("core")->existsResource(name))
-		return "core";
-
-	if(CResourceHandler::get("mapEditor")->existsResource(name))
-		return "core"; // Workaround for loading maps via map editor
-
-	assert(0);
-	return "";
+	catch( const std::out_of_range & e)
+	{
+		// no-op
+	}
+	throw std::runtime_error("Resource with name " + name.getName() + " and type " + EResTypeHelper::getEResTypeAsString(name.getType()) + " wasn't found.");
 }
 
 std::string CModHandler::getModLanguage(const TModID& modId) const
