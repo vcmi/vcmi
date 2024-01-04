@@ -176,8 +176,8 @@ protected:
 class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero, HeroTypeService>
 {
 	/// expPerLEvel[i] is amount of exp needed to reach level i;
-	/// consists of 201 values. Any higher levels require experience larger that ui64 can hold
-	std::vector<ui64> expPerLevel;
+	/// consists of 196 values. Any higher levels require experience larger that TExpType can hold
+	std::vector<TExpType> expPerLevel;
 
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
@@ -191,8 +191,9 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 public:
 	CHeroClassHandler classes;
 
-	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
-	ui64 reqExp(ui32 level) const; //calculates experience required for given level
+	ui32 level(TExpType experience) const; //calculates level corresponding to given experience amount
+	TExpType reqExp(ui32 level) const; //calculates experience required for given level
+	ui32 maxSupportedLevel() const;
 
 	std::vector<JsonNode> loadLegacyData() override;
 

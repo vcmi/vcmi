@@ -249,8 +249,12 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 			iw.player = cb->getOwner(heroID);
 				iw.text.appendRawString(getVisitingBonusGreeting());
 			cb->showInfoDialog(&iw);
-			cb->changePrimSkill (cb->getHero(heroID), what, val);
-				town->addHeroToStructureVisitors(h, indexOnTV);
+			if (what == PrimarySkill::EXPERIENCE)
+				cb->giveExperience(cb->getHero(heroID), val);
+			else
+				cb->changePrimSkill(cb->getHero(heroID), what, val);
+
+			town->addHeroToStructureVisitors(h, indexOnTV);
 		}
 	}
 }

@@ -494,7 +494,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	}
 	//give exp
 	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide] && finishingBattle->winnerHero)
-		gameHandler->changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult->exp[finishingBattle->winnerSide]);
+		gameHandler->giveExperience(finishingBattle->winnerHero, battleResult->exp[finishingBattle->winnerSide]);
 
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();

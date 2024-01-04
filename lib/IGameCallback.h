@@ -84,6 +84,7 @@ public:
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
+	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
