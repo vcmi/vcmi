@@ -73,7 +73,7 @@ jobs:
             test: 0
             preset: linux-clang-test
           - platform: linux
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             test: 0
             preset: linux-gcc-test
           - platform: linux
@@ -242,11 +242,12 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: CMake Preset with ccache
+    - name: Configure
       run: |
-        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
+        if [[ ${{matrix.preset}} == linux-gcc-test ]]; then GCC13=1; fi
+        cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }} ${GCC13:+-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13}
 
-    - name: Build Preset
+    - name: Build
       run: |
         cmake --build --preset ${{matrix.preset}}
 
