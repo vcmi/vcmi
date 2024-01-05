@@ -244,7 +244,7 @@ Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray de
     "subtype" : "spell.disruptingRay",
     "type" : "SPECIAL_ADD_VALUE_ENCHANT"
 }
-``````
+```
 
 - subtype: affected spell identifier
 - additionalInfo: value to add
