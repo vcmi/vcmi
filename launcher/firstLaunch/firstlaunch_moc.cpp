@@ -279,7 +279,7 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 	QDir sourceRoot = QDir(path);
 	
 	if(path.isEmpty())
-		sourceRoot = QFileDialog::getExistingDirectory(this, "", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, "", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
 
 	if(!sourceRoot.exists())
 		return;
