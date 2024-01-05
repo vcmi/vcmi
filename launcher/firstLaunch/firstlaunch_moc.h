@@ -42,7 +42,7 @@ class FirstLaunchView : public QWidget
 	void languageSelected(const QString & languageCode);
 
 	// Tab Heroes III Data
-	void heroesDataUpdate();
+	bool heroesDataUpdate();
 	bool heroesDataDetect();
 
 	void heroesDataMissing();
@@ -51,7 +51,8 @@ class FirstLaunchView : public QWidget
 	void heroesLanguageUpdate();
 	void forceHeroesLanguage(const QString & language);
 
-	void copyHeroesData();
+	QString getHeroesInstallDir();
+	void copyHeroesData(const QString & path = "");
 
 	// Tab Mod Preset
 	void modPresetUpdate();
