@@ -117,6 +117,7 @@ void CSettingsView::loadSettings()
     ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
+	fillValidRenderers();
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	size_t cursorTypeIndex = boost::range::find(cursorTypesList, cursorType) - cursorTypesList;
@@ -163,6 +164,24 @@ void CSettingsView::fillValidScalingRange()
 
 #ifndef VCMI_MOBILE
 
+static QStringList getAvailableRenderingDrivers()
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	QStringList result;
+
+	int driversCount = SDL_GetNumRenderDrivers();
+
+	for(int it = 0; it < driversCount; it++)
+	{
+		SDL_RendererInfo info;
+		if (SDL_GetRenderDriverInfo(it, &info) == 0)
+			result += QString::fromLatin1(info.name);
+	}
+
+	SDL_Quit();
+	return result;
+}
+
 static QVector<QSize> findAvailableResolutions(int displayIndex)
 {
 	// Ugly workaround since we don't actually need SDL in Launcher
@@ -203,7 +222,6 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	bool fullscreen = settings["video"]["fullscreen"].Bool();
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
-
 	if (!fullscreen || realFullscreen)
 	{
 		QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
@@ -228,12 +246,35 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 
 	ui->comboBoxResolution->blockSignals(false);
 }
+
+void CSettingsView::fillValidRenderers()
+{
+	ui->comboBoxRendererType->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
+	ui->comboBoxRendererType->clear();
+
+	auto driversList = getAvailableRenderingDrivers();
+	ui->comboBoxRendererType->addItems(driversList);
+
+	std::string rendererName = settings["video"]["driver"].String();
+
+	int index = ui->comboBoxRendererType->findText(QString::fromStdString(rendererName));
+	ui->comboBoxRendererType->setCurrentIndex(index);
+
+	ui->comboBoxRendererType->blockSignals(false);
+}
 #else
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
 	// resolutions are not selectable on mobile platforms
 	ui->comboBoxResolution->hide();
 	ui->labelResolution->hide();
+}
+
+void CSettingsView::fillValidRenderers()
+{
+	// untested on mobile platforms
+	ui->comboBoxRendererType-hide();
+	ui->labelRendererType-hide();
 }
 #endif
 
@@ -540,5 +581,12 @@ void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["reservedWidth"];
 	node->Float() = float(arg1) / 100; // percentage -> ratio
+}
+
+
+void CSettingsView::on_comboBoxRendererType_currentTextChanged(const QString &arg1)
+{
+	Settings node = settings.write["video"]["driver"];
+	node->String() = arg1.toStdString();
 }
 

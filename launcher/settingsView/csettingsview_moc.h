@@ -76,9 +76,12 @@ private slots:
 
 	void on_spinBoxReservedArea_valueChanged(int arg1);
 
+	void on_comboBoxRendererType_currentTextChanged(const QString &arg1);
+
 private:
 	Ui::CSettingsView * ui;
 
+	void fillValidRenderers();
 	void fillValidResolutionsForScreen(int screenIndex);
 	void fillValidScalingRange();
 	QSize getPreferredRenderingResolution();
