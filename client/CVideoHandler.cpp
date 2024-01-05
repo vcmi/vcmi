@@ -634,6 +634,8 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 	pos.y = y;
 	frameTime = 0.0;
 
+	auto lastTimePoint = boost::chrono::steady_clock::now();
+
 	while(nextFrame())
 	{
 		if(stopOnKey)
@@ -654,10 +656,17 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 #else
 		auto packet_duration = frame->duration;
 #endif
-		double frameDurationSec = packet_duration * av_q2d(format->streams[stream]->time_base);
-		uint32_t timeToSleepMillisec = 1000 * (frameDurationSec);
+		// Framerate delay
+		double targetFrameTimeSeconds = packet_duration * av_q2d(format->streams[stream]->time_base);
+		auto targetFrameTime = boost::chrono::milliseconds(static_cast<int>(1000 * (targetFrameTimeSeconds)));
 
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(timeToSleepMillisec));
+		auto timePointAfterPresent = boost::chrono::steady_clock::now();
+		auto timeSpentBusy = boost::chrono::duration_cast<boost::chrono::milliseconds>(timePointAfterPresent - lastTimePoint);
+
+		if (targetFrameTime > timeSpentBusy)
+			boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
+
+		lastTimePoint = boost::chrono::steady_clock::now();
 	}
 
 	return true;
