@@ -3284,7 +3284,11 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 			for (auto & i : ev.buildings)
 			{
-				if (!town->hasBuilt(i))
+				// Only perform action if:
+				// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
+				// 2. Building was not built yet
+				// othervice, silently ignore / skip it
+				if (town->town->buildings.count(i) && !town->hasBuilt(i))
 				{
 					buildStructure(town->id, i, true);
 					iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
