@@ -181,6 +181,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	// send empty event to client
 	// temporary(?) workaround to force animations to trigger
 	StacksInjured fakeEvent;
+	fakeEvent.battleID = battle.getBattle()->getBattleID();
 	gameHandler->sendAndApply(&fakeEvent);
 }
 
