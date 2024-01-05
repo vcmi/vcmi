@@ -271,8 +271,8 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 void CSettingsView::fillValidRenderers()
 {
 	// untested on mobile platforms
-	ui->comboBoxRendererType-hide();
-	ui->labelRendererType-hide();
+	ui->comboBoxRendererType->hide();
+	ui->labelRendererType->hide();
 }
 #endif
 
