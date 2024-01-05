@@ -216,7 +216,8 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
-	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
+	QSignalBlocker guard(ui->comboBoxResolution); // avoid saving wrong resolution after adding first item from the list
+
 	ui->comboBoxResolution->clear();
 
 	bool fullscreen = settings["video"]["fullscreen"].Bool();
@@ -243,13 +244,12 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	// if selected resolution no longer exists, force update value to the largest (last) resolution
 	if(resIndex == -1)
 		ui->comboBoxResolution->setCurrentIndex(ui->comboBoxResolution->count() - 1);
-
-	ui->comboBoxResolution->blockSignals(false);
 }
 
 void CSettingsView::fillValidRenderers()
 {
-	ui->comboBoxRendererType->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
+	QSignalBlocker guard(ui->comboBoxRendererType); // avoid saving wrong renderer after adding first item from the list
+
 	ui->comboBoxRendererType->clear();
 
 	auto driversList = getAvailableRenderingDrivers();
@@ -259,8 +259,6 @@ void CSettingsView::fillValidRenderers()
 
 	int index = ui->comboBoxRendererType->findText(QString::fromStdString(rendererName));
 	ui->comboBoxRendererType->setCurrentIndex(index);
-
-	ui->comboBoxRendererType->blockSignals(false);
 }
 #else
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
