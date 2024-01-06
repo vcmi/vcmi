@@ -139,7 +139,12 @@ void FirstLaunchView::activateTabHeroesData()
 
 	QString installPath = getHeroesInstallDir();
 	if(!installPath.isEmpty())
-		copyHeroesData(installPath);
+	{
+		QMessageBox::StandardButton reply;
+		reply = QMessageBox::question(this, tr("Heroes III installation found!"), tr("Copy data to VCMI folder?"), QMessageBox::Yes|QMessageBox::No);
+		if(reply == QMessageBox::Yes)
+			copyHeroesData(installPath);
+	}
 }
 
 void FirstLaunchView::activateTabModPreset()
@@ -271,7 +276,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 	if(!cdPath.isEmpty())
 		return cdPath;
 #endif
-	return "";
+	return QString{};
 }
 
 void FirstLaunchView::copyHeroesData(const QString & path)
