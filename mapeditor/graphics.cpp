@@ -85,7 +85,7 @@ void Graphics::loadPaletteAndColors()
 		{0x09,0x9c,0xa5,255},
 		{0xc6,0x7b,0x8c,255}};
 	
-	for(int i=0;i<8;i++)
+	for(int i=0;i<PlayerColor::PLAYER_LIMIT_I;i++)
 	{
 		playerColors[i] = colors[i].rgba();
 	}
