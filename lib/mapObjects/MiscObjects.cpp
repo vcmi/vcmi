@@ -1138,7 +1138,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			xp = h->calculateXp(static_cast<int>(xp));
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT,132);
 			iw.text.replaceNumber(static_cast<int>(xp));
-			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, xp, false);
+			cb->giveExperience(h, xp);
 		}
 		else
 		{

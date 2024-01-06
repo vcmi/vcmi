@@ -141,7 +141,11 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 		if(cmdLineOptions.count("run-by-client"))
 		{
 			logNetwork->error("Port must be specified when run-by-client is used!!");
-			exit(0);
+#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
+			::exit(0);
+#else
+			std::quick_exit(0);
+#endif
 		}
 		acceptor = std::make_shared<TAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
 		port = acceptor->local_endpoint().port();
@@ -1172,7 +1176,7 @@ int main(int argc, const char * argv[])
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
-	preinitDLL(console);
+	preinitDLL(console, false);
 	logConfig.configure();
 
 	loadDLLClasses();
