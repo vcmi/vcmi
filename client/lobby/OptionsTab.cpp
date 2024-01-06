@@ -879,12 +879,18 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	static const std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flags =
 	{{
 		"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF",
-		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"
+		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF",
+		// TODO 16-players: Replace these eight with customized .DEF files
+		"AOFLGBR.DEF", "AOFLGBR.DEF", "AOFLGBR.DEF", "AOFLGBR.DEF",
+		"AOFLGBR.DEF", "AOFLGBR.DEF", "AOFLGBR.DEF", "AOFLGBR.DEF"
 	}};
 	static const std::array<std::string, PlayerColor::PLAYER_LIMIT_I> bgs =
 	{{
 		"ADOPRPNL.bmp", "ADOPBPNL.bmp", "ADOPYPNL.bmp", "ADOPGPNL.bmp",
-		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"
+		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp",
+		// TODO 16-players: Replace these eight with customized .bmp files
+		"ADOPRPNL.bmp", "ADOPRPNL.bmp", "ADOPRPNL.bmp", "ADOPRPNL.bmp",
+		"ADOPRPNL.bmp", "ADOPRPNL.bmp", "ADOPRPNL.bmp", "ADOPRPNL.bmp"
 	}};
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(bgs[s->color]), 0, 0);

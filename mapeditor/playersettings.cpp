@@ -53,7 +53,7 @@ void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 {
 	const auto selectedPlayerCount = index + 1;
 	assert(selectedPlayerCount <= controller.map()->players.size());
-	std::set<int> availableColors{0, 1, 2, 3, 4, 5, 6, 7};
+	std::set<int> availableColors{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
 	for(int i = 0; i < selectedPlayerCount; ++i)
 	{

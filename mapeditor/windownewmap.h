@@ -46,7 +46,15 @@ class WindowNewMap : public QDialog
 		{5, 5},
 		{6, 6},
 		{7, 7},
-		{8, 8}
+		{8, 8},
+		{9, 9},
+		{10, 10},
+		{11, 11},
+		{12, 12},
+		{13, 13},
+		{14, 14},
+		{15, 15},
+		{16, 16}
 	};
 
 	const std::map<int, int> cpuPlayers
@@ -59,7 +67,15 @@ class WindowNewMap : public QDialog
 		{5, 4},
 		{6, 5},
 		{7, 6},
-		{8, 7}
+		{8, 7},
+		{9, 8},
+		{10, 9},
+		{11, 10},
+		{12, 11},
+		{13, 12},
+		{14, 13},
+		{15, 14},
+		{16, 15},
 	};
 	
 	const std::map<int, std::pair<int, int>> mapSizes

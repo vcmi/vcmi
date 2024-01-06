@@ -973,6 +973,14 @@ QAction * MainWindow::getActionPlayer(const PlayerColor & player)
 	if(player.getNum() == 5) return ui->actionPlayer_6;
 	if(player.getNum() == 6) return ui->actionPlayer_7;
 	if(player.getNum() == 7) return ui->actionPlayer_8;
+	if(player.getNum() == 8) return ui->actionPlayer_9;
+	if(player.getNum() == 9) return ui->actionPlayer_10;
+	if(player.getNum() == 10) return ui->actionPlayer_11;
+	if(player.getNum() == 11) return ui->actionPlayer_12;
+	if(player.getNum() == 12) return ui->actionPlayer_13;
+	if(player.getNum() == 13) return ui->actionPlayer_14;
+	if(player.getNum() == 14) return ui->actionPlayer_15;
+	if(player.getNum() == 15) return ui->actionPlayer_16;
 	return ui->actionNeutral;
 }
 

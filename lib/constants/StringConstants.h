@@ -23,7 +23,8 @@ namespace GameConstants
 	};
 
 	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {
-		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
+		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink",
+		"maroon", "navy", "brown", "lime", "gold", "khaki", "cobalt", "olive"
 	};
 
 	const std::string ALIGNMENT_NAMES [3] = {"good", "evil", "neutral"};
