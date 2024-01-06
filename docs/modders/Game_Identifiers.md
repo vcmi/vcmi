@@ -545,6 +545,14 @@ This is a list of all game identifiers available to modders. Note that only iden
 - playerColor.red
 - playerColor.tan
 - playerColor.teal
+- playerColor.maroon
+- playerColor.navy
+- playerColor.brown
+- playerColor.lime
+- playerColor.gold
+- playerColor.khaki
+- playerColor.coral
+- playerColor.olive
 
 ### primSkill
 
