@@ -164,7 +164,8 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
-	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level)));
+	// Note: bonus uses 1-based levels (Pikeman is level 1), town list uses 0-based (Pikeman in 0-th creatures entry)
+	TConstBonusListPtr bonuses = getBonuses(Selector::typeSubtype(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(level+1)));
 	for(const auto & b : *bonuses)
 		ret.entries.emplace_back(b->val, b->Description());
 

@@ -181,6 +181,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	// send empty event to client
 	// temporary(?) workaround to force animations to trigger
 	StacksInjured fakeEvent;
+	fakeEvent.battleID = battle.getBattle()->getBattleID();
 	gameHandler->sendAndApply(&fakeEvent);
 }
 
@@ -676,8 +677,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		}
 		if(st->hasBonusOfType(BonusType::MANA_DRAIN) && !st->drainedMana)
 		{
-			const PlayerColor opponent = battle.otherPlayer(battle.battleGetOwner(st));
-			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(opponent);
+			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(st->unitSide()));
 			if(opponentHero)
 			{
 				ui32 manaDrained = st->valOfBonuses(BonusType::MANA_DRAIN);

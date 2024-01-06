@@ -1301,6 +1301,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		// send empty event to client
 		// temporary(?) workaround to force animations to trigger
 		StacksInjured fakeEvent;
+		fakeEvent.battleID = battle.getBattle()->getBattleID();
 		gameHandler->sendAndApply(&fakeEvent);
 	}
 

@@ -27,6 +27,7 @@ public:
 	bool isSpecial;
 	ImagePath graphics;
 	std::string name;
+	std::string modScope;
 	std::string identifier;
 	std::string icon;
 	si32 iconIndex;
