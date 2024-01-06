@@ -52,7 +52,7 @@ class FirstLaunchView : public QWidget
 	void forceHeroesLanguage(const QString & language);
 
 	QString getHeroesInstallDir();
-	void copyHeroesData(const QString & path = "");
+	void copyHeroesData(const QString & path = {});
 
 	// Tab Mod Preset
 	void modPresetUpdate();

@@ -140,8 +140,7 @@ void FirstLaunchView::activateTabHeroesData()
 	QString installPath = getHeroesInstallDir();
 	if(!installPath.isEmpty())
 	{
-		QMessageBox::StandardButton reply;
-		reply = QMessageBox::question(this, tr("Heroes III installation found!"), tr("Copy data to VCMI folder?"), QMessageBox::Yes|QMessageBox::No);
+		auto reply = QMessageBox::question(this, tr("Heroes III installation found!"), tr("Copy data to VCMI folder?"), QMessageBox::Yes | QMessageBox::No);
 		if(reply == QMessageBox::Yes)
 			copyHeroesData(installPath);
 	}
@@ -272,6 +271,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 	QString gogPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787", QSettings::NativeFormat).value("path").toString();
 	if(!gogPath.isEmpty())
 		return gogPath;
+
 	QString cdPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0", QSettings::NativeFormat).value("AppPath").toString();
 	if(!cdPath.isEmpty())
 		return cdPath;
@@ -284,7 +284,7 @@ void FirstLaunchView::copyHeroesData(const QString & path)
 	QDir sourceRoot = QDir(path);
 	
 	if(path.isEmpty())
-		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, "", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
 
 	if(!sourceRoot.exists())
 		return;
