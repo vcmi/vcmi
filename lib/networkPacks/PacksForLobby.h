@@ -86,7 +86,7 @@ struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 {
 	enum EAction : ui8 {
-		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS, OPEN_TURN_OPTIONS
+		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS, OPEN_TURN_OPTIONS, OPEN_EXTRA_OPTIONS
 	} action = NONE;
 
 
@@ -284,6 +284,18 @@ struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & turnTimerInfo;
+	}
+};
+
+struct DLL_LINKAGE LobbySetExtraOptions : public CLobbyPackToServer
+{
+	ExtraOptionsInfo extraOptionsInfo;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & extraOptionsInfo;
 	}
 };
 

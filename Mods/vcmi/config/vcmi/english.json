@@ -305,6 +305,14 @@
 	"vcmi.optionsTab.simturns.months.1" : " %d month",
 	"vcmi.optionsTab.simturns.months.2" : " %d months",
 
+	"vcmi.optionsTab.extraOptions.hover" : "Extra Options",
+	"vcmi.optionsTab.extraOptions.help" : "Additional settings for the game",
+
+	"vcmi.optionsTab.cheatAllowed.hover" : "Allow cheats",
+	"vcmi.optionsTab.unlimitedReplay.hover" : "Unlimited battle replay",
+	"vcmi.optionsTab.cheatAllowed.help" : "{Allow cheats}\nAllows the inputs of cheats during the game.",
+	"vcmi.optionsTab.unlimitedReplay.help" : "{Unlimited battle replay}\nNo limit of replaying battles.",
+
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Congratulations! You have managed to survive. Victory is yours!",

@@ -164,6 +164,7 @@ public:
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
 	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) {}
 	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) {}
+	virtual void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) {}
 	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) {}
 	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) {}
 	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) {}

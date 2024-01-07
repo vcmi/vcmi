@@ -471,7 +471,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 	
-	if(allowReplay)
+	if(allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay)
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);

@@ -507,6 +507,13 @@ void CServerHandler::setTurnTimerInfo(const TurnTimerInfo & info) const
 	sendLobbyPack(lstt);
 }
 
+void CServerHandler::setExtraOptionsInfo(const ExtraOptionsInfo & info) const
+{
+	LobbySetExtraOptions lseo;
+	lseo.extraOptionsInfo = info;
+	sendLobbyPack(lseo);
+}
+
 void CServerHandler::sendMessage(const std::string & txt) const
 {
 	std::istringstream readed;
