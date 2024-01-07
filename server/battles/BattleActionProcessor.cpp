@@ -1123,58 +1123,8 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 {
 	if(attacker->hasBonusOfType(attackMode))
 	{
-		std::set<SpellID> spellsToCast;
-
-		const int unlayeredItemsInternalLayer = -1;
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
-
-		std::map<int, std::vector<std::shared_ptr<Bonus>>> spellsWithBackupLayers;
-
-		for(int i = 0; i < spells->size(); i++)
-		{
-			std::shared_ptr<Bonus> bonus = spells->operator[](i);
-			int layer = bonus->additionalInfo[2];
-			vstd::amax(layer, -1);
-			spellsWithBackupLayers[layer].push_back(bonus);
-		}
-
-		auto addSpellsFromLayer = [&](int layer) -> void
-		{
-			assert(spellsWithBackupLayers.find(layer) != spellsWithBackupLayers.end());
-
-			for(const auto & spell : spellsWithBackupLayers[layer])
-			{
-				if (spell->subtype.as<SpellID>() != SpellID())
-					spellsToCast.insert(spell->subtype.as<SpellID>());
-				else
-					logGlobal->error("Invalid spell to cast during attack!");
-			}
-		};
-
-		if(spellsWithBackupLayers.find(unlayeredItemsInternalLayer) != spellsWithBackupLayers.end())
-		{
-			addSpellsFromLayer(unlayeredItemsInternalLayer);
-			spellsWithBackupLayers.erase(unlayeredItemsInternalLayer);
-		}
-
-		for(auto item : spellsWithBackupLayers)
-		{
-			if(item.first < spellsWithBackupLayers.rbegin()->first)
-			{
-				bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
-					[&](const std::shared_ptr<Bonus> spell)
-					{
-						std::vector<SpellID> activeSpells = defender->activeSpells();
-						return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
-					});
-
-				if(areCurrentLayerSpellsApplied)
-					continue;
-			}
-
-			addSpellsFromLayer(item.first);
-			break;
-		}
+		std::set<SpellID> spellsToCast = getSpellsForAttackCasting(spells, defender);
 
 		for(SpellID spellID : spellsToCast)
 		{
@@ -1232,6 +1182,62 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 			}
 		}
 	}
+}
+
+std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender)
+{
+	std::set<SpellID> spellsToCast;
+	constexpr int unlayeredItemsInternalLayer = -1;
+
+	std::map<int, std::vector<std::shared_ptr<Bonus>>> spellsWithBackupLayers;
+
+	for(int i = 0; i < spells->size(); i++)
+	{
+		std::shared_ptr<Bonus> bonus = spells->operator[](i);
+		int layer = bonus->additionalInfo[2];
+		vstd::amax(layer, -1);
+		spellsWithBackupLayers[layer].push_back(bonus);
+	}
+
+	auto addSpellsFromLayer = [&](int layer) -> void
+	{
+		assert(spellsWithBackupLayers.find(layer) != spellsWithBackupLayers.end());
+
+		for(const auto & spell : spellsWithBackupLayers[layer])
+		{
+			if (spell->subtype.as<SpellID>() != SpellID())
+				spellsToCast.insert(spell->subtype.as<SpellID>());
+			else
+				logGlobal->error("Invalid spell to cast during attack!");
+		}
+	};
+
+	if(spellsWithBackupLayers.find(unlayeredItemsInternalLayer) != spellsWithBackupLayers.end())
+	{
+		addSpellsFromLayer(unlayeredItemsInternalLayer);
+		spellsWithBackupLayers.erase(unlayeredItemsInternalLayer);
+	}
+
+	for(auto item : spellsWithBackupLayers)
+	{
+		if(item.first < spellsWithBackupLayers.rbegin()->first)
+		{
+			bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
+				[&](const std::shared_ptr<Bonus> spell)
+				{
+					std::vector<SpellID> activeSpells = defender->activeSpells();
+					return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
+				});
+
+			if(areCurrentLayerSpellsApplied)
+				continue;
+		}
+
+		addSpellsFromLayer(item.first);
+		break;
+	}
+
+	return spellsToCast;
 }
 
 void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
