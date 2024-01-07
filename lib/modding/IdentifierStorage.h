@@ -69,6 +69,8 @@ class DLL_LINKAGE CIdentifierStorage
 	bool resolveIdentifier(const ObjectCallback & callback) const;
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback) const;
 
+	void showIdentifierResolutionErrorDetails(const ObjectCallback & callback) const;
+	std::optional<si32> getIdentifierImpl(const ObjectCallback & callback, bool silent) const;
 public:
 	CIdentifierStorage();
 	virtual ~CIdentifierStorage() = default;
