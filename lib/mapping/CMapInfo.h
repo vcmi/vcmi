@@ -28,8 +28,9 @@ public:
 	std::unique_ptr<Campaign> campaign; //may be nullptr if scenario
 	StartInfo * scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
 	std::string fileURI;
-	std::string originalFileURI;
-	std::string fullFileURI;
+	std::string originalFileURI; // no need to serialize
+	std::string fullFileURI; // no need to serialize
+	std::time_t lastWrite; // no need to serialize
 	std::string date;
 	int amountOfPlayersOnMap;
 	int amountOfHumanControllablePlayers;

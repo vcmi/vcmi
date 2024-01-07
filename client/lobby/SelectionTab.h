@@ -23,7 +23,7 @@ class IImage;
 
 enum ESortBy
 {
-	_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps, _fileName
+	_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps, _fileName, _changeDate
 }; //_numOfMaps is for campaigns
 
 class ElementInfo : public CMapInfo

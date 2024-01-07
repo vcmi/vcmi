@@ -1,0 +1,7 @@
+{
+	"basepath" : "lobby/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "selectionTabSortDate.png"}
+	]
+}

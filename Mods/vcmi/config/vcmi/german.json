@@ -70,6 +70,7 @@
 	"vcmi.lobby.mapPreview" : "Kartenvorschau",
 	"vcmi.lobby.noPreview" : "Keine Vorschau",
 	"vcmi.lobby.noUnderground" : "Kein Untergrund",
+	"vcmi.lobby.sortDate" : "Ordnet Karten nach Änderungsdatum",
 
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
