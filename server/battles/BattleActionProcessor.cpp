@@ -1125,72 +1125,54 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 	{
 		std::set<SpellID> spellsToCast;
 
+		const int unlayeredItemsInternalLayer = -1;
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
 
-		std::array<std::vector<std::shared_ptr<Bonus>>, 6> spellsWithBackupLayers =
-		{
-			{
-				std::vector<std::shared_ptr<Bonus>>(),
-				std::vector<std::shared_ptr<Bonus>>(),
-				std::vector<std::shared_ptr<Bonus>>(),
-				std::vector<std::shared_ptr<Bonus>>(),
-				std::vector<std::shared_ptr<Bonus>>(),
-				std::vector<std::shared_ptr<Bonus>>()
-			}
-		};
+		std::map<int, std::vector<std::shared_ptr<Bonus>>> spellsWithBackupLayers;
 
-		int lastBackupLayer = -1;
 		for(int i = 0; i < spells->size(); i++)
 		{
 			std::shared_ptr<Bonus> bonus = spells->operator[](i);
 			int layer = bonus->additionalInfo[2];
-			vstd::abetween(layer, -1, 4);
-			spellsWithBackupLayers[layer+1].push_back(bonus);
-
-			if(layer > lastBackupLayer)
-				lastBackupLayer = layer;
+			vstd::amax(layer, -1);
+			spellsWithBackupLayers[layer].push_back(bonus);
 		}
 
 		auto addSpellsFromLayer = [&](int layer) -> void
 		{
-			if(layer + 1 >= spellsWithBackupLayers.size() )
-			{
-				logMod->error(std::string("Wrong layer in addSpellsFromLayer: ") + std::to_string(layer));
-				return;
-			}
+			assert(spellsWithBackupLayers.find(layer) != spellsWithBackupLayers.end());
 
-			for(const auto & spell : spellsWithBackupLayers[layer+1])
+			for(const auto & spell : spellsWithBackupLayers[layer])
 			{
 				if (spell->subtype.as<SpellID>() != SpellID())
 					spellsToCast.insert(spell->subtype.as<SpellID>());
 				else
-					logMod->error("Invalid spell to cast during attack!");
+					logGlobal->error("Invalid spell to cast during attack!");
 			}
 		};
 
-		addSpellsFromLayer(-1);
-
-		for(int spellLayer = 0; spellLayer <= lastBackupLayer; spellLayer++)
+		if(spellsWithBackupLayers.find(unlayeredItemsInternalLayer) != spellsWithBackupLayers.end())
 		{
-			if(spellsWithBackupLayers[spellLayer+1].empty())
-				continue;
+			addSpellsFromLayer(unlayeredItemsInternalLayer);
+			spellsWithBackupLayers.erase(unlayeredItemsInternalLayer);
+		}
 
-			if(spellLayer < lastBackupLayer)
+		for(auto item : spellsWithBackupLayers)
+		{
+			if(item.first < spellsWithBackupLayers.rbegin()->first)
 			{
-				bool areCurrentLayerSpellsApplied = std::all_of(spellsWithBackupLayers[spellLayer+1].begin(), spellsWithBackupLayers[spellLayer+1].end(),
+				bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
 					[&](const std::shared_ptr<Bonus> spell)
 					{
 						std::vector<SpellID> activeSpells = defender->activeSpells();
-						auto spellIterator = vstd::find(activeSpells, spell->subtype.as<SpellID>());
-						bool value = spellIterator != activeSpells.end();
-						return value;
+						return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
 					});
 
 				if(areCurrentLayerSpellsApplied)
 					continue;
 			}
 
-			addSpellsFromLayer(spellLayer);
+			addSpellsFromLayer(item.first);
 			break;
 		}
 
