@@ -46,7 +46,7 @@ class BattleActionProcessor : boost::noncopyable
 	void handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
 	void handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
 	void attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender);
-	
+
 	std::set<SpellID> getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender);
 
 	// damage, drain life & fire shield; returns amount of drained life
