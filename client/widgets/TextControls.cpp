@@ -47,14 +47,16 @@ void CLabel::showAll(Canvas & to)
 
 }
 
-CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text)
-	: CTextContainer(Align, Font, Color), text(Text)
+CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text, int maxWidth)
+	: CTextContainer(Align, Font, Color), text(Text), maxWidth(maxWidth)
 {
 	setRedrawParent(true);
 	autoRedraw = true;
 	pos.x += x;
 	pos.y += y;
 	pos.w = pos.h = 0;
+
+	trimText();
 
 	if(alignment == ETextAlignment::TOPLEFT) // causes issues for MIDDLE
 	{
@@ -81,6 +83,9 @@ void CLabel::setAutoRedraw(bool value)
 void CLabel::setText(const std::string & Txt)
 {
 	text = Txt;
+	
+	trimText();
+
 	if(autoRedraw)
 	{
 		if(background || !parent)
@@ -88,6 +93,13 @@ void CLabel::setText(const std::string & Txt)
 		else
 			parent->redraw();
 	}
+}
+
+void CLabel::trimText()
+{
+	if(maxWidth > 0)
+		while ((int)graphics->fonts[font]->getStringWidth(visibleText().c_str()) > maxWidth)
+			TextOperations::trimRightUnicode(text);
 }
 
 void CLabel::setColor(const ColorRGBA & Color)
@@ -444,7 +456,7 @@ void CGStatusBar::clear()
 }
 
 CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, ETextAlignment Align, const ColorRGBA & Color)
-	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
+	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "", background_->pos.w)
 	, enteringText(false)
 {
 	addUsedEvents(LCLICK);
@@ -542,6 +554,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	setRedrawParent(true);
 	pos.h = Pos.h;
 	pos.w = Pos.w;
+	maxWidth = Pos.w;
 	background.reset();
 	addUsedEvents(LCLICK | SHOW_POPUP | KEYBOARD | TEXTINPUT);
 
@@ -557,6 +570,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath
 	pos += Pos.topLeft();
 	pos.h = Pos.h;
 	pos.w = Pos.w;
+	maxWidth = Pos.w;
 
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
@@ -575,6 +589,7 @@ CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
+	maxWidth = Pos.w;
 	background->pos = pos;
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
@@ -683,7 +698,7 @@ void CTextInput::textInputed(const std::string & enteredText)
 		return;
 	std::string oldText = text;
 
-	text += enteredText;
+	setText(getText() + enteredText);
 
 	filters(text, oldText);
 	if(text != oldText)

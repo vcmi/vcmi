@@ -537,11 +537,11 @@ void OptionsTab::SelectionWindow::recreate()
 
 void OptionsTab::SelectionWindow::drawOutlinedText(int x, int y, ColorRGBA color, std::string text)
 {
-	components.push_back(std::make_shared<CLabel>(x-1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x+1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x, y-1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x, y+1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
-	components.push_back(std::make_shared<CLabel>(x, y, FONT_TINY, ETextAlignment::CENTER, color, text));
+	components.push_back(std::make_shared<CLabel>(x-1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x+1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x, y-1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x, y+1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text, 56));
+	components.push_back(std::make_shared<CLabel>(x, y, FONT_TINY, ETextAlignment::CENTER, color, text, 56));
 }
 
 void OptionsTab::SelectionWindow::genContentGrid(int lines)
@@ -774,7 +774,7 @@ OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & playerSett
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	image = std::make_shared<CAnimImage>(getImageName(), getImageIndex());
-	subtitle = std::make_shared<CLabel>(23, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName());
+	subtitle = std::make_shared<CLabel>(24, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName(), 71);
 
 	pos = image->pos;
 
@@ -889,7 +889,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 
 	background = std::make_shared<CPicture>(ImagePath::builtin(bgs[s->color]), 0, 0);
 	if(s->isControlledByAI() || CSH->isGuest())
-		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name);
+		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name, 95);
 	else
 	{
 		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, nullptr, false);
