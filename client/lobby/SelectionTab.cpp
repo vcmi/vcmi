@@ -866,11 +866,13 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
 		labelName->enable();
+		labelName->setMaxWidth(316);
 		labelName->setText(info->folderName);
 		labelName->setColor(color);
 		return;
 	}
 
+	labelName->enable();
 	if(info->campaign)
 	{
 		labelAmountOfPlayers->disable();
@@ -885,6 +887,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		ostr << info->campaign->scenariosCount();
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
+		labelName->setMaxWidth(316);
 	}
 	else
 	{
@@ -905,8 +908,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
 		iconLossCondition->enable();
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
+		labelName->setMaxWidth(185);
 	}
-	labelName->enable();
 	labelName->setText(info->getNameForList());
 	labelName->setColor(color);
 }

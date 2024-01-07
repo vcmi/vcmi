@@ -55,6 +55,7 @@ public:
 	std::string getText();
 	virtual void setAutoRedraw(bool option);
 	virtual void setText(const std::string & Txt);
+	virtual void setMaxWidth(int width);
 	virtual void setColor(const ColorRGBA & Color);
 	size_t getWidth();
 

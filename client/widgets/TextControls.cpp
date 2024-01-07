@@ -95,6 +95,11 @@ void CLabel::setText(const std::string & Txt)
 	}
 }
 
+void CLabel::setMaxWidth(int width)
+{
+	maxWidth = width;
+}
+
 void CLabel::trimText()
 {
 	if(maxWidth > 0)
