@@ -1119,19 +1119,81 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	handleAfterAttackCasting(battle, ranged, attacker, defender);
 }
 
-void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender)
+void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
 {
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		std::set<SpellID> spellsToCast;
+
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
-		for(const auto & sf : *spells)
+
+		std::array<std::vector<std::shared_ptr<Bonus>>, 6> spellsWithBackupLayers =
 		{
-			if (sf->subtype.as<SpellID>() != SpellID())
-				spellsToCast.insert(sf->subtype.as<SpellID>());
-			else
-				logMod->error("Invalid spell to cast during attack!");
+			{
+				std::vector<std::shared_ptr<Bonus>>(),
+				std::vector<std::shared_ptr<Bonus>>(),
+				std::vector<std::shared_ptr<Bonus>>(),
+				std::vector<std::shared_ptr<Bonus>>(),
+				std::vector<std::shared_ptr<Bonus>>(),
+				std::vector<std::shared_ptr<Bonus>>()
+			}
+		};
+
+		int lastBackupLayer = -1;
+		for(int i = 0; i < spells->size(); i++)
+		{
+			std::shared_ptr<Bonus> bonus = spells->operator[](i);
+			int layer = bonus->additionalInfo[2];
+			vstd::abetween(layer, -1, 4);
+			spellsWithBackupLayers[layer+1].push_back(bonus);
+
+			if(layer > lastBackupLayer)
+				lastBackupLayer = layer;
 		}
+
+		auto addSpellsFromLayer = [&](int layer) -> void
+		{
+			if(layer + 1 >= spellsWithBackupLayers.size() )
+			{
+				logMod->error(std::string("Wrong layer in addSpellsFromLayer: ") + std::to_string(layer));
+				return;
+			}
+
+			for(const auto & spell : spellsWithBackupLayers[layer+1])
+			{
+				if (spell->subtype.as<SpellID>() != SpellID())
+					spellsToCast.insert(spell->subtype.as<SpellID>());
+				else
+					logMod->error("Invalid spell to cast during attack!");
+			}
+		};
+
+		addSpellsFromLayer(-1);
+
+		for(int spellLayer = 0; spellLayer <= lastBackupLayer; spellLayer++)
+		{
+			if(spellsWithBackupLayers[spellLayer+1].empty())
+				continue;
+
+			if(spellLayer < lastBackupLayer)
+			{
+				bool areCurrentLayerSpellsApplied = std::all_of(spellsWithBackupLayers[spellLayer+1].begin(), spellsWithBackupLayers[spellLayer+1].end(),
+					[&](const std::shared_ptr<Bonus> spell)
+					{
+						std::vector<SpellID> activeSpells = defender->activeSpells();
+						auto spellIterator = vstd::find(activeSpells, spell->subtype.as<SpellID>());
+						bool value = spellIterator != activeSpells.end();
+						return value;
+					});
+
+				if(areCurrentLayerSpellsApplied)
+					continue;
+			}
+
+			addSpellsFromLayer(spellLayer);
+			break;
+		}
+
 		for(SpellID spellID : spellsToCast)
 		{
 			bool castMe = false;
