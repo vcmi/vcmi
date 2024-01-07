@@ -96,7 +96,7 @@ private:
 		CPlayerOptionTooltipBox(CPlayerSettingsHelper & helper);
 	};
 
-	class SelectionWindow : public CWindowObject
+	class SelectionWindow : public CWindowObject, public CPlayerSettingsHelper
 	{
 		//const int ICON_SMALL_WIDTH = 48;
 		const int ICON_SMALL_HEIGHT = 32;
@@ -148,7 +148,7 @@ private:
 	public:
 		void reopen();
 
-		SelectionWindow(PlayerColor _color, SelType _type);
+		SelectionWindow(CPlayerSettingsHelper & helper, SelType _type);
 	};
 
 	/// Image with current town/hero/bonus
