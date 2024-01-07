@@ -588,8 +588,9 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
+	BattleHex hoveredHex = getHoveredHex();
 	const CStack * hoveredStack = getHoveredStack();
-	if(!hoveredStack)
+	if(!hoveredStack && hoveredHex == BattleHex::INVALID)
 		return;
 
 	// skip range limit calculations if unit hovered is not a shooter
@@ -604,7 +605,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighligts);
 	}
 
-	auto const & hoveredMouseHexes = getHoveredHex() != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
+	auto const & hoveredMouseHexes = hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
