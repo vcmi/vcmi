@@ -36,6 +36,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../windows/CMessage.h"
+#include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
@@ -1052,4 +1053,12 @@ void StackQueue::StackBox::show(Canvas & to)
 
 	if(isBoundUnitHighlighted())
 		to.drawBorder(background->pos, Colors::CYAN, 2);
+}
+
+void StackQueue::StackBox::showPopupWindow(const Point & cursorPosition)
+{
+	auto stacks = owner->owner.getBattle()->battleGetAllStacks();
+	for(const CStack * stack : stacks)
+		if(boundUnitID.has_value() && stack->unitId() == *boundUnitID)
+			GH.windows().createAndPushWindow<CStackWindow>(stack, true);
 }

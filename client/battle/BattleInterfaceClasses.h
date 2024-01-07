@@ -230,6 +230,7 @@ class StackQueue : public CIntObject
 
 		void show(Canvas & to) override;
 		void showAll(Canvas & to) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 
 		bool isBoundUnitHighlighted() const;
 	public:
