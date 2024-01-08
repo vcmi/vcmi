@@ -6,6 +6,7 @@ on:
       - features/*
       - beta
       - master
+      - develop
   pull_request:
   schedule:
     - cron: '0 2 * * *'
@@ -70,11 +71,12 @@ jobs:
         include:
           - platform: linux-qt6
             os: ubuntu-22.04
-            test: 0
+            test: 1
             preset: linux-clang-test
           - platform: linux
+
             os: ubuntu-22.04
-            test: 0
+            test: 1
             preset: linux-gcc-test
           - platform: linux
             os: ubuntu-20.04
@@ -205,6 +207,20 @@ jobs:
         # actual cache takes up less space, at most ~1 GB
         max-size: "5G"
         verbose: 2
+
+    - name: Clone Heroes 3 data
+      if: ${{ startsWith(matrix.preset, 'linux') && endsWith(matrix.preset, 'test') }}
+      env:
+        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
+      run: |
+        git clone https://github.com/Alexander-Wilms/encrypted_heroes_3_data
+        if [ ! -f encrypted_heroes_3_data/HoMM3_data_encrypted/Data/H3sprite.lod.enc ]; then echo "Failed to clone Heroes 3 data" && exit 1; fi
+        cd encrypted_heroes_3_data && ./crypt.py -p $HEROES_3_DATA_PASSWORD -d
+        tree
+        # fail CI stage if something went wrong
+        if [ ! -f HoMM3_data_decrypted/Data/H3bitmap.lod ]; then echo "Failed to decrypt Heroes 3 data" && exit 1; fi
+        mkdir -p ~/.local/share/vcmi/
+        mv HoMM3_data_decrypted/* ~/.local/share/vcmi/
 
     - uses: actions/setup-python@v4
       if: "${{ matrix.conan_profile != '' }}"
