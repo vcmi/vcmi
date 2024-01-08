@@ -257,7 +257,15 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 
 	VLC->generaltexth->registerString(scope, heroClass->getNameTextID(), node["name"].String());
 
-	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
+	if (vstd::contains(affinityStr, node["affinity"].String()))
+	{
+		heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
+	}
+	else
+	{
+		logGlobal->error("Mod '%s', hero class '%s': invalid affinity '%s'! Expected 'might' or 'magic'!", scope, identifier, node["affinity"].String());
+		heroClass->affinity = CHeroClass::MIGHT;
+	}
 
 	fillPrimarySkillData(node, heroClass, PrimarySkill::ATTACK);
 	fillPrimarySkillData(node, heroClass, PrimarySkill::DEFENSE);
