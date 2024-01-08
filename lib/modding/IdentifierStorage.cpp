@@ -132,6 +132,7 @@ CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameW
 	result.name = typeAndName.second;
 	result.callback = callback;
 	result.optional = optional;
+	result.dynamicType = true;
 	return result;
 }
 
@@ -160,6 +161,7 @@ CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameA
 	result.name = typeAndName.second;
 	result.callback = callback;
 	result.optional = optional;
+	result.dynamicType = false;
 	return result;
 }
 
@@ -242,6 +244,24 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 	auto idList = getPossibleIdentifiers(options);
 
 	logMod->error("Failed to resolve identifier '%s' of type '%s' from mod '%s'", options.name, options.type, options.localScope);
+
+	if (options.dynamicType && options.type.empty())
+	{
+		bool suggestionFound = false;
+
+		for (auto const & entry : registeredObjects)
+		{
+			if (!boost::algorithm::ends_with(entry.first, options.name))
+				continue;
+
+			suggestionFound = true;
+			logMod->error("Perhaps you wanted to use identifier '%s' from mod '%s' instead?", entry.first, entry.second.scope);
+		}
+
+		if (suggestionFound)
+			return;
+	}
+
 	if (idList.empty())
 	{
 		// check whether identifier is unavailable due to a missing dependency on a mod
@@ -271,8 +291,11 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 				// attempt to access identifier in form 'modName:object', but identifier is only present in different mod
 				for (auto const & testOption : testList)
 				{
-					logMod->error("Identifier '%s' exists in mod '%s' but identifier was explicitly requested from mod '%s'", options.name, testOption.scope, options.remoteScope);
-					logMod->error("Please use form '%s' or '%s:%s' to access this identifier", options.name, testOption.scope, options.name);
+					logMod->error("Identifier '%s' exists in mod '%s' but identifier was explicitly requested from mod '%s'!", options.name, testOption.scope, options.remoteScope);
+					if (options.dynamicType)
+						logMod->error("Please use form '%s.%s' or '%s:%s.%s' to access this identifier", options.type, options.name, testOption.scope, options.type, options.name);
+					else
+						logMod->error("Please use form '%s' or '%s:%s' to access this identifier", options.name, testOption.scope, options.name);
 				}
 			}
 		}
@@ -283,7 +306,10 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 		for (auto const & testOption : idList)
 		{
 			logMod->error("Identifier %s exists in mod %s", options.name, testOption.scope);
-			logMod->error("Please use '%s:%s' form to select this identifier", testOption.scope, options.remoteScope);
+			if (options.dynamicType)
+				logMod->error("Please use '%s:%s.%s' to access this identifier", testOption.scope, options.type, options.name);
+			else
+				logMod->error("Please use '%s:%s' to access this identifier", testOption.scope, options.name);
 		}
 	}
 }
