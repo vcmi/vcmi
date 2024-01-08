@@ -64,7 +64,7 @@
 	"vcmi.mainMenu.joinTCP" : "加入TCP/IP游戏",
 	"vcmi.mainMenu.playerName" : "Player",
 
-	"vcmi.lobby.filename" : "文件名",
+	"vcmi.lobby.filepath" : "文件路径",
 	"vcmi.lobby.creationDate" : "创建时间",
 	"vcmi.lobby.scenarioName" : "场景名称",
 	"vcmi.lobby.mapPreview" : "地图预览",
@@ -93,9 +93,9 @@
 	"vcmi.systemOptions.townsGroup" : "城镇画面",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "全屏 (无边框)",
-	"vcmi.systemOptions.fullscreenBorderless.help"  : "{全屏}\n\n选中时，VCMI将以全屏运行，否则运行在窗口模式。",
-	"vcmi.systemOptions.fullscreenExclusive.hover"  : "全屏 (边框)",
-	"vcmi.systemOptions.fullscreenExclusive.help"   : "{全屏}\n\n选中时，VCMI将以全屏运行，否则运行在窗口模式。",
+	"vcmi.systemOptions.fullscreenBorderless.help"  : "{全屏}\n\n选中时，VCMI将以无边框全屏模式运行。在这种模式下，游戏会使用和桌面一致的分辨率而非设置的分辨率。 ",
+	"vcmi.systemOptions.fullscreenExclusive.hover"  : "全屏 (独占)",
+	"vcmi.systemOptions.fullscreenExclusive.help"   : "{全屏}\n\n选中时，VCMI将以独占全屏模式运行。在这种模式下，游戏会将显示器分辨率改变为设置值。",
 	"vcmi.systemOptions.resolutionButton.hover" : "分辨率",
 	"vcmi.systemOptions.resolutionButton.help"  : "{分辨率选择}\n\n改变游戏内的分辨率，更改后需要重启游戏使其生效。",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "分辨率选择",
@@ -136,6 +136,8 @@
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{左键拖动地图}\n\n启用后，按住左键移动鼠标将拖动冒险地图视图。",
 	"vcmi.adventureOptions.smoothDragging.hover" : "平滑地图拖动",
 	"vcmi.adventureOptions.smoothDragging.help" : "{平滑地图拖动}\n\n启用后，地图拖动会产生柔和的羽化效果。",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "关闭淡入淡出特效",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.help" : "{关闭淡入淡出特效}\n\n启用后，跳过物体淡出或类似特效（资源收集，登船等）。设置此项能在渲染开销重时能够加快UI的响应，尤其是在PvP对战中。当移动速度被设置为最大时忽略此项设置。",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
@@ -164,8 +166,6 @@
 	"vcmi.battleOptions.rangeLimitHighlightOnHover.help": "{显示生物射程限制}\n\n当您将鼠标悬停在其上时，显示射手的射程限制。",
 	"vcmi.battleOptions.showStickyHeroInfoWindows.hover": "显示英雄统计数据窗口",
 	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{显示英雄统计数据窗口}\n\n永久切换并显示主要统计数据和法术点的英雄统计数据窗口。",
-	"vcmi.battleOptions.enableAutocombatSpells.hover": "魔法",
-	"vcmi.battleOptions.enableAutocombatSpells.help": "{魔法}\n\n快速战斗时不会使用魔法。",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "跳过战斗开始音乐",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{跳过战斗开始音乐}\n\n战斗开始音乐播放期间，你也能够进行操作。",
 	
@@ -237,7 +237,7 @@
 	"vcmi.questLog.hideComplete.hover" : "隐藏完成任务",
 	"vcmi.questLog.hideComplete.help"  : "隐藏所有完成的任务",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "默认",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(随机)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "模板",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "设定...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "同盟关系",
@@ -304,6 +304,14 @@
 	"vcmi.optionsTab.simturns.months.0" : " %d 月",
 	"vcmi.optionsTab.simturns.months.1" : " %d 月",
 	"vcmi.optionsTab.simturns.months.2" : " %d 月",
+
+	"vcmi.optionsTab.extraOptions.hover" : "额外选项",
+	"vcmi.optionsTab.extraOptions.help" : "游戏的额外设置",
+
+	"vcmi.optionsTab.cheatAllowed.hover" : "允许作弊s",
+	"vcmi.optionsTab.unlimitedReplay.hover" : "无限战斗回放",
+	"vcmi.optionsTab.cheatAllowed.help" : "{允许作弊}\n允许在游戏过程中输入作弊码。",
+	"vcmi.optionsTab.unlimitedReplay.help" : "{无限战斗回放}\n战斗回放没有任何限制。",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "敌人依然存活至今，你失败了！",
