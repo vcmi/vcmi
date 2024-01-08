@@ -70,10 +70,10 @@ class LobbyServer : public INetworkServerListener
 	void broadcastActiveAccounts();
 	void broadcastActiveGameRooms();
 
-	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & senderName, const std::string & messageText);
+	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, std::string & displayName, const std::string & messageText);
 	void sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie);
 	void sendLoginFailed(const NetworkConnectionPtr & target, const std::string & reason);
-	void sendLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie);
+	void sendLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName);
 	void sendChatHistory(const NetworkConnectionPtr & target, const std::vector<LobbyChatMessage> &);
 	void sendAccountJoinsRoom(const NetworkConnectionPtr & target, const std::string & accountID);
 	void sendJoinRoomSuccess(const NetworkConnectionPtr & target, const std::string & gameRoomID);

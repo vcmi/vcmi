@@ -49,7 +49,7 @@ void LobbyDatabase::createTables()
 			accountID TEXT,
 			displayName TEXT,
 			online INTEGER NOT NULL,
-			lastLoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+			lastLoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 		);
 	)";
@@ -110,11 +110,11 @@ void LobbyDatabase::prepareStatements()
 	// DELETE FROM
 
 	static const std::string deleteGameRoomPlayersText = R"(
-		 DELETE FROM gameRoomPlayers WHERE gameRoomID = ? AND accountID = ?
+		 DELETE FROM gameRoomPlayers WHERE roomID = ? AND accountID = ?
 	)";
 
 	static const std::string deleteGameRoomInvitesText = R"(
-		DELETE FROM gameRoomInvites WHERE gameRoomID = ? AND accountID = ?
+		DELETE FROM gameRoomInvites WHERE roomID = ? AND accountID = ?
 	)";
 
 	// UPDATE
@@ -134,10 +134,11 @@ void LobbyDatabase::prepareStatements()
 	// SELECT FROM
 
 	static const std::string getRecentMessageHistoryText = R"(
-		SELECT senderName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',creationTime)  AS secondsElapsed
-		FROM chatMessages
+		SELECT senderName, displayName, messageText, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',cm.creationTime)  AS secondsElapsed
+		FROM chatMessages cm
+		LEFT JOIN accounts on accountID = senderName
 		WHERE secondsElapsed < 60*60*18
-		ORDER BY creationTime DESC
+		ORDER BY cm.creationTime DESC
 		LIMIT 100
 	)";
 
@@ -149,7 +150,7 @@ void LobbyDatabase::prepareStatements()
 	)";
 
 	static const std::string getAccountGameRoomText = R"(
-		SELECT roomID
+		SELECT grp.roomID
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
 		WHERE accountID = ? AND status IN ('public', 'private', 'busy')
@@ -159,7 +160,13 @@ void LobbyDatabase::prepareStatements()
 	static const std::string getActiveAccountsText = R"(
 		SELECT accountID, displayName
 		FROM accounts
-		WHERE online <> 1
+		WHERE online = 1
+	)";
+
+	static const std::string getAccountDisplayNameText = R"(
+		SELECT displayName
+		FROM accounts
+		WHERE accountID = ?
 	)";
 
 	static const std::string isAccountCookieValidText = R"(
@@ -187,10 +194,16 @@ void LobbyDatabase::prepareStatements()
 		WHERE accountID = ?
 	)";
 
-	static const std::string isAccountExistsText = R"(
+	static const std::string isAccountIDExistsText = R"(
 		SELECT COUNT(accountID)
 		FROM accounts
 		WHERE accountID = ?
+	)";
+
+	static const std::string isAccountNameExistsText = R"(
+		SELECT COUNT(displayName)
+		FROM accounts
+		WHERE displayName = ?
 	)";
 
 	insertChatMessageStatement = database->prepare(insertChatMessageText);
@@ -210,11 +223,13 @@ void LobbyDatabase::prepareStatements()
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
 	getAccountGameRoomStatement = database->prepare(getAccountGameRoomText);
 	getActiveAccountsStatement = database->prepare(getActiveAccountsText);
+	getAccountDisplayNameStatement = database->prepare(getAccountDisplayNameText);
 
 	isAccountCookieValidStatement = database->prepare(isAccountCookieValidText);
 	isPlayerInGameRoomStatement = database->prepare(isPlayerInGameRoomText);
 	isPlayerInAnyGameRoomStatement = database->prepare(isPlayerInAnyGameRoomText);
-	isAccountExistsStatement = database->prepare(isAccountExistsText);
+	isAccountIDExistsStatement = database->prepare(isAccountIDExistsText);
+	isAccountNameExistsStatement = database->prepare(isAccountNameExistsText);
 }
 
 LobbyDatabase::~LobbyDatabase() = default;
@@ -262,7 +277,7 @@ std::vector<LobbyChatMessage> LobbyDatabase::getRecentMessageHistory()
 	while(getRecentMessageHistoryStatement->execute())
 	{
 		LobbyChatMessage message;
-		getRecentMessageHistoryStatement->getColumns(message.sender, message.messageText, message.age);
+		getRecentMessageHistoryStatement->getColumns(message.accountID, message.displayName, message.messageText, message.age);
 		result.push_back(message);
 	}
 	getRecentMessageHistoryStatement->reset();
@@ -332,7 +347,14 @@ void LobbyDatabase::updateActiveAccount(const std::string & accountID, bool isAc
 
 std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 {
-	return {};
+	std::string result;
+
+	getAccountDisplayNameStatement->setBinds(accountID);
+	if (getAccountDisplayNameStatement->execute())
+		getAccountDisplayNameStatement->getColumns(result);
+	getAccountDisplayNameStatement->reset();
+
+	return result;
 }
 
 LobbyCookieStatus LobbyDatabase::getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime)
@@ -342,12 +364,14 @@ LobbyCookieStatus LobbyDatabase::getGameRoomCookieStatus(const std::string & acc
 
 LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime)
 {
-	return {};
-}
+	bool result = false;
 
-LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & accountID, std::chrono::seconds cookieLifetime)
-{
-	return {};
+	isAccountCookieValidStatement->setBinds(accountID, accessCookieUUID, cookieLifetime.count());
+	if (isAccountCookieValidStatement->execute())
+		isAccountCookieValidStatement->getColumns(result);
+	isAccountCookieValidStatement->reset();
+
+	return result ? LobbyCookieStatus::VALID : LobbyCookieStatus::INVALID;
 }
 
 LobbyInviteStatus LobbyDatabase::getAccountInviteStatus(const std::string & accountID, const std::string & roomID)
@@ -365,9 +389,26 @@ uint32_t LobbyDatabase::getGameRoomFreeSlots(const std::string & roomID)
 	return 0;
 }
 
-bool LobbyDatabase::isAccountExists(const std::string & accountID)
+bool LobbyDatabase::isAccountNameExists(const std::string & displayName)
 {
-	return false;
+	bool result = false;
+
+	isAccountNameExistsStatement->setBinds(displayName);
+	if (isAccountNameExistsStatement->execute())
+		isAccountNameExistsStatement->getColumns(result);
+	isAccountNameExistsStatement->reset();
+	return result;
+}
+
+bool LobbyDatabase::isAccountIDExists(const std::string & accountID)
+{
+	bool result = false;
+
+	isAccountIDExistsStatement->setBinds(accountID);
+	if (isAccountIDExistsStatement->execute())
+		isAccountIDExistsStatement->getColumns(result);
+	isAccountIDExistsStatement->reset();
+	return result;
 }
 
 std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()

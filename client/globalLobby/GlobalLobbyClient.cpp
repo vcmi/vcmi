@@ -20,6 +20,7 @@
 
 #include "../../lib/MetaString.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/TextOperations.h"
 #include "../../lib/network/NetworkClient.h"
 
 GlobalLobbyClient::~GlobalLobbyClient()
@@ -42,15 +43,7 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	auto timeNowChrono = std::chrono::system_clock::now();
 	timeNowChrono += std::chrono::seconds(timeOffsetSeconds);
 
-	std::time_t timeNowC = std::chrono::system_clock::to_time_t(timeNowChrono);
-	std::tm timeNowTm = *std::localtime(&timeNowC);
-
-	MetaString timeFormatted;
-	timeFormatted.appendRawString("%d:%d");
-	timeFormatted.replaceNumber(timeNowTm.tm_hour);
-	timeFormatted.replaceNumber(timeNowTm.tm_min);
-
-	return timeFormatted.toString();
+	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
 }
 
 void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
@@ -59,48 +52,138 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection
 
 	JsonNode json(message.data(), message.size());
 
-	if (json["type"].String() == "authentication")
-	{
-		auto loginWindowPtr = loginWindow.lock();
+	if (json["type"].String() == "accountCreated")
+		return receiveAccountCreated(json);
 
-		if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
-			throw std::runtime_error("lobby connection finished without active login window!");
+	if (json["type"].String() == "loginFailed")
+		return receiveLoginFailed(json);
 
-		loginWindowPtr->onConnectionSuccess();
-	}
+	if (json["type"].String() == "loginSuccess")
+		return receiveLoginSuccess(json);
 
 	if (json["type"].String() == "chatHistory")
-	{
-		for (auto const & entry : json["messages"].Vector())
-		{
-			std::string senderName = entry["senderName"].String();
-			std::string messageText = entry["messageText"].String();
-			int ageSeconds = entry["ageSeconds"].Integer();
-			std::string timeFormatted = getCurrentTimeFormatted(-ageSeconds);
-
-			auto lobbyWindowPtr = lobbyWindow.lock();
-			if(lobbyWindowPtr)
-				lobbyWindowPtr->onGameChatMessage(senderName, messageText, timeFormatted);
-		}
-	}
+		return receiveChatHistory(json);
 
 	if (json["type"].String() == "chatMessage")
+		return receiveChatMessage(json);
+
+	if (json["type"].String() == "activeAccounts")
+		return receiveActiveAccounts(json);
+
+	throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String() );
+}
+
+void GlobalLobbyClient::receiveAccountCreated(const JsonNode & json)
+{
+	auto loginWindowPtr = loginWindow.lock();
+
+	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+		throw std::runtime_error("lobby connection finished without active login window!");
+
 	{
-		std::string senderName = json["senderName"].String();
-		std::string messageText = json["messageText"].String();
-		std::string timeFormatted = getCurrentTimeFormatted();
+		Settings configID = settings.write["lobby"]["accountID"];
+		configID->String() = json["accountID"].String();
+
+		Settings configName = settings.write["lobby"]["displayName"];
+		configName->String() = json["displayName"].String();
+
+		Settings configCookie = settings.write["lobby"]["accountCookie"];
+		configCookie->String() = json["accountCookie"].String();
+	}
+
+	sendClientLogin();
+}
+
+void GlobalLobbyClient::receiveLoginFailed(const JsonNode & json)
+{
+	auto loginWindowPtr = loginWindow.lock();
+
+	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+		throw std::runtime_error("lobby connection finished without active login window!");
+
+	loginWindowPtr->onConnectionFailed(json["reason"].String());
+}
+
+void GlobalLobbyClient::receiveLoginSuccess(const JsonNode & json)
+{
+	{
+		Settings configCookie = settings.write["lobby"]["accountCookie"];
+		configCookie->String() = json["accountCookie"].String();
+
+		Settings configName = settings.write["lobby"]["displayName"];
+		configName->String() = json["displayName"].String();
+	}
+
+	auto loginWindowPtr = loginWindow.lock();
+
+	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+		throw std::runtime_error("lobby connection finished without active login window!");
+
+	loginWindowPtr->onConnectionSuccess();
+}
+
+void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
+{
+	for (auto const & entry : json["messages"].Vector())
+	{
+		std::string accountID = entry["accountID"].String();
+		std::string displayName = entry["displayName"].String();
+		std::string messageText = entry["messageText"].String();
+		int ageSeconds = entry["ageSeconds"].Integer();
+		std::string timeFormatted = getCurrentTimeFormatted(-ageSeconds);
+
 		auto lobbyWindowPtr = lobbyWindow.lock();
 		if(lobbyWindowPtr)
-			lobbyWindowPtr->onGameChatMessage(senderName, messageText, timeFormatted);
+			lobbyWindowPtr->onGameChatMessage(displayName, messageText, timeFormatted);
 	}
+}
+
+void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
+{
+	std::string accountID = json["accountID"].String();
+	std::string displayName = json["displayName"].String();
+	std::string messageText = json["messageText"].String();
+	std::string timeFormatted = getCurrentTimeFormatted();
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->onGameChatMessage(displayName, messageText, timeFormatted);
+}
+
+void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
+{
+	//for (auto const & jsonEntry : json["messages"].Vector())
+	//{
+	//	std::string accountID = jsonEntry["accountID"].String();
+	//	std::string displayName = jsonEntry["displayName"].String();
+	//}
 }
 
 void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkConnection> &)
 {
 	JsonNode toSend;
-	toSend["type"].String() = "authentication";
-	toSend["accountName"].String() = settings["general"]["playerName"].String();
 
+	std::string accountID = settings["lobby"]["accountID"].String();
+
+	if (accountID.empty())
+		sendClientRegister();
+	else
+		sendClientLogin();
+}
+
+void GlobalLobbyClient::sendClientRegister()
+{
+	JsonNode toSend;
+	toSend["type"].String() = "clientRegister";
+	toSend["displayName"] = settings["lobby"]["displayName"];
+	sendMessage(toSend);
+}
+
+void GlobalLobbyClient::sendClientLogin()
+{
+	JsonNode toSend;
+	toSend["type"].String() = "clientLogin";
+	toSend["accountID"] = settings["lobby"]["accountID"];
+	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 	sendMessage(toSend);
 }
 
@@ -141,7 +224,9 @@ void GlobalLobbyClient::sendMessage(const JsonNode & data)
 
 void GlobalLobbyClient::connect()
 {
-	networkClient->start("127.0.0.1", 30303);
+	std::string hostname = settings["lobby"]["hostname"].String();
+	int16_t port = settings["lobby"]["port"].Integer();
+	networkClient->start(hostname, port);
 }
 
 bool GlobalLobbyClient::isConnected()

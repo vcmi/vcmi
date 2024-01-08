@@ -553,12 +553,36 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview" ],
+			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
 					"default" : true
-				}
+				},
+				
+				"accountID" : {
+					"type" : "string",
+					"default" : ""
+				},
+				
+				"accountCookie" : {
+					"type" : "string",
+					"default" : ""
+				},
+				
+				"displayName" : {
+					"type" : "string",
+					"default" : ""
+				},
+
+				"hostname" : {
+					"type" : "string",
+					"default" : "127.0.0.1"
+				},
+				"port" : {
+					"type" : "number",
+					"default" : 30303
+				},
 			}
 		},
 		"gameTweaks" : {

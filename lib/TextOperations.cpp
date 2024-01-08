@@ -219,4 +219,10 @@ std::string TextOperations::getFormattedDateTimeLocal(std::time_t dt)
 	return vstd::getFormattedDateTime(dt, Languages::getLanguageOptions(settings["general"]["language"].String()).dateTimeFormat);
 }
 
+std::string TextOperations::getFormattedTimeLocal(std::time_t dt)
+{
+	return vstd::getFormattedDateTime(dt, "%H:%M");
+}
+
+
 VCMI_LIB_NAMESPACE_END

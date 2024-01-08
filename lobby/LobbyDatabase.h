@@ -38,12 +38,14 @@ class LobbyDatabase
 	SQLiteStatementPtr getIdleGameRoomStatement;
 	SQLiteStatementPtr getAccountGameRoomStatement;
 	SQLiteStatementPtr getActiveAccountsStatement;
+	SQLiteStatementPtr getAccountDisplayNameStatement;
 
 	SQLiteStatementPtr isAccountCookieValidStatement;
 	SQLiteStatementPtr isGameRoomCookieValidStatement;
 	SQLiteStatementPtr isPlayerInGameRoomStatement;
 	SQLiteStatementPtr isPlayerInAnyGameRoomStatement;
-	SQLiteStatementPtr isAccountExistsStatement;
+	SQLiteStatementPtr isAccountIDExistsStatement;
+	SQLiteStatementPtr isAccountNameExistsStatement;
 
 	void prepareStatements();
 	void createTables();
@@ -81,12 +83,12 @@ public:
 
 	LobbyCookieStatus getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime);
 	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime);
-	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, std::chrono::seconds cookieLifetime);
 	LobbyInviteStatus getAccountInviteStatus(const std::string & accountID, const std::string & roomID);
 	LobbyRoomState getGameRoomStatus(const std::string & roomID);
 	uint32_t getGameRoomFreeSlots(const std::string & roomID);
 
 	bool isPlayerInGameRoom(const std::string & accountID);
 	bool isPlayerInGameRoom(const std::string & accountID, const std::string & roomID);
-	bool isAccountExists(const std::string & accountID);
+	bool isAccountNameExists(const std::string & displayName);
+	bool isAccountIDExists(const std::string & accountID);
 };

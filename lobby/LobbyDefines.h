@@ -26,7 +26,8 @@ struct LobbyGameRoom
 
 struct LobbyChatMessage
 {
-	std::string sender;
+	std::string accountID;
+	std::string displayName;
 	std::string messageText;
 	std::chrono::seconds age;
 };

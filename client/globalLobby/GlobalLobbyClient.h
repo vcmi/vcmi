@@ -33,6 +33,15 @@ class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
 	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
 	void onTimer() override;
 
+	void sendClientRegister();
+	void sendClientLogin();
+
+	void receiveAccountCreated(const JsonNode & json);
+	void receiveLoginFailed(const JsonNode & json);
+	void receiveLoginSuccess(const JsonNode & json);
+	void receiveChatHistory(const JsonNode & json);
+	void receiveChatMessage(const JsonNode & json);
+	void receiveActiveAccounts(const JsonNode & json);
 public:
 	explicit GlobalLobbyClient();
 	~GlobalLobbyClient();

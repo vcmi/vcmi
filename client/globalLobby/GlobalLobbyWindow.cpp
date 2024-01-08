@@ -29,7 +29,7 @@ GlobalLobbyWindow::GlobalLobbyWindow():
 	pos = widget->pos;
 	center();
 
-	widget->getAccountNameLabel()->setText(settings["general"]["playerName"].String());
+	widget->getAccountNameLabel()->setText(settings["lobby"]["displayName"].String());
 }
 
 void GlobalLobbyWindow::doSendChatMessage()

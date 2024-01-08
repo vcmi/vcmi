@@ -25,6 +25,7 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/MetaString.h"
+#include "../../lib/CConfigHandler.h"
 
 GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	: CWindowObject(BORDERED)
@@ -41,9 +42,14 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	inputUsername = std::make_shared<CTextInput>(Rect(15, 73, 176, 16), FONT_SMALL, nullptr, ETextAlignment::TOPLEFT, true);
 	buttonLogin = std::make_shared<CButton>(Point(10, 160), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); });
 	buttonClose = std::make_shared<CButton>(Point(126, 160), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
-	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 95, 175, 60), 1, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
+	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 95, 175, 60), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
 	background->playerColored(PlayerColor(1));
+	inputUsername->setText(settings["lobby"]["displayName"].String());
+	inputUsername->cb += [this](const std::string & text)
+	{
+		buttonLogin->block(text.empty());
+	};
 
 	center();
 }
@@ -56,8 +62,12 @@ void GlobalLobbyLoginWindow::onClose()
 
 void GlobalLobbyLoginWindow::onLogin()
 {
+	Settings config = settings.write["lobby"]["displayName"];
+	config->String() = inputUsername->getText();
+
 	labelStatus->setText(CGI->generaltexth->translate("vcmi.lobby.login.connecting"));
 	CSH->getGlobalLobby().connect();
+	buttonClose->block(true);
 }
 
 void GlobalLobbyLoginWindow::onConnectionSuccess()
@@ -73,4 +83,5 @@ void GlobalLobbyLoginWindow::onConnectionFailed(const std::string & reason)
 	formatter.replaceRawString(reason);
 
 	labelStatus->setText(formatter.toString());
+	buttonClose->block(false);
 }

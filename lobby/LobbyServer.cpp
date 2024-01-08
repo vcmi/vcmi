@@ -100,11 +100,13 @@ void LobbyServer::sendLoginFailed(const NetworkConnectionPtr & target, const std
 	sendMessage(target, reply);
 }
 
-void LobbyServer::sendLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie)
+void LobbyServer::sendLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName)
 {
 	JsonNode reply;
 	reply["type"].String() = "loginSuccess";
 	reply["accountCookie"].String() = accountCookie;
+	if (!displayName.empty())
+		reply["displayName"].String() = displayName;
 	sendMessage(target, reply);
 }
 
@@ -117,8 +119,9 @@ void LobbyServer::sendChatHistory(const NetworkConnectionPtr & target, const std
 	{
 		JsonNode jsonEntry;
 
+		jsonEntry["accountID"].String() = message.accountID;
+		jsonEntry["displayName"].String() = message.displayName;
 		jsonEntry["messageText"].String() = message.messageText;
-		jsonEntry["senderName"].String() = message.sender;
 		jsonEntry["ageSeconds"].Integer() = message.age.count();
 
 		reply["messages"].Vector().push_back(jsonEntry);
@@ -183,12 +186,13 @@ void LobbyServer::sendJoinRoomSuccess(const NetworkConnectionPtr & target, const
 	sendMessage(target, reply);
 }
 
-void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & senderName, const std::string & messageText)
+void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, std::string & displayName, const std::string & messageText)
 {
 	JsonNode reply;
 	reply["type"].String() = "chatMessage";
 	reply["messageText"].String() = messageText;
-	reply["senderName"].String() = senderName;
+	reply["accountID"].String() = accountID;
+	reply["displayName"].String() = displayName;
 	reply["roomMode"].String() = roomMode;
 	reply["roomName"].String() = roomName;
 
@@ -285,32 +289,33 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 
 void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
-	std::string senderName = activeAccounts[connection].accountID;
+	std::string accountID = activeAccounts[connection].accountID;
 	std::string messageText = json["messageText"].String();
 	std::string messageTextClean = sanitizeChatMessage(messageText);
+	std::string displayName = database->getAccountDisplayName(accountID);
 
 	if (messageTextClean.empty())
 		return;
 
-	database->insertChatMessage(senderName, "global", "english", messageText);
+	database->insertChatMessage(accountID, "global", "english", messageText);
 
 	for(const auto & connection : activeAccounts)
-		sendChatMessage(connection.first, "global", "english", senderName, messageText);
+		sendChatMessage(connection.first, "global", "english", accountID, displayName, messageText);
 }
 
 void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
-	std::string accountID = json["accountID"].String();
 	std::string displayName = json["displayName"].String();
 	std::string language = json["language"].String();
 
-	if (database->isAccountExists(accountID))
-		return sendLoginFailed(connection, "Account name already in use");
-
-	if (isAccountNameValid(accountID))
+	if (isAccountNameValid(displayName))
 		return sendLoginFailed(connection, "Illegal account name");
 
+	if (database->isAccountNameExists(displayName))
+		return sendLoginFailed(connection, "Account name already in use");
+
 	std::string accountCookie = boost::uuids::to_string(boost::uuids::random_generator()());
+	std::string accountID = boost::uuids::to_string(boost::uuids::random_generator()());
 
 	database->insertAccount(accountID, displayName);
 	database->insertAccessCookie(accountID, accountCookie);
@@ -325,7 +330,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	std::string language = json["language"].String();
 	std::string version = json["version"].String();
 
-	if (!database->isAccountExists(accountID))
+	if (!database->isAccountIDExists(accountID))
 		return sendLoginFailed(connection, "Account not found");
 
 	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie, accountCookieLifetime);
@@ -344,7 +349,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	activeAccounts[connection].version = version;
 	activeAccounts[connection].language = language;
 
-	sendLoginSuccess(connection, accountCookie);
+	sendLoginSuccess(connection, accountCookie, displayName);
 	sendChatHistory(connection, database->getRecentMessageHistory());
 
 	// send active accounts list to new account
@@ -369,7 +374,7 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 	{
 		database->insertGameRoom(gameRoomID, accountID);
 		activeGameRooms[connection].roomID = gameRoomID;
-		sendLoginSuccess(connection, accountCookie);
+		sendLoginSuccess(connection, accountCookie, {});
 	}
 }
 
