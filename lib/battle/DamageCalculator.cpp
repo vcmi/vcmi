@@ -9,6 +9,9 @@
  */
 
 #include "StdInc.h"
+
+#include <cfenv>
+
 #include "DamageCalculator.h"
 #include "CBattleInfoCallback.h"
 #include "Unit.h"
@@ -133,7 +136,10 @@ int DamageCalculator::getActorAttackIgnored() const
 
 	if(multAttackReduction > 0)
 	{
-		int reduction = std::round(multAttackReduction * getActorAttackBase());
+		int defaultRoundingMode = std::fegetround();
+		std::fesetround(FE_TOWARDZERO);
+		int reduction = std::nearbyint(multAttackReduction * getActorAttackBase());
+		std::fesetround(defaultRoundingMode);
 		return -std::min(reduction,getActorAttackBase());
 	}
 	return 0;
