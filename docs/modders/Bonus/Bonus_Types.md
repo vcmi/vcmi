@@ -615,6 +615,12 @@ Affected unit will attack additional times if killed creatures in target unit du
 - val: amount of additional attacks (negative number will reduce number of unperformed attacks if any left)
 - addInfo: optional, amount of creatures needed to kill (default is 1)
 
+### ENEMY_ATTACK_REDUCTION
+
+Affected unit will ignore specified percentage of attacked unit attack (Nix)
+
+- val: amount of attack points to ignore, percentage
+
 ## Special abilities
 
 ### CATAPULT

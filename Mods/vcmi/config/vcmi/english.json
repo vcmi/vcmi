@@ -371,6 +371,8 @@
 	"core.bonus.ENCHANTER.description": "Can cast mass ${subtype.spell} every turn",
 	"core.bonus.ENCHANTED.name": "Enchanted",
 	"core.bonus.ENCHANTED.description": "Affected by permanent ${subtype.spell}",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.name": "Ignore Attack (${val}%)",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "When being attacked, ${val}% of the attacker's attack is ignored",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name": "Ignore Defense (${val}%)",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "When attacking, ${val}% of the defender's defense is ignored",
 	"core.bonus.FIRE_IMMUNITY.name": "Fire immunity",

@@ -124,7 +124,19 @@ int DamageCalculator::getActorAttackBase() const
 
 int DamageCalculator::getActorAttackEffective() const
 {
-	return getActorAttackBase() + getActorAttackSlayer();
+	return getActorAttackBase() + getActorAttackSlayer() + getActorAttackIgnored();
+}
+
+int DamageCalculator::getActorAttackIgnored() const
+{
+	double multAttackReduction = battleBonusValue(info.defender, Selector::type()(BonusType::ENEMY_ATTACK_REDUCTION)) / 100.0;
+
+	if(multAttackReduction > 0)
+	{
+		int reduction = std::round(multAttackReduction * getActorAttackBase());
+		return -std::min(reduction,getActorAttackBase());
+	}
+	return 0;
 }
 
 int DamageCalculator::getActorAttackSlayer() const

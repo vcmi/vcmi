@@ -38,6 +38,7 @@ class DLL_LINKAGE DamageCalculator
 	int getActorAttackBase() const;
 	int getActorAttackEffective() const;
 	int getActorAttackSlayer() const;
+	int getActorAttackIgnored() const;
 	int getTargetDefenseBase() const;
 	int getTargetDefenseEffective() const;
 	int getTargetDefenseIgnored() const;
