@@ -35,7 +35,8 @@ void CExchangeController::swapArmy()
 	auto leftSlots = getStacks(left);
 	auto rightSlots = getStacks(right);
 
-	auto i = leftSlots.begin(), j = rightSlots.begin();
+	auto i = leftSlots.begin();
+	auto j = rightSlots.begin();
 
 	for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
 	{

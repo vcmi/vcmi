@@ -33,7 +33,8 @@ void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int sid
 			return u->isValidTarget();
 		});
 
-	std::vector<const battle::Unit *> ourUnits, enemyUnits;
+	std::vector<const battle::Unit *> ourUnits;
+	std::vector<const battle::Unit *> enemyUnits;
 
 	for(auto stack : stacks)
 	{
@@ -295,8 +296,10 @@ AttackPossibility AttackPossibility::evaluate(
 
 			for(int i = 0; i < totalAttacks; i++)
 			{
-				int64_t damageDealt, damageReceived;
-				float defenderDamageReduce, attackerDamageReduce;
+				int64_t damageDealt;
+				int64_t damageReceived;
+				float defenderDamageReduce;
+				float attackerDamageReduce;
 
 				DamageEstimation retaliation;
 				auto attackDmg = state->battleEstimateDamage(ap.attack, &retaliation);

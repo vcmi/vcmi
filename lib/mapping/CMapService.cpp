@@ -94,7 +94,8 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 {
 	const auto & activeMods = VLC->modh->getActiveMods();
 	
-	ModCompatibilityInfo missingMods, missingModsFiltered;
+	ModCompatibilityInfo missingMods;
+	ModCompatibilityInfo missingModsFiltered;
 	for(const auto & mapMod : map.mods)
 	{
 		if(vstd::contains(activeMods, mapMod.first))

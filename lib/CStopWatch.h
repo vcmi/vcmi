@@ -23,7 +23,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CStopWatch
 {
-	si64 start, last, mem;
+	si64 start;
+	si64 last;
+	si64 mem;
 
 public:
 	CStopWatch()

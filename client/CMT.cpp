@@ -182,7 +182,8 @@ int main(int argc, char * argv[])
 	}
 
 	// Init old logging system and new (temporary) logging system
-	CStopWatch total, pomtime;
+	CStopWatch total;
+	CStopWatch pomtime;
 	std::cout.flags(std::ios::unitbuf);
 #ifndef VCMI_IOS
 	console = new CConsoleHandler();

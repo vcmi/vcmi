@@ -263,8 +263,10 @@ public:
 private:
 	std::string id;
 	std::string name;
-	int3 minSize, maxSize;
-	CPlayerCountRange players, humanPlayers;
+	int3 minSize;
+	int3 maxSize;
+	CPlayerCountRange players;
+	CPlayerCountRange humanPlayers;
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connectedZoneIds;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;

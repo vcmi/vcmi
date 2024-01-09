@@ -194,7 +194,8 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
-	bool major, minor;
+	bool major;
+	bool minor;
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();

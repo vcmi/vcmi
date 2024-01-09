@@ -23,8 +23,11 @@ struct DLL_LINKAGE MapRect
 {
 	MapRect();
 	MapRect(const int3 & pos, si32 width, si32 height);
-	si32 x, y, z;
-	si32 width, height;
+	si32 x;
+	si32 y;
+	si32 z;
+	si32 width;
+	si32 height;
 
 	si32 left() const;
 	si32 right() const;
@@ -206,7 +209,8 @@ struct DLL_LINKAGE TerrainViewPattern
 	int rotationTypesCount;
 
 	/// The minimum and maximum points to reach to validate the pattern successfully.
-	int minPoints, maxPoints;
+	int minPoints;
+	int maxPoints;
 };
 
 /// The terrain view pattern config loads pattern data from the filesystem.

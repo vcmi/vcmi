@@ -108,7 +108,8 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	//Place first zone
 
 	auto firstZone = zonesVector[0].second;
-	size_t x = 0, y = 0;
+	size_t x = 0;
+	size_t y = 0;
 
 	auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
 	{

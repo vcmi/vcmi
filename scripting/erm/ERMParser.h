@@ -94,7 +94,8 @@ namespace ERM
 
 	struct TArithmeticOp
 	{
-		TIexp lhs, rhs;
+		TIexp lhs;
+		TIexp rhs;
 		char opcode;
 	};
 
@@ -145,7 +146,8 @@ namespace ERM
 	struct TComparison
 	{
 		std::string compSign;
-		TIexp lhs, rhs;
+		TIexp lhs;
+		TIexp rhs;
 	};
 
 	struct Tcondition;

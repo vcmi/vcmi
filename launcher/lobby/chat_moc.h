@@ -27,7 +27,8 @@ class Chat : public QWidget
 	};
 	
 	QCompleter namesCompleter;
-	QString username, session;
+	QString username;
+	QString session;
 	ChatId chatId = GLOBAL;
 	
 	QVector<QTextDocument*> chatDocuments;

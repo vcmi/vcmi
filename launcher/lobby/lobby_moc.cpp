@@ -106,7 +106,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	//initialize variables outside of switch block
 	const QString statusPlaceholder("%1 %2\n");
 	const auto & args = command.arguments;
-	int amount, tagPoint;
+	int amount;
+	int tagPoint;
 	QString joinStr;
 	switch(command.command)
 	{
@@ -521,7 +522,8 @@ void Lobby::on_kickButton_clicked()
 
 void Lobby::on_buttonResolve_clicked()
 {
-	QStringList toEnableList, toDisableList;
+	QStringList toEnableList;
+	QStringList toDisableList;
 	auto items = ui->modsList->selectedItems();
 	if(items.empty())
 	{

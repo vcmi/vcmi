@@ -234,7 +234,8 @@ bool CGarrisonSlot::split()
 	const CGarrisonSlot * selection = owner->getSelection();
 	owner->setSplittingMode(false);
 
-	int minLeft=0, minRight=0;
+	int minLeft=0;
+	int minRight=0;
 
 	if(upg != selection->upg) // not splitting within same army
 	{

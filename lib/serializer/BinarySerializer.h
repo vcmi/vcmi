@@ -365,7 +365,9 @@ public:
 		ui32 length = data.num_elements();
 		*this & length;
 		auto shape = data.shape();
-		ui32 x = shape[0], y = shape[1], z = shape[2];
+		ui32 x = shape[0];
+		ui32 y = shape[1];
+		ui32 z = shape[2];
 		*this & x & y & z;
 		for(ui32 i = 0; i < length; i++)
 			save(data.data()[i]);

@@ -117,7 +117,8 @@ protected:
 	JsonNode predefinedOffer;
 	int marketEfficiency;
 	
-	std::string title, speech;
+	std::string title;
+	std::string speech;
 	
 public:
 	CGMarket * createObject() const override;

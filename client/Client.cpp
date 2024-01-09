@@ -569,8 +569,10 @@ void CClient::battleStarted(const BattleInfo * info)
 		}
 	}
 
-	std::shared_ptr<CPlayerInterface> att, def;
-	auto & leftSide = info->sides[0], & rightSide = info->sides[1];
+	std::shared_ptr<CPlayerInterface> att;
+	std::shared_ptr<CPlayerInterface> def;
+	auto & leftSide = info->sides[0];
+	auto & rightSide = info->sides[1];
 
 	//If quick combat is not, do not prepare interfaces for battleint
 	auto callBattleStart = [&](PlayerColor color, ui8 side)

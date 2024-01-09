@@ -72,7 +72,8 @@ struct DLL_LINKAGE LobbyClientDisconnected : public CLobbyPackToPropagate
 
 struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 {
-	std::string playerName, message;
+	std::string playerName;
+	std::string message;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -112,7 +113,8 @@ struct DLL_LINKAGE LobbyLoadProgress : public CLobbyPackToPropagate
 
 struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
 {
-	bool closeConnection = false, restart = false;
+	bool closeConnection = false;
+	bool restart = false;
 	
 	void visitTyped(ICPackVisitor & visitor) override;
 	

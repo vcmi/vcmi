@@ -250,7 +250,8 @@ struct DLL_LINKAGE HeroVisitCastle : public CPackForClient
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	ui8 flags = 0; //1 - start
-	ObjectInstanceID tid, hid;
+	ObjectInstanceID tid;
+	ObjectInstanceID hid;
 
 	bool start() const //if hero is entering castle (if false - leaving)
 	{
@@ -629,7 +630,8 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	ObjectInstanceID id;
 	ui32 movePoints = 0;
 	EResult result = FAILED; //uses EResult
-	int3 start, end; //h3m format
+	int3 start; //h3m format
+	int3 end;
 	std::unordered_set<int3> fowRevealed; //revealed tiles
 	std::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
@@ -708,7 +710,9 @@ struct DLL_LINKAGE SetHeroesInTown : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
 
-	ObjectInstanceID tid, visiting, garrison; //id of town, visiting hero, hero in garrison
+	ObjectInstanceID tid; //id of town
+	ObjectInstanceID visiting; //id of visiting hero
+	ObjectInstanceID garrison; //id of hero in garrison
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1028,7 +1032,8 @@ struct DLL_LINKAGE MoveArtifact : CArtifactOperationPack
 		: src(*src), dst(*dst), askAssemble(askAssemble)
 	{
 	}
-	ArtifactLocation src, dst;
+	ArtifactLocation src;
+	ArtifactLocation dst;
 	bool askAssemble = true;
 
 	void applyGs(CGameState * gs);
@@ -1169,8 +1174,9 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 
 	struct Hero
 	{
-		ObjectInstanceID id;
-		ui32 move, mana; //id is a general serial id
+		ObjectInstanceID id; //id is a general serial id
+		ui32 move;
+		ui32 mana;
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & id;
@@ -1361,7 +1367,8 @@ struct DLL_LINKAGE BlockingDialog : public Query
 
 struct DLL_LINKAGE GarrisonDialog : public Query
 {
-	ObjectInstanceID objid, hid;
+	ObjectInstanceID objid;
+	ObjectInstanceID hid;
 	bool removableUnits = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;

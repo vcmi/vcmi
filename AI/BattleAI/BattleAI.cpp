@@ -90,7 +90,8 @@ void CBattleAI::yourTacticPhase(const BattleID & battleID, int distance)
 static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, int side)
 {
 	auto stacks = cb->battleGetAllStacks();
-	auto our = 0, enemy = 0;
+	auto our = 0;
+	auto enemy = 0;
 
 	for(auto stack : stacks)
 	{

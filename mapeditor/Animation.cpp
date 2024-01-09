@@ -62,7 +62,9 @@ class ImageLoader
 	QImage * image;
 	ui8 * lineStart;
 	ui8 * position;
-	QPoint spriteSize, margins, fullSize;
+	QPoint spriteSize;
+	QPoint margins;
+	QPoint fullSize;
 public:
 	//load size raw pixels from data
 	inline void Load(size_t size, const ui8 * data);

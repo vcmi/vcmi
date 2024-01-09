@@ -37,7 +37,9 @@ void engineBase::addRule(const std::string & txt)
 
 struct armyStructure
 {
-	float walkers, shooters, flyers;
+	float walkers;
+	float shooters;
+	float flyers;
 	ui32 maxSpeed;
 };
 
