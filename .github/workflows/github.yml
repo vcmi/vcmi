@@ -191,6 +191,7 @@ jobs:
         restore-keys: |
           ${{ matrix.preset }}-PR-${{ github.event.number }}
           ${{ matrix.preset }}-no-PR
+          ${{ matrix.preset }}-PR-
         # actual cache takes up less space, at most ~1 GB
         max-size: "5G"
         verbose: 2
@@ -202,6 +203,7 @@ jobs:
         key: ${{ matrix.preset }}-no-PR
         restore-keys: |
           ${{ matrix.preset }}-no-PR
+          ${{ matrix.preset }}-PR-
         # actual cache takes up less space, at most ~1 GB
         max-size: "5G"
         verbose: 2
