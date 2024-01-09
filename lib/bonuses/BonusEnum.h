@@ -176,6 +176,7 @@ class JsonNode;
 	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed while attacking target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
 	BONUS_NAME(ACCURATE_SHOT) /*HotA Sea Dog-like ability - ranged only, val = full arrow trigger percent, subtype = spell identifier that killed value goes through (death stare by default) - use 'accurateShot' as part of spell name for proper battle log description*/ \
 	BONUS_NAME(ENEMY_ATTACK_REDUCTION) /*in % (value) eg. Nix (HotA)*/ \
+	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
 	/* end of list */
 
 

@@ -441,6 +441,8 @@
 	"core.bonus.REBIRTH.description": "${val}% of stack will rise after death",
 	"core.bonus.RETURN_AFTER_STRIKE.name": "Attack and Return",
 	"core.bonus.RETURN_AFTER_STRIKE.description": "Returns after melee attack",
+	"core.bonus.REVENGE.name": "Revenge",
+	"core.bonus.REVENGE.description": "Deals extra damage based on attacker's lost health in battle",
 	"core.bonus.SHOOTER.name": "Ranged",
 	"core.bonus.SHOOTER.description": "Creature can shoot",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name": "Shoot all around",

@@ -621,6 +621,12 @@ Affected unit will ignore specified percentage of attacked unit attack (Nix)
 
 - val: amount of attack points to ignore, percentage
 
+### REVENGE
+
+Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle
+(formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`.
+Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
+
 ## Special abilities
 
 ### CATAPULT

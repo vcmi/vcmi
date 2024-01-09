@@ -451,6 +451,14 @@
 		}
 	},
 
+	"REVENGE":
+	{
+		"graphics":
+		{
+			"icon": ""
+		}
+	},
+
 	"SHOOTER":
 	{
 		"graphics":

@@ -526,11 +526,23 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 
 	double resultingFactor = std::min(8.0, attackFactorTotal) * std::max( 0.01, defenseFactorTotal);
 
-	info.defender->getTotalHealth();
+	double revengeAdditionalMinDamage = 0.0;
+	double revengeAdditionalMaxDamage = 0.0;
+	if(info.attacker->hasBonusOfType(BonusType::REVENGE)) //HotA Haspid ability
+	{
+		int totalStackCount = info.attacker->unitBaseAmount();
+		int currentStackHealth = info.attacker->getAvailableHealth();
+		int creatureHealth = info.attacker->getMaxHealth();
+
+		double revengeFactor = sqrt(static_cast<double>((totalStackCount + 1) * creatureHealth) / (currentStackHealth + creatureHealth) - 1);
+
+		revengeAdditionalMinDamage = std::round(damageBase.min * revengeFactor);
+		revengeAdditionalMaxDamage = std::round(damageBase.max * revengeFactor);
+	}
 
 	DamageRange damageDealt {
-		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor)),
-		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor))
+		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor + revengeAdditionalMinDamage)),
+		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor + revengeAdditionalMaxDamage))
 	};
 
 	DamageRange killsDealt = getCasualties(damageDealt);
