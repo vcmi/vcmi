@@ -810,7 +810,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 ### CREATURE_SPELL_POWER
 
-- value: Spell Power of offensive spell cast unit, divided by 100. ie. Faerie Dragons have value fo 500, which gives them 5 Spell Power for each unit in the stack.
+- value: Spell Power of offensive spell cast unit, multiplied by 100. ie. Faerie Dragons have value fo 500, which gives them 5 Spell Power for each unit in the stack.
 
 ### CREATURE_ENCHANT_POWER
 
