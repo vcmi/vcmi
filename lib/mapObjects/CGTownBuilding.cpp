@@ -322,7 +322,7 @@ void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 
 	auto building = town->town->buildings.at(bID);
 
-	building->rewardableObjectInfo.configureObject(configuration, rand);
+	building->rewardableObjectInfo.configureObject(configuration, rand, cb);
 	for(auto & rewardInfo : configuration.info)
 	{
 		for (auto & bonus : rewardInfo.reward.bonuses)

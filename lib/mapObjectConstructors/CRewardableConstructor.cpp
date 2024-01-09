@@ -44,7 +44,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 {
 	if(auto * rewardableObject = dynamic_cast<CRewardableObject*>(object))
 	{
-		objectInfo.configureObject(rewardableObject->configuration, rng);
+		objectInfo.configureObject(rewardableObject->configuration, rng, object->cb);
 		for(auto & rewardInfo : rewardableObject->configuration.info)
 		{
 			for (auto & bonus : rewardInfo.reward.bonuses)

@@ -141,7 +141,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 {
 	auto objectInfo = target->getObjectHandler()->getObjectInfo(target->appearance);
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
-	auto creatures = bankInfo->getPossibleCreaturesReward();
+	auto creatures = bankInfo->getPossibleCreaturesReward(target->cb);
 	uint64_t result = 0;
 
 	const auto& slots = hero->Slots();

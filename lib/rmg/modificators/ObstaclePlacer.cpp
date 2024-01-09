@@ -87,7 +87,7 @@ void ObstaclePlacer::process()
 		prohibitedArea.unite(zone.areaPossible());
 	}
 
-	auto objs = createObstacles(zone.getRand());
+	auto objs = createObstacles(zone.getRand(), map.mapInstance->cb);
 	mapProxy->insertObjects(objs);
 }
 

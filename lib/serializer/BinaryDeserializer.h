@@ -114,7 +114,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	class IPointerLoader
 	{
 	public:
-		virtual void * loadPtr(CLoaderBase &ar, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+		virtual void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
 		virtual ~IPointerLoader() = default;
 
 		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
@@ -127,12 +127,12 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	class CPointerLoader : public IPointerLoader
 	{
 	public:
-		void * loadPtr(CLoaderBase &ar, ui32 pid) const override //data is pointer to the ACTUAL POINTER
+		void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const override //data is pointer to the ACTUAL POINTER
 		{
 			auto & s = static_cast<BinaryDeserializer &>(ar);
 
 			//create new object under pointer
-			Type * ptr = ClassObjectCreator<Type>::invoke(nullptr); //does new npT or throws for abstract classes
+			Type * ptr = ClassObjectCreator<Type>::invoke(cb); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
 
 			assert(s.fileVersion != 0);
@@ -152,6 +152,7 @@ public:
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
+	IGameCallback * cb;
 	bool smartPointerSerialization;
 	bool saving;
 
@@ -305,7 +306,7 @@ public:
 				data = nullptr;
 				return;
 			}
-			data = static_cast<T>(app->loadPtr(*this, pid));
+			data = static_cast<T>(app->loadPtr(*this, cb, pid));
 		}
 	}
 

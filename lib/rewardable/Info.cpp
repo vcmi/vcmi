@@ -105,14 +105,14 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
 }
 
-Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
+Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
 {
 	Rewardable::LimitersList result;
 	for (const auto & input : source.Vector())
 	{
 		auto newLimiter = std::make_shared<Rewardable::Limiter>();
 
-		configureLimiter(object, rng, *newLimiter, input);
+		configureLimiter(object, rng, cb, *newLimiter, input);
 
 		result.push_back(newLimiter);
 	}
@@ -120,10 +120,10 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 	return result;
 }
 
-void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const
+void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
-	JsonRandom randomizer(nullptr);
+	JsonRandom randomizer(cb);
 
 	limiter.dayOfWeek = randomizer.loadValue(source["dayOfWeek"], rng, variables);
 	limiter.daysPassed = randomizer.loadValue(source["daysPassed"], rng, variables);
@@ -147,15 +147,15 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRan
 	limiter.heroes = randomizer.loadHeroes(source["heroes"], rng);
 	limiter.heroClasses = randomizer.loadHeroClasses(source["heroClasses"], rng);
 
-	limiter.allOf  = configureSublimiters(object, rng, source["allOf"] );
-	limiter.anyOf  = configureSublimiters(object, rng, source["anyOf"] );
-	limiter.noneOf = configureSublimiters(object, rng, source["noneOf"] );
+	limiter.allOf  = configureSublimiters(object, rng, cb, source["allOf"] );
+	limiter.anyOf  = configureSublimiters(object, rng, cb, source["anyOf"] );
+	limiter.noneOf = configureSublimiters(object, rng, cb, source["noneOf"] );
 }
 
-void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Reward & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
-	JsonRandom randomizer(nullptr);
+	JsonRandom randomizer(cb);
 
 	reward.resources = randomizer.loadResources(source["resources"], rng, variables);
 
@@ -216,9 +216,9 @@ void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CR
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb, const JsonNode & source) const
 {
-	JsonRandom randomizer(nullptr);
+	JsonRandom randomizer(cb);
 
 	for(const auto & category : source.Struct())
 	{
@@ -277,6 +277,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
 		CRandomGenerator & rng,
+		IGameCallback * cb,
 		const JsonNode & source,
 		Rewardable::EEventType event,
 		const std::string & modeName) const
@@ -319,8 +320,8 @@ void Rewardable::Info::configureRewards(
 		}
 
 		Rewardable::VisitInfo info;
-		configureLimiter(object, rng, info.limiter, reward["limiter"]);
-		configureReward(object, rng, info.reward, reward);
+		configureLimiter(object, rng, cb, info.limiter, reward["limiter"]);
+		configureReward(object, rng, cb, info.reward, reward);
 
 		info.visitType = event;
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
@@ -333,15 +334,15 @@ void Rewardable::Info::configureRewards(
 	}
 }
 
-void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const
+void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng, IGameCallback * cb) const
 {
 	object.info.clear();
 
-	configureVariables(object, rng, parameters["variables"]);
+	configureVariables(object, rng, cb, parameters["variables"]);
 
-	configureRewards(object, rng, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
-	configureRewards(object, rng, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
-	configureRewards(object, rng, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
+	configureRewards(object, rng, cb, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
+	configureRewards(object, rng, cb, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
+	configureRewards(object, rng, cb, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
 
 	object.onSelect = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
 	object.description = loadMessage(parameters["description"], TextIdentifier(objectTextID, "description"));
@@ -405,7 +406,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 	}
 
 	if (object.visitMode == Rewardable::VISIT_LIMITER)
-		configureLimiter(object, rng, object.visitLimiter, parameters["visitLimiter"]);
+		configureLimiter(object, rng, cb, object.visitLimiter, parameters["visitLimiter"]);
 
 }
 

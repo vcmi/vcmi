@@ -34,10 +34,10 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	coastVisitable = input["coastVisitable"].Bool();
 }
 
-BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRandomGenerator & rng) const
+BankConfig CBankInstanceConstructor::generateConfig(IGameCallback * cb, const JsonNode & level, CRandomGenerator & rng) const
 {
 	BankConfig bc;
-	JsonRandom randomizer(nullptr);
+	JsonRandom randomizer(cb);
 	JsonRandom::Variables emptyVariables;
 
 	bc.chance = static_cast<ui32>(level["chance"].Float());
@@ -71,7 +71,7 @@ void CBankInstanceConstructor::randomizeObject(CBank * bank, CRandomGenerator & 
 		cumulativeChance += static_cast<int>(node["chance"].Float());
 		if(selectedChance < cumulativeChance)
 		{
-			bank->setConfig(generateConfig(node, rng));
+			bank->setConfig(generateConfig(bank->cb, node, rng));
 			break;
 		}
 	}
@@ -125,10 +125,10 @@ std::vector<PossibleReward<TResources>> CBankInfo::getPossibleResourcesReward() 
 	return result;
 }
 
-std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreaturesReward() const
+std::vector<PossibleReward<CStackBasicDescriptor>> CBankInfo::getPossibleCreaturesReward(IGameCallback * cb) const
 {
 	JsonRandom::Variables emptyVariables;
-	JsonRandom randomizer(nullptr);
+	JsonRandom randomizer(cb);
 	std::vector<PossibleReward<CStackBasicDescriptor>> aproximateReward;
 
 	for(const JsonNode & configEntry : config)

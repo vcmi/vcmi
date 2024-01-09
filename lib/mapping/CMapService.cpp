@@ -176,10 +176,7 @@ static JsonNode loadPatches(const std::string & path)
 
 std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName)
 {
-	static JsonNode node;
-
-	if (node.isNull())
-		node = loadPatches("config/mapOverrides.json");
+	static const JsonNode node = loadPatches("config/mapOverrides.json");
 
 	boost::to_lower(scenarioName);
 	logGlobal->debug("Request to patch map %s", scenarioName);
