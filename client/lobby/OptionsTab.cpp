@@ -400,12 +400,12 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
-	: CWindowObject(BORDERED)
+OptionsTab::SelectionWindow::SelectionWindow(CPlayerSettingsHelper & helper, SelType _type)
+	: CWindowObject(BORDERED), CPlayerSettingsHelper(helper)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP);
 
-	color = _color;
+	color = helper.playerSettings.color;
 	type = _type;
 
 	initialFaction = SEL->getStartInfo()->playerInfos.find(color)->second.castle;
@@ -481,7 +481,7 @@ void OptionsTab::SelectionWindow::setSelection()
 
 void OptionsTab::SelectionWindow::reopen()
 {
-	std::shared_ptr<SelectionWindow> window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
+	std::shared_ptr<SelectionWindow> window = std::shared_ptr<SelectionWindow>(new SelectionWindow(*this, type));
 	close();
 	GH.windows().pushWindow(window);
 }
@@ -632,7 +632,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 void OptionsTab::SelectionWindow::genContentBonus()
 {
-	PlayerSettings set = PlayerSettings();
+	PlayerSettings set = PlayerSettings(playerSettings);
 
 	int i = 0;
 	for(auto elem : allowedBonus)
@@ -819,7 +819,7 @@ void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 		return;
 
 	GH.input().hapticFeedback();
-	GH.windows().createAndPushWindow<SelectionWindow>(playerSettings.color, selectionType);
+	GH.windows().createAndPushWindow<SelectionWindow>(*this, selectionType);
 }
 
 void OptionsTab::SelectedBox::scrollBy(int distance)
