@@ -14,6 +14,7 @@
 #include "../RmgMap.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/CGTownInstance.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../spells/CSpellHandler.h" //for choosing random spells

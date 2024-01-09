@@ -26,6 +26,8 @@
 #include "../../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/CGPandoraBox.h"
+#include "../../mapObjects/CQuest.h"
+#include "../../mapObjects/MiscObjects.h"
 #include "../../CCreatureHandler.h"
 #include "../../spells/CSpellHandler.h" //for choosing random spells
 #include "../../mapping/CMap.h"
@@ -110,7 +112,7 @@ void TreasurePlacer::addAllPossibleObjects()
 
 		//prisons
 		//levels 1, 5, 10, 20, 30
-		static int prisonsLevels = std::min(generator.getConfig().prisonExperience.size(), generator.getConfig().prisonValues.size());
+		static const int prisonsLevels = std::min(generator.getConfig().prisonExperience.size(), generator.getConfig().prisonValues.size());
 
 		size_t prisonsLeft = getMaxPrisons();
 		for (int i = prisonsLevels - 1; i >= 0; i--)
@@ -178,7 +180,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		if(dwellingType == Obj::CREATURE_GENERATOR1)
 		{
 			//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
-			static MapObjectSubID elementalConfluxROE[] = {7, 13, 16, 47};
+			static const MapObjectSubID elementalConfluxROE[] = {7, 13, 16, 47};
 			for(auto const & i : elementalConfluxROE)
 				vstd::erase_if_present(subObjects, i);
 		}
@@ -516,7 +518,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 		}
 		
-		static int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
+		static const int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
 		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similiar
 		{
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
@@ -819,7 +821,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
 	int monsterStrength = (zone.monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : zone.monsterStrength + mapMonsterStrength - 1); //array index from 0 to 4; pick any correct value for ZONE_NONE, minGuardedValue won't be used in this case anyway
-	static int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
+	static const int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
 	minGuardedValue = minGuardedValues[monsterStrength];
 
 	auto valueComparator = [](const CTreasureInfo& lhs, const CTreasureInfo& rhs) -> bool

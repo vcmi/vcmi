@@ -19,6 +19,8 @@
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../CGeneralTextHandler.h"
 #include "../spells/CSpellHandler.h"
@@ -676,8 +678,10 @@ CMapEditManager * CMap::getEditManager()
 
 void CMap::resetStaticData()
 {
-	CGObelisk::reset();
-	CGTownInstance::reset();
+	obeliskCount = 0;
+	obelisksVisited.clear();
+	townMerchantArtifacts.clear();
+	townUniversitySkills.clear();
 }
 
 VCMI_LIB_NAMESPACE_END

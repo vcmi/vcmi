@@ -68,16 +68,6 @@ public:
 		}
 	}
 
-	_Object * getObjectWriteable(const int32_t index)
-	{
-		if(index < 0 || index >= objects.size())
-		{
-			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
-			throw std::runtime_error("Attempt to access invalid index " + std::to_string(index) + " of type " + getTypeNames().front());
-		}
-		return objects[index].get();
-	}
-
 	const Entity * getBaseByIndex(const int32_t index) const override
 	{
 		return getObjectImpl(index);

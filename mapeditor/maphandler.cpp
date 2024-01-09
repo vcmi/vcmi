@@ -18,6 +18,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"

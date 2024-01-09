@@ -10,13 +10,13 @@
 
 #pragma once
 
+#include "CMapDefines.h"
 #include "CMapHeader.h"
+
+#include "../ConstTransitivePtr.h"
 #include "../GameCallbackHolder.h"
 #include "../MetaString.h"
-#include "../mapObjects/MiscObjects.h" // To serialize static props
-#include "../mapObjects/CQuest.h" // To serialize static props
-#include "../mapObjects/CGTownInstance.h" // To serialize static props
-#include "CMapDefines.h"
+#include "../networkPacks/TradeItem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -159,6 +159,12 @@ public:
 
 	bool waterMap;
 
+	ui8 obeliskCount = 0; //how many obelisks are on map
+	std::map<TeamID, ui8> obelisksVisited; //map: team_id => how many obelisks has been visited
+
+	std::vector<const CArtifact *> townMerchantArtifacts;
+	std::vector<TradeItemBuy> townUniversitySkills;
+
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
@@ -193,10 +199,10 @@ public:
 		h & artInstances;
 
 		// static members
-		h & CGObelisk::obeliskCount;
-		h & CGObelisk::visited;
-		h & CGTownInstance::merchantArtifacts;
-		h & CGTownInstance::universitySkills;
+		h & obeliskCount;
+		h & obelisksVisited;
+		h & townMerchantArtifacts;
+		h & townUniversitySkills;
 
 		h & instanceNames;
 	}

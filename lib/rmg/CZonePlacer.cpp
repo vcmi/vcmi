@@ -9,9 +9,10 @@
  */
 
 #include "StdInc.h"
-#include <stack>
-#include "../CRandomGenerator.h"
 #include "CZonePlacer.h"
+
+#include "../CRandomGenerator.h"
+#include "../CTownHandler.h"
 #include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"

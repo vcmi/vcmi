@@ -36,6 +36,8 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CQuest.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
@@ -226,7 +228,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 
 	for(auto & elem : teams)
 	{
-		CGObelisk::visited[elem.first] = 0;
+		map->obelisksVisited[elem.first] = 0;
 	}
 
 	logGlobal->debug("\tChecking objectives");
@@ -766,11 +768,11 @@ void CGameState::initTowns()
 	if (campaign)
 		campaign->initTowns();
 
-	CGTownInstance::universitySkills.clear();
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
+	map->townUniversitySkills.clear();
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
 
 	for (auto & elem : map->towns)
 	{
@@ -1202,7 +1204,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 
 void CGameState::updateRumor()
 {
-	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
 	if(map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
@@ -1716,10 +1718,10 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 3) //obelisks found
 	{
-		auto getObeliskVisited = [](const TeamID & t)
+		auto getObeliskVisited = [&](const TeamID & t)
 		{
-			if(CGObelisk::visited.count(t))
-				return CGObelisk::visited[t];
+			if(map->obelisksVisited.count(t))
+				return map->obelisksVisited[t];
 			else
 				return ui8(0);
 		};

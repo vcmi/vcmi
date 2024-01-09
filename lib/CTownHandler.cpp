@@ -336,9 +336,9 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	return ret;
 }
 
-TPropagatorPtr & CTownHandler::emptyPropagator()
+const TPropagatorPtr & CTownHandler::emptyPropagator()
 {
-	static TPropagatorPtr emptyProp(nullptr);
+	static const TPropagatorPtr emptyProp(nullptr);
 	return emptyProp;
 }
 
@@ -534,7 +534,7 @@ R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std:
 void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 {
 	std::shared_ptr<Bonus> b;
-	static TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
+	static const TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
 
 	if(building->bid == BuildingID::TAVERN)
 	{
@@ -578,7 +578,7 @@ std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType ty
 	return createBonus(build, type, val, subtype, emptyPropagator());
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, TPropagatorPtr & prop) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const
 {
 	std::ostringstream descr;
 	descr << build->getNameTranslated();
@@ -589,7 +589,7 @@ std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building
 													 const FactionID & faction,
 													 BonusType type,
 													 int val,
-													 TPropagatorPtr & prop,
+													 const TPropagatorPtr & prop,
 													 const std::string & description,
 													 BonusSubtypeID subtype) const
 {

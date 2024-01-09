@@ -12,6 +12,7 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
+#include "../CRandomGenerator.h"
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
 

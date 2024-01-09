@@ -389,13 +389,9 @@ class DLL_LINKAGE CGObelisk : public CTeamVisited
 public:
 	using CTeamVisited::CTeamVisited;
 
-	static ui8 obeliskCount; //how many obelisks are on map
-	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
-
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
-	static void reset();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

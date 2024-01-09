@@ -17,6 +17,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
+#include "../CArtHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../constants/StringConstants.h"

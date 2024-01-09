@@ -34,9 +34,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
-std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
-
 ///helpers
 static std::string visitedTxt(const bool visited)
 {
@@ -1243,13 +1240,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGObelisk::initObj(CRandomGenerator & rand)
 {
-	obeliskCount++;
-}
-
-void CGObelisk::reset()
-{
-	obeliskCount = 0;
-	visited.clear();
+	cb->gameState()->map->obeliskCount++;
 }
 
 std::string CGObelisk::getHoverText(PlayerColor player) const
@@ -1263,12 +1254,12 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	{
 		case ObjProperty::OBELISK_VISITED:
 			{
-				auto progress = ++visited[identifier.as<TeamID>()];
-				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(obeliskCount));
+				auto progress = ++cb->gameState()->map->obelisksVisited[identifier.as<TeamID>()];
+				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(cb->gameState()->map->obeliskCount));
 
-				if(progress > obeliskCount)
+				if(progress > cb->gameState()->map->obeliskCount)
 				{
-					logGlobal->error("Visited %d of %d", static_cast<int>(progress), obeliskCount);
+					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState()->map->obeliskCount);
 					throw std::runtime_error("Player visited more obelisks than present on map!");
 				}
 

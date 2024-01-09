@@ -16,6 +16,8 @@
 #include "gameState/TavernHeroesPool.h"
 #include "gameState/QuestInfo.h"
 #include "mapObjects/CGHeroInstance.h"
+#include "mapObjects/CGTownInstance.h"
+#include "mapObjects/MiscObjects.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
@@ -791,7 +793,7 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 
 int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 {
-	if (!getPlayerID() || CGObelisk::obeliskCount == 0)
+	if (!getPlayerID() || gs->map->obeliskCount == 0)
 	{
 		*outKnownRatio = 0.0;
 	}
@@ -799,10 +801,10 @@ int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 	{
 		TeamID t = gs->getPlayerTeam(*getPlayerID())->id;
 		double visited = 0.0;
-		if(CGObelisk::visited.count(t))
-			visited = static_cast<double>(CGObelisk::visited[t]);
+		if(gs->map->obelisksVisited.count(t))
+			visited = static_cast<double>(gs->map->obelisksVisited[t]);
 
-		*outKnownRatio = visited / CGObelisk::obeliskCount;
+		*outKnownRatio = visited / gs->map->obeliskCount;
 	}
 	return gs->map->grailPos;
 }

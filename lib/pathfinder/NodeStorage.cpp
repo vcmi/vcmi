@@ -16,6 +16,7 @@
 
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

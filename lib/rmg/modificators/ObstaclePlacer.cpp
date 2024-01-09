@@ -24,6 +24,7 @@
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/ObstacleProxy.h"
+#include "../../mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

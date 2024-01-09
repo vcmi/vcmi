@@ -33,10 +33,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
-std::vector<TradeItemBuy> CGTownInstance::universitySkills;
-
-
 int CGTownInstance::getSightRadius() const //returns sight distance
 {
 	auto ret = CBuilding::HEIGHT_NO_TOWER;
@@ -772,7 +768,7 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<TradeItemBuy> ret;
-		for(const CArtifact *a : merchantArtifacts)
+		for(const CArtifact *a : cb->gameState()->map->townMerchantArtifacts)
 			if(a)
 				ret.push_back(a->getId());
 			else
@@ -781,7 +777,7 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return universitySkills;
+		return cb->gameState()->map->townUniversitySkills;
 	}
 	else
 		return IMarket::availableItemsIds(mode);
@@ -1113,12 +1109,6 @@ void CGTownInstance::afterAddToMap(CMap * map)
 void CGTownInstance::afterRemoveFromMap(CMap * map)
 {
 	vstd::erase_if_present(map->towns, this);
-}
-
-void CGTownInstance::reset()
-{
-	CGTownInstance::merchantArtifacts.clear();
-	CGTownInstance::universitySkills.clear();
 }
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)

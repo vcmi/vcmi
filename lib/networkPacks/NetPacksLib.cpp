@@ -34,6 +34,9 @@
 #include "TerrainHandler.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
+#include "mapObjects/CGTownInstance.h"
+#include "mapObjects/CQuest.h"
+#include "mapObjects/MiscObjects.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "campaign/CampaignState.h"
@@ -1990,7 +1993,7 @@ void SetAvailableArtifacts::applyGs(CGameState * gs) const
 	}
 	else
 	{
-		CGTownInstance::merchantArtifacts = arts;
+		gs->map->townMerchantArtifacts = arts;
 	}
 }
 

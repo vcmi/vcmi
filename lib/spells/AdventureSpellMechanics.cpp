@@ -18,6 +18,8 @@
 #include "../CPlayerState.h"
 #include "../CRandomGenerator.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/PacksForClient.h"
 

@@ -328,7 +328,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	const std::vector<std::string> artSlots = { ART_POS_LIST };
 	#undef ART_POS
 
-	static std::map<char, std::string> classes =
+	static const std::map<char, std::string> classes =
 		{{'S',"SPECIAL"}, {'T',"TREASURE"},{'N',"MINOR"},{'J',"MAJOR"},{'R',"RELIC"},};
 
 	CLegacyConfigParser parser(TextPath::builtin("DATA/ARTRAITS.TXT"));
@@ -353,7 +353,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 				artData["slot"].Vector().back().String() = artSlot;
 			}
 		}
-		artData["class"].String() = classes[parser.readString()[0]];
+		artData["class"].String() = classes.at(parser.readString()[0]);
 		artData["text"]["description"].String() = parser.readString();
 
 		parser.endLine();

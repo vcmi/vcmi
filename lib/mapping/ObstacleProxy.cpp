@@ -13,6 +13,7 @@
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
