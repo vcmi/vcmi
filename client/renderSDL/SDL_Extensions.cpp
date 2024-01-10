@@ -664,8 +664,8 @@ void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
 template<int bpp>
 void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
 {
-	const float factorX = float(surf->w) / float(ret->w);
-	const float factorY = float(surf->h) / float(ret->h);
+	const float factorX = static_cast<float>(surf->w) / static_cast<float>(ret->w);
+	const float factorY = static_cast<float>(surf->h) / static_cast<float>(ret->h);
 
 	for(int y = 0; y < ret->h; y++)
 	{
