@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "TradePanels.h"
 
-#include "../MiscWidgets.h"
-
 #include "../../gui/CGuiHandler.h"
 #include "../../render/Canvas.h"
 #include "../../widgets/TextControls.h"
@@ -25,9 +23,9 @@
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
-CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
-	: CIntObject(LCLICK | HOVER | SHOW_POPUP, pos)
-	, hlp(nullptr)
+CTradeableItem::CTradeableItem(const Rect & area, EType Type, int ID, bool Left, int Serial)
+	: SelectableSlot(area, Point(1, 1))
+	, artInstance(nullptr)
 	, type(EType(-1)) // set to invalid, will be corrected in setType
 	, id(ID)
 	, serial(Serial)
@@ -35,13 +33,15 @@ CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Ser
 	, downSelection(false)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	addUsedEvents(LCLICK);
+	addUsedEvents(HOVER);
+	addUsedEvents(SHOW_POPUP);
 	
 	setType(Type);
-	if(image)
-	{
-		this->pos.w = image->pos.w;
-		this->pos.h = image->pos.h;
-	}
+
+	this->pos.w = area.w;
+	this->pos.h = area.h;
 }
 
 void CTradeableItem::setType(EType newType)
@@ -248,7 +248,7 @@ const CArtifactInstance * CTradeableItem::getArtInstance() const
 	{
 	case EType::ARTIFACT_PLACEHOLDER:
 	case EType::ARTIFACT_INSTANCE:
-		return hlp;
+		return artInstance;
 	default:
 		return nullptr;
 	}
@@ -257,7 +257,7 @@ const CArtifactInstance * CTradeableItem::getArtInstance() const
 void CTradeableItem::setArtInstance(const CArtifactInstance * art)
 {
 	assert(type == EType::ARTIFACT_PLACEHOLDER || type == EType::ARTIFACT_INSTANCE);
-	hlp = art;
+	artInstance = art;
 	if(art)
 		setID(art->getTypeId());
 	else
@@ -273,7 +273,7 @@ void TradePanelBase::updateSlots()
 void TradePanelBase::deselect()
 {
 	for(const auto & slot : slots)
-		slot->selection->selectSlot(false);
+		slot->selectSlot(false);
 }
 
 void TradePanelBase::clearSubtitles()
@@ -305,10 +305,10 @@ ResourcesPanel::ResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 
 	for(const auto & res : resourcesForTrade)
 	{
-		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[res.num], EType::RESOURCE, res.num, true, res.num));
+		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(Rect(slotsPos[res.num], slotDimension),
+			EType::RESOURCE, res.num, true, res.num));
 		slot->clickPressedCallback = clickPressedCallback;
-		slot->pos.w = 69; slots.back()->pos.h = 66;
-		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[res.num], slots.back()->pos.dimensions()), Point(1, 1), selectionWidth);
+		slot->setSelectionWidth(selectionWidth);
 	}
 	updateSlotsCallback = updateSubtitles;
 }
@@ -325,10 +325,10 @@ ArtifactsPanel::ArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 		auto artType = arts[slotIdx].getNum();
 		if(artType != ArtifactID::NONE)
 		{
-			auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[slotIdx], EType::ARTIFACT_TYPE, artType, false, slotIdx));
+			auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(Rect(slotsPos[slotIdx], slotDimension),
+				EType::ARTIFACT_TYPE, artType, false, slotIdx));
 			slot->clickPressedCallback = clickPressedCallback;
-			slot->pos.w = 69; slot->pos.h = 66;
-			slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotIdx], slot->pos.dimensions()), Point(1, 1), selectionWidth);
+			slot->setSelectionWidth(selectionWidth);
 		}
 	}
 	updateSlotsCallback = updateSubtitles;
@@ -350,9 +350,9 @@ PlayersPanel::PlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallb
 	int slotNum = 0;
 	for(auto & slot : slots)
 	{
-		slot = std::make_shared<CTradeableItem>(slotsPos[slotNum], EType::PLAYER, players[slotNum].num, false, slotNum);
+		slot = std::make_shared<CTradeableItem>(Rect(slotsPos[slotNum], slotDimension), EType::PLAYER, players[slotNum].num, false, slotNum);
 		slot->clickPressedCallback = clickPressedCallback;
-		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotNum], slot->pos.dimensions()), Point(1, 1), selectionWidth);
+		slot->setSelectionWidth(selectionWidth);
 		slot->subtitle = CGI->generaltexth->capColors[players[slotNum].num];
 		slotNum++;
 	}
@@ -366,13 +366,12 @@ CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 
 	for(const auto & [creatureId, slotId, creaturesNum] : initialSlots)
 	{
-		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[slotId.num],
+		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(Rect(slotsPos[slotId.num], slotDimension),
 			creaturesNum == 0 ? EType::CREATURE_PLACEHOLDER : EType::CREATURE, creatureId.num, true, slotId));
 		slot->clickPressedCallback = clickPressedCallback;
 		if(creaturesNum != 0)
 			slot->subtitle = std::to_string(creaturesNum);
-		slot->pos.w = 58; slot->pos.h = 64;
-		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slotId.num], slot->pos.dimensions()), Point(1, 1), selectionWidth);
+		slot->setSelectionWidth(selectionWidth);
 	}
 }
 
@@ -384,11 +383,10 @@ CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 
 	for(const auto & srcSlot : srcSlots)
 	{
-		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(slotsPos[srcSlot->serial],
+		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(Rect(slotsPos[srcSlot->serial], srcSlot->pos.dimensions()),
 			emptySlots ? EType::CREATURE_PLACEHOLDER : EType::CREATURE, srcSlot->id, true, srcSlot->serial));
 		slot->clickPressedCallback = clickPressedCallback;
 		slot->subtitle = emptySlots ? "" : srcSlot->subtitle;
-		slot->pos.w = srcSlot->pos.w; slot->pos.h = srcSlot->pos.h;
-		slot->selection = std::make_unique<SelectableSlot>(Rect(slotsPos[slot->serial], slot->pos.dimensions()), Point(1, 1), selectionWidth);
+		slot->setSelectionWidth(selectionWidth);
 	}
 }

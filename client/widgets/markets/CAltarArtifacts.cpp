@@ -31,6 +31,8 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
+	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("ALTSACR.DEF"),
+		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); });
 	labels.emplace_back(std::make_shared<CLabel>(450, 34, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
 	labels.emplace_back(std::make_shared<CLabel>(302, 423, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
 	selectedCost = std::make_shared<CLabel>(302, 500, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -50,7 +52,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	int slotNum = 0;
 	for(auto & altarSlotPos : posSlotsAltar)
 	{
-		auto altarSlot = std::make_shared<CTradeableItem>(altarSlotPos, EType::ARTIFACT_PLACEHOLDER, -1, false, slotNum);
+		auto altarSlot = std::make_shared<CTradeableItem>(Rect(altarSlotPos, Point(44, 44)), EType::ARTIFACT_PLACEHOLDER, -1, false, slotNum);
 		altarSlot->clickPressedCallback = std::bind(&CAltarArtifacts::onSlotClickPressed, this, _1, hRight);
 		altarSlot->subtitle.clear();
 		items.front().emplace_back(altarSlot);

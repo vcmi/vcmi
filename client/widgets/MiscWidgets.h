@@ -273,14 +273,15 @@ public:
     void showAll(Canvas & to) override;
 };
 
-class SelectableSlot : virtual public CIntObject
+class SelectableSlot : public LRClickableAreaWTextComp
 {
-public:
 	std::unique_ptr<TransparentFilledRectangle> selection;
 
+public:
 	SelectableSlot(Rect area, Point oversize, const int width);
 	SelectableSlot(Rect area, Point oversize);
 	SelectableSlot(Rect area, const int width = 1);
 	void selectSlot(bool on);
 	bool isSelected() const;
+	void setSelectionWidth(int width);
 };

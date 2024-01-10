@@ -29,7 +29,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation & artLoc)=0;
 };
 
-class CArtPlace : public LRClickableAreaWTextComp, public SelectableSlot
+class CArtPlace : public SelectableSlot
 {
 public:
 	using ClickFunctor = std::function<void(CArtPlace&, const Point&)>;

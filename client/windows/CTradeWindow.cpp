@@ -77,7 +77,7 @@ void CTradeWindow::initItems(bool Left)
 	{
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		{
-			auto item = std::make_shared<CTradeableItem>(Point(137, 469), itemsType[Left], -1, 1, 0);
+			auto item = std::make_shared<CTradeableItem>(Rect(Point(137, 469), Point()), itemsType[Left], -1, 1, 0);
 			item->recActions &= ~(UPDATE | SHOWALL);
 			items[Left].push_back(item);
 		}

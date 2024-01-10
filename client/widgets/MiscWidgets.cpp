@@ -705,9 +705,8 @@ void SimpleLine::showAll(Canvas & to)
 }
 
 SelectableSlot::SelectableSlot(Rect area, Point oversize, const int width)
+	: LRClickableAreaWTextComp(area)
 {
-	pos += area.topLeft();
-	pos.w = area.w; pos.h = area.h;
 	selection = std::make_unique<TransparentFilledRectangle>(
 		Rect(area.topLeft() - oversize, area.dimensions() + oversize * 2), Colors::TRANSPARENCY, Colors::YELLOW, width);
 	selectSlot(false);
@@ -731,4 +730,9 @@ void SelectableSlot::selectSlot(bool on)
 bool SelectableSlot::isSelected() const
 {
 	return selection->getDrawBorder();
+}
+
+void SelectableSlot::setSelectionWidth(int width)
+{
+	selection->setBorderWidth(width);
 }

@@ -25,8 +25,6 @@ CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)
 	: market(market)
 	, hero(hero)
 {
-	deal = std::make_shared<CButton>(Point(), AnimationPath::builtin("ALTSACR.DEF"),
-		CGI->generaltexth->zelp[585], std::bind(&CTradeBase::makeDeal, this));
 }
 
 void CTradeBase::removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove)
@@ -53,9 +51,9 @@ void CTradeBase::getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRem
 void CTradeBase::deselect()
 {
 	if(hLeft)
-		hLeft->selection->selectSlot(false);
+		hLeft->selectSlot(false);
 	if(hRight)
-		hRight->selection->selectSlot(false);
+		hRight->selectSlot(false);
 	hLeft = hRight = nullptr;
 	deal->block(true);
 }
@@ -66,9 +64,9 @@ void CTradeBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newS
 		return;
 
 	if(hCurSlot)
-		hCurSlot->selection->selectSlot(false);
+		hCurSlot->selectSlot(false);
 	hCurSlot = newSlot;
-	newSlot->selection->selectSlot(true);
+	newSlot->selectSlot(true);
 }
 
 CExperienceAltar::CExperienceAltar()
@@ -79,7 +77,6 @@ CExperienceAltar::CExperienceAltar()
 	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	// Total experience on the Altar
 	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
-	deal->moveBy(dealButtonPos);
 	expToLevel = std::make_shared<CLabel>(75, 477, FONT_SMALL, ETextAlignment::CENTER);
 	expForHero = std::make_shared<CLabel>(75, 545, FONT_SMALL, ETextAlignment::CENTER);
 }
