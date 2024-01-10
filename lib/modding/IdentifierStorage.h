@@ -32,6 +32,7 @@ class DLL_LINKAGE CIdentifierStorage
 		std::string name;        /// string ID
 		std::function<void(si32)> callback;
 		bool optional;
+		bool dynamicType;
 
 		/// Builds callback from identifier in form "targetMod:type.name"
 		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
@@ -69,6 +70,8 @@ class DLL_LINKAGE CIdentifierStorage
 	bool resolveIdentifier(const ObjectCallback & callback) const;
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback) const;
 
+	void showIdentifierResolutionErrorDetails(const ObjectCallback & callback) const;
+	std::optional<si32> getIdentifierImpl(const ObjectCallback & callback, bool silent) const;
 public:
 	CIdentifierStorage();
 	virtual ~CIdentifierStorage() = default;
