@@ -141,8 +141,8 @@ void CMapHeader::registerMapStrings()
 	VLC->generaltexth->addSubContainer(*this);
 	
 	//get supported languages. Assuming that translation containing most strings is the base language
-	std::set<std::string> mapLanguages;
-	std::set<std::string> mapBaseLanguages;
+	std::set<std::string, std::less<>> mapLanguages;
+	std::set<std::string, std::less<>> mapBaseLanguages;
 	int maxStrings = 0;
 	for(auto & translation : translations.Struct())
 	{

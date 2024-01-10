@@ -672,8 +672,8 @@ void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
 		for(int x = 0; x < ret->w; x++)
 		{
 			//coordinates we want to calculate
-			int origX = static_cast<int>(floor(factorX * x));
-			int origY = static_cast<int>(floor(factorY * y));
+			auto origX = static_cast<int>(floor(factorX * x));
+			auto origY = static_cast<int>(floor(factorY * y));
 
 			// Get pointers to source pixels
 			uint8_t *srcPtr = (uint8_t*)surf->pixels + origY * surf->pitch + origX * bpp;
