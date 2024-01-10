@@ -13,8 +13,10 @@
 
 #include "GlobalLobbyWidget.h"
 #include "GlobalLobbyClient.h"
+#include "GlobalLobbyServerSetup.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
 
@@ -47,6 +49,7 @@ void GlobalLobbyWindow::doSendChatMessage()
 
 void GlobalLobbyWindow::doCreateGameRoom()
 {
+	GH.windows().createAndPushWindow<GlobalLobbyServerSetup>();
 	// TODO:
 	// start local server and supply our UUID / client credentials to it
 	// server logs into lobby ( uuid = client, mode = server ). This creates 'room' in mode 'empty'

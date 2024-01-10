@@ -66,7 +66,8 @@ void GlobalLobbyLoginWindow::onLogin()
 	config->String() = inputUsername->getText();
 
 	labelStatus->setText(CGI->generaltexth->translate("vcmi.lobby.login.connecting"));
-	CSH->getGlobalLobby().connect();
+	if (!CSH->getGlobalLobby().isConnected())
+		CSH->getGlobalLobby().connect();
 	buttonClose->block(true);
 }
 

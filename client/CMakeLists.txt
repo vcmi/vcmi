@@ -97,6 +97,7 @@ set(client_SRCS
 
 	globalLobby/GlobalLobbyClient.cpp
 	globalLobby/GlobalLobbyLoginWindow.cpp
+	globalLobby/GlobalLobbyServerSetup.cpp
 	globalLobby/GlobalLobbyWidget.cpp
 	globalLobby/GlobalLobbyWindow.cpp
 
@@ -277,6 +278,7 @@ set(client_HEADERS
 
 	globalLobby/GlobalLobbyClient.h
 	globalLobby/GlobalLobbyLoginWindow.h
+	globalLobby/GlobalLobbyServerSetup.h
 	globalLobby/GlobalLobbyWidget.h
 	globalLobby/GlobalLobbyWindow.h
 

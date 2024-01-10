@@ -182,7 +182,7 @@ GlobalLobbyClient & CServerHandler::getGlobalLobby()
 	return *lobbyClient;
 }
 
-void CServerHandler::startLocalServerAndConnect()
+void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 {
 	if(threadRunLocalServer)
 		threadRunLocalServer->join();
@@ -191,14 +191,10 @@ void CServerHandler::startLocalServerAndConnect()
 
 #if defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
-	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getLocalPort())};
-	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
-	{
-		args.push_back("--lobby=" + settings["session"]["address"].String());
-		args.push_back("--connections=" + settings["session"]["hostConnections"].String());
-		args.push_back("--lobby-port=" + std::to_string(settings["session"]["port"].Integer()));
-		args.push_back("--lobby-uuid=" + settings["session"]["hostUuid"].String());
-	}
+	std::vector<std::string> args{"--port=" + std::to_string(getLocalPort())};
+	if(connectToLobby)
+		args.push_back("--lobby");
+
 	threadRunLocalServer = std::make_unique<boost::thread>([&cond, args, this] {
 		setThreadName("CVCMIServer");
 		CVCMIServer::create(&cond, args);
@@ -211,7 +207,7 @@ void CServerHandler::startLocalServerAndConnect()
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
 #else
-	threadRunLocalServer = std::make_unique<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
+	threadRunLocalServer = std::make_unique<boost::thread>(&CServerHandler::threadRunServer, this, connectToLobby); //runs server executable;
 #endif
 	logNetwork->trace("Setting up thread calling server: %d ms", th->getDiff());
 
@@ -800,7 +796,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	if(settings["session"]["donotstartserver"].Bool())
 		connectToServer(getLocalHostname(), getLocalPort());
 	else
-		startLocalServerAndConnect();
+		startLocalServerAndConnect(false);
 
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
@@ -916,22 +912,16 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 	client->handlePack(&clientPack);
 }
 
-void CServerHandler::threadRunServer()
+void CServerHandler::threadRunServer(bool connectToLobby)
 {
 #if !defined(VCMI_MOBILE)
 	setThreadName("runServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
 		+ " --port=" + std::to_string(getLocalPort())
-		+ " --run-by-client"
-		+ " --uuid=" + uuid;
-	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
-	{
-		comm += " --lobby=" + settings["session"]["address"].String();
-		comm += " --connections=" + settings["session"]["hostConnections"].String();
-		comm += " --lobby-port=" + std::to_string(settings["session"]["port"].Integer());
-		comm += " --lobby-uuid=" + settings["session"]["hostUuid"].String();
-	}
+		+ " --run-by-client";
+	if(connectToLobby)
+		comm += " --lobby";
 
 	comm += " > \"" + logName + '\"';
 	logGlobal->info("Server command line: %s", comm);

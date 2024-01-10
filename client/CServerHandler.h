@@ -94,7 +94,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
 	void threadRunNetwork();
-	void threadRunServer();
+	void threadRunServer(bool connectToLobby);
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
@@ -137,7 +137,7 @@ public:
 	~CServerHandler();
 	
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
-	void startLocalServerAndConnect();
+	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
 
 	GlobalLobbyClient & getGlobalLobby();

@@ -266,17 +266,11 @@ void CVCMIServer::establishOutgoingConnection()
 	if(!cmdLineOptions.count("lobby"))
 		return;
 
-	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
-	auto address = cmdLineOptions["lobby"].as<std::string>();
-	int port = cmdLineOptions["lobby-port"].as<ui16>();
-	logNetwork->info("Establishing connection to remote at %s:%d with uuid %s", address, port, uuid);
+	std::string hostname = settings["lobby"]["hostname"].String();
+	int16_t port = settings["lobby"]["port"].Integer();
 
 	outgoingConnection = std::make_unique<NetworkClient>(*this);
-
-	outgoingConnection->start(address, port);//, SERVER_NAME, uuid);
-
-//	connections.insert(c);
-//	remoteConnections.insert(c);
+	outgoingConnection->start(hostname, port);
 }
 
 void CVCMIServer::prepareToRestart()
@@ -1004,12 +998,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("help,h", "display help and exit")
 	("version,v", "display version information and exit")
 	("run-by-client", "indicate that server launched by client on same machine")
-	("uuid", po::value<std::string>(), "")
-	("port", po::value<ui16>(), "port at which server will listen to connections from client")
-	("lobby", po::value<std::string>(), "address to remote lobby")
-	("lobby-port", po::value<ui16>(), "port at which server connect to remote lobby")
-	("lobby-uuid", po::value<std::string>(), "")
-	("connections", po::value<ui16>(), "amount of connections to remote lobby");
+	("port", po::value<ui16>(), "port at which server will listen to connections from client");
 
 	if(argc > 1)
 	{

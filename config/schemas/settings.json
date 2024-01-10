@@ -553,7 +553,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port" ],
+			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
@@ -582,6 +582,21 @@
 				"port" : {
 					"type" : "number",
 					"default" : 30303
+				},
+				
+				"roomPlayerLimit" : {
+					"type" : "number",
+					"default" : 2
+				},
+				
+				"roomType" : {
+					"type" : "number",
+					"default" : 0
+				},
+				
+				"roomMode" : {
+					"type" : "number",
+					"default" : 0
 				},
 			}
 		},

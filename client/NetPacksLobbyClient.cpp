@@ -19,6 +19,7 @@
 #include "lobby/ExtraOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
+#include "globalLobby/GlobalLobbyWindow.h"
 
 #include "CServerHandler.h"
 #include "CGameInfo.h"
@@ -40,11 +41,19 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	{
 		handler.c->connectionID = pack.clientId;
 		if(handler.mapToStart)
+		{
 			handler.setMapInfo(handler.mapToStart);
+		}
 		else if(!settings["session"]["headless"].Bool())
 		{
 			if (GH.windows().topWindow<CSimpleJoinScreen>())
 				GH.windows().popWindows(1);
+
+			while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+			{
+				// if global lobby is open, pop all dialogs on top of it as well as lobby itself
+				GH.windows().popWindows(1);
+			}
 
 			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
 		}

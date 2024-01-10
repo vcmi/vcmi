@@ -58,7 +58,7 @@
 
 		{
 			"type": "areaFilled",
-			"rect": {"x": 5, "y": 210, "w": 250, "h": 310}
+			"rect": {"x": 5, "y": 210, "w": 250, "h": 340}
 		},
 		{
 			"type": "labelTitle",
@@ -117,6 +117,24 @@
 		
 		{
 			"type": "button",
+			"position": {"x": 840, "y": 10},
+			"image": "settingsWindow/button80",
+			"help": "core.help.288",
+			"callback": "closeWindow",
+			"items":
+			[
+				{
+					"type": "label",
+					"font": "medium",
+					"alignment": "center",
+					"color": "yellow",
+					"text": "Leave"
+				}
+			]
+		},
+		
+		{
+			"type": "button",
 			"position": {"x": 940, "y": 10},
 			"image": "settingsWindow/button80",
 			"help": "core.help.288",
@@ -129,7 +147,7 @@
 					"font": "medium",
 					"alignment": "center",
 					"color": "yellow",
-					"text": "Exit"
+					"text": "Close"
 				}
 			]
 		},
@@ -155,24 +173,6 @@
 		
 		{
 			"type": "button",
-			"position": {"x": 10, "y": 520},
-			"image": "settingsWindow/button190",
-			"help": "core.help.288",
-			"callback": "createGameRoom",
-			"items":
-			[
-				{
-					"type": "label",
-					"font": "medium",
-					"alignment": "center",
-					"color": "yellow",
-					"text": "Start Public Game"
-				}
-			]
-		},
-		
-		{
-			"type": "button",
 			"position": {"x": 10, "y": 555},
 			"image": "settingsWindow/button190",
 			"help": "core.help.288",
@@ -184,7 +184,7 @@
 					"font": "medium",
 					"alignment": "center",
 					"color": "yellow",
-					"text": "Start Private Game"
+					"text": "Create Room"
 				}
 			]
 		},

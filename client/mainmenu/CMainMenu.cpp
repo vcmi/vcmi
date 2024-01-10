@@ -458,10 +458,11 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	playerName->setText(getPlayerName());
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
 
-	buttonHotseat = std::make_shared<CButton>(Point(373, 78), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
-	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this));
-	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 2), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this));
-	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBONL.DEF"), CGI->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this));
+	buttonHotseat = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBHOT.DEF"), CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
+	buttonLobby = std::make_shared<CButton>(Point(373, 78 + 57 * 1), AnimationPath::builtin("MUBONL.DEF"), CGI->generaltexth->zelp[265], std::bind(&CMultiMode::openLobby, this));
+
+	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 3), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this));
+	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this));
 
 	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
@@ -617,7 +618,7 @@ void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 #endif
 
 	if(addr.empty())
-		CSH->startLocalServerAndConnect();
+		CSH->startLocalServerAndConnect(false);
 	else
 		CSH->connectToServer(addr, port);
 }
