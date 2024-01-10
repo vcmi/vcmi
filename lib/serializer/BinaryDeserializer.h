@@ -152,7 +152,7 @@ public:
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
-	IGameCallback * cb;
+	IGameCallback * cb = nullptr;
 	bool smartPointerSerialization;
 	bool saving;
 
@@ -293,7 +293,7 @@ public:
 		{
 			typedef typename std::remove_pointer<T>::type npT;
 			typedef typename std::remove_const<npT>::type ncpT;
-			data = ClassObjectCreator<ncpT>::invoke(nullptr);
+			data = ClassObjectCreator<ncpT>::invoke(cb);
 			ptrAllocated(data, pid);
 			load(*data);
 		}

@@ -142,6 +142,8 @@ CServerHandler::CServerHandler()
 	registerTypesLobbyPacks(*applier);
 }
 
+CServerHandler::~CServerHandler() = default;
+
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
 {
 	hostClientId = -1;
@@ -260,6 +262,9 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 					addr.size() ? addr : getHostAddress(),
 					port ? port : getHostPort(),
 					NAME, uuid);
+
+			nextClient = std::make_unique<CClient>();
+			c->iser.cb = nextClient.get();
 		}
 		catch(std::runtime_error & error)
 		{
@@ -636,7 +641,8 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 {
 	if(CMM)
 		CMM->disable();
-	client = new CClient();
+
+	std::swap(client, nextClient);;
 
 	highScoreCalc = nullptr;
 
@@ -687,7 +693,7 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	}
 
 	client->endGame();
-	vstd::clear_pointer(client);
+	client.reset();
 
 	if(!restart)
 	{

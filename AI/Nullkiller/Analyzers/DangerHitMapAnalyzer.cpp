@@ -165,7 +165,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
-			auto townHero = new CGHeroInstance(nullptr);
+			auto townHero = new CGHeroInstance(town->cb);
 			CRandomGenerator rng;
 			auto visitablePos = town->visitablePos();
 			

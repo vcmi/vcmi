@@ -18,7 +18,9 @@ class DLL_LINKAGE GameCallbackHolder
 public:
 	IGameCallback * const cb;
 
-	GameCallbackHolder(IGameCallback *cb):
+	explicit GameCallbackHolder(IGameCallback *cb):
 		cb(cb)
 	{}
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -117,7 +117,7 @@ public:
 	const BonusList & getExportedBonusList() const;
 	CBonusSystemNode::ENodeTypes getNodeType() const;
 	void setNodeType(CBonusSystemNode::ENodeTypes type);
-	const TNodesVector & getParentNodes() const;
+	const TCNodesVector & getParentNodes() const;
 
 	static void treeHasChanged();
 

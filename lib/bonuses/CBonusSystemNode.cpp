@@ -304,7 +304,7 @@ void CBonusSystemNode::detachFromSource(const CBonusSystemNode & parent)
 			parent.removedRedDescendant(*this);
 	}
 
-	if (vstd::contains(parentsToPropagate, &parent))
+	if (vstd::contains(parentsToInherit, &parent))
 	{
 		parentsToInherit -= &parent;
 	}
@@ -581,9 +581,9 @@ CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
 	return nodeType;
 }
 
-const TNodesVector& CBonusSystemNode::getParentNodes() const
+const TCNodesVector& CBonusSystemNode::getParentNodes() const
 {
-	return parentsToPropagate;
+	return parentsToInherit;
 }
 
 void CBonusSystemNode::setNodeType(CBonusSystemNode::ENodeTypes type)

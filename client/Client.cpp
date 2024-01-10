@@ -173,7 +173,8 @@ void CClient::newGame(CGameState * initializedGameState)
 {
 	CSH->th->update();
 	CMapService mapService;
-	gs = initializedGameState ? initializedGameState : new CGameState();
+	assert(initializedGameState);
+	gs = initializedGameState;
 	gs->preInit(VLC, this);
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
 	if(!initializedGameState)
