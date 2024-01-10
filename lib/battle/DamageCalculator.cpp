@@ -132,15 +132,12 @@ int DamageCalculator::getActorAttackEffective() const
 
 int DamageCalculator::getActorAttackIgnored() const
 {
-	double multAttackReduction = battleBonusValue(info.defender, Selector::type()(BonusType::ENEMY_ATTACK_REDUCTION)) / 100.0;
+	int multAttackReductionPercent = battleBonusValue(info.defender, Selector::type()(BonusType::ENEMY_ATTACK_REDUCTION));
 
-	if(multAttackReduction > 0)
+	if(multAttackReductionPercent > 0)
 	{
-		int defaultRoundingMode = std::fegetround();
-		std::fesetround(FE_TOWARDZERO);
-		int reduction = std::nearbyint(multAttackReduction * getActorAttackBase());
-		std::fesetround(defaultRoundingMode);
-		return -std::min(reduction,getActorAttackBase());
+		int reduction = (getActorAttackBase() * multAttackReductionPercent + 49) / 100; //using ints so 1.5 for 5 attack is rounded down as in HotA / h3assist etc. (keep in mind h3assist 1.2 shows wrong value for 15 attack points and unupg. nix)
+		return -std::min(reduction, getActorAttackBase());
 	}
 	return 0;
 }

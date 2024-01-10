@@ -791,7 +791,7 @@ void BattleInterface::waitForAnimations()
 	}
 
 	assert(!hasAnimations());
-	//assert(awaitingEvents.empty());
+	assert(awaitingEvents.empty());
 
 	if (!awaitingEvents.empty())
 	{
