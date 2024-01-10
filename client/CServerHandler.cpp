@@ -642,7 +642,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	if(CMM)
 		CMM->disable();
 
-	std::swap(client, nextClient);;
+	std::swap(client, nextClient);
 
 	highScoreCalc = nullptr;
 

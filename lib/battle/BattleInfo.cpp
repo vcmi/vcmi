@@ -1009,7 +1009,7 @@ scripting::Pool * BattleInfo::getContextPool() const
 {
 	//this is real battle, use global scripting context pool
 	//TODO: make this line not ugly
-	return IObjectInterface::cb->getGlobalContextPool();
+	return battleGetFightingHero(0)->cb->getGlobalContextPool();
 }
 #endif
 

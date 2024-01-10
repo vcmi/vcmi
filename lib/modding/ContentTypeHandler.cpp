@@ -199,7 +199,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh.get(), "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler(VLC->tplh.get(), "template")));
 #if SCRIPTING_ENABLED
-	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler.get(), "script")));
 #endif
 	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler.get(), "battlefield")));
 	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler.get(), "terrain")));

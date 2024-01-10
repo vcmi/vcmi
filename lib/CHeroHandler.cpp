@@ -157,8 +157,9 @@ bool CHeroClass::isMagicHero() const
 
 int CHeroClass::tavernProbability(FactionID faction) const
 {
-	if (selectionProbability.count(faction))
-		return selectionProbability.at(faction);
+	auto it = selectionProbability.find(faction);
+	if (it != selectionProbability.end())
+		return it->second;
 	return 0;
 }
 
@@ -401,9 +402,9 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 	}
 
-	for(auto const & hc : objects)
+	for(const auto & hc : objects)
 	{
-		if (!hc->imageMapMale.empty())
+		if(!hc->imageMapMale.empty())
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
@@ -539,7 +540,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 	{
 		std::set<CreatureID> oldTargets = targets;
 
-		for (auto const & upgradeSourceID : oldTargets)
+		for(const auto & upgradeSourceID : oldTargets)
 		{
 			const CCreature * upgradeSource = upgradeSourceID.toCreature();
 			targets.insert(upgradeSource->upgrades.begin(), upgradeSource->upgrades.end());
@@ -551,7 +552,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 
 	for(CreatureID cid : targets)
 	{
-		auto const & specCreature = *cid.toCreature();
+		const auto & specCreature = *cid.toCreature();
 		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
 
 		{
@@ -611,7 +612,7 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 
 void CHeroHandler::afterLoadFinalization()
 {
-	for (auto const & functor : callAfterLoadFinalization)
+	for(const auto & functor : callAfterLoadFinalization)
 		functor();
 
 	callAfterLoadFinalization.clear();

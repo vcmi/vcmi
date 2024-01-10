@@ -91,7 +91,7 @@ const HeroTypeService * LibClasses::heroTypes() const
 #if SCRIPTING_ENABLED
 const scripting::Service * LibClasses::scripts() const
 {
-	return scriptHandler;
+	return scriptHandler.get();
 }
 #endif
 

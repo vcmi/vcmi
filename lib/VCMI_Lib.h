@@ -101,7 +101,7 @@ public:
 	std::shared_ptr<GameSettings> settingsHandler;
 
 #if SCRIPTING_ENABLED
-	scripting::ScriptHandler * scriptHandler;
+	std::shared_ptr<scripting::ScriptHandler> scriptHandler;
 #endif
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
