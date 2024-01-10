@@ -281,6 +281,20 @@ double DamageCalculator::getAttackHateFactor() const
 	return allHateEffects->valOfBonuses(Selector::subtype()(BonusSubtypeID(info.defender->creatureId()))) / 100.0;
 }
 
+double DamageCalculator::getAttackRevengeFactor() const
+{
+	if(info.attacker->hasBonusOfType(BonusType::REVENGE)) //HotA Haspid ability
+	{
+		int totalStackCount = info.attacker->unitBaseAmount();
+		int currentStackHealth = info.attacker->getAvailableHealth();
+		int creatureHealth = info.attacker->getMaxHealth();
+
+		return sqrt(static_cast<double>((totalStackCount + 1) * creatureHealth) / (currentStackHealth + creatureHealth) - 1);
+	}
+
+	return 0.0;
+}
+
 double DamageCalculator::getDefenseSkillFactor() const
 {
 	int defenseAdvantage = getTargetDefenseEffective() - getActorAttackEffective();
@@ -523,19 +537,10 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 
 	double resultingFactor = std::min(8.0, attackFactorTotal) * std::max( 0.01, defenseFactorTotal);
 
-	double revengeAdditionalMinDamage = 0.0;
-	double revengeAdditionalMaxDamage = 0.0;
-	if(info.attacker->hasBonusOfType(BonusType::REVENGE)) //HotA Haspid ability
-	{
-		int totalStackCount = info.attacker->unitBaseAmount();
-		int currentStackHealth = info.attacker->getAvailableHealth();
-		int creatureHealth = info.attacker->getMaxHealth();
-
-		double revengeFactor = sqrt(static_cast<double>((totalStackCount + 1) * creatureHealth) / (currentStackHealth + creatureHealth) - 1);
-
-		revengeAdditionalMinDamage = std::round(damageBase.min * revengeFactor);
-		revengeAdditionalMaxDamage = std::round(damageBase.max * revengeFactor);
-	}
+	//calculated separately since it bypasses cap on bonus damage
+	double revengeFactor = getAttackRevengeFactor();
+	double revengeAdditionalMinDamage = std::round(damageBase.min * revengeFactor);
+	double revengeAdditionalMaxDamage = std::round(damageBase.max * revengeFactor);
 
 	DamageRange damageDealt {
 		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor + revengeAdditionalMinDamage)),

@@ -51,6 +51,7 @@ class DLL_LINKAGE DamageCalculator
 	double getAttackDeathBlowFactor() const;
 	double getAttackDoubleDamageFactor() const;
 	double getAttackHateFactor() const;
+	double getAttackRevengeFactor() const;
 
 	double getDefenseSkillFactor() const;
 	double getDefenseArmorerFactor() const;
