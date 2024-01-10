@@ -1245,6 +1245,75 @@ void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback 
 	attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
 }
 
+void BattleActionProcessor::HandleDeathStareAndPirateShot(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
+{
+	// mechanics of Death Stare as in H3:
+	// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
+	//original formula x = min(x, (gorgons_count + 9)/10);
+
+	/* mechanics of Accurate Shot as in HotA:
+		* each creature in an attacking stack has a X% chance of killing a creature in the attacked squad,
+		* but the total number of killed creatures cannot be more than (number of creatures in an attacking squad) * X/100 (rounded up).
+		* X = 3 multiplier for shooting without penalty and X = 2 if shooting with penalty. Ability doesn't work if shooting at creatures behind walls.
+		*/
+
+	auto bonus = attacker->getBonus(Selector::type()(BonusType::DEATH_STARE));
+	if(bonus == nullptr)
+		bonus = attacker->getBonus(Selector::type()(BonusType::ACCURATE_SHOT));
+
+	if(bonus->type == BonusType::ACCURATE_SHOT && (!ranged || battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition())))
+		return; //should not work from behind walls, except being defender or under effect of golden bow etc.
+
+
+	int singleCreatureKillChancePercent;
+	if(bonus->type == BonusType::ACCURATE_SHOT)
+	{
+		singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::ACCURATE_SHOT);
+		if(battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition()))
+			singleCreatureKillChancePercent = (singleCreatureKillChancePercent * 2) / 3;
+	}
+	else //DEATH_STARE
+		singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon);
+
+	double chanceToKill = singleCreatureKillChancePercent / 100.0;
+	vstd::amin(chanceToKill, 1); //cap at 100%
+	std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
+	int killedCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
+
+	if(bonus->type == BonusType::DEATH_STARE)
+	{
+		double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
+		int maxToKill = static_cast<int>((attacker->getCount() + cap - 1) / cap); //not much more than chance * count
+		vstd::amin(killedCreatures, maxToKill);
+
+		killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
+	}
+	else //ACCURATE_SHOT
+	{
+		bool isMaxToKillRounded = attacker->getCount() * singleCreatureKillChancePercent % 100 == 0;
+		int maxToKill = attacker->getCount() * singleCreatureKillChancePercent / 100 + (isMaxToKillRounded ? 0 : 1);
+		vstd::amin(killedCreatures, maxToKill);
+	}
+
+	if(killedCreatures)
+	{
+		//TODO: death stare or accurate shot was not originally available for multiple-hex attacks, but...
+
+		SpellID spellID = SpellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
+		if(bonus->type == BonusType::ACCURATE_SHOT && bonus->subtype.as<SpellID>() != SpellID::NONE)
+			spellID = bonus->subtype.as<SpellID>();
+
+		const CSpell * spell = spellID.toSpell();
+		spells::AbilityCaster caster(attacker, 0);
+
+		spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
+		spells::Target target;
+		target.emplace_back(defender);
+		parameters.setEffectValue(killedCreatures);
+		parameters.cast(gameHandler->spellEnv, target);
+	}
+}
+
 void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
 {
 	if(!attacker->alive() || !defender->alive()) // can be already dead
@@ -1260,70 +1329,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	if(attacker->hasBonusOfType(BonusType::DEATH_STARE) || attacker->hasBonusOfType(BonusType::ACCURATE_SHOT))
 	{
-		// mechanics of Death Stare as in H3:
-		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
-		//original formula x = min(x, (gorgons_count + 9)/10);
-
-		/* mechanics of Accurate Shot as in HotA:
-		 * each creature in an attacking stack has a X% chance of killing a creature in the attacked squad,
-		 * but the total number of killed creatures cannot be more than (number of creatures in an attacking squad) * X/100 (rounded up).
-		 * X = 3 multiplier for shooting without penalty and X = 2 if shooting with penalty. Ability doesn't work if shooting at creatures behind walls.
-		*/
-
-		auto bonus = attacker->getBonus(Selector::type()(BonusType::DEATH_STARE));
-		if(bonus == nullptr)
-			bonus = attacker->getBonus(Selector::type()(BonusType::ACCURATE_SHOT));
-
-		if(bonus->type == BonusType::ACCURATE_SHOT && (!ranged || battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition())))
-			return; //should not work from behind walls, except being defender or under effect of golden bow etc.
-
-		int singleCreatureKillChancePercent;
-		if(bonus->type == BonusType::ACCURATE_SHOT)
-		{
-			singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::ACCURATE_SHOT);
-			if(battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition()))
-				singleCreatureKillChancePercent = (singleCreatureKillChancePercent * 2) / 3;
-		}
-		else //DEATH_STARE
-			singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon);
-
-		double chanceToKill = singleCreatureKillChancePercent / 100.0;
-		vstd::amin(chanceToKill, 1); //cap at 100%
-		std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
-		int killedCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
-
-		if(bonus->type == BonusType::DEATH_STARE)
-		{
-			double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
-			int maxToKill = static_cast<int>((attacker->getCount() + cap - 1) / cap); //not much more than chance * count
-			vstd::amin(killedCreatures, maxToKill);
-
-			killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
-		}
-		else //ACCURATE_SHOT
-		{
-			bool isMaxToKillRounded = attacker->getCount() * singleCreatureKillChancePercent % 100 == 0;
-			int maxToKill = attacker->getCount() * singleCreatureKillChancePercent / 100 + (isMaxToKillRounded ? 0 : 1);
-			vstd::amin(killedCreatures, maxToKill);
-		}
-
-		if(killedCreatures)
-		{
-			//TODO: death stare or accurate shot was not originally available for multiple-hex attacks, but...
-
-			SpellID spellID = SpellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
-			if(bonus->type == BonusType::ACCURATE_SHOT && bonus->subtype.as<SpellID>() != SpellID::NONE)
-				spellID = bonus->subtype.as<SpellID>();
-
-			const CSpell * spell = spellID.toSpell();
-			spells::AbilityCaster caster(attacker, 0);
-
-			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-			spells::Target target;
-			target.emplace_back(defender);
-			parameters.setEffectValue(killedCreatures);
-			parameters.cast(gameHandler->spellEnv, target);
-		}
+		HandleDeathStareAndPirateShot(battle, ranged, attacker, defender);
 	}
 
 	if(!defender->alive())

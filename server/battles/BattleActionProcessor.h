@@ -44,6 +44,9 @@ class BattleActionProcessor : boost::noncopyable
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
 	void handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
+
+	void HandleDeathStareAndPirateShot(const CBattleInfoCallback &battle, bool ranged, const CStack *attacker, const CStack *defender);
+
 	void handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
 	void attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender);
 
