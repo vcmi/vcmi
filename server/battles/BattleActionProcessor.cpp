@@ -1220,21 +1220,18 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(TConstBonusLi
 
 	for(auto item : spellsWithBackupLayers)
 	{
-		if(item.first < spellsWithBackupLayers.rbegin()->first)
+		bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
+			[&](const std::shared_ptr<Bonus> spell)
+			{
+				std::vector<SpellID> activeSpells = defender->activeSpells();
+				return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
+			});
+
+		if(!areCurrentLayerSpellsApplied || item.first == spellsWithBackupLayers.rbegin()->first)
 		{
-			bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
-				[&](const std::shared_ptr<Bonus> spell)
-				{
-					std::vector<SpellID> activeSpells = defender->activeSpells();
-					return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
-				});
-
-			if(areCurrentLayerSpellsApplied)
-				continue;
+			addSpellsFromLayer(item.first);
+			break;
 		}
-
-		addSpellsFromLayer(item.first);
-		break;
 	}
 
 	return spellsToCast;
