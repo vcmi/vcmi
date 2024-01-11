@@ -46,7 +46,6 @@
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
-#include "../lib/network/NetworkClient.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -132,15 +131,16 @@ static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") 
 
 CServerHandler::~CServerHandler()
 {
-	networkClient->stop();
+	networkHandler->stop();
 	threadNetwork->join();
 }
 
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE)
-	, networkClient(std::make_unique<NetworkClient>(*this))
+	, networkHandler(INetworkHandler::createHandler())
+	, networkClient(networkHandler->createClientTCP(*this))
 	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
-	, lobbyClient(std::make_unique<GlobalLobbyClient>())
+	, lobbyClient(std::make_unique<GlobalLobbyClient>(networkHandler))
 	, client(nullptr)
 	, loadMode(0)
 	, campaignStateToSend(nullptr)
@@ -155,7 +155,7 @@ void CServerHandler::threadRunNetwork()
 {
 	logGlobal->info("Starting network thread");
 	setThreadName("runNetwork");
-	networkClient->run();
+	networkHandler->run();
 	logGlobal->info("Ending network thread");
 }
 
@@ -277,7 +277,7 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 	{
 		// retry - local server might be still starting up
 		logNetwork->debug("\nCannot establish connection. %s. Retrying...", errorMessage);
-		networkClient->setTimer(std::chrono::milliseconds(100));
+		networkHandler->createTimer(*this, std::chrono::milliseconds(100));
 	}
 	else
 	{
@@ -299,7 +299,7 @@ void CServerHandler::onTimer()
 	networkClient->start(getLocalHostname(), getLocalPort());
 }
 
-void CServerHandler::onConnectionEstablished(const std::shared_ptr<NetworkConnection> & netConnection)
+void CServerHandler::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & netConnection)
 {
 	logNetwork->info("Connection established");
 	c = std::make_shared<CConnection>(netConnection);
@@ -852,7 +852,7 @@ public:
 	}
 };
 
-void CServerHandler::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
+void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message)
 {
 	CPack * pack = c->retrievePack(message);
 	if(state == EClientState::DISCONNECTING)
@@ -868,7 +868,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<NetworkConnection> &
 	}
 }
 
-void CServerHandler::onDisconnected(const std::shared_ptr<NetworkConnection> &)
+void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> &)
 {
 	if(state == EClientState::DISCONNECTING)
 	{

@@ -10,15 +10,14 @@
 #pragma once
 
 #include "NetworkDefines.h"
-#include "NetworkListener.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class NetworkConnection;
 
-class DLL_LINKAGE NetworkClient : boost::noncopyable, public INetworkConnectionListener
+class NetworkClient : public INetworkConnectionListener, public INetworkClient
 {
-	std::shared_ptr<NetworkService> io;
+	std::shared_ptr<NetworkContext> io;
 	std::shared_ptr<NetworkSocket> socket;
 	std::shared_ptr<NetworkConnection> connection;
 
@@ -26,22 +25,17 @@ class DLL_LINKAGE NetworkClient : boost::noncopyable, public INetworkConnectionL
 
 	void onConnected(const boost::system::error_code & ec);
 
-	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
-	void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) override;
+	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
 
 public:
-	NetworkClient(INetworkClientListener & listener);
-	virtual ~NetworkClient() = default;
+	NetworkClient(INetworkClientListener & listener, const std::shared_ptr<NetworkContext> & context);
 
-	bool isConnected() const;
+	bool isConnected() const override;
 
-	void setTimer(std::chrono::milliseconds duration);
-	void sendPacket(const std::vector<uint8_t> & message);
+	void sendPacket(const std::vector<uint8_t> & message) override;
 
-	void start(const std::string & host, uint16_t port);
-	void run();
-	void poll();
-	void stop();
+	void start(const std::string & host, uint16_t port) override;
 };
 
 VCMI_LIB_NAMESPACE_END

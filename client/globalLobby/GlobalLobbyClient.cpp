@@ -21,21 +21,12 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/MetaString.h"
 #include "../../lib/TextOperations.h"
-#include "../../lib/network/NetworkClient.h"
 
-GlobalLobbyClient::~GlobalLobbyClient()
-{
-	networkClient->stop();
-	networkThread->join();
-}
+GlobalLobbyClient::~GlobalLobbyClient() = default;
 
-GlobalLobbyClient::GlobalLobbyClient()
-	: networkClient(std::make_unique<NetworkClient>(*this))
-{
-	networkThread = std::make_unique<boost::thread>([this](){
-		networkClient->run();
-	});
-}
+GlobalLobbyClient::GlobalLobbyClient(const std::unique_ptr<INetworkHandler> & handler)
+	: networkClient(handler->createClientTCP(*this))
+{}
 
 static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 {
@@ -46,7 +37,7 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
 }
 
-void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message)
+void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message)
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
@@ -158,7 +149,7 @@ void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 	//}
 }
 
-void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkConnection> &)
+void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> &)
 {
 	JsonNode toSend;
 
@@ -198,15 +189,10 @@ void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 	loginWindowPtr->onConnectionFailed(errorMessage);
 }
 
-void GlobalLobbyClient::onDisconnected(const std::shared_ptr<NetworkConnection> &)
+void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection> &)
 {
 	GH.windows().popWindows(1);
 	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
-}
-
-void GlobalLobbyClient::onTimer()
-{
-	// no-op
 }
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)

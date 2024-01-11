@@ -10,35 +10,29 @@
 #pragma once
 
 #include "NetworkDefines.h"
-#include "NetworkListener.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class NetworkConnection;
-
-class DLL_LINKAGE NetworkServer : boost::noncopyable, public INetworkConnectionListener
+class NetworkServer : public INetworkConnectionListener, public INetworkServer
 {
-	std::shared_ptr<NetworkService> io;
+	std::shared_ptr<NetworkContext> io;
 	std::shared_ptr<NetworkAcceptor> acceptor;
-	std::set<std::shared_ptr<NetworkConnection>> connections;
+	std::set<std::shared_ptr<INetworkConnection>> connections;
 
 	INetworkServerListener & listener;
 
 	void connectionAccepted(std::shared_ptr<NetworkSocket>, const boost::system::error_code & ec);
 	void startAsyncAccept();
 
-	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
-	void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) override;
+	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
 public:
-	explicit NetworkServer(INetworkServerListener & listener);
+	NetworkServer(INetworkServerListener & listener, const std::shared_ptr<NetworkContext> & context);
 
-	void sendPacket(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message);
-	void closeConnection(const std::shared_ptr<NetworkConnection> &);
-	void setTimer(std::chrono::milliseconds duration);
+	void sendPacket(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message) override;
+	void closeConnection(const std::shared_ptr<INetworkConnection> &) override;
 
-	void start(uint16_t port);
-	void run(std::chrono::milliseconds duration);
-	void run();
+	void start(uint16_t port) override;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 #include "LobbyDatabase.h"
 
 #include "../lib/JsonNode.h"
-#include "../lib/network/NetworkConnection.h"
-#include "../lib/network/NetworkServer.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -197,11 +195,6 @@ void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std
 	reply["roomName"].String() = roomName;
 
 	sendMessage(target, reply);
-}
-
-void LobbyServer::onTimer()
-{
-	// no-op
 }
 
 void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
@@ -544,7 +537,8 @@ LobbyServer::~LobbyServer() = default;
 
 LobbyServer::LobbyServer(const boost::filesystem::path & databasePath)
 	: database(new LobbyDatabase(databasePath))
-	, networkServer(new NetworkServer(*this))
+	, networkHandler(INetworkHandler::createHandler())
+	, networkServer(networkHandler->createServerTCP(*this))
 {
 }
 
@@ -555,5 +549,5 @@ void LobbyServer::start(uint16_t port)
 
 void LobbyServer::run()
 {
-	networkServer->run();
+	networkHandler->run();
 }

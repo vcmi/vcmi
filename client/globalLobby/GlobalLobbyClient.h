@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/network/NetworkListener.h"
+#include "../../lib/network/NetworkInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
@@ -20,18 +20,16 @@ class GlobalLobbyWindow;
 
 class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
 {
-	std::unique_ptr<boost::thread> networkThread;
-	std::unique_ptr<NetworkClient> networkClient;
+	std::unique_ptr<INetworkClient> networkClient;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
 	std::shared_ptr<GlobalLobbyWindow> lobbyWindowLock; // helper strong reference to prevent window destruction on closing
 
-	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
-	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
-	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
-	void onTimer() override;
+	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
+	void onDisconnected(const std::shared_ptr<INetworkConnection> &) override;
 
 	void sendClientRegister();
 	void sendClientLogin();
@@ -44,7 +42,7 @@ class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
 	void receiveActiveAccounts(const JsonNode & json);
 
 public:
-	explicit GlobalLobbyClient();
+	explicit GlobalLobbyClient(const std::unique_ptr<INetworkHandler> & handler);
 	~GlobalLobbyClient();
 
 	void sendMessage(const JsonNode & data);

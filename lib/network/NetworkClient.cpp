@@ -13,9 +13,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkClient::NetworkClient(INetworkClientListener & listener)
-	: io(new NetworkService)
-	, socket(new NetworkSocket(*io))
+NetworkClient::NetworkClient(INetworkClientListener & listener, const std::shared_ptr<NetworkContext> & context)
+	: io(context)
+	, socket(std::make_shared<NetworkSocket>(*context))
 	, listener(listener)
 {
 }
@@ -39,26 +39,10 @@ void NetworkClient::onConnected(const boost::system::error_code & ec)
 		return;
 	}
 
-	connection = std::make_shared<NetworkConnection>(socket, *this);
+	connection = std::make_shared<NetworkConnection>(*this, socket);
 	connection->start();
 
 	listener.onConnectionEstablished(connection);
-}
-
-void NetworkClient::run()
-{
-	boost::asio::executor_work_guard<decltype(io->get_executor())> work{io->get_executor()};
-	io->run();
-}
-
-void NetworkClient::poll()
-{
-	io->poll();
-}
-
-void NetworkClient::stop()
-{
-	io->stop();
 }
 
 bool NetworkClient::isConnected() const
@@ -66,27 +50,18 @@ bool NetworkClient::isConnected() const
 	return connection != nullptr;
 }
 
-void NetworkClient::setTimer(std::chrono::milliseconds duration)
-{
-	auto timer = std::make_shared<NetworkTimer>(*io, duration);
-	timer->async_wait([this, timer](const boost::system::error_code& error){
-		if (!error)
-			listener.onTimer();
-	});
-}
-
 void NetworkClient::sendPacket(const std::vector<uint8_t> & message)
 {
 	connection->sendPacket(message);
 }
 
-void NetworkClient::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
+void NetworkClient::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
 {
 	this->connection.reset();
 	listener.onDisconnected(connection);
 }
 
-void NetworkClient::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
+void NetworkClient::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
 	listener.onPacketReceived(connection, message);
 }

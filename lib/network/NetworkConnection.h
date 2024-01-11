@@ -10,11 +10,10 @@
 #pragma once
 
 #include "NetworkDefines.h"
-#include "NetworkListener.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE NetworkConnection :public std::enable_shared_from_this<NetworkConnection>, boost::noncopyable
+class NetworkConnection : public INetworkConnection, public std::enable_shared_from_this<NetworkConnection>
 {
 	static const int messageHeaderSize = sizeof(uint32_t);
 	static const int messageMaxSize = 64 * 1024 * 1024; // arbitrary size to prevent potential massive allocation if we receive garbage input
@@ -29,10 +28,10 @@ class DLL_LINKAGE NetworkConnection :public std::enable_shared_from_this<Network
 	uint32_t readPacketSize();
 
 public:
-	NetworkConnection(const std::shared_ptr<NetworkSocket> & socket, INetworkConnectionListener & listener);
+	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket);
 
 	void start();
-	void sendPacket(const std::vector<uint8_t> & message);
+	void sendPacket(const std::vector<uint8_t> & message) override;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -14,7 +14,7 @@
 #include "BinarySerializer.h"
 
 #include "../networkPacks/NetPacksBase.h"
-#include "../network/NetworkConnection.h"
+#include "../network/NetworkInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -55,7 +55,7 @@ int ConnectionPackReader::read(void * data, unsigned size)
 	return size;
 }
 
-CConnection::CConnection(std::weak_ptr<NetworkConnection> networkConnection)
+CConnection::CConnection(std::weak_ptr<INetworkConnection> networkConnection)
 	: networkConnection(networkConnection)
 	, packReader(std::make_unique<ConnectionPackReader>())
 	, packWriter(std::make_unique<ConnectionPackWriter>())
@@ -100,7 +100,7 @@ CPack * CConnection::retrievePack(const std::vector<uint8_t> & data)
 	return result;
 }
 
-bool CConnection::isMyConnection(const std::shared_ptr<NetworkConnection> & otherConnection) const
+bool CConnection::isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const
 {
 	return otherConnection != nullptr && networkConnection.lock() == otherConnection;
 }

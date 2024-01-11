@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/network/NetworkListener.h"
+#include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 
 #include <boost/program_options/variables_map.hpp>
@@ -47,13 +47,15 @@ enum class EServerState : ui8
 	SHUTDOWN
 };
 
-class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkClientListener
+class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkClientListener, public INetworkTimerListener
 {
+	std::unique_ptr<INetworkHandler> networkHandler;
+
 	/// Network server instance that receives and processes incoming connections on active socket
-	std::unique_ptr<NetworkServer> networkServer;
+	std::unique_ptr<INetworkServer> networkServer;
 
 	/// Outgoing connection established by this server to game lobby for proxy mode (only in lobby game)
-	std::unique_ptr<NetworkClient> outgoingConnection;
+	std::unique_ptr<INetworkClient> outgoingConnection;
 
 	std::chrono::steady_clock::time_point gameplayStartTime;
 	std::chrono::steady_clock::time_point lastTimerUpdateTime;
@@ -70,16 +72,16 @@ private:
 	EServerState state;
 
 	// INetworkListener impl
-	void onDisconnected(const std::shared_ptr<NetworkConnection> & connection) override;
-	void onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message) override;
-	void onNewConnection(const std::shared_ptr<NetworkConnection> &) override;
+	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
+	void onNewConnection(const std::shared_ptr<INetworkConnection> &) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
-	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
+	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
 	void onTimer() override;
 
 	void establishOutgoingConnection();
 
-	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<NetworkConnection> &);
+	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
 
 	int currentClientId;
 	ui8 currentPlayerId;

@@ -36,8 +36,6 @@
 #include "CGameHandler.h"
 #include "processors/PlayerMessageProcessor.h"
 #include "../lib/mapping/CMapInfo.h"
-#include "../lib/network/NetworkServer.h"
-#include "../lib/network/NetworkClient.h"
 #include "../lib/GameConstants.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
@@ -164,14 +162,15 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 		port = cmdLineOptions["port"].as<uint16_t>();
 	logNetwork->info("Port %d will be used", port);
 
-	networkServer = std::make_unique<NetworkServer>(*this);
+	networkHandler = INetworkHandler::createHandler();
+	networkServer = networkHandler->createServerTCP(*this);
 	networkServer->start(port);
 	logNetwork->info("Listening for connections at port %d", port);
 }
 
 CVCMIServer::~CVCMIServer() = default;
 
-void CVCMIServer::onNewConnection(const std::shared_ptr<NetworkConnection> & connection)
+void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)
 {
 	if (activeConnections.empty())
 		establishOutgoingConnection();
@@ -187,7 +186,7 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<NetworkConnection> & con
 	}
 }
 
-void CVCMIServer::onPacketReceived(const std::shared_ptr<NetworkConnection> & connection, const std::vector<uint8_t> & message)
+void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
 	std::shared_ptr<CConnection> c = findConnection(connection);
 	auto pack = c->retrievePack(message);
@@ -201,7 +200,7 @@ void CVCMIServer::onConnectionFailed(const std::string & errorMessage)
 	//TODO: handle failure to connect to lobby
 }
 
-void CVCMIServer::onConnectionEstablished(const std::shared_ptr<NetworkConnection> &)
+void CVCMIServer::onConnectionEstablished(const std::shared_ptr<INetworkConnection> &)
 {
 	//TODO: handle connection to lobby - login?
 }
@@ -216,7 +215,7 @@ EServerState CVCMIServer::getState() const
 	return state;
 }
 
-std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<NetworkConnection> & netConnection)
+std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<INetworkConnection> & netConnection)
 {
 	for (auto const & gameConnection : activeConnections)
 	{
@@ -236,7 +235,7 @@ void CVCMIServer::run()
 		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
 	}
 #endif
-	networkServer->run();
+	networkHandler->run();
 }
 
 void CVCMIServer::onTimer()
@@ -258,7 +257,7 @@ void CVCMIServer::onTimer()
 
 	if (msDelta.count())
 		gh->tick(msDelta.count());
-	networkServer->setTimer(serverUpdateInterval);
+	networkHandler->createTimer(*this, serverUpdateInterval);
 }
 
 void CVCMIServer::establishOutgoingConnection()
@@ -269,7 +268,7 @@ void CVCMIServer::establishOutgoingConnection()
 	std::string hostname = settings["lobby"]["hostname"].String();
 	int16_t port = settings["lobby"]["port"].Integer();
 
-	outgoingConnection = std::make_unique<NetworkClient>(*this);
+	outgoingConnection = networkHandler->createClientTCP(*this);
 	outgoingConnection->start(hostname, port);
 }
 
@@ -370,7 +369,7 @@ void CVCMIServer::startGameImmediately()
 	onTimer();
 }
 
-void CVCMIServer::onDisconnected(const std::shared_ptr<NetworkConnection> & connection)
+void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
 {
 	logNetwork->error("Network error receiving a pack. Connection has been closed");
 
@@ -998,7 +997,8 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("help,h", "display help and exit")
 	("version,v", "display version information and exit")
 	("run-by-client", "indicate that server launched by client on same machine")
-	("port", po::value<ui16>(), "port at which server will listen to connections from client");
+	("port", po::value<ui16>(), "port at which server will listen to connections from client")
+	("lobby", "start server in lobby mode in which server connects to a global lobby");
 
 	if(argc > 1)
 	{

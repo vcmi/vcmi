@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/network/NetworkListener.h"
+#include "../lib/network/NetworkInterface.h"
 #include "LobbyDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -35,12 +35,12 @@ class LobbyServer : public INetworkServerListener
 	{
 		std::string accountID;
 		std::string roomID;
-		std::weak_ptr<NetworkConnection> accountConnection;
-		std::weak_ptr<NetworkConnection> roomConnection;
+		std::weak_ptr<INetworkConnection> accountConnection;
+		std::weak_ptr<INetworkConnection> roomConnection;
 	};
 
 	/// list of connected proxies. All messages received from (key) will be redirected to (value) connection
-	std::map<NetworkConnectionPtr, std::weak_ptr<NetworkConnection>> activeProxies;
+	std::map<NetworkConnectionPtr, std::weak_ptr<INetworkConnection>> activeProxies;
 
 	/// list of half-established proxies from server that are still waiting for client to connect
 	std::vector<AwaitingProxyState> awaitingProxies;
@@ -52,7 +52,8 @@ class LobbyServer : public INetworkServerListener
 	std::map<NetworkConnectionPtr, GameRoomState> activeGameRooms;
 
 	std::unique_ptr<LobbyDatabase> database;
-	std::unique_ptr<NetworkServer> networkServer;
+	std::unique_ptr<INetworkHandler> networkHandler;
+	std::unique_ptr<INetworkServer> networkServer;
 
 	std::string sanitizeChatMessage(const std::string & inputString) const;
 	bool isAccountNameValid(const std::string & accountName);
@@ -63,7 +64,6 @@ class LobbyServer : public INetworkServerListener
 	void onNewConnection(const NetworkConnectionPtr & connection) override;
 	void onDisconnected(const NetworkConnectionPtr & connection) override;
 	void onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<uint8_t> & message) override;
-	void onTimer() override;
 
 	void sendMessage(const NetworkConnectionPtr & target, const JsonNode & json);
 

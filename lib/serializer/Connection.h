@@ -14,7 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class BinaryDeserializer;
 class BinarySerializer;
 struct CPack;
-class NetworkConnection;
+class INetworkConnection;
 class ConnectionPackReader;
 class ConnectionPackWriter;
 class CGameState;
@@ -24,7 +24,7 @@ class CGameState;
 class DLL_LINKAGE CConnection : boost::noncopyable
 {
 	/// Non-owning pointer to underlying connection
-	std::weak_ptr<NetworkConnection> networkConnection;
+	std::weak_ptr<INetworkConnection> networkConnection;
 
 	std::unique_ptr<ConnectionPackReader> packReader;
 	std::unique_ptr<ConnectionPackWriter> packWriter;
@@ -39,12 +39,12 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 	void enableSmartVectorMemberSerializatoin();
 
 public:
-	bool isMyConnection(const std::shared_ptr<NetworkConnection> & otherConnection) const;
+	bool isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const;
 
 	std::string uuid;
 	int connectionID;
 
-	CConnection(std::weak_ptr<NetworkConnection> networkConnection);
+	CConnection(std::weak_ptr<INetworkConnection> networkConnection);
 	~CConnection();
 
 	void sendPack(const CPack * pack);

@@ -11,7 +11,7 @@
 
 #include "../lib/CStopWatch.h"
 
-#include "../lib/network/NetworkListener.h"
+#include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CondSh.h"
 
@@ -82,11 +82,12 @@ public:
 };
 
 /// structure to handle running server and connecting to it
-class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClientListener, boost::noncopyable
+class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClientListener, public INetworkTimerListener, boost::noncopyable
 {
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
 
-	std::unique_ptr<NetworkClient> networkClient;
+	std::unique_ptr<INetworkHandler> networkHandler;
+	std::unique_ptr<INetworkClient> networkClient;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::shared_ptr<CMapInfo> mapToStart;
@@ -98,10 +99,10 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
-	void onPacketReceived(const std::shared_ptr<NetworkConnection> &, const std::vector<uint8_t> & message) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
-	void onConnectionEstablished(const std::shared_ptr<NetworkConnection> &) override;
-	void onDisconnected(const std::shared_ptr<NetworkConnection> &) override;
+	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
+	void onDisconnected(const std::shared_ptr<INetworkConnection> &) override;
 	void onTimer() override;
 
 	void applyPackOnLobbyScreen(CPackForLobby & pack);

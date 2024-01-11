@@ -12,7 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkConnection::NetworkConnection(const std::shared_ptr<NetworkSocket> & socket, INetworkConnectionListener & listener)
+NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket)
 	: socket(socket)
 	, listener(listener)
 {
