@@ -48,9 +48,9 @@ enum class LobbyInviteStatus : int32_t
 
 enum class LobbyRoomState : int32_t
 {
-	IDLE,        // server is ready but no players are in the room
-	PUBLIC,      // host has joined and allows anybody to join
-	PRIVATE,     // host has joined but only allows those he invited to join
+	IDLE, // server is ready but no players are in the room
+	PUBLIC, // host has joined and allows anybody to join
+	PRIVATE, // host has joined but only allows those he invited to join
 	//BUSY,        // match is ongoing
 	//CANCELLED,   // game room was cancelled without starting the game
 	//CLOSED,      // game room was closed after playing for some time

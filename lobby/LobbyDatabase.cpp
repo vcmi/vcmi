@@ -251,7 +251,7 @@ bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountID)
 	bool result = false;
 
 	isPlayerInAnyGameRoomStatement->setBinds(accountID);
-	if (isPlayerInAnyGameRoomStatement->execute())
+	if(isPlayerInAnyGameRoomStatement->execute())
 		isPlayerInAnyGameRoomStatement->getColumns(result);
 	isPlayerInAnyGameRoomStatement->reset();
 
@@ -263,7 +263,7 @@ bool LobbyDatabase::isPlayerInGameRoom(const std::string & accountID, const std:
 	bool result = false;
 
 	isPlayerInGameRoomStatement->setBinds(accountID, roomID);
-	if (isPlayerInGameRoomStatement->execute())
+	if(isPlayerInGameRoomStatement->execute())
 		isPlayerInGameRoomStatement->getColumns(result);
 	isPlayerInGameRoomStatement->reset();
 
@@ -330,27 +330,18 @@ void LobbyDatabase::insertAccessCookie(const std::string & accountID, const std:
 	insertAccessCookieStatement->executeOnce(accountID, accessCookieUUID);
 }
 
-void LobbyDatabase::updateAccessCookie(const std::string & accountID, const std::string & accessCookieUUID)
-{
+void LobbyDatabase::updateAccessCookie(const std::string & accountID, const std::string & accessCookieUUID) {}
 
-}
+void LobbyDatabase::updateAccountLoginTime(const std::string & accountID) {}
 
-void LobbyDatabase::updateAccountLoginTime(const std::string & accountID)
-{
-
-}
-
-void LobbyDatabase::updateActiveAccount(const std::string & accountID, bool isActive)
-{
-
-}
+void LobbyDatabase::updateActiveAccount(const std::string & accountID, bool isActive) {}
 
 std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 {
 	std::string result;
 
 	getAccountDisplayNameStatement->setBinds(accountID);
-	if (getAccountDisplayNameStatement->execute())
+	if(getAccountDisplayNameStatement->execute())
 		getAccountDisplayNameStatement->getColumns(result);
 	getAccountDisplayNameStatement->reset();
 
@@ -367,7 +358,7 @@ LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & acco
 	bool result = false;
 
 	isAccountCookieValidStatement->setBinds(accountID, accessCookieUUID, cookieLifetime.count());
-	if (isAccountCookieValidStatement->execute())
+	if(isAccountCookieValidStatement->execute())
 		isAccountCookieValidStatement->getColumns(result);
 	isAccountCookieValidStatement->reset();
 
@@ -394,7 +385,7 @@ bool LobbyDatabase::isAccountNameExists(const std::string & displayName)
 	bool result = false;
 
 	isAccountNameExistsStatement->setBinds(displayName);
-	if (isAccountNameExistsStatement->execute())
+	if(isAccountNameExistsStatement->execute())
 		isAccountNameExistsStatement->getColumns(result);
 	isAccountNameExistsStatement->reset();
 	return result;
@@ -405,7 +396,7 @@ bool LobbyDatabase::isAccountIDExists(const std::string & accountID)
 	bool result = false;
 
 	isAccountIDExistsStatement->setBinds(accountID);
-	if (isAccountIDExistsStatement->execute())
+	if(isAccountIDExistsStatement->execute())
 		isAccountIDExistsStatement->getColumns(result);
 	isAccountIDExistsStatement->reset();
 	return result;
@@ -434,7 +425,7 @@ std::string LobbyDatabase::getIdleGameRoom(const std::string & hostAccountID)
 {
 	std::string result;
 
-	if (getIdleGameRoomStatement->execute())
+	if(getIdleGameRoomStatement->execute())
 		getIdleGameRoomStatement->getColumns(result);
 
 	getIdleGameRoomStatement->reset();
@@ -445,7 +436,7 @@ std::string LobbyDatabase::getAccountGameRoom(const std::string & accountID)
 {
 	std::string result;
 
-	if (getAccountGameRoomStatement->execute())
+	if(getAccountGameRoomStatement->execute())
 		getAccountGameRoomStatement->getColumns(result);
 
 	getAccountGameRoomStatement->reset();

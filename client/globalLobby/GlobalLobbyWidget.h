@@ -16,6 +16,7 @@ class GlobalLobbyWindow;
 class GlobalLobbyWidget : public InterfaceObjectConfigurable
 {
 	GlobalLobbyWindow * window;
+
 public:
 	GlobalLobbyWidget(GlobalLobbyWindow * window);
 

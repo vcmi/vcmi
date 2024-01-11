@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "LobbyDefines.h"
 #include "../lib/network/NetworkListener.h"
+#include "LobbyDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;

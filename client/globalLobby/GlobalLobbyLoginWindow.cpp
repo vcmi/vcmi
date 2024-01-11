@@ -14,18 +14,18 @@
 #include "GlobalLobbyClient.h"
 #include "GlobalLobbyWindow.h"
 
-#include "../gui/CGuiHandler.h"
-#include "../gui/WindowHandler.h"
-#include "../widgets/TextControls.h"
-#include "../widgets/Images.h"
-#include "../widgets/Buttons.h"
-#include "../widgets/MiscWidgets.h"
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
+#include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
+#include "../widgets/MiscWidgets.h"
+#include "../widgets/TextControls.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/MetaString.h"
-#include "../../lib/CConfigHandler.h"
 
 GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	: CWindowObject(BORDERED)
@@ -66,7 +66,7 @@ void GlobalLobbyLoginWindow::onLogin()
 	config->String() = inputUsername->getText();
 
 	labelStatus->setText(CGI->generaltexth->translate("vcmi.lobby.login.connecting"));
-	if (!CSH->getGlobalLobby().isConnected())
+	if(!CSH->getGlobalLobby().isConnected())
 		CSH->getGlobalLobby().connect();
 	buttonClose->block(true);
 }

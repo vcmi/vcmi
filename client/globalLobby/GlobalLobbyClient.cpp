@@ -11,15 +11,15 @@
 #include "StdInc.h"
 #include "GlobalLobbyClient.h"
 
-#include "GlobalLobbyWindow.h"
 #include "GlobalLobbyLoginWindow.h"
+#include "GlobalLobbyWindow.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../lib/MetaString.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/MetaString.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/network/NetworkClient.h"
 
@@ -52,32 +52,32 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<NetworkConnection
 
 	JsonNode json(message.data(), message.size());
 
-	if (json["type"].String() == "accountCreated")
+	if(json["type"].String() == "accountCreated")
 		return receiveAccountCreated(json);
 
-	if (json["type"].String() == "loginFailed")
+	if(json["type"].String() == "loginFailed")
 		return receiveLoginFailed(json);
 
-	if (json["type"].String() == "loginSuccess")
+	if(json["type"].String() == "loginSuccess")
 		return receiveLoginSuccess(json);
 
-	if (json["type"].String() == "chatHistory")
+	if(json["type"].String() == "chatHistory")
 		return receiveChatHistory(json);
 
-	if (json["type"].String() == "chatMessage")
+	if(json["type"].String() == "chatMessage")
 		return receiveChatMessage(json);
 
-	if (json["type"].String() == "activeAccounts")
+	if(json["type"].String() == "activeAccounts")
 		return receiveActiveAccounts(json);
 
-	throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String() );
+	throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String());
 }
 
 void GlobalLobbyClient::receiveAccountCreated(const JsonNode & json)
 {
 	auto loginWindowPtr = loginWindow.lock();
 
-	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection finished without active login window!");
 
 	{
@@ -98,7 +98,7 @@ void GlobalLobbyClient::receiveLoginFailed(const JsonNode & json)
 {
 	auto loginWindowPtr = loginWindow.lock();
 
-	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection finished without active login window!");
 
 	loginWindowPtr->onConnectionFailed(json["reason"].String());
@@ -116,7 +116,7 @@ void GlobalLobbyClient::receiveLoginSuccess(const JsonNode & json)
 
 	auto loginWindowPtr = loginWindow.lock();
 
-	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection finished without active login window!");
 
 	loginWindowPtr->onConnectionSuccess();
@@ -124,7 +124,7 @@ void GlobalLobbyClient::receiveLoginSuccess(const JsonNode & json)
 
 void GlobalLobbyClient::receiveChatHistory(const JsonNode & json)
 {
-	for (auto const & entry : json["messages"].Vector())
+	for(const auto & entry : json["messages"].Vector())
 	{
 		std::string accountID = entry["accountID"].String();
 		std::string displayName = entry["displayName"].String();
@@ -164,7 +164,7 @@ void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<NetworkCon
 
 	std::string accountID = settings["lobby"]["accountID"].String();
 
-	if (accountID.empty())
+	if(accountID.empty())
 		sendClientRegister();
 	else
 		sendClientLogin();
@@ -191,7 +191,7 @@ void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 {
 	auto loginWindowPtr = loginWindow.lock();
 
-	if (!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection failed without active login window!");
 
 	logGlobal->warn("Connection to game lobby failed! Reason: %s", errorMessage);
@@ -214,7 +214,7 @@ void GlobalLobbyClient::sendMessage(const JsonNode & data)
 	std::string payloadString = data.toJson(true);
 
 	// FIXME: find better approach
-	uint8_t * payloadBegin = reinterpret_cast<uint8_t*>(payloadString.data());
+	uint8_t * payloadBegin = reinterpret_cast<uint8_t *>(payloadString.data());
 	uint8_t * payloadEnd = payloadBegin + payloadString.size();
 
 	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
@@ -237,7 +237,7 @@ bool GlobalLobbyClient::isConnected()
 std::shared_ptr<GlobalLobbyLoginWindow> GlobalLobbyClient::createLoginWindow()
 {
 	auto loginWindowPtr = loginWindow.lock();
-	if (loginWindowPtr)
+	if(loginWindowPtr)
 		return loginWindowPtr;
 
 	auto loginWindowNew = std::make_shared<GlobalLobbyLoginWindow>();
@@ -249,7 +249,7 @@ std::shared_ptr<GlobalLobbyLoginWindow> GlobalLobbyClient::createLoginWindow()
 std::shared_ptr<GlobalLobbyWindow> GlobalLobbyClient::createLobbyWindow()
 {
 	auto lobbyWindowPtr = lobbyWindow.lock();
-	if (lobbyWindowPtr)
+	if(lobbyWindowPtr)
 		return lobbyWindowPtr;
 
 	lobbyWindowPtr = std::make_shared<GlobalLobbyWindow>();
@@ -257,4 +257,3 @@ std::shared_ptr<GlobalLobbyWindow> GlobalLobbyClient::createLobbyWindow()
 	lobbyWindowLock = lobbyWindowPtr;
 	return lobbyWindowPtr;
 }
-

@@ -42,6 +42,7 @@ class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
 	void receiveChatHistory(const JsonNode & json);
 	void receiveChatMessage(const JsonNode & json);
 	void receiveActiveAccounts(const JsonNode & json);
+
 public:
 	explicit GlobalLobbyClient();
 	~GlobalLobbyClient();

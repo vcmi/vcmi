@@ -11,17 +11,17 @@
 #include "StdInc.h"
 #include "GlobalLobbyServerSetup.h"
 
-#include "../gui/CGuiHandler.h"
-#include "../widgets/TextControls.h"
-#include "../widgets/Images.h"
-#include "../widgets/Buttons.h"
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
+#include "../gui/CGuiHandler.h"
 #include "../mainmenu/CMainMenu.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/MetaString.h"
-#include "../../lib/CConfigHandler.h"
 
 GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 	: CWindowObject(BORDERED)
@@ -85,12 +85,12 @@ void GlobalLobbyServerSetup::updateDescription()
 {
 	MetaString description;
 	description.appendRawString("%s %s %s");
-	if (toggleRoomType->getSelected() == 0)
+	if(toggleRoomType->getSelected() == 0)
 		description.replaceTextID("vcmi.lobby.room.description.public");
 	else
 		description.replaceTextID("vcmi.lobby.room.description.private");
 
-	if (toggleGameMode->getSelected() == 0)
+	if(toggleGameMode->getSelected() == 0)
 		description.replaceTextID("vcmi.lobby.room.description.new");
 	else
 		description.replaceTextID("vcmi.lobby.room.description.load");
@@ -124,7 +124,7 @@ void GlobalLobbyServerSetup::onGameModeChanged(int value)
 
 void GlobalLobbyServerSetup::onCreate()
 {
-	if (toggleGameMode->getSelected() == 0)
+	if(toggleGameMode->getSelected() == 0)
 	{
 		CSH->resetStateForLobby(StartInfo::NEW_GAME, nullptr);
 		CSH->screenType = ESelectionScreen::newGame;

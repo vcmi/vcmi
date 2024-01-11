@@ -13,24 +13,24 @@
 #include "LobbyDatabase.h"
 
 #include "../lib/JsonNode.h"
-#include "../lib/network/NetworkServer.h"
 #include "../lib/network/NetworkConnection.h"
+#include "../lib/network/NetworkServer.h"
 
-#include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
-static const auto accountCookieLifetime = std::chrono::hours(24*7);
+static const auto accountCookieLifetime = std::chrono::hours(24 * 7);
 
 bool LobbyServer::isAccountNameValid(const std::string & accountName)
 {
-	if (accountName.size() < 4)
+	if(accountName.size() < 4)
 		return false;
 
-	if (accountName.size() < 20)
+	if(accountName.size() < 20)
 		return false;
 
-	for (auto const & c : accountName)
-		if (!std::isalnum(c))
+	for(const auto & c : accountName)
+		if(!std::isalnum(c))
 			return false;
 
 	return true;
@@ -44,8 +44,8 @@ std::string LobbyServer::sanitizeChatMessage(const std::string & inputString) co
 
 NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID)
 {
-	for (auto const & account : activeAccounts)
-		if (account.second.accountID == accountID)
+	for(const auto & account : activeAccounts)
+		if(account.second.accountID == accountID)
 			return account.first;
 
 	return nullptr;
@@ -53,8 +53,8 @@ NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID)
 
 NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID)
 {
-	for (auto const & account : activeGameRooms)
-		if (account.second.roomID == gameRoomID)
+	for(const auto & account : activeGameRooms)
+		if(account.second.roomID == gameRoomID)
 			return account.first;
 
 	return nullptr;
@@ -105,7 +105,7 @@ void LobbyServer::sendLoginSuccess(const NetworkConnectionPtr & target, const st
 	JsonNode reply;
 	reply["type"].String() = "loginSuccess";
 	reply["accountCookie"].String() = accountCookie;
-	if (!displayName.empty())
+	if(!displayName.empty())
 		reply["displayName"].String() = displayName;
 	sendMessage(target, reply);
 }
@@ -142,7 +142,7 @@ void LobbyServer::broadcastActiveAccounts()
 		JsonNode jsonEntry;
 		jsonEntry["accountID"].String() = account.accountID;
 		jsonEntry["displayName"].String() = account.displayName;
-//		jsonEntry["status"].String() = account.status;
+		//		jsonEntry["status"].String() = account.status;
 		reply["accounts"].Vector().push_back(jsonEntry);
 	}
 
@@ -224,10 +224,10 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection)
 void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<uint8_t> & message)
 {
 	// proxy connection - no processing, only redirect
-	if (activeProxies.count(connection))
+	if(activeProxies.count(connection))
 	{
 		auto lockedPtr = activeProxies.at(connection).lock();
-		if (lockedPtr)
+		if(lockedPtr)
 			lockedPtr->sendPacket(message);
 		return;
 	}
@@ -238,7 +238,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	// TODO: validate json based on received message type
 
 	// communication messages from vcmiclient
-	if (activeAccounts.count(connection))
+	if(activeAccounts.count(connection))
 	{
 		if(json["type"].String() == "sendChatMessage")
 			return receiveSendChatMessage(connection, json);
@@ -259,7 +259,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	}
 
 	// communication messages from vcmiserver
-	if (activeGameRooms.count(connection))
+	if(activeGameRooms.count(connection))
 	{
 		if(json["type"].String() == "leaveGameRoom")
 			return receiveLeaveGameRoom(connection, json);
@@ -294,7 +294,7 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 	std::string messageTextClean = sanitizeChatMessage(messageText);
 	std::string displayName = database->getAccountDisplayName(accountID);
 
-	if (messageTextClean.empty())
+	if(messageTextClean.empty())
 		return;
 
 	database->insertChatMessage(accountID, "global", "english", messageText);
@@ -308,10 +308,10 @@ void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection,
 	std::string displayName = json["displayName"].String();
 	std::string language = json["language"].String();
 
-	if (isAccountNameValid(displayName))
+	if(isAccountNameValid(displayName))
 		return sendLoginFailed(connection, "Illegal account name");
 
-	if (database->isAccountNameExists(displayName))
+	if(database->isAccountNameExists(displayName))
 		return sendLoginFailed(connection, "Account name already in use");
 
 	std::string accountCookie = boost::uuids::to_string(boost::uuids::random_generator()());
@@ -330,12 +330,12 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	std::string language = json["language"].String();
 	std::string version = json["version"].String();
 
-	if (!database->isAccountIDExists(accountID))
+	if(!database->isAccountIDExists(accountID))
 		return sendLoginFailed(connection, "Account not found");
 
 	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie, accountCookieLifetime);
 
-	if (clientCookieStatus == LobbyCookieStatus::INVALID)
+	if(clientCookieStatus == LobbyCookieStatus::INVALID)
 		return sendLoginFailed(connection, "Authentification failure");
 
 	// prolong existing cookie
@@ -366,7 +366,7 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 
 	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie, accountCookieLifetime);
 
-	if (clientCookieStatus == LobbyCookieStatus::INVALID)
+	if(clientCookieStatus == LobbyCookieStatus::INVALID)
 	{
 		sendLoginFailed(connection, "Invalid credentials");
 	}
@@ -386,20 +386,20 @@ void LobbyServer::receiveClientProxyLogin(const NetworkConnectionPtr & connectio
 
 	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie, accountCookieLifetime);
 
-	if (clientCookieStatus != LobbyCookieStatus::INVALID)
+	if(clientCookieStatus != LobbyCookieStatus::INVALID)
 	{
-		for (auto & proxyEntry : awaitingProxies)
+		for(auto & proxyEntry : awaitingProxies)
 		{
-			if (proxyEntry.accountID != accountID)
+			if(proxyEntry.accountID != accountID)
 				continue;
-			if (proxyEntry.roomID != gameRoomID)
+			if(proxyEntry.roomID != gameRoomID)
 				continue;
 
 			proxyEntry.accountConnection = connection;
 
 			auto gameRoomConnection = proxyEntry.roomConnection.lock();
 
-			if (gameRoomConnection)
+			if(gameRoomConnection)
 			{
 				activeProxies[gameRoomConnection] = connection;
 				activeProxies[connection] = gameRoomConnection;
@@ -419,11 +419,11 @@ void LobbyServer::receiveServerProxyLogin(const NetworkConnectionPtr & connectio
 
 	auto clientCookieStatus = database->getGameRoomCookieStatus(gameRoomID, hostCookie, accountCookieLifetime);
 
-	if (clientCookieStatus != LobbyCookieStatus::INVALID)
+	if(clientCookieStatus != LobbyCookieStatus::INVALID)
 	{
 		NetworkConnectionPtr targetAccount = findAccount(guestAccountID);
 
-		if (targetAccount == nullptr)
+		if(targetAccount == nullptr)
 			return; // unknown / disconnected account
 
 		sendJoinRoomSuccess(targetAccount, gameRoomID);
@@ -448,13 +448,13 @@ void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, c
 		return; // only 1 room per player allowed
 
 	std::string gameRoomID = database->getIdleGameRoom(hostAccountID);
-	if (gameRoomID.empty())
+	if(gameRoomID.empty())
 		return;
 
 	std::string roomType = json["roomType"].String();
-	if (roomType == "public")
+	if(roomType == "public")
 		database->setGameRoomStatus(gameRoomID, LobbyRoomState::PUBLIC);
-	if (roomType == "private")
+	if(roomType == "private")
 		database->setGameRoomStatus(gameRoomID, LobbyRoomState::PRIVATE);
 
 	// TODO: additional flags / initial settings, e.g. allowCheats
@@ -474,18 +474,18 @@ void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, c
 
 	NetworkConnectionPtr targetRoom = findGameRoom(gameRoomID);
 
-	if (targetRoom == nullptr)
+	if(targetRoom == nullptr)
 		return; // unknown / disconnected room
 
 	auto roomStatus = database->getGameRoomStatus(gameRoomID);
 
-	if (roomStatus == LobbyRoomState::PRIVATE)
+	if(roomStatus == LobbyRoomState::PRIVATE)
 	{
-		if (database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::INVITED)
+		if(database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::INVITED)
 			return;
 	}
 
-	if (database->getGameRoomFreeSlots(gameRoomID) == 0)
+	if(database->getGameRoomFreeSlots(gameRoomID) == 0)
 		return;
 
 	sendAccountJoinsRoom(targetRoom, accountID);
@@ -513,7 +513,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 	auto targetAccount = findAccount(accountID);
 
-	if (!targetAccount)
+	if(!targetAccount)
 		return; // target player does not exists or offline
 
 	if(!database->isPlayerInGameRoom(senderName))
@@ -522,7 +522,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 	if(database->isPlayerInGameRoom(accountID))
 		return; // target player is busy
 
-	if (database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::NOT_INVITED)
+	if(database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::NOT_INVITED)
 		return; // already has invite
 
 	database->insertGameRoomInvite(accountID, gameRoomID);
@@ -534,7 +534,7 @@ void LobbyServer::receiveDeclineInvite(const NetworkConnectionPtr & connection, 
 	std::string accountID = activeAccounts[connection].accountID;
 	std::string gameRoomID = json["gameRoomID"].String();
 
-	if (database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::INVITED)
+	if(database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::INVITED)
 		return; // already has invite
 
 	database->deleteGameRoomInvite(accountID, gameRoomID);

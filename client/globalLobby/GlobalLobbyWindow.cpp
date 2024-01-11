@@ -11,20 +11,20 @@
 #include "StdInc.h"
 #include "GlobalLobbyWindow.h"
 
-#include "GlobalLobbyWidget.h"
 #include "GlobalLobbyClient.h"
 #include "GlobalLobbyServerSetup.h"
+#include "GlobalLobbyWidget.h"
 
+#include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/TextControls.h"
-#include "../CServerHandler.h"
 
-#include "../../lib/MetaString.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/MetaString.h"
 
-GlobalLobbyWindow::GlobalLobbyWindow():
-	CWindowObject(BORDERED)
+GlobalLobbyWindow::GlobalLobbyWindow()
+	: CWindowObject(BORDERED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	widget = std::make_shared<GlobalLobbyWidget>(this);

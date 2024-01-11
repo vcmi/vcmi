@@ -26,5 +26,4 @@ public:
 	void doCreateGameRoom();
 
 	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when);
-
 };
