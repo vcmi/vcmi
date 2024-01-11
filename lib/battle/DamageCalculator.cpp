@@ -10,8 +10,6 @@
 
 #include "StdInc.h"
 
-#include <cfenv>
-
 #include "DamageCalculator.h"
 #include "CBattleInfoCallback.h"
 #include "Unit.h"
@@ -462,7 +460,8 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackJoustingFactor(),
 		getAttackDeathBlowFactor(),
 		getAttackDoubleDamageFactor(),
-		getAttackHateFactor()
+		getAttackHateFactor(),
+		getAttackRevengeFactor()
 	};
 }
 
@@ -532,19 +531,14 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	for (auto & factor : defenseFactors)
 	{
 		assert(factor >= 0.0);
-		defenseFactorTotal *= ( 1 - std::min(1.0, factor));
+		defenseFactorTotal *= (1 - std::min(1.0, factor));
 	}
 
-	double resultingFactor = std::min(8.0, attackFactorTotal) * std::max( 0.01, defenseFactorTotal);
-
-	//calculated separately since it bypasses cap on bonus damage
-	double revengeFactor = getAttackRevengeFactor();
-	double revengeAdditionalMinDamage = std::round(damageBase.min * revengeFactor);
-	double revengeAdditionalMaxDamage = std::round(damageBase.max * revengeFactor);
+	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 
 	DamageRange damageDealt {
-		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor + revengeAdditionalMinDamage)),
-		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor + revengeAdditionalMaxDamage))
+		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor)),
+		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor))
 	};
 
 	DamageRange killsDealt = getCasualties(damageDealt);

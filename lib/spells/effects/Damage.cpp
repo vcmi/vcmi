@@ -20,9 +20,11 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../CGeneralTextHandler.h"
+#include "../../Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 #include <vcmi/spells/Spell.h>
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -157,9 +159,9 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		MetaString line;
 		std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
 		std::string textID = "vcmi.battleWindow.accurateShot.resultDescription";
-		line.appendTextID(Languages::getPluralFormTextID( preferredLanguage, kills, text));
+		line.appendTextID(Languages::getPluralFormTextID( preferredLanguage, kills, textID));
 		line.replaceNumber(kills);
-		firstTarget->addNameReplacement(line, true);
+		firstTarget->addNameReplacement(line, kills != 1);
 		log.push_back(line);
 	}
 	else if(m->getSpellIndex() == SpellID::THUNDERBOLT && !multiple)

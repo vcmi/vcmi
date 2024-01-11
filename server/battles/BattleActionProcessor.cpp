@@ -1258,9 +1258,13 @@ void BattleActionProcessor::HandleDeathStareAndPirateShot(const CBattleInfoCallb
 	if(bonus == nullptr)
 		bonus = attacker->getBonus(Selector::type()(BonusType::ACCURATE_SHOT));
 
-	if(bonus->type == BonusType::ACCURATE_SHOT && (!ranged || battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition())))
-		return; //should not work from behind walls, except being defender or under effect of golden bow etc.
-
+	if(bonus->type == BonusType::ACCURATE_SHOT) //should not work from behind walls, except when being defender or under effect of golden bow etc.
+	{
+		if(!ranged)
+			return;
+		if(battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition()))
+			return;
+	}
 
 	int singleCreatureKillChancePercent;
 	if(bonus->type == BonusType::ACCURATE_SHOT)
@@ -1277,20 +1281,11 @@ void BattleActionProcessor::HandleDeathStareAndPirateShot(const CBattleInfoCallb
 	std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
 	int killedCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
 
-	if(bonus->type == BonusType::DEATH_STARE)
-	{
-		double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
-		int maxToKill = static_cast<int>((attacker->getCount() + cap - 1) / cap); //not much more than chance * count
-		vstd::amin(killedCreatures, maxToKill);
+	int maxToKill = (attacker->getCount() * singleCreatureKillChancePercent + 99) / 100;
+	vstd::amin(killedCreatures, maxToKill);
 
+	if(bonus->type == BonusType::DEATH_STARE)
 		killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
-	}
-	else //ACCURATE_SHOT
-	{
-		bool isMaxToKillRounded = attacker->getCount() * singleCreatureKillChancePercent % 100 == 0;
-		int maxToKill = attacker->getCount() * singleCreatureKillChancePercent / 100 + (isMaxToKillRounded ? 0 : 1);
-		vstd::amin(killedCreatures, maxToKill);
-	}
 
 	if(killedCreatures)
 	{
