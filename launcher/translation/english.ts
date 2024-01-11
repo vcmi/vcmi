@@ -668,56 +668,28 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="450"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="448"/>
         <source>Active</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="453"/>
         <source>Disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="456"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="454"/>
         <source>Enable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="461"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="459"/>
         <source>Not Installed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="460"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Chat</name>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="40"/>
-        <source>Users in lobby</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="50"/>
-        <source>Global chat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="104"/>
-        <source>type you message</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="111"/>
-        <source>send</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1029,118 +1001,6 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
 </context>
 <context>
-    <name>Lobby</name>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="403"/>
-        <source>Connect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="29"/>
-        <source>Username</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="59"/>
-        <source>Server</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="173"/>
-        <source>Session</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="178"/>
-        <source>Players</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="268"/>
-        <source>Resolve</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="280"/>
-        <source>New game</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="287"/>
-        <source>Load game</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="128"/>
-        <source>New room</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="138"/>
-        <source>Join room</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="261"/>
-        <source>Ready</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="244"/>
-        <source>Mods mismatch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="237"/>
-        <source>Leave</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="210"/>
-        <source>Kick player</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="230"/>
-        <source>Players in the room</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="370"/>
-        <source>Disconnect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="463"/>
-        <source>No issues detected</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>LobbyRoomRequest</name>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
-        <source>Room settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
-        <source>Room name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="42"/>
-        <source>Maximum players</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="97"/>
-        <source>Password (optional)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
@@ -1153,23 +1013,18 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="207"/>
+        <location filename="../mainwindow_moc.ui" line="157"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="276"/>
+        <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="329"/>
+        <location filename="../mainwindow_moc.ui" line="279"/>
         <source>Start game</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="157"/>
-        <source>Lobby</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

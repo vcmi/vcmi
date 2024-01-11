@@ -681,57 +681,29 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation>Вступні відео</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="450"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="448"/>
         <source>Active</source>
         <translation>Активні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="453"/>
         <source>Disabled</source>
         <translation>Деактивований</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="456"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="454"/>
         <source>Enable</source>
         <translation>Активувати</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="461"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="459"/>
         <source>Not Installed</source>
         <translation>Не встановлено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="460"/>
         <source>Install</source>
         <translation>Встановити</translation>
-    </message>
-</context>
-<context>
-    <name>Chat</name>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="14"/>
-        <source>Form</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="40"/>
-        <source>Users in lobby</source>
-        <translation>Гравців у лобі</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="50"/>
-        <source>Global chat</source>
-        <translation>Загальний чат</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="104"/>
-        <source>type you message</source>
-        <translation>введіть повідомлення</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="111"/>
-        <source>send</source>
-        <translation>Відправити</translation>
     </message>
 </context>
 <context>
@@ -1048,118 +1020,6 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     </message>
 </context>
 <context>
-    <name>Lobby</name>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="403"/>
-        <source>Connect</source>
-        <translation>Підключитися</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="29"/>
-        <source>Username</source>
-        <translation>Ім&apos;я користувача</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="59"/>
-        <source>Server</source>
-        <translation>Сервер</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="173"/>
-        <source>Session</source>
-        <translation>Сесія</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="178"/>
-        <source>Players</source>
-        <translation>Гравці</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="268"/>
-        <source>Resolve</source>
-        <translation>Розв&apos;язати</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="280"/>
-        <source>New game</source>
-        <translation>Нова гра</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="287"/>
-        <source>Load game</source>
-        <translation>Завантажити гру</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="128"/>
-        <source>New room</source>
-        <translation>Створити кімнату</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="138"/>
-        <source>Join room</source>
-        <translation>Приєднатися до кімнати</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="261"/>
-        <source>Ready</source>
-        <translation>Готовність</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="244"/>
-        <source>Mods mismatch</source>
-        <translation>Модифікації, що не збігаються</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="237"/>
-        <source>Leave</source>
-        <translation>Вийти з кімнати</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="210"/>
-        <source>Kick player</source>
-        <translation>Виключити гравця</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="230"/>
-        <source>Players in the room</source>
-        <translation>Гравці у кімнаті</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="370"/>
-        <source>Disconnect</source>
-        <translation>Від&apos;єднатися</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="463"/>
-        <source>No issues detected</source>
-        <translation>Проблем не виявлено</translation>
-    </message>
-</context>
-<context>
-    <name>LobbyRoomRequest</name>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
-        <source>Room settings</source>
-        <translation>Налаштування кімнати</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
-        <source>Room name</source>
-        <translation>Назва кімнати</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="42"/>
-        <source>Maximum players</source>
-        <translation>Максимум гравців</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="97"/>
-        <source>Password (optional)</source>
-        <translation>Пароль (за бажанням)</translation>
-    </message>
-</context>
-<context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
@@ -1178,21 +1038,16 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="157"/>
-        <source>Lobby</source>
-        <translation>Лобі</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="207"/>
         <source>Help</source>
         <translation>Допомога</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="276"/>
+        <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
         <translation>Редактор мап</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="329"/>
+        <location filename="../mainwindow_moc.ui" line="279"/>
         <source>Start game</source>
         <translation>Грати</translation>
     </message>

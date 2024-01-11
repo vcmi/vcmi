@@ -687,57 +687,29 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation>显示开场动画</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="450"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="448"/>
         <source>Active</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="453"/>
         <source>Disabled</source>
         <translation>禁用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="456"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="454"/>
         <source>Enable</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="461"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="459"/>
         <source>Not Installed</source>
         <translation>未安装</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="460"/>
         <source>Install</source>
         <translation>安装</translation>
-    </message>
-</context>
-<context>
-    <name>Chat</name>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="14"/>
-        <source>Form</source>
-        <translation>窗体</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="40"/>
-        <source>Users in lobby</source>
-        <translation>大厅内用户</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="50"/>
-        <source>Global chat</source>
-        <translation>全局聊天</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="104"/>
-        <source>type you message</source>
-        <translation>输入你的消息</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="111"/>
-        <source>send</source>
-        <translation>发送</translation>
     </message>
 </context>
 <context>
@@ -1055,119 +1027,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
 </context>
 <context>
-    <name>Lobby</name>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="403"/>
-        <source>Connect</source>
-        <translation>连接</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="29"/>
-        <source>Username</source>
-        <translation>用户名</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="59"/>
-        <source>Server</source>
-        <translation>服务器</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="173"/>
-        <source>Session</source>
-        <translation>会话</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="178"/>
-        <source>Players</source>
-        <translation>玩家</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="268"/>
-        <source>Resolve</source>
-        <translation>解析</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="280"/>
-        <source>New game</source>
-        <translation>新游戏</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="287"/>
-        <source>Load game</source>
-        <translation>加载游戏</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="128"/>
-        <source>New room</source>
-        <translation>新房间</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="138"/>
-        <source>Join room</source>
-        <translation>加入房间</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="261"/>
-        <source>Ready</source>
-        <translation>准备</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="244"/>
-        <source>Mods mismatch</source>
-        <translatorcomment>Mod统一翻译为模组</translatorcomment>
         <translation>模组不匹配</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="237"/>
-        <source>Leave</source>
-        <translation>离开</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="210"/>
-        <source>Kick player</source>
-        <translation>踢出玩家</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="230"/>
-        <source>Players in the room</source>
-        <translation>房间内的玩家</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="370"/>
-        <source>Disconnect</source>
-        <translation>断开</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="463"/>
-        <source>No issues detected</source>
-        <translation>没有发现问题</translation>
-    </message>
-</context>
-<context>
-    <name>LobbyRoomRequest</name>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
-        <source>Room settings</source>
-        <translation>房间设置</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
-        <source>Room name</source>
-        <translation>房间名称</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="42"/>
-        <source>Maximum players</source>
-        <translation>最大玩家数</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="97"/>
-        <source>Password (optional)</source>
-        <translation>密码(可选)</translation>
-    </message>
-</context>
-<context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
@@ -1180,24 +1040,19 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="207"/>
+        <location filename="../mainwindow_moc.ui" line="157"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="276"/>
+        <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
         <translation>地图编辑器</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="329"/>
+        <location filename="../mainwindow_moc.ui" line="279"/>
         <source>Start game</source>
         <translation>开始游戏</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="157"/>
-        <source>Lobby</source>
-        <translation>大厅</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="57"/>

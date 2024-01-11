@@ -679,57 +679,29 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
         <translation>Montrer l&apos;intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="450"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="448"/>
         <source>Active</source>
         <translation>Actif</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="453"/>
         <source>Disabled</source>
         <translation>Désactivé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="456"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="454"/>
         <source>Enable</source>
         <translation>Activé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="461"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="459"/>
         <source>Not Installed</source>
         <translation>Pas Installé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="460"/>
         <source>Install</source>
         <translation>Installer</translation>
-    </message>
-</context>
-<context>
-    <name>Chat</name>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="40"/>
-        <source>Users in lobby</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="50"/>
-        <source>Global chat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="104"/>
-        <source>type you message</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="111"/>
-        <source>send</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1046,118 +1018,6 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     </message>
 </context>
 <context>
-    <name>Lobby</name>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="29"/>
-        <source>Username</source>
-        <translation>Nom d&apos;utilisateur</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="403"/>
-        <source>Connect</source>
-        <translation>Connecter</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="59"/>
-        <source>Server</source>
-        <translation>Serveur</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="128"/>
-        <source>New room</source>
-        <translation>Nouveau salon</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="138"/>
-        <source>Join room</source>
-        <translation>Rejoindre le salon</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="173"/>
-        <source>Session</source>
-        <translation>Session</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="178"/>
-        <source>Players</source>
-        <translation>Joueurs</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="210"/>
-        <source>Kick player</source>
-        <translation>Jeter le joueur</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="230"/>
-        <source>Players in the room</source>
-        <translation>Joueurs dans le salon</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="237"/>
-        <source>Leave</source>
-        <translation>Quitter</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="244"/>
-        <source>Mods mismatch</source>
-        <translation>Incohérence de mods</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="261"/>
-        <source>Ready</source>
-        <translation>Prêt</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="268"/>
-        <source>Resolve</source>
-        <translation>Résoudre</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="280"/>
-        <source>New game</source>
-        <translation>Nouvelle partie</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="287"/>
-        <source>Load game</source>
-        <translation>Charger une partie</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="370"/>
-        <source>Disconnect</source>
-        <translation>Déconnecter</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="463"/>
-        <source>No issues detected</source>
-        <translation>Pas de problème détecté</translation>
-    </message>
-</context>
-<context>
-    <name>LobbyRoomRequest</name>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
-        <source>Room settings</source>
-        <translation>Paramètres de salon</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
-        <source>Room name</source>
-        <translation>Nom de salon</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="42"/>
-        <source>Maximum players</source>
-        <translation>Maximum de joueurs</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="97"/>
-        <source>Password (optional)</source>
-        <translation>Mot de passe (optionnel)</translation>
-    </message>
-</context>
-<context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
@@ -1176,21 +1036,16 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="157"/>
-        <source>Lobby</source>
-        <translation>Salle d&apos;attente</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="207"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="276"/>
+        <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
         <translation>Éditeur de carte</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="329"/>
+        <location filename="../mainwindow_moc.ui" line="279"/>
         <source>Start game</source>
         <translation>Démarrer une partie</translation>
     </message>
