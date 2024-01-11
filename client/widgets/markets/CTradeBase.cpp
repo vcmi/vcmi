@@ -90,10 +90,7 @@ CCreaturesSelling::CCreaturesSelling()
 		if(const auto & creature = hero->getCreature(slotId))
 			slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
 	}
-	leftTradePanel = std::make_shared<CreaturesPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)
-		{
-			CTradeBase::onSlotClickPressed(altarSlot, hLeft);
-		}, slots);
+	leftTradePanel = std::make_shared<CreaturesPanel>(nullptr, slots);
 }
 
 bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot)

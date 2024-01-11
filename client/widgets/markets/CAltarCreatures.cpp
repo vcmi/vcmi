@@ -51,6 +51,8 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	assert(leftTradePanel);
 	leftTradePanel->moveBy(Point(45, 110));
 	leftTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitle, this);
+	for(const auto & slot : leftTradePanel->slots)
+		slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot) {CAltarCreatures::onSlotClickPressed(heroSlot, hLeft);};
 
 	// Altar creatures panel
 	rightTradePanel = std::make_shared<CreaturesPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)
