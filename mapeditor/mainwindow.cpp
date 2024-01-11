@@ -538,7 +538,8 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			auto picture = animation.getImage(0);
 			if(picture && picture->width() && picture->height())
 			{
-				qreal xscale = qreal(128) / qreal(picture->width()), yscale = qreal(128) / qreal(picture->height());
+				qreal xscale = static_cast<qreal>(128) / static_cast<qreal>(picture->width());
+				qreal yscale = static_cast<qreal>(128) / static_cast<qreal>(picture->height());
 				qreal scale = std::min(xscale, yscale);
 				painter.scale(scale, scale);
 				painter.drawImage(QPoint(0, 0), *picture);

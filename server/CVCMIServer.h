@@ -55,7 +55,8 @@ class CVCMIServer : public LobbyInfo
 	std::list<std::unique_ptr<CPackForLobby>> announceQueue;
 	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
-	std::unique_ptr<boost::thread> announceLobbyThread, remoteConnectionsThread;
+	std::unique_ptr<boost::thread> announceLobbyThread;
+	std::unique_ptr<boost::thread> remoteConnectionsThread;
 	std::atomic<EServerState> state;
 
 public:

@@ -72,7 +72,10 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->defeatIconIndex < b->defeatIconIndex);
 			break;
 		case _playerAm: //by player amount
-			int playerAmntB, humenPlayersB, playerAmntA, humenPlayersA;
+			int playerAmntB;
+			int humenPlayersB;
+			int playerAmntA;
+			int humenPlayersA;
 			playerAmntB = humenPlayersB = playerAmntA = humenPlayersA = 0;
 			for(int i = 0; i < 8; i++)
 			{

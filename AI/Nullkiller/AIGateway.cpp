@@ -1413,7 +1413,8 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
-				int toGive, toGet;
+				int toGive;
+				int toGet;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed

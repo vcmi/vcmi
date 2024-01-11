@@ -157,9 +157,13 @@ private:
 	void updatePlayers();
 	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & rand) const;
 
-	si32 width, height;
+	si32 width;
+	si32 height;
 	bool hasTwoLevels;
-	si8 humanOrCpuPlayerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
+	si8 humanOrCpuPlayerCount;
+	si8 teamCount;
+	si8 compOnlyPlayerCount;
+	si8 compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;

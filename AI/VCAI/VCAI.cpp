@@ -312,7 +312,8 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 	requestActionASAP([=]()
 	{
-		float goalpriority1 = 0, goalpriority2 = 0;
+		float goalpriority1 = 0;
+		float goalpriority2 = 0;
 
 		auto firstGoal = getGoal(firstHero);
 		if(firstGoal->goalType == Goals::GATHER_ARMY)
@@ -1415,8 +1416,8 @@ void VCAI::wander(HeroPtr h)
 			auto compareReinforcements = [&](const CGTownInstance * lhs, const CGTownInstance * rhs) -> bool
 			{
 				const CGHeroInstance * hptr = h.get();
-				auto r1 = ah->howManyReinforcementsCanGet(hptr, lhs),
-					r2 = ah->howManyReinforcementsCanGet(hptr, rhs);
+				auto r1 = ah->howManyReinforcementsCanGet(hptr, lhs);
+				auto r2 = ah->howManyReinforcementsCanGet(hptr, rhs);
 				if (r1 != r2)
 					return r1 < r2;
 				else
@@ -2154,7 +2155,8 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
-				int toGive, toGet;
+				int toGive;
+				int toGet;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed
@@ -2221,8 +2223,8 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			*boost::max_element(creaturesInDwellings, [](const creInfo & lhs, const creInfo & rhs)
 		{
 			//max value of creatures we can buy with our res
-			int value1 = lhs.cre->getAIValue() * lhs.count,
-				value2 = rhs.cre->getAIValue() * rhs.count;
+			int value1 = lhs.cre->getAIValue() * lhs.count;
+			int value2 = rhs.cre->getAIValue() * rhs.count;
 
 			return value1 < value2;
 		});

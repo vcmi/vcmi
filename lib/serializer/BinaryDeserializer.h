@@ -482,7 +482,9 @@ public:
 	void load(boost::multi_array<T, 3> & data)
 	{
 		ui32 length = readAndCheckLength();
-		ui32 x, y, z;
+		ui32 x;
+		ui32 y;
+		ui32 z;
 		load(x);
 		load(y);
 		load(z);

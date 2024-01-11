@@ -35,7 +35,8 @@ class DLL_LINKAGE CampaignRegions
 	struct DLL_LINKAGE RegionDescription
 	{
 		std::string infix;
-		int xpos, ypos;
+		int xpos;
+		int ypos;
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{

@@ -34,7 +34,8 @@ public:
 		DEFENDER
 	};
 	std::array<SideInBattle, 2> sides; //sides[0] - attacker, sides[1] - defender
-	si32 round, activeStack;
+	si32 round;
+	si32 activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
 	bool creatureBank; //auxilary field, do not serialize

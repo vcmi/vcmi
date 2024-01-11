@@ -42,11 +42,17 @@ public:
 		std::string defaultRoadType;
 		std::string secondaryRoadType;
 		int treasureValueLimit;
-		std::vector<int> prisonExperience, prisonValues;
+		std::vector<int> prisonExperience;
+		std::vector<int> prisonValues;
 		std::vector<int> scrollValues;
-		int pandoraMultiplierGold, pandoraMultiplierExperience, pandoraMultiplierSpells, pandoraSpellSchool, pandoraSpell60;
+		int pandoraMultiplierGold;
+		int pandoraMultiplierExperience;
+		int pandoraMultiplierSpells;
+		int pandoraSpellSchool;
+		int pandoraSpell60;
 		std::vector<int> pandoraCreatureValues;
-		std::vector<int> questValues, questRewardValues;
+		std::vector<int> questValues;
+		std::vector<int> questRewardValues;
 		bool singleThread;
 	};
 	

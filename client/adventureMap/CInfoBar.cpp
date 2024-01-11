@@ -134,7 +134,8 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 			halls.at(hallLevel)++;
 	}
 
-	std::vector<PlayerColor> allies, enemies;
+	std::vector<PlayerColor> allies;
+	std::vector<PlayerColor> enemies;
 
 	//generate list of allies and enemies
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)

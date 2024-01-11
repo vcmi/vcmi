@@ -86,7 +86,9 @@ signals:
 	void selectionMade(bool anythingSlected);
 
 private:
-	std::set<int3> area, areaAdd, areaErase;
+	std::set<int3> area;
+	std::set<int3> areaAdd;
+	std::set<int3> areaErase;
 
 	void onSelection();
 };
@@ -227,6 +229,9 @@ public:
 	int viewportHeight() const {return h;}
 	
 private:
-	int x = 0, y = 0, w = 1, h = 1;
+	int x = 0;
+	int y = 0;
+	int w = 1;
+	int h = 1;
 	
 };

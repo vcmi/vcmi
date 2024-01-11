@@ -312,7 +312,8 @@ void TerrainLayer::draw(bool onlyDirty)
 	
 	if(onlyDirty)
 	{
-		std::set<int3> forRedrawing(dirty), neighbours;
+		std::set<int3> forRedrawing(dirty);
+		std::set<int3> neighbours;
 		for(auto & t : dirty)
 		{
 			for(auto & tt : int3::getDirs())

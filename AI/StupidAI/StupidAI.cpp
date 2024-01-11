@@ -68,7 +68,8 @@ class EnemyInfo
 {
 public:
 	const CStack * s;
-	int adi, adr;
+	int adi;
+	int adr;
 	std::vector<BattleHex> attackFrom; //for melee fight
 	EnemyInfo(const CStack * _s) : s(_s), adi(0), adr(0)
 	{}
@@ -117,7 +118,9 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	//boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getBattle(battleID)->getReachability(stack);
-	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
+	std::vector<EnemyInfo> enemiesShootable;
+	std::vector<EnemyInfo> enemiesReachable;
+	std::vector<EnemyInfo> enemiesUnreachable;
 
 	if(stack->creatureId() == CreatureID::CATAPULT)
 	{

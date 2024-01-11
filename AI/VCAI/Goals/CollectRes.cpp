@@ -169,7 +169,8 @@ TSubgoal CollectRes::whatToDoToTrade()
 		{
 			if (i.getNum() == resID)
 				continue;
-			int toGive = -1, toReceive = -1;
+			int toGive = -1;
+			int toReceive = -1;
 			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
 			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);

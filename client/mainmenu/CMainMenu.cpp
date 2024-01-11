@@ -645,7 +645,8 @@ CLoadingScreen::CLoadingScreen()
 	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
 	if(conf.isStruct())
 	{
-		const int posx = conf["x"].Integer(), posy = conf["y"].Integer();
+		const int posx = conf["x"].Integer();
+		const int posy = conf["y"].Integer();
 		const int blockSize = conf["size"].Integer();
 		const int blocksAmount = conf["amount"].Integer();
 		

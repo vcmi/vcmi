@@ -379,7 +379,8 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffer)
 {
 	std::string what;
-	int id1, id2;
+	int id1;
+	int id2;
 	singleWordBuffer >> what >> id1 >> id2;
 
 	if(what == "hs")
@@ -399,7 +400,8 @@ void ClientCommandManager::handleMpCommand()
 
 void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer)
 {
-	std::string what, value;
+	std::string what;
+	std::string value;
 	singleWordBuffer >> what;
 
 	Settings config = settings.write["session"][what];

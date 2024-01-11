@@ -22,7 +22,9 @@ public:
 	void run();
 private:
 	boost::mutex rtinm;
-	int currentTask, amount, threads;
+	int currentTask;
+	int amount;
+	int threads;
 	std::vector<Task> *tasks;
 
 
@@ -60,7 +62,9 @@ public:
 	}
 private:
 	boost::mutex rtinm;
-	size_t currentTask, amount, threads;
+	size_t currentTask;
+	size_t amount;
+	size_t threads;
 	Tasks * tasks;
 	std::vector<std::shared_ptr<Payload>> context;
 

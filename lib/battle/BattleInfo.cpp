@@ -154,7 +154,8 @@ struct RangeGenerator
 		return ret;
 	}
 
-	int min, remainingCount;
+	int min;
+	int remainingCount;
 	std::vector<bool> remaining;
 	std::function<int()> myRand;
 };

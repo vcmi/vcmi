@@ -235,7 +235,8 @@ public:
 class DLL_LINKAGE RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
 {
 public:
-	ui8 minRank, maxRank;
+	ui8 minRank;
+	ui8 maxRank;
 
 	RankRangeLimiter();
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);

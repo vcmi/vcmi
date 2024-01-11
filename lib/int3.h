@@ -15,7 +15,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 class int3
 {
 public:
-	si32 x, y, z;
+	si32 x;
+	si32 y;
+	si32 z;
 
 	//c-tor: x, y, z initialized to 0
 	constexpr int3() : x(0), y(0), z(0) {} // I think that x, y, z should be left uninitialized.

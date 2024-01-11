@@ -141,7 +141,8 @@ void CMapHeader::registerMapStrings()
 	VLC->generaltexth->addSubContainer(*this);
 	
 	//get supported languages. Assuming that translation containing most strings is the base language
-	std::set<std::string> mapLanguages, mapBaseLanguages;
+	std::set<std::string, std::less<>> mapLanguages;
+	std::set<std::string, std::less<>> mapBaseLanguages;
 	int maxStrings = 0;
 	for(auto & translation : translations.Struct())
 	{
@@ -166,7 +167,8 @@ void CMapHeader::registerMapStrings()
 			mapBaseLanguages.insert(translation.first);
 	}
 	
-	std::string baseLanguage, language;
+	std::string baseLanguage;
+	std::string language;
 	//english is preferrable as base language
 	if(mapBaseLanguages.count(Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier))
 		baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;

@@ -1550,8 +1550,8 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 	if (!ScholarSpellLevel || !h1->hasSpellbook() || !h2->hasSpellbook())
 		return;//no scholar skill or no spellbook
 
-	int h1Lvl = std::min(ScholarSpellLevel, h1->maxSpellLevel()),
-	    h2Lvl = std::min(ScholarSpellLevel, h2->maxSpellLevel());//heroes can receive this levels
+	int h1Lvl = std::min(ScholarSpellLevel, h1->maxSpellLevel());//heroes can receive these levels
+	int h2Lvl = std::min(ScholarSpellLevel, h2->maxSpellLevel());
 
 	ChangeSpells cs1;
 	cs1.learn = true;
@@ -1636,7 +1636,8 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 
 void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
-	auto h1 = getHero(hero1), h2 = getHero(hero2);
+	auto h1 = getHero(hero1);
+	auto h2 = getHero(hero2);
 
 	if (getPlayerRelations(h1->getOwner(), h2->getOwner()) != PlayerRelations::ENEMIES)
 	{
@@ -2083,7 +2084,8 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 	const CArmedInstance * s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
 	const CCreatureSet & S1 = *s1;
 	const CCreatureSet & S2 = *s2;
-	StackLocation sl1(s1, p1), sl2(s2, p2);
+	StackLocation sl1(s1, p1);
+	StackLocation sl2(s2, p2);
 
 	if (s1 == nullptr || s2 == nullptr)
 	{
@@ -2965,7 +2967,8 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	if (!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), aid))
 		COMPLAIN_RET("That artifact is unavailable!");
 
-	int b1, b2;
+	int b1;
+	int b2;
 	m->getOffer(rid, aid, b1, b2, EMarketMode::RESOURCE_ARTIFACT);
 
 	if (getResource(h->tempOwner, rid) < b1)
@@ -3013,7 +3016,8 @@ bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, Artif
 	COMPLAIN_RET_FALSE_IF((!art), "There is no artifact to sell!");
 	COMPLAIN_RET_FALSE_IF((!art->artType->isTradable()), "Cannot sell a war machine or spellbook!");
 
-	int resVal = 0, dump = 1;
+	int resVal = 0;
+	int dump = 1;
 	m->getOffer(art->artType->getId(), rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
 
 	removeArtifact(ArtifactLocation(h->id, h->getArtPos(art)));
@@ -3053,7 +3057,8 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 
 	vstd::amin(amountToSell, haveToSell); //can't trade more resources than have
 
-	int b1, b2; //base quantities for trade
+	int b1; //base quantities for trade
+	int b2;
 	market->getOffer(toSell, toBuy, b1, b2, EMarketMode::RESOURCE_RESOURCE);
 	int amountToBoy = amountToSell / b1; //how many base quantities we trade
 
@@ -3083,7 +3088,8 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 		COMPLAIN_RET("Not enough creatures in army!");
 	}
 
-	int b1, b2; //base quantities for trade
+	int b1; //base quantities for trade
+	int b2;
 	market->getOffer(s.type->getId(), resourceID, b1, b2, EMarketMode::CREATURE_RESOURCE);
 	int units = count / b1; //how many base quantities we trade
 
@@ -3380,7 +3386,8 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 	if (id1 == id2)
 		return true;
 
-	const CGObjectInstance *o1 = getObj(id1), *o2 = getObj(id2);
+	const CGObjectInstance *o1 = getObj(id1);
+	const CGObjectInstance *o2 = getObj(id2);
 	if (!o1 || !o2)
 		return true; //arranging stacks within an object should be always allowed
 
@@ -3730,7 +3737,8 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 
 		changeStackCount(StackLocation(hero, slot[i]), -(TQuantity)count[i]);
 
-		int dump, exp;
+		int dump;
+		int exp;
 		market->getOffer(crid, 0, dump, exp, EMarketMode::CREATURE_EXP);
 		exp *= count[i];
 		expSum += exp;
@@ -3772,7 +3780,8 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 		}
 
 		si32 typId = art->artType->getId();
-		int dmp, expToGive;
+		int dmp;
+		int expToGive;
 
 		m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 

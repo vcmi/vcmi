@@ -51,7 +51,8 @@ public:
 	}
 
 private:
-	std::string messageMissingMods, messageExcessiveMods;
+	std::string messageMissingMods;
+	std::string messageExcessiveMods;
 };
 
 VCMI_LIB_NAMESPACE_END

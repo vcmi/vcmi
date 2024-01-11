@@ -105,7 +105,8 @@ public:
 	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(StartInfo * si);
 
-	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
+	ConstTransitivePtr<StartInfo> scenarioOps;
+	ConstTransitivePtr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
 	std::map<PlayerColor, PlayerState> players;

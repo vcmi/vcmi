@@ -763,7 +763,8 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	BonusList output, input;
+	BonusList output;
+	BonusList input;
 	input = *(info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all));
 
 	while(!input.empty())

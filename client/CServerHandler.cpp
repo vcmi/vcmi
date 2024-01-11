@@ -533,7 +533,8 @@ void CServerHandler::sendMessage(const std::string & txt) const
 	}
 	else if(command == "!forcep")
 	{
-		std::string connectedId, playerColorId;
+		std::string connectedId;
+		std::string playerColorId;
 		readed >> connectedId;
 		readed >> playerColorId;
 		if(connectedId.length() && playerColorId.length())

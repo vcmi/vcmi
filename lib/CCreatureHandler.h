@@ -52,7 +52,8 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
 
 public:
-	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
+	ui32 ammMin; // initial size of stack of these creatures on adventure map (if not set in editor)
+	ui32 ammMax;
 
 	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
 

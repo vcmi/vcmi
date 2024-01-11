@@ -68,8 +68,10 @@ public:
 	void step(int count = 1);
 
 private:
-	std::atomic<Type> _progress, _target;
-	std::atomic<int> _step, _maxSteps;
+	std::atomic<Type> _progress;
+	std::atomic<Type> _target;
+	std::atomic<int> _step;
+	std::atomic<int> _maxSteps;
 	
 	friend class ProgressAccumulator;
 };
@@ -87,7 +89,8 @@ public:
 	
 private:
 	mutable boost::mutex _mx;
-	long long _accumulated = 0, _steps = 0;
+	long long _accumulated = 0;
+	long long _steps = 0;
 	std::vector<std::reference_wrapper<const Progress>> _progress;
 };
 
