@@ -30,7 +30,6 @@ public:
 
 	virtual bool isConnected() const = 0;
 	virtual void sendPacket(const std::vector<uint8_t> & message) = 0;
-	virtual void start(const std::string & host, uint16_t port) = 0;
 };
 
 /// Base class for incoming connections support
@@ -91,9 +90,13 @@ public:
 	virtual std::unique_ptr<INetworkServer> createServerTCP(INetworkServerListener & listener) = 0;
 
 	/// Creates an instance of TCP client that allows to establish single outgoing connection to a remote port
-	virtual std::unique_ptr<INetworkClient> createClientTCP(INetworkClientListener & listener) = 0;
+	/// On success: INetworkTimerListener::onConnectionEstablished() will be called, established connection provided as parameter
+	/// On failure: INetworkTimerListener::onConnectionFailed will be called with human-readable error message
+	virtual void connectToRemote(INetworkClientListener & listener, const std::string & host, uint16_t port) = 0;
 
 	/// Creates a timer that will be called once, after specified interval has passed
+	/// On success: INetworkTimerListener::onTimer() will be called
+	/// On failure: no-op
 	virtual void createTimer(INetworkTimerListener & listener, std::chrono::milliseconds duration) = 0;
 
 	/// Starts network processing on this thread. Does not returns until networking processing has been terminated

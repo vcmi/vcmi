@@ -17,16 +17,14 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/InfoWindows.h"
+#include "../CServerHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/MetaString.h"
 #include "../../lib/TextOperations.h"
 
+GlobalLobbyClient::GlobalLobbyClient() = default;
 GlobalLobbyClient::~GlobalLobbyClient() = default;
-
-GlobalLobbyClient::GlobalLobbyClient(const std::unique_ptr<INetworkHandler> & handler)
-	: networkClient(handler->createClientTCP(*this))
-{}
 
 static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 {
@@ -149,8 +147,10 @@ void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 	//}
 }
 
-void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> &)
+void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
 {
+	networkConnection = connection;
+
 	JsonNode toSend;
 
 	std::string accountID = settings["lobby"]["accountID"].String();
@@ -189,8 +189,11 @@ void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 	loginWindowPtr->onConnectionFailed(errorMessage);
 }
 
-void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection> &)
+void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
 {
+	assert(connection == networkConnection);
+	networkConnection.reset();
+
 	GH.windows().popWindows(1);
 	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
 }
@@ -205,19 +208,19 @@ void GlobalLobbyClient::sendMessage(const JsonNode & data)
 
 	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
 
-	networkClient->sendPacket(payloadBuffer);
+	networkConnection->sendPacket(payloadBuffer);
 }
 
 void GlobalLobbyClient::connect()
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
 	int16_t port = settings["lobby"]["port"].Integer();
-	networkClient->start(hostname, port);
+	CSH->networkHandler->connectToRemote(*this, hostname, port);
 }
 
 bool GlobalLobbyClient::isConnected()
 {
-	return networkClient->isConnected();
+	return networkConnection != nullptr;
 }
 
 std::shared_ptr<GlobalLobbyLoginWindow> GlobalLobbyClient::createLoginWindow()

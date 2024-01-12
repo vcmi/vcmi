@@ -138,9 +138,8 @@ CServerHandler::~CServerHandler()
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE)
 	, networkHandler(INetworkHandler::createHandler())
-	, networkClient(networkHandler->createClientTCP(*this))
 	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
-	, lobbyClient(std::make_unique<GlobalLobbyClient>(networkHandler))
+	, lobbyClient(std::make_unique<GlobalLobbyClient>())
 	, client(nullptr)
 	, loadMode(0)
 	, campaignStateToSend(nullptr)
@@ -268,7 +267,7 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 		serverPort->Integer() = port;
 	}
 
-	networkClient->start(addr, port);
+	networkHandler->connectToRemote(*this, addr, port);
 }
 
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
@@ -296,11 +295,13 @@ void CServerHandler::onTimer()
 	}
 
 	assert(isServerLocal());
-	networkClient->start(getLocalHostname(), getLocalPort());
+	networkHandler->connectToRemote(*this, getLocalHostname(), getLocalPort());
 }
 
 void CServerHandler::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & netConnection)
 {
+	networkConnection = netConnection;
+
 	logNetwork->info("Connection established");
 	c = std::make_shared<CConnection>(netConnection);
 	c->uuid = uuid;
@@ -868,8 +869,11 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 	}
 }
 
-void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> &)
+void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
 {
+	assert(networkConnection == connection);
+	networkConnection.reset();
+
 	if(state == EClientState::DISCONNECTING)
 	{
 		logNetwork->info("Successfully closed connection to server, ending listening thread!");

@@ -21,7 +21,7 @@ public:
 	NetworkHandler();
 
 	std::unique_ptr<INetworkServer> createServerTCP(INetworkServerListener & listener) override;
-	std::unique_ptr<INetworkClient> createClientTCP(INetworkClientListener & listener) override;
+	void connectToRemote(INetworkClientListener & listener, const std::string & host, uint16_t port) override;
 	void createTimer(INetworkTimerListener & listener, std::chrono::milliseconds duration) override;
 
 	void run() override;

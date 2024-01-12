@@ -15,11 +15,10 @@
 
 GlobalLobbyProcessor::GlobalLobbyProcessor(CVCMIServer & owner)
 	: owner(owner)
-	, networkClient(owner.networkHandler->createClientTCP(*this))
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
 	int16_t port = settings["lobby"]["port"].Integer();
-	networkClient->start(hostname, port);
+	owner.networkHandler->connectToRemote(*this, hostname, port);
 	logGlobal->info("Connecting to lobby server");
 }
 
@@ -38,6 +37,9 @@ void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnec
 	if(json["type"].String() == "loginSuccess")
 		return receiveLoginSuccess(json);
 
+	if(json["type"].String() == "accountJoinsRoom")
+		return receiveAccountJoinsRoom(json);
+
 	throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String());
 }
 
@@ -52,13 +54,19 @@ void GlobalLobbyProcessor::receiveLoginSuccess(const JsonNode & json)
 	logGlobal->info("Succesfully connected to lobby server");
 }
 
+void GlobalLobbyProcessor::receiveAccountJoinsRoom(const JsonNode & json)
+{
+	// TODO: establish new connection to lobby, login, and transfer connection to our owner
+}
+
 void GlobalLobbyProcessor::onConnectionFailed(const std::string & errorMessage)
 {
 	throw std::runtime_error("Failed to connect to a lobby server!");
 }
 
-void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetworkConnection> &)
+void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
 {
+	controlConnection = connection;
 	logGlobal->info("Connection to lobby server established");
 
 	JsonNode toSend;
@@ -78,5 +86,5 @@ void GlobalLobbyProcessor::sendMessage(const JsonNode & data)
 
 	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
 
-	networkClient->sendPacket(payloadBuffer);
+	controlConnection->sendPacket(payloadBuffer);
 }

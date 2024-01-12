@@ -86,8 +86,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 {
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
 
-	std::unique_ptr<INetworkHandler> networkHandler;
-	std::unique_ptr<INetworkClient> networkClient;
+	std::shared_ptr<INetworkConnection> networkConnection;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::shared_ptr<CMapInfo> mapToStart;
@@ -113,6 +112,8 @@ class CServerHandler : public IServerAPI, public LobbyInfo, public INetworkClien
 	bool isServerLocal() const;
 
 public:
+	std::unique_ptr<INetworkHandler> networkHandler;
+
 	std::shared_ptr<CConnection> c;
 
 	std::atomic<EClientState> state;

@@ -20,7 +20,7 @@ class GlobalLobbyWindow;
 
 class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
 {
-	std::unique_ptr<INetworkClient> networkClient;
+	std::shared_ptr<INetworkConnection> networkConnection;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
@@ -42,7 +42,7 @@ class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
 	void receiveActiveAccounts(const JsonNode & json);
 
 public:
-	explicit GlobalLobbyClient(const std::unique_ptr<INetworkHandler> & handler);
+	explicit GlobalLobbyClient();
 	~GlobalLobbyClient();
 
 	void sendMessage(const JsonNode & data);

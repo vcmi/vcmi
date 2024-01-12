@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "NetworkHandler.h"
 
-#include "NetworkClient.h"
 #include "NetworkServer.h"
+#include "NetworkConnection.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,9 +29,23 @@ std::unique_ptr<INetworkServer> NetworkHandler::createServerTCP(INetworkServerLi
 	return std::make_unique<NetworkServer>(listener, io);
 }
 
-std::unique_ptr<INetworkClient> NetworkHandler::createClientTCP(INetworkClientListener & listener)
+void NetworkHandler::connectToRemote(INetworkClientListener & listener, const std::string & host, uint16_t port)
 {
-	return std::make_unique<NetworkClient>(listener, io);
+	auto socket = std::make_shared<NetworkSocket>(*io);
+	boost::asio::ip::tcp::resolver resolver(*io);
+	auto endpoints = resolver.resolve(host, std::to_string(port));
+	boost::asio::async_connect(*socket, endpoints, [socket, &listener](const boost::system::error_code& error, const boost::asio::ip::tcp::endpoint& endpoint)
+	{
+		if (error)
+		{
+			listener.onConnectionFailed(error.message());
+			return;
+		}
+		auto connection = std::make_shared<NetworkConnection>(listener, socket);
+		connection->start();
+
+		listener.onConnectionEstablished(connection);
+	});
 }
 
 void NetworkHandler::run()
