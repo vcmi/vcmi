@@ -1027,7 +1027,6 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
 </context>
 <context>
-        <translation>模组不匹配</translation>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
