@@ -308,7 +308,7 @@
 	"vcmi.optionsTab.extraOptions.hover" : "额外选项",
 	"vcmi.optionsTab.extraOptions.help" : "游戏的额外设置",
 
-	"vcmi.optionsTab.cheatAllowed.hover" : "允许作弊s",
+	"vcmi.optionsTab.cheatAllowed.hover" : "允许作弊",
 	"vcmi.optionsTab.unlimitedReplay.hover" : "无限战斗回放",
 	"vcmi.optionsTab.cheatAllowed.help" : "{允许作弊}\n允许在游戏过程中输入作弊码。",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{无限战斗回放}\n战斗回放没有任何限制。",
