@@ -102,7 +102,7 @@
 	"vcmi.systemOptions.resolutionMenu.help"    : "Ändere die Spielauflösung.",
 	"vcmi.systemOptions.scalingButton.hover"   : "Interface-Skalierung: %p%",
 	"vcmi.systemOptions.scalingButton.help"    : "{Interface-Skalierung}\n\nÄndern der Skalierung des Interfaces im Spiel",
-	"vcmi.systemOptions.scalingMenu.hover"     : "Skalierung des Interfaces auswählen",
+	"vcmi.systemOptions.scalingMenu.hover"     : "Skalierung auswählen",
 	"vcmi.systemOptions.scalingMenu.help"      : "Ändern der Skalierung des Interfaces im Spiel.",
 	"vcmi.systemOptions.longTouchButton.hover"   : "Berührungsdauer für langer Touch: %d ms", // Translation note: "ms" = "milliseconds"
 	"vcmi.systemOptions.longTouchButton.help"    : "{Berührungsdauer für langer Touch}\n\nBei Verwendung des Touchscreens erscheinen Popup-Fenster nach Berührung des Bildschirms für die angegebene Dauer (in Millisekunden)",

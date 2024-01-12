@@ -833,7 +833,7 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pictureEmptyLine = std::make_shared<CPicture>(GH.renderHandler().loadImage(ImagePath::builtin("camcust")), Rect(25, 121, 349, 26), -8, -14);
-	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);
 	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelAmountOfPlayers->setAutoRedraw(false);
@@ -876,11 +876,13 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
 		labelName->enable();
+		labelName->setMaxWidth(316);
 		labelName->setText(info->folderName);
 		labelName->setColor(color);
 		return;
 	}
 
+	labelName->enable();
 	if(info->campaign)
 	{
 		labelAmountOfPlayers->disable();
@@ -895,6 +897,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		ostr << info->campaign->scenariosCount();
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
+		labelName->setMaxWidth(316);
 	}
 	else
 	{
@@ -915,8 +918,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
 		iconLossCondition->enable();
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
+		labelName->setMaxWidth(185);
 	}
-	labelName->enable();
 	labelName->setText(info->getNameForList());
 	labelName->setColor(color);
 }
