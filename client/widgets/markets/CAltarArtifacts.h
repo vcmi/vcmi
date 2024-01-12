@@ -25,6 +25,8 @@ public:
 	std::shared_ptr<CArtifactsOfHeroAltar> getAOHset() const;
 
 private:
+	ObjectInstanceID altarId;
+	const CArtifactSet * altarArtifacts;
 	std::shared_ptr<CArtPlace> selectedArt;
 	std::shared_ptr<CLabel> selectedCost;
 	std::shared_ptr<CButton> sacrificeBackpackButton;

@@ -31,6 +31,11 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
+	assert(market);
+	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(market);
+	altarId = altarObj->id;
+	altarArtifacts = altarObj;
+
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("ALTSACR.DEF"),
 		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); });
 	labels.emplace_back(std::make_shared<CLabel>(450, 34, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
@@ -117,11 +122,11 @@ void CAltarArtifacts::sacrificeAll()
 
 void CAltarArtifacts::sacrificeBackpack()
 {
-	while(!arts->visibleArtSet.artifactsInBackpack.empty())
+	/*while (!arts->visibleArtSet.artifactsInBackpack.empty())
 	{
 		if(!putArtOnAltar(nullptr, arts->visibleArtSet.artifactsInBackpack[0].artifact))
 			break;
-	};
+	};*/
 	calcExpAltarForHero();
 }
 
@@ -192,20 +197,21 @@ bool CAltarArtifacts::putArtOnAltar(std::shared_ptr<CTradeableItem> altarSlot, c
 
 void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
 {
-	const auto pickedArtInst = arts->getPickedArtifact();
-	if(pickedArtInst)
+	if(const auto pickedArtInst = arts->getPickedArtifact())
 	{
-		arts->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
-		moveArtToAltar(newSlot, pickedArtInst);
+		if(pickedArtInst->canBePutAt(altarArtifacts))
+		{
+			LOCPLINT->cb->swapArtifacts(ArtifactLocation(arts->getHero()->id, ArtifactPosition::TRANSITION_POS),
+			ArtifactLocation(altarId, ArtifactPosition::ALTAR));
+			moveArtToAltar(newSlot, pickedArtInst);
+		}
 	}
 	else if(const CArtifactInstance * art = newSlot->getArtInstance())
 	{
-		const auto hero = arts->getHero();
-		const auto slot = hero->getSlotByInstance(art);
+		const auto slot = altarArtifacts->getSlotByInstance(art);
 		assert(slot != ArtifactPosition::PRE_FIRST);
-		LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, slot),
+		LOCPLINT->cb->swapArtifacts(ArtifactLocation(altarId, slot),
 			ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS));
-		arts->pickedArtFromSlot = slot;
 		arts->artifactsOnAltar.erase(art);
 		newSlot->setID(-1);
 		newSlot->subtitle.clear();

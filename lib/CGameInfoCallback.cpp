@@ -18,6 +18,7 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/MiscObjects.h"
+#include "mapObjects/CGMarket.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
@@ -970,17 +971,27 @@ const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid
 
 CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
 {
-	auto hero = const_cast<CGHeroInstance*>(getHero(loc.artHolder));
-	if(loc.creature.has_value())
+	if(auto hero = const_cast<CGHeroInstance*>(getHero(loc.artHolder)))
 	{
-		if(loc.creature.value() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
-			return hero->commander;
+		if(loc.creature.has_value())
+		{
+			if(loc.creature.value() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+				return hero->commander;
+			else
+				return hero->getStackPtr(loc.creature.value());
+		}
 		else
-			return hero->getStackPtr(loc.creature.value());
+		{
+			return hero;
+		}
+	}
+	else if(auto market = dynamic_cast<const CGArtifactsAltar*>(getObj(loc.artHolder, false)))
+	{
+		return const_cast<CGArtifactsAltar*>(market);
 	}
 	else
 	{
-		return hero;
+		return nullptr;
 	}
 }
 

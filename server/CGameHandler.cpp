@@ -2713,17 +2713,17 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto srcArtifact = srcArtSet->getArt(src.slot);
-	const auto dstArtifact = dstArtSet->getArt(dst.slot);
+	const bool isDstSlotOccupied = dstArtSet->bearerType() == ArtBearer::ALTAR ? false : dstArtSet->getArt(dst.slot) != nullptr;
 	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dst.slot) : false;
 
 	if(srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
-	if(dstArtifact && getHero(src.artHolder)->getOwner() != getHero(dst.artHolder)->getOwner() && !isDstSlotBackpack)
+	if(isDstSlotOccupied && getOwner(src.artHolder) != getOwner(dst.artHolder) && !isDstSlotBackpack)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if((!srcArtifact || !isDstSlotBackpack) && srcArtifact && !srcArtifact->canBePutAt(dstArtSet, dst.slot, true))
+	if((!srcArtifact || !isDstSlotBackpack) && !srcArtifact->canBePutAt(dstArtSet, dst.slot, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
 	auto srcSlotInfo = srcArtSet->getSlot(src.slot);
@@ -2749,7 +2749,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	ma.dstCreature = dst.creature;
 	
 	// Check if dst slot is occupied
-	if(!isDstSlotBackpack && dstArtifact)
+	if(!isDstSlotBackpack && isDstSlotOccupied)
 	{
 		// Previous artifact must be removed
 		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
@@ -3432,6 +3432,20 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
+		if(o1->ID == Obj::ALTAR_OF_SACRIFICE)
+		{
+			const auto visitingHero = getVisitingHero(o1);
+			const auto thisHero = static_cast<const CGHeroInstance*>(o2);
+			if(visitingHero == thisHero)
+				return true;
+		}
+		if(o2->ID == Obj::ALTAR_OF_SACRIFICE)
+		{
+			const auto visitingHero = getVisitingHero(o2);
+			const auto thisHero = static_cast<const CGHeroInstance*>(o1);
+			if(visitingHero == thisHero)
+				return true;
+		}
 		if (o1->ID == Obj::HERO && o2->ID == Obj::HERO)
 		{
 			const CGHeroInstance *h1 = static_cast<const CGHeroInstance*>(o1);

@@ -30,7 +30,8 @@ class JsonSerializeFormat;
 #define ART_BEARER_LIST \
 	ART_BEARER(HERO)\
 	ART_BEARER(CREATURE)\
-	ART_BEARER(COMMANDER)
+	ART_BEARER(COMMANDER)\
+	ART_BEARER(ALTAR)
 
 namespace ArtBearer
 {

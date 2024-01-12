@@ -134,7 +134,8 @@ void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 
 void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
-	gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
+	if(gh.getHero(pack.src.artHolder))
+		gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
 	result = gh.moveArtifact(pack.src, pack.dst);
 }
 
