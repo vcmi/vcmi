@@ -48,7 +48,7 @@ void CAltarWindow::updateExpToLevel()
 void CAltarWindow::updateGarrisons()
 {
 	if(auto altarCreatures = std::static_pointer_cast<CAltarCreatures>(altar))
-		altarCreatures->updateGarrison();
+		altarCreatures->updateSlots();
 }
 
 bool CAltarWindow::holdsGarrison(const CArmedInstance * army)
@@ -130,12 +130,10 @@ void CAltarWindow::showAll(Canvas & to)
 
 	if(altar->hRight)
 	{
-		to.drawBorder(Rect::createAround(altar->hRight->pos, 1), Colors::BRIGHT_YELLOW, 2);
 		altar->hRight->showAllAt(altar->pos.topLeft() + Point(396, 423), "", to);
 	}
 	if(altar->hLeft)
 	{
-		to.drawBorder(Rect::createAround(altar->hLeft->pos, 1), Colors::BRIGHT_YELLOW, 2);
 		altar->hLeft->showAllAt(altar->pos.topLeft() + Point(150, 423), "", to);
 	}
 }
