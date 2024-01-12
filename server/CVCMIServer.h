@@ -70,12 +70,6 @@ private:
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	EServerState state;
 
-	// INetworkListener impl
-	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
-	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
-	void onNewConnection(const std::shared_ptr<INetworkConnection> &) override;
-	void onTimer() override;
-
 	void establishOutgoingConnection();
 
 	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
@@ -84,6 +78,13 @@ private:
 	ui8 currentPlayerId;
 
 public:
+	// INetworkListener impl
+	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
+	void onNewConnection(const std::shared_ptr<INetworkConnection> &) override;
+	void onTimer() override;
+
+
 	std::shared_ptr<CGameHandler> gh;
 	boost::program_options::variables_map cmdLineOptions;
 

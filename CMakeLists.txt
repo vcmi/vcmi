@@ -41,6 +41,7 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
+set(buildLobby OFF)
 set(singleProcess OFF)
 set(staticAI OFF)
 if(ANDROID)
@@ -89,8 +90,12 @@ if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 endif()
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	set(buildLobby ON)
+endif()
+
 if(NOT APPLE_IOS AND NOT ANDROID)
-	option(ENABLE_LOBBY "Enable compilation of lobby server" ON)
+	option(ENABLE_LOBBY "Enable compilation of lobby server" ${buildLobby})
 endif()
 
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)

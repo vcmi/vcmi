@@ -16,10 +16,15 @@
 GlobalLobbyProcessor::GlobalLobbyProcessor(CVCMIServer & owner)
 	: owner(owner)
 {
+	logGlobal->info("Connecting to lobby server");
+	establishNewConnection();
+}
+
+void GlobalLobbyProcessor::establishNewConnection()
+{
 	std::string hostname = settings["lobby"]["hostname"].String();
 	int16_t port = settings["lobby"]["port"].Integer();
 	owner.networkHandler->connectToRemote(*this, hostname, port);
-	logGlobal->info("Connecting to lobby server");
 }
 
 void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
@@ -56,7 +61,12 @@ void GlobalLobbyProcessor::receiveLoginSuccess(const JsonNode & json)
 
 void GlobalLobbyProcessor::receiveAccountJoinsRoom(const JsonNode & json)
 {
-	// TODO: establish new connection to lobby, login, and transfer connection to our owner
+	std::string accountID = json["accountID"].String();
+
+	assert(proxyConnections.count(accountID) == 0);
+
+	proxyConnections[accountID] = nullptr;
+	establishNewConnection();
 }
 
 void GlobalLobbyProcessor::onConnectionFailed(const std::string & errorMessage)
@@ -66,14 +76,35 @@ void GlobalLobbyProcessor::onConnectionFailed(const std::string & errorMessage)
 
 void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
 {
-	controlConnection = connection;
-	logGlobal->info("Connection to lobby server established");
+	if (controlConnection == nullptr)
+	{
+		controlConnection = connection;
+		logGlobal->info("Connection to lobby server established");
 
-	JsonNode toSend;
-	toSend["type"].String() = "serverLogin";
-	toSend["accountID"] = settings["lobby"]["accountID"];
-	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
-	sendMessage(toSend);
+		JsonNode toSend;
+		toSend["type"].String() = "serverLogin";
+		toSend["accountID"] = settings["lobby"]["accountID"];
+		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
+		sendMessage(toSend);
+	}
+	else
+	{
+		// Proxy connection for a player
+		std::string accountID;
+		for (auto const & proxies : proxyConnections)
+			if (proxies.second == nullptr)
+				accountID = proxies.first;
+
+		JsonNode toSend;
+		toSend["type"].String() = "serverProxyLogin";
+		toSend["gameRoomID"].String() = "";
+		toSend["accountID"].String() = accountID;
+		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
+		sendMessage(toSend);
+
+		proxyConnections[accountID] = connection;
+		owner.onNewConnection(connection);
+	}
 }
 
 void GlobalLobbyProcessor::sendMessage(const JsonNode & data)

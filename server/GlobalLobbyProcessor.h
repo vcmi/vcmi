@@ -22,7 +22,7 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	CVCMIServer & owner;
 
 	std::shared_ptr<INetworkConnection> controlConnection;
-//	std::set<std::shared_ptr<INetworkConnection>> proxyConnections;
+	std::map<std::string, std::shared_ptr<INetworkConnection>> proxyConnections;
 
 	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
 	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
@@ -34,6 +34,8 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	void receiveLoginFailed(const JsonNode & json);
 	void receiveLoginSuccess(const JsonNode & json);
 	void receiveAccountJoinsRoom(const JsonNode & json);
+
+	void establishNewConnection();
 public:
 	GlobalLobbyProcessor(CVCMIServer & owner);
 };
