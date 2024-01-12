@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include <boost/program_options.hpp>
+#include "CVCMIServer.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/campaign/CampaignState.h"
@@ -21,7 +21,6 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "zlib.h"
-#include "CVCMIServer.h"
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
@@ -34,6 +33,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
+#include "GlobalLobbyProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/GameConstants.h"
@@ -53,6 +53,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/program_options.hpp>
 
 #include "../lib/gameState/CGameState.h"
 
@@ -165,6 +166,7 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 	networkHandler = INetworkHandler::createHandler();
 	networkServer = networkHandler->createServerTCP(*this);
 	networkServer->start(port);
+	establishOutgoingConnection();
 	logNetwork->info("Listening for connections at port %d", port);
 }
 
@@ -172,9 +174,6 @@ CVCMIServer::~CVCMIServer() = default;
 
 void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)
 {
-	if (activeConnections.empty())
-		establishOutgoingConnection();
-
 	if(state == EServerState::LOBBY)
 	{
 		activeConnections.push_back(std::make_shared<CConnection>(connection));
@@ -193,16 +192,6 @@ void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & c
 	pack->c = c;
 	CVCMIServerPackVisitor visitor(*this, this->gh);
 	pack->visit(visitor);
-}
-
-void CVCMIServer::onConnectionFailed(const std::string & errorMessage)
-{
-	//TODO: handle failure to connect to lobby
-}
-
-void CVCMIServer::onConnectionEstablished(const std::shared_ptr<INetworkConnection> &)
-{
-	//TODO: handle connection to lobby - login?
 }
 
 void CVCMIServer::setState(EServerState value)
@@ -262,14 +251,8 @@ void CVCMIServer::onTimer()
 
 void CVCMIServer::establishOutgoingConnection()
 {
-	if(!cmdLineOptions.count("lobby"))
-		return;
-
-	std::string hostname = settings["lobby"]["hostname"].String();
-	int16_t port = settings["lobby"]["port"].Integer();
-
-	outgoingConnection = networkHandler->createClientTCP(*this);
-	outgoingConnection->start(hostname, port);
+	if(cmdLineOptions.count("lobby"))
+		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
 }
 
 void CVCMIServer::prepareToRestart()

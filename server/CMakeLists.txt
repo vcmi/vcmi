@@ -16,6 +16,7 @@ set(server_SRCS
 		processors/TurnOrderProcessor.cpp
 
 		CGameHandler.cpp
+		GlobalLobbyProcessor.cpp
 		ServerSpellCastEnvironment.cpp
 		CVCMIServer.cpp
 		NetPacksServer.cpp
@@ -41,6 +42,7 @@ set(server_HEADERS
 		processors/TurnOrderProcessor.h
 
 		CGameHandler.h
+		GlobalLobbyProcessor.h
 		ServerSpellCastEnvironment.h
 		CVCMIServer.h
 		LobbyNetPackVisitors.h
