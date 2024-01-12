@@ -608,6 +608,25 @@ Affected unit can use ranged attacks only within specified range
 - val: max shooting range in hexes
 - addInfo: optional, range at which ranged penalty will trigger (default is 10)
 
+### FEROCITY
+
+Affected unit will attack additional times if killed creatures in target unit during attacking (including ADDITIONAL_ATTACK bonus attacks)
+
+- val: amount of additional attacks (negative number will reduce number of unperformed attacks if any left)
+- addInfo: optional, amount of creatures needed to kill (default is 1)
+
+### ENEMY_ATTACK_REDUCTION
+
+Affected unit will ignore specified percentage of attacked unit attack (Nix)
+
+- val: amount of attack points to ignore, percentage
+
+### REVENGE
+
+Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle
+(formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`.
+Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
+
 ## Special abilities
 
 ### CATAPULT
@@ -725,6 +744,15 @@ If player has affected unit under his control in any army, he will receive addit
 
 Affected unit will not use spellcast as default attack option
 
+### ACCURATE_SHOT
+
+Affected unit will kill additional units after attack, similar to death stare - works only for ranged attack
+
+- subtype:
+	spell identifier for spell that receives value that should be killed on input, spell.deathStare is used by default, use 'accurateShot' as part of spell name to allow detection for proper battle log description
+- val:
+	chance to kill, counted separately for each unit in attacking stack, percentage. Chance gets lessened by 2/3 with range penalty and effect won't trigger with wall penalty. At most (stack size \* chance / 100 **[rounded up]**) units can be killed at once. TODO: recheck formula
+
 ## Creature spellcasting and activated abilities
 
 ### SPELLCASTER
@@ -759,17 +787,21 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 - subtype - spell id, eg. spell.iceBolt
 - value - chance (percent)
-- additional info - \[X, Y\]
+- additional info - \[X, Y, Z\]
     - X - spell level
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
+    - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
+  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPELL_BEFORE_ATTACK
 
 - subtype - spell id
 - value - chance %
-- additional info - \[X, Y\]
+- additional info - \[X, Y, Z\]
     - X - spell level
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
+    - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
+  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPECIFIC_SPELL_POWER 
 
@@ -778,7 +810,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 ### CREATURE_SPELL_POWER
 
-- value: Spell Power of offensive spell cast unit, divided by 100. ie. Faerie Dragons have value fo 500, which gives them 5 Spell Power for each unit in the stack.
+- value: Spell Power of offensive spell cast unit, multiplied by 100. ie. Faerie Dragons have value fo 500, which gives them 5 Spell Power for each unit in the stack.
 
 ### CREATURE_ENCHANT_POWER
 
