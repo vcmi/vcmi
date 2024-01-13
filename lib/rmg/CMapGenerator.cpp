@@ -491,14 +491,21 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 	for (HeroTypeID hero : map->getMap(this).allowedHeroes)
 	{
 		auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getById(hero));
-		if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap))
-		{
+		if(h->onlyOnWaterMap && !isWaterMap)
 			continue;
-		}
-		else
-		{
-			ret.push_back(hero);
-		}
+
+		if(h->onlyOnMapWithoutWater && isWaterMap)
+			continue;
+
+		bool heroUsedAsStarting = false;
+		for (auto const & player : map->getMapGenOptions().getPlayersSettings())
+			if (player.second.getStartingHero() == hero)
+				heroUsedAsStarting = true;
+
+		if (heroUsedAsStarting)
+			continue;
+
+		ret.push_back(hero);
 	}
 	return ret;
 }
