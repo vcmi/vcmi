@@ -515,7 +515,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPECIFIC_SPELL_POWER:
 		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
-		case BonusType::ACCURATE_SHOT:
 		case BonusType::NOT_ACTIVE:
 		{
 			VLC->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)

@@ -53,6 +53,10 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "heroMovementSea", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareGorgon", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareCommander", 1);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareNoRangePenalty", 2);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangePenalty", 3);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareObstaclePenalty", 4);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "deathStareRangeObstaclePenalty", 5);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthRegular", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "rebirthSpecial", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "visionsMonsters", 0);

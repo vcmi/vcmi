@@ -1242,7 +1242,7 @@ void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback 
 	attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
 }
 
-void BattleActionProcessor::HandleDeathStareAndPirateShot(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
+void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
 {
 	// mechanics of Death Stare as in H3:
 	// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
@@ -1254,28 +1254,30 @@ void BattleActionProcessor::HandleDeathStareAndPirateShot(const CBattleInfoCallb
 		* X = 3 multiplier for shooting without penalty and X = 2 if shooting with penalty. Ability doesn't work if shooting at creatures behind walls.
 		*/
 
-	auto bonus = attacker->getBonus(Selector::type()(BonusType::DEATH_STARE));
-	if(bonus == nullptr)
-		bonus = attacker->getBonus(Selector::type()(BonusType::ACCURATE_SHOT));
+	auto subtype = BonusCustomSubtype::deathStareGorgon;
 
-	if(bonus->type == BonusType::ACCURATE_SHOT) //should not work from behind walls, except when being defender or under effect of golden bow etc.
+	if (ranged)
 	{
-		if(!ranged)
-			return;
-		if(battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition()))
-			return;
+		bool rangePenalty = battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition());
+		bool obstaclePenalty = battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition());
+
+		if(rangePenalty)
+		{
+			if(obstaclePenalty)
+				subtype = BonusCustomSubtype::deathStareRangeObstaclePenalty;
+			else
+				subtype = BonusCustomSubtype::deathStareRangePenalty;
+		}
+		else
+		{
+			if(obstaclePenalty)
+				subtype = BonusCustomSubtype::deathStareObstaclePenalty;
+			else
+				subtype = BonusCustomSubtype::deathStareNoRangePenalty;
+		}
 	}
 
-	int singleCreatureKillChancePercent;
-	if(bonus->type == BonusType::ACCURATE_SHOT)
-	{
-		singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::ACCURATE_SHOT);
-		if(battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition()))
-			singleCreatureKillChancePercent = (singleCreatureKillChancePercent * 2) / 3;
-	}
-	else //DEATH_STARE
-		singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon);
-
+	int singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, subtype);
 	double chanceToKill = singleCreatureKillChancePercent / 100.0;
 	vstd::amin(chanceToKill, 1); //cap at 100%
 	std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
@@ -1284,16 +1286,16 @@ void BattleActionProcessor::HandleDeathStareAndPirateShot(const CBattleInfoCallb
 	int maxToKill = (attacker->getCount() * singleCreatureKillChancePercent + 99) / 100;
 	vstd::amin(killedCreatures, maxToKill);
 
-	if(bonus->type == BonusType::DEATH_STARE)
-		killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
+	killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
 
 	if(killedCreatures)
 	{
 		//TODO: death stare or accurate shot was not originally available for multiple-hex attacks, but...
 
 		SpellID spellID = SpellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
-		if(bonus->type == BonusType::ACCURATE_SHOT && bonus->subtype.as<SpellID>() != SpellID::NONE)
-			spellID = bonus->subtype.as<SpellID>();
+		auto bonus = attacker->getBonus(Selector::typeSubtype(BonusType::DEATH_STARE, subtype));
+		if(bonus && bonus->additionalInfo[0] != SpellID::NONE)
+			spellID = SpellID(bonus->additionalInfo[0]);
 
 		const CSpell * spell = spellID.toSpell();
 		spells::AbilityCaster caster(attacker, 0);
@@ -1319,10 +1321,8 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		return;
 	}
 
-	if(attacker->hasBonusOfType(BonusType::DEATH_STARE) || attacker->hasBonusOfType(BonusType::ACCURATE_SHOT))
-	{
-		HandleDeathStareAndPirateShot(battle, ranged, attacker, defender);
-	}
+	if(attacker->hasBonusOfType(BonusType::DEATH_STARE))
+		handleDeathStare(battle, ranged, attacker, defender);
 
 	if(!defender->alive())
 		return;

@@ -45,6 +45,10 @@ public:
 
 	static const BonusCustomSubtype deathStareGorgon; // 0
 	static const BonusCustomSubtype deathStareCommander;
+	static const BonusCustomSubtype deathStareNoRangePenalty;
+	static const BonusCustomSubtype deathStareRangePenalty;
+	static const BonusCustomSubtype deathStareObstaclePenalty;
+	static const BonusCustomSubtype deathStareRangeObstaclePenalty;
 
 	static const BonusCustomSubtype rebirthRegular; // 0
 	static const BonusCustomSubtype rebirthSpecial; // 1
