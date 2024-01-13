@@ -173,9 +173,8 @@ private:
 /// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
 ///
 #define RAII_TRACE(logger, onEntry, onLeave)			\
-	std::unique_ptr<vstd::CTraceLogger> ctl00;						\
 	if(logger->isTraceEnabled())						\
-		ctl00 = std::make_unique<vstd::CTraceLogger>(logger, onEntry, onLeave);
+		std::unique_ptr<vstd::CTraceLogger> ctl00 = std::make_unique<vstd::CTraceLogger>(logger, onEntry, onLeave)
 
 #define LOG_TRACE(logger) RAII_TRACE(logger,								\
 		boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION),	\
