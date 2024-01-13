@@ -22,7 +22,7 @@ class CRandomGenerator;
 
 struct ObjectInfo
 {
-	ObjectInfo::ObjectInfo();
+	ObjectInfo();
 
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 	ui32 value = 0;
