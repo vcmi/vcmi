@@ -537,6 +537,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
 		case BonusType::CREATURE_DAMAGE:
 		case BonusType::FLYING:
+		case BonusType::FIRST_STRIKE:
 		case BonusType::GENERAL_DAMAGE_REDUCTION:
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
 		case BonusType::SOUL_STEAL:

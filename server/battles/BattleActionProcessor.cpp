@@ -268,7 +268,9 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		totalAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
 	}
 
-	const bool firstStrike = destinationStack->hasBonusOfType(BonusType::FIRST_STRIKE);
+	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
+	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+
 	const bool retaliation = destinationStack->ableToRetaliate();
 	bool ferocityApplied = false;
 	int32_t defenderInitialQuantity = destinationStack->getCount();
@@ -276,7 +278,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	for (int i = 0; i < totalAttacks; ++i)
 	{
 		//first strike
-		if(i == 0 && firstStrike && retaliation)
+		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION))
 		{
 			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
 		}
@@ -353,7 +355,11 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 		return false;
 	}
 
-	makeAttack(battle, stack, destinationStack, 0, destination, true, true, false);
+	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeRanged));
+	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+
+	if (!firstStrike)
+		makeAttack(battle, stack, destinationStack, 0, destination, true, true, false);
 
 	//ranged counterattack
 	if (destinationStack->hasBonusOfType(BonusType::RANGED_RETALIATION)
@@ -375,7 +381,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 		totalRangedAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
 	}
 
-	for(int i = 1; i < totalRangedAttacks; ++i)
+	for(int i = firstStrike ? 0:1; i < totalRangedAttacks; ++i)
 	{
 		if(
 			stack->alive()

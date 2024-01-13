@@ -587,6 +587,11 @@ Affected unit will attack units on all hexes that surround attacked hex
 
 Affected unit will retaliate before enemy attacks, if able
 
+- subtype: 
+	- damageTypeMelee: only melee attacks affected
+	- damageTypeRanged: only ranged attacks affected. Note that unit also requires ability to retaliate in ranged, such as RANGED_RETALIATION bonus
+	- damageTypeAll: any attacks are affected
+
 ### SHOOTS_ALL_ADJACENT
 
 Affected unit will attack units on all hexes that surround attacked hex in ranged attacks
