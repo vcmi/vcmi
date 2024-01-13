@@ -1,89 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="zh">
+<TS version="2.1" language="zh_CN">
 <context>
     <name>AboutProjectView</name>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished">访问VCMI的Discord</translation>
+        <translation>访问VCMI的Discord</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished">有疑问？找到BUG？需要帮助？加入我们！</translation>
+        <translation>有疑问？找到BUG？需要帮助？加入我们！</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished">访问VCMI的GUTHUB</translation>
+        <translation>访问VCMI的GUTHUB</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="55"/>
         <source>Our Community</source>
-        <translation type="unfinished"></translation>
+        <translation>联系社区</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="62"/>
         <source>VCMI on Slack</source>
-        <translation type="unfinished">访问VCMI的Slack</translation>
+        <translation>访问VCMI的Slack</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="98"/>
         <source>Build Information</source>
-        <translation type="unfinished"></translation>
+        <translation>编译信息</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="115"/>
         <source>User data directory</source>
-        <translation type="unfinished">用户数据目录</translation>
+        <translation>用户数据目录</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="122"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="129"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="193"/>
         <source>Open</source>
-        <translation type="unfinished">打开</translation>
+        <translation>打开</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="136"/>
         <source>Check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>检查更新</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="156"/>
         <source>Game version</source>
-        <translation type="unfinished"></translation>
+        <translation>游戏版本</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="163"/>
         <source>Log files directory</source>
-        <translation type="unfinished">日志文件目录</translation>
+        <translation>日志文件目录</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="176"/>
         <source>Data Directories</source>
-        <translation type="unfinished">数据目录</translation>
+        <translation>数据目录</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="213"/>
         <source>Game data directory</source>
-        <translation type="unfinished"></translation>
+        <translation>游戏数据目录</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Operating System</source>
-        <translation type="unfinished"></translation>
+        <translation>操作系统</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="273"/>
         <source>Project homepage</source>
-        <translation type="unfinished"></translation>
+        <translation>项目主页</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="286"/>
         <source>Report a bug</source>
-        <translation type="unfinished"></translation>
+        <translation>反馈bug</translation>
     </message>
 </context>
 <context>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translation>地图</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
@@ -181,7 +181,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>Compatibility</source>
-        <translation type="unfinished">兼容性</translation>
+        <translation>兼容性</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
@@ -219,6 +219,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="66"/>
         <source>All mods</source>
+        <translatorcomment>Mod统一翻译为模组</translatorcomment>
         <translation>所有模组</translation>
     </message>
     <message>
@@ -305,7 +306,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
         <source>Mod name</source>
-        <translation>MOD名称</translation>
+        <translation>模组名称</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="249"/>
@@ -320,7 +321,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
@@ -371,12 +372,14 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
         <source>Required mods</source>
-        <translation>前置MODs</translation>
+        <translatorcomment>Mod统一翻译为模组</translatorcomment>
+        <translation>前置模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Conflicting mods</source>
-        <translation>冲突的MODs</translation>
+        <translatorcomment>Mod统一翻译为模组</translatorcomment>
+        <translation>冲突的模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
@@ -411,12 +414,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="599"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>下载进度 %s%. %p% (%v MB 共 %m MB) 已完成</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="618"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>下载失败</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="619"/>
@@ -425,30 +428,37 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>无法下载全部文件。
+
+遇到问题：
+
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="620"/>
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+安装下载成功的部分？</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="759"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished"></translation>
+        <translation>正在安装模组 %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="811"/>
         <source>Operation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>操作失败</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>遇到问题：
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="847"/>
@@ -458,7 +468,8 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="243"/>
         <source>Mod is incompatible</source>
-        <translation>MOD不兼容</translation>
+        <translatorcomment>Mod统一翻译为模组</translatorcomment>
+        <translation>模组不兼容</translation>
     </message>
 </context>
 <context>
@@ -485,82 +496,82 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
         <source>Interface Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>界面缩放</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="624"/>
         <source>Neutral AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>战场中立生物AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="289"/>
         <source>Enemy AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>战场敌方玩家AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="239"/>
         <source>Additional repository</source>
-        <translation type="unfinished"></translation>
+        <translation>额外仓库</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished"></translation>
+        <translation>冒险地图友方玩家</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="638"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished"></translation>
+        <translation>冒险地图敌方玩家</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="353"/>
         <source>Windowed</source>
-        <translation type="unfinished"></translation>
+        <translation>窗口化</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="358"/>
         <source>Borderless fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>无边框全屏</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="363"/>
         <source>Exclusive fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>独占全屏</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="229"/>
         <source>Autosave limit (0 = off)</source>
-        <translation type="unfinished"></translation>
+        <translation>自动保存限制 (0 = 不限制)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="436"/>
         <source>Friendly AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>战场友方单位AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
         <source>Framerate Limit</source>
-        <translation type="unfinished"></translation>
+        <translation>帧率限制</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
         <source>Autosave prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>自动保存文件名前缀</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="202"/>
         <source>empty = map name prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>空 = 地图名称前缀</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>Refresh now</source>
-        <translation type="unfinished"></translation>
+        <translation>立即刷新</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="405"/>
         <source>Default repository</source>
-        <translation type="unfinished"></translation>
+        <translation>默认仓库</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
@@ -588,12 +599,18 @@ Windowed - game will run inside a window that covers part of your screen
 Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
 
 Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择游戏的显示方式
+
+窗口化 -游戏会运行在一个窗口内，该窗口只占据部分屏幕。
+
+无边框全屏模式 - 游戏会运行在一个覆盖全部屏幕的窗口，使用你当前屏幕的分辨率。
+
+独占全屏模式 - 游戏会运行在一个覆盖全部屏幕的窗口，使用和你选择的分辨率。</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="631"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished"></translation>
+        <translation>保留屏幕区域</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
@@ -645,7 +662,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直同步</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="374"/>
@@ -699,27 +716,27 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../lobby/chat_moc.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>窗体</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="40"/>
         <source>Users in lobby</source>
-        <translation type="unfinished"></translation>
+        <translation>大厅内用户</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="50"/>
         <source>Global chat</source>
-        <translation type="unfinished"></translation>
+        <translation>全局聊天</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="104"/>
         <source>type you message</source>
-        <translation type="unfinished"></translation>
+        <translation>输入你的消息</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="111"/>
         <source>send</source>
-        <translation type="unfinished"></translation>
+        <translation>发送</translation>
     </message>
 </context>
 <context>
@@ -799,7 +816,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished"></translation>
+        <translation>界面改进</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
@@ -814,7 +831,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>安装提供各种各样界面改进的模组，例如美化随机地图界面或添加战场行动选项</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -891,7 +908,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="566"/>
         <source>Install VCMI Mod Preset</source>
-        <translation>安装VCMI预设MOD</translation>
+        <translatorcomment>Mod统一翻译为模组</translatorcomment>
+        <translation>安装VCMI预设模组</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="616"/>
@@ -922,7 +940,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
@@ -937,7 +955,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Finnish</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
@@ -952,12 +970,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Hungarian</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
@@ -972,7 +990,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Portuguese</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
@@ -987,12 +1005,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Swedish</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Turkish</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
@@ -1002,7 +1020,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1056,7 +1074,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="268"/>
         <source>Resolve</source>
-        <translation>解决</translation>
+        <translation>解析</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="280"/>
@@ -1086,7 +1104,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="244"/>
         <source>Mods mismatch</source>
-        <translation>MODs不匹配</translation>
+        <translatorcomment>Mod统一翻译为模组</translatorcomment>
+        <translation>模组不匹配</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="237"/>
@@ -1101,7 +1120,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="230"/>
         <source>Players in the room</source>
-        <translation>大厅中的玩家</translation>
+        <translation>房间内的玩家</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.cpp" line="369"/>
@@ -1152,7 +1171,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../mainwindow_moc.ui" line="207"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>帮助</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="276"/>
