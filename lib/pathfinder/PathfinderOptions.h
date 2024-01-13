@@ -25,6 +25,7 @@ struct DLL_LINKAGE PathfinderOptions
 	bool useFlying;
 	bool useWaterWalking;
 	bool useEmbarkAndDisembark;
+	bool ignoreGuards;
 	bool useTeleportTwoWay; // Two-way monoliths and Subterranean Gate
 	bool useTeleportOneWay; // One-way monoliths with one known exit only
 	bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
