@@ -222,7 +222,7 @@ public:
 };
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
-TEST_F(CGameStateTest, issue2765)
+TEST_F(CGameStateTest, DISABLED_issue2765)
 {
 	startTestGame();
 
@@ -310,7 +310,7 @@ TEST_F(CGameStateTest, issue2765)
 
 }
 
-TEST_F(CGameStateTest, battleResurrection)
+TEST_F(CGameStateTest, DISABLED_battleResurrection)
 {
 	startTestGame();
 

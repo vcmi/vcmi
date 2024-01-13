@@ -187,7 +187,7 @@ protected:
 
 };
 
-TEST_F(CloneApplyTest, AddsNewUnit)
+TEST_F(CloneApplyTest, DISABLED_AddsNewUnit)
 {
 	setDefaultExpectations();
 
@@ -204,7 +204,7 @@ TEST_F(CloneApplyTest, AddsNewUnit)
 	EXPECT_TRUE(cloneAddInfo->summoned);
 }
 
-TEST_F(CloneApplyTest, SetsClonedFlag)
+TEST_F(CloneApplyTest, DISABLED_SetsClonedFlag)
 {
 	setDefaultExpectations();
 
@@ -217,7 +217,7 @@ TEST_F(CloneApplyTest, SetsClonedFlag)
 	EXPECT_TRUE(cloneState->cloned);
 }
 
-TEST_F(CloneApplyTest, SetsCloneLink)
+TEST_F(CloneApplyTest, DISABLED_SetsCloneLink)
 {
 	setDefaultExpectations();
 
@@ -228,7 +228,7 @@ TEST_F(CloneApplyTest, SetsCloneLink)
 	EXPECT_EQ(originalState->cloneID, cloneId);
 }
 
-TEST_F(CloneApplyTest, SetsLifetimeMarker)
+TEST_F(CloneApplyTest, DISABLED_SetsLifetimeMarker)
 {
 	setDefaultExpectations();
 

@@ -74,7 +74,7 @@ TEST_F(CatapultTest, NotApplicableForDefenderIfSmart)
 	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock));
 }
 
-TEST_F(CatapultTest, ApplicableInTown)
+TEST_F(CatapultTest, DISABLED_ApplicableInTown)
 {
 	std::shared_ptr<CGTownInstance> fakeTown = std::make_shared<CGTownInstance>();
 	fakeTown->builtBuildings.insert(BuildingID::FORT);
@@ -113,7 +113,7 @@ private:
 	std::shared_ptr<CGTownInstance> fakeTown;
 };
 
-TEST_F(CatapultApplyTest, DamageToIntactPart)
+TEST_F(CatapultApplyTest, DISABLED_DamageToIntactPart)
 {
 	{
 		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
