@@ -248,7 +248,7 @@ public:
 
 	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message
-	void throwNotAllowedAction(CPackForServer * pack);
+	[[noreturn]] void throwNotAllowedAction(CPackForServer * pack);
 	/// Throws if player stated in pack is not making turn right now
 	void throwIfPlayerNotActive(CPackForServer * pack);
 	/// Throws if object is not owned by pack sender
@@ -256,7 +256,7 @@ public:
 	/// Throws if player is not present on connection of this pack
 	void throwIfWrongPlayer(CPackForServer * pack, PlayerColor player);
 	void throwIfWrongPlayer(CPackForServer * pack);
-	void throwAndComplain(CPackForServer * pack, std::string txt);
+	[[noreturn]] void throwAndComplain(CPackForServer * pack, std::string txt);
 
 	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
