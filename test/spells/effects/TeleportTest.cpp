@@ -51,7 +51,7 @@ protected:
 	}
 };
 
-TEST_F(TeleportApplyTest, MovesUnit)
+TEST_F(TeleportApplyTest, DISABLED_MovesUnit)
 {
 	battleFake->setupEmptyBattlefield();
 

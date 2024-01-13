@@ -6,6 +6,7 @@ on:
       - features/*
       - beta
       - master
+      - develop
   pull_request:
   schedule:
     - cron: '0 2 * * *'
@@ -70,11 +71,12 @@ jobs:
         include:
           - platform: linux-qt6
             os: ubuntu-22.04
-            test: 0
+            test: 1
             preset: linux-clang-test
           - platform: linux
+
             os: ubuntu-22.04
-            test: 0
+            test: 1
             preset: linux-gcc-test
           - platform: linux
             os: ubuntu-20.04
@@ -205,6 +207,16 @@ jobs:
         # actual cache takes up less space, at most ~1 GB
         max-size: "5G"
         verbose: 2
+
+    - name: Clone Heroes 3 data
+      if: ${{ startsWith(matrix.preset, 'linux') && endsWith(matrix.preset, 'test') }}
+      env:
+        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
+      run: |
+        wget --progress=dot:giga https://github.com/Alexander-Wilms/encrypted_heroes_3_data/releases/download/h3_assets/h3_assets.zip
+        7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
+        mkdir -p ~/.local/share/vcmi/
+        mv h3_assets/* ~/.local/share/vcmi/
 
     - uses: actions/setup-python@v4
       if: "${{ matrix.conan_profile != '' }}"

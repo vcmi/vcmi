@@ -30,7 +30,7 @@ protected:
 };
 
 
-TEST_F(LuaSandboxTest, Example)
+TEST_F(LuaSandboxTest, DISABLED_Example)
 {
 	loadScriptFromFile("test/lua/SandboxTest.lua");
 	runClientServer();

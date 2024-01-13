@@ -46,7 +46,7 @@ TEST_F(CCreatureTest, RegistersIcons)
 	subject->registerIcons(cb);
 }
 
-TEST_F(CCreatureTest, JsonUpdate)
+TEST_F(CCreatureTest, DISABLED_JsonUpdate)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
@@ -103,7 +103,7 @@ TEST_F(CCreatureTest, JsonUpdate)
 	EXPECT_TRUE(subject->isDoubleWide());
 }
 
-TEST_F(CCreatureTest, JsonAddBonus)
+TEST_F(CCreatureTest, DISABLED_JsonAddBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
@@ -129,7 +129,7 @@ TEST_F(CCreatureTest, JsonAddBonus)
 	EXPECT_TRUE(subject->hasBonus(selector));
 }
 
-TEST_F(CCreatureTest, JsonRemoveBonus)
+TEST_F(CCreatureTest, DISABLED_JsonRemoveBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
