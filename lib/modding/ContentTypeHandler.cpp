@@ -111,15 +111,17 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			// - another mod attempts to add object into this mod (technically can be supported, but might lead to weird edge cases)
 			// - another mod attempts to edit object from this mod that no longer exist - DANGER since such patch likely has very incomplete data
 			// so emit warning and skip such case
-			logMod->warn("Mod %s attempts to edit object %s from mod %s but no such object exist!", data.meta, name, modName);
+			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.meta, name, objectName, modName);
 			continue;
 		}
 
-		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
-		{
-			if (modName != "core")
-				logMod->warn("Mod %s is attempting to load original data! This should be reserved for built-in mod.", modName);
+		bool hasIndex = vstd::contains(data.Struct(), "index") && !data["index"].isNull();
 
+		if (hasIndex && modName != "core")
+			logMod->error("Mod %s is attempting to load original data! This option is reserved for built-in mod.", modName);
+
+		if (hasIndex && modName == "core")
+		{
 			// try to add H3 object data
 			size_t index = static_cast<size_t>(data["index"].Float());
 
@@ -155,6 +157,33 @@ void ContentTypeHandler::loadCustom()
 
 void ContentTypeHandler::afterLoadFinalization()
 {
+	for (auto const & data : modData)
+	{
+		if (data.second.modData.isNull())
+		{
+			for (auto node : data.second.patches.Struct())
+				logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.meta, node.first, data.first);
+		}
+
+		for(auto & otherMod : modData)
+		{
+			if (otherMod.first == data.first)
+				continue;
+
+			if (otherMod.second.modData.isNull())
+				continue;
+
+			for(auto & otherObject : otherMod.second.modData.Struct())
+			{
+				if (data.second.modData.Struct().count(otherObject.first))
+				{
+					logMod->warn("Mod '%s' have added object with name '%s' that is also available in mod '%s'", data.first, otherObject.first, otherMod.first);
+					logMod->warn("Two objects with same name were loaded. Please use form '%s:%s' if mod '%s' needs to modify this object instead", otherMod.first, otherObject.first, data.first);
+				}
+			}
+		}
+	}
+
 	handler->afterLoadFinalization();
 }
 

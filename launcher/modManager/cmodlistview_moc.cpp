@@ -48,6 +48,43 @@ void CModListView::changeEvent(QEvent *event)
 	QWidget::changeEvent(event);
 }
 
+void CModListView::dragEnterEvent(QDragEnterEvent* event)
+{
+	if(event->mimeData()->hasUrls())
+		for(const auto & url : event->mimeData()->urls())
+			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp"}))
+				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
+				{
+					event->acceptProposedAction();
+					return;
+				}
+}
+
+void CModListView::dropEvent(QDropEvent* event)
+{
+	const QMimeData* mimeData = event->mimeData();
+
+	if(mimeData->hasUrls())
+	{
+		const QList<QUrl> urlList = mimeData->urls();
+
+		for (const auto & url : urlList)
+		{
+			QString urlStr = url.toString();
+			QString fileName = url.fileName();
+			if(urlStr.endsWith(".zip", Qt::CaseInsensitive))
+				downloadFile(fileName.toLower()
+					// mod name currently comes from zip file -> remove suffixes from github zip download
+					.replace(QRegularExpression("-[0-9a-f]{40}"), "")
+					.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
+					.replace("-main.zip", ".zip")
+					, urlStr, "mods", 0);
+			else
+				downloadFile(fileName, urlStr, "mods", 0);
+		}
+	}
+}
+
 void CModListView::setupFilterModel()
 {
 	filterModel = new CModFilterModel(modModel, this);
@@ -99,6 +136,8 @@ CModListView::CModListView(QWidget * parent)
 	, ui(new Ui::CModListView)
 {
 	ui->setupUi(this);
+
+	setAcceptDrops(true);
 
 	setupModModel();
 	setupFilterModel();
@@ -677,15 +716,18 @@ void CModListView::hideProgressBar()
 void CModListView::installFiles(QStringList files)
 {
 	QStringList mods;
+	QStringList maps;
 	QStringList images;
 	QVector<QVariantMap> repositories;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
 	{
-		if(filename.endsWith(".zip"))
+		if(filename.endsWith(".zip", Qt::CaseInsensitive))
 			mods.push_back(filename);
-		if(filename.endsWith(".json"))
+		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
+			maps.push_back(filename);
+		else if(filename.endsWith(".json", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
 			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
@@ -709,7 +751,7 @@ void CModListView::installFiles(QStringList files)
 			}
 			repositories.push_back(repoData);
 		}
-		if(filename.endsWith(".png"))
+		else if(filename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
 	}
 
@@ -717,6 +759,9 @@ void CModListView::installFiles(QStringList files)
 
 	if(!mods.empty())
 		installMods(mods);
+
+	if(!maps.empty())
+		installMaps(maps);
 
 	if(!images.empty())
 		loadScreenshots();
@@ -792,6 +837,16 @@ void CModListView::installMods(QStringList archives)
 
 	for(QString archive : archives)
 		QFile::remove(archive);
+}
+
+void CModListView::installMaps(QStringList maps)
+{
+	QString destDir = CLauncherDirs::get().mapsPath() + "/";
+
+	for(QString map : maps)
+	{
+		QFile(map).rename(destDir + map.section('/', -1, -1));
+	}
 }
 
 void CModListView::on_refreshButton_clicked()
@@ -963,4 +1018,3 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 }
-

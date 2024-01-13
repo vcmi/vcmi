@@ -86,7 +86,7 @@ QString Languages::generateLanguageName(const Languages::Options & language)
 
 void Languages::fillLanguages(QComboBox * widget, bool includeAll)
 {
-	widget->blockSignals(true); // we do not want calls caused by initialization
+	QSignalBlocker guard(widget); // we do not want calls caused by initialization
 	widget->clear();
 
 	std::string activeLanguage = includeAll ?
@@ -115,13 +115,11 @@ void Languages::fillLanguages(QComboBox * widget, bool includeAll)
 		if(activeLanguage == language.identifier)
 			widget->setCurrentIndex(widget->count() - 1);
 	}
-
-	widget->blockSignals(false);
 }
 
 void Languages::fillLanguages(QListWidget * widget, bool includeAll)
 {
-	widget->blockSignals(true); // we do not want calls caused by initialization
+	QSignalBlocker guard(widget); // we do not want calls caused by initialization
 	widget->clear();
 
 	std::string activeLanguage = includeAll ?
@@ -154,5 +152,4 @@ void Languages::fillLanguages(QListWidget * widget, bool includeAll)
 		if(activeLanguage == language.identifier)
 			widget->setCurrentRow(widget->count() - 1);
 	}
-	widget->blockSignals(false);
 }

@@ -253,11 +253,12 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				break;
 			case ECommander::HEALTH:
 				scp.accumulatedBonus.type = BonusType::STACK_HEALTH;
-				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_BASE;
+				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_ALL; //TODO: check how it accumulates in original WoG with artifacts such as vial of life blood, elixir of life etc.
 				break;
 			case ECommander::DAMAGE:
 				scp.accumulatedBonus.type = BonusType::CREATURE_DAMAGE;
-				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_BASE;
+				scp.accumulatedBonus.subtype = BonusCustomSubtype::creatureDamageBoth;
+				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_ALL;
 				break;
 			case ECommander::SPEED:
 				scp.accumulatedBonus.type = BonusType::STACKS_SPEED;
@@ -364,52 +365,60 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 // 		levelUpHero(hero);
 }
 
-void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs)
+void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountToGain)
 {
-	if (which == PrimarySkill::EXPERIENCE) // Check if scenario limit reached
-	{
-		if (gs->map->levelLimit != 0)
-		{
-			TExpType expLimit = VLC->heroh->reqExp(gs->map->levelLimit);
-			TExpType resultingExp = abs ? val : hero->exp + val;
-			if (resultingExp > expLimit)
-			{
-				// set given experience to max possible, but don't decrease if hero already over top
-				abs = true;
-				val = std::max(expLimit, hero->exp);
+	TExpType maxExp = VLC->heroh->reqExp(VLC->heroh->maxSupportedLevel());
+	TExpType currExp = hero->exp;
 
-				InfoWindow iw;
-				iw.player = hero->tempOwner;
-				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
-				iw.text.replaceRawString(hero->getNameTranslated());
-				sendAndApply(&iw);
-			}
-		}
+	if (gs->map->levelLimit != 0)
+		maxExp = VLC->heroh->reqExp(gs->map->levelLimit);
+
+	TExpType canGainExp = 0;
+	if (maxExp > currExp)
+		canGainExp = maxExp - currExp;
+
+	if (amountToGain > canGainExp)
+	{
+		// set given experience to max possible, but don't decrease if hero already over top
+		amountToGain = canGainExp;
+
+		InfoWindow iw;
+		iw.player = hero->tempOwner;
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
+		iw.text.replaceRawString(hero->getNameTranslated());
+		sendAndApply(&iw);
 	}
 
+	SetPrimSkill sps;
+	sps.id = hero->id;
+	sps.which = PrimarySkill::EXPERIENCE;
+	sps.abs = false;
+	sps.val = amountToGain;
+	sendAndApply(&sps);
+
+	//hero may level up
+	if (hero->commander && hero->commander->alive)
+	{
+		//FIXME: trim experience according to map limit?
+		SetCommanderProperty scp;
+		scp.heroid = hero->id;
+		scp.which = SetCommanderProperty::EXPERIENCE;
+		scp.amount = amountToGain;
+		sendAndApply (&scp);
+		CBonusSystemNode::treeHasChanged();
+	}
+
+	expGiven(hero);
+}
+
+void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs)
+{
 	SetPrimSkill sps;
 	sps.id = hero->id;
 	sps.which = which;
 	sps.abs = abs;
 	sps.val = val;
 	sendAndApply(&sps);
-
-	//only for exp - hero may level up
-	if (which == PrimarySkill::EXPERIENCE)
-	{
-		if (hero->commander && hero->commander->alive)
-		{
-			//FIXME: trim experience according to map limit?
-			SetCommanderProperty scp;
-			scp.heroid = hero->id;
-			scp.which = SetCommanderProperty::EXPERIENCE;
-			scp.amount = val;
-			sendAndApply (&scp);
-			CBonusSystemNode::treeHasChanged();
-		}
-
-		expGiven(hero);
-	}
 }
 
 void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs)
@@ -657,7 +666,7 @@ void CGameHandler::onNewTurn()
 		{
 			if (obj && obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
 			{
-				changePrimSkill (getHero(obj->id), PrimarySkill::EXPERIENCE, 0);
+				giveExperience(getHero(obj->id), 0);
 			}
 		}
 	}
@@ -3283,7 +3292,11 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 			for (auto & i : ev.buildings)
 			{
-				if (!town->hasBuilt(i))
+				// Only perform action if:
+				// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
+				// 2. Building was not built yet
+				// othervice, silently ignore / skip it
+				if (town->town->buildings.count(i) && !town->hasBuilt(i))
 				{
 					buildStructure(town->id, i, true);
 					iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
@@ -3707,7 +3720,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
 	{
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
+		giveExperience(hero, hero->calculateXp(expSum));
 	};
 
 	for(int i = 0; i < slot.size(); ++i)
@@ -3748,7 +3761,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
 	{
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
+		giveExperience(hero, hero->calculateXp(expSum));
 	};
 
 	for(int i = 0; i < slot.size(); ++i)

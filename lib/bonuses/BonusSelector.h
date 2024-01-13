@@ -139,6 +139,7 @@ namespace Selector
 	CSelector DLL_LINKAGE source(BonusSource source, BonusSourceID sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source);
 	CSelector DLL_LINKAGE valueType(BonusValueType valType);
+	CSelector DLL_LINKAGE typeSubtypeValueType(BonusType Type, BonusSubtypeID Subtype, BonusValueType valType);
 
 	/**
 	 * Selects all bonuses

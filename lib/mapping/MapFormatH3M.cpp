@@ -2223,17 +2223,10 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	}
 
 	{
-		std::set<SpellID> spellsMask;
+		std::set<SpellID> spellsMask = VLC->spellh->getDefaultAllowed(); // by default - include spells from mods
 
 		reader->readBitmaskSpells(spellsMask, true);
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->possibleSpells));
-
-		auto defaultAllowed = VLC->spellh->getDefaultAllowed();
-
-		//add all spells from mods
-		for(int i = features.spellsCount; i < defaultAllowed.size(); ++i)
-			if(defaultAllowed.count(i))
-				object->possibleSpells.emplace_back(i);
 	}
 
 	if(features.levelHOTA1)

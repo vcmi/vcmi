@@ -117,7 +117,15 @@ void CGMine::initObj(CRandomGenerator & rand)
 		putStack(SlotID(0), troglodytes);
 
 		assert(!abandonedMineResources.empty());
-		producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+		if (!abandonedMineResources.empty())
+		{
+			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+		}
+		else
+		{
+			logGlobal->error("Abandoned mine at (%s) has no valid resource candidates!", pos.toString());
+			producedResource = GameResID::GOLD;
+		}
 	}
 	else
 	{
@@ -1130,7 +1138,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			xp = h->calculateXp(static_cast<int>(xp));
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT,132);
 			iw.text.replaceNumber(static_cast<int>(xp));
-			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, xp, false);
+			cb->giveExperience(h, xp);
 		}
 		else
 		{

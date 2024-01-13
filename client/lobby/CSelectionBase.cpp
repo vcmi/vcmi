@@ -69,7 +69,7 @@ int ISelectionScreenInfo::getCurrentDifficulty()
 
 PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 {
-	return getMapInfo()->mapHeader->players[color.getNum()];
+	return getMapInfo()->mapHeader->players.at(color.getNum());
 }
 
 CSelectionBase::CSelectionBase(ESelectionScreen type)

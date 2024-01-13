@@ -616,8 +616,8 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
 			{
-				int spellID = owner.getBattle()->battleGetRandomStackSpell(CRandomGenerator::getDefault(), targetStack, CBattleInfoCallback::RANDOM_GENIE);
-				return spellID > -1;
+				SpellID spellID = owner.getBattle()->getRandomBeneficialSpell(CRandomGenerator::getDefault(), owner.stacksController->getActiveStack(), targetStack);
+				return spellID != SpellID::NONE;
 			}
 			return false;
 
@@ -887,7 +887,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 	{
 		// faerie dragon can cast only one, randomly selected spell until their next move
 		//TODO: faerie dragon type spell should be selected by server
-		const auto * spellToCast = owner.getBattle()->battleGetRandomStackSpell(CRandomGenerator::getDefault(), casterStack, CBattleInfoCallback::RANDOM_AIMED).toSpell();
+		const auto * spellToCast = owner.getBattle()->getRandomCastedSpell(CRandomGenerator::getDefault(), casterStack).toSpell();
 
 		if (spellToCast)
 			creatureSpells.push_back(spellToCast);

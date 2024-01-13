@@ -19,4 +19,5 @@ public:
 
 	QString downloadsPath();
 	QString modsPath();
+	QString mapsPath();
 };

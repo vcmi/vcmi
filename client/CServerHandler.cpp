@@ -729,7 +729,7 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
 		auto finisher = [=]()
 		{
-			if(ourCampaign->campaignSet != "")
+			if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 			{
 				Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
 				entry->Bool() = true;

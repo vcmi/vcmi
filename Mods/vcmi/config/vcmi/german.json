@@ -70,6 +70,7 @@
 	"vcmi.lobby.mapPreview" : "Kartenvorschau",
 	"vcmi.lobby.noPreview" : "Keine Vorschau",
 	"vcmi.lobby.noUnderground" : "Kein Untergrund",
+	"vcmi.lobby.sortDate" : "Ordnet Karten nach Änderungsdatum",
 
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
@@ -101,7 +102,7 @@
 	"vcmi.systemOptions.resolutionMenu.help"    : "Ändere die Spielauflösung.",
 	"vcmi.systemOptions.scalingButton.hover"   : "Interface-Skalierung: %p%",
 	"vcmi.systemOptions.scalingButton.help"    : "{Interface-Skalierung}\n\nÄndern der Skalierung des Interfaces im Spiel",
-	"vcmi.systemOptions.scalingMenu.hover"     : "Skalierung des Interfaces auswählen",
+	"vcmi.systemOptions.scalingMenu.hover"     : "Skalierung auswählen",
 	"vcmi.systemOptions.scalingMenu.help"      : "Ändern der Skalierung des Interfaces im Spiel.",
 	"vcmi.systemOptions.longTouchButton.hover"   : "Berührungsdauer für langer Touch: %d ms", // Translation note: "ms" = "milliseconds"
 	"vcmi.systemOptions.longTouchButton.help"    : "{Berührungsdauer für langer Touch}\n\nBei Verwendung des Touchscreens erscheinen Popup-Fenster nach Berührung des Bildschirms für die angegebene Dauer (in Millisekunden)",
@@ -180,6 +181,7 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d Schaden",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d werden verenden",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d werden verenden",
+	"vcmi.battleWindow.killed" : "Getötet",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
 

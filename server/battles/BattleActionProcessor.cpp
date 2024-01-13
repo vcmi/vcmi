@@ -270,6 +270,9 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 
 	const bool firstStrike = destinationStack->hasBonusOfType(BonusType::FIRST_STRIKE);
 	const bool retaliation = destinationStack->ableToRetaliate();
+	bool ferocityApplied = false;
+	int32_t defenderInitialQuantity = destinationStack->getCount();
+
 	for (int i = 0; i < totalAttacks; ++i)
 	{
 		//first strike
@@ -282,6 +285,18 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		if(stack->alive() && !stack->hasBonusOfType(BonusType::NOT_ACTIVE) && destinationStack->alive())
 		{
 			makeAttack(battle, stack, destinationStack, (i ? 0 : distance), destinationTile, i==0, false, false);//no distance travelled on second attack
+
+			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
+			{
+				auto ferocityBonus = stack->getBonus(Selector::type()(BonusType::FEROCITY));
+				int32_t requiredCreaturesToKill = ferocityBonus->additionalInfo != CAddInfo::NONE ? ferocityBonus->additionalInfo[0] : 1;
+				if(defenderInitialQuantity - destinationStack->getCount() >= requiredCreaturesToKill)
+				{
+					ferocityApplied = true;
+					int additionalAttacksCount = stack->valOfBonuses(BonusType::FEROCITY);
+					totalAttacks += additionalAttacksCount;
+				}
+			}
 		}
 
 		//counterattack
@@ -411,24 +426,48 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 	std::shared_ptr<const Bonus> randSpellcaster = stack->getBonus(Selector::type()(BonusType::RANDOM_SPELLCASTER));
 	std::shared_ptr<const Bonus> spellcaster = stack->getBonus(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spellID)));
 
-	//TODO special bonus for genies ability
-	if (randSpellcaster && battle.battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) == SpellID::NONE)
-		spellID = battle.battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_GENIE);
-
-	if (spellID == SpellID::NONE)
-		gameHandler->complain("That stack can't cast spells!");
-	else
+	if (!spellcaster && !randSpellcaster)
 	{
-		const CSpell * spell = SpellID(spellID).toSpell();
-		spells::BattleCast parameters(&battle, stack, spells::Mode::CREATURE_ACTIVE, spell);
-		int32_t spellLvl = 0;
-		if(spellcaster)
-			vstd::amax(spellLvl, spellcaster->val);
-		if(randSpellcaster)
-			vstd::amax(spellLvl, randSpellcaster->val);
-		parameters.setSpellLevel(spellLvl);
-		parameters.cast(gameHandler->spellEnv, target);
+		gameHandler->complain("That stack can't cast spells!");
+		return false;
 	}
+
+	if (randSpellcaster)
+	{
+		if (target.size() != 1)
+		{
+			gameHandler->complain("Invalid target for random spellcaster!");
+			return false;
+		}
+
+		const battle::Unit * subject = target[0].unitValue;
+		if (target[0].unitValue == nullptr)
+			subject = battle.battleGetStackByPos(target[0].hexValue, true);
+
+		if (subject == nullptr)
+		{
+			gameHandler->complain("Invalid target for random spellcaster!");
+			return false;
+		}
+
+		spellID = battle.getRandomBeneficialSpell(gameHandler->getRandomGenerator(), stack, subject);
+
+		if (spellID == SpellID::NONE)
+		{
+			gameHandler->complain("That stack can't cast spells!");
+			return false;
+		}
+	}
+
+	const CSpell * spell = SpellID(spellID).toSpell();
+	spells::BattleCast parameters(&battle, stack, spells::Mode::CREATURE_ACTIVE, spell);
+	int32_t spellLvl = 0;
+	if(spellcaster)
+		vstd::amax(spellLvl, spellcaster->val);
+	if(randSpellcaster)
+		vstd::amax(spellLvl, randSpellcaster->val);
+	parameters.setSpellLevel(spellLvl);
+	parameters.cast(gameHandler->spellEnv, target);
 	return true;
 }
 
@@ -1080,19 +1119,13 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	handleAfterAttackCasting(battle, ranged, attacker, defender);
 }
 
-void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender)
+void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
 {
 	if(attacker->hasBonusOfType(attackMode))
 	{
-		std::set<SpellID> spellsToCast;
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
-		for(const auto & sf : *spells)
-		{
-			if (sf->subtype.as<SpellID>() != SpellID())
-				spellsToCast.insert(sf->subtype.as<SpellID>());
-			else
-				logMod->error("Invalid spell to cast during attack!");
-		}
+		std::set<SpellID> spellsToCast = getSpellsForAttackCasting(spells, defender);
+
 		for(SpellID spellID : spellsToCast)
 		{
 			bool castMe = false;
@@ -1151,9 +1184,126 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 	}
 }
 
+std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender)
+{
+	std::set<SpellID> spellsToCast;
+	constexpr int unlayeredItemsInternalLayer = -1;
+
+	std::map<int, std::vector<std::shared_ptr<Bonus>>> spellsWithBackupLayers;
+
+	for(int i = 0; i < spells->size(); i++)
+	{
+		std::shared_ptr<Bonus> bonus = spells->operator[](i);
+		int layer = bonus->additionalInfo[2];
+		vstd::amax(layer, -1);
+		spellsWithBackupLayers[layer].push_back(bonus);
+	}
+
+	auto addSpellsFromLayer = [&](int layer) -> void
+	{
+		assert(spellsWithBackupLayers.find(layer) != spellsWithBackupLayers.end());
+
+		for(const auto & spell : spellsWithBackupLayers[layer])
+		{
+			if (spell->subtype.as<SpellID>() != SpellID())
+				spellsToCast.insert(spell->subtype.as<SpellID>());
+			else
+				logGlobal->error("Invalid spell to cast during attack!");
+		}
+	};
+
+	if(spellsWithBackupLayers.find(unlayeredItemsInternalLayer) != spellsWithBackupLayers.end())
+	{
+		addSpellsFromLayer(unlayeredItemsInternalLayer);
+		spellsWithBackupLayers.erase(unlayeredItemsInternalLayer);
+	}
+
+	for(auto item : spellsWithBackupLayers)
+	{
+		bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
+			[&](const std::shared_ptr<Bonus> spell)
+			{
+				std::vector<SpellID> activeSpells = defender->activeSpells();
+				return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
+			});
+
+		if(!areCurrentLayerSpellsApplied || item.first == spellsWithBackupLayers.rbegin()->first)
+		{
+			addSpellsFromLayer(item.first);
+			break;
+		}
+	}
+
+	return spellsToCast;
+}
+
 void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
 {
 	attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
+}
+
+void BattleActionProcessor::HandleDeathStareAndPirateShot(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
+{
+	// mechanics of Death Stare as in H3:
+	// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
+	//original formula x = min(x, (gorgons_count + 9)/10);
+
+	/* mechanics of Accurate Shot as in HotA:
+		* each creature in an attacking stack has a X% chance of killing a creature in the attacked squad,
+		* but the total number of killed creatures cannot be more than (number of creatures in an attacking squad) * X/100 (rounded up).
+		* X = 3 multiplier for shooting without penalty and X = 2 if shooting with penalty. Ability doesn't work if shooting at creatures behind walls.
+		*/
+
+	auto bonus = attacker->getBonus(Selector::type()(BonusType::DEATH_STARE));
+	if(bonus == nullptr)
+		bonus = attacker->getBonus(Selector::type()(BonusType::ACCURATE_SHOT));
+
+	if(bonus->type == BonusType::ACCURATE_SHOT) //should not work from behind walls, except when being defender or under effect of golden bow etc.
+	{
+		if(!ranged)
+			return;
+		if(battle.battleHasWallPenalty(attacker, attacker->getPosition(), defender->getPosition()))
+			return;
+	}
+
+	int singleCreatureKillChancePercent;
+	if(bonus->type == BonusType::ACCURATE_SHOT)
+	{
+		singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::ACCURATE_SHOT);
+		if(battle.battleHasDistancePenalty(attacker, attacker->getPosition(), defender->getPosition()))
+			singleCreatureKillChancePercent = (singleCreatureKillChancePercent * 2) / 3;
+	}
+	else //DEATH_STARE
+		singleCreatureKillChancePercent = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon);
+
+	double chanceToKill = singleCreatureKillChancePercent / 100.0;
+	vstd::amin(chanceToKill, 1); //cap at 100%
+	std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
+	int killedCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
+
+	int maxToKill = (attacker->getCount() * singleCreatureKillChancePercent + 99) / 100;
+	vstd::amin(killedCreatures, maxToKill);
+
+	if(bonus->type == BonusType::DEATH_STARE)
+		killedCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
+
+	if(killedCreatures)
+	{
+		//TODO: death stare or accurate shot was not originally available for multiple-hex attacks, but...
+
+		SpellID spellID = SpellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
+		if(bonus->type == BonusType::ACCURATE_SHOT && bonus->subtype.as<SpellID>() != SpellID::NONE)
+			spellID = bonus->subtype.as<SpellID>();
+
+		const CSpell * spell = spellID.toSpell();
+		spells::AbilityCaster caster(attacker, 0);
+
+		spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
+		spells::Target target;
+		target.emplace_back(defender);
+		parameters.setEffectValue(killedCreatures);
+		parameters.cast(gameHandler->spellEnv, target);
+	}
 }
 
 void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
@@ -1169,37 +1319,9 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		return;
 	}
 
-	if(attacker->hasBonusOfType(BonusType::DEATH_STARE))
+	if(attacker->hasBonusOfType(BonusType::DEATH_STARE) || attacker->hasBonusOfType(BonusType::ACCURATE_SHOT))
 	{
-		// mechanics of Death Stare as in H3:
-		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
-		//original formula x = min(x, (gorgons_count + 9)/10);
-
-		double chanceToKill = attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareGorgon) / 100.0f;
-		vstd::amin(chanceToKill, 1); //cap at 100%
-
-		std::binomial_distribution<> distribution(attacker->getCount(), chanceToKill);
-
-		int staredCreatures = distribution(gameHandler->getRandomGenerator().getStdGenerator());
-
-		double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
-		int maxToKill = static_cast<int>((attacker->getCount() + cap - 1) / cap); //not much more than chance * count
-		vstd::amin(staredCreatures, maxToKill);
-
-		staredCreatures += (attacker->level() * attacker->valOfBonuses(BonusType::DEATH_STARE, BonusCustomSubtype::deathStareCommander)) / defender->level();
-		if(staredCreatures)
-		{
-			//TODO: death stare was not originally available for multiple-hex attacks, but...
-			const CSpell * spell = SpellID(SpellID::DEATH_STARE).toSpell();
-
-			spells::AbilityCaster caster(attacker, 0);
-
-			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-			spells::Target target;
-			target.emplace_back(defender);
-			parameters.setEffectValue(staredCreatures);
-			parameters.cast(gameHandler->spellEnv, target);
-		}
+		HandleDeathStareAndPirateShot(battle, ranged, attacker, defender);
 	}
 
 	if(!defender->alive())
@@ -1277,6 +1399,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		// send empty event to client
 		// temporary(?) workaround to force animations to trigger
 		StacksInjured fakeEvent;
+		fakeEvent.battleID = battle.getBattle()->getBattleID();
 		gameHandler->sendAndApply(&fakeEvent);
 	}
 

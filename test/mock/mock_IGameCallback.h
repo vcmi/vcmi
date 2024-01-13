@@ -44,6 +44,7 @@ public:
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
 	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
+	void giveExperience(const CGHeroInstance * hero, TExpType val) override {}
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override {}
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}
 	void showBlockingDialog(BlockingDialog *iw) override {}

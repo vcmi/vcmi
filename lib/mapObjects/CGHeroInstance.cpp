@@ -1439,7 +1439,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 
 bool CGHeroInstance::gainsLevel() const
 {
-	return exp >= static_cast<TExpType>(VLC->heroh->reqExp(level+1));
+	return level < VLC->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(VLC->heroh->reqExp(level+1));
 }
 
 void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)

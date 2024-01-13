@@ -612,10 +612,20 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 
-	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
-	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
+	int minDamage = node["damage"]["min"].Integer();
+	int maxDamage = node["damage"]["max"].Integer();
 
-	assert(node["damage"]["min"].Integer() <= node["damage"]["max"].Integer());
+	if (minDamage <= maxDamage)
+	{
+		cre->addBonus(minDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
+		cre->addBonus(maxDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
+	}
+	else
+	{
+		logGlobal->error("Mod %s: creature %s has minimal damage (%d) greater than maximal damage (%d)!", scope, identifier, minDamage, maxDamage);
+		cre->addBonus(maxDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
+		cre->addBonus(minDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
+	}
 
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), BonusType::SHOTS);

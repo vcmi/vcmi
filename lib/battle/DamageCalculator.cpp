@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+
 #include "DamageCalculator.h"
 #include "CBattleInfoCallback.h"
 #include "Unit.h"
@@ -124,7 +125,19 @@ int DamageCalculator::getActorAttackBase() const
 
 int DamageCalculator::getActorAttackEffective() const
 {
-	return getActorAttackBase() + getActorAttackSlayer();
+	return getActorAttackBase() + getActorAttackSlayer() + getActorAttackIgnored();
+}
+
+int DamageCalculator::getActorAttackIgnored() const
+{
+	int multAttackReductionPercent = battleBonusValue(info.defender, Selector::type()(BonusType::ENEMY_ATTACK_REDUCTION));
+
+	if(multAttackReductionPercent > 0)
+	{
+		int reduction = (getActorAttackBase() * multAttackReductionPercent + 49) / 100; //using ints so 1.5 for 5 attack is rounded down as in HotA / h3assist etc. (keep in mind h3assist 1.2 shows wrong value for 15 attack points and unupg. nix)
+		return -std::min(reduction, getActorAttackBase());
+	}
+	return 0;
 }
 
 int DamageCalculator::getActorAttackSlayer() const
@@ -264,6 +277,20 @@ double DamageCalculator::getAttackHateFactor() const
 	auto allHateEffects = info.attacker->getBonuses(selectorHate, cachingStrHate);
 
 	return allHateEffects->valOfBonuses(Selector::subtype()(BonusSubtypeID(info.defender->creatureId()))) / 100.0;
+}
+
+double DamageCalculator::getAttackRevengeFactor() const
+{
+	if(info.attacker->hasBonusOfType(BonusType::REVENGE)) //HotA Haspid ability
+	{
+		int totalStackCount = info.attacker->unitBaseAmount();
+		int currentStackHealth = info.attacker->getAvailableHealth();
+		int creatureHealth = info.attacker->getMaxHealth();
+
+		return sqrt(static_cast<double>((totalStackCount + 1) * creatureHealth) / (currentStackHealth + creatureHealth) - 1);
+	}
+
+	return 0.0;
 }
 
 double DamageCalculator::getDefenseSkillFactor() const
@@ -433,7 +460,8 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackJoustingFactor(),
 		getAttackDeathBlowFactor(),
 		getAttackDoubleDamageFactor(),
-		getAttackHateFactor()
+		getAttackHateFactor(),
+		getAttackRevengeFactor()
 	};
 }
 
@@ -503,12 +531,10 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	for (auto & factor : defenseFactors)
 	{
 		assert(factor >= 0.0);
-		defenseFactorTotal *= ( 1 - std::min(1.0, factor));
+		defenseFactorTotal *= (1 - std::min(1.0, factor));
 	}
 
-	double resultingFactor = std::min(8.0, attackFactorTotal) * std::max( 0.01, defenseFactorTotal);
-
-	info.defender->getTotalHealth();
+	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 
 	DamageRange damageDealt {
 		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor)),

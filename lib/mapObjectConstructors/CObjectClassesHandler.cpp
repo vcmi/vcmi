@@ -177,8 +177,10 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	auto object = loadSubObjectFromJson(scope, identifier, entry, obj, index);
 
 	assert(object);
-	assert(obj->objects[index] == nullptr); // ensure that this id was not loaded before
-	obj->objects[index] = object;
+	if (obj->objects.at(index) != nullptr)
+		throw std::runtime_error("Attempt to load already loaded object:" + identifier);
+
+	obj->objects.at(index) = object;
 
 	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
 	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
@@ -259,10 +261,16 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 		{
 			const std::string & subMeta = subData.second["index"].meta;
 
-			if ( subMeta != "core")
-				logMod->warn("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
-			size_t subIndex = subData.second["index"].Integer();
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get(), subIndex);
+			if ( subMeta == "core")
+			{
+				size_t subIndex = subData.second["index"].Integer();
+				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get(), subIndex);
+			}
+			else
+			{
+				logMod->error("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
+				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
+			}
 		}
 		else
 			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
@@ -283,28 +291,28 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	assert(objects[index] == nullptr); // ensure that this id was not loaded before
+	assert(objects.at(index) == nullptr); // ensure that this id was not loaded before
 
-	objects[index] = loadFromJson(scope, data, name, index);
-	VLC->identifiersHandler->registerObject(scope, "object", name, objects[index]->id);
+	objects.at(index) = loadFromJson(scope, data, name, index);
+	VLC->identifiersHandler->registerObject(scope, "object", name, objects.at(index)->id);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
-	assert(objects[ID.getNum()]);
+	assert(objects.at(ID.getNum()));
 
-	if ( subID.getNum() >= objects[ID.getNum()]->objects.size())
-		objects[ID.getNum()]->objects.resize(subID.getNum()+1);
+	if ( subID.getNum() >= objects.at(ID.getNum())->objects.size())
+		objects.at(ID.getNum())->objects.resize(subID.getNum()+1);
 
 	JsonUtils::inherit(config, objects.at(ID.getNum())->base);
-	loadSubObject(config.meta, identifier, config, objects[ID.getNum()].get(), subID.getNum());
+	loadSubObject(config.meta, identifier, config, objects.at(ID.getNum()).get(), subID.getNum());
 }
 
 void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
 {
-	assert(objects[ID.getNum()]);
-	objects[ID.getNum()]->objects[subID.getNum()] = nullptr;
+	assert(objects.at(ID.getNum()));
+	objects.at(ID.getNum())->objects.at(subID.getNum()) = nullptr;
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObjectSubID subtype) const
@@ -337,11 +345,11 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scop
 	std::optional<si32> id = VLC->identifiers()->getIdentifier(scope, "object", type);
 	if(id)
 	{
-		const auto & object = objects[id.value()];
+		const auto & object = objects.at(id.value());
 		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
-			return object->objects[subID.value()];
+			return object->objects.at(subID.value());
 	}
 
 	std::string errorString = "Failed to find object of type " + type + "::" + subtype;
@@ -472,8 +480,8 @@ std::string CObjectClassesHandler::getObjectName(MapObjectID type, MapObjectSubI
 	if (handler && handler->hasNameTextID())
 		return handler->getNameTranslated();
 
-	if (objects[type.getNum()])
-		return objects[type.getNum()]->getNameTranslated();
+	if (objects.at(type.getNum()))
+		return objects.at(type.getNum())->getNameTranslated();
 
 	return objects.front()->getNameTranslated();
 }
@@ -487,7 +495,7 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObject
 	if(type == Obj::PRISON || type == Obj::HERO || type == Obj::SPELL_SCROLL)
 		subtype = 0;
 
-	if(objects[type.getNum()])
+	if(objects.at(type.getNum()))
 		return getHandlerFor(type, subtype)->getSounds();
 	else
 		return objects.front()->objects.front()->getSounds();

@@ -1153,7 +1153,10 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.SIEGE_WEAPON" : "absolute"
+				"bonus.MIND_IMMUNITY" : "absolute",
+				"bonus.NON_LIVING" : "absolute",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
 			}
 		}
 	},
