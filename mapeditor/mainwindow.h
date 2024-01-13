@@ -27,6 +27,7 @@ class MainWindow : public QMainWindow
 
 	const QString mainWindowSizeSetting = "MainWindow/Size";
 	const QString mainWindowPositionSetting = "MainWindow/Position";
+	const QString lastDirectorySetting = "MainWindow/Directory";
 
 #ifdef ENABLE_QT_TRANSLATIONS
 	QTranslator translator;
@@ -181,7 +182,6 @@ private:
 	QStandardItemModel objectsModel;
 
 	int mapLevel = 0;
-	QRectF initialScale;
 
 	std::set<int> catalog;
 
