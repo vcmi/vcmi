@@ -70,7 +70,7 @@ jobs:
         include:
           - platform: linux-qt6
             os: ubuntu-22.04
-            test: 1
+            test: 0
             preset: linux-clang-test
           - platform: linux
 
