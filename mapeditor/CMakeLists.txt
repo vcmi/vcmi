@@ -105,6 +105,7 @@ set(editor_FORMS
 )
 
 set(editor_TS
+	translation/chinese.ts
 	translation/english.ts
 	translation/french.ts
 	translation/german.ts
