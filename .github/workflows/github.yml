@@ -338,7 +338,7 @@ jobs:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
 
-    - uses: act10ns/slack@v1
+    - uses: act10ns/slack@v2
       with:
         status: ${{ job.status }}
         channel: '#notifications'
@@ -441,7 +441,7 @@ jobs:
         path: |
           ${{ env.ANDROID_APK_PATH }}
 
-    - uses: act10ns/slack@v1
+    - uses: act10ns/slack@v2
       with:
         status: ${{ job.status }}
         channel: '#notifications'
