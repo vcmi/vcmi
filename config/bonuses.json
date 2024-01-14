@@ -3,13 +3,6 @@
 // LEVEL_SPELL_IMMUNITY
 
 {
-	"ACCURATE_SHOT":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_DIST"
-		}
-	},
 	"ADDITIONAL_ATTACK":
 	{
 		"graphics":

@@ -333,8 +333,6 @@
 	"vcmi.stackExperience.rank.9" : "Master",
 	"vcmi.stackExperience.rank.10" : "Ace",
 
-	"core.bonus.ACCURATE_SHOT.name": "Accurate Shot",
-	"core.bonus.ACCURATE_SHOT.description": "Has (${val}% - penalties) extra kills chance",
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",

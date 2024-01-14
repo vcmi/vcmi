@@ -745,7 +745,7 @@ Affected unit will kill additional units after attack. Used for Death stare (Mig
 	- for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
 	- for all other subtypes: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once, rounded up
 - addInfo:
-	- SpellID to be used as hit effect. If not set - 'deathStare' spell will be used
+	- SpellID to be used as hit effect. If not set - 'deathStare' spell will be used. If set to "accurateShot" battle log messages will use alternative description
 
 ### SPECIAL_CRYSTAL_GENERATION
 
