@@ -388,6 +388,13 @@ void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, Faction
 	it->second.setStartingTown(town);
 }
 
+void CMapGenOptions::setStartingHeroForPlayer(const PlayerColor & color, HeroTypeID hero)
+{
+	auto it = players.find(color);
+	assert(it != players.end());
+	it->second.setStartingHero(hero);
+}
+
 void CMapGenOptions::setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType)
 {
 	// FIXME: Why actually not set it to COMP_ONLY? Ie. when swapping human to another color?
@@ -746,7 +753,7 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 	return *RandomGeneratorUtil::nextItem(templates, rand);
 }
 
-CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(FactionID::RANDOM), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
+CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(FactionID::RANDOM), startingHero(HeroTypeID::RANDOM), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
 {
 
 }
@@ -776,6 +783,17 @@ void CMapGenOptions::CPlayerSettings::setStartingTown(FactionID value)
 		assert((*VLC->townh)[value]->town != nullptr);
 	}
 	startingTown = value;
+}
+
+HeroTypeID CMapGenOptions::CPlayerSettings::getStartingHero() const
+{
+	return startingHero;
+}
+
+void CMapGenOptions::CPlayerSettings::setStartingHero(HeroTypeID value)
+{
+	assert(value == HeroTypeID::RANDOM || value.toEntity(VLC) != nullptr);
+	startingHero = value;
 }
 
 EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const

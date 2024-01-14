@@ -762,6 +762,7 @@ void CVCMIServer::updateAndPropagateLobbyState()
 		{
 			const auto & pset = psetPair.second;
 			si->mapGenOptions->setStartingTownForPlayer(pset.color, pset.castle);
+			si->mapGenOptions->setStartingHeroForPlayer(pset.color, pset.hero);
 			if(pset.isControlledByHuman())
 			{
 				si->mapGenOptions->setPlayerTypeForStandardPlayer(pset.color, EPlayerType::HUMAN);
