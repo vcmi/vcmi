@@ -1452,7 +1452,7 @@
     <message>
         <location filename="../validator.cpp" line="52"/>
         <source>Map is not loaded</source>
-        <translation>地图未成功加载</translation>
+        <translation>未加载地图</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="72"/>
