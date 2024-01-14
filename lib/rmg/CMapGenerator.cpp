@@ -499,8 +499,13 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 
 		bool heroUsedAsStarting = false;
 		for (auto const & player : map->getMapGenOptions().getPlayersSettings())
+		{
 			if (player.second.getStartingHero() == hero)
+			{
 				heroUsedAsStarting = true;
+				break;
+			}
+		}
 
 		if (heroUsedAsStarting)
 			continue;
