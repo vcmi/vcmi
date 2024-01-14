@@ -297,7 +297,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 	if(targets.unreachableEnemies.empty())
 		return result;
 
-	auto speed = activeStack->speed();
+	auto speed = activeStack->getMovementRange();
 
 	if(speed == 0)
 		return result;
@@ -324,7 +324,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 		auto turnsToRich = (distance - 1) / speed + 1;
 		auto hexes = closestStack->getSurroundingHexes();
-		auto enemySpeed = closestStack->speed();
+		auto enemySpeed = closestStack->getMovementRange();
 		auto speedRatio = speed / static_cast<float>(enemySpeed);
 		auto multiplier = speedRatio > 1 ? 1 : speedRatio;
 
@@ -821,7 +821,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getOneTurnReachableUn
 				continue;
 			}
 
-			auto unitSpeed = unit->speed(turn);
+			auto unitSpeed = unit->getMovementRange(turn);
 			auto radius = unitSpeed * (turn + 1);
 
 			ReachabilityInfo unitReachability = vstd::getOrCompute(
@@ -887,7 +887,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 			float ratio = blockedUnitDamage / (float)(blockedUnitDamage + activeUnitDamage + 0.01);
 
 			auto unitReachability = turnBattle.getReachability(unit);
-			auto unitSpeed = unit->speed(turn); // Cached value, to avoid performance hit
+			auto unitSpeed = unit->getMovementRange(turn); // Cached value, to avoid performance hit
 
 			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
 			{

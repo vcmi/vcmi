@@ -659,7 +659,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 	ret = path.second;
 
-	int creSpeed = curStack->speed(0, true);
+	int creSpeed = curStack->getMovementRange(0);
 
 	if (battle.battleGetTacticDist() > 0 && creSpeed > 0)
 		creSpeed = GameConstants::BFIELD_SIZE;

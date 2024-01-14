@@ -640,7 +640,7 @@ void BattleInterface::tacticPhaseEnd()
 
 static bool immobile(const CStack *s)
 {
-	return !s->speed(0, true); //should bound stacks be immobile?
+	return s->getMovementRange() == 0; //should bound stacks be immobile?
 }
 
 void BattleInterface::tacticNextStack(const CStack * current)

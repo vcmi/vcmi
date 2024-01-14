@@ -148,7 +148,7 @@ float AnimationControls::getSpellEffectSpeed()
 	return static_cast<float>(getAnimationSpeedFactor() * 10);
 }
 
-float AnimationControls::getMovementDistance(const CCreature * creature)
+float AnimationControls::getMovementRange(const CCreature * creature)
 {
 	// H3 speed: 2/4/6 tiles per second
 	return static_cast<float>( 2.0 * getAnimationSpeedFactor() / creature->animation.walkAnimationTime);
