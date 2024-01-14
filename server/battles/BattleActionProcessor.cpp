@@ -1139,18 +1139,10 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 			for(const auto & sf : *spellsByType)
 			{
 				int meleeRanged;
-				if(sf->additionalInfo.size() < 2)
-				{
-					// legacy format
-					vstd::amax(spellLevel, sf->additionalInfo[0] % 1000);
-					meleeRanged = sf->additionalInfo[0] / 1000;
-				}
-				else
-				{
-					vstd::amax(spellLevel, sf->additionalInfo[0]);
-					meleeRanged = sf->additionalInfo[1];
-				}
-				if (meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
+				vstd::amax(spellLevel, sf->additionalInfo[0]);
+				meleeRanged = sf->additionalInfo[1];
+
+				if (meleeRanged == CAddInfo::NONE || meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
 			}
 			int chance = attacker->valOfBonuses((Selector::typeSubtype(attackMode, BonusSubtypeID(spellID))));
