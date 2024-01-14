@@ -1289,7 +1289,12 @@ static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 #elif defined(VCMI_ANDROID)
 	if (!fieldProps["defaultAndroid"].isNull())
 		return fieldProps["defaultAndroid"];
-#elif !defined(VCMI_MOBILE)
+#elif defined(VCMI_WINDOWS)
+	if (!fieldProps["defaultWindows"].isNull())
+		return fieldProps["defaultWindows"];
+#endif
+
+#if !defined(VCMI_MOBILE)
 	if (!fieldProps["defaultDesktop"].isNull())
 		return fieldProps["defaultDesktop"];
 #endif
