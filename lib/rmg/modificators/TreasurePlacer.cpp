@@ -125,8 +125,6 @@ void TreasurePlacer::addAllPossibleObjects()
 
 			oi.generateObject = [i, this, prisonHeroPlacer, &oi]() -> CGObjectInstance*
 			{
-				auto possibleHeroes = generator.getAllPossibleHeroes();
-
 				HeroTypeID hid = prisonHeroPlacer->drawRandomHero();
 				oi.destroyObject = [hid, prisonHeroPlacer]()
 				{
