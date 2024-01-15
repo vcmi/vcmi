@@ -420,7 +420,7 @@ jobs:
         cmake --build --preset ${{matrix.preset}}
 
     - name: Download libs x64
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: Android JNI android-64
         path: ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs/
