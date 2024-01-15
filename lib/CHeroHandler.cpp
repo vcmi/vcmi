@@ -473,7 +473,11 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
 		hero->initialArmy[i].minAmount = static_cast<ui32>(source["min"].Float());
 		hero->initialArmy[i].maxAmount = static_cast<ui32>(source["max"].Float());
 
-		assert(hero->initialArmy[i].minAmount <= hero->initialArmy[i].maxAmount);
+		if (hero->initialArmy[i].minAmount > hero->initialArmy[i].maxAmount)
+		{
+			logMod->error("Hero %s has minimal army size (%d) greater than maximal size (%d)!", hero->getJsonKey(), hero->initialArmy[i].minAmount, hero->initialArmy[i].maxAmount);
+			std::swap(hero->initialArmy[i].minAmount, hero->initialArmy[i].maxAmount);
+		}
 
 		VLC->identifiers()->requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
