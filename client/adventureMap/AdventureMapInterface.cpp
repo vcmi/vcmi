@@ -691,7 +691,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorMove[turns]);
 			else
-				CCS->curh->set(cursorSailVisit[turns]);
+				CCS->curh->set(cursorSail[turns]);
 			break;
 
 		case EPathNodeAction::VISIT:
@@ -706,6 +706,15 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			}
 			else if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorVisit[turns]);
+			else if (pathNode->layer == EPathfindingLayer::SAIL &&
+					 objAtTile &&
+					 objAtTile->isCoastVisitable() &&
+					 pathNode->theNodeBefore &&
+					 pathNode->theNodeBefore->layer == EPathfindingLayer::LAND )
+			{
+				// exception - when visiting shipwreck located on coast from land - show 'horse' cursor, not 'ship' cursor
+				CCS->curh->set(cursorVisit[turns]);
+			}
 			else
 				CCS->curh->set(cursorSailVisit[turns]);
 			break;
