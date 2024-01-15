@@ -684,79 +684,11 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 	for(auto hex : hexes)
 		reachabilityMap[hex] = getOneTurnReachableUnits(turn, hex);
 
-	if(!ap.attack.shooting)
-	{
-		v.adjustPositions(melleeAttackers, ap, reachabilityMap);
-	}
-
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Exchange score: enemy: %2f, our -%2f", v.getScore().enemyDamageReduce, v.getScore().ourDamageReduce);
 #endif
 
 	return v.getScore();
-}
-
-void BattleExchangeVariant::adjustPositions(
-	std::vector<const battle::Unit*> attackers,
-	const AttackPossibility & ap,
-	std::map<BattleHex, battle::Units> & reachabilityMap)
-{
-	auto hexes = ap.attack.defender->getSurroundingHexes();
-
-	boost::sort(attackers, [&](const battle::Unit * u1, const battle::Unit * u2) -> bool
-		{
-			if(attackerValue[u1->unitId()].isRetalitated && !attackerValue[u2->unitId()].isRetalitated)
-				return true;
-
-			if(attackerValue[u2->unitId()].isRetalitated && !attackerValue[u1->unitId()].isRetalitated)
-				return false;
-
-			return attackerValue[u1->unitId()].value > attackerValue[u2->unitId()].value;
-		});
-
-	vstd::erase_if_present(hexes, ap.from);
-	vstd::erase_if_present(hexes, ap.attack.attacker->occupiedHex(ap.attack.attackerPos));
-
-	float notRealizedDamage = 0;
-
-	for(auto unit : attackers)
-	{
-		if(unit->unitId() == ap.attack.attacker->unitId())
-			continue;
-
-		if(!vstd::contains_if(hexes, [&](BattleHex h) -> bool
-			{
-				return vstd::contains(reachabilityMap[h], unit);
-			}))
-		{
-			notRealizedDamage += attackerValue[unit->unitId()].value;
-			continue;
-		}
-
-		auto desiredPosition = vstd::minElementByFun(hexes, [&](BattleHex h) -> float
-			{
-				auto score = vstd::contains(reachabilityMap[h], unit)
-					? reachabilityMap[h].size()
-					: 0;
-
-				if(unit->doubleWide())
-				{
-					auto backHex = unit->occupiedHex(h);
-
-					if(vstd::contains(hexes, backHex))
-						score += reachabilityMap[backHex].size();
-				}
-
-				return score;
-			});
-
-		hexes.erase(desiredPosition);
-	}
-
-	if(notRealizedDamage > ap.attackValue() && notRealizedDamage > attackerValue[ap.attack.attacker->unitId()].value)
-	{
-		dpsScore = BattleScore(EvaluationResult::INEFFECTIVE_SCORE, 0);
-	}
 }
 
 bool BattleExchangeEvaluator::canBeHitThisTurn(const AttackPossibility & ap)

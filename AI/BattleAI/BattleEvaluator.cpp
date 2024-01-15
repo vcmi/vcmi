@@ -225,7 +225,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		}
 	}
 
-	return BattleAction::makeDefend(stack);
+	return stack->waited() ?  BattleAction::makeDefend(stack) : BattleAction::makeWait(stack);
 }
 
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
