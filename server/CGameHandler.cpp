@@ -1467,6 +1467,9 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	sendAndApply(&vc);
 	visitCastleObjects(obj, hero);
 	giveSpells (obj, hero);
+
+	if (obj->visitingHero && obj->garrisonHero)
+		useScholarSkill(obj->visitingHero->id, obj->garrisonHero->id);
 	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
