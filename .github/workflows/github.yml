@@ -29,7 +29,7 @@ jobs:
         id: get_repo_name
         run: echo "::set-output name=value::${GITHUB_REPOSITORY#*/}"
       - name: Get last successful build for ${{ github.sha }}
-        uses: octokit/request-action@v2.1.0
+        uses: octokit/request-action@v2.1.9
         id: get_last_scheduled_run
         with:
           route: GET /repos/{owner}/{repo}/actions/runs
@@ -50,7 +50,7 @@ jobs:
           fi
       - name: Cancel current run
         if: steps.check_if_built.outputs.skip_build == 1
-        uses: octokit/request-action@v2.1.0
+        uses: octokit/request-action@v2.1.9
         with:
           route: POST /repos/{owner}/{repo}/actions/runs/{run_id}/cancel
           owner: ${{ github.repository_owner }}
