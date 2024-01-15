@@ -515,7 +515,6 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPECIFIC_SPELL_POWER:
 		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
-		case BonusType::ACCURATE_SHOT:
 		case BonusType::NOT_ACTIVE:
 		{
 			VLC->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
@@ -538,6 +537,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
 		case BonusType::CREATURE_DAMAGE:
 		case BonusType::FLYING:
+		case BonusType::FIRST_STRIKE:
 		case BonusType::GENERAL_DAMAGE_REDUCTION:
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
 		case BonusType::SOUL_STEAL:
