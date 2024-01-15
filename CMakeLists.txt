@@ -815,6 +815,10 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
+	# Workaround for this issue:
+	# CPack Error: Error executing: /usr/bin/hdiutil detach "/Volumes/VCMI"
+	# https://github.com/actions/runner-images/issues/7522#issuecomment-1564467252
+	set(CPACK_COMMAND_HDIUTIL "/usr/bin/sudo /usr/bin/hdiutil")
 	# CMake code for CPACK_DMG_DS_STORE executed before DS_STORE_SETUP_SCRIPT
 	# So we can keep both enabled and this shouldn't hurt
 	# set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")

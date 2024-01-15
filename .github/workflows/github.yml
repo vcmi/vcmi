@@ -28,6 +28,7 @@ jobs:
       - name: Get repo name
         id: get_repo_name
         run: echo "::set-output name=value::${GITHUB_REPOSITORY#*/}"
+
       - name: Get last successful build for ${{ github.sha }}
         uses: octokit/request-action@v2.1.9
         id: get_last_scheduled_run
@@ -40,6 +41,7 @@ jobs:
           head_sha: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check if successful build of the current commit exists
         id: check_if_built
         run: |
@@ -48,6 +50,7 @@ jobs:
           else
             echo '::set-output name=skip_build::0'
           fi
+
       - name: Cancel current run
         if: steps.check_if_built.outputs.skip_build == 1
         uses: octokit/request-action@v2.1.9
@@ -58,6 +61,7 @@ jobs:
           run_id: ${{ github.run_id }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Wait for the run to be cancelled
         if: steps.check_if_built.outputs.skip_build == 1
         run: sleep 60
@@ -206,7 +210,7 @@ jobs:
         max-size: "5G"
         verbose: 2
 
-    - name: Clone Heroes 3 data
+    - name: Prepare Heroes 3 data
       env:
         HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
       if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
@@ -235,10 +239,6 @@ jobs:
           ${{ matrix.conan_options }}
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
-
-    - name: Git branch name
-      id: git-branch-name
-      uses: EthanSK/git-branch-name-action@v1
 
     - name: Build Number
       run: |
@@ -337,14 +337,6 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
-
-    - uses: act10ns/slack@v2
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()
   
   # copy-pasted mostly
   bundle_release:
@@ -380,6 +372,7 @@ jobs:
       if: "${{ matrix.conan_profile != '' }}"
       with:
         python-version: '3.10'
+
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |
@@ -394,10 +387,6 @@ jobs:
           ${{ matrix.conan_options }}
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
-
-    - name: Git branch name
-      id: git-branch-name
-      uses: EthanSK/git-branch-name-action@v1
 
     - name: Build Number
       run: |
@@ -440,11 +429,3 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
-
-    - uses: act10ns/slack@v2
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()
