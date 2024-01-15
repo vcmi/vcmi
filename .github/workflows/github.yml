@@ -337,14 +337,6 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
-
-    - uses: act10ns/slack@v2
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()
   
   # copy-pasted mostly
   bundle_release:
@@ -437,11 +429,3 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
-
-    - uses: act10ns/slack@v2
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()
