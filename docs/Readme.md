@@ -23,6 +23,7 @@ VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving 
  * Bugtracker: https://github.com/vcmi/vcmi/issues
  * Slack:      https://slack.vcmi.eu/
  * Discord:    https://discord.gg/chBT42V
+ * GPT Store:  https://chat.openai.com/g/g-1kNhX0mlO-vcmi-assistant
 
 ## Latest release
 
