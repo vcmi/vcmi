@@ -1510,6 +1510,15 @@ void CGameHandler::setMovePoints(SetMovePoints * smp)
 	sendAndApply(smp);
 }
 
+void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, bool absolute)
+{
+	SetMovePoints smp;
+	smp.hid = hid;
+	smp.val = val;
+	smp.absolute = absolute;
+	sendAndApply(&smp);
+}
+
 void CGameHandler::setManaPoints(ObjectInstanceID hid, int val)
 {
 	SetMana sm;
