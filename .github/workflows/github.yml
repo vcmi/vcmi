@@ -216,7 +216,7 @@ jobs:
         mkdir -p ~/.local/share/vcmi/
         mv h3_assets/* ~/.local/share/vcmi/
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       if: "${{ matrix.conan_profile != '' }}"
       with:
         python-version: '3.10'
@@ -376,7 +376,7 @@ jobs:
       env:
         VCMI_BUILD_PLATFORM: x64
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       if: "${{ matrix.conan_profile != '' }}"
       with:
         python-version: '3.10'
