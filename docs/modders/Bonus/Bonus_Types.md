@@ -788,7 +788,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - subtype - spell id, eg. spell.iceBolt
 - value - chance (percent)
 - additional info - \[X, Y, Z\]
-    - X - spell level
+    - X - spell mastery level (1 - Basic, 3 - Expert)
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
     - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
   When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
@@ -798,7 +798,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - subtype - spell id
 - value - chance %
 - additional info - \[X, Y, Z\]
-    - X - spell level
+    - X - spell mastery level (1 - Basic, 3 - Expert)
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
     - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
   When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.

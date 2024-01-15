@@ -147,7 +147,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				(int)bestAttack.from,
 				(int)bestAttack.attack.attacker->getPosition().hex,
 				bestAttack.attack.chargeDistance,
-				bestAttack.attack.attacker->speed(0, true),
+				bestAttack.attack.attacker->getMovementRange(0),
 				bestAttack.defenderDamageReduce,
 				bestAttack.attackerDamageReduce,
 				score
@@ -553,7 +553,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
 						auto original = cb->getBattle(battleID)->battleGetUnitByID(u->unitId());
-						return  !original || u->speed() != original->speed();
+						return  !original || u->getMovementRange() != original->getMovementRange();
 					});
 
 				DamageCache safeCopy = damageCache;
