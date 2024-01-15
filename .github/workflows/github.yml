@@ -236,10 +236,6 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
-    - name: Git branch name
-      id: git-branch-name
-      uses: EthanSK/git-branch-name-action@v1
-
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'
@@ -394,10 +390,6 @@ jobs:
           ${{ matrix.conan_options }}
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
-
-    - name: Git branch name
-      id: git-branch-name
-      uses: EthanSK/git-branch-name-action@v1
 
     - name: Build Number
       run: |
