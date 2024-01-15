@@ -56,20 +56,18 @@ HeroTypeID PrisonHeroPlacer::drawRandomHero()
 		RandomGeneratorUtil::randomShuffle(allowedHeroes, zone.getRand());
         HeroTypeID ret = allowedHeroes.back();
         allowedHeroes.pop_back();
-
-        generator.banHero(ret);
 		return ret;
 	}
 	else
 	{
-		throw rmgException("No quest heroes left for prisons!");
+		throw rmgException("No unused heroes left for prisons!");
 	}
 }
 
-void PrisonHeroPlacer::unbanHero(const HeroTypeID & hid)
+void PrisonHeroPlacer::restoreDrawnHero(const HeroTypeID & hid)
 {
 	RecursiveLock lock(externalAccessMutex);
-	generator.unbanHero(hid);
+	allowedHeroes.push_back(hid);
 }
 
 VCMI_LIB_NAMESPACE_END

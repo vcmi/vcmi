@@ -65,9 +65,7 @@ public:
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
 	const std::vector<HeroTypeID> getAllPossibleHeroes() const;
 	void banQuestArt(const ArtifactID & id);
-	void banHero(const HeroTypeID& id);
-	void unbanHero(const HeroTypeID & id);
-
+	
 	Zone * getZoneWater() const;
 	void addWaterTreasuresInfo();
 

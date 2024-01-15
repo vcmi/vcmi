@@ -27,7 +27,7 @@ public:
 
 	int getPrisonsRemaning() const;
 	HeroTypeID drawRandomHero();
-	void unbanHero(const HeroTypeID & hid);
+	void restoreDrawnHero(const HeroTypeID & hid);
 
 private:
     void getAllowedHeroes();

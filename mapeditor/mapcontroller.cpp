@@ -131,7 +131,12 @@ void MapController::repairMap(CMap * map) const
 		//fix hero instance
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
 		{
+			// All heroes present on map or in prisons need to be allowed to rehire them after they are defeated
+
+			// FIXME: How about custom scenarios where defeated hero cannot be hired again?
+
 			map->allowedHeroes.insert(nih->getHeroType());
+
 			auto type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name

@@ -509,17 +509,6 @@ void CMapGenerator::banQuestArt(const ArtifactID & id)
 	map->getMap(this).allowedArtifact.erase(id);
 }
 
-void CMapGenerator::banHero(const HeroTypeID & id)
-{
-	map->getMap(this).banHero(id);
-}
-
-void CMapGenerator::unbanHero(const HeroTypeID & id)
-{
-	map->getMap(this).unbanHero(id);
-}
-
-
 Zone * CMapGenerator::getZoneWater() const
 {
 	for(auto & z : map->getZones())

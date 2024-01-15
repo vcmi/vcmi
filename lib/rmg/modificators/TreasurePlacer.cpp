@@ -130,7 +130,8 @@ void TreasurePlacer::addAllPossibleObjects()
 				HeroTypeID hid = prisonHeroPlacer->drawRandomHero();
 				oi.destroyObject = [hid, prisonHeroPlacer]()
 				{
-					prisonHeroPlacer->unbanHero(hid);
+					// Hero can be used again
+					prisonHeroPlacer->restoreDrawnHero(hid);
 				};
 
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
