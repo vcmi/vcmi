@@ -1,4 +1,4 @@
-[![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?event=schedule)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
+[![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?event=schedule)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=event%3Aschedule)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.0)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.1)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.2/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.2)
