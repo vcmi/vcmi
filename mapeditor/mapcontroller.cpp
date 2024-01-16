@@ -203,8 +203,6 @@ void MapController::repairMap(CMap * map) const
 				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 				art->storedArtifact = a;
 			}
-			else
-				map->allowedArtifact.insert(art->getArtifact());
 		}
 	}
 }
