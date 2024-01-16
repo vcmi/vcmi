@@ -710,6 +710,8 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	
 	if(c)
 	{
+		nextClient = std::make_unique<CClient>();
+		c->iser.cb = nextClient.get();
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
 	}

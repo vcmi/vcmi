@@ -73,7 +73,7 @@ protected:
 
 	ArtifactInstanceID id;
 public:
-	const CArtifact * artType;
+	const CArtifact * artType = nullptr;
 
 	CArtifactInstance(const CArtifact * art);
 	CArtifactInstance();

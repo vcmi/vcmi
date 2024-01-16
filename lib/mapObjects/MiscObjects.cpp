@@ -772,7 +772,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 		subID = 1;
 
 	assert(storedArtifact->artType);
-	assert(storedArtifact->getParentNodes().size());
+	assert(!storedArtifact->getParentNodes().empty());
 
 	//assert(storedArtifact->artType->id == subID); //this does not stop desync
 }
