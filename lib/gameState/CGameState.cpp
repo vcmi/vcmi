@@ -99,7 +99,7 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	for(const HeroTypeID & hid : getUnusedAllowedHeroes())
 	{
-		if(VLC->heroh->objects[hid.getNum()]->heroClass->faction == ps.castle)
+		if(hid.toHeroType()->heroClass->faction == ps.castle)
 			factionHeroes.push_back(hid);
 		else
 			otherHeroes.push_back(hid);

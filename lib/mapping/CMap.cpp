@@ -169,7 +169,7 @@ CMap::CMap(IGameCallback * cb)
 	, grailRadius(0)
 	, uidCounter(0)
 {
-	allHeroes.resize(VLC->heroh->objects.size());
+	allHeroes.resize(VLC->heroh->size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpells = VLC->spellh->getDefaultAllowed();
