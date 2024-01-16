@@ -26,7 +26,7 @@ public:
 	void init() override;
 
 	int getPrisonsRemaning() const;
-	HeroTypeID drawRandomHero();
+	[[nodiscard]] HeroTypeID drawRandomHero();
 	void restoreDrawnHero(const HeroTypeID & hid);
 
 private:
