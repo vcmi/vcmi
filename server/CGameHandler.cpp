@@ -3436,10 +3436,7 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 
 		if(o1->ID == Obj::ALTAR_OF_SACRIFICE)
 		{
-			const auto visitingHero = getVisitingHero(o1);
-			const auto thisHero = static_cast<const CGHeroInstance*>(o2);
-			if(visitingHero == thisHero)
-				return true;
+			return true;
 		}
 		if(o2->ID == Obj::ALTAR_OF_SACRIFICE)
 		{
@@ -3791,10 +3788,15 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
+	if(hero->getAlignment() == EAlignment::EVIL)
+		COMPLAIN_RET("Evil hero can't sacrifice artifact!");
+
+	assert(m);
+	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(m);
 
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
@@ -3802,34 +3804,28 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 		giveExperience(hero, hero->calculateXp(expSum));
 	};
 
-	for(int i = 0; i < slot.size(); ++i)
+	for(const auto & artInstId : arts)
 	{
-		ArtifactLocation al(hero->id, slot[i]);
-		const CArtifactInstance * a = hero->getArt(al.slot);
-
-		if(!a)
+		if(auto art = altarObj->getArtByInstanceId(artInstId))
+		{
+			if(art->artType->isTradable())
+			{
+				int dmp;
+				int expToGive;
+				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+				expSum += expToGive;
+				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getSlotByInstance(art)));
+			}
+			else
+			{
+				COMPLAIN_RET("Cannot sacrifice not tradable artifact!");
+			}
+		}
+		else
 		{
 			finish();
 			COMPLAIN_RET("Cannot find artifact to sacrifice!");
 		}
-
-		const CArtifactInstance * art = hero->getArt(slot[i]);
-
-		if(!art)
-		{
-			finish();
-			COMPLAIN_RET("No artifact at position to sacrifice!");
-		}
-
-		si32 typId = art->artType->getId();
-		int dmp;
-		int expToGive;
-
-		m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
-
-		expSum += expToGive;
-
-		removeArtifact(al);
 	}
 
 	finish();

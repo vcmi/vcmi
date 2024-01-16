@@ -262,7 +262,7 @@ public:
 	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
 	void run(bool resume);
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
+	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts);
 	void spawnWanderingMonsters(CreatureID creatureID);
 
 	// Check for victory and loss conditions

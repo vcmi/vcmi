@@ -67,6 +67,13 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	CTradeBase::deselect();
 };
 
+CAltarArtifacts::~CAltarArtifacts()
+{
+	// TODO: If the backpack capacity limit is enabled, artifacts may remain on the altar.
+	// Perhaps should be erased in CGameHandler::objectVisitEnded if id of visited object will be available
+	LOCPLINT->cb->bulkMoveArtifacts(altarId, heroArts->getHero()->id, false, true, true);
+}
+
 TExpType CAltarArtifacts::calcExpAltarForHero()
 {
 	TExpType expOnAltar(0);
@@ -79,23 +86,21 @@ TExpType CAltarArtifacts::calcExpAltarForHero()
 void CAltarArtifacts::makeDeal()
 {
 	std::vector<TradeItemSell> positions;
-	for(const auto art : tradeSlotsMap)
+	for(const auto & [artInst, altarSlot] : tradeSlotsMap)
 	{
-		positions.push_back(hero->getSlotByInstance(art.first));
+		positions.push_back(artInst->getId());
 	}
-	std::sort(positions.begin(), positions.end());
-	std::reverse(positions.begin(), positions.end());
-
 	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_EXP, positions, std::vector<TradeItemBuy>(), std::vector<ui32>(), hero);
-	heroArts->artifactsOnAltar.clear();
 
+	tradeSlotsMap.clear();
+	// The event for removing artifacts from the altar will not be triggered. Therefore, we clean the altar immediately.
 	for(auto item : items[0])
 	{
 		item->setID(-1);
 		item->subtitle.clear();
 	}
-	deal->block(true);
 	calcExpAltarForHero();
+	deal->block(tradeSlotsMap.empty());
 }
 
 void CAltarArtifacts::sacrificeAll()
@@ -110,15 +115,8 @@ void CAltarArtifacts::sacrificeBackpack()
 
 void CAltarArtifacts::setSelectedArtifact(const CArtifactInstance * art)
 {
-	if(art)
-	{
-		selectedCost->setText(std::to_string(calcExpCost(art)));
-	}
-	else
-	{
-		selectedArt->setArtifact(nullptr);
-		selectedCost->setText("");
-	}
+	selectedArt->setArtifact(art);
+	selectedCost->setText(art == nullptr ? "" : std::to_string(calcExpCost(art)));
 }
 
 std::shared_ptr<CArtifactsOfHeroAltar> CAltarArtifacts::getAOHset() const
@@ -133,8 +131,8 @@ ObjectInstanceID CAltarArtifacts::getObjId() const
 
 void CAltarArtifacts::updateSlots()
 {
-	assert(altarArtifacts->artifactsInBackpack.size() <= 22);
-	assert(tradeSlotsMap.size() <= 22);
+	assert(altarArtifacts->artifactsInBackpack.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
+	assert(tradeSlotsMap.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
 	
 	auto slotsToAdd = tradeSlotsMap;
 	for(auto & altarSlot : items[0])
@@ -209,7 +207,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	}
 }
 
-TExpType CAltarArtifacts::calcExpCost(const CArtifactInstance* art)
+TExpType CAltarArtifacts::calcExpCost(const CArtifactInstance * art)
 {
 	int dmp = 0;
 	int expOfArt = 0;

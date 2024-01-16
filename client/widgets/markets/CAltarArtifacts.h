@@ -16,6 +16,7 @@ class CAltarArtifacts : public CExperienceAltar
 {
 public:
 	CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero);
+	~CAltarArtifacts();
 	TExpType calcExpAltarForHero() override;
 	void makeDeal() override;
 	void sacrificeAll() override;

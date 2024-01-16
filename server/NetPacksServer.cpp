@@ -141,7 +141,8 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	gh.throwIfWrongOwner(&pack, pack.srcHero);
+	if(gh.getObj(pack.srcHero)->ID != MapObjectID::ALTAR_OF_SACRIFICE)
+		gh.throwIfWrongOwner(&pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(&pack, pack.dstHero);
 	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
@@ -261,9 +262,9 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	}
 	case EMarketMode::ARTIFACT_EXP:
 	{
-		std::vector<ArtifactPosition> positions;
-		for(auto const & slot : pack.r1)
-			positions.push_back(slot.as<ArtifactPosition>());
+		std::vector<ArtifactInstanceID> positions;
+		for(auto const & artInstId : pack.r1)
+			positions.push_back(artInstId.as<ArtifactInstanceID>());
 
 		result = gh.sacrificeArtifact(market, hero, positions);
 		return;
