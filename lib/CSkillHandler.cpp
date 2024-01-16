@@ -59,7 +59,7 @@ std::string CSkill::getNameTranslated() const
 
 std::string CSkill::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 std::string CSkill::getDescriptionTextID(int level) const

@@ -293,7 +293,7 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 	bool unlimited = false;
 	try
 	{
-		smp.val = std::stol(words.at(0));;
+		smp.val = std::stol(words.at(0));
 	}
 	catch(std::logic_error&)
 	{
@@ -326,7 +326,7 @@ void PlayerMessageProcessor::cheatResources(PlayerColor player, std::vector<std:
 	int baseResourceAmount;
 	try
 	{
-		baseResourceAmount = std::stol(words.at(0));;
+		baseResourceAmount = std::stol(words.at(0));
 	}
 	catch(std::logic_error&)
 	{

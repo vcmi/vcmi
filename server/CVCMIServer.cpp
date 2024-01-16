@@ -1051,7 +1051,7 @@ void CVCMIServer::optionSetBonus(PlayerColor player, PlayerStartingBonus id)
 	if(s.castle == FactionID::RANDOM && id == PlayerStartingBonus::RESOURCE) //random castle - can't be resource
 		return;
 
-	s.bonus = id;;
+	s.bonus = id;
 }
 
 bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)

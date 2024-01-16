@@ -1360,7 +1360,7 @@ void CMapSaverJson::writeTranslations()
 		if(Languages::getLanguageOptions(language).identifier.empty())
 		{
 			logGlobal->error("Serializing of unsupported language %s is not permitted", language);
-			continue;;
+			continue;
 		}
 		logGlobal->trace("Saving translations, language: %s", language);
 		addToArchive(s.second, language + ".json");

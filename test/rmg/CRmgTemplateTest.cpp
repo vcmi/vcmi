@@ -71,7 +71,7 @@ protected:
 
 				const auto otherZone = subject->getZones().at(otherZoneId);
 				GTEST_ASSERT_NE(otherZone, nullptr);
-				EXPECT_THAT(thisZone->getTreasureInfo(), ContainerEq(otherZone->getTreasureInfo()));;
+				EXPECT_THAT(thisZone->getTreasureInfo(), ContainerEq(otherZone->getTreasureInfo()));
 			}
 		}
 

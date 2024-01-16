@@ -125,7 +125,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	
 	if(tinfo.roadType) //print road from this tile
 	{
-		auto roadName = tinfo.roadType->getJsonKey();;
+		auto roadName = tinfo.roadType->getJsonKey();
 		QRect source(0, 0, tileSize, tileSize / 2);
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3);

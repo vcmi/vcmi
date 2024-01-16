@@ -104,7 +104,7 @@ void CLabel::setColor(const ColorRGBA & Color)
 
 size_t CLabel::getWidth()
 {
-	return graphics->fonts[font]->getStringWidth(visibleText());;
+	return graphics->fonts[font]->getStringWidth(visibleText());
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text) :
