@@ -1800,6 +1800,7 @@ bool CGameHandler::load(const std::string & filename)
 	{
 		{
 			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			lf.serializer.cb = this;
 			loadCommonState(lf);
 			logGlobal->info("Loading server state");
 			lf >> *this;
