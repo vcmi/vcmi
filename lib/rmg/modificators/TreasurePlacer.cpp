@@ -475,7 +475,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, qap, &oi]() -> CGObjectInstance *
+			oi.generateObject = [creature, creaturesAmount, randomAppearance, qap, &oi]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
