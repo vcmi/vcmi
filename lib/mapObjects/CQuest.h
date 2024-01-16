@@ -98,7 +98,7 @@ public:
 class DLL_LINKAGE IQuestObject
 {
 public:
-	CQuest * quest = new CQuest();
+	auto * quest = new CQuest();
 
 	///Information about quest should remain accessible even if IQuestObject removed from map
 	///All CQuest objects are freed in CMap destructor

@@ -139,10 +139,10 @@ void Lobby::serverCommand(const ServerCommand & command) try
 
 			int playersJoined = args[tagPoint++].toInt();
 			int playersTotal = args[tagPoint++].toInt();
-			QTableWidgetItem * sessionPlayerItem = new QTableWidgetItem(QString("%1/%2").arg(playersJoined).arg(playersTotal));
+			auto * sessionPlayerItem = new QTableWidgetItem(QString("%1/%2").arg(playersJoined).arg(playersTotal));
 			ui->sessionsTable->setItem(i, 1, sessionPlayerItem);
 
-			QTableWidgetItem * sessionProtectedItem = new QTableWidgetItem();
+			auto * sessionProtectedItem = new QTableWidgetItem();
 			bool isPrivate = (args[tagPoint++] == "True");
 			sessionProtectedItem->setData(Qt::UserRole, isPrivate);
 			if(isPrivate)
