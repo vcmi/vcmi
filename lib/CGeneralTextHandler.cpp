@@ -264,11 +264,14 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 
 void TextLocalizationContainer::addSubContainer(const TextLocalizationContainer & container)
 {
+	assert(!vstd::contains(subContainers, &container));
 	subContainers.push_back(&container);
 }
 
 void TextLocalizationContainer::removeSubContainer(const TextLocalizationContainer & container)
 {
+	assert(vstd::contains(subContainers, &container));
+
 	subContainers.erase(std::remove(subContainers.begin(), subContainers.end(), &container), subContainers.end());
 }
 
@@ -412,6 +415,28 @@ void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const
 		if(!s.second.overrideValue.empty())
 			dest.Struct()[s.first].String() = s.second.overrideValue;
 	}
+}
+
+TextContainerRegistrable::TextContainerRegistrable()
+{
+	VLC->generaltexth->addSubContainer(*this);
+}
+
+TextContainerRegistrable::~TextContainerRegistrable()
+{
+	VLC->generaltexth->removeSubContainer(*this);
+}
+
+TextContainerRegistrable::TextContainerRegistrable(const TextContainerRegistrable & other)
+	: TextLocalizationContainer(other)
+{
+	VLC->generaltexth->addSubContainer(*this);
+}
+
+TextContainerRegistrable::TextContainerRegistrable(TextContainerRegistrable && other) noexcept
+	:TextLocalizationContainer(other)
+{
+	VLC->generaltexth->addSubContainer(*this);
 }
 
 void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
