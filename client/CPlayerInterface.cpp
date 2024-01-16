@@ -111,11 +111,7 @@
 // They all assume that interface mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT
 
-#define BATTLE_EVENT_POSSIBLE_RETURN	\
-	if (LOCPLINT != this)				\
-		return;							\
-	if (isAutoFightOn && !battleInt)	\
-		return;
+#define BATTLE_EVENT_POSSIBLE_RETURN	if (LOCPLINT != this) return; if (isAutoFightOn && !battleInt) return
 
 CPlayerInterface * LOCPLINT;
 
