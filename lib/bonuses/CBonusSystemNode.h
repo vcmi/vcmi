@@ -88,10 +88,12 @@ public:
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
-	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector & selector) const;
 
-	//non-const interface
-	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
+	/// Returns first bonus matching selector
+	std::shared_ptr<const Bonus> getFirstBonus(const CSelector & selector) const;
+
+	/// Provides write access to first bonus from this node that matches selector
+	std::shared_ptr<Bonus> getLocalBonus(const CSelector & selector);
 
 	void attachTo(CBonusSystemNode & parent);
 	void attachToSource(const CBonusSystemNode & parent);

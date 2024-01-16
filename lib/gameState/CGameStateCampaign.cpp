@@ -91,7 +91,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 					.And(Selector::subtype()(BonusSubtypeID(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
-				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g.getNum()];
+				cgh->getLocalBonus(sel)->val = cgh->type->heroClass->primarySkillInitial[g.getNum()];
 			}
 		}
 	}

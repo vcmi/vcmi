@@ -2147,7 +2147,7 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 	}
 	case BonusType::POISON:
 	{
-		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID(SpellID::POISON))
+		auto b = st->getLocalBonus(Selector::source(BonusSource::SPELL_EFFECT, SpellID(SpellID::POISON))
 				.And(Selector::type()(BonusType::STACK_HEALTH)));
 		if (b)
 			b->val = val;

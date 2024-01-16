@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 std::atomic<int64_t> CBonusSystemNode::treeChanged(1);
 constexpr bool CBonusSystemNode::cachingEnabled = true;
 
-std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & selector)
+std::shared_ptr<Bonus> CBonusSystemNode::getLocalBonus(const CSelector & selector)
 {
 	auto ret = bonuses.getFirst(selector);
 	if(ret)
@@ -28,7 +28,7 @@ std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & se
 	return nullptr;
 }
 
-std::shared_ptr<const Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & selector) const
+std::shared_ptr<const Bonus> CBonusSystemNode::getFirstBonus(const CSelector & selector) const
 {
 	auto ret = bonuses.getFirst(selector);
 	if(ret)
@@ -38,7 +38,7 @@ std::shared_ptr<const Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelecto
 	getParents(lparents);
 	for(const CBonusSystemNode *pname : lparents)
 	{
-		ret = pname->getBonusLocalFirst(selector);
+		ret = pname->getFirstBonus(selector);
 		if (ret)
 			return ret;
 	}

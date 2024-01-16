@@ -1412,7 +1412,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
-		auto skill = getBonusLocalFirst(Selector::type()(BonusType::PRIMARY_SKILL)
+		auto skill = getLocalBonus(Selector::type()(BonusType::PRIMARY_SKILL)
 			.And(Selector::subtype()(BonusSubtypeID(primarySkill)))
 			.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 		assert(skill);

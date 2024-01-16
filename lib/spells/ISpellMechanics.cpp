@@ -475,7 +475,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 				return adaptGenericProblem(target);
 
 			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
+			const auto b = hero->getFirstBonus(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
 			//TODO what about other values and non-artifact sources?
 			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{

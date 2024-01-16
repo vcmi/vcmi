@@ -62,7 +62,7 @@ void CCombinedArtifactInstance::addPlacementMap(CArtifactSet::ArtPlacementMap & 
 SpellID CScrollArtifactInstance::getScrollSpellID() const
 {
 	auto artInst = static_cast<const CArtifactInstance*>(this);
-	const auto bonus = artInst->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
+	const auto bonus = artInst->getFirstBonus(Selector::type()(BonusType::SPELL));
 	if(!bonus)
 		return SpellID::NONE;
 	return bonus->subtype.as<SpellID>();
