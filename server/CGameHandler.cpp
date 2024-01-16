@@ -2767,27 +2767,26 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	return true;
 }
 
-bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped, bool backpack)
+bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
 {
 	// Make sure exchange is even possible between the two heroes.
-	if(!isAllowedExchange(srcHero, dstHero))
+	if(!isAllowedExchange(srcId, dstId))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
-	auto psrcHero = getHero(srcHero);
-	auto pdstHero = getHero(dstHero);
-	if((!psrcHero) || (!pdstHero))
+	auto psrcSet = getArtSet(srcId);
+	auto pdstSet = getArtSet(dstId);
+	if((!psrcSet) || (!pdstSet))
 		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
 
-	BulkMoveArtifacts ma(srcHero, dstHero, swap);
+	BulkMoveArtifacts ma(srcId, dstId, swap);
 	auto & slotsSrcDst = ma.artsPack0;
 	auto & slotsDstSrc = ma.artsPack1;
 
 	// Temporary fitting set for artifacts. Used to select available slots before sending data.
-	CArtifactFittingSet artFittingSet(pdstHero->bearerType());
+	CArtifactFittingSet artFittingSet(pdstSet->bearerType());
 
-	auto moveArtifact = [this, &artFittingSet](const CArtifactInstance * artifact,
-		ArtifactPosition srcSlot, const CGHeroInstance * dstHero,
-		std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+	auto moveArtifact = [this, &artFittingSet, dstId](const CArtifactInstance * artifact,
+		ArtifactPosition srcSlot, std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 	{
 		assert(artifact);
 		auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, artifact->getTypeId());
@@ -2796,20 +2795,23 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
 			slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 
-			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
-				giveHeroNewArtifact(dstHero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+			// TODO Shouldn't be here. Possibly in callback after equipping the artifact
+			if(auto dstHero = getHero(dstId))
+			{
+				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
+					giveHeroNewArtifact(dstHero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+			}
 		}
 	};
 
 	if(swap)
 	{
-		auto moveArtsWorn = [moveArtifact](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
-			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		auto moveArtsWorn = [moveArtifact](const CArtifactSet * srcArtSet, std::vector<BulkMoveArtifacts::LinkedSlots> & slots)
 		{
-			for(auto & artifact : srcHero->artifactsWorn)
+			for(auto & artifact : srcArtSet->artifactsWorn)
 			{
 				if(ArtifactUtils::isArtRemovable(artifact))
-					moveArtifact(artifact.second.getArt(), artifact.first, dstHero, slots);
+					moveArtifact(artifact.second.getArt(), artifact.first, slots);
 			}
 		};
 		auto moveArtsInBackpack = [](const CArtifactSet * artSet,
@@ -2824,41 +2826,41 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		if(equipped)
 		{
 			// Move over artifacts that are worn srcHero -> dstHero
-			moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
+			moveArtsWorn(psrcSet, slotsSrcDst);
 			artFittingSet.artifactsWorn.clear();
 			// Move over artifacts that are worn dstHero -> srcHero
-			moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
+			moveArtsWorn(pdstSet, slotsDstSrc);
 		}
 		if(backpack)
 		{
 			// Move over artifacts that are in backpack srcHero -> dstHero
-			moveArtsInBackpack(psrcHero, slotsSrcDst);
+			moveArtsInBackpack(psrcSet, slotsSrcDst);
 			// Move over artifacts that are in backpack dstHero -> srcHero
-			moveArtsInBackpack(pdstHero, slotsDstSrc);
+			moveArtsInBackpack(pdstSet, slotsDstSrc);
 		}
 	}
 	else
 	{
-		artFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
-		artFittingSet.artifactsWorn = pdstHero->artifactsWorn;
+		artFittingSet.artifactsInBackpack = pdstSet->artifactsInBackpack;
+		artFittingSet.artifactsWorn = pdstSet->artifactsWorn;
 		if(equipped)
 		{
 			// Move over artifacts that are worn
-			for(auto & artInfo : psrcHero->artifactsWorn)
+			for(auto & artInfo : psrcSet->artifactsWorn)
 			{
 				if(ArtifactUtils::isArtRemovable(artInfo))
 				{
-					moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero, slotsSrcDst);
+					moveArtifact(psrcSet->getArt(artInfo.first), artInfo.first, slotsSrcDst);
 				}
 			}
 		}
 		if(backpack)
 		{
 			// Move over artifacts that are in backpack
-			for(auto & slotInfo : psrcHero->artifactsInBackpack)
+			for(auto & slotInfo : psrcSet->artifactsInBackpack)
 			{
-				moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)),
-					psrcHero->getArtPos(slotInfo.artifact), pdstHero, slotsSrcDst);
+				moveArtifact(psrcSet->getArt(psrcSet->getArtPos(slotInfo.artifact)),
+					psrcSet->getArtPos(slotInfo.artifact), slotsSrcDst);
 			}
 		}
 	}

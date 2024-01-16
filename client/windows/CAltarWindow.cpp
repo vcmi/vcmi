@@ -19,6 +19,7 @@
 
 #include "../CGameInfo.h"
 
+#include "../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -115,6 +116,9 @@ void CAltarWindow::artifactMoved(const ArtifactLocation & srcLoc, const Artifact
 
 	if(auto altarArtifacts = std::static_pointer_cast<CAltarArtifacts>(altar))
 	{
+		if(srcLoc.artHolder == altarArtifacts->getObjId() || destLoc.artHolder == altarArtifacts->getObjId())
+			altarArtifacts->updateSlots();
+
 		if(const auto pickedArt = getPickedArtifact())
 			altarArtifacts->setSelectedArtifact(pickedArt);
 		else
