@@ -37,21 +37,25 @@ void CRandomGenerator::resetSeed()
 
 TRandI CRandomGenerator::getIntRange(int lower, int upper)
 {
+	assert(lower <= upper);
 	return std::bind(TIntDist(lower, upper), std::ref(rand));
 }
 
 vstd::TRandI64 CRandomGenerator::getInt64Range(int64_t lower, int64_t upper)
 {
+	assert(lower <= upper);
 	return std::bind(TInt64Dist(lower, upper), std::ref(rand));
 }
 
 int CRandomGenerator::nextInt(int upper)
 {
+	assert(0 <= upper);
 	return getIntRange(0, upper)();
 }
 
 int CRandomGenerator::nextInt(int lower, int upper)
 {
+	assert(lower <= upper);
 	return getIntRange(lower, upper)();
 }
 
@@ -62,16 +66,19 @@ int CRandomGenerator::nextInt()
 
 vstd::TRand CRandomGenerator::getDoubleRange(double lower, double upper)
 {
-    return std::bind(TRealDist(lower, upper), std::ref(rand));
+	assert(lower <= upper);
+	return std::bind(TRealDist(lower, upper), std::ref(rand));
 }
 
 double CRandomGenerator::nextDouble(double upper)
 {
+	assert(0 <= upper);
 	return getDoubleRange(0, upper)();
 }
 
 double CRandomGenerator::nextDouble(double lower, double upper)
 {
+	assert(lower <= upper);
 	return getDoubleRange(lower, upper)();
 }
 

@@ -411,12 +411,6 @@
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 5
 			},
-			"hateGiants" :
-			{
-				"type" : "HATE",
-				"subtype" : "creature.giant",
-				"val" : 50
-			},
 			"hateTitans" :
 			{
 				"type" : "HATE",

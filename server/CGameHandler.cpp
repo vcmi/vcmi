@@ -1467,6 +1467,9 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	sendAndApply(&vc);
 	visitCastleObjects(obj, hero);
 	giveSpells (obj, hero);
+
+	if (obj->visitingHero && obj->garrisonHero)
+		useScholarSkill(obj->visitingHero->id, obj->garrisonHero->id);
 	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
@@ -1508,6 +1511,15 @@ void CGameHandler::giveHeroBonus(GiveBonus * bonus)
 void CGameHandler::setMovePoints(SetMovePoints * smp)
 {
 	sendAndApply(smp);
+}
+
+void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, bool absolute)
+{
+	SetMovePoints smp;
+	smp.hid = hid;
+	smp.val = val;
+	smp.absolute = absolute;
+	sendAndApply(&smp);
 }
 
 void CGameHandler::setManaPoints(ObjectInstanceID hid, int val)

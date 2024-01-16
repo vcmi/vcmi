@@ -76,6 +76,7 @@ CSpell::CSpell():
 	power(0),
 	combat(false),
 	creatureAbility(false),
+	castOnSelf(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
 	rising(false),
@@ -283,6 +284,11 @@ bool CSpell::hasEffects() const
 bool CSpell::hasBattleEffects() const
 {
 	return levels[0].battleEffects.getType() == JsonNode::JsonType::DATA_STRUCT && !levels[0].battleEffects.Struct().empty();
+}
+
+bool CSpell::canCastOnSelf() const
+{
+	return castOnSelf;
 }
 
 const std::string & CSpell::getIconImmune() const
@@ -702,6 +708,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		spell->school[info.id] = schoolNames[info.jsonName].Bool();
 	}
 
+	spell->castOnSelf = json["canCastOnSelf"].Bool();
 	spell->level = static_cast<si32>(json["level"].Integer());
 	spell->power = static_cast<si32>(json["power"].Integer());
 

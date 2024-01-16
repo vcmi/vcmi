@@ -169,7 +169,6 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 			case 1: 
 				//Coronius style specialty bonus.
 				//Please note that actual Coronius isnt here, because Slayer is a spell that doesnt affect monster stats and is used only in calculateDmgRange
-				power = std::max(5 - tier, 0);
 				break;
 			}
 			if(m->isNegativeSpell())

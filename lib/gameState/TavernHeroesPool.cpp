@@ -40,7 +40,7 @@ TavernSlotRole TavernHeroesPool::getSlotRole(HeroTypeID hero) const
 	return TavernSlotRole::NONE;
 }
 
-void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role)
+void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role, bool replenishPoints)
 {
 	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
 		return entry.player == player && entry.slot == slot;
@@ -53,6 +53,12 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 
 	if (h && army)
 		h->setToArmy(army);
+
+	if (h && replenishPoints)
+	{
+		h->setMovementPoints(h->movementPointsLimit(true));
+		h->mana = h->manaLimit();
+	}
 
 	TavernSlot newSlot;
 	newSlot.hero = h;
