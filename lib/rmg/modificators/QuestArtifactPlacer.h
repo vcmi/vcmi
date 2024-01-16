@@ -29,14 +29,15 @@ public:
 	void findZonesForQuestArts();
 
 	void addQuestArtifact(const ArtifactID& id);
+	void removeQuestArtifact(const ArtifactID& id);
 	void rememberPotentialArtifactToReplace(CGObjectInstance* obj);
 	std::vector<CGObjectInstance*> getPossibleArtifactsToReplace() const;
 	void placeQuestArtifacts(CRandomGenerator & rand);
 	void dropReplacedArtifact(CGObjectInstance* obj);
 
 	size_t getMaxQuestArtifactCount() const;
-	ArtifactID drawRandomArtifact();
-	void addRandomArtifact(ArtifactID artid);
+	[[nodiscard]] ArtifactID drawRandomArtifact();
+	void addRandomArtifact(const ArtifactID & artid);
 
 protected:
 
