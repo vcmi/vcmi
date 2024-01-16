@@ -64,7 +64,7 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyA
 
 int CPlayerBattleCallback::battleGetSurrenderCost() const
 {
-	RETURN_IF_NOT_BATTLE(-3)
+	RETURN_IF_NOT_BATTLE(-3);
 			ASSERT_IF_CALLED_WITH_PLAYER
 			return CBattleInfoCallback::battleGetSurrenderCost(*getPlayerID());
 }
