@@ -215,17 +215,20 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 
 	const battle::Unit * mainTarget = nullptr;
 
-	if(spellTarget.front().unitValue)
+	if (!getSpell()->canCastOnSelf())
 	{
-		mainTarget = target.front().unitValue;
-	}
-	else if(spellTarget.front().hexValue.isValid())
-	{
-		mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
-	}
+		if(spellTarget.front().unitValue)
+		{
+			mainTarget = target.front().unitValue;
+		}
+		else if(spellTarget.front().hexValue.isValid())
+		{
+			mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
+		}
 
-	if (mainTarget && mainTarget == caster)
-		return false; // can't cast on self
+		if (mainTarget && mainTarget == caster)
+			return false; // can't cast on self
+	}
 
 	return effects->applicable(problem, this, target, spellTarget);
 }

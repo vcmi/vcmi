@@ -61,6 +61,10 @@
 			"positive": true,
 		},
 		
+		// If true, then creature capable of casting this spell can cast this spell on itself
+		// If false, then creature can only cast this spell on other units
+		"canCastOnSelf" : false,
+		
 		// If true, spell won't be available on a map without water
 		"onlyOnWaterMap" : true,
 
