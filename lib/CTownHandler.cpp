@@ -75,7 +75,7 @@ const BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
 
 std::string CBuilding::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 std::string CBuilding::getNameTranslated() const
@@ -154,7 +154,7 @@ int32_t CFaction::getIconIndex() const
 
 std::string CFaction::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 void CFaction::registerIcons(const IconRegistar & cb) const

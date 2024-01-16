@@ -149,7 +149,7 @@ CreatureID MapReaderH3M::readCreature()
 		return CreatureID::NONE;
 
 	if(result.getNum() < features.creaturesCount)
-		return remapIdentifier(result);;
+		return remapIdentifier(result);
 
 	// this may be random creature in army/town, to be randomized later
 	CreatureID randomIndex(result.getNum() - features.creatureIdentifierInvalid - 1);
@@ -166,7 +166,7 @@ TerrainId MapReaderH3M::readTerrain()
 {
 	TerrainId result(readUInt8());
 	assert(result.getNum() < features.terrainsCount);
-	return remapIdentifier(result);;
+	return remapIdentifier(result);
 }
 
 RoadId MapReaderH3M::readRoad()
@@ -187,7 +187,7 @@ SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
 	assert(result.getNum() < features.skillsCount);
-	return remapIdentifier(result);;
+	return remapIdentifier(result);
 }
 
 SpellID MapReaderH3M::readSpell()
@@ -199,7 +199,7 @@ SpellID MapReaderH3M::readSpell()
 		return SpellID::PRESET;
 
 	assert(result.getNum() < features.spellsCount);
-	return remapIdentifier(result);;
+	return remapIdentifier(result);
 }
 
 SpellID MapReaderH3M::readSpell32()

@@ -301,7 +301,7 @@ EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 	EShortcut result = GH.shortcuts().findShortcut(config.String());
 	if (result == EShortcut::NONE)
 		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
-	return result;;
+	return result;
 }
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const

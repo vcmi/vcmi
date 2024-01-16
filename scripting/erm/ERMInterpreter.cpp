@@ -321,7 +321,7 @@ namespace ERMConverter
 		{
 			ParamIO ret;
 			ret.isInput = true;
-			ret.name = (std::visit(LVL1IexpToVar(), cmp)).str();;
+			ret.name = (std::visit(LVL1IexpToVar(), cmp)).str();
 			return ret;
 		}
 

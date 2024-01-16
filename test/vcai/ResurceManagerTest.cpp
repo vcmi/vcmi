@@ -87,7 +87,7 @@ TEST_F(ResourceManagerTest, notifyGoalImplemented)
 	EXPECT_FALSE(rm->notifyGoalCompleted(invalidGoal));
 	EXPECT_FALSE(rm->hasTasksLeft());
 
-	TResources res(0,0,0,0,0,0,12345);;
+	TResources res(0,0,0,0,0,0,12345);
 	rm->reserveResoures(res, invalidGoal);
 	ASSERT_FALSE(rm->hasTasksLeft()) << "Can't push Invalid goal";
 	EXPECT_FALSE(rm->notifyGoalCompleted(invalidGoal));

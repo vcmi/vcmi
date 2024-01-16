@@ -202,7 +202,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	auto createdObject = handlerConstructors.at(handler)();
 
 	createdObject->modScope = scope;
-	createdObject->typeName = obj->identifier;;
+	createdObject->typeName = obj->identifier;
 	createdObject->subTypeName = identifier;
 
 	createdObject->type = obj->id;

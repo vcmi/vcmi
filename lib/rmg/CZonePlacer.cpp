@@ -402,7 +402,7 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 			//TODO: Don't do this is fitness was improved
 			moveOneZone(zones, totalForces, distances, overlaps);
 
-			improved |= evaluateSolution();;
+			improved |= evaluateSolution();
 		}
 
 		if (!improved)

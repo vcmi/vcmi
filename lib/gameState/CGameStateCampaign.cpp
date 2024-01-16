@@ -54,7 +54,7 @@ std::optional<CampaignScenarioID> CGameStateCampaign::getHeroesSourceScenario() 
 	auto bonus = currentBonus();
 
 	if(bonus && bonus->type == CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO)
-		return static_cast<CampaignScenarioID>(bonus->info2);;
+		return static_cast<CampaignScenarioID>(bonus->info2);
 
 	return campaignState->lastScenario();
 }
