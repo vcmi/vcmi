@@ -48,7 +48,7 @@ namespace spells
 
 static std::shared_ptr<TargetCondition> makeCondition(const CSpell * s)
 {
-	std::shared_ptr<TargetCondition> res = std::make_shared<TargetCondition>();
+	auto res = std::make_shared<TargetCondition>();
 
 	JsonDeserializer deser(nullptr, s->targetCondition);
 	res->serializeJson(deser, TargetConditionItemFactory::getDefault());

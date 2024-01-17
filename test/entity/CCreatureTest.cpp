@@ -107,7 +107,7 @@ TEST_F(CCreatureTest, DISABLED_JsonAddBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 
 	JsonNode & toAdd = data["bonuses"]["toAdd"];
 
@@ -133,10 +133,10 @@ TEST_F(CCreatureTest, DISABLED_JsonRemoveBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
+	auto b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b1);
 
-	std::shared_ptr<Bonus> b2 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 18, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
+	auto b2 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 18, BonusSourceID(CreatureID(42)), BonusSubtypeID(CreatureID(43)), BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b2);
 
 

@@ -957,14 +957,14 @@ void BattleInfo::setWallState(EWallPart partOfWall, EWallState state)
 
 void BattleInfo::addObstacle(const ObstacleChanges & changes)
 {
-	std::shared_ptr<SpellCreatedObstacle> obstacle = std::make_shared<SpellCreatedObstacle>();
+	auto obstacle = std::make_shared<SpellCreatedObstacle>();
 	obstacle->fromInfo(changes);
 	obstacles.push_back(obstacle);
 }
 
 void BattleInfo::updateObstacle(const ObstacleChanges& changes)
 {
-	std::shared_ptr<SpellCreatedObstacle> changedObstacle = std::make_shared<SpellCreatedObstacle>();
+	auto changedObstacle = std::make_shared<SpellCreatedObstacle>();
 	changedObstacle->fromInfo(changes);
 
 	for(auto & obstacle : obstacles)

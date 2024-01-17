@@ -34,7 +34,7 @@ protected:
 
 	void testLoadSave(const std::string & id, const JsonNode & config)
 	{
-		std::shared_ptr<CRmgTemplate> subject = std::make_shared<CRmgTemplate>();
+		auto subject = std::make_shared<CRmgTemplate>();
 		subject->setId(id);
 
 		{

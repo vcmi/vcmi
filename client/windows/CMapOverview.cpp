@@ -98,7 +98,7 @@ Canvas CMapOverviewWidget::createMinimapForLayer(std::unique_ptr<CMap> & map, in
 
 std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) const
 {
-	std::vector<Canvas> ret = std::vector<Canvas>();
+	auto ret = std::vector<Canvas>();
 
 	CMapService mapService;
 	std::unique_ptr<CMap> map;
@@ -117,7 +117,7 @@ std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) co
 
 std::vector<Canvas> CMapOverviewWidget::createMinimaps(std::unique_ptr<CMap> & map) const
 {
-	std::vector<Canvas> ret = std::vector<Canvas>();
+	auto ret = std::vector<Canvas>();
 
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
 		ret.push_back(createMinimapForLayer(map, i));
@@ -164,7 +164,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 
-			std::unique_ptr<CMapHeader> mapHeader = std::make_unique<CMapHeader>();
+			auto mapHeader = std::make_unique<CMapHeader>();
 			StartInfo * startInfo;
 			lf >> *(mapHeader) >> startInfo;
 

@@ -54,7 +54,7 @@ void Progress::reset(int s)
 
 void Progress::finish()
 {
-	_progress = _target = std::numeric_limits<Type>::max();
+	auto = _target = std::numeric_limits<Type>::max();
 	_step = std::numeric_limits<Type>::min();
 	_maxSteps = std::numeric_limits<Type>::min();
 }

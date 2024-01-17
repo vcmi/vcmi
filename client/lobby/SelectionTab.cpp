@@ -448,7 +448,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 				}			
 			}
 
-			std::shared_ptr<ElementInfo> folder = std::make_shared<ElementInfo>();
+			auto folder = std::make_shared<ElementInfo>();
 			folder->isFolder = true;
 			folder->folderName = folderName;
 			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });

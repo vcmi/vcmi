@@ -54,7 +54,7 @@ std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shar
 		//rounding follows format for HMM3 creature specialty bonus
 		int newVal = (valPer20 * steps + 19) / 20;
 		//return copy of bonus with updated val
-		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+		auto newBonus = std::make_shared<Bonus>(*b);
 		newBonus->val = newVal;
 		return newBonus;
 	}
@@ -83,7 +83,7 @@ std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shar
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
 		int level = dynamic_cast<const CGHeroInstance &>(context).level;
-		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+		auto newBonus = std::make_shared<Bonus>(*b);
 		newBonus->val *= level;
 		return newBonus;
 	}
@@ -155,7 +155,7 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::sha
 	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE)
 	{
 		int level = dynamic_cast<const CStackInstance &>(context).getLevel();
-		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+		auto newBonus = std::make_shared<Bonus>(*b);
 		newBonus->val *= level;
 		return newBonus;
 	}
@@ -167,7 +167,7 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::sha
 		if(stack.base == nullptr)
 		{
 			int level = stack.unitType()->getLevel();
-			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+			auto newBonus = std::make_shared<Bonus>(*b);
 			newBonus->val *= level;
 			return newBonus;
 		}

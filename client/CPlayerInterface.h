@@ -192,7 +192,7 @@ public: // public interface for use by client via LOCPLINT access
 	void showInfoDialog(const std::string &text, std::shared_ptr<CComponent> component);
 	void showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>(), int soundID = 0);
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
-	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
+	auto showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
 	void moveHero(const CGHeroInstance *h, const CGPath& path);
 

@@ -44,7 +44,7 @@ TEST(MapFormat, DISABLED_Random)
 
 	CMapGenOptions opt;
 	CRmgTemplate tmpl;
-	std::shared_ptr<ZoneOptionsFake> zoneOptions = std::make_shared<ZoneOptionsFake>();
+	auto zoneOptions = std::make_shared<ZoneOptionsFake>();
 
 	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getHumanPlayers()).addRange(1, 4);
 	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = zoneOptions;

@@ -104,7 +104,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageToAliveUnit)
 
 	unitsFake.setDefaultBonusExpectations();
 
-	std::shared_ptr<CUnitState> targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
+	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId),_, Lt(0))).Times(1);
@@ -168,7 +168,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
 
 	unitsFake.setDefaultBonusExpectations();
 
-	std::shared_ptr<CUnitState> targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
+	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 
@@ -212,7 +212,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByCount)
 
 	unitsFake.setDefaultBonusExpectations();
 
-	std::shared_ptr<CUnitState> targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
+	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 

@@ -42,7 +42,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
-#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
+auto SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
 #define SET_HANDLER(STRING, TYPENAME) handlerConstructors[STRING] = std::make_shared<CDefaultObjectTypeHandler<TYPENAME>>
 
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code

@@ -141,7 +141,7 @@ bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmoun
 {
 	assert(c && c->valid());
 	TQuantity max = 0;
-	TQuantity min = std::numeric_limits<TQuantity>::max();
+	auto min = std::numeric_limits<TQuantity>::max();
 
 	for(const auto & elem : stacks)
 	{

@@ -675,7 +675,7 @@ std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h
 
 	if(iter == std::end(pathCache))
 	{
-		std::shared_ptr<CPathsInfo> paths = std::make_shared<CPathsInfo>(getMapSize(), h);
+		auto paths = std::make_shared<CPathsInfo>(getMapSize(), h);
 
 		gs->calculatePaths(h, *paths.get());
 
