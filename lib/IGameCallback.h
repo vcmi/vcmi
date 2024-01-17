@@ -62,7 +62,7 @@ public:
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand);
-	auto getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
+	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 	template<typename Saver>
 	void saveCommonState(Saver &out) const; //stores GS and VLC
