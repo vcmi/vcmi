@@ -488,7 +488,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			oi.generateObject = [creature, creaturesAmount, randomAppearance, qap, &oi, setRandomArtifact]() -> CGObjectInstance *
+			oi.generateObject = [creature, creaturesAmount, randomAppearance, &oi, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -532,7 +532,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.probability = 10;
 			oi.maxPerZone = 1;
 			
-			oi.generateObject = [i, randomAppearance, this, qap, &oi, setRandomArtifact]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, &oi, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -550,7 +550,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			if(!oi.templates.empty())
 				possibleSeerHuts.push_back(oi);
 			
-			oi.generateObject = [i, randomAppearance, this, qap, &oi, setRandomArtifact]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, &oi, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
