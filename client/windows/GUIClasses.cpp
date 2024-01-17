@@ -785,7 +785,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 		auto moveArmy = [this](const bool leftToRight) -> void
 		{
-			auto slotId = std::nullopt;
+			std::optional<SlotID> slotId = std::nullopt;
 			if(auto slot = getSelectedSlotID())
 				slotId = slot->getSlot();
 			controller.moveArmy(leftToRight, slotId);

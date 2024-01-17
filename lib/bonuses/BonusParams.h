@@ -19,10 +19,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct DLL_LINKAGE BonusParams {
 	bool isConverted;
 	BonusType type = BonusType::NONE;
-	auto subtype = std::nullopt;
-	auto valueType = std::nullopt;
+	std::optional<BonusSubtypeID> subtype = std::nullopt;
+	std::optional<BonusValueType> valueType = std::nullopt;
 	std::optional<si32> val = std::nullopt;
-	auto targetType = std::nullopt;
+	std::optional<BonusSource> targetType = std::nullopt;
 
 	BonusParams(bool isConverted = true) : isConverted(isConverted) {};
 	BonusParams(std::string deprecatedTypeStr, std::string deprecatedSubtypeStr = "", int deprecatedSubtype = 0);

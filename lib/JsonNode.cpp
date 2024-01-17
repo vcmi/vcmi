@@ -1204,8 +1204,8 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];
-	auto src = std::nullopt; //Fixes for GCC false maybe-uninitialized
-	auto id = std::nullopt;
+	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
+	std::optional<BonusSourceID> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
