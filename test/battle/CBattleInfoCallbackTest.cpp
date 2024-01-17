@@ -85,7 +85,7 @@ public:
 
 	UnitFake & add(ui8 side)
 	{
-		UnitFake * unit = new UnitFake();
+		auto * unit = new UnitFake();
 		EXPECT_CALL(*unit, unitSide()).WillRepeatedly(Return(side));
 		unit->setDefaultExpectations();
 

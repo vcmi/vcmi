@@ -128,7 +128,7 @@ void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 	if(!mimeData)
 		return;
 		
-	QDrag *drag = new QDrag(this);
+	auto *drag = new QDrag(this);
 	drag->setMimeData(mimeData);
 	drag->exec(supportedActions);
 }
