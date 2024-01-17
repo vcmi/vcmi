@@ -31,6 +31,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -168,6 +169,15 @@ void AdventureMapInterface::show(Canvas & to)
 
 void AdventureMapInterface::dim(Canvas & to)
 {
+	if(settings["adventure"]["hideBackground"].Bool())
+		for (auto window : GH.windows().findWindows<IShowActivatable>())
+		{
+			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 800 && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 600)
+			{
+				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck")));
+				return;
+			}
+		}
 	for (auto window : GH.windows().findWindows<IShowActivatable>())
 	{
 		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow())

@@ -134,6 +134,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("gameTweaks", "skipAdventureMapAnimations", value);
 	});
+	addCallback("hideBackgroundChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "hideBackground", value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -179,4 +183,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> skipAdventureMapAnimationsCheckbox = widget<CToggleButton>("skipAdventureMapAnimationsCheckbox");
 	skipAdventureMapAnimationsCheckbox->setSelected(settings["gameTweaks"]["skipAdventureMapAnimations"].Bool());
+
+	std::shared_ptr<CToggleButton> hideBackgroundCheckbox = widget<CToggleButton>("hideBackgroundCheckbox");
+	hideBackgroundCheckbox->setSelected(settings["adventure"]["hideBackground"].Bool());
 }

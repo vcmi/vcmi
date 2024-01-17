@@ -99,6 +99,9 @@ public:
 	/// fills selected area with blended color
 	void drawColorBlended(const Rect & target, const ColorRGBA & color);
 
+	/// fills canvas with texture
+	void fillTexture(const std::shared_ptr<IImage>& image);
+
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	SDL_Surface * getInternalSurface();
 
