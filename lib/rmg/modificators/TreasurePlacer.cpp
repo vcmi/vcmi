@@ -464,6 +464,19 @@ void TreasurePlacer::addAllPossibleObjects()
 		
 		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
+		auto setRandomArtifact = [qap, &oi](CGSeerHut * obj)
+		{
+			ArtifactID artid = qap->drawRandomArtifact();
+			oi.destroyObject = [artid, qap]()
+			{
+				// Artifact can be used again
+				qap->addRandomArtifact(artid);
+				qap->removeQuestArtifact(artid);
+			};
+			obj->quest->mission.artifacts.push_back(artid);
+			qap->addQuestArtifact(artid);
+		};
+
 		for(int i = 0; i < static_cast<int>(creatures.size()); i++)
 		{
 			auto * creature = creatures[i];
@@ -475,7 +488,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			oi.generateObject = [creature, creaturesAmount, randomAppearance, qap, &oi]() -> CGObjectInstance *
+			oi.generateObject = [creature, creaturesAmount, randomAppearance, qap, &oi, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -485,16 +498,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 								
-				ArtifactID artid = qap->drawRandomArtifact();
-				oi.destroyObject = [artid, qap]()
-				{
-					// Artifact can be used again
-					qap->addRandomArtifact(artid);
-					qap->removeQuestArtifact(artid);
-				};
-				obj->quest->mission.artifacts.push_back(artid);
-				
-				qap->addQuestArtifact(artid);
+				setRandomArtifact(obj);
 				
 				return obj;
 			};
@@ -528,7 +532,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.probability = 10;
 			oi.maxPerZone = 1;
 			
-			oi.generateObject = [i, randomAppearance, this, qap, &oi]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, qap, &oi, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -537,25 +541,16 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
-				
-				ArtifactID artid = qap->drawRandomArtifact();
-				oi.destroyObject = [artid, qap]()
-				{
-					// Artifact can be used again
-					qap->addRandomArtifact(artid);
-					qap->removeQuestArtifact(artid);
-				};
-				obj->quest->mission.artifacts.push_back(artid);
-				
-				qap->addQuestArtifact(artid);
-				
+
+				setRandomArtifact(obj);
+
 				return obj;
 			};
 			
 			if(!oi.templates.empty())
 				possibleSeerHuts.push_back(oi);
 			
-			oi.generateObject = [i, randomAppearance, this, qap, &oi]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, qap, &oi, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -565,16 +560,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 				
-				ArtifactID artid = qap->drawRandomArtifact();
-				oi.destroyObject = [artid, qap]()
-				{
-					// Artifact can be used again
-					qap->addRandomArtifact(artid);
-					qap->removeQuestArtifact(artid);
-				};
-				obj->quest->mission.artifacts.push_back(artid);
-				
-				qap->addQuestArtifact(artid);
+				setRandomArtifact(obj);
 				
 				return obj;
 			};
