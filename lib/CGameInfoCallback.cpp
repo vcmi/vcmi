@@ -741,7 +741,7 @@ int CPlayerSpecificInfoCallback::howManyTowns() const
 std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(bool onlyOur) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	auto < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
+	auto ret = std::vector < const CGTownInstance *>();
 	for(const auto & i : gs->players)
 	{
 		for(const auto & town : i.second.towns)

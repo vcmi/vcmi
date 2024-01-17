@@ -796,7 +796,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 
 std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking) const
 {
-	auto CObstacleInstance>> obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	auto obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	RETURN_IF_NOT_BATTLE(obstacles);
 	for(auto & obs : battleGetAllObstacles())
 	{

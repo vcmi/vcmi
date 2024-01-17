@@ -44,8 +44,8 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static constexpr si16 HERO_DEFENDER = GameConstants::BFIELD_WIDTH - 1;
 
 	// helpers for rendering
-	static auto si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
-	static auto si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();
+	static constexpr si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
+	static constexpr si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();
 
 	static constexpr si16 DESTRUCTIBLE_WALL_1 = 29;
 	static constexpr si16 DESTRUCTIBLE_WALL_2 = 78;
