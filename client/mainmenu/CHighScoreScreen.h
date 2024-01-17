@@ -35,7 +35,7 @@ public:
 class HighScoreCalculation
 {
 public:
-	auto parameters = std::vector<HighScoreParameter>();
+	std::vector<HighScoreParameter> parameters = std::vector<HighScoreParameter>();
 	bool isCampaign = false;
 
 	auto calculate();

@@ -534,7 +534,7 @@ R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std:
 void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 {
 	std::shared_ptr<Bonus> b;
-	static auto playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
+	static TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
 
 	if(building->bid == BuildingID::TAVERN)
 	{

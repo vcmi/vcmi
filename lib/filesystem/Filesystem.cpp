@@ -24,7 +24,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-auto CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
+std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 CResourceHandler CResourceHandler::globalResourceHandler;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
