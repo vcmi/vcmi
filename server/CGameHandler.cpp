@@ -2870,8 +2870,8 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 		}
-		if(!destArtifact->canBePutAt(hero, artifactSlot)
-			&& !destArtifact->canBePutAt(hero, ArtifactPosition::BACKPACK_START))
+		if(!destArtifact->canBePutAt(hero, artifactSlot, true)
+			&& !destArtifact->canBePutAt(hero, ArtifactPosition::BACKPACK_START, true))
 		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to give the artholder requested artifact!");
 		}
