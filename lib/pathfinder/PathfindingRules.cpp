@@ -384,12 +384,23 @@ void LayerTransitionRule::process(
 	case EPathfindingLayer::AIR:
 		if(pathfinderConfig->options.originalMovementRules)
 		{
-			if((source.node->accessible != EPathAccessibility::ACCESSIBLE &&
-				source.node->accessible != EPathAccessibility::VISITABLE) &&
-				(destination.node->accessible != EPathAccessibility::VISITABLE &&
-				 destination.node->accessible != EPathAccessibility::ACCESSIBLE))
+			if(destination.coord.x == 2 && destination.coord.y == 35)
+				logGlobal->error(source.node->coord.toString() + std::string(" Layer: ") + std::to_string(destination.node->layer) + std::string(" Accessibility: ") + std::to_string((int)source.node->accessible));
+
+			if(source.node->accessible != EPathAccessibility::ACCESSIBLE &&
+				source.node->accessible != EPathAccessibility::VISITABLE &&
+				destination.node->accessible != EPathAccessibility::VISITABLE &&
+				 destination.node->accessible != EPathAccessibility::ACCESSIBLE)
 			{
-				destination.blocked = true;
+				if(destination.node->accessible == EPathAccessibility::BLOCKVIS)
+				{
+					if(source.nodeObject || source.tile->blocked)
+					{
+						destination.blocked = true;
+					}
+				}
+				else
+					destination.blocked = true;
 			}
 		}
 		else if(destination.node->accessible != EPathAccessibility::ACCESSIBLE)

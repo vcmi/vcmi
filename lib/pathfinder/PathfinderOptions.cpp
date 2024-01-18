@@ -29,7 +29,7 @@ PathfinderOptions::PathfinderOptions()
 	, useCastleGate(false)
 	, lightweightFlyingMode(false)
 	, oneTurnSpecialLayersLimit(true)
-	, originalMovementRules(false)
+	, originalMovementRules(true)
 	, turnLimit(std::numeric_limits<uint8_t>::max())
 	, canUseCast(false)
 {
