@@ -279,6 +279,9 @@ void CWindowWithArtifacts::gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, 
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMain>> ||
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>>)
 			{
+				if(!settings["general"]["enableUiEnhancements"].Bool())
+					return;
+
 				GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(artSetPtr->getHero(), artPlace.slot);
 				auto backpackWindow = GH.windows().topWindow<CHeroQuickBackpackWindow>();
 				backpackWindow->moveTo(cursorPosition - Point(1, 1));
