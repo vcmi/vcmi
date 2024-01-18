@@ -15,6 +15,7 @@
 #include "../RmgMap.h"
 #include "../CMapGenerator.h"
 #include "TreasurePlacer.h"
+#include "PrisonHeroPlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "TownPlacer.h"
 #include "TerrainPainter.h"
@@ -75,7 +76,6 @@ void ObjectDistributor::distributeLimitedObjects()
 
 					auto rmgInfo = handler->getRMGInfo();
 
-					// FIXME: Random order of distribution
 					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
 					{
@@ -146,7 +146,18 @@ void ObjectDistributor::distributePrisons()
 
 	RandomGeneratorUtil::randomShuffle(zones, zone.getRand());
 
-	size_t allowedPrisons = generator.getPrisonsRemaning();
+	// TODO: Some shorthand for unique Modificator
+	PrisonHeroPlacer * prisonHeroPlacer = nullptr;
+	for(auto & z : map.getZones())
+	{
+		prisonHeroPlacer = z.second->getModificator<PrisonHeroPlacer>();
+		if (prisonHeroPlacer)
+		{
+			break;
+		}
+	}
+
+	size_t allowedPrisons = prisonHeroPlacer->getPrisonsRemaning();
 	for (int i = zones.size() - 1; i >= 0; i--)
 	{
 		auto zone = zones[i].second;

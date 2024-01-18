@@ -156,6 +156,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/RoadPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/TreasurePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/PrisonHeroPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/QuestArtifactPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/ConnectionsPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/WaterAdopter.cpp
@@ -526,6 +527,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.h
 		${MAIN_LIB_DIR}/rmg/modificators/RoadPlacer.h
 		${MAIN_LIB_DIR}/rmg/modificators/TreasurePlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/PrisonHeroPlacer.h
 		${MAIN_LIB_DIR}/rmg/modificators/QuestArtifactPlacer.h
 		${MAIN_LIB_DIR}/rmg/modificators/ConnectionsPlacer.h
 		${MAIN_LIB_DIR}/rmg/modificators/WaterAdopter.h

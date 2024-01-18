@@ -35,7 +35,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
-	allowedPrisons(0), monolithIndex(0)
+	monolithIndex(0)
 {
 	loadConfig();
 	rand.setSeed(this->randomSeed);
@@ -96,12 +96,6 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 	return mapGenOptions;
 }
 
-void CMapGenerator::initPrisonsRemaining()
-{
-	allowedPrisons = map->getMap(this).allowedHeroes.size();
-	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getHumanOrCpuPlayerCount()); //so at least 16 heroes will be available for every player
-}
-
 void CMapGenerator::initQuestArtsRemaining()
 {
 	//TODO: Move to QuestArtifactPlacer?
@@ -122,7 +116,6 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		addHeaderInfo();
 		map->initTiles(*this, rand);
 		Load::Progress::step();
-		initPrisonsRemaining();
 		initQuestArtsRemaining();
 		genZones();
 		Load::Progress::step();
@@ -468,11 +461,6 @@ int CMapGenerator::getNextMonlithIndex()
 	}
 }
 
-int CMapGenerator::getPrisonsRemaning() const
-{
-	return allowedPrisons;
-}
-
 std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
 {
 	return placer;
@@ -488,6 +476,7 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 	auto isWaterMap = map->getMap(this).isWaterMap();
 	//Skip heroes that were banned, including the ones placed in prisons
 	std::vector<HeroTypeID> ret;
+
 	for (HeroTypeID hero : map->getMap(this).allowedHeroes)
 	{
 		auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getById(hero));
@@ -517,14 +506,12 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
-	//TODO: Protect with mutex
 	map->getMap(this).allowedArtifact.erase(id);
 }
 
-void CMapGenerator::banHero(const HeroTypeID & id)
+void CMapGenerator::unbanQuestArt(const ArtifactID & id)
 {
-	//TODO: Protect with mutex
-	map->getMap(this).banHero(id);
+	map->getMap(this).allowedArtifact.insert(id);
 }
 
 Zone * CMapGenerator::getZoneWater() const

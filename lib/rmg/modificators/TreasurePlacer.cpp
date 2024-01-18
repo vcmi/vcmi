@@ -18,6 +18,7 @@
 #include "../RmgMap.h"
 #include "../TileInfo.h"
 #include "../CZonePlacer.h"
+#include "PrisonHeroPlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../../ArtifactUtils.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
@@ -32,6 +33,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+ObjectInfo::ObjectInfo():
+	destroyObject([](){})
+{
+
+}
+
 void TreasurePlacer::process()
 {
 	addAllPossibleObjects();
@@ -45,6 +52,7 @@ void TreasurePlacer::init()
 	maxPrisons = 0; //Should be in the constructor, but we use macro for that
 	DEPENDENCY(ObjectManager);
 	DEPENDENCY(ConnectionsPlacer);
+	DEPENDENCY_ALL(PrisonHeroPlacer);
 	POSTFUNCTION(RoadPlacer);
 }
 
@@ -90,6 +98,16 @@ void TreasurePlacer::addAllPossibleObjects()
 	auto prisonTemplates = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType());
 	if (!prisonTemplates.empty())
 	{
+		PrisonHeroPlacer * prisonHeroPlacer = nullptr;
+		for(auto & z : map.getZones())
+		{
+			prisonHeroPlacer = z.second->getModificator<PrisonHeroPlacer>();
+		 	if (prisonHeroPlacer)
+			{
+				break;
+			}
+		}
+
 		//prisons
 		//levels 1, 5, 10, 20, 30
 		static int prisonsLevels = std::min(generator.getConfig().prisonExperience.size(), generator.getConfig().prisonValues.size());
@@ -97,16 +115,22 @@ void TreasurePlacer::addAllPossibleObjects()
 		size_t prisonsLeft = getMaxPrisons();
 		for (int i = prisonsLevels - 1; i >= 0; i--)
 		{
+			ObjectInfo oi; // Create new instance which will hold destructor operation
+
 			oi.value = generator.getConfig().prisonValues[i];
 			if (oi.value > zone.getMaxTreasureValue())
 			{
 				continue;
 			}
 
-			oi.generateObject = [i, this]() -> CGObjectInstance*
+			oi.generateObject = [i, this, prisonHeroPlacer, &oi]() -> CGObjectInstance*
 			{
-				auto possibleHeroes = generator.getAllPossibleHeroes();
-				HeroTypeID hid = *RandomGeneratorUtil::nextItem(possibleHeroes, zone.getRand());
+				HeroTypeID hid = prisonHeroPlacer->drawRandomHero();
+				oi.destroyObject = [hid, prisonHeroPlacer]()
+				{
+					// Hero can be used again
+					prisonHeroPlacer->restoreDrawnHero(hid);
+				};
 
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 				auto* obj = dynamic_cast<CGHeroInstance*>(factory->create());
@@ -114,7 +138,6 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->setHeroType(hid); //will be initialized later
 				obj->exp = generator.getConfig().prisonExperience[i];
 				obj->setOwner(PlayerColor::NEUTRAL);
-				generator.banHero(hid);
 
 				return obj;
 			};
@@ -441,6 +464,19 @@ void TreasurePlacer::addAllPossibleObjects()
 		
 		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
+		auto setRandomArtifact = [qap, &oi](CGSeerHut * obj)
+		{
+			ArtifactID artid = qap->drawRandomArtifact();
+			oi.destroyObject = [artid, qap]()
+			{
+				// Artifact can be used again
+				qap->addRandomArtifact(artid);
+				qap->removeQuestArtifact(artid);
+			};
+			obj->quest->mission.artifacts.push_back(artid);
+			qap->addQuestArtifact(artid);
+		};
+
 		for(int i = 0; i < static_cast<int>(creatures.size()); i++)
 		{
 			auto * creature = creatures[i];
@@ -451,7 +487,8 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
-			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, qap]() -> CGObjectInstance *
+			// FIXME: Remove duplicated code for gold, exp and creaure reward
+			oi.generateObject = [creature, creaturesAmount, randomAppearance, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -461,11 +498,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 								
-				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->mission.artifacts.push_back(artid);
-				
-				generator.banQuestArt(artid);
-				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
+				setRandomArtifact(obj);
 				
 				return obj;
 			};
@@ -499,7 +532,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.probability = 10;
 			oi.maxPerZone = 1;
 			
-			oi.generateObject = [i, randomAppearance, this, qap]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -508,20 +541,16 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
-				
-				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->mission.artifacts.push_back(artid);
-				
-				generator.banQuestArt(artid);
-				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
-				
+
+				setRandomArtifact(obj);
+
 				return obj;
 			};
 			
 			if(!oi.templates.empty())
 				possibleSeerHuts.push_back(oi);
 			
-			oi.generateObject = [i, randomAppearance, this, qap]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, setRandomArtifact]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -531,11 +560,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 				
-				ArtifactID artid = qap->drawRandomArtifact();
-				obj->quest->mission.artifacts.push_back(artid);
-				
-				generator.banQuestArt(artid);
-				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
+				setRandomArtifact(obj);
 				
 				return obj;
 			};
@@ -641,8 +666,14 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		}
 		
 		auto * object = oi->generateObject();
+
 		if(oi->templates.empty())
+		{
+			logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
+			oi->destroyObject();
+			delete object;
 			continue;
+		}
 		
 		auto templates = object->getObjectHandler()->getMostSpecificTemplates(zone.getTerrainType());
 
@@ -721,7 +752,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			
-			//first object is good
+			//Do not clean up after first object
 			if(rmgObject.instances().size() == 1)
 				break;
 
@@ -800,10 +831,10 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	{
 		for (auto* oi : treasurePile)
 		{
+			oi->destroyObject();
 			oi->maxPerZone++;
 		}
 	};
-
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	auto treasureInfo = zone.getTreasureInfo();
 	boost::sort(treasureInfo, valueComparator);
