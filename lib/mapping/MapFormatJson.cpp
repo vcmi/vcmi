@@ -780,7 +780,7 @@ CMapLoaderJson::CMapLoaderJson(CInputStream * stream)
 std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 {
 	LOG_TRACE(logGlobal);
-	std::unique_ptr<CMap> result = std::make_unique<CMap>();
+	auto result = std::make_unique<CMap>();
 	map = result.get();
 	mapHeader = map;
 	readMap();
@@ -791,7 +791,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 {
 	LOG_TRACE(logGlobal);
 	map = nullptr;
-	std::unique_ptr<CMapHeader> result = std::make_unique<CMapHeader>();
+	auto result = std::make_unique<CMapHeader>();
 	mapHeader = result.get();
 	readHeader(false);
 	return result;

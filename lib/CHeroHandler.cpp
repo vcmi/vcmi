@@ -536,7 +536,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
 
 		{
-			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
+			auto bonus = std::make_shared<Bonus>();
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->type = BonusType::STACKS_SPEED;
 			bonus->val = 1;
@@ -544,7 +544,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		}
 
 		{
-			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
+			auto bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
 			bonus->subtype = BonusSubtypeID(PrimarySkill::ATTACK);
 			bonus->val = 0;
@@ -554,7 +554,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		}
 
 		{
-			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
+			auto bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
 			bonus->subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
 			bonus->val = 0;

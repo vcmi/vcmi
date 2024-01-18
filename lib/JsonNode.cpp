@@ -818,7 +818,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			const JsonVector & parameters = limiter["parameters"].Vector();
 			if(limiterType == "CREATURE_TYPE_LIMITER")
 			{
-				std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
+				auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
 				VLC->identifiers()->requestIdentifier("creature", parameters[0], [=](si32 creature)
 				{
 					creatureLimiter->setCreature(CreatureID(creature));
@@ -846,7 +846,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				}
 				else
 				{
-					std::shared_ptr<HasAnotherBonusLimiter> bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
+					auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 					bonusLimiter->type = it->second;
 					auto findSource = [&](const JsonNode & parameter)
 					{
@@ -890,7 +890,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			}
 			else if(limiterType == "FACTION_LIMITER" || limiterType == "CREATURE_FACTION_LIMITER") //Second name is deprecated, 1.2 compat
 			{
-				std::shared_ptr<FactionLimiter> factionLimiter = std::make_shared<FactionLimiter>();
+				auto factionLimiter = std::make_shared<FactionLimiter>();
 				VLC->identifiers()->requestIdentifier("faction", parameters[0], [=](si32 faction)
 				{
 					factionLimiter->faction = FactionID(faction);
@@ -910,7 +910,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			}
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
-				std::shared_ptr<CreatureTerrainLimiter> terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
+				auto terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
 				if(!parameters.empty())
 				{
 					VLC->identifiers()->requestIdentifier("terrain", parameters[0], [=](si32 terrain)
@@ -1007,7 +1007,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 	case JsonNode::JsonType::DATA_STRUCT:
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
 		{
-			std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
+			auto updater = std::make_shared<GrowsWithLevelUpdater>();
 			const JsonVector param = updaterJson["parameters"].Vector();
 			updater->valPer20 = static_cast<int>(param[0].Integer());
 			if(param.size() > 1)
@@ -1016,7 +1016,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 		}
 		else if (updaterJson["type"].String() == "ARMY_MOVEMENT")
 		{
-			std::shared_ptr<ArmyMovementUpdater> updater = std::make_shared<ArmyMovementUpdater>();
+			auto updater = std::make_shared<ArmyMovementUpdater>();
 			if(updaterJson["parameters"].isVector())
 			{
 				const auto & param = updaterJson["parameters"].Vector();

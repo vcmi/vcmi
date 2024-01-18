@@ -1089,7 +1089,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	std::shared_ptr<CIntObject> localIcon = localIconC.image;
 	localIconC.removeChild(localIcon.get(), false);
 
-	std::shared_ptr<CObjectListWindow> wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);
+	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);
 	wnd->onExit = cancelCallback;
 	GH.windows().pushWindow(wnd);
 }

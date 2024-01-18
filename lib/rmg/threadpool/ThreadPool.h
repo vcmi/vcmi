@@ -179,7 +179,7 @@ auto ThreadPool::async(std::function<void()>&& f) const -> boost::future<void>
         }
     }
 
-    std::shared_ptr<TaskT> task = std::make_shared<TaskT>(f);
+    auto task = std::make_shared<TaskT>(f);
     boost::future<void> fut = task->get_future();
     tasks.emplace([task]() -> void
     {

@@ -21,7 +21,7 @@ namespace events
 
 SubscriptionRegistry<ObjectVisitEnded> * ObjectVisitEnded::getRegistry()
 {
-	static std::unique_ptr<Sub> Instance = std::make_unique<Sub>();
+	static auto Instance = std::make_unique<Sub>();
 	return Instance.get();
 }
 

@@ -38,8 +38,8 @@ void CreatureCostBox::createItems(TResources res)
 	TResources::nziterator iter(res);
 	while(iter.valid())
 	{
-		ImagePtr image = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), iter->resType);
-		LabelPtr text = std::make_shared<CLabel>(15, 43, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "0");
+		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), iter->resType);
+		auto text = std::make_shared<CLabel>(15, 43, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "0");
 
 		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));
 		iter++;

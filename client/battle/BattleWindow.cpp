@@ -420,7 +420,7 @@ void BattleWindow::bFleef()
 
 	if ( owner.getBattle()->battleCanFlee() )
 	{
-		CFunctionList<void()> ony = std::bind(&BattleWindow::reallyFlee,this);
+		auto ony = std::bind(&BattleWindow::reallyFlee,this);
 		owner.curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else

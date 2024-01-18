@@ -352,7 +352,7 @@ TEST_P(HealApplyTest, DISABLED_Heals)
 
 	unitsFake.setDefaultBonusExpectations();
 
-	std::shared_ptr<CUnitState> targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
+	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
 	targetUnitState->localInit(&unitEnvironmentMock);
 	{
 		int64_t initialDmg = unitAmount * unitHP / 2 - 1;
