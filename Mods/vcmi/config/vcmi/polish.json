@@ -54,6 +54,8 @@
 	"vcmi.radialWheel.moveDown" : "Przenieś w dół",
 	"vcmi.radialWheel.moveBottom" : "Przenieś na spód",
 
+	"vcmi.spellBook.search" : "szukaj...",
+
 	"vcmi.mainMenu.serverConnecting" : "Łączenie...",
 	"vcmi.mainMenu.serverAddressEnter" : "Wprowadź adres:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Połączenie nie powiodło się",
@@ -68,7 +70,9 @@
 	"vcmi.lobby.mapPreview" : "Podgląd mapy",
 	"vcmi.lobby.noPreview" : "brak podglądu",
 	"vcmi.lobby.noUnderground" : "brak podziemi",
+	"vcmi.lobby.sortDate" : "Sortuj mapy według daty modyfikacji",
 
+	"vcmi.client.errors.missingCampaigns" : "{Brakujące pliki gry}\n\nPliki kampanii nie zostały znalezione! Możliwe że używasz niekompletnych lub uszkodzonych plików Heroes 3. Spróbuj ponownej instalacji plików gry.",
 	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
 	"vcmi.server.errors.modsToEnable"    : "{Następujące mody są wymagane do wczytania gry}",
 	"vcmi.server.errors.modsToDisable"   : "{Następujące mody muszą zostać wyłączone}",
@@ -139,6 +143,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Ustaw szybkość przesuwania mapy na bardzo wolną.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Ustaw szybkość przesuwania mapy na bardzo szybką.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Ustaw szybkość przesuwania mapy na błyskawiczną.",
+	"vcmi.adventureOptions.hideBackground.hover" : "Ukryj tło",
+	"vcmi.adventureOptions.hideBackground.help" : "{Ukryj tło}\n\nUkryj mapę przygody w tle i pokaż zastępczo teksturę.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Pokaż kolejkę ruchu jednostek",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "BRAK",
@@ -178,6 +184,10 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "obrażenia: %d",
 	"vcmi.battleWindow.damageEstimation.kills" : "zginie: %d",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "zginie: %d",
+	"vcmi.battleWindow.killed" : "Zabici",
+	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s zostało zabitych poprzez celne strzały!",
+	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s został zabity poprzez celny strzał!",
+	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s zostali zabici poprzez celne strzały!",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Zatwierdź wynik bitwy",
 
@@ -349,6 +359,8 @@
 	"core.bonus.ENCHANTER.description": "Może rzucać masowy czar ${subtype.spell} każdej tury",
 	"core.bonus.ENCHANTED.name": "Zaczarowany",
 	"core.bonus.ENCHANTED.description": "Pod wpływem trwałego ${subtype.spell}",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.name": "Ignoruje Atak (${val}%)",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "Przy zostaniu zaatakowanym ignoruje ${val}% ataku wroga",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name": "Ignoruje Obronę (${val}%)",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "Ignoruje część obrony podczas ataku",
 	"core.bonus.FIRE_IMMUNITY.name": "Odporność na ogień",
@@ -361,6 +373,8 @@
 	"core.bonus.FEAR.description": "Wzbudza strach na wrogim stworzeniu",
 	"core.bonus.FEARLESS.name": "Nieustraszony",
 	"core.bonus.FEARLESS.description": "Odporny na strach",
+	"core.bonus.FEROCITY.name": "Dzikość",
+	"core.bonus.FEROCITY.description": "Dodatkowe ${val} ataków jeżeli zabito kogokolwiek",
 	"core.bonus.FLYING.name": "Lot",
 	"core.bonus.FLYING.description": "Może latać (ignoruje przeszkody)",
 	"core.bonus.FREE_SHOOTING.name": "Bliski Strzał",
@@ -415,6 +429,8 @@
 	"core.bonus.REBIRTH.description": "${val}% stworzeń powstanie po śmierci",
 	"core.bonus.RETURN_AFTER_STRIKE.name": "Atak i Powrót",
 	"core.bonus.RETURN_AFTER_STRIKE.description": "Wraca po ataku wręcz",
+	"core.bonus.REVENGE.name": "Odwet",
+	"core.bonus.REVENGE.description": "Zadaje dodatkowe obrażenia zależne od strat własnych oddziału",
 	"core.bonus.SHOOTER.name": "Dystansowy",
 	"core.bonus.SHOOTER.description": "Stworzenie może strzelać",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name": "Ostrzeliwuje wszystko dookoła",
