@@ -169,6 +169,8 @@ static QStringList getAvailableRenderingDrivers()
 	SDL_Init(SDL_INIT_VIDEO);
 	QStringList result;
 
+	result += QString(); // empty value for autoselection
+
 	int driversCount = SDL_GetNumRenderDrivers();
 
 	for(int it = 0; it < driversCount; it++)

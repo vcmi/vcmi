@@ -568,7 +568,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 	switch (action.get())
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-			return (targetStack && targetStackOwned && targetStack->speed() > 0);
+			return (targetStack && targetStackOwned && targetStack->getMovementRange() > 0);
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return (targetStack && targetStackOwned && targetStack->alive());

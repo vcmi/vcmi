@@ -72,6 +72,7 @@
 	"vcmi.lobby.noUnderground" : "Kein Untergrund",
 	"vcmi.lobby.sortDate" : "Ordnet Karten nach Änderungsdatum",
 
+	"vcmi.client.errors.missingCampaigns" : "{Fehlende Dateien}\n\nEs wurden keine Kampagnendateien gefunden! Möglicherweise verwendest du unvollständige oder beschädigte Heroes 3 Datendateien. Bitte installiere die Spieldaten neu.",
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
 	"vcmi.server.errors.modsToDisable"   : "{Folgende Mods müssen deaktiviert werden}",
@@ -136,12 +137,16 @@
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Ziehen der Karte mit Links}\n\nWenn aktiviert, wird die Maus bei gedrückter linker Taste in die Kartenansicht gezogen",
 	"vcmi.adventureOptions.smoothDragging.hover" : "Nahtloses Ziehen der Karte",
 	"vcmi.adventureOptions.smoothDragging.help" : "{Nahtloses Ziehen der Karte}\n\nWenn aktiviert hat das Ziehen der Karte einen sanften Auslaufeffekt.",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.hover" : "Fading-Effekte überspringen",
+	"vcmi.adventureOptions.skipAdventureMapAnimations.help" : "{Fading-Effekte überspringen}\n\nWenn diese Funktion aktiviert ist, werden das Ausblenden von Objekten und ähnliche Effekte übersprungen (Ressourcensammlung, Anlegen von Schiffen usw.). Macht die Benutzeroberfläche in einigen Fällen auf Kosten der Ästhetik reaktiver. Besonders nützlich in PvP-Spielen. Für maximale Bewegungsgeschwindigkeit ist das Überspringen unabhängig von dieser Einstellung aktiv.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Geschwindigkeit des Kartenbildlaufs auf sehr langsam einstellen",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Geschwindigkeit des Kartenbildlaufs auf sehr schnell einstellen",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Geschwindigkeit des Kartenbildlaufs auf sofort einstellen",
+	"vcmi.adventureOptions.hideBackground.hover" : "Hintergrund ausblenden",
+	"vcmi.adventureOptions.hideBackground.help" : "{Hintergrund ausblenden}\n\nDie Abenteuerkarte im Hintergrund ausblenden und stattdessen eine Textur anzeigen.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Reihenfolge der Kreaturen anzeigen",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "AUS",
@@ -182,6 +187,9 @@
 	"vcmi.battleWindow.damageEstimation.kills" : "%d werden verenden",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d werden verenden",
 	"vcmi.battleWindow.killed" : "Getötet",
+	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s wurden durch gezielte Schüsse getötet!",
+	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s wurde mit einem gezielten Schuss getötet!",
+	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s wurden durch gezielte Schüsse getötet!",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
 
@@ -244,17 +252,28 @@
 
 	"vcmi.optionsTab.turnOptions.hover" : "Spielzug-Optionen",
 	"vcmi.optionsTab.turnOptions.help" : "Optionen zu Spielzug-Timer und simultanen Zügen",
+	"vcmi.optionsTab.selectPreset" : "Voreinstellung",
 
 	"vcmi.optionsTab.chessFieldBase.hover" : "Basis-Timer",
 	"vcmi.optionsTab.chessFieldTurn.hover" : "Spielzug-Timer",
 	"vcmi.optionsTab.chessFieldBattle.hover" : "Kampf-Timer",
 	"vcmi.optionsTab.chessFieldUnit.hover" : "Einheiten-Timer",
+	"vcmi.optionsTab.chessFieldBase.help" : "Wird verwendet, wenn {Spielzug-Timer} 0 erreicht. Wird einmal zu Beginn des Spiels gesetzt. Bei Erreichen von Null wird der aktuelle Zug beendet. Jeder laufende Kampf endet mit einem Verlust.",
 	"vcmi.optionsTab.chessFieldTurnAccumulate.help" : "Wird außerhalb des Kampfes verwendet oder wenn der {Kampf-Timer} abgelaufen ist. Wird jede Runde zurückgesetzt. Reste werden am Ende der Runde zum {Basis-Timer} hinzugefügt.",
 	"vcmi.optionsTab.chessFieldTurnDiscard.help" : "Wird außerhalb des Kampfes verwendet oder wenn der {Kampf-Timer} abgelaufen ist. Wird jede Runde zurückgesetzt. Jede nicht verbrauchte Zeit ist verloren",
+	"vcmi.optionsTab.chessFieldBattle.help" : "Wird in Kämpfen mit der KI oder im PvP-Kampf verwendet, wenn der {Einheiten-Timer} abläuft. Wird zu Beginn eines jeden Kampfes zurückgesetzt.",
 	"vcmi.optionsTab.chessFieldUnitAccumulate.help" : "Wird bei der Auswahl der Einheitenaktion im PvP-Kampf verwendet. Der Rest wird am Ende des Zuges der Einheit zum {Kampf-Timer} hinzugefügt.",
 	"vcmi.optionsTab.chessFieldUnitDiscard.help" : "Wird bei der Auswahl der Einheitenaktion im PvP-Kampf verwendet. Wird zu Beginn des Zuges jeder Einheit zurückgesetzt. Jede nicht verbrauchte Zeit ist verloren",
 
 	"vcmi.optionsTab.accumulate" : "Akkumulieren",
+
+	"vcmi.optionsTab.simturnsTitle" : "Simultane Züge",
+	"vcmi.optionsTab.simturnsMin.hover" : "Zumindest für",
+	"vcmi.optionsTab.simturnsMax.hover" : "Höchstens für",
+	"vcmi.optionsTab.simturnsAI.hover" : "(Experimentell) Simultane KI Züge",
+	"vcmi.optionsTab.simturnsMin.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen. Die Kontakte zwischen den Spielern sind während dieser Zeit blockiert",
+	"vcmi.optionsTab.simturnsMax.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen oder bis zum Kontakt mit einem anderen Spieler",
+	"vcmi.optionsTab.simturnsAI.help" : "{Simultane KI Züge}\nExperimentelle Option. Ermöglicht es den KI-Spielern, gleichzeitig mit dem menschlichen Spieler zu agieren, wenn simultane Spielzüge aktiviert sind.",
 
 	"vcmi.optionsTab.turnTime.select"     : "Spielzug-Timer-Voreinst. wählen",
 	"vcmi.optionsTab.turnTime.unlimited"  : "Unbegrenzter Spielzug-Timer",
@@ -280,14 +299,6 @@
 	"vcmi.optionsTab.simturns.blocked1"       : "Simzüge: 1 Woche, Kontakte block.",
 	"vcmi.optionsTab.simturns.blocked2"       : "Simzüge: 2 Wochen, Kontakte block.",
 	"vcmi.optionsTab.simturns.blocked4"       : "Simzüge: 1 Monat, Kontakte block.",
-
-	"vcmi.optionsTab.simturnsTitle" : "Simultane Züge",
-	"vcmi.optionsTab.simturnsMin.hover" : "Zumindest für",
-	"vcmi.optionsTab.simturnsMax.hover" : "Höchstens für",
-	"vcmi.optionsTab.simturnsAI.hover" : "(Experimentell) Simultane KI Züge",
-	"vcmi.optionsTab.simturnsMin.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen. Die Kontakte zwischen den Spielern sind während dieser Zeit blockiert",
-	"vcmi.optionsTab.simturnsMax.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen oder bis zum Kontakt mit einem anderen Spieler",
-	"vcmi.optionsTab.simturnsAI.help" : "{Simultane KI Züge}\nExperimentelle Option. Ermöglicht es den KI-Spielern, gleichzeitig mit dem menschlichen Spieler zu agieren, wenn simultane Spielzüge aktiviert sind.",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -323,7 +334,7 @@
 	"vcmi.stackExperience.rank.8" : "Elite",
 	"vcmi.stackExperience.rank.9" : "Meister",
 	"vcmi.stackExperience.rank.10" : "Ass",
-	
+
 	"core.bonus.ADDITIONAL_ATTACK.name": "Doppelschlag",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Greift zweimal an",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Zusätzliche Vergeltungsmaßnahmen",
@@ -362,6 +373,8 @@
 	"core.bonus.ENCHANTER.description": "Kann jede Runde eine Masse von ${subtype.spell} zaubern",
 	"core.bonus.ENCHANTED.name": "Verzaubert",
 	"core.bonus.ENCHANTED.description": "Beeinflusst von permanentem ${subtype.spell}",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.name": "Angriff ignorieren (${val}%)",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "Bei Angriff, wird ${val}% des Angreifers ignoriert.",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name": "Ignoriere Verteidigung (${val}%)",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "Ignoriert einen Teil der Verteidigung für den Angriff",
 	"core.bonus.FIRE_IMMUNITY.name": "Feuerimmunität",
@@ -374,6 +387,8 @@
 	"core.bonus.FEAR.description": "Verursacht Furcht bei einem gegnerischen Stapel",
 	"core.bonus.FEARLESS.name": "Furchtlos",
 	"core.bonus.FEARLESS.description": "immun gegen die Fähigkeit Furcht",
+	"core.bonus.FEROCITY.name": "Wildheit",
+	"core.bonus.FEROCITY.description": "Greift ${val} zusätzliche Male an, wenn jemand getötet wird",
 	"core.bonus.FLYING.name": "Fliegen",
 	"core.bonus.FLYING.description": "Kann fliegen (ignoriert Hindernisse)",
 	"core.bonus.FREE_SHOOTING.name": "Nah schießen",
@@ -428,6 +443,8 @@
 	"core.bonus.REBIRTH.description": "${val}% des Stacks wird nach dem Tod auferstehen",
 	"core.bonus.RETURN_AFTER_STRIKE.name": "Angriff und Rückkehr",
 	"core.bonus.RETURN_AFTER_STRIKE.description": "Kehrt nach Nahkampfangriff zurück",
+	"core.bonus.REVENGE.name": "Rache",
+	"core.bonus.REVENGE.description": "Verursacht zusätzlichen Schaden basierend auf der verlorenen Gesundheit des Angreifers im Kampf",
 	"core.bonus.SHOOTER.name": "Fernkämpfer",
 	"core.bonus.SHOOTER.description": "Kreatur kann schießen",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name": "Schießt rundherum",

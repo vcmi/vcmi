@@ -587,6 +587,11 @@ Affected unit will attack units on all hexes that surround attacked hex
 
 Affected unit will retaliate before enemy attacks, if able
 
+- subtype: 
+	- damageTypeMelee: only melee attacks affected
+	- damageTypeRanged: only ranged attacks affected. Note that unit also requires ability to retaliate in ranged, such as RANGED_RETALIATION bonus
+	- damageTypeAll: any attacks are affected
+
 ### SHOOTS_ALL_ADJACENT
 
 Affected unit will attack units on all hexes that surround attacked hex in ranged attacks
@@ -727,14 +732,20 @@ Affected unit will deal additional damage after attack
 
 ### DEATH_STARE
 
-Affected unit will kill additional units after attack
+Affected unit will kill additional units after attack. Used for Death stare (Mighty Gorgon) ability and for Accurate Shot (Pirates, HotA)
 
 - subtype: 
-	- deathStareGorgon: random amount
-	- deathStareCommander: fixed amount
+	- deathStareGorgon: only melee attack, random amount of killed units
+	- deathStareNoRangePenalty: only ranged attacks without obstacle (walls) or range penalty
+	- deathStareRangePenalty: only ranged attacks with range penalty
+	- deathStareObstaclePenalty: only ranged attacks with obstacle (walls) penalty
+	- deathStareRangeObstaclePenalty: only ranged attacks with both range and obstacle penalty
+	- deathStareCommander: fixed amount, both melee and ranged attacks
 - val: 
-	- for deathStareGorgon: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once. TODO: recheck formula
 	- for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
+	- for all other subtypes: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once, rounded up
+- addInfo:
+	- SpellID to be used as hit effect. If not set - 'deathStare' spell will be used. If set to "accurateShot" battle log messages will use alternative description
 
 ### SPECIAL_CRYSTAL_GENERATION
 
@@ -743,15 +754,6 @@ If player has affected unit under his control in any army, he will receive addit
 ### NO_SPELLCAST_BY_DEFAULT
 
 Affected unit will not use spellcast as default attack option
-
-### ACCURATE_SHOT
-
-Affected unit will kill additional units after attack, similar to death stare - works only for ranged attack
-
-- subtype:
-	spell identifier for spell that receives value that should be killed on input, spell.deathStare is used by default, use 'accurateShot' as part of spell name to allow detection for proper battle log description
-- val:
-	chance to kill, counted separately for each unit in attacking stack, percentage. Chance gets lessened by 2/3 with range penalty and effect won't trigger with wall penalty. At most (stack size \* chance / 100 **[rounded up]**) units can be killed at once. TODO: recheck formula
 
 ## Creature spellcasting and activated abilities
 
@@ -788,7 +790,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - subtype - spell id, eg. spell.iceBolt
 - value - chance (percent)
 - additional info - \[X, Y, Z\]
-    - X - spell level
+    - X - spell mastery level (1 - Basic, 3 - Expert)
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
     - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
   When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
@@ -798,7 +800,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 - subtype - spell id
 - value - chance %
 - additional info - \[X, Y, Z\]
-    - X - spell level
+    - X - spell mastery level (1 - Basic, 3 - Expert)
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
     - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
   When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.

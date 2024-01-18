@@ -436,13 +436,13 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
 
-		const CCreature * creature = stack.creature.toCreature();
-
-		if(creature == nullptr)
+		if(stack.creature == CreatureID::NONE)
 		{
-			logGlobal->error("Hero %s has invalid creature with id %d in initial army", getNameTranslated(), stack.creature.toEnum());
+			logGlobal->error("Hero %s has invalid creature in initial army", getNameTranslated());
 			continue;
 		}
+
+		const CCreature * creature = stack.creature.toCreature();
 
 		if(creature->warMachine != ArtifactID::NONE) //war machine
 		{

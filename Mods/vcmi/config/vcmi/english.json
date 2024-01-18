@@ -145,6 +145,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Set the map scrolling speed to very slow.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Set the map scrolling speed to very fast.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Set the map scrolling speed to instantaneous.",
+	"vcmi.adventureOptions.hideBackground.hover" : "Hide Background",
+	"vcmi.adventureOptions.hideBackground.help" : "{Hide Background}\n\nHide the adventuremap in the background and show a texture instead.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Show Turn Order Queue",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "OFF",
@@ -333,8 +335,6 @@
 	"vcmi.stackExperience.rank.9" : "Master",
 	"vcmi.stackExperience.rank.10" : "Ace",
 
-	"core.bonus.ACCURATE_SHOT.name": "Accurate Shot",
-	"core.bonus.ACCURATE_SHOT.description": "Has (${val}% - penalties) extra kills chance",
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",

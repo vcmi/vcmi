@@ -192,7 +192,7 @@ struct DLL_LINKAGE TriggeredEvent
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
-class DLL_LINKAGE CMapHeader: public TextLocalizationContainer
+class DLL_LINKAGE CMapHeader
 {
 	void setupEvents();
 public:
@@ -240,13 +240,14 @@ public:
 	
 	/// translations for map to be transferred over network
 	JsonNode translations;
+	TextContainerRegistrable texts;
 	
 	void registerMapStrings();
 
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)
 	{
-		h & static_cast<TextLocalizationContainer&>(*this);
+		h & texts;
 		h & version;
 		h & mods;
 		h & name;

@@ -397,7 +397,10 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 	if(!handler.saving)
 	{
 		if(ammMin > ammMax)
+		{
 			logMod->error("Invalid creature '%s' configuration, advMapAmount.min > advMapAmount.max", identifier);
+			std::swap(ammMin, ammMax);
+		}
 	}
 }
 
@@ -622,7 +625,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	}
 	else
 	{
-		logGlobal->error("Mod %s: creature %s has minimal damage (%d) greater than maximal damage (%d)!", scope, identifier, minDamage, maxDamage);
+		logMod->error("Mod %s: creature %s has minimal damage (%d) greater than maximal damage (%d)!", scope, identifier, minDamage, maxDamage);
 		cre->addBonus(maxDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
 		cre->addBonus(minDamage, BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
 	}

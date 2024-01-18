@@ -22,12 +22,15 @@ class CRandomGenerator;
 
 struct ObjectInfo
 {
+	ObjectInfo();
+
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 	ui32 value = 0;
 	ui16 probability = 0;
 	ui32 maxPerZone = 1;
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
+	std::function<void()> destroyObject;
 	
 	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
 };

@@ -271,7 +271,12 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 	case EPathNodeAction::BATTLE:
 		/// Movement after BATTLE action only possible from guarded tile to guardian tile
 		if(destination.guarded)
-			return BlockingReason::DESTINATION_GUARDED;
+		{
+			if (pathfinderHelper->options.ignoreGuards)
+				return BlockingReason::DESTINATION_GUARDED;
+			else
+				return BlockingReason::NONE;
+		}
 
 		break;
 	}
@@ -299,6 +304,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 		if(source.guarded)
 		{
 			if(!(pathfinderConfig->options.originalMovementRules && source.node->layer == EPathfindingLayer::AIR) 
+				&& !pathfinderConfig->options.ignoreGuards
 				&&	(!destination.isGuardianTile || pathfinderHelper->getGuardiansCount(source.coord) > 1)) // Can step into tile of guard
 			{
 				return BlockingReason::SOURCE_GUARDED;

@@ -1136,16 +1136,16 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	};
 
 	if (guardian && getVisitingHero(guardian) != nullptr)
-		return complainRet("Cannot move hero, destination monster is busy!");
+		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this wandering monster!");
 
 	if (objectToVisit && getVisitingHero(objectToVisit) != nullptr && getVisitingHero(objectToVisit) != h)
-		return complainRet("Cannot move hero, destination object is busy!");
+		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this map object!");
 
 	if (objectToVisit &&
 		objectToVisit->getOwner().isValidPlayer() &&
 		getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
 		!turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
-		return complainRet("Cannot move hero, destination player is busy!");
+		return complainRet("You cannot move your hero there. This object belongs to another player and simultaneous turns are still active!");
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -1467,6 +1467,9 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	sendAndApply(&vc);
 	visitCastleObjects(obj, hero);
 	giveSpells (obj, hero);
+
+	if (obj->visitingHero && obj->garrisonHero)
+		useScholarSkill(obj->visitingHero->id, obj->garrisonHero->id);
 	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
@@ -1508,6 +1511,15 @@ void CGameHandler::giveHeroBonus(GiveBonus * bonus)
 void CGameHandler::setMovePoints(SetMovePoints * smp)
 {
 	sendAndApply(smp);
+}
+
+void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, bool absolute)
+{
+	SetMovePoints smp;
+	smp.hid = hid;
+	smp.val = val;
+	smp.absolute = absolute;
+	sendAndApply(&smp);
 }
 
 void CGameHandler::setManaPoints(ObjectInstanceID hid, int val)

@@ -199,6 +199,7 @@
 				},
 				"driver" : {
 					"type" : "string",
+					"defaultWindows" : "",
 					"default" : "opengl",
 					"description" : "preferred graphics backend driver name for SDL2"
 				},
@@ -240,7 +241,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -293,6 +294,10 @@
 					"type" : "number",
 					"default" : 128
 				},
+				"hideBackground" : {
+					"type" : "boolean",
+					"default" : false
+				}
 			}
 		},
 		"battle" : {

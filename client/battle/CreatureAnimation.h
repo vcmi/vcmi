@@ -50,7 +50,7 @@ namespace AnimationControls
 	float getSpellEffectSpeed();
 
 	/// returns speed of movement animation across the screen, in tiles per second
-	float getMovementDistance(const CCreature * creature);
+	float getMovementRange(const CCreature * creature);
 
 	/// returns speed of movement animation across the screen, in pixels per seconds
 	float getFlightDistance(const CCreature * creature);
