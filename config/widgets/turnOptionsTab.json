@@ -66,15 +66,7 @@
 			"rect": {"x": 60, "y": 48, "w": 320, "h": 0},
 			"adoptHeight": true
 		},
-		
-//		{
-//			"type": "label",
-//			"font": "medium",
-//			"alignment": "center",
-//			"color": "yellow",
-//			"text": "vcmi.optionsTab.selectPreset",
-//			"position": {"x": 105, "y": 100}
-//		},
+	
 		{
 			"type" : "dropDownTimers",
 			"name": "timerPresetSelector",
@@ -94,36 +86,68 @@
 			"color" : "blue", 
 			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124}
 		},
+		
 		{
-			"type": "transparentFilledRectangle",
+			"type": "graphicalPrimitive",
 			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124},
-			"color": [0, 0, 0, 0],
-			"colorLine": [64, 80, 128, 128]
+			"primitives" : [
+				// Top line
+				{ "type" : "line", "a" : { "x" : 0, "y" : 0}, "b" : { "x" : -1, "y" : 0}, "color" : [ 255, 255, 255, 32 ] },
+				{ "type" : "line", "a" : { "x" : 0, "y" : 1}, "b" : { "x" : -1, "y" : 1}, "color" : [ 0, 0, 0, 48 ] }
+				
+				// Left line
+				{ "type" : "line", "a" : { "x" : 0, "y" : 1}, "b" : { "x" : 0, "y" : -2}, "color" : [ 255, 255, 255, 32 ] },
+				{ "type" : "line", "a" : { "x" : 1, "y" : 2}, "b" : { "x" : 1, "y" : -2}, "color" : [ 0, 0, 0, 48 ] }
+				
+				// Right line
+				{ "type" : "line", "a" : { "x" : -2, "y" : 2}, "b" : { "x" : -2, "y" : -3}, "color" : [ 255, 255, 255, 24 ] },
+				{ "type" : "line", "a" : { "x" : -1, "y" : 1}, "b" : { "x" : -1, "y" : -2}, "color" : [ 255, 255, 255, 48 ] },
+
+				// Central separator
+				{ "type" : "line", "a" : { "x" : 1, "y" : 22}, "b" : { "x" : -2, "y" : 22}, "color" : [ 255, 255, 255, 64 ] },
+				{ "type" : "line", "a" : { "x" : 1, "y" : 23}, "b" : { "x" : -2, "y" : 23}, "color" : [ 0, 0, 0, 64 ] },
+				
+				// 2nd Central separator
+				{ "type" : "line", "a" : { "x" : 1, "y" : 72}, "b" : { "x" : -2, "y" : 72}, "color" : [ 255, 255, 255, 64 ] },
+				{ "type" : "line", "a" : { "x" : 1, "y" : 73}, "b" : { "x" : -2, "y" : 73}, "color" : [ 0, 0, 0, 64 ] },
+
+				// Bottom line
+				{ "type" : "line", "a" : { "x" : 1, "y" : -2}, "b" : { "x" : -1, "y" : -2}, "color" : [ 255, 255, 255, 24 ] },
+				{ "type" : "line", "a" : { "x" : 0, "y" : -1}, "b" : { "x" : -1, "y" : -1}, "color" : [ 255, 255, 255, 48 ] },
+			]
 		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 416, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [80, 96, 160, 128]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 417, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [32, 40, 128, 128]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 466, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [80, 96, 160, 128]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 467, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [32, 40, 128, 128]
-		},
+		
+		
+//		{
+//			"type": "transparentFilledRectangle",
+//			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124},
+//			"color": [0, 0, 0, 0],
+//			"colorLine": [64, 80, 128, 128]
+//		},
+//		{
+//			"type": "transparentFilledRectangle",
+//			"rect": {"x" : 65, "y" : 416, "w": 314, "h": 1},
+//			"color": [0, 0, 0, 0],
+//			"colorLine": [80, 96, 160, 128]
+//		},
+//		{
+//			"type": "transparentFilledRectangle",
+//			"rect": {"x" : 65, "y" : 417, "w": 314, "h": 1},
+//			"color": [0, 0, 0, 0],
+//			"colorLine": [32, 40, 128, 128]
+//		},
+//		{
+//			"type": "transparentFilledRectangle",
+//			"rect": {"x" : 65, "y" : 466, "w": 314, "h": 1},
+//			"color": [0, 0, 0, 0],
+//			"colorLine": [80, 96, 160, 128]
+//		},
+//		{
+//			"type": "transparentFilledRectangle",
+//			"rect": {"x" : 65, "y" : 467, "w": 314, "h": 1},
+//			"color": [0, 0, 0, 0],
+//			"colorLine": [32, 40, 128, 128]
+//		},
 		{
 			"type" : "verticalLayout66",
 			"customType" : "labelTitle",

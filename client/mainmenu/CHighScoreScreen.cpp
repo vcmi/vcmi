@@ -17,7 +17,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
 

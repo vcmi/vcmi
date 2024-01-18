@@ -29,7 +29,7 @@
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"

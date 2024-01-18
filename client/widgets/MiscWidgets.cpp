@@ -21,8 +21,9 @@
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../windows/CTradeWindow.h"
-#include "../widgets/TextControls.h"
 #include "../widgets/CGarrisonInt.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
@@ -663,54 +664,13 @@ void CCreaturePic::setAmount(int newAmount)
 		amount->setText("");
 }
 
-TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color) :
-	color(color), colorLine(ColorRGBA()), drawLine(false), lineWidth(0)
-{
-	pos = position + pos.topLeft();
-}
-
-TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine, int width) :
-	color(color), colorLine(colorLine), drawLine(true), lineWidth(width)
-{
-	pos = position + pos.topLeft();
-}
-
-void TransparentFilledRectangle::setDrawBorder(bool on)
-{
-	drawLine = on;
-}
-
-bool TransparentFilledRectangle::getDrawBorder()
-{
-	return drawLine;
-}
-
-void TransparentFilledRectangle::setBorderWidth(int width)
-{
-	lineWidth = width;
-}
-
-void TransparentFilledRectangle::showAll(Canvas & to) 
-{
-	to.drawColorBlended(pos, color);
-	if(drawLine)
-		to.drawBorder(pos, colorLine, lineWidth);
-}
-
-SimpleLine::SimpleLine(Point pos1, Point pos2, ColorRGBA color) :
-	pos1(pos1), pos2(pos2), color(color)
-{}
-
-void SimpleLine::showAll(Canvas & to) 
-{
-	to.drawLine(pos1 + pos.topLeft(), pos2 + pos.topLeft(), color, color);
-}
-
 SelectableSlot::SelectableSlot(Rect area, Point oversize, const int width)
 	: LRClickableAreaWTextComp(area)
+	, selected(false)
 {
-	selection = std::make_unique<TransparentFilledRectangle>(
-		Rect(area.topLeft() - oversize, area.dimensions() + oversize * 2), Colors::TRANSPARENCY, Colors::YELLOW, width);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	selection = std::make_shared<TransparentFilledRectangle>( Rect(-oversize, area.dimensions() + oversize * 2), Colors::TRANSPARENCY, Colors::YELLOW, width);
 	selectSlot(false);
 }
 
@@ -726,15 +686,17 @@ SelectableSlot::SelectableSlot(Rect area, const int width)
 
 void SelectableSlot::selectSlot(bool on)
 {
-	selection->setDrawBorder(on);
+	selection->setEnabled(on);
+	selected = on;
 }
 
 bool SelectableSlot::isSelected() const
 {
-	return selection->getDrawBorder();
+	return selected;
 }
 
 void SelectableSlot::setSelectionWidth(int width)
 {
-	selection->setBorderWidth(width);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	selection = std::make_shared<TransparentFilledRectangle>( selection->pos - pos.topLeft(), Colors::TRANSPARENCY, Colors::YELLOW, width);
 }
