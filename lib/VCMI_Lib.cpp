@@ -47,14 +47,14 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 LibClasses * VLC = nullptr;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool extractArchives)
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool extractArchives)
 {
 	console = Console;
 	VLC = new LibClasses();
 	VLC->loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
-	VLC->loadModFilesystem(onlyEssential);
+	VLC->loadModFilesystem();
 
 }
 
@@ -182,12 +182,12 @@ void LibClasses::loadFilesystem(bool extractArchives)
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
 }
 
-void LibClasses::loadModFilesystem(bool onlyEssential)
+void LibClasses::loadModFilesystem()
 {
 	CStopWatch loadTime;
 	modh = new CModHandler();
 	identifiersHandler = new CIdentifierStorage();
-	modh->loadMods(onlyEssential);
+	modh->loadMods();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();

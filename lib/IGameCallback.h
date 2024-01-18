@@ -84,6 +84,7 @@ public:
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
+	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
@@ -121,6 +122,7 @@ public:
 	virtual bool swapGarrisonOnSiege(ObjectInstanceID tid)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
+	virtual void setMovePoints(ObjectInstanceID hid, int val, bool absolute)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) = 0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)=0;

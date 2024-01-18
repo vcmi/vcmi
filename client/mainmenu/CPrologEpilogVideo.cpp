@@ -45,10 +45,8 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 void CPrologEpilogVideo::show(Canvas & to)
 {
 	to.drawColor(pos, Colors::BLACK);
-	//BUG: some videos are 800x600 in size while some are 800x400
-	//VCMI should center them in the middle of the screen. Possible but needs modification
-	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player
-	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false);
+	//some videos are 800x600 in size while some are 800x400
+	CCS->videoh->update(pos.x, pos.y + (CCS->videoh->size().y == 400 ? 100 : 0), to.getInternalSurface(), true, false);
 
 	//move text every 5 calls/frames; seems to be good enough
 	++positionCounter;

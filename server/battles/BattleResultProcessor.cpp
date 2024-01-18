@@ -494,14 +494,14 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	}
 	//give exp
 	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide] && finishingBattle->winnerHero)
-		gameHandler->changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult->exp[finishingBattle->winnerSide]);
+		gameHandler->giveExperience(finishingBattle->winnerHero, battleResult->exp[finishingBattle->winnerSide]);
 
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
-	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(0));
-	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(1));
-	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(0));
-	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(1));
+	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::ATTACKER));
+	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::DEFENDER));
+	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(BattleSide::ATTACKER));
+	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(BattleSide::DEFENDER));
 	raccepted.heroResult[0].exp = battleResult->exp[0];
 	raccepted.heroResult[1].exp = battleResult->exp[1];
 	raccepted.winnerSide = finishingBattle->winnerSide; 

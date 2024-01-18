@@ -284,7 +284,12 @@ void ScreenHandler::initializeWindow()
 	mainRenderer = SDL_CreateRenderer(mainWindow, getPreferredRenderingDriver(), rendererFlags);
 
 	if(mainRenderer == nullptr)
-		throw std::runtime_error("Unable to create renderer\n");
+	{
+		const char * error = SDL_GetError();
+		std::string messagePattern = "Failed to create SDL renderer. Reason: %s";
+		std::string message = boost::str(boost::format(messagePattern) % error);
+		handleFatalError(message, true);
+	}
 
 	SDL_RendererInfo info;
 	SDL_GetRendererInfo(mainRenderer, &info);

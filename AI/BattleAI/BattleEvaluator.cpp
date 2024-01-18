@@ -147,7 +147,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				(int)bestAttack.from,
 				(int)bestAttack.attack.attacker->getPosition().hex,
 				bestAttack.attack.chargeDistance,
-				bestAttack.attack.attacker->speed(0, true),
+				bestAttack.attack.attacker->getMovementRange(0),
 				bestAttack.defenderDamageReduce,
 				bestAttack.attackerDamageReduce,
 				score
@@ -225,7 +225,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		}
 	}
 
-	return BattleAction::makeDefend(stack);
+	return stack->waited() ?  BattleAction::makeDefend(stack) : BattleAction::makeWait(stack);
 }
 
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
@@ -553,7 +553,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
 						auto original = cb->getBattle(battleID)->battleGetUnitByID(u->unitId());
-						return  !original || u->speed() != original->speed();
+						return  !original || u->getMovementRange() != original->getMovementRange();
 					});
 
 				DamageCache safeCopy = damageCache;
@@ -609,7 +609,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 						if(ourUnit * goodEffect == 1)
 						{
-							if(ourUnit && goodEffect && (unit->isClone() || unit->isGhost() || !unit->unitSlot().validSlot()))
+							if(ourUnit && goodEffect && (unit->isClone() || unit->isGhost()))
 								continue;
 
 							ps.value += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();

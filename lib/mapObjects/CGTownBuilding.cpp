@@ -151,11 +151,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				gb.id = heroID;
 				cb->giveHeroBonus(&gb);
 
-				SetMovePoints mp;
-				mp.val = 600;
-				mp.absolute = false;
-				mp.hid = heroID;
-				cb->setMovePoints(&mp);
+				cb->setMovePoints(heroID, 600, false);
 
 				iw.text.appendRawString(VLC->generaltexth->allTexts[580]);
 				cb->showInfoDialog(&iw);
@@ -249,8 +245,12 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 			iw.player = cb->getOwner(heroID);
 				iw.text.appendRawString(getVisitingBonusGreeting());
 			cb->showInfoDialog(&iw);
-			cb->changePrimSkill (cb->getHero(heroID), what, val);
-				town->addHeroToStructureVisitors(h, indexOnTV);
+			if (what == PrimarySkill::EXPERIENCE)
+				cb->giveExperience(cb->getHero(heroID), val);
+			else
+				cb->changePrimSkill(cb->getHero(heroID), what, val);
+
+			town->addHeroToStructureVisitors(h, indexOnTV);
 		}
 	}
 }

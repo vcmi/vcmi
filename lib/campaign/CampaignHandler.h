@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE CampaignHandler
 {
-	static std::string readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
+	static std::string readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
 
 	static void readCampaign(Campaign * target, const std::vector<ui8> & stream, std::string filename, std::string modName, std::string encoding);
 
@@ -27,7 +27,7 @@ class DLL_LINKAGE CampaignHandler
 
 	//parsers for original H3C campaigns
 	static void readHeaderFromMemory(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
-	static CampaignScenario readScenarioFromMemory(CBinaryReader & reader, const CampaignHeader & header);
+	static CampaignScenario readScenarioFromMemory(CBinaryReader & reader, CampaignHeader & header);
 	static CampaignTravel readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps

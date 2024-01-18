@@ -203,6 +203,7 @@ public:
 	int64_t calculateDamage(const spells::Caster * caster) const override;
 
 	bool hasSchool(SpellSchool school) const override;
+	bool canCastOnSelf() const override;
 
 	/**
 	 * Calls cb for each school this spell belongs to
@@ -329,6 +330,7 @@ private:
 	si32 power; //spell's power
 	bool combat; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
+	bool castOnSelf; // if set, creature caster can cast this spell on itself
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize

@@ -31,6 +31,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -168,6 +169,15 @@ void AdventureMapInterface::show(Canvas & to)
 
 void AdventureMapInterface::dim(Canvas & to)
 {
+	if(settings["adventure"]["hideBackground"].Bool())
+		for (auto window : GH.windows().findWindows<IShowActivatable>())
+		{
+			if(!std::dynamic_pointer_cast<AdventureMapInterface>(window) && std::dynamic_pointer_cast<CIntObject>(window) && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 800 && std::dynamic_pointer_cast<CIntObject>(window)->pos.w >= 600)
+			{
+				to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck")));
+				return;
+			}
+		}
 	for (auto window : GH.windows().findWindows<IShowActivatable>())
 	{
 		if (!std::dynamic_pointer_cast<AdventureMapInterface>(window) && !std::dynamic_pointer_cast<RadialMenu>(window) && !window->isPopupWindow())
@@ -467,6 +477,18 @@ void AdventureMapInterface::hotkeyEndingTurn()
 	LOCPLINT->cb->endTurn();
 
 	mapAudio->onPlayerTurnEnded();
+
+	// Normally, game will receive PlayerStartsTurn call almost instantly with new player ID that will switch UI to waiting mode
+	// However, when simturns are active it is possible for such call not to come because another player is still acting
+	// So find first player other than ours that is acting at the moment and update UI as if he had started turn
+	for (auto player = PlayerColor(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
+		if (player != LOCPLINT->playerID && LOCPLINT->cb->isPlayerMakingTurn(player))
+		{
+			onEnemyTurnStarted(player, LOCPLINT->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman());
+			break;
+		}
+	}
 }
 
 const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPos)
@@ -679,7 +701,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorMove[turns]);
 			else
-				CCS->curh->set(cursorSailVisit[turns]);
+				CCS->curh->set(cursorSail[turns]);
 			break;
 
 		case EPathNodeAction::VISIT:
@@ -694,6 +716,15 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 			}
 			else if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorVisit[turns]);
+			else if (pathNode->layer == EPathfindingLayer::SAIL &&
+					 objAtTile &&
+					 objAtTile->isCoastVisitable() &&
+					 pathNode->theNodeBefore &&
+					 pathNode->theNodeBefore->layer == EPathfindingLayer::LAND )
+			{
+				// exception - when visiting shipwreck located on coast from land - show 'horse' cursor, not 'ship' cursor
+				CCS->curh->set(cursorVisit[turns]);
+			}
 			else
 				CCS->curh->set(cursorSailVisit[turns]);
 			break;

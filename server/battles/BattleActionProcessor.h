@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+#include "bonuses/BonusList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,8 +44,13 @@ class BattleActionProcessor : boost::noncopyable
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
 	void handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
+
+	void handleDeathStare(const CBattleInfoCallback &battle, bool ranged, const CStack *attacker, const CStack *defender);
+
 	void handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
-	void attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
+	void attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender);
+
+	std::set<SpellID> getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender);
 
 	// damage, drain life & fire shield; returns amount of drained life
 	int64_t applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);

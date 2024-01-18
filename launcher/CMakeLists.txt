@@ -59,6 +59,7 @@ set(launcher_FORMS
 
 set(launcher_TS
 	translation/chinese.ts
+	translation/czech.ts
 	translation/english.ts
 	translation/french.ts
 	translation/german.ts

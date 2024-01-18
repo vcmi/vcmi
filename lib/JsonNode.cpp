@@ -537,6 +537,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::NEGATE_ALL_NATURAL_IMMUNITIES:
 		case BonusType::CREATURE_DAMAGE:
 		case BonusType::FLYING:
+		case BonusType::FIRST_STRIKE:
 		case BonusType::GENERAL_DAMAGE_REDUCTION:
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
 		case BonusType::SOUL_STEAL:
@@ -1288,7 +1289,12 @@ static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 #elif defined(VCMI_ANDROID)
 	if (!fieldProps["defaultAndroid"].isNull())
 		return fieldProps["defaultAndroid"];
-#elif !defined(VCMI_MOBILE)
+#elif defined(VCMI_WINDOWS)
+	if (!fieldProps["defaultWindows"].isNull())
+		return fieldProps["defaultWindows"];
+#endif
+
+#if !defined(VCMI_MOBILE)
 	if (!fieldProps["defaultDesktop"].isNull())
 		return fieldProps["defaultDesktop"];
 #endif

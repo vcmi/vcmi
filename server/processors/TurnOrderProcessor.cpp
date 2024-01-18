@@ -106,6 +106,8 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	{
 		CPathsInfo out(mapSize, hero);
 		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);
+		config->options.ignoreGuards = true;
+		config->options.turnLimit = 1;
 		CPathfinder pathfinder(gameHandler->gameState(), config);
 		pathfinder.calculatePaths();
 
@@ -120,6 +122,8 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	{
 		CPathsInfo out(mapSize, hero);
 		auto config = std::make_shared<SingleHeroPathfinderConfig>(out, gameHandler->gameState(), hero);
+		config->options.ignoreGuards = true;
+		config->options.turnLimit = 1;
 		CPathfinder pathfinder(gameHandler->gameState(), config);
 		pathfinder.calculatePaths();
 

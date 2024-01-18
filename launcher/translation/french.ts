@@ -252,7 +252,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <source>Description</source>
         <translation>Description</translation>
     </message>
@@ -302,128 +302,128 @@
         <translation>Abandonner</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="287"/>
         <source>Mod name</source>
         <translation>Nom du mod</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="249"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="288"/>
         <source>Installed version</source>
         <translation>Version installée</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="289"/>
         <source>Latest version</source>
         <translation>Dernière version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="253"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <source>Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
         <source>Download size</source>
         <translation>Taille de téléchargement</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="257"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="296"/>
         <source>Authors</source>
         <translation>Auteur(s)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="260"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="299"/>
         <source>License</source>
         <translation>Licence</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="263"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="302"/>
         <source>Contact</source>
         <translation>Contact</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="272"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>Compatibility</source>
         <translation>Compatibilité</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="274"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
         <source>Required VCMI version</source>
         <translation>Version requise de VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="280"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
         <source>Supported VCMI version</source>
         <translation>Version supportée de VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="285"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
         <source>Supported VCMI versions</source>
         <translation>Versions supportées de VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="351"/>
         <source>Languages</source>
         <translation>Langues</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
         <source>Required mods</source>
         <translation>Mods requis</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
         <source>Conflicting mods</source>
         <translation>Mods en conflit</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>Ce mod ne peut pas être installé ou activé car les dépendances suivantes ne sont pas présents
             </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>Ce mod ne peut pas être installé ou activé, car les dépendances suivantes sont incompatibles avec lui
             </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>Ce mod ne peut pas être désactivé car il est requis pour les dépendances suivantes
             </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="362"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>Ce mod ne peut pas être désinstallé ou mis à jour car il est requis pour les dépendances suivantes
             </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Ce sous-mod ne peut pas être installé ou mis à jour séparément du mod parent
             </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="339"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
         <source>Notes</source>
         <translation>Notes</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="599"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="638"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="618"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
         <source>Download failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="619"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="666"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -432,35 +432,35 @@ Encountered errors:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="620"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="667"/>
         <source>
 
 Install successfully downloaded?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="759"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
         <source>Installing mod %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="811"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="874"/>
         <source>Operation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="875"/>
         <source>Encountered errors:
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="847"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="910"/>
         <source>Screenshot %1</source>
         <translation>Impression écran %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="243"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="282"/>
         <source>Mod is incompatible</source>
         <translation>Ce mod est incompatible</translation>
     </message>
@@ -468,48 +468,46 @@ Install successfully downloaded?</source>
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="276"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="580"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="241"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="471"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="539"/>
         <source>Off</source>
         <translation>Désactivé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="78"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="108"/>
         <source>Artificial Intelligence</source>
         <translation>Intelligence Artificielle</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="203"/>
         <source>Mod Repositories</source>
         <translation>Dépôts de Mod</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="585"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="654"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="246"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="476"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="544"/>
         <source>On</source>
         <translation>Activé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="289"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="169"/>
         <source>Enemy AI in battles</source>
         <translation>IA ennemie dans les batailles</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="405"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="614"/>
         <source>Default repository</source>
         <translation>Dépôt par défaut</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="662"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
         <source>VSync</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="340"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="415"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -526,179 +524,182 @@ Mode fenêtré sans bord - le jeu s&quot;exécutera dans une fenêtre qui couvre
 Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écran et utilisera la résolution sélectionnée.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="353"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="428"/>
         <source>Windowed</source>
         <translation>Fenêtré</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="358"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="433"/>
         <source>Borderless fullscreen</source>
         <translation>Fenêtré sans bord</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="363"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="438"/>
         <source>Exclusive fullscreen</source>
         <translation>Plein écran exclusif</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="631"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="349"/>
         <source>Reserved screen area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="624"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="394"/>
         <source>Neutral AI in battles</source>
         <translation>IA neutre dans les batailles</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="229"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>Autosave limit (0 = off)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="638"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
         <source>Adventure Map Enemies</source>
         <translation>Ennemis de la carte d&quot;aventure</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="460"/>
         <source>Autosave prefix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="202"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>empty = map name prefix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="230"/>
         <source>Interface Scaling</source>
         <translation>Mise à l&quot;échelle de l&quot;interface</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="525"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
         <source>Cursor</source>
         <translation>Curseur</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="125"/>
         <source>Heroes III Data Language</source>
         <translation>Langue des Données de Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="370"/>
         <source>Framerate Limit</source>
         <translation>Limite de fréquence d&quot;images</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="522"/>
         <source>Hardware</source>
         <translation>Matériel</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="538"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="527"/>
         <source>Software</source>
         <translation>Logiciel</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="118"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="624"/>
+        <source>Renderer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="162"/>
         <source>Heroes III Translation</source>
         <translation>Traduction de Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="210"/>
         <source>Adventure Map Allies</source>
         <translation>Alliés de la carte d&quot;aventure</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="239"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="176"/>
         <source>Additional repository</source>
         <translation>Dépôt supplémentaire</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="617"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="586"/>
         <source>Check on startup</source>
         <translation>Vérifier au démarrage</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="607"/>
         <source>Refresh now</source>
         <translation>Actualiser maintenant</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="436"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="401"/>
         <source>Friendly AI in battles</source>
         <translation>IA amicale dans les batailles</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="137"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="155"/>
         <source>Fullscreen</source>
         <translation>Plein écran</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="68"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="130"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="443"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="363"/>
         <source>VCMI Language</source>
         <translation>Langue de VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="356"/>
         <source>Resolution</source>
         <translation>Résolution</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="518"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="446"/>
         <source>Autosave</source>
         <translation>Sauvegarde automatique</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="374"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="135"/>
         <source>Display index</source>
         <translation>Index d&apos;affichage</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="549"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="600"/>
         <source>Network port</source>
         <translation>Port de réseau</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="170"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="95"/>
         <source>Video</source>
         <translation>Vidéo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="265"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="190"/>
         <source>Show intro</source>
         <translation>Montrer l&apos;intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="409"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="450"/>
         <source>Active</source>
         <translation>Actif</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="414"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="455"/>
         <source>Disabled</source>
         <translation>Désactivé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="415"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="456"/>
         <source>Enable</source>
         <translation>Activé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="420"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="461"/>
         <source>Not Installed</source>
         <translation>Pas Installé</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="421"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="462"/>
         <source>Install</source>
         <translation>Installer</translation>
     </message>

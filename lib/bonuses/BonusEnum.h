@@ -48,7 +48,7 @@ class JsonNode;
 	BONUS_NAME(FLYING)									\
 	BONUS_NAME(SHOOTER)									\
 	BONUS_NAME(CHARGE_IMMUNITY)							\
-	BONUS_NAME(ADDITIONAL_ATTACK)						\
+	BONUS_NAME(ADDITIONAL_ATTACK) /*val: number of additional attacks to perform*/ \
 	BONUS_NAME(UNLIMITED_RETALIATIONS)					\
 	BONUS_NAME(NO_MELEE_PENALTY)						\
 	BONUS_NAME(JOUSTING) /*for champions*/				\
@@ -57,8 +57,8 @@ class JsonNode;
 	BONUS_NAME(MAGIC_RESISTANCE) /*in % (value)*/		\
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ALLY) /*in mana points (value) , eg. mage*/ \
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ENEMY) /*in mana points (value) , eg. pegasus */ \
-	BONUS_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only] */ \
-	BONUS_NAME(SPELL_BEFORE_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only] */ \
+	BONUS_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only], addInfo[2] -> spell layer for multiple SPELL_AFTER_ATTACK bonuses (default none [-1]) */ \
+	BONUS_NAME(SPELL_BEFORE_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only], addInfo[2] -> spell layer for multiple SPELL_BEFORE_ATTACK bonuses (default none [-1]) */ \
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	BONUS_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus */ \
 	BONUS_NAME(BLOCK_MAGIC_ABOVE) /*blocks casting spells of the level > value */ \
@@ -173,6 +173,9 @@ class JsonNode;
 	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
 	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
+	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed while attacking target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
+	BONUS_NAME(ENEMY_ATTACK_REDUCTION) /*in % (value) eg. Nix (HotA)*/ \
+	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
 	/* end of list */
 
 

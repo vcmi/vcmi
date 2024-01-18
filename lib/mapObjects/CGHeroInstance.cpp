@@ -436,13 +436,13 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
 
-		const CCreature * creature = stack.creature.toCreature();
-
-		if(creature == nullptr)
+		if(stack.creature == CreatureID::NONE)
 		{
-			logGlobal->error("Hero %s has invalid creature with id %d in initial army", getNameTranslated(), stack.creature.toEnum());
+			logGlobal->error("Hero %s has invalid creature in initial army", getNameTranslated());
 			continue;
 		}
+
+		const CCreature * creature = stack.creature.toCreature();
 
 		if(creature->warMachine != ArtifactID::NONE) //war machine
 		{
@@ -1439,7 +1439,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 
 bool CGHeroInstance::gainsLevel() const
 {
-	return exp >= static_cast<TExpType>(VLC->heroh->reqExp(level+1));
+	return level < VLC->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(VLC->heroh->reqExp(level+1));
 }
 
 void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)

@@ -244,7 +244,7 @@ Increased effect of spell affecting creature, ie. Aenain makes Disrupting Ray de
     "subtype" : "spell.disruptingRay",
     "type" : "SPECIAL_ADD_VALUE_ENCHANT"
 }
-``````
+```
 
 - subtype: affected spell identifier
 - additionalInfo: value to add
@@ -587,6 +587,11 @@ Affected unit will attack units on all hexes that surround attacked hex
 
 Affected unit will retaliate before enemy attacks, if able
 
+- subtype: 
+	- damageTypeMelee: only melee attacks affected
+	- damageTypeRanged: only ranged attacks affected. Note that unit also requires ability to retaliate in ranged, such as RANGED_RETALIATION bonus
+	- damageTypeAll: any attacks are affected
+
 ### SHOOTS_ALL_ADJACENT
 
 Affected unit will attack units on all hexes that surround attacked hex in ranged attacks
@@ -607,6 +612,25 @@ Affected unit can use ranged attacks only within specified range
 
 - val: max shooting range in hexes
 - addInfo: optional, range at which ranged penalty will trigger (default is 10)
+
+### FEROCITY
+
+Affected unit will attack additional times if killed creatures in target unit during attacking (including ADDITIONAL_ATTACK bonus attacks)
+
+- val: amount of additional attacks (negative number will reduce number of unperformed attacks if any left)
+- addInfo: optional, amount of creatures needed to kill (default is 1)
+
+### ENEMY_ATTACK_REDUCTION
+
+Affected unit will ignore specified percentage of attacked unit attack (Nix)
+
+- val: amount of attack points to ignore, percentage
+
+### REVENGE
+
+Affected unit will deal more damage based on percentage of self health lost compared to amount on start of battle
+(formula: `square_root((total_unit_count + 1) * 1_creature_max_health / (current_whole_unit_health + 1_creature_max_health) - 1)`.
+Result is then multiplied separately by min and max base damage of unit and result is additive bonus to total damage at end of calculation)
 
 ## Special abilities
 
@@ -708,14 +732,20 @@ Affected unit will deal additional damage after attack
 
 ### DEATH_STARE
 
-Affected unit will kill additional units after attack
+Affected unit will kill additional units after attack. Used for Death stare (Mighty Gorgon) ability and for Accurate Shot (Pirates, HotA)
 
 - subtype: 
-	- deathStareGorgon: random amount
-	- deathStareCommander: fixed amount
+	- deathStareGorgon: only melee attack, random amount of killed units
+	- deathStareNoRangePenalty: only ranged attacks without obstacle (walls) or range penalty
+	- deathStareRangePenalty: only ranged attacks with range penalty
+	- deathStareObstaclePenalty: only ranged attacks with obstacle (walls) penalty
+	- deathStareRangeObstaclePenalty: only ranged attacks with both range and obstacle penalty
+	- deathStareCommander: fixed amount, both melee and ranged attacks
 - val: 
-	- for deathStareGorgon: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once. TODO: recheck formula
 	- for deathStareCommander: number of creatures to kill, total amount of killed creatures is (attacker level / defender level) \* val
+	- for all other subtypes: chance to kill, counted separately for each unit in attacking stack, percentage. At most (stack size \* chance) units can be killed at once, rounded up
+- addInfo:
+	- SpellID to be used as hit effect. If not set - 'deathStare' spell will be used. If set to "accurateShot" battle log messages will use alternative description
 
 ### SPECIAL_CRYSTAL_GENERATION
 
@@ -759,17 +789,21 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 - subtype - spell id, eg. spell.iceBolt
 - value - chance (percent)
-- additional info - \[X, Y\]
-    - X - spell level
+- additional info - \[X, Y, Z\]
+    - X - spell mastery level (1 - Basic, 3 - Expert)
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
+    - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
+  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPELL_BEFORE_ATTACK
 
 - subtype - spell id
 - value - chance %
-- additional info - \[X, Y\]
-    - X - spell level
+- additional info - \[X, Y, Z\]
+    - X - spell mastery level (1 - Basic, 3 - Expert)
     - Y = 0 - all attacks, 1 - shot only, 2 - melee only
+    - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
+  When enabled - spells from specific layer will not be cast until target has all spells from previous layer on him. Spell from last layer is on repeat if none of spells on lower layers expired.
 
 ### SPECIFIC_SPELL_POWER 
 
@@ -778,7 +812,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 ### CREATURE_SPELL_POWER
 
-- value: Spell Power of offensive spell cast unit, divided by 100. ie. Faerie Dragons have value fo 500, which gives them 5 Spell Power for each unit in the stack.
+- value: Spell Power of offensive spell cast unit, multiplied by 100. ie. Faerie Dragons have value fo 500, which gives them 5 Spell Power for each unit in the stack.
 
 ### CREATURE_ENCHANT_POWER
 

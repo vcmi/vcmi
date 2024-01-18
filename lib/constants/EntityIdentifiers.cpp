@@ -292,7 +292,7 @@ const Skill * SecondarySkill::toEntity(const Services * services) const
 
 const CCreature * CreatureIDBase::toCreature() const
 {
-	return VLC->creh->objects.at(num);
+	return dynamic_cast<const CCreature *>(toEntity(VLC));
 }
 
 const Creature * CreatureIDBase::toEntity(const Services * services) const
@@ -324,12 +324,7 @@ std::string CreatureID::entityType()
 
 const CSpell * SpellIDBase::toSpell() const
 {
-	if(num < 0 || num >= VLC->spellh->objects.size())
-	{
-		logGlobal->error("Unable to get spell of invalid ID %d", static_cast<int>(num));
-		return nullptr;
-	}
-	return VLC->spellh->objects[num];
+	return dynamic_cast<const CSpell*>(toEntity(VLC));
 }
 
 const spells::Spell * SpellIDBase::toEntity(const Services * services) const

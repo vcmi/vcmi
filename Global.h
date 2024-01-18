@@ -100,6 +100,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #define _USE_MATH_DEFINES
 
+#ifndef NDEBUG
+// Enable additional debug checks from glibc / libstdc++ when building with enabled assertions
+// Since these defines must be declared BEFORE including glibc header we can not check for __GLIBCXX__ macro to detect that glibc is in use
+#  define _GLIBCXX_ASSERTIONS
+#endif
+
 #include <algorithm>
 #include <any>
 #include <array>

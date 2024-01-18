@@ -115,7 +115,7 @@ public:
 
 	// basic initialization. should be called before init(). Can also extract original H3 archives
 	void loadFilesystem(bool extractArchives);
-	void loadModFilesystem(bool onlyEssential);
+	void loadModFilesystem();
 
 #if SCRIPTING_ENABLED
 	void scriptsLoaded();
@@ -124,7 +124,7 @@ public:
 
 extern DLL_LINKAGE LibClasses * VLC;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential = false, bool extractArchives = false);
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool extractArchives);
 DLL_LINKAGE void loadDLLClasses(bool onlyEssential = false);
 
 

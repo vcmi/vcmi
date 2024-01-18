@@ -43,9 +43,11 @@ class CLabel : public CTextContainer
 protected:
 	Point getBorderSize() override;
 	virtual std::string visibleText();
+	virtual void trimText();
 
 	std::shared_ptr<CIntObject> background;
 	std::string text;
+	int maxWidth;
 	bool autoRedraw;  //whether control will redraw itself on setTxt
 
 public:
@@ -53,11 +55,12 @@ public:
 	std::string getText();
 	virtual void setAutoRedraw(bool option);
 	virtual void setText(const std::string & Txt);
+	virtual void setMaxWidth(int width);
 	virtual void setColor(const ColorRGBA & Color);
 	size_t getWidth();
 
 	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT,
-		const ColorRGBA & Color = Colors::WHITE, const std::string & Text = "");
+		const ColorRGBA & Color = Colors::WHITE, const std::string & Text = "", int maxWidth = 0);
 	void showAll(Canvas & to) override; //shows statusbar (with current text)
 };
 

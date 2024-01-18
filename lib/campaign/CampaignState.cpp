@@ -169,6 +169,11 @@ const CampaignRegions & CampaignHeader::getRegions() const
 	return campaignRegions;
 }
 
+TextContainerRegistrable & CampaignHeader::getTexts()
+{
+	return textContainer;
+}
+
 bool CampaignState::isConquered(CampaignScenarioID whichScenario) const
 {
 	return vstd::contains(mapsConquered, whichScenario);

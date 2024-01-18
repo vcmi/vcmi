@@ -317,6 +317,7 @@
 		{
 			"name": "buttonSimturnsAI",
 			"position": {"x": 70, "y": 535},
+			"help" : "vcmi.optionsTab.simturnsAI",
 			"type": "toggleButton",
 			"image": "lobby/checkbox",
 			"callback" : "setSimturnAI"

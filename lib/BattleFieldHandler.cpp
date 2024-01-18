@@ -21,6 +21,7 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 
 	auto * info = new BattleFieldInfo(BattleField(index), identifier);
 
+	info->modScope = scope;
 	info->graphics = ImagePath::fromJson(json["graphics"]);
 	info->icon = json["icon"].String();
 	info->name = json["name"].String();
@@ -66,7 +67,7 @@ int32_t BattleFieldInfo::getIconIndex() const
 
 std::string BattleFieldInfo::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;
 }
 
 std::string BattleFieldInfo::getNameTextID() const

@@ -168,15 +168,14 @@ ui32 ACreature::getMaxHealth() const
 	return std::max(1, value); //never 0
 }
 
-ui32 ACreature::speed(int turn, bool useBind) const
+ui32 ACreature::getMovementRange(int turn) const
 {
 	//war machines cannot move
 	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::SIEGE_WEAPON).And(Selector::turns(turn))))
 	{
 		return 0;
 	}
-	//bind effect check - doesn't influence stack initiative
-	if(useBind && getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn))))
+	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn))))
 	{
 		return 0;
 	}

@@ -9,9 +9,10 @@
  */
 #pragma once
 
-#include "../lib/GameConstants.h"
-#include "../lib/MetaString.h"
-#include "../lib/filesystem/ResourcePath.h"
+#include "../GameConstants.h"
+#include "../MetaString.h"
+#include "../filesystem/ResourcePath.h"
+#include "../CGeneralTextHandler.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
 
@@ -87,6 +88,8 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 
 	void loadLegacyData(ui8 campId);
 
+	TextContainerRegistrable textContainer;
+
 public:
 	bool playerSelectedDifficulty() const;
 	bool formatVCMI() const;
@@ -99,6 +102,7 @@ public:
 	AudioPath getMusic() const;
 
 	const CampaignRegions & getRegions() const;
+	TextContainerRegistrable & getTexts();
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -112,6 +116,8 @@ public:
 		h & modName;
 		h & music;
 		h & encoding;
+		if (formatVersion >= 832)
+			h & textContainer;
 	}
 };
 

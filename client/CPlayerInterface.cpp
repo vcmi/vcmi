@@ -1676,7 +1676,8 @@ void CPlayerInterface::showTavernWindow(const CGObjectInstance * object, const C
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onWindowClosed = [this, queryID](){
-		cb->selectionMade(0, queryID);
+		if (queryID != QueryID::NONE)
+			cb->selectionMade(0, queryID);
 	};
 	GH.windows().createAndPushWindow<CTavernWindow>(object, onWindowClosed);
 }

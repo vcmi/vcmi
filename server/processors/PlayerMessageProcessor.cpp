@@ -261,7 +261,7 @@ void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstan
 		levelsToGain = 1;
 	}
 
-	gameHandler->changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + levelsToGain) - VLC->heroh->reqExp(hero->level));
+	gameHandler->giveExperience(hero, VLC->heroh->reqExp(hero->level + levelsToGain) - VLC->heroh->reqExp(hero->level));
 }
 
 void PlayerMessageProcessor::cheatExperience(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -280,7 +280,7 @@ void PlayerMessageProcessor::cheatExperience(PlayerColor player, const CGHeroIns
 		expAmountProcessed = 10000;
 	}
 
-	gameHandler->changePrimSkill(hero, PrimarySkill::EXPERIENCE, expAmountProcessed);
+	gameHandler->giveExperience(hero, expAmountProcessed);
 }
 
 void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
@@ -384,7 +384,7 @@ void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 
 	for(auto & obj : gameHandler->gameState()->map->objects)
 	{
-		if(obj && obj->ID == Obj::OBELISK)
+		if(obj && obj->ID == Obj::OBELISK && !obj->wasVisited(player))
 		{
 			gameHandler->setObjPropertyID(obj->id, ObjProperty::OBELISK_VISITED, t->id);
 			for(const auto & color : t->players)

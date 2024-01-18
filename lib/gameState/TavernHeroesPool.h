@@ -74,7 +74,7 @@ public:
 	void setAvailability(HeroTypeID hero, std::set<PlayerColor> mask);
 
 	/// Makes hero available in tavern of specified player
-	void setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role);
+	void setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role, bool replenishPoints);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

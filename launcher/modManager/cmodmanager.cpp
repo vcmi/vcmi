@@ -161,9 +161,6 @@ bool CModManager::canInstallMod(QString modname)
 
 	if(mod.isInstalled())
 		return addError(modname, "Mod is already installed");
-
-	if(!mod.isAvailable())
-		return addError(modname, "Mod is not available");
 	return true;
 }
 

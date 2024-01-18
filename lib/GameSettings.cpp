@@ -95,6 +95,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::TEXTS_ROAD,                             "textData",  "road"                       },
 		{EGameSettings::TEXTS_SPELL,                            "textData",  "spell"                      },
 		{EGameSettings::TEXTS_TERRAIN,                          "textData",  "terrain"                    },
+		{EGameSettings::PATHFINDER_IGNORE_GUARDS,               "pathfinder", "ignoreGuards"              },
 		{EGameSettings::PATHFINDER_USE_BOAT,                    "pathfinder", "useBoat"                   },
 		{EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY,        "pathfinder", "useMonolithTwoWay"         },
 		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE, "pathfinder", "useMonolithOneWayUnique"   },
