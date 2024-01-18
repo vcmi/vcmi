@@ -70,6 +70,7 @@
 	"vcmi.lobby.mapPreview" : "Огляд мапи",
 	"vcmi.lobby.noPreview" : "огляд недоступний",
 	"vcmi.lobby.noUnderground" : "немає підземелля",
+	"vcmi.lobby.sortDate" : "Сортувати мапи за датою зміни",
 
 	"vcmi.client.errors.missingCampaigns" : "{Не вистачає файлів даних}\n\nФайли даних кампаній не знайдено! Можливо, ви використовуєте неповні або пошкоджені файли даних Heroes 3. Будь ласка, перевстановіть дані гри.",
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
@@ -144,6 +145,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Встановити швидкість розгортання мапи - дуже повільно",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Встановити швидкість розгортання мапи - дуже швидко",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Встановити швидкість розгортання мапи - миттєво",
+	"vcmi.adventureOptions.hideBackground.hover" : "Приховувати тло",
+	"vcmi.adventureOptions.hideBackground.help" : "{Приховувати тло}\n\nПриховати мапу пригод на задньому тлі і показати замість неї текстуру.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Вигляд черги ходу істот",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "ВИМК",
@@ -183,6 +186,10 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d одиниця пошкодження",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d загинуть",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d загине",
+	"vcmi.battleWindow.killed" : "Killed",
+	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s було вбито влучними пострілами!",
+	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s було вбито влучним пострілом!",
+	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s було вбито влучними пострілами!",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Прийняти результат бою",
 
