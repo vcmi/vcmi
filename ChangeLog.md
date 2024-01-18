@@ -23,6 +23,7 @@
 * Fixed positioning of prologue and epilogue text during campaign scenario intros
 
 ### Interface
+* Added an option to hide adventure map window when town or battle window are open
 * Fixed switching between pages on small version of spellbook
 * Saves with long filenames are now truncated in the UI to prevent overflow.
 * Added option to sort saved games by change date
@@ -32,7 +33,6 @@
 * Fixed incorrect cursor display when hovering over water objects accessible from shore
 
 ### Stability
-* Fixed possible creation of a duplicate hero in a random map when the player has chosen the starting hero.
 * Fixed a crash when using the 'vcmiobelisk' cheat more than once.
 * Fixed crash when reaching level 201. The maximum level is now limited to 197.
 * Fixed crash when accessing a spell with an invalid SPELLCASTER bonus
@@ -42,6 +42,11 @@
 * Fixed possible crash when the affinity of the hero class is set to an invalid value
 * Fixed crash on invalid creature in hero army due to outdated or broken mods
 * Failure to initialise video subsystem now displays error message instead of silent crash
+
+### Random Maps Generator
+* Fixed possible creation of a duplicate hero in a random map when the player has chosen the starting hero.
+* Fixed banning of quest artifacts on random maps
+* Fixed banning of heroes in prison on random maps
 
 ### Battles
 * Battle turn queue now displays current turn
