@@ -174,6 +174,9 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 		if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
 			fileName = "DamageReductionRanged.bmp";
 
+		if (bonus->subtype == BonusCustomSubtype::damageTypeAll)
+			fileName = "DamageReductionAll.bmp";
+
 		break;
 	}
 
