@@ -145,6 +145,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Geschwindigkeit des Kartenbildlaufs auf sehr langsam einstellen",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Geschwindigkeit des Kartenbildlaufs auf sehr schnell einstellen",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Geschwindigkeit des Kartenbildlaufs auf sofort einstellen",
+	"vcmi.adventureOptions.hideBackground.hover" : "Hintergrund ausblenden",
+	"vcmi.adventureOptions.hideBackground.help" : "{Hintergrund ausblenden}\n\nDie Abenteuerkarte im Hintergrund ausblenden und stattdessen eine Textur anzeigen.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Reihenfolge der Kreaturen anzeigen",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "AUS",

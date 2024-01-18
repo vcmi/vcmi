@@ -145,6 +145,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Set the map scrolling speed to very slow.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Set the map scrolling speed to very fast.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Set the map scrolling speed to instantaneous.",
+	"vcmi.adventureOptions.hideBackground.hover" : "Hide Background",
+	"vcmi.adventureOptions.hideBackground.help" : "{Hide Background}\n\nHide the adventuremap in the background and show a texture instead.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Show Turn Order Queue",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "OFF",
