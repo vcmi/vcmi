@@ -183,7 +183,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 	{
 		if(ArtifactUtils::isSlotBackpack(slot))
 		{
-			if(isBig() || !ArtifactUtils::isBackpackFreeSlots(artSet))
+			if(isBig() || (!assumeDestRemoved && !ArtifactUtils::isBackpackFreeSlots(artSet)))
 				return false;
 			return true;
 		}
