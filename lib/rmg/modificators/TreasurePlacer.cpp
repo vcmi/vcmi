@@ -672,7 +672,6 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		}
 		
 		auto * object = oi->generateObject();
-
 		if(oi->templates.empty())
 		{
 			logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
@@ -701,6 +700,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		}
 
 		auto & instance = rmgObject.addInstance(*object);
+		instance.onCleared = oi->destroyObject;
 
 		do
 		{
@@ -837,7 +837,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	{
 		for (auto* oi : treasurePile)
 		{
-			//oi->destroyObject();
 			oi->maxPerZone++;
 		}
 	};
