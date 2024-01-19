@@ -51,6 +51,7 @@ public:
 		void finalize(RmgMap & map, CRandomGenerator &); //cache invalidation
 		void clear();
 		
+		std::function<void(CGObjectInstance *)> onCleared;
 	private:
 		mutable Area dBlockedAreaCache;
 		int3 dPosition;
