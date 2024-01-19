@@ -272,7 +272,7 @@ void ClientCommandManager::handleGetScriptsCommand()
 
 	boost::filesystem::create_directories(outPath);
 
-	for(auto & kv : VLC->scriptHandler->objects)
+	for(const auto & kv : VLC->scriptHandler->objects)
 	{
 		std::string name = kv.first;
 		boost::algorithm::replace_all(name,":","_");

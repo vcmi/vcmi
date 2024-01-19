@@ -21,7 +21,7 @@
 #include "CPlayerInterface.h"
 
 CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
-	: CStatusbarWindow((EOptions)0)
+	: CStatusbarWindow(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -49,7 +49,7 @@ void CHeroBackpackWindow::showAll(Canvas & to)
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)
-	: CWindowObject((EOptions)0)
+	: CWindowObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 

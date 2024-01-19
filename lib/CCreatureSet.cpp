@@ -992,7 +992,7 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return experience >= static_cast<TExpType>(VLC->heroh->reqExp(level + 1));
+	return experience >= VLC->heroh->reqExp(level + 1);
 }
 
 //This constructor should be placed here to avoid side effects
