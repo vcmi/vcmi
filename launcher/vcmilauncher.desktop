@@ -12,4 +12,4 @@ Exec=vcmilauncher
 Categories=Game;StrategyGame;
 Version=1.5
 Keywords=heroes of might and magic;heroes;homm;homm3;strategy;
-SingleMainWindow=yes
+SingleMainWindow=true
