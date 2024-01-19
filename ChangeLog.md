@@ -1,3 +1,15 @@
+# 1.4.3 -> 1.5.0
+
+### General
+* Added Chinese translation to map editor
+* Added Spanish translation to launcher
+* Fixed reversed Overlord and Warlock classes mapping
+* Added option to disable cheats in game
+* Added option for unlimited combat replays
+* Fixed assembly of artifacts in the backpack when backpack is full
+* Added status bar to the backpack window
+* Quick backpack window is now only available when enabled Interface enhancements
+
 # 1.4.2 -> 1.4.3
 
 ### General
