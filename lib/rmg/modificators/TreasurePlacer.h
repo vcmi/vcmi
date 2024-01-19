@@ -30,7 +30,7 @@ struct ObjectInfo
 	ui32 maxPerZone = 1;
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
-	std::function<void()> destroyObject;
+	std::function<void(CGObjectInstance *)> destroyObject;
 	
 	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
 };
