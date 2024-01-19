@@ -927,6 +927,16 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <source>In The Wake of Gods</source>
         <translation>追随神迹</translation>
     </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Heroes III installation found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Copy data to VCMI folder?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ImageViewer</name>
@@ -1048,7 +1058,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <name>Lobby</name>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="402"/>
+        <location filename="../lobby/lobby_moc.cpp" line="403"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
@@ -1124,12 +1134,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation>房间内的玩家</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="369"/>
+        <location filename="../lobby/lobby_moc.cpp" line="370"/>
         <source>Disconnect</source>
         <translation>断开</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="462"/>
+        <location filename="../lobby/lobby_moc.cpp" line="463"/>
         <source>No issues detected</source>
         <translation>没有发现问题</translation>
     </message>

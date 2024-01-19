@@ -907,6 +907,16 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <source>Finish</source>
         <translation>Finalizar</translation>
     </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Heroes III installation found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Copy data to VCMI folder?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ImageViewer</name>
@@ -1028,7 +1038,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <name>Lobby</name>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="402"/>
+        <location filename="../lobby/lobby_moc.cpp" line="403"/>
         <source>Connect</source>
         <translation>Conectar</translation>
     </message>
@@ -1103,12 +1113,12 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation>Jugadores en la sala</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="369"/>
+        <location filename="../lobby/lobby_moc.cpp" line="370"/>
         <source>Disconnect</source>
         <translation>Desconectar</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="462"/>
+        <location filename="../lobby/lobby_moc.cpp" line="463"/>
         <source>No issues detected</source>
         <translation>No se han detectado problemas</translation>
     </message>
