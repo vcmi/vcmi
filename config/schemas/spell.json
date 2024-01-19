@@ -166,7 +166,10 @@
 		"defaultGainChance" : {
 			"type" : "number",
 			"description" : "Gain chance by default for all factions"
-
+		},
+		"canCastOnSelf" : {
+			"type" : "boolean",
+			"description" : "If used as creature spell, unit can cast this spell on itself"
 		},
 		"gainChance" : {
 			"type" : "object",
