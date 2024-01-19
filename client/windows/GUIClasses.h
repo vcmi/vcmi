@@ -206,10 +206,13 @@ public:
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
 		const CGHeroInstance * h;
 
+		std::function<void()> onChoose;
+
 		void clickPressed(const Point & cursorPosition) override;
+		void clickDouble(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover (bool on) override;
-		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
+		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H, std::function<void()> OnChoose = nullptr);
 
 	private:
 		int *_sel;

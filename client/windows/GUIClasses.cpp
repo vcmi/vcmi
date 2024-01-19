@@ -459,8 +459,8 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 
 	oldSelected = -1;
 
-	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0]);
-	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1]);
+	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0], [&]() { if(!recruit->isBlocked()) recruitb(); });
+	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1], [&]() { if(!recruit->isBlocked()) recruitb(); });
 
 	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
 	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(GameConstants::HERO_GOLD_COST));
@@ -569,15 +569,23 @@ void CTavernWindow::HeroPortrait::clickPressed(const Point & cursorPosition)
 		*_sel = _id;
 }
 
+void CTavernWindow::HeroPortrait::clickDouble(const Point & cursorPosition)
+{
+	clickPressed(cursorPosition);
+	
+	if(onChoose)
+		onChoose();
+}
+
 void CTavernWindow::HeroPortrait::showPopupWindow(const Point & cursorPosition)
 {
 	if(h)
 		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
-CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
-	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
-	h(H), _sel(&sel), _id(id)
+CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H, std::function<void()> OnChoose)
+	: CIntObject(LCLICK | DOUBLECLICK | SHOW_POPUP | HOVER),
+	h(H), _sel(&sel), _id(id), onChoose(OnChoose)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	h = H;
