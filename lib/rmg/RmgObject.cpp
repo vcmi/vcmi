@@ -138,6 +138,9 @@ void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
 
 void Object::Instance::clear()
 {
+	if (onCleared)
+		onCleared(&dObject);
+
 	delete &dObject;
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();

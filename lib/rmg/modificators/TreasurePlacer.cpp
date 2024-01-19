@@ -34,7 +34,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ObjectInfo::ObjectInfo():
-	destroyObject([](){})
+	destroyObject([](CGObjectInstance * obj){})
 {
 
 }
@@ -123,15 +123,9 @@ void TreasurePlacer::addAllPossibleObjects()
 				continue;
 			}
 
-			oi.generateObject = [i, this, prisonHeroPlacer, &oi]() -> CGObjectInstance*
+			oi.generateObject = [i, this, prisonHeroPlacer]() -> CGObjectInstance*
 			{
 				HeroTypeID hid = prisonHeroPlacer->drawRandomHero();
-				oi.destroyObject = [hid, prisonHeroPlacer]()
-				{
-					// Hero can be used again
-					prisonHeroPlacer->restoreDrawnHero(hid);
-				};
-
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 				auto* obj = dynamic_cast<CGHeroInstance*>(factory->create());
 
@@ -141,6 +135,13 @@ void TreasurePlacer::addAllPossibleObjects()
 
 				return obj;
 			};
+			oi.destroyObject = [prisonHeroPlacer](CGObjectInstance* obj)
+			{
+				// Hero can be used again
+				auto* hero = dynamic_cast<CGHeroInstance*>(obj);
+				prisonHeroPlacer->restoreDrawnHero(hero->getHeroType());
+			};
+
 			oi.setTemplates(Obj::PRISON, 0, zone.getTerrainType());
 			oi.value = generator.getConfig().prisonValues[i];
 			oi.probability = 30;
@@ -464,17 +465,19 @@ void TreasurePlacer::addAllPossibleObjects()
 		
 		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
-		auto setRandomArtifact = [qap, &oi](CGSeerHut * obj)
+		auto setRandomArtifact = [qap](CGSeerHut * obj)
 		{
 			ArtifactID artid = qap->drawRandomArtifact();
-			oi.destroyObject = [artid, qap]()
-			{
-				// Artifact can be used again
-				qap->addRandomArtifact(artid);
-				qap->removeQuestArtifact(artid);
-			};
 			obj->quest->mission.artifacts.push_back(artid);
 			qap->addQuestArtifact(artid);
+		};
+		auto destroyObject = [qap](CGObjectInstance * obj)
+		{
+			auto * seer = dynamic_cast<CGSeerHut *>(obj);
+			// Artifact can be used again
+			ArtifactID artid = seer->quest->mission.artifacts.front();
+			qap->addRandomArtifact(artid);
+			qap->removeQuestArtifact(artid);
 		};
 
 		for(int i = 0; i < static_cast<int>(creatures.size()); i++)
@@ -502,6 +505,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				return obj;
 			};
+			oi.destroyObject = destroyObject;
 			oi.probability = 3;
 			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
 			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount())) - 4000) / 3);
@@ -546,6 +550,7 @@ void TreasurePlacer::addAllPossibleObjects()
 
 				return obj;
 			};
+			oi.destroyObject = destroyObject;
 			
 			if(!oi.templates.empty())
 				possibleSeerHuts.push_back(oi);
@@ -564,6 +569,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				return obj;
 			};
+			oi.destroyObject = destroyObject;
 			
 			if(!oi.templates.empty())
 				possibleSeerHuts.push_back(oi);
@@ -666,11 +672,10 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		}
 		
 		auto * object = oi->generateObject();
-
 		if(oi->templates.empty())
 		{
 			logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
-			oi->destroyObject();
+			oi->destroyObject(object);
 			delete object;
 			continue;
 		}
@@ -695,6 +700,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		}
 
 		auto & instance = rmgObject.addInstance(*object);
+		instance.onCleared = oi->destroyObject;
 
 		do
 		{
@@ -831,7 +837,6 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	{
 		for (auto* oi : treasurePile)
 		{
-			oi->destroyObject();
 			oi->maxPerZone++;
 		}
 	};
