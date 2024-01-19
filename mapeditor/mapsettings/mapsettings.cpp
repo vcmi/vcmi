@@ -81,7 +81,7 @@ void MapSettings::on_pushButton_clicked()
 	auto updateMapArray = [](const QListWidget * widget, auto & arr)
 	{
 		arr.clear();
-		for(int i = 0; i < arr.size(); ++i)
+		for(int i = 0; i < widget->count(); ++i)
 		{
 			auto * item = widget->item(i);
 			if (item->checkState() == Qt::Checked)

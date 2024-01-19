@@ -257,7 +257,15 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 
 	VLC->generaltexth->registerString(scope, heroClass->getNameTextID(), node["name"].String());
 
-	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
+	if (vstd::contains(affinityStr, node["affinity"].String()))
+	{
+		heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
+	}
+	else
+	{
+		logGlobal->error("Mod '%s', hero class '%s': invalid affinity '%s'! Expected 'might' or 'magic'!", scope, identifier, node["affinity"].String());
+		heroClass->affinity = CHeroClass::MIGHT;
+	}
 
 	fillPrimarySkillData(node, heroClass, PrimarySkill::ATTACK);
 	fillPrimarySkillData(node, heroClass, PrimarySkill::DEFENSE);
@@ -465,7 +473,11 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
 		hero->initialArmy[i].minAmount = static_cast<ui32>(source["min"].Float());
 		hero->initialArmy[i].maxAmount = static_cast<ui32>(source["max"].Float());
 
-		assert(hero->initialArmy[i].minAmount <= hero->initialArmy[i].maxAmount);
+		if (hero->initialArmy[i].minAmount > hero->initialArmy[i].maxAmount)
+		{
+			logMod->error("Hero %s has minimal army size (%d) greater than maximal size (%d)!", hero->getJsonKey(), hero->initialArmy[i].minAmount, hero->initialArmy[i].maxAmount);
+			std::swap(hero->initialArmy[i].minAmount, hero->initialArmy[i].maxAmount);
+		}
 
 		VLC->identifiers()->requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
@@ -654,14 +666,21 @@ void CHeroHandler::loadExperience()
 	expPerLevel.push_back(24320);
 	expPerLevel.push_back(28784);
 	expPerLevel.push_back(34140);
-	while (expPerLevel[expPerLevel.size() - 1] > expPerLevel[expPerLevel.size() - 2])
+
+	for (;;)
 	{
 		auto i = expPerLevel.size() - 1;
-		auto diff = expPerLevel[i] - expPerLevel[i-1];
-		diff += diff / 5;
-		expPerLevel.push_back (expPerLevel[i] + diff);
+		auto currExp = expPerLevel[i];
+		auto prevExp = expPerLevel[i-1];
+		auto prevDiff = currExp - prevExp;
+		auto nextDiff = prevDiff + prevDiff / 5;
+		auto maxExp = std::numeric_limits<decltype(currExp)>::max();
+
+		if (currExp > maxExp - nextDiff)
+			break; // overflow point reached
+
+		expPerLevel.push_back (currExp + nextDiff);
 	}
-	expPerLevel.pop_back();//last value is broken
 }
 
 /// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)
@@ -741,12 +760,12 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	registerObject(scope, "hero", name, object->getIndex());
 }
 
-ui32 CHeroHandler::level (ui64 experience) const
+ui32 CHeroHandler::level (TExpType experience) const
 {
 	return static_cast<ui32>(boost::range::upper_bound(expPerLevel, experience) - std::begin(expPerLevel));
 }
 
-ui64 CHeroHandler::reqExp (ui32 level) const
+TExpType CHeroHandler::reqExp (ui32 level) const
 {
 	if(!level)
 		return 0;
@@ -760,6 +779,11 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 		logGlobal->warn("A hero has reached unsupported amount of experience");
 		return expPerLevel[expPerLevel.size()-1];
 	}
+}
+
+ui32 CHeroHandler::maxSupportedLevel() const
+{
+	return expPerLevel.size();
 }
 
 std::set<HeroTypeID> CHeroHandler::getDefaultAllowed() const

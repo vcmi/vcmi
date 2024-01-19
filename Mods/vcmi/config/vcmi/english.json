@@ -70,6 +70,7 @@
 	"vcmi.lobby.mapPreview" : "Map preview",
 	"vcmi.lobby.noPreview" : "no preview",
 	"vcmi.lobby.noUnderground" : "no underground",
+	"vcmi.lobby.sortDate" : "Sorts maps by change date",
 
 	"vcmi.client.errors.missingCampaigns" : "{Missing data files}\n\nCampaigns data files were not found! You may be using incomplete or corrupted Heroes 3 data files. Please reinstall game data.",
 	"vcmi.server.errors.existingProcess" : "Another VCMI server process is running. Please terminate it before starting a new game.",
@@ -144,6 +145,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Set the map scrolling speed to very slow.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Set the map scrolling speed to very fast.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Set the map scrolling speed to instantaneous.",
+	"vcmi.adventureOptions.hideBackground.hover" : "Hide Background",
+	"vcmi.adventureOptions.hideBackground.help" : "{Hide Background}\n\nHide the adventuremap in the background and show a texture instead.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Show Turn Order Queue",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "OFF",
@@ -183,6 +186,10 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d damage",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d will perish",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d will perish",
+	"vcmi.battleWindow.killed" : "Killed",
+	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s were killed by accurate shots!",
+	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s was killed with an accurate shot!",
+	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s were killed by accurate shots!",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
 
@@ -335,7 +342,7 @@
 	"vcmi.stackExperience.rank.8" : "Elite",
 	"vcmi.stackExperience.rank.9" : "Master",
 	"vcmi.stackExperience.rank.10" : "Ace",
-	
+
 	"core.bonus.ADDITIONAL_ATTACK.name": "Double Strike",
 	"core.bonus.ADDITIONAL_ATTACK.description": "Attacks twice",
 	"core.bonus.ADDITIONAL_RETALIATION.name": "Additional retaliations",
@@ -374,6 +381,8 @@
 	"core.bonus.ENCHANTER.description": "Can cast mass ${subtype.spell} every turn",
 	"core.bonus.ENCHANTED.name": "Enchanted",
 	"core.bonus.ENCHANTED.description": "Affected by permanent ${subtype.spell}",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.name": "Ignore Attack (${val}%)",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "When being attacked, ${val}% of the attacker's attack is ignored",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name": "Ignore Defense (${val}%)",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "When attacking, ${val}% of the defender's defense is ignored",
 	"core.bonus.FIRE_IMMUNITY.name": "Fire immunity",
@@ -386,6 +395,8 @@
 	"core.bonus.FEAR.description": "Causes Fear on an enemy stack",
 	"core.bonus.FEARLESS.name": "Fearless",
 	"core.bonus.FEARLESS.description": "Immune to Fear ability",
+	"core.bonus.FEROCITY.name": "Ferocity",
+	"core.bonus.FEROCITY.description": "Attacks ${val} additional times if killed anybody",
 	"core.bonus.FLYING.name": "Fly",
 	"core.bonus.FLYING.description": "Flies when moving (ignores obstacles)",
 	"core.bonus.FREE_SHOOTING.name": "Shoot Close",
@@ -440,6 +451,8 @@
 	"core.bonus.REBIRTH.description": "${val}% of stack will rise after death",
 	"core.bonus.RETURN_AFTER_STRIKE.name": "Attack and Return",
 	"core.bonus.RETURN_AFTER_STRIKE.description": "Returns after melee attack",
+	"core.bonus.REVENGE.name": "Revenge",
+	"core.bonus.REVENGE.description": "Deals extra damage based on attacker's lost health in battle",
 	"core.bonus.SHOOTER.name": "Ranged",
 	"core.bonus.SHOOTER.description": "Creature can shoot",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name": "Shoot all around",

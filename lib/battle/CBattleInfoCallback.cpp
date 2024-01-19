@@ -267,7 +267,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
 		allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
 
-		if(stack->canMove() && stack->speed(0, true)) //probably no reason to try move war machines or bound stacks
+		if(stack->canMove() && stack->getMovementRange(0)) //probably no reason to try move war machines or bound stacks
 			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
 
 		const auto * siegedTown = battleGetDefendedTown();
@@ -570,7 +570,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 	if(!unit->getPosition().isValid()) //turrets
 		return ret;
 
-	auto unitSpeed = unit->speed(0, true);
+	auto unitSpeed = unit->getMovementRange(0);
 
 	const bool tacticsPhase = battleTacticDist() && battleGetTacticsSide() == unit->unitSide();
 
@@ -741,15 +741,15 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * 
 {
 	RETURN_IF_NOT_BATTLE({});
 	auto reachability = battleGetDistances(attacker, attacker->getPosition());
-	int movementDistance = reachability[attackerPosition];
-	return battleEstimateDamage(attacker, defender, movementDistance, retaliationDmg);
+	int getMovementRange = reachability[attackerPosition];
+	return battleEstimateDamage(attacker, defender, getMovementRange, retaliationDmg);
 }
 
-DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int movementDistance, DamageEstimation * retaliationDmg) const
+DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int getMovementRange, DamageEstimation * retaliationDmg) const
 {
 	RETURN_IF_NOT_BATTLE({});
 	const bool shooting = battleCanShoot(attacker, defender->getPosition());
-	const BattleAttackInfo bai(attacker, defender, movementDistance, shooting);
+	const BattleAttackInfo bai(attacker, defender, getMovementRange, shooting);
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 

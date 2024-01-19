@@ -106,11 +106,6 @@ public:
 
 	const BattleScore & getScore() const { return dpsScore; }
 
-	void adjustPositions(
-		std::vector<const battle::Unit *> attackers,
-		const AttackPossibility & ap,
-		std::map<BattleHex, battle::Units> & reachabilityMap);
-
 private:
 	BattleScore dpsScore;
 	std::map<uint32_t, AttackerValue> attackerValue;

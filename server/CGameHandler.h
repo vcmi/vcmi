@@ -102,6 +102,7 @@ public:
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
+	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override;
 
@@ -141,6 +142,7 @@ public:
 	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
+	void setMovePoints(ObjectInstanceID hid, int val, bool absolute) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override;
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override;
@@ -247,7 +249,7 @@ public:
 
 	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message
-	void throwNotAllowedAction(CPackForServer * pack);
+	[[noreturn]] void throwNotAllowedAction(CPackForServer * pack);
 	/// Throws if player stated in pack is not making turn right now
 	void throwIfPlayerNotActive(CPackForServer * pack);
 	/// Throws if object is not owned by pack sender
@@ -255,7 +257,7 @@ public:
 	/// Throws if player is not present on connection of this pack
 	void throwIfWrongPlayer(CPackForServer * pack, PlayerColor player);
 	void throwIfWrongPlayer(CPackForServer * pack);
-	void throwAndComplain(CPackForServer * pack, std::string txt);
+	[[noreturn]] void throwAndComplain(CPackForServer * pack, std::string txt);
 
 	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 

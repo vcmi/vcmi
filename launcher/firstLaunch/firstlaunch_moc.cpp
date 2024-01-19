@@ -134,7 +134,16 @@ void FirstLaunchView::activateTabHeroesData()
 		ui->pushButtonDataHelp->hide();
 		ui->labelDataHelp->hide();
 	}
-	heroesDataUpdate();
+	if(heroesDataUpdate())
+		return;
+
+	QString installPath = getHeroesInstallDir();
+	if(!installPath.isEmpty())
+	{
+		auto reply = QMessageBox::question(this, tr("Heroes III installation found!"), tr("Copy data to VCMI folder?"), QMessageBox::Yes | QMessageBox::No);
+		if(reply == QMessageBox::Yes)
+			copyHeroesData(installPath);
+	}
 }
 
 void FirstLaunchView::activateTabModPreset()
@@ -164,12 +173,14 @@ void FirstLaunchView::languageSelected(const QString & selectedLanguage)
 		mainWindow->updateTranslation();
 }
 
-void FirstLaunchView::heroesDataUpdate()
+bool FirstLaunchView::heroesDataUpdate()
 {
-	if(heroesDataDetect())
+	bool detected = heroesDataDetect();
+	if(detected)
 		heroesDataDetected();
 	else
 		heroesDataMissing();
+	return detected;
 }
 
 void FirstLaunchView::heroesDataMissing()
@@ -254,9 +265,26 @@ void FirstLaunchView::forceHeroesLanguage(const QString & language)
 	node->String() = language.toStdString();
 }
 
-void FirstLaunchView::copyHeroesData()
+QString FirstLaunchView::getHeroesInstallDir()
 {
-	QDir sourceRoot = QFileDialog::getExistingDirectory(this, "", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+#ifdef VCMI_WINDOWS
+	QString gogPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787", QSettings::NativeFormat).value("path").toString();
+	if(!gogPath.isEmpty())
+		return gogPath;
+
+	QString cdPath = QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0", QSettings::NativeFormat).value("AppPath").toString();
+	if(!cdPath.isEmpty())
+		return cdPath;
+#endif
+	return QString{};
+}
+
+void FirstLaunchView::copyHeroesData(const QString & path)
+{
+	QDir sourceRoot = QDir(path);
+	
+	if(path.isEmpty())
+		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
 
 	if(!sourceRoot.exists())
 		return;

@@ -45,6 +45,11 @@ public:
 		FactionID getStartingTown() const;
 		void setStartingTown(FactionID value);
 
+		/// The starting hero of the player ranging from 0 to hero max count or RANDOM_HERO.
+		/// The default value is RANDOM_HERO
+		HeroTypeID getStartingHero() const;
+		void setStartingHero(HeroTypeID value);
+
 		/// The default value is EPlayerType::AI.
 		EPlayerType getPlayerType() const;
 		void setPlayerType(EPlayerType value);
@@ -56,6 +61,7 @@ public:
 	private:
 		PlayerColor color;
 		FactionID startingTown;
+		HeroTypeID startingHero;
 		EPlayerType playerType;
 		TeamID team;
 
@@ -68,6 +74,10 @@ public:
 			h & playerType;
 			if(version >= 806)
 				h & team;
+			if (version >= 832)
+				h & startingHero;
+			else
+				startingHero = HeroTypeID::RANDOM;
 		}
 	};
 
@@ -120,6 +130,7 @@ public:
 	const std::map<PlayerColor, CPlayerSettings> & getPlayersSettings() const;
 	const std::map<PlayerColor, CPlayerSettings> & getSavedPlayersMap() const;
 	void setStartingTownForPlayer(const PlayerColor & color, FactionID town);
+	void setStartingHeroForPlayer(const PlayerColor & color, HeroTypeID hero);
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
 	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
 	void setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType);

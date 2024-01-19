@@ -58,7 +58,7 @@ public:
 
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initializeConfig();
-	void loadMods(bool onlyEssential = false);
+	void loadMods();
 	void loadModFilesystems();
 
 	/// returns ID of mod that provides selected file resource

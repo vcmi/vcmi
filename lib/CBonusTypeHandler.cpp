@@ -76,10 +76,10 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	if (text.find("${val}") != std::string::npos)
 		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 
-	if (text.find("${subtype.creature}") != std::string::npos)
+	if (text.find("${subtype.creature}") != std::string::npos && bonus->subtype.as<CreatureID>() != CreatureID::NONE)
 		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
 
-	if (text.find("${subtype.spell}") != std::string::npos)
+	if (text.find("${subtype.spell}") != std::string::npos && bonus->subtype.as<SpellID>() != SpellID::NONE)
 		boost::algorithm::replace_all(text, "${subtype.spell}", bonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
 
 	return text;
@@ -173,6 +173,9 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 
 		if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
 			fileName = "DamageReductionRanged.bmp";
+
+		if (bonus->subtype == BonusCustomSubtype::damageTypeAll)
+			fileName = "DamageReductionAll.bmp";
 
 		break;
 	}

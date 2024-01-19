@@ -363,7 +363,7 @@ bool MovementAnimation::init()
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
 	Point endPosition = owner.stacksController->getStackPositionAtHex(nextHex, stack);
 
-	progressPerSecond = AnimationControls::getMovementDistance(stack->unitType());
+	progressPerSecond = AnimationControls::getMovementRange(stack->unitType());
 
 	begX = begPosition.x;
 	begY = begPosition.y;

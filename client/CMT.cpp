@@ -206,7 +206,7 @@ int main(int argc, char * argv[])
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	// Init filesystem and settings
-	preinitDLL(::console);
+	preinitDLL(::console, false);
 
 	Settings session = settings.write["session"];
 	auto setSettingBool = [](std::string key, std::string arg) {

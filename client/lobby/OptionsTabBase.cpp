@@ -22,6 +22,14 @@
 #include "../../lib/MetaString.h"
 #include "../../lib/CGeneralTextHandler.h"
 
+static std::string timeToString(int time)
+{
+	std::stringstream ss;
+	ss << time / 1000 / 60 << ":" << std::setw(2) << std::setfill('0') << time / 1000 % 60;
+	return ss.str();
+};
+
+
 std::vector<TurnTimerInfo> OptionsTabBase::getTimerPresets() const
 {
 	std::vector<TurnTimerInfo> result;
@@ -153,43 +161,51 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		else if(l.empty())
 			return sec;
 
-		return std::stoi(l) * 60 + std::stoi(r);
+		return std::min(24*60, std::stoi(l)) * 60 + std::stoi(r);
 	};
 
-	addCallback("parseAndSetTimer_base", [parseTimerString](const std::string & str){
+	addCallback("parseAndSetTimer_base", [this, parseTimerString](const std::string & str){
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.baseTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
+			if(auto ww = widget<CTextInput>("chessFieldBase"))
+				ww->setText(timeToString(time), false);
 		}
 	});
-	addCallback("parseAndSetTimer_turn", [parseTimerString](const std::string & str){
+	addCallback("parseAndSetTimer_turn", [this, parseTimerString](const std::string & str){
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.turnTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
+			if(auto ww = widget<CTextInput>("chessFieldTurn"))
+				ww->setText(timeToString(time), false);
 		}
 	});
-	addCallback("parseAndSetTimer_battle", [parseTimerString](const std::string & str){
+	addCallback("parseAndSetTimer_battle", [this, parseTimerString](const std::string & str){
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.battleTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
+			if(auto ww = widget<CTextInput>("chessFieldBattle"))
+				ww->setText(timeToString(time), false);
 		}
 	});
-	addCallback("parseAndSetTimer_unit", [parseTimerString](const std::string & str){
+	addCallback("parseAndSetTimer_unit", [this, parseTimerString](const std::string & str){
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.unitTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
+			if(auto ww = widget<CTextInput>("chessFieldUnit"))
+				ww->setText(timeToString(time), false);
 		}
 	});
 
@@ -370,14 +386,6 @@ void OptionsTabBase::recreate()
 			}
 		}
 	}
-
-	//chess timer
-	auto timeToString = [](int time) -> std::string
-	{
-		std::stringstream ss;
-		ss << time / 1000 / 60 << ":" << std::setw(2) << std::setfill('0') << time / 1000 % 60;
-		return ss.str();
-	};
 
 	if(auto ww = widget<CTextInput>("chessFieldBase"))
 		ww->setText(timeToString(turnTimerRemote.baseTimer), false);

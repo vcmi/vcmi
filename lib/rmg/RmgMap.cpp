@@ -19,6 +19,7 @@
 #include "modificators/ObjectManager.h"
 #include "modificators/RoadPlacer.h"
 #include "modificators/TreasurePlacer.h"
+#include "modificators/PrisonHeroPlacer.h"
 #include "modificators/QuestArtifactPlacer.h"
 #include "modificators/ConnectionsPlacer.h"
 #include "modificators/TownPlacer.h"
@@ -127,6 +128,7 @@ void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 void RmgMap::addModificators()
 {
 	bool hasObjectDistributor = false;
+	bool hasHeroPlacer = false;
 	bool hasRockFiller = false;
 
 	for(auto & z : getZones())
@@ -138,6 +140,11 @@ void RmgMap::addModificators()
 		{
 			zone->addModificator<ObjectDistributor>();
 			hasObjectDistributor = true;
+		}
+		if (!hasHeroPlacer)
+		{
+			zone->addModificator<PrisonHeroPlacer>();
+			hasHeroPlacer = true;
 		}
 		zone->addModificator<TreasurePlacer>();
 		zone->addModificator<ObstaclePlacer>();

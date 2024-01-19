@@ -71,7 +71,8 @@ SilentCaster::SilentCaster(PlayerColor owner_, const Caster * hero_):
 
 void SilentCaster::getCasterName(MetaString & text) const
 {
-	logGlobal->error("Unexpected call to SilentCaster::getCasterName");
+	// NOTE: can be triggered (for example) if creature steps into Tower mines/moat while hero has Recanter's Cloak
+	logGlobal->debug("Unexpected call to SilentCaster::getCasterName");
 }
 
 void SilentCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const

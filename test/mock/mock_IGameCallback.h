@@ -44,6 +44,7 @@ public:
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override {return false;}
 	void createObject(const int3 & visitablePosition, const PlayerColor & initiator, MapObjectID type, MapObjectSubID subtype) override {};
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
+	void giveExperience(const CGHeroInstance * hero, TExpType val) override {}
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override {}
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}
 	void showBlockingDialog(BlockingDialog *iw) override {}
@@ -81,6 +82,7 @@ public:
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}
+	void setMovePoints(ObjectInstanceID hid, int val, bool absolute) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {}
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {}
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}

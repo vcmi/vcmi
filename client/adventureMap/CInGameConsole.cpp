@@ -243,6 +243,9 @@ void CInGameConsole::startEnteringText()
 	if (!isActive())
 		return;
 
+	if(enteredText != "")
+		return;
+		
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
 	currentStatusBar = GH.statusbar();

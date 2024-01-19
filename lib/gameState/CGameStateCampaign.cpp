@@ -210,17 +210,21 @@ void CGameStateCampaign::placeCampaignHeroes()
 	// with the same hero type id
 	std::vector<CGHeroInstance *> removedHeroes;
 
-	std::set<HeroTypeID> heroesToRemove = campaignState->getReservedHeroes();
+	std::set<HeroTypeID> reservedHeroes = campaignState->getReservedHeroes();
+	std::set<HeroTypeID> heroesToRemove;
+
+	for (auto const & heroID : reservedHeroes )
+	{
+		// Do not replace reserved heroes initially, e.g. in 1st campaign scenario in which they appear
+		if (!campaignState->getHeroByType(heroID).isNull())
+			heroesToRemove.insert(heroID);
+	}
 
 	for(auto & campaignHeroReplacement : campaignHeroReplacements)
 		heroesToRemove.insert(campaignHeroReplacement.hero->getHeroType());
 
 	for(auto & heroID : heroesToRemove)
 	{
-		// Do not replace reserved heroes initially, e.g. in 1st campaign scenario in which they appear
-		if (campaignState->getHeroByType(heroID).isNull())
-			continue;
-
 		auto * hero = gameState->getUsedHero(heroID);
 		if(hero)
 		{

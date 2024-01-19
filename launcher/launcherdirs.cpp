@@ -34,3 +34,8 @@ QString CLauncherDirs::modsPath()
 {
 	return pathToQString(VCMIDirs::get().userDataPath() / "Mods");
 }
+
+QString CLauncherDirs::mapsPath()
+{
+	return pathToQString(VCMIDirs::get().userDataPath() / "Maps");
+}

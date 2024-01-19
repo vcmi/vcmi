@@ -297,6 +297,9 @@
 				},
 				{
 					"text": "vcmi.adventureOptions.showGrid.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.hideBackground.hover"
 				}
 			]
 		},
@@ -324,6 +327,11 @@
 					"name": "showGridCheckbox",
 					"help": "vcmi.adventureOptions.showGrid",
 					"callback": "showGridChanged"
+				},
+				{
+					"name": "hideBackgroundCheckbox",
+					"help": "vcmi.adventureOptions.hideBackground",
+					"callback": "hideBackgroundChanged"
 				}
 			]
 		},

@@ -964,7 +964,7 @@ void FoWChange::applyGs(CGameState *gs)
 
 void SetAvailableHero::applyGs(CGameState *gs)
 {
-	gs->heroesPool->setHeroForPlayer(player, slotID, hid, army, roleID);
+	gs->heroesPool->setHeroForPlayer(player, slotID, hid, army, roleID, replenishPoints);
 }
 
 void GiveBonus::applyGs(CGameState *gs)

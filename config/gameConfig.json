@@ -371,6 +371,8 @@
 		
 		"pathfinder" :
 		{
+			// if enabled, pathfinder will build path through locations guarded by wandering monsters
+			"ignoreGuards" : false,
 			// if enabled, pathfinder will take use of any available boats
 			"useBoat" : true,
 			// if enabled, pathfinder will take use of any bidirectional monoliths 

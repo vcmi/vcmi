@@ -560,19 +560,16 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 
 void CClient::battleStarted(const BattleInfo * info)
 {
-	for(auto & battleCb : battleCallbacks)
-	{
-		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })
-			|| !battleCb.first.isValidPlayer())
-		{
-			battleCb.second->onBattleStarted(info);
-		}
-	}
-
 	std::shared_ptr<CPlayerInterface> att;
 	std::shared_ptr<CPlayerInterface> def;
 	auto & leftSide = info->sides[0];
 	auto & rightSide = info->sides[1];
+
+	for(auto & battleCb : battleCallbacks)
+	{
+		if(!battleCb.first.isValidPlayer() || battleCb.first == leftSide.color || battleCb.first == rightSide.color)
+			battleCb.second->onBattleStarted(info);
+	}
 
 	//If quick combat is not, do not prepare interfaces for battleint
 	auto callBattleStart = [&](PlayerColor color, ui8 side)

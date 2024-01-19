@@ -177,7 +177,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, false, extractionOptions.extractArchives);
+	preinitDLL(::console, extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();

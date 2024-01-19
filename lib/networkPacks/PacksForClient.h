@@ -353,6 +353,7 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 	PlayerColor player;
 	HeroTypeID hid; //HeroTypeID::NONE if no hero
 	CSimpleArmy army;
+	bool replenishPoints;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -363,6 +364,7 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 		h & player;
 		h & hid;
 		h & army;
+		h & replenishPoints;
 	}
 };
 

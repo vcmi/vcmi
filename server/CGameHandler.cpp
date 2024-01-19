@@ -365,52 +365,60 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 // 		levelUpHero(hero);
 }
 
-void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs)
+void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountToGain)
 {
-	if (which == PrimarySkill::EXPERIENCE) // Check if scenario limit reached
-	{
-		if (gs->map->levelLimit != 0)
-		{
-			TExpType expLimit = VLC->heroh->reqExp(gs->map->levelLimit);
-			TExpType resultingExp = abs ? val : hero->exp + val;
-			if (resultingExp > expLimit)
-			{
-				// set given experience to max possible, but don't decrease if hero already over top
-				abs = true;
-				val = std::max(expLimit, hero->exp);
+	TExpType maxExp = VLC->heroh->reqExp(VLC->heroh->maxSupportedLevel());
+	TExpType currExp = hero->exp;
 
-				InfoWindow iw;
-				iw.player = hero->tempOwner;
-				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
-				iw.text.replaceRawString(hero->getNameTranslated());
-				sendAndApply(&iw);
-			}
-		}
+	if (gs->map->levelLimit != 0)
+		maxExp = VLC->heroh->reqExp(gs->map->levelLimit);
+
+	TExpType canGainExp = 0;
+	if (maxExp > currExp)
+		canGainExp = maxExp - currExp;
+
+	if (amountToGain > canGainExp)
+	{
+		// set given experience to max possible, but don't decrease if hero already over top
+		amountToGain = canGainExp;
+
+		InfoWindow iw;
+		iw.player = hero->tempOwner;
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
+		iw.text.replaceRawString(hero->getNameTranslated());
+		sendAndApply(&iw);
 	}
 
+	SetPrimSkill sps;
+	sps.id = hero->id;
+	sps.which = PrimarySkill::EXPERIENCE;
+	sps.abs = false;
+	sps.val = amountToGain;
+	sendAndApply(&sps);
+
+	//hero may level up
+	if (hero->commander && hero->commander->alive)
+	{
+		//FIXME: trim experience according to map limit?
+		SetCommanderProperty scp;
+		scp.heroid = hero->id;
+		scp.which = SetCommanderProperty::EXPERIENCE;
+		scp.amount = amountToGain;
+		sendAndApply (&scp);
+		CBonusSystemNode::treeHasChanged();
+	}
+
+	expGiven(hero);
+}
+
+void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs)
+{
 	SetPrimSkill sps;
 	sps.id = hero->id;
 	sps.which = which;
 	sps.abs = abs;
 	sps.val = val;
 	sendAndApply(&sps);
-
-	//only for exp - hero may level up
-	if (which == PrimarySkill::EXPERIENCE)
-	{
-		if (hero->commander && hero->commander->alive)
-		{
-			//FIXME: trim experience according to map limit?
-			SetCommanderProperty scp;
-			scp.heroid = hero->id;
-			scp.which = SetCommanderProperty::EXPERIENCE;
-			scp.amount = val;
-			sendAndApply (&scp);
-			CBonusSystemNode::treeHasChanged();
-		}
-
-		expGiven(hero);
-	}
 }
 
 void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs)
@@ -658,7 +666,7 @@ void CGameHandler::onNewTurn()
 		{
 			if (obj && obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
 			{
-				changePrimSkill (getHero(obj->id), PrimarySkill::EXPERIENCE, 0);
+				giveExperience(getHero(obj->id), 0);
 			}
 		}
 	}
@@ -1128,16 +1136,16 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	};
 
 	if (guardian && getVisitingHero(guardian) != nullptr)
-		return complainRet("Cannot move hero, destination monster is busy!");
+		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this wandering monster!");
 
 	if (objectToVisit && getVisitingHero(objectToVisit) != nullptr && getVisitingHero(objectToVisit) != h)
-		return complainRet("Cannot move hero, destination object is busy!");
+		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this map object!");
 
 	if (objectToVisit &&
 		objectToVisit->getOwner().isValidPlayer() &&
 		getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
 		!turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
-		return complainRet("Cannot move hero, destination player is busy!");
+		return complainRet("You cannot move your hero there. This object belongs to another player and simultaneous turns are still active!");
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -1459,6 +1467,9 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	sendAndApply(&vc);
 	visitCastleObjects(obj, hero);
 	giveSpells (obj, hero);
+
+	if (obj->visitingHero && obj->garrisonHero)
+		useScholarSkill(obj->visitingHero->id, obj->garrisonHero->id);
 	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
@@ -1500,6 +1511,15 @@ void CGameHandler::giveHeroBonus(GiveBonus * bonus)
 void CGameHandler::setMovePoints(SetMovePoints * smp)
 {
 	sendAndApply(smp);
+}
+
+void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, bool absolute)
+{
+	SetMovePoints smp;
+	smp.hid = hid;
+	smp.val = val;
+	smp.absolute = absolute;
+	sendAndApply(&smp);
 }
 
 void CGameHandler::setManaPoints(ObjectInstanceID hid, int val)
@@ -3290,7 +3310,11 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 			for (auto & i : ev.buildings)
 			{
-				if (!town->hasBuilt(i))
+				// Only perform action if:
+				// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
+				// 2. Building was not built yet
+				// othervice, silently ignore / skip it
+				if (town->town->buildings.count(i) && !town->hasBuilt(i))
 				{
 					buildStructure(town->id, i, true);
 					iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFaction(), i));
@@ -3715,7 +3739,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
 	{
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
+		giveExperience(hero, hero->calculateXp(expSum));
 	};
 
 	for(int i = 0; i < slot.size(); ++i)
@@ -3757,7 +3781,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
 	{
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
+		giveExperience(hero, hero->calculateXp(expSum));
 	};
 
 	for(int i = 0; i < slot.size(); ++i)

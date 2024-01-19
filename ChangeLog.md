@@ -1,3 +1,91 @@
+# 1.4.2 -> 1.4.3
+
+### General
+* Fixed the synchronisation of the audio and video of the opening movies.
+* Fixed a bug that caused spells from mods to not show up in the Mage's Guild.
+* Changed the default SDL driver on Windows from opengl to autodetection
+* When a hero visits a town with a garrisoned hero, they will now automatically exchange spells if one of them has the Scholar skill.
+* Movement and mana points are now replenished for new heroes in taverns.
+
+### Multiplayer
+* Simturn contact detection will now correctly check for hero moving range
+* Simturn contact detection will now ignore wandering monsters
+* Right-clicking the Simturns AI option now displays a tooltip
+* Interaction attempts with other players during simturns will now have more concise error messages
+* Turn timers are now limited to 24 hours in order to prevent bugs caused by an integer overflow.
+* Fixed delays when editing turn timer duration
+* Ending a turn during simturns will now block the interface correctly.
+
+### Campaigns
+* Player will no longer start the United Front of Song for the Father campaign with two Nimbuses.
+* Fixed missing campaign description after loading saved game
+* Campaign completion checkmarks will now be displayed after the entire campaign has been completed, rather than just after the first scenario.
+* Fixed positioning of prologue and epilogue text during campaign scenario intros
+
+### Interface
+* Added an option to hide adventure map window when town or battle window are open
+* Fixed switching between pages on small version of spellbook
+* Saves with long filenames are now truncated in the UI to prevent overflow.
+* Added option to sort saved games by change date
+* Game now shows correct resource when selecting start bonus
+* It is now possible to inspect commander skills during battles.
+* Fixed incorrect cursor being displayed when hovering over navigable water tiles
+* Fixed incorrect cursor display when hovering over water objects accessible from shore
+
+### Stability
+* Fixed a crash when using the 'vcmiobelisk' cheat more than once.
+* Fixed crash when reaching level 201. The maximum level is now limited to 197.
+* Fixed crash when accessing a spell with an invalid SPELLCASTER bonus
+* Fixed crash when trying to play music for an inaccessible tile 
+* Fixed memory corruption on loading of old mods with illegal 'index' field
+* Fixed possible crash on server shutdown on Android
+* Fixed possible crash when the affinity of the hero class is set to an invalid value
+* Fixed crash on invalid creature in hero army due to outdated or broken mods
+* Failure to initialise video subsystem now displays error message instead of silent crash
+
+### Random Maps Generator
+* Fixed possible creation of a duplicate hero in a random map when the player has chosen the starting hero.
+* Fixed banning of quest artifacts on random maps
+* Fixed banning of heroes in prison on random maps
+
+### Battles
+* Battle turn queue now displays current turn
+* Added option to show unit statistics sidebar in battle
+* Right-clicking on a unit in the battle turn queue now displays the unit details popup.
+* Fixed error messages for SUMMON_GUARDIANS and TRANSMUTATION bonuses
+* Fixed Dendroid Bind ability
+* Black Dragons no longer hate Giants, only Titans
+* Spellcasting units such as Archangels can no longer cast spells on themselves.
+* Coronius specialty will now correctly select affected units
+
+### Launcher
+* Welcome screen will automatically detect existing Heroes 3 installation on Windows
+* It is now possible to install mods by dragging and dropping onto the launcher.
+* It is now possible to install maps and campaigns by dragging and dropping onto the launcher.
+* Czech launcher translation added
+* Added option to select preferred SDL driver in launcher
+
+### Map Editor
+* Fixed saving of allowed abilities, spells, artifacts or heroes
+
+### AI
+* AI will no longer attempt to move immobilized units, such as those under the effect of Dendroid Bind.
+* Fixed shooters not shooting when they have a range penalty
+* Fixed Fire Elemental spell casting
+* Fixed rare bug where unit would sometimes do nothing in battle
+
+### Modding
+* Added better reporting of "invalid identifiers" errors with suggestions on how to fix them
+* Added FEROCITY bonus (HotA Aysiud)
+* Added ENEMY_ATTACK_REDUCTION bonus (HotA Nix)
+* Added REVENGE bonus (HotA Haspid)
+* Extended DEATH_STARE bonus to support Pirates ability (HotA)
+* DEATH_STARE now supports spell ID in addInfo field to override used spell
+* SPELL_BEFORE_ATTACK bonus now supports spell priorities
+* FIRST_STRIKE bonus supports subtypes damageTypeMelee, damageTypeRanged and damageTypeAll
+* BLOCKS_RETALIATION now also blocks FIRST_STRIKE bonus
+* Added 'canCastOnSelf' field for spells to allow creatures to cast spells on themselves.
+
 # 1.4.1 -> 1.4.2
 
 ### General

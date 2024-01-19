@@ -218,6 +218,18 @@ public:
 	}
 };
 
+class DLL_LINKAGE TextContainerRegistrable : public TextLocalizationContainer
+{
+public:
+	TextContainerRegistrable();
+	~TextContainerRegistrable();
+
+	TextContainerRegistrable(const TextContainerRegistrable & other);
+	TextContainerRegistrable(TextContainerRegistrable && other) noexcept;
+
+	TextContainerRegistrable& operator=(TextContainerRegistrable b) = delete;
+};
+
 /// Handles all text-related data in game
 class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
 {

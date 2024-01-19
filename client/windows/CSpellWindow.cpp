@@ -323,10 +323,10 @@ void CSpellWindow::processSpells()
 			sitesPerTabAdv[v] = 1;
 		else
 		{
-			if((sitesPerTabAdv[v] - spellsPerPage - 2) % spellsPerPage == 0)
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 1;
+			if((sitesPerTabAdv[v] - (spellsPerPage - 2)) % spellsPerPage == 0)
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - (spellsPerPage - 2)) / spellsPerPage + 1;
 			else
-				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - spellsPerPage - 2) / spellsPerPage + 2;
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - (spellsPerPage - 2)) / spellsPerPage + 2;
 		}
 	}
 
@@ -341,10 +341,10 @@ void CSpellWindow::processSpells()
 			sitesPerTabBattle[v] = 1;
 		else
 		{
-			if((sitesPerTabBattle[v] - spellsPerPage - 2) % spellsPerPage == 0)
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 1;
+			if((sitesPerTabBattle[v] - (spellsPerPage - 2)) % spellsPerPage == 0)
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - (spellsPerPage - 2)) / spellsPerPage + 1;
 			else
-				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - spellsPerPage - 2) / spellsPerPage + 2;
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - (spellsPerPage - 2)) / spellsPerPage + 2;
 		}
 	}
 }

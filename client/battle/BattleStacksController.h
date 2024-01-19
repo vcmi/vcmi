@@ -94,7 +94,6 @@ class BattleStacksController
 	void tickFrameBattleAnimations(uint32_t msPassed);
 
 	void updateBattleAnimations(uint32_t msPassed);
-	void updateHoveredStacks();
 
 	std::vector<const CStack *> selectHoveredStacks();
 
@@ -126,6 +125,8 @@ public:
 
 	void showAliveStack(Canvas & canvas, const CStack * stack);
 	void showStack(Canvas & canvas, const CStack * stack);
+
+	void updateHoveredStacks();
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 
