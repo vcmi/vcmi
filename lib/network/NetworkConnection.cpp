@@ -26,7 +26,7 @@ void NetworkConnection::start()
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageHeaderSize),
-							std::bind(&NetworkConnection::onHeaderReceived,this, _1));
+							[this](const auto & ec, const auto & endpoint) { onHeaderReceived(ec); });
 }
 
 void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
@@ -42,7 +42,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageSize),
-							std::bind(&NetworkConnection::onPacketReceived,this, _1, messageSize));
+							[this, messageSize](const auto & ec, const auto & endpoint) { onPacketReceived(ec, messageSize); });
 }
 
 uint32_t NetworkConnection::readPacketSize()

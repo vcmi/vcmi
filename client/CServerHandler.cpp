@@ -90,22 +90,22 @@ public:
 	{
 		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-		T & ptr = static_cast<T &>(pack);
+		auto & ref = static_cast<T&>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
 
-		logNetwork->trace("\tImmediately apply on lobby: %s", typeid(ptr).name());
-		ptr.visit(visitor);
+		logNetwork->trace("\tImmediately apply on lobby: %s", typeid(ref).name());
+		ref.visit(visitor);
 
 		return visitor.getResult();
 	}
 
 	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler, CPackForLobby & pack) const override
 	{
-		T & ptr = static_cast<T &>(pack);
+		auto & ref = static_cast<T &>(pack);
 		ApplyOnLobbyScreenNetPackVisitor visitor(*handler, lobby);
 
-		logNetwork->trace("\tApply on lobby from queue: %s", typeid(ptr).name());
-		ptr.visit(visitor);
+		logNetwork->trace("\tApply on lobby from queue: %s", typeid(ref).name());
+		ref.visit(visitor);
 	}
 };
 
@@ -260,11 +260,11 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 
 	if (!isServerLocal())
 	{
-		Settings serverAddress = settings.write["server"]["remoteHostname"];
-		serverAddress->String() = addr;
+		Settings remoteAddress = settings.write["server"]["remoteHostname"];
+		remoteAddress->String() = addr;
 
-		Settings serverPort = settings.write["server"]["remotePort"];
-		serverPort->Integer() = port;
+		Settings remotePort = settings.write["server"]["remotePort"];
+		remotePort->Integer() = port;
 	}
 
 	networkHandler->connectToRemote(*this, addr, port);
@@ -312,7 +312,7 @@ void CServerHandler::onConnectionEstablished(const std::shared_ptr<INetworkConne
 void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-	CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(&pack)); //find the applier
+	const CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(&pack)); //find the applier
 	apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
 	GH.windows().totalRedraw();
 }

@@ -9,8 +9,8 @@
  */
 #pragma once
 
-typedef struct sqlite3 sqlite3;
-typedef struct sqlite3_stmt sqlite3_stmt;
+using sqlite3 = struct sqlite3;
+using sqlite3_stmt = struct sqlite3_stmt;
 
 class SQLiteInstance;
 class SQLiteStatement;

@@ -14,8 +14,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 NetworkServer::NetworkServer(INetworkServerListener & listener, const std::shared_ptr<NetworkContext> & context)
-	: listener(listener)
-	, io(context)
+	: io(context)
+	, listener(listener)
 {
 }
 
