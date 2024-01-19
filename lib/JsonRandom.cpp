@@ -31,7 +31,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-	si32 JsonRandom::loadVariable(std::string variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
+	si32 JsonRandom::loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
 	{
 		if (value.empty() || value[0] != '@')
 		{
@@ -54,7 +54,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		if(value.isNull())
 			return defaultValue;
 		if(value.isNumber())
-			return static_cast<si32>(value.Float());
+			return value.Integer();
 		if (value.isString())
 			return loadVariable("number", value.String(), variables, defaultValue);
 
@@ -68,9 +68,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 		if(value.isStruct())
 		{
 			if (!value["amount"].isNull())
-				return static_cast<si32>(loadValue(value["amount"], rng, variables, defaultValue));
-			si32 min = static_cast<si32>(loadValue(value["min"], rng, variables, 0));
-			si32 max = static_cast<si32>(loadValue(value["max"], rng, variables, 0));
+				return loadValue(value["amount"], rng, variables, defaultValue);
+			si32 min = loadValue(value["min"], rng, variables, 0);
+			si32 max = loadValue(value["max"], rng, variables, 0);
 			return rng.getIntRange(min, max)();
 		}
 		return defaultValue;

@@ -236,7 +236,7 @@ int getDwellingArmyCost(const CGObjectInstance * target)
 	return cost;
 }
 
-uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
+static uint64_t evaluateArtifactArmyValue(const CArtifactInstance * art)
 {
 	if(art->artType->getId() == ArtifactID::SPELL_SCROLL)
 		return 1500;

@@ -41,7 +41,7 @@ private:
 	template<typename IdentifierType>
 	IdentifierType decodeKey(const JsonNode & value, const Variables & variables);
 
-	si32 loadVariable(std::string variableGroup, const std::string & value, const Variables & variables, si32 defaultValue);
+	si32 loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue);
 
 public:
 	using GameCallbackHolder::GameCallbackHolder;

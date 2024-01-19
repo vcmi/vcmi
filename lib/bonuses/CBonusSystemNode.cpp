@@ -486,7 +486,7 @@ void CBonusSystemNode::getRedParents(TCNodes & out) const
 
 	if(!actsAsBonusSourceOnly())
 	{
-		for(CBonusSystemNode *child : children)
+		for(const CBonusSystemNode *child : children)
 		{
 			out.insert(child);
 		}

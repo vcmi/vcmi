@@ -171,10 +171,10 @@ CGameState::~CGameState()
 	initialOpts.dellNull();
 }
 
-void CGameState::preInit(Services * services, IGameCallback * callback)
+void CGameState::preInit(Services * newServices, IGameCallback * newCallback)
 {
-	this->services = services;
-	this->callback = callback;
+	services = newServices;
+	callback = newCallback;
 }
 
 void CGameState::init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator & progressTracking, bool allowSavingRandomMap)
@@ -631,7 +631,7 @@ void CGameState::initHeroes()
 		if (tile.terType->isWater())
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
-			CGBoat * boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
+			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
 			handler->configureObject(boat, gs->getRandomGenerator());
 
 			boat->pos = hero->pos;

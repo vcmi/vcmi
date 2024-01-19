@@ -155,9 +155,9 @@ bool CHeroClass::isMagicHero() const
 	return affinity == MAGIC;
 }
 
-int CHeroClass::tavernProbability(FactionID faction) const
+int CHeroClass::tavernProbability(FactionID targetFaction) const
 {
-	auto it = selectionProbability.find(faction);
+	auto it = selectionProbability.find(targetFaction);
 	if (it != selectionProbability.end())
 		return it->second;
 	return 0;

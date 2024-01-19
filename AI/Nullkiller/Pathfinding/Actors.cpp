@@ -373,7 +373,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 		for(auto & creatureToBuy : buyArmy)
 		{
-			auto targetSlot = target->getSlotFor(dynamic_cast<const CCreature*>(creatureToBuy.creID.toCreature()));
+			auto targetSlot = target->getSlotFor(creatureToBuy.creID.toCreature());
 
 			target->addToSlot(targetSlot, creatureToBuy.creID, creatureToBuy.count);
 			target->armyCost += creatureToBuy.creID.toCreature()->getFullRecruitCost() * creatureToBuy.count;

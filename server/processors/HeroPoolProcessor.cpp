@@ -247,7 +247,7 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
 
-	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		if (vstd::contains(result, elem.second->type->heroClass))
 			continue;
@@ -268,7 +268,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 
-	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		assert(!vstd::contains(result, elem.second));
 

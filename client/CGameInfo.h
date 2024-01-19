@@ -99,4 +99,4 @@ public:
 private:
 	const Services * globalServices;
 };
-extern const CGameInfo* CGI;
+extern CGameInfo* CGI;
