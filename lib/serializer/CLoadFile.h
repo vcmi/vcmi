@@ -10,6 +10,7 @@
 #pragma once
 
 #include "BinaryDeserializer.h"
+#include "SerializerVersion.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,11 +22,11 @@ public:
 	std::string fName;
 	std::unique_ptr<std::fstream> sfile;
 
-	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION); //throws!
+	CLoadFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion = ESerializationVersion::CURRENT); //throws!
 	virtual ~CLoadFile();
 	int read(void * data, unsigned size) override; //throws!
 
-	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!
+	void openNextFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion); //throws!
 	void clear();
 	void reportState(vstd::CLoggerBase * out) override;
 

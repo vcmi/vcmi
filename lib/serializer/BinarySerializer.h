@@ -11,6 +11,7 @@
 
 #include "CSerializer.h"
 #include "CTypeList.h"
+#include "SerializerVersion.h"
 #include "../mapObjects/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -103,15 +104,18 @@ class DLL_LINKAGE BinarySerializer : public CSaverBase
 			const T *ptr = static_cast<const T*>(data);
 
 			//T is most derived known type, it's time to call actual serialize
-			const_cast<T*>(ptr)->serialize(s, SERIALIZATION_VERSION);
+			const_cast<T*>(ptr)->serialize(s);
 		}
 	};
 
 	CApplier<CBasicPointerSaver> applier;
 
 public:
+	using Version = ESerializationVersion;
+
 	std::map<const void*, ui32> savedPointers;
 
+	const Version version = Version::CURRENT;
 	bool smartPointerSerialization;
 	bool saving;
 
@@ -238,7 +242,7 @@ public:
 	template < typename T, typename std::enable_if < is_serializeable<BinarySerializer, T>::value, int  >::type = 0 >
 	void save(const T &data)
 	{
-		const_cast<T&>(data).serialize(*this, SERIALIZATION_VERSION);
+		const_cast<T&>(data).serialize(*this);
 	}
 
 	void save(const std::monostate & data)

@@ -74,7 +74,7 @@ public:
 	/// Applies results of a battle after potential levelup
 	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 
 	}

@@ -44,7 +44,7 @@ struct DLL_LINKAGE Rumor
 	~Rumor() = default;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & name;
 		h & text;
@@ -64,7 +64,7 @@ struct DLL_LINKAGE DisposedHero
 	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & heroId;
 		h & portrait;
@@ -173,7 +173,7 @@ private:
 
 public:
 	template <typename Handler>
-	void serialize(Handler &h, const int formatVersion)
+	void serialize(Handler &h)
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & triggeredEvents; //from CMapHeader

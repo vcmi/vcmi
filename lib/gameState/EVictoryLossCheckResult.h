@@ -58,7 +58,7 @@ public:
 	MetaString messageToSelf;
 	MetaString messageToOthers;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & intValue;
 		h & messageToSelf;

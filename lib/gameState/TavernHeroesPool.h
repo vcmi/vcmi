@@ -30,7 +30,7 @@ class DLL_LINKAGE TavernHeroesPool
 		TavernSlotRole role;
 		PlayerColor player;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler &h)
 		{
 			h & hero;
 			h & slot;
@@ -76,7 +76,7 @@ public:
 	/// Makes hero available in tavern of specified player
 	void setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role, bool replenishPoints);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & heroesPool;
 		h & perPlayerAvailability;

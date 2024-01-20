@@ -14,8 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const ui32 SERIALIZATION_VERSION = 832;
-const ui32 MINIMAL_SERIALIZATION_VERSION = 831;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 class CHero;
@@ -138,10 +136,7 @@ struct is_serializeable
 	using No = char (&)[2];
 
 	template<class U>
-	static Yes test(U * data, S* arg1 = 0,
-					typename std::enable_if<std::is_void<
-							 decltype(data->serialize(*arg1, int(0)))
-					>::value>::type * = 0);
+	static Yes test(U * data, S* arg1 = 0, typename std::enable_if_t<std::is_void_v<decltype(data->serialize(*arg1))>> * = 0);
 	static No test(...);
 	static const bool value = sizeof(Yes) == sizeof(is_serializeable::test((typename std::remove_reference<typename std::remove_cv<T>::type>::type*)0));
 };

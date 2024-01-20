@@ -61,7 +61,7 @@ private:
 	void heroAcceptsCreatures(const CGHeroInstance *h) const;
 
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & creatures;

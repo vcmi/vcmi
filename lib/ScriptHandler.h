@@ -108,7 +108,7 @@ public:
 
 	void run(std::shared_ptr<Pool> pool) const override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		JsonNode state;
 		if(h.saving)

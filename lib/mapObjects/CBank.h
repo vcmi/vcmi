@@ -43,7 +43,7 @@ public:
 
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & daycounter;

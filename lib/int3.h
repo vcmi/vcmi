@@ -170,7 +170,7 @@ public:
 	}
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & x;
 		h & y;

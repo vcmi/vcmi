@@ -69,7 +69,7 @@ public:
 
 	void init(const JsonNode & objectConfig, const std::string & objectTextID);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & parameters;
 	}

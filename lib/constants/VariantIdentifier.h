@@ -59,7 +59,7 @@ public:
 			return IdentifierType();
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & value;
 	}

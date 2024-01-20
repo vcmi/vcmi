@@ -59,7 +59,7 @@ void CConnection::init()
 	mutexRead = std::make_shared<boost::mutex>();
 	mutexWrite = std::make_shared<boost::mutex>();
 
-	iser.fileVersion = SERIALIZATION_VERSION;
+	iser.version = ESerializationVersion::CURRENT;
 }
 
 CConnection::CConnection(const std::string & host, ui16 port, std::string Name, std::string UUID):

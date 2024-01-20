@@ -1150,16 +1150,16 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	}
 }
 
-void CPlayerInterface::saveGame( BinarySerializer & h, const int version )
+void CPlayerInterface::saveGame( BinarySerializer & h )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	localState->serialize(h, version);
+	localState->serialize(h);
 }
 
-void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
+void CPlayerInterface::loadGame( BinaryDeserializer & h )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	localState->serialize(h, version);
+	localState->serialize(h);
 	firstCall = -1;
 }
 

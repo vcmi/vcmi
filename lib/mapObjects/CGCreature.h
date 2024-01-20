@@ -56,7 +56,7 @@ public:
 	bool containsUpgradedStack() const;
 	int getNumberOfStacks(const CGHeroInstance *hero) const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & identifier;

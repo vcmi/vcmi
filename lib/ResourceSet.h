@@ -180,7 +180,7 @@ public:
 // 			return true;
 // 		}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & container;
 	}

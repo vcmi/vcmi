@@ -28,7 +28,7 @@ class TurnOrderProcessor : boost::noncopyable
 		}
 
 		template<typename Handler>
-		void serialize(Handler & h, const int version)
+		void serialize(Handler & h)
 		{
 			h & a;
 			h & b;
@@ -92,7 +92,7 @@ public:
 	void onGameStarted();
 
 	template<typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & blockedContacts;
 		h & awaitingPlayers;

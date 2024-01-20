@@ -60,7 +60,7 @@ public:
 	/// Send message from specific player to all other players
 	void broadcastMessage(PlayerColor playerSender, const std::string & message);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 	}
 };

@@ -27,7 +27,7 @@ public:
 	std::string getNameTextID() const;
 	std::string getDescriptionTextID() const;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & icon;
 		h & identifier;
@@ -53,7 +53,7 @@ public:
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const override;
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		//for now always use up to date configuration
 		//once modded bonus type will be implemented, serialize only them

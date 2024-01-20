@@ -59,7 +59,7 @@ struct DLL_LINKAGE RumorState
 	RumorState(){type = TYPE_NONE;};
 	bool update(int id, int extra);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & type;
 		h & last;
@@ -174,7 +174,7 @@ public:
 	/// Any server-side code outside of GH must use CRandomGenerator::getDefault
 	CRandomGenerator & getRandomGenerator();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & scenarioOps;
 		h & initialOpts;

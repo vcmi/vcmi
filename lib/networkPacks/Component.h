@@ -43,7 +43,7 @@ struct Component
 	ComponentSubType subType;
 	std::optional<int32_t> value; // + give; - take
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & type;
 		h & subType;

@@ -44,7 +44,7 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 		return (quest == qi.quest && obj == qi.obj);
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & quest;
 		h & obj;

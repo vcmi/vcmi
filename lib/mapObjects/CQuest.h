@@ -69,7 +69,7 @@ public:
 		return (quest.qid == qid);
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & qid;
 		h & isCompleted;
@@ -106,7 +106,7 @@ public:
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const = 0;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & quest;
 	}
@@ -142,7 +142,7 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CRewardableObject&>(*this);
 		h & static_cast<IQuestObject&>(*this);
@@ -164,7 +164,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGSeerHut&>(*this);
 	}
@@ -182,7 +182,7 @@ public:
 	std::string getObjectName() const override; //depending on color
 	std::string getHoverText(PlayerColor player) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
@@ -196,7 +196,7 @@ public:
 	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
@@ -217,7 +217,7 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<IQuestObject&>(*this);
 		h & static_cast<CGObjectInstance&>(*this);
@@ -233,7 +233,7 @@ public:
 
 	bool passableFor(PlayerColor color) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGBorderGuard&>(*this); //need to serialize or object will be empty
 	}

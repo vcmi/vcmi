@@ -22,7 +22,7 @@ class ActiveModsInSaveList
 	/// Checks whether provided mod list is compatible with current VLC and throws on failure
 	void verifyActiveMods(const std::vector<std::pair<TModID, ModVerificationInfo>> & modList);
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		if(h.saving)
 		{
