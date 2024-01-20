@@ -516,12 +516,14 @@ struct DLL_LINKAGE SetFormation : public CPackForServer
 struct DLL_LINKAGE HireHero : public CPackForServer
 {
 	HireHero() = default;
-	HireHero(HeroTypeID HID, const ObjectInstanceID & TID)
+	HireHero(HeroTypeID HID, const ObjectInstanceID & TID, const HeroTypeID & NHID)
 		: hid(HID)
 		, tid(TID)
+		, nhid(NHID)
 	{
 	}
 	HeroTypeID hid; //available hero serial
+	HeroTypeID nhid; //next hero
 	ObjectInstanceID tid; //town (tavern) id
 	PlayerColor player;
 
@@ -531,6 +533,7 @@ struct DLL_LINKAGE HireHero : public CPackForServer
 	{
 		h & static_cast<CPackForServer &>(*this);
 		h & hid;
+		h & nhid;
 		h & tid;
 		h & player;
 	}

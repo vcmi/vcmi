@@ -104,7 +104,7 @@ void HeroPoolProcessor::clearHeroFromSlot(const PlayerColor & color, TavernHeroS
 	gameHandler->sendAndApply(&sah);
 }
 
-void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveArmy)
+void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveArmy, const HeroTypeID & nextHero)
 {
 	SetAvailableHero sah;
 	sah.player = color;
@@ -112,6 +112,10 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	sah.replenishPoints = true;
 
 	CGHeroInstance *newHero = pickHeroFor(needNativeHero, color);
+
+	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	if(gameHandler->getStartInfo()->extraOptionsInfo.unlimitedReplay && heroesPool->unusedHeroesFromPool().count(nextHero) && heroesPool->isHeroAvailableFor(nextHero, color))
+		newHero = heroesPool->unusedHeroesFromPool()[nextHero];
 
 	if (newHero)
 	{
@@ -145,7 +149,7 @@ void HeroPoolProcessor::onNewWeek(const PlayerColor & color)
 	selectNewHeroForSlot(color, TavernHeroSlot::RANDOM, false, true);
 }
 
-bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player)
+bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player, const HeroTypeID & nextHero)
 {
 	const PlayerState * playerState = gameHandler->getPlayerState(player);
 	const CGObjectInstance * mapObject = gameHandler->getObj(objectID);
@@ -226,9 +230,9 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	gameHandler->sendAndApply(&hr);
 
 	if(recruitableHeroes[0] == recruitedHero)
-		selectNewHeroForSlot(player, TavernHeroSlot::NATIVE, false, false);
+		selectNewHeroForSlot(player, TavernHeroSlot::NATIVE, false, false, nextHero);
 	else
-		selectNewHeroForSlot(player, TavernHeroSlot::RANDOM, false, false);
+		selectNewHeroForSlot(player, TavernHeroSlot::RANDOM, false, false, nextHero);
 
 	gameHandler->giveResource(player, EGameResID::GOLD, -GameConstants::HERO_GOLD_COST);
 

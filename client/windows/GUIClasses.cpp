@@ -17,6 +17,8 @@
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
+#include "../CServerHandler.h"
+#include "../Client.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
@@ -48,6 +50,7 @@
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/SThievesGuildInfo.h"
+#include "../lib/gameState/TavernHeroesPool.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/GameSettings.h"
@@ -514,7 +517,17 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
 
-	LOCPLINT->cb->recruitHero(obj, toBuy);
+	const auto & heroesPool = CSH->client->gameState()->heroesPool;
+	HeroTypeID nextHero = HeroTypeID::NONE;
+
+	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	{
+		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
+		if(heroAvailable && elem.second->getNameTranslated() == "Sir Mullich")
+			nextHero = elem.first;
+	}
+
+	LOCPLINT->cb->recruitHero(obj, toBuy, nextHero);
 	close();
 }
 
