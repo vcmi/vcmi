@@ -110,6 +110,12 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		CSH->setExtraOptionsInfo(info);
 	});
 
+	addCallback("setInviteHero", [&](int index){
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.inviteHero = index;
+		CSH->setExtraOptionsInfo(info);
+	});
+
 	addCallback("setTurnTimerAccumulate", [&](int index){
 		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
 		info.accumulatingTurnTimer = index;
@@ -411,4 +417,7 @@ void OptionsTabBase::recreate()
 
 	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
+
+	if(auto buttonInviteHero = widget<CToggleButton>("buttonInviteHero"))
+		buttonInviteHero->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.inviteHero);
 }

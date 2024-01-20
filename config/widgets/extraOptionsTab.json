@@ -64,12 +64,21 @@
 					"name": "buttonCheatAllowed",
 					"image": "lobby/checkbox",
 					"callback" : "setCheatAllowed",
+					"help" : "vcmi.optionsTab.cheatAllowed",
 					"selected" : true
 				},
 				{
 					"name": "buttonUnlimitedReplay",
 					"image": "lobby/checkbox",
 					"callback" : "setUnlimitedReplay",
+					"help" : "vcmi.optionsTab.unlimitedReplay",
+					"selected" : true
+				},
+				{
+					"name": "buttonInviteHero",
+					"image": "lobby/checkbox",
+					"callback" : "setInviteHero",
+					"help" : "vcmi.optionsTab.inviteHero",
 					"selected" : true
 				}
 			]
@@ -94,6 +103,13 @@
 					"alignment": "left",
 					"color": "yellow",
 					"text": "vcmi.optionsTab.unlimitedReplay.hover"
+				},
+				{
+					"name": "labelInviteHero",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.inviteHero.hover"
 				}
 			]
 		}

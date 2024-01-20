@@ -114,7 +114,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	CGHeroInstance *newHero = pickHeroFor(needNativeHero, color);
 
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
-	if(gameHandler->getStartInfo()->extraOptionsInfo.unlimitedReplay && heroesPool->unusedHeroesFromPool().count(nextHero) && heroesPool->isHeroAvailableFor(nextHero, color))
+	if(gameHandler->getStartInfo()->extraOptionsInfo.inviteHero && heroesPool->unusedHeroesFromPool().count(nextHero) && heroesPool->isHeroAvailableFor(nextHero, color))
 		newHero = heroesPool->unusedHeroesFromPool()[nextHero];
 
 	if (newHero)
