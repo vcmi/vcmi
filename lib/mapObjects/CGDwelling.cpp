@@ -16,6 +16,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -43,7 +44,10 @@ void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-CGDwelling::CGDwelling() = default;
+CGDwelling::CGDwelling(IGameCallback *cb):
+	CArmedInstance(cb)
+{}
+
 CGDwelling::~CGDwelling() = default;
 
 FactionID CGDwelling::randomizeFaction(CRandomGenerator & rand)

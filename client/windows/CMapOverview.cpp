@@ -104,7 +104,7 @@ std::vector<Canvas> CMapOverviewWidget::createMinimaps(ResourcePath resource) co
 	std::unique_ptr<CMap> map;
 	try
 	{
-		map = mapService.loadMap(resource);
+		map = mapService.loadMap(resource, nullptr);
 	}
 	catch (const std::exception & e)
 	{
@@ -169,7 +169,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 			lf >> *(mapHeader) >> startInfo;
 
 			if(startInfo->campState)
-				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario());
+				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario(), nullptr);
 			res = ResourcePath(startInfo->fileURI, EResType::MAP);
 		}
 		if(!campaignMap)

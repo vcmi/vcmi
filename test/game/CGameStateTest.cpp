@@ -46,17 +46,14 @@ public:
 
 	void SetUp() override
 	{
-		IObjectInterface::cb = gameCallback.get();
-
 		gameState = std::make_shared<CGameState>();
 		gameCallback->setGameState(gameState.get());
-		gameState->preInit(&services);
+		gameState->preInit(&services, gameCallback.get());
 	}
 
 	void TearDown() override
 	{
 		gameState.reset();
-		IObjectInterface::cb = nullptr;
 	}
 
 	bool describeChanges() const override

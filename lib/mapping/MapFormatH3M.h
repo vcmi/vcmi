@@ -55,7 +55,7 @@ public:
 	 *
 	 * @return a unique ptr of the loaded map class
 	 */
-	std::unique_ptr<CMap> loadMap() override;
+	std::unique_ptr<CMap> loadMap(IGameCallback * cb) override;
 
 	/**
 	 * Loads the VCMI/H3 map header.

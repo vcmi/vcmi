@@ -21,6 +21,8 @@ class Creature;
 class CreatureService;
 class HeroType;
 class CHero;
+class CHeroClass;
+class HeroClass;
 class HeroTypeService;
 class Faction;
 class Skill;
@@ -81,6 +83,9 @@ public:
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const CHeroClass * toHeroClass() const;
+	const HeroClass * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE HeroTypeID : public EntityIdentifier<HeroTypeID>

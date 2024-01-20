@@ -72,7 +72,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 		CArmedInstance * army = battle->battleGetArmyObject(side);
 		assert(army);
 		attachTo(*army);
-		attachTo(const_cast<CCreature&>(*type));
+		attachToSource(*type);
 	}
 	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered

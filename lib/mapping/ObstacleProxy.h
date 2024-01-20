@@ -19,6 +19,7 @@ class CMapEditManager;
 class CGObjectInstance;
 class ObjectTemplate;
 class CRandomGenerator;
+class IGameCallback;
 
 class DLL_LINKAGE ObstacleProxy
 {
@@ -41,7 +42,7 @@ public:
 
 	virtual void placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances);
 
-	virtual std::set<CGObjectInstance*> createObstacles(CRandomGenerator & rand);
+	virtual std::set<CGObjectInstance*> createObstacles(CRandomGenerator & rand, IGameCallback * cb);
 
 	virtual bool isInTheMap(const int3& tile) = 0;
 	
@@ -50,7 +51,7 @@ public:
 	virtual void postProcess(const rmg::Object& object) {};
 
 protected:
-	int getWeightedObjects(const int3& tile, CRandomGenerator& rand, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
+	int getWeightedObjects(const int3& tile, CRandomGenerator& rand, IGameCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
 
 	rmg::Area blockedArea;
 

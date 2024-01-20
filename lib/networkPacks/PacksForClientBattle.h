@@ -128,7 +128,7 @@ struct DLL_LINKAGE BattleResult : public Query
 	BattleID battleID = BattleID::NONE;
 	EBattleResult result = EBattleResult::NORMAL;
 	ui8 winner = 2; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
-	std::map<ui32, si32> casualties[2]; //first => casualties of attackers - map crid => number
+	std::map<CreatureID, si32> casualties[2]; //first => casualties of attackers - map crid => number
 	TExpType exp[2] = {0, 0}; //exp for attacker and defender
 	std::set<ArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
 

@@ -27,9 +27,9 @@ class CDefaultObjectTypeHandler : public AObjectTypeHandler
 		randomizeObject(castedObject, rng);
 	}
 
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const final
+	CGObjectInstance * create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const final
 	{
-		ObjectType * result = createObject();
+		ObjectType * result = createObject(cb);
 
 		preInitObject(result);
 
@@ -44,9 +44,9 @@ class CDefaultObjectTypeHandler : public AObjectTypeHandler
 protected:
 	virtual void initializeObject(ObjectType * object) const {}
 	virtual void randomizeObject(ObjectType * object, CRandomGenerator & rng) const {}
-	virtual ObjectType * createObject() const
+	virtual ObjectType * createObject(IGameCallback * cb) const
 	{
-		return new ObjectType();
+		return new ObjectType(cb);
 	}
 };
 

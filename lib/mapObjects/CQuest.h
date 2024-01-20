@@ -56,11 +56,11 @@ public:
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	virtual bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	virtual void getVisitText(MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	virtual void getCompletionText(MetaString &text) const;
-	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
+	virtual void getVisitText(IGameCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual void getCompletionText(IGameCallback * cb, MetaString &text) const;
+	virtual void getRolloverText (IGameCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
-	virtual void addTextReplacements(MetaString &out, std::vector<Component> & components) const;
+	virtual void addTextReplacements(IGameCallback * cb, MetaString &out, std::vector<Component> & components) const;
 	virtual void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 
@@ -103,7 +103,7 @@ public:
 	///Information about quest should remain accessible even if IQuestObject removed from map
 	///All CQuest objects are freed in CMap destructor
 	virtual ~IQuestObject() = default;
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const = 0;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -117,6 +117,8 @@ protected:
 class DLL_LINKAGE CGSeerHut : public CRewardableObject, public IQuestObject
 {
 public:
+	using CRewardableObject::CRewardableObject;
+
 	std::string seerName;
 
 	void initObj(CRandomGenerator & rand) override;
@@ -129,6 +131,7 @@ public:
 	void newTurn(CRandomGenerator & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 
 	virtual void init(CRandomGenerator & rand);
 	int checkDirection() const; //calculates the region of map where monster is placed
@@ -154,6 +157,8 @@ protected:
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
+	using CGSeerHut::CGSeerHut;
+
 	void init(CRandomGenerator & rand) override;
 	
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -170,6 +175,8 @@ protected:
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	bool wasMyColorVisited(const PlayerColor & player) const;
 
 	std::string getObjectName() const override; //depending on color
@@ -184,6 +191,8 @@ public:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
+	using CGKeys::CGKeys;
+
 	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
@@ -196,6 +205,8 @@ public:
 class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
+	using CGKeys::CGKeys;
+
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
@@ -216,6 +227,8 @@ public:
 class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
+	using CGBorderGuard::CGBorderGuard;
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	bool passableFor(PlayerColor color) const override;

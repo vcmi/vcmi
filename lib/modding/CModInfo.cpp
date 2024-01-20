@@ -127,7 +127,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 
 	if (config["modType"].String() == "Translation")
 	{
-		if (baseLanguage != VLC->generaltexth->getPreferredLanguage())
+		if (baseLanguage != CGeneralTextHandler::getPreferredLanguage())
 		{
 			if (identifier.find_last_of('.') == std::string::npos)
 				logGlobal->warn("Translation mod %s was not loaded: language mismatch!", verificationInfo.name);

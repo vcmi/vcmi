@@ -24,6 +24,7 @@
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/ObstacleProxy.h"
+#include "../../mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -86,7 +87,7 @@ void ObstaclePlacer::process()
 		prohibitedArea.unite(zone.areaPossible());
 	}
 
-	auto objs = createObstacles(zone.getRand());
+	auto objs = createObstacles(zone.getRand(), map.mapInstance->cb);
 	mapProxy->insertObjects(objs);
 }
 

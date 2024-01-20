@@ -142,7 +142,7 @@ void Initializer::initialize(CGHeroInstance * o)
 		{
 			if(t->heroClass->getId() == HeroClassID(o->subID))
 			{
-				o->type = t;
+				o->type = t.get();
 				break;
 			}
 		}

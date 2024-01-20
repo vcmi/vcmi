@@ -18,6 +18,7 @@ class INetworkConnection;
 class ConnectionPackReader;
 class ConnectionPackWriter;
 class CGameState;
+class IGameCallback;
 
 /// Wrapper class for game connection
 /// Handles serialization and deserialization of data received from network
@@ -51,6 +52,7 @@ public:
 	CPack * retrievePack(const std::vector<uint8_t> & data);
 
 	void enterLobbyConnectionMode();
+	void setCallback(IGameCallback * cb);
 	void enterGameplayConnectionMode(CGameState * gs);
 };
 

@@ -99,7 +99,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 
 			//Update appearance. Terrain is irrelevant.
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, artifactToPlace);
-			auto newObj = handler->create();
+			auto newObj = handler->create(map.mapInstance->cb, nullptr);
 			auto templates = handler->getTemplates();
 			//artifactToReplace->appearance = templates.front();
 			newObj->appearance  = templates.front();

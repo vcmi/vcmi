@@ -13,6 +13,7 @@
 #include "BinaryDeserializer.h"
 #include "BinarySerializer.h"
 
+#include "../gameState/CGameState.h"
 #include "../networkPacks/NetPacksBase.h"
 #include "../network/NetworkInterface.h"
 
@@ -126,12 +127,17 @@ void CConnection::enterLobbyConnectionMode()
 	disableStackSendingByID();
 }
 
+void CConnection::setCallback(IGameCallback * cb)
+{
+	deserializer->cb = cb;
+}
+
 void CConnection::enterGameplayConnectionMode(CGameState * gs)
 {
 	enableStackSendingByID();
 	disableSmartPointerSerialization();
 
-	packReader->addStdVecItems(gs);
+	setCallback(gs->callback);
 	packWriter->addStdVecItems(gs);
 }
 

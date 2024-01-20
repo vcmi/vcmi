@@ -139,7 +139,6 @@ public:
 BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_):
 	spell(spell_),
 	cb(cb_),
-	gameCb(IObjectInterface::cb), //FIXME: pass player callback (problem is that BattleAI do not have one)
 	caster(caster_),
 	mode(mode_),
 	smart(boost::logic::indeterminate),
@@ -150,7 +149,6 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
 	: spell(orig.spell),
 	cb(orig.cb),
-	gameCb(orig.gameCb),
 	caster(caster_),
 	mode(Mode::MAGIC_MIRROR),
 	magicSkillLevel(orig.magicSkillLevel),
@@ -182,11 +180,6 @@ const Caster * BattleCast::getCaster() const
 const CBattleInfoCallback * BattleCast::getBattle() const
 {
 	return cb;
-}
-
-const IGameInfoCallback * BattleCast::getGame() const
-{
-	return gameCb;
 }
 
 BattleCast::OptionalValue BattleCast::getSpellLevel() const
@@ -417,8 +410,7 @@ BaseMechanics::BaseMechanics(const IBattleCast * event):
 	mode(event->getMode()),
 	smart(event->isSmart()),
 	massive(event->isMassive()),
-	cb(event->getBattle()),
-	gameCb(event->getGame())
+	cb(event->getBattle())
 {
 	caster = event->getCaster();
 
@@ -483,7 +475,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 				return adaptGenericProblem(target);
 
 			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
+			const auto b = hero->getFirstBonus(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
 			//TODO what about other values and non-artifact sources?
 			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
@@ -694,11 +686,6 @@ const scripting::Service * BaseMechanics::scripts() const
 const Service * BaseMechanics::spells() const
 {
 	return VLC->spells(); //todo: redirect
-}
-
-const IGameInfoCallback * BaseMechanics::game() const
-{
-	return gameCb;
 }
 
 const CBattleInfoCallback * BaseMechanics::battle() const

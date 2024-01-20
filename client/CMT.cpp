@@ -72,7 +72,7 @@ void init()
 	CStopWatch tmh;
 
 	loadDLLClasses();
-	const_cast<CGameInfo*>(CGI)->setFromLib();
+	CGI->setFromLib();
 
 	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 

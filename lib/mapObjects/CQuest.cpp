@@ -130,7 +130,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 	
 	if(killTarget != ObjectInstanceID::NONE)
 	{
-		if(CGHeroInstance::cb->getObjByQuestIdentifier(killTarget))
+		if(h->cb->getObjByQuestIdentifier(killTarget))
 			return false;
 	}
 	
@@ -167,7 +167,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	cb->giveResources(h->getOwner(), mission.resources);
 }
 
-void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & components) const
+void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vector<Component> & components) const
 {
 	if(mission.heroLevel > 0)
 		text.replaceNumber(mission.heroLevel);
@@ -263,10 +263,10 @@ void CQuest::addTextReplacements(MetaString & text, std::vector<Component> & com
 	}
 	
 	if(lastDay >= 0)
-		text.replaceNumber(lastDay - IObjectInterface::cb->getDate(Date::DAY));
+		text.replaceNumber(lastDay - cb->getDate(Date::DAY));
 }
 
-void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
+void CQuest::getVisitText(IGameCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
 	mission.loadComponents(components, h);
@@ -279,10 +279,10 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	if(lastDay >= 0)
 		iwText.appendTextID(TextIdentifier("core", "seerhut", "time", textOption).get());
 	
-	addTextReplacements(iwText, components);
+	addTextReplacements(cb, iwText, components);
 }
 
-void CQuest::getRolloverText(MetaString &ms, bool onHover) const
+void CQuest::getRolloverText(IGameCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(onHover)
 		ms.appendRawString("\n\n");
@@ -292,15 +292,15 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, questState, textOption).get());
 
 	std::vector<Component> components;
-	addTextReplacements(ms, components);
+	addTextReplacements(cb, ms, components);
 }
 
-void CQuest::getCompletionText(MetaString &iwText) const
+void CQuest::getCompletionText(IGameCallback * cb, MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
 	
 	std::vector<Component> components;
-	addTextReplacements(iwText, components);
+	addTextReplacements(cb, iwText, components);
 }
 
 void CQuest::defineQuestName()
@@ -411,9 +411,9 @@ bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 	return quest->checkQuest(h);
 }
 
-void IQuestObject::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
+void CGSeerHut::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	quest->getVisitText(text, components, FirstVisit, h);
+	quest->getVisitText(cb, text, components, FirstVisit, h);
 }
 
 void IQuestObject::afterAddToMapCommon(CMap * map) const
@@ -479,14 +479,14 @@ void CGSeerHut::initObj(CRandomGenerator & rand)
 			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest-> questName, quest->missionState(2), quest->textOption).get());
 	}
 	
-	quest->getCompletionText(configuration.onSelect);
+	quest->getCompletionText(cb, configuration.onSelect);
 	for(auto & i : configuration.info)
-		quest->getCompletionText(i.message);
+		quest->getCompletionText(cb, i.message);
 }
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 {
-	quest->getRolloverText(text, onHover);//TODO: simplify?
+	quest->getRolloverText(cb, text, onHover);//TODO: simplify?
 	if(!onHover)
 		text.replaceRawString(seerName);
 }

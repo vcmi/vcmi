@@ -69,13 +69,13 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if(dayOfWeek != 0)
 	{
-		if (IObjectInterface::cb->getDate(Date::DAY_OF_WEEK) != dayOfWeek)
+		if (hero->cb->getDate(Date::DAY_OF_WEEK) != dayOfWeek)
 			return false;
 	}
 
 	if(daysPassed != 0)
 	{
-		if (IObjectInterface::cb->getDate(Date::DAY) < daysPassed)
+		if (hero->cb->getDate(Date::DAY) < daysPassed)
 			return false;
 	}
 
@@ -92,7 +92,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	if(!IObjectInterface::cb->getPlayerState(hero->tempOwner)->resources.canAfford(resources))
+	if(!hero->cb->getPlayerState(hero->tempOwner)->resources.canAfford(resources))
 		return false;
 
 	if(heroLevel > static_cast<si32>(hero->level))

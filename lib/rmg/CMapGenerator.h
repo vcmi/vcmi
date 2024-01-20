@@ -26,6 +26,7 @@ class RmgMap;
 class CMap;
 class Zone;
 class CZonePlacer;
+class IGameCallback;
 
 using JsonVector = std::vector<JsonNode>;
 
@@ -56,7 +57,7 @@ public:
 		bool singleThread;
 	};
 	
-	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));
+	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed);
 	~CMapGenerator(); // required due to std::unique_ptr
 	
 	const Config & getConfig() const;

@@ -290,7 +290,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
-	static TPropagatorPtr & emptyPropagator();
+	static const TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
 	void initializeOverridden();
@@ -303,12 +303,12 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val) const;
 	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, TPropagatorPtr & prop) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, BonusSubtypeID subtype, const TPropagatorPtr & prop) const;
 	std::shared_ptr<Bonus> createBonusImpl(const BuildingID & building,
 										   const FactionID & faction,
 												  BonusType type,
 												  int val,
-												  TPropagatorPtr & prop,
+												  const TPropagatorPtr & prop,
 												  const std::string & description,
 												  BonusSubtypeID subtype) const;
 

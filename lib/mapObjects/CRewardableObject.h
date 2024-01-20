@@ -67,7 +67,7 @@ public:
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
-	CRewardableObject();
+	CRewardableObject(IGameCallback *cb);
 	
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;

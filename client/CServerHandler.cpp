@@ -277,6 +277,9 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 		// retry - local server might be still starting up
 		logNetwork->debug("\nCannot establish connection. %s. Retrying...", errorMessage);
 		networkHandler->createTimer(*this, std::chrono::milliseconds(100));
+
+			nextClient = std::make_unique<CClient>();
+			c->setCallback(nextClient.get());
 	}
 	else
 	{
@@ -633,7 +636,8 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 {
 	if(CMM)
 		CMM->disable();
-	client = new CClient();
+
+	std::swap(client, nextClient);
 
 	highScoreCalc = nullptr;
 
@@ -667,7 +671,7 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	}
 
 	client->endGame();
-	vstd::clear_pointer(client);
+	client.reset();
 
 	if(!restart)
 	{
@@ -683,7 +687,11 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	}
 	
 	if(c)
+	{
+		nextClient = std::make_unique<CClient>();
+		c->setCallback(nextClient.get());
 		c->enterLobbyConnectionMode();
+	}
 }
 
 void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)

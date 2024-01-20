@@ -45,7 +45,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 		{
 			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [=] (si32 index)
 			{
-				availableCreatures[currentLevel][currentCreature] = VLC->creh->objects[index];
+				availableCreatures[currentLevel][currentCreature] = CreatureID(index).toCreature();
 			});
 		}
 		assert(!availableCreatures[currentLevel].empty());
@@ -68,9 +68,9 @@ void DwellingInstanceConstructor::initializeObject(CGDwelling * obj) const
 	}
 }
 
-void DwellingInstanceConstructor::randomizeObject(CGDwelling * object, CRandomGenerator &rng) const
+void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, CRandomGenerator &rng) const
 {
-	auto * dwelling = dynamic_cast<CGDwelling *>(object);
+	JsonRandom randomizer(dwelling->cb);
 
 	dwelling->creatures.clear();
 	dwelling->creatures.reserve(availableCreatures.size());
@@ -94,7 +94,7 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * object, CRandomGe
 	else if(guards.getType() == JsonNode::JsonType::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
 	{
 		JsonRandom::Variables emptyVariables;
-		for(auto & stack : JsonRandom::loadCreatures(guards, rng, emptyVariables))
+		for(auto & stack : randomizer.loadCreatures(guards, rng, emptyVariables))
 		{
 			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->getId(), stack.count));
 		}

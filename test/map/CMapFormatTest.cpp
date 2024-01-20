@@ -62,7 +62,7 @@ TEST(MapFormat, DISABLED_Random)
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(2), EPlayerType::AI);
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(3), EPlayerType::AI);
 
-	CMapGenerator gen(opt, TEST_RANDOM_SEED);
+	CMapGenerator gen(opt, nullptr, TEST_RANDOM_SEED);
 
 	std::unique_ptr<CMap> initialMap = gen.generate();
 	initialMap->name.appendRawString("Test");
@@ -80,7 +80,7 @@ TEST(MapFormat, DISABLED_Random)
 	serializeBuffer.seek(0);
 	{
 		CMapLoaderJson loader(&serializeBuffer);
-		std::unique_ptr<CMap> serialized = loader.loadMap();
+		std::unique_ptr<CMap> serialized = loader.loadMap(nullptr);
 
 		MapComparer c;
 		c(serialized, initialMap);
@@ -130,7 +130,7 @@ static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNod
 
 	CMapLoaderJson initialLoader(&initialBuffer);
 
-	return initialLoader.loadMap();
+	return initialLoader.loadMap(nullptr);
 }
 
 static void loadActual(CMemoryBuffer * serializeBuffer, const std::unique_ptr<CMap> & originalMap, JsonNode & header, JsonNode & objects, JsonNode & surface, JsonNode & underground)

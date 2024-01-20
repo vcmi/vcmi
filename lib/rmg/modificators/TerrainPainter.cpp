@@ -20,6 +20,7 @@
 #include "../RmgMap.h"
 #include "../../VCMI_Lib.h"
 #include "../../TerrainHandler.h"
+#include "../../CTownHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

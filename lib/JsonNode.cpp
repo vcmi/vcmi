@@ -694,7 +694,6 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 template <typename T>
 const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
 {
-	static T defaultValue = T();
 	if (!val->isNull())
 	{
 		const std::string & type = val->String();
@@ -702,7 +701,7 @@ const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, c
 		if (it == map.end())
 		{
 			logMod->error("Error: invalid %s%s.", err, type);
-			return defaultValue;
+			return {};
 		}
 		else
 		{
@@ -710,7 +709,7 @@ const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, c
 		}
 	}
 	else
-		return defaultValue;
+		return {};
 }
 
 template <typename T>

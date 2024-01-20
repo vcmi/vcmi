@@ -44,7 +44,7 @@ public:
 	std::string typeName;
 	std::string subTypeName;
 
-	CGObjectInstance(); //TODO: remove constructor
+	CGObjectInstance(IGameCallback *cb);
 	~CGObjectInstance() override;
 
 	MapObjectID getObjGroupIndex() const override;

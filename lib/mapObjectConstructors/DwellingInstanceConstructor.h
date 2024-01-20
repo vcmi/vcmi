@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CDefaultObjectTypeHandler.h"
+#include "../mapObjects/CGDwelling.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

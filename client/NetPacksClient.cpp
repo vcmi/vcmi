@@ -39,6 +39,7 @@
 #include "../lib/StartInfo.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CStack.h"
 #include "../lib/battle/BattleInfo.h"

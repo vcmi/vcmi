@@ -95,6 +95,11 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	void threadRunNetwork();
 	void threadRunServer(bool connectToLobby);
+
+	/// temporary helper member that exists while game in lobby mode
+	/// required to correctly deserialize gamestate using client-side game callback
+	std::unique_ptr<CClient> nextClient;
+
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
@@ -131,7 +136,7 @@ public:
 	std::unique_ptr<boost::thread> threadRunLocalServer;
 	std::unique_ptr<boost::thread> threadNetwork;
 
-	CClient * client;
+	std::unique_ptr<CClient> client;
 
 	CondSh<bool> campaignServerRestartLock;
 
