@@ -413,11 +413,20 @@ void OptionsTabBase::recreate()
 	}
 
 	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
+	{
 		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
+		buttonCheatAllowed->setInputEnabled(SEL->screenType != ESelectionScreen::loadGame);
+	}
 
 	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
+	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
+		buttonUnlimitedReplay->setInputEnabled(SEL->screenType != ESelectionScreen::loadGame);
+	}
 
 	if(auto buttonInviteHero = widget<CToggleButton>("buttonInviteHero"))
+	{
 		buttonInviteHero->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.inviteHero);
+		buttonInviteHero->setInputEnabled(SEL->screenType != ESelectionScreen::loadGame);
+	}
 }
