@@ -519,7 +519,7 @@ void CTavernWindow::addInvite()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	if(CSH->client->getStartInfo()->extraOptionsInfo.inviteHero)
+	if(VLC->settings()->getBoolean(EGameSettings::HEROES_INVITE))
 	{
 		const auto & heroesPool = CSH->client->gameState()->heroesPool;
 		for(auto & elem : heroesPool->unusedHeroesFromPool())

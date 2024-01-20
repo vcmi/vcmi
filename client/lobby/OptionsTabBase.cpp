@@ -110,12 +110,6 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		CSH->setExtraOptionsInfo(info);
 	});
 
-	addCallback("setInviteHero", [&](int index){
-		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
-		info.inviteHero = index;
-		CSH->setExtraOptionsInfo(info);
-	});
-
 	addCallback("setTurnTimerAccumulate", [&](int index){
 		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
 		info.accumulatingTurnTimer = index;
@@ -422,11 +416,5 @@ void OptionsTabBase::recreate()
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 		buttonUnlimitedReplay->setInputEnabled(SEL->screenType != ESelectionScreen::loadGame);
-	}
-
-	if(auto buttonInviteHero = widget<CToggleButton>("buttonInviteHero"))
-	{
-		buttonInviteHero->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.inviteHero);
-		buttonInviteHero->setInputEnabled(SEL->screenType != ESelectionScreen::loadGame);
 	}
 }

@@ -15,8 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 bool ExtraOptionsInfo::operator == (const ExtraOptionsInfo & other) const
 {
 	return cheatsAllowed == other.cheatsAllowed &&
-			unlimitedReplay == other.unlimitedReplay &&
-			inviteHero == other.inviteHero;
+			unlimitedReplay == other.unlimitedReplay;
 }
 
 VCMI_LIB_NAMESPACE_END

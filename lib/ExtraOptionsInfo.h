@@ -16,7 +16,6 @@ struct DLL_LINKAGE ExtraOptionsInfo
 {
 	bool cheatsAllowed = true;
 	bool unlimitedReplay = false;
-	bool inviteHero = false;
 
 	bool operator == (const ExtraOptionsInfo & other) const;
 
@@ -25,7 +24,6 @@ struct DLL_LINKAGE ExtraOptionsInfo
 	{
 		h & cheatsAllowed;
 		h & unlimitedReplay;
-		h & inviteHero;
 	}
 };
 

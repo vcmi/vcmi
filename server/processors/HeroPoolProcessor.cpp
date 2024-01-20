@@ -23,6 +23,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/TavernHeroesPool.h"
 #include "../../lib/gameState/TavernSlot.h"
+#include "../../lib/GameSettings.h"
 
 HeroPoolProcessor::HeroPoolProcessor()
 	: gameHandler(nullptr)
@@ -114,7 +115,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	CGHeroInstance *newHero = pickHeroFor(needNativeHero, color);
 
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
-	if(gameHandler->getStartInfo()->extraOptionsInfo.inviteHero && heroesPool->unusedHeroesFromPool().count(nextHero) && heroesPool->isHeroAvailableFor(nextHero, color))
+	if(VLC->settings()->getBoolean(EGameSettings::HEROES_INVITE) && heroesPool->unusedHeroesFromPool().count(nextHero) && heroesPool->isHeroAvailableFor(nextHero, color))
 		newHero = heroesPool->unusedHeroesFromPool()[nextHero];
 
 	if (newHero)
