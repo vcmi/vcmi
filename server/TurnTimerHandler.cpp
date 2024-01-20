@@ -88,21 +88,21 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 void TurnTimerHandler::update(int waitTime)
 {
 	std::lock_guard<std::recursive_mutex> guard(mx);
-	if(const auto * gs = gameHandler.gameState())
-	{
-		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-			if(gs->isPlayerMakingTurn(player))
-				onPlayerMakingTurn(player, waitTime);
-		
-		// create copy for iterations - battle might end during onBattleLoop call
-		std::vector<BattleID> ongoingBattles;
+	if(!gameHandler.getStartInfo()->turnTimerInfo.isEnabled())
+		return;
 
-		for (auto & battle : gs->currentBattles)
-			ongoingBattles.push_back(battle->battleID);
+	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+		if(gameHandler.gameState()->isPlayerMakingTurn(player))
+			onPlayerMakingTurn(player, waitTime);
 
-		for (auto & battleID : ongoingBattles)
-			onBattleLoop(battleID, waitTime);
-	}
+	// create copy for iterations - battle might end during onBattleLoop call
+	std::vector<BattleID> ongoingBattles;
+
+	for (auto & battle : gameHandler.gameState()->currentBattles)
+		ongoingBattles.push_back(battle->battleID);
+
+	for (auto & battleID : ongoingBattles)
+		onBattleLoop(battleID, waitTime);
 }
 
 bool TurnTimerHandler::timerCountDown(int & timer, int initialTimer, PlayerColor player, int waitTime)

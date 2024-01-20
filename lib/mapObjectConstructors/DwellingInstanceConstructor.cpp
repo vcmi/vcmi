@@ -35,17 +35,17 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	const auto totalLevels = levels.size();
 
 	availableCreatures.resize(totalLevels);
-	for(auto currentLevel = 0; currentLevel < totalLevels; currentLevel++)
+	for(int currentLevel = 0; currentLevel < totalLevels; currentLevel++)
 	{
 		const JsonVector & creaturesOnLevel = levels[currentLevel].Vector();
 		const auto creaturesNumber = creaturesOnLevel.size();
 		availableCreatures[currentLevel].resize(creaturesNumber);
 
-		for(auto currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
+		for(int currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [=] (si32 index)
+			VLC->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
 			{
-				availableCreatures[currentLevel][currentCreature] = VLC->creh->objects[index];
+				availableCreatures.at(currentLevel).at(currentCreature) = VLC->creh->objects[index];
 			});
 		}
 		assert(!availableCreatures[currentLevel].empty());

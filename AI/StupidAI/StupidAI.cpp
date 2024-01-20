@@ -16,8 +16,6 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
 
-static std::shared_ptr<CBattleCallback> cbc;
-
 CStupidAI::CStupidAI()
 	: side(-1)
 	, wasWaitingForRealize(false)
@@ -41,7 +39,7 @@ void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 {
 	print("init called, saving ptr to IBattleCallback");
 	env = ENV;
-	cbc = cb = CB;
+	cb = CB;
 
 	wasWaitingForRealize = CB->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
@@ -72,11 +70,11 @@ public:
 	std::vector<BattleHex> attackFrom; //for melee fight
 	EnemyInfo(const CStack * _s) : s(_s), adi(0), adr(0)
 	{}
-	void calcDmg(const BattleID & battleID, const CStack * ourStack)
+	void calcDmg(std::shared_ptr<CBattleCallback> cb, const BattleID & battleID, const CStack * ourStack)
 	{
 		// FIXME: provide distance info for Jousting bonus
 		DamageEstimation retal;
-		DamageEstimation dmg = cbc->getBattle(battleID)->battleEstimateDamage(ourStack, s, 0, &retal);
+		DamageEstimation dmg = cb->getBattle(battleID)->battleEstimateDamage(ourStack, s, 0, &retal);
 		adi = static_cast<int>((dmg.damage.min + dmg.damage.max) / 2);
 		adr = static_cast<int>((retal.damage.min + retal.damage.max) / 2);
 	}
@@ -92,14 +90,14 @@ bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
 	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
 }
 
-static bool willSecondHexBlockMoreEnemyShooters(const BattleID & battleID, const BattleHex &h1, const BattleHex &h2)
+static bool willSecondHexBlockMoreEnemyShooters(std::shared_ptr<CBattleCallback> cb, const BattleID & battleID, const BattleHex &h1, const BattleHex &h2)
 {
 	int shooters[2] = {0}; //count of shooters on hexes
 
 	for(int i = 0; i < 2; i++)
 	{
 		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
-			if(const auto * s = cbc->getBattle(battleID)->battleGetUnitByPos(neighbour))
+			if(const auto * s = cb->getBattle(battleID)->battleGetUnitByPos(neighbour))
 				if(s->isShooter())
 					shooters[i]++;
 	}
@@ -169,10 +167,10 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	}
 
 	for ( auto & enemy : enemiesReachable )
-		enemy.calcDmg(battleID, stack);
+		enemy.calcDmg(cb, battleID, stack);
 
 	for ( auto & enemy : enemiesShootable )
-		enemy.calcDmg(battleID, stack);
+		enemy.calcDmg(cb, battleID, stack);
 
 	if(enemiesShootable.size())
 	{
@@ -183,7 +181,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	else if(enemiesReachable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesReachable.begin(), enemiesReachable.end(), &isMoreProfitable);
-		BattleHex targetHex = *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), [&](auto a, auto b) { return willSecondHexBlockMoreEnemyShooters(battleID, a, b);});
+		BattleHex targetHex = *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), [&](auto a, auto b) { return willSecondHexBlockMoreEnemyShooters(cb, battleID, a, b);});
 
 		cb->battleMakeUnitAction(battleID, BattleAction::makeMeleeAttack(stack, ei.s->getPosition(), targetHex));
 		return;
