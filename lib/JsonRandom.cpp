@@ -82,7 +82,7 @@ namespace JsonRandom
 	IdentifierType decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
 	{
 		if (value.empty() || value[0] != '@')
-			return IdentifierType(*VLC->identifiers()->getIdentifier(modScope, IdentifierType::entityType(), value));
+			return IdentifierType(VLC->identifiers()->getIdentifier(modScope, IdentifierType::entityType(), value).value_or(-1));
 		else
 			return loadVariable(IdentifierType::entityType(), value, variables, IdentifierType::NONE);
 	}
@@ -91,7 +91,7 @@ namespace JsonRandom
 	IdentifierType decodeKey(const JsonNode & value, const Variables & variables)
 	{
 		if (value.String().empty() || value.String()[0] != '@')
-			return IdentifierType(*VLC->identifiers()->getIdentifier(IdentifierType::entityType(), value));
+			return IdentifierType(VLC->identifiers()->getIdentifier(IdentifierType::entityType(), value).value_or(-1));
 		else
 			return loadVariable(IdentifierType::entityType(), value.String(), variables, IdentifierType::NONE);
 	}
