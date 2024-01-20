@@ -1074,14 +1074,14 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	auto handler = VLC->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
 
-	auto * appearance = new ObjectTemplate;
+	auto appearance = std::make_shared<ObjectTemplate>();
 
 	appearance->id = Obj(handler->getIndex());
 	appearance->subid = handler->getSubIndex();
 	appearance->readJson(configuration["template"], false);
 
 	// Will be destroyed soon and replaced with shared template
-	instance = handler->create(std::shared_ptr<const ObjectTemplate>(appearance));
+	instance = handler->create(appearance);
 
 	instance->id = ObjectInstanceID(static_cast<si32>(owner->map->objects.size()));
 	instance->instanceName = jsonKey;
