@@ -138,8 +138,7 @@ int main(int argc, char * argv[])
 		("nointro,i", "skips intro movies")
 		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
 		("serverport", po::value<si64>(), "override port specified in config file")
-		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
-		("uuid", po::value<std::string>(), "uuid for the client");
+		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
 
 	if(argc > 1)
 	{

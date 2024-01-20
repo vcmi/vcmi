@@ -92,7 +92,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 			return;
 		}
 
-		if(pack.c->uuid != srv.cmdLineOptions["uuid"].as<std::string>())
+		if(pack.c->connectionID != srv.hostClientId)
 		{
 			result = false;
 			return;

@@ -277,9 +277,6 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 		// retry - local server might be still starting up
 		logNetwork->debug("\nCannot establish connection. %s. Retrying...", errorMessage);
 		networkHandler->createTimer(*this, std::chrono::milliseconds(100));
-
-			nextClient = std::make_unique<CClient>();
-			c->setCallback(nextClient.get());
 	}
 	else
 	{
@@ -307,8 +304,10 @@ void CServerHandler::onConnectionEstablished(const std::shared_ptr<INetworkConne
 
 	logNetwork->info("Connection established");
 	c = std::make_shared<CConnection>(netConnection);
+	nextClient = std::make_unique<CClient>();
 	c->uuid = uuid;
 	c->enterLobbyConnectionMode();
+	c->setCallback(nextClient.get());
 	sendClientConnecting();
 }
 
@@ -324,7 +323,6 @@ std::set<PlayerColor> CServerHandler::getHumanColors()
 {
 	return clientHumanColors(c->connectionID);
 }
-
 
 PlayerColor CServerHandler::myFirstColor() const
 {
