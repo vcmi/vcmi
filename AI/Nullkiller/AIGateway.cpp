@@ -669,7 +669,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 			sel = components.size();
 
 		{
-				std::unique_lock<std::mutex>(nullkiller->aiStateMutex);
+				std::unique_lock<std::mutex> mxLock(nullkiller->aiStateMutex);
 
 				// TODO: Find better way to understand it is Chest of Treasures
 				if(hero.validAndSet()

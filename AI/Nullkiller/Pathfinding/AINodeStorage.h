@@ -44,8 +44,8 @@ namespace AIPathfinding
 enum DayFlags : ui8
 {
 	NONE = 0,
-	FLY_CASTED = 1,
-	WATER_WALK_CASTED = 2
+	FLY_CAST = 1,
+	WATER_WALK_CAST = 2
 };
 
 struct AIPathNode : public CGPathNode

@@ -29,11 +29,11 @@ namespace AIPathfinding
 	}
 
 	WaterWalkingAction::WaterWalkingAction(const CGHeroInstance * hero)
-		:AdventureCastAction(SpellID::WATER_WALK, hero, DayFlags::WATER_WALK_CASTED)
+		:AdventureCastAction(SpellID::WATER_WALK, hero, DayFlags::WATER_WALK_CAST)
 	{ }
 
 	AirWalkingAction::AirWalkingAction(const CGHeroInstance * hero)
-		: AdventureCastAction(SpellID::FLY, hero, DayFlags::FLY_CASTED)
+		: AdventureCastAction(SpellID::FLY, hero, DayFlags::FLY_CAST)
 	{
 	}
 

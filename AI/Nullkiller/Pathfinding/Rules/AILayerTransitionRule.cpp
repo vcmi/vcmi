@@ -61,7 +61,7 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::WATER)
 		{
-			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::WATER_WALK_CASTED)
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::WATER_WALK_CAST)
 			{
 				destination.blocked = false;
 				return;
@@ -79,7 +79,7 @@ namespace AIPathfinding
 
 		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::AIR)
 		{
-			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::FLY_CASTED)
+			if(nodeStorage->getAINode(source.node)->dayFlags & DayFlags::FLY_CAST)
 			{
 				destination.blocked = false;
 				return;
