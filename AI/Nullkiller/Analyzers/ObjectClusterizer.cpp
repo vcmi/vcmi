@@ -244,7 +244,7 @@ void ObjectClusterizer::clusterize()
 			logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
 #endif
 
-			auto paths = ai->pathfinder->getPathInfo(obj->visitablePos());
+			auto paths = ai->pathfinder->getPathInfo(obj->visitablePos(), true);
 
 			if(paths.empty())
 			{

@@ -27,6 +27,9 @@ namespace NKAI
 
 using namespace Goals;
 
+// while we play vcmieagles graph can be shared
+std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
+
 Nullkiller::Nullkiller()
 	:activeHero(nullptr), scanDepth(ScanDepth::MAIN_FULL), useHeroChain(true)
 {
@@ -119,6 +122,12 @@ void Nullkiller::resetAiState()
 	lockedHeroes.clear();
 	dangerHitMap->reset();
 	useHeroChain = true;
+
+	if(!baseGraph)
+	{
+		baseGraph = std::make_unique<ObjectGraph>();
+		baseGraph->updateGraph(this);
+	}
 }
 
 void Nullkiller::updateAiState(int pass, bool fast)
@@ -173,6 +182,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 		boost::this_thread::interruption_point();
 
 		pathfinder->updatePaths(activeHeroes, cfg);
+		pathfinder->updateGraphs(activeHeroes);
 
 		boost::this_thread::interruption_point();
 

@@ -26,13 +26,9 @@ namespace NKAI
 {
 namespace AIPathfinding
 {
-#ifdef ENVIRONMENT64
-	const int BUCKET_COUNT = 7;
-#else
-	const int BUCKET_COUNT = 5;
-#endif // ENVIRONMENT64
 
-	const int BUCKET_SIZE = 5;
+    const int BUCKET_COUNT = 5;
+	const int BUCKET_SIZE = 3;
 	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 	const int THREAD_COUNT = 8;
 	const int CHAIN_MAX_DEPTH = 4;

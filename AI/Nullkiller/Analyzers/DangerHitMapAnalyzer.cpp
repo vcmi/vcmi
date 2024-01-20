@@ -75,8 +75,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		PathfinderSettings ps;
 
-		ps.mainTurnDistanceLimit = 10;
-		ps.scoutTurnDistanceLimit = 10;
+		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
 		ps.useHeroChain = false;
 
 		ai->pathfinder->updatePaths(pair.second, ps);
@@ -160,9 +159,6 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	std::map<const CGHeroInstance *, HeroRole> townHeroes;
 	std::map<const CGHeroInstance *, const CGTownInstance *> heroTownMap;
-	PathfinderSettings pathfinderSettings;
-
-	pathfinderSettings.mainTurnDistanceLimit = 5;
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
@@ -192,7 +188,10 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 		addTownHero(town);
 	}
 
-	ai->pathfinder->updatePaths(townHeroes, PathfinderSettings());
+	PathfinderSettings ps;
+	ps.mainTurnDistanceLimit = ps.scoutTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
+
+	ai->pathfinder->updatePaths(townHeroes, ps);
 
 	pforeachTilePos(mapSize, [&](const int3 & pos)
 		{
@@ -239,6 +238,11 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 				hitMap[pos.x][pos.y][pos.z].closestTown = enemyTown;
 			}
 		});
+
+	for(auto h : townHeroes)
+	{
+		delete h.first;
+	}
 }
 
 const std::vector<HitMapInfo> & DangerHitMapAnalyzer::getTownThreats(const CGTownInstance * town) const

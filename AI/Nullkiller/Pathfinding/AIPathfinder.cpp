@@ -33,7 +33,7 @@ bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile) con
 		|| storage->isTileAccessible(hero, tile, EPathfindingLayer::SAIL);
 }
 
-std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
+std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile, bool includeGraph) const
 {
 	const TerrainTile * tileInfo = cb->getTile(tile, false);
 
@@ -42,7 +42,19 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
 		return std::vector<AIPath>();
 	}
 
-	return storage->getChainInfo(tile, !tileInfo->isWater());
+	auto info = storage->getChainInfo(tile, !tileInfo->isWater());
+
+	if(includeGraph)
+	{
+		for(auto hero : cb->getHeroesInfo())
+		{
+			auto & graph = heroGraphs.at(hero->id);
+
+			graph.addChainInfo(info, tile, hero, ai);
+		}
+	}
+
+	return info;
 }
 
 void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings)
@@ -71,7 +83,7 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->memory->visitableObjs);
 	}
 
-	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
+	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage, pathfinderSettings.allowBypassObjects);
 
 	logAi->trace("Recalculate paths pass %d", pass++);
 	cb->calculatePaths(config);
@@ -110,6 +122,35 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	} while(storage->increaseHeroChainTurnLimit());
 
 	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+}
+
+void AIPathfinder::updateGraphs(std::map<const CGHeroInstance *, HeroRole> heroes)
+{
+	auto start = std::chrono::high_resolution_clock::now();
+	std::vector<const CGHeroInstance *> heroesVector;
+
+	heroGraphs.clear();
+
+	for(auto hero : heroes)
+	{
+		heroGraphs.emplace(hero.first->id, GraphPaths());
+		heroesVector.push_back(hero.first);
+	}
+
+	parallel_for(blocked_range<size_t>(0, heroesVector.size()), [&](const blocked_range<size_t> & r)
+		{
+			for(auto i = r.begin(); i != r.end(); i++)
+				heroGraphs[heroesVector[i]->id].calculatePaths(heroesVector[i], ai);
+		});
+
+#if NKAI_TRACE_LEVEL >= 2
+	for(auto hero : heroes)
+	{
+		heroGraphs[hero.first->id].dumpToLog();
+	}
+#endif
+
+	logAi->trace("Graph paths updated in %lld", timeElapsed(start));
 }
 
 }

@@ -25,9 +25,13 @@ namespace AIPathfinding
 	private:
 		CPlayerSpecificInfoCallback * cb;
 		std::shared_ptr<AINodeStorage> nodeStorage;
+		bool allowBypassObjects;
 
 	public:
-		AIMovementAfterDestinationRule(CPlayerSpecificInfoCallback * cb, std::shared_ptr<AINodeStorage> nodeStorage);
+		AIMovementAfterDestinationRule(
+			CPlayerSpecificInfoCallback * cb,
+			std::shared_ptr<AINodeStorage> nodeStorage,
+			bool allowBypassObjects);
 
 		virtual void process(
 			const PathNodeInfo & source,

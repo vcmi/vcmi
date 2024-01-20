@@ -179,7 +179,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 
 			const int3 pos = objToVisit->visitablePos();
 
-			auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
+			auto paths = ai->nullkiller->pathfinder->getPathInfo(pos, true);
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
 					
@@ -210,7 +210,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 	{
 		captureObjects(ai->nullkiller->objectClusterizer->getNearbyObjects());
 
-		if(tasks.empty() || ai->nullkiller->getScanDepth() != ScanDepth::SMALL)
+		if(tasks.empty())
 			captureObjects(ai->nullkiller->objectClusterizer->getFarObjects());
 	}
 
