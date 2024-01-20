@@ -352,12 +352,12 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	CCS->curh->set(Cursor::Combat::BLOCKED);
 
 	const SpellID spellID = sc->spellID;
+
+	if(!spellID.hasValue())
+		return;
+
 	const CSpell * spell = spellID.toSpell();
 	auto targetedTile = sc->tile;
-
-	assert(spell);
-	if(!spell)
-		return;
 
 	const AudioPath & castSoundPath = spell->getCastSound();
 
