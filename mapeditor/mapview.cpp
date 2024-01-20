@@ -593,7 +593,7 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
 				controller->discardObject(sc->level);
-				controller->createObject(sc->level, factory->create(templ));
+				controller->createObject(sc->level, factory->create(nullptr, templ));
 			}
 		}
 		

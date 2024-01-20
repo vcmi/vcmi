@@ -69,19 +69,30 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	template <typename T, typename Enable = void>
 	struct ClassObjectCreator
 	{
-		static T *invoke()
+		static T *invoke(IGameCallback *cb)
 		{
-			static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+			static_assert(!std::is_base_of_v<GameCallbackHolder, T>, "Cannot call new upon map objects!");
+			static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
 			return new T();
 		}
 	};
 
 	template<typename T>
-	struct ClassObjectCreator<T, typename std::enable_if<std::is_abstract<T>::value>::type>
+	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_abstract_v<T>>>
 	{
-		static T *invoke()
+		static T *invoke(IGameCallback *cb)
 		{
 			throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
+		}
+	};
+
+	template<typename T>
+	struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCallbackHolder, T> && !std::is_abstract_v<T>>>
+	{
+		static T *invoke(IGameCallback *cb)
+		{
+			static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+			return new T(cb);
 		}
 	};
 
@@ -103,7 +114,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	class IPointerLoader
 	{
 	public:
-		virtual void * loadPtr(CLoaderBase &ar, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+		virtual void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
 		virtual ~IPointerLoader() = default;
 
 		template<typename Type> static IPointerLoader *getApplier(const Type * t = nullptr)
@@ -116,12 +127,12 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	class CPointerLoader : public IPointerLoader
 	{
 	public:
-		void * loadPtr(CLoaderBase &ar, ui32 pid) const override //data is pointer to the ACTUAL POINTER
+		void * loadPtr(CLoaderBase &ar, IGameCallback * cb, ui32 pid) const override //data is pointer to the ACTUAL POINTER
 		{
 			auto & s = static_cast<BinaryDeserializer &>(ar);
 
 			//create new object under pointer
-			Type * ptr = ClassObjectCreator<Type>::invoke(); //does new npT or throws for abstract classes
+			Type * ptr = ClassObjectCreator<Type>::invoke(cb); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
 
 			assert(s.fileVersion != 0);
@@ -141,6 +152,7 @@ public:
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
+	IGameCallback * cb = nullptr;
 	bool smartPointerSerialization;
 	bool saving;
 
@@ -281,7 +293,7 @@ public:
 		{
 			typedef typename std::remove_pointer<T>::type npT;
 			typedef typename std::remove_const<npT>::type ncpT;
-			data = ClassObjectCreator<ncpT>::invoke();
+			data = ClassObjectCreator<ncpT>::invoke(cb);
 			ptrAllocated(data, pid);
 			load(*data);
 		}
@@ -294,7 +306,7 @@ public:
 				data = nullptr;
 				return;
 			}
-			data = static_cast<T>(app->loadPtr(*this, pid));
+			data = static_cast<T>(app->loadPtr(*this, cb, pid));
 		}
 	}
 
@@ -416,26 +428,10 @@ public:
 		ui32 length = readAndCheckLength();
 		data.clear();
 		T1 key;
-		T2 value;
 		for(ui32 i=0;i<length;i++)
 		{
 			load(key);
-			load(value);
-			data.insert(std::pair<T1, T2>(std::move(key), std::move(value)));
-		}
-	}
-	template <typename T1, typename T2>
-	void load(std::multimap<T1, T2> &data)
-	{
-		ui32 length = readAndCheckLength();
-		data.clear();
-		T1 key;
-		T2 value;
-		for(ui32 i = 0; i < length; i++)
-		{
-			load(key);
-			load(value);
-			data.insert(std::pair<T1, T2>(std::move(key), std::move(value)));
+			load(data[key]);
 		}
 	}
 	void load(std::string &data)

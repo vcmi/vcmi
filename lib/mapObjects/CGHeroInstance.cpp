@@ -33,6 +33,7 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../modding/ModScope.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -274,7 +275,9 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 	return ti->valOfBonuses(BonusType::MOVEMENT, onLand ? BonusCustomSubtype::heroMovementLand : BonusCustomSubtype::heroMovementSea);
 }
 
-CGHeroInstance::CGHeroInstance():
+CGHeroInstance::CGHeroInstance(IGameCallback * cb)
+	: CArmedInstance(cb),
+	type(nullptr),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),
@@ -316,7 +319,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
 	if(!type)
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 
 	if (ID == Obj::HERO)
 		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
@@ -590,11 +593,11 @@ void CGHeroInstance::pickRandomObject(CRandomGenerator & rand)
 	{
 		ID = Obj::HERO;
 		subID = cb->gameState()->pickNextHeroType(getOwner());
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 		randomizeArmy(type->heroClass->faction);
 	}
 	else
-		type = VLC->heroh->objects[getHeroType().getNum()];
+		type = getHeroType().toHeroType();
 
 	auto oldSubID = subID;
 
@@ -789,7 +792,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = IObjectInterface::cb->isAllowed(spell->getId());
+	const bool isAllowed = cb->isAllowed(spell->getId());
 
 	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
 	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
@@ -853,7 +856,7 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
 		return false;//creature abilities can not be learned
 	}
 
-	if(!allowBanned && !IObjectInterface::cb->isAllowed(spell->getId()))
+	if(!allowBanned && !cb->isAllowed(spell->getId()))
 	{
 		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getNameTranslated());
 		return false;//banned spells should not be learned
@@ -879,7 +882,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double necromancySkill = valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE) / 100.0;
 		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
-		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
+		const std::map<CreatureID,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
@@ -888,7 +891,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, VLC->creatures()->getByIndex(casualty.first)->getLevel());
+				vstd::amax(maxCasualtyLevel, VLC->creatures()->getById(casualty.first)->getLevel());
 			// pick best bonus available
 			std::shared_ptr<Bonus> topPick;
 			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
@@ -936,7 +939,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double raisedUnits = 0;
 		for(const auto & casualty : casualties)
 		{
-			const CCreature * c = VLC->creh->objects[casualty.first];
+			const CCreature * c = casualty.first.toCreature();
 			double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
 			if(c->getLevel() < requiredCasualtyLevel)
 				raisedFromCasualty *= 0.5;
@@ -1258,7 +1261,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 {
 	if(static_cast<int>(movement) < movementPointsLimit(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
-	if(!VLC->arth->objects[ArtifactID::GRAIL]->canBePutAt(this))
+	if(ArtifactID(ArtifactID::GRAIL).toArtifact()->canBePutAt(this))
 		return EDiggingStatus::BACKPACK_IS_FULL;
 	return cb->getTileDigStatus(visitablePos());
 }
@@ -1409,7 +1412,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
-		auto skill = getBonusLocalFirst(Selector::type()(BonusType::PRIMARY_SKILL)
+		auto skill = getLocalBonus(Selector::type()(BonusType::PRIMARY_SKILL)
 			.And(Selector::subtype()(BonusSubtypeID(primarySkill)))
 			.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 		assert(skill);
@@ -1742,7 +1745,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(!appearance)
 			{
 				// crossoverDeserialize
-				type = VLC->heroh->objects[getHeroType().getNum()];
+				type = getHeroType().toHeroType();
 				appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			}
 
@@ -1760,7 +1763,7 @@ void CGHeroInstance::serializeJsonDefinition(JsonSerializeFormat & handler)
 
 bool CGHeroInstance::isMissionCritical() const
 {
-	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
+	for(const TriggeredEvent & event : cb->getMapHeader()->triggeredEvents)
 	{
 		if (event.effect.type != EventEffect::DEFEAT)
 			continue;

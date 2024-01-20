@@ -19,6 +19,16 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+CGTownBuilding::CGTownBuilding(IGameCallback * cb)
+	: IObjectInterface(cb)
+	, town(nullptr)
+{}
+
+CGTownBuilding::CGTownBuilding(CGTownInstance * town)
+	: IObjectInterface(town->cb)
+	, town(town)
+{}
+
 PlayerColor CGTownBuilding::getOwner() const
 {
 	return town->getOwner();
@@ -111,12 +121,15 @@ std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
 	return greeting;
 }
 
+COPWBonus::COPWBonus(IGameCallback *cb)
+	: CGTownBuilding(cb)
+{}
 
 COPWBonus::COPWBonus(const BuildingID & bid, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
+	: CGTownBuilding(cgTown)
 {
 	bID = bid;
 	bType = subId;
-	town = cgTown;
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 }
 
@@ -175,11 +188,15 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 	}
 }
 
+CTownBonus::CTownBonus(IGameCallback *cb)
+	: CGTownBuilding(cb)
+{}
+
 CTownBonus::CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
+	: CGTownBuilding(cgTown)
 {
 	bID = index;
 	bType = subId;
-	town = cgTown;
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 }
 
@@ -286,11 +303,15 @@ void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) con
 		town->addHeroToStructureVisitors(h, indexOnTV);
 }
 
+CTownRewardableBuilding::CTownRewardableBuilding(IGameCallback *cb)
+	: CGTownBuilding(cb)
+{}
+
 CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown, CRandomGenerator & rand)
+	: CGTownBuilding(cgTown)
 {
 	bID = index;
 	bType = subId;
-	town = cgTown;
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 	initObj(rand);
 }
@@ -301,7 +322,7 @@ void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 
 	auto building = town->town->buildings.at(bID);
 
-	building->rewardableObjectInfo.configureObject(configuration, rand);
+	building->rewardableObjectInfo.configureObject(configuration, rand, cb);
 	for(auto & rewardInfo : configuration.info)
 	{
 		for (auto & bonus : rewardInfo.reward.bonuses)

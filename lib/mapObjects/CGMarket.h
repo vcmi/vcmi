@@ -25,7 +25,7 @@ public:
 	std::string title;
 	std::string speech; //currently shown only in university
 	
-	CGMarket();
+	CGMarket(IGameCallback *cb);
 	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
 	void initObj(CRandomGenerator & rand) override;//set skills for trade
@@ -49,6 +49,8 @@ public:
 class DLL_LINKAGE CGBlackMarket : public CGMarket
 {
 public:
+	using CGMarket::CGMarket;
+
 	std::vector<const CArtifact *> artifacts; //available artifacts
 
 	void newTurn(CRandomGenerator & rand) const override; //reset artifacts for black market every month
@@ -64,6 +66,8 @@ public:
 class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
+	using CGMarket::CGMarket;
+
 	std::vector<TradeItemBuy> skills; //available skills
 
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;

@@ -22,7 +22,6 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/gameState/CGameState.h"
-#include "../../lib/bonuses/CBonusSystemNode.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"

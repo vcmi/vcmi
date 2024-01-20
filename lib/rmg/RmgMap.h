@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
 class CMapEditManager;
+class CRandomGenerator;
 class TileInfo;
 class CMapGenOptions;
 class Zone;
@@ -33,7 +34,7 @@ public:
 	std::shared_ptr<MapProxy> getMapProxy() const;
 	CMap & getMap(const CMapGenerator *) const; //limited access
 	
-	RmgMap(const CMapGenOptions& mapGenOptions);
+	RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb);
 	~RmgMap() = default;
 
 	CMapEditManager* getEditManager() const;

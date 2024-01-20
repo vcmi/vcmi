@@ -15,39 +15,39 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace Selector
 {
-	DLL_LINKAGE CSelectFieldEqual<BonusType> & type()
+	DLL_LINKAGE const CSelectFieldEqual<BonusType> & type()
 	{
-		static CSelectFieldEqual<BonusType> stype(&Bonus::type);
+		static const CSelectFieldEqual<BonusType> stype(&Bonus::type);
 		return stype;
 	}
 
-	DLL_LINKAGE CSelectFieldEqual<BonusSubtypeID> & subtype()
+	DLL_LINKAGE const CSelectFieldEqual<BonusSubtypeID> & subtype()
 	{
-		static CSelectFieldEqual<BonusSubtypeID> ssubtype(&Bonus::subtype);
+		static const CSelectFieldEqual<BonusSubtypeID> ssubtype(&Bonus::subtype);
 		return ssubtype;
 	}
 
-	DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info()
+	DLL_LINKAGE const CSelectFieldEqual<CAddInfo> & info()
 	{
-		static CSelectFieldEqual<CAddInfo> sinfo(&Bonus::additionalInfo);
+		static const CSelectFieldEqual<CAddInfo> sinfo(&Bonus::additionalInfo);
 		return sinfo;
 	}
 
-	DLL_LINKAGE CSelectFieldEqual<BonusSource> & sourceType()
+	DLL_LINKAGE const CSelectFieldEqual<BonusSource> & sourceType()
 	{
-		static CSelectFieldEqual<BonusSource> ssourceType(&Bonus::source);
+		static const CSelectFieldEqual<BonusSource> ssourceType(&Bonus::source);
 		return ssourceType;
 	}
 
-	DLL_LINKAGE CSelectFieldEqual<BonusSource> & targetSourceType()
+	DLL_LINKAGE const CSelectFieldEqual<BonusSource> & targetSourceType()
 	{
-		static CSelectFieldEqual<BonusSource> ssourceType(&Bonus::targetSourceType);
+		static const CSelectFieldEqual<BonusSource> ssourceType(&Bonus::targetSourceType);
 		return ssourceType;
 	}
 
-	DLL_LINKAGE CSelectFieldEqual<BonusLimitEffect> & effectRange()
+	DLL_LINKAGE const CSelectFieldEqual<BonusLimitEffect> & effectRange()
 	{
-		static CSelectFieldEqual<BonusLimitEffect> seffectRange(&Bonus::effectRange);
+		static const CSelectFieldEqual<BonusLimitEffect> seffectRange(&Bonus::effectRange);
 		return seffectRange;
 	}
 

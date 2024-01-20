@@ -49,6 +49,8 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/networkPacks/StackLocation.h"
 #include "../lib/pathfinder/CPathfinder.h"
@@ -511,7 +513,6 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, turnTimerHandler(*this)
 {
 	QID = 1;
-	IObjectInterface::cb = this;
 	applier = std::make_shared<CApplier<CBaseForGHApply>>();
 	registerTypesServerPacks(*applier);
 
@@ -541,7 +542,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	}
 	CMapService mapService;
 	gs = new CGameState();
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
@@ -826,7 +827,7 @@ void CGameHandler::onNewTurn()
 				if (!t->creatures.at(k).second.empty()) // there are creatures at this level
 				{
 					ui32 &availableCount = sac.creatures.at(k).first;
-					const CCreature *cre = VLC->creh->objects.at(t->creatures.at(k).second.back());
+					const CCreature *cre = t->creatures.at(k).second.back().toCreature();
 
 					if (n.specialWeek == NewTurn::PLAGUE)
 						availableCount = t->creatures.at(k).first / 2; //halve their number, no growth
@@ -885,7 +886,7 @@ void CGameHandler::onNewTurn()
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
-					changeFogOfWar(t->visitablePos(), t->getBonusLocalFirst(Selector::type()(BonusType::DARKNESS))->val, player.first, ETileVisibility::HIDDEN);
+					changeFogOfWar(t->visitablePos(), t->getFirstBonus(Selector::type()(BonusType::DARKNESS))->val, player.first, ETileVisibility::HIDDEN);
 			}
 		}
 	}
@@ -1799,6 +1800,7 @@ bool CGameHandler::load(const std::string & filename)
 	{
 		{
 			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			lf.serializer.cb = this;
 			loadCommonState(lf);
 			logGlobal->info("Loading server state");
 			lf >> *this;
@@ -1838,7 +1840,7 @@ bool CGameHandler::load(const std::string & filename)
 		lobby->announceMessage(std::string("Failed to load game: ") + e.what());
 		return false;
 	}
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	gs->updateOnLoad(lobby->si.get());
 	return true;
 }
@@ -2327,7 +2329,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 				return;
 			}
 
-			CCreature * crea = VLC->creh->objects.at(t->town->creatures.at(level).at(upgradeNumber));
+			const CCreature * crea = t->town->creatures.at(level).at(upgradeNumber).toCreature();
 
 			SetAvailableCreatures ssi;
 			ssi.tid = t->id;
@@ -2461,7 +2463,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(getObj(objid));
 	const CArmedInstance * army = dynamic_cast<const CArmedInstance *>(getObj(dstid));
 	const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(getObj(dstid));
-	const CCreature * c = VLC->creh->objects.at(crid);
+	const CCreature * c = crid.toCreature();
 
 	const bool warMachine = c->warMachine != ArtifactID::NONE;
 
@@ -2568,7 +2570,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	giveResources(player, -totalCost);
 
 	//upgrade creature
-	changeStackType(StackLocation(obj, pos), VLC->creh->objects.at(upgID));
+	changeStackType(StackLocation(obj, pos), upgID.toCreature());
 	return true;
 }
 
@@ -2756,7 +2758,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 
 	auto hero = getHero(dst.artHolder);
 	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dstSlot))
-		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
 
 	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
 	if(src.artHolder != dst.artHolder)
@@ -2795,7 +2797,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 
 			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
-				giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+				giveHeroNewArtifact(dstHero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
 		}
 	};
 
@@ -2883,7 +2885,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 	const auto dstLoc = ArtifactLocation(hero->id, artifactSlot);
 	if(assemble)
 	{
-		CArtifact * combinedArt = VLC->arth->objects[assembleTo];
+		const CArtifact * combinedArt = assembleTo.toArtifact();
 		if(!combinedArt->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
 		if(!vstd::contains(ArtifactUtils::assemblyPossibilities(hero, destArtifact->getTypeId()), combinedArt))
@@ -2897,7 +2899,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		}
 		
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
-			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+			giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;
 		aa.al = dstLoc;
@@ -2954,7 +2956,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 			return false;
 
 		giveResource(hero->getOwner(),EGameResID::GOLD,-GameConstants::SPELLBOOK_GOLD_COST);
-		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		giveHeroNewArtifact(hero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
 		assert(hero->getArt(ArtifactPosition::SPELLBOOK));
 		giveSpells(town,hero);
 		return true;
@@ -3000,7 +3002,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	if(dynamic_cast<const CGTownInstance *>(m))
 	{
 		saa.id = ObjectInstanceID::NONE;
-		saa.arts = CGTownInstance::merchantArtifacts;
+		saa.arts = gs->map->townMerchantArtifacts;
 	}
 	else if(const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m)) //black market
 	{
@@ -3025,7 +3027,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 		COMPLAIN_RET("Cannot find selected artifact on the list");
 
 	sendAndApply(&saa);
-	giveHeroNewArtifact(h, VLC->arth->objects[aid], ArtifactPosition::FIRST_AVAILABLE);
+	giveHeroNewArtifact(h, aid.toArtifact(), ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
 
@@ -4080,7 +4082,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 
 	RandomGeneratorUtil::randomShuffle(tiles, getRandomGenerator());
 	logGlobal->trace("Spawning wandering monsters. Found %d free tiles. Creature type: %d", tiles.size(), creatureID.num);
-	const CCreature *cre = VLC->creh->objects.at(creatureID);
+	const CCreature *cre = creatureID.toCreature();
 	for (int i = 0; i < (int)amount; ++i)
 	{
 		tile = tiles.begin();

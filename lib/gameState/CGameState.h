@@ -97,10 +97,12 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
+	IGameCallback * callback;
+
 	CGameState();
 	virtual ~CGameState();
 
-	void preInit(Services * services);
+	void preInit(Services * services, IGameCallback * callback);
 
 	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(StartInfo * si);
@@ -193,7 +195,6 @@ public:
 
 private:
 	// ----- initialization -----
-	void preInitAuto();
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
 	void checkMapChecksum();
 	void initGlobalBonuses();

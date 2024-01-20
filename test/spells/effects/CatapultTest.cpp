@@ -50,7 +50,7 @@ TEST_F(CatapultTest, NotApplicableWithoutTown)
 
 TEST_F(CatapultTest, NotApplicableInVillage)
 {
-	auto fakeTown = std::make_shared<CGTownInstance>();
+	auto fakeTown = std::make_shared<CGTownInstance>(nullptr);
 
 	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).WillOnce(Return(false));
@@ -62,7 +62,7 @@ TEST_F(CatapultTest, NotApplicableInVillage)
 
 TEST_F(CatapultTest, NotApplicableForDefenderIfSmart)
 {
-	auto fakeTown = std::make_shared<CGTownInstance>();
+	auto fakeTown = std::make_shared<CGTownInstance>(nullptr);
 	fakeTown->builtBuildings.insert(BuildingID::FORT);
 	mechanicsMock.casterSide = BattleSide::DEFENDER;
 
@@ -76,7 +76,7 @@ TEST_F(CatapultTest, NotApplicableForDefenderIfSmart)
 
 TEST_F(CatapultTest, DISABLED_ApplicableInTown)
 {
-	auto fakeTown = std::make_shared<CGTownInstance>();
+	auto fakeTown = std::make_shared<CGTownInstance>(nullptr);
 	fakeTown->builtBuildings.insert(BuildingID::FORT);
 
 	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(fakeTown.get()));
@@ -106,7 +106,7 @@ protected:
 	void SetUp() override
 	{
 		EffectFixture::setUp();
-		fakeTown = std::make_shared<CGTownInstance>();
+		fakeTown = std::make_shared<CGTownInstance>(nullptr);
 		fakeTown->builtBuildings.insert(BuildingID::FORT);
 	}
 private:

@@ -27,7 +27,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	void doVisit(const CGHeroInstance * hero) const;
 
 public:
-	CBank();
+	CBank(IGameCallback *cb);
 	~CBank() override;
 
 	void setConfig(const BankConfig & bc);

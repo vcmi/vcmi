@@ -79,9 +79,9 @@ void ObjectDistributor::distributeLimitedObjects()
 					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
 					{
-						oi.generateObject = [primaryID, secondaryID]() -> CGObjectInstance *
+						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]() -> CGObjectInstance *
 						{
-							return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create();
+							return VLC->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);
 						};
 						
 						oi.value = rmgInfo.value;

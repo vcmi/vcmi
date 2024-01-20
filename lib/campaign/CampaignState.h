@@ -27,6 +27,7 @@ class CMapHeader;
 class CMapInfo;
 class JsonNode;
 class Point;
+class IGameCallback;
 
 class DLL_LINKAGE CampaignRegions
 {
@@ -277,7 +278,7 @@ public:
 	/// Returns true if all available scenarios have been completed and campaign is finished
 	bool isCampaignFinished() const;
 
-	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId) const;
+	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameCallback * cb) const;
 	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
 	std::shared_ptr<CMapInfo> getMapInfo(CampaignScenarioID scenarioId) const;
 
@@ -298,8 +299,8 @@ public:
 	/// May return empty JsonNode if such hero was not found
 	const JsonNode & getHeroByType(HeroTypeID heroID) const;
 
-	static JsonNode crossoverSerialize(CGHeroInstance * hero);
-	static CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map);
+	JsonNode crossoverSerialize(CGHeroInstance * hero) const;
+	CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map) const;
 
 	std::string campaignSet;
 

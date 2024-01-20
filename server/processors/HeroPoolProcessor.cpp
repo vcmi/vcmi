@@ -247,13 +247,13 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
 
-	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		if (vstd::contains(result, elem.second->type->heroClass))
 			continue;
 
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, player);
-		bool heroClassBanned = elem.second->type->heroClass->selectionProbability[factionID] == 0;
+		bool heroClassBanned = elem.second->type->heroClass->tavernProbability(factionID) == 0;
 
 		if(heroAvailable && !heroClassBanned)
 			result.push_back(elem.second->type->heroClass);
@@ -268,7 +268,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 
 	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 
-	for(auto & elem : heroesPool->unusedHeroesFromPool())
+	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		assert(!vstd::contains(result, elem.second));
 
@@ -326,13 +326,13 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 
 	int totalWeight = 0;
 	for(const auto & heroClass : possibleClasses)
-		totalWeight += heroClass->selectionProbability.at(factionID);
+		totalWeight += heroClass->tavernProbability(factionID);
 
 	int roll = getRandomGenerator(player).nextInt(totalWeight - 1);
 
 	for(const auto & heroClass : possibleClasses)
 	{
-		roll -= heroClass->selectionProbability.at(factionID);
+		roll -= heroClass->tavernProbability(factionID);
 		if(roll < 0)
 			return heroClass;
 	}

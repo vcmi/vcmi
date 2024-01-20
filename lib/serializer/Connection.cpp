@@ -11,6 +11,7 @@
 #include "Connection.h"
 
 #include "../networkPacks/NetPacksBase.h"
+#include "../gameState/CGameState.h"
 
 #include <boost/asio.hpp>
 
@@ -342,6 +343,7 @@ void CConnection::enterGameplayConnectionMode(CGameState * gs)
 	enableStackSendingByID();
 	disableSmartPointerSerialization();
 	addStdVecItems(gs);
+	iser.cb = gs->callback;
 }
 
 void CConnection::disableSmartVectorMemberSerialization()

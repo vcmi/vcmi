@@ -34,6 +34,9 @@
 #include "TerrainHandler.h"
 #include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
+#include "mapObjects/CGTownInstance.h"
+#include "mapObjects/CQuest.h"
+#include "mapObjects/MiscObjects.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "campaign/CampaignState.h"
@@ -1497,7 +1500,7 @@ void NewObject::applyGs(CGameState *gs)
 
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
 
-	CGObjectInstance * o = handler->create();
+	CGObjectInstance * o = handler->create(gs->callback, nullptr);
 	handler->configureObject(o, gs->getRandomGenerator());
 	assert(o->ID == this->ID);
 	
@@ -1990,7 +1993,7 @@ void SetAvailableArtifacts::applyGs(CGameState * gs) const
 	}
 	else
 	{
-		CGTownInstance::merchantArtifacts = arts;
+		gs->map->townMerchantArtifacts = arts;
 	}
 }
 
@@ -2144,7 +2147,7 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 	}
 	case BonusType::POISON:
 	{
-		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID(SpellID::POISON))
+		auto b = st->getLocalBonus(Selector::source(BonusSource::SPELL_EFFECT, SpellID(SpellID::POISON))
 				.And(Selector::type()(BonusType::STACK_HEALTH)));
 		if (b)
 			b->val = val;

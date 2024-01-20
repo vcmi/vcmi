@@ -95,6 +95,10 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
+	/// temporary helper member that exists while game in lobby mode
+	/// required to correctly deserialize gamestate using client-side game callback
+	std::unique_ptr<CClient> nextClient;
+
 	void threadHandleConnection();
 	void threadRunServer();
 	void onServerFinished();
@@ -116,13 +120,14 @@ public:
 	std::shared_ptr<boost::thread> threadRunLocalServer;
 
 	std::shared_ptr<CConnection> c;
-	CClient * client;
+	std::unique_ptr<CClient> client;
 
 	CondSh<bool> campaignServerRestartLock;
 
 	static const std::string localhostAddress;
 
 	CServerHandler();
+	~CServerHandler();
 	
 	std::string getHostAddress() const;
 	ui16 getHostPort() const;

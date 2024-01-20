@@ -16,6 +16,7 @@
 #include "../campaign/CampaignState.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
 #include "../networkPacks/ArtifactLocation.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -90,7 +91,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 					.And(Selector::subtype()(BonusSubtypeID(g)))
 					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
-				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g.getNum()];
+				cgh->getLocalBonus(sel)->val = cgh->type->heroClass->primarySkillInitial[g.getNum()];
 			}
 		}
 	}
@@ -347,7 +348,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders(const std::vector<CampaignHer
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->pos = heroPlaceholder->pos;
-		heroToPlace->type = VLC->heroh->objects[heroToPlace->getHeroType().getNum()];
+		heroToPlace->type = heroToPlace->getHeroType().toHeroType();
 		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, heroToPlace->type->heroClass->getIndex())->getTemplates().front();
 
 		gameState->map->removeBlockVisTiles(heroPlaceholder, true);
@@ -402,7 +403,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 			continue;
 		}
 
-		CGHeroInstance * hero = CampaignState::crossoverDeserialize(node, gameState->map);
+		CGHeroInstance * hero = campaignState->crossoverDeserialize(node, gameState->map);
 
 		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
@@ -427,7 +428,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 			if (nodeListIter == nodeList.end())
 				break;
 
-			CGHeroInstance * hero = CampaignState::crossoverDeserialize(*nodeListIter, gameState->map);
+			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map);
 			nodeListIter++;
 
 			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
@@ -599,7 +600,7 @@ bool CGameStateCampaign::playerHasStartingHero(PlayerColor playerColor) const
 
 std::unique_ptr<CMap> CGameStateCampaign::getCurrentMap() const
 {
-	return gameState->scenarioOps->campState->getMap(CampaignScenarioID::NONE);
+	return gameState->scenarioOps->campState->getMap(CampaignScenarioID::NONE, gameState->callback);
 }
 
 VCMI_LIB_NAMESPACE_END

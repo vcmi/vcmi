@@ -139,14 +139,10 @@ CClient::CClient()
 	waitingRequest.clear();
 	applier = std::make_shared<CApplier<CBaseForCLApply>>();
 	registerTypesClientPacks(*applier);
-	IObjectInterface::cb = this;
 	gs = nullptr;
 }
 
-CClient::~CClient()
-{
-	IObjectInterface::cb = nullptr;
-}
+CClient::~CClient() = default;
 
 const Services * CClient::services() const
 {
@@ -177,8 +173,9 @@ void CClient::newGame(CGameState * initializedGameState)
 {
 	CSH->th->update();
 	CMapService mapService;
-	gs = initializedGameState ? initializedGameState : new CGameState();
-	gs->preInit(VLC);
+	assert(initializedGameState);
+	gs = initializedGameState;
+	gs->preInit(VLC, this);
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
 	if(!initializedGameState)
 	{
@@ -200,7 +197,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gs = initializedGameState;
 
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	gs->updateOnLoad(CSH->si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
 
@@ -370,7 +367,7 @@ void CClient::endGame()
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
-		vstd::clear_pointer(const_cast<CGameInfo *>(CGI)->mh);
+		CGI->mh.reset();
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
@@ -392,7 +389,7 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler(gs->map);
+		CGI->mh = std::make_shared<CMapHandler>(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
 	}
 

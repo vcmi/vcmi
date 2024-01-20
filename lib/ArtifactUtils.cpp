@@ -187,14 +187,14 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & sid)
 {
-	auto ret = new CArtifactInstance(VLC->arth->objects[ArtifactID::SPELL_SCROLL]);
+	auto ret = new CArtifactInstance(ArtifactID(ArtifactID::SPELL_SCROLL).toArtifact());
 	auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
 		BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(sid));
 	ret->addNewBonus(bonus);
 	return ret;
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifact * art)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const CArtifact * art)
 {
 	assert(art);
 
@@ -216,7 +216,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifa
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const ArtifactID & aid)
 {
-	return ArtifactUtils::createNewArtifactInstance((*VLC->arth)[aid]);
+	return ArtifactUtils::createNewArtifactInstance(aid.toArtifact());
 }
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)

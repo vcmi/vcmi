@@ -36,6 +36,8 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CQuest.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
@@ -97,7 +99,7 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	for(const HeroTypeID & hid : getUnusedAllowedHeroes())
 	{
-		if(VLC->heroh->objects[hid.getNum()]->heroClass->faction == ps.castle)
+		if(hid.toHeroType()->heroClass->faction == ps.castle)
 			factionHeroes.push_back(hid);
 		else
 			otherHeroes.push_back(hid);
@@ -169,14 +171,16 @@ CGameState::~CGameState()
 	initialOpts.dellNull();
 }
 
-void CGameState::preInit(Services * services)
+void CGameState::preInit(Services * newServices, IGameCallback * newCallback)
 {
-	this->services = services;
+	services = newServices;
+	callback = newCallback;
 }
 
 void CGameState::init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator & progressTracking, bool allowSavingRandomMap)
 {
-	preInitAuto();
+	assert(services);
+	assert(callback);
 	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
 	getRandomGenerator().setSeed(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
@@ -224,7 +228,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 
 	for(auto & elem : teams)
 	{
-		CGObelisk::visited[elem.first] = 0;
+		map->obelisksVisited[elem.first] = 0;
 	}
 
 	logGlobal->debug("\tChecking objectives");
@@ -284,19 +288,11 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 
 void CGameState::updateOnLoad(StartInfo * si)
 {
-	preInitAuto();
+	assert(services);
+	assert(callback);
 	scenarioOps->playerInfos = si->playerInfos;
 	for(auto & i : si->playerInfos)
 		gs->players[i.first].human = i.second.isControlledByHuman();
-}
-
-void CGameState::preInitAuto()
-{
-	if(services == nullptr)
-	{
-		logGlobal->error("Game state preinit missing");
-		preInit(VLC);
-	}
 }
 
 void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
@@ -307,7 +303,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, scenarioOps->seedToBeUsed);
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, callback, scenarioOps->seedToBeUsed);
 		progressTracking.include(mapGenerator);
 
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
@@ -370,7 +366,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 	{
 		logGlobal->info("Open map file: %s", scenarioOps->mapname);
 		const ResourcePath mapURI(scenarioOps->mapname, EResType::MAP);
-		map = mapService->loadMap(mapURI).release();
+		map = mapService->loadMap(mapURI, callback).release();
 	}
 }
 
@@ -561,7 +557,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	}
 
 	auto handler = VLC->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
-	CGObjectInstance * obj = handler->create(handler->getTemplates().front());
+	CGObjectInstance * obj = handler->create(callback, handler->getTemplates().front());
 	CGHeroInstance * hero = dynamic_cast<CGHeroInstance *>(obj);
 
 	hero->ID = Obj::HERO;
@@ -635,7 +631,7 @@ void CGameState::initHeroes()
 		if (tile.terType->isWater())
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
-			CGBoat * boat = dynamic_cast<CGBoat*>(handler->create());
+			auto boat = dynamic_cast<CGBoat*>(handler->create(callback, nullptr));
 			handler->configureObject(boat, gs->getRandomGenerator());
 
 			boat->pos = hero->pos;
@@ -673,7 +669,7 @@ void CGameState::initHeroes()
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
-		auto * vhi = new CGHeroInstance();
+		auto * vhi = new CGHeroInstance(callback);
 		vhi->initHero(getRandomGenerator(), htype);
 
 		int typeID = htype.getNum();
@@ -772,11 +768,11 @@ void CGameState::initTowns()
 	if (campaign)
 		campaign->initTowns();
 
-	CGTownInstance::universitySkills.clear();
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
-	CGTownInstance::universitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
+	map->townUniversitySkills.clear();
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
+	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
 
 	for (auto & elem : map->towns)
 	{
@@ -936,7 +932,7 @@ void CGameState::initMapObjects()
 			}
 		}
 	}
-	CGSubterraneanGate::postInit(); //pairing subterranean gates
+	CGSubterraneanGate::postInit(callback); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
 }
@@ -1208,7 +1204,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 
 void CGameState::updateRumor()
 {
-	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
 	if(map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
@@ -1722,10 +1718,10 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 3) //obelisks found
 	{
-		auto getObeliskVisited = [](const TeamID & t)
+		auto getObeliskVisited = [&](const TeamID & t)
 		{
-			if(CGObelisk::visited.count(t))
-				return CGObelisk::visited[t];
+			if(map->obelisksVisited.count(t))
+				return map->obelisksVisited[t];
 			else
 				return ui8(0);
 		};
@@ -1926,14 +1922,6 @@ TeamState::TeamState()
 {
 	setNodeType(TEAM);
 	fogOfWarMap = std::make_unique<boost::multi_array<ui8, 3>>();
-}
-
-TeamState::TeamState(TeamState && other) noexcept:
-	CBonusSystemNode(std::move(other)),
-	id(other.id)
-{
-	std::swap(players, other.players);
-	std::swap(fogOfWarMap, other.fogOfWarMap);
 }
 
 CRandomGenerator & CGameState::getRandomGenerator()

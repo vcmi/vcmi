@@ -22,9 +22,12 @@ class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
+	CGTownBuilding(CGTownInstance * town);
+	CGTownBuilding(IGameCallback *cb);
+
 	si32 indexOnTV = 0; //identifies its index on towns vector
 	
-	CGTownInstance * town = nullptr;
+	CGTownInstance * town;
 
 	STRONG_INLINE
 	BuildingSubID::EBuildingSubID getBuildingSubtype() const
@@ -74,7 +77,7 @@ public:
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
 	COPWBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
-	COPWBonus() = default;
+	COPWBonus(IGameCallback *cb);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -93,7 +96,7 @@ public:
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
 	CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
-	CTownBonus() = default;
+	CTownBonus(IGameCallback *cb);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -131,7 +134,7 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	
 	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, CRandomGenerator & rand);
-	CTownRewardableBuilding() = default;
+	CTownRewardableBuilding(IGameCallback *cb);
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

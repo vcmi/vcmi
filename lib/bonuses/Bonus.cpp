@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include "Bonus.h"
-#include "CBonusSystemNode.h"
 #include "Limiters.h"
 #include "Updaters.h"
 #include "Propagators.h"

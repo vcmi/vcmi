@@ -347,7 +347,7 @@ std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
 		
-		return mapService.loadMap(resId);
+		return mapService.loadMap(resId, nullptr);
 	}
 	else
 		throw std::runtime_error("Corrupted map");
@@ -546,7 +546,7 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			}
 			
 			//create object to extract name
-			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
+			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(nullptr, templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
 			itemType->setText(translated);
 			

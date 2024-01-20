@@ -240,7 +240,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		{
 			try
 			{
-				RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
+				RangeGenerator obidgen(0, VLC->obstacleHandler->size() - 1, ourRand);
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
@@ -262,7 +262,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		{
 			while(tilesToBlock > 0)
 			{
-				RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
+				RangeGenerator obidgen(0, VLC->obstacleHandler->size() - 1, ourRand);
 				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const ObstacleInfo &obi = *Obstacle(obid).getInfo();
@@ -1009,7 +1009,7 @@ scripting::Pool * BattleInfo::getContextPool() const
 {
 	//this is real battle, use global scripting context pool
 	//TODO: make this line not ugly
-	return IObjectInterface::cb->getGlobalContextPool();
+	return battleGetFightingHero(0)->cb->getGlobalContextPool();
 }
 #endif
 

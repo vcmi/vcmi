@@ -28,6 +28,8 @@ enum class EHeroGender : uint8_t;
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
 public:
+	using CGObjectInstance::CGObjectInstance;
+
 	/// if this is placeholder by power, then power rank of desired hero
 	std::optional<ui8> powerRank;
 
@@ -69,7 +71,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	ConstTransitivePtr<CHero> type;
+	const CHero * type;
 	TExpType exp; //experience points
 	ui32 level; //current level of hero
 
@@ -249,7 +251,7 @@ public:
 	/// If this hero perishes, the scenario is failed
 	bool isMissionCritical() const;
 
-	CGHeroInstance();
+	CGHeroInstance(IGameCallback *cb);
 	virtual ~CGHeroInstance();
 
 	PlayerColor getOwner() const override;

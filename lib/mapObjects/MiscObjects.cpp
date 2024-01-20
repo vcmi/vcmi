@@ -34,9 +34,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
-std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
-
 ///helpers
 static std::string visitedTxt(const bool visited)
 {
@@ -584,13 +581,13 @@ void CGSubterraneanGate::initObj(CRandomGenerator & rand)
 	type = BOTH;
 }
 
-void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
+void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
 	for(auto & obj : cb->gameState()->map->objects)
 	{
-		if(!obj) // FIXME: Find out why there are nullptr objects right after initialization
+		if(!obj)
 			continue;
 
 		auto * hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
@@ -769,13 +766,13 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 			storedArtifact = a;
 		}
 		if(!storedArtifact->artType)
-			storedArtifact->setType(VLC->arth->objects[getArtifact().getNum()]);
+			storedArtifact->setType(getArtifact().toArtifact());
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
 
 	assert(storedArtifact->artType);
-	assert(storedArtifact->getParentNodes().size());
+	assert(!storedArtifact->getParentNodes().empty());
 
 	//assert(storedArtifact->artType->id == subID); //this does not stop desync
 }
@@ -932,7 +929,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
-		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
+		const auto & b = storedArtifact->getFirstBonus(Selector::type()(BonusType::SPELL));
 		SpellID spellId(b->subtype.as<SpellID>());
 
 		handler.serializeId("spell", spellId, SpellID::NONE);
@@ -1081,7 +1078,8 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 	}
 }
 
-CGBoat::CGBoat()
+CGBoat::CGBoat(IGameCallback * cb)
+	: CGObjectInstance(cb)
 {
 	hero = nullptr;
 	direction = 4;
@@ -1242,13 +1240,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGObelisk::initObj(CRandomGenerator & rand)
 {
-	obeliskCount++;
-}
-
-void CGObelisk::reset()
-{
-	obeliskCount = 0;
-	visited.clear();
+	cb->gameState()->map->obeliskCount++;
 }
 
 std::string CGObelisk::getHoverText(PlayerColor player) const
@@ -1262,12 +1254,12 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	{
 		case ObjProperty::OBELISK_VISITED:
 			{
-				auto progress = ++visited[identifier.as<TeamID>()];
-				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(obeliskCount));
+				auto progress = ++cb->gameState()->map->obelisksVisited[identifier.as<TeamID>()];
+				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(cb->gameState()->map->obeliskCount));
 
-				if(progress > obeliskCount)
+				if(progress > cb->gameState()->map->obeliskCount)
 				{
-					logGlobal->error("Visited %d of %d", static_cast<int>(progress), obeliskCount);
+					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState()->map->obeliskCount);
 					throw std::runtime_error("Player visited more obelisks than present on map!");
 				}
 

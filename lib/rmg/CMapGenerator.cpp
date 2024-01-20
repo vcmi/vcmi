@@ -17,6 +17,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
+#include "../CArtHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../constants/StringConstants.h"
@@ -33,14 +34,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
+CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0)
 {
 	loadConfig();
 	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
-	map = std::make_unique<RmgMap>(mapGenOptions);
+	map = std::make_unique<RmgMap>(mapGenOptions, cb);
 	placer = std::make_shared<CZonePlacer>(*map);
 }
 

@@ -17,6 +17,7 @@
 #include "../CMapGenerator.h"
 #include "../threadpool/MapProxy.h"
 #include "../../mapping/CMapEditManager.h"
+#include "../../mapObjects/CGObjectInstance.h"
 #include "../../modding/IdentifierStorage.h"
 #include "../../modding/ModScope.h"
 #include "../../TerrainHandler.h"

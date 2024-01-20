@@ -151,6 +151,16 @@ std::string HeroClassID::entityType()
 	return "heroClass";
 }
 
+const CHeroClass * HeroClassID::toHeroClass() const
+{
+	return dynamic_cast<const CHeroClass*>(toEntity(VLC));
+}
+
+const HeroClass * HeroClassID::toEntity(const Services * services) const
+{
+	return services->heroClasses()->getByIndex(num);
+}
+
 si32 ObjectInstanceID::decode(const std::string & identifier)
 {
 	return std::stoi(identifier);

@@ -102,7 +102,7 @@ void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 
 void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, CRandomGenerator & rng) const
 {
-	auto templ = getOverride(CGObjectInstance::cb->getTile(object->pos)->terType->getId(), object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->terType->getId(), object);
 	if(templ)
 		object->appearance = templ;
 }
@@ -122,7 +122,7 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 	VLC->identifiers()->requestIdentifier(
 		"heroClass",
 		input["heroClass"],
-		[&](si32 index) { heroClass = VLC->heroh->classes[index]; });
+		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
 
 	filtersJson = input["filters"];
 }
@@ -224,7 +224,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	speech = input["speech"].String();
 }
 
-CGMarket * MarketInstanceConstructor::createObject() const
+CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 {
 	if(marketModes.size() == 1)
 	{
@@ -232,13 +232,13 @@ CGMarket * MarketInstanceConstructor::createObject() const
 		{
 			case EMarketMode::ARTIFACT_RESOURCE:
 			case EMarketMode::RESOURCE_ARTIFACT:
-				return new CGBlackMarket;
+				return new CGBlackMarket(cb);
 
 			case EMarketMode::RESOURCE_SKILL:
-				return new CGUniversity;
+				return new CGUniversity(cb);
 		}
 	}
-	return new CGMarket;
+	return new CGMarket(cb);
 }
 
 void MarketInstanceConstructor::initializeObject(CGMarket * market) const
@@ -256,11 +256,12 @@ void MarketInstanceConstructor::initializeObject(CGMarket * market) const
 
 void MarketInstanceConstructor::randomizeObject(CGMarket * object, CRandomGenerator & rng) const
 {
+	JsonRandom randomizer(object->cb);
 	JsonRandom::Variables emptyVariables;
 
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{
-		for(auto skill : JsonRandom::loadSecondaries(predefinedOffer, rng, emptyVariables))
+		for(auto skill : randomizer.loadSecondaries(predefinedOffer, rng, emptyVariables))
 			university->skills.push_back(skill.first);
 	}
 }
