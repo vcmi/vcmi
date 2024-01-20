@@ -319,10 +319,8 @@
 
 	"vcmi.optionsTab.cheatAllowed.hover" : "Allow cheats",
 	"vcmi.optionsTab.unlimitedReplay.hover" : "Unlimited battle replay",
-	"vcmi.optionsTab.inviteHero.hover" : "Invite hero",
 	"vcmi.optionsTab.cheatAllowed.help" : "{Allow cheats}\nAllows the inputs of cheats during the game.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Unlimited battle replay}\nNo limit of replaying battles.",
-	"vcmi.optionsTab.inviteHero.help" : "{Invite hero}\nPossibility to invite hero in the tavern.",
 
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
