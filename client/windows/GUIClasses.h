@@ -36,6 +36,8 @@ class CTextBox;
 class CGarrisonInt;
 class CGarrisonSlot;
 class CHeroArea;
+class CAnimImage;
+class CFilledTexture;
 
 enum class EUserEvent;
 
@@ -221,6 +223,21 @@ public:
 		std::shared_ptr<CAnimImage> portrait;
 	};
 
+	class HeroSelector : public CWindowObject
+	{
+	public:
+		std::shared_ptr<CFilledTexture> background;
+
+		HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose);
+
+	private:
+		std::map<HeroTypeID, CGHeroInstance*> inviteableHeroes;
+		std::function<void(CGHeroInstance*)> onChoose;
+
+		std::vector<std::shared_ptr<CAnimImage>> portraits;
+		std::vector<std::shared_ptr<LRClickableArea>> portraitAreas;
+	};
+
 	//recruitable heroes
 	std::shared_ptr<HeroPortrait> h1;
 	std::shared_ptr<HeroPortrait> h2; //recruitable heroes
@@ -240,6 +257,13 @@ public:
 	std::shared_ptr<CTextBox> heroDescription;
 
 	std::shared_ptr<CTextBox> rumor;
+	
+	std::shared_ptr<CLabel> inviteHero;
+	std::shared_ptr<CAnimImage> inviteHeroImage;
+	std::shared_ptr<LRClickableArea> inviteHeroImageArea;
+	std::map<HeroTypeID, CGHeroInstance*> inviteableHeroes;
+	CGHeroInstance* heroToInvite;
+	void addInvite();
 
 	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
 	~CTavernWindow();

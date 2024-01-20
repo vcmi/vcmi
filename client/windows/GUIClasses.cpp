@@ -446,7 +446,8 @@ CLevelWindow::~CLevelWindow()
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed)
 	: CStatusbarWindow(PLAYER_COLORED, ImagePath::builtin("TPTAVERN")),
 	onWindowClosed(onWindowClosed),
-	tavernObj(TavernObj)
+	tavernObj(TavernObj),
+	heroToInvite(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -510,6 +511,34 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		CCS->videoh->open(townObj->town->clientInfo.tavernVideo);
 	else
 		CCS->videoh->open(VideoPath::builtin("TAVERN.BIK"));
+
+	addInvite();
+}
+
+void CTavernWindow::addInvite()
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	if(CSH->client->getStartInfo()->extraOptionsInfo.inviteHero)
+	{
+		const auto & heroesPool = CSH->client->gameState()->heroesPool;
+		for(auto & elem : heroesPool->unusedHeroesFromPool())
+		{
+			bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
+			if(heroAvailable)
+				inviteableHeroes[elem.first] = elem.second;
+		}
+
+		if(inviteableHeroes.size() > 0)
+		{
+			if(!heroToInvite)
+				heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
+
+			inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
+			inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[heroToInvite->getHeroType()]->imageIndex, 0, 245, 428);
+			inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [&](){ GH.windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [&](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [&](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
+		}
+	}
 }
 
 void CTavernWindow::recruitb()
@@ -517,17 +546,7 @@ void CTavernWindow::recruitb()
 	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
 	const CGObjectInstance *obj = tavernObj;
 
-	const auto & heroesPool = CSH->client->gameState()->heroesPool;
-	HeroTypeID nextHero = HeroTypeID::NONE;
-
-	for(auto & elem : heroesPool->unusedHeroesFromPool())
-	{
-		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
-		if(heroAvailable && elem.second->getNameTranslated() == "Sir Mullich")
-			nextHero = elem.first;
-	}
-
-	LOCPLINT->cb->recruitHero(obj, toBuy, nextHero);
+	LOCPLINT->cb->recruitHero(obj, toBuy, heroToInvite ? heroToInvite->getHeroType() : HeroTypeID::NONE);
 	close();
 }
 
@@ -634,6 +653,32 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 		GH.statusbar()->write(hoverName);
 	else
 		GH.statusbar()->clear();
+}
+
+CTavernWindow::HeroSelector::HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose)
+	: CWindowObject(BORDERED), inviteableHeroes(InviteableHeroes), onChoose(OnChoose)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	pos = Rect(0, 0, 16 * 48, (inviteableHeroes.size() / 16 + (inviteableHeroes.size() % 16 != 0)) * 32);
+	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
+
+	int x = 0, y = 0;
+	for(auto & h : inviteableHeroes)
+	{
+		portraits.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[h.first]->imageIndex, 0, x * 48, y * 32));
+		portraitAreas.push_back(std::make_shared<LRClickableArea>(Rect(x * 48, y * 32, 48, 32), [&](){ close(); onChoose(inviteableHeroes[h.first]); }, [&](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(inviteableHeroes[h.first])); }));
+
+		if(x > 0 && x % 15 == 0)
+		{
+			x = 0;
+			y++;
+		}
+		else
+			x++;
+	}
+
+	center();
 }
 
 static const std::string QUICK_EXCHANGE_MOD_PREFIX = "quick-exchange";

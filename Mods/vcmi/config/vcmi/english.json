@@ -232,6 +232,8 @@
 	"vcmi.heroWindow.openBackpack.hover" : "Open artifact backpack window",
 	"vcmi.heroWindow.openBackpack.help"  : "Opens window that allows easier artifact backpack management.",
 
+	"vcmi.tavernWindow.inviteHero"  : "Invite hero",
+
 	"vcmi.commanderWindow.artifactMessage" : "Do you want to return this artifact to the hero?",
 
 	"vcmi.creatureWindow.showBonuses.hover"    : "Switch to bonuses view",
