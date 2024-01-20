@@ -11,7 +11,7 @@
 
 #include "CSerializer.h"
 #include "CTypeList.h"
-#include "SerializerVersion.h"
+#include "ESerializationVersion.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

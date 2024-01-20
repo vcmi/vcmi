@@ -10,7 +10,6 @@
 #pragma once
 
 #include "BinaryDeserializer.h"
-#include "SerializerVersion.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -557,7 +557,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/serializer/JsonSerializer.h
 		${MAIN_LIB_DIR}/serializer/JsonUpdater.h
 		${MAIN_LIB_DIR}/serializer/Cast.h
-		${MAIN_LIB_DIR}/serializer/SerializerVersion.h
+		${MAIN_LIB_DIR}/serializer/ESerializationVersion.h
 
 		${MAIN_LIB_DIR}/spells/AbilityCaster.h
 		${MAIN_LIB_DIR}/spells/AdventureSpellMechanics.h
