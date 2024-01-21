@@ -187,11 +187,11 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return std::bind(CMainMenu::openLobby, ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
+					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE);};
 				case 1:
 					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
-					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
+					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE);};
 				case 3:
 					return std::bind(CMainMenu::startTutorial);
 				}
@@ -202,13 +202,14 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::SINGLE);
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE);};
 				case 1:
 					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
-					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN);};
 				case 3:
-					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::TUTORIAL);
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::TUTORIAL);};
+
 				}
 			}
 			break;
@@ -358,10 +359,9 @@ void CMainMenu::update()
 	GH.windows().simpleRedraw();
 }
 
-void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode)
+void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)
 {
-	CSH->resetStateForLobby(screenType == ESelectionScreen::newGame ? StartInfo::NEW_GAME : StartInfo::LOAD_GAME, names);
-	CSH->screenType = screenType;
+	CSH->resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, names);
 	CSH->loadMode = loadMode;
 
 	GH.windows().createAndPushWindow<CSimpleJoinScreen>(host);
@@ -376,8 +376,7 @@ void CMainMenu::openCampaignLobby(const std::string & campaignFileName, std::str
 
 void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 {
-	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
-	CSH->screenType = ESelectionScreen::campaignList;
+	CSH->resetStateForLobby(EStartMode::CAMPAIGN, ESelectionScreen::campaignList, {});
 	CSH->campaignStateToSend = campaign;
 	GH.windows().createAndPushWindow<CSimpleJoinScreen>();
 }
@@ -420,7 +419,7 @@ void CMainMenu::startTutorial()
 		
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->mapInit(tutorialMap.getName());
-	CMainMenu::openLobby(ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
+	CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE);
 	CSH->startMapAfterConnection(mapInfo);
 }
 
@@ -470,10 +469,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 void CMultiMode::openLobby()
 {
 	close();
-	if (CSH->getGlobalLobby().isConnected())
-		GH.windows().pushWindow(CSH->getGlobalLobby().createLobbyWindow());
-	else
-		GH.windows().pushWindow(CSH->getGlobalLobby().createLoginWindow());
+	CSH->getGlobalLobby().activateInterface();
 }
 
 void CMultiMode::hostTCP()
@@ -547,7 +543,7 @@ void CMultiPlayers::enterSelectionScreen()
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = names[0];
 
-	CMainMenu::openLobby(screenType, host, &names, loadMode);
+	CMainMenu::openLobby(screenType, host, names, loadMode);
 }
 
 CSimpleJoinScreen::CSimpleJoinScreen(bool host)

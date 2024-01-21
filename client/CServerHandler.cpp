@@ -126,9 +126,6 @@ public:
 	}
 };
 
-static const std::string NAME_AFFIX = "client";
-static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
-
 CServerHandler::~CServerHandler()
 {
 	networkHandler->stop();
@@ -141,7 +138,8 @@ CServerHandler::CServerHandler()
 	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
 	, client(nullptr)
-	, loadMode(0)
+	, loadMode(ELoadMode::NONE)
+	, screenType(ESelectionScreen::unknown)
 	, campaignStateToSend(nullptr)
 	, campaignServerRestartLock(false)
 {
@@ -158,7 +156,7 @@ void CServerHandler::threadRunNetwork()
 	logGlobal->info("Ending network thread");
 }
 
-void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
+void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, const std::vector<std::string> & names)
 {
 	hostClientId = -1;
 	state = EClientState::NONE;
@@ -169,9 +167,10 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 	playerNames.clear();
 	si->difficulty = 1;
 	si->mode = mode;
+	screenType = screen;
 	myNames.clear();
-	if(names && !names->empty()) //if have custom set of player names - use it
-		myNames = *names;
+	if(!names.empty()) //if have custom set of player names - use it
+		myNames = names;
 	else
 		myNames.push_back(settings["general"]["playerName"].String());
 }
@@ -617,7 +616,7 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	if(client)
 	{
 		lsg.initializedStartInfo = std::make_shared<StartInfo>(* const_cast<StartInfo *>(client->getStartInfo(true)));
-		lsg.initializedStartInfo->mode = StartInfo::NEW_GAME;
+		lsg.initializedStartInfo->mode = EStartMode::NEW_GAME;
 		lsg.initializedStartInfo->seedToBeUsed = lsg.initializedStartInfo->seedPostInit = 0;
 		* si = * lsg.initializedStartInfo;
 	}
@@ -641,13 +640,13 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 
 	switch(si->mode)
 	{
-	case StartInfo::NEW_GAME:
+	case EStartMode::NEW_GAME:
 		client->newGame(gameState);
 		break;
-	case StartInfo::CAMPAIGN:
+	case EStartMode::CAMPAIGN:
 		client->newGame(gameState);
 		break;
-	case StartInfo::LOAD_GAME:
+	case EStartMode::LOAD_GAME:
 		client->loadGame(gameState);
 		break;
 	default:
@@ -765,7 +764,7 @@ int CServerHandler::howManyPlayerInterfaces()
 	return playerInts;
 }
 
-ui8 CServerHandler::getLoadMode()
+ELoadMode CServerHandler::getLoadMode()
 {
 	if(loadMode != ELoadMode::TUTORIAL && state == EClientState::GAMEPLAY)
 	{
@@ -790,15 +789,13 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	auto mapInfo = std::make_shared<CMapInfo>();
 	if(save)
 	{
-		resetStateForLobby(StartInfo::LOAD_GAME);
+		resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, {});
 		mapInfo->saveInit(ResourcePath(filename, EResType::SAVEGAME));
-		screenType = ESelectionScreen::loadGame;
 	}
 	else
 	{
-		resetStateForLobby(StartInfo::NEW_GAME);
+		resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, {});
 		mapInfo->mapInit(filename);
-		screenType = ESelectionScreen::newGame;
 	}
 	if(settings["session"]["donotstartserver"].Bool())
 		connectToServer(getLocalHostname(), getLocalPort());

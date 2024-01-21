@@ -125,17 +125,15 @@ void GlobalLobbyServerSetup::onGameModeChanged(int value)
 void GlobalLobbyServerSetup::onCreate()
 {
 	if(toggleGameMode->getSelected() == 0)
-	{
-		CSH->resetStateForLobby(StartInfo::NEW_GAME, nullptr);
-		CSH->screenType = ESelectionScreen::newGame;
-	}
+		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, {});
 	else
-	{
-		CSH->resetStateForLobby(StartInfo::LOAD_GAME, nullptr);
-		CSH->screenType = ESelectionScreen::loadGame;
-	}
+		CSH->resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, {});
+
 	CSH->loadMode = ELoadMode::MULTI;
 	CSH->startLocalServerAndConnect(true);
+
+	buttonCreate->block(true);
+	buttonClose->block(true);
 }
 
 void GlobalLobbyServerSetup::onClose()

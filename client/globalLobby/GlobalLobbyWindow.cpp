@@ -19,6 +19,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/ObjectLists.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/MetaString.h"
@@ -59,6 +60,16 @@ void GlobalLobbyWindow::doCreateGameRoom()
 	// client requests to change room status to private or public
 }
 
+void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)
+{
+
+}
+
+void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
+{
+
+}
+
 void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)
 {
 	MetaString chatMessageFormatted;
@@ -70,4 +81,14 @@ void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std:
 	chatHistory += chatMessageFormatted.toString();
 
 	widget->getGameChat()->setText(chatHistory);
+}
+
+void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts)
+{
+	widget->getAccountList()->reset();
+}
+
+void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms)
+{
+	widget->getRoomList()->reset();
 }

@@ -16,6 +16,8 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/ShortcutHandler.h"
+#include "../CServerHandler.h"
+#include "../globalLobby/GlobalLobbyClient.h"
 
 #include <SDL_clipboard.h>
 #include <SDL_events.h>
@@ -31,6 +33,8 @@ InputSourceKeyboard::InputSourceKeyboard()
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
+	assert(key.state == SDL_PRESSED);
+
 	if (SDL_IsTextInputActive() == SDL_TRUE)
 	{
 		if(key.keysym.sym == SDLK_v && isKeyboardCtrlDown()) 
@@ -51,7 +55,11 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 			return; // ignore periodic event resends
 	}
 
-	assert(key.state == SDL_PRESSED);
+
+	if(key.keysym.sym == SDLK_TAB && isKeyboardCtrlDown())
+	{
+		CSH->getGlobalLobby().activateInterface();
+	}
 
 	if(key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
 	{

@@ -12,6 +12,8 @@
 #include "../windows/CWindowObject.h"
 
 class GlobalLobbyWidget;
+struct GlobalLobbyAccount;
+struct GlobalLobbyRoom;
 
 class GlobalLobbyWindow : public CWindowObject
 {
@@ -25,5 +27,10 @@ public:
 	void doSendChatMessage();
 	void doCreateGameRoom();
 
+	void doInviteAccount(const std::string & accountID);
+	void doJoinRoom(const std::string & roomID);
+
 	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when);
+	void onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts);
+	void onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms);
 };

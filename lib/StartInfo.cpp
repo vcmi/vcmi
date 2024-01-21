@@ -111,7 +111,7 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 	if(i == si->playerInfos.cend() && !ignoreNoHuman)
 		throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.530"));
 
-	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
+	if(si->mapGenOptions && si->mode == EStartMode::NEW_GAME)
 	{
 		if(!si->mapGenOptions->checkOptions())
 			throw std::domain_error(VLC->generaltexth->translate("core.genrltxt.751"));

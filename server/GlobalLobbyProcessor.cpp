@@ -57,6 +57,7 @@ void GlobalLobbyProcessor::receiveLoginSuccess(const JsonNode & json)
 {
 	// no-op, wait just for any new commands from lobby
 	logGlobal->info("Succesfully connected to lobby server");
+	owner.startAcceptingIncomingConnections();
 }
 
 void GlobalLobbyProcessor::receiveAccountJoinsRoom(const JsonNode & json)
@@ -83,6 +84,7 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 
 		JsonNode toSend;
 		toSend["type"].String() = "serverLogin";
+		toSend["gameRoomID"].String() = owner.uuid;
 		toSend["accountID"] = settings["lobby"]["accountID"];
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 		sendMessage(toSend);
@@ -97,7 +99,7 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 
 		JsonNode toSend;
 		toSend["type"].String() = "serverProxyLogin";
-		toSend["gameRoomID"].String() = "";
+		toSend["gameRoomID"].String() = owner.uuid;
 		toSend["accountID"].String() = accountID;
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 		sendMessage(toSend);

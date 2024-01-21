@@ -277,6 +277,7 @@ set(client_HEADERS
 	renderSDL/SDL_PixelAccess.h
 
 	globalLobby/GlobalLobbyClient.h
+	globalLobby/GlobalLobbyDefines.h
 	globalLobby/GlobalLobbyLoginWindow.h
 	globalLobby/GlobalLobbyServerSetup.h
 	globalLobby/GlobalLobbyWidget.h

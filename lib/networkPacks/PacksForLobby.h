@@ -37,7 +37,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 	// Set by client before sending pack to server
 	std::string uuid;
 	std::vector<std::string> names;
-	StartInfo::EMode mode = StartInfo::INVALID;
+	EStartMode mode = EStartMode::INVALID;
 	// Changed by server before announcing pack
 	int clientId = -1;
 	int hostClientId = -1;

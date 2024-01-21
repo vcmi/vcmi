@@ -74,7 +74,7 @@ void GlobalLobbyLoginWindow::onLogin()
 void GlobalLobbyLoginWindow::onConnectionSuccess()
 {
 	close();
-	GH.windows().pushWindow(CSH->getGlobalLobby().createLobbyWindow());
+	CSH->getGlobalLobby().activateInterface();
 }
 
 void GlobalLobbyLoginWindow::onConnectionFailed(const std::string & reason)

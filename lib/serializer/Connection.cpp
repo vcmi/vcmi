@@ -106,6 +106,11 @@ bool CConnection::isMyConnection(const std::shared_ptr<INetworkConnection> & oth
 	return otherConnection != nullptr && networkConnection.lock() == otherConnection;
 }
 
+std::shared_ptr<INetworkConnection> CConnection::getConnection()
+{
+	return networkConnection.lock();
+}
+
 void CConnection::disableStackSendingByID()
 {
 	packReader->sendStackInstanceByIds = false;

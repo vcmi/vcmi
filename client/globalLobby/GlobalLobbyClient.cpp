@@ -59,6 +59,12 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 	if(json["type"].String() == "activeAccounts")
 		return receiveActiveAccounts(json);
 
+	if(json["type"].String() == "activeGameRooms")
+		return receiveActiveGameRooms(json);
+
+	if(json["type"].String() == "joinRoomSuccess")
+		return receiveJoinRoomSuccess(json);
+
 	throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String());
 }
 
@@ -140,11 +146,51 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 
 void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 {
-	//for (auto const & jsonEntry : json["messages"].Vector())
-	//{
-	//	std::string accountID = jsonEntry["accountID"].String();
-	//	std::string displayName = jsonEntry["displayName"].String();
-	//}
+	activeAccounts.clear();
+
+	for (auto const & jsonEntry : json["accounts"].Vector())
+	{
+		GlobalLobbyAccount account;
+
+		account.accountID = jsonEntry["accountID"].String();
+		account.displayName = jsonEntry["displayName"].String();
+		account.status = jsonEntry["status"].String();
+
+		activeAccounts.push_back(account);
+	}
+
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->onActiveAccounts(activeAccounts);
+}
+
+void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
+{
+	activeRooms.clear();
+
+	for (auto const & jsonEntry : json["gameRooms"].Vector())
+	{
+		GlobalLobbyRoom room;
+
+		room.gameRoomID = jsonEntry["gameRoomID"].String();
+		room.hostAccountID = jsonEntry["hostAccountID"].String();
+		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
+		room.description = jsonEntry["description"].String();
+//		room.status = jsonEntry["status"].String();
+		room.playersCount = jsonEntry["playersCount"].Integer();
+		room.playersLimit = jsonEntry["playersLimit"].Integer();
+
+		activeRooms.push_back(room);
+	}
+
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->onActiveRooms(activeRooms);
+}
+
+void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
+{
+	// TODO: store "gameRoomID" field and use it for future queries
 }
 
 void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
@@ -211,6 +257,24 @@ void GlobalLobbyClient::sendMessage(const JsonNode & data)
 	networkConnection->sendPacket(payloadBuffer);
 }
 
+void GlobalLobbyClient::sendOpenPublicRoom()
+{
+	JsonNode toSend;
+	toSend["type"].String() = "openGameRoom";
+	toSend["hostAccountID"] = settings["lobby"]["accountID"];
+	toSend["roomType"].String() = "public";
+	sendMessage(toSend);
+}
+
+void GlobalLobbyClient::sendOpenPrivateRoom()
+{
+	JsonNode toSend;
+	toSend["type"].String() = "openGameRoom";
+	toSend["hostAccountID"] = settings["lobby"]["accountID"];
+	toSend["roomType"].String() = "private";
+	sendMessage(toSend);
+}
+
 void GlobalLobbyClient::connect()
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
@@ -245,4 +309,28 @@ std::shared_ptr<GlobalLobbyWindow> GlobalLobbyClient::createLobbyWindow()
 	lobbyWindow = lobbyWindowPtr;
 	lobbyWindowLock = lobbyWindowPtr;
 	return lobbyWindowPtr;
+}
+
+const std::vector<GlobalLobbyAccount> & GlobalLobbyClient::getActiveAccounts() const
+{
+	return activeAccounts;
+}
+
+const std::vector<GlobalLobbyRoom> & GlobalLobbyClient::getActiveRooms() const
+{
+	return activeRooms;
+}
+
+void GlobalLobbyClient::activateInterface()
+{
+	if (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+		return;
+
+	if (!GH.windows().findWindows<GlobalLobbyLoginWindow>().empty())
+		return;
+
+	if (isConnected())
+		GH.windows().pushWindow(createLobbyWindow());
+	else
+		GH.windows().pushWindow(createLoginWindow());
 }

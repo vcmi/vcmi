@@ -15,6 +15,7 @@ set(server_SRCS
 		processors/PlayerMessageProcessor.cpp
 		processors/TurnOrderProcessor.cpp
 
+		EntryPoint.cpp
 		CGameHandler.cpp
 		GlobalLobbyProcessor.cpp
 		ServerSpellCastEnvironment.cpp

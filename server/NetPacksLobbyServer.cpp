@@ -158,7 +158,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 {
 	srv.si->mapname = pack.ourCampaign->getFilename();
-	srv.si->mode = StartInfo::CAMPAIGN;
+	srv.si->mode = EStartMode::CAMPAIGN;
 	srv.si->campState = pack.ourCampaign;
 	srv.si->turnTimerInfo = TurnTimerInfo{};
 

@@ -41,6 +41,7 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 
 public:
 	bool isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const;
+	std::shared_ptr<INetworkConnection> getConnection();
 
 	std::string uuid;
 	int connectionID;

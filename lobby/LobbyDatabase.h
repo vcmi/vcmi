@@ -31,13 +31,15 @@ class LobbyDatabase
 	SQLiteStatementPtr deleteGameRoomPlayersStatement;
 	SQLiteStatementPtr deleteGameRoomInvitesStatement;
 
+	SQLiteStatementPtr setAccountOnlineStatement;
 	SQLiteStatementPtr setGameRoomStatusStatement;
 	SQLiteStatementPtr setGameRoomPlayerLimitStatement;
 
 	SQLiteStatementPtr getRecentMessageHistoryStatement;
 	SQLiteStatementPtr getIdleGameRoomStatement;
-	SQLiteStatementPtr getAccountGameRoomStatement;
+	SQLiteStatementPtr getActiveGameRoomsStatement;
 	SQLiteStatementPtr getActiveAccountsStatement;
+	SQLiteStatementPtr getAccountGameRoomStatement;
 	SQLiteStatementPtr getAccountDisplayNameStatement;
 
 	SQLiteStatementPtr isAccountCookieValidStatement;
@@ -54,6 +56,7 @@ public:
 	explicit LobbyDatabase(const boost::filesystem::path & databasePath);
 	~LobbyDatabase();
 
+	void setAccountOnline(const std::string & accountID, bool isOnline);
 	void setGameRoomStatus(const std::string & roomID, LobbyRoomState roomStatus);
 	void setGameRoomPlayerLimit(const std::string & roomID, uint32_t playerLimit);
 

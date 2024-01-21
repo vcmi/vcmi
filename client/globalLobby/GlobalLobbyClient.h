@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "GlobalLobbyDefines.h"
 #include "../../lib/network/NetworkInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -18,8 +19,11 @@ VCMI_LIB_NAMESPACE_END
 class GlobalLobbyLoginWindow;
 class GlobalLobbyWindow;
 
-class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
+class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyable
 {
+	std::vector<GlobalLobbyAccount> activeAccounts;
+	std::vector<GlobalLobbyRoom> activeRooms;
+
 	std::shared_ptr<INetworkConnection> networkConnection;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
@@ -40,14 +44,25 @@ class GlobalLobbyClient : public INetworkClientListener, boost::noncopyable
 	void receiveChatHistory(const JsonNode & json);
 	void receiveChatMessage(const JsonNode & json);
 	void receiveActiveAccounts(const JsonNode & json);
+	void receiveActiveGameRooms(const JsonNode & json);
+	void receiveJoinRoomSuccess(const JsonNode & json);
+
+	std::shared_ptr<GlobalLobbyLoginWindow> createLoginWindow();
+	std::shared_ptr<GlobalLobbyWindow> createLobbyWindow();
 
 public:
 	explicit GlobalLobbyClient();
 	~GlobalLobbyClient();
 
+	const std::vector<GlobalLobbyAccount> & getActiveAccounts() const;
+	const std::vector<GlobalLobbyRoom> & getActiveRooms() const;
+
+	/// Activate interface and pushes lobby UI as top window
+	void activateInterface();
 	void sendMessage(const JsonNode & data);
+	void sendOpenPublicRoom();
+	void sendOpenPrivateRoom();
+
 	void connect();
 	bool isConnected();
-	std::shared_ptr<GlobalLobbyLoginWindow> createLoginWindow();
-	std::shared_ptr<GlobalLobbyWindow> createLobbyWindow();
 };

@@ -70,8 +70,6 @@ private:
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	EServerState state;
 
-	void establishOutgoingConnection();
-
 	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
 
 	int currentClientId;
@@ -84,7 +82,6 @@ public:
 	void onNewConnection(const std::shared_ptr<INetworkConnection> &) override;
 	void onTimer() override;
 
-
 	std::shared_ptr<CGameHandler> gh;
 	boost::program_options::variables_map cmdLineOptions;
 
@@ -96,6 +93,7 @@ public:
 	bool prepareToStartGame();
 	void prepareToRestart();
 	void startGameImmediately();
+	void startAcceptingIncomingConnections();
 
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 
@@ -107,7 +105,7 @@ public:
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
-	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode);
+	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, EStartMode mode);
 	void clientDisconnected(std::shared_ptr<CConnection> c);
 	void reconnectPlayer(int connId);
 

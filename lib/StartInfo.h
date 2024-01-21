@@ -98,12 +98,18 @@ struct DLL_LINKAGE PlayerSettings
 	HeroTypeID getHeroValidated() const;
 };
 
+enum class EStartMode : int32_t
+{
+	NEW_GAME,
+	LOAD_GAME,
+	CAMPAIGN,
+	INVALID = 255
+};
+
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
 struct DLL_LINKAGE StartInfo
 {
-	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, INVALID = 255};
-
-	EMode mode;
+	EStartMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
 	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
@@ -152,7 +158,7 @@ struct DLL_LINKAGE StartInfo
 		h & campState;
 	}
 
-	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
+	StartInfo() : mode(EStartMode::INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
 		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(nullptr))), fileURI("")
 	{
 

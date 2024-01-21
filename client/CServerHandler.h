@@ -40,6 +40,9 @@ class GlobalLobbyClient;
 class HighScoreCalculation;
 class HighScoreParameter;
 
+enum class ESelectionScreen : ui8;
+enum class ELoadMode : ui8;
+
 // TODO: Add mutex so we can't set CONNECTION_CANCELLED if client already connected, but thread not setup yet
 enum class EClientState : ui8
 {
@@ -128,8 +131,8 @@ public:
 	// For starting non-custom campaign and continue to next mission
 	std::shared_ptr<CampaignState> campaignStateToSend;
 
-	ui8 screenType; // To create lobby UI only after server is setup
-	ui8 loadMode; // For saves filtering in SelectionTab
+	ESelectionScreen screenType; // To create lobby UI only after server is setup
+	ELoadMode loadMode; // For saves filtering in SelectionTab
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;
@@ -143,7 +146,7 @@ public:
 	CServerHandler();
 	~CServerHandler();
 	
-	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
+	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, const std::vector<std::string> & names);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
 
@@ -196,7 +199,7 @@ public:
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
 	int howManyPlayerInterfaces();
-	ui8 getLoadMode();
+	ELoadMode getLoadMode();
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);

@@ -18,7 +18,9 @@ struct LobbyAccount
 
 struct LobbyGameRoom
 {
-	std::string roomUUID;
+	std::string roomID;
+	std::string hostAccountID;
+	std::string hostAccountDisplayName;
 	std::string roomStatus;
 	uint32_t playersCount;
 	uint32_t playersLimit;
@@ -48,10 +50,10 @@ enum class LobbyInviteStatus : int32_t
 
 enum class LobbyRoomState : int32_t
 {
-	IDLE, // server is ready but no players are in the room
-	PUBLIC, // host has joined and allows anybody to join
-	PRIVATE, // host has joined but only allows those he invited to join
-	//BUSY,        // match is ongoing
-	//CANCELLED,   // game room was cancelled without starting the game
-	//CLOSED,      // game room was closed after playing for some time
+	IDLE = 0, // server is ready but no players are in the room
+	PUBLIC = 1, // host has joined and allows anybody to join
+	PRIVATE = 2, // host has joined but only allows those he invited to join
+	//BUSY = 3, // match is ongoing
+	//CANCELLED = 4, // game room was cancelled without starting the game
+	CLOSED = 5, // game room was closed after playing for some time
 };

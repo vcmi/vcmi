@@ -140,7 +140,7 @@ void LobbyServer::broadcastActiveAccounts()
 		JsonNode jsonEntry;
 		jsonEntry["accountID"].String() = account.accountID;
 		jsonEntry["displayName"].String() = account.displayName;
-		//		jsonEntry["status"].String() = account.status;
+		jsonEntry["status"].String() = "In Lobby"; // TODO: in room status, in match status, offline status(?)
 		reply["accounts"].Vector().push_back(jsonEntry);
 	}
 
@@ -157,10 +157,13 @@ void LobbyServer::broadcastActiveGameRooms()
 	for(const auto & gameRoom : activeGameRoomStats)
 	{
 		JsonNode jsonEntry;
-		jsonEntry["gameRoomID"].String() = gameRoom.roomUUID;
-		jsonEntry["status"].String() = gameRoom.roomStatus;
-		jsonEntry["status"].Integer() = gameRoom.playersCount;
-		jsonEntry["status"].Integer() = gameRoom.playersLimit;
+		jsonEntry["gameRoomID"].String() = gameRoom.roomID;
+		jsonEntry["hostAccountID"].String() = gameRoom.hostAccountID;
+		jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
+		jsonEntry["description"].String() = "TODO: ROOM DESCRIPTION";
+//		jsonEntry["status"].String() = gameRoom.roomStatus;
+		jsonEntry["playersCount"].Integer() = gameRoom.playersCount;
+		jsonEntry["playersLimit"].Integer() = gameRoom.playersLimit;
 		reply["gameRooms"].Vector().push_back(jsonEntry);
 	}
 
@@ -204,6 +207,12 @@ void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 
 void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection)
 {
+	if (activeAccounts.count(connection))
+		database->setAccountOnline(activeAccounts.at(connection).accountID, false);
+
+	if (activeGameRooms.count(connection))
+		database->setGameRoomStatus(activeGameRooms.at(connection).roomID, LobbyRoomState::CLOSED);
+
 	// NOTE: lost connection can be in only one of these lists (or in none of them)
 	// calling on all possible containers since calling std::map::erase() with non-existing key is legal
 	activeAccounts.erase(connection);
@@ -334,6 +343,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	// prolong existing cookie
 	database->updateAccessCookie(accountID, accountCookie);
 	database->updateAccountLoginTime(accountID);
+	database->setAccountOnline(accountID, true);
 
 	std::string displayName = database->getAccountDisplayName(accountID);
 
@@ -369,6 +379,8 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 		activeGameRooms[connection].roomID = gameRoomID;
 		sendLoginSuccess(connection, accountCookie, {});
 	}
+
+	broadcastActiveGameRooms();
 }
 
 void LobbyServer::receiveClientProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -451,7 +463,7 @@ void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, c
 		database->setGameRoomStatus(gameRoomID, LobbyRoomState::PRIVATE);
 
 	// TODO: additional flags / initial settings, e.g. allowCheats
-	// TODO: connection mode: direct or proxy. For now direct is assumed
+	// TODO: connection mode: direct or proxy. For now direct is assumed. Proxy might be needed later, for hosted servers
 
 	broadcastActiveGameRooms();
 	sendJoinRoomSuccess(connection, gameRoomID);

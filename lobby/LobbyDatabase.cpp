@@ -96,7 +96,7 @@ void LobbyDatabase::prepareStatements()
 	)";
 
 	static const std::string insertGameRoomText = R"(
-		INSERT INTO gameRooms(roomID, hostAccountID, status, playerLimit) VALUES(?, ?, 'empty', 8);
+		INSERT INTO gameRooms(roomID, hostAccountID, status, playerLimit) VALUES(?, ?, 0, 8);
 	)";
 
 	static const std::string insertGameRoomPlayersText = R"(
@@ -118,6 +118,12 @@ void LobbyDatabase::prepareStatements()
 	)";
 
 	// UPDATE
+
+	static const std::string setAccountOnlineText = R"(
+		UPDATE accounts
+		SET online = ?
+		WHERE accountID = ?
+	)";
 
 	static const std::string setGameRoomStatusText = R"(
 		UPDATE gameRooms
@@ -145,7 +151,7 @@ void LobbyDatabase::prepareStatements()
 	static const std::string getIdleGameRoomText = R"(
 		SELECT roomID
 		FROM gameRooms
-		WHERE hostAccountID = ? AND status = 'idle'
+		WHERE hostAccountID = ? AND status = 0
 		LIMIT 1
 	)";
 
@@ -153,7 +159,7 @@ void LobbyDatabase::prepareStatements()
 		SELECT grp.roomID
 		FROM gameRoomPlayers grp
 		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
-		WHERE accountID = ? AND status IN ('public', 'private', 'busy')
+		WHERE accountID = ? AND status IN (1, 2)
 		LIMIT 1
 	)";
 
@@ -161,6 +167,13 @@ void LobbyDatabase::prepareStatements()
 		SELECT accountID, displayName
 		FROM accounts
 		WHERE online = 1
+	)";
+
+	static const std::string getActiveGameRoomsText = R"(
+		SELECT roomID, hostAccountID, displayName, status, 0, playerLimit
+		FROM gameRooms
+		LEFT JOIN accounts ON hostAccountID = accountID
+		WHERE status = 1
 	)";
 
 	static const std::string getAccountDisplayNameText = R"(
@@ -216,6 +229,7 @@ void LobbyDatabase::prepareStatements()
 	deleteGameRoomPlayersStatement = database->prepare(deleteGameRoomPlayersText);
 	deleteGameRoomInvitesStatement = database->prepare(deleteGameRoomInvitesText);
 
+	setAccountOnlineStatement = database->prepare(setAccountOnlineText);
 	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
 	setGameRoomPlayerLimitStatement = database->prepare(setGameRoomPlayerLimitText);
 
@@ -223,6 +237,7 @@ void LobbyDatabase::prepareStatements()
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
 	getAccountGameRoomStatement = database->prepare(getAccountGameRoomText);
 	getActiveAccountsStatement = database->prepare(getActiveAccountsText);
+	getActiveGameRoomsStatement = database->prepare(getActiveGameRoomsText);
 	getAccountDisplayNameStatement = database->prepare(getAccountDisplayNameText);
 
 	isAccountCookieValidStatement = database->prepare(isAccountCookieValidText);
@@ -283,6 +298,11 @@ std::vector<LobbyChatMessage> LobbyDatabase::getRecentMessageHistory()
 	getRecentMessageHistoryStatement->reset();
 
 	return result;
+}
+
+void LobbyDatabase::setAccountOnline(const std::string & accountID, bool isOnline)
+{
+	setAccountOnlineStatement->executeOnce(isOnline ? 1 : 0, accountID);
 }
 
 void LobbyDatabase::setGameRoomStatus(const std::string & roomID, LobbyRoomState roomStatus)
@@ -404,7 +424,16 @@ bool LobbyDatabase::isAccountIDExists(const std::string & accountID)
 
 std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 {
-	return {};
+	std::vector<LobbyGameRoom> result;
+
+	while(getActiveGameRoomsStatement->execute())
+	{
+		LobbyGameRoom entry;
+		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.roomStatus, entry.playersCount, entry.playersLimit);
+		result.push_back(entry);
+	}
+	getActiveGameRoomsStatement->reset();
+	return result;
 }
 
 std::vector<LobbyAccount> LobbyDatabase::getActiveAccounts()
@@ -425,6 +454,7 @@ std::string LobbyDatabase::getIdleGameRoom(const std::string & hostAccountID)
 {
 	std::string result;
 
+	getIdleGameRoomStatement->setBinds(hostAccountID);
 	if(getIdleGameRoomStatement->execute())
 		getIdleGameRoomStatement->getColumns(result);
 
@@ -436,6 +466,7 @@ std::string LobbyDatabase::getAccountGameRoom(const std::string & accountID)
 {
 	std::string result;
 
+	getAccountGameRoomStatement->setBinds(accountID);
 	if(getAccountGameRoomStatement->execute())
 		getAccountGameRoomStatement->getColumns(result);
 

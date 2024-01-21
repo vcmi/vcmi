@@ -20,6 +20,8 @@
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
 #include "globalLobby/GlobalLobbyWindow.h"
+#include "globalLobby/GlobalLobbyServerSetup.h"
+#include "globalLobby/GlobalLobbyClient.h"
 
 #include "CServerHandler.h"
 #include "CGameInfo.h"
@@ -48,6 +50,18 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 		{
 			if (GH.windows().topWindow<CSimpleJoinScreen>())
 				GH.windows().popWindows(1);
+
+			if (!GH.windows().findWindows<GlobalLobbyServerSetup>().empty())
+			{
+				// announce opened game room
+				// TODO: find better approach?
+				int roomType = settings["lobby"]["roomType"].Integer();
+
+				if (roomType != 0)
+					handler.getGlobalLobby().sendOpenPrivateRoom();
+				else
+					handler.getGlobalLobby().sendOpenPublicRoom();
+			}
 
 			while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
 			{
@@ -141,7 +155,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pac
 	}
 	
 	handler.state = EClientState::STARTING;
-	if(handler.si->mode != StartInfo::LOAD_GAME || pack.clientId == handler.c->connectionID)
+	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.c->connectionID)
 	{
 		auto modeBackup = handler.si->mode;
 		handler.si = pack.initializedStartInfo;

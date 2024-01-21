@@ -95,7 +95,10 @@ void NetworkConnection::sendPacket(const std::vector<uint8_t> & message)
 	ostream.write(reinterpret_cast<const char *>(&messageSize), messageHeaderSize);
 	ostream.write(reinterpret_cast<const char *>(message.data()), message.size());
 
-	boost::asio::write(*socket, writeBuffer );
+	boost::system::error_code ec;
+	boost::asio::write(*socket, writeBuffer, ec );
+
+	// FIXME: handle error?
 }
 
 VCMI_LIB_NAMESPACE_END

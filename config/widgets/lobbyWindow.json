@@ -45,25 +45,23 @@
 			"type": "labelTitleMain",
 			"position": {"x": 15, "y": 10}
 		},
-		
+
 		{
 			"type": "areaFilled",
-			"rect": {"x": 5, "y": 50, "w": 250, "h": 150}
+			"rect": {"x": 5, "y": 50, "w": 250, "h": 500}
 		},
 		{
 			"type": "labelTitle",
 			"position": {"x": 15, "y": 53},
-			"text" : "Match Filter"
-		},
-
-		{
-			"type": "areaFilled",
-			"rect": {"x": 5, "y": 210, "w": 250, "h": 340}
+			"text" : "Room List"
 		},
 		{
-			"type": "labelTitle",
-			"position": {"x": 15, "y": 213},
-			"text" : "Match List"
+			"type" : "roomList",
+			"name" : "roomList",
+			"position" : { "x" : 7, "y" : 69 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 230, "y" : 0 },
+			"sliderSize" : { "x" : 450, "y" : 450 }
 		},
 		
 		{
@@ -112,9 +110,17 @@
 		{
 			"type": "labelTitle",
 			"position": {"x": 880, "y": 53},
-			"text" : "Player List"
+			"text" : "Account List"
 		},
-		
+		{
+			"type" : "accountList",
+			"name" : "accountList",
+			"position" : { "x" : 872, "y" : 69 },
+			"itemOffset" : { "x" : 0, "y" : 40 },
+			"sliderPosition" : { "x" : 130, "y" : 0 },
+			"sliderSize" : { "x" : 520, "y" : 520 }
+		},
+
 		{
 			"type": "button",
 			"position": {"x": 840, "y": 10},
