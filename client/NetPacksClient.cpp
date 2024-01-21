@@ -157,6 +157,9 @@ void ApplyClientNetPackVisitor::visitSetMana(SetMana & pack)
 	const CGHeroInstance *h = cl.getHero(pack.hid);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroManaPointsChanged, h);
 
+	if(settings["session"]["headless"].Bool())
+		return;
+
 	for (auto window : GH.windows().findWindows<BattleWindow>())
 		window->heroManaPointsChanged(h);
 }
@@ -467,7 +470,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 			i->second->objectRemoved(o, pack.initiator);
 	}
 
-	CGI->mh->waitForOngoingAnimations();
+	if(CGI->mh)
+		CGI->mh->waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
@@ -553,9 +557,11 @@ void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)
 	}
 
 	// invalidate section of map view with our object and force an update
-	CGI->mh->onObjectInstantRemove(town, town->getOwner());
-	CGI->mh->onObjectInstantAdd(town, town->getOwner());
-
+	if(CGI->mh)
+	{
+		CGI->mh->onObjectInstantRemove(town, town->getOwner());
+		CGI->mh->onObjectInstantAdd(town, town->getOwner());
+	}
 }
 void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 {
@@ -566,8 +572,11 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 	}
 
 	// invalidate section of map view with our object and force an update
-	CGI->mh->onObjectInstantRemove(town, town->getOwner());
-	CGI->mh->onObjectInstantAdd(town, town->getOwner());
+	if(CGI->mh)
+	{
+		CGI->mh->onObjectInstantRemove(town, town->getOwner());
+		CGI->mh->onObjectInstantAdd(town, town->getOwner());
+	}
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
@@ -651,7 +660,7 @@ void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & 
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if (pack.what == ObjProperty::OWNER)
+	if (pack.what == ObjProperty::OWNER && CGI->mh)
 	{
 		auto object = gs.getObjInstance(pack.id);
 		CGI->mh->onObjectInstantRemove(object, object->getOwner());
@@ -668,7 +677,7 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 	}
 
 	// invalidate section of map view with our object and force an update with new flag color
-	if (pack.what == ObjProperty::OWNER)
+	if (pack.what == ObjProperty::OWNER && CGI->mh)
 	{
 		auto object = gs.getObjInstance(pack.id);
 		CGI->mh->onObjectInstantAdd(object, object->getOwner());
@@ -1023,7 +1032,9 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 		if(gs.isVisible(obj, i->first))
 			i->second->newObject(obj);
 	}
-	CGI->mh->waitForOngoingAnimations();
+
+	if(CGI->mh)
+		CGI->mh->waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts & pack)

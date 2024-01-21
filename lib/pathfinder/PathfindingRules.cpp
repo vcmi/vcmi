@@ -249,9 +249,7 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 	}
 
 	case EPathNodeAction::BLOCKING_VISIT:
-		return destination.guarded
-			? BlockingReason::DESTINATION_GUARDED
-			: BlockingReason::DESTINATION_BLOCKVIS;
+		return BlockingReason::DESTINATION_BLOCKVIS;
 
 	case EPathNodeAction::NORMAL:
 		return BlockingReason::NONE;

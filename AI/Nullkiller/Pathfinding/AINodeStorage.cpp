@@ -234,6 +234,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPath
 		heroNode.specialAction.reset();
 		heroNode.armyLoss = 0;
 		heroNode.chainOther = nullptr;
+		heroNode.dayFlags = DayFlags::NONE;
 		heroNode.update(coord, layer, accessibility);
 	}
 }
@@ -294,6 +295,11 @@ void AINodeStorage::commit(
 	if(destination->turns <= heroChainTurn)
 	{
 		commitedTiles.insert(destination->coord);
+	}
+
+	if(destination->turns == source->turns)
+	{
+		destination->dayFlags = source->dayFlags;
 	}
 }
 
