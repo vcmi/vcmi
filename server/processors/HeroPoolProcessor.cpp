@@ -112,11 +112,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	sah.slotID = slot;
 	sah.replenishPoints = true;
 
-	CGHeroInstance *newHero = pickHeroFor(needNativeHero, color);
-
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
-	if(VLC->settings()->getBoolean(EGameSettings::HEROES_INVITE) && heroesPool->unusedHeroesFromPool().count(nextHero) && heroesPool->isHeroAvailableFor(nextHero, color))
-		newHero = heroesPool->unusedHeroesFromPool()[nextHero];
+	CGHeroInstance *newHero = (nextHero == HeroTypeID::NONE) ? pickHeroFor(needNativeHero, color) : gameHandler->gameState()->heroesPool->unusedHeroesFromPool()[nextHero];
 
 	if (newHero)
 	{
@@ -155,6 +151,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	const PlayerState * playerState = gameHandler->getPlayerState(player);
 	const CGObjectInstance * mapObject = gameHandler->getObj(objectID);
 	const CGTownInstance * town = gameHandler->getTown(objectID);
+	const auto & heroesPool = gameHandler->gameState()->heroesPool;
 
 	if (!mapObject && gameHandler->complain("Invalid map object!"))
 		return false;
@@ -170,6 +167,10 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	if (gameHandler->getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))
 		return false;
+
+	if(VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && nextHero != HeroTypeID::NONE)
+		if(!heroesPool->unusedHeroesFromPool().count(nextHero) && !heroesPool->isHeroAvailableFor(nextHero, player) && gameHandler->complain("Cannot set next hero!"))
+			return false;
 
 	if(town) //tavern in town
 	{
@@ -197,7 +198,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 			return false;
 	}
 
-	auto recruitableHeroes = gameHandler->gameState()->heroesPool->getHeroesFor(player);
+	auto recruitableHeroes = heroesPool->getHeroesFor(player);
 
 	const CGHeroInstance * recruitedHero = nullptr;
 

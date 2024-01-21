@@ -519,25 +519,25 @@ void CTavernWindow::addInvite()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	if(VLC->settings()->getBoolean(EGameSettings::HEROES_INVITE))
+	if(!VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
+		return;
+
+	const auto & heroesPool = CSH->client->gameState()->heroesPool;
+	for(auto & elem : heroesPool->unusedHeroesFromPool())
 	{
-		const auto & heroesPool = CSH->client->gameState()->heroesPool;
-		for(auto & elem : heroesPool->unusedHeroesFromPool())
-		{
-			bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
-			if(heroAvailable)
-				inviteableHeroes[elem.first] = elem.second;
-		}
+		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
+		if(heroAvailable)
+			inviteableHeroes[elem.first] = elem.second;
+	}
 
-		if(inviteableHeroes.size() > 0)
-		{
-			if(!heroToInvite)
-				heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
+	if(inviteableHeroes.size() > 0)
+	{
+		if(!heroToInvite)
+			heroToInvite = (*RandomGeneratorUtil::nextItem(inviteableHeroes, CRandomGenerator::getDefault())).second;
 
-			inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
-			inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[heroToInvite->getHeroType()]->imageIndex, 0, 245, 428);
-			inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [&](){ GH.windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [&](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [&](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
-		}
+		inviteHero = std::make_shared<CLabel>(170, 444, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.tavernWindow.inviteHero"));
+		inviteHeroImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), (*CGI->heroh)[heroToInvite->getHeroType()]->imageIndex, 0, 245, 428);
+		inviteHeroImageArea = std::make_shared<LRClickableArea>(Rect(245, 428, 48, 32), [&](){ GH.windows().createAndPushWindow<HeroSelector>(inviteableHeroes, [&](CGHeroInstance* h){ heroToInvite = h; addInvite(); }); }, [&](){ GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(heroToInvite)); });
 	}
 }
 
