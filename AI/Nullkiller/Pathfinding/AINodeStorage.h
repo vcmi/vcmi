@@ -208,7 +208,8 @@ public:
 		EPathNodeAction action,
 		int turn,
 		int movementLeft,
-		float cost) const;
+		float cost,
+		bool saveToCommited = true) const;
 
 	inline const AIPathNode * getAINode(const CGPathNode * node) const
 	{
