@@ -168,8 +168,15 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	if (gameHandler->getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))
 		return false;
 
-	if(VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && nextHero != HeroTypeID::NONE)
-		if(!heroesPool->unusedHeroesFromPool().count(nextHero) && !heroesPool->isHeroAvailableFor(nextHero, player) && gameHandler->complain("Cannot set next hero!"))
+	if (nextHero != HeroTypeID::NONE) // player attempts to invite next hero
+	{
+		if(!VLC->settings()->getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
+			return false;
+
+		if(!heroesPool->unusedHeroesFromPool().count(nextHero) && gameHandler->complain("Cannot invite specified hero!"))
+			return false;
+		
+		if(!heroesPool->isHeroAvailableFor(nextHero, player) && gameHandler->complain("Cannot invite specified hero!"))
 			return false;
 
 	if(town) //tavern in town
