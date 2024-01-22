@@ -44,7 +44,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & uuid;
 		h & names;
@@ -63,7 +63,7 @@ struct DLL_LINKAGE LobbyClientDisconnected : public CLobbyPackToPropagate
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & clientId;
 		h & shutdownServer;
@@ -77,7 +77,7 @@ struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & playerName;
 		h & message;
@@ -93,7 +93,7 @@ struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & action;
 	}
@@ -105,7 +105,7 @@ struct DLL_LINKAGE LobbyLoadProgress : public CLobbyPackToPropagate
 	
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & progress;
 	}
@@ -118,7 +118,7 @@ struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
 	
 	void visitTyped(ICPackVisitor & visitor) override;
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & closeConnection;
 		h & restart;
@@ -134,7 +134,7 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & clientId;
 		h & initializedStartInfo;
@@ -151,7 +151,7 @@ struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & newHostConnectionId;
 	}
@@ -164,7 +164,7 @@ struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & state;
 	}
@@ -179,7 +179,7 @@ struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & mapInfo;
 		h & mapGenOpts;
@@ -192,7 +192,7 @@ struct DLL_LINKAGE LobbySetCampaign : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & ourCampaign;
 	}
@@ -204,7 +204,7 @@ struct DLL_LINKAGE LobbySetCampaignMap : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & mapId;
 	}
@@ -216,7 +216,7 @@ struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bonusId;
 	}
@@ -231,7 +231,7 @@ struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & what;
 		h & value;
@@ -245,7 +245,7 @@ struct DLL_LINKAGE LobbySetPlayer : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & clickedColor;
 	}
@@ -258,7 +258,7 @@ struct DLL_LINKAGE LobbySetPlayerName : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & color;
 		h & name;
@@ -271,7 +271,7 @@ struct DLL_LINKAGE LobbySetSimturns : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & simturnsInfo;
 	}
@@ -283,7 +283,7 @@ struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & turnTimerInfo;
 	}
@@ -295,7 +295,7 @@ struct DLL_LINKAGE LobbySetExtraOptions : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & extraOptionsInfo;
 	}
@@ -307,7 +307,7 @@ struct DLL_LINKAGE LobbySetDifficulty : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & difficulty;
 	}
@@ -320,7 +320,7 @@ struct DLL_LINKAGE LobbyForceSetPlayer : public CLobbyPackToServer
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & targetConnectedPlayer;
 		h & targetPlayerColor;
@@ -333,7 +333,7 @@ struct DLL_LINKAGE LobbyShowMessage : public CLobbyPackToPropagate
 	
 	void visitTyped(ICPackVisitor & visitor) override;
 	
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & message;
 	}

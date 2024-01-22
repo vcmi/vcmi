@@ -161,7 +161,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		std::unique_ptr<CMap> campaignMap = nullptr;
 		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 
 			auto mapHeader = std::make_unique<CMapHeader>();

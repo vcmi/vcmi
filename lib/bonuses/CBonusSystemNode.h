@@ -130,7 +130,7 @@ public:
 		return PlayerColor::NEUTRAL;
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & nodeType;
 		h & exportedBonuses;

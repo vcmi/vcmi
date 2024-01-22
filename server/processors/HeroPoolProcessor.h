@@ -62,7 +62,7 @@ public:
 	/// Incoming net pack handling
 	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		// h & gameHandler; // FIXME: make this work instead of using deserializationFix in gameHandler
 		h & playerSeed;

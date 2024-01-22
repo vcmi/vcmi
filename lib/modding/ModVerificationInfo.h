@@ -31,7 +31,7 @@ struct ModVerificationInfo
 	bool impactsGameplay = true;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int v)
+	void serialize(Handler & h)
 	{
 		h & name;
 		h & version;

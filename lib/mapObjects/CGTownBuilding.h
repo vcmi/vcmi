@@ -54,7 +54,7 @@ public:
 	int3 visitablePos() const override;
 	int3 getPosition() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bID;
 		h & indexOnTV;
@@ -79,7 +79,7 @@ public:
 	COPWBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
 	COPWBonus(IGameCallback *cb);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
 		h & visitors;
@@ -98,7 +98,7 @@ public:
 	CTownBonus(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
 	CTownBonus(IGameCallback *cb);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
 		h & visitors;
@@ -136,7 +136,7 @@ public:
 	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, CRandomGenerator & rand);
 	CTownRewardableBuilding(IGameCallback *cb);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
 		h & static_cast<Rewardable::Interface&>(*this);

@@ -67,7 +67,7 @@ public:
 	static void preInit(); //called before objs receive their initObj
 	static void postInit();//called after objs receive their initObj
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		logGlobal->error("IObjectInterface serialized, unexpected, should not happen!");
 	}

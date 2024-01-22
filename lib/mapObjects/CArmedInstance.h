@@ -52,7 +52,7 @@ public:
 	
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<CBonusSystemNode&>(*this);

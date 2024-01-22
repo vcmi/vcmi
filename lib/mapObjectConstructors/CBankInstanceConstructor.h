@@ -27,7 +27,7 @@ struct BankConfig
 	std::vector<ArtifactID> artifacts; //artifacts given in case of victory
 	std::vector<SpellID> spells; // granted spell(s), for Pyramid
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & chance;
 		h & guards;

@@ -96,7 +96,7 @@ public:
 	const JsonNode & getValue(EGameSettings option) const override;
 
 	template<typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & gameSettings;
 	}

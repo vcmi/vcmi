@@ -47,7 +47,7 @@ public:
 	{
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & healthDelta;
@@ -69,7 +69,7 @@ public:
 	{
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & data;

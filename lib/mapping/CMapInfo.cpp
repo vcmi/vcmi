@@ -55,7 +55,7 @@ void CMapInfo::mapInit(const std::string & fname)
 
 void CMapInfo::saveInit(const ResourcePath & file)
 {
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), ESerializationVersion::MINIMAL);
 	lf.checkMagicBytes(SAVEGAME_MAGIC);
 
 	mapHeader = std::make_unique<CMapHeader>();

@@ -145,8 +145,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
 	void playerEndsTurn(PlayerColor player) override;
-	void saveGame(BinarySerializer & h, const int version) override; //saving
-	void loadGame(BinaryDeserializer & h, const int version) override; //loading
+	void saveGame(BinarySerializer & h) override; //saving
+	void loadGame(BinaryDeserializer & h) override; //loading
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	//for battles

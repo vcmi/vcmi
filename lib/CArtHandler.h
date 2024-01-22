@@ -179,7 +179,7 @@ struct DLL_LINKAGE ArtSlotInfo
 	ArtSlotInfo() : locked(false) {}
 	const CArtifactInstance * getArt() const;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & artifact;
 		h & locked;
@@ -223,7 +223,7 @@ public:
 	virtual void removeArtifact(ArtifactPosition slot);
 	virtual ~CArtifactSet();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & artifactsInBackpack;
 		h & artifactsWorn;

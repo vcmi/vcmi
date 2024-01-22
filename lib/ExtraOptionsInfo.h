@@ -20,7 +20,7 @@ struct DLL_LINKAGE ExtraOptionsInfo
 	bool operator == (const ExtraOptionsInfo & other) const;
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & cheatsAllowed;
 		h & unlimitedReplay;

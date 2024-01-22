@@ -44,7 +44,7 @@ public:
 	
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & configuration;
 	}

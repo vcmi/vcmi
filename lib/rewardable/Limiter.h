@@ -92,7 +92,7 @@ struct DLL_LINKAGE Limiter final
 	void loadComponents(std::vector<Component> & comps,
 								const CGHeroInstance * h) const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & dayOfWeek;
 		h & daysPassed;

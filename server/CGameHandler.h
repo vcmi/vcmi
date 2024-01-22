@@ -222,7 +222,7 @@ public:
 	bool dig(const CGHeroInstance *h);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & QID;
 		h & getRandomGenerator();

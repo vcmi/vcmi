@@ -41,7 +41,7 @@ struct DLL_LINKAGE SimturnsInfo
 	}
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & requiredTurns;
 		h & optionalTurns;
@@ -76,7 +76,7 @@ struct DLL_LINKAGE PlayerSettings
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
 	bool compOnly; //true if this player is a computer only player; required for RMG
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & castle;
 		h & hero;
@@ -131,7 +131,7 @@ struct DLL_LINKAGE StartInfo
 	std::string getCampaignName() const;
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		h & mode;
 		h & difficulty;
@@ -143,7 +143,7 @@ struct DLL_LINKAGE StartInfo
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
-		if(version >= 832)
+		if(h.version >= Handler::Version::HAS_EXTRA_OPTIONS)
 			h & extraOptionsInfo;
 		else
 			extraOptionsInfo = ExtraOptionsInfo();
@@ -164,7 +164,7 @@ struct ClientPlayer
 	int connection;
 	std::string name;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & connection;
 		h & name;
@@ -184,7 +184,7 @@ struct DLL_LINKAGE LobbyState
 
 	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & si;
 		h & mi;

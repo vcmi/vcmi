@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 BinaryDeserializer::BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
 {
 	saving = false;
-	fileVersion = 0;
+	version = Version::NONE;
 	smartPointerSerialization = true;
 	reverseEndianess = false;
 

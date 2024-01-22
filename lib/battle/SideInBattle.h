@@ -28,7 +28,7 @@ struct DLL_LINKAGE SideInBattle
 	void init(const CGHeroInstance * Hero, const CArmedInstance * Army);
 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & color;
 		h & hero;

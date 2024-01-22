@@ -36,7 +36,7 @@ public:
 	/// if this is placeholder by type, then hero type of desired hero
 	std::optional<HeroTypeID> heroType;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & powerRank;
@@ -103,7 +103,7 @@ public:
 		bool patrolling;
 		int3 initialPos;
 		ui32 patrolRadius;
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler &h)
 		{
 			h & patrolling;
 			h & initialPos;
@@ -121,7 +121,7 @@ public:
 		void resetMagicSchoolCounter();
 		void resetWisdomCounter();
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler &h)
 		{
 			h & magicSchoolCounter;
 			h & wisdomCounter;
@@ -321,7 +321,7 @@ public:
 
 	void serializeJsonDefinition(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & static_cast<CArtifactSet&>(*this);

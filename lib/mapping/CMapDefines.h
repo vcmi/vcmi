@@ -43,7 +43,7 @@ public:
 	ui32 nextOccurence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & name;
 		h & message;
@@ -68,7 +68,7 @@ public:
 	std::vector<si32> creatures;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & static_cast<CMapEvent &>(*this);
 		h & buildings;
@@ -112,7 +112,7 @@ struct DLL_LINKAGE TerrainTile
 	std::vector<CGObjectInstance *> blockingObjects;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & terType;
 		h & terView;

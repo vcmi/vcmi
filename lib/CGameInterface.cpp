@@ -243,9 +243,8 @@ void CAdventureAI::yourTacticPhase(const BattleID & battleID, int distance)
 	battleAI->yourTacticPhase(battleID, distance);
 }
 
-void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
+void CAdventureAI::saveGame(BinarySerializer & h) /*saving */
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	bool hasBattleAI = static_cast<bool>(battleAI);
 	h & hasBattleAI;
 	if(hasBattleAI)
@@ -254,9 +253,8 @@ void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
 	}
 }
 
-void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading */
+void CAdventureAI::loadGame(BinaryDeserializer & h) /*loading */
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	bool hasBattleAI = false;
 	h & hasBattleAI;
 	if(hasBattleAI)

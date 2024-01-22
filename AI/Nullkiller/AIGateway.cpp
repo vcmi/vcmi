@@ -758,27 +758,25 @@ void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon,
 	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
-void AIGateway::saveGame(BinarySerializer & h, const int version)
+void AIGateway::saveGame(BinarySerializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
 	nullkiller->memory->removeInvisibleObjects(myCb.get());
 
-	CAdventureAI::saveGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::saveGame(h);
+	serializeInternal(h);
 }
 
-void AIGateway::loadGame(BinaryDeserializer & h, const int version)
+void AIGateway::loadGame(BinaryDeserializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	//NET_EVENT_HANDLER;
 
 	#if 0
 	//disabled due to issue 2890
 	registerGoals(h);
 	#endif // 0
-	CAdventureAI::loadGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::loadGame(h);
+	serializeInternal(h);
 }
 
 bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)

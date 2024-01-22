@@ -32,7 +32,7 @@ int CMemorySerializer::write(const void * data, unsigned size)
 
 CMemorySerializer::CMemorySerializer(): iser(this), oser(this), readPos(0)
 {
-	iser.fileVersion = SERIALIZATION_VERSION;
+	iser.version = ESerializationVersion::CURRENT;
 }
 
 VCMI_LIB_NAMESPACE_END
