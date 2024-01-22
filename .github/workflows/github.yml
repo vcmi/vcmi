@@ -268,6 +268,13 @@ jobs:
       run: |
         ctest --preset ${{matrix.preset}}
 
+    - name: Kill XProtect to work around CPack issue on macOS 
+      if: runner.os == 'macOS'
+      run: |
+        # Cf. https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
+        echo Killing...; sudo pkill -9 XProtect >/dev/null || true;
+        echo Waiting...; while pgrep XProtect; do sleep 3; done;
+
     - name: Pack
       id: cpack
       if: ${{ matrix.pack == 1 }}
@@ -279,7 +286,7 @@ jobs:
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
-    - name: Create android package
+    - name: Create Android package
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
         cd android
@@ -414,7 +421,7 @@ jobs:
         name: Android JNI android-64
         path: ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs/
  
-    - name: Create android package
+    - name: Create Android package
       run: |
         cd android
         ./gradlew bundleRelease --info
