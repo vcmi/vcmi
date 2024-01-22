@@ -21,10 +21,6 @@
 
 #include <SDL_events.h>
 
-#ifdef VCMI_APPLE
-#	include <dispatch/dispatch.h>
-#endif
-
 void InputSourceText::handleEventTextInput(const SDL_TextInputEvent & text)
 {
 	GH.events().dispatchTextInput(text.text);
@@ -37,38 +33,27 @@ void InputSourceText::handleEventTextEditing(const SDL_TextEditingEvent & text)
 
 void InputSourceText::startTextInput(const Rect & whereInput)
 {
-
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-
-	Rect rectInScreenCoordinates = GH.screenHandler().convertLogicalPointsToWindow(whereInput);
-	SDL_Rect textInputRect = CSDL_Ext::toSDL(rectInScreenCoordinates);
-
-	SDL_SetTextInputRect(&textInputRect);
-
-	if (SDL_IsTextInputActive() == SDL_FALSE)
+	GH.dispatchMainThread([whereInput]()
 	{
-		SDL_StartTextInput();
-	}
+		Rect rectInScreenCoordinates = GH.screenHandler().convertLogicalPointsToWindow(whereInput);
+		SDL_Rect textInputRect = CSDL_Ext::toSDL(rectInScreenCoordinates);
 
-#ifdef VCMI_APPLE
+		SDL_SetTextInputRect(&textInputRect);
+
+		if (SDL_IsTextInputActive() == SDL_FALSE)
+		{
+			SDL_StartTextInput();
+		}
 	});
-#endif
 }
 
 void InputSourceText::stopTextInput()
 {
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-
-	if (SDL_IsTextInputActive() == SDL_TRUE)
+	GH.dispatchMainThread([]()
 	{
-		SDL_StopTextInput();
-	}
-
-#ifdef VCMI_APPLE
+		if (SDL_IsTextInputActive() == SDL_TRUE)
+		{
+			SDL_StopTextInput();
+		}
 	});
-#endif
 }
