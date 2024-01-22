@@ -178,6 +178,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 		
 		if(!heroesPool->isHeroAvailableFor(nextHero, player) && gameHandler->complain("Cannot invite specified hero!"))
 			return false;
+	}
 
 	if(town) //tavern in town
 	{
