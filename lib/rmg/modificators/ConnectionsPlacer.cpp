@@ -177,6 +177,21 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			int3 potentialPos = zone.areaPossible().nearest(borderPos);
 			assert(borderPos != potentialPos);
 
+			//Check if guard pos doesn't touch any 3rd zone. This would create unwanted passage to 3rd zone
+			bool adjacentZone = false;
+			map.foreach_neighbour(potentialPos, [this, &adjacentZone, otherZoneId](int3 & pos)
+			{
+				auto zoneId = map.getZoneID(pos);
+				if (zoneId != zone.getId() && zoneId != otherZoneId)
+				{
+					adjacentZone = true;
+				}
+			});
+			if (adjacentZone)
+			{
+				continue;
+			}
+
 			//Take into account distance to objects from both sides
 			float dist = std::min(map.getTileInfo(potentialPos).getNearestObjectDistance(),
 				map.getTileInfo(borderPos).getNearestObjectDistance());
