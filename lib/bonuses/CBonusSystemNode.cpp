@@ -273,6 +273,10 @@ CBonusSystemNode::~CBonusSystemNode()
 
 void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 {
+	// quick workaround to prevent multithreaded access to bonus system in RMG
+	static boost::mutex attachMutex;
+	boost::lock_guard<boost::mutex> lock(attachMutex);
+
 	assert(!vstd::contains(parents, &parent));
 	parents.push_back(&parent);
 

@@ -1,3 +1,22 @@
+# 1.4.4 -> 1.4.5
+
+### Stability
+* Fixed crash on creature spellcasting
+* Fixed crash on unit entering magical obstacles such as quicksands
+* Fixed freeze on map loading on some systems
+
+### Random Maps Generator
+* Fixed placement of guards sometimes resulting into open connection into third zone
+* Fixed rare crash on multithreaded access during placement of artifacts or wandering monsters
+
+### Map Editor
+* Fixed inspector using wrong editor for some values
+
+# 1.4.3 -> 1.4.4
+
+### General
+* Fixed crash on generation of random maps
+
 # 1.4.2 -> 1.4.3
 
 ### General
