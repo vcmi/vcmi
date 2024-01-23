@@ -282,7 +282,7 @@ jobs:
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
-        "$CPACK_PATH" -C ${{matrix.pack_type}} ${{ matrix.cpack_args }}
+        counter=0; until "$CPACK_PATH" -C ${{matrix.pack_type}} ${{ matrix.cpack_args }} || ((counter > 20)); do sleep 3; ((counter++)); done
         test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
           && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
