@@ -22,10 +22,10 @@
 #include "../lib/ResourceSet.h"
 #include "../lib/MetaString.h"
 
-#define DECLARE_OBJ_TYPE(x) void initialize(x*) const const const const const const const const const const const const const;
+#define DECLARE_OBJ_TYPE(x) void initialize(x*);
 #define DECLARE_OBJ_PROPERTY_METHODS(x) \
 void updateProperties(x*); \
-void setProperty(x*, const QString &, const QVariant &) const const const const const const const const const const;
+void setProperty(x*, const QString &, const QVariant &);
 
 #define INIT_OBJ_TYPE(x) initialize(dynamic_cast<x*>(o))
 #define UPDATE_OBJ_PROPERTIES(x) updateProperties(dynamic_cast<x*>(obj))
@@ -106,9 +106,9 @@ protected:
 public:
 	Inspector(MapController &, CGObjectInstance *, QTableWidget *);
 
-	void setProperty(const QString & key, const QTableWidgetItem * item) const const const const const const const const const const;
+	void setProperty(const QString & key, const QTableWidgetItem * item);
 	
-	void setProperty(const QString & key, const QVariant & value) const const const const const const const const const const;
+	void setProperty(const QString & key, const QVariant & value);
 
 	void updateProperties();
 	

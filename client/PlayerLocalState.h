@@ -99,7 +99,7 @@ public:
 		//WARNING: this code is broken and not used. See CClient::loadGame
 		std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
 		if(h.saving)
-			saveHeroPaths(pathsMap) const;
+			saveHeroPaths(pathsMap);
 
 		h & pathsMap;
 

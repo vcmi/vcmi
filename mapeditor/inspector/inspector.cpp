@@ -63,17 +63,17 @@ Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : default
 	//INIT_OBJ_TYPE(CGSeerHut);
 }
 
-void Initializer::initialize(CArmedInstance * o) const
+void Initializer::initialize(CArmedInstance * o)
 {
 	if(!o) return;
 }
 
-void Initializer::initialize(CGSignBottle * o) const
+void Initializer::initialize(CGSignBottle * o)
 {
 	if(!o) return;
 }
 
-void Initializer::initialize(CGCreature * o) const
+void Initializer::initialize(CGCreature * o)
 {
 	if(!o) return;
 	
@@ -82,14 +82,14 @@ void Initializer::initialize(CGCreature * o) const
 	   o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
 }
 
-void Initializer::initialize(CGDwelling * o) const
+void Initializer::initialize(CGDwelling * o)
 {
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
 }
 
-void Initializer::initialize(CGGarrison * o) const
+void Initializer::initialize(CGGarrison * o)
 {
 	if(!o) return;
 	
@@ -97,21 +97,21 @@ void Initializer::initialize(CGGarrison * o) const
 	o->removableUnits = true;
 }
 
-void Initializer::initialize(CGShipyard * o) const
+void Initializer::initialize(CGShipyard * o)
 {
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
 }
 
-void Initializer::initialize(CGLighthouse * o) const
+void Initializer::initialize(CGLighthouse * o)
 {
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
 }
 
-void Initializer::initialize(CGHeroPlaceholder * o) const
+void Initializer::initialize(CGHeroPlaceholder * o)
 {
 	if(!o) return;
 	
@@ -124,7 +124,7 @@ void Initializer::initialize(CGHeroPlaceholder * o) const
 		o->powerRank.reset();
 }
 
-void Initializer::initialize(CGHeroInstance * o) const
+void Initializer::initialize(CGHeroInstance * o)
 {
 	if(!o)
 		return;
@@ -157,7 +157,7 @@ void Initializer::initialize(CGHeroInstance * o) const
 	}
 }
 
-void Initializer::initialize(CGTownInstance * o) const
+void Initializer::initialize(CGTownInstance * o)
 {
 	if(!o) return;
 
@@ -177,7 +177,7 @@ void Initializer::initialize(CGTownInstance * o) const
 	}
 }
 
-void Initializer::initialize(CGArtifact * o) const
+void Initializer::initialize(CGArtifact * o)
 {
 	if(!o) return;
 	
@@ -196,7 +196,7 @@ void Initializer::initialize(CGArtifact * o) const
 	}
 }
 
-void Initializer::initialize(CGMine * o) const
+void Initializer::initialize(CGMine * o)
 {
 	if(!o) return;
 	
@@ -213,7 +213,7 @@ void Initializer::initialize(CGMine * o) const
 	}
 }
 
-void Initializer::initialize(CGResource * o) const
+void Initializer::initialize(CGResource * o)
 {
 	if(!o) return;
 	
@@ -549,17 +549,17 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGQuestGuard);
 }
 
-void Inspector::setProperty(CArmedInstance * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CArmedInstance * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }
 
-void Inspector::setProperty(CGLighthouse * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGLighthouse * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }
 
-void Inspector::setProperty(CRewardableObject * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CRewardableObject * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }
@@ -573,7 +573,7 @@ void Inspector::setProperty(CGPandoraBox * o, const QString & key, const QVarian
 			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 }
 
-void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 	
@@ -605,7 +605,7 @@ void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVarian
 			TextIdentifier("sign", o->instanceName, "message"), value.toString().toStdString()));
 }
 
-void Inspector::setProperty(CGMine * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGMine * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 	
@@ -627,7 +627,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 	}
 }
 
-void Inspector::setProperty(CGDwelling * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGDwelling * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 	
@@ -642,7 +642,7 @@ void Inspector::setProperty(CGDwelling * o, const QString & key, const QVariant 
 	}
 }
 
-void Inspector::setProperty(CGGarrison * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGGarrison * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 	
@@ -715,12 +715,12 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	}
 }
 
-void Inspector::setProperty(CGShipyard * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGShipyard * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }
 
-void Inspector::setProperty(CGResource * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGResource * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 	
@@ -764,7 +764,7 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 		o->quest->lastDay = value.toString().toInt();
 }
 
-void Inspector::setProperty(CGQuestGuard * o, const QString & key, const QVariant & value) const
+void Inspector::setProperty(CGQuestGuard * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }

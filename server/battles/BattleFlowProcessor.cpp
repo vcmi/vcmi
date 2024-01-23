@@ -36,7 +36,7 @@ void BattleFlowProcessor::setGameHandler(CGameHandler * newGameHandler)
 	gameHandler = newGameHandler;
 }
 
-void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard const
+void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex) const //return hexes for summoning two hex monsters in output, target = unit to guard
 {
 	int x = targetPosition.getX();
 	int y = targetPosition.getY();

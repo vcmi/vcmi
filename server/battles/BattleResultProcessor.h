@@ -35,7 +35,7 @@ struct CasualtiesAfterBattle
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
 	CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle);
-	void updateArmy(CGameHandler * gh) const;
+	void updateArmy(CGameHandler * gh);
 };
 
 struct FinishingBattleHelper
