@@ -128,7 +128,6 @@ protected:
 		{
 			itemKey = keyItems[key];
 			table->setItem(table->row(itemKey), 1, itemValue);
-			if(delegate)
 				table->setItemDelegateForRow(table->row(itemKey), delegate);
 		}
 		else
@@ -139,7 +138,6 @@ protected:
 			table->setRowCount(row + 1);
 			table->setItem(row, 0, itemKey);
 			table->setItem(row, 1, itemValue);
-			if(delegate)
 				table->setItemDelegateForRow(row, delegate);
 			++row;
 		}
