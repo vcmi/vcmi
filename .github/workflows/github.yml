@@ -269,11 +269,12 @@ jobs:
         ctest --preset ${{matrix.preset}}
 
     - name: Kill XProtect to work around CPack issue on macOS 
-      if: runner.os == 'macOS'
+      if: ${{ startsWith(matrix.platform, 'mac') }}
       run: |
         # Cf. https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
         echo Killing...; sudo pkill -9 XProtect >/dev/null || true;
-        echo Waiting...; while pgrep XProtect; do sleep 3; done;
+        echo "Waiting..."; counter=0; while pgrep XProtect && ((counter < 20)); do sleep 3; ((counter++)); done
+        pgrep XProtect || true
 
     - name: Pack
       id: cpack
