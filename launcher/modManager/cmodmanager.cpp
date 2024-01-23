@@ -61,7 +61,7 @@ CModManager::CModManager(CModList * modList)
 	loadModSettings();
 }
 
-QString CModManager::settingsPath()
+QString CModManager::settingsPath() const
 {
 	return pathToQString(VCMIDirs::get().userConfigPath() / "modSettings.json");
 }
@@ -348,7 +348,7 @@ bool CModManager::doUninstallMod(QString modname)
 	return true;
 }
 
-bool CModManager::removeModDir(QString path)
+bool CModManager::removeModDir(QString path) const
 {
 	// issues 2673 and 2680 its why you do not recursively remove without sanity check
 	QDir checkDir(path);

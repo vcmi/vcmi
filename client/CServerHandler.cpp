@@ -784,7 +784,7 @@ void CServerHandler::showServerError(const std::string & txt) const
 	CInfoWindow::showInfoDialog(txt, {});
 }
 
-int CServerHandler::howManyPlayerInterfaces()
+int CServerHandler::howManyPlayerInterfaces() const
 {
 	int playerInts = 0;
 	for(auto pint : client->playerint)

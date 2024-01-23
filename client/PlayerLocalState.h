@@ -34,7 +34,7 @@ class PlayerLocalState
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> ownedTowns; //our towns on the adventure map
 
-	void saveHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
+	void saveHeroPaths(std::map<const CGHeroInstance *, int3> & paths) const;
 	void loadHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
 
 public:
@@ -62,13 +62,13 @@ public:
 	void setHeroAsleep(const CGHeroInstance * hero);
 	void setHeroAwaken(const CGHeroInstance * hero);
 
-	const std::vector<const CGTownInstance *> & getOwnedTowns();
+	const std::vector<const CGTownInstance *> & getOwnedTowns() const;
 	const CGTownInstance * getOwnedTown(size_t index);
 	void addOwnedTown(const CGTownInstance * hero);
 	void removeOwnedTown(const CGTownInstance * hero);
 	void swapOwnedTowns(size_t pos1, size_t pos2);
 
-	const std::vector<const CGHeroInstance *> & getWanderingHeroes();
+	const std::vector<const CGHeroInstance *> & getWanderingHeroes() const;
 	const CGHeroInstance * getWanderingHero(size_t index);
 	const CGHeroInstance * getNextWanderingHero(const CGHeroInstance * hero);
 	void addWanderingHero(const CGHeroInstance * hero);
@@ -99,7 +99,7 @@ public:
 		//WARNING: this code is broken and not used. See CClient::loadGame
 		std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
 		if(h.saving)
-			saveHeroPaths(pathsMap);
+			saveHeroPaths(pathsMap) const;
 
 		h & pathsMap;
 

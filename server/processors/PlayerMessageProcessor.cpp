@@ -621,7 +621,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		callbacks.at(cheatName)();
 }
 
-void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message)
+void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message) const
 {
 	SystemMessage sm;
 	sm.text = message;

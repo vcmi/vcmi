@@ -94,7 +94,7 @@ void SocketLobby::disconnected()
 	emit text("Disconnected!");
 }
 
-void SocketLobby::bytesWritten(qint64 bytes)
+void SocketLobby::bytesWritten(qint64 bytes) const
 {
 	qDebug() << "We wrote: " << bytes;
 }

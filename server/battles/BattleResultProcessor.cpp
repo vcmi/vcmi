@@ -144,7 +144,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 	}
 }
 
-void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
+void CasualtiesAfterBattle::updateArmy(CGameHandler *gh) const
 {
 	for (TStackAndItsNewCount &ncount : newStackCounts)
 	{

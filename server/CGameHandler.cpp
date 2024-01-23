@@ -1675,7 +1675,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	}
 }
 
-void CGameHandler::sendToAllClients(CPackForClient * pack)
+void CGameHandler::sendToAllClients(CPackForClient * pack) const
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(*pack).name());
 	for (auto c : lobby->connections)
@@ -1712,7 +1712,7 @@ void CGameHandler::sendAndApply(NewStructures * pack)
 	checkVictoryLossConditionsForPlayer(getTown(pack->tid)->tempOwner);
 }
 
-bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id)
+bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id) const
 {
 	return pack->player == getOwner(id) && hasPlayerAt(getOwner(id), pack->c);
 }
@@ -1765,7 +1765,7 @@ void CGameHandler::throwAndComplain(CPackForServer * pack, std::string txt)
 	throwNotAllowedAction(pack);
 }
 
-void CGameHandler::save(const std::string & filename)
+void CGameHandler::save(const std::string & filename) const
 {
 	logGlobal->info("Saving to %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);

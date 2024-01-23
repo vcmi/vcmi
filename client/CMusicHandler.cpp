@@ -247,7 +247,7 @@ int CSoundHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
 	return playSound(*RandomGeneratorUtil::nextItem(sound_vec, CRandomGenerator::getDefault()));
 }
 
-void CSoundHandler::stopSound(int handler)
+void CSoundHandler::stopSound(int handler) const
 {
 	if (initialized && handler != -1)
 		Mix_HaltChannel(handler);
@@ -276,7 +276,7 @@ void CSoundHandler::updateChannelVolume(int channel)
 }
 
 // Sets the sound volume, from 0 (mute) to 100
-void CSoundHandler::setChannelVolume(int channel, ui32 percent)
+void CSoundHandler::setChannelVolume(int channel, ui32 percent) const
 {
 	Mix_Volume(channel, (MIX_MAX_VOLUME * percent)/100);
 }
@@ -702,17 +702,17 @@ bool MusicEntry::stop(int fade_ms)
 	return false;
 }
 
-bool MusicEntry::isPlaying()
+bool MusicEntry::isPlaying() const
 {
 	return playing;
 }
 
-bool MusicEntry::isSet(std::string set)
+bool MusicEntry::isSet(std::string set) const
 {
 	return !setName.empty() && set == setName;
 }
 
-bool MusicEntry::isTrack(const AudioPath & track)
+bool MusicEntry::isTrack(const AudioPath & track) const
 {
 	return setName.empty() && track == currentName;
 }

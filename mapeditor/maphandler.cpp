@@ -401,7 +401,7 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std:
 	}
 }
 
-void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y)
+void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y) const
 {
 	if (!obj)
 	{

@@ -25,17 +25,17 @@ CLauncherDirs & CLauncherDirs::get()
 	return launcherDirsGlobal;
 }
 
-QString CLauncherDirs::downloadsPath()
+QString CLauncherDirs::downloadsPath() const
 {
 	return pathToQString(VCMIDirs::get().userCachePath() / "downloads");
 }
 
-QString CLauncherDirs::modsPath()
+QString CLauncherDirs::modsPath() const
 {
 	return pathToQString(VCMIDirs::get().userDataPath() / "Mods");
 }
 
-QString CLauncherDirs::mapsPath()
+QString CLauncherDirs::mapsPath() const
 {
 	return pathToQString(VCMIDirs::get().userDataPath() / "Maps");
 }

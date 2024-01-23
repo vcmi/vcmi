@@ -106,7 +106,7 @@ void HeroMovementController::showTeleportDialog(const CGHeroInstance * hero, Tel
 	return;
 }
 
-void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMoveHero & details)
+void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMoveHero & details) const
 {
 	// Once hero moved (or attempted to move) we need to update path
 	// to make sure that it is still valid or remove it completely if destination has been reached
@@ -265,7 +265,7 @@ void HeroMovementController::endMove(const CGHeroInstance * hero)
 	CCS->curh->show();
 }
 
-AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType)
+AudioPath HeroMovementController::getMovementSoundFor(const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType) const
 {
 	if(moveType == EPathNodeAction::TELEPORT_BATTLE || moveType == EPathNodeAction::TELEPORT_BLOCKING_VISIT || moveType == EPathNodeAction::TELEPORT_NORMAL)
 		return {};

@@ -207,7 +207,7 @@ public:
 	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner);
-	void save(const std::string &fname);
+	void save(const std::string &fname) const;
 	bool load(const std::string &fname);
 
 	void onPlayerTurnStarted(PlayerColor which);
@@ -241,7 +241,7 @@ public:
 #endif
 	}
 
-	void sendToAllClients(CPackForClient * pack);
+	void sendToAllClients(CPackForClient * pack) const;
 	void sendAndApply(CPackForClient * pack) override;
 	void sendAndApply(CGarrisonOperationPack * pack);
 	void sendAndApply(SetResources * pack);
@@ -259,7 +259,7 @@ public:
 	void throwIfWrongPlayer(CPackForServer * pack);
 	[[noreturn]] void throwAndComplain(CPackForServer * pack, std::string txt);
 
-	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
+	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id) const;
 
 	void run(bool resume);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);

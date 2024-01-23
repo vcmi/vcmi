@@ -43,7 +43,7 @@
 #include "../lib/ScriptHandler.h"
 #endif
 
-void ClientCommandManager::handleQuitCommand()
+void ClientCommandManager::handleQuitCommand() const
 {
 		exit(EXIT_SUCCESS);
 }
@@ -62,7 +62,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
-void ClientCommandManager::handleLoadCommand(std::istringstream& singleWordBuffer)
+void ClientCommandManager::handleLoadCommand(std::istringstream& singleWordBuffer) const
 {
 	// TODO: this code should end the running game and manage to call startGame instead
 	//std::string fname;
@@ -109,7 +109,7 @@ void ClientCommandManager::handleGoSoloCommand()
 	session["aiSolo"].Bool() = !session["aiSolo"].Bool();
 }
 
-void ClientCommandManager::handleAutoskipCommand()
+void ClientCommandManager::handleAutoskipCommand() const
 {
 		Settings session = settings.write["session"];
 		session["autoSkip"].Bool() = !session["autoSkip"].Bool();
@@ -172,17 +172,17 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 	}
 }
 
-void ClientCommandManager::handleRedrawCommand()
+void ClientCommandManager::handleRedrawCommand() const
 {
 	GH.windows().totalRedraw();
 }
 
-void ClientCommandManager::handleNotDialogCommand()
+void ClientCommandManager::handleNotDialogCommand() const
 {
 	LOCPLINT->showingDialog->setn(false);
 }
 
-void ClientCommandManager::handleConvertTextCommand()
+void ClientCommandManager::handleConvertTextCommand() const
 {
 	logGlobal->info("Searching for available maps");
 	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
@@ -263,7 +263,7 @@ void ClientCommandManager::handleGetConfigCommand()
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
-void ClientCommandManager::handleGetScriptsCommand()
+void ClientCommandManager::handleGetScriptsCommand() const
 {
 #if SCRIPTING_ENABLED
 	printCommandMessage("Command accepted.\t");
@@ -316,7 +316,7 @@ void ClientCommandManager::handleGetTextCommand()
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
-void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBuffer)
+void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBuffer) const
 {
 	std::string URI;
 	singleWordBuffer >> URI;
@@ -420,14 +420,14 @@ void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer
 	}
 }
 
-void ClientCommandManager::handleCrashCommand()
+void ClientCommandManager::handleCrashCommand() const
 {
 	int* ptr = nullptr;
 	*ptr = 666;
 	//disaster!
 }
 
-void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType)
+void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType) const
 {
 	switch(messageType)
 	{
@@ -464,7 +464,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 	}
 }
 
-void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
+void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier) const
 {
 	PlayerStartsTurn yt;
 	yt.player = colorIdentifier;

@@ -21,12 +21,12 @@ void UnitFake::addNewBonus(const std::shared_ptr<Bonus> & b)
 	bonusFake.addNewBonus(b);
 }
 
-void UnitFake::makeAlive()
+void UnitFake::makeAlive() const
 {
 	EXPECT_CALL(*this, alive()).Times(AtLeast(1)).WillRepeatedly(Return(true));
 }
 
-void UnitFake::makeDead()
+void UnitFake::makeDead() const
 {
 	EXPECT_CALL(*this, alive()).Times(AtLeast(1)).WillRepeatedly(Return(false));
 	EXPECT_CALL(*this, isGhost()).Times(AtLeast(1)).WillRepeatedly(Return(false));
@@ -38,7 +38,7 @@ void UnitFake::redirectBonusesToFake()
 	ON_CALL(*this, getTreeVersion()).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getTreeVersion));
 }
 
-void UnitFake::expectAnyBonusSystemCall()
+void UnitFake::expectAnyBonusSystemCall() const
 {
 	EXPECT_CALL(*this, getAllBonuses(_, _, _, _)).Times(AtLeast(0));
 	EXPECT_CALL(*this, getTreeVersion()).Times(AtLeast(0));
@@ -66,7 +66,7 @@ Units UnitsFake::getUnitsIf(UnitFilter predicate) const
 	return ret;
 }
 
-void UnitsFake::setDefaultBonusExpectations()
+void UnitsFake::setDefaultBonusExpectations() const
 {
 	for(auto & unit : allUnits)
 	{

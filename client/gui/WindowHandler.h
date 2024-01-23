@@ -26,7 +26,7 @@ class WindowHandler
 	std::shared_ptr<IShowActivatable> topWindowImpl() const;
 
 	/// forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
-	void totalRedrawImpl();
+	void totalRedrawImpl() const;
 
 	/// update only top windows and draw background from buffer, sets a flag, method gets called at the end of the rendering
 	void simpleRedrawImpl();

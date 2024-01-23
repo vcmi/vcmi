@@ -17,6 +17,6 @@ public:
 
 	static CLauncherDirs & get();
 
-	QString downloadsPath();
-	QString modsPath();
+	QString downloadsPath() const;
+	QString modsPath() const;
 };

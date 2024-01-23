@@ -50,18 +50,18 @@ class BattleActionProcessor : boost::noncopyable
 	void handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
 	void attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender);
 
-	std::set<SpellID> getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender);
+	std::set<SpellID> getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender) const;
 
 	// damage, drain life & fire shield; returns amount of drained life
 	int64_t applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
 
 	void sendGenericKilledLog(const CBattleInfoCallback & battle, const CStack * defender, int32_t killed, bool multiple);
-	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
+	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple) const;
 
 	bool canStackAct(const CBattleInfoCallback & battle, const CStack * stack);
 
-	bool doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doEndTacticsAction(const CBattleInfoCallback & battle, const BattleAction & ba);
+	bool doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba) const;
+	bool doEndTacticsAction(const CBattleInfoCallback & battle, const BattleAction & ba) const;
 	bool doRetreatAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doSurrenderAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doHeroSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);

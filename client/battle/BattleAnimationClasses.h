@@ -46,7 +46,7 @@ protected:
 public:
 	ui32 ID; //unique identifier
 
-	bool isInitialized();
+	bool isInitialized() const;
 	bool tryInitialize();
 	virtual void tick(uint32_t msPassed) {} //call every new frame
 	virtual ~BattleAnimation();

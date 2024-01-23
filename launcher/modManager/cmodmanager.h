@@ -17,7 +17,7 @@ class CModManager : public QObject
 
 	CModList * modList;
 
-	QString settingsPath();
+	QString settingsPath() const;
 
 	// check-free version of public method
 	bool doEnableMod(QString mod, bool on);
@@ -29,7 +29,7 @@ class CModManager : public QObject
 
 	QStringList recentErrors;
 	bool addError(QString modname, QString message);
-	bool removeModDir(QString mod);
+	bool removeModDir(QString mod) const;
 
 public:
 	CModManager(CModList * modList);

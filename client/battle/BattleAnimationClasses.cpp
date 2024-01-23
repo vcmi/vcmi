@@ -49,7 +49,7 @@ bool BattleAnimation::tryInitialize()
 	return false;
 }
 
-bool BattleAnimation::isInitialized()
+bool BattleAnimation::isInitialized() const
 {
 	return initialized;
 }

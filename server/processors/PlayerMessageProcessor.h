@@ -52,7 +52,7 @@ public:
 	void playerMessage(PlayerColor player, const std::string & message, ObjectInstanceID currObj);
 
 	/// Send message to specific client with "System" as sender
-	void sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message);
+	void sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message) const;
 
 	/// Send message to all players with "System" as sender
 	void broadcastSystemMessage(const std::string & message);

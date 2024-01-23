@@ -498,7 +498,7 @@ ERM::TLine ERMParser::parseLine(const std::string & line, int realLineNo)
 	}
 }
 
-ERM::TLine ERMParser::parseLine(const std::string & line)
+ERM::TLine ERMParser::parseLine(const std::string & line) const
 {
 	auto beg = line.begin();
 	auto end = line.end();

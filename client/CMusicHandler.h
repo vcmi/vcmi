@@ -74,14 +74,14 @@ public:
 	void release() override;
 
 	void setVolume(ui32 percent) override;
-	void setChannelVolume(int channel, ui32 percent);
+	void setChannelVolume(int channel, ui32 percent) const;
 
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSound(const AudioPath & sound, int repeats=0, bool cache=false);
 	int playSound(std::pair<std::unique_ptr<ui8 []>, si64> & data, int repeats=0, bool cache=false);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
-	void stopSound(int handler);
+	void stopSound(int handler) const;
 
 	void setCallback(int channel, std::function<void()> function);
 	void soundFinishedCallback(int channel);
@@ -117,9 +117,9 @@ public:
 	MusicEntry(CMusicHandler *owner, std::string setName, const AudioPath & musicURI, bool looped, bool fromStart);
 	~MusicEntry();
 
-	bool isSet(std::string setName);
-	bool isTrack(const AudioPath & trackName);
-	bool isPlaying();
+	bool isSet(std::string setName) const;
+	bool isTrack(const AudioPath & trackName) const;
+	bool isPlaying() const;
 
 	bool play();
 	bool stop(int fade_ms=0);

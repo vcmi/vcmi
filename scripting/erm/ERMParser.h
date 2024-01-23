@@ -275,6 +275,6 @@ public:
 private:
 	void repairEncoding(char * str, int len) const; //removes nonstandard ascii characters from string
 	void repairEncoding(std::string & str) const; //removes nonstandard ascii characters from string
-	ERM::TLine parseLine(const std::string & line, int realLineNo);
-	ERM::TLine parseLine(const std::string & line);
+	ERM::TLine parseLine(const std::string & line, int realLineNo) const;
+	ERM::TLine parseLine(const std::string & line) const;
 };

@@ -118,7 +118,7 @@ protected:
 	virtual void doSelect(bool on);
 
 	// returns true if toggle can change its state
-	bool canActivate();
+	bool canActivate() const;
 
 public:
 	/// if set to false - button can not be deselected normally

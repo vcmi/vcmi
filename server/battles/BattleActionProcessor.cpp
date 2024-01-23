@@ -40,12 +40,12 @@ void BattleActionProcessor::setGameHandler(CGameHandler * newGameHandler)
 	gameHandler = newGameHandler;
 }
 
-bool BattleActionProcessor::doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba)
+bool BattleActionProcessor::doEmptyAction(const CBattleInfoCallback & battle, const BattleAction & ba) const
 {
 	return true;
 }
 
-bool BattleActionProcessor::doEndTacticsAction(const CBattleInfoCallback & battle, const BattleAction & ba)
+bool BattleActionProcessor::doEndTacticsAction(const CBattleInfoCallback & battle, const BattleAction & ba) const
 {
 	return true;
 }
@@ -1182,7 +1182,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 	}
 }
 
-std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender)
+std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender) const
 {
 	std::set<SpellID> spellsToCast;
 	constexpr int unlayeredItemsInternalLayer = -1;
@@ -1519,7 +1519,7 @@ void BattleActionProcessor::sendGenericKilledLog(const CBattleInfoCallback & bat
 	}
 }
 
-void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple)
+void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple) const
 {
 	if(killed > 0)
 	{

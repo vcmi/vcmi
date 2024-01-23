@@ -102,7 +102,7 @@ void WindowHandler::totalRedraw()
 	totalRedrawRequested = true;
 }
 
-void WindowHandler::totalRedrawImpl()
+void WindowHandler::totalRedrawImpl() const
 {
 	logGlobal->debug("totalRedraw requested!");
 

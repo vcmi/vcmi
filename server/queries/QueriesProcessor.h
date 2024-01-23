@@ -35,6 +35,6 @@ public:
 
 	std::vector<std::shared_ptr<const CQuery>> allQueries() const;
 	std::vector<QueryPtr> allQueries();
-	QueryPtr getQuery(QueryID queryID);
+	QueryPtr getQuery(QueryID queryID) const;
 	//void removeQuery
 };

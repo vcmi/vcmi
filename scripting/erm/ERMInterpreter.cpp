@@ -1153,19 +1153,19 @@ namespace ERMConverter
 	struct TLiteralEval
 	{
 
-		std::string operator()(const char & val)
+		std::string operator()(const char & val) const
 		{
 			return "{\"'\",'"+ std::to_string(val) +"'}";
 		}
-		std::string operator()(const double & val)
+		std::string operator()(const double & val) const
 		{
 			return std::to_string(val);
 		}
-		std::string operator()(const int & val)
+		std::string operator()(const int & val) const
 		{
 			return std::to_string(val);
 		}
-		std::string operator()(const std::string & val)
+		std::string operator()(const std::string & val) const
 		{
 			return "{\"'\",[===[" + val + "]===]}";
 		}

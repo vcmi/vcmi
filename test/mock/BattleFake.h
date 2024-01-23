@@ -37,12 +37,12 @@ class UnitFake : public UnitMock
 public:
 	void addNewBonus(const std::shared_ptr<Bonus> & b);
 
-	void makeAlive();
-	void makeDead();
+	void makeAlive() const;
+	void makeDead() const;
 
 	void redirectBonusesToFake();
 
-	void expectAnyBonusSystemCall();
+	void expectAnyBonusSystemCall() const;
 
 private:
 	BonusBearerMock bonusFake;
@@ -57,7 +57,7 @@ public:
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const;
 
-	void setDefaultBonusExpectations();
+	void setDefaultBonusExpectations() const;
 };
 
 class BattleFake : public CBattleInfoCallback, public BattleStateMock

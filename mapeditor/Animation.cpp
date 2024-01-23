@@ -836,7 +836,7 @@ void Animation::verticalFlip()
 			*image.second = image.second->transformed(QTransform::fromScale(1, -1));
 }
 
-void Animation::playerColored(PlayerColor player)
+void Animation::playerColored(PlayerColor player) const
 {
 #if 0 //can be required in image preview?
 	for(auto & group : images)

@@ -36,7 +36,7 @@ public:
     ~CConsoleHandler();
     void start(); //starts listening thread
 
-    template<typename T> void print(const T &data, bool addNewLine = false, EConsoleTextColor::EConsoleTextColor color = EConsoleTextColor::DEFAULT, bool printToStdErr = false)
+    template<typename T> void print(const T &data, bool addNewLine = false, EConsoleTextColor::EConsoleTextColor color = EConsoleTextColor::DEFAULT, bool printToStdErr = false) const
 	{
         TLockGuard _(smx);
 #ifndef VCMI_WINDOWS

@@ -23,7 +23,7 @@ PlayerLocalState::PlayerLocalState(CPlayerInterface & owner)
 {
 }
 
-void PlayerLocalState::saveHeroPaths(std::map<const CGHeroInstance *, int3> & pathsMap)
+void PlayerLocalState::saveHeroPaths(std::map<const CGHeroInstance *, int3> & pathsMap) const
 {
 	for(auto & p : paths)
 	{
@@ -195,7 +195,7 @@ void PlayerLocalState::setHeroAwaken(const CGHeroInstance * hero)
 	vstd::erase(sleepingHeroes, hero);
 }
 
-const std::vector<const CGHeroInstance *> & PlayerLocalState::getWanderingHeroes()
+const std::vector<const CGHeroInstance *> & PlayerLocalState::getWanderingHeroes() const
 {
 	return wanderingHeroes;
 }
@@ -243,7 +243,7 @@ void PlayerLocalState::swapWanderingHero(size_t pos1, size_t pos2)
 	adventureInt->onHeroOrderChanged();
 }
 
-const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
+const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns() const
 {
 	return ownedTowns;
 }

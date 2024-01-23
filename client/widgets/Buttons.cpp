@@ -353,7 +353,7 @@ void CToggleBase::setSelected(bool on)
 		callback(on);
 }
 
-bool CToggleBase::canActivate()
+bool CToggleBase::canActivate() const
 {
 	if (selected && !allowDeselection)
 		return false;

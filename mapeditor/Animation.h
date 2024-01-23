@@ -90,7 +90,7 @@ public:
 
 	void horizontalFlip();
 	void verticalFlip();
-	void playerColored(PlayerColor player);
+	void playerColored(PlayerColor player) const;
 
 	void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
 };

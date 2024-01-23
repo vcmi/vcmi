@@ -535,7 +535,6 @@ void CPlayerInterface::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID i
 	garrisonsChanged(instances);
 }
 
-void CPlayerInterface::garrisonsChanged(std::vector<const CArmedInstance *> objs)
 {
 	for (auto object : objs)
 	{

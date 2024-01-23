@@ -119,7 +119,7 @@ std::vector<QueryPtr> QueriesProcessor::allQueries()
 	return ret;
 }
 
-QueryPtr QueriesProcessor::getQuery(QueryID queryID)
+QueryPtr QueriesProcessor::getQuery(QueryID queryID) const
 {
 	for(auto & playerQueries : queries)
 		for(auto & query : playerQueries.second)

@@ -113,7 +113,7 @@ public:
 	
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 	void drawObjects(QPainter & painter, int x, int y, int z, const std::set<const CGObjectInstance *> & locked);
-	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y);
+	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y) const;
 	
 	void drawMinimapTile(QPainter & painter, int x, int y, int z);
 

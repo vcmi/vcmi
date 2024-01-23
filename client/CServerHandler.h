@@ -180,7 +180,7 @@ public:
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
-	int howManyPlayerInterfaces();
+	int howManyPlayerInterfaces() const;
 	ui8 getLoadMode();
 
 	void restoreLastSession();
