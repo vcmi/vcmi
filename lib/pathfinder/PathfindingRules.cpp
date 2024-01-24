@@ -273,9 +273,9 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 		if(destination.guarded)
 		{
 			if (pathfinderHelper->options.ignoreGuards)
-				return BlockingReason::DESTINATION_GUARDED;
-			else
 				return BlockingReason::NONE;
+			else
+				return BlockingReason::DESTINATION_GUARDED;
 		}
 
 		break;

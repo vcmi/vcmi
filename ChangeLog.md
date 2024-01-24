@@ -4,6 +4,8 @@
 * Fixed crash on creature spellcasting
 * Fixed crash on unit entering magical obstacles such as quicksands
 * Fixed freeze on map loading on some systems
+* Fixed crash on attempt to start campaign with unsupported map
+* Fixed crash on opening creature information window with invalid SPELL_IMMUNITY bonus
 
 ### Random Maps Generator
 * Fixed placement of guards sometimes resulting into open connection into third zone
@@ -11,6 +13,10 @@
 
 ### Map Editor
 * Fixed inspector using wrong editor for some values
+
+### AI
+* Fixed bug leading to AI not attacking wandering monsters in some cases
+* Fixed crash on using StupidAI for autocombat or for enemy players 
 
 # 1.4.3 -> 1.4.4
 
