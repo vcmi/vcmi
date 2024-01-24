@@ -183,7 +183,8 @@ void CSoundHandler::ambientStopSound(const AudioPath & soundId)
 	setChannelVolume(ambientChannels[soundId], volume);
 }
 
-double CSoundHandler::getSoundDuration(const AudioPath & sound) {
+double CSoundHandler::getSoundDuration(const AudioPath & sound)
+{
 	if (!initialized || sound.empty())
 		return 0.0;
 
@@ -194,16 +195,16 @@ double CSoundHandler::getSoundDuration(const AudioPath & sound) {
 	uint8_t *audioBuf;
 	double seconds = 0.0;
 
-	if(SDL_LoadWAV_RW(SDL_RWFromMem(data.first.get(), (int)data.second), 1, &spec, &audioBuf, &audioLen) != NULL) {
+	if(SDL_LoadWAV_RW(SDL_RWFromMem(data.first.get(), (int)data.second), 1, &spec, &audioBuf, &audioLen) != nullptr)
+	{
 		SDL_FreeWAV(audioBuf);
 		uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
 		uint32_t sampleCount = audioLen / sampleSize;
 		uint32_t sampleLen = 0;
-		if(spec.channels) {
+		if(spec.channels)
 			sampleLen = sampleCount / spec.channels;
-		} else {
+		else
 			sampleLen = sampleCount;
-		}
 		seconds = (double)sampleLen / (double)spec.freq;
 	}
 
