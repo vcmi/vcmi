@@ -205,8 +205,7 @@ double CSoundHandler::getSoundDuration(const AudioPath & sound) {
 			sampleLen = sampleCount;
 		}
 		seconds = (double)sampleLen / (double)spec.freq;
-	} else
-		return 0.0;
+	}
 
 	return seconds;
 }
