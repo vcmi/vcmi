@@ -183,6 +183,34 @@ void CSoundHandler::ambientStopSound(const AudioPath & soundId)
 	setChannelVolume(ambientChannels[soundId], volume);
 }
 
+double CSoundHandler::getSoundDuration(const AudioPath & sound) {
+	if (!initialized || sound.empty())
+		return 0.0;
+
+	auto data = CResourceHandler::get()->load(sound.addPrefix("SOUNDS/"))->readAll();
+
+    SDL_AudioSpec spec;
+    uint32_t audioLen;
+    uint8_t *audioBuf;
+    double seconds = 0.0;
+
+    if(SDL_LoadWAV_RW(SDL_RWFromMem(data.first.get(), (int)data.second), 1, &spec, &audioBuf, &audioLen) != NULL) {
+        SDL_FreeWAV(audioBuf);
+        uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
+        uint32_t sampleCount = audioLen / sampleSize;
+        uint32_t sampleLen = 0;
+        if(spec.channels) {
+            sampleLen = sampleCount / spec.channels;
+        } else {
+            sampleLen = sampleCount;
+        }
+        seconds = (double)sampleLen / (double)spec.freq;
+    } else
+        return 0.0;
+
+    return seconds;
+}
+
 // Plays a sound, and return its channel so we can fade it out later
 int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {

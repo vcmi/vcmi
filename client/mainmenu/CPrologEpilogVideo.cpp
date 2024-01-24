@@ -14,13 +14,15 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/FramerateManager.h"
 #include "../widgets/TextControls.h"
 #include "../render/Canvas.h"
 
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
-	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback)
+	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTime(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	addUsedEvents(LCLICK);
@@ -31,32 +33,42 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	videoSoundHandle = CCS->soundh->playSound(audioData);
 	CCS->videoh->open(spe.prologVideo);
 	CCS->musich->playMusic(spe.prologMusic, true, true);
+	voiceDuration = CCS->soundh->getSoundDuration(spe.prologVoice);
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
 	auto onVoiceStop = [this]()
 	{
 		voiceStopped = true;
+		elapsedTime = 0.0;
 	};
 	CCS->soundh->setCallback(voiceSoundHandle, onVoiceStop);
 
 	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText.toString());
-	text->scrollTextTo(-100);
+	text->scrollTextTo(-50);
 }
 
 void CPrologEpilogVideo::show(Canvas & to)
 {
+	elapsedTime += GH.framerate().getElapsedMilliseconds() / 1000.0;
+
 	to.drawColor(pos, Colors::BLACK);
 	//some videos are 800x600 in size while some are 800x400
 	CCS->videoh->update(pos.x, pos.y + (CCS->videoh->size().y == 400 ? 100 : 0), to.getInternalSurface(), true, false);
 
-	//move text every 5 calls/frames; seems to be good enough
-	++positionCounter;
-	if(positionCounter % 5 == 0)
+	const double speed = (voiceDuration == 0.0) ? 0.1 : (voiceDuration / (text->textSize.y));
+
+	if(elapsedTime > speed && text->textSize.y - 50 > positionCounter)
+	{
 		text->scrollTextBy(1);
+		elapsedTime = 0.0;
+		++positionCounter;
+	}
 	else
+	{
 		text->showAll(to); // blit text over video, if needed
 
-	if(text->textSize.y + 100 < positionCounter / 5 && voiceStopped)
-		clickPressed(GH.getCursorPosition());
+		if(elapsedTime > (voiceDuration == 0.0 ? 6.0 : 3.0) && voiceStopped)
+			clickPressed(GH.getCursorPosition());
+	}
 }
 
 void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
