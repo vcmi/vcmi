@@ -22,7 +22,7 @@
 
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
-	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTime(0)
+	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTimeMilliseconds(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	addUsedEvents(LCLICK);
@@ -69,7 +69,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 	{
 		text->showAll(to); // blit text over video, if needed
 
-		if(elapsedTime > (voiceDuration == 0.0 ? 6000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
+		if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0.0 ? 6000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
 			clickPressed(GH.getCursorPosition());
 	}
 }
