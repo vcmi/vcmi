@@ -867,9 +867,10 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
 			const auto * hero = battleGetFightingHero(spellObstacle->casterSide);
 			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
-			const auto * sp = obstacle->getTrigger().toSpell();
-			if(obstacle->triggersEffects() && sp)
+
+			if(obstacle->triggersEffects() && obstacle->getTrigger().hasValue())
 			{
+				const auto * sp = obstacle->getTrigger().toSpell();
 				auto cast = spells::BattleCast(this, &caster, spells::Mode::PASSIVE, sp);
 				spells::detail::ProblemImpl ignored;
 				auto target = spells::Target(1, spells::Destination(&unit));

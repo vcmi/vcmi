@@ -109,13 +109,13 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 
 	for (size_t i = 0; i < totalNumber; i++)
 	{
-		auto * tmpl = new ObjectTemplate;
+		auto tmpl = std::make_shared<ObjectTemplate>();
 
 		tmpl->readTxt(parser);
 		parser.endLine();
 
 		std::pair key(tmpl->id, tmpl->subid);
-		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
+		legacyTemplates.insert(std::make_pair(key, tmpl));
 	}
 
 	objects.resize(256);

@@ -38,6 +38,9 @@ bool CModEntry::isEnabled() const
 	if(!isInstalled())
 		return false;
 
+	if (!isVisible())
+		return false;
+
 	return modSettings["active"].toBool();
 }
 

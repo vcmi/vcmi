@@ -1,4 +1,4 @@
-# 1.4.3 -> 1.5.0
+# 1.4.5 -> 1.5.0
 
 ### General
 * Added Chinese translation to map editor
@@ -9,6 +9,31 @@
 * Fixed assembly of artifacts in the backpack when backpack is full
 * Added status bar to the backpack window
 * Quick backpack window is now only available when enabled Interface enhancements
+
+# 1.4.4 -> 1.4.5
+
+### Stability
+* Fixed crash on creature spellcasting
+* Fixed crash on unit entering magical obstacles such as quicksands
+* Fixed freeze on map loading on some systems
+* Fixed crash on attempt to start campaign with unsupported map
+* Fixed crash on opening creature information window with invalid SPELL_IMMUNITY bonus
+
+### Random Maps Generator
+* Fixed placement of guards sometimes resulting into open connection into third zone
+* Fixed rare crash on multithreaded access during placement of artifacts or wandering monsters
+
+### Map Editor
+* Fixed inspector using wrong editor for some values
+
+### AI
+* Fixed bug leading to AI not attacking wandering monsters in some cases
+* Fixed crash on using StupidAI for autocombat or for enemy players 
+
+# 1.4.3 -> 1.4.4
+
+### General
+* Fixed crash on generation of random maps
 
 # 1.4.2 -> 1.4.3
 
