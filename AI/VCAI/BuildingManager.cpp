@@ -139,7 +139,6 @@ void BuildingManager::setAI(VCAI * AI)
 //Set of buildings for different goals. Does not include any prerequisites.
 static const std::vector<BuildingID> essential = { BuildingID::TAVERN, BuildingID::TOWN_HALL };
 static const std::vector<BuildingID> basicGoldSource = { BuildingID::TOWN_HALL, BuildingID::CITY_HALL };
-static const std::vector<BuildingID> cityhallRequirements = { BuildingID::TOWN_HALL, BuildingID::MARKETPLACE, BuildingID::BLACKSMITH, BuildingID::MAGES_GUILD_1 };
 static const std::vector<BuildingID> defence = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE };
 static const std::vector<BuildingID> capitolAndRequirements = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::CAPITOL };
 static const std::vector<BuildingID> unitsSource = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
@@ -149,8 +148,8 @@ BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_
 static const std::vector<BuildingID> unitGrowth = { BuildingID::HORDE_1, BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR };
 static const std::vector<BuildingID> _spells = { BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5 };
-static const std::vector<BuildingID> extra = { BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
-BuildingID::SPECIAL_4, BuildingID::SHIPYARD }; // all remaining buildings
+static const std::vector<BuildingID> extra = { BuildingID::MARKETPLACE, BuildingID::BLACKSMITH, BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, 
+BuildingID::SPECIAL_3, BuildingID::SPECIAL_4, BuildingID::SHIPYARD }; // all remaining buildings
 
 bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 {
@@ -187,23 +186,13 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 
 	if (t->hasBuilt(BuildingID::CASTLE))
 	{
-		if (tryBuildAnyStructure(t, unitGrowth, 4))
+		if (tryBuildAnyStructure(t, unitGrowth))
 			return true;
 	}
 
-	//make required structures for City Hall
-	if(tryBuildNextStructure(t, cityhallRequirements))
-		return true;
-
 	//try to make City Hall
-	for (int i = 0; i < cityhallRequirements.size(); i++)
-	{
-		if (t->hasBuilt(cityhallRequirements[i]))
-		{
-			if (tryBuildThisStructure(t, BuildingID::CITY_HALL))
-				return true;
-		}
-	}
+	if (tryBuildNextStructure(t, basicGoldSource))
+		return true;
 
 	//workaround for mantis #2696 - build capitol with separate algorithm if it is available
 	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
