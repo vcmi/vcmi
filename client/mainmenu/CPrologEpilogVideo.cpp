@@ -64,5 +64,6 @@ void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 	close();
 	CCS->soundh->stopSound(voiceSoundHandle);
 	CCS->soundh->stopSound(videoSoundHandle);
-	exitCb();
+	if(exitCb)
+		exitCb();
 }
