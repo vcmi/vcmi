@@ -205,6 +205,8 @@ void SDLImage::exportBitmap(const boost::filesystem::path& path) const
 
 void SDLImage::playerColored(PlayerColor player)
 {
+	if (!surf)
+		return;
 	graphics->blueToPlayersAdv(surf, player);
 }
 

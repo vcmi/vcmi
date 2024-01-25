@@ -327,9 +327,9 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.hid);
 
-	const CSpell * s = pack.sid.toSpell();
-	if(!s)
+	if (!pack.sid.hasValue())
 		gh.throwNotAllowedAction(&pack);
+
 	const CGHeroInstance * h = gh.getHero(pack.hid);
 	if(!h)
 		gh.throwNotAllowedAction(&pack);
@@ -338,6 +338,7 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 	p.caster = h;
 	p.pos = pack.pos;
 
+	const CSpell * s = pack.sid.toSpell();
 	result = s->adventureCast(gh.spellEnv, p);
 }
 

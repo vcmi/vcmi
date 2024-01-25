@@ -52,6 +52,11 @@ public:
 		num = value;
 	}
 
+	constexpr bool hasValue() const
+	{
+		return num >= 0;
+	}
+
 	struct hash
 	{
 		size_t operator()(const IdentifierBase & id) const

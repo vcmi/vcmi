@@ -102,13 +102,13 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 		return false;
 	}
 
-	const CSpell * s = ba.spell.toSpell();
-	if (!s)
+	if (!ba.spell.hasValue())
 	{
 		logGlobal->error("Wrong spell id (%d)!", ba.spell.getNum());
 		return false;
 	}
 
+	const CSpell * s = ba.spell.toSpell();
 	spells::BattleCast parameters(&battle, h, spells::Mode::HERO, s);
 
 	spells::detail::ProblemImpl problem;
