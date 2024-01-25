@@ -200,11 +200,7 @@ double CSoundHandler::getSoundDuration(const AudioPath & sound)
 		SDL_FreeWAV(audioBuf);
 		uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
 		uint32_t sampleCount = audioLen / sampleSize;
-		uint32_t sampleLen = 0;
-		if(spec.channels)
-			sampleLen = sampleCount / spec.channels;
-		else
-			sampleLen = sampleCount;
+		uint32_t sampleLen = sampleCount / spec.channels;
 		seconds = (double)sampleLen / (double)spec.freq;
 	}
 

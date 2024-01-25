@@ -33,40 +33,43 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	videoSoundHandle = CCS->soundh->playSound(audioData);
 	CCS->videoh->open(spe.prologVideo);
 	CCS->musich->playMusic(spe.prologMusic, true, true);
-	voiceDuration = CCS->soundh->getSoundDuration(spe.prologVoice);
+	voiceDurationMilliseconds = CCS->soundh->getSoundDuration(spe.prologVoice) * 1000.0;
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
 	auto onVoiceStop = [this]()
 	{
 		voiceStopped = true;
-		elapsedTime = 0.0;
+		elapsedTimeMilliseconds = 0;
 	};
 	CCS->soundh->setCallback(voiceSoundHandle, onVoiceStop);
 
 	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText.toString());
-	text->scrollTextTo(-50);
+	text->scrollTextTo(-50); // beginning of text in the vertical middle of black area
+}
+
+void CPrologEpilogVideo::tick(uint32_t msPassed)
+{
+	elapsedTimeMilliseconds += msPassed;
 }
 
 void CPrologEpilogVideo::show(Canvas & to)
 {
-	elapsedTime += GH.framerate().getElapsedMilliseconds() / 1000.0;
-
 	to.drawColor(pos, Colors::BLACK);
 	//some videos are 800x600 in size while some are 800x400
 	CCS->videoh->update(pos.x, pos.y + (CCS->videoh->size().y == 400 ? 100 : 0), to.getInternalSurface(), true, false);
 
-	const double speed = (voiceDuration == 0.0) ? 0.1 : (voiceDuration / (text->textSize.y));
+	const double speed = (voiceDurationMilliseconds == 0) ? 100 : (voiceDurationMilliseconds / (text->textSize.y));
 
-	if(elapsedTime > speed && text->textSize.y - 50 > positionCounter)
+	if(elapsedTimeMilliseconds > speed && text->textSize.y - 50 > positionCounter)
 	{
 		text->scrollTextBy(1);
-		elapsedTime = 0.0;
+		elapsedTimeMilliseconds -= speed;
 		++positionCounter;
 	}
 	else
 	{
 		text->showAll(to); // blit text over video, if needed
 
-		if(elapsedTime > (voiceDuration == 0.0 ? 6.0 : 3.0) && voiceStopped)
+		if(elapsedTime > (voiceDuration == 0.0 ? 6000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
 			clickPressed(GH.getCursorPosition());
 	}
 }
