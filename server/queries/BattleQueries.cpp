@@ -16,6 +16,8 @@
 #include "../battles/BattleProcessor.h"
 
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/battle/SideInBattle.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/Cast.h"
@@ -83,6 +85,9 @@ CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo *
 
 void CBattleDialogQuery::onRemoval(PlayerColor color)
 {
+	if (!gh->getPlayerState(color)->isHuman())
+		return;
+
 	assert(answer);
 	if(*answer == 1)
 	{
