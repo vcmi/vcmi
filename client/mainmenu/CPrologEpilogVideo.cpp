@@ -49,13 +49,6 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 void CPrologEpilogVideo::tick(uint32_t msPassed)
 {
 	elapsedTimeMilliseconds += msPassed;
-}
-
-void CPrologEpilogVideo::show(Canvas & to)
-{
-	to.drawColor(pos, Colors::BLACK);
-	//some videos are 800x600 in size while some are 800x400
-	CCS->videoh->update(pos.x, pos.y + (CCS->videoh->size().y == 400 ? 100 : 0), to.getInternalSurface(), true, false);
 
 	const uint32_t speed = (voiceDurationMilliseconds == 0) ? 100 : (voiceDurationMilliseconds / (text->textSize.y));
 
@@ -65,13 +58,17 @@ void CPrologEpilogVideo::show(Canvas & to)
 		elapsedTimeMilliseconds -= speed;
 		++positionCounter;
 	}
-	else
-	{
-		text->showAll(to); // blit text over video, if needed
+	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0.0 ? 6000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
+		clickPressed(GH.getCursorPosition());
+}
 
-		if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0.0 ? 6000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
-			clickPressed(GH.getCursorPosition());
-	}
+void CPrologEpilogVideo::show(Canvas & to)
+{
+	to.drawColor(pos, Colors::BLACK);
+	//some videos are 800x600 in size while some are 800x400
+	CCS->videoh->update(pos.x, pos.y + (CCS->videoh->size().y == 400 ? 100 : 0), to.getInternalSurface(), true, false);
+
+	text->showAll(to); // blit text over video, if needed
 }
 
 void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)

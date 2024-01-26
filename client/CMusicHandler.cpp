@@ -183,7 +183,7 @@ void CSoundHandler::ambientStopSound(const AudioPath & soundId)
 	setChannelVolume(ambientChannels[soundId], volume);
 }
 
-double CSoundHandler::getSoundDuration(const AudioPath & sound)
+uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 {
 	if (!initialized || sound.empty())
 		return 0.0;
