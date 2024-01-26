@@ -27,7 +27,7 @@ void NetworkServer::start(uint16_t port)
 
 void NetworkServer::startAsyncAccept()
 {
-	std::shared_ptr<NetworkSocket> upcomingConnection = std::make_shared<NetworkSocket>(*io);
+	auto upcomingConnection = std::make_shared<NetworkSocket>(*io);
 	acceptor->async_accept(*upcomingConnection, std::bind(&NetworkServer::connectionAccepted, this, upcomingConnection, _1));
 }
 

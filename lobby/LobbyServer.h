@@ -56,10 +56,10 @@ class LobbyServer : public INetworkServerListener
 	std::unique_ptr<INetworkServer> networkServer;
 
 	std::string sanitizeChatMessage(const std::string & inputString) const;
-	bool isAccountNameValid(const std::string & accountName);
+	bool isAccountNameValid(const std::string & accountName) const;
 
-	NetworkConnectionPtr findAccount(const std::string & accountID);
-	NetworkConnectionPtr findGameRoom(const std::string & gameRoomID);
+	NetworkConnectionPtr findAccount(const std::string & accountID) const;
+	NetworkConnectionPtr findGameRoom(const std::string & gameRoomID) const;
 
 	void onNewConnection(const NetworkConnectionPtr & connection) override;
 	void onDisconnected(const NetworkConnectionPtr & connection) override;
@@ -70,7 +70,7 @@ class LobbyServer : public INetworkServerListener
 	void broadcastActiveAccounts();
 	void broadcastActiveGameRooms();
 
-	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, std::string & displayName, const std::string & messageText);
+	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, const std::string & displayName, const std::string & messageText);
 	void sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie);
 	void sendLoginFailed(const NetworkConnectionPtr & target, const std::string & reason);
 	void sendLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName);

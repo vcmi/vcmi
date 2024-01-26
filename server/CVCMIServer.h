@@ -105,7 +105,7 @@ public:
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
-	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, EStartMode mode);
+	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
 	void clientDisconnected(std::shared_ptr<CConnection> c);
 	void reconnectPlayer(int connId);
 

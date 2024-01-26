@@ -133,14 +133,14 @@ CServerHandler::~CServerHandler()
 }
 
 CServerHandler::CServerHandler()
-	: state(EClientState::NONE)
-	, networkHandler(INetworkHandler::createHandler())
-	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
+	: applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
-	, client(nullptr)
-	, loadMode(ELoadMode::NONE)
-	, screenType(ESelectionScreen::unknown)
+	, networkHandler(INetworkHandler::createHandler())
+	, state(EClientState::NONE)
 	, campaignStateToSend(nullptr)
+	, screenType(ESelectionScreen::unknown)
+	, loadMode(ELoadMode::NONE)
+	, client(nullptr)
 	, campaignServerRestartLock(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());

@@ -19,7 +19,7 @@
 
 static const auto accountCookieLifetime = std::chrono::hours(24 * 7);
 
-bool LobbyServer::isAccountNameValid(const std::string & accountName)
+bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 {
 	if(accountName.size() < 4)
 		return false;
@@ -40,7 +40,7 @@ std::string LobbyServer::sanitizeChatMessage(const std::string & inputString) co
 	return inputString;
 }
 
-NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID)
+NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID) const
 {
 	for(const auto & account : activeAccounts)
 		if(account.second.accountID == accountID)
@@ -49,7 +49,7 @@ NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID)
 	return nullptr;
 }
 
-NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID)
+NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) const
 {
 	for(const auto & account : activeGameRooms)
 		if(account.second.roomID == gameRoomID)
@@ -187,7 +187,7 @@ void LobbyServer::sendJoinRoomSuccess(const NetworkConnectionPtr & target, const
 	sendMessage(target, reply);
 }
 
-void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, std::string & displayName, const std::string & messageText)
+void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std::string & roomMode, const std::string & roomName, const std::string & accountID, const std::string & displayName, const std::string & messageText)
 {
 	JsonNode reply;
 	reply["type"].String() = "chatMessage";
@@ -301,8 +301,8 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 
 	database->insertChatMessage(accountID, "global", "english", messageText);
 
-	for(const auto & connection : activeAccounts)
-		sendChatMessage(connection.first, "global", "english", accountID, displayName, messageText);
+	for(const auto & otherConnection : activeAccounts)
+		sendChatMessage(otherConnection.first, "global", "english", accountID, displayName, messageText);
 }
 
 void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -548,7 +548,7 @@ void LobbyServer::receiveDeclineInvite(const NetworkConnectionPtr & connection, 
 LobbyServer::~LobbyServer() = default;
 
 LobbyServer::LobbyServer(const boost::filesystem::path & databasePath)
-	: database(new LobbyDatabase(databasePath))
+	: database(std::make_unique<LobbyDatabase>(databasePath))
 	, networkHandler(INetworkHandler::createHandler())
 	, networkServer(networkHandler->createServerTCP(*this))
 {

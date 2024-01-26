@@ -117,7 +117,11 @@ public:
 };
 
 CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
-	: state(EServerState::LOBBY), cmdLineOptions(opts), currentClientId(1), currentPlayerId(1), restartGameplay(false)
+	: restartGameplay(false)
+	, state(EServerState::LOBBY)
+	, currentClientId(1)
+	, currentPlayerId(1)
+	, cmdLineOptions(opts)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
@@ -401,7 +405,7 @@ bool CVCMIServer::passHost(int toConnectionId)
 	return false;
 }
 
-void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, EStartMode mode)
+void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
 	if(state != EServerState::LOBBY)
 		throw std::runtime_error("CVCMIServer::clientConnected called while game is not accepting clients!");

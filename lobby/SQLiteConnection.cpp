@@ -32,8 +32,7 @@ SQLiteStatement::SQLiteStatement(SQLiteInstance & instance, sqlite3_stmt * state
 
 SQLiteStatement::~SQLiteStatement()
 {
-	int result = sqlite3_finalize(m_statement);
-	checkSQLiteError(m_instance.m_connection, result);
+	sqlite3_finalize(m_statement);
 }
 
 bool SQLiteStatement::execute()
@@ -179,8 +178,7 @@ SQLiteInstance::SQLiteInstance(sqlite3 * connection)
 
 SQLiteInstance::~SQLiteInstance()
 {
-	int result = sqlite3_close(m_connection);
-	checkSQLiteError(m_connection, result);
+	sqlite3_close(m_connection);
 }
 
 SQLiteStatementPtr SQLiteInstance::prepare(const std::string & sql_text)

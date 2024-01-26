@@ -69,7 +69,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				GH.windows().popWindows(1);
 			}
 
-			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
+			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType);
 		}
 		handler.state = EClientState::LOBBY;
 	}

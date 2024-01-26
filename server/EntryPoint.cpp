@@ -24,8 +24,8 @@
 
 #include <boost/program_options.hpp>
 
-std::string SERVER_NAME_AFFIX = "server";
-std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
+const std::string SERVER_NAME_AFFIX = "server";
+const std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
 
 static void handleCommandOptions(int argc, const char * argv[], boost::program_options::variables_map & options)
 {
@@ -110,7 +110,7 @@ int main(int argc, const char * argv[])
 	logConfig.configure();
 
 	loadDLLClasses();
-	srand((ui32)time(nullptr));
+	std::srand(static_cast<uint32_t>(time(nullptr)));
 
 	{
 		CVCMIServer server(opts);
