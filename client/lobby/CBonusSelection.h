@@ -65,6 +65,7 @@ public:
 	std::shared_ptr<CButton> buttonStart;
 	std::shared_ptr<CButton> buttonRestart;
 	std::shared_ptr<CButton> buttonBack;
+	std::shared_ptr<CButton> buttonVideo;
 	std::shared_ptr<CLabel> campaignName;
 	std::shared_ptr<CLabel> labelCampaignDescription;
 	std::shared_ptr<CTextBox> campaignDescription;

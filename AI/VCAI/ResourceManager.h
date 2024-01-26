@@ -28,7 +28,7 @@ struct DLL_EXPORT ResourceObjective
 	Goals::TSubgoal goal; //what for (build, gather army etc...)
 
 	 //TODO: register?
-	template<typename Handler> void serializeInternal(Handler & h, const int version)
+	template<typename Handler> void serializeInternal(Handler & h)
 	{
 		h & resources;
 		//h & goal; //FIXME: goal serialization is broken
@@ -105,7 +105,7 @@ private:
 	void dumpToLog() const;
 
 	//TODO: register?
-	template<typename Handler> void serializeInternal(Handler & h, const int version)
+	template<typename Handler> void serializeInternal(Handler & h)
 	{
 		h & saving;
 		h & queue;

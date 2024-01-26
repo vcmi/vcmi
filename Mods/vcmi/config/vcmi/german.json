@@ -232,6 +232,8 @@
 	"vcmi.heroWindow.openBackpack.hover" : "Artefakt-Rucksack-Fenster öffnen",
 	"vcmi.heroWindow.openBackpack.help"  : "Öffnet ein Fenster, das die Verwaltung des Artefakt-Rucksacks erleichtert",
 
+	"vcmi.tavernWindow.inviteHero"  : "Helden einladen",
+
 	"vcmi.commanderWindow.artifactMessage" : "Möchtet Ihr diesen Artefakt dem Helden zurückgeben?",
 
 	"vcmi.creatureWindow.showBonuses.hover"    : "Wechsle zur Bonus-Ansicht",

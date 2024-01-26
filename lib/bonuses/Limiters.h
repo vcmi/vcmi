@@ -38,7 +38,7 @@ public:
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 	}
 };
@@ -53,7 +53,7 @@ public:
 	void add(const TLimiterPtr & limiter);
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & limiters;
@@ -104,7 +104,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & creature;
@@ -132,7 +132,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & type;
@@ -156,7 +156,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & terrainType;
@@ -175,7 +175,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & minLevel;
@@ -193,7 +193,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & faction;
@@ -210,7 +210,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & alignment;
@@ -225,7 +225,7 @@ public:
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & owner;
@@ -242,7 +242,7 @@ public:
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
 	EDecision limit(const BonusLimitationContext &context) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & minRank;
@@ -259,7 +259,7 @@ public:
 	EDecision limit(const BonusLimitationContext &context) const override;
 	JsonNode toJsonNode() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & applicableHexes;

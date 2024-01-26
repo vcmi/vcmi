@@ -73,6 +73,7 @@ public:
 	std::unique_ptr<ArmyFormation> armyFormation;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
+	std::mutex aiStateMutex;
 
 	Nullkiller();
 	void init(std::shared_ptr<CCallback> cb, PlayerColor playerID);

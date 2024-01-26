@@ -26,7 +26,7 @@ struct DLL_LINKAGE TerrainPaletteAnimation
 	/// total numbers of colors to cycle
 	int32_t length;
 
-	template <typename Handler> void serialize(Handler& h, const int version)
+	template <typename Handler> void serialize(Handler& h)
 	{
 		h & start;
 		h & length;

@@ -58,7 +58,7 @@ public:
 	bool playerHasStartingHero(PlayerColor player) const;
 	std::unique_ptr<CMap> getCurrentMap() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & gameState;
 	}

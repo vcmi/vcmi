@@ -57,7 +57,7 @@ namespace LogicalExpressionDetail
 			}
 
 			template <typename Handler>
-			void serialize(Handler & h, const int version)
+			void serialize(Handler & h)
 			{
 				h & expressions;
 			}
@@ -614,7 +614,7 @@ public:
 	}
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & data;
 	}

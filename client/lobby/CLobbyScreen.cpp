@@ -135,10 +135,22 @@ void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
 
 void CLobbyScreen::startCampaign()
 {
-	if(CSH->mi)
-	{
+	if(!CSH->mi)
+		return;
+
+	try {
 		auto ourCampaign = CampaignHandler::getCampaign(CSH->mi->fileURI);
 		CSH->setCampaignState(ourCampaign);
+	}
+	catch (const std::runtime_error &e)
+	{
+		// handle possible exception on map loading. For example campaign that contains map in unsupported format
+		// for example, wog campaigns or hota campaigns without hota map support mod
+		MetaString message;
+		message.appendTextID("vcmi.client.errors.invalidMap");
+		message.replaceRawString(e.what());
+
+		CInfoWindow::showInfoDialog(message.toString(), {});
 	}
 }
 

@@ -69,7 +69,7 @@ public:
 		ptr = nullptr;
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & ptr;
 	}

@@ -521,7 +521,7 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 	{
 		auto current = modModel->getMod(modName);
 
-		if(!current.isInstalled())
+		if(!current.isInstalled() || !current.isVisible())
 			continue;
 
 		if(current.getDependencies().contains(mod, Qt::CaseInsensitive))

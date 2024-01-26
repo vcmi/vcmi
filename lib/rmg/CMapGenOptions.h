@@ -67,14 +67,13 @@ public:
 
 	public:
 		template <typename Handler>
-		void serialize(Handler & h, const int version)
+		void serialize(Handler & h)
 		{
 			h & color;
 			h & startingTown;
 			h & playerType;
-			if(version >= 806)
-				h & team;
-			if (version >= 832)
+			h & team;
+			if (h.version >= Handler::Version::RELEASE_143)
 				h & startingHero;
 			else
 				startingHero = HeroTypeID::RANDOM;
@@ -186,7 +185,7 @@ private:
 
 public:
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & width;
 		h & height;
@@ -203,16 +202,13 @@ public:
 		{
 			templateName = mapTemplate->getId();
 		}
-		if(version >= 806)
+		h & templateName;
+		if(!h.saving)
 		{
-			h & templateName;
-			if(!h.saving)
-			{
-				setMapTemplate(templateName);
-			}
-			
-			h & enabledRoads;
+			setMapTemplate(templateName);
 		}
+
+		h & enabledRoads;
 	}
 };
 

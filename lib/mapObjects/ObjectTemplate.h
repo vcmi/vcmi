@@ -156,7 +156,7 @@ private:
 	void calculateTopVisibleOffset();
 
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & usedTiles;
 		h & allowedTerrains;
@@ -164,7 +164,7 @@ public:
 		h & animationFile;
 		h & stringID;
 		h & id;
-		subid.serializeIdentifier(h, id, version);
+		subid.serializeIdentifier(h, id);
 		h & printPriority;
 		h & visitDir;
 		h & editorAnimationFile;

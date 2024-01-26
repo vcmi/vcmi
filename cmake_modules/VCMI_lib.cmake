@@ -2,7 +2,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	if(NOT DEFINED MAIN_LIB_DIR)
 		set(MAIN_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
 	endif()
-	
+
 	set(lib_SRCS
 		${MAIN_LIB_DIR}/StdInc.cpp
 
@@ -268,13 +268,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
 	)
 
-	# Version.cpp is a generated file
+    # Version.cpp is a generated file
 	if(ENABLE_GITVERSION)
 		list(APPEND lib_SRCS ${CMAKE_BINARY_DIR}/Version.cpp)
 		set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
 			PROPERTIES GENERATED TRUE
 		)
-	endif()
+    endif()
 
 	set(lib_HEADERS
 		${MAIN_LIB_DIR}/../include/vstd/CLoggerBase.h
@@ -567,6 +567,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/serializer/JsonSerializer.h
 		${MAIN_LIB_DIR}/serializer/JsonUpdater.h
 		${MAIN_LIB_DIR}/serializer/Cast.h
+		${MAIN_LIB_DIR}/serializer/ESerializationVersion.h
 
 		${MAIN_LIB_DIR}/spells/AbilityCaster.h
 		${MAIN_LIB_DIR}/spells/AdventureSpellMechanics.h
@@ -628,6 +629,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CStopWatch.h
 		${MAIN_LIB_DIR}/CThreadHelper.h
 		${MAIN_LIB_DIR}/CTownHandler.h
+		${MAIN_LIB_DIR}/ExtraOptionsInfo.h
 		${MAIN_LIB_DIR}/FunctionList.h
 		${MAIN_LIB_DIR}/GameCallbackHolder.h
 		${MAIN_LIB_DIR}/GameConstants.h
@@ -663,7 +665,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/VCMI_Lib.h
 	)
 
-	assign_source_group(${lib_SRCS} ${lib_HEADERS})
+    assign_source_group(${lib_SRCS} ${lib_HEADERS})
 
 	add_library(${TARGET_NAME} ${LIBRARY_TYPE} ${lib_SRCS} ${lib_HEADERS})
 	set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
@@ -671,7 +673,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		minizip::minizip ZLIB::ZLIB
 		${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 	)
-	if(APPLE_IOS)
+    if(APPLE_IOS)
 		target_link_libraries(${TARGET_NAME} PUBLIC iOS_utils)
 	endif()
 
@@ -682,13 +684,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		PUBLIC ${MAIN_LIB_DIR}
 	)
 
-	if(WIN32)
+    if(WIN32)
 		set_target_properties(${TARGET_NAME}
 			PROPERTIES
-				OUTPUT_NAME "VCMI_lib"
+			    OUTPUT_NAME "VCMI_lib"
 				PROJECT_LABEL "VCMI_lib"
 		)
-	endif()
+    endif()
 
 	vcmi_set_output_dir(${TARGET_NAME} "")
 
@@ -702,7 +704,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 			COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${MAIN_LIB_DIR}/../config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
 			COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${MAIN_LIB_DIR}/../Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
 		)
-	endif()
+    endif()
 
 	# Update version before vcmi compiling
 	if(TARGET update_version)

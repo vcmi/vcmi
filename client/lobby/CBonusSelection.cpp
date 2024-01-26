@@ -72,6 +72,7 @@ CBonusSelection::CBonusSelection()
 
 	buttonStart = std::make_shared<CButton>(Point(475, 536), AnimationPath::builtin("CBBEGIB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), EShortcut::GLOBAL_ACCEPT);
 	buttonRestart = std::make_shared<CButton>(Point(475, 536), AnimationPath::builtin("CBRESTB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), EShortcut::GLOBAL_ACCEPT);
+	buttonVideo = std::make_shared<CButton>(Point(705, 214), AnimationPath::builtin("CBVIDEB.DEF"), CButton::tooltip(), [this](){ GH.windows().createAndPushWindow<CPrologEpilogVideo>(getCampaign()->scenario(CSH->campaignMap).prolog, [this](){ redraw(); }); });
 	buttonBack = std::make_shared<CButton>(Point(624, 536), AnimationPath::builtin("CBCANCB.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
 	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
@@ -309,6 +310,7 @@ void CBonusSelection::updateAfterStateChange()
 	if(CSH->state != EClientState::GAMEPLAY)
 	{
 		buttonRestart->disable();
+		buttonVideo->disable();
 		buttonStart->enable();
 		if(!getCampaign()->conqueredScenarios().empty())
 			buttonBack->block(true);
@@ -319,6 +321,7 @@ void CBonusSelection::updateAfterStateChange()
 	{
 		buttonStart->disable();
 		buttonRestart->enable();
+		buttonVideo->enable();
 		buttonBack->block(false);
 		if(buttonDifficultyLeft)
 			buttonDifficultyLeft->disable();
@@ -401,6 +404,7 @@ void CBonusSelection::startMap()
 	//block buttons immediately
 	buttonStart->block(true);
 	buttonRestart->block(true);
+	buttonVideo->block(true);
 	buttonBack->block(true);
 
 	if(LOCPLINT) // we're currently ingame, so ask for starting new map and end game

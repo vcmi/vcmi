@@ -35,6 +35,8 @@ const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN = 5000;
 const uint64_t MIN_ARMY_STRENGTH_FOR_NEXT_ACTOR = 1000;
 const uint64_t CHAIN_MAX_DEPTH = 4;
 
+const bool DO_NOT_SAVE_TO_COMMITED_TILES = false;
+
 AISharedStorage::AISharedStorage(int3 sizes)
 {
 	if(!shared){
@@ -234,6 +236,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPath
 		heroNode.specialAction.reset();
 		heroNode.armyLoss = 0;
 		heroNode.chainOther = nullptr;
+		heroNode.dayFlags = DayFlags::NONE;
 		heroNode.update(coord, layer, accessibility);
 	}
 }
@@ -265,7 +268,8 @@ void AINodeStorage::commit(
 	EPathNodeAction action, 
 	int turn, 
 	int movementLeft, 
-	float cost) const
+	float cost,
+	bool saveToCommited) const
 {
 	destination->action = action;
 	destination->setCost(cost);
@@ -291,9 +295,14 @@ void AINodeStorage::commit(
 		destination->actor->armyValue);
 #endif
 
-	if(destination->turns <= heroChainTurn)
+	if(saveToCommited && destination->turns <= heroChainTurn)
 	{
 		commitedTiles.insert(destination->coord);
+	}
+
+	if(destination->turns == source->turns)
+	{
+		destination->dayFlags = source->dayFlags;
 	}
 }
 
@@ -778,7 +787,14 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 			continue;
 		}
 
-		storage.commit(exchangeNode, carrier, carrier->action, chainInfo.turns, chainInfo.moveRemains, chainInfo.getCost());
+		storage.commit(
+			exchangeNode,
+			carrier,
+			carrier->action,
+			chainInfo.turns,
+			chainInfo.moveRemains, 
+			chainInfo.getCost(),
+			DO_NOT_SAVE_TO_COMMITED_TILES);
 
 		if(carrier->specialAction || carrier->chainOther)
 		{
@@ -1070,7 +1086,8 @@ struct TowmPortalFinder
 				EPathNodeAction::TELEPORT_NORMAL,
 				bestNode->turns,
 				bestNode->moveRemains - movementNeeded,
-				movementCost);
+				movementCost,
+				DO_NOT_SAVE_TO_COMMITED_TILES);
 
 			node->theNodeBefore = bestNode;
 			node->addSpecialAction(std::make_shared<AIPathfinding::TownPortalAction>(targetTown));

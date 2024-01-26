@@ -118,7 +118,7 @@ public:
 
 	std::string toJson(bool compact = false) const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & meta;
 		h & flags;

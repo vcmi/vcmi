@@ -553,8 +553,7 @@ Point CGStatusBar::getBorderSize()
 
 CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, ETextAlignment alignment, bool giveFocusToInput)
 	: CLabel(Pos.x, Pos.y, font, alignment),
-	cb(CB),
-	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
+	cb(CB)
 {
 	setRedrawParent(true);
 	pos.h = Pos.h;
@@ -570,7 +569,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 }
 
 CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB)
-	:cb(CB), 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
+	:cb(CB)
 {
 	pos += Pos.topLeft();
 	pos.h = Pos.h;
@@ -587,7 +586,6 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath
 }
 
 CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
-	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	pos += Pos.topLeft();
 	OBJ_CONSTRUCTION;
@@ -603,20 +601,15 @@ CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 #endif
 }
 
-std::atomic<int> CKeyboardFocusListener::usageIndex(0);
+std::atomic<int> CFocusable::usageIndex(0);
 
-CKeyboardFocusListener::CKeyboardFocusListener(CTextInput * textInput)
-	:textInput(textInput)
+void CFocusable::focusGot()
 {
-}
-
-void CKeyboardFocusListener::focusGot()
-{
-	GH.startTextInput(textInput->pos);
+	GH.startTextInput(pos);
 	usageIndex++;
 }
 
-void CKeyboardFocusListener::focusLost()
+void CFocusable::focusLost()
 {
 	if(0 == --usageIndex)
 	{
@@ -769,12 +762,6 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 }
 
 CFocusable::CFocusable()
-	:CFocusable(std::make_shared<IFocusListener>())
-{
-}
-
-CFocusable::CFocusable(std::shared_ptr<IFocusListener> focusListener)
-	: focusListener(focusListener)
 {
 	focus = false;
 	focusables.push_back(this);
@@ -785,7 +772,7 @@ CFocusable::~CFocusable()
 	if(hasFocus())
 	{
 		inputWithFocus = nullptr;
-		focusListener->focusLost();
+		focusLost();
 	}
 
 	focusables -= this;
@@ -799,13 +786,13 @@ bool CFocusable::hasFocus() const
 void CFocusable::giveFocus()
 {
 	focus = true;
-	focusListener->focusGot();
+	focusGot();
 	redraw();
 
 	if(inputWithFocus)
 	{
 		inputWithFocus->focus = false;
-		inputWithFocus->focusListener->focusLost();
+		inputWithFocus->focusLost();
 		inputWithFocus->redraw();
 	}
 
@@ -837,7 +824,7 @@ void CFocusable::removeFocus()
 	if(this == inputWithFocus)
 	{
 		focus = false;
-		focusListener->focusLost();
+		focusLost();
 		redraw();
 
 		inputWithFocus = nullptr;

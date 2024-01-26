@@ -68,7 +68,7 @@ public:
 		///resource name
 		AnimationPath resourceName;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & minimumAngle;
 			h & resourceName;
@@ -84,11 +84,10 @@ public:
 
 		AnimationItem();
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & resourceName;
-			if (version > 806)
-				h & effectName;
+			h & effectName;
 			h & verticalPosition;
 			h & pause;
 		}
@@ -112,7 +111,7 @@ public:
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & projectile;
 			h & hit;
@@ -141,7 +140,7 @@ public:
 
 		JsonNode battleEffects;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & cost;
 			h & power;

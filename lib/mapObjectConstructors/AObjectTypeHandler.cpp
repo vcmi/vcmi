@@ -21,17 +21,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 AObjectTypeHandler::AObjectTypeHandler() = default;
-
-AObjectTypeHandler::~AObjectTypeHandler()
-{
-	// FIXME: currently on Android there is a weird crash in destructor of 'base' member
-	// this code attempts to localize and fix this crash
-	if (base)
-	{
-		base->clear();
-		base.reset();
-	}
-}
+AObjectTypeHandler::~AObjectTypeHandler() = default;
 
 std::string AObjectTypeHandler::getJsonKey() const
 {
@@ -89,12 +79,12 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		if (base)
 			JsonUtils::inherit(entry.second, *base);
 
-		auto * tmpl = new ObjectTemplate;
+		auto tmpl = std::make_shared<ObjectTemplate>();
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
 		tmpl->readJson(entry.second);
-		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+		templates.push_back(tmpl);
 	}
 
 	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
@@ -188,12 +178,13 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
 	if (base)
 		JsonUtils::inherit(config, *base);
-	auto * tmpl = new ObjectTemplate;
+
+	auto tmpl = std::make_shared<ObjectTemplate>();
 	tmpl->id = Obj(type);
 	tmpl->subid = subtype;
 	tmpl->stringID.clear(); // TODO?
 	tmpl->readJson(config);
-	templates.emplace_back(tmpl);
+	templates.push_back(tmpl);
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates() const

@@ -407,8 +407,14 @@ void OptionsTabBase::recreate()
 	}
 
 	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
+	{
 		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
+		buttonCheatAllowed->block(SEL->screenType == ESelectionScreen::loadGame);
+	}
 
 	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
+	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
+		buttonUnlimitedReplay->block(SEL->screenType == ESelectionScreen::loadGame);
+	}
 }

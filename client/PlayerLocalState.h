@@ -47,7 +47,7 @@ public:
 		int spellbookLastTabAdvmap = 4;
 
 		template<typename Handler>
-		void serialize(Handler & h, const int version)
+		void serialize(Handler & h)
 		{
 			h & spellbookLastPageBattle;
 			h & spellbookLastPageAdvmap;
@@ -94,7 +94,7 @@ public:
 	void setSelection(const CArmedInstance *sel);
 
 	template<typename Handler>
-	void serialize(Handler & h, int version)
+	void serialize(Handler & h)
 	{
 		//WARNING: this code is broken and not used. See CClient::loadGame
 		std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest

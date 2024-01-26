@@ -11,6 +11,7 @@
 
 #include "CSerializer.h"
 #include "CTypeList.h"
+#include "ESerializationVersion.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -135,8 +136,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 			Type * ptr = ClassObjectCreator<Type>::invoke(cb); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
 
-			assert(s.fileVersion != 0);
-			ptr->serialize(s,s.fileVersion);
+			ptr->serialize(s);
 
 			return static_cast<void*>(ptr);
 		}
@@ -147,8 +147,10 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	int write(const void * data, unsigned size);
 
 public:
+	using Version = ESerializationVersion;
+
 	bool reverseEndianess; //if source has different endianness than us, we reverse bytes
-	si32 fileVersion;
+	Version version;
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<const void*, std::shared_ptr<void>> loadedSharedPointers;
@@ -178,11 +180,10 @@ public:
 	template < typename T, typename std::enable_if < is_serializeable<BinaryDeserializer, T>::value, int  >::type = 0 >
 	void load(T &data)
 	{
-		assert( fileVersion != 0 );
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename std::remove_const<T>::type nonConstT;
 		auto & hlp = const_cast<nonConstT &>(data);
-		hlp.serialize(*this,fileVersion);
+		hlp.serialize(*this);
 	}
 	template < typename T, typename std::enable_if < std::is_array<T>::value, int  >::type = 0 >
 	void load(T &data)

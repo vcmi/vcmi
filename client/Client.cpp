@@ -226,7 +226,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
 
 		std::unique_ptr<CLoadFile> loader (new CLoadFile(clientSaveName));
-		serialize(loader->serializer, loader->serializer.fileVersion);
+		serialize(loader->serializer, loader->serializer.version);
 
 		logNetwork->info("Client data loaded.");
 	}
@@ -239,7 +239,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	initPlayerInterfaces();
 }
 
-void CClient::serialize(BinarySerializer & h, const int version)
+void CClient::serialize(BinarySerializer & h)
 {
 	assert(h.saving);
 	ui8 players = static_cast<ui8>(playerint.size());
@@ -252,20 +252,17 @@ void CClient::serialize(BinarySerializer & h, const int version)
 		h & i->first;
 		h & i->second->dllName;
 		h & i->second->human;
-		i->second->saveGame(h, version);
+		i->second->saveGame(h);
 	}
 
 #if SCRIPTING_ENABLED
-	if(version >= 800)
-	{
-		JsonNode scriptsState;
-		clientScripts->serializeState(h.saving, scriptsState);
-		h & scriptsState;
-	}
+	JsonNode scriptsState;
+	clientScripts->serializeState(h.saving, scriptsState);
+	h & scriptsState;
 #endif
 }
 
-void CClient::serialize(BinaryDeserializer & h, const int version)
+void CClient::serialize(BinaryDeserializer & h)
 {
 	assert(!h.saving);
 	ui8 players = 0;
@@ -321,7 +318,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 
 		// loadGame needs to be called after initGameInterface to load paths correctly
 		// initGameInterface is called in installNewPlayerInterface
-		nInt->loadGame(h, version);
+		nInt->loadGame(h);
 
 		if (shouldResetInterface)
 		{
@@ -412,7 +409,7 @@ void CClient::initPlayerEnvironments()
 			hasHumanPlayer = true;
 	}
 
-	if(!hasHumanPlayer)
+	if(!hasHumanPlayer && !settings["session"]["headless"].Bool())
 	{
 		Settings session = settings.write["session"];
 		session["spectate"].Bool() = true;
@@ -437,7 +434,7 @@ void CClient::initPlayerInterfaces()
 		if(!vstd::contains(playerint, color))
 		{
 			logNetwork->info("Preparing interface for player %s", color.toString());
-			if(playerInfo.second.isControlledByAI())
+			if(playerInfo.second.isControlledByAI() || settings["session"]["onlyai"].Bool())
 			{
 				bool alliedToHuman = false;
 				for(auto & allyInfo : gs->scenarioOps->playerInfos)

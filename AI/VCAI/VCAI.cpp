@@ -746,9 +746,8 @@ void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, cons
 	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
-void VCAI::saveGame(BinarySerializer & h, const int version)
+void VCAI::saveGame(BinarySerializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
 	validateVisitableObjs();
 
@@ -756,21 +755,20 @@ void VCAI::saveGame(BinarySerializer & h, const int version)
 	//disabled due to issue 2890
 	registerGoals(h);
 	#endif // 0
-	CAdventureAI::saveGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::saveGame(h);
+	serializeInternal(h);
 }
 
-void VCAI::loadGame(BinaryDeserializer & h, const int version)
+void VCAI::loadGame(BinaryDeserializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	//NET_EVENT_HANDLER;
 
 	#if 0
 	//disabled due to issue 2890
 	registerGoals(h);
 	#endif // 0
-	CAdventureAI::loadGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::loadGame(h);
+	serializeInternal(h);
 }
 
 void makePossibleUpgrades(const CArmedInstance * obj)

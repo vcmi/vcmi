@@ -137,14 +137,14 @@ public:
 	virtual void afterRemoveFromMap(CMap * map);
 
 	///Entry point of binary (de-)serialization
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & instanceName;
 		h & typeName;
 		h & subTypeName;
 		h & pos;
 		h & ID;
-		subID.serializeIdentifier(h, ID, version);
+		subID.serializeIdentifier(h, ID);
 		h & id;
 		h & tempOwner;
 		h & blockVisit;

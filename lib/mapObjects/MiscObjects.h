@@ -33,7 +33,7 @@ public:
 	bool wasVisited(const TeamID & team) const;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & players;
@@ -50,7 +50,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & message;
@@ -71,7 +71,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & removableUnits;
@@ -107,7 +107,7 @@ public:
 
 	ArtifactID getArtifact() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & message;
@@ -137,7 +137,7 @@ public:
 	void collectRes(const PlayerColor & player) const;
 	GameResID resourceID() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & amount;
@@ -172,7 +172,7 @@ private:
 	std::string getHoverText(PlayerColor player) const override;
 
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & producedResource;
@@ -193,7 +193,7 @@ struct DLL_LINKAGE TeleportChannel
 	std::vector<ObjectInstanceID> exits;
 	EPassability passability = EPassability::UNKNOWN;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & entrances;
 		h & exits;
@@ -232,7 +232,7 @@ public:
 	static std::vector<ObjectInstanceID> getPassableExits(CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits);
 	static bool isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & type;
 		h & channel;
@@ -252,7 +252,7 @@ protected:
 public:
 	using CGTeleport::CGTeleport;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGTeleport&>(*this);
 	}
@@ -268,7 +268,7 @@ public:
 
 	static void postInit(IGameCallback * cb);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGMonolith&>(*this);
 	}
@@ -283,7 +283,7 @@ class DLL_LINKAGE CGWhirlpool : public CGMonolith
 public:
 	using CGMonolith::CGMonolith;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGMonolith&>(*this);
 	}
@@ -298,7 +298,7 @@ public:
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	void initObj(CRandomGenerator & rand) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
@@ -323,7 +323,7 @@ public:
 	CGBoat(IGameCallback * cb);
 	bool isCoastVisitable() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<CBonusSystemNode&>(*this);
@@ -353,7 +353,7 @@ protected:
 public:
 	using CGObjectInstance::CGObjectInstance;
 
-	template<typename Handler> void serialize(Handler & h, const int version)
+	template<typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & createdBoat;
@@ -371,7 +371,7 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
@@ -393,7 +393,7 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CTeamVisited&>(*this);
 	}
@@ -409,7 +409,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
@@ -443,7 +443,7 @@ protected:
 public:
 	using CGObjectInstance::CGObjectInstance;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & upgradeCostPercentage;

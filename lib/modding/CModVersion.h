@@ -38,7 +38,7 @@ struct DLL_LINKAGE CModVersion
 	bool compatible(const CModVersion & other, bool checkMinor = false, bool checkPatch = false) const;
 	bool isNull() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & major;
 		h & minor;

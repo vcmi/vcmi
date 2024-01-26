@@ -68,7 +68,7 @@ CConnection::CConnection(std::weak_ptr<INetworkConnection> networkConnection)
 
 	enableSmartPointerSerialization();
 	disableStackSendingByID();
-	deserializer->fileVersion = SERIALIZATION_VERSION;
+	deserializer->version = ESerializationVersion::CURRENT;
 }
 
 CConnection::~CConnection() = default;

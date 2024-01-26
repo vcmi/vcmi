@@ -50,7 +50,7 @@ public:
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & battleID;
 		h & sides;
@@ -66,10 +66,7 @@ public:
 		h & tacticsSide;
 		h & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
-		if (version > 824)
-			h & replayAllowed;
-		else
-			replayAllowed = false;
+		h & replayAllowed;
 	}
 
 	//////////////////////////////////////////////////////////////////////////

@@ -176,7 +176,7 @@ namespace Goals
 			return !(*this == g);
 		}
 
-		template<typename Handler> void serialize(Handler & h, const int version)
+		template<typename Handler> void serialize(Handler & h)
 		{
 			h & goalType;
 			h & isElementar;

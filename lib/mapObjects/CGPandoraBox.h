@@ -28,7 +28,7 @@ public:
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CRewardableObject&>(*this);
 		h & message;
@@ -50,7 +50,7 @@ public:
 	bool computerActivate = false; //true if computer player can activate this event
 	bool humanActivate = false; //true if human player can activate this event
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGPandoraBox &>(*this);
 		h & removeAfterVisit;

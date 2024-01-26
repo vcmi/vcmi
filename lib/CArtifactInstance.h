@@ -27,7 +27,7 @@ public:
 	{
 		ConstTransitivePtr<CArtifactInstance> art;
 		ArtifactPosition slot;
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & art;
 			h & slot;
@@ -41,7 +41,7 @@ public:
 	const std::vector<PartInfo> & getPartsInfo() const;
 	void addPlacementMap(CArtifactSet::ArtPlacementMap & placementMap);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & partsInfo;
 	}
@@ -93,7 +93,7 @@ public:
 	void move(CArtifactSet & srcSet, const ArtifactPosition srcSlot, CArtifactSet & dstSet, const ArtifactPosition dstSlot);
 	
 	void deserializationFix();
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CCombinedArtifactInstance&>(*this);

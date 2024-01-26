@@ -32,7 +32,7 @@ struct DLL_LINKAGE SHeroName
 	std::string heroName;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & heroId;
 		h & heroName;
@@ -76,7 +76,7 @@ struct DLL_LINKAGE PlayerInfo
 	TeamID team; /// The default value NO_TEAM
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & hasRandomHero;
 		h & mainCustomHeroId;
@@ -128,7 +128,7 @@ struct DLL_LINKAGE EventCondition
 	EWinLoseType condition;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & objectID;
 		h & value;
@@ -156,7 +156,7 @@ struct DLL_LINKAGE EventEffect
 	MetaString toOtherMessage;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & type;
 		h & toOtherMessage;
@@ -181,7 +181,7 @@ struct DLL_LINKAGE TriggeredEvent
 	EventEffect effect;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & identifier;
 		h & trigger;
@@ -245,7 +245,7 @@ public:
 	void registerMapStrings();
 
 	template <typename Handler>
-	void serialize(Handler & h, const int Version)
+	void serialize(Handler & h)
 	{
 		h & texts;
 		h & version;

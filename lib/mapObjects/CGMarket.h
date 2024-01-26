@@ -36,7 +36,7 @@ public:
 	int availableUnits(EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & marketModes;
@@ -56,7 +56,7 @@ public:
 	void newTurn(CRandomGenerator & rand) const override; //reset artifacts for black market every month
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & artifacts;
@@ -73,7 +73,7 @@ public:
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override; //open window
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;

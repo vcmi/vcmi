@@ -67,7 +67,7 @@ public:
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;

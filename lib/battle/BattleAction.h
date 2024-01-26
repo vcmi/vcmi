@@ -55,7 +55,7 @@ public:
 	battle::Target getTarget(const CBattleInfoCallback * cb) const;
 	void setTarget(const battle::Target & target_);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & side;
 		h & stackNumber;
@@ -70,7 +70,7 @@ private:
 		int32_t unitValue;
 		BattleHex hexValue;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & unitValue;
 			h & hexValue;

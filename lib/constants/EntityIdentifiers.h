@@ -527,7 +527,7 @@ public:
 	}
 
 	template <typename Handler>
-	void serializeIdentifier(Handler &h, const MapObjectID & primaryID, const int version)
+	void serializeIdentifier(Handler &h, const MapObjectID & primaryID)
 	{
 		std::string secondaryStringID;
 
@@ -959,7 +959,7 @@ public:
 	using Identifier<BuildingTypeUniqueID>::Identifier;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		FactionID faction = getFaction();
 		BuildingID building = getBuilding();

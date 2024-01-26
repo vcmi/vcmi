@@ -26,7 +26,7 @@ public:
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 	}
 };
@@ -40,7 +40,7 @@ public:
 	GrowsWithLevelUpdater() = default;
 	GrowsWithLevelUpdater(int valPer20, int stepSize = 1);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
 		h & valPer20;
@@ -55,7 +55,7 @@ public:
 class DLL_LINKAGE TimesHeroLevelUpdater : public IUpdater
 {
 public:
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
 	}
@@ -68,7 +68,7 @@ public:
 class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
 {
 public:
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
 	}
@@ -87,7 +87,7 @@ public:
 	si32 max;
 	ArmyMovementUpdater();
 	ArmyMovementUpdater(int base, int divider, int multiplier, int max);
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
 		h & base;
@@ -104,7 +104,7 @@ public:
 class DLL_LINKAGE OwnerUpdater : public IUpdater
 {
 public:
-	template <typename Handler> void serialize(Handler& h, const int version)
+	template <typename Handler> void serialize(Handler& h)
 	{
 		h & static_cast<IUpdater &>(*this);
 	}

@@ -40,10 +40,10 @@ struct DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 				return subID < other.subID;
 		}
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler &h)
 		{
 			h & id;
-			subID.serializeIdentifier(h, id, version);
+			subID.serializeIdentifier(h, id);
 		}
 	};
 
@@ -89,7 +89,7 @@ public:
 		return heroes.empty() && towns.empty();
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & color;
 		h & human;
@@ -123,7 +123,7 @@ public:
 
 	TeamState();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & id;
 		h & players;
