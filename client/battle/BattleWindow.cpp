@@ -60,6 +60,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
 	addShortcut(EShortcut::BATTLE_RETREAT, std::bind(&BattleWindow::bFleef, this));
 	addShortcut(EShortcut::BATTLE_AUTOCOMBAT, std::bind(&BattleWindow::bAutofightf, this));
+	addShortcut(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, std::bind(&BattleWindow::endWithAutocombat, this));
 	addShortcut(EShortcut::BATTLE_CAST_SPELL, std::bind(&BattleWindow::bSpellf, this));
 	addShortcut(EShortcut::BATTLE_WAIT, std::bind(&BattleWindow::bWaitf, this));
 	addShortcut(EShortcut::BATTLE_DEFEND, std::bind(&BattleWindow::bDefencef, this));
@@ -722,6 +723,7 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
@@ -731,6 +733,27 @@ void BattleWindow::blockUI(bool on)
 std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 {
 	return queue->getHoveredUnitIdIfAny();
+}
+
+void BattleWindow::endWithAutocombat() 
+{
+	close();
+
+	auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
+
+	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+
+	ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
+	ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
+
+	owner.curInt->isAutoFightOn = true;
+	owner.curInt->cb->registerBattleInterface(ai);
+	owner.curInt->autofightingAI = ai;
+
+	owner.requestAutofightingAIToTakeAction();
+
+	owner.curInt->battleInt.reset();
 }
 
 void BattleWindow::showAll(Canvas & to)

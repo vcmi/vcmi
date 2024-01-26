@@ -125,5 +125,8 @@ public:
 
 	/// Set possible alternative options. If more than 1 - the last will be considered as default option
 	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
+
+	/// ends battle with autocombat
+	void endWithAutocombat();
 };
 
