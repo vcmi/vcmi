@@ -25,7 +25,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTimeMilliseconds(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	addUsedEvents(LCLICK);
+	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
@@ -57,7 +57,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 	//some videos are 800x600 in size while some are 800x400
 	CCS->videoh->update(pos.x, pos.y + (CCS->videoh->size().y == 400 ? 100 : 0), to.getInternalSurface(), true, false);
 
-	const double speed = (voiceDurationMilliseconds == 0) ? 100 : (voiceDurationMilliseconds / (text->textSize.y));
+	const uint32_t speed = (voiceDurationMilliseconds == 0) ? 100 : (voiceDurationMilliseconds / (text->textSize.y));
 
 	if(elapsedTimeMilliseconds > speed && text->textSize.y - 50 > positionCounter)
 	{
