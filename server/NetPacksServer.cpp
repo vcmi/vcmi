@@ -282,7 +282,7 @@ void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
 
-	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player);
+	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player, pack.nhid);
 }
 
 void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)

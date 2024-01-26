@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 enum class TavernHeroSlot : int8_t;
@@ -33,7 +35,7 @@ class HeroPoolProcessor : boost::noncopyable
 	std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeed;
 
 	void clearHeroFromSlot(const PlayerColor & color, TavernHeroSlot slot);
-	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy);
+	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy, const HeroTypeID & nextHero = HeroTypeID::NONE);
 
 	std::vector<const CHeroClass *> findAvailableClassesFor(const PlayerColor & player) const;
 	std::vector<CGHeroInstance *> findAvailableHeroesFor(const PlayerColor & player, const CHeroClass * heroClass) const;
@@ -60,7 +62,7 @@ public:
 	CRandomGenerator & getHeroSkillsRandomGenerator(const HeroTypeID & hero);
 
 	/// Incoming net pack handling
-	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player);
+	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player, const HeroTypeID & nextHero);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

@@ -64,12 +64,14 @@
 					"name": "buttonCheatAllowed",
 					"image": "lobby/checkbox",
 					"callback" : "setCheatAllowed",
+					"help" : "vcmi.optionsTab.cheatAllowed",
 					"selected" : true
 				},
 				{
 					"name": "buttonUnlimitedReplay",
 					"image": "lobby/checkbox",
 					"callback" : "setUnlimitedReplay",
+					"help" : "vcmi.optionsTab.unlimitedReplay",
 					"selected" : true
 				}
 			]
