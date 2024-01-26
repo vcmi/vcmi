@@ -193,7 +193,7 @@ double CSoundHandler::getSoundDuration(const AudioPath & sound)
 	SDL_AudioSpec spec;
 	uint32_t audioLen;
 	uint8_t *audioBuf;
-	double seconds = 0.0;
+	uint32_t miliseconds = 0;
 
 	if(SDL_LoadWAV_RW(SDL_RWFromMem(data.first.get(), (int)data.second), 1, &spec, &audioBuf, &audioLen) != nullptr)
 	{
@@ -201,10 +201,10 @@ double CSoundHandler::getSoundDuration(const AudioPath & sound)
 		uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
 		uint32_t sampleCount = audioLen / sampleSize;
 		uint32_t sampleLen = sampleCount / spec.channels;
-		seconds = (double)sampleLen / (double)spec.freq;
+		miliseconds = 1000 * sampleLen / spec.freq;
 	}
 
-	return seconds;
+	return miliseconds ;
 }
 
 // Plays a sound, and return its channel so we can fade it out later
