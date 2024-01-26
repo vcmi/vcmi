@@ -33,7 +33,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	videoSoundHandle = CCS->soundh->playSound(audioData);
 	CCS->videoh->open(spe.prologVideo);
 	CCS->musich->playMusic(spe.prologMusic, true, true);
-	voiceDurationMilliseconds = CCS->soundh->getSoundDuration(spe.prologVoice) * 1000.0;
+	voiceDurationMilliseconds = CCS->soundh->getSoundDurationMilliseconds(spe.prologVoice) * 1000.0;
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
 	auto onVoiceStop = [this]()
 	{
