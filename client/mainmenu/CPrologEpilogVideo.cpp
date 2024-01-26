@@ -33,7 +33,7 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	videoSoundHandle = CCS->soundh->playSound(audioData);
 	CCS->videoh->open(spe.prologVideo);
 	CCS->musich->playMusic(spe.prologMusic, true, true);
-	voiceDurationMilliseconds = CCS->soundh->getSoundDurationMilliseconds(spe.prologVoice) * 1000.0;
+	voiceDurationMilliseconds = CCS->soundh->getSoundDurationMilliseconds(spe.prologVoice);
 	voiceSoundHandle = CCS->soundh->playSound(spe.prologVoice);
 	auto onVoiceStop = [this]()
 	{
@@ -50,7 +50,7 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 {
 	elapsedTimeMilliseconds += msPassed;
 
-	const uint32_t speed = (voiceDurationMilliseconds == 0) ? 100 : (voiceDurationMilliseconds / (text->textSize.y));
+	const uint32_t speed = (voiceDurationMilliseconds == 0) ? 150 : (voiceDurationMilliseconds / (text->textSize.y));
 
 	if(elapsedTimeMilliseconds > speed && text->textSize.y - 50 > positionCounter)
 	{
@@ -58,7 +58,7 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 		elapsedTimeMilliseconds -= speed;
 		++positionCounter;
 	}
-	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0.0 ? 6000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
+	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
 		clickPressed(GH.getCursorPosition());
 }
 

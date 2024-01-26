@@ -186,7 +186,7 @@ void CSoundHandler::ambientStopSound(const AudioPath & soundId)
 uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 {
 	if (!initialized || sound.empty())
-		return 0.0;
+		return 0;
 
 	auto data = CResourceHandler::get()->load(sound.addPrefix("SOUNDS/"))->readAll();
 
