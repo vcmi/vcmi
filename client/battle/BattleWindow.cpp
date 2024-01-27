@@ -130,19 +130,13 @@ void BattleWindow::createStickyHeroInfoWindows()
 	{
 		InfoAboutHero info;
 		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, pos.y + 60)
-				: Point(pos.x + pos.w -79, pos.y + 195);
-		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, nullptr);
 	}
 	if(owner.attackingHeroInstance)
 	{
 		InfoAboutHero info;
 		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, pos.y + 60)
-				: Point(pos.x + 1, pos.y + 195);
-		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, nullptr);
 	}
 
 	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
@@ -155,6 +149,8 @@ void BattleWindow::createStickyHeroInfoWindows()
 		if(defenderHeroWindow)
 			defenderHeroWindow->disable();
 	}
+
+	setPositionInfoWindow();
 }
 
 void BattleWindow::createTimerInfoWindows()
@@ -222,6 +218,7 @@ void BattleWindow::hideQueue()
 		pos.h -= queue->pos.h;
 		pos = center();
 	}
+	setPositionInfoWindow();
 	GH.windows().totalRedraw();
 }
 
@@ -235,6 +232,7 @@ void BattleWindow::showQueue()
 
 	createQueue();
 	updateQueue();
+	setPositionInfoWindow();
 	GH.windows().totalRedraw();
 }
 
@@ -281,6 +279,38 @@ void BattleWindow::updateQueue()
 	queue->update();
 }
 
+void BattleWindow::setPositionInfoWindow()
+{
+	if(defenderHeroWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x + pos.w + 15, pos.y + 60)
+				: Point(pos.x + pos.w -79, pos.y + 195);
+		defenderHeroWindow->moveTo(position);
+	}
+	if(attackerHeroWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x - 93, pos.y + 60)
+				: Point(pos.x + 1, pos.y + 195);
+		attackerHeroWindow->moveTo(position);
+	}
+	if(defenderStackWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x + pos.w + 15, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y)
+				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 135);
+		defenderStackWindow->moveTo(position);
+	}
+	if(attackerStackWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x - 93, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y)
+				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 135);
+		attackerStackWindow->moveTo(position);
+	}
+}
+
 void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero)
 {
 	std::shared_ptr<HeroInfoBasicPanel> panelToUpdate = side == 0 ? attackerHeroWindow : defenderHeroWindow;
@@ -295,10 +325,7 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 
 	if(stack && stack->unitSide() == BattleSide::DEFENDER)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y)
-				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 135);
-		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
+		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack, nullptr);
 		defenderStackWindow->setEnabled(showInfoWindows);
 	}
 	else
@@ -306,14 +333,13 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	
 	if(stack && stack->unitSide() == BattleSide::ATTACKER)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y)
-				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 135);
-		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
+		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack, nullptr);
 		attackerStackWindow->setEnabled(showInfoWindows);
 	}
 	else
 		attackerStackWindow = nullptr;
+	
+	setPositionInfoWindow();
 }
 
 void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)

@@ -100,6 +100,9 @@ public:
 	/// Refresh queue after turn order changes
 	void updateQueue();
 
+	// Set positions for hero & stack info window
+	void setPositionInfoWindow();
+
 	/// Refresh sticky variant of hero info window after spellcast, side same as in BattleSpellCast::side
 	void updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero);
 
