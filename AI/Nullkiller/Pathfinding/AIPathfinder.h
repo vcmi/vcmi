@@ -49,6 +49,11 @@ public:
 	void updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings);
 	void updateGraphs(std::map<const CGHeroInstance *, HeroRole> heroes);
 	void init();
+
+	std::shared_ptr<AINodeStorage>getStorage()
+	{
+		return storage;
+	}
 };
 
 }

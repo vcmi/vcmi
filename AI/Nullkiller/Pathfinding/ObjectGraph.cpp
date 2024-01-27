@@ -111,9 +111,6 @@ void ObjectGraph::connectHeroes(const Nullkiller * ai)
 
 		for(AIPath & path : paths)
 		{
-			if(path.turn() == 0)
-				continue;
-
 			auto heroPos = path.targetHero->visitablePos();
 
 			nodes[pos].connections[heroPos].update(
@@ -127,9 +124,9 @@ void ObjectGraph::connectHeroes(const Nullkiller * ai)
 	}
 }
 
-bool GraphNodeComparer::operator()(int3 lhs, int3 rhs) const
+bool GraphNodeComparer::operator()(const GraphPathNodePointer & lhs, const GraphPathNodePointer & rhs) const
 {
-	return pathNodes.at(lhs).cost > pathNodes.at(rhs).cost;
+	return pathNodes.at(lhs.coord)[lhs.nodeType].cost > pathNodes.at(rhs.coord)[rhs.nodeType].cost;
 }
 
 void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai)
@@ -142,21 +139,22 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 	GraphNodeComparer cmp(pathNodes);
 	GraphPathNode::TFibHeap pq(cmp);
 
-	pathNodes[targetHero->visitablePos()].cost = 0;
-	pq.emplace(targetHero->visitablePos());
+	pathNodes[targetHero->visitablePos()][GrapthPathNodeType::NORMAL].cost = 0;
+	pq.emplace(GraphPathNodePointer(targetHero->visitablePos(), GrapthPathNodeType::NORMAL));
 
 	while(!pq.empty())
 	{
-		int3 pos = pq.top();
+		GraphPathNodePointer pos = pq.top();
 		pq.pop();
 
-		auto node = pathNodes[pos];
+		auto & node = getNode(pos);
 
 		node.isInQueue = false;
 
-		graph.iterateConnections(pos, [&](int3 target, ObjectLink o)
+		graph.iterateConnections(pos.coord, [&](int3 target, ObjectLink o)
 			{
-				auto & targetNode = pathNodes[target];
+				auto targetPointer = GraphPathNodePointer(target, pos.nodeType);
+				auto & targetNode = getNode(targetPointer);
 
 				if(targetNode.tryUpdate(pos, node, o))
 				{
@@ -166,7 +164,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 					}
 					else
 					{
-						targetNode.handle = pq.emplace(target);
+						targetNode.handle = pq.emplace(targetPointer);
 						targetNode.isInQueue = true;
 					}
 				}
@@ -176,61 +174,114 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 void GraphPaths::dumpToLog() const
 {
-	for(auto & node : pathNodes)
+	for(auto & tile : pathNodes)
 	{
-		logAi->trace(
-			"%s -> %s: %f !%d",
-			node.second.previous.toString(),
-			node.first.toString(),
-			node.second.cost,
-			node.second.danger);
+		for(auto & node : tile.second)
+		{
+			if(!node.previous.valid())
+				continue;
+
+			logAi->trace(
+				"%s -> %s: %f !%d",
+				node.previous.coord.toString(),
+				tile.first.toString(),
+				node.cost,
+				node.danger);
+		}
 	}
+}
+
+bool GraphPathNode::tryUpdate(const GraphPathNodePointer & pos, const GraphPathNode & prev, const ObjectLink & link)
+{
+	auto newCost = prev.cost + link.cost;
+
+	if(newCost < cost)
+	{
+		previous = pos;
+		danger = prev.danger + link.danger;
+		cost = newCost;
+
+		return true;
+	}
+
+	return false;
 }
 
 void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const
 {
-	auto node = pathNodes.find(tile);
+	auto nodes = pathNodes.find(tile);
 
-	if(node == pathNodes.end() || !node->second.reachable())
+	if(nodes == pathNodes.end())
 		return;
 
-	std::vector<int3> tilesToPass;
-
-	uint64_t danger = node->second.danger;
-	float cost = node->second.cost;;
-
-	while(node != pathNodes.end() && node->second.cost > 1)
+	for(auto & node : (*nodes).second)
 	{
-		vstd::amax(danger, node->second.danger);
-
-		tilesToPass.push_back(node->first);
-		node = pathNodes.find(node->second.previous);
-	}
-
-	if(tilesToPass.empty())
-		return;
-
-	auto entryPaths = ai->pathfinder->getPathInfo(tilesToPass.back());
-
-	for(auto & path : entryPaths)
-	{
-		if(path.targetHero != hero)
+		if(!node.reachable())
 			continue;
 
-		for(auto graphTile : tilesToPass)
+		std::vector<int3> tilesToPass;
+
+		uint64_t danger = node.danger;
+		float cost = node.cost;
+		bool allowBattle = false;
+
+		auto current = GraphPathNodePointer(nodes->first, node.nodeType);
+
+		while(true)
 		{
-			AIPathNodeInfo n;
+			auto currentTile = pathNodes.find(current.coord);
 
-			n.coord = graphTile;
-			n.cost = cost;
-			n.turns = static_cast<ui8>(cost) + 1; // just in case lets select worst scenario
-			n.danger = danger;
-			n.targetHero = hero;
+			if(currentTile == pathNodes.end())
+				break;
 
-			path.nodes.insert(path.nodes.begin(), n);
+			auto currentNode = currentTile->second[current.nodeType];
+
+			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
+			vstd::amax(danger, currentNode.danger);
+			vstd::amax(cost, currentNode.cost);
+
+			tilesToPass.push_back(current.coord);
+
+			if(currentNode.cost < 2)
+				break;
+
+			current = currentNode.previous;
 		}
 
-		paths.push_back(path);
+		if(tilesToPass.empty())
+			continue;
+
+		auto entryPaths = ai->pathfinder->getPathInfo(tilesToPass.back());
+
+		for(auto & path : entryPaths)
+		{
+			if(path.targetHero != hero)
+				continue;
+
+			for(auto graphTile = tilesToPass.rbegin(); graphTile != tilesToPass.rend(); graphTile++)
+			{
+				AIPathNodeInfo n;
+
+				n.coord = *graphTile;
+				n.cost = cost;
+				n.turns = static_cast<ui8>(cost) + 1; // just in case lets select worst scenario
+				n.danger = danger;
+				n.targetHero = hero;
+
+				for(auto & node : path.nodes)
+				{
+					node.parentIndex++;
+				}
+
+				path.nodes.insert(path.nodes.begin(), n);
+			}
+
+			path.armyLoss += ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), danger);
+			path.targetObjectDanger = ai->pathfinder->getStorage()->evaluateDanger(tile, path.targetHero, !allowBattle);
+			path.targetObjectArmyLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
+
+			paths.push_back(path);
+		}
 	}
 }
 

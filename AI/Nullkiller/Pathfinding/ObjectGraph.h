@@ -67,28 +67,57 @@ public:
 
 struct GraphPathNode;
 
+enum GrapthPathNodeType
+{
+	NORMAL,
+
+	BATTLE,
+
+	LAST
+};
+
+struct GraphPathNodePointer
+{
+	int3 coord = int3(-1);
+	GrapthPathNodeType nodeType = GrapthPathNodeType::NORMAL;
+
+	GraphPathNodePointer() = default;
+
+	GraphPathNodePointer(int3 coord, GrapthPathNodeType type)
+		:coord(coord), nodeType(type)
+	{ }
+
+	bool valid() const
+	{
+		return coord.valid();
+	}
+};
+
+typedef std::unordered_map<int3, GraphPathNode[GrapthPathNodeType::LAST]> GraphNodeStorage;
+
 class GraphNodeComparer
 {
-	const std::unordered_map<int3, GraphPathNode> & pathNodes;
+	const GraphNodeStorage & pathNodes;
 
 public:
-	GraphNodeComparer(const std::unordered_map<int3, GraphPathNode> & pathNodes)
+	GraphNodeComparer(const GraphNodeStorage & pathNodes)
 		:pathNodes(pathNodes)
 	{
 	}
 
-	bool operator()(int3 lhs, int3 rhs) const;
+	bool operator()(const GraphPathNodePointer & lhs, const GraphPathNodePointer & rhs) const;
 };
 
 struct GraphPathNode
 {
 	const float BAD_COST = 100000;
 
-	int3 previous = int3(-1);
+	GrapthPathNodeType nodeType = GrapthPathNodeType::NORMAL;
+	GraphPathNodePointer previous;
 	float cost = BAD_COST;
 	uint64_t danger = 0;
 
-	using TFibHeap = boost::heap::fibonacci_heap<int3, boost::heap::compare<GraphNodeComparer>>;
+	using TFibHeap = boost::heap::fibonacci_heap<GraphPathNodePointer, boost::heap::compare<GraphNodeComparer>>;
 
 	TFibHeap::handle_type handle;
 	bool isInQueue = false;
@@ -98,32 +127,24 @@ struct GraphPathNode
 		return cost < BAD_COST;
 	}
 
-	bool tryUpdate(const int3 & pos, const GraphPathNode & prev, const ObjectLink & link)
-	{
-		auto newCost = prev.cost + link.cost;
-
-		if(newCost < cost)
-		{
-			previous = pos;
-			danger = prev.danger + link.danger;
-			cost = newCost;
-
-			return true;
-		}
-
-		return false;
-	}
+	bool tryUpdate(const GraphPathNodePointer & pos, const GraphPathNode & prev, const ObjectLink & link);
 };
 
 class GraphPaths
 {
 	ObjectGraph graph;
-	std::unordered_map<int3, GraphPathNode> pathNodes;
+	GraphNodeStorage pathNodes;
 
 public:
 	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai);
 	void addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const;
 	void dumpToLog() const;
+
+private:
+	GraphPathNode & getNode(const GraphPathNodePointer & pos)
+	{
+		return pathNodes[pos.coord][pos.nodeType];
+	}
 };
 
 }

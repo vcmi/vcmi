@@ -168,6 +168,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		PathfinderSettings cfg;
 		cfg.useHeroChain = useHeroChain;
+		cfg.allowBypassObjects = true;
 
 		if(scanDepth == ScanDepth::SMALL)
 		{
