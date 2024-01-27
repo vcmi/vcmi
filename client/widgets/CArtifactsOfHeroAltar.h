@@ -16,11 +16,6 @@
 class CArtifactsOfHeroAltar : public CArtifactsOfHeroBase
 {
 public:
-	std::set<const CArtifactInstance*> artifactsOnAltar;
-
 	CArtifactsOfHeroAltar(const Point & position);
 	~CArtifactsOfHeroAltar();
-	void scrollBackpack(int offset) override;
-	void pickUpArtifact(CArtPlace & artPlace);
-	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
 };

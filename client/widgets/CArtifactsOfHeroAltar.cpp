@@ -38,20 +38,3 @@ CArtifactsOfHeroAltar::~CArtifactsOfHeroAltar()
 {
 	putBackPickedArtifact();
 }
-
-void CArtifactsOfHeroAltar::scrollBackpack(int offset)
-{
-	CArtifactsOfHeroBase::scrollBackpackForArtSet(offset, *curHero);
-	redraw();
-}
-
-void CArtifactsOfHeroAltar::pickUpArtifact(CArtPlace & artPlace)
-{
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
-		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
-}
-
-void CArtifactsOfHeroAltar::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
-{
-	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-}

@@ -67,13 +67,6 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	CTradeBase::deselect();
 };
 
-CAltarArtifacts::~CAltarArtifacts()
-{
-	// TODO: If the backpack capacity limit is enabled, artifacts may remain on the altar.
-	// Perhaps should be erased in CGameHandler::objectVisitEnded if id of visited object will be available
-	LOCPLINT->cb->bulkMoveArtifacts(altarId, heroArts->getHero()->id, false, true, true);
-}
-
 TExpType CAltarArtifacts::calcExpAltarForHero()
 {
 	TExpType expOnAltar(0);
@@ -136,8 +129,8 @@ void CAltarArtifacts::updateSlots()
 	
 	auto slotsToAdd = tradeSlotsMap;
 	for(auto & altarSlot : items[0])
-	{
 		if(altarSlot->id != -1)
+		{
 			if(tradeSlotsMap.find(altarSlot->getArtInstance()) == tradeSlotsMap.end())
 			{
 				altarSlot->setID(-1);
@@ -147,7 +140,7 @@ void CAltarArtifacts::updateSlots()
 			{
 				slotsToAdd.erase(altarSlot->getArtInstance());
 			}
-	}
+		}
 
 	for(auto & tradeSlot : slotsToAdd)
 	{
@@ -165,13 +158,21 @@ void CAltarArtifacts::updateSlots()
 				{
 					altarSlot->setArtInstance(slotInfo.artifact);
 					altarSlot->subtitle = std::to_string(calcExpCost(slotInfo.artifact));
-					tradeSlotsMap.emplace(slotInfo.artifact, altarSlot);
+					tradeSlotsMap.try_emplace(slotInfo.artifact, altarSlot);
 					break;
 				}
 		}
 	}
 	calcExpAltarForHero();
 	deal->block(tradeSlotsMap.empty());
+}
+
+void CAltarArtifacts::putBackArtifacts()
+{
+	// TODO: If the backpack capacity limit is enabled, artifacts may remain on the altar.
+	// Perhaps should be erased in CGameHandler::objectVisitEnded if id of visited object will be available
+	if(!altarArtifacts->artifactsInBackpack.empty())
+		LOCPLINT->cb->bulkMoveArtifacts(altarId, heroArts->getHero()->id, false, true, true);
 }
 
 void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
@@ -181,11 +182,11 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	if(const auto pickedArtInst = heroArts->getPickedArtifact())
 	{
 		if(pickedArtInst->canBePutAt(altarArtifacts))
+		{
 			if(pickedArtInst->artType->isTradable())
 			{
 				if(altarSlot->id == -1)
-					tradeSlotsMap.emplace(pickedArtInst, altarSlot);
-				heroArts->artifactsOnAltar.insert(pickedArtInst);
+					tradeSlotsMap.try_emplace(pickedArtInst, altarSlot);
 				deal->block(false);
 
 				LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->getHero()->id, ArtifactPosition::TRANSITION_POS),
@@ -196,13 +197,13 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 				logGlobal->warn("Cannot put special artifact on altar!");
 				return;
 			}
+		}
 	}
 	else if(const CArtifactInstance * art = altarSlot->getArtInstance())
 	{
 		const auto slot = altarArtifacts->getSlotByInstance(art);
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		LOCPLINT->cb->swapArtifacts(ArtifactLocation(altarId, slot), ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS));
-		heroArts->artifactsOnAltar.erase(art);
 		tradeSlotsMap.erase(art);
 	}
 }

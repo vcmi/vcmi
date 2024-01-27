@@ -16,7 +16,6 @@ class CAltarArtifacts : public CExperienceAltar
 {
 public:
 	CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero);
-	~CAltarArtifacts();
 	TExpType calcExpAltarForHero() override;
 	void makeDeal() override;
 	void sacrificeAll() override;
@@ -25,6 +24,7 @@ public:
 	std::shared_ptr<CArtifactsOfHeroAltar> getAOHset() const;
 	ObjectInstanceID getObjId() const;
 	void updateSlots();
+	void putBackArtifacts();
 
 private:
 	ObjectInstanceID altarId;
