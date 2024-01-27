@@ -485,6 +485,9 @@ void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, c
 
 	auto roomStatus = database->getGameRoomStatus(gameRoomID);
 
+	if(roomStatus != LobbyRoomState::PRIVATE && roomStatus != LobbyRoomState::PUBLIC)
+		return;
+
 	if(roomStatus == LobbyRoomState::PRIVATE)
 	{
 		if(database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::INVITED)

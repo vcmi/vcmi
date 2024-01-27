@@ -176,9 +176,15 @@ void LobbyDatabase::prepareStatements()
 		WHERE status = 1
 	)";
 
-	static const std::string countAccountsInRoomText = R"(
+	static const std::string countRoomUsedSlotsText = R"(
 		SELECT COUNT(accountID)
 		FROM gameRoomPlayers
+		WHERE roomID = ?
+	)";
+
+	static const std::string countRoomTotalSlotsText = R"(
+		SELECT playerLimit
+		FROM gameRooms
 		WHERE roomID = ?
 	)";
 
@@ -245,7 +251,8 @@ void LobbyDatabase::prepareStatements()
 	getActiveAccountsStatement = database->prepare(getActiveAccountsText);
 	getActiveGameRoomsStatement = database->prepare(getActiveGameRoomsText);
 	getAccountDisplayNameStatement = database->prepare(getAccountDisplayNameText);
-	countAccountsInRoomStatement = database->prepare(countAccountsInRoomText);
+	countRoomUsedSlotsStatement = database->prepare(countRoomUsedSlotsText);
+	countRoomTotalSlotsStatement = database->prepare(countRoomTotalSlotsText);
 
 	isAccountCookieValidStatement = database->prepare(isAccountCookieValidText);
 	isPlayerInGameRoomStatement = database->prepare(isPlayerInGameRoomText);
@@ -404,6 +411,22 @@ LobbyRoomState LobbyDatabase::getGameRoomStatus(const std::string & roomID)
 
 uint32_t LobbyDatabase::getGameRoomFreeSlots(const std::string & roomID)
 {
+	uint32_t usedSlots = 0;
+	uint32_t totalSlots = 0;
+
+	countRoomUsedSlotsStatement->setBinds(roomID);
+	if(countRoomUsedSlotsStatement->execute())
+		countRoomUsedSlotsStatement->getColumns(usedSlots);
+	countRoomUsedSlotsStatement->reset();
+
+	countRoomTotalSlotsStatement->setBinds(roomID);
+	if(countRoomTotalSlotsStatement->execute())
+		countRoomTotalSlotsStatement->getColumns(totalSlots);
+	countRoomTotalSlotsStatement->reset();
+
+
+	if (totalSlots > usedSlots)
+		return totalSlots - usedSlots;
 	return 0;
 }
 
@@ -443,10 +466,10 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 
 	for (auto & room : result)
 	{
-		countAccountsInRoomStatement->setBinds(room.roomID);
-		if(countAccountsInRoomStatement->execute())
-			countAccountsInRoomStatement->getColumns(room.playersCount);
-		countAccountsInRoomStatement->reset();
+		countRoomUsedSlotsStatement->setBinds(room.roomID);
+		if(countRoomUsedSlotsStatement->execute())
+			countRoomUsedSlotsStatement->getColumns(room.playersCount);
+		countRoomUsedSlotsStatement->reset();
 	}
 	return result;
 }

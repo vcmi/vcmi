@@ -51,23 +51,20 @@ void GlobalLobbyWindow::doSendChatMessage()
 void GlobalLobbyWindow::doCreateGameRoom()
 {
 	GH.windows().createAndPushWindow<GlobalLobbyServerSetup>();
-	// TODO:
-	// start local server and supply our UUID / client credentials to it
-	// server logs into lobby ( uuid = client, mode = server ). This creates 'room' in mode 'empty'
-	// server starts accepting connections from players (including host)
-	// client connects to local server
-	// client sends createGameRoom query to lobby with own / server UUID and mode 'direct' (non-proxy)
-	// client requests to change room status to private or public
 }
 
 void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)
 {
-
+	assert(0); // TODO
 }
 
 void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
 {
+	JsonNode toSend;
+	toSend["type"].String() = "joinGameRoom";
+	toSend["gameRoomID"].String() = roomID;
 
+	CSH->getGlobalLobby().sendMessage(toSend);
 }
 
 void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when)
