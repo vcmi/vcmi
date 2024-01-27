@@ -552,6 +552,12 @@ void BattleWindow::bAutofightf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
+	if(settings["battle"]["endWithAutocombat"].Bool())
+	{
+		endWithAutocombat();
+		return;
+	}
+
 	//Stop auto-fight mode
 	if(owner.curInt->isAutoFightOn)
 	{
@@ -722,7 +728,7 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, settings["battle"]["endWithAutocombat"].Bool() ? on || owner.tacticsMode : owner.actionsController->spellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
@@ -737,7 +743,8 @@ std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 
 void BattleWindow::endWithAutocombat() 
 {
-	close();
+	if(!owner.makingTurn() || owner.tacticsMode)
+		return;
 
 	auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 
@@ -752,6 +759,8 @@ void BattleWindow::endWithAutocombat()
 	owner.curInt->autofightingAI = ai;
 
 	owner.requestAutofightingAIToTakeAction();
+
+	close();
 
 	owner.curInt->battleInt.reset();
 }

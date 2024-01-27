@@ -33,6 +33,7 @@ private:
 	void skipBattleIntroMusicChangedCallback(bool value);
 	void showStickyHeroWindowsChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void enableAutocombatSpellsChangedCallback(bool value);
+	void endWithAutocombatChangedCallback(bool value);
 public:
 	BattleOptionsTab(BattleInterface * owner = nullptr);
 };
