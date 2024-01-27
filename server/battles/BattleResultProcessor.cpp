@@ -257,6 +257,8 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		battleResult->exp[1] = heroDefender->calculateXp(battleResult->exp[1]);
 
 	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(0)));
+	if(!battleQuery)
+		battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(1)));
 	if (!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
@@ -306,6 +308,8 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 {
 	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(0)));
+	if(!battleQuery)
+		battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(1)));
 	if(!battleQuery)
 	{
 		logGlobal->trace("No battle query, battle end was confirmed by another player");
