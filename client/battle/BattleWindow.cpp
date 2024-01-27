@@ -754,6 +754,8 @@ void BattleWindow::endWithAutocombat()
 	if(!owner.makingTurn() || owner.tacticsMode)
 		return;
 
+	owner.curInt->isAutoFightEndBattle = true;
+
 	auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 
 	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
