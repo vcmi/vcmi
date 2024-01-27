@@ -170,10 +170,16 @@ void LobbyDatabase::prepareStatements()
 	)";
 
 	static const std::string getActiveGameRoomsText = R"(
-		SELECT roomID, hostAccountID, displayName, status, 0, playerLimit
+		SELECT roomID, hostAccountID, displayName, status, playerLimit
 		FROM gameRooms
 		LEFT JOIN accounts ON hostAccountID = accountID
 		WHERE status = 1
+	)";
+
+	static const std::string countAccountsInRoomText = R"(
+		SELECT COUNT(accountID)
+		FROM gameRoomPlayers
+		WHERE roomID = ?
 	)";
 
 	static const std::string getAccountDisplayNameText = R"(
@@ -239,6 +245,7 @@ void LobbyDatabase::prepareStatements()
 	getActiveAccountsStatement = database->prepare(getActiveAccountsText);
 	getActiveGameRoomsStatement = database->prepare(getActiveGameRoomsText);
 	getAccountDisplayNameStatement = database->prepare(getAccountDisplayNameText);
+	countAccountsInRoomStatement = database->prepare(countAccountsInRoomText);
 
 	isAccountCookieValidStatement = database->prepare(isAccountCookieValidText);
 	isPlayerInGameRoomStatement = database->prepare(isPlayerInGameRoomText);
@@ -429,10 +436,18 @@ std::vector<LobbyGameRoom> LobbyDatabase::getActiveGameRooms()
 	while(getActiveGameRoomsStatement->execute())
 	{
 		LobbyGameRoom entry;
-		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.roomStatus, entry.playersCount, entry.playersLimit);
+		getActiveGameRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, entry.hostAccountDisplayName, entry.roomStatus, entry.playersLimit);
 		result.push_back(entry);
 	}
 	getActiveGameRoomsStatement->reset();
+
+	for (auto & room : result)
+	{
+		countAccountsInRoomStatement->setBinds(room.roomID);
+		if(countAccountsInRoomStatement->execute())
+			countAccountsInRoomStatement->getColumns(room.playersCount);
+		countAccountsInRoomStatement->reset();
+	}
 	return result;
 }
 

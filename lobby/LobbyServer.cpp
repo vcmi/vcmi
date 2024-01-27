@@ -465,6 +465,7 @@ void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, c
 	// TODO: additional flags / initial settings, e.g. allowCheats
 	// TODO: connection mode: direct or proxy. For now direct is assumed. Proxy might be needed later, for hosted servers
 
+	database->insertPlayerIntoGameRoom(accountID, gameRoomID);
 	broadcastActiveGameRooms();
 	sendJoinRoomSuccess(connection, gameRoomID);
 }
@@ -493,6 +494,7 @@ void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, c
 	if(database->getGameRoomFreeSlots(gameRoomID) == 0)
 		return;
 
+	database->insertPlayerIntoGameRoom(accountID, gameRoomID);
 	sendAccountJoinsRoom(targetRoom, accountID);
 	//No reply to client - will be sent once match server establishes proxy connection with lobby
 
