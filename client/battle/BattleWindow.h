@@ -76,6 +76,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
+	bool onlyOnePlayerHuman;
+
 public:
 	BattleWindow(BattleInterface & owner );
 	~BattleWindow();

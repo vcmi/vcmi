@@ -41,6 +41,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/CPlayerState.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
@@ -51,6 +53,12 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	pos.w = 800;
 	pos.h = 600;
 	pos = center();
+
+	PlayerColor defenderColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::DEFENDER);
+	PlayerColor attackerColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::ATTACKER);
+	bool isDefenderHuman = defenderColor != PlayerColor::NEUTRAL && LOCPLINT->cb->getStartInfo()->playerInfos.at(defenderColor).isControlledByHuman();
+	bool isAttackerHuman = attackerColor != PlayerColor::NEUTRAL && LOCPLINT->cb->getStartInfo()->playerInfos.at(attackerColor).isControlledByHuman();
+	onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
@@ -552,7 +560,7 @@ void BattleWindow::bAutofightf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if(settings["battle"]["endWithAutocombat"].Bool())
+	if(settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman)
 	{
 		endWithAutocombat();
 		return;
@@ -728,8 +736,8 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, settings["battle"]["endWithAutocombat"].Bool() ? on || owner.tacticsMode : owner.actionsController->spellcastingModeActive());
-	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->spellcastingModeActive() : owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode || !onlyOnePlayerHuman || owner.actionsController->spellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
