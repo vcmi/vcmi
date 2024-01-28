@@ -33,7 +33,7 @@ class IMainVideoPlayer : public IVideoPlayer
 public:
 	virtual ~IMainVideoPlayer() = default;
 	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> restart = nullptr){}
-	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false)
+	virtual bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false, bool overlay = true)
 	{
 		return false;
 	}
@@ -89,6 +89,7 @@ class CVideoPlayer final : public IMainVideoPlayer
 	/// video playback currnet progress, in seconds
 	double frameTime;
 	bool doLoop;				// loop through video
+	bool overlayVideo;
 
 	bool playVideo(int x, int y, bool stopOnKey);
 	bool open(const VideoPath & fname, bool loop, bool useOverlay = false, bool scale = false);
@@ -106,7 +107,7 @@ public:
 	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true, std::function<void()> onVideoRestart = nullptr) override; //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
 
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
-	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false) override;
+	bool openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey = false, bool scale = false, bool overlay = true) override;
 
 	std::pair<std::unique_ptr<ui8 []>, si64> getAudio(const VideoPath & videoToOpen) override;
 
