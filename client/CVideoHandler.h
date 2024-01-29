@@ -95,9 +95,8 @@ class CVideoPlayer final : public IMainVideoPlayer
 	/// video playback currnet progress, in seconds
 	double frameTime;
 	bool doLoop;				// loop through video
-	bool overlay;
 
-	bool playVideo(int x, int y, bool stopOnKey);
+	bool playVideo(int x, int y, bool stopOnKey, bool overlay);
 	bool open(const VideoPath & fname, bool loop, bool useOverlay = false, bool scale = false);
 public:
 	CVideoPlayer();

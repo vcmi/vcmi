@@ -101,8 +101,8 @@ bool CVideoPlayer::open(const VideoPath & fname, bool scale)
 }
 
 // loop = to loop through the video
-// useOverlay = directly write to the screen.
-bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverlay, bool scale)
+// overlay = directly write to the screen.
+bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool overlay, bool scale)
 {
 	close();
 
@@ -199,7 +199,7 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverla
 	}
 
 	// Allocate a place to put our YUV image on that screen
-	if (useOverlay)
+	if (overlay)
 	{
 		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
 	}
@@ -624,7 +624,7 @@ Point CVideoPlayer::size()
 }
 
 // Plays a video. Only works for overlays.
-bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
+bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay)
 {
 	// Note: either the windows player or the linux player is
 	// broken. Compensate here until the bug is found.
@@ -683,6 +683,7 @@ bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, EVideo
 {
 	bool scale;
 	bool stopOnKey;
+	bool overlay;
 
 	switch(videoType)
 	{
@@ -698,7 +699,7 @@ bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, EVideo
 			overlay = true;
 	}
 	open(name, false, true, scale);
-	bool ret = playVideo(x, y,  stopOnKey);
+	bool ret = playVideo(x, y,  stopOnKey, overlay);
 	close();
 	return ret;
 }
