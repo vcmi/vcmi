@@ -13,14 +13,15 @@
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Deadly",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossible",
 
-	"vcmi.adventureMap.confirmRestartGame"     : "Are you sure you want to restart the game?",
-	"vcmi.adventureMap.noTownWithMarket"       : "There are no available marketplaces!",
-	"vcmi.adventureMap.noTownWithTavern"       : "There are no available towns with taverns!",
-	"vcmi.adventureMap.spellUnknownProblem"    : "There is an unknown problem with this spell! No more information is available.",
-	"vcmi.adventureMap.playerAttacked"         : "Player has been attacked: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
-	
+	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
+	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
+	"vcmi.adventureMap.noTownWithTavern"                 : "There are no available towns with taverns!",
+	"vcmi.adventureMap.spellUnknownProblem"              : "There is an unknown problem with this spell! No more information is available.",
+	"vcmi.adventureMap.playerAttacked"                   : "Player has been attacked: %s",
+	"vcmi.adventureMap.moveCostDetails"                  : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
+	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
+	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
+
 	"vcmi.capitalColors.0" : "Red",
 	"vcmi.capitalColors.1" : "Blue",
 	"vcmi.capitalColors.2" : "Tan",

@@ -23,6 +23,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/CGeneralTextHandler.h"
 
 AdventureOptions::AdventureOptions()
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("ADVOPTS"))
@@ -30,12 +31,7 @@ AdventureOptions::AdventureOptions()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	viewWorld = std::make_shared<CButton>(Point(24, 23), AnimationPath::builtin("ADVVIEW.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_WORLD);
-	viewWorld->addCallback( [] { LOCPLINT->viewWorldMap(); });
-
-	exit = std::make_shared<CButton>(Point(204, 313), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(), std::bind(&AdventureOptions::close, this), EShortcut::GLOBAL_RETURN);
-
-	scenInfo = std::make_shared<CButton>(Point(24, 198), AnimationPath::builtin("ADVINFO.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_SCENARIO);
-	scenInfo->addCallback(AdventureOptions::showScenarioInfo);
+	viewWorld->addCallback([] { LOCPLINT->viewWorldMap(); });
 
 	puzzle = std::make_shared<CButton>(Point(24, 81), AnimationPath::builtin("ADVPUZ.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_PUZZLE);
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));
@@ -45,6 +41,14 @@ AdventureOptions::AdventureOptions()
 		dig->addCallback(std::bind(&CPlayerInterface::tryDigging, LOCPLINT, h));
 	else
 		dig->block(true);
+
+	scenInfo = std::make_shared<CButton>(Point(24, 198), AnimationPath::builtin("ADVINFO.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_SCENARIO);
+	scenInfo->addCallback(AdventureOptions::showScenarioInfo);
+	
+	replay = std::make_shared<CButton>(Point(24, 257), AnimationPath::builtin("ADVTURN.DEF"), CButton::tooltip(), [&](){ close(); });
+	replay->addCallback([]{ LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.replayOpponentTurnNotImplemented")); });
+
+	exit = std::make_shared<CButton>(Point(203, 313), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(), std::bind(&AdventureOptions::close, this), EShortcut::GLOBAL_RETURN);
 }
 
 void AdventureOptions::showScenarioInfo()
