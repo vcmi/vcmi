@@ -592,8 +592,12 @@ void CClient::battleStarted(const BattleInfo * info)
 			if (interface->cb->getBattle(info->battleID)->battleGetTacticDist())
 			{
 				auto side = interface->cb->getBattle(info->battleID)->playerToSide(interface->playerID);
-				auto action = BattleAction::makeEndOFTacticPhase(*side);
-				interface->cb->battleMakeTacticAction(info->battleID, action);
+
+				if(interface->playerID == info->sides[info->tacticsSide].color)
+				{
+					auto action = BattleAction::makeEndOFTacticPhase(*side);
+					interface->cb->battleMakeTacticAction(info->battleID, action);
+				}
 			}
 		};
 
