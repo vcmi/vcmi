@@ -647,7 +647,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 
 		SDL_Rect rect = CSDL_Ext::toSDL(pos);
 
-		if(overlayVideo)
+		if(overlay)
 		{
 			SDL_RenderFillRect(mainRenderer, &rect);
 		}
@@ -679,9 +679,24 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey, bool scale, bool overlay)
+bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, EVideoType videoType)
 {
-	overlayVideo = overlay;
+	bool scale;
+	bool stopOnKey;
+
+	switch(videoType)
+	{
+		case EVideoType::INTRO:
+			stopOnKey = true;
+			scale = true;
+			overlay = false;
+			break;
+		case EVideoType::SPELLBOOK:
+		default:
+			stopOnKey = false;
+			scale = false;
+			overlay = true;
+	}
 	open(name, false, true, scale);
 	bool ret = playVideo(x, y,  stopOnKey);
 	close();
