@@ -20,6 +20,7 @@
 	"vcmi.adventureMap.playerAttacked"         : "玩家遭受攻击: %s",
 	"vcmi.adventureMap.moveCostDetails"        : "移动点数 - 花费: %TURNS 轮 + %POINTS 点移动力, 剩余移动力: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "移动点数 - 花费: %POINTS 点移动力, 剩余移动力: %REMAINING",
+	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉， 重放对手回合功能目前还未实现！",
 
 	"vcmi.capitalColors.0" : "红色",
 	"vcmi.capitalColors.1" : "蓝色",
@@ -70,7 +71,9 @@
 	"vcmi.lobby.mapPreview" : "地图预览",
 	"vcmi.lobby.noPreview" : "无地上部分",
 	"vcmi.lobby.noUnderground" : "无地下部分",
+	"vcmi.lobby.sortDate" : "按修改时间排序地图",
 
+	"vcmi.client.errors.invalidMap" : "{无效的地图或战役}\n\n启动游戏失败！选定的地图或战役格式不正确或已损坏。原因：\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{找不到数据文件}\n\n没有找到战役数据文件！你可能使用了不完整或损坏的英雄无敌3数据文件，请重新安装数据文件。",
 	"vcmi.server.errors.existingProcess"     : "一个VCMI进程已经在运行，启动新进程前请结束它。",
 	"vcmi.server.errors.modsToEnable"    : "{需要启用的mod列表}",
@@ -144,6 +147,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "将地图卷动速度设置为非常慢",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "将地图卷动速度设置为非常快",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "将地图卷动速度设置为即刻。",
+	"vcmi.adventureOptions.hideBackground.hover" : "隐藏背景",
+	"vcmi.adventureOptions.hideBackground.help" : "{隐藏背景}\n\n将冒险地图背景隐藏并使用一个纹理替代。",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "回合顺序指示器",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "关闭",
@@ -183,6 +188,10 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d 伤害",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d 将被消灭",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d 将被消灭",
+	"vcmi.battleWindow.killed" : "被击杀",
+	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s 被精准射击击杀！",
+	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s 被精准射击击杀！",
+	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s 被精准射击击杀！",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "接受战斗结果",
 	
@@ -224,6 +233,8 @@
 	"vcmi.heroWindow.openCommander.help"  : "显示该英雄指挥官详细信息",
 	"vcmi.heroWindow.openBackpack.hover" : "开启宝物背包界面",
 	"vcmi.heroWindow.openBackpack.help"  : "用更大的界面显示所有获得的宝物",
+
+	"vcmi.tavernWindow.inviteHero"  : "邀请英雄",
 
 	"vcmi.commanderWindow.artifactMessage" : "你要把这个宝物还给英雄吗？",
 
@@ -374,6 +385,8 @@
 	"core.bonus.ENCHANTER.description": "每回合群体施放${subtype.spell}",
 	"core.bonus.ENCHANTED.name": "法术加持",
 	"core.bonus.ENCHANTED.description": "永久处于${subtype.spell}影响",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.name": "忽略攻击 (${val}%)",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "当被攻击时，攻击方${val}%的攻击力将被无视。",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name": "忽略防御 (${val}%)",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "当攻击时，目标生物${val}%的防御力将被无视。",
 	"core.bonus.FIRE_IMMUNITY.name": "火系免疫",
@@ -386,6 +399,8 @@
 	"core.bonus.FEAR.description": "使得敌方一只部队恐惧",
 	"core.bonus.FEARLESS.name": "无惧",
 	"core.bonus.FEARLESS.description": "免疫恐惧特质",
+	"core.bonus.FEROCITY.name": "残暴",
+	"core.bonus.FEROCITY.description": "如果杀死一个生物，额外攻击${val}次",
 	"core.bonus.FLYING.name": "飞行兵种",
 	"core.bonus.FLYING.description": "以飞行的方式移动(无视障碍)",
 	"core.bonus.FREE_SHOOTING.name": "近身射击",
@@ -440,6 +455,8 @@
 	"core.bonus.REBIRTH.description": "当整支部队死亡后${val}%会复活",
 	"core.bonus.RETURN_AFTER_STRIKE.name": "攻击后返回",
 	"core.bonus.RETURN_AFTER_STRIKE.description": "近战攻击后回到初始位置",
+	"core.bonus.REVENGE.name": "复仇",
+	"core.bonus.REVENGE.description": "造成额外伤害，其数量基于攻击者在战斗中损失的生命值",
 	"core.bonus.SHOOTER.name": "远程攻击",
 	"core.bonus.SHOOTER.description": "生物可以射击",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name": "范围远程攻击",
