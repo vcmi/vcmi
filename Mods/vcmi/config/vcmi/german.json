@@ -20,7 +20,7 @@
 	"vcmi.adventureMap.playerAttacked"         : "Spieler wurde attackiert: %s",
 	"vcmi.adventureMap.moveCostDetails"        : "Bewegungspunkte - Kosten: %TURNS Runden + %POINTS Punkte, Verbleibende Punkte: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Bewegungspunkte - Kosten: %POINTS Punkte, Verbleibende Punkte: %REMAINING",
-
+	
 	"vcmi.capitalColors.0" : "Rot",
 	"vcmi.capitalColors.1" : "Blau",
 	"vcmi.capitalColors.2" : "Braun",
@@ -192,6 +192,7 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s wurden durch gezielte Schüsse getötet!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s wurde mit einem gezielten Schuss getötet!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s wurden durch gezielte Schüsse getötet!",
+	"vcmi.battleWindow.endWithAutocombat" : "Seid Ihr sicher, dass Ihr den Kampf mit Auto-Kampf beenden wollt?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
 

@@ -56,8 +56,8 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	PlayerColor defenderColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::DEFENDER);
 	PlayerColor attackerColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::ATTACKER);
-	bool isDefenderHuman = defenderColor != PlayerColor::NEUTRAL && LOCPLINT->cb->getStartInfo()->playerInfos.at(defenderColor).isControlledByHuman();
-	bool isAttackerHuman = attackerColor != PlayerColor::NEUTRAL && LOCPLINT->cb->getStartInfo()->playerInfos.at(attackerColor).isControlledByHuman();
+	bool isDefenderHuman = defenderColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(defenderColor).isControlledByHuman();
+	bool isAttackerHuman = attackerColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(attackerColor).isControlledByHuman();
 	onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
@@ -754,25 +754,32 @@ void BattleWindow::endWithAutocombat()
 	if(!owner.makingTurn() || owner.tacticsMode)
 		return;
 
-	owner.curInt->isAutoFightEndBattle = true;
+	LOCPLINT->showYesNoDialog(
+		VLC->generaltexth->translate("vcmi.battleWindow.endWithAutocombat"),
+		[this]()
+		{
+			owner.curInt->isAutoFightEndBattle = true;
 
-	auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
+			auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 
-	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
-	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+			AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+			autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
 
-	ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
-	ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
+			ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
+			ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
 
-	owner.curInt->isAutoFightOn = true;
-	owner.curInt->cb->registerBattleInterface(ai);
-	owner.curInt->autofightingAI = ai;
+			owner.curInt->isAutoFightOn = true;
+			owner.curInt->cb->registerBattleInterface(ai);
+			owner.curInt->autofightingAI = ai;
 
-	owner.requestAutofightingAIToTakeAction();
+			owner.requestAutofightingAIToTakeAction();
 
-	close();
+			close();
 
-	owner.curInt->battleInt.reset();
+			owner.curInt->battleInt.reset();
+		},
+		nullptr
+	);
 }
 
 void BattleWindow::showAll(Canvas & to)

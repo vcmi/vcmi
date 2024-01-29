@@ -20,7 +20,7 @@
 	"vcmi.adventureMap.playerAttacked"         : "Player has been attacked: %s",
 	"vcmi.adventureMap.moveCostDetails"        : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
-
+	
 	"vcmi.capitalColors.0" : "Red",
 	"vcmi.capitalColors.1" : "Blue",
 	"vcmi.capitalColors.2" : "Tan",
@@ -193,6 +193,7 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s were killed by accurate shots!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s was killed with an accurate shot!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s were killed by accurate shots!",
+	"vcmi.battleWindow.endWithAutocombat" : "Are you sure you wish to end the battle with auto combat?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
 
