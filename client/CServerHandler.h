@@ -57,6 +57,14 @@ enum class EClientState : ui8
 	CONNECTION_FAILED // We could not connect to server
 };
 
+enum class EServerMode : uint8_t
+{
+	NONE = 0,
+	LOCAL, // no global lobby
+	LOBBY_HOST, // We are hosting global server available via global lobby
+	LOBBY_GUEST // Connecting to a remote server via proxy provided by global lobby
+};
+
 class IServerAPI
 {
 protected:
@@ -106,10 +114,10 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
-	void onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message) override;
+	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
-	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
-	void onDisconnected(const std::shared_ptr<INetworkConnection> &) override;
+	void onConnectionEstablished(const NetworkConnectionPtr &) override;
+	void onDisconnected(const NetworkConnectionPtr &) override;
 	void onTimer() override;
 
 	void applyPackOnLobbyScreen(CPackForLobby & pack);
@@ -132,6 +140,7 @@ public:
 	std::shared_ptr<CampaignState> campaignStateToSend;
 
 	ESelectionScreen screenType; // To create lobby UI only after server is setup
+	EServerMode serverMode;
 	ELoadMode loadMode; // For saves filtering in SelectionTab
 	////////////////////
 
@@ -146,7 +155,7 @@ public:
 	CServerHandler();
 	~CServerHandler();
 	
-	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, const std::vector<std::string> & names);
+	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & names);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
 

@@ -139,6 +139,7 @@ CServerHandler::CServerHandler()
 	, state(EClientState::NONE)
 	, campaignStateToSend(nullptr)
 	, screenType(ESelectionScreen::unknown)
+	, serverMode(EServerMode::NONE)
 	, loadMode(ELoadMode::NONE)
 	, client(nullptr)
 	, campaignServerRestartLock(false)
@@ -156,10 +157,11 @@ void CServerHandler::threadRunNetwork()
 	logGlobal->info("Ending network thread");
 }
 
-void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, const std::vector<std::string> & names)
+void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & names)
 {
 	hostClientId = -1;
 	state = EClientState::NONE;
+	serverMode = newServerMode;
 	mapToStart = nullptr;
 	th = std::make_unique<CStopWatch>();
 	c.reset();
@@ -297,11 +299,18 @@ void CServerHandler::onTimer()
 	networkHandler->connectToRemote(*this, getLocalHostname(), getLocalPort());
 }
 
-void CServerHandler::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & netConnection)
+void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netConnection)
 {
 	networkConnection = netConnection;
 
 	logNetwork->info("Connection established");
+
+	if (serverMode == EServerMode::LOBBY_GUEST)
+	{
+		// say hello to lobby to switch connection to proxy mode
+		getGlobalLobby().sendProxyConnectionLogin(netConnection);
+	}
+
 	c = std::make_shared<CConnection>(netConnection);
 	nextClient = std::make_unique<CClient>();
 	c->uuid = uuid;
@@ -791,12 +800,12 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	auto mapInfo = std::make_shared<CMapInfo>();
 	if(save)
 	{
-		resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, {});
+		resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, EServerMode::LOCAL, {});
 		mapInfo->saveInit(ResourcePath(filename, EResType::SAVEGAME));
 	}
 	else
 	{
-		resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, {});
+		resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOCAL, {});
 		mapInfo->mapInit(filename);
 	}
 	if(settings["session"]["donotstartserver"].Bool())

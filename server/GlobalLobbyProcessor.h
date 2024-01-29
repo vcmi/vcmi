@@ -21,15 +21,15 @@ class GlobalLobbyProcessor : public INetworkClientListener
 {
 	CVCMIServer & owner;
 
-	std::shared_ptr<INetworkConnection> controlConnection;
-	std::map<std::string, std::shared_ptr<INetworkConnection>> proxyConnections;
+	NetworkConnectionPtr controlConnection;
+	std::map<std::string, NetworkConnectionPtr> proxyConnections;
 
 	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
 	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
 
-	void sendMessage(const JsonNode & data);
+	void sendMessage(const NetworkConnectionPtr & target, const JsonNode & data);
 
 	void receiveLoginFailed(const JsonNode & json);
 	void receiveLoginSuccess(const JsonNode & json);

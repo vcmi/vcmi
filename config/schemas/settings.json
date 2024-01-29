@@ -553,28 +553,24 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode" ],
+			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode", "roomID" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
 					"default" : true
 				},
-				
 				"accountID" : {
 					"type" : "string",
 					"default" : ""
 				},
-				
 				"accountCookie" : {
 					"type" : "string",
 					"default" : ""
 				},
-				
 				"displayName" : {
 					"type" : "string",
 					"default" : ""
 				},
-
 				"hostname" : {
 					"type" : "string",
 					"default" : "127.0.0.1"
@@ -583,21 +579,22 @@
 					"type" : "number",
 					"default" : 30303
 				},
-				
 				"roomPlayerLimit" : {
 					"type" : "number",
 					"default" : 2
 				},
-				
 				"roomType" : {
 					"type" : "number",
 					"default" : 0
 				},
-				
 				"roomMode" : {
 					"type" : "number",
 					"default" : 0
 				},
+				"roomID" : {
+					"type" : "string",
+					"default" : ""
+				}
 			}
 		},
 		"gameTweaks" : {

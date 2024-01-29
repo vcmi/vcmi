@@ -34,29 +34,39 @@ void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnecti
 
 void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)
 {
-	JsonNode json(message.data(), message.size());
+	if (connection == controlConnection)
+	{
+		JsonNode json(message.data(), message.size());
 
-	if(json["type"].String() == "loginFailed")
-		return receiveLoginFailed(json);
+		if(json["type"].String() == "loginFailed")
+			return receiveLoginFailed(json);
 
-	if(json["type"].String() == "loginSuccess")
-		return receiveLoginSuccess(json);
+		if(json["type"].String() == "loginSuccess")
+			return receiveLoginSuccess(json);
 
-	if(json["type"].String() == "accountJoinsRoom")
-		return receiveAccountJoinsRoom(json);
+		if(json["type"].String() == "accountJoinsRoom")
+			return receiveAccountJoinsRoom(json);
 
-	throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String());
+		throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String());
+	}
+	else
+	{
+		// received game message via proxy connection
+		owner.onPacketReceived(connection, message);
+	}
 }
 
 void GlobalLobbyProcessor::receiveLoginFailed(const JsonNode & json)
 {
+	logGlobal->info("Lobby: Failed to login into a lobby server!");
+
 	throw std::runtime_error("Failed to login into a lobby server!");
 }
 
 void GlobalLobbyProcessor::receiveLoginSuccess(const JsonNode & json)
 {
 	// no-op, wait just for any new commands from lobby
-	logGlobal->info("Succesfully connected to lobby server");
+	logGlobal->info("Lobby: Succesfully connected to lobby server");
 	owner.startAcceptingIncomingConnections();
 }
 
@@ -64,6 +74,7 @@ void GlobalLobbyProcessor::receiveAccountJoinsRoom(const JsonNode & json)
 {
 	std::string accountID = json["accountID"].String();
 
+	logGlobal->info("Lobby: Account %s will join our room!", accountID);
 	assert(proxyConnections.count(accountID) == 0);
 
 	proxyConnections[accountID] = nullptr;
@@ -87,29 +98,29 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["gameRoomID"].String() = owner.uuid;
 		toSend["accountID"] = settings["lobby"]["accountID"];
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
-		sendMessage(toSend);
+		sendMessage(connection, toSend);
 	}
 	else
 	{
 		// Proxy connection for a player
-		std::string accountID;
+		std::string guestAccountID;
 		for (auto const & proxies : proxyConnections)
 			if (proxies.second == nullptr)
-				accountID = proxies.first;
+				guestAccountID = proxies.first;
 
 		JsonNode toSend;
 		toSend["type"].String() = "serverProxyLogin";
 		toSend["gameRoomID"].String() = owner.uuid;
-		toSend["accountID"].String() = accountID;
+		toSend["guestAccountID"].String() = guestAccountID;
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
-		sendMessage(toSend);
+		sendMessage(connection, toSend);
 
-		proxyConnections[accountID] = connection;
+		proxyConnections[guestAccountID] = connection;
 		owner.onNewConnection(connection);
 	}
 }
 
-void GlobalLobbyProcessor::sendMessage(const JsonNode & data)
+void GlobalLobbyProcessor::sendMessage(const NetworkConnectionPtr & target, const JsonNode & data)
 {
 	std::string payloadString = data.toJson(true);
 
@@ -119,5 +130,5 @@ void GlobalLobbyProcessor::sendMessage(const JsonNode & data)
 
 	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
 
-	controlConnection->sendPacket(payloadBuffer);
+	target->sendPacket(payloadBuffer);
 }

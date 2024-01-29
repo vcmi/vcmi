@@ -53,6 +53,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 			if (!GH.windows().findWindows<GlobalLobbyServerSetup>().empty())
 			{
+				assert(handler.serverMode == EServerMode::LOBBY_HOST);
 				// announce opened game room
 				// TODO: find better approach?
 				int roomType = settings["lobby"]["roomType"].Integer();

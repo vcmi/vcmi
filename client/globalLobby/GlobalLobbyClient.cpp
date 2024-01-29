@@ -18,6 +18,7 @@
 #include "../gui/WindowHandler.h"
 #include "../windows/InfoWindows.h"
 #include "../CServerHandler.h"
+#include "../mainmenu/CMainMenu.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/MetaString.h"
@@ -190,7 +191,18 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 
 void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
-	// TODO: store "gameRoomID" field and use it for future queries
+	Settings configRoom = settings.write["lobby"]["roomID"];
+	configRoom->String() = json["gameRoomID"].String();
+
+	if (json["proxyMode"].Bool())
+	{
+		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, {});
+		CSH->loadMode = ELoadMode::MULTI;
+
+		std::string hostname = settings["lobby"]["hostname"].String();
+		int16_t port = settings["lobby"]["port"].Integer();
+		CSH->connectToServer(hostname, port);
+	}
 }
 
 void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
@@ -333,4 +345,23 @@ void GlobalLobbyClient::activateInterface()
 		GH.windows().pushWindow(createLobbyWindow());
 	else
 		GH.windows().pushWindow(createLoginWindow());
+}
+
+void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection)
+{
+	JsonNode toSend;
+	toSend["type"].String() = "clientProxyLogin";
+	toSend["accountID"] = settings["lobby"]["accountID"];
+	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
+	toSend["gameRoomID"] = settings["lobby"]["roomID"];
+
+	std::string payloadString = toSend.toJson(true);
+
+	// FIXME: find better approach
+	uint8_t * payloadBegin = reinterpret_cast<uint8_t *>(payloadString.data());
+	uint8_t * payloadEnd = payloadBegin + payloadString.size();
+
+	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
+
+	netConnection->sendPacket(payloadBuffer);
 }

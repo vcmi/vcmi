@@ -155,6 +155,12 @@ void LobbyDatabase::prepareStatements()
 		LIMIT 1
 	)";
 
+	static const std::string getGameRoomStatusText = R"(
+		SELECT status
+		FROM gameRooms
+		WHERE roomID = ?
+	)";
+
 	static const std::string getAccountGameRoomText = R"(
 		SELECT grp.roomID
 		FROM gameRoomPlayers grp
@@ -209,14 +215,16 @@ void LobbyDatabase::prepareStatements()
 
 	static const std::string isPlayerInGameRoomText = R"(
 		SELECT COUNT(accountID)
-		FROM gameRoomPlayers
-		WHERE accountID = ? AND roomID = ?
+		FROM gameRoomPlayers grp
+		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
+		WHERE accountID = ? AND grp.roomID = ? AND status IN (1, 2)
 	)";
 
 	static const std::string isPlayerInAnyGameRoomText = R"(
 		SELECT COUNT(accountID)
-		FROM gameRoomPlayers
-		WHERE accountID = ?
+		FROM gameRoomPlayers grp
+		LEFT JOIN gameRooms gr ON gr.roomID = grp.roomID
+		WHERE accountID = ? AND status IN (1, 2)
 	)";
 
 	static const std::string isAccountIDExistsText = R"(
@@ -247,6 +255,7 @@ void LobbyDatabase::prepareStatements()
 
 	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
+	getGameRoomStatusStatement = database->prepare(getGameRoomStatusText);
 	getAccountGameRoomStatement = database->prepare(getAccountGameRoomText);
 	getActiveAccountsStatement = database->prepare(getActiveAccountsText);
 	getActiveGameRoomsStatement = database->prepare(getActiveGameRoomsText);
@@ -406,7 +415,16 @@ LobbyInviteStatus LobbyDatabase::getAccountInviteStatus(const std::string & acco
 
 LobbyRoomState LobbyDatabase::getGameRoomStatus(const std::string & roomID)
 {
-	return {};
+	int result = -1;
+
+	getGameRoomStatusStatement->setBinds(roomID);
+	if(getGameRoomStatusStatement->execute())
+		getGameRoomStatusStatement->getColumns(result);
+	getGameRoomStatusStatement->reset();
+
+	if (result != -1)
+		return static_cast<LobbyRoomState>(result);
+	return LobbyRoomState::CLOSED;
 }
 
 uint32_t LobbyDatabase::getGameRoomFreeSlots(const std::string & roomID)

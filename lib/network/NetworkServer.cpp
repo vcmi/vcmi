@@ -53,15 +53,20 @@ void NetworkServer::sendPacket(const std::shared_ptr<INetworkConnection> & conne
 
 void NetworkServer::closeConnection(const std::shared_ptr<INetworkConnection> & connection)
 {
+	logNetwork->info("Closing connection!");
 	assert(connections.count(connection));
 	connections.erase(connection);
 }
 
 void NetworkServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
 {
+	logNetwork->info("Connection lost!");
 	assert(connections.count(connection));
-	connections.erase(connection);
-	listener.onDisconnected(connection);
+	if (connections.count(connection)) // how? Connection was explicitly closed before?
+	{
+		connections.erase(connection);
+		listener.onDisconnected(connection);
+	}
 }
 
 void NetworkServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)

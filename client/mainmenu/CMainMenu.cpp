@@ -361,7 +361,7 @@ void CMainMenu::update()
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)
 {
-	CSH->resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, names);
+	CSH->resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, EServerMode::LOCAL, names);
 	CSH->loadMode = loadMode;
 
 	GH.windows().createAndPushWindow<CSimpleJoinScreen>(host);
@@ -376,7 +376,7 @@ void CMainMenu::openCampaignLobby(const std::string & campaignFileName, std::str
 
 void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 {
-	CSH->resetStateForLobby(EStartMode::CAMPAIGN, ESelectionScreen::campaignList, {});
+	CSH->resetStateForLobby(EStartMode::CAMPAIGN, ESelectionScreen::campaignList, EServerMode::LOCAL, {});
 	CSH->campaignStateToSend = campaign;
 	GH.windows().createAndPushWindow<CSimpleJoinScreen>();
 }

@@ -37,6 +37,7 @@ class LobbyDatabase
 
 	SQLiteStatementPtr getRecentMessageHistoryStatement;
 	SQLiteStatementPtr getIdleGameRoomStatement;
+	SQLiteStatementPtr getGameRoomStatusStatement;
 	SQLiteStatementPtr getActiveGameRoomsStatement;
 	SQLiteStatementPtr getActiveAccountsStatement;
 	SQLiteStatementPtr getAccountGameRoomStatement;

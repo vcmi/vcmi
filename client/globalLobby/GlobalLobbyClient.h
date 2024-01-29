@@ -63,6 +63,8 @@ public:
 	void sendOpenPublicRoom();
 	void sendOpenPrivateRoom();
 
+	void sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection);
+
 	void connect();
 	bool isConnected();
 };
