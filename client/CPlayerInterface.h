@@ -87,6 +87,7 @@ public: // TODO: make private
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
+	bool isAutoFightEndBattle; //Flag, if battle forced to end with autocombat
 
 protected: // Call-ins from server, should not be called directly, but only via GameInterface
 

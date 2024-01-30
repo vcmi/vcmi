@@ -145,6 +145,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
+	isAutoFightEndBattle = false;
 	ignoreEvents = false;
 	numOfMovedArts = 0;
 }
@@ -782,17 +783,20 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 
 		if(!battleInt)
 		{
-			bool allowManualReplay = queryID != QueryID::NONE;
+			bool allowManualReplay = queryID != QueryID::NONE && !isAutoFightEndBattle;
 
 			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
 
-			if (allowManualReplay)
+			if (allowManualReplay || isAutoFightEndBattle)
 			{
 				wnd->resultCallback = [=](ui32 selection)
 				{
 					cb->selectionMade(selection, queryID);
 				};
 			}
+			
+			isAutoFightEndBattle = false;
+
 			GH.windows().pushWindow(wnd);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.

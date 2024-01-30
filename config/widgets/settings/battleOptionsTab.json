@@ -47,6 +47,9 @@
 				},
 				{
 					"text": "core.genrltxt.401" // First Aid Tent
+				},
+				{
+					"text": "vcmi.battleOptions.endWithAutocombat.hover"
 				}
 			]
 		},
@@ -84,6 +87,20 @@
 				{},
 				{},
 				{}
+			]
+		},
+
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
+			"position": {"x": 380, "y": 233},
+			"items":
+			[
+				{
+					"help": "vcmi.battleOptions.endWithAutocombat",
+					"name": "endWithAutocombatCheckbox",
+					"callback": "endWithAutocombatChanged"
+				}
 			]
 		},
 /////////////////////////////////////// Left section - checkboxes

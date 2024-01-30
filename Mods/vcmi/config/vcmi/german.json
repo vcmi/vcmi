@@ -172,6 +172,8 @@
 	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Statistikfenster für Helden anzeigen}\n\nDauerhaftes Einschalten des Statistikfenster für Helden, das die primären Werte und Zauberpunkte anzeigt.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Intro-Musik überspringen",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Intro-Musik überspringen}\n\n Überspringe die kurze Musik, die zu Beginn eines jeden Kampfes gespielt wird, bevor die Action beginnt. Kann auch durch Drücken der ESC-Taste übersprungen werden.",
+	"vcmi.battleOptions.endWithAutocombat.hover": "Kampf beenden",
+	"vcmi.battleOptions.endWithAutocombat.help": "{Kampf beenden}\n\nAutokampf spielt den Kampf sofort zu Ende",
 	
 	"vcmi.adventureMap.revisitObject.hover" : "Objekt erneut besuchen",
 	"vcmi.adventureMap.revisitObject.help" : "{Objekt erneut besuchen}\n\nSteht ein Held gerade auf einem Kartenobjekt, kann er den Ort erneut aufsuchen.",
@@ -191,6 +193,7 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s wurden durch gezielte Schüsse getötet!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s wurde mit einem gezielten Schuss getötet!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s wurden durch gezielte Schüsse getötet!",
+	"vcmi.battleWindow.endWithAutocombat" : "Seid Ihr sicher, dass Ihr den Kampf mit Auto-Kampf beenden wollt?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
 

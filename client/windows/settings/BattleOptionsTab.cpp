@@ -68,6 +68,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		enableAutocombatSpellsChangedCallback(value);
 	});
+	addCallback("endWithAutocombatChanged", [this](bool value)
+	{
+		endWithAutocombatChangedCallback(value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -99,6 +103,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> enableAutocombatSpellsCheckbox = widget<CToggleButton>("enableAutocombatSpellsCheckbox");
 	enableAutocombatSpellsCheckbox->setSelected(settings["battle"]["enableAutocombatSpells"].Bool());
+
+	std::shared_ptr<CToggleButton> endWithAutocombatCheckbox = widget<CToggleButton>("endWithAutocombatCheckbox");
+	endWithAutocombatCheckbox->setSelected(settings["battle"]["endWithAutocombat"].Bool());
 }
 
 int BattleOptionsTab::getAnimSpeed() const
@@ -248,3 +255,8 @@ void BattleOptionsTab::enableAutocombatSpellsChangedCallback(bool value)
 	enableAutocombatSpells->Bool() = value;
 }
 
+void BattleOptionsTab::endWithAutocombatChangedCallback(bool value)
+{
+	Settings endWithAutocombat = settings.write["battle"]["endWithAutocombat"];
+	endWithAutocombat->Bool() = value;
+}

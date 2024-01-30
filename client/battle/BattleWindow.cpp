@@ -41,6 +41,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/CPlayerState.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
@@ -52,6 +54,12 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	pos.h = 600;
 	pos = center();
 
+	PlayerColor defenderColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::DEFENDER);
+	PlayerColor attackerColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::ATTACKER);
+	bool isDefenderHuman = defenderColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(defenderColor).isControlledByHuman();
+	bool isAttackerHuman = attackerColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(attackerColor).isControlledByHuman();
+	onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
+
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/BattleWindow2.json"));
@@ -60,6 +68,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
 	addShortcut(EShortcut::BATTLE_RETREAT, std::bind(&BattleWindow::bFleef, this));
 	addShortcut(EShortcut::BATTLE_AUTOCOMBAT, std::bind(&BattleWindow::bAutofightf, this));
+	addShortcut(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, std::bind(&BattleWindow::endWithAutocombat, this));
 	addShortcut(EShortcut::BATTLE_CAST_SPELL, std::bind(&BattleWindow::bSpellf, this));
 	addShortcut(EShortcut::BATTLE_WAIT, std::bind(&BattleWindow::bWaitf, this));
 	addShortcut(EShortcut::BATTLE_DEFEND, std::bind(&BattleWindow::bDefencef, this));
@@ -551,6 +560,12 @@ void BattleWindow::bAutofightf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
+	if(settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman)
+	{
+		endWithAutocombat();
+		return;
+	}
+
 	//Stop auto-fight mode
 	if(owner.curInt->isAutoFightOn)
 	{
@@ -721,7 +736,8 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->spellcastingModeActive() : owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode || !onlyOnePlayerHuman || owner.actionsController->spellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
@@ -731,6 +747,39 @@ void BattleWindow::blockUI(bool on)
 std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 {
 	return queue->getHoveredUnitIdIfAny();
+}
+
+void BattleWindow::endWithAutocombat() 
+{
+	if(!owner.makingTurn() || owner.tacticsMode)
+		return;
+
+	LOCPLINT->showYesNoDialog(
+		VLC->generaltexth->translate("vcmi.battleWindow.endWithAutocombat"),
+		[this]()
+		{
+			owner.curInt->isAutoFightEndBattle = true;
+
+			auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
+
+			AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+			autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+
+			ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
+			ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
+
+			owner.curInt->isAutoFightOn = true;
+			owner.curInt->cb->registerBattleInterface(ai);
+			owner.curInt->autofightingAI = ai;
+
+			owner.requestAutofightingAIToTakeAction();
+
+			close();
+
+			owner.curInt->battleInt.reset();
+		},
+		nullptr
+	);
 }
 
 void BattleWindow::showAll(Canvas & to)
