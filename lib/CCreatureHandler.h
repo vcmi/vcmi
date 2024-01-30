@@ -16,7 +16,6 @@
 #include "GameConstants.h"
 #include "JsonNode.h"
 #include "IHandlerBase.h"
-#include "CRandomGenerator.h"
 #include "Color.h"
 #include "filesystem/ResourcePath.h"
 
@@ -29,6 +28,7 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
+class CRandomGenerator;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {

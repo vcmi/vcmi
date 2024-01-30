@@ -13,6 +13,7 @@
 #include "../JsonRandom.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

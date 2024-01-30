@@ -18,6 +18,7 @@
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "GameSettings.h"
+#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"

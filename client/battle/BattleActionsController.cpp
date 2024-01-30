@@ -29,6 +29,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/spells/CSpellHandler.h"

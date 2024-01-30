@@ -22,7 +22,6 @@
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
-#include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -43,6 +42,7 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
