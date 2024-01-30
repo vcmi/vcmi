@@ -102,6 +102,8 @@ public:
 
 	static const HeroTypeID NONE;
 	static const HeroTypeID RANDOM;
+	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
+	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
 
 	bool isValid() const
 	{

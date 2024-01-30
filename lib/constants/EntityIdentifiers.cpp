@@ -53,6 +53,9 @@ const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
+const HeroTypeID HeroTypeID::GEM(27);
+const HeroTypeID HeroTypeID::SOLMYR(45);
+
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER(-2);

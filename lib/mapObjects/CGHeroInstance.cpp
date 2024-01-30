@@ -1799,4 +1799,40 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 	}
 }
 
+bool CGHeroInstance::isCampaignYog() const
+{
+	const StartInfo *si = cb->getStartInfo();
+
+	// it would be nice to find a way to move this hack to config/mapOverrides.json
+	if(!si || !si->campState)
+		return false;
+
+	std::string campaign = si->campState->getFilename();
+	if (!boost::starts_with(campaign, "DATA/YOG")) // "Birth of a Barbarian"
+		return false;
+
+	if (getHeroType() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
+		return false;
+
+	return true;
+}
+
+bool CGHeroInstance::isCampaignGem() const
+{
+	const StartInfo *si = cb->getStartInfo();
+
+	// it would be nice to find a way to move this hack to config/mapOverrides.json
+	if(!si || !si->campState)
+		return false;
+
+	std::string campaign = si->campState->getFilename();
+	if (!boost::starts_with(campaign, "DATA/GEM") &&  !boost::starts_with(campaign, "DATA/FINAL")) // "New Beginning" and "Unholy Alliance"
+		return false;
+
+	if (getHeroType() != HeroTypeID::GEM) // Yog (based on Solmyr)
+		return false;
+
+	return true;
+}
+
 VCMI_LIB_NAMESPACE_END

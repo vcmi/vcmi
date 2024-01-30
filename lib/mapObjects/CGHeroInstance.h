@@ -305,6 +305,10 @@ public:
 	bool isCoastVisitable() const override;
 	bool isBlockedVisitable() const override;
 	BattleField getBattlefield() const override;
+
+	bool isCampaignYog() const;
+	bool isCampaignGem() const;
+
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;//synchr
 	///common part of hero instance and hero definition
