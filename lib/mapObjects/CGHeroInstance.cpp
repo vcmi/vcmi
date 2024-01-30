@@ -28,7 +28,9 @@
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMap.h"
+#include "../StartInfo.h"
 #include "CGTownInstance.h"
+#include "../campaign/CampaignState.h"
 #include "../pathfinder/TurnInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -555,7 +557,7 @@ std::string CGHeroInstance::getObjectName() const
 	{
 		std::string hoverName = VLC->generaltexth->allTexts[15];
 		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
-		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->getNameTranslated());
+		boost::algorithm::replace_first(hoverName,"%s", getClassNameTranslated());
 		return hoverName;
 	}
 	else
@@ -1099,6 +1101,18 @@ std::string CGHeroInstance::getNameTranslated() const
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
+std::string CGHeroInstance::getClassNameTranslated() const
+{
+	return VLC->generaltexth->translate(getClassNameTextID());
+}
+
+std::string CGHeroInstance::getClassNameTextID() const
+{
+	if (isCampaignGem())
+		return "core.genrltxt.735";
+	return type->heroClass->getNameTranslated();
+}
+
 std::string CGHeroInstance::getNameTextID() const
 {
 	if (!nameCustomTextId.empty())
@@ -1370,7 +1384,7 @@ PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
 	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
 	{
 		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
-		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->getNameTranslated());
+		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", getClassNameTranslated());
 		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
 	}
 	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);

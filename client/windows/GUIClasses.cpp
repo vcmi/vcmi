@@ -424,7 +424,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	std::string levelTitleText = CGI->generaltexth->translate("core.genrltxt.445");
 	boost::replace_first(levelTitleText, "%s", hero->getNameTranslated());
 	boost::replace_first(levelTitleText, "%d", std::to_string(hero->level));
-	boost::replace_first(levelTitleText, "%s", hero->type->heroClass->getNameTranslated());
+	boost::replace_first(levelTitleText, "%s", hero->getClassNameTranslated());
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 
@@ -585,7 +585,7 @@ void CTavernWindow::show(Canvas & to)
 
 			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->type->heroClass->getNameTranslated()));
+				recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
 
 		}
 
@@ -639,7 +639,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 		description = CGI->generaltexth->allTexts[215];
 		boost::algorithm::replace_first(description, "%s", h->getNameTranslated());
 		boost::algorithm::replace_first(description, "%d", std::to_string(h->level));
-		boost::algorithm::replace_first(description, "%s", h->type->heroClass->getNameTranslated());
+		boost::algorithm::replace_first(description, "%s", h->getClassNameTranslated());
 		boost::algorithm::replace_first(description, "%d", std::to_string(artifs));
 
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("portraitsLarge"), h->getIconIndex());
@@ -706,7 +706,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	auto genTitle = [](const CGHeroInstance * h)
 	{
 		boost::format fmt(CGI->generaltexth->allTexts[138]);
-		fmt % h->getNameTranslated() % h->level % h->type->heroClass->getNameTranslated();
+		fmt % h->getNameTranslated() % h->level % h->getClassNameTranslated();
 		return boost::str(fmt);
 	};
 

@@ -149,6 +149,9 @@ public:
 	HeroTypeID getPortraitSource() const;
 	int32_t getIconIndex() const;
 
+	std::string getClassNameTranslated() const;
+	std::string getClassNameTextID() const;
+
 private:
 	std::string getNameTextID() const;
 	std::string getBiographyTextID() const;
