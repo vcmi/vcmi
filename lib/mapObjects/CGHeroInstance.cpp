@@ -13,6 +13,7 @@
 
 #include <vcmi/ServerCallback.h>
 #include <vcmi/spells/Spell.h>
+#include <vstd/RNG.h>
 
 #include "../CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
@@ -1367,28 +1368,17 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(CR
 PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
 {
 	assert(gainsLevel());
-	int randomValue = rand.nextInt(99);
-	int pom = 0;
-	int primarySkill = 0;
 	const auto isLowLevelHero = level < GameConstants::HERO_HIGH_LEVEL;
 	const auto & skillChances = isLowLevelHero ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
 
-	for(; primarySkill < GameConstants::PRIMARY_SKILLS; ++primarySkill)
+	if (isCampaignYog())
 	{
-		pom += skillChances[primarySkill];
-		if(randomValue < pom)
-		{
-			break;
-		}
+		// Yog can only receive Attack or Defence on level-up
+		std::vector<int> yogChances = { skillChances[0], skillChances[1]};
+		return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(yogChances, rand));
 	}
-	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
-	{
-		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
-		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", getClassNameTranslated());
-		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
-	}
-	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
-	return static_cast<PrimarySkill>(primarySkill);
+
+	return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(skillChances, rand));
 }
 
 std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
