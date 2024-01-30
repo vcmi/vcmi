@@ -93,7 +93,6 @@ public:
 //	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 //	const CGObjectInstance * getTopObj (int3 pos) const;
 //	PlayerColor getOwner(ObjectInstanceID heroID) const;
-//	const CGObjectInstance *getObjByQuestIdentifier(ObjectInstanceID identifier) const; //nullptr if object has been removed (eg. killed)
 
 	//map
 //	int3 guardingCreaturePosition (int3 pos) const;
@@ -190,7 +189,6 @@ public:
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
-	virtual const CGObjectInstance *getObjByQuestIdentifier(ObjectInstanceID identifier) const; //nullptr if object has been removed (eg. killed)
 
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;

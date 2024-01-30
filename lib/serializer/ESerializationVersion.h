@@ -34,6 +34,7 @@ enum class ESerializationVersion : int32_t
 	MINIMAL = 831,
 	RELEASE_143, // 832 +text container in campaigns, +starting hero in RMG options
 	HAS_EXTRA_OPTIONS, // 833 +extra options struct as part of startinfo
+	DESTROYED_OBJECTS, // 834 +list of objects destroyed by player
 
-	CURRENT = HAS_EXTRA_OPTIONS
+	CURRENT = DESTROYED_OBJECTS
 };

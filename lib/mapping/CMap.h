@@ -126,6 +126,7 @@ public:
 	void checkForObjectives();
 
 	void resetStaticData();
+	void resolveQuestIdentifiers();
 
 	ui32 checksum;
 	std::vector<Rumor> rumors;
@@ -186,7 +187,14 @@ public:
 		h & artInstances;
 		h & quests;
 		h & allHeroes;
-		h & questIdentifierToId;
+
+		if (h.version < Handler::Version::DESTROYED_OBJECTS)
+		{
+			// old save compatibility
+			//FIXME: remove this field after save-breaking change
+			h & questIdentifierToId;
+			resolveQuestIdentifiers();
+		}
 
 		//TODO: viccondetails
 		h & terrain;

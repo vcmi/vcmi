@@ -2392,6 +2392,8 @@ void CMapLoaderH3M::afterRead()
 			p.posOfMainTown = posOfMainTown + mainTown->getVisitableOffset();
 		}
 	}
+
+	map->resolveQuestIdentifiers();
 }
 
 VCMI_LIB_NAMESPACE_END

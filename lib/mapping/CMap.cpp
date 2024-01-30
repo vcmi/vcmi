@@ -684,4 +684,15 @@ void CMap::resetStaticData()
 	townUniversitySkills.clear();
 }
 
+void CMap::resolveQuestIdentifiers()
+{
+	//FIXME: move to CMapLoaderH3M
+	for (auto & quest : quests)
+	{
+		if (quest->killTarget != ObjectInstanceID::NONE)
+			quest->killTarget = questIdentifierToId[quest->killTarget.getNum()];
+	}
+	questIdentifierToId.clear();
+}
+
 VCMI_LIB_NAMESPACE_END
