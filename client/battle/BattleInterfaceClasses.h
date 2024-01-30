@@ -155,7 +155,7 @@ private:
 	std::vector<std::shared_ptr<CMultiLineLabel>> labelsMultiline;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:
-	StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground = true);
+	StackInfoBasicPanel(const CStack * stack, bool initializeBackground = true);
 
 	void show(Canvas & to) override;
 

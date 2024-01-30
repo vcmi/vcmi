@@ -449,12 +449,10 @@ void HeroInfoBasicPanel::show(Canvas & to)
 }
 
 
-StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground)
+StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBackground)
 	: CIntObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	if (position != nullptr)
-		moveTo(*position);
 
 	if(initializeBackground)
 	{
