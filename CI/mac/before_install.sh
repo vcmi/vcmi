@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-echo DEVELOPER_DIR=/Applications/Xcode_14.2.app >> $GITHUB_ENV
+LATEST_XCODE=$(ls /Applications | grep Xcode | tail -n 1)
+echo DEVELOPER_DIR=/Applications/$LATEST_XCODE >> $GITHUB_ENV
 
 brew install ninja
 
