@@ -335,6 +335,7 @@
 	"vcmi.map.victoryCondition.collectArtifacts.message" : "Acquire Three Artifacts",
 	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Congratulations! All your enemies have been defeated and you have Angelic Alliance! Victory is yours!",
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Defeat All Enemies and create Angelic Alliance",
+	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Alas, you have lost part of the Angelic Alliance. All is lost.",
 
 	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",

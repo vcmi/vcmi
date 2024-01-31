@@ -1777,6 +1777,12 @@ bool CGHeroInstance::isMissionCritical() const
 			if ((condition.condition == EventCondition::CONTROL) && condition.objectID != ObjectInstanceID::NONE)
 				return (id != condition.objectID);
 
+			if (condition.condition == EventCondition::HAVE_ARTIFACT)
+			{
+				if(hasArt(condition.objectType.as<ArtifactID>()))
+					return true;
+			}
+
 			if(condition.condition == EventCondition::IS_HUMAN)
 				return true;
 
