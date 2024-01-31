@@ -34,6 +34,7 @@
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
+#include "../render/CAnimation.h"
 #include "../render/ColorFilter.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CList.h"
@@ -883,9 +884,22 @@ void CCastleBuildings::enterCastleGate()
 			availableTowns.push_back(t->id.getNum());//add to the list
 		}
 	}
+
+	std::vector<std::shared_ptr<IImage>> images;
+	for(auto & t : Towns)
+	{
+		if(!settings["general"]["enableUiEnhancements"].Bool())
+			break;
+		std::shared_ptr<CAnimation> a = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITPA"));
+		a->preload();
+		images.push_back(a->getImage(t->town->clientInfo.icons[t->hasFort()][false] + 2)->scaleFast(Point(35, 23)));
+	}
+
 	auto gateIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
-	GH.windows().createAndPushWindow<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
-		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1));
+	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
+		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1), 0, images);
+	wnd->onPopup = [this, Towns](int index) { CRClickPopup::createAndPush(Towns[index], GH.getCursorPosition()); };
+	GH.windows().pushWindow(wnd);
 }
 
 void CCastleBuildings::enterDwelling(int level)

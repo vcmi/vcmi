@@ -39,6 +39,7 @@
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
+#include "../render/IImage.h"
 
 #include "../../CCallback.h"
 
@@ -1674,11 +1675,13 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 }
 
 CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
-	: CIntObject(LCLICK | DOUBLECLICK),
+	: CIntObject(LCLICK | DOUBLECLICK | RCLICK_POPUP),
 	parent(_parent),
 	index(_id)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	if(parent->images.size() > index)
+		icon = std::make_shared<CPicture>(parent->images[index], Point(1, 1));
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
 	pos = border->pos;
 
@@ -1701,6 +1704,9 @@ void CObjectListWindow::CItem::select(bool on)
 void CObjectListWindow::CItem::clickPressed(const Point & cursorPosition)
 {
 	parent->changeSelection(index);
+
+	if(parent->onClicked)
+		parent->onClicked(index);
 }
 
 void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
@@ -1708,10 +1714,20 @@ void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
 	parent->elementSelected();
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
+void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
+{
+	if(parent->onPopup)
+		parent->onPopup(index);
+}
+
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
-	selected(initialSelection)
+	onExit(nullptr),
+	onPopup(nullptr),
+	onClicked(nullptr),
+	selected(initialSelection),
+	images(images)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
@@ -1724,10 +1740,14 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
-	selected(initialSelection)
+	onExit(nullptr),
+	onPopup(nullptr),
+	onClicked(nullptr),
+	selected(initialSelection),
+	images(images)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
@@ -1805,7 +1825,7 @@ void CObjectListWindow::changeSelection(size_t which)
 	selected = which;
 }
 
-void CObjectListWindow::keyPressed (EShortcut key)
+void CObjectListWindow::keyPressed(EShortcut key)
 {
 	int sel = static_cast<int>(selected);
 

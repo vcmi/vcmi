@@ -43,6 +43,7 @@
 
 #include "render/CAnimation.h"
 #include "render/IImage.h"
+#include "render/IRenderHandler.h"
 
 #include "widgets/Buttons.h"
 #include "widgets/CComponent.h"
@@ -1092,8 +1093,24 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	std::shared_ptr<CIntObject> localIcon = localIconC.image;
 	localIconC.removeChild(localIcon.get(), false);
 
-	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);
+	std::vector<std::shared_ptr<IImage>> images;
+	for(auto & obj : objects)
+	{
+		if(!settings["general"]["enableUiEnhancements"].Bool())
+			break;
+		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
+		if(t)
+		{
+			std::shared_ptr<CAnimation> a = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITPA"));
+			a->preload();
+			images.push_back(a->getImage(t->town->clientInfo.icons[t->hasFort()][false] + 2)->scaleFast(Point(35, 23)));
+		}
+	}
+
+	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
+	wnd->onPopup = [this, objects](int index) { CRClickPopup::createAndPush(cb->getObj(objects[index]), GH.getCursorPosition()); };
+	wnd->onClicked = [this, objects](int index) { adventureInt->centerOnObject(cb->getObj(objects[index])); GH.windows().totalRedraw(); };
 	GH.windows().pushWindow(wnd);
 }
 
