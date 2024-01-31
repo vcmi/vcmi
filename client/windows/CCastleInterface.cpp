@@ -898,7 +898,7 @@ void CCastleBuildings::enterCastleGate()
 	auto gateIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
 	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
 		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1), 0, images);
-	wnd->onPopup = [this, Towns](int index) { CRClickPopup::createAndPush(Towns[index], GH.getCursorPosition()); };
+	wnd->onPopup = [Towns](int index) { CRClickPopup::createAndPush(Towns[index], GH.getCursorPosition()); };
 	GH.windows().pushWindow(wnd);
 }
 
