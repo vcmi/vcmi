@@ -317,7 +317,7 @@ std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID which) const
 	return chosenCampaignBonuses.at(which);
 }
 
-std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameCallback * cb) const
+std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameCallback * cb)
 {
 	// FIXME: there is certainly better way to handle maps inside campaigns
 	if(scenarioId == CampaignScenarioID::NONE)
@@ -328,7 +328,10 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId.getNum());
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
-	return mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
+	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
+
+	mapTranslations[scenarioId] = result->texts;
+	return result;
 }
 
 std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scenarioId) const

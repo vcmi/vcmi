@@ -62,7 +62,7 @@ public:
 	void initTowns();
 
 	bool playerHasStartingHero(PlayerColor player) const;
-	std::unique_ptr<CMap> getCurrentMap() const;
+	std::unique_ptr<CMap> getCurrentMap();
 
 	template <typename Handler> void serialize(Handler &h)
 	{

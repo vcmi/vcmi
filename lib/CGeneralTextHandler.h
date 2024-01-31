@@ -227,7 +227,7 @@ public:
 	TextContainerRegistrable(const TextContainerRegistrable & other);
 	TextContainerRegistrable(TextContainerRegistrable && other) noexcept;
 
-	TextContainerRegistrable& operator=(TextContainerRegistrable b) = delete;
+	TextContainerRegistrable& operator=(const TextContainerRegistrable & b) = default;
 };
 
 /// Handles all text-related data in game
