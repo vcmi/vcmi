@@ -485,6 +485,14 @@ void CGameStateCampaign::initHeroes()
 			}
 		}
 	}
+
+	auto campaignState = gameState->scenarioOps->campState;
+	auto * yog = gameState->getUsedHero(HeroTypeID::SOLMYR);
+	if (yog && boost::starts_with(campaignState->getFilename(), "DATA/YOG") && campaignState->currentScenario()->getNum() == 2)
+	{
+		assert(yog->isCampaignYog());
+		gameState->giveHeroArtifact(yog, ArtifactID::ANGELIC_ALLIANCE);
+	}
 }
 
 void CGameStateCampaign::initStartingResources()
