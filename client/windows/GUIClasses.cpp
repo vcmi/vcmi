@@ -1723,9 +1723,6 @@ void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
 CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
-	onExit(nullptr),
-	onPopup(nullptr),
-	onClicked(nullptr),
 	selected(initialSelection),
 	images(images)
 {
@@ -1743,9 +1740,6 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
 	onSelect(Callback),
-	onExit(nullptr),
-	onPopup(nullptr),
-	onClicked(nullptr),
 	selected(initialSelection),
 	images(images)
 {

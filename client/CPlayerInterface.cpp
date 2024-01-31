@@ -1069,6 +1069,19 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
+	std::vector<ObjectInstanceID> tmpObjects;
+	if(objects.size() && dynamic_cast<const CGTownInstance *>(cb->getObj(objects[0])))
+	{
+		// sorting towns (like in client)
+		std::vector <const CGTownInstance*> Towns = LOCPLINT->localState->getOwnedTowns();
+		for(auto town : Towns)
+			for(auto item : objects)
+				if(town == cb->getObj(item))
+					tmpObjects.push_back(item);
+	}
+	else // other object list than town
+		tmpObjects = objects;
+
 	auto selectCallback = [=](int selection)
 	{
 		cb->sendQueryReply(selection, askID);
@@ -1083,9 +1096,9 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	const std::string localDescription = description.toString();
 
 	std::vector<int> tempList;
-	tempList.reserve(objects.size());
+	tempList.reserve(tmpObjects.size());
 
-	for(auto item : objects)
+	for(auto item : tmpObjects)
 		tempList.push_back(item.getNum());
 
 	CComponent localIconC(icon);
@@ -1094,7 +1107,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	localIconC.removeChild(localIcon.get(), false);
 
 	std::vector<std::shared_ptr<IImage>> images;
-	for(auto & obj : objects)
+	for(auto & obj : tmpObjects)
 	{
 		if(!settings["general"]["enableUiEnhancements"].Bool())
 			break;
@@ -1109,8 +1122,8 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
-	wnd->onPopup = [this, objects](int index) { CRClickPopup::createAndPush(cb->getObj(objects[index]), GH.getCursorPosition()); };
-	wnd->onClicked = [this, objects](int index) { adventureInt->centerOnObject(cb->getObj(objects[index])); GH.windows().totalRedraw(); };
+	wnd->onPopup = [this, tmpObjects](int index) { CRClickPopup::createAndPush(cb->getObj(tmpObjects[index]), GH.getCursorPosition()); };
+	wnd->onClicked = [this, tmpObjects](int index) { adventureInt->centerOnObject(cb->getObj(tmpObjects[index])); GH.windows().totalRedraw(); };
 	GH.windows().pushWindow(wnd);
 }
 
