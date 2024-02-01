@@ -141,7 +141,7 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	if(gh.getObj(pack.srcHero)->ID != MapObjectID::ALTAR_OF_SACRIFICE)
+	if(dynamic_cast<const IMarket*>(gh.getObj(pack.srcHero)) == nullptr)
 		gh.throwIfWrongOwner(&pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(&pack, pack.dstHero);

@@ -142,7 +142,7 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 				}
 				else if(auto art = artPlace.getArt())
 				{
-					if(artSetPtr->getHero()->tempOwner == LOCPLINT->playerID)
+					if(artSetPtr->getHero()->getOwner() == LOCPLINT->playerID)
 					{
 						if(checkSpecialArts(*art, hero, std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>> ? true : false))
 							LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artPlace.slot), ArtifactLocation(artSetPtr->getHero()->id, ArtifactPosition::TRANSITION_POS));

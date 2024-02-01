@@ -18,7 +18,6 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/MiscObjects.h"
-#include "mapObjects/CGMarket.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
@@ -969,30 +968,9 @@ const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid
 	return gs->map->objects[oid.num];
 }
 
-CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
+const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
 {
-	if(auto hero = const_cast<CGHeroInstance*>(getHero(loc.artHolder)))
-	{
-		if(loc.creature.has_value())
-		{
-			if(loc.creature.value() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
-				return hero->commander;
-			else
-				return hero->getStackPtr(loc.creature.value());
-		}
-		else
-		{
-			return hero;
-		}
-	}
-	else if(auto market = dynamic_cast<const CGArtifactsAltar*>(getObj(loc.artHolder, false)))
-	{
-		return const_cast<CGArtifactsAltar*>(market);
-	}
-	else
-	{
-		return nullptr;
-	}
+	return gs->getArtSet(loc);
 }
 
 std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player) const

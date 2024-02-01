@@ -3434,17 +3434,12 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
-		if(o1->ID == Obj::ALTAR_OF_SACRIFICE)
-		{
-			return true;
-		}
-		if(o2->ID == Obj::ALTAR_OF_SACRIFICE)
-		{
-			const auto visitingHero = getVisitingHero(o2);
-			const auto thisHero = static_cast<const CGHeroInstance*>(o1);
-			if(visitingHero == thisHero)
-				return true;
-		}
+		auto market = dynamic_cast<const IMarket*>(o1);
+		if(market == nullptr)
+			market = dynamic_cast<const IMarket*>(o2);
+		if(market)
+			return market->allowsTrade(EMarketMode::ARTIFACT_EXP);
+
 		if (o1->ID == Obj::HERO && o2->ID == Obj::HERO)
 		{
 			const CGHeroInstance *h1 = static_cast<const CGHeroInstance*>(o1);
