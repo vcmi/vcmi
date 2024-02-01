@@ -136,8 +136,8 @@ public:
 	virtual void init(CRandomGenerator & rand);
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
-	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
-	const CGCreature *getCreatureToKill(bool allowNull = false) const;
+	const CGHeroInstance *getHeroToKill(bool allowNull) const;
+	const CGCreature *getCreatureToKill(bool allowNull) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
 
 	void afterAddToMap(CMap * map) override;

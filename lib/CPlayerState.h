@@ -52,6 +52,10 @@ public:
 	bool human; //true if human controlled player, false for AI
 	TeamID team;
 	TResources resources;
+
+	/// list of objects that were "destroyed" by player, either via simple pick-up (e.g. resources) or defeated heroes or wandering monsters
+	std::set<ObjectInstanceID> destroyedObjects;
+
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::set<VisitedObjectGlobal> visitedObjectsGlobal;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
@@ -110,6 +114,8 @@ public:
 		h & enteredLosingCheatCode;
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
+		if (h.version >= Handler::Version::DESTROYED_OBJECTS)
+			h & destroyedObjects;
 	}
 };
 

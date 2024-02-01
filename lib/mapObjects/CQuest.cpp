@@ -31,6 +31,7 @@
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../spells/CSpellHandler.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -128,12 +129,12 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 	if(!mission.heroAllowed(h))
 		return false;
 	
-	if(killTarget != ObjectInstanceID::NONE)
+	if(killTarget.hasValue())
 	{
-		if(h->cb->getObjByQuestIdentifier(killTarget))
+		PlayerColor owner = h->getOwner();
+		if (!h->cb->getPlayerState(owner)->destroyedObjects.count(killTarget))
 			return false;
 	}
-	
 	return true;
 }
 
@@ -611,7 +612,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 int CGSeerHut::checkDirection() const
 {
-	int3 cord = getCreatureToKill()->pos;
+	int3 cord = getCreatureToKill(false)->pos;
 	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
 	{
 		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
@@ -643,7 +644,7 @@ int CGSeerHut::checkDirection() const
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGHeroInstance *>(o);
@@ -651,7 +652,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(quest->killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGCreature *>(o);

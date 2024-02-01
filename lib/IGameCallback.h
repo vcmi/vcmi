@@ -12,7 +12,6 @@
 #include <vcmi/Metatype.h>
 
 #include "CGameInfoCallback.h" // for CGameInfoCallback
-#include "CRandomGenerator.h"
 #include "networkPacks/ObjProperty.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -23,6 +22,7 @@ struct BlockingDialog;
 struct TeleportDialog;
 struct StackLocation;
 struct ArtifactLocation;
+class CRandomGenerator;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;

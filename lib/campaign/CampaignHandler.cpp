@@ -66,7 +66,7 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 	
 	auto ret = std::make_unique<Campaign>();
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
-	std::vector<ui8> cmpgn = getFile(std::move(fileStream), true)[0];
+	std::vector<ui8> cmpgn = getFile(std::move(fileStream), name, true)[0];
 
 	readCampaign(ret.get(), cmpgn, resourceID.getName(), modName, encoding);
 
@@ -84,7 +84,7 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 	
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
 
-	std::vector<std::vector<ui8>> files = getFile(std::move(fileStream), false);
+	std::vector<std::vector<ui8>> files = getFile(std::move(fileStream), name, false);
 
 	readCampaign(ret.get(), files[0], resourceID.getName(), modName, encoding);
 
@@ -578,19 +578,32 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 	return ret;
 }
 
-std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputStream> file, bool headerOnly)
+std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputStream> file, const std::string & filename, bool headerOnly)
 {
 	CCompressedStream stream(std::move(file), true);
 
 	std::vector< std::vector<ui8> > ret;
-	do
+
+	try
 	{
-		std::vector<ui8> block(stream.getSize());
-		stream.read(block.data(), block.size());
-		ret.push_back(block);
-		ret.back().shrink_to_fit();
+		do
+		{
+			std::vector<ui8> block(stream.getSize());
+			stream.read(block.data(), block.size());
+			ret.push_back(block);
+			ret.back().shrink_to_fit();
+		}
+		while (!headerOnly && stream.getNextBlock());
 	}
-	while (!headerOnly && stream.getNextBlock());
+	catch (const DecompressionException & e)
+	{
+		// Some campaigns in French version from gog.com have trailing garbage bytes
+		// For example, slayer.h3c consist from 5 parts: header + 4 maps
+		// However file also contains ~100 "extra" bytes after those 5 parts are decompressed that do not represent gzip stream
+		// leading to exception "Incorrect header check"
+		// Since H3 handles these files correctly, simply log this as warning and proceed
+		logGlobal->warn("Failed to read file %s. Encountered error during decompression: %s", filename, e.what());
+	}
 
 	return ret;
 }

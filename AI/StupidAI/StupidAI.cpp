@@ -15,6 +15,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/CRandomGenerator.h"
 
 CStupidAI::CStupidAI()
 	: side(-1)

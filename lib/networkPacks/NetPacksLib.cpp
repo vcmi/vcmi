@@ -1156,6 +1156,9 @@ void RemoveObject::applyGs(CGameState *gs)
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
+	if (initiator.isValidPlayer())
+		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
+
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
@@ -1221,27 +1224,6 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 	}
 
-	for (TriggeredEvent & event : gs->map->triggeredEvents)
-	{
-		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
-		{
-			if (cond.objectID == obj->id)
-			{
-				if (cond.condition == EventCondition::DESTROY)
-				{
-					cond.condition = EventCondition::CONST_VALUE;
-					cond.value = 1; // destroyed object, from now on always fulfilled
-				}
-				else if (cond.condition == EventCondition::CONTROL)
-				{
-					cond.condition = EventCondition::CONST_VALUE;
-					cond.value = 0; // destroyed object, from now on can not be fulfilled
-				}
-			}
-			return cond;
-		};
-		event.trigger = event.trigger.morph(patcher);
-	}
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();
 	gs->map->calculateGuardingGreaturePositions();

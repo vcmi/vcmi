@@ -967,11 +967,7 @@ void CCastleBuildings::enterMagesGuild()
 
 	if(hero && !hero->hasSpellbook()) //hero doesn't have spellbok
 	{
-		const StartInfo *si = LOCPLINT->cb->getStartInfo();
-		// it would be nice to find a way to move this hack to config/mapOverrides.json
-		if(si && si->campState &&                                   // We're in campaign,
-			(si->campState->getFilename() == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
-			(hero->getHeroType() == 45))                        // and the hero is Yog (based on Solmyr)
+		if(hero->isCampaignYog())
 		{
 			// "Yog has given up magic in all its forms..."
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[736]);

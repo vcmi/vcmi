@@ -20,6 +20,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

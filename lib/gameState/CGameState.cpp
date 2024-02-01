@@ -1420,10 +1420,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		{
 			if (condition.objectID != ObjectInstanceID::NONE) // mode A - destroy specific object of this type
 			{
-				if(const auto * hero = getHero(condition.objectID))
-					return boost::range::find(gs->map->heroesOnMap, hero) == gs->map->heroesOnMap.end();
-				else
-					return getObj(condition.objectID) == nullptr;
+				return p->destroyedObjects.count(condition.objectID);
 			}
 			else
 			{

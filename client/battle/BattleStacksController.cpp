@@ -37,6 +37,7 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/TextOperations.h"

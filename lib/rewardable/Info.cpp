@@ -20,6 +20,7 @@
 #include "../JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

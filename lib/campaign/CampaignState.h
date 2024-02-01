@@ -244,6 +244,9 @@ class DLL_LINKAGE CampaignState : public Campaign
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
 
+	/// List of previously loaded campaign maps, to prevent translation of transferred hero names getting lost after their original map has been completed
+	std::map<CampaignScenarioID, TextContainerRegistrable> mapTranslations;
+
 	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
 	std::optional<CampaignScenarioID> currentMap;
@@ -278,7 +281,7 @@ public:
 	/// Returns true if all available scenarios have been completed and campaign is finished
 	bool isCampaignFinished() const;
 
-	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameCallback * cb) const;
+	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameCallback * cb);
 	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
 	std::shared_ptr<CMapInfo> getMapInfo(CampaignScenarioID scenarioId) const;
 
@@ -314,6 +317,8 @@ public:
 		h & currentMap;
 		h & chosenCampaignBonuses;
 		h & campaignSet;
+		if (h.version >= Handler::Version::CAMPAIGN_MAP_TRANSLATIONS)
+			h & mapTranslations;
 	}
 };
 

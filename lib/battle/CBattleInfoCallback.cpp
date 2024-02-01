@@ -25,6 +25,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

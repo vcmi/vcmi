@@ -20,6 +20,7 @@
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

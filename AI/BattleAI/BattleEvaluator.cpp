@@ -22,6 +22,8 @@
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/CRandomGenerator.h"
+
 
 // TODO: remove
 // Eventually only IBattleInfoCallback and battle::Unit should be used,

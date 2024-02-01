@@ -14,6 +14,7 @@
 #include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
+#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "GameSettings.h"
 #include "constants/StringConstants.h"

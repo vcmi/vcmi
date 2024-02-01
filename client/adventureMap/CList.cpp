@@ -263,7 +263,7 @@ void CHeroList::CHeroItem::showTooltip()
 
 std::string CHeroList::CHeroItem::getHoverText()
 {
-	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->type->heroClass->getNameTranslated());
+	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->getClassNameTranslated());
 }
 
 void CHeroList::CHeroItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)

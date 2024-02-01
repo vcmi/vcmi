@@ -18,6 +18,7 @@
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "GameSettings.h"
+#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
@@ -281,12 +282,12 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	fillPrimarySkillData(node, heroClass, PrimarySkill::KNOWLEDGE);
 
 	auto percentSumm = std::accumulate(heroClass->primarySkillLowLevel.begin(), heroClass->primarySkillLowLevel.end(), 0);
-	if(percentSumm != 100)
-		logMod->error("Hero class %s has wrong lowLevelChance values: summ should be 100, but %d instead", heroClass->identifier, percentSumm);
+	if(percentSumm <= 0)
+		logMod->error("Hero class %s has wrong lowLevelChance values: must be above zero!", heroClass->identifier, percentSumm);
 
 	percentSumm = std::accumulate(heroClass->primarySkillHighLevel.begin(), heroClass->primarySkillHighLevel.end(), 0);
-	if(percentSumm != 100)
-		logMod->error("Hero class %s has wrong highLevelChance values: summ should be 100, but %d instead", heroClass->identifier, percentSumm);
+	if(percentSumm <= 0)
+		logMod->error("Hero class %s has wrong highLevelChance values: must be above zero!", heroClass->identifier, percentSumm);
 
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{

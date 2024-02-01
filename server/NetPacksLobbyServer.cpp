@@ -15,6 +15,8 @@
 
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
+#include "../lib/CRandomGenerator.h"
+
 
 // Campaigns
 #include "../lib/campaign/CampaignState.h"
