@@ -252,6 +252,9 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	// communication messages from vcmiclient
 	if(activeAccounts.count(connection))
 	{
+		std::string accountName = activeAccounts.at(connection).accountID;
+		logGlobal->info("%s: Received message of type %s", accountName, messageType);
+
 		if(messageType == "sendChatMessage")
 			return receiveSendChatMessage(connection, json);
 
@@ -267,19 +270,24 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 		if(messageType == "declineInvite")
 			return receiveDeclineInvite(connection, json);
 
-		logGlobal->info("Received unexpected message of type %s from account %s", messageType, activeAccounts.at(connection).accountID);
+		logGlobal->warn("%s: Unknown message type: %s", accountName, messageType);
 		return;
 	}
 
 	// communication messages from vcmiserver
 	if(activeGameRooms.count(connection))
 	{
+		std::string roomName = activeGameRooms.at(connection).roomID;
+		logGlobal->info("%s: Received message of type %s", roomName, messageType);
+
 		if(messageType == "leaveGameRoom")
 			return receiveLeaveGameRoom(connection, json);
 
-		logGlobal->info("Received unexpected message of type %s from game room %s", messageType, activeGameRooms.at(connection).roomID);
+		logGlobal->warn("%s: Unknown message type: %s", roomName, messageType);
 		return;
 	}
+
+	logGlobal->info("(unauthorised): Received message of type %s", messageType);
 
 	// unauthorized connections - permit only login or register attempts
 	if(messageType == "clientLogin")
@@ -300,7 +308,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	// TODO: add logging of suspicious connections.
 	networkServer->closeConnection(connection);
 
-	logGlobal->info("Received unexpected message of type %s from not authorised account!", messageType);
+	logGlobal->info("(unauthorised): Unknown message type %s", messageType);
 }
 
 void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json)
