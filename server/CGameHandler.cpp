@@ -2713,17 +2713,17 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	const auto srcArtifact = srcArtSet->getArt(src.slot);
-	const auto dstArtifact = dstArtSet->getArt(dst.slot);
+	const bool isDstSlotOccupied = dstArtSet->bearerType() == ArtBearer::ALTAR ? false : dstArtSet->getArt(dst.slot) != nullptr;
 	const bool isDstSlotBackpack = dstArtSet->bearerType() == ArtBearer::HERO ? ArtifactUtils::isSlotBackpack(dst.slot) : false;
 
 	if(srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
-	if(dstArtifact && getHero(src.artHolder)->getOwner() != getHero(dst.artHolder)->getOwner() && !isDstSlotBackpack)
+	if(isDstSlotOccupied && getOwner(src.artHolder) != getOwner(dst.artHolder) && !isDstSlotBackpack)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
 	// Moving to the backpack is always allowed.
-	if((!srcArtifact || !isDstSlotBackpack) && srcArtifact && !srcArtifact->canBePutAt(dstArtSet, dst.slot, true))
+	if((!srcArtifact || !isDstSlotBackpack) && !srcArtifact->canBePutAt(dstArtSet, dst.slot, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
 	auto srcSlotInfo = srcArtSet->getSlot(src.slot);
@@ -2749,7 +2749,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	ma.dstCreature = dst.creature;
 	
 	// Check if dst slot is occupied
-	if(!isDstSlotBackpack && dstArtifact)
+	if(!isDstSlotBackpack && isDstSlotOccupied)
 	{
 		// Previous artifact must be removed
 		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
@@ -2767,27 +2767,26 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	return true;
 }
 
-bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped, bool backpack)
+bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
 {
 	// Make sure exchange is even possible between the two heroes.
-	if(!isAllowedExchange(srcHero, dstHero))
+	if(!isAllowedExchange(srcId, dstId))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
-	auto psrcHero = getHero(srcHero);
-	auto pdstHero = getHero(dstHero);
-	if((!psrcHero) || (!pdstHero))
+	auto psrcSet = getArtSet(srcId);
+	auto pdstSet = getArtSet(dstId);
+	if((!psrcSet) || (!pdstSet))
 		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
 
-	BulkMoveArtifacts ma(srcHero, dstHero, swap);
+	BulkMoveArtifacts ma(srcId, dstId, swap);
 	auto & slotsSrcDst = ma.artsPack0;
 	auto & slotsDstSrc = ma.artsPack1;
 
 	// Temporary fitting set for artifacts. Used to select available slots before sending data.
-	CArtifactFittingSet artFittingSet(pdstHero->bearerType());
+	CArtifactFittingSet artFittingSet(pdstSet->bearerType());
 
-	auto moveArtifact = [this, &artFittingSet](const CArtifactInstance * artifact,
-		ArtifactPosition srcSlot, const CGHeroInstance * dstHero,
-		std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+	auto moveArtifact = [this, &artFittingSet, dstId](const CArtifactInstance * artifact,
+		ArtifactPosition srcSlot, std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 	{
 		assert(artifact);
 		auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, artifact->getTypeId());
@@ -2796,20 +2795,23 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
 			slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 
-			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
-				giveHeroNewArtifact(dstHero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+			// TODO Shouldn't be here. Possibly in callback after equipping the artifact
+			if(auto dstHero = getHero(dstId))
+			{
+				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
+					giveHeroNewArtifact(dstHero, ArtifactID(ArtifactID::SPELLBOOK).toArtifact(), ArtifactPosition::SPELLBOOK);
+			}
 		}
 	};
 
 	if(swap)
 	{
-		auto moveArtsWorn = [moveArtifact](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
-			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		auto moveArtsWorn = [moveArtifact](const CArtifactSet * srcArtSet, std::vector<BulkMoveArtifacts::LinkedSlots> & slots)
 		{
-			for(auto & artifact : srcHero->artifactsWorn)
+			for(auto & artifact : srcArtSet->artifactsWorn)
 			{
 				if(ArtifactUtils::isArtRemovable(artifact))
-					moveArtifact(artifact.second.getArt(), artifact.first, dstHero, slots);
+					moveArtifact(artifact.second.getArt(), artifact.first, slots);
 			}
 		};
 		auto moveArtsInBackpack = [](const CArtifactSet * artSet,
@@ -2824,41 +2826,41 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		if(equipped)
 		{
 			// Move over artifacts that are worn srcHero -> dstHero
-			moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
+			moveArtsWorn(psrcSet, slotsSrcDst);
 			artFittingSet.artifactsWorn.clear();
 			// Move over artifacts that are worn dstHero -> srcHero
-			moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
+			moveArtsWorn(pdstSet, slotsDstSrc);
 		}
 		if(backpack)
 		{
 			// Move over artifacts that are in backpack srcHero -> dstHero
-			moveArtsInBackpack(psrcHero, slotsSrcDst);
+			moveArtsInBackpack(psrcSet, slotsSrcDst);
 			// Move over artifacts that are in backpack dstHero -> srcHero
-			moveArtsInBackpack(pdstHero, slotsDstSrc);
+			moveArtsInBackpack(pdstSet, slotsDstSrc);
 		}
 	}
 	else
 	{
-		artFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
-		artFittingSet.artifactsWorn = pdstHero->artifactsWorn;
+		artFittingSet.artifactsInBackpack = pdstSet->artifactsInBackpack;
+		artFittingSet.artifactsWorn = pdstSet->artifactsWorn;
 		if(equipped)
 		{
 			// Move over artifacts that are worn
-			for(auto & artInfo : psrcHero->artifactsWorn)
+			for(auto & artInfo : psrcSet->artifactsWorn)
 			{
 				if(ArtifactUtils::isArtRemovable(artInfo))
 				{
-					moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero, slotsSrcDst);
+					moveArtifact(psrcSet->getArt(artInfo.first), artInfo.first, slotsSrcDst);
 				}
 			}
 		}
 		if(backpack)
 		{
 			// Move over artifacts that are in backpack
-			for(auto & slotInfo : psrcHero->artifactsInBackpack)
+			for(auto & slotInfo : psrcSet->artifactsInBackpack)
 			{
-				moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)),
-					psrcHero->getArtPos(slotInfo.artifact), pdstHero, slotsSrcDst);
+				moveArtifact(psrcSet->getArt(psrcSet->getArtPos(slotInfo.artifact)),
+					psrcSet->getArtPos(slotInfo.artifact), slotsSrcDst);
 			}
 		}
 	}
@@ -3432,6 +3434,12 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
+		auto market = dynamic_cast<const IMarket*>(o1);
+		if(market == nullptr)
+			market = dynamic_cast<const IMarket*>(o2);
+		if(market)
+			return market->allowsTrade(EMarketMode::ARTIFACT_EXP);
+
 		if (o1->ID == Obj::HERO && o2->ID == Obj::HERO)
 		{
 			const CGHeroInstance *h1 = static_cast<const CGHeroInstance*>(o1);
@@ -3775,10 +3783,15 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
+	if(hero->getAlignment() == EAlignment::EVIL)
+		COMPLAIN_RET("Evil hero can't sacrifice artifact!");
+
+	assert(m);
+	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(m);
 
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
@@ -3786,34 +3799,28 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 		giveExperience(hero, hero->calculateXp(expSum));
 	};
 
-	for(int i = 0; i < slot.size(); ++i)
+	for(const auto & artInstId : arts)
 	{
-		ArtifactLocation al(hero->id, slot[i]);
-		const CArtifactInstance * a = hero->getArt(al.slot);
-
-		if(!a)
+		if(auto art = altarObj->getArtByInstanceId(artInstId))
+		{
+			if(art->artType->isTradable())
+			{
+				int dmp;
+				int expToGive;
+				m->getOffer(art->getTypeId(), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+				expSum += expToGive;
+				removeArtifact(ArtifactLocation(altarObj->id, altarObj->getSlotByInstance(art)));
+			}
+			else
+			{
+				COMPLAIN_RET("Cannot sacrifice not tradable artifact!");
+			}
+		}
+		else
 		{
 			finish();
 			COMPLAIN_RET("Cannot find artifact to sacrifice!");
 		}
-
-		const CArtifactInstance * art = hero->getArt(slot[i]);
-
-		if(!art)
-		{
-			finish();
-			COMPLAIN_RET("No artifact at position to sacrifice!");
-		}
-
-		si32 typId = art->artType->getId();
-		int dmp;
-		int expToGive;
-
-		m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
-
-		expSum += expToGive;
-
-		removeArtifact(al);
 	}
 
 	finish();

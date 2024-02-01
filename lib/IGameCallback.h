@@ -146,6 +146,7 @@ public:
 	using CGameInfoCallback::getTile;
 	using CGameInfoCallback::getArtInstance;
 	using CGameInfoCallback::getObjInstance;
+	using CGameInfoCallback::getArtSet;
 
 	PlayerState * getPlayerState(const PlayerColor & color, bool verbose = true);
 	TeamState * getTeam(const TeamID & teamID); //get team by team ID
@@ -156,6 +157,7 @@ public:
 	CArtifactInstance * getArtInstance(const ArtifactInstanceID & aid);
 	CGObjectInstance * getObjInstance(const ObjectInstanceID & oid);
 	CArmedInstance * getArmyInstance(const ObjectInstanceID & oid);
+	CArtifactSet * getArtSet(const ArtifactLocation & loc);
 
 	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
 };

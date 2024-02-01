@@ -21,14 +21,19 @@ public:
 	void sacrificeAll() override;
 	void sacrificeBackpack();
 	void setSelectedArtifact(const CArtifactInstance * art);
-	void moveArtToAltar(std::shared_ptr<CTradeableItem>, const CArtifactInstance * art);
 	std::shared_ptr<CArtifactsOfHeroAltar> getAOHset() const;
+	ObjectInstanceID getObjId() const;
+	void updateSlots();
+	void putBackArtifacts();
 
 private:
+	ObjectInstanceID altarId;
+	const CArtifactSet * altarArtifacts;
 	std::shared_ptr<CArtPlace> selectedArt;
 	std::shared_ptr<CLabel> selectedCost;
 	std::shared_ptr<CButton> sacrificeBackpackButton;
-	std::shared_ptr<CArtifactsOfHeroAltar> arts;
+	std::shared_ptr<CArtifactsOfHeroAltar> heroArts;
+	std::map<const CArtifactInstance*, std::shared_ptr<CTradeableItem>> tradeSlotsMap;
 
 	const std::vector<Point> posSlotsAltar =
 	{
@@ -42,6 +47,6 @@ private:
 		Point(452, 333)
 	};
 
-	bool putArtOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance * art);
-	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
+	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
+	TExpType calcExpCost(const CArtifactInstance * art);
 };

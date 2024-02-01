@@ -33,6 +33,8 @@
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CConfigHandler.h"
 
+#include "../../CCallback.h"
+
 void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr artSet)
 {
 	artSets.emplace_back(artSet);
@@ -81,31 +83,14 @@ const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact()
 
 void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
 {
-	const auto artSetWeak = findAOHbyRef(artsInst);
-	assert(artSetWeak.has_value());
+	const auto artSet = findAOHbyRef(artsInst);
+	assert(artSet.has_value());
 
 	if(artPlace.isLocked())
 		return;
 
-	const auto checkSpecialArts = [](const CGHeroInstance * hero, CArtPlace & artPlace) -> bool
-	{
-		if(artPlace.getArt()->getTypeId() == ArtifactID::SPELLBOOK)
-		{
-			GH.windows().createAndPushWindow<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
-			return false;
-		}
-		if(artPlace.getArt()->getTypeId() == ArtifactID::CATAPULT)
-		{
-			// The Catapult must be equipped
-			std::vector<std::shared_ptr<CComponent>> catapult(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT)));
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult);
-			return false;
-		}
-		return true;
-	};
-
 	std::visit(
-		[checkSpecialArts, this, &artPlace](auto artSetWeak) -> void
+		[this, &artPlace](auto artSetWeak) -> void
 		{
 			const auto artSetPtr = artSetWeak.lock();
 
@@ -153,26 +138,23 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 							isTransferAllowed = false;
 					}
 					if(isTransferAllowed)
-						artSetPtr->swapArtifacts(srcLoc, dstLoc);
+						LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
 				}
-				else
+				else if(auto art = artPlace.getArt())
 				{
-					if(artPlace.getArt())
+					if(artSetPtr->getHero()->getOwner() == LOCPLINT->playerID)
 					{
-						if(artSetPtr->getHero()->tempOwner == LOCPLINT->playerID)
-						{
-							if(checkSpecialArts(hero, artPlace))
-								artSetPtr->pickUpArtifact(artPlace);
-						}
-						else
-						{
-							for(const auto artSlot : ArtifactUtils::unmovableSlots())
-								if(artPlace.slot == artSlot)
-								{
-									msg = CGI->generaltexth->allTexts[21];
-									break;
-								}
-						}
+						if(checkSpecialArts(*art, hero, std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>> ? true : false))
+							LOCPLINT->cb->swapArtifacts(ArtifactLocation(artSetPtr->getHero()->id, artPlace.slot), ArtifactLocation(artSetPtr->getHero()->id, ArtifactPosition::TRANSITION_POS));
+					}
+					else
+					{
+						for(const auto artSlot : ArtifactUtils::unmovableSlots())
+							if(artPlace.slot == artSlot)
+							{
+								msg = CGI->generaltexth->allTexts[21];
+								break;
+							}
 					}
 				}
 
@@ -211,12 +193,11 @@ void CWindowWithArtifacts::clickPressedArtPlaceHero(CArtifactsOfHeroBase & artsI
 			else if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroQuickBackpack>>)
 			{
 				const auto hero = artSetPtr->getHero();
-				artSetPtr->swapArtifacts(ArtifactLocation(hero->id, artPlace.slot),
-					ArtifactLocation(hero->id, artSetPtr->getFilterSlot()));
+				LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero->id, artPlace.slot), ArtifactLocation(hero->id, artSetPtr->getFilterSlot()));
 				if(closeCallback)
 					closeCallback();
 			}
-		}, artSetWeak.value());
+		}, artSet.value());
 }
 
 void CWindowWithArtifacts::showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace, const Point & cursorPosition)
@@ -234,6 +215,7 @@ void CWindowWithArtifacts::showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst
 
 			// Hero (Main, Exchange) window, Kingdom window, Backpack window right click handler
 			if constexpr(
+				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>> ||
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMain>> ||
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>> ||
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroBackpack>>)
@@ -254,7 +236,6 @@ void CWindowWithArtifacts::showPopupArtPlaceHero(CArtifactsOfHeroBase & artsInst
 			}
 			// Altar window, Market window right click handler
 			else if constexpr(
-				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>> ||
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMarket>> ||
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroQuickBackpack>>)
 			{
@@ -468,4 +449,32 @@ void CWindowWithArtifacts::markPossibleSlots()
 		for(auto artSetWeak : artSets)
 			std::visit(artifactAssembledBody, artSetWeak);
 	}
+}
+
+bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade)
+{
+	const auto artId = artInst.getTypeId();
+	
+	if(artId == ArtifactID::SPELLBOOK)
+	{
+		GH.windows().createAndPushWindow<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
+		return false;
+	}
+	if(artId == ArtifactID::CATAPULT)
+	{
+		// The Catapult must be equipped
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312],
+			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
+		return false;
+	}
+	if(isTrade)
+	{
+		if(!artInst.artType->isTradable())
+		{
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21],
+				std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
+			return false;
+		}
+	}
+	return true;
 }

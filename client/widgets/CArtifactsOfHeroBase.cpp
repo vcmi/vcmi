@@ -123,7 +123,7 @@ void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
 
 	for(auto slot : artWorn)
 	{
-		setSlotData(slot.second, slot.first, *curHero);
+		setSlotData(slot.second, slot.first);
 	}
 	scrollBackpack(0);
 }
@@ -135,15 +135,9 @@ const CGHeroInstance * CArtifactsOfHeroBase::getHero() const
 
 void CArtifactsOfHeroBase::scrollBackpack(int offset)
 {
-	scrollBackpackForArtSet(offset, *curHero);
-	redraw();
-}
-
-void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSet & artSet)
-{
 	// offset==-1 => to left; offset==1 => to right
 	using slotInc = std::function<ArtifactPosition(ArtifactPosition&)>;
-	auto artsInBackpack = static_cast<int>(artSet.artifactsInBackpack.size());
+	auto artsInBackpack = static_cast<int>(curHero->artifactsInBackpack.size());
 	auto scrollingPossible = artsInBackpack > backpack.size();
 
 	slotInc inc_straight = [](ArtifactPosition & slot) -> ArtifactPosition
@@ -170,7 +164,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	auto slot = ArtifactPosition(ArtifactPosition::BACKPACK_START + backpackPos);
 	for(auto artPlace : backpack)
 	{
-		setSlotData(artPlace, slot, artSet);
+		setSlotData(artPlace, slot);
 		slot = inc(slot);
 	}
 
@@ -179,6 +173,8 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 		leftBackpackRoll->block(!scrollingPossible);
 	if(rightBackpackRoll)
 		rightBackpackRoll->block(!scrollingPossible);
+
+	redraw();
 }
 
 void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
@@ -235,7 +231,7 @@ void CArtifactsOfHeroBase::updateBackpackSlots()
 
 void CArtifactsOfHeroBase::updateSlot(const ArtifactPosition & slot)
 {
-	setSlotData(getArtPlace(slot), slot, *curHero);
+	setSlotData(getArtPlace(slot), slot);
 }
 
 const CArtifactInstance * CArtifactsOfHeroBase::getPickedArtifact()
@@ -256,7 +252,7 @@ void CArtifactsOfHeroBase::addGestureCallback(CArtPlace::ClickFunctor callback)
 	}
 }
 
-void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet)
+void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot)
 {
 	// Spurious call from artifactMoved in attempt to update hidden backpack slot
 	if(!artPlace && ArtifactUtils::isSlotBackpack(slot))
@@ -265,7 +261,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	}
 
 	artPlace->slot = slot;
-	if(auto slotInfo = artSet.getSlot(slot))
+	if(auto slotInfo = curHero->getSlot(slot))
 	{
 		artPlace->lockSlot(slotInfo->locked);
 		artPlace->setArtifact(slotInfo->artifact);
@@ -278,7 +274,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 				arts.insert(std::pair(combinedArt, 0));
 				for(const auto part : combinedArt->getConstituents())
 				{
-					if(artSet.hasArt(part->getId(), false))
+					if(curHero->hasArt(part->getId(), false))
 						arts.at(combinedArt)++;
 				}
 			}

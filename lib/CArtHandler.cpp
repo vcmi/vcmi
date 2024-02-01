@@ -181,7 +181,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 {
 	auto simpleArtCanBePutAt = [this](const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) -> bool
 	{
-		if(ArtifactUtils::isSlotBackpack(slot))
+		if(artSet->bearerType() == ArtBearer::HERO && ArtifactUtils::isSlotBackpack(slot))
 		{
 			if(isBig() || (!assumeDestRemoved && !ArtifactUtils::isBackpackFreeSlots(artSet)))
 				return false;
@@ -258,6 +258,7 @@ CArtifact::CArtifact()
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
+	possibleSlots[ArtBearer::ALTAR];
 }
 
 //This destructor should be placed here to avoid side effects
@@ -475,6 +476,9 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(templ);
 		}
 	});
+
+	if(art->isTradable())
+		art->possibleSlots.at(ArtBearer::ALTAR).push_back(ArtifactPosition::ALTAR);
 
 	return art;
 }
@@ -906,6 +910,9 @@ const ArtSlotInfo * CArtifactSet::getSlot(const ArtifactPosition & pos) const
 
 bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockCheck) const
 {
+	if(bearerType() == ArtBearer::ALTAR)
+		return artifactsInBackpack.size() < GameConstants::ALTAR_ARTIFACTS_SLOTS;
+
 	if(const ArtSlotInfo *s = getSlot(pos))
 		return (onlyLockCheck || !s->artifact) && !s->locked;
 

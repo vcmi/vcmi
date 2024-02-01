@@ -22,6 +22,4 @@ class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
 public:
 	CArtifactsOfHeroMain(const Point & position);
 	~CArtifactsOfHeroMain();
-	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
-	void pickUpArtifact(CArtPlace & artPlace);
 };

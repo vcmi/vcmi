@@ -151,11 +151,16 @@ DLL_LINKAGE bool ArtifactUtils::isSlotEquipment(const ArtifactPosition & slot)
 
 DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots)
 {
-	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
-	if(backpackCap < 0)
-		return true;
+	if(target->bearerType() == ArtBearer::HERO)
+	{
+		const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
+		if(backpackCap < 0)
+			return true;
+		else
+			return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
+	}
 	else
-		return target->artifactsInBackpack.size() + reqSlots <= backpackCap;
+		return false;
 }
 
 DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(

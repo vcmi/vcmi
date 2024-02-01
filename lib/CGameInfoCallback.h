@@ -179,7 +179,7 @@ public:
 	virtual int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	virtual const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
 	virtual const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
-	virtual CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
+	virtual const CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
 	//virtual const CGObjectInstance * getArmyInstance(ObjectInstanceID oid) const;
 
 	//objects

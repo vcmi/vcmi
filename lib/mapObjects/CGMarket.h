@@ -11,6 +11,7 @@
 
 #include "CGObjectInstance.h"
 #include "IMarket.h"
+#include "../CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -77,6 +78,20 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;
+	}
+};
+
+class DLL_LINKAGE CGArtifactsAltar : public CGMarket, public CArtifactSet
+{
+public:
+	using CGMarket::CGMarket;
+
+	ArtBearer::ArtBearer bearerType() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CGMarket&>(*this);
+		h & static_cast<CArtifactSet&>(*this);
 	}
 };
 
