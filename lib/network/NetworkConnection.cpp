@@ -33,7 +33,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
 {
 	if (ec)
 	{
-		listener.onDisconnected(shared_from_this());
+		listener.onDisconnected(shared_from_this(), ec.message());
 		return;
 	}
 
@@ -50,14 +50,11 @@ uint32_t NetworkConnection::readPacketSize()
 	if (readBuffer.size() < messageHeaderSize)
 		throw std::runtime_error("Failed to read header!");
 
-	std::istream istream(&readBuffer);
-
 	uint32_t messageSize;
-	istream.read(reinterpret_cast<char *>(&messageSize), messageHeaderSize);
+	readBuffer.sgetn(reinterpret_cast<char *>(&messageSize), sizeof(messageSize));
+
 	if (messageSize > messageMaxSize)
-	{
 		throw std::runtime_error("Invalid packet size!");
-	}
 
 	return messageSize;
 }
@@ -66,7 +63,7 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 {
 	if (ec)
 	{
-		listener.onDisconnected(shared_from_this());
+		listener.onDisconnected(shared_from_this(), ec.message());
 		return;
 	}
 
@@ -75,28 +72,21 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 		throw std::runtime_error("Failed to read header!");
 	}
 
-	std::vector<uint8_t> message;
-
-	message.resize(expectedPacketSize);
-	std::istream istream(&readBuffer);
-	istream.read(reinterpret_cast<char *>(message.data()), expectedPacketSize);
-
+	std::vector<std::byte> message(expectedPacketSize);
+	readBuffer.sgetn(reinterpret_cast<char *>(message.data()), expectedPacketSize);
 	listener.onPacketReceived(shared_from_this(), message);
 
 	start();
 }
 
-void NetworkConnection::sendPacket(const std::vector<uint8_t> & message)
+void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 {
-	NetworkBuffer writeBuffer;
-
-	std::ostream ostream(&writeBuffer);
-	uint32_t messageSize = message.size();
-	ostream.write(reinterpret_cast<const char *>(&messageSize), messageHeaderSize);
-	ostream.write(reinterpret_cast<const char *>(message.data()), message.size());
-
 	boost::system::error_code ec;
-	boost::asio::write(*socket, writeBuffer, ec );
+
+	std::array<uint32_t, 1> messageSize{static_cast<uint32_t>(message.size())};
+
+	boost::asio::write(*socket, boost::asio::buffer(messageSize), ec );
+	boost::asio::write(*socket, boost::asio::buffer(message), ec );
 
 	// FIXME: handle error?
 }

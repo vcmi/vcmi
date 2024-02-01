@@ -27,12 +27,12 @@ void GlobalLobbyProcessor::establishNewConnection()
 	owner.networkHandler->connectToRemote(*this, hostname, port);
 }
 
-void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
+void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
 	throw std::runtime_error("Lost connection to a lobby server!");
 }
 
-void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)
+void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
 {
 	if (connection == controlConnection)
 	{
@@ -122,13 +122,5 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 
 void GlobalLobbyProcessor::sendMessage(const NetworkConnectionPtr & target, const JsonNode & data)
 {
-	std::string payloadString = data.toJson(true);
-
-	// FIXME: find better approach
-	uint8_t * payloadBegin = reinterpret_cast<uint8_t *>(payloadString.data());
-	uint8_t * payloadEnd = payloadBegin + payloadString.size();
-
-	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
-
-	target->sendPacket(payloadBuffer);
+	target->sendPacket(data.toBytes(true));
 }

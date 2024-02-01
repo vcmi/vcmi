@@ -114,10 +114,10 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
-	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<uint8_t> & message) override;
+	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<std::byte> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onConnectionEstablished(const NetworkConnectionPtr &) override;
-	void onDisconnected(const NetworkConnectionPtr &) override;
+	void onDisconnected(const NetworkConnectionPtr &, const std::string & errorMessage) override;
 	void onTimer() override;
 
 	void applyPackOnLobbyScreen(CPackForLobby & pack);

@@ -36,7 +36,7 @@ static std::string getCurrentTimeFormatted(int timeOffsetSeconds = 0)
 	return TextOperations::getFormattedTimeLocal(std::chrono::system_clock::to_time_t(timeNowChrono));
 }
 
-void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message)
+void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
@@ -247,7 +247,7 @@ void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 	loginWindowPtr->onConnectionFailed(errorMessage);
 }
 
-void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
+void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
 	assert(connection == networkConnection);
 	networkConnection.reset();
@@ -258,15 +258,7 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
-	std::string payloadString = data.toJson(true);
-
-	// FIXME: find better approach
-	uint8_t * payloadBegin = reinterpret_cast<uint8_t *>(payloadString.data());
-	uint8_t * payloadEnd = payloadBegin + payloadString.size();
-
-	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
-
-	networkConnection->sendPacket(payloadBuffer);
+	networkConnection->sendPacket(data.toBytes(true));
 }
 
 void GlobalLobbyClient::sendOpenPublicRoom()
@@ -355,13 +347,5 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 	toSend["gameRoomID"] = settings["lobby"]["roomID"];
 
-	std::string payloadString = toSend.toJson(true);
-
-	// FIXME: find better approach
-	uint8_t * payloadBegin = reinterpret_cast<uint8_t *>(payloadString.data());
-	uint8_t * payloadEnd = payloadBegin + payloadString.size();
-
-	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
-
-	netConnection->sendPacket(payloadBuffer);
+	netConnection->sendPacket(toSend.toBytes(true));
 }

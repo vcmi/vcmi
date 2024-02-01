@@ -46,7 +46,7 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 	startAsyncAccept();
 }
 
-void NetworkServer::sendPacket(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)
+void NetworkServer::sendPacket(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
 {
 	connection->sendPacket(message);
 }
@@ -58,18 +58,18 @@ void NetworkServer::closeConnection(const std::shared_ptr<INetworkConnection> & 
 	connections.erase(connection);
 }
 
-void NetworkServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
+void NetworkServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	logNetwork->info("Connection lost!");
+	logNetwork->info("Connection lost! Reason: %s", errorMessage);
 	assert(connections.count(connection));
 	if (connections.count(connection)) // how? Connection was explicitly closed before?
 	{
 		connections.erase(connection);
-		listener.onDisconnected(connection);
+		listener.onDisconnected(connection, errorMessage);
 	}
 }
 
-void NetworkServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)
+void NetworkServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
 {
 	listener.onPacketReceived(connection, message);
 }

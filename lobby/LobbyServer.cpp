@@ -60,16 +60,7 @@ NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) c
 
 void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNode & json)
 {
-	//NOTE: copy-paste from LobbyClient::sendMessage
-	std::string payloadString = json.toJson(true);
-
-	// TODO: find better approach
-	const uint8_t * payloadBegin = reinterpret_cast<uint8_t *>(payloadString.data());
-	const uint8_t * payloadEnd = payloadBegin + payloadString.size();
-
-	std::vector<uint8_t> payloadBuffer(payloadBegin, payloadEnd);
-
-	networkServer->sendPacket(target, payloadBuffer);
+	networkServer->sendPacket(target, json.toBytes(true));
 }
 
 void LobbyServer::sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie)
@@ -212,7 +203,7 @@ void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 	// no-op - waiting for incoming data
 }
 
-void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection)
+void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const std::string & errorMessage)
 {
 	if (activeAccounts.count(connection))
 		database->setAccountOnline(activeAccounts.at(connection), false);
@@ -230,7 +221,7 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection)
 	broadcastActiveGameRooms();
 }
 
-void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<uint8_t> & message)
+void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<std::byte> & message)
 {
 	// proxy connection - no processing, only redirect
 	if(activeProxies.count(connection))

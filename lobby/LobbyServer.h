@@ -51,8 +51,8 @@ class LobbyServer final : public INetworkServerListener
 	NetworkConnectionPtr findGameRoom(const std::string & gameRoomID) const;
 
 	void onNewConnection(const NetworkConnectionPtr & connection) override;
-	void onDisconnected(const NetworkConnectionPtr & connection) override;
-	void onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<uint8_t> & message) override;
+	void onDisconnected(const NetworkConnectionPtr & connection, const std::string & errorMessage) override;
+	void onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<std::byte> & message) override;
 
 	void sendMessage(const NetworkConnectionPtr & target, const JsonNode & json);
 

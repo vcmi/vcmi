@@ -30,10 +30,10 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
 	std::shared_ptr<GlobalLobbyWindow> lobbyWindowLock; // helper strong reference to prevent window destruction on closing
 
-	void onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
-	void onDisconnected(const std::shared_ptr<INetworkConnection> &) override;
+	void onDisconnected(const std::shared_ptr<INetworkConnection> &, const std::string & errorMessage) override;
 
 	void sendClientRegister();
 	void sendClientLogin();

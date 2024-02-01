@@ -875,7 +875,7 @@ public:
 	}
 };
 
-void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message)
+void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
 	CPack * pack = c->retrievePack(message);
 	if(state == EClientState::DISCONNECTING)
@@ -891,7 +891,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 	}
 }
 
-void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
+void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
 	assert(networkConnection == connection);
 	networkConnection.reset();

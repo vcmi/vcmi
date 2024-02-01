@@ -24,12 +24,12 @@ class NetworkServer : public INetworkConnectionListener, public INetworkServer
 	void connectionAccepted(std::shared_ptr<NetworkSocket>, const boost::system::error_code & ec);
 	void startAsyncAccept();
 
-	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) override;
-	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) override;
+	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) override;
+	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message) override;
 public:
 	NetworkServer(INetworkServerListener & listener, const std::shared_ptr<NetworkContext> & context);
 
-	void sendPacket(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message) override;
+	void sendPacket(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message) override;
 	void closeConnection(const std::shared_ptr<INetworkConnection> &) override;
 
 	void start(uint16_t port) override;

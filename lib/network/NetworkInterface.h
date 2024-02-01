@@ -16,7 +16,7 @@ class DLL_LINKAGE INetworkConnection : boost::noncopyable
 {
 public:
 	virtual ~INetworkConnection() = default;
-	virtual void sendPacket(const std::vector<uint8_t> & message) = 0;
+	virtual void sendPacket(const std::vector<std::byte> & message) = 0;
 };
 
 using NetworkConnectionPtr = std::shared_ptr<INetworkConnection>;
@@ -29,7 +29,7 @@ public:
 	virtual ~INetworkClient() = default;
 
 	virtual bool isConnected() const = 0;
-	virtual void sendPacket(const std::vector<uint8_t> & message) = 0;
+	virtual void sendPacket(const std::vector<std::byte> & message) = 0;
 };
 
 /// Base class for incoming connections support
@@ -38,7 +38,7 @@ class DLL_LINKAGE INetworkServer : boost::noncopyable
 public:
 	virtual ~INetworkServer() = default;
 
-	virtual void sendPacket(const std::shared_ptr<INetworkConnection> &, const std::vector<uint8_t> & message) = 0;
+	virtual void sendPacket(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message) = 0;
 	virtual void closeConnection(const std::shared_ptr<INetworkConnection> &) = 0;
 	virtual void start(uint16_t port) = 0;
 };
@@ -47,8 +47,8 @@ public:
 class DLL_LINKAGE INetworkConnectionListener
 {
 public:
-	virtual void onDisconnected(const std::shared_ptr<INetworkConnection> & connection) = 0;
-	virtual void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message) = 0;
+	virtual void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) = 0;
+	virtual void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message) = 0;
 
 	virtual ~INetworkConnectionListener() = default;
 };

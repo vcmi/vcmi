@@ -164,7 +164,7 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & co
 	}
 }
 
-void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<uint8_t> & message)
+void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
 {
 	std::shared_ptr<CConnection> c = findConnection(connection);
 	auto pack = c->retrievePack(message);
@@ -325,7 +325,7 @@ void CVCMIServer::startGameImmediately()
 	onTimer();
 }
 
-void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection)
+void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
 	logNetwork->error("Network error receiving a pack. Connection has been closed");
 

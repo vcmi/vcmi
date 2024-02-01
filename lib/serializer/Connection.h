@@ -50,7 +50,7 @@ public:
 	~CConnection();
 
 	void sendPack(const CPack * pack);
-	CPack * retrievePack(const std::vector<uint8_t> & data);
+	CPack * retrievePack(const std::vector<std::byte> & data);
 
 	void enterLobbyConnectionMode();
 	void setCallback(IGameCallback * cb);

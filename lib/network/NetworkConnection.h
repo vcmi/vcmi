@@ -31,7 +31,7 @@ public:
 	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket);
 
 	void start();
-	void sendPacket(const std::vector<uint8_t> & message) override;
+	void sendPacket(const std::vector<std::byte> & message) override;
 };
 
 VCMI_LIB_NAMESPACE_END

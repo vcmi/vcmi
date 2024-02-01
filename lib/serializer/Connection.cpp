@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE ConnectionPackWriter final : public IBinaryWriter
 {
 public:
-	std::vector<uint8_t> buffer;
+	std::vector<std::byte> buffer;
 
 	int write(const void * data, unsigned size) final;
 };
@@ -30,7 +30,7 @@ public:
 class DLL_LINKAGE ConnectionPackReader final : public IBinaryReader
 {
 public:
-	const std::vector<uint8_t> * buffer;
+	const std::vector<std::byte> * buffer;
 	size_t position;
 
 	int read(void * data, unsigned size) final;
@@ -38,8 +38,8 @@ public:
 
 int ConnectionPackWriter::write(const void * data, unsigned size)
 {
-	const uint8_t * begin_ptr = static_cast<const uint8_t *>(data);
-	const uint8_t * end_ptr = begin_ptr + size;
+	const std::byte * begin_ptr = static_cast<const std::byte *>(data);
+	const std::byte * end_ptr = begin_ptr + size;
 	buffer.insert(buffer.end(), begin_ptr, end_ptr);
 	return size;
 }
@@ -49,7 +49,7 @@ int ConnectionPackReader::read(void * data, unsigned size)
 	if (position + size > buffer->size())
 		throw std::runtime_error("End of file reached when reading received network pack!");
 
-	uint8_t * begin_ptr = static_cast<uint8_t *>(data);
+	std::byte * begin_ptr = static_cast<std::byte *>(data);
 
 	std::copy_n(buffer->begin() + position, size, begin_ptr);
 	position += size;
@@ -88,7 +88,7 @@ void CConnection::sendPack(const CPack * pack)
 	packWriter->buffer.clear();
 }
 
-CPack * CConnection::retrievePack(const std::vector<uint8_t> & data)
+CPack * CConnection::retrievePack(const std::vector<std::byte> & data)
 {
 	CPack * result;
 
