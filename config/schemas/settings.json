@@ -304,7 +304,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -358,6 +358,10 @@
 				"queueSmallSlots" : {
 					"type": "number",
 					"default": 10
+				},
+				"queueSmallOutside" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},

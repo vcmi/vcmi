@@ -857,12 +857,14 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 	if(embedded)
 	{
-		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, 19);
+		int32_t queueSmallOutsideYOffset = 65;
+		bool queueSmallOutside = settings["battle"]["queueSmallOutside"].Bool() && (pos.y - queueSmallOutsideYOffset) >= 0;
+		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? GH.screenDimensions().x / 41 : 19);
 
 		pos.w = queueSize * 41;
 		pos.h = 49;
 		pos.x += parent->pos.w/2 - pos.w/2;
-		pos.y += 10;
+		pos.y += queueSmallOutside ? -queueSmallOutsideYOffset : 10;
 
 		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"));
 		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
