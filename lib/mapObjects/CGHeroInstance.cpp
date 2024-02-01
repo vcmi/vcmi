@@ -1276,7 +1276,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 {
 	if(static_cast<int>(movement) < movementPointsLimit(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
-	if(ArtifactID(ArtifactID::GRAIL).toArtifact()->canBePutAt(this))
+	if(!ArtifactID(ArtifactID::GRAIL).toArtifact()->canBePutAt(this))
 		return EDiggingStatus::BACKPACK_IS_FULL;
 	return cb->getTileDigStatus(visitablePos());
 }
