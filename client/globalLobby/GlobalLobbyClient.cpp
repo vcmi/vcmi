@@ -45,8 +45,8 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 	if(json["type"].String() == "accountCreated")
 		return receiveAccountCreated(json);
 
-	if(json["type"].String() == "loginFailed")
-		return receiveLoginFailed(json);
+	if(json["type"].String() == "operationFailed")
+		return receiveOperationFailed(json);
 
 	if(json["type"].String() == "loginSuccess")
 		return receiveLoginSuccess(json);
@@ -90,7 +90,7 @@ void GlobalLobbyClient::receiveAccountCreated(const JsonNode & json)
 	sendClientLogin();
 }
 
-void GlobalLobbyClient::receiveLoginFailed(const JsonNode & json)
+void GlobalLobbyClient::receiveOperationFailed(const JsonNode & json)
 {
 	auto loginWindowPtr = loginWindow.lock();
 

@@ -79,6 +79,24 @@ void LobbyDatabase::createTables()
 	database->prepare(createTableGameRoomInvites)->execute();
 }
 
+void LobbyDatabase::clearOldData()
+{
+	static const std::string removeActiveAccounts = R"(
+		UPDATE accounts
+		SET online = 0
+		WHERE online <> 0
+	)";
+
+	static const std::string removeActiveRooms = R"(
+		UPDATE gameRooms
+		SET status = 5
+		WHERE status <> 5
+	)";
+
+	database->prepare(removeActiveAccounts)->execute();
+	database->prepare(removeActiveRooms)->execute();
+}
+
 void LobbyDatabase::prepareStatements()
 {
 	// INSERT INTO
@@ -276,6 +294,7 @@ LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath)
 {
 	database = SQLiteInstance::open(databasePath, true);
 	createTables();
+	clearOldData();
 	prepareStatements();
 }
 

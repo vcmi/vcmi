@@ -54,6 +54,7 @@ class LobbyDatabase
 
 	void prepareStatements();
 	void createTables();
+	void clearOldData();
 
 public:
 	explicit LobbyDatabase(const boost::filesystem::path & databasePath);

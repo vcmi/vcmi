@@ -38,8 +38,8 @@ void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnec
 	{
 		JsonNode json(message.data(), message.size());
 
-		if(json["type"].String() == "loginFailed")
-			return receiveLoginFailed(json);
+		if(json["type"].String() == "operationFailed")
+			return receiveOperationFailed(json);
 
 		if(json["type"].String() == "loginSuccess")
 			return receiveLoginSuccess(json);
@@ -56,7 +56,7 @@ void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnec
 	}
 }
 
-void GlobalLobbyProcessor::receiveLoginFailed(const JsonNode & json)
+void GlobalLobbyProcessor::receiveOperationFailed(const JsonNode & json)
 {
 	logGlobal->info("Lobby: Failed to login into a lobby server!");
 

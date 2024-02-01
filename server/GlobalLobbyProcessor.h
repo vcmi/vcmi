@@ -31,7 +31,7 @@ class GlobalLobbyProcessor : public INetworkClientListener
 
 	void sendMessage(const NetworkConnectionPtr & target, const JsonNode & data);
 
-	void receiveLoginFailed(const JsonNode & json);
+	void receiveOperationFailed(const JsonNode & json);
 	void receiveLoginSuccess(const JsonNode & json);
 	void receiveAccountJoinsRoom(const JsonNode & json);
 
