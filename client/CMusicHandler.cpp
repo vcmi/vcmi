@@ -188,7 +188,12 @@ uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 	if (!initialized || sound.empty())
 		return 0;
 
-	auto data = CResourceHandler::get()->load(sound.addPrefix("SOUNDS/"))->readAll();
+	auto resourcePath = sound.addPrefix("SOUNDS/");
+
+	if (!CResourceHandler::get()->existsResource(resourcePath))
+		return 0;
+
+	auto data = CResourceHandler::get()->load(resourcePath)->readAll();
 
 	SDL_AudioSpec spec;
 	uint32_t audioLen;
