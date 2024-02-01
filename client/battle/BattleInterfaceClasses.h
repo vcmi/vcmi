@@ -239,7 +239,7 @@ class StackQueue : public CIntObject
 		std::optional<uint32_t> getBoundUnitID() const;
 	};
 
-	static const int QUEUE_SIZE = 10;
+	static const int QUEUE_SIZE_BIG = 10;
 	std::shared_ptr<CFilledTexture> background;
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	BattleInterface & owner;
