@@ -18,38 +18,27 @@ VCMI_LIB_NAMESPACE_END
 
 class LobbyDatabase;
 
-class LobbyServer : public INetworkServerListener
+class LobbyServer final : public INetworkServerListener
 {
-	struct AccountState
-	{
-		std::string accountID;
-		std::string displayName;
-		std::string version;
-		std::string language;
-	};
-	struct GameRoomState
-	{
-		std::string roomID;
-	};
 	struct AwaitingProxyState
 	{
 		std::string accountID;
 		std::string roomID;
-		std::weak_ptr<INetworkConnection> accountConnection;
-		std::weak_ptr<INetworkConnection> roomConnection;
+		NetworkConnectionWeakPtr accountConnection;
+		NetworkConnectionWeakPtr roomConnection;
 	};
 
 	/// list of connected proxies. All messages received from (key) will be redirected to (value) connection
-	std::map<NetworkConnectionPtr, std::weak_ptr<INetworkConnection>> activeProxies;
+	std::map<NetworkConnectionPtr, NetworkConnectionWeakPtr> activeProxies;
 
 	/// list of half-established proxies from server that are still waiting for client to connect
 	std::vector<AwaitingProxyState> awaitingProxies;
 
 	/// list of logged in accounts (vcmiclient's)
-	std::map<NetworkConnectionPtr, AccountState> activeAccounts;
+	std::map<NetworkConnectionPtr, std::string> activeAccounts;
 
 	/// list of currently logged in game rooms (vcmiserver's)
-	std::map<NetworkConnectionPtr, GameRoomState> activeGameRooms;
+	std::map<NetworkConnectionPtr, std::string> activeGameRooms;
 
 	std::unique_ptr<LobbyDatabase> database;
 	std::unique_ptr<INetworkHandler> networkHandler;

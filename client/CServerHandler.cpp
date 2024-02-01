@@ -129,7 +129,15 @@ public:
 CServerHandler::~CServerHandler()
 {
 	networkHandler->stop();
-	threadNetwork->join();
+	try
+	{
+		threadNetwork->join();
+	}
+	catch (const std::runtime_error & e)
+	{
+		logGlobal->error("Failed to shut down network thread! Reason: %s", e.what());
+		assert(false);
+	}
 }
 
 CServerHandler::CServerHandler()

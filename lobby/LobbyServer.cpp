@@ -43,7 +43,7 @@ std::string LobbyServer::sanitizeChatMessage(const std::string & inputString) co
 NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID) const
 {
 	for(const auto & account : activeAccounts)
-		if(account.second.accountID == accountID)
+		if(account.second == accountID)
 			return account.first;
 
 	return nullptr;
@@ -52,7 +52,7 @@ NetworkConnectionPtr LobbyServer::findAccount(const std::string & accountID) con
 NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) const
 {
 	for(const auto & account : activeGameRooms)
-		if(account.second.roomID == gameRoomID)
+		if(account.second == gameRoomID)
 			return account.first;
 
 	return nullptr;
@@ -215,10 +215,10 @@ void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection)
 {
 	if (activeAccounts.count(connection))
-		database->setAccountOnline(activeAccounts.at(connection).accountID, false);
+		database->setAccountOnline(activeAccounts.at(connection), false);
 
 	if (activeGameRooms.count(connection))
-		database->setGameRoomStatus(activeGameRooms.at(connection).roomID, LobbyRoomState::CLOSED);
+		database->setGameRoomStatus(activeGameRooms.at(connection), LobbyRoomState::CLOSED);
 
 	// NOTE: lost connection can be in only one of these lists (or in none of them)
 	// calling on all possible containers since calling std::map::erase() with non-existing key is legal
@@ -252,7 +252,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	// communication messages from vcmiclient
 	if(activeAccounts.count(connection))
 	{
-		std::string accountName = activeAccounts.at(connection).accountID;
+		std::string accountName = activeAccounts.at(connection);
 		logGlobal->info("%s: Received message of type %s", accountName, messageType);
 
 		if(messageType == "sendChatMessage")
@@ -277,7 +277,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	// communication messages from vcmiserver
 	if(activeGameRooms.count(connection))
 	{
-		std::string roomName = activeGameRooms.at(connection).roomID;
+		std::string roomName = activeGameRooms.at(connection);
 		logGlobal->info("%s: Received message of type %s", roomName, messageType);
 
 		if(messageType == "leaveGameRoom")
@@ -313,7 +313,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 
 void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
-	std::string accountID = activeAccounts[connection].accountID;
+	std::string accountID = activeAccounts[connection];
 	std::string messageText = json["messageText"].String();
 	std::string messageTextClean = sanitizeChatMessage(messageText);
 	std::string displayName = database->getAccountDisplayName(accountID);
@@ -369,10 +369,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 	std::string displayName = database->getAccountDisplayName(accountID);
 
-	activeAccounts[connection].accountID = accountID;
-	activeAccounts[connection].displayName = displayName;
-	activeAccounts[connection].version = version;
-	activeAccounts[connection].language = language;
+	activeAccounts[connection] = accountID;
 
 	sendLoginSuccess(connection, accountCookie, displayName);
 	sendChatHistory(connection, database->getRecentMessageHistory());
@@ -399,7 +396,7 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 	else
 	{
 		database->insertGameRoom(gameRoomID, accountID);
-		activeGameRooms[connection].roomID = gameRoomID;
+		activeGameRooms[connection] = gameRoomID;
 		sendLoginSuccess(connection, accountCookie, {});
 		broadcastActiveGameRooms();
 	}
@@ -474,7 +471,7 @@ void LobbyServer::receiveServerProxyLogin(const NetworkConnectionPtr & connectio
 void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
 	std::string hostAccountID = json["hostAccountID"].String();
-	std::string accountID = activeAccounts[connection].accountID;
+	std::string accountID = activeAccounts[connection];
 
 	if(database->isPlayerInGameRoom(accountID))
 		return sendOperationFailed(connection, "Player already in the room!");
@@ -503,7 +500,7 @@ void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, c
 void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
 	std::string gameRoomID = json["gameRoomID"].String();
-	std::string accountID = activeAccounts[connection].accountID;
+	std::string accountID = activeAccounts[connection];
 
 	if(database->isPlayerInGameRoom(accountID))
 		return sendOperationFailed(connection, "Player already in the room!");
@@ -537,7 +534,7 @@ void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, c
 void LobbyServer::receiveLeaveGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
 	std::string gameRoomID = json["gameRoomID"].String();
-	std::string senderName = activeAccounts[connection].accountID;
+	std::string senderName = activeAccounts[connection];
 
 	if(!database->isPlayerInGameRoom(senderName, gameRoomID))
 		return sendOperationFailed(connection, "You are not in the room!");
@@ -547,7 +544,7 @@ void LobbyServer::receiveLeaveGameRoom(const NetworkConnectionPtr & connection, 
 
 void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
-	std::string senderName = activeAccounts[connection].accountID;
+	std::string senderName = activeAccounts[connection];
 	std::string accountID = json["accountID"].String();
 	std::string gameRoomID = database->getAccountGameRoom(senderName);
 
@@ -571,7 +568,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 void LobbyServer::receiveDeclineInvite(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
-	std::string accountID = activeAccounts[connection].accountID;
+	std::string accountID = activeAccounts[connection];
 	std::string gameRoomID = json["gameRoomID"].String();
 
 	if(database->getAccountInviteStatus(accountID, gameRoomID) != LobbyInviteStatus::INVITED)

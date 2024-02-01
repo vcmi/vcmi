@@ -13,7 +13,6 @@ struct LobbyAccount
 {
 	std::string accountID;
 	std::string displayName;
-	//std::string status;
 };
 
 struct LobbyGameRoom

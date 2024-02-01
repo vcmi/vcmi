@@ -109,7 +109,7 @@ public:
 	SQLiteStatementPtr prepare(const std::string & statement);
 
 private:
-	SQLiteInstance(sqlite3 * connection);
+	explicit SQLiteInstance(sqlite3 * connection);
 
 	sqlite3 * m_connection;
 };
