@@ -857,7 +857,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 	if(embedded)
 	{
-		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSizeEmbeddedSlots"].Float()), 1, 19);
+		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, 19);
 
 		pos.w = queueSize * 41;
 		pos.h = 49;
