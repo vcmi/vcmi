@@ -397,7 +397,6 @@ SDL_Window * ScreenHandler::createWindow()
 
 void ScreenHandler::onScreenResize()
 {
-	recreateWindowAndScreenBuffers();
 }
 
 void ScreenHandler::validateSettings()
