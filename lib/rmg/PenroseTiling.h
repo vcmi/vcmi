@@ -14,7 +14,6 @@
 #include "../CRandomGenerator.h"
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -55,10 +54,9 @@ class PenroseTiling
 
 public:
 	const float PHI = 1.0 / ((1.0 + std::sqrt(5.0)) / 2);
-	// TODO: Is that the number of symmetries?
-	const uint32_t POLY = 10;
+	const uint32_t POLY = 10; // Number of symmetries?
 
-	const float BASE_SIZE = 1.f;
+	const float BASE_SIZE = 1.25f;
 	const uint32_t DEPTH = 7; //Recursion depth
 	
 	const bool P2 = false; // Tiling type

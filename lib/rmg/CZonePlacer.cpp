@@ -27,7 +27,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
-	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0),
+	: width(0), height(0), mapSize(0),
 	gravityConstant(1e-3f),
 	stiffnessConstant(3e-3f),
 	stifness(0),
@@ -803,22 +803,6 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 
 float CZonePlacer::metric (const int3 &A, const int3 &B) const
 {
-	/*
-	float dx = abs(A.x - B.x) * scaleX;
-	float dy = abs(A.y - B.y) * scaleY;
-
-	/*
-	1. Normal euclidean distance
-	2. Sinus for extra curves
-	3. Nonlinear mess for fuzzy edges
-	*/
-
-	/*
-	return dx * dx + dy * dy +
-		5 * std::sin(dx * dy / 10) +
-		25 * std::sin (std::sqrt(A.x * B.x) * (A.y - B.y) / 100 * (scaleX * scaleY));
-	*/
-
 	return A.dist2dSQ(B);
 
 }
@@ -830,9 +814,6 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	auto width = map.getMapGenOptions().getWidth();
 	auto height = map.getMapGenOptions().getHeight();
 
-	//scale to Medium map to ensure smooth results
-	scaleX = 72.f / width;
-	scaleY = 72.f / height;
 
 	auto zones = map.getZones();
 	vstd::erase_if(zones, [](const std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>> & pr)
@@ -903,7 +884,6 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		if(zone.second->area().empty())
 			throw rmgException("Empty zone is generated, probably RMG template is inappropriate for map size");
 		
-		// FIXME: Is 2. correct and doesn't break balance?
 		moveZoneToCenterOfMass(zone.second);
 	}
 
@@ -912,7 +892,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 
 	// Assign zones to closest Penrose vertex
 	PenroseTiling penrose;
-	auto vertices = penrose.generatePenroseTiling(zones.size(), rand);
+	auto vertices = penrose.generatePenroseTiling(zones.size() / map.levels(), rand);
 
 	std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
 
@@ -926,15 +906,6 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		auto closestZone = boost::min_element(distances, compareByDistance)->first;
 
 		vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, closestZone->getPos().z)); //Closest vertex belongs to zone
-	}
-
-	for (const auto & p : vertexMapping)
-	{
-		for (const auto vertex : p.second)
-		{
-			logGlobal->info("Zone %2d is assigned to vertex %s", p.first->getId(), vertex.toString());
-		}
-		logGlobal->info("Zone %2d has total of %d vertices", p.first->getId(), p.second.size());
 	}
 
 	//Assign actual tiles to each zone using nonlinear norm for fine edges

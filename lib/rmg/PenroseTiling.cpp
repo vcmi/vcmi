@@ -124,7 +124,7 @@ void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 
 std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * rand)
 {
-	float scale = 100.f / (numZones + 20);
+	float scale = 100.f / (numZones * 1.5f + 20);
 	float polyAngle = (2 * PI_CONSTANT) / POLY;
 
 	float randomAngle = rand->nextDouble(0, 2 * PI_CONSTANT);
@@ -143,14 +143,6 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomG
 		p.x(p.x() * scale * BASE_SIZE);
 	}
 
-	// Scale square to window size
-	/*
-	for (auto& p : points)
-	{
-        p.x = (p.x / window_w) * window_h;
-    }
-	*/
-
 	std::set<Point2D> finalPoints;
 
 	for (uint32_t i = 0; i < POLY; i++)
@@ -162,20 +154,10 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomG
 		split(t, points, indices, DEPTH);
 	}
 
-	/*
-	//No difference for the number of points
-	for (auto& p : points)
-	{
-		p = p + Point2D(0.5f, 0.5f); // Center in a square (0,1)
-	}
-	*/
-
 	vstd::copy_if(points, vstd::set_inserter(finalPoints), [](const Point2D point)
 	{
 		return vstd::isbetween(point.x(), 0.f, 1.0f) && vstd::isbetween(point.y(), 0.f, 1.0f);
 	});
-
-	logGlobal->info("Number of points within unit square: %d", finalPoints.size());
 
 	return finalPoints;
 }
