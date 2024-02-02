@@ -29,7 +29,7 @@ class LobbyServer final : public INetworkServerListener
 	};
 
 	/// list of connected proxies. All messages received from (key) will be redirected to (value) connection
-	std::map<NetworkConnectionPtr, NetworkConnectionWeakPtr> activeProxies;
+	std::map<NetworkConnectionPtr, NetworkConnectionPtr> activeProxies;
 
 	/// list of half-established proxies from server that are still waiting for client to connect
 	std::vector<AwaitingProxyState> awaitingProxies;

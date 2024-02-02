@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CMemorySerializer
 	: public IBinaryReader, public IBinaryWriter
 {
-	std::vector<ui8> buffer;
+	std::vector<std::byte> buffer;
 
 	size_t readPos; //index of the next byte to be read
 public:

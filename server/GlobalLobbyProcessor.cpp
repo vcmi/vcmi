@@ -29,7 +29,15 @@ void GlobalLobbyProcessor::establishNewConnection()
 
 void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	throw std::runtime_error("Lost connection to a lobby server!");
+	if (connection == controlConnection)
+	{
+		throw std::runtime_error("Lost connection to a lobby server!");
+	}
+	else
+	{
+		// player disconnected
+		owner.onDisconnected(connection, errorMessage);
+	}
 }
 
 void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
@@ -47,7 +55,7 @@ void GlobalLobbyProcessor::onPacketReceived(const std::shared_ptr<INetworkConnec
 		if(json["type"].String() == "accountJoinsRoom")
 			return receiveAccountJoinsRoom(json);
 
-		throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String());
+		logGlobal->error("Received unexpected message from lobby server of type '%s' ", json["type"].String());
 	}
 	else
 	{

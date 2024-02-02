@@ -160,7 +160,7 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & co
 	}
 	else
 	{
-		networkServer->closeConnection(connection);
+		connection->close();
 	}
 }
 
@@ -445,7 +445,7 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 {
-	networkServer->closeConnection(c->getConnection());
+	c->getConnection()->close();
 	vstd::erase(activeConnections, c);
 
 	if(activeConnections.empty() || hostClientId == c->connectionID)

@@ -17,8 +17,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-static const auto accountCookieLifetime = std::chrono::hours(24 * 7);
-
 bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 {
 	if(accountName.size() < 4)
@@ -60,7 +58,7 @@ NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) c
 
 void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNode & json)
 {
-	networkServer->sendPacket(target, json.toBytes(true));
+	target->sendPacket(json.toBytes(true));
 }
 
 void LobbyServer::sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie)
@@ -206,16 +204,27 @@ void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const std::string & errorMessage)
 {
 	if(activeAccounts.count(connection))
+	{
 		database->setAccountOnline(activeAccounts.at(connection), false);
+		activeAccounts.erase(connection);
+	}
 
 	if(activeGameRooms.count(connection))
+	{
 		database->setGameRoomStatus(activeGameRooms.at(connection), LobbyRoomState::CLOSED);
+		activeGameRooms.erase(connection);
+	}
 
-	// NOTE: lost connection can be in only one of these lists (or in none of them)
-	// calling on all possible containers since calling std::map::erase() with non-existing key is legal
-	activeAccounts.erase(connection);
-	activeProxies.erase(connection);
-	activeGameRooms.erase(connection);
+	if(activeProxies.count(connection))
+	{
+		auto & otherConnection = activeProxies.at(connection);
+
+		if (otherConnection)
+			otherConnection->close();
+
+		activeProxies.erase(connection);
+		activeProxies.erase(otherConnection);
+	}
 
 	broadcastActiveAccounts();
 	broadcastActiveGameRooms();
@@ -226,7 +235,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	// proxy connection - no processing, only redirect
 	if(activeProxies.count(connection))
 	{
-		auto lockedPtr = activeProxies.at(connection).lock();
+		auto lockedPtr = activeProxies.at(connection);
 		if(lockedPtr)
 			return lockedPtr->sendPacket(message);
 
@@ -296,9 +305,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	if(messageType == "serverProxyLogin")
 		return receiveServerProxyLogin(connection, json);
 
-	// TODO: add logging of suspicious connections.
-	networkServer->closeConnection(connection);
-
+	connection->close();
 	logGlobal->info("(unauthorised): Unknown message type %s", messageType);
 }
 
@@ -348,13 +355,11 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	if(!database->isAccountIDExists(accountID))
 		return sendOperationFailed(connection, "Account not found");
 
-	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie, accountCookieLifetime);
+	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie);
 
 	if(clientCookieStatus == LobbyCookieStatus::INVALID)
 		return sendOperationFailed(connection, "Authentification failure");
 
-	// prolong existing cookie
-	database->updateAccessCookie(accountID, accountCookie);
 	database->updateAccountLoginTime(accountID);
 	database->setAccountOnline(accountID, true);
 
@@ -365,8 +370,8 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	sendLoginSuccess(connection, accountCookie, displayName);
 	sendChatHistory(connection, database->getRecentMessageHistory());
 
-	// send active accounts list to new account
-	// and update acount list to everybody else
+	// send active game rooms list to new account
+	// and update acount list to everybody else including new account
 	broadcastActiveAccounts();
 	sendMessage(connection, prepareActiveGameRooms());
 }
@@ -378,7 +383,7 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 	std::string accountCookie = json["accountCookie"].String();
 	std::string version = json["version"].String();
 
-	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie, accountCookieLifetime);
+	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie);
 
 	if(clientCookieStatus == LobbyCookieStatus::INVALID)
 	{
@@ -399,7 +404,7 @@ void LobbyServer::receiveClientProxyLogin(const NetworkConnectionPtr & connectio
 	std::string accountID = json["accountID"].String();
 	std::string accountCookie = json["accountCookie"].String();
 
-	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie, accountCookieLifetime);
+	auto clientCookieStatus = database->getAccountCookieStatus(accountID, accountCookie);
 
 	if(clientCookieStatus != LobbyCookieStatus::INVALID)
 	{
@@ -424,7 +429,7 @@ void LobbyServer::receiveClientProxyLogin(const NetworkConnectionPtr & connectio
 	}
 
 	sendOperationFailed(connection, "Invalid credentials");
-	networkServer->closeConnection(connection);
+	connection->close();
 }
 
 void LobbyServer::receiveServerProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -456,7 +461,7 @@ void LobbyServer::receiveServerProxyLogin(const NetworkConnectionPtr & connectio
 		return;
 	}
 
-	//networkServer->closeConnection(connection);
+	//connection->close();
 }
 
 void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -479,9 +484,6 @@ void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, c
 		database->setGameRoomStatus(gameRoomID, LobbyRoomState::PUBLIC);
 	if(roomType == "private")
 		database->setGameRoomStatus(gameRoomID, LobbyRoomState::PRIVATE);
-
-	// TODO: additional flags / initial settings, e.g. allowCheats
-	// TODO: connection mode: direct or proxy. For now direct is assumed. Proxy might be needed later, for hosted servers
 
 	database->insertPlayerIntoGameRoom(accountID, gameRoomID);
 	broadcastActiveGameRooms();

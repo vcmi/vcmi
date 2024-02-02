@@ -26,7 +26,7 @@ void NetworkConnection::start()
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageHeaderSize),
-							[this](const auto & ec, const auto & endpoint) { onHeaderReceived(ec); });
+							[self = shared_from_this()](const auto & ec, const auto & endpoint) { self->onHeaderReceived(ec); });
 }
 
 void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
@@ -42,7 +42,7 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageSize),
-							[this, messageSize](const auto & ec, const auto & endpoint) { onPacketReceived(ec, messageSize); });
+							[self = shared_from_this(), messageSize](const auto & ec, const auto & endpoint) { self->onPacketReceived(ec, messageSize); });
 }
 
 uint32_t NetworkConnection::readPacketSize()
@@ -54,7 +54,7 @@ uint32_t NetworkConnection::readPacketSize()
 	readBuffer.sgetn(reinterpret_cast<char *>(&messageSize), sizeof(messageSize));
 
 	if (messageSize > messageMaxSize)
-		throw std::runtime_error("Invalid packet size!");
+		listener.onDisconnected(shared_from_this(), "Invalid packet size!");
 
 	return messageSize;
 }
@@ -88,7 +88,16 @@ void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 	boost::asio::write(*socket, boost::asio::buffer(messageSize), ec );
 	boost::asio::write(*socket, boost::asio::buffer(message), ec );
 
-	// FIXME: handle error?
+	if (ec)
+		listener.onDisconnected(shared_from_this(), ec.message());
+}
+
+void NetworkConnection::close()
+{
+	boost::system::error_code ec;
+	socket->close(ec);
+
+	//NOTE: ignoring error code
 }
 
 VCMI_LIB_NAMESPACE_END

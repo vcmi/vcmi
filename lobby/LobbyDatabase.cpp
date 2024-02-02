@@ -149,12 +149,6 @@ void LobbyDatabase::prepareStatements()
 		WHERE roomID = ?
 	)";
 
-	static const std::string setGameRoomPlayerLimitText = R"(
-		UPDATE gameRooms
-		SET playerLimit = ?
-		WHERE roomID = ?
-	)";
-
 	// SELECT FROM
 
 	static const std::string getRecentMessageHistoryText = R"(
@@ -221,7 +215,7 @@ void LobbyDatabase::prepareStatements()
 	static const std::string isAccountCookieValidText = R"(
 		SELECT COUNT(accountID)
 		FROM accountCookies
-		WHERE accountID = ? AND cookieUUID = ? AND strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',creationTime) < ?
+		WHERE accountID = ? AND cookieUUID = ?
 	)";
 
 	static const std::string isGameRoomCookieValidText = R"(
@@ -269,7 +263,6 @@ void LobbyDatabase::prepareStatements()
 
 	setAccountOnlineStatement = database->prepare(setAccountOnlineText);
 	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
-	setGameRoomPlayerLimitStatement = database->prepare(setGameRoomPlayerLimitText);
 
 	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
@@ -352,11 +345,6 @@ void LobbyDatabase::setGameRoomStatus(const std::string & roomID, LobbyRoomState
 	setGameRoomStatusStatement->executeOnce(vstd::to_underlying(roomStatus), roomID);
 }
 
-void LobbyDatabase::setGameRoomPlayerLimit(const std::string & roomID, uint32_t playerLimit)
-{
-	setGameRoomPlayerLimitStatement->executeOnce(playerLimit, roomID);
-}
-
 void LobbyDatabase::insertPlayerIntoGameRoom(const std::string & accountID, const std::string & roomID)
 {
 	insertGameRoomPlayersStatement->executeOnce(roomID, accountID);
@@ -392,11 +380,10 @@ void LobbyDatabase::insertAccessCookie(const std::string & accountID, const std:
 	insertAccessCookieStatement->executeOnce(accountID, accessCookieUUID);
 }
 
-void LobbyDatabase::updateAccessCookie(const std::string & accountID, const std::string & accessCookieUUID) {}
-
-void LobbyDatabase::updateAccountLoginTime(const std::string & accountID) {}
-
-void LobbyDatabase::updateActiveAccount(const std::string & accountID, bool isActive) {}
+void LobbyDatabase::updateAccountLoginTime(const std::string & accountID)
+{
+	assert(0);
+}
 
 std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 {
@@ -410,16 +397,16 @@ std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 	return result;
 }
 
-LobbyCookieStatus LobbyDatabase::getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime)
-{
-	return {};
-}
+//LobbyCookieStatus LobbyDatabase::getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID)
+//{
+//	return {};
+//}
 
-LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime)
+LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID)
 {
 	bool result = false;
 
-	isAccountCookieValidStatement->setBinds(accountID, accessCookieUUID, cookieLifetime.count());
+	isAccountCookieValidStatement->setBinds(accountID, accessCookieUUID);
 	if(isAccountCookieValidStatement->execute())
 		isAccountCookieValidStatement->getColumns(result);
 	isAccountCookieValidStatement->reset();
@@ -429,6 +416,7 @@ LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & acco
 
 LobbyInviteStatus LobbyDatabase::getAccountInviteStatus(const std::string & accountID, const std::string & roomID)
 {
+	assert(0);
 	return {};
 }
 

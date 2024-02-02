@@ -29,9 +29,6 @@ class NetworkServer : public INetworkConnectionListener, public INetworkServer
 public:
 	NetworkServer(INetworkServerListener & listener, const std::shared_ptr<NetworkContext> & context);
 
-	void sendPacket(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message) override;
-	void closeConnection(const std::shared_ptr<INetworkConnection> &) override;
-
 	void start(uint16_t port) override;
 };
 

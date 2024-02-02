@@ -36,7 +36,6 @@ struct LobbyChatMessage
 enum class LobbyCookieStatus : int32_t
 {
 	INVALID,
-	EXPIRED,
 	VALID
 };
 

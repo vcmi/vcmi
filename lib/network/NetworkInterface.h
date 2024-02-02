@@ -17,6 +17,7 @@ class DLL_LINKAGE INetworkConnection : boost::noncopyable
 public:
 	virtual ~INetworkConnection() = default;
 	virtual void sendPacket(const std::vector<std::byte> & message) = 0;
+	virtual void close() = 0;
 };
 
 using NetworkConnectionPtr = std::shared_ptr<INetworkConnection>;
@@ -38,8 +39,6 @@ class DLL_LINKAGE INetworkServer : boost::noncopyable
 public:
 	virtual ~INetworkServer() = default;
 
-	virtual void sendPacket(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message) = 0;
-	virtual void closeConnection(const std::shared_ptr<INetworkConnection> &) = 0;
 	virtual void start(uint16_t port) = 0;
 };
 

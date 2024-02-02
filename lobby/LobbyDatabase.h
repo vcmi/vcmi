@@ -62,7 +62,6 @@ public:
 
 	void setAccountOnline(const std::string & accountID, bool isOnline);
 	void setGameRoomStatus(const std::string & roomID, LobbyRoomState roomStatus);
-	void setGameRoomPlayerLimit(const std::string & roomID, uint32_t playerLimit);
 
 	void insertPlayerIntoGameRoom(const std::string & accountID, const std::string & roomID);
 	void deletePlayerFromGameRoom(const std::string & accountID, const std::string & roomID);
@@ -75,21 +74,19 @@ public:
 	void insertAccessCookie(const std::string & accountID, const std::string & accessCookieUUID);
 	void insertChatMessage(const std::string & sender, const std::string & roomType, const std::string & roomID, const std::string & messageText);
 
-	void updateAccessCookie(const std::string & accountID, const std::string & accessCookieUUID);
 	void updateAccountLoginTime(const std::string & accountID);
-	void updateActiveAccount(const std::string & accountID, bool isActive);
 
 	std::vector<LobbyGameRoom> getActiveGameRooms();
 	std::vector<LobbyAccount> getActiveAccounts();
-	std::vector<LobbyAccount> getAccountsInRoom(const std::string & roomID);
+//	std::vector<LobbyAccount> getAccountsInRoom(const std::string & roomID);
 	std::vector<LobbyChatMessage> getRecentMessageHistory();
 
 	std::string getIdleGameRoom(const std::string & hostAccountID);
 	std::string getAccountGameRoom(const std::string & accountID);
 	std::string getAccountDisplayName(const std::string & accountID);
 
-	LobbyCookieStatus getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime);
-	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID, std::chrono::seconds cookieLifetime);
+//	LobbyCookieStatus getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID);
+	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID);
 	LobbyInviteStatus getAccountInviteStatus(const std::string & accountID, const std::string & roomID);
 	LobbyRoomState getGameRoomStatus(const std::string & roomID);
 	uint32_t getGameRoomFreeSlots(const std::string & roomID);

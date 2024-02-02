@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class NetworkConnection : public INetworkConnection, public std::enable_shared_from_this<NetworkConnection>
+class NetworkConnection : public INetworkConnection, std::enable_shared_from_this<NetworkConnection>
 {
 	static const int messageHeaderSize = sizeof(uint32_t);
 	static const int messageMaxSize = 64 * 1024 * 1024; // arbitrary size to prevent potential massive allocation if we receive garbage input
@@ -31,6 +31,7 @@ public:
 	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket);
 
 	void start();
+	void close() override;
 	void sendPacket(const std::vector<std::byte> & message) override;
 };
 
