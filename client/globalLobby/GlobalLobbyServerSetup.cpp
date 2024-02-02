@@ -31,7 +31,7 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 	pos.w = 284;
 	pos.h = 340;
 
-	background = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.room.create"));
 	labelPlayerLimit = std::make_shared<CLabel>( pos.w / 2, 48, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.room.players.limit"));
 	labelRoomType = std::make_shared<CLabel>( pos.w / 2, 108, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.room.type"));
@@ -75,7 +75,7 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 	buttonCreate = std::make_shared<CButton>(Point(10, 300), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onCreate(); });
 	buttonClose = std::make_shared<CButton>(Point(210, 300), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
 
-	background->playerColored(PlayerColor(1));
+	filledBackground->playerColored(PlayerColor(1));
 
 	updateDescription();
 	center();

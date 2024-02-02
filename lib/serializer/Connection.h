@@ -46,7 +46,7 @@ public:
 	std::string uuid;
 	int connectionID;
 
-	CConnection(std::weak_ptr<INetworkConnection> networkConnection);
+	explicit CConnection(std::weak_ptr<INetworkConnection> networkConnection);
 	~CConnection();
 
 	void sendPack(const CPack * pack);

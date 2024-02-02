@@ -19,7 +19,7 @@ class CToggleGroup;
 
 class GlobalLobbyServerSetup : public CWindowObject
 {
-	std::shared_ptr<FilledTexturePlayerColored> background;
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::shared_ptr<CLabel> labelTitle;
 
 	std::shared_ptr<CLabel> labelPlayerLimit;

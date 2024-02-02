@@ -25,8 +25,8 @@ public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
 
-	int read(void * data, unsigned size) override; //throws!
-	int write(const void * data, unsigned size) override;
+	int read(std::byte * data, unsigned size) override; //throws!
+	int write(const std::byte * data, unsigned size) override;
 
 	CMemorySerializer();
 

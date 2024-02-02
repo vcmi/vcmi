@@ -205,10 +205,10 @@ void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 
 void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const std::string & errorMessage)
 {
-	if (activeAccounts.count(connection))
+	if(activeAccounts.count(connection))
 		database->setAccountOnline(activeAccounts.at(connection), false);
 
-	if (activeGameRooms.count(connection))
+	if(activeGameRooms.count(connection))
 		database->setGameRoomStatus(activeGameRooms.at(connection), LobbyRoomState::CLOSED);
 
 	// NOTE: lost connection can be in only one of these lists (or in none of them)

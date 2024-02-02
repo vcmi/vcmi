@@ -21,7 +21,7 @@ CLoadFile::CLoadFile(const boost::filesystem::path & fname, ESerializationVersio
 //must be instantiated in .cpp file for access to complete types of all member fields
 CLoadFile::~CLoadFile() = default;
 
-int CLoadFile::read(void * data, unsigned size)
+int CLoadFile::read(std::byte * data, unsigned size)
 {
 	sfile->read(reinterpret_cast<char *>(data), size);
 	return size;
@@ -92,7 +92,7 @@ void CLoadFile::clear()
 void CLoadFile::checkMagicBytes(const std::string &text)
 {
 	std::string loaded = text;
-	read((void *)loaded.data(), static_cast<unsigned int>(text.length()));
+	read(reinterpret_cast<std::byte*>(loaded.data()), text.length());
 	if(loaded != text)
 		throw std::runtime_error("Magic bytes doesn't match!");
 }

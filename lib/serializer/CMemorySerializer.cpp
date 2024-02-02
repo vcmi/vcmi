@@ -12,7 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-int CMemorySerializer::read(void * data, unsigned size)
+int CMemorySerializer::read(std::byte * data, unsigned size)
 {
 	if(buffer.size() < readPos + size)
 		throw std::runtime_error(boost::str(boost::format("Cannot read past the buffer (accessing index %d, while size is %d)!") % (readPos + size - 1) % buffer.size()));
@@ -22,7 +22,7 @@ int CMemorySerializer::read(void * data, unsigned size)
 	return size;
 }
 
-int CMemorySerializer::write(const void * data, unsigned size)
+int CMemorySerializer::write(const std::byte * data, unsigned size)
 {
 	auto oldSize = buffer.size(); //and the pos to write from
 	buffer.resize(oldSize + size);

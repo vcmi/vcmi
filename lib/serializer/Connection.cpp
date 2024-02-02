@@ -24,7 +24,7 @@ class DLL_LINKAGE ConnectionPackWriter final : public IBinaryWriter
 public:
 	std::vector<std::byte> buffer;
 
-	int write(const void * data, unsigned size) final;
+	int write(const std::byte * data, unsigned size) final;
 };
 
 class DLL_LINKAGE ConnectionPackReader final : public IBinaryReader
@@ -33,25 +33,21 @@ public:
 	const std::vector<std::byte> * buffer;
 	size_t position;
 
-	int read(void * data, unsigned size) final;
+	int read(std::byte * data, unsigned size) final;
 };
 
-int ConnectionPackWriter::write(const void * data, unsigned size)
+int ConnectionPackWriter::write(const std::byte * data, unsigned size)
 {
-	const std::byte * begin_ptr = static_cast<const std::byte *>(data);
-	const std::byte * end_ptr = begin_ptr + size;
-	buffer.insert(buffer.end(), begin_ptr, end_ptr);
+	buffer.insert(buffer.end(), data, data + size);
 	return size;
 }
 
-int ConnectionPackReader::read(void * data, unsigned size)
+int ConnectionPackReader::read(std::byte * data, unsigned size)
 {
 	if (position + size > buffer->size())
 		throw std::runtime_error("End of file reached when reading received network pack!");
 
-	std::byte * begin_ptr = static_cast<std::byte *>(data);
-
-	std::copy_n(buffer->begin() + position, size, begin_ptr);
+	std::copy_n(buffer->begin() + position, size, data);
 	position += size;
 	return size;
 }

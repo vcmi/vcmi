@@ -24,7 +24,7 @@ class GlobalLobbyWidget : public InterfaceObjectConfigurable
 	std::shared_ptr<CIntObject> buildRoomList(const JsonNode &) const;
 
 public:
-	GlobalLobbyWidget(GlobalLobbyWindow * window);
+	explicit GlobalLobbyWidget(GlobalLobbyWindow * window);
 
 	std::shared_ptr<CLabel> getAccountNameLabel();
 	std::shared_ptr<CTextInput> getMessageInput();

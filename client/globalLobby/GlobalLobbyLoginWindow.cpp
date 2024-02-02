@@ -35,7 +35,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	pos.w = 200;
 	pos.h = 200;
 
-	background = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.login.title"));
 	labelUsername = std::make_shared<CLabel>( 10, 45, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
 	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 70, 180, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
@@ -44,7 +44,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	buttonClose = std::make_shared<CButton>(Point(126, 160), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
 	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 95, 175, 60), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
-	background->playerColored(PlayerColor(1));
+	filledBackground->playerColored(PlayerColor(1));
 	inputUsername->setText(settings["lobby"]["displayName"].String());
 	inputUsername->cb += [this](const std::string & text)
 	{

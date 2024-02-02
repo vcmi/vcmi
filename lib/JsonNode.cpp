@@ -72,10 +72,6 @@ JsonNode::JsonNode(JsonType Type)
 	setType(Type);
 }
 
-JsonNode::JsonNode(const uint8_t *data, size_t datasize)
-	:JsonNode(reinterpret_cast<const char*>(data), datasize)
-{}
-
 JsonNode::JsonNode(const std::byte *data, size_t datasize)
 	:JsonNode(reinterpret_cast<const char*>(data), datasize)
 {}
