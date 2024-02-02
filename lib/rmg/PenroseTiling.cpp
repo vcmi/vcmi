@@ -5,7 +5,6 @@
 
 // Adapted from https://github.com/mpizzzle/penrose
 
-// FIXME: Find library for geometry representation
 //https://www.boost.org/doc/libs/1_72_0/libs/geometry/doc/html/geometry/reference/adapted/boost_polygon/point_data.html
 
 //#include <GL/glew.h>
@@ -15,30 +14,59 @@
 //#include <glm/gtx/rotate_vector.hpp>
 
 #include "StdInc.h"
+#include "PenroseTiling.h"
 
-#include <array>
-#include <random>
-#include <string>
-#include <vector>
-
-#include <boost/geometry/strategies/transform/matrix_transformers.hpp>
-//https://www.boost.org/doc/libs/1_72_0/libs/geometry/doc/html/geometry/reference/strategies/strategy_transform_rotate_transformer.html
 
 //#include "shader.hpp"
 //#include "png_writer.hpp"
 
-#include "PenroseTiling.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 //static const std::string file_name = "penrose.png";
+
+Point2D Point2D::operator * (float scale) const
+{
+	return Point2D(x() * scale, y() * scale);
+}
+
+Point2D Point2D::operator + (const Point2D& other) const
+{
+	return Point2D(x() + other.x(), y() + other.y());
+}
 
 Triangle::Triangle(bool t_123, const TIndices & inds):
 	tiling(t_123),
 	indices(inds)
 {}
 
-void PenroseTiling::split(Triangle& p, std::vector<glm::vec2>& points,
+Point2D Point2D::rotated(float radians) const
+{
+    float cosAngle = cos(radians);
+    float sinAngle = sin(radians);
+
+    // Apply rotation matrix transformation
+    float newX = x() * cosAngle - y() * sinAngle;
+    float newY = x() * sinAngle + y() * cosAngle;
+
+    return Point2D(newX, newY);
+}
+
+/*
+Point2D rotatePoint(const Point2D& point, double radians, const Point2D& origin = Point2D(0, 0))
+{
+	// Define a rotate_transformer: the first template argument `2` stands for 2D,
+	// `float` is the coordinate type, and 2 is input and output dimension
+	strategy::transform::rotate_transformer<boost::geometry::radian, float, 2, 2> rot(radians);
+
+	Point2D rotatedPoint;
+	rot.apply(point, rotatedPoint);
+	//transform(point, rotatedPoint, rot);
+
+	return rotatedPoint;
+}
+*/
+
+void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 	std::array<std::vector<uint32_t>, 5>& indices, uint32_t depth) 
 {
 	uint32_t s = points.size();
@@ -50,8 +78,8 @@ void PenroseTiling::split(Triangle& p, std::vector<glm::vec2>& points,
 	{
 		if (p.tiling ^ !p2)
 		{
-			points.push_back(glm::vec2(((1.0f - PHI) * points[i[0]]) + (PHI * points[i[2]])));
-			points.push_back(glm::vec2(((1.0f - PHI) * points[i[p2]]) + (PHI * points[i[!p2]])));
+			points.push_back(Point2D((points[i[0]] * (1.0f - PHI) ) + (points[i[2]]) * PHI));
+			points.push_back(Point2D((points[i[p2]] * (1.0f - PHI)) + (points[i[!p2]] * PHI)));
 
 			Triangle t1(p2, TIndices({ i[(!p2) + 1], p2 ? i[2] : s, p2 ? s : i[1] }));
 			Triangle t2(true, TIndices({ p2 ? i[1] : s, s + 1, p2 ? s : i[1] }));
@@ -62,7 +90,7 @@ void PenroseTiling::split(Triangle& p, std::vector<glm::vec2>& points,
 		}
 		else
 		{
-			points.push_back(glm::vec2(((1.0f - PHI) * points[i[p2 * 2]]) + (PHI * points[i[!p2]])));
+			points.push_back(Point2D((points[i[p2 * 2]] * (1.0f - PHI)) + (points[i[!p2]]) * PHI));
 
 			Triangle t1(true, TIndices({ i[2], s, i[1] }));
 			Triangle t2(false, TIndices({ i[(!p2) + 1], s, i[0] }));
@@ -95,7 +123,7 @@ void PenroseTiling::split(Triangle& p, std::vector<glm::vec2>& points,
 }
 
 // TODO: Return something
-void generatePenroseTiling(size_t numZones, CRandomGenerator * rand);
+void PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * rand)
 {
 	float scale = 100.f / (numZones + 20); //TODO: Use it to initialize the large tile
 
@@ -108,29 +136,28 @@ void generatePenroseTiling(size_t numZones, CRandomGenerator * rand);
 									   glm::vec3(d(e), d(e), d(e)), glm::vec3(d(e), d(e), d(e)) };
 	*/
 
-	float polyAngle = glm::radians(360.0f / POLY);
+	float polyAngle = 360.0f / POLY;
 
-	std::vector<glm::vec2> points = { glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f) };
+	std::vector<Point2D> points = { Point2D(0.0f, 0.0f), Point2D(0.0f, 1.0f) };
 	std::array<std::vector<uint32_t>, 5> indices;
 
 	for (uint32_t i = 1; i < POLY; ++i)
 	{
-		//TODO: Use boost to rotate
-		glm::vec2 next = glm::rotate(points[i], polyAngle);
+		Point2D next = points[i].rotated(polyAngle);
 		points.push_back(next);
 	}
 
 	// TODO: Scale to unit square
 	for (auto& p : points)
 	{
-		p.x = (p.x / window_w) * window_h;
+		p.x(p.x() * scale * BASE_SIZE);
 	}
 
 	for (uint32_t i = 0; i < POLY; i++)
 	{
 		std::array<uint32_t, 2> p = { (i % (POLY + 1)) + 1, ((i + 1) % POLY) + 1 };
 
-		triangle t(true, TIndices({ 0, p[i & 1], p[!(i & 1)] }));
+		Triangle t(true, TIndices({ 0, p[i & 1], p[!(i & 1)] }));
 
 		split(t, points, indices, DEPTH);
 	}

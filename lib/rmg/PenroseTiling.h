@@ -14,11 +14,24 @@
 #include "../CRandomGenerator.h"
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-
+#include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+using namespace boost::geometry;
 typedef std::array<uint32_t, 3> TIndices;
+
+class Point2D : public model::d2::point_xy<float>
+{
+public:
+	using point_xy::point_xy;
+
+	Point2D operator * (float scale) const;
+	Point2D operator + (const Point2D& other) const;
+	Point2D rotated(float radians) const;
+};
+
+Point2D rotatePoint(const Point2D& point, double radians, const Point2D& origin);
 
 class Triangle
 {
@@ -39,7 +52,7 @@ public:
 	// TODO: Is that the number of symmetries?
 	const uint32_t POLY = 10;
 
-	const float scale = 4.0f;
+	const float BASE_SIZE = 4.0f;
 	//const uint32_t window_w = 1920 * scale;
 	//const uint32_t window_h = 1080 * scale;
 	const uint32_t DEPTH = 10;      //recursion depth
@@ -50,7 +63,7 @@ public:
 	void generatePenroseTiling(size_t numZones, CRandomGenerator * rand);
 
 private:
-	void split(Triangle& p, std::vector<glm::vec2>& points, std::array<std::vector<uint32_t>, 5>& indices, uint32_t depth); 
+	void split(Triangle& p, std::vector<Point2D>& points, std::array<std::vector<uint32_t>, 5>& indices, uint32_t depth); 
 
 };
 
