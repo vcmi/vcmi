@@ -21,6 +21,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 using namespace boost::geometry;
 typedef std::array<uint32_t, 3> TIndices;
 
+const float PI_CONSTANT = 3.141592f;
+
 class Point2D : public model::d2::point_xy<float>
 {
 public:
@@ -29,6 +31,8 @@ public:
 	Point2D operator * (float scale) const;
 	Point2D operator + (const Point2D& other) const;
 	Point2D rotated(float radians) const;
+
+	bool operator < (const Point2D& other) const;
 };
 
 Point2D rotatePoint(const Point2D& point, double radians, const Point2D& origin);
@@ -36,6 +40,8 @@ Point2D rotatePoint(const Point2D& point, double radians, const Point2D& origin)
 class Triangle
 {
 public:
+	~Triangle();
+
 	const bool tiling;
 	TIndices indices;
 
@@ -52,15 +58,12 @@ public:
 	// TODO: Is that the number of symmetries?
 	const uint32_t POLY = 10;
 
-	const float BASE_SIZE = 4.0f;
-	//const uint32_t window_w = 1920 * scale;
-	//const uint32_t window_h = 1080 * scale;
-	const uint32_t DEPTH = 10;      //recursion depth
+	const float BASE_SIZE = 1.f;
+	const uint32_t DEPTH = 7; //Recursion depth
 	
 	const bool P2 = false; // Tiling type
-	//const float line_w = 2.0f;      //line width
 
-	void generatePenroseTiling(size_t numZones, CRandomGenerator * rand);
+	std::set<Point2D> generatePenroseTiling(size_t numZones, CRandomGenerator * rand);
 
 private:
 	void split(Triangle& p, std::vector<Point2D>& points, std::array<std::vector<uint32_t>, 5>& indices, uint32_t depth); 

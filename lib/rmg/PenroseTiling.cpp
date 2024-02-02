@@ -1,28 +1,20 @@
 /*
- * © 2020 Michael Percival <m@michaelpercival.xyz>
- *   See LICENSE file for copyright and license details.
+ * PenroseTiling.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
  */
 
-// Adapted from https://github.com/mpizzzle/penrose
-
-//https://www.boost.org/doc/libs/1_72_0/libs/geometry/doc/html/geometry/reference/adapted/boost_polygon/point_data.html
-
-//#include <GL/glew.h>
-//#include <GLFW/glfw3.h>
-
-//#include <glm/glm.hpp>
-//#include <glm/gtx/rotate_vector.hpp>
+// Adapted from https://github.com/mpizzzle/penrose by Michael Percival
 
 #include "StdInc.h"
 #include "PenroseTiling.h"
 
-
-//#include "shader.hpp"
-//#include "png_writer.hpp"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
-//static const std::string file_name = "penrose.png";
 
 Point2D Point2D::operator * (float scale) const
 {
@@ -34,10 +26,34 @@ Point2D Point2D::operator + (const Point2D& other) const
 	return Point2D(x() + other.x(), y() + other.y());
 }
 
+bool Point2D::operator < (const Point2D& other) const
+{
+	if (x() < other.x())
+	{
+		return true;
+	}
+	else
+	{
+		return y() < other.y();
+	}
+}
+
 Triangle::Triangle(bool t_123, const TIndices & inds):
 	tiling(t_123),
 	indices(inds)
 {}
+
+Triangle::~Triangle()
+{
+	for (auto * triangle : subTriangles)
+	{
+		if (triangle)
+		{
+			delete triangle;
+			triangle = nullptr;
+		}
+	}
+}
 
 Point2D Point2D::rotated(float radians) const
 {
@@ -50,21 +66,6 @@ Point2D Point2D::rotated(float radians) const
 
     return Point2D(newX, newY);
 }
-
-/*
-Point2D rotatePoint(const Point2D& point, double radians, const Point2D& origin = Point2D(0, 0))
-{
-	// Define a rotate_transformer: the first template argument `2` stands for 2D,
-	// `float` is the coordinate type, and 2 is input and output dimension
-	strategy::transform::rotate_transformer<boost::geometry::radian, float, 2, 2> rot(radians);
-
-	Point2D rotatedPoint;
-	rot.apply(point, rotatedPoint);
-	//transform(point, rotatedPoint, rot);
-
-	return rotatedPoint;
-}
-*/
 
 void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 	std::array<std::vector<uint32_t>, 5>& indices, uint32_t depth) 
@@ -81,21 +82,20 @@ void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 			points.push_back(Point2D((points[i[0]] * (1.0f - PHI) ) + (points[i[2]]) * PHI));
 			points.push_back(Point2D((points[i[p2]] * (1.0f - PHI)) + (points[i[!p2]] * PHI)));
 
-			Triangle t1(p2, TIndices({ i[(!p2) + 1], p2 ? i[2] : s, p2 ? s : i[1] }));
-			Triangle t2(true, TIndices({ p2 ? i[1] : s, s + 1, p2 ? s : i[1] }));
-			Triangle t3(false, TIndices({ s, s + 1, i[0] }));
+			auto * t1 = new Triangle(p2, TIndices({ i[(!p2) + 1], p2 ? i[2] : s, p2 ? s : i[1] }));
+			auto * t2 = new Triangle(true, TIndices({ p2 ? i[1] : s, s + 1, p2 ? s : i[1] }));
+			auto * t3 = new Triangle(false, TIndices({ s, s + 1, i[0] }));
 
-			// FIXME: Make sure these are not destroyed when we leave the scope
-			p.subTriangles = { &t1, &t2, &t3 };
+			p.subTriangles = { t1, t2, t3 };
 		}
 		else
 		{
 			points.push_back(Point2D((points[i[p2 * 2]] * (1.0f - PHI)) + (points[i[!p2]]) * PHI));
 
-			Triangle t1(true, TIndices({ i[2], s, i[1] }));
-			Triangle t2(false, TIndices({ i[(!p2) + 1], s, i[0] }));
+			auto * t1 = new Triangle(true, TIndices({ i[2], s, i[1] }));
+			auto * t2 = new Triangle(false, TIndices({ i[(!p2) + 1], s, i[0] }));
 
-			p.subTriangles = { &t1, &t2 };
+			p.subTriangles = { t1, t2 };
 		}
 
 		for (auto& t : p.subTriangles)
@@ -122,23 +122,14 @@ void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 	return;
 }
 
-// TODO: Return something
-void PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * rand)
+std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * rand)
 {
-	float scale = 100.f / (numZones + 20); //TODO: Use it to initialize the large tile
+	float scale = 100.f / (numZones + 20);
+	float polyAngle = (2 * PI_CONSTANT) / POLY;
 
-	//static std::default_random_engine e(std::random_device{}());
-	static std::uniform_real_distribution<> d(0, 1);
+	float randomAngle = rand->nextDouble(0, 2 * PI_CONSTANT);
 
-	/*
-	std::vector<glm::vec3> colours = { glm::vec3(d(e), d(e), d(e)), glm::vec3(d(e), d(e), d(e)),
-									   glm::vec3(d(e), d(e), d(e)), glm::vec3(d(e), d(e), d(e)),
-									   glm::vec3(d(e), d(e), d(e)), glm::vec3(d(e), d(e), d(e)) };
-	*/
-
-	float polyAngle = 360.0f / POLY;
-
-	std::vector<Point2D> points = { Point2D(0.0f, 0.0f), Point2D(0.0f, 1.0f) };
+	std::vector<Point2D> points = { Point2D(0.0f, 0.0f), Point2D(0.0f, 1.0f).rotated(randomAngle) };
 	std::array<std::vector<uint32_t>, 5> indices;
 
 	for (uint32_t i = 1; i < POLY; ++i)
@@ -147,11 +138,20 @@ void PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * ra
 		points.push_back(next);
 	}
 
-	// TODO: Scale to unit square
 	for (auto& p : points)
 	{
 		p.x(p.x() * scale * BASE_SIZE);
 	}
+
+	// Scale square to window size
+	/*
+	for (auto& p : points)
+	{
+        p.x = (p.x / window_w) * window_h;
+    }
+	*/
+
+	std::set<Point2D> finalPoints;
 
 	for (uint32_t i = 0; i < POLY; i++)
 	{
@@ -162,93 +162,22 @@ void PenroseTiling::generatePenroseTiling(size_t numZones, CRandomGenerator * ra
 		split(t, points, indices, DEPTH);
 	}
 
-	// TODO: Return collection of triangles
-	// TODO: Get center point of the triangle
-
-	// Do not draw anything
 	/*
-	if(!glfwInit())
+	//No difference for the number of points
+	for (auto& p : points)
 	{
-		return -1;
+		p = p + Point2D(0.5f, 0.5f); // Center in a square (0,1)
 	}
-
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLFWwindow* window = glfwCreateWindow(window_w, window_h, "penrose", NULL, NULL);
-
-	if(window == NULL) {
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwMakeContextCurrent(window);
-	glewExperimental=true;
-
-	if (glewInit() != GLEW_OK) {
-		return -1;
-	}
-
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
-	uint32_t VAOs[5], VBO, EBOs[5];
-
-	glGenVertexArrays(5, VAOs);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(5, EBOs);
-	glLineWidth(line_w);
-
-	for (uint32_t i = 0; i < indices.size(); ++i) {
-		glBindVertexArray(VAOs[i]);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, points.size() * 4 * 2, &points[0], GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[i]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices[i].size() * 4, &indices[i][0], GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-	}
-
-	uint32_t programID = Shader::loadShaders("vertex.vert", "fragment.frag");
-	GLint paint = glGetUniformLocation(programID, "paint");
-
-	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 && paint != -1) {
-		glViewport(-1.0 * (window_w / scale) * ((0.5 * scale) - 0.5), -1.0 * (window_h / scale) * ((0.5 * scale) - 0.5), window_w, window_h);
-		glClearColor(colours.back().x, colours.back().y, colours.back().z, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glUseProgram(programID);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-		for (uint32_t i = 0; i < indices.size(); ++i) {
-			glPolygonMode(GL_FRONT_AND_BACK, i < indices.size() - 1 ? GL_FILL : GL_LINE);
-			glUniform3fv(paint, 1, &colours[i][0]);
-			glBindVertexArray(VAOs[i]);
-			glDrawElements(i < indices.size() - 1 ? GL_TRIANGLES : GL_LINES, indices[i].size(), GL_UNSIGNED_INT, 0);
-		}
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	int frame_w, frame_h;
-	glfwGetFramebufferSize(window, &frame_w, &frame_h);
-
-	png_bytep* row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * frame_h);
-
-	for (int y = 0; y < frame_h; ++y) {
-		row_pointers[y] = (png_byte*) malloc((4 * sizeof(png_byte)) * frame_w);
-		glReadPixels(0, y, frame_w, 1, GL_RGBA, GL_UNSIGNED_BYTE, row_pointers[y]);
-	}
-
-	PngWriter::write_png_file(file_name, frame_w, frame_h, row_pointers);
-
-	return 0;
 	*/
+
+	vstd::copy_if(points, vstd::set_inserter(finalPoints), [](const Point2D point)
+	{
+		return vstd::isbetween(point.x(), 0.f, 1.0f) && vstd::isbetween(point.y(), 0.f, 1.0f);
+	});
+
+	logGlobal->info("Number of points within unit square: %d", finalPoints.size());
+
+	return finalPoints;
 }
 
 VCMI_LIB_NAMESPACE_END
