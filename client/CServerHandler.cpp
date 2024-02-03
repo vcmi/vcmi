@@ -131,12 +131,12 @@ CServerHandler::~CServerHandler()
 	networkHandler->stop();
 	try
 	{
-		threadNetwork->join();
+		threadNetwork.join();
 	}
 	catch (const std::runtime_error & e)
 	{
 		logGlobal->error("Failed to shut down network thread! Reason: %s", e.what());
-		assert(false);
+		assert(0);
 	}
 }
 
@@ -144,17 +144,16 @@ CServerHandler::CServerHandler()
 	: applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
 	, networkHandler(INetworkHandler::createHandler())
+	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
 	, campaignStateToSend(nullptr)
 	, screenType(ESelectionScreen::unknown)
 	, serverMode(EServerMode::NONE)
 	, loadMode(ELoadMode::NONE)
 	, client(nullptr)
-	, campaignServerRestartLock(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	registerTypesLobbyPacks(*applier);
-	threadNetwork = std::make_unique<boost::thread>(&CServerHandler::threadRunNetwork, this);
 }
 
 void CServerHandler::threadRunNetwork()
@@ -192,8 +191,8 @@ GlobalLobbyClient & CServerHandler::getGlobalLobby()
 
 void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 {
-	if(threadRunLocalServer)
-		threadRunLocalServer->join();
+	if(threadRunLocalServer.joinable())
+		threadRunLocalServer.join();
 
 	th->update();
 
@@ -203,19 +202,17 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 	if(connectToLobby)
 		args.push_back("--lobby");
 
-	threadRunLocalServer = std::make_unique<boost::thread>([&cond, args, this] {
+	threadRunLocalServer = boost::thread([&cond, args] {
 		setThreadName("CVCMIServer");
 		CVCMIServer::create(&cond, args);
-		onServerFinished();
 	});
-	threadRunLocalServer->detach();
 #elif defined(VCMI_ANDROID)
 	{
 		CAndroidVMHelper envHelper;
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
 #else
-	threadRunLocalServer = std::make_unique<boost::thread>(&CServerHandler::threadRunServer, this, connectToLobby); //runs server executable;
+	threadRunLocalServer = boost::thread(&CServerHandler::threadRunServer, this, connectToLobby); //runs server executable;
 #endif
 	logNetwork->trace("Setting up thread calling server: %d ms", th->getDiff());
 
@@ -357,10 +354,7 @@ ui8 CServerHandler::myFirstId() const
 
 bool CServerHandler::isServerLocal() const
 {
-	if(threadRunLocalServer)
-		return true;
-
-	return false;
+	return threadRunLocalServer.joinable();
 }
 
 bool CServerHandler::isHost() const
@@ -416,7 +410,10 @@ void CServerHandler::sendClientDisconnecting()
 {
 	// FIXME: This is workaround needed to make sure client not trying to sent anything to non existed server
 	if(state == EClientState::DISCONNECTING)
+	{
+		assert(0);
 		return;
+	}
 
 	state = EClientState::DISCONNECTING;
 	mapToStart = nullptr;
@@ -433,12 +430,8 @@ void CServerHandler::sendClientDisconnecting()
 		logNetwork->info("Sent leaving signal to the server");
 	}
 	sendLobbyPack(lcd);
-	
-	{
-		// Network thread might be applying network pack at this moment
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-		c.reset();
-	}
+	c->getConnection()->close();
+	c.reset();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
@@ -585,9 +578,7 @@ void CServerHandler::sendRestartGame() const
 {
 	GH.windows().createAndPushWindow<CLoadingScreen>();
 	
-	LobbyEndGame endGame;
-	endGame.closeConnection = false;
-	endGame.restart = true;
+	LobbyRestartGame endGame;
 	sendLobbyPack(endGame);
 }
 
@@ -676,38 +667,35 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	state = EClientState::GAMEPLAY;
 }
 
-void CServerHandler::endGameplay(bool closeConnection, bool restart)
+void CServerHandler::endGameplay()
 {
-	if(closeConnection)
-	{
-		// Game is ending
-		// Tell the network thread to reach a stable state
-		CSH->sendClientDisconnecting();
-		logNetwork->info("Closed connection.");
-	}
+	// Game is ending
+	// Tell the network thread to reach a stable state
+	CSH->sendClientDisconnecting();
+	logNetwork->info("Closed connection.");
 
 	client->endGame();
 	client.reset();
 
-	if(!restart)
+	if(CMM)
 	{
-		if(CMM)
-		{
-			GH.curInt = CMM.get();
-			CMM->enable();
-		}
-		else
-		{
-			GH.curInt = CMainMenu::create().get();
-		}
+		GH.curInt = CMM.get();
+		CMM->enable();
 	}
-	
-	if(c)
+	else
 	{
-		nextClient = std::make_unique<CClient>();
-		c->setCallback(nextClient.get());
-		c->enterLobbyConnectionMode();
+		GH.curInt = CMainMenu::create().get();
 	}
+}
+
+void CServerHandler::restartGameplay()
+{
+	client->endGame();
+	client.reset();
+
+	nextClient = std::make_unique<CClient>();
+	c->setCallback(nextClient.get());
+	c->enterLobbyConnectionMode();
 }
 
 void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
@@ -728,7 +716,6 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 
 	GH.dispatchMainThread([ourCampaign, this]()
 	{
-		CSH->campaignServerRestartLock.set(true);
 		CSH->endGameplay();
 
 		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
@@ -751,13 +738,14 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *highScoreCalc);
 			}
 		};
+
+		threadRunLocalServer.join();
 		if(epilogue.hasPrologEpilog)
 		{
 			GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
 		}
 		else
 		{
-			CSH->campaignServerRestartLock.waitUntil(false);
 			finisher();
 		}
 	});
@@ -877,23 +865,19 @@ public:
 
 void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
-	CPack * pack = c->retrievePack(message);
 	if(state == EClientState::DISCONNECTING)
 	{
-		// FIXME: server shouldn't really send netpacks after it's tells client to disconnect
-		// Though currently they'll be delivered and might cause crash.
-		vstd::clear_pointer(pack);
+		assert(0); //Should not be possible - socket must be closed at this point
+		return;
 	}
-	else
-	{
-		ServerHandlerCPackVisitor visitor(*this);
-		pack->visit(visitor);
-	}
+
+	CPack * pack = c->retrievePack(message);
+	ServerHandlerCPackVisitor visitor(*this);
+	pack->visit(visitor);
 }
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	assert(networkConnection == connection);
 	networkConnection.reset();
 
 	if(state == EClientState::DISCONNECTING)
@@ -987,15 +971,7 @@ void CServerHandler::threadRunServer(bool connectToLobby)
 		logNetwork->error("Error: server failed to close correctly or crashed!");
 		logNetwork->error("Check %s for more info", logName);
 	}
-	onServerFinished();
 #endif
-}
-
-void CServerHandler::onServerFinished()
-{
-	threadRunLocalServer.reset();
-	if (CSH)
-		CSH->campaignServerRestartLock.setn(false);
 }
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const

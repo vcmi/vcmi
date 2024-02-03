@@ -31,7 +31,8 @@ void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnecti
 {
 	if (connection == controlConnection)
 	{
-		throw std::runtime_error("Lost connection to a lobby server!");
+		owner.setState(EServerState::SHUTDOWN);
+		return;
 	}
 	else
 	{
@@ -68,7 +69,7 @@ void GlobalLobbyProcessor::receiveOperationFailed(const JsonNode & json)
 {
 	logGlobal->info("Lobby: Failed to login into a lobby server!");
 
-	throw std::runtime_error("Failed to login into a lobby server!");
+	owner.setState(EServerState::SHUTDOWN);
 }
 
 void GlobalLobbyProcessor::receiveLoginSuccess(const JsonNode & json)
@@ -91,7 +92,7 @@ void GlobalLobbyProcessor::receiveAccountJoinsRoom(const JsonNode & json)
 
 void GlobalLobbyProcessor::onConnectionFailed(const std::string & errorMessage)
 {
-	throw std::runtime_error("Failed to connect to a lobby server!");
+	owner.setState(EServerState::SHUTDOWN);
 }
 
 void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)

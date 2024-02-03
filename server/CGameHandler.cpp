@@ -445,7 +445,10 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
 	if(lobby->getState() == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+	{
+		assert(0); // game should have shut down before reaching this point!
 		return;
+	}
 	
 	for(auto & playerConnections : connections)
 	{
@@ -3609,7 +3612,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if(p->human)
 			{
-				lobby->setState(EServerState::GAMEPLAY_ENDED);
+				lobby->setState(EServerState::SHUTDOWN);
 			}
 		}
 		else

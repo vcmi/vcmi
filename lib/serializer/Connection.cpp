@@ -140,6 +140,7 @@ void CConnection::enterGameplayConnectionMode(CGameState * gs)
 
 	setCallback(gs->callback);
 	packWriter->addStdVecItems(gs);
+	packReader->addStdVecItems(gs);
 }
 
 void CConnection::disableSmartPointerSerialization()

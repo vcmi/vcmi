@@ -133,18 +133,15 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 	}
 }
 
-void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
 	if(handler.state == EClientState::GAMEPLAY)
 	{
-		handler.endGameplay(pack.closeConnection, pack.restart);
+		handler.restartGameplay();
 	}
 	
-	if(pack.restart)
-	{
-		if (handler.validateGameStart())
-			handler.sendStartGame();
-	}
+	if (handler.validateGameStart())
+		handler.sendStartGame();
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)

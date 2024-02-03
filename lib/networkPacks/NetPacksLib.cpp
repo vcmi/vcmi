@@ -708,9 +708,9 @@ void LobbyLoadProgress::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyLoadProgress(*this);
 }
 
-void LobbyEndGame::visitTyped(ICPackVisitor & visitor)
+void LobbyRestartGame::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitLobbyEndGame(*this);
+	visitor.visitLobbyRestartGame(*this);
 }
 
 void LobbyStartGame::visitTyped(ICPackVisitor & visitor)

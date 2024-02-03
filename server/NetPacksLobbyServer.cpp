@@ -36,14 +36,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(srv.getState() == EServerState::LOBBY)
-	{
-		result = true;
-		return;
-	}
-	
-	result = false;
-	return;
+	result = srv.getState() == EServerState::LOBBY;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
@@ -197,19 +190,19 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction 
 	result = srv.isClientHost(pack.c->connectionID);
 }
 
-void ClientPermissionsCheckerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
 	result = srv.isClientHost(pack.c->connectionID);
 }
 
-void ApplyOnServerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ApplyOnServerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
 	srv.prepareToRestart();
 
 	result = true;
 }
 
-void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
 	for(auto & c : srv.activeConnections)
 		c->enterLobbyConnectionMode();
@@ -241,8 +234,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 	
 	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
 	pack.initializedGameState = srv.gh->gameState();
-
-	srv.setState(EServerState::GAMEPLAY_STARTING);
 	result = true;
 }
 

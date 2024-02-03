@@ -42,9 +42,7 @@ class GlobalLobbyProcessor;
 enum class EServerState : ui8
 {
 	LOBBY,
-	GAMEPLAY_STARTING,
 	GAMEPLAY,
-	GAMEPLAY_ENDED,
 	SHUTDOWN
 };
 
@@ -59,10 +57,8 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	std::unique_ptr<INetworkHandler> networkHandler;
 
-	bool restartGameplay; // FIXME: this is just a hack
-
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
-	EServerState state;
+	EServerState state = EServerState::LOBBY;
 
 	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
 

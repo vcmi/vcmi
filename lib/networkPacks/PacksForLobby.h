@@ -111,17 +111,12 @@ struct DLL_LINKAGE LobbyLoadProgress : public CLobbyPackToPropagate
 	}
 };
 
-struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
+struct DLL_LINKAGE LobbyRestartGame : public CLobbyPackToPropagate
 {
-	bool closeConnection = false;
-	bool restart = false;
-	
 	void visitTyped(ICPackVisitor & visitor) override;
 	
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & closeConnection;
-		h & restart;
 	}
 };
 

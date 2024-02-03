@@ -111,7 +111,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	/// required to correctly deserialize gamestate using client-side game callback
 	std::unique_ptr<CClient> nextClient;
 
-	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
 	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<std::byte> & message) override;
@@ -145,12 +144,10 @@ public:
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;
-	std::unique_ptr<boost::thread> threadRunLocalServer;
-	std::unique_ptr<boost::thread> threadNetwork;
+	boost::thread threadRunLocalServer;
+	boost::thread threadNetwork;
 
 	std::unique_ptr<CClient> client;
-
-	CondSh<bool> campaignServerRestartLock;
 
 	CServerHandler();
 	~CServerHandler();
@@ -202,7 +199,8 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
-	void endGameplay(bool closeConnection = true, bool restart = false);
+	void endGameplay();
+	void restartGameplay();
 	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs = {});
 	void showServerError(const std::string & txt) const;
 

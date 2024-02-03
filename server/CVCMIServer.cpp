@@ -117,9 +117,7 @@ public:
 };
 
 CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
-	: restartGameplay(false)
-	, state(EServerState::LOBBY)
-	, currentClientId(1)
+	: currentClientId(1)
 	, currentPlayerId(1)
 	, cmdLineOptions(opts)
 {
@@ -153,13 +151,14 @@ void CVCMIServer::startAcceptingIncomingConnections()
 
 void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & connection)
 {
-	if(state == EServerState::LOBBY)
+	if(getState() == EServerState::LOBBY)
 	{
 		activeConnections.push_back(std::make_shared<CConnection>(connection));
 		activeConnections.back()->enterLobbyConnectionMode();
 	}
 	else
 	{
+		// TODO: reconnection support
 		connection->close();
 	}
 }
@@ -175,7 +174,11 @@ void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & c
 
 void CVCMIServer::setState(EServerState value)
 {
+	assert(state != EServerState::SHUTDOWN); // do not attempt to restart dying server
 	state = value;
+
+	if (state == EServerState::SHUTDOWN)
+		networkHandler->stop();
 }
 
 EServerState CVCMIServer::getState() const
@@ -208,7 +211,8 @@ void CVCMIServer::run()
 
 void CVCMIServer::onTimer()
 {
-	if (state != EServerState::GAMEPLAY)
+	// we might receive onTimer call after transitioning from GAMEPLAY to LOBBY state, e.g. on game restart
+	if (getState() != EServerState::GAMEPLAY)
 		return;
 
 	static const auto serverUpdateInterval = std::chrono::milliseconds(100);
@@ -230,18 +234,20 @@ void CVCMIServer::onTimer()
 
 void CVCMIServer::prepareToRestart()
 {
-	if(state == EServerState::GAMEPLAY)
+	if(getState() != EServerState::GAMEPLAY)
 	{
-		restartGameplay = true;
-		* si = * gh->gs->initialOpts;
-		si->seedToBeUsed = si->seedPostInit = 0;
-		state = EServerState::LOBBY;
-		if (si->campState)
-		{
-			assert(si->campState->currentScenario().has_value());
-			campaignMap = si->campState->currentScenario().value_or(CampaignScenarioID(0));
-			campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
-		}
+		assert(0);
+		return;
+	}
+
+	* si = * gh->gs->initialOpts;
+	si->seedToBeUsed = si->seedPostInit = 0;
+	setState(EServerState::LOBBY);
+	if (si->campState)
+	{
+		assert(si->campState->currentScenario().has_value());
+		campaignMap = si->campState->currentScenario().value_or(CampaignScenarioID(0));
+		campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
 	}
 	
 	for(auto c : activeConnections)
@@ -319,7 +325,7 @@ void CVCMIServer::startGameImmediately()
 		c->enterGameplayConnectionMode(gh->gs);
 
 	gh->start(si->mode == EStartMode::LOAD_GAME);
-	state = EServerState::GAMEPLAY;
+	setState(EServerState::GAMEPLAY);
 	lastTimerUpdateTime = gameplayStartTime = std::chrono::steady_clock::now();
 	onTimer();
 }
@@ -333,12 +339,11 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 
 	if(activeConnections.empty() || hostClientId == c->connectionID)
 	{
-		networkHandler->stop();
-		state = EServerState::SHUTDOWN;
+		setState(EServerState::SHUTDOWN);
 		return;
 	}
 
-	if(gh && state == EServerState::GAMEPLAY)
+	if(gh && getState() == EServerState::GAMEPLAY)
 	{
 		gh->handleClientDisconnection(c);
 
@@ -406,7 +411,7 @@ bool CVCMIServer::passHost(int toConnectionId)
 
 void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
-	assert(state == EServerState::LOBBY);
+	assert(getState() == EServerState::LOBBY);
 
 	c->connectionID = currentClientId++;
 
@@ -445,13 +450,6 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 {
 	c->getConnection()->close();
 	vstd::erase(activeConnections, c);
-
-	if(activeConnections.empty() || hostClientId == c->connectionID)
-	{
-		networkHandler->stop();
-		state = EServerState::SHUTDOWN;
-		return;
-	}
 
 //	PlayerReinitInterface startAiPack;
 //	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
@@ -494,7 +492,7 @@ void CVCMIServer::reconnectPlayer(int connId)
 	PlayerReinitInterface startAiPack;
 	startAiPack.playerConnectionId = connId;
 	
-	if(gh && si && state == EServerState::GAMEPLAY)
+	if(gh && si && getState() == EServerState::GAMEPLAY)
 	{
 		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
 		{
