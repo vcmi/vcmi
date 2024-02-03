@@ -217,7 +217,7 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 
 	if(activeProxies.count(connection))
 	{
-		auto & otherConnection = activeProxies.at(connection);
+		const auto & otherConnection = activeProxies.at(connection);
 
 		if (otherConnection)
 			otherConnection->close();

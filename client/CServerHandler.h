@@ -97,12 +97,16 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 {
 	friend class ApplyOnLobbyHandlerNetPackVisitor;
 
+	std::unique_ptr<INetworkHandler> networkHandler;
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> myNames;
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
+
+	boost::thread threadRunLocalServer;
+	boost::thread threadNetwork;
 
 	void threadRunNetwork();
 	void threadRunServer(bool connectToLobby);
@@ -123,8 +127,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	bool isServerLocal() const;
 
 public:
-	std::unique_ptr<INetworkHandler> networkHandler;
-
 	std::shared_ptr<CConnection> c;
 
 	std::atomic<EClientState> state;
@@ -140,9 +142,6 @@ public:
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;
-	boost::thread threadRunLocalServer;
-	boost::thread threadNetwork;
-
 	std::unique_ptr<CClient> client;
 
 	CServerHandler();
@@ -153,6 +152,7 @@ public:
 	void connectToServer(const std::string & addr, const ui16 port);
 
 	GlobalLobbyClient & getGlobalLobby();
+	INetworkHandler & getNetworkHandler();
 
 	// Helpers for lobby state access
 	std::set<PlayerColor> getHumanColors();

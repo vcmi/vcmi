@@ -37,5 +37,5 @@ class GlobalLobbyProcessor : public INetworkClientListener
 
 	void establishNewConnection();
 public:
-	GlobalLobbyProcessor(CVCMIServer & owner);
+	explicit GlobalLobbyProcessor(CVCMIServer & owner);
 };

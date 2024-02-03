@@ -78,14 +78,12 @@ public:
 
 	std::vector<LobbyGameRoom> getActiveGameRooms();
 	std::vector<LobbyAccount> getActiveAccounts();
-//	std::vector<LobbyAccount> getAccountsInRoom(const std::string & roomID);
 	std::vector<LobbyChatMessage> getRecentMessageHistory();
 
 	std::string getIdleGameRoom(const std::string & hostAccountID);
 	std::string getAccountGameRoom(const std::string & accountID);
 	std::string getAccountDisplayName(const std::string & accountID);
 
-//	LobbyCookieStatus getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID);
 	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID);
 	LobbyInviteStatus getAccountInviteStatus(const std::string & accountID, const std::string & roomID);
 	LobbyRoomState getGameRoomStatus(const std::string & roomID);

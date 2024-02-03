@@ -25,7 +25,6 @@ class NetworkConnection : public INetworkConnection, public std::enable_shared_f
 
 	void onHeaderReceived(const boost::system::error_code & ec);
 	void onPacketReceived(const boost::system::error_code & ec, uint32_t expectedPacketSize);
-	uint32_t readPacketSize();
 
 public:
 	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket);

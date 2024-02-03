@@ -206,7 +206,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
-	for(auto & c : srv.activeConnections)
+	for(const auto & c : srv.activeConnections)
 		c->enterLobbyConnectionMode();
 }
 
@@ -250,7 +250,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGam
 		srv.startGameImmediately();
 	else
 	{
-		for(auto & c : srv.activeConnections)
+		for(const auto & c : srv.activeConnections)
 		{
 			if(c->connectionID == pack.clientId)
 			{

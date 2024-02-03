@@ -177,7 +177,6 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		room.hostAccountID = jsonEntry["hostAccountID"].String();
 		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
 		room.description = jsonEntry["description"].String();
-//		room.status = jsonEntry["status"].String();
 		room.playersCount = jsonEntry["playersCount"].Integer();
 		room.playersLimit = jsonEntry["playersLimit"].Integer();
 
@@ -289,7 +288,7 @@ void GlobalLobbyClient::connect()
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
 	int16_t port = settings["lobby"]["port"].Integer();
-	CSH->networkHandler->connectToRemote(*this, hostname, port);
+	CSH->getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
 bool GlobalLobbyClient::isConnected()

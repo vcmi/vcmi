@@ -139,9 +139,9 @@ CServerHandler::~CServerHandler()
 }
 
 CServerHandler::CServerHandler()
-	: applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
+	: networkHandler(INetworkHandler::createHandler())
 	, lobbyClient(std::make_unique<GlobalLobbyClient>())
-	, networkHandler(INetworkHandler::createHandler())
+	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
 	, campaignStateToSend(nullptr)
@@ -185,6 +185,11 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 GlobalLobbyClient & CServerHandler::getGlobalLobby()
 {
 	return *lobbyClient;
+}
+
+INetworkHandler & CServerHandler::getNetworkHandler()
+{
+	return *networkHandler;
 }
 
 void CServerHandler::startLocalServerAndConnect(bool connectToLobby)

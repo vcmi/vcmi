@@ -29,24 +29,14 @@ void NetworkConnection::start()
 							[self = shared_from_this()](const auto & ec, const auto & endpoint) { self->onHeaderReceived(ec); });
 }
 
-void NetworkConnection::onHeaderReceived(const boost::system::error_code & ec)
+void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHeader)
 {
-	if (ec)
+	if (ecHeader)
 	{
-		listener.onDisconnected(shared_from_this(), ec.message());
+		listener.onDisconnected(shared_from_this(), ecHeader.message());
 		return;
 	}
 
-	uint32_t messageSize = readPacketSize();
-
-	boost::asio::async_read(*socket,
-							readBuffer,
-							boost::asio::transfer_exactly(messageSize),
-							[self = shared_from_this(), messageSize](const auto & ec, const auto & endpoint) { self->onPacketReceived(ec, messageSize); });
-}
-
-uint32_t NetworkConnection::readPacketSize()
-{
 	if (readBuffer.size() < messageHeaderSize)
 		throw std::runtime_error("Failed to read header!");
 
@@ -54,9 +44,15 @@ uint32_t NetworkConnection::readPacketSize()
 	readBuffer.sgetn(reinterpret_cast<char *>(&messageSize), sizeof(messageSize));
 
 	if (messageSize > messageMaxSize)
+	{
 		listener.onDisconnected(shared_from_this(), "Invalid packet size!");
+		return;
+	}
 
-	return messageSize;
+	boost::asio::async_read(*socket,
+							readBuffer,
+							boost::asio::transfer_exactly(messageSize),
+							[self = shared_from_this(), messageSize](const auto & ecPayload, const auto & endpoint) { self->onPacketReceived(ecPayload, messageSize); });
 }
 
 void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, uint32_t expectedPacketSize)
@@ -69,7 +65,7 @@ void NetworkConnection::onPacketReceived(const boost::system::error_code & ec, u
 
 	if (readBuffer.size() < expectedPacketSize)
 	{
-		throw std::runtime_error("Failed to read header!");
+		throw std::runtime_error("Failed to read packet!");
 	}
 
 	std::vector<std::byte> message(expectedPacketSize);

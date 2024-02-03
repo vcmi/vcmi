@@ -397,11 +397,6 @@ std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 	return result;
 }
 
-//LobbyCookieStatus LobbyDatabase::getGameRoomCookieStatus(const std::string & accountID, const std::string & accessCookieUUID)
-//{
-//	return {};
-//}
-
 LobbyCookieStatus LobbyDatabase::getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID)
 {
 	bool result = false;
