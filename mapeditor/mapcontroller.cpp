@@ -204,6 +204,15 @@ void MapController::repairMap(CMap * map) const
 				art->storedArtifact = a;
 			}
 		}
+		//fix mines 
+		if(auto * mine = dynamic_cast<CGMine*>(obj.get()))
+		{
+			if(!mine->isAbandoned())
+			{
+				mine->producedResource = GameResID(mine->subID);
+				mine->producedQuantity = mine->defaultResProduction();
+			}
+		}
 	}
 }
 
