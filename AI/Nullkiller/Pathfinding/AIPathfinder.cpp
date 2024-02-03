@@ -48,9 +48,10 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile, bool includeGra
 	{
 		for(auto hero : cb->getHeroesInfo())
 		{
-			auto & graph = heroGraphs.at(hero->id);
+			auto graph = heroGraphs.find(hero->id);
 
-			graph.addChainInfo(info, tile, hero, ai);
+			if(graph != heroGraphs.end())
+				graph->second.addChainInfo(info, tile, hero, ai);
 		}
 	}
 
@@ -140,10 +141,10 @@ void AIPathfinder::updateGraphs(std::map<const CGHeroInstance *, HeroRole> heroe
 	parallel_for(blocked_range<size_t>(0, heroesVector.size()), [&](const blocked_range<size_t> & r)
 		{
 			for(auto i = r.begin(); i != r.end(); i++)
-				heroGraphs[heroesVector[i]->id].calculatePaths(heroesVector[i], ai);
+				heroGraphs.at(heroesVector[i]->id).calculatePaths(heroesVector[i], ai);
 		});
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NKAI_GRAPH_TRACE_LEVEL >= 1
 	for(auto hero : heroes)
 	{
 		heroGraphs[hero.first->id].dumpToLog();

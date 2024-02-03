@@ -14,8 +14,10 @@ namespace NKAI
 {
 namespace AIPathfinding
 {
-	AIMovementToDestinationRule::AIMovementToDestinationRule(std::shared_ptr<AINodeStorage> nodeStorage)
-		: nodeStorage(nodeStorage)
+	AIMovementToDestinationRule::AIMovementToDestinationRule(
+		std::shared_ptr<AINodeStorage> nodeStorage,
+		bool allowBypassObjects)
+		: nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -37,15 +39,30 @@ namespace AIPathfinding
 			return;
 		}
 
-		if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->getAINode(source.node)->actor->allowBattle)
+		if(blocker == BlockingReason::SOURCE_GUARDED)
 		{
+			auto actor = nodeStorage->getAINode(source.node)->actor;
+
+			if(!allowBypassObjects)
+			{
+				if (source.node->getCost() == 0)
+					return;
+
+				// when actor represents moster graph node, we need to let him escape monster
+				if(!destination.guarded && cb->getGuardingCreaturePosition(source.coord) == actor->initialPosition)
+					return;
+			}
+
+			if(actor->allowBattle)
+			{
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 1
-			logAi->trace(
-				"Bypass src guard while moving from %s to %s",
-				source.coord.toString(),
-				destination.coord.toString());
+				logAi->trace(
+					"Bypass src guard while moving from %s to %s",
+					source.coord.toString(),
+					destination.coord.toString());
 #endif
-			return;
+				return;
+			}
 		}
 
 		destination.blocked = true;

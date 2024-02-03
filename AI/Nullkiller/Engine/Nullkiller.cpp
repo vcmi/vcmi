@@ -42,6 +42,8 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	this->cb = cb;
 	this->playerID = playerID;
 
+	baseGraph.reset();
+
 	priorityEvaluator.reset(new PriorityEvaluator(this));
 	priorityEvaluators.reset(
 		new SharedPool<PriorityEvaluator>(

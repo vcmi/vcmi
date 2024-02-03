@@ -13,6 +13,7 @@
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
+#include "../../../lib/logging/VisualLogger.h"
 
 namespace NKAI
 {
@@ -64,6 +65,14 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 
 	foreach_tile_pos(cb.get(), [&](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
 		{
+			if(nodes.find(pos) != nodes.end())
+				return;
+
+			auto guarded = ai->cb->getGuardingCreaturePosition(pos).valid();
+
+			if(guarded)
+				return;
+
 			auto paths = ai->pathfinder->getPathInfo(pos);
 
 			for(AIPath & path1 : paths)
@@ -76,9 +85,25 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 					auto obj1 = actorObjectMap[path1.targetHero];
 					auto obj2 = actorObjectMap[path2.targetHero];
 
-					nodes[obj1->visitablePos()].connections[obj2->visitablePos()].update(
+					auto danger = ai->pathfinder->getStorage()->evaluateDanger(obj2->visitablePos(), path1.targetHero, true);
+
+					auto updated = nodes[obj1->visitablePos()].connections[obj2->visitablePos()].update(
 						path1.movementCost() + path2.movementCost(),
-						path1.getPathDanger() + path2.getPathDanger());
+						danger);
+
+#if NKAI_GRAPH_TRACE_LEVEL >= 2
+					if(updated)
+					{
+						logAi->trace(
+							"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
+							obj1->getObjectName(), obj1->visitablePos().toString(),
+							obj2->getObjectName(), obj2->visitablePos().toString(),
+							pos.toString(),
+							path1.movementCost() + path2.movementCost());
+					}
+#else
+					(void)updated;
+#endif
 				}
 			}
 		});
@@ -87,6 +112,10 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 	{
 		delete h.first;
 	}
+
+#if NKAI_GRAPH_TRACE_LEVEL >= 1
+	dumpToLog("graph");
+#endif
 }
 
 void ObjectGraph::addObject(const CGObjectInstance * obj)
@@ -104,7 +133,7 @@ void ObjectGraph::connectHeroes(const Nullkiller * ai)
 		}
 	}
 
-	for(auto node : nodes)
+	for(auto & node : nodes)
 	{
 		auto pos = node.first;
 		auto paths = ai->pathfinder->getPathInfo(pos);
@@ -124,6 +153,29 @@ void ObjectGraph::connectHeroes(const Nullkiller * ai)
 	}
 }
 
+void ObjectGraph::dumpToLog(std::string visualKey) const
+{
+	logVisual->updateWithLock(visualKey, [&](IVisualLogBuilder & logBuilder)
+		{
+			for(auto & tile : nodes)
+			{
+				for(auto & node : tile.second.connections)
+				{
+#if NKAI_GRAPH_TRACE_LEVEL >= 2
+					logAi->trace(
+						"%s -> %s: %f !%d",
+						node.first.toString(),
+						tile.first.toString(),
+						node.second.cost,
+						node.second.danger);
+#endif
+
+					logBuilder.addLine(node.first, tile.first);
+				}
+			}
+		});
+}
+
 bool GraphNodeComparer::operator()(const GraphPathNodePointer & lhs, const GraphPathNodePointer & rhs) const
 {
 	return pathNodes.at(lhs.coord)[lhs.nodeType].cost > pathNodes.at(rhs.coord)[rhs.nodeType].cost;
@@ -134,6 +186,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 	graph = *ai->baseGraph;
 	graph.connectHeroes(ai);
 
+	visualKey = std::to_string(ai->playerID) + ":" + targetHero->getNameTranslated();
 	pathNodes.clear();
 
 	GraphNodeComparer cmp(pathNodes);
@@ -153,11 +206,17 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		graph.iterateConnections(pos.coord, [&](int3 target, ObjectLink o)
 			{
-				auto targetPointer = GraphPathNodePointer(target, pos.nodeType);
+				auto graphNode = graph.getNode(target);
+				auto targetNodeType = o.danger ? GrapthPathNodeType::BATTLE : pos.nodeType;
+
+				auto targetPointer = GraphPathNodePointer(target, targetNodeType);
 				auto & targetNode = getNode(targetPointer);
 
 				if(targetNode.tryUpdate(pos, node, o))
 				{
+					if(graph.getNode(target).objTypeID == Obj::HERO)
+						return;
+
 					if(targetNode.isInQueue)
 					{
 						pq.increase(targetNode.handle);
@@ -174,21 +233,28 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 void GraphPaths::dumpToLog() const
 {
-	for(auto & tile : pathNodes)
-	{
-		for(auto & node : tile.second)
+	logVisual->updateWithLock(visualKey, [&](IVisualLogBuilder & logBuilder)
 		{
-			if(!node.previous.valid())
-				continue;
+			for(auto & tile : pathNodes)
+			{
+				for(auto & node : tile.second)
+				{
+					if(!node.previous.valid())
+						continue;
 
-			logAi->trace(
-				"%s -> %s: %f !%d",
-				node.previous.coord.toString(),
-				tile.first.toString(),
-				node.cost,
-				node.danger);
-		}
-	}
+#if NKAI_GRAPH_TRACE_LEVEL >= 2
+					logAi->trace(
+						"%s -> %s: %f !%d",
+						node.previous.coord.toString(),
+						tile.first.toString(),
+						node.cost,
+						node.danger);
+#endif
+
+					logBuilder.addLine(node.previous.coord, tile.first);
+				}
+			}
+		});
 }
 
 bool GraphPathNode::tryUpdate(const GraphPathNodePointer & pos, const GraphPathNode & prev, const ObjectLink & link)
@@ -197,6 +263,11 @@ bool GraphPathNode::tryUpdate(const GraphPathNodePointer & pos, const GraphPathN
 
 	if(newCost < cost)
 	{
+		if(nodeType < pos.nodeType)
+		{
+			logAi->error("Linking error");
+		}
+
 		previous = pos;
 		danger = prev.danger + link.danger;
 		cost = newCost;
@@ -214,7 +285,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 	if(nodes == pathNodes.end())
 		return;
 
-	for(auto & node : (*nodes).second)
+	for(auto & node : nodes->second)
 	{
 		if(!node.reachable())
 			continue;
@@ -235,6 +306,9 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				break;
 
 			auto currentNode = currentTile->second[current.nodeType];
+
+			if(currentNode.cost == 0)
+				break;
 
 			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
 			vstd::amax(danger, currentNode.danger);

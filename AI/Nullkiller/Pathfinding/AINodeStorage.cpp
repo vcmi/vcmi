@@ -1123,14 +1123,14 @@ void AINodeStorage::calculateTownPortal(
 	{
 		for(const CGTownInstance * targetTown : towns)
 		{
-			// TODO: allow to hide visiting hero in garrison
-			if(targetTown->visitingHero && maskMap.find(targetTown->visitingHero.get()) != maskMap.end())
+			if(targetTown->visitingHero
+				&& targetTown->getUpperArmy()->stacksCount()
+				&& maskMap.find(targetTown->visitingHero.get()) != maskMap.end())
 			{
 				auto basicMask = maskMap.at(targetTown->visitingHero.get());
-				bool heroIsInChain = (actor->chainMask & basicMask) != 0;
 				bool sameActorInTown = actor->chainMask == basicMask;
 
-				if(sameActorInTown || !heroIsInChain)
+				if(!sameActorInTown)
 					continue;
 			}
 

@@ -21,7 +21,9 @@ void VisualLogger::updateWithLock(std::string channel, std::function<void(IVisua
 
 	mapLines[channel].clear();
 
-	func(VisualLogBuilder(mapLines[channel]));
+	VisualLogBuilder builder(mapLines[channel]);
+	
+	func(builder);
 }
 
 void VisualLogger::visualize(ILogVisualizer & visulizer)

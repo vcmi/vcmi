@@ -224,7 +224,11 @@ void ObjectClusterizer::clusterize()
 		ai->memory->visitableObjs.begin(),
 		ai->memory->visitableObjs.end());
 
+#if NKAI_TRACE_LEVEL == 0
 	parallel_for(blocked_range<size_t>(0, objs.size()), [&](const blocked_range<size_t> & r)
+#else
+	blocked_range<size_t> r(0, objs.size());
+#endif
 	{
 		auto priorityEvaluator = ai->priorityEvaluators->acquire();
 
@@ -255,9 +259,9 @@ void ObjectClusterizer::clusterize()
 			}
 
 			std::sort(paths.begin(), paths.end(), [](const AIPath & p1, const AIPath & p2) -> bool
-			{
-				return p1.movementCost() < p2.movementCost();
-			});
+				{
+					return p1.movementCost() < p2.movementCost();
+				});
 
 			if(vstd::contains(ignoreObjects, obj->ID))
 			{
@@ -348,7 +352,11 @@ void ObjectClusterizer::clusterize()
 #endif
 			}
 		}
+#if NKAI_TRACE_LEVEL == 0
 	});
+#else
+	}
+#endif
 
 	logAi->trace("Near objects count: %i", nearObjects.objects.size());
 	logAi->trace("Far objects count: %i", farObjects.objects.size());

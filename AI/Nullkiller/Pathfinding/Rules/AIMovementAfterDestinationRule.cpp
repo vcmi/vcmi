@@ -48,7 +48,7 @@ namespace AIPathfinding
 
 			return;
 		}
-
+		
 		if(!allowBypassObjects)
 			return;
 

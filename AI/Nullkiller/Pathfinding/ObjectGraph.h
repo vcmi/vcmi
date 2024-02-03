@@ -23,19 +23,24 @@ struct ObjectLink
 	float cost = 100000; // some big number
 	uint64_t danger = 0;
 
-	void update(float newCost, uint64_t newDanger)
+	bool update(float newCost, uint64_t newDanger)
 	{
 		if(cost > newCost)
 		{
 			cost = newCost;
 			danger = newDanger;
+
+			return true;
 		}
+
+		return false;
 	}
 };
 
 struct ObjectNode
 {
 	ObjectInstanceID objID;
+	MapObjectID objTypeID;
 	bool objectExists;
 	std::unordered_map<int3, ObjectLink> connections;
 
@@ -43,6 +48,7 @@ struct ObjectNode
 	{
 		objectExists = true;
 		objID = obj->id;
+		objTypeID = obj->ID;
 	}
 };
 
@@ -54,14 +60,20 @@ public:
 	void updateGraph(const Nullkiller * ai);
 	void addObject(const CGObjectInstance * obj);
 	void connectHeroes(const Nullkiller * ai);
+	void dumpToLog(std::string visualKey) const;
 
 	template<typename Func>
 	void iterateConnections(const int3 & pos, Func fn)
 	{
-		for(auto connection : nodes.at(pos).connections)
+		for(auto & connection : nodes.at(pos).connections)
 		{
 			fn(connection.first, connection.second);
 		}
+	}
+
+	const ObjectNode & getNode(int3 tile) const
+	{
+		return nodes.at(tile);
 	}
 };
 
@@ -134,6 +146,7 @@ class GraphPaths
 {
 	ObjectGraph graph;
 	GraphNodeStorage pathNodes;
+	std::string visualKey;
 
 public:
 	void calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai);
@@ -143,7 +156,11 @@ public:
 private:
 	GraphPathNode & getNode(const GraphPathNodePointer & pos)
 	{
-		return pathNodes[pos.coord][pos.nodeType];
+		auto & node = pathNodes[pos.coord][pos.nodeType];
+
+		node.nodeType = pos.nodeType;
+
+		return node;
 	}
 };
 
