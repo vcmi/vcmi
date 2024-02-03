@@ -29,7 +29,6 @@ class TurnTimerHandler
 	std::map<PlayerColor, TurnTimerInfo> timers;
 	std::map<PlayerColor, int> lastUpdate;
 	std::map<PlayerColor, bool> endTurnAllowed;
-	std::recursive_mutex mx;
 	
 	void onPlayerMakingTurn(PlayerColor player, int waitTime);
 	void onBattleLoop(const BattleID & battleID, int waitTime);

@@ -247,7 +247,6 @@ void CVCMIServer::prepareToRestart()
 	for(auto c : activeConnections)
 		c->enterLobbyConnectionMode();
 
-	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 	gh = nullptr;
 }
 
@@ -407,8 +406,7 @@ bool CVCMIServer::passHost(int toConnectionId)
 
 void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
-	if(state != EServerState::LOBBY)
-		throw std::runtime_error("CVCMIServer::clientConnected called while game is not accepting clients!");
+	assert(state == EServerState::LOBBY);
 
 	c->connectionID = currentClientId++;
 
@@ -945,6 +943,10 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 		if(!si->getPlayersSettings(i->first))
 			return i->first;
 	}
-
 	return 0;
+}
+
+INetworkHandler & CVCMIServer::getNetworkHandler()
+{
+	return *networkHandler;
 }

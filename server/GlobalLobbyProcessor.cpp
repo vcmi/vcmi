@@ -24,7 +24,7 @@ void GlobalLobbyProcessor::establishNewConnection()
 {
 	std::string hostname = settings["lobby"]["hostname"].String();
 	int16_t port = settings["lobby"]["port"].Integer();
-	owner.networkHandler->connectToRemote(*this, hostname, port);
+	owner.getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
 void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)

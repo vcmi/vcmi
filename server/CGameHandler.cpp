@@ -983,10 +983,7 @@ void CGameHandler::start(bool resume)
 		for (PlayerColor color : players)
 		{
 			sbuffer << color << " ";
-			{
-				boost::unique_lock<boost::recursive_mutex> lock(gsm);
-				connections[color].insert(cc);
-			}
+			connections[color].insert(cc);
 		}
 		logGlobal->info(sbuffer.str());
 	}
@@ -3183,8 +3180,6 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 
 bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
-	boost::unique_lock<boost::recursive_mutex> lock(gsm);
-
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
 	if (answer)
 		logGlobal->trace("%d", *answer);

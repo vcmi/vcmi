@@ -57,16 +57,10 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	std::chrono::steady_clock::time_point gameplayStartTime;
 	std::chrono::steady_clock::time_point lastTimerUpdateTime;
 
-public:
-	/// List of all active connections
-	std::vector<std::shared_ptr<CConnection>> activeConnections;
-
 	std::unique_ptr<INetworkHandler> networkHandler;
 
-private:
 	bool restartGameplay; // FIXME: this is just a hack
 
-	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	EServerState state;
 
@@ -76,6 +70,9 @@ private:
 	ui8 currentPlayerId;
 
 public:
+	/// List of all active connections
+	std::vector<std::shared_ptr<CConnection>> activeConnections;
+
 	// INetworkListener impl
 	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) override;
 	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message) override;
@@ -109,12 +106,13 @@ public:
 	void clientDisconnected(std::shared_ptr<CConnection> c);
 	void reconnectPlayer(int connId);
 
-public:
 	void announceMessage(const std::string & txt);
 
 	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);
 
 	void updateAndPropagateLobbyState();
+
+	INetworkHandler & getNetworkHandler();
 
 	void setState(EServerState value);
 	EServerState getState() const;
