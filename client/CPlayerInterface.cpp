@@ -49,15 +49,14 @@
 #include "widgets/CComponent.h"
 #include "widgets/CGarrisonInt.h"
 
-#include "windows/CAltarWindow.h"
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CHeroWindow.h"
 #include "windows/CKingdomInterface.h"
+#include "windows/CMarketWindow.h"
 #include "windows/CPuzzleWindow.h"
 #include "windows/CQuestLog.h"
 #include "windows/CSpellWindow.h"
-#include "windows/CTradeWindow.h"
 #include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
 #include "windows/InfoWindows.h"
@@ -450,7 +449,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto mw : GH.windows().findWindows<CMarketplaceWindow>())
+	for (auto mw : GH.windows().findWindows<CMarketWindow>())
 		mw->resourceChanged();
 
 	GH.windows().totalRedraw();
@@ -1669,13 +1668,13 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	};
 
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
-		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::ARTIFACT_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
-		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
 		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor, onWindowClosed);
 	else if(!market->availableModes().empty())
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(market, visitor, onWindowClosed, market->availableModes().front());
+		GH.windows().createAndPushWindow<CMarketWindow>(market, visitor, onWindowClosed, market->availableModes().front());
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID)
@@ -1696,8 +1695,8 @@ void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for (auto cmw : GH.windows().findWindows<CMarketplaceWindow>())
-		cmw->artifactsChanged(false);
+	for (auto cmw : GH.windows().findWindows<CMarketWindow>())
+		cmw->artifactsChanged();
 }
 
 void CPlayerInterface::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)

@@ -214,16 +214,6 @@ void CTradeWindow::setMode(EMarketMode Mode)
 
 	onWindowClosed = nullptr; // don't call on closing of this window - pass it to next window
 	close();
-
-	switch(Mode)
-	{
-	case EMarketMode::CREATURE_EXP:
-	case EMarketMode::ARTIFACT_EXP:
-		break;
-	default:
-		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, functor, Mode);
-		break;
-	}
 }
 
 void CTradeWindow::artifactSelected(CArtPlace * slot)
@@ -265,8 +255,6 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	madeTransaction = false;
 	bool sliderNeeded = (mode != EMarketMode::RESOURCE_ARTIFACT && mode != EMarketMode::ARTIFACT_RESOURCE);
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
-
 	std::string title;
 
 	if(auto * o = dynamic_cast<const CGTownInstance *>(market))
@@ -307,7 +295,6 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	initItems(false);
 	initItems(true);
 
-	ok = std::make_shared<CButton>(Point(516, 520), AnimationPath::builtin("IOK6432.DEF"), CGI->generaltexth->zelp[600], [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 	deal = std::make_shared<CButton>(Point(307, 520), AnimationPath::builtin("TPMRKB.DEF"), CGI->generaltexth->zelp[595], [&](){ makeDeal(); } );
 	deal->block(true);
 
@@ -360,17 +347,6 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 
 	traderText = std::make_shared<CTextBox>("", traderTextRect, 0, FONT_SMALL, ETextAlignment::CENTER);
 	int specialOffset = mode == EMarketMode::ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
-
-	if(printButtonFor(EMarketMode::RESOURCE_PLAYER))
-		buttons.push_back(std::make_shared<CButton>(Point(18, 520),AnimationPath::builtin("TPMRKBU1.DEF"), CGI->generaltexth->zelp[612], [&](){ setMode(EMarketMode::RESOURCE_PLAYER);}));
-	if(printButtonFor(EMarketMode::RESOURCE_RESOURCE))
-		buttons.push_back(std::make_shared<CButton>(Point(516, 450 + specialOffset),AnimationPath::builtin("TPMRKBU5.DEF"), CGI->generaltexth->zelp[605], [&](){ setMode(EMarketMode::RESOURCE_RESOURCE);}));
-	if(printButtonFor(EMarketMode::CREATURE_RESOURCE))
-		buttons.push_back(std::make_shared<CButton>(Point(516, 485),AnimationPath::builtin("TPMRKBU4.DEF"), CGI->generaltexth->zelp[599], [&](){ setMode(EMarketMode::CREATURE_RESOURCE);}));
-	if(printButtonFor(EMarketMode::RESOURCE_ARTIFACT))
-		buttons.push_back(std::make_shared<CButton>(Point(18, 450 + specialOffset),AnimationPath::builtin("TPMRKBU2.DEF"), CGI->generaltexth->zelp[598], [&](){ setMode(EMarketMode::RESOURCE_ARTIFACT);}));
-	if(printButtonFor(EMarketMode::ARTIFACT_RESOURCE))
-		buttons.push_back(std::make_shared<CButton>(Point(18, 485),AnimationPath::builtin("TPMRKBU3.DEF"), CGI->generaltexth->zelp[613], [&](){ setMode(EMarketMode::ARTIFACT_RESOURCE);}));
 
 	updateTraderText();
 }
@@ -509,29 +485,6 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	redraw();
 }
 
-bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
-{
-	if (!market->allowsTrade(M))
-		return false;
-
-	if (M == mode)
-		return false;
-
-	if ( M == EMarketMode::RESOURCE_RESOURCE || M == EMarketMode::RESOURCE_PLAYER)
-	{
-		auto * town = dynamic_cast<const CGTownInstance *>(market);
-
-		if (town)
-			return town->getOwner() == LOCPLINT->playerID;
-		else
-			return true;
-	}
-	else
-	{
-		return hero != nullptr;
-	}
-}
-
 void CMarketplaceWindow::updateGarrison()
 {
 	if(mode != EMarketMode::CREATURE_RESOURCE)
@@ -621,11 +574,6 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 
 	assert(0);
 	return Point(0,0);
-}
-
-void CMarketplaceWindow::resourceChanged()
-{
-	initSubs(true);
 }
 
 void CMarketplaceWindow::updateTraderText()

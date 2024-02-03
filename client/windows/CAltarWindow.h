@@ -9,32 +9,22 @@
  */
 #pragma once
 
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/markets/CAltarArtifacts.h"
 #include "../widgets/markets/CAltarCreatures.h"
-#include "../widgets/CWindowWithArtifacts.h"
-#include "CWindowObject.h"
 
-class CAltarWindow : public CWindowObject, public CWindowWithArtifacts, public IGarrisonHolder
+class CExperienceAltar;
+
+class CAltarWindow : public CWindowWithArtifacts, public IGarrisonHolder
 {
 public:
-	CAltarWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode);
 	void updateExpToLevel();
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
-	const CGHeroInstance * getHero() const;
-	void close() override;
+	virtual const CGHeroInstance * getHero() const = 0;
 
 	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;
-	void showAll(Canvas & to) override;
+	//void showAll(Canvas & to) override;
 
-private:
-	const CGHeroInstance * hero;
 	std::shared_ptr<CExperienceAltar> altar;
-	std::shared_ptr<CButton> changeModeButton;
-	std::shared_ptr<CButton> quitButton;
-	std::function<void()> windowClosedCallback;
-	std::shared_ptr<CGStatusBar> statusBar;
-
-	void createAltarArtifacts(const IMarket * market, const CGHeroInstance * hero);
-	void createAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
 };

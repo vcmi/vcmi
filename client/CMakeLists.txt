@@ -135,6 +135,7 @@ set(client_SRCS
 	windows/CHeroWindow.cpp
 	windows/CKingdomInterface.cpp
 	windows/CMapOverview.cpp
+	windows/CMarketWindow.cpp
 	windows/CMessage.cpp
 	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
@@ -320,6 +321,7 @@ set(client_HEADERS
 	windows/CKingdomInterface.h
 	windows/CMessage.h
 	windows/CMapOverview.h
+	windows/CMarketWindow.h
 	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h

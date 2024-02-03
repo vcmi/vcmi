@@ -55,8 +55,6 @@ class CMarketplaceWindow : public CTradeWindow
 	std::shared_ptr<CLabel> titleLabel;
 	std::shared_ptr<CArtifactsOfHeroMarket> arts;
 
-	bool printButtonFor(EMarketMode M) const;
-
 	ImagePath getBackgroundForMode(EMarketMode mode);
 public:
 	int r1, r2; //suggested amounts of traded resources
@@ -75,6 +73,5 @@ public:
 
 	void updateGarrison() override; //removes creatures with count 0 from the list (apparently whole stack has been sold)
 	void artifactsChanged(bool left) override;
-	void resourceChanged();
 	void updateTraderText();
 };
