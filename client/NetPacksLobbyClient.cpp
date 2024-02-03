@@ -16,6 +16,7 @@
 #include "lobby/OptionsTab.h"
 #include "lobby/RandomMapTab.h"
 #include "lobby/TurnOptionsTab.h"
+#include "lobby/ExtraOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
 
@@ -98,6 +99,9 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 		break;
 	case LobbyGuiAction::OPEN_TURN_OPTIONS:
 		lobby->toggleTab(lobby->tabTurnOptions);
+		break;
+	case LobbyGuiAction::OPEN_EXTRA_OPTIONS:
+		lobby->toggleTab(lobby->tabExtraOptions);
 		break;
 	}
 }

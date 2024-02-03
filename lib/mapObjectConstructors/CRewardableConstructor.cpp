@@ -31,9 +31,9 @@ bool CRewardableConstructor::hasNameTextID() const
 	return !objectInfo.getParameters()["name"].isNull();
 }
 
-CGObjectInstance * CRewardableConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+CGObjectInstance * CRewardableConstructor::create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const
 {
-	auto * ret = new CRewardableObject();
+	auto * ret = new CRewardableObject(cb);
 	preInitObject(ret);
 	ret->appearance = tmpl;
 	ret->blockVisit = blockVisit;
@@ -44,7 +44,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 {
 	if(auto * rewardableObject = dynamic_cast<CRewardableObject*>(object))
 	{
-		objectInfo.configureObject(rewardableObject->configuration, rng);
+		objectInfo.configureObject(rewardableObject->configuration, rng, object->cb);
 		for(auto & rewardInfo : rewardableObject->configuration.info)
 		{
 			for (auto & bonus : rewardInfo.reward.bonuses)

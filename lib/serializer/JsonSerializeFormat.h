@@ -144,7 +144,9 @@ public:
 		const std::set<si32> & standard;
 		const TDecoder decoder;
 		const TEncoder encoder;
-		std::set<si32> all, any, none;
+		std::set<si32> all;
+		std::set<si32> any;
+		std::set<si32> none;
 	};
 
 	const bool saving;

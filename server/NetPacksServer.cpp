@@ -134,13 +134,15 @@ void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 
 void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
-	gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
+	if(gh.getHero(pack.src.artHolder))
+		gh.throwIfWrongPlayer(&pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
 	result = gh.moveArtifact(pack.src, pack.dst);
 }
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	gh.throwIfWrongOwner(&pack, pack.srcHero);
+	if(dynamic_cast<const IMarket*>(gh.getObj(pack.srcHero)) == nullptr)
+		gh.throwIfWrongOwner(&pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(&pack, pack.dstHero);
 	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
@@ -260,9 +262,9 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	}
 	case EMarketMode::ARTIFACT_EXP:
 	{
-		std::vector<ArtifactPosition> positions;
-		for(auto const & slot : pack.r1)
-			positions.push_back(slot.as<ArtifactPosition>());
+		std::vector<ArtifactInstanceID> positions;
+		for(auto const & artInstId : pack.r1)
+			positions.push_back(artInstId.as<ArtifactInstanceID>());
 
 		result = gh.sacrificeArtifact(market, hero, positions);
 		return;
@@ -282,7 +284,7 @@ void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
 
-	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player);
+	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player, pack.nhid);
 }
 
 void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
@@ -327,9 +329,9 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.hid);
 
-	const CSpell * s = pack.sid.toSpell();
-	if(!s)
+	if (!pack.sid.hasValue())
 		gh.throwNotAllowedAction(&pack);
+
 	const CGHeroInstance * h = gh.getHero(pack.hid);
 	if(!h)
 		gh.throwNotAllowedAction(&pack);
@@ -338,6 +340,7 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 	p.caster = h;
 	p.pos = pack.pos;
 
+	const CSpell * s = pack.sid.toSpell();
 	result = s->adventureCast(gh.spellEnv, p);
 }
 

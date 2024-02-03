@@ -38,7 +38,7 @@ public:
 	std::optional<CGDwellingRandomizationInfo> randomizationInfo; //random dwelling options; not serialized
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
-	CGDwelling();
+	CGDwelling(IGameCallback *cb);
 	~CGDwelling() override;
 
 protected:
@@ -61,7 +61,7 @@ private:
 	void heroAcceptsCreatures(const CGHeroInstance *h) const;
 
 public:
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & creatures;

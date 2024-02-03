@@ -102,13 +102,13 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 		return false;
 	}
 
-	const CSpell * s = ba.spell.toSpell();
-	if (!s)
+	if (!ba.spell.hasValue())
 	{
 		logGlobal->error("Wrong spell id (%d)!", ba.spell.getNum());
 		return false;
 	}
 
+	const CSpell * s = ba.spell.toSpell();
 	spells::BattleCast parameters(&battle, h, spells::Mode::HERO, s);
 
 	spells::detail::ProblemImpl problem;
@@ -404,7 +404,7 @@ bool BattleActionProcessor::doCatapultAction(const CBattleInfoCallback & battle,
 	if (!canStackAct(battle, stack))
 		return false;
 
-	std::shared_ptr<const Bonus> catapultAbility = stack->getBonusLocalFirst(Selector::type()(BonusType::CATAPULT));
+	std::shared_ptr<const Bonus> catapultAbility = stack->getFirstBonus(Selector::type()(BonusType::CATAPULT));
 	if(!catapultAbility || catapultAbility->subtype == BonusSubtypeID())
 	{
 		gameHandler->complain("We do not know how to shoot :P");
@@ -492,7 +492,7 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	}
 
 	const battle::Unit * destStack = nullptr;
-	std::shared_ptr<const Bonus> healerAbility = stack->getBonusLocalFirst(Selector::type()(BonusType::HEALER));
+	std::shared_ptr<const Bonus> healerAbility = stack->getFirstBonus(Selector::type()(BonusType::HEALER));
 
 	if(target.at(0).unitValue)
 		destStack = target.at(0).unitValue;
@@ -975,7 +975,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			drainedLife += applyBattleEffects(battle, bat, attackerState, fireShield, stack, distance, true);
 	}
 
-	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 	if(bonus && ranged) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation

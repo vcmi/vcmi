@@ -14,6 +14,7 @@
 #include "../mapping/CMap.h"
 #include "../CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CQuest.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

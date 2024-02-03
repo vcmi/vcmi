@@ -6,84 +6,84 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished">VCMI en Discord</translation>
+        <translation>VCMI en Discord</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished">¿Tienes alguna pregunta? ¿Encontraste algún error? ¿Quieres ayudar? ¡Únete a nosotros!</translation>
+        <translation>¿Tienes alguna pregunta? ¿Encontraste algún error? ¿Quieres ayudar? ¡Únete a nosotros!</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished">VCMI en Github</translation>
+        <translation>VCMI en Github</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="55"/>
         <source>Our Community</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuestra comunidad</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="62"/>
         <source>VCMI on Slack</source>
-        <translation type="unfinished">VCMI en Slack</translation>
+        <translation>VCMI en Slack</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="98"/>
         <source>Build Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Información de la versión</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="115"/>
         <source>User data directory</source>
-        <translation type="unfinished">Directorio de datos del usuario</translation>
+        <translation>Directorio de datos del usuario</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="122"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="129"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="193"/>
         <source>Open</source>
-        <translation type="unfinished">Abrir</translation>
+        <translation>Abrir</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="136"/>
         <source>Check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprobar actualizaciones</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="156"/>
         <source>Game version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versión del juego</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="163"/>
         <source>Log files directory</source>
-        <translation type="unfinished">Directorio de archivos de registro</translation>
+        <translation>Directorio de archivos de registro</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="176"/>
         <source>Data Directories</source>
-        <translation type="unfinished">Directorios de datos</translation>
+        <translation>Directorios de datos</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="213"/>
         <source>Game data directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Directorio de los datos del juego</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Operating System</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistema operativo</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="273"/>
         <source>Project homepage</source>
-        <translation type="unfinished"></translation>
+        <translation>Página web del proyecto</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="286"/>
         <source>Report a bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Informar de un error</translation>
     </message>
 </context>
 <context>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapas</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
@@ -180,7 +180,7 @@
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Compatibilidad</translation>
+        <translation>Compatibilidad</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistmodel_moc.cpp" line="63"/>
@@ -319,7 +319,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="292"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="294"/>
@@ -410,12 +410,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="638"/>
         <source>Downloading %s%. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Descargando %s%. %p% (%v MB de %m MB) completado</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="665"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Descarga fallida</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="666"/>
@@ -424,30 +424,37 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>No se han podido descargar todos los ficheros.
+
+Errores encontrados:
+
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="667"/>
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Instalar lo correctamente descargado?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="812"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalando mod %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="874"/>
         <source>Operation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Operación fallida</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="875"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Errores encontrados:
+</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="910"/>
@@ -482,94 +489,94 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="230"/>
         <source>Interface Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala de la interfaz</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="394"/>
         <source>Neutral AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>IA neutral en batallas</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="169"/>
         <source>Enemy AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>IA enemiga en batallas</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="176"/>
         <source>Additional repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Repositorio adicional</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="210"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished"></translation>
+        <translation>Aliados en el Mapa de aventuras</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished"></translation>
+        <translation>Enemigos en el Mapa de aventuras</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="428"/>
         <source>Windowed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ventana</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="433"/>
         <source>Borderless fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Ventana completa sin bordes</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="438"/>
         <source>Exclusive fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Pantalla completa</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>Autosave limit (0 = off)</source>
-        <translation type="unfinished"></translation>
+        <translation>Límite de autosaves (0 = sin límite)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="401"/>
         <source>Friendly AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>IA amistosa en batallas</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="370"/>
         <source>Framerate Limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Límite de fotogramas</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="460"/>
         <source>Autosave prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefijo autoguardado</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>empty = map name prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Vacio = prefijo del mapa</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="607"/>
         <source>Refresh now</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizar</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="614"/>
         <source>Default repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Repositorio por defecto</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="624"/>
         <source>Renderer</source>
-        <translation type="unfinished"></translation>
+        <translation>Render</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="246"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="476"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="544"/>
         <source>On</source>
-        <translation>Encendido</translation>
+        <translation>Activado</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="115"/>
@@ -584,7 +591,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="349"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished"></translation>
+        <translation>Área de pantalla reservada</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="155"/>
@@ -614,7 +621,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translation>Sincronización vertical</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="135"/>
@@ -640,7 +647,13 @@ Windowed - game will run inside a window that covers part of your screen
 Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
 
 Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona el modo de visualización del juego
+
+En ventana - el juego se ejecutará dentro de una ventana que forma parte de tu pantalla.
+
+Ventana sin bordes - el juego se ejecutará en una ventana que cubre completamente tu pantalla, usando la misma resolución.
+
+Pantalla completa - el juego cubrirá la totalidad de la pantalla y utilizará la resolución seleccionada.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="522"/>
@@ -698,27 +711,27 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../lobby/chat_moc.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulario</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="40"/>
         <source>Users in lobby</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuarios en la sala</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="50"/>
         <source>Global chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Chat general</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="104"/>
         <source>type you message</source>
-        <translation type="unfinished"></translation>
+        <translation>Escribe tu mensaje</translation>
     </message>
     <message>
         <location filename="../lobby/chat_moc.ui" line="111"/>
         <source>send</source>
-        <translation type="unfinished"></translation>
+        <translation>Enviar</translation>
     </message>
 </context>
 <context>
@@ -792,12 +805,12 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished"></translation>
+        <translation>Mejora de la interfaz</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar mod que proporciona varias mejoras en la interfaz, como mejor interacción en los mapas aleatorios y más opciones en las batallas</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
@@ -907,6 +920,16 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <source>Finish</source>
         <translation>Finalizar</translation>
     </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Heroes III installation found!</source>
+        <translation>Instalación de Heroes III encontrada!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Copy data to VCMI folder?</source>
+        <translation>Copiar datos a la carpeta VCMI?</translation>
+    </message>
 </context>
 <context>
     <name>ImageViewer</name>
@@ -921,7 +944,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translation>Czech (Checo)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
@@ -936,7 +959,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Finnish</source>
-        <translation type="unfinished"></translation>
+        <translation>Finnish (Finlandés)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
@@ -951,12 +974,12 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Hungarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Hungarian (Húngaro)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation>Italian (Italiano)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
@@ -971,7 +994,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Portuguese</source>
-        <translation type="unfinished"></translation>
+        <translation>Portuguese (Portugués)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
@@ -986,12 +1009,12 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Swedish</source>
-        <translation type="unfinished"></translation>
+        <translation>Swedish (Sueco)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Turkish</source>
-        <translation type="unfinished"></translation>
+        <translation>Turkish (Turco)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
@@ -1001,7 +1024,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation>Vietnamese (Vietnamita)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1011,12 +1034,12 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="41"/>
         <source>Other (Cyrillic Script)</source>
-        <translation type="unfinished"></translation>
+        <translation>Otro (Escritura cirílica)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="42"/>
         <source>Other (West European)</source>
-        <translation type="unfinished"></translation>
+        <translation>Otro (Europa del Este)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="64"/>
@@ -1028,7 +1051,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <name>Lobby</name>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="402"/>
+        <location filename="../lobby/lobby_moc.cpp" line="403"/>
         <source>Connect</source>
         <translation>Conectar</translation>
     </message>
@@ -1103,12 +1126,12 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation>Jugadores en la sala</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="369"/>
+        <location filename="../lobby/lobby_moc.cpp" line="370"/>
         <source>Disconnect</source>
         <translation>Desconectar</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="462"/>
+        <location filename="../lobby/lobby_moc.cpp" line="463"/>
         <source>No issues detected</source>
         <translation>No se han detectado problemas</translation>
     </message>
@@ -1151,7 +1174,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../mainwindow_moc.ui" line="207"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="276"/>

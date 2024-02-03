@@ -74,33 +74,45 @@ option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
 
+option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
+
+if(ENABLE_COLORIZED_COMPILER_OUTPUT)
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fcolor-diagnostics)
+	elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		add_compile_options(-fdiagnostics-color=always)
+	endif()
+endif()
+
 # Used for Snap packages and also useful for debugging
 if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 endif()
 
-# On Linux, use -DCMAKE_CXX_COMPILER_LAUNCHER=ccache instead.
-# The XCode and MSVC builds each require some more configuration, which is enabled by the following option:
-if(MSVC OR (CMAKE_GENERATOR STREQUAL "Xcode"))
-  option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+if(ENABLE_CCACHE)
+	find_program(CCACHE ccache REQUIRED)
+endif()
+
+# The XCode and MSVC builds each require some more configuration further down.
+if(ENABLE_CCACHE)
+	set(CMAKE_C_COMPILER_LAUNCHER "ccache")
+	set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
 endif()
 
 if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
-	find_program(CCACHE ccache REQUIRED)
-	if(CCACHE)
-		# https://stackoverflow.com/a/36515503/2278742
-		# Set up wrapper scripts
-		configure_file(xcode/launch-c.in   xcode/launch-c)
-		configure_file(xcode/launch-cxx.in xcode/launch-cxx)
-		execute_process(COMMAND chmod a+rx
-												"${CMAKE_BINARY_DIR}/xcode/launch-c"
-												"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-		# Set Xcode project attributes to route compilation through our scripts
-		set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-		set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
-		set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
-	endif()
+	# https://stackoverflow.com/a/36515503/2278742
+	# Set up wrapper scripts
+	configure_file(xcode/launch-c.in   xcode/launch-c)
+	configure_file(xcode/launch-cxx.in xcode/launch-cxx)
+	execute_process(COMMAND chmod a+rx
+											"${CMAKE_BINARY_DIR}/xcode/launch-c"
+											"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+	# Set Xcode project attributes to route compilation through our scripts
+	set(CMAKE_XCODE_ATTRIBUTE_CC         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+	set(CMAKE_XCODE_ATTRIBUTE_CXX        	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
+	set(CMAKE_XCODE_ATTRIBUTE_LD         	"${CMAKE_BINARY_DIR}/xcode/launch-c")
+	set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS 	"${CMAKE_BINARY_DIR}/xcode/launch-cxx")
 endif()
 
 # Allow to pass package name from Travis CI
@@ -266,19 +278,16 @@ if(MINGW OR MSVC)
 	if(MSVC)
 		if(ENABLE_CCACHE)
 			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
-			find_program(CCACHE ccache REQUIRED)
-			if (CCACHE)
-				file(COPY_FILE
-					${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
-					ONLY_IF_DIFFERENT)
+			file(COPY_FILE
+				${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
+				ONLY_IF_DIFFERENT)
 
-				set(CMAKE_VS_GLOBALS
-					"CLToolExe=cl.exe"
-					"CLToolPath=${CMAKE_BINARY_DIR}"
-					"TrackFileAccess=false"
-					"UseMultiToolTask=true"
-				)
-			endif()
+			set(CMAKE_VS_GLOBALS
+				"CLToolExe=cl.exe"
+				"CLToolPath=${CMAKE_BINARY_DIR}"
+				"TrackFileAccess=false"
+				"UseMultiToolTask=true"
+			)
 		endif()
 
 		add_definitions(-DBOOST_ALL_NO_LIB)
@@ -806,6 +815,10 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
+	# Workaround for this issue:
+	# CPack Error: Error executing: /usr/bin/hdiutil detach "/Volumes/VCMI"
+	# https://github.com/actions/runner-images/issues/7522#issuecomment-1564467252
+	set(CPACK_COMMAND_HDIUTIL "/usr/bin/sudo /usr/bin/hdiutil")
 	# CMake code for CPACK_DMG_DS_STORE executed before DS_STORE_SETUP_SCRIPT
 	# So we can keep both enabled and this shouldn't hurt
 	# set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")

@@ -14,6 +14,7 @@
 #include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
+#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "GameSettings.h"
 #include "constants/StringConstants.h"
@@ -407,18 +408,7 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {
-	VLC->creh = this;
 	loadCommanders();
-}
-
-const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
-{
-	std::optional<si32> index = VLC->identifiers()->getIdentifier(scope, "creature", identifier);
-
-	if(!index)
-		throw std::runtime_error("Creature not found "+identifier);
-
-	return objects[*index];
 }
 
 void CCreatureHandler::loadCommanders()
@@ -797,7 +787,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-				(*this)[sid]->addNewBonus(b); //add directly to CCreature Node
+				objects[sid.getNum()]->addNewBonus(b); //add directly to CCreature Node
 		}
 		while (parser.endLine());
 

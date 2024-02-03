@@ -41,7 +41,8 @@ auto HighScoreCalculation::calculate()
 		bool cheater = false;
 	};
 	
-	Result firstResult, summary;
+	Result firstResult;
+	Result summary;
 	const std::array<double, 5> difficultyMultipliers{0.8, 1.0, 1.3, 1.6, 2.0}; 
 	for(auto & param : parameters)
 	{

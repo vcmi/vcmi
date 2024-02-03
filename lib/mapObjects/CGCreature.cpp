@@ -20,6 +20,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -313,11 +314,11 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		powerFactor = -3;
 
 	std::set<CreatureID> myKindCres; //what creatures are the same kind as we
-	const CCreature * myCreature = VLC->creh->objects[getCreature().getNum()];
+	const CCreature * myCreature = getCreature().toCreature();
 	myKindCres.insert(myCreature->getId()); //we
 	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
 
-	for(ConstTransitivePtr<CCreature> &crea : VLC->creh->objects)
+	for(auto const & crea : VLC->creh->objects)
 	{
 		if(vstd::contains(crea->upgrades, myCreature->getId())) //it's our base creatures
 			myKindCres.insert(crea->getId());

@@ -449,12 +449,10 @@ void HeroInfoBasicPanel::show(Canvas & to)
 }
 
 
-StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, Point * position, bool initializeBackground)
+StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBackground)
 	: CIntObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	if (position != nullptr)
-		moveTo(*position);
 
 	if(initializeBackground)
 	{
@@ -530,7 +528,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 		if (hasGraphics)
 		{
 			//FIXME: support permanent duration
-			int duration = stack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
+			int duration = stack->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)))->turnsRemain;
 
 			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			if(settings["general"]["enableUiEnhancements"].Bool())
@@ -585,7 +583,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 	
-	if(allowReplay)
+	if(allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay)
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);

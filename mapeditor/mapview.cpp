@@ -494,7 +494,8 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		//key: y position of tile
 		//value.first: x position of left tile
 		//value.second: x postiion of right tile
-		std::map<int, std::pair<int, int>> selectionRangeMapX, selectionRangeMapY;
+		std::map<int, std::pair<int, int>> selectionRangeMapX;
+		std::map<int, std::pair<int, int>> selectionRangeMapY;
 		for(auto & t : sc->selectionTerrainView.selection())
 		{
 			auto pairIter = selectionRangeMapX.find(t.y);
@@ -516,7 +517,8 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 			}
 		}
 		
-		std::set<int3> selectionByX, selectionByY;
+		std::set<int3> selectionByX;
+		std::set<int3> selectionByY;
 		std::vector<int3> finalSelection;
 		for(auto & selectionRange : selectionRangeMapX)
 		{
@@ -591,7 +593,7 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
 				controller->discardObject(sc->level);
-				controller->createObject(sc->level, factory->create(templ));
+				controller->createObject(sc->level, factory->create(nullptr, templ));
 			}
 		}
 		

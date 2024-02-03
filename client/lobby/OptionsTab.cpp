@@ -480,7 +480,7 @@ void OptionsTab::SelectionWindow::setSelection()
 
 void OptionsTab::SelectionWindow::reopen()
 {
-	std::shared_ptr<SelectionWindow> window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
+	auto window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
 	close();
 	if(CSH->isMyColor(color) || CSH->isHost())
 		GH.windows().pushWindow(window);

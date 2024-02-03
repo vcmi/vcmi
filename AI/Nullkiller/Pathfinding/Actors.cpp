@@ -327,7 +327,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 			return result;
 		}
 
-		HeroActor * exchanged = new HeroActor(actor, other, newArmy, ai);
+		auto * exchanged = new HeroActor(actor, other, newArmy, ai);
 
 		exchanged->armyCost += newArmy->armyCost;
 		result.actor = exchanged;
@@ -342,7 +342,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	const CGObjectInstance * upgrader,
 	TResources resources) const
 {
-	HeroExchangeArmy * target = new HeroExchangeArmy();
+	auto * target = new HeroExchangeArmy();
 	auto upgradeInfo = ai->armyManager->calculateCreaturesUpgrade(army, upgrader, resources);
 
 	if(upgradeInfo.upgradeValue)
@@ -373,10 +373,10 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 		for(auto & creatureToBuy : buyArmy)
 		{
-			auto targetSlot = target->getSlotFor(dynamic_cast<const CCreature*>(creatureToBuy.cre));
+			auto targetSlot = target->getSlotFor(creatureToBuy.creID.toCreature());
 
 			target->addToSlot(targetSlot, creatureToBuy.creID, creatureToBuy.count);
-			target->armyCost += creatureToBuy.cre->getFullRecruitCost() * creatureToBuy.count;
+			target->armyCost += creatureToBuy.creID.toCreature()->getFullRecruitCost() * creatureToBuy.count;
 			target->requireBuyArmy = true;
 		}
 	}
@@ -393,7 +393,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
-	HeroExchangeArmy * target = new HeroExchangeArmy();
+	auto * target = new HeroExchangeArmy();
 	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2);
 
 	for(auto & slotInfo : bestArmy)
@@ -445,7 +445,7 @@ std::string DwellingActor::toString() const
 
 CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth)
 {
-	CCreatureSet * dwellingCreatures = new CCreatureSet();
+	auto * dwellingCreatures = new CCreatureSet();
 
 	for(auto & creatureInfo : dwelling->creatures)
 	{

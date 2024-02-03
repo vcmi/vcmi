@@ -75,6 +75,7 @@ public:
 	/// Appends specified number to resulting string
 	void appendNumber(int64_t value);
 
+	void appendName(const ArtifactID& id);
 	void appendName(const SpellID& id);
 	void appendName(const PlayerColor& id);
 	void appendName(const CreatureID & id, TQuantity count);
@@ -125,7 +126,7 @@ public:
 	
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & exactStrings;
 		h & localStrings;

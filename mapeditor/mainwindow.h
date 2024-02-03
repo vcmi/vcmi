@@ -174,7 +174,8 @@ private:
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	
-	QString filename, lastSavingDir;
+	QString filename;
+	QString lastSavingDir;
 	bool unsaved = false;
 
 	QStandardItemModel objectsModel;

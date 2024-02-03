@@ -23,7 +23,7 @@ public:
 	virtual bool shouldBeAttached(CBonusSystemNode *dest);
 	virtual CBonusSystemNode::ENodeTypes getPropagatorType() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{}
 };
 
@@ -36,7 +36,7 @@ public:
 	bool shouldBeAttached(CBonusSystemNode *dest) override;
 	CBonusSystemNode::ENodeTypes getPropagatorType() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & nodeType;
 	}

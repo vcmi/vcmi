@@ -149,7 +149,7 @@
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/E_RDEF"
+			"icon":  "zvs/Lib1.res/E_RATT"
 		}
 	},
 
@@ -197,7 +197,7 @@
 	{
 		"graphics":
 		{
-			"icon":  ""
+			"icon":  "zvs/Lib1.res/Ferocity"
 		}
 	},
 
@@ -448,7 +448,7 @@
 	{
 		"graphics":
 		{
-			"icon": ""
+			"icon": "zvs/Lib1.res/Revenge"
 		}
 	},
 

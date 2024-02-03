@@ -22,10 +22,10 @@ class CGObjectInstance;
 class EntityService;
 class JsonNode;
 class ObjectTemplate;
+class CHeroClass;
 
 VCMI_LIB_NAMESPACE_END
 
-class CHeroClass;
 struct InfoAboutHero;
 struct InfoAboutTown;
 class Animation;

@@ -64,7 +64,7 @@ struct SetGlobalState
 };
 
 
-#define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai);
+#define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai)
 
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)
@@ -101,7 +101,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	if(!hero)
 		validateObject(details.id); //enemy hero may have left visible area
 
-	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));;
+	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
 	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
@@ -586,11 +586,18 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 
 	requestActionASAP([=]()
 	{ 
+		int sel = 0;
+
 		if(hPtr.validAndSet())
 		{
+			std::unique_lock<std::mutex> lockGuard(nullkiller->aiStateMutex);
+
 			nullkiller->heroManager->update();
-			answerQuery(queryID, nullkiller->heroManager->selectBestSkill(hPtr, skills));
+
+			sel = nullkiller->heroManager->selectBestSkill(hPtr, skills);
 		}
+
+		answerQuery(queryID, sel);
 	});
 }
 
@@ -661,14 +668,18 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
 			sel = components.size();
 
-		// TODO: Find better way to understand it is Chest of Treasures
-		if(hero.validAndSet()
-			&& components.size() == 2
-			&& components.front().type == ComponentType::RESOURCE
-			&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
-			|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
 		{
-			sel = 1; // for now lets pick gold from a chest.
+				std::unique_lock<std::mutex> mxLock(nullkiller->aiStateMutex);
+
+				// TODO: Find better way to understand it is Chest of Treasures
+				if(hero.validAndSet()
+					&& components.size() == 2
+					&& components.front().type == ComponentType::RESOURCE
+					&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
+						|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
+				{
+					sel = 1; // for now lets pick gold from a chest.
+				}
 		}
 
 		answerQuery(askID, sel);
@@ -747,27 +758,25 @@ void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon,
 	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
-void AIGateway::saveGame(BinarySerializer & h, const int version)
+void AIGateway::saveGame(BinarySerializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
 	nullkiller->memory->removeInvisibleObjects(myCb.get());
 
-	CAdventureAI::saveGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::saveGame(h);
+	serializeInternal(h);
 }
 
-void AIGateway::loadGame(BinaryDeserializer & h, const int version)
+void AIGateway::loadGame(BinaryDeserializer & h)
 {
-	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	//NET_EVENT_HANDLER;
 
 	#if 0
 	//disabled due to issue 2890
 	registerGoals(h);
 	#endif // 0
-	CAdventureAI::loadGame(h, version);
-	serializeInternal(h, version);
+	CAdventureAI::loadGame(h);
+	serializeInternal(h);
 }
 
 bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
@@ -858,6 +867,8 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 		if(h->visitedTown) //we are inside, not just attacking
 		{
 			makePossibleUpgrades(h.get());
+
+			std::unique_lock<std::mutex>  lockGuard(nullkiller->aiStateMutex);
 
 			if(!h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
 				moveCreaturesToHero(h->visitedTown);
@@ -1120,15 +1131,6 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != QueryID::NONE)
-	{
-		status.addQuery(queryID, "Combat result dialog");
-		const int confirmAction = 0;
-		requestActionASAP([=]()
-		{
-			answerQuery(queryID, confirmAction);
-		});
-	}
 	CAdventureAI::battleEnd(battleID, br, queryID);
 }
 
@@ -1413,7 +1415,8 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
-				int toGive, toGet;
+				int toGive;
+				int toGet;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed

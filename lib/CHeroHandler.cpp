@@ -18,6 +18,7 @@
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "GameSettings.h"
+#include "CRandomGenerator.h"
 #include "CTownHandler.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
@@ -44,7 +45,7 @@ int32_t CHero::getIconIndex() const
 
 std::string CHero::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 HeroTypeID CHero::getId() const
@@ -155,6 +156,14 @@ bool CHeroClass::isMagicHero() const
 	return affinity == MAGIC;
 }
 
+int CHeroClass::tavernProbability(FactionID targetFaction) const
+{
+	auto it = selectionProbability.find(targetFaction);
+	if (it != selectionProbability.end())
+		return it->second;
+	return 0;
+}
+
 EAlignment CHeroClass::getAlignment() const
 {
 	return VLC->factions()->getById(faction)->getAlignment();
@@ -172,7 +181,7 @@ int32_t CHeroClass::getIconIndex() const
 
 std::string CHeroClass::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 HeroClassID CHeroClass::getId() const
@@ -273,12 +282,12 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	fillPrimarySkillData(node, heroClass, PrimarySkill::KNOWLEDGE);
 
 	auto percentSumm = std::accumulate(heroClass->primarySkillLowLevel.begin(), heroClass->primarySkillLowLevel.end(), 0);
-	if(percentSumm != 100)
-		logMod->error("Hero class %s has wrong lowLevelChance values: summ should be 100, but %d instead", heroClass->identifier, percentSumm);
+	if(percentSumm <= 0)
+		logMod->error("Hero class %s has wrong lowLevelChance values: must be above zero!", heroClass->identifier, percentSumm);
 
 	percentSumm = std::accumulate(heroClass->primarySkillHighLevel.begin(), heroClass->primarySkillHighLevel.end(), 0);
-	if(percentSumm != 100)
-		logMod->error("Hero class %s has wrong highLevelChance values: summ should be 100, but %d instead", heroClass->identifier, percentSumm);
+	if(percentSumm <= 0)
+		logMod->error("Hero class %s has wrong highLevelChance values: must be above zero!", heroClass->identifier, percentSumm);
 
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
@@ -292,7 +301,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	VLC->identifiers()->requestIdentifier ("creature", node["commander"],
 	[=](si32 commanderID)
 	{
-		heroClass->commander = VLC->creh->objects[commanderID];
+		heroClass->commander = CreatureID(commanderID).toCreature();
 	});
 
 	heroClass->defaultTavernChance = static_cast<ui32>(node["defaultTavern"].Float());
@@ -369,9 +378,9 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 void CHeroClassHandler::afterLoadFinalization()
 {
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
-	for(CHeroClass * heroClass : objects)
+	for(auto & heroClass : objects)
 	{
-		for(CFaction * faction : VLC->townh->objects)
+		for(auto & faction : VLC->townh->objects)
 		{
 			if (!faction->town)
 				continue;
@@ -394,9 +403,9 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 	}
 
-	for(CHeroClass * hc : objects)
+	for(const auto & hc : objects)
 	{
-		if (!hc->imageMapMale.empty())
+		if(!hc->imageMapMale.empty())
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
@@ -454,7 +463,7 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	VLC->identifiers()->requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
-		hero->heroClass = classes[HeroClassID(classID)];
+		hero->heroClass = HeroClassID(classID).toHeroClass();
 	});
 
 	return hero;
@@ -532,7 +541,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 	{
 		std::set<CreatureID> oldTargets = targets;
 
-		for (auto const & upgradeSourceID : oldTargets)
+		for(const auto & upgradeSourceID : oldTargets)
 		{
 			const CCreature * upgradeSource = upgradeSourceID.toCreature();
 			targets.insert(upgradeSource->upgrades.begin(), upgradeSource->upgrades.end());
@@ -544,11 +553,11 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 
 	for(CreatureID cid : targets)
 	{
-		auto const & specCreature = *cid.toCreature();
+		const auto & specCreature = *cid.toCreature();
 		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
 
 		{
-			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
+			auto bonus = std::make_shared<Bonus>();
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->type = BonusType::STACKS_SPEED;
 			bonus->val = 1;
@@ -556,7 +565,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		}
 
 		{
-			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
+			auto bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
 			bonus->subtype = BonusSubtypeID(PrimarySkill::ATTACK);
 			bonus->val = 0;
@@ -566,7 +575,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		}
 
 		{
-			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
+			auto bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
 			bonus->subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
 			bonus->val = 0;
@@ -604,7 +613,7 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 
 void CHeroHandler::afterLoadFinalization()
 {
-	for (auto const & functor : callAfterLoadFinalization)
+	for(const auto & functor : callAfterLoadFinalization)
 		functor();
 
 	callAfterLoadFinalization.clear();
@@ -790,7 +799,7 @@ std::set<HeroTypeID> CHeroHandler::getDefaultAllowed() const
 {
 	std::set<HeroTypeID> result;
 
-	for(const CHero * hero : objects)
+	for(auto & hero : objects)
 		if (hero && !hero->special)
 			result.insert(hero->getId());
 

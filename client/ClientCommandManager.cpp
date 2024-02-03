@@ -203,7 +203,7 @@ void ClientCommandManager::handleConvertTextCommand()
 		try
 		{
 			// load and drop loaded map - we only need loader to run over all maps
-			mapService.loadMap(mapName);
+			mapService.loadMap(mapName, nullptr);
 		}
 		catch(std::exception & e)
 		{
@@ -216,7 +216,7 @@ void ClientCommandManager::handleConvertTextCommand()
 	{
 		auto state = CampaignHandler::getCampaign(campaignName.getName());
 		for (auto const & part : state->allScenarios())
-			state->getMap(part);
+			state->getMap(part, nullptr);
 	}
 
 	VLC->generaltexth->dumpAllTexts();
@@ -272,7 +272,7 @@ void ClientCommandManager::handleGetScriptsCommand()
 
 	boost::filesystem::create_directories(outPath);
 
-	for(auto & kv : VLC->scriptHandler->objects)
+	for(const auto & kv : VLC->scriptHandler->objects)
 	{
 		std::string name = kv.first;
 		boost::algorithm::replace_all(name,":","_");
@@ -379,7 +379,8 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffer)
 {
 	std::string what;
-	int id1, id2;
+	int id1;
+	int id2;
 	singleWordBuffer >> what >> id1 >> id2;
 
 	if(what == "hs")
@@ -399,7 +400,8 @@ void ClientCommandManager::handleMpCommand()
 
 void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer)
 {
-	std::string what, value;
+	std::string what;
+	std::string value;
 	singleWordBuffer >> what;
 
 	Settings config = settings.write["session"][what];

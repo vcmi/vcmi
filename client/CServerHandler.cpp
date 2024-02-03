@@ -142,6 +142,8 @@ CServerHandler::CServerHandler()
 	registerTypesLobbyPacks(*applier);
 }
 
+CServerHandler::~CServerHandler() = default;
+
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
 {
 	hostClientId = -1;
@@ -260,6 +262,9 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 					addr.size() ? addr : getHostAddress(),
 					port ? port : getHostPort(),
 					NAME, uuid);
+
+			nextClient = std::make_unique<CClient>();
+			c->iser.cb = nextClient.get();
 		}
 		catch(std::runtime_error & error)
 		{
@@ -507,6 +512,13 @@ void CServerHandler::setTurnTimerInfo(const TurnTimerInfo & info) const
 	sendLobbyPack(lstt);
 }
 
+void CServerHandler::setExtraOptionsInfo(const ExtraOptionsInfo & info) const
+{
+	LobbySetExtraOptions lseo;
+	lseo.extraOptionsInfo = info;
+	sendLobbyPack(lseo);
+}
+
 void CServerHandler::sendMessage(const std::string & txt) const
 {
 	std::istringstream readed;
@@ -526,7 +538,8 @@ void CServerHandler::sendMessage(const std::string & txt) const
 	}
 	else if(command == "!forcep")
 	{
-		std::string connectedId, playerColorId;
+		std::string connectedId;
+		std::string playerColorId;
 		readed >> connectedId;
 		readed >> playerColorId;
 		if(connectedId.length() && playerColorId.length())
@@ -604,7 +617,9 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
-	GH.windows().createAndPushWindow<CLoadingScreen>();
+
+	if(!settings["session"]["headless"].Bool())
+		GH.windows().createAndPushWindow<CLoadingScreen>();
 	
 	LobbyStartGame lsg;
 	if(client)
@@ -628,7 +643,8 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 {
 	if(CMM)
 		CMM->disable();
-	client = new CClient();
+
+	std::swap(client, nextClient);
 
 	highScoreCalc = nullptr;
 
@@ -679,7 +695,7 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	}
 
 	client->endGame();
-	vstd::clear_pointer(client);
+	client.reset();
 
 	if(!restart)
 	{
@@ -696,6 +712,8 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	
 	if(c)
 	{
+		nextClient = std::make_unique<CClient>();
+		c->iser.cb = nextClient.get();
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
 	}

@@ -12,7 +12,6 @@
 #include <vcmi/Metatype.h>
 
 #include "CGameInfoCallback.h" // for CGameInfoCallback
-#include "CRandomGenerator.h"
 #include "networkPacks/ObjProperty.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -23,6 +22,7 @@ struct BlockingDialog;
 struct TeleportDialog;
 struct StackLocation;
 struct ArtifactLocation;
+class CRandomGenerator;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
@@ -146,6 +146,7 @@ public:
 	using CGameInfoCallback::getTile;
 	using CGameInfoCallback::getArtInstance;
 	using CGameInfoCallback::getObjInstance;
+	using CGameInfoCallback::getArtSet;
 
 	PlayerState * getPlayerState(const PlayerColor & color, bool verbose = true);
 	TeamState * getTeam(const TeamID & teamID); //get team by team ID
@@ -156,6 +157,7 @@ public:
 	CArtifactInstance * getArtInstance(const ArtifactInstanceID & aid);
 	CGObjectInstance * getObjInstance(const ObjectInstanceID & oid);
 	CArmedInstance * getArmyInstance(const ObjectInstanceID & oid);
+	CArtifactSet * getArtSet(const ArtifactLocation & loc);
 
 	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
 };

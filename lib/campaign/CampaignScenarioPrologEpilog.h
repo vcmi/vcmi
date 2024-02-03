@@ -22,7 +22,7 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 	AudioPath prologVoice;
 	MetaString prologText;
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & hasPrologEpilog;
 		h & prologVideo;

@@ -30,11 +30,14 @@
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
 
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/TextOperations.h"
@@ -327,10 +330,10 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 			boxPosition = owner.fieldController->hexPositionLocal(frontPos).center() + Point(-8, -14);
 	}
 
-	Point textPosition = amountBG->dimensions()/2 + boxPosition + Point(0, 1);
+	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + graphics->fonts[EFonts::FONT_TINY]->getLineHeight() - 6);
 
 	canvas.draw(amountBG, boxPosition);
-	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
+	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::TOPCENTER, TextOperations::formatMetric(stack->getCount(), 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)

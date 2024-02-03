@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 
-#include "CBonusSystemNode.h"
+#include "IBonusBearer.h"
 #include "BonusList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

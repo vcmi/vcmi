@@ -13,6 +13,7 @@
 #include "ui_translations.h"
 #include "../../lib/Languages.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/VCMI_Lib.h"
 
 void Translations::cleanupRemovedItems(CMap & map)

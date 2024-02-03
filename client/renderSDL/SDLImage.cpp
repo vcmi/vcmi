@@ -184,7 +184,7 @@ std::shared_ptr<IImage> SDLImage::scaleFast(const Point & size) const
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	SDLImage * ret = new SDLImage(scaled, EImageBlitMode::ALPHA);
+	auto * ret = new SDLImage(scaled, EImageBlitMode::ALPHA);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scaleX);
 	ret->fullSize.y = (int) round((float)fullSize.y * scaleY);
@@ -205,6 +205,8 @@ void SDLImage::exportBitmap(const boost::filesystem::path& path) const
 
 void SDLImage::playerColored(PlayerColor player)
 {
+	if (!surf)
+		return;
 	graphics->blueToPlayersAdv(surf, player);
 }
 

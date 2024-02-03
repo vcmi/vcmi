@@ -31,9 +31,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-namespace JsonRandom
-{
-	si32 loadVariable(std::string variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
+	si32 JsonRandom::loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
 	{
 		if (value.empty() || value[0] != '@')
 		{
@@ -51,12 +49,12 @@ namespace JsonRandom
 		return variables.at(variableID);
 	}
 
-	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, const Variables & variables, si32 defaultValue)
+	si32 JsonRandom::loadValue(const JsonNode & value, CRandomGenerator & rng, const Variables & variables, si32 defaultValue)
 	{
 		if(value.isNull())
 			return defaultValue;
 		if(value.isNumber())
-			return static_cast<si32>(value.Float());
+			return value.Integer();
 		if (value.isString())
 			return loadVariable("number", value.String(), variables, defaultValue);
 
@@ -70,46 +68,46 @@ namespace JsonRandom
 		if(value.isStruct())
 		{
 			if (!value["amount"].isNull())
-				return static_cast<si32>(loadValue(value["amount"], rng, variables, defaultValue));
-			si32 min = static_cast<si32>(loadValue(value["min"], rng, variables, 0));
-			si32 max = static_cast<si32>(loadValue(value["max"], rng, variables, 0));
+				return loadValue(value["amount"], rng, variables, defaultValue);
+			si32 min = loadValue(value["min"], rng, variables, 0);
+			si32 max = loadValue(value["max"], rng, variables, 0);
 			return rng.getIntRange(min, max)();
 		}
 		return defaultValue;
 	}
 
 	template<typename IdentifierType>
-	IdentifierType decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
+	IdentifierType JsonRandom::decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
 	{
 		if (value.empty() || value[0] != '@')
-			return IdentifierType(*VLC->identifiers()->getIdentifier(modScope, IdentifierType::entityType(), value));
+			return IdentifierType(VLC->identifiers()->getIdentifier(modScope, IdentifierType::entityType(), value).value_or(-1));
 		else
 			return loadVariable(IdentifierType::entityType(), value, variables, IdentifierType::NONE);
 	}
 
 	template<typename IdentifierType>
-	IdentifierType decodeKey(const JsonNode & value, const Variables & variables)
+	IdentifierType JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
 	{
 		if (value.String().empty() || value.String()[0] != '@')
-			return IdentifierType(*VLC->identifiers()->getIdentifier(IdentifierType::entityType(), value));
+			return IdentifierType(VLC->identifiers()->getIdentifier(IdentifierType::entityType(), value).value_or(-1));
 		else
 			return loadVariable(IdentifierType::entityType(), value.String(), variables, IdentifierType::NONE);
 	}
 
 	template<>
-	PlayerColor decodeKey(const JsonNode & value, const Variables & variables)
+	PlayerColor JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
 	{
 		return PlayerColor(*VLC->identifiers()->getIdentifier("playerColor", value));
 	}
 
 	template<>
-	PrimarySkill decodeKey(const JsonNode & value, const Variables & variables)
+	PrimarySkill JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
 	{
 		return PrimarySkill(*VLC->identifiers()->getIdentifier("primarySkill", value));
 	}
 
 	template<>
-	PrimarySkill decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
+	PrimarySkill JsonRandom::decodeKey(const std::string & modScope, const std::string & value, const Variables & variables)
 	{
 		if (value.empty() || value[0] != '@')
 			return PrimarySkill(*VLC->identifiers()->getIdentifier(modScope, "primarySkill", value));
@@ -120,13 +118,13 @@ namespace JsonRandom
 	/// Method that allows type-specific object filtering
 	/// Default implementation is to accept all input objects
 	template<typename IdentifierType>
-	std::set<IdentifierType> filterKeysTyped(const JsonNode & value, const std::set<IdentifierType> & valuesSet)
+	std::set<IdentifierType> JsonRandom::filterKeysTyped(const JsonNode & value, const std::set<IdentifierType> & valuesSet)
 	{
 		return valuesSet;
 	}
 
 	template<>
-	std::set<ArtifactID> filterKeysTyped(const JsonNode & value, const std::set<ArtifactID> & valuesSet)
+	std::set<ArtifactID> JsonRandom::filterKeysTyped(const JsonNode & value, const std::set<ArtifactID> & valuesSet)
 	{
 		assert(value.isStruct());
 
@@ -164,7 +162,7 @@ namespace JsonRandom
 			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
 				continue;
 
-			if(!IObjectInterface::cb->isAllowed(art->getId()))
+			if(!cb->isAllowed(art->getId()))
 				continue;
 
 			if(!allowedPositions.empty())
@@ -186,7 +184,7 @@ namespace JsonRandom
 	}
 
 	template<>
-	std::set<SpellID> filterKeysTyped(const JsonNode & value, const std::set<SpellID> & valuesSet)
+	std::set<SpellID> JsonRandom::filterKeysTyped(const JsonNode & value, const std::set<SpellID> & valuesSet)
 	{
 		std::set<SpellID> result = valuesSet;
 
@@ -213,7 +211,7 @@ namespace JsonRandom
 	}
 
 	template<typename IdentifierType>
-	std::set<IdentifierType> filterKeys(const JsonNode & value, const std::set<IdentifierType> & valuesSet, const Variables & variables)
+	std::set<IdentifierType> JsonRandom::filterKeys(const JsonNode & value, const std::set<IdentifierType> & valuesSet, const Variables & variables)
 	{
 		if(value.isString())
 			return { decodeKey<IdentifierType>(value, variables) };
@@ -257,7 +255,7 @@ namespace JsonRandom
 		return valuesSet;
 	}
 
-	TResources loadResources(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	TResources JsonRandom::loadResources(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		TResources ret;
 
@@ -275,7 +273,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	TResources loadResource(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	TResources JsonRandom::loadResource(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::set<GameResID> defaultResources{
 			GameResID::WOOD,
@@ -296,7 +294,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	PrimarySkill loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	PrimarySkill JsonRandom::loadPrimary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::set<PrimarySkill> defaultSkills{
 			PrimarySkill::ATTACK,
@@ -308,7 +306,7 @@ namespace JsonRandom
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::vector<si32> loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<si32> JsonRandom::loadPrimaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::vector<si32> ret(GameConstants::PRIMARY_SKILLS, 0);
 		std::set<PrimarySkill> defaultSkills{
@@ -340,18 +338,18 @@ namespace JsonRandom
 		return ret;
 	}
 
-	SecondarySkill loadSecondary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	SecondarySkill JsonRandom::loadSecondary(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::set<SecondarySkill> defaultSkills;
 		for(const auto & skill : VLC->skillh->objects)
-			if (IObjectInterface::cb->isAllowed(skill->getId()))
+			if (cb->isAllowed(skill->getId()))
 				defaultSkills.insert(skill->getId());
 
 		std::set<SecondarySkill> potentialPicks = filterKeys(value, defaultSkills, variables);
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::map<SecondarySkill, si32> loadSecondaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::map<SecondarySkill, si32> ret;
 		if(value.isStruct())
@@ -366,7 +364,7 @@ namespace JsonRandom
 		{
 			std::set<SecondarySkill> defaultSkills;
 			for(const auto & skill : VLC->skillh->objects)
-				if (IObjectInterface::cb->isAllowed(skill->getId()))
+				if (cb->isAllowed(skill->getId()))
 					defaultSkills.insert(skill->getId());
 
 			for(const auto & element : value.Vector())
@@ -381,19 +379,19 @@ namespace JsonRandom
 		return ret;
 	}
 
-	ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	ArtifactID JsonRandom::loadArtifact(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::set<ArtifactID> allowedArts;
 		for(const auto & artifact : VLC->arth->objects)
-			if (IObjectInterface::cb->isAllowed(artifact->getId()) && VLC->arth->legalArtifact(artifact->getId()))
+			if (cb->isAllowed(artifact->getId()) && VLC->arth->legalArtifact(artifact->getId()))
 				allowedArts.insert(artifact->getId());
 
 		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts, variables);
 
-		return IObjectInterface::cb->gameState()->pickRandomArtifact(rng, potentialPicks);
+		return cb->gameState()->pickRandomArtifact(rng, potentialPicks);
 	}
 
-	std::vector<ArtifactID> loadArtifacts(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<ArtifactID> JsonRandom::loadArtifacts(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::vector<ArtifactID> ret;
 		for (const JsonNode & entry : value.Vector())
@@ -403,11 +401,11 @@ namespace JsonRandom
 		return ret;
 	}
 
-	SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	SpellID JsonRandom::loadSpell(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::set<SpellID> defaultSpells;
 		for(const auto & spell : VLC->spellh->objects)
-			if (IObjectInterface::cb->isAllowed(spell->getId()) && !spell->isSpecial())
+			if (cb->isAllowed(spell->getId()) && !spell->isSpecial())
 				defaultSpells.insert(spell->getId());
 
 		std::set<SpellID> potentialPicks = filterKeys(value, defaultSpells, variables);
@@ -420,7 +418,7 @@ namespace JsonRandom
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<SpellID> JsonRandom::loadSpells(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::vector<SpellID> ret;
 		for (const JsonNode & entry : value.Vector())
@@ -430,7 +428,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<PlayerColor> loadColors(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<PlayerColor> JsonRandom::loadColors(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::vector<PlayerColor> ret;
 		std::set<PlayerColor> defaultPlayers;
@@ -446,7 +444,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<HeroTypeID> loadHeroes(const JsonNode & value, CRandomGenerator & rng)
+	std::vector<HeroTypeID> JsonRandom::loadHeroes(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::vector<HeroTypeID> ret;
 		for(auto & entry : value.Vector())
@@ -456,7 +454,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<HeroClassID> loadHeroClasses(const JsonNode & value, CRandomGenerator & rng)
+	std::vector<HeroClassID> JsonRandom::loadHeroClasses(const JsonNode & value, CRandomGenerator & rng)
 	{
 		std::vector<HeroClassID> ret;
 		for(auto & entry : value.Vector())
@@ -466,7 +464,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		CStackBasicDescriptor stack;
 
@@ -495,7 +493,7 @@ namespace JsonRandom
 		return stack;
 	}
 
-	std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
+	std::vector<CStackBasicDescriptor> JsonRandom::loadCreatures(const JsonNode & value, CRandomGenerator & rng, const Variables & variables)
 	{
 		std::vector<CStackBasicDescriptor> ret;
 		for (const JsonNode & node : value.Vector())
@@ -505,7 +503,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<RandomStackInfo> evaluateCreatures(const JsonNode & value, const Variables & variables)
+	std::vector<JsonRandom::RandomStackInfo> JsonRandom::evaluateCreatures(const JsonNode & value, const Variables & variables)
 	{
 		std::vector<RandomStackInfo> ret;
 		for (const JsonNode & node : value.Vector())
@@ -519,7 +517,8 @@ namespace JsonRandom
 				info.minAmount = static_cast<si32>(node["min"].Float());
 				info.maxAmount = static_cast<si32>(node["max"].Float());
 			}
-			const CCreature * crea = VLC->creh->objects[VLC->identifiers()->getIdentifier("creature", node["type"]).value()];
+			CreatureID creatureID(VLC->identifiers()->getIdentifier("creature", node["type"]).value());
+			const CCreature * crea = creatureID.toCreature();
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)
 			{
@@ -531,7 +530,7 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<Bonus> DLL_LINKAGE loadBonuses(const JsonNode & value)
+	std::vector<Bonus> JsonRandom::loadBonuses(const JsonNode & value)
 	{
 		std::vector<Bonus> ret;
 		for (const JsonNode & entry : value.Vector())
@@ -541,7 +540,5 @@ namespace JsonRandom
 		}
 		return ret;
 	}
-
-}
 
 VCMI_LIB_NAMESPACE_END

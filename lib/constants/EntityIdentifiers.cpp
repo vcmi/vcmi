@@ -53,6 +53,9 @@ const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
+const HeroTypeID HeroTypeID::GEM(27);
+const HeroTypeID HeroTypeID::SOLMYR(45);
+
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER(-2);
@@ -149,6 +152,16 @@ std::string HeroClassID::encode(const si32 index)
 std::string HeroClassID::entityType()
 {
 	return "heroClass";
+}
+
+const CHeroClass * HeroClassID::toHeroClass() const
+{
+	return dynamic_cast<const CHeroClass*>(toEntity(VLC));
+}
+
+const HeroClass * HeroClassID::toEntity(const Services * services) const
+{
+	return services->heroClasses()->getByIndex(num);
 }
 
 si32 ObjectInstanceID::decode(const std::string & identifier)

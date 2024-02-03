@@ -26,7 +26,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	ObjectPosInfo() = default;
 	ObjectPosInfo(const CGObjectInstance * obj);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & pos;
 		h & id;

@@ -16,7 +16,6 @@
 #include "GameConstants.h"
 #include "JsonNode.h"
 #include "IHandlerBase.h"
-#include "CRandomGenerator.h"
 #include "Color.h"
 #include "filesystem/ResourcePath.h"
 
@@ -29,6 +28,7 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
+class CRandomGenerator;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
@@ -52,7 +52,8 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
 
 public:
-	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
+	ui32 ammMin; // initial size of stack of these creatures on adventure map (if not set in editor)
+	ui32 ammMax;
 
 	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
 
@@ -220,8 +221,6 @@ public:
 	BonusList commanderLevelPremy; //bonus values added with each level-up
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
-
-	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
 
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 

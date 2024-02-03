@@ -24,8 +24,6 @@ class CArtifactsOfHeroBackpack : public CArtifactsOfHeroBase
 public:
 	CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax);
 	CArtifactsOfHeroBackpack();
-	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
-	void pickUpArtifact(CArtPlace & artPlace);
 	void scrollBackpack(int offset) override;
 	void updateBackpackSlots() override;
 	size_t getActiveSlotRowsNum();

@@ -68,7 +68,7 @@ struct DLL_LINKAGE ResetInfo
 	
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & period;
 		h & visitors;
@@ -93,7 +93,7 @@ struct DLL_LINKAGE VisitInfo
 
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & limiter;
 		h & reward;
@@ -113,7 +113,7 @@ struct DLL_LINKAGE Variables
 
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & values;
 		h & preset;
@@ -173,7 +173,7 @@ struct DLL_LINKAGE Configuration
 	
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & onSelect;
 		h & description;

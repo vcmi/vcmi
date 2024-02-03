@@ -521,7 +521,7 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 	{
 		auto current = modModel->getMod(modName);
 
-		if(!current.isInstalled())
+		if(!current.isInstalled() || !current.isVisible())
 			continue;
 
 		if(current.getDependencies().contains(mod, Qt::CaseInsensitive))
@@ -907,7 +907,7 @@ void CModListView::loadScreenshots()
 			{
 				// managed to load cached image
 				QIcon icon(pixmap);
-				QListWidgetItem * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
+				auto * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
 				ui->screenshotsList->addItem(item);
 			}
 		}

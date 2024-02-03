@@ -39,7 +39,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 			THROW_FORMAT("Error: cannot open to write %s!", fname);
 
 		sfile->write("VCMI",4); //write magic identifier
-		serializer & SERIALIZATION_VERSION; //write format version
+		serializer & ESerializationVersion::CURRENT; //write format version
 	}
 	catch(...)
 	{

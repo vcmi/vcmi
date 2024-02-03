@@ -72,7 +72,10 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->defeatIconIndex < b->defeatIconIndex);
 			break;
 		case _playerAm: //by player amount
-			int playerAmntB, humenPlayersB, playerAmntA, humenPlayersA;
+			int playerAmntB;
+			int humenPlayersB;
+			int playerAmntA;
+			int humenPlayersA;
 			playerAmntB = humenPlayersB = playerAmntA = humenPlayersA = 0;
 			for(int i = 0; i < 8; i++)
 			{
@@ -455,7 +458,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 				}			
 			}
 
-			std::shared_ptr<ElementInfo> folder = std::make_shared<ElementInfo>();
+			auto folder = std::make_shared<ElementInfo>();
 			folder->isFolder = true;
 			folder->folderName = folderName;
 			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });

@@ -111,8 +111,8 @@ public:
 
 	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
 
-	virtual void saveGame(BinarySerializer & h, const int version) = 0;
-	virtual void loadGame(BinaryDeserializer & h, const int version) = 0;
+	virtual void saveGame(BinarySerializer & h) = 0;
+	virtual void loadGame(BinaryDeserializer & h) = 0;
 };
 
 class DLL_LINKAGE CDynLibHandler
@@ -162,8 +162,8 @@ public:
 	virtual void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override;
 	virtual void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
 
-	virtual void saveGame(BinarySerializer & h, const int version) override;
-	virtual void loadGame(BinaryDeserializer & h, const int version) override;
+	virtual void saveGame(BinarySerializer & h) override;
+	virtual void loadGame(BinaryDeserializer & h) override;
 };
 
 VCMI_LIB_NAMESPACE_END

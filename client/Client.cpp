@@ -139,14 +139,10 @@ CClient::CClient()
 	waitingRequest.clear();
 	applier = std::make_shared<CApplier<CBaseForCLApply>>();
 	registerTypesClientPacks(*applier);
-	IObjectInterface::cb = this;
 	gs = nullptr;
 }
 
-CClient::~CClient()
-{
-	IObjectInterface::cb = nullptr;
-}
+CClient::~CClient() = default;
 
 const Services * CClient::services() const
 {
@@ -177,8 +173,9 @@ void CClient::newGame(CGameState * initializedGameState)
 {
 	CSH->th->update();
 	CMapService mapService;
-	gs = initializedGameState ? initializedGameState : new CGameState();
-	gs->preInit(VLC);
+	assert(initializedGameState);
+	gs = initializedGameState;
+	gs->preInit(VLC, this);
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
 	if(!initializedGameState)
 	{
@@ -200,7 +197,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gs = initializedGameState;
 
-	gs->preInit(VLC);
+	gs->preInit(VLC, this);
 	gs->updateOnLoad(CSH->si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
 
@@ -228,7 +225,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
 
 		std::unique_ptr<CLoadFile> loader (new CLoadFile(clientSaveName));
-		serialize(loader->serializer, loader->serializer.fileVersion);
+		serialize(loader->serializer, loader->serializer.version);
 
 		logNetwork->info("Client data loaded.");
 	}
@@ -241,7 +238,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	initPlayerInterfaces();
 }
 
-void CClient::serialize(BinarySerializer & h, const int version)
+void CClient::serialize(BinarySerializer & h)
 {
 	assert(h.saving);
 	ui8 players = static_cast<ui8>(playerint.size());
@@ -254,20 +251,17 @@ void CClient::serialize(BinarySerializer & h, const int version)
 		h & i->first;
 		h & i->second->dllName;
 		h & i->second->human;
-		i->second->saveGame(h, version);
+		i->second->saveGame(h);
 	}
 
 #if SCRIPTING_ENABLED
-	if(version >= 800)
-	{
-		JsonNode scriptsState;
-		clientScripts->serializeState(h.saving, scriptsState);
-		h & scriptsState;
-	}
+	JsonNode scriptsState;
+	clientScripts->serializeState(h.saving, scriptsState);
+	h & scriptsState;
 #endif
 }
 
-void CClient::serialize(BinaryDeserializer & h, const int version)
+void CClient::serialize(BinaryDeserializer & h)
 {
 	assert(!h.saving);
 	ui8 players = 0;
@@ -323,7 +317,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 
 		// loadGame needs to be called after initGameInterface to load paths correctly
 		// initGameInterface is called in installNewPlayerInterface
-		nInt->loadGame(h, version);
+		nInt->loadGame(h);
 
 		if (shouldResetInterface)
 		{
@@ -370,7 +364,7 @@ void CClient::endGame()
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
-		vstd::clear_pointer(const_cast<CGameInfo *>(CGI)->mh);
+		CGI->mh.reset();
 		vstd::clear_pointer(gs);
 
 		logNetwork->info("Deleted mapHandler and gameState.");
@@ -392,7 +386,7 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler(gs->map);
+		CGI->mh = std::make_shared<CMapHandler>(gs->map);
 		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
 	}
 
@@ -414,7 +408,7 @@ void CClient::initPlayerEnvironments()
 			hasHumanPlayer = true;
 	}
 
-	if(!hasHumanPlayer)
+	if(!hasHumanPlayer && !settings["session"]["headless"].Bool())
 	{
 		Settings session = settings.write["session"];
 		session["spectate"].Bool() = true;
@@ -439,7 +433,7 @@ void CClient::initPlayerInterfaces()
 		if(!vstd::contains(playerint, color))
 		{
 			logNetwork->info("Preparing interface for player %s", color.toString());
-			if(playerInfo.second.isControlledByAI())
+			if(playerInfo.second.isControlledByAI() || settings["session"]["onlyai"].Bool())
 			{
 				bool alliedToHuman = false;
 				for(auto & allyInfo : gs->scenarioOps->playerInfos)
@@ -560,7 +554,8 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 
 void CClient::battleStarted(const BattleInfo * info)
 {
-	std::shared_ptr<CPlayerInterface> att, def;
+	std::shared_ptr<CPlayerInterface> att;
+	std::shared_ptr<CPlayerInterface> def;
 	auto & leftSide = info->sides[0];
 	auto & rightSide = info->sides[1];
 
@@ -590,14 +585,26 @@ void CClient::battleStarted(const BattleInfo * info)
 		def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
 	
 	//Remove player interfaces for auto battle (quickCombat option)
-	if(att && att->isAutoFightOn)
+	if((att && att->isAutoFightOn) || (def && def->isAutoFightOn))
 	{
-		if (att->cb->getBattle(info->battleID)->battleGetTacticDist())
+		auto endTacticPhaseIfEligible = [info](const CPlayerInterface * interface)
 		{
-			auto side = att->cb->getBattle(info->battleID)->playerToSide(att->playerID);
-			auto action = BattleAction::makeEndOFTacticPhase(*side);
-			att->cb->battleMakeTacticAction(info->battleID, action);
-		}
+			if (interface->cb->getBattle(info->battleID)->battleGetTacticDist())
+			{
+				auto side = interface->cb->getBattle(info->battleID)->playerToSide(interface->playerID);
+
+				if(interface->playerID == info->sides[info->tacticsSide].color)
+				{
+					auto action = BattleAction::makeEndOFTacticPhase(*side);
+					interface->cb->battleMakeTacticAction(info->battleID, action);
+				}
+			}
+		};
+
+		if(att && att->isAutoFightOn)
+			endTacticPhaseIfEligible(att.get());
+		else // def && def->isAutoFightOn
+			endTacticPhaseIfEligible(def.get());
 
 		att.reset();
 		def.reset();
@@ -671,7 +678,7 @@ std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h
 
 	if(iter == std::end(pathCache))
 	{
-		std::shared_ptr<CPathsInfo> paths = std::make_shared<CPathsInfo>(getMapSize(), h);
+		auto paths = std::make_shared<CPathsInfo>(getMapSize(), h);
 
 		gs->calculatePaths(h, *paths.get());
 

@@ -15,6 +15,8 @@
 
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
+#include "../lib/CRandomGenerator.h"
+
 
 // Campaigns
 #include "../lib/campaign/CampaignState.h"
@@ -411,6 +413,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetSimturns(LobbySetSimturns & pack)
 void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 {
 	srv.si->turnTimerInfo = pack.turnTimerInfo;
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbySetExtraOptions(LobbySetExtraOptions & pack)
+{
+	srv.si->extraOptionsInfo = pack.extraOptionsInfo;
 	result = true;
 }
 

@@ -30,7 +30,7 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 	ui64 totalStrength = 0;
 	ui8 totalChance = 0;
-	for(auto config : bankInfo->getPossibleGuards())
+	for(auto config : bankInfo->getPossibleGuards(bank->cb))
 	{
 		totalStrength += config.second.totalStrength * config.first;
 		totalChance += config.first;

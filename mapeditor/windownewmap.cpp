@@ -231,7 +231,7 @@ void generateRandomMap(CMapGenerator & gen, MainWindow * window)
 
 std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 {
-	std::unique_ptr<CMap> map(new CMap);
+	auto map = std::make_unique<CMap>(nullptr);
 	map->version = EMapFormat::VCMI;
 	map->width = options.getWidth();
 	map->height = options.getHeight();
@@ -281,7 +281,7 @@ void WindowNewMap::on_okButton_clicked()
 		if(ui->checkSeed->isChecked() && !ui->lineSeed->text().isEmpty())
 			seed = ui->lineSeed->text().toInt();
 			
-		CMapGenerator generator(mapGenOptions, seed);
+		CMapGenerator generator(mapGenOptions, nullptr, seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	

@@ -130,7 +130,7 @@ public:
 	bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble) override;
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation & src, const ArtifactLocation & dst) override;
-	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped, bool backpack);
+	bool bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
 	void synchronizeArtifactHandlerLists();
 
@@ -222,7 +222,7 @@ public:
 	bool dig(const CGHeroInstance *h);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & QID;
 		h & getRandomGenerator();
@@ -262,7 +262,7 @@ public:
 	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
 	void run(bool resume);
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
+	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts);
 	void spawnWanderingMonsters(CreatureID creatureID);
 
 	// Check for victory and loss conditions

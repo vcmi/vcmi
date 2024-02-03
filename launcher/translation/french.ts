@@ -918,6 +918,16 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
         <translation>Installer une version compatible de &quot;In The Wake of Gods&quot;, une extension Heroes III créée par des fans</translation>
     </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Heroes III installation found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
+        <source>Copy data to VCMI folder?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ImageViewer</name>
@@ -1044,7 +1054,7 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="402"/>
+        <location filename="../lobby/lobby_moc.cpp" line="403"/>
         <source>Connect</source>
         <translation>Connecter</translation>
     </message>
@@ -1114,12 +1124,12 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
         <translation>Charger une partie</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="369"/>
+        <location filename="../lobby/lobby_moc.cpp" line="370"/>
         <source>Disconnect</source>
         <translation>Déconnecter</translation>
     </message>
     <message>
-        <location filename="../lobby/lobby_moc.cpp" line="462"/>
+        <location filename="../lobby/lobby_moc.cpp" line="463"/>
         <source>No issues detected</source>
         <translation>Pas de problème détecté</translation>
     </message>

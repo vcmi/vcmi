@@ -49,12 +49,12 @@ bool CCombinedArtifact::isCombined() const
 	return !(constituents.empty());
 }
 
-const std::vector<CArtifact*> & CCombinedArtifact::getConstituents() const
+const std::vector<const CArtifact*> & CCombinedArtifact::getConstituents() const
 {
 	return constituents;
 }
 
-const std::vector<CArtifact*> & CCombinedArtifact::getPartOf() const
+const std::vector<const CArtifact*> & CCombinedArtifact::getPartOf() const
 {
 	return partOf;
 }
@@ -181,9 +181,9 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 {
 	auto simpleArtCanBePutAt = [this](const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) -> bool
 	{
-		if(ArtifactUtils::isSlotBackpack(slot))
+		if(artSet->bearerType() == ArtBearer::HERO && ArtifactUtils::isSlotBackpack(slot))
 		{
-			if(isBig() || !ArtifactUtils::isBackpackFreeSlots(artSet))
+			if(isBig() || (!assumeDestRemoved && !ArtifactUtils::isBackpackFreeSlots(artSet)))
 				return false;
 			return true;
 		}
@@ -258,6 +258,7 @@ CArtifact::CArtifact()
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
+	possibleSlots[ArtBearer::ALTAR];
 }
 
 //This destructor should be placed here to avoid side effects
@@ -328,7 +329,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	const std::vector<std::string> artSlots = { ART_POS_LIST };
 	#undef ART_POS
 
-	static std::map<char, std::string> classes =
+	static const std::map<char, std::string> classes =
 		{{'S',"SPECIAL"}, {'T',"TREASURE"},{'N',"MINOR"},{'J',"MAJOR"},{'R',"RELIC"},};
 
 	CLegacyConfigParser parser(TextPath::builtin("DATA/ARTRAITS.TXT"));
@@ -353,7 +354,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 				artData["slot"].Vector().back().String() = artSlot;
 			}
 		}
-		artData["class"].String() = classes[parser.readString()[0]];
+		artData["class"].String() = classes.at(parser.readString()[0]);
 		artData["text"]["description"].String() = parser.readString();
 
 		parser.endLine();
@@ -476,6 +477,9 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		}
 	});
 
+	if(art->isTradable())
+		art->possibleSlots.at(ArtBearer::ALTAR).push_back(ArtifactPosition::ALTAR);
+
 	return art;
 }
 
@@ -597,7 +601,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
-				art->constituents.push_back(objects[id]);
+				art->constituents.push_back(ArtifactID(id).toArtifact());
 				objects[id]->partOf.push_back(art);
 			});
 		}
@@ -906,6 +910,9 @@ const ArtSlotInfo * CArtifactSet::getSlot(const ArtifactPosition & pos) const
 
 bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockCheck) const
 {
+	if(bearerType() == ArtBearer::ALTAR)
+		return artifactsInBackpack.size() < GameConstants::ALTAR_ARTIFACTS_SLOTS;
+
 	if(const ArtSlotInfo *s = getSlot(pos))
 		return (onlyLockCheck || !s->artifact) && !s->locked;
 

@@ -18,6 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
 {
 public:
+	using CArmedInstance::CArmedInstance;
+
 	enum Action {
 		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
 	};
@@ -54,7 +56,7 @@ public:
 	bool containsUpgradedStack() const;
 	int getNumberOfStacks(const CGHeroInstance *hero) const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & identifier;

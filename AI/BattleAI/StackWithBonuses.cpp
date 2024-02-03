@@ -134,7 +134,7 @@ SlotID StackWithBonuses::unitSlot() const
 TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, const CSelector & limit,
 	const CBonusSystemNode * root, const std::string & cachingStr) const
 {
-	TBonusListPtr ret = std::make_shared<BonusList>();
+	auto ret = std::make_shared<BonusList>();
 	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, root, cachingStr);
 
 	vstd::copy_if(*originalList, std::back_inserter(*ret), [this](const std::shared_ptr<Bonus> & b)
@@ -356,7 +356,7 @@ void HypotheticBattle::addUnit(uint32_t id, const JsonNode & data)
 {
 	battle::UnitInfo info;
 	info.load(id, data);
-	std::shared_ptr<StackWithBonuses> newUnit = std::make_shared<StackWithBonuses>(this, info);
+	auto newUnit = std::make_shared<StackWithBonuses>(this, info);
 	stackStates[newUnit->unitId()] = newUnit;
 }
 

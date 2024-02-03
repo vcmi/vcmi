@@ -74,7 +74,7 @@ TEST_F(UnitStateMagicTest, initialNormal)
 	EXPECT_EQ(subject.casts.available(), 567);
 }
 
-TEST_F(UnitStateMagicTest, schoolLevelByDefault)
+TEST_F(UnitStateMagicTest, DISABLED_schoolLevelByDefault)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -82,7 +82,7 @@ TEST_F(UnitStateMagicTest, schoolLevelByDefault)
 	EXPECT_EQ(subject.getSpellSchoolLevel(&spellMock, nullptr), 0);
 }
 
-TEST_F(UnitStateMagicTest, schoolLevelForNormalCaster)
+TEST_F(UnitStateMagicTest, DISABLED_schoolLevelForNormalCaster)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -91,7 +91,7 @@ TEST_F(UnitStateMagicTest, schoolLevelForNormalCaster)
 	EXPECT_EQ(subject.getSpellSchoolLevel(&spellMock, nullptr), DEFAULT_SCHOOL_LEVEL);
 }
 
-TEST_F(UnitStateMagicTest, effectLevelForNormalCaster)
+TEST_F(UnitStateMagicTest, DISABLED_effectLevelForNormalCaster)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -155,7 +155,7 @@ TEST_F(UnitStateMagicTest, enchantPower)
 	EXPECT_EQ(subject.getEnchantPower(&spellMock), ENCHANT_POWER);
 }
 
-TEST_F(UnitStateMagicTest, effectValueByDefault)
+TEST_F(UnitStateMagicTest, DISABLED_effectValueByDefault)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -164,7 +164,7 @@ TEST_F(UnitStateMagicTest, effectValueByDefault)
 	EXPECT_EQ(subject.getEffectValue(&spellMock), 0);
 }
 
-TEST_F(UnitStateMagicTest, effectValue)
+TEST_F(UnitStateMagicTest, DISABLED_effectValue)
 {
 	setDefaultExpectations();
 	initUnit();

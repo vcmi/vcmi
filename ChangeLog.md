@@ -1,3 +1,81 @@
+# 1.4.5 -> 1.5.0
+
+### General
+* Added option to disable cheats in game
+
+### Interface
+* Town Portal dialog will now show town icons
+* Town Portal dialog will now show town info on right click
+* Town Portal dialog will center on town on clicking it
+* Town Portal dialog now uses same town ordering as in adventure map interface
+* Heroes can now be recruited from the tavern by double-clicking on them
+* Added status bar to the backpack window
+* Quick backpack window is now only available when enabled Interface enhancements
+* Fixed assembly of artifacts in the backpack when backpack is full
+* Attempt to use enemy turn replay feature will now show "Not implemented" message
+
+### Campaigns
+* Game will now correctly track who defeated the hero or wandering monsters for related quests and victory conditions
+* Birth of a Barbarian: Yog will now start the third scenario with Angelic Alliance in his inventory
+* Birth of a Barbarian: Heroes with Angelic Alliance components are now considered to be mission-critical and can't be dismissed or lost in combat
+* Birth of a Barbarian: Yog can no longer purchase spellbook from the Mage Guild
+* Birth of a Barbarian: Yog will no longer gain Spellpower or Knowledge when leveling up
+* Birth of a Barbarian: Scenarios with mission to deliver an artifact will no longer end after just defeating enemies
+* Gem will now have her class set to "Sorceress" in campaigns
+* Fixed missing names for heroes who have their names customized in map after being transferred to the next scenario
+* Artifact transfer will now work correctly if the hero holding the transferable artifact is not also transferring
+* Fixed crash on opening of some campaigns in the French version from gog.com
+* It is now possible to replay the intro movie from the scenario information window
+* When playing the intro video, the subtitles are now correctly synchronized with the audio
+
+### Battles
+* Added option to enable unlimited combat replays during game setup
+* Added option to instantly end battle using quick combat (shotcut: 'e')
+* Added option to replace auto-combat button action with instant end using quick combat
+* Battles against AI players can now be done using quick combat
+* Disabling battle queue will now correctly reposition hero statistics preview popup
+* Fixed positioning of unit stack size label
+
+### Launcher
+* Added Spanish translation to launcher
+
+### Map Editor
+* Added Chinese translation to map editor
+
+### AI
+* Fixed possible crash on updating NKAI pathfinding data
+* Fixed counting mana usage cost of Fly spell
+* Added estimation of value of Pyramid and Cyclops Stockpile
+
+### Modding
+* Added new game setting that allows inviting heroes to taverns
+* Fixed reversed Overlord and Warlock classes mapping
+
+# 1.4.4 -> 1.4.5
+
+### Stability
+* Fixed crash on creature spellcasting
+* Fixed crash on unit entering magical obstacles such as quicksands
+* Fixed freeze on map loading on some systems
+* Fixed crash on attempt to start campaign with unsupported map
+* Fixed crash on opening creature information window with invalid SPELL_IMMUNITY bonus
+
+### Random Maps Generator
+* Fixed placement of guards sometimes resulting into open connection into third zone
+* Fixed rare crash on multithreaded access during placement of artifacts or wandering monsters
+
+### Map Editor
+* Fixed inspector using wrong editor for some values
+
+### AI
+* Fixed bug leading to AI not attacking wandering monsters in some cases
+* Fixed crash on using StupidAI for autocombat or for enemy players 
+
+# 1.4.3 -> 1.4.4
+
+### General
+* Fixed crash on generation of random maps
+
 # 1.4.2 -> 1.4.3
 
 ### General
@@ -23,6 +101,7 @@
 * Fixed positioning of prologue and epilogue text during campaign scenario intros
 
 ### Interface
+* Added an option to hide adventure map window when town or battle window are open
 * Fixed switching between pages on small version of spellbook
 * Saves with long filenames are now truncated in the UI to prevent overflow.
 * Added option to sort saved games by change date
@@ -32,7 +111,6 @@
 * Fixed incorrect cursor display when hovering over water objects accessible from shore
 
 ### Stability
-* Fixed possible creation of a duplicate hero in a random map when the player has chosen the starting hero.
 * Fixed a crash when using the 'vcmiobelisk' cheat more than once.
 * Fixed crash when reaching level 201. The maximum level is now limited to 197.
 * Fixed crash when accessing a spell with an invalid SPELLCASTER bonus
@@ -42,6 +120,11 @@
 * Fixed possible crash when the affinity of the hero class is set to an invalid value
 * Fixed crash on invalid creature in hero army due to outdated or broken mods
 * Failure to initialise video subsystem now displays error message instead of silent crash
+
+### Random Maps Generator
+* Fixed possible creation of a duplicate hero in a random map when the player has chosen the starting hero.
+* Fixed banning of quest artifacts on random maps
+* Fixed banning of heroes in prison on random maps
 
 ### Battles
 * Battle turn queue now displays current turn

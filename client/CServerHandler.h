@@ -72,6 +72,7 @@ public:
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnTimerInfo(const TurnTimerInfo &) const = 0;
 	virtual void setSimturnsInfo(const SimturnsInfo &) const = 0;
+	virtual void setExtraOptionsInfo(const ExtraOptionsInfo & info) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
 	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
@@ -94,6 +95,10 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
+	/// temporary helper member that exists while game in lobby mode
+	/// required to correctly deserialize gamestate using client-side game callback
+	std::unique_ptr<CClient> nextClient;
+
 	void threadHandleConnection();
 	void threadRunServer();
 	void onServerFinished();
@@ -115,13 +120,14 @@ public:
 	std::shared_ptr<boost::thread> threadRunLocalServer;
 
 	std::shared_ptr<CConnection> c;
-	CClient * client;
+	std::unique_ptr<CClient> client;
 
 	CondSh<bool> campaignServerRestartLock;
 
 	static const std::string localhostAddress;
 
 	CServerHandler();
+	~CServerHandler();
 	
 	std::string getHostAddress() const;
 	ui16 getHostPort() const;
@@ -158,6 +164,7 @@ public:
 	void setDifficulty(int to) const override;
 	void setTurnTimerInfo(const TurnTimerInfo &) const override;
 	void setSimturnsInfo(const SimturnsInfo &) const override;
+	void setExtraOptionsInfo(const ExtraOptionsInfo &) const override;
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
 	void sendRestartGame() const override;

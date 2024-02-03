@@ -69,6 +69,5 @@ protected:
 	virtual void init(CHeroArtPlace::ClickFunctor lClickCallback, CHeroArtPlace::ClickFunctor showPopupCallback,
 		const Point & position, BpackScrollFunctor scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
-	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet);
-	virtual void scrollBackpackForArtSet(int offset, const CArtifactSet & artSet);
+	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
 };

@@ -30,7 +30,7 @@ struct StackLocation
 	}
 
 	DLL_LINKAGE const CStackInstance * getStack();
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & army;
 		h & slot;

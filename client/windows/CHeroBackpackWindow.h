@@ -14,7 +14,7 @@
 
 class CFilledTexture;
 
-class CHeroBackpackWindow : public CWindowObject, public CWindowWithArtifacts
+class CHeroBackpackWindow : public CStatusbarWindow, public CWindowWithArtifacts
 {
 public:
 	CHeroBackpackWindow(const CGHeroInstance * hero);

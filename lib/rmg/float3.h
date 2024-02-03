@@ -16,7 +16,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class float3
 {
 public:
-	float x, y;
+	float x;
+	float y;
 	si32 z;
 
 	float3() : x(0), y(0), z(0) {}

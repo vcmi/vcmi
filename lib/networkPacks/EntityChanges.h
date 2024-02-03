@@ -21,7 +21,7 @@ public:
 	Metatype metatype = Metatype::UNKNOWN;
 	int32_t entityIndex = 0;
 	JsonNode data;
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & metatype;
 		h & entityIndex;

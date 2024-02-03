@@ -252,7 +252,7 @@ bool JsonParser::extractWhitespace(bool verbose)
 		if (input[pos] == '/')
 			pos++;
 		else
-			error("Comments must consist from two slashes!", true);
+			error("Comments must consist of two slashes!", true);
 
 		while (pos < input.size() && input[pos] != '\n')
 			pos++;
@@ -410,7 +410,7 @@ bool JsonParser::extractStruct(JsonNode &node)
 		}
 
 		if (node.Struct().find(key) != node.Struct().end())
-			error("Dublicated element encountered!", true);
+			error("Duplicate element encountered!", true);
 
 		if (!extractSeparator())
 			return false;

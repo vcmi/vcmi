@@ -45,7 +45,7 @@ struct RewardRevealTiles
 
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & radius;
 		h & scoreSurface;
@@ -119,7 +119,7 @@ struct DLL_LINKAGE Reward final
 	Reward();
 	~Reward();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & resources;
 		h & extraComponents;

@@ -19,16 +19,21 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position)
 		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
 		position,
 		std::bind(&CArtifactsOfHeroMarket::scrollBackpack, this, _1));
+
+	for(const auto & [slot, artPlace] : artWorn)
+		artPlace->setSelectionWidth(2);
+	for(auto artPlace : backpack)
+		artPlace->setSelectionWidth(2);
 };
 
 void CArtifactsOfHeroMarket::scrollBackpack(int offset)
 {
-	CArtifactsOfHeroBase::scrollBackpackForArtSet(offset, *curHero);
+	CArtifactsOfHeroBase::scrollBackpack(offset);
 
 	// We may have highlight on one of backpack artifacts
 	if(selectArtCallback)
 	{
-		for(auto & artPlace : backpack)
+		for(const auto & artPlace : backpack)
 		{
 			if(artPlace->isSelected())
 			{
@@ -37,5 +42,4 @@ void CArtifactsOfHeroMarket::scrollBackpack(int offset)
 			}
 		}
 	}
-	redraw();
 }

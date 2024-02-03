@@ -19,6 +19,8 @@
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../CGeneralTextHandler.h"
 #include "../spells/CSpellHandler.h"
@@ -160,13 +162,14 @@ bool TerrainTile::isWater() const
 	return terType->isWater();
 }
 
-CMap::CMap()
-	: checksum(0)
+CMap::CMap(IGameCallback * cb)
+	: GameCallbackHolder(cb)
+	, checksum(0)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)
 	, uidCounter(0)
 {
-	allHeroes.resize(VLC->heroh->objects.size());
+	allHeroes.resize(VLC->heroh->size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpells = VLC->spellh->getDefaultAllowed();
@@ -675,8 +678,21 @@ CMapEditManager * CMap::getEditManager()
 
 void CMap::resetStaticData()
 {
-	CGObelisk::reset();
-	CGTownInstance::reset();
+	obeliskCount = 0;
+	obelisksVisited.clear();
+	townMerchantArtifacts.clear();
+	townUniversitySkills.clear();
+}
+
+void CMap::resolveQuestIdentifiers()
+{
+	//FIXME: move to CMapLoaderH3M
+	for (auto & quest : quests)
+	{
+		if (quest->killTarget != ObjectInstanceID::NONE)
+			quest->killTarget = questIdentifierToId[quest->killTarget.getNum()];
+	}
+	questIdentifierToId.clear();
 }
 
 VCMI_LIB_NAMESPACE_END

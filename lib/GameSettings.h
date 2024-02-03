@@ -38,6 +38,7 @@ enum class EGameSettings
 	HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,
 	HEROES_STARTING_STACKS_CHANCES,
 	HEROES_BACKPACK_CAP,
+	HEROES_TAVERN_INVITE,
 	MARKETS_BLACK_MARKET_RESTOCK_PERIOD,
 	BANKS_SHOW_GUARDS_COMPOSITION,
 	MODULE_COMMANDERS,
@@ -96,7 +97,7 @@ public:
 	const JsonNode & getValue(EGameSettings option) const override;
 
 	template<typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & gameSettings;
 	}

@@ -59,7 +59,7 @@ std::string CSkill::getNameTranslated() const
 
 std::string CSkill::getJsonKey() const
 {
-	return modScope + ':' + identifier;;
+	return modScope + ':' + identifier;
 }
 
 std::string CSkill::getDescriptionTextID(int level) const
@@ -194,7 +194,8 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
-	bool major, minor;
+	bool major;
+	bool minor;
 
 	major = json["obligatoryMajor"].Bool();
 	minor = json["obligatoryMinor"].Bool();

@@ -55,9 +55,9 @@ std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
 	return std::vector<TradeItemBuy>();
 }
 
-CGMarket::CGMarket()
-{
-}
+CGMarket::CGMarket(IGameCallback *cb):
+	CGObjectInstance(cb)
+{}
 
 std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) const
 {
@@ -111,6 +111,11 @@ std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) cons
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
 	cb->showObjectWindow(this, EOpenWindowMode::UNIVERSITY_WINDOW, h, true);
+}
+
+ArtBearer::ArtBearer CGArtifactsAltar::bearerType() const
+{
+	return ArtBearer::ALTAR;
 }
 
 VCMI_LIB_NAMESPACE_END

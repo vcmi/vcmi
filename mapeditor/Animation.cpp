@@ -62,7 +62,9 @@ class ImageLoader
 	QImage * image;
 	ui8 * lineStart;
 	ui8 * position;
-	QPoint spriteSize, margins, fullSize;
+	QPoint spriteSize;
+	QPoint margins;
+	QPoint fullSize;
 public:
 	//load size raw pixels from data
 	inline void Load(size_t size, const ui8 * data);
@@ -301,7 +303,7 @@ std::shared_ptr<QImage> DefFile::loadFrame(size_t frame, size_t group) const
 	const ui32 BaseOffset = currentOffset;
 
 	
-	std::shared_ptr<QImage> img = std::make_shared<QImage>(sprite.fullWidth, sprite.fullHeight, QImage::Format_Indexed8);
+	auto img = std::make_shared<QImage>(sprite.fullWidth, sprite.fullHeight, QImage::Format_Indexed8);
 	if(!img)
 		throw std::runtime_error("Image memory cannot be allocated");
 	

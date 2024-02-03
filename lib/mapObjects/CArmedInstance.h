@@ -42,8 +42,8 @@ public:
 	virtual CBonusSystemNode & whatShouldBeAttached();
 	//////////////////////////////////////////////////////////////////////////
 
-	CArmedInstance();
-	CArmedInstance(bool isHypothetic);
+	CArmedInstance(IGameCallback *cb);
+	CArmedInstance(IGameCallback *cb, bool isHypothetic);
 
 	PlayerColor getOwner() const override
 	{
@@ -52,7 +52,7 @@ public:
 	
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<CBonusSystemNode&>(*this);

@@ -716,7 +716,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
-	auto * guard = dynamic_cast<CGCreature *>(guardFactory->create());
+	auto * guard = dynamic_cast<CGCreature *>(guardFactory->create(map.mapInstance->cb, nullptr));
 	guard->character = CGCreature::HOSTILE;
 	auto * hlp = new CStackInstance(creId, amount);
 	//will be set during initialization

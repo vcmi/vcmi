@@ -52,6 +52,11 @@ public:
 		num = value;
 	}
 
+	constexpr bool hasValue() const
+	{
+		return num >= 0;
+	}
+
 	struct hash
 	{
 		size_t operator()(const IdentifierBase & id) const
@@ -186,7 +191,7 @@ public:
 	using Identifier<FinalClass>::Identifier;
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		auto * finalClass = static_cast<FinalClass*>(this);
 		std::string value;
@@ -208,7 +213,7 @@ public:
 	using IdentifierWithEnum<FinalClass, BaseClass>::IdentifierWithEnum;
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		auto * finalClass = static_cast<FinalClass*>(this);
 		std::string value;
@@ -230,7 +235,7 @@ public:
 	using Identifier<FinalClass>::Identifier;
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		auto * finalClass = static_cast<FinalClass*>(this);
 		h & finalClass->num;
@@ -244,7 +249,7 @@ public:
 	using IdentifierWithEnum<FinalClass, BaseClass>::IdentifierWithEnum;
 
 	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	void serialize(Handler &h)
 	{
 		auto * finalClass = static_cast<FinalClass*>(this);
 		h & finalClass->num;

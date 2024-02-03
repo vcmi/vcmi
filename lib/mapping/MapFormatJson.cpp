@@ -28,6 +28,7 @@
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
 #include "../spells/CSpellHandler.h"
@@ -677,19 +678,19 @@ void CMapFormatJson::serializeTimedEvents(JsonSerializeFormat & handler)
 
 void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 {
-    //todo:serializePredefinedHeroes
+	//todo:serializePredefinedHeroes
 
-    if(handler.saving)
+	if(handler.saving)
 	{
 		if(!map->predefinedHeroes.empty())
 		{
 			auto predefinedHeroes = handler.enterStruct("predefinedHeroes");
 
-            for(auto & hero : map->predefinedHeroes)
+			for(auto & hero : map->predefinedHeroes)
 			{
-                auto predefinedHero = handler.enterStruct(hero->getHeroTypeName());
+				auto predefinedHero = handler.enterStruct(hero->getHeroTypeName());
 
-                hero->serializeJsonDefinition(handler);
+				hero->serializeJsonDefinition(handler);
 			}
 		}
 	}
@@ -697,13 +698,13 @@ void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 	{
 		auto predefinedHeroes = handler.enterStruct("predefinedHeroes");
 
-        const JsonNode & data = handler.getCurrent();
+		const JsonNode & data = handler.getCurrent();
 
-        for(const auto & p : data.Struct())
+		for(const auto & p : data.Struct())
 		{
 			auto predefinedHero = handler.enterStruct(p.first);
 
-			auto * hero = new CGHeroInstance();
+			auto * hero = new CGHeroInstance(map->cb);
 			hero->ID = Obj::HERO;
 			hero->setHeroTypeName(p.first);
 			hero->serializeJsonDefinition(handler);
@@ -777,10 +778,10 @@ CMapLoaderJson::CMapLoaderJson(CInputStream * stream)
 {
 }
 
-std::unique_ptr<CMap> CMapLoaderJson::loadMap()
+std::unique_ptr<CMap> CMapLoaderJson::loadMap(IGameCallback * cb)
 {
 	LOG_TRACE(logGlobal);
-	std::unique_ptr<CMap> result = std::make_unique<CMap>();
+	auto result = std::make_unique<CMap>(cb);
 	map = result.get();
 	mapHeader = map;
 	readMap();
@@ -791,7 +792,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 {
 	LOG_TRACE(logGlobal);
 	map = nullptr;
-	std::unique_ptr<CMapHeader> result = std::make_unique<CMapHeader>();
+	auto result = std::make_unique<CMapHeader>();
 	mapHeader = result.get();
 	readHeader(false);
 	return result;
@@ -1074,14 +1075,14 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	auto handler = VLC->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
 
-	auto * appearance = new ObjectTemplate;
+	auto appearance = std::make_shared<ObjectTemplate>();
 
 	appearance->id = Obj(handler->getIndex());
 	appearance->subid = handler->getSubIndex();
 	appearance->readJson(configuration["template"], false);
 
 	// Will be destroyed soon and replaced with shared template
-	instance = handler->create(std::shared_ptr<const ObjectTemplate>(appearance));
+	instance = handler->create(owner->map->cb, appearance);
 
 	instance->id = ObjectInstanceID(static_cast<si32>(owner->map->objects.size()));
 	instance->instanceName = jsonKey;
@@ -1360,7 +1361,7 @@ void CMapSaverJson::writeTranslations()
 		if(Languages::getLanguageOptions(language).identifier.empty())
 		{
 			logGlobal->error("Serializing of unsupported language %s is not permitted", language);
-			continue;;
+			continue;
 		}
 		logGlobal->trace("Saving translations, language: %s", language);
 		addToArchive(s.second, language + ".json");

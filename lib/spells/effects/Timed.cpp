@@ -112,9 +112,9 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	const auto *casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
 	{ 
-		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, BonusSubtypeID(m->getSpellId())));
-		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
-		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
+		peculiarBonus = casterHero->getFirstBonus(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, BonusSubtypeID(m->getSpellId())));
+		addedValueBonus = casterHero->getFirstBonus(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
+		fixedValueBonus = casterHero->getFirstBonus(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, BonusSubtypeID(m->getSpellId())));
 	}	
 	//TODO: does hero specialty should affects his stack casting spells?
 

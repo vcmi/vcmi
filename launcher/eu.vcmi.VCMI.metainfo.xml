@@ -76,7 +76,10 @@
 		</screenshot>
 	</screenshots>
 	<releases>
-		<release version="1.4.3" date="2024-01-19" type="development"/>
+		<release version="1.5.0" date="2024-03-01" type="development"/>
+		<release version="1.4.5" date="2024-01-23" type="stable"/>
+		<release version="1.4.4" date="2024-01-20" type="stable"/>
+		<release version="1.4.3" date="2024-01-19" type="stable"/>
 		<release version="1.4.2" date="2023-12-25" type="stable"/>
 		<release version="1.4.1" date="2023-12-12" type="stable"/>
 		<release version="1.4.0" date="2023-12-08" type="stable"/>

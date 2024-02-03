@@ -18,6 +18,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"
@@ -100,7 +101,8 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
 	
-	bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+	bool hflip = (rotation == 1 || rotation == 3);
+	bool vflip = (rotation == 2 || rotation == 3);
 	painter.drawImage(x * tileSize, y * tileSize, terrainImages.at(terrainName)[tinfo.terView]->mirrored(hflip, vflip));
 }
 
@@ -114,7 +116,8 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 		auto roadName = tinfoUpper->roadType->getJsonKey();
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
-		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+		bool hflip = (rotation == 1 || rotation == 3);
+		bool vflip = (rotation == 2 || rotation == 3);
 		if(roadImages.at(roadName).size() > tinfoUpper->roadDir)
 		{
 			painter.drawImage(QPoint(x * tileSize, y * tileSize), roadImages.at(roadName)[tinfoUpper->roadDir]->mirrored(hflip, vflip), source);
@@ -123,10 +126,11 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	
 	if(tinfo.roadType) //print road from this tile
 	{
-		auto roadName = tinfo.roadType->getJsonKey();;
+		auto roadName = tinfo.roadType->getJsonKey();
 		QRect source(0, 0, tileSize, tileSize / 2);
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
-		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+		bool hflip = (rotation == 1 || rotation == 3);
+		bool vflip = (rotation == 2 || rotation == 3);
 		if(roadImages.at(roadName).size() > tinfo.roadDir)
 		{
 			painter.drawImage(QPoint(x * tileSize, y * tileSize + tileSize / 2), roadImages.at(roadName)[tinfo.roadDir]->mirrored(hflip, vflip), source);
@@ -148,7 +152,8 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 		return;
 
 	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
-	bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+	bool hflip = (rotation == 1 || rotation == 3);
+	bool vflip = (rotation == 2 || rotation == 3);
 
 	painter.drawImage(x * tileSize, y * tileSize, riverImages.at(riverName)[tinfo.riverDir]->mirrored(hflip, vflip));
 }

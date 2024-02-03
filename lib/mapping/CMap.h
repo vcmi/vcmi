@@ -10,12 +10,13 @@
 
 #pragma once
 
-#include "CMapHeader.h"
-#include "../MetaString.h"
-#include "../mapObjects/MiscObjects.h" // To serialize static props
-#include "../mapObjects/CQuest.h" // To serialize static props
-#include "../mapObjects/CGTownInstance.h" // To serialize static props
 #include "CMapDefines.h"
+#include "CMapHeader.h"
+
+#include "../ConstTransitivePtr.h"
+#include "../GameCallbackHolder.h"
+#include "../MetaString.h"
+#include "../networkPacks/TradeItem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +44,7 @@ struct DLL_LINKAGE Rumor
 	~Rumor() = default;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & name;
 		h & text;
@@ -63,7 +64,7 @@ struct DLL_LINKAGE DisposedHero
 	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & heroId;
 		h & portrait;
@@ -73,10 +74,10 @@ struct DLL_LINKAGE DisposedHero
 };
 
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
-class DLL_LINKAGE CMap : public CMapHeader
+class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 {
 public:
-	CMap();
+	explicit CMap(IGameCallback *cb);
 	~CMap();
 	void initTerrain();
 
@@ -125,6 +126,7 @@ public:
 	void checkForObjectives();
 
 	void resetStaticData();
+	void resolveQuestIdentifiers();
 
 	ui32 checksum;
 	std::vector<Rumor> rumors;
@@ -158,6 +160,12 @@ public:
 
 	bool waterMap;
 
+	ui8 obeliskCount = 0; //how many obelisks are on map
+	std::map<TeamID, ui8> obelisksVisited; //map: team_id => how many obelisks has been visited
+
+	std::vector<const CArtifact *> townMerchantArtifacts;
+	std::vector<TradeItemBuy> townUniversitySkills;
+
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
@@ -166,7 +174,7 @@ private:
 
 public:
 	template <typename Handler>
-	void serialize(Handler &h, const int formatVersion)
+	void serialize(Handler &h)
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & triggeredEvents; //from CMapHeader
@@ -179,7 +187,14 @@ public:
 		h & artInstances;
 		h & quests;
 		h & allHeroes;
-		h & questIdentifierToId;
+
+		if (h.version < Handler::Version::DESTROYED_OBJECTS)
+		{
+			// old save compatibility
+			//FIXME: remove this field after save-breaking change
+			h & questIdentifierToId;
+			resolveQuestIdentifiers();
+		}
 
 		//TODO: viccondetails
 		h & terrain;
@@ -192,10 +207,10 @@ public:
 		h & artInstances;
 
 		// static members
-		h & CGObelisk::obeliskCount;
-		h & CGObelisk::visited;
-		h & CGTownInstance::merchantArtifacts;
-		h & CGTownInstance::universitySkills;
+		h & obeliskCount;
+		h & obelisksVisited;
+		h & townMerchantArtifacts;
+		h & townUniversitySkills;
 
 		h & instanceNames;
 	}

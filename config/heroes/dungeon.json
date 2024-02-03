@@ -2,7 +2,7 @@
 	"lorelei":
 	{
 		"index": 80,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": true,
 		"skills":
 		[
@@ -16,7 +16,7 @@
 	"arlach":
 	{
 		"index": 81,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": false,
 		"skills":
 		[
@@ -30,7 +30,7 @@
 	"dace":
 	{
 		"index": 82,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": false,
 		"skills":
 		[
@@ -44,7 +44,7 @@
 	"ajit":
 	{
 		"index": 83,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": false,
 		"skills":
 		[
@@ -58,7 +58,7 @@
 	"damacon":
 	{
 		"index": 84,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": false,
 		"skills":
 		[
@@ -77,7 +77,7 @@
 	"gunnar":
 	{
 		"index": 85,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": false,
 		"skills":
 		[
@@ -100,7 +100,7 @@
 	"synca":
 	{
 		"index": 86,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": true,
 		"skills":
 		[
@@ -114,7 +114,7 @@
 	"shakti":
 	{
 		"index": 87,
-		"class" : "warlock",
+		"class" : "overlord",
 		"female": false,
 		"skills":
 		[
@@ -128,7 +128,7 @@
 	"alamar":
 	{
 		"index": 88,
-		"class" : "overlord",
+		"class" : "warlock",
 		"spellbook": [ "resurrection" ],
 		"female": false,
 		"skills":
@@ -150,7 +150,7 @@
 	"jaegar":
 	{
 		"index": 89,
-		"class" : "overlord",
+		"class" : "warlock",
 		"female": false,
 		"spellbook": [ "shield" ],
 		"skills":
@@ -173,7 +173,7 @@
 	"malekith":
 	{
 		"index": 90,
-		"class" : "overlord",
+		"class" : "warlock",
 		"female": false,
 		"spellbook": [ "bloodlust" ],
 		"skills":
@@ -197,7 +197,7 @@
 	"jeddite":
 	{
 		"index": 91,
-		"class" : "overlord",
+		"class" : "warlock",
 		"female": true,
 		"spellbook": [ "resurrection" ],
 		"skills":
@@ -218,7 +218,7 @@
 	"geon":
 	{
 		"index": 92,
-		"class" : "overlord",
+		"class" : "warlock",
 		"female": false,
 		"spellbook": [ "slow" ],
 		"skills":
@@ -241,7 +241,7 @@
 	"deemer":
 	{
 		"index": 93,
-		"class" : "overlord",
+		"class" : "warlock",
 		"female": false,
 		"spellbook": [ "meteorShower" ],
 		"skills":
@@ -263,7 +263,7 @@
 	"sephinroth":
 	{
 		"index": 94,
-		"class" : "overlord",
+		"class" : "warlock",
 		"female": true,
 		"spellbook": [ "protectAir" ],
 		"skills":
@@ -284,7 +284,7 @@
 	"darkstorn":
 	{
 		"index": 95,
-		"class" : "overlord",
+		"class" : "warlock",
 		"female": false,
 		"spellbook": [ "stoneSkin" ],
 		"skills":

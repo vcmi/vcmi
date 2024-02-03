@@ -325,6 +325,11 @@ void MetaString::serializeJson(JsonSerializeFormat & handler)
 		jsonDeserialize(handler.getCurrent());
 }
 
+void MetaString::appendName(const ArtifactID & id)
+{
+	appendTextID(id.toEntity(VLC)->getNameTextID());
+}
+
 void MetaString::appendName(const SpellID & id)
 {
 	appendTextID(id.toEntity(VLC)->getNameTextID());

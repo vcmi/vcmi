@@ -163,25 +163,12 @@ public:
 	void clear() override;
 	void setEnteringMode(bool on) override;
 	void setEnteredText(const std::string & text) override;
-
-};
-
-class CFocusable;
-
-class IFocusListener
-{
-public:
-	virtual void focusGot() {};
-	virtual void focusLost() {};
-	virtual ~IFocusListener() = default;
 };
 
 /// UIElement which can get input focus
 class CFocusable : public virtual CIntObject
 {
-private:
-	std::shared_ptr<IFocusListener> focusListener;
-
+	static std::atomic<int> usageIndex;
 public:
 	bool focus; //only one focusable control can have focus at one moment
 
@@ -190,25 +177,14 @@ public:
 	void removeFocus(); //remove focus
 	bool hasFocus() const;
 
+	void focusGot();
+	void focusLost();
+
 	static std::list<CFocusable *> focusables; //all existing objs
 	static CFocusable * inputWithFocus; //who has focus now
 
 	CFocusable();
-	CFocusable(std::shared_ptr<IFocusListener> focusListener);
 	~CFocusable();
-};
-
-class CTextInput;
-class CKeyboardFocusListener : public IFocusListener
-{
-private:
-	static std::atomic<int> usageIndex;
-	CTextInput * textInput;
-
-public:
-	CKeyboardFocusListener(CTextInput * textInput);
-	void focusGot() override;
-	void focusLost() override;
 };
 
 /// Text input box where players can enter text
@@ -216,12 +192,12 @@ class CTextInput : public CLabel, public CFocusable
 {
 	std::string newText;
 	std::string helpBox; //for right-click help
-	
+
 protected:
 	std::string visibleText() override;
 
 public:
-	
+
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
 	void setText(const std::string & nText) override;

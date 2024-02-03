@@ -1,7 +1,8 @@
-[![GitHub](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
+[![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.0)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.1)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.2/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.2)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.4.5/total)](https://github.com/vcmi/vcmi/releases/tag/1.4.5)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 
 # VCMI Project
@@ -23,6 +24,7 @@ VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving 
  * Bugtracker: https://github.com/vcmi/vcmi/issues
  * Slack:      https://slack.vcmi.eu/
  * Discord:    https://discord.gg/chBT42V
+ * GPT Store:  https://chat.openai.com/g/g-1kNhX0mlO-vcmi-assistant
 
 ## Latest release
 
@@ -46,7 +48,6 @@ Please see corresponding installation guide articles for details for your platfo
 
 ## Documentation and guidelines for players
 
-- [General information about VCMI Project](players/Manual.md)
 - [Frequently asked questions](https://vcmi.eu/faq/) (external link)
 - [Game mechanics](players/Game_Mechanics.md)
 - [Bug reporting guidelines](players/Bug_Reporting_Guidelines.md)

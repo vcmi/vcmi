@@ -29,6 +29,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -750,7 +751,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 
 			if (!spellcastingModeActive())
 			{
-				if (action.spell().toSpell())
+				if (action.spell().hasValue())
 				{
 					owner.giveCommand(EActionType::MONSTER_SPELL, targetHex, action.spell());
 				}
@@ -887,17 +888,17 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 	{
 		// faerie dragon can cast only one, randomly selected spell until their next move
 		//TODO: faerie dragon type spell should be selected by server
-		const auto * spellToCast = owner.getBattle()->getRandomCastedSpell(CRandomGenerator::getDefault(), casterStack).toSpell();
+		const auto spellToCast = owner.getBattle()->getRandomCastedSpell(CRandomGenerator::getDefault(), casterStack);
 
-		if (spellToCast)
-			creatureSpells.push_back(spellToCast);
+		if (spellToCast.hasValue())
+			creatureSpells.push_back(spellToCast.toSpell());
 	}
 
 	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(BonusType::SPELLCASTER));
 
 	for(const auto & bonus : *bl)
 	{
-		if (bonus->additionalInfo[0] <= 0)
+		if (bonus->additionalInfo[0] <= 0 && bonus->subtype.as<SpellID>().hasValue())
 			creatureSpells.push_back(bonus->subtype.as<SpellID>().toSpell());
 	}
 }

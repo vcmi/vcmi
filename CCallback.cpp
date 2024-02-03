@@ -16,6 +16,7 @@
 #include "client/Client.h"
 #include "lib/mapping/CMap.h"
 #include "lib/mapObjects/CGHeroInstance.h"
+#include "lib/mapObjects/CGTownInstance.h"
 #include "lib/CBuildingHandler.h"
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
@@ -260,12 +261,12 @@ void CCallback::setFormation(const CGHeroInstance * hero, EArmyFormation mode)
 	sendRequest(&pack);
 }
 
-void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
+void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero)
 {
 	assert(townOrTavern);
 	assert(hero);
 
-	HireHero pack(hero->getHeroType(), townOrTavern->id);
+	HireHero pack(hero->getHeroType(), townOrTavern->id, nextHero);
 	pack.player = *player;
 	sendRequest(&pack);
 }

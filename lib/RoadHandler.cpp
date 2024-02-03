@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 RoadTypeHandler::RoadTypeHandler()
 {
-	objects.push_back(new RoadType);
+	objects.push_back(new RoadType());
 
 	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }

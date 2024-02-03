@@ -350,7 +350,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (VLC->terrainTypeHandler->objects.size() - 2))
+		if(allowedTerrains.size() < (VLC->terrainTypeHandler->size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 

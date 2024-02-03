@@ -12,6 +12,7 @@
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../networkPacks/ObjProperty.h"
 #include "../constants/EntityIdentifiers.h"
+#include "../GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,10 +29,10 @@ class int3;
 class MetaString;
 class PlayerColor;
 
-class DLL_LINKAGE IObjectInterface
+class DLL_LINKAGE IObjectInterface : public GameCallbackHolder
 {
 public:
-	static IGameCallback *cb;
+	using GameCallbackHolder::GameCallbackHolder;
 
 	virtual ~IObjectInterface() = default;
 
@@ -66,7 +67,7 @@ public:
 	static void preInit(); //called before objs receive their initObj
 	static void postInit();//called after objs receive their initObj
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		logGlobal->error("IObjectInterface serialized, unexpected, should not happen!");
 	}

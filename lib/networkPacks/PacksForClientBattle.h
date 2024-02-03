@@ -32,7 +32,7 @@ struct DLL_LINKAGE BattleStart : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & info;
@@ -48,7 +48,7 @@ struct DLL_LINKAGE BattleNextRound : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		assert(battleID != BattleID::NONE);
@@ -65,7 +65,7 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & stack;
@@ -80,7 +80,7 @@ struct DLL_LINKAGE BattleCancelled: public CPackForClient
 
 	BattleID battleID = BattleID::NONE;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		assert(battleID != BattleID::NONE);
@@ -100,7 +100,7 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 		CArmedInstance * army;
 		TExpType exp;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & hero;
 			h & army;
@@ -112,7 +112,7 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	std::array<HeroBattleResults, 2> heroResult;
 	ui8 winnerSide;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & heroResult;
@@ -128,13 +128,13 @@ struct DLL_LINKAGE BattleResult : public Query
 	BattleID battleID = BattleID::NONE;
 	EBattleResult result = EBattleResult::NORMAL;
 	ui8 winner = 2; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
-	std::map<ui32, si32> casualties[2]; //first => casualties of attackers - map crid => number
+	std::map<CreatureID, si32> casualties[2]; //first => casualties of attackers - map crid => number
 	TExpType exp[2] = {0, 0}; //exp for attacker and defender
 	std::set<ArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & queryID;
@@ -158,7 +158,7 @@ struct DLL_LINKAGE BattleLogMessage : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & lines;
@@ -179,7 +179,7 @@ struct DLL_LINKAGE BattleStackMoved : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & stack;
@@ -200,7 +200,7 @@ struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & changedStacks;
@@ -248,7 +248,7 @@ struct BattleStackAttacked
 		return flags & FIRE_SHIELD;
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & stackAttacked;
@@ -315,7 +315,7 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & bsa;
@@ -343,7 +343,7 @@ struct DLL_LINKAGE StartAction : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & ba;
@@ -357,7 +357,7 @@ struct DLL_LINKAGE EndAction : public CPackForClient
 
 	BattleID battleID = BattleID::NONE;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 	}
@@ -381,7 +381,7 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & side;
@@ -408,7 +408,7 @@ struct DLL_LINKAGE StacksInjured : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & stacks;
@@ -422,7 +422,7 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 	PlayerColor player1, player2;
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & player1;
@@ -441,7 +441,7 @@ struct DLL_LINKAGE BattleObstaclesChanged : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & changes;
@@ -457,7 +457,7 @@ struct DLL_LINKAGE CatapultAttack : public CPackForClient
 		EWallPart attackedPart;
 		ui8 damageDealt;
 
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & destinationTile;
 			h & attackedPart;
@@ -477,7 +477,7 @@ struct DLL_LINKAGE CatapultAttack : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & attackedParts;
@@ -498,7 +498,7 @@ struct DLL_LINKAGE BattleSetStackProperty : public CPackForClient
 	int val = 0;
 	int absolute = 0;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & stackID;
@@ -523,7 +523,7 @@ struct DLL_LINKAGE BattleTriggerEffect : public CPackForClient
 	int val = 0;
 	int additionalInfo = 0;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & stackID;
@@ -543,7 +543,7 @@ struct DLL_LINKAGE BattleUpdateGateState : public CPackForClient
 
 	BattleID battleID = BattleID::NONE;
 	EGateState state = EGateState::NONE;
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & state;

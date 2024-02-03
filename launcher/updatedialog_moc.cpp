@@ -79,7 +79,7 @@ UpdateDialog::~UpdateDialog()
 
 void UpdateDialog::showUpdateDialog(bool isManually)
 {
-	UpdateDialog * dialog = new UpdateDialog(isManually);
+	auto * dialog = new UpdateDialog(isManually);
 	
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }

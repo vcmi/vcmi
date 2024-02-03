@@ -125,7 +125,7 @@ void Graphics::load()
 
 void Graphics::loadHeroAnimations()
 {
-	for(auto & elem : VLC->heroh->classes.objects)
+	for(auto & elem : VLC->heroclassesh->objects)
 	{
 		for(auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
@@ -184,7 +184,7 @@ std::shared_ptr<Animation> Graphics::loadHeroFlagAnimation(const std::string & n
 		{2,14}, {3,15}
 	};
 	
-	std::shared_ptr<Animation> anim = std::make_shared<Animation>(name);
+	auto anim = std::make_shared<Animation>(name);
 	anim->preload();
 	
 	for(const auto & rotation : rotations)
@@ -207,7 +207,7 @@ std::shared_ptr<Animation> Graphics::loadHeroAnimation(const std::string &name)
 		{2,14}, {3,15}
 	};
 	
-	std::shared_ptr<Animation> anim = std::make_shared<Animation>(name);
+	auto anim = std::make_shared<Animation>(name);
 	anim->preload();
 	
 	

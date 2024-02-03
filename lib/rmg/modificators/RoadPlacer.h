@@ -36,7 +36,8 @@ protected:
 protected:
 	rmg::Tileset roadNodes; //tiles to be connected with roads
 	rmg::Area roads; //all tiles with roads
-	rmg::Area areaRoads, isolated;
+	rmg::Area areaRoads;
+	rmg::Area isolated;
 };
 
 VCMI_LIB_NAMESPACE_END

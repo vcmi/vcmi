@@ -125,12 +125,12 @@ public:
 
 namespace Selector
 {
-	extern DLL_LINKAGE CSelectFieldEqual<BonusType> & type();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusSubtypeID> & subtype();
-	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & sourceType();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & targetSourceType();
-	extern DLL_LINKAGE CSelectFieldEqual<BonusLimitEffect> & effectRange();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusType> & type();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusSubtypeID> & subtype();
+	extern DLL_LINKAGE const CSelectFieldEqual<CAddInfo> & info();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & sourceType();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & targetSourceType();
+	extern DLL_LINKAGE const CSelectFieldEqual<BonusLimitEffect> & effectRange();
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
 

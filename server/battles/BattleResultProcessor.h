@@ -50,7 +50,7 @@ struct FinishingBattleHelper
 
 	int remainingBattleQueriesCount;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & winnerHero;
 		h & loserHero;

@@ -36,6 +36,9 @@ class CTextBox;
 class CGarrisonInt;
 class CGarrisonSlot;
 class CHeroArea;
+class CAnimImage;
+class CFilledTexture;
+class IImage;
 
 enum class EUserEvent;
 
@@ -155,6 +158,7 @@ class CObjectListWindow : public CWindowObject
 		CObjectListWindow * parent;
 		std::shared_ptr<CLabel> text;
 		std::shared_ptr<CPicture> border;
+		std::shared_ptr<CPicture> icon;
 	public:
 		const size_t index;
 		CItem(CObjectListWindow * parent, size_t id, std::string text);
@@ -162,12 +166,14 @@ class CObjectListWindow : public CWindowObject
 		void select(bool on);
 		void clickPressed(const Point & cursorPosition) override;
 		void clickDouble(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
 	std::shared_ptr<CIntObject> titleWidget;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> descr;
+	std::vector<std::shared_ptr<IImage>> images;
 
 	std::shared_ptr<CListBox> list;
 	std::shared_ptr<CButton> ok;
@@ -181,12 +187,14 @@ public:
 	size_t selected;//index of currently selected item
 
 	std::function<void()> onExit;//optional exit callback
+	std::function<void(int)> onPopup;//optional popup callback
+	std::function<void(int)> onClicked;//optional if clicked on item callback
 
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0);
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0);
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {});
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -206,16 +214,34 @@ public:
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
 		const CGHeroInstance * h;
 
+		std::function<void()> onChoose;
+
 		void clickPressed(const Point & cursorPosition) override;
+		void clickDouble(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover (bool on) override;
-		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
+		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H, std::function<void()> OnChoose = nullptr);
 
 	private:
 		int *_sel;
 		const int _id;
 
 		std::shared_ptr<CAnimImage> portrait;
+	};
+
+	class HeroSelector : public CWindowObject
+	{
+	public:
+		std::shared_ptr<CFilledTexture> background;
+
+		HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose);
+
+	private:
+		std::map<HeroTypeID, CGHeroInstance*> inviteableHeroes;
+		std::function<void(CGHeroInstance*)> onChoose;
+
+		std::vector<std::shared_ptr<CAnimImage>> portraits;
+		std::vector<std::shared_ptr<LRClickableArea>> portraitAreas;
 	};
 
 	//recruitable heroes
@@ -237,6 +263,13 @@ public:
 	std::shared_ptr<CTextBox> heroDescription;
 
 	std::shared_ptr<CTextBox> rumor;
+	
+	std::shared_ptr<CLabel> inviteHero;
+	std::shared_ptr<CAnimImage> inviteHeroImage;
+	std::shared_ptr<LRClickableArea> inviteHeroImageArea;
+	std::map<HeroTypeID, CGHeroInstance*> inviteableHeroes;
+	CGHeroInstance* heroToInvite;
+	void addInvite();
 
 	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
 	~CTavernWindow();

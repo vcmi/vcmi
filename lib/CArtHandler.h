@@ -30,7 +30,8 @@ class JsonSerializeFormat;
 #define ART_BEARER_LIST \
 	ART_BEARER(HERO)\
 	ART_BEARER(CREATURE)\
-	ART_BEARER(COMMANDER)
+	ART_BEARER(COMMANDER)\
+	ART_BEARER(ALTAR)
 
 namespace ArtBearer
 {
@@ -47,12 +48,12 @@ class DLL_LINKAGE CCombinedArtifact
 protected:
 	CCombinedArtifact() = default;
 
-	std::vector<CArtifact*> constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
-	std::vector<CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
+	std::vector<const CArtifact*> constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
+	std::vector<const CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
 public:
 	bool isCombined() const;
-	const std::vector<CArtifact*> & getConstituents() const;
-	const std::vector<CArtifact*> & getPartOf() const;
+	const std::vector<const CArtifact*> & getConstituents() const;
+	const std::vector<const CArtifact*> & getPartOf() const;
 };
 
 class DLL_LINKAGE CScrollArtifact
@@ -179,7 +180,7 @@ struct DLL_LINKAGE ArtSlotInfo
 	ArtSlotInfo() : locked(false) {}
 	const CArtifactInstance * getArt() const;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & artifact;
 		h & locked;
@@ -223,7 +224,7 @@ public:
 	virtual void removeArtifact(ArtifactPosition slot);
 	virtual ~CArtifactSet();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & artifactsInBackpack;
 		h & artifactsWorn;

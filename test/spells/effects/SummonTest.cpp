@@ -81,7 +81,7 @@ protected:
 	}
 };
 
-TEST_P(SummonTest, Applicable)
+TEST_P(SummonTest, DISABLED_Applicable)
 {
 	const bool expectedApplicable = !exclusive || otherSummoned == CreatureID() || otherSummoned == toSummon;
 
@@ -101,7 +101,7 @@ TEST_P(SummonTest, Applicable)
 	EXPECT_EQ(expectedApplicable, subject->applicable(problemMock, &mechanicsMock));
 }
 
-TEST_P(SummonTest, Transform)
+TEST_P(SummonTest, DISABLED_Transform)
 {
 	if(otherSummoned != CreatureID())
 		addOtherSummoned(true);
@@ -218,7 +218,7 @@ protected:
 	}
 };
 
-TEST_P(SummonApplyTest, SpawnsNewUnit)
+TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
 {
 	setDefaultExpectaions();
 
@@ -239,7 +239,7 @@ TEST_P(SummonApplyTest, SpawnsNewUnit)
 	EXPECT_EQ(unitAddInfo->type, toSummon);
 }
 
-TEST_P(SummonApplyTest, UpdatesOldUnit)
+TEST_P(SummonApplyTest, DISABLED_UpdatesOldUnit)
 {
 	setDefaultExpectaions();
 

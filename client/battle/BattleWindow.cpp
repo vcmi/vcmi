@@ -41,6 +41,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/CPlayerState.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
@@ -52,6 +54,12 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	pos.h = 600;
 	pos = center();
 
+	PlayerColor defenderColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::DEFENDER);
+	PlayerColor attackerColor = owner.getBattle()->getBattle()->getSidePlayer(BattleSide::ATTACKER);
+	bool isDefenderHuman = defenderColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(defenderColor).isControlledByHuman();
+	bool isAttackerHuman = attackerColor.isValidPlayer() && LOCPLINT->cb->getStartInfo()->playerInfos.at(attackerColor).isControlledByHuman();
+	onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
+
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
 	const JsonNode config(JsonPath::builtin("config/widgets/BattleWindow2.json"));
@@ -60,6 +68,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
 	addShortcut(EShortcut::BATTLE_RETREAT, std::bind(&BattleWindow::bFleef, this));
 	addShortcut(EShortcut::BATTLE_AUTOCOMBAT, std::bind(&BattleWindow::bAutofightf, this));
+	addShortcut(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, std::bind(&BattleWindow::endWithAutocombat, this));
 	addShortcut(EShortcut::BATTLE_CAST_SPELL, std::bind(&BattleWindow::bSpellf, this));
 	addShortcut(EShortcut::BATTLE_WAIT, std::bind(&BattleWindow::bWaitf, this));
 	addShortcut(EShortcut::BATTLE_DEFEND, std::bind(&BattleWindow::bDefencef, this));
@@ -130,19 +139,13 @@ void BattleWindow::createStickyHeroInfoWindows()
 	{
 		InfoAboutHero info;
 		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, pos.y + 60)
-				: Point(pos.x + pos.w -79, pos.y + 195);
-		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, nullptr);
 	}
 	if(owner.attackingHeroInstance)
 	{
 		InfoAboutHero info;
 		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, pos.y + 60)
-				: Point(pos.x + 1, pos.y + 195);
-		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, nullptr);
 	}
 
 	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
@@ -155,6 +158,8 @@ void BattleWindow::createStickyHeroInfoWindows()
 		if(defenderHeroWindow)
 			defenderHeroWindow->disable();
 	}
+
+	setPositionInfoWindow();
 }
 
 void BattleWindow::createTimerInfoWindows()
@@ -222,6 +227,7 @@ void BattleWindow::hideQueue()
 		pos.h -= queue->pos.h;
 		pos = center();
 	}
+	setPositionInfoWindow();
 	GH.windows().totalRedraw();
 }
 
@@ -235,6 +241,7 @@ void BattleWindow::showQueue()
 
 	createQueue();
 	updateQueue();
+	setPositionInfoWindow();
 	GH.windows().totalRedraw();
 }
 
@@ -281,6 +288,38 @@ void BattleWindow::updateQueue()
 	queue->update();
 }
 
+void BattleWindow::setPositionInfoWindow()
+{
+	if(defenderHeroWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x + pos.w + 15, pos.y + 60)
+				: Point(pos.x + pos.w -79, pos.y + 195);
+		defenderHeroWindow->moveTo(position);
+	}
+	if(attackerHeroWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x - 93, pos.y + 60)
+				: Point(pos.x + 1, pos.y + 195);
+		attackerHeroWindow->moveTo(position);
+	}
+	if(defenderStackWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x + pos.w + 15, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y + 60)
+				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
+		defenderStackWindow->moveTo(position);
+	}
+	if(attackerStackWindow)
+	{
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x - 93, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y + 60)
+				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
+		attackerStackWindow->moveTo(position);
+	}
+}
+
 void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero)
 {
 	std::shared_ptr<HeroInfoBasicPanel> panelToUpdate = side == 0 ? attackerHeroWindow : defenderHeroWindow;
@@ -295,10 +334,7 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 
 	if(stack && stack->unitSide() == BattleSide::DEFENDER)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y)
-				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 135);
-		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
+		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack);
 		defenderStackWindow->setEnabled(showInfoWindows);
 	}
 	else
@@ -306,14 +342,13 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	
 	if(stack && stack->unitSide() == BattleSide::ATTACKER)
 	{
-		Point position = (GH.screenDimensions().x >= 1000)
-				? Point(pos.x - 93, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y)
-				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 135);
-		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack, &position);
+		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack);
 		attackerStackWindow->setEnabled(showInfoWindows);
 	}
 	else
 		attackerStackWindow = nullptr;
+	
+	setPositionInfoWindow();
 }
 
 void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -449,7 +484,7 @@ void BattleWindow::bFleef()
 
 	if ( owner.getBattle()->battleCanFlee() )
 	{
-		CFunctionList<void()> ony = std::bind(&BattleWindow::reallyFlee,this);
+		auto ony = std::bind(&BattleWindow::reallyFlee,this);
 		owner.curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else
@@ -551,6 +586,12 @@ void BattleWindow::bAutofightf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
+	if(settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman)
+	{
+		endWithAutocombat();
+		return;
+	}
+
 	//Stop auto-fight mode
 	if(owner.curInt->isAutoFightOn)
 	{
@@ -601,7 +642,7 @@ void BattleWindow::bSpellf()
 	{
 		//TODO: move to spell mechanics, add more information to spell cast problem
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
-		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_ALL_MAGIC));
+		auto blockingBonus = owner.currentHero()->getFirstBonus(Selector::type()(BonusType::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
 			return;
 
@@ -721,7 +762,8 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->spellcastingModeActive() : owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode || !onlyOnePlayerHuman || owner.actionsController->spellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
@@ -731,6 +773,39 @@ void BattleWindow::blockUI(bool on)
 std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 {
 	return queue->getHoveredUnitIdIfAny();
+}
+
+void BattleWindow::endWithAutocombat() 
+{
+	if(!owner.makingTurn() || owner.tacticsMode)
+		return;
+
+	LOCPLINT->showYesNoDialog(
+		VLC->generaltexth->translate("vcmi.battleWindow.endWithAutocombat"),
+		[this]()
+		{
+			owner.curInt->isAutoFightEndBattle = true;
+
+			auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
+
+			AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+			autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+
+			ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
+			ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
+
+			owner.curInt->isAutoFightOn = true;
+			owner.curInt->cb->registerBattleInterface(ai);
+			owner.curInt->autofightingAI = ai;
+
+			owner.requestAutofightingAIToTakeAction();
+
+			close();
+
+			owner.curInt->battleInt.reset();
+		},
+		nullptr
+	);
 }
 
 void BattleWindow::showAll(Canvas & to)

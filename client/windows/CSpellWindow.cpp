@@ -180,7 +180,8 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 487 + offR + pos.x, 72 + offT + pos.y, rightCorner->pos.h, rightCorner->pos.w ), std::bind(&CSpellWindow::fRcornerb, this), 451, this));
 
 	//areas for spells
-	int xpos = 117 + offL + pos.x, ypos = 90 + offT + pos.y;
+	int xpos = 117 + offL + pos.x;
+	int ypos = 90 + offT + pos.y;
 
 	for(int v=0; v<spellsPerPage; ++v)
 	{
@@ -518,13 +519,13 @@ void CSpellWindow::setCurrentPage(int value)
 void CSpellWindow::turnPageLeft()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNLFT.SMK"), pos.x+13, pos.y+15);
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNLFT.SMK"), pos.x+13, pos.y+15, EVideoType::SPELLBOOK);
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNRGH.SMK"), pos.x+13, pos.y+15);
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNRGH.SMK"), pos.x+13, pos.y+15, EVideoType::SPELLBOOK);
 }
 
 void CSpellWindow::keyPressed(EShortcut key)

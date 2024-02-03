@@ -347,7 +347,7 @@ std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
 		
-		return mapService.loadMap(resId);
+		return mapService.loadMap(resId, nullptr);
 	}
 	else
 		throw std::runtime_error("Corrupted map");
@@ -538,14 +538,15 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			auto picture = animation.getImage(0);
 			if(picture && picture->width() && picture->height())
 			{
-				qreal xscale = qreal(128) / qreal(picture->width()), yscale = qreal(128) / qreal(picture->height());
+				qreal xscale = static_cast<qreal>(128) / static_cast<qreal>(picture->width());
+				qreal yscale = static_cast<qreal>(128) / static_cast<qreal>(picture->height());
 				qreal scale = std::min(xscale, yscale);
 				painter.scale(scale, scale);
 				painter.drawImage(QPoint(0, 0), *picture);
 			}
 			
 			//create object to extract name
-			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
+			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(nullptr, templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
 			itemType->setText(translated);
 			
@@ -585,7 +586,7 @@ void MainWindow::loadObjectsTree()
 	//adding terrains
 	for(auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
+		auto *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->getId()); });
 
@@ -600,7 +601,7 @@ void MainWindow::loadObjectsTree()
 	//adding roads
 	for(auto & road : VLC->roadTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
+		auto *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
 		ui->roadLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->getIndex(), true); });
 	}
@@ -609,7 +610,7 @@ void MainWindow::loadObjectsTree()
 	//adding rivers
 	for(auto & river : VLC->riverTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
+		auto *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
 		ui->riverLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->getIndex(), false); });
 	}

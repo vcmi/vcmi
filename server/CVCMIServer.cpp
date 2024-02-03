@@ -298,7 +298,7 @@ bool CVCMIServer::prepareToStartGame()
 	Load::ProgressAccumulator progressTracking;
 	Load::Progress current(1);
 	progressTracking.include(current);
-	Load::Type currentProgress = std::numeric_limits<Load::Type>::max();
+	auto currentProgress = std::numeric_limits<Load::Type>::max();
 	
 	auto progressTrackingThread = boost::thread([this, &progressTracking, &currentProgress]()
 	{
@@ -1056,7 +1056,7 @@ void CVCMIServer::optionSetBonus(PlayerColor player, PlayerStartingBonus id)
 	if(s.castle == FactionID::RANDOM && id == PlayerStartingBonus::RESOURCE) //random castle - can't be resource
 		return;
 
-	s.bonus = id;;
+	s.bonus = id;
 }
 
 bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)

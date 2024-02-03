@@ -62,7 +62,7 @@ struct DLL_LINKAGE PackageApplied : public CPackForClient
 	ui32 requestID = 0; //an ID given by client to the request that was applied
 	PlayerColor player;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & result;
 		h & packType;
@@ -83,7 +83,7 @@ struct DLL_LINKAGE SystemMessage : public CPackForClient
 
 	std::string text;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & text;
 	}
@@ -100,7 +100,7 @@ struct DLL_LINKAGE PlayerBlocked : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & reason;
 		h & startOrEnd;
@@ -118,7 +118,7 @@ struct DLL_LINKAGE PlayerCheated : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & losingCheatCode;
@@ -133,7 +133,7 @@ struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
 	PlayerColor player;
 	TurnTimerInfo turnTimer;
 		
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & turnTimer;
@@ -148,7 +148,7 @@ struct DLL_LINKAGE PlayerStartsTurn : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & player;
@@ -164,7 +164,7 @@ struct DLL_LINKAGE DaysWithoutTown : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & daysWithoutCastle;
@@ -179,7 +179,7 @@ struct DLL_LINKAGE EntitiesChanged : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & changes;
 	}
@@ -195,7 +195,7 @@ struct DLL_LINKAGE SetResources : public CPackForClient
 	PlayerColor player;
 	ResourceSet res; //res[resid] => res amount
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & abs;
 		h & player;
@@ -214,7 +214,7 @@ struct DLL_LINKAGE SetPrimSkill : public CPackForClient
 	PrimarySkill which = PrimarySkill::ATTACK;
 	si64 val = 0;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & abs;
 		h & id;
@@ -234,7 +234,7 @@ struct DLL_LINKAGE SetSecSkill : public CPackForClient
 	SecondarySkill which;
 	ui16 val = 0;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & abs;
 		h & id;
@@ -250,14 +250,15 @@ struct DLL_LINKAGE HeroVisitCastle : public CPackForClient
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	ui8 flags = 0; //1 - start
-	ObjectInstanceID tid, hid;
+	ObjectInstanceID tid;
+	ObjectInstanceID hid;
 
 	bool start() const //if hero is entering castle (if false - leaving)
 	{
 		return flags & 1;
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & flags;
 		h & tid;
@@ -275,7 +276,7 @@ struct DLL_LINKAGE ChangeSpells : public CPackForClient
 	ObjectInstanceID hid;
 	std::set<SpellID> spells;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & learn;
 		h & hid;
@@ -293,7 +294,7 @@ struct DLL_LINKAGE SetMana : public CPackForClient
 	si32 val = 0;
 	bool absolute = true;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & val;
 		h & hid;
@@ -311,7 +312,7 @@ struct DLL_LINKAGE SetMovePoints : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & val;
 		h & hid;
@@ -330,7 +331,7 @@ struct DLL_LINKAGE FoWChange : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & tiles;
 		h & player;
@@ -356,7 +357,7 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & slotID;
 		h & roleID;
@@ -385,7 +386,7 @@ struct DLL_LINKAGE GiveBonus : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & bonus;
 		h & id;
@@ -408,7 +409,7 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & objid;
 		h & nPos;
@@ -424,7 +425,7 @@ struct DLL_LINKAGE PlayerEndsTurn : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 	}
@@ -439,7 +440,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & victoryLossCheckResult;
@@ -455,7 +456,7 @@ struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & players;
 		h & playerConnectionId;
@@ -483,7 +484,7 @@ struct DLL_LINKAGE RemoveBonus : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & source;
 		h & id;
@@ -507,7 +508,7 @@ struct DLL_LINKAGE SetCommanderProperty : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & heroid;
 		h & which;
@@ -526,7 +527,7 @@ struct DLL_LINKAGE AddQuest : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & quest;
@@ -540,7 +541,7 @@ struct DLL_LINKAGE UpdateArtHandlerLists : public CPackForClient
 	void applyGs(CGameState * gs) const;
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & allocatedArtifacts;
 	}
@@ -553,7 +554,7 @@ struct DLL_LINKAGE UpdateMapEvents : public CPackForClient
 	void applyGs(CGameState * gs) const;
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & events;
 	}
@@ -567,7 +568,7 @@ struct DLL_LINKAGE UpdateCastleEvents : public CPackForClient
 	void applyGs(CGameState * gs) const;
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & town;
 		h & events;
@@ -582,7 +583,7 @@ struct DLL_LINKAGE ChangeFormation : public CPackForClient
 	void applyGs(CGameState * gs) const;
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & hid;
 		h & formation;
@@ -607,7 +608,7 @@ struct DLL_LINKAGE RemoveObject : public CPackForClient
 	/// Player that initiated this action, if any
 	PlayerColor initiator;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & objectID;
 		h & initiator;
@@ -631,7 +632,8 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	ObjectInstanceID id;
 	ui32 movePoints = 0;
 	EResult result = FAILED; //uses EResult
-	int3 start, end; //h3m format
+	int3 start; //h3m format
+	int3 end;
 	std::unordered_set<int3> fowRevealed; //revealed tiles
 	std::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
@@ -642,7 +644,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		return result != SUCCESS && result != EMBARK && result != DISEMBARK && result != TELEPORTATION;
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & result;
@@ -664,7 +666,7 @@ struct DLL_LINKAGE NewStructures : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & tid;
 		h & bid;
@@ -682,7 +684,7 @@ struct DLL_LINKAGE RazeStructures : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & tid;
 		h & bid;
@@ -699,7 +701,7 @@ struct DLL_LINKAGE SetAvailableCreatures : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & tid;
 		h & creatures;
@@ -710,11 +712,13 @@ struct DLL_LINKAGE SetHeroesInTown : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
 
-	ObjectInstanceID tid, visiting, garrison; //id of town, visiting hero, hero in garrison
+	ObjectInstanceID tid; //id of town
+	ObjectInstanceID visiting; //id of visiting hero
+	ObjectInstanceID garrison; //id of hero in garrison
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & tid;
 		h & visiting;
@@ -734,7 +738,7 @@ struct DLL_LINKAGE HeroRecruited : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & hid;
 		h & tid;
@@ -754,7 +758,7 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & boatId;
@@ -770,7 +774,7 @@ struct DLL_LINKAGE OpenWindow : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & window;
@@ -796,10 +800,10 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & ID;
-		subID.serializeIdentifier(h, ID, version);
+		subID.serializeIdentifier(h, ID);
 		h & targetPos;
 		h & initiator;
 	}
@@ -815,7 +819,7 @@ struct DLL_LINKAGE SetAvailableArtifacts : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & arts;
@@ -837,7 +841,7 @@ struct DLL_LINKAGE ChangeStackCount : CGarrisonOperationPack
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & army;
 		h & slot;
@@ -856,7 +860,7 @@ struct DLL_LINKAGE SetStackType : CGarrisonOperationPack
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & army;
 		h & slot;
@@ -872,7 +876,7 @@ struct DLL_LINKAGE EraseStack : CGarrisonOperationPack
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & army;
 		h & slot;
@@ -889,7 +893,7 @@ struct DLL_LINKAGE SwapStacks : CGarrisonOperationPack
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & srcArmy;
 		h & dstArmy;
@@ -908,7 +912,7 @@ struct DLL_LINKAGE InsertNewStack : CGarrisonOperationPack
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & army;
 		h & slot;
@@ -930,7 +934,7 @@ struct DLL_LINKAGE RebalanceStacks : CGarrisonOperationPack
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & srcArmy;
 		h & dstArmy;
@@ -948,7 +952,7 @@ struct DLL_LINKAGE BulkRebalanceStacks : CGarrisonOperationPack
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & moves;
 	}
@@ -963,7 +967,7 @@ struct DLL_LINKAGE BulkSmartRebalanceStacks : CGarrisonOperationPack
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		h & moves;
 		h & changes;
@@ -989,7 +993,7 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & al;
 		h & askAssemble;
@@ -1004,7 +1008,7 @@ struct DLL_LINKAGE NewArtifact : public CArtifactOperationPack
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & art;
 	}
@@ -1017,7 +1021,7 @@ struct DLL_LINKAGE EraseArtifact : CArtifactOperationPack
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & al;
 	}
@@ -1030,13 +1034,14 @@ struct DLL_LINKAGE MoveArtifact : CArtifactOperationPack
 		: src(*src), dst(*dst), askAssemble(askAssemble)
 	{
 	}
-	ArtifactLocation src, dst;
+	ArtifactLocation src;
+	ArtifactLocation dst;
 	bool askAssemble = true;
 
 	void applyGs(CGameState * gs);
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & src;
 		h & dst;
@@ -1057,7 +1062,7 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 			, dstPos(dstPos)
 		{
 		}
-		template <typename Handler> void serialize(Handler & h, const int version)
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & srcPos;
 			h & dstPos;
@@ -1097,7 +1102,7 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & artsPack0;
 		h & artsPack1;
@@ -1113,13 +1118,13 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 struct DLL_LINKAGE AssembledArtifact : CArtifactOperationPack
 {
 	ArtifactLocation al; //where assembly will be put
-	CArtifact * builtArt;
+	const CArtifact * builtArt;
 
 	void applyGs(CGameState * gs);
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & al;
 		h & builtArt;
@@ -1134,7 +1139,7 @@ struct DLL_LINKAGE DisassembledArtifact : CArtifactOperationPack
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & al;
 	}
@@ -1152,7 +1157,7 @@ struct DLL_LINKAGE HeroVisit : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & heroId;
@@ -1171,9 +1176,10 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 
 	struct Hero
 	{
-		ObjectInstanceID id;
-		ui32 move, mana; //id is a general serial id
-		template <typename Handler> void serialize(Handler & h, const int version)
+		ObjectInstanceID id; //id is a general serial id
+		ui32 move;
+		ui32 mana;
+		template <typename Handler> void serialize(Handler & h)
 		{
 			h & id;
 			h & move;
@@ -1191,7 +1197,7 @@ struct DLL_LINKAGE NewTurn : public CPackForClient
 
 	NewTurn() = default;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & heroes;
 		h & cres;
@@ -1212,7 +1218,7 @@ struct DLL_LINKAGE InfoWindow : public CPackForClient //103  - displays simple i
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & type;
 		h & text;
@@ -1235,7 +1241,7 @@ struct DLL_LINKAGE SetObjectProperty : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & id;
 		h & what;
@@ -1270,7 +1276,7 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 	{
 	}
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & object;
 		h & hero;
@@ -1290,7 +1296,7 @@ struct DLL_LINKAGE HeroLevelUp : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & player;
@@ -1311,7 +1317,7 @@ struct DLL_LINKAGE CommanderLevelUp : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & player;
@@ -1350,7 +1356,7 @@ struct DLL_LINKAGE BlockingDialog : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & text;
@@ -1363,12 +1369,13 @@ struct DLL_LINKAGE BlockingDialog : public Query
 
 struct DLL_LINKAGE GarrisonDialog : public Query
 {
-	ObjectInstanceID objid, hid;
+	ObjectInstanceID objid;
+	ObjectInstanceID hid;
 	bool removableUnits = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & objid;
@@ -1386,7 +1393,7 @@ struct DLL_LINKAGE ExchangeDialog : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & player;
@@ -1411,7 +1418,7 @@ struct DLL_LINKAGE TeleportDialog : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & hero;
@@ -1431,7 +1438,7 @@ struct DLL_LINKAGE MapObjectSelectDialog : public Query
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & queryID;
 		h & player;
@@ -1446,7 +1453,7 @@ struct DLL_LINKAGE AdvmapSpellCast : public CPackForClient
 {
 	ObjectInstanceID casterID;
 	SpellID spellID;
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & casterID;
 		h & spellID;
@@ -1463,7 +1470,7 @@ struct DLL_LINKAGE ShowWorldViewEx : public CPackForClient
 
 	std::vector<ObjectPosInfo> objectPositions;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & showTerrain;
@@ -1487,7 +1494,7 @@ struct DLL_LINKAGE PlayerMessageClient : public CPackForClient
 	PlayerColor player;
 	std::string text;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
 		h & text;
@@ -1502,7 +1509,7 @@ struct DLL_LINKAGE CenterView : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & pos;
 		h & player;

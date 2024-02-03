@@ -27,6 +27,7 @@ class CMapHeader;
 class CMapInfo;
 class JsonNode;
 class Point;
+class IGameCallback;
 
 class DLL_LINKAGE CampaignRegions
 {
@@ -36,9 +37,10 @@ class DLL_LINKAGE CampaignRegions
 	struct DLL_LINKAGE RegionDescription
 	{
 		std::string infix;
-		int xpos, ypos;
+		int xpos;
+		int ypos;
 
-		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		template <typename Handler> void serialize(Handler &h)
 		{
 			h & infix;
 			h & xpos;
@@ -59,7 +61,7 @@ public:
 	ImagePath getSelectedName(CampaignScenarioID which, int color) const;
 	ImagePath getConqueredName(CampaignScenarioID which, int color) const;
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & campPrefix;
 		h & colorSuffixLength;
@@ -104,7 +106,7 @@ public:
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & version;
 		h & campaignRegions;
@@ -116,7 +118,7 @@ public:
 		h & modName;
 		h & music;
 		h & encoding;
-		if (formatVersion >= 832)
+		if (h.version >= Handler::Version::RELEASE_143)
 			h & textContainer;
 	}
 };
@@ -132,7 +134,7 @@ struct DLL_LINKAGE CampaignBonus
 
 	bool isBonusForHero() const;
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & type;
 		h & info1;
@@ -151,7 +153,7 @@ struct DLL_LINKAGE CampaignTravel
 		bool spells = false;
 		bool artifacts = false;
 
-		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		template <typename Handler> void serialize(Handler &h)
 		{
 			h & experience;
 			h & primarySkills;
@@ -169,7 +171,7 @@ struct DLL_LINKAGE CampaignTravel
 	CampaignStartOptions startOptions = CampaignStartOptions::NONE; //1 - start bonus, 2 - traveling hero, 3 - hero options
 	PlayerColor playerColor = PlayerColor::NEUTRAL; //only for startOptions == 1
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & whatHeroKeeps;
 		h & monstersKeptByHero;
@@ -197,7 +199,7 @@ struct DLL_LINKAGE CampaignScenario
 	void loadPreconditionRegions(ui32 regions);
 	bool isNotVoid() const;
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & mapName;
 		h & scenarioName;
@@ -223,7 +225,7 @@ public:
 	std::set<CampaignScenarioID> allScenarios() const;
 	int scenariosCount() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CampaignHeader&>(*this);
 		h & scenarios;
@@ -241,6 +243,9 @@ class DLL_LINKAGE CampaignState : public Campaign
 
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
+
+	/// List of previously loaded campaign maps, to prevent translation of transferred hero names getting lost after their original map has been completed
+	std::map<CampaignScenarioID, TextContainerRegistrable> mapTranslations;
 
 	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
@@ -276,7 +281,7 @@ public:
 	/// Returns true if all available scenarios have been completed and campaign is finished
 	bool isCampaignFinished() const;
 
-	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId) const;
+	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameCallback * cb);
 	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
 	std::shared_ptr<CMapInfo> getMapInfo(CampaignScenarioID scenarioId) const;
 
@@ -297,12 +302,12 @@ public:
 	/// May return empty JsonNode if such hero was not found
 	const JsonNode & getHeroByType(HeroTypeID heroID) const;
 
-	static JsonNode crossoverSerialize(CGHeroInstance * hero);
-	static CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map);
+	JsonNode crossoverSerialize(CGHeroInstance * hero) const;
+	CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map) const;
 
 	std::string campaignSet;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<Campaign&>(*this);
 		h & scenarioHeroPool;
@@ -312,6 +317,8 @@ public:
 		h & currentMap;
 		h & chosenCampaignBonuses;
 		h & campaignSet;
+		if (h.version >= Handler::Version::CAMPAIGN_MAP_TRANSLATIONS)
+			h & mapTranslations;
 	}
 };
 

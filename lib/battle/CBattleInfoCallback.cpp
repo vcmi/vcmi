@@ -25,6 +25,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
+#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -796,7 +797,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 
 std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking) const
 {
-	std::vector<std::shared_ptr<const CObstacleInstance>> obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	auto obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	RETURN_IF_NOT_BATTLE(obstacles);
 	for(auto & obs : battleGetAllObstacles())
 	{
@@ -867,9 +868,10 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side);
 			const auto * hero = battleGetFightingHero(spellObstacle->casterSide);
 			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
-			const auto * sp = obstacle->getTrigger().toSpell();
-			if(obstacle->triggersEffects() && sp)
+
+			if(obstacle->triggersEffects() && obstacle->getTrigger().hasValue())
 			{
+				const auto * sp = obstacle->getTrigger().toSpell();
 				auto cast = spells::BattleCast(this, &caster, spells::Mode::PASSIVE, sp);
 				spells::detail::ProblemImpl ignored;
 				auto target = spells::Target(1, spells::Destination(&unit));

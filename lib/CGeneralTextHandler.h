@@ -135,7 +135,7 @@ protected:
 		std::string modContext;
 		
 		template <typename Handler>
-		void serialize(Handler & h, const int Version)
+		void serialize(Handler & h)
 		{
 			h & baseValue;
 			h & baseLanguage;
@@ -193,7 +193,7 @@ public:
 	void jsonSerialize(JsonNode & dest) const;
 	
 	template <typename Handler>
-	void serialize(Handler & h, const int Version)
+	void serialize(Handler & h)
 	{
 		std::string key;
 		auto sz = stringsLocalizations.size();
@@ -227,7 +227,7 @@ public:
 	TextContainerRegistrable(const TextContainerRegistrable & other);
 	TextContainerRegistrable(TextContainerRegistrable && other) noexcept;
 
-	TextContainerRegistrable& operator=(TextContainerRegistrable b) = delete;
+	TextContainerRegistrable& operator=(const TextContainerRegistrable & b) = default;
 };
 
 /// Handles all text-related data in game

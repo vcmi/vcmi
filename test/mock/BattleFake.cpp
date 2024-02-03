@@ -46,7 +46,7 @@ void UnitFake::expectAnyBonusSystemCall()
 
 UnitFake & UnitsFake::add(ui8 side)
 {
-	UnitFake * unit = new UnitFake();
+	auto * unit = new UnitFake();
 	ON_CALL(*unit, unitSide()).WillByDefault(Return(side));
 	unit->redirectBonusesToFake();
 

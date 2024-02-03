@@ -1515,6 +1515,217 @@
 		"victoryIconIndex" : 6,
 		"victoryString" : "core.vcdesc.7"
 	},
+	"data/yog:1" : { // The Meeting
+		"defeatIconIndex" : 1,
+		"defeatString" : "core.lcdesc.3",
+		"triggeredEvents" : {
+			"heroMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf", [ "control", { "position" : [ 31, 32, 0 ], "type" : "hero" } ] ] // yog
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"specialVictory" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "control", { "position" : [ 14, 16, 0 ], "type" : "town" } ]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.250",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.249"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 6,
+		"victoryString" : "core.vcdesc.7"
+	},
+	"data/yog:2" : { // A Tough Start
+		"defeatIconIndex" : 1,
+		"defeatString" : "core.lcdesc.3",
+		"triggeredEvents" : {
+			"heroMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf", [ "control", { "position" : [ 33, 36, 0 ], "type" : "hero" } ] ] // yog
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"specialVictory" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.281",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.280"
+			},
+			"specialDefeat" : {
+				"condition" : [
+					"allOf", 
+					[ "isHuman", { "value" : 1 } ], 
+					[ "anyOf",
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.angelicAlliance" } ], [ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ], [ "haveArtifact", { "type" : "artifact.armorOfWonder" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.angelicAlliance" } ], [ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ], [ "haveArtifact", { "type" : "artifact.sandalsOfTheSaint" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.angelicAlliance" } ], [ "haveArtifact", { "type" : "artifact.celestialNecklaceOfBliss" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.angelicAlliance" } ], [ "haveArtifact", { "type" : "artifact.lionsShieldOfCourage" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.angelicAlliance" } ], [ "haveArtifact", { "type" : "artifact.swordOfJudgement" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.angelicAlliance" } ], [ "haveArtifact", { "type" : "artifact.helmOfHeavenlyEnlightenment" } ] ]
+					],
+				],
+				"effect" : { 
+					"messageToSend" : "core.genrltxt.5", 
+					"type" : "defeat"
+				},
+				"message" : "vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 0,
+		"victoryString" : "core.vcdesc.1"
+	},
+	"data/yog:3" : { // Falor and Terwen
+		"defeatIconIndex" : 1,
+		"defeatString" : "core.lcdesc.3",
+		"triggeredEvents" : {
+			"heroMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf", [ "control", { "position" : [ 3, 5, 0 ], "type" : "hero" } ] ] // yog
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"specialVictory" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.281",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.280"
+			},
+			"specialDefeat" : {
+				"condition" : [
+					"allOf", 
+					[ "isHuman", { "value" : 1 } ], 
+					[ "anyOf",
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ], [ "haveArtifact", { "type" : "artifact.celestialNecklaceOfBliss" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ], [ "haveArtifact", { "type" : "artifact.lionsShieldOfCourage" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.swordOfJudgement" } ] ],
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.helmOfHeavenlyEnlightenment" } ] ]
+					],
+				],
+				"effect" : { 
+					"messageToSend" : "core.genrltxt.5", 
+					"type" : "defeat"
+				},
+				"message" : "vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 0,
+		"victoryString" : "core.vcdesc.1"
+	},
+	"data/yog:4" : { // Returning to Bracada
+		"defeatIconIndex" : 1,
+		"defeatString" : "core.lcdesc.3",
+		"triggeredEvents" : {
+			"heroMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf", [ "control", { "position" : [ 32, 5, 0 ], "type" : "hero" } ] ] // yog
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"specialVictory" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.281",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.280"
+			},
+			"specialDefeat" : {
+				"condition" : [
+					"allOf", 
+					[ "isHuman", { "value" : 1 } ], 
+					[ "anyOf",
+						[ "noneOf", [ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ], [ "haveArtifact", { "type" : "artifact.swordOfJudgement" } ] ],
+						//[ "noneOf", [ "haveArtifact", { "type" : "artifact.pendantOfCourage" } ], [ "haveArtifact", { "type" : "artifact.helmOfHeavenlyEnlightenment" } ] ]
+					],
+				],
+				"effect" : { 
+					"messageToSend" : "core.genrltxt.5", 
+					"type" : "defeat"
+				},
+				"message" : "vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 0,
+		"victoryString" : "core.vcdesc.1"
+	},
 	"data/final:3" : { // Final Peace
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",

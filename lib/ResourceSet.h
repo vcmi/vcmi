@@ -30,7 +30,7 @@ private:
 public:
 	// read resources set from json. Format example: { "gold": 500, "wood":5 }
 	DLL_LINKAGE ResourceSet(const JsonNode & node);
-	DLL_LINKAGE ResourceSet() = default;
+	DLL_LINKAGE ResourceSet();
 
 
 #define scalarOperator(OPSIGN)									\
@@ -180,7 +180,7 @@ public:
 // 			return true;
 // 		}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & container;
 	}

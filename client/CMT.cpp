@@ -72,7 +72,7 @@ void init()
 	CStopWatch tmh;
 
 	loadDLLClasses();
-	const_cast<CGameInfo*>(CGI)->setFromLib();
+	CGI->setFromLib();
 
 	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
@@ -182,7 +182,8 @@ int main(int argc, char * argv[])
 	}
 
 	// Init old logging system and new (temporary) logging system
-	CStopWatch total, pomtime;
+	CStopWatch total;
+	CStopWatch pomtime;
 	std::cout.flags(std::ios::unitbuf);
 #ifndef VCMI_IOS
 	console = new CConsoleHandler();
@@ -429,15 +430,15 @@ void playIntro()
 {
 	auto audioData = CCS->videoh->getAudio(VideoPath::builtin("3DOLOGO.SMK"));
 	int sound = CCS->soundh->playSound(audioData);
-	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, true, true))
+	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, EVideoType::INTRO))
 	{
 		audioData = CCS->videoh->getAudio(VideoPath::builtin("NWCLOGO.SMK"));
 		sound = CCS->soundh->playSound(audioData);
-		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, true, true))
+		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, EVideoType::INTRO))
 		{
 			audioData = CCS->videoh->getAudio(VideoPath::builtin("H3INTRO.SMK"));
 			sound = CCS->soundh->playSound(audioData);
-			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, true, true);
+			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, EVideoType::INTRO);
 		}
 	}
 	CCS->soundh->stopSound(sound);
@@ -461,9 +462,9 @@ static void mainLoop()
 	{
 		if(CSH->client)
 			CSH->endGameplay();
-	}
 
-	GH.windows().clear();
+		GH.windows().clear();
+	}
 
 	CMM.reset();
 
@@ -523,25 +524,24 @@ void handleQuit(bool ask)
 	// FIXME: avoids crash if player attempts to close game while opening is still playing
 	// use cursor handler as indicator that loading is not done yet
 	// proper solution would be to abort init thread (or wait for it to finish)
+	if(!ask)
+	{
+		quitApplication();
+		return;
+	}
+
 	if (!CCS->curh)
 	{
 		quitRequestedDuringOpeningPlayback = true;
 		return;
 	}
 
-	if(ask)
-	{
-		CCS->curh->set(Cursor::Map::POINTER);
+	CCS->curh->set(Cursor::Map::POINTER);
 
-		if (LOCPLINT)
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
-		else
-			CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
-	}
+	if (LOCPLINT)
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
 	else
-	{
-		quitApplication();
-	}
+		CInfoWindow::showYesNoDialog(CGI->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
 }
 
 void handleFatalError(const std::string & message, bool terminate)

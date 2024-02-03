@@ -385,7 +385,8 @@ void CRewardableObject::initObj(CRandomGenerator & rand)
 	getObjectHandler()->configureObject(this, rand);
 }
 
-CRewardableObject::CRewardableObject()
+CRewardableObject::CRewardableObject(IGameCallback *cb)
+	:CArmedInstance(cb)
 {}
 
 void CRewardableObject::serializeJsonOptions(JsonSerializeFormat & handler)

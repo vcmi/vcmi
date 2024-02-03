@@ -969,7 +969,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 void CSpellHandler::afterLoadFinalization()
 {
-	for(auto spell : objects)
+	for(auto & spell : objects)
 	{
 		spell->setupMechanics();
 	}
@@ -997,7 +997,7 @@ std::set<SpellID> CSpellHandler::getDefaultAllowed() const
 {
 	std::set<SpellID> allowedSpells;
 
-	for(const CSpell * s : objects)
+	for(auto const & s : objects)
 		if (!s->isSpecial() && !s->isCreatureAbility())
 			allowedSpells.insert(s->getId());
 

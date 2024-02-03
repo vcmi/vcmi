@@ -50,4 +50,5 @@ protected:
 	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
 	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();
+	bool checkSpecialArts(const CArtifactInstance & artInst, const CGHeroInstance * hero, bool isTrade);
 };

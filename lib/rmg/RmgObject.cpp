@@ -17,6 +17,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "Functions.h"
 #include "../TerrainHandler.h"
 
@@ -138,6 +139,9 @@ void Object::Instance::setTemplate(TerrainId terrain, CRandomGenerator & rng)
 
 void Object::Instance::clear()
 {
+	if (onCleared)
+		onCleared(&dObject);
+
 	delete &dObject;
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();

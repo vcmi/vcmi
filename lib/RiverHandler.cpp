@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 RiverTypeHandler::RiverTypeHandler()
 {
-	objects.push_back(new RiverType);
+	objects.push_back(new RiverType());
 
 	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }

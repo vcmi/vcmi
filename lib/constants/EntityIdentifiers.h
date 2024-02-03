@@ -21,6 +21,8 @@ class Creature;
 class CreatureService;
 class HeroType;
 class CHero;
+class CHeroClass;
+class HeroClass;
 class HeroTypeService;
 class Faction;
 class Skill;
@@ -81,6 +83,9 @@ public:
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const CHeroClass * toHeroClass() const;
+	const HeroClass * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE HeroTypeID : public EntityIdentifier<HeroTypeID>
@@ -97,6 +102,8 @@ public:
 
 	static const HeroTypeID NONE;
 	static const HeroTypeID RANDOM;
+	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
+	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
 
 	bool isValid() const
 	{
@@ -522,7 +529,7 @@ public:
 	}
 
 	template <typename Handler>
-	void serializeIdentifier(Handler &h, const MapObjectID & primaryID, const int version)
+	void serializeIdentifier(Handler &h, const MapObjectID & primaryID)
 	{
 		std::string secondaryStringID;
 
@@ -605,7 +612,10 @@ public:
 		CREATURE_SLOT = 0,
 		
 		// Commander
-		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6
+		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6,
+
+		// Altar
+		ALTAR = BACKPACK_START
 	};
 
 	static_assert(MISC5 < BACKPACK_START, "incorrect number of artifact slots");
@@ -641,6 +651,7 @@ public:
 		FIRST_AID_TENT = 6,
 		VIAL_OF_DRAGON_BLOOD = 127,
 		ARMAGEDDONS_BLADE = 128,
+		ANGELIC_ALLIANCE = 129,
 		TITANS_THUNDER = 135,
 		ART_SELECTION = 144,
 		ART_LOCK = 145, // FIXME: We must get rid of this one since it's conflict with artifact from mods. See issue 2455
@@ -954,7 +965,7 @@ public:
 	using Identifier<BuildingTypeUniqueID>::Identifier;
 
 	template <typename Handler>
-	void serialize(Handler & h, const int version)
+	void serialize(Handler & h)
 	{
 		FactionID faction = getFaction();
 		BuildingID building = getBuilding();

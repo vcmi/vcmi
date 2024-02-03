@@ -29,7 +29,7 @@ struct DLL_LINKAGE SetStackEffect : public CPackForClient
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & toAdd;

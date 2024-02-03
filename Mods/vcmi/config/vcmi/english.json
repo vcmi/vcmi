@@ -13,13 +13,14 @@
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Deadly",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Impossible",
 
-	"vcmi.adventureMap.confirmRestartGame"     : "Are you sure you want to restart the game?",
-	"vcmi.adventureMap.noTownWithMarket"       : "There are no available marketplaces!",
-	"vcmi.adventureMap.noTownWithTavern"       : "There are no available towns with taverns!",
-	"vcmi.adventureMap.spellUnknownProblem"    : "There is an unknown problem with this spell! No more information is available.",
-	"vcmi.adventureMap.playerAttacked"         : "Player has been attacked: %s",
-	"vcmi.adventureMap.moveCostDetails"        : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
+	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
+	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
+	"vcmi.adventureMap.noTownWithTavern"                 : "There are no available towns with taverns!",
+	"vcmi.adventureMap.spellUnknownProblem"              : "There is an unknown problem with this spell! No more information is available.",
+	"vcmi.adventureMap.playerAttacked"                   : "Player has been attacked: %s",
+	"vcmi.adventureMap.moveCostDetails"                  : "Movement points - Cost: %TURNS turns + %POINTS points, Remaining points: %REMAINING",
+	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Movement points - Cost: %POINTS points, Remaining points: %REMAINING",
+	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 
 	"vcmi.capitalColors.0" : "Red",
 	"vcmi.capitalColors.1" : "Blue",
@@ -72,6 +73,7 @@
 	"vcmi.lobby.noUnderground" : "no underground",
 	"vcmi.lobby.sortDate" : "Sorts maps by change date",
 
+	"vcmi.client.errors.invalidMap" : "{Invalid map or campaign}\n\nFailed to start game! Selected map or campaign might be invalid or corrupted. Reason:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Missing data files}\n\nCampaigns data files were not found! You may be using incomplete or corrupted Heroes 3 data files. Please reinstall game data.",
 	"vcmi.server.errors.existingProcess" : "Another VCMI server process is running. Please terminate it before starting a new game.",
 	"vcmi.server.errors.modsToEnable"    : "{Following mods are required}",
@@ -170,8 +172,10 @@
 	"vcmi.battleOptions.showStickyHeroInfoWindows.hover": "Show heroes statistics windows",
 	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Show heroes statistics windows}\n\nPermanently toggle on heroes statistics windows that show primary stats and spell points.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Skip Intro Music",
-	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\nAllow actions during the intro music that plays at the beginning of each battle.",
-	
+	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\nAllow actions during the intro music that plays at the beginning of each battle.",	
+	"vcmi.battleOptions.endWithAutocombat.hover": "Ends battle",
+	"vcmi.battleOptions.endWithAutocombat.help": "{Ends battle}\n\nAuto-Combat plays battle to end instant",
+
 	"vcmi.adventureMap.revisitObject.hover" : "Revisit Object",
 	"vcmi.adventureMap.revisitObject.help" : "{Revisit Object}\n\nIf a hero currently stands on a Map Object, he can revisit the location.",
 
@@ -190,6 +194,7 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s were killed by accurate shots!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s was killed with an accurate shot!",
 	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s were killed by accurate shots!",
+	"vcmi.battleWindow.endWithAutocombat" : "Are you sure you wish to end the battle with auto combat?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Apply battle result",
 
@@ -231,6 +236,8 @@
 	"vcmi.heroWindow.openCommander.help"  : "Shows details about the commander of this hero.",
 	"vcmi.heroWindow.openBackpack.hover" : "Open artifact backpack window",
 	"vcmi.heroWindow.openBackpack.help"  : "Opens window that allows easier artifact backpack management.",
+
+	"vcmi.tavernWindow.inviteHero"  : "Invite hero",
 
 	"vcmi.commanderWindow.artifactMessage" : "Do you want to return this artifact to the hero?",
 
@@ -312,6 +319,14 @@
 	"vcmi.optionsTab.simturns.months.1" : " %d month",
 	"vcmi.optionsTab.simturns.months.2" : " %d months",
 
+	"vcmi.optionsTab.extraOptions.hover" : "Extra Options",
+	"vcmi.optionsTab.extraOptions.help" : "Additional settings for the game",
+
+	"vcmi.optionsTab.cheatAllowed.hover" : "Allow cheats",
+	"vcmi.optionsTab.unlimitedReplay.hover" : "Unlimited battle replay",
+	"vcmi.optionsTab.cheatAllowed.help" : "{Allow cheats}\nAllows the inputs of cheats during the game.",
+	"vcmi.optionsTab.unlimitedReplay.help" : "{Unlimited battle replay}\nNo limit of replaying battles.",
+
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Congratulations! You have managed to survive. Victory is yours!",
@@ -320,6 +335,7 @@
 	"vcmi.map.victoryCondition.collectArtifacts.message" : "Acquire Three Artifacts",
 	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Congratulations! All your enemies have been defeated and you have Angelic Alliance! Victory is yours!",
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Defeat All Enemies and create Angelic Alliance",
+	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Alas, you have lost part of the Angelic Alliance. All is lost.",
 
 	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",

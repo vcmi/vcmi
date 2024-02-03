@@ -34,6 +34,7 @@
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
+#include "../render/CAnimation.h"
 #include "../render/ColorFilter.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CList.h"
@@ -872,7 +873,7 @@ void CCastleBuildings::enterCastleGate()
 		return;//only visiting hero can use castle gates
 	}
 	std::vector <int> availableTowns;
-	std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
+	std::vector <const CGTownInstance*> Towns = LOCPLINT->localState->getOwnedTowns();
 	for(auto & Town : Towns)
 	{
 		const CGTownInstance *t = Town;
@@ -883,9 +884,22 @@ void CCastleBuildings::enterCastleGate()
 			availableTowns.push_back(t->id.getNum());//add to the list
 		}
 	}
+
+	std::vector<std::shared_ptr<IImage>> images;
+	for(auto & t : Towns)
+	{
+		if(!settings["general"]["enableUiEnhancements"].Bool())
+			break;
+		std::shared_ptr<CAnimation> a = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITPA"));
+		a->preload();
+		images.push_back(a->getImage(t->town->clientInfo.icons[t->hasFort()][false] + 2)->scaleFast(Point(35, 23)));
+	}
+
 	auto gateIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
-	GH.windows().createAndPushWindow<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
-		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1));
+	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
+		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1), 0, images);
+	wnd->onPopup = [Towns](int index) { CRClickPopup::createAndPush(Towns[index], GH.getCursorPosition()); };
+	GH.windows().pushWindow(wnd);
 }
 
 void CCastleBuildings::enterDwelling(int level)
@@ -967,11 +981,7 @@ void CCastleBuildings::enterMagesGuild()
 
 	if(hero && !hero->hasSpellbook()) //hero doesn't have spellbok
 	{
-		const StartInfo *si = LOCPLINT->cb->getStartInfo();
-		// it would be nice to find a way to move this hack to config/mapOverrides.json
-		if(si && si->campState &&                                   // We're in campaign,
-			(si->campState->getFilename() == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
-			(hero->getHeroType() == 45))                        // and the hero is Yog (based on Solmyr)
+		if(hero->isCampaignYog())
 		{
 			// "Yog has given up magic in all its forms..."
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[736]);
@@ -1506,8 +1516,8 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 					}
 				}
 			}
-			int posX = pos.w/2 - (int)boxList[row].size()*154/2 - ((int)boxList[row].size()-1)*20 + 194*(int)col,
-				posY = 35 + 104*(int)row;
+			int posX = pos.w/2 - (int)boxList[row].size()*154/2 - ((int)boxList[row].size()-1)*20 + 194*(int)col;
+			int posY = 35 + 104*(int)row;
 
 			if(building)
 				boxes[row].push_back(std::make_shared<CBuildingBox>(posX, posY, town, building));

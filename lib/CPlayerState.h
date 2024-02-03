@@ -40,10 +40,10 @@ struct DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 				return subID < other.subID;
 		}
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler &h)
 		{
 			h & id;
-			subID.serializeIdentifier(h, id, version);
+			subID.serializeIdentifier(h, id);
 		}
 	};
 
@@ -52,6 +52,10 @@ public:
 	bool human; //true if human controlled player, false for AI
 	TeamID team;
 	TResources resources;
+
+	/// list of objects that were "destroyed" by player, either via simple pick-up (e.g. resources) or defeated heroes or wandering monsters
+	std::set<ObjectInstanceID> destroyedObjects;
+
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::set<VisitedObjectGlobal> visitedObjectsGlobal;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
@@ -67,7 +71,6 @@ public:
 	TurnTimerInfo turnTimer;
 
 	PlayerState();
-	PlayerState(PlayerState && other) noexcept;
 	~PlayerState();
 
 	std::string nodeName() const override;
@@ -90,7 +93,7 @@ public:
 		return heroes.empty() && towns.empty();
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & color;
 		h & human;
@@ -111,6 +114,8 @@ public:
 		h & enteredLosingCheatCode;
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
+		if (h.version >= Handler::Version::DESTROYED_OBJECTS)
+			h & destroyedObjects;
 	}
 };
 
@@ -123,9 +128,8 @@ public:
 	std::unique_ptr<boost::multi_array<ui8, 3>> fogOfWarMap; //[z][x][y] true - visible, false - hidden
 
 	TeamState();
-	TeamState(TeamState && other) noexcept;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & id;
 		h & players;

@@ -131,8 +131,8 @@ public:
 
 	void newGame(CGameState * gameState);
 	void loadGame(CGameState * gameState);
-	void serialize(BinarySerializer & h, const int version);
-	void serialize(BinaryDeserializer & h, const int version);
+	void serialize(BinarySerializer & h);
+	void serialize(BinaryDeserializer & h);
 
 	void save(const std::string & fname);
 	void endGame();

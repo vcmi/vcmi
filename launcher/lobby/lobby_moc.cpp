@@ -106,7 +106,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	//initialize variables outside of switch block
 	const QString statusPlaceholder("%1 %2\n");
 	const auto & args = command.arguments;
-	int amount, tagPoint;
+	int amount;
+	int tagPoint;
 	QString joinStr;
 	switch(command.command)
 	{
@@ -138,10 +139,10 @@ void Lobby::serverCommand(const ServerCommand & command) try
 
 			int playersJoined = args[tagPoint++].toInt();
 			int playersTotal = args[tagPoint++].toInt();
-			QTableWidgetItem * sessionPlayerItem = new QTableWidgetItem(QString("%1/%2").arg(playersJoined).arg(playersTotal));
+			auto * sessionPlayerItem = new QTableWidgetItem(QString("%1/%2").arg(playersJoined).arg(playersTotal));
 			ui->sessionsTable->setItem(i, 1, sessionPlayerItem);
 
-			QTableWidgetItem * sessionProtectedItem = new QTableWidgetItem();
+			auto * sessionProtectedItem = new QTableWidgetItem();
 			bool isPrivate = (args[tagPoint++] == "True");
 			sessionProtectedItem->setData(Qt::UserRole, isPrivate);
 			if(isPrivate)
@@ -521,7 +522,8 @@ void Lobby::on_kickButton_clicked()
 
 void Lobby::on_buttonResolve_clicked()
 {
-	QStringList toEnableList, toDisableList;
+	QStringList toEnableList;
+	QStringList toDisableList;
 	auto items = ui->modsList->selectedItems();
 	if(items.empty())
 	{

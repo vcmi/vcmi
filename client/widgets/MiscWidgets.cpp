@@ -664,22 +664,37 @@ void CCreaturePic::setAmount(int newAmount)
 }
 
 TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color) :
-	color(color), colorLine(ColorRGBA()), drawLine(false)
+	color(color), colorLine(ColorRGBA()), drawLine(false), lineWidth(0)
 {
 	pos = position + pos.topLeft();
 }
 
-TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine) :
-	color(color), colorLine(colorLine), drawLine(true)
+TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA color, ColorRGBA colorLine, int width) :
+	color(color), colorLine(colorLine), drawLine(true), lineWidth(width)
 {
 	pos = position + pos.topLeft();
+}
+
+void TransparentFilledRectangle::setDrawBorder(bool on)
+{
+	drawLine = on;
+}
+
+bool TransparentFilledRectangle::getDrawBorder()
+{
+	return drawLine;
+}
+
+void TransparentFilledRectangle::setBorderWidth(int width)
+{
+	lineWidth = width;
 }
 
 void TransparentFilledRectangle::showAll(Canvas & to) 
 {
 	to.drawColorBlended(pos, color);
 	if(drawLine)
-		to.drawBorder(pos, colorLine);
+		to.drawBorder(pos, colorLine, lineWidth);
 }
 
 SimpleLine::SimpleLine(Point pos1, Point pos2, ColorRGBA color) :
@@ -689,4 +704,37 @@ SimpleLine::SimpleLine(Point pos1, Point pos2, ColorRGBA color) :
 void SimpleLine::showAll(Canvas & to) 
 {
 	to.drawLine(pos1 + pos.topLeft(), pos2 + pos.topLeft(), color, color);
+}
+
+SelectableSlot::SelectableSlot(Rect area, Point oversize, const int width)
+	: LRClickableAreaWTextComp(area)
+{
+	selection = std::make_unique<TransparentFilledRectangle>(
+		Rect(area.topLeft() - oversize, area.dimensions() + oversize * 2), Colors::TRANSPARENCY, Colors::YELLOW, width);
+	selectSlot(false);
+}
+
+SelectableSlot::SelectableSlot(Rect area, Point oversize)
+	: SelectableSlot(area, oversize, 1)
+{
+}
+
+SelectableSlot::SelectableSlot(Rect area, const int width)
+	: SelectableSlot(area, Point(), width)
+{
+}
+
+void SelectableSlot::selectSlot(bool on)
+{
+	selection->setDrawBorder(on);
+}
+
+bool SelectableSlot::isSelected() const
+{
+	return selection->getDrawBorder();
+}
+
+void SelectableSlot::setSelectionWidth(int width)
+{
+	selection->setBorderWidth(width);
 }

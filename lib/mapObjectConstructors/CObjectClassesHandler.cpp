@@ -42,7 +42,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
-#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
+#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>
 #define SET_HANDLER(STRING, TYPENAME) handlerConstructors[STRING] = std::make_shared<CDefaultObjectTypeHandler<TYPENAME>>
 
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
@@ -109,13 +109,13 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 
 	for (size_t i = 0; i < totalNumber; i++)
 	{
-		auto * tmpl = new ObjectTemplate;
+		auto tmpl = std::make_shared<ObjectTemplate>();
 
 		tmpl->readTxt(parser);
 		parser.endLine();
 
 		std::pair key(tmpl->id, tmpl->subid);
-		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
+		legacyTemplates.insert(std::make_pair(key, tmpl));
 	}
 
 	objects.resize(256);
@@ -204,7 +204,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	auto createdObject = handlerConstructors.at(handler)();
 
 	createdObject->modScope = scope;
-	createdObject->typeName = obj->identifier;;
+	createdObject->typeName = obj->identifier;
 	createdObject->subTypeName = identifier;
 
 	createdObject->type = obj->id;

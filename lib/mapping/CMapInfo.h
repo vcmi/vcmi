@@ -58,7 +58,7 @@ public:
 	int getMapSizeFormatIconId() const;
 	std::string getMapSizeName() const;
 
-	template <typename Handler> void serialize(Handler &h, const int Version)
+	template <typename Handler> void serialize(Handler &h)
 	{
 		h & mapHeader;
 		h & campaign;

@@ -15,12 +15,13 @@
 
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
 #include "CMessage.h"
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
 CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
-	: CWindowObject((EOptions)0)
+	: CStatusbarWindow(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -30,10 +31,14 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 	addSetAndCallbacks(arts);
 	arts->setHero(hero);
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
-	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""),
+		[this]() { WindowBase::close(); }, EShortcut::GLOBAL_RETURN);
 	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
 	pos.h = stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;
 	quitButton->moveTo(Point(pos.x + pos.w / 2 - quitButton->pos.w / 2, pos.y + arts->pos.h + 2 * windowMargin));
+	statusbar = CGStatusBar::create(0, pos.h, ImagePath::builtin("ADROLLVR.bmp"), pos.w);
+	pos.h += statusbar->pos.h;
+
 	center();
 }
 
@@ -44,7 +49,7 @@ void CHeroBackpackWindow::showAll(Canvas & to)
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)
-	: CWindowObject((EOptions)0)
+	: CWindowObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
