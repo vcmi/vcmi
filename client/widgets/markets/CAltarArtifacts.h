@@ -23,14 +23,13 @@ public:
 	void setSelectedArtifact(const CArtifactInstance * art);
 	std::shared_ptr<CArtifactsOfHeroAltar> getAOHset() const;
 	ObjectInstanceID getObjId() const;
-	void updateSlots();
+	void updateSlots() override;
 	void putBackArtifacts();
 
 private:
 	ObjectInstanceID altarId;
 	const CArtifactSet * altarArtifacts;
 	std::shared_ptr<CArtPlace> selectedArt;
-	std::shared_ptr<CLabel> selectedCost;
 	std::shared_ptr<CButton> sacrificeBackpackButton;
 	std::shared_ptr<CArtifactsOfHeroAltar> heroArts;
 	std::map<const CArtifactInstance*, std::shared_ptr<CTradeableItem>> tradeSlotsMap;

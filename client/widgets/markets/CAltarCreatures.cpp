@@ -49,8 +49,9 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 
 	// Hero creatures panel
 	assert(leftTradePanel);
+	leftTradePanel->selectedImage->moveTo(pos.topLeft() + Point(104, 312));
+
 	leftTradePanel->moveBy(Point(45, 110));
-	leftTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitle, this);
 	for(const auto & slot : leftTradePanel->slots)
 		slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot) {CAltarCreatures::onSlotClickPressed(heroSlot, hLeft);};
 
@@ -59,6 +60,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 		{
 			CAltarCreatures::onSlotClickPressed(altarSlot, hRight);
 		}, leftTradePanel->slots);
+	rightTradePanel->selectedImage->moveTo(pos.topLeft() + Point(61, 312));
 	rightTradePanel->moveBy(Point(334, 110));
 
 	leftTradePanel->deleteSlotsCheck = rightTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
@@ -109,25 +111,41 @@ void CAltarCreatures::updateControls()
 	maxUnits->block(offerSlider->getAmount() == 0);
 }
 
-void CAltarCreatures::updateSubtitlesForSelected()
+void CAltarCreatures::updateSelected()
 {
+	std::optional<size_t> lImageIndex = std::nullopt;
+	std::optional<size_t> rImageIndex = std::nullopt;
+
 	if(hLeft)
+	{
 		lSubtitle->setText(std::to_string(offerSlider->getValue()));
+		lImageIndex = CGI->creatures()->getByIndex(hLeft->id)->getIconIndex();
+	}
 	else
+	{
 		lSubtitle->setText("");
+	}
 	if(hRight)
+	{
 		rSubtitle->setText(hRight->subtitle);
+		if(offerSlider->getValue() != 0)
+			rImageIndex = CGI->creatures()->getByIndex(hRight->id)->getIconIndex();
+	}
 	else
+	{
 		rSubtitle->setText("");
+	}
+	leftTradePanel->setSelectedFrameIndex(lImageIndex);
+	rightTradePanel->setSelectedFrameIndex(rImageIndex);
+	rightTradePanel->selectedImage->redraw();
 }
 
 void CAltarCreatures::updateSlots()
 {
 	rightTradePanel->deleteSlots();
-	leftTradePanel->deleteSlots();
+	CCreaturesSelling::updateSlots();
 	assert(leftTradePanel->slots.size() == rightTradePanel->slots.size());
 	readExpValues();
-	leftTradePanel->updateSlots();
 }
 
 void CAltarCreatures::deselect()
@@ -135,7 +153,8 @@ void CAltarCreatures::deselect()
 	CTradeBase::deselect();
 	offerSlider->block(true);
 	maxUnits->block(true);
-	updateSubtitlesForSelected();
+	offerSlider->scrollTo(0);
+	updateSelected();
 }
 
 TExpType CAltarCreatures::calcExpAltarForHero()
@@ -152,7 +171,6 @@ TExpType CAltarCreatures::calcExpAltarForHero()
 void CAltarCreatures::makeDeal()
 {
 	deselect();
-	offerSlider->scrollTo(0);
 	expForHero->setText(std::to_string(0));
 
 	std::vector<TradeItemSell> ids;
@@ -192,14 +210,17 @@ void CAltarCreatures::sacrificeAll()
 			unitsOnAltar[heroSlot->serial] = stackCount;
 		}
 	}
-	assert(lastSlot.has_value());
-	unitsOnAltar[lastSlot.value().num]--;
+	if(hero->needsLastStack())
+	{
+		assert(lastSlot.has_value());
+		unitsOnAltar[lastSlot.value().num]--;
+	}
 
 	if(hRight)
 		offerSlider->scrollTo(unitsOnAltar[hRight->serial]);
 	for(auto altarSlot : rightTradePanel->slots)
 		updateAltarSlot(altarSlot);
-	updateSubtitlesForSelected();
+	updateSelected();
 
 	deal->block(calcExpAltarForHero() == 0);
 }
@@ -220,18 +241,18 @@ void CAltarCreatures::onOfferSliderMoved(int newVal)
 		updateAltarSlot(hRight);
 	deal->block(calcExpAltarForHero() == 0);
 	updateControls();
-	updateSubtitlesForSelected();
+	updateSelected();
 }
 
-void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSide)
+void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
 {
-	if(hCurSide == newSlot)
+	if(hCurSlot == newSlot)
 		return;
 
 	auto * oppositeSlot = &hLeft;
 	auto oppositePanel = leftTradePanel;
-	CTradeBase::onSlotClickPressed(newSlot, hCurSide);
-	if(hCurSide == hLeft)
+	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
+	if(hCurSlot == hLeft)
 	{
 		oppositeSlot = &hRight;
 		oppositePanel = rightTradePanel;
@@ -246,6 +267,6 @@ void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 	assert(oppositeNewSlot);
 	CTradeBase::onSlotClickPressed(oppositeNewSlot, *oppositeSlot);
 	updateControls();
-	updateSubtitlesForSelected();
+	updateSelected();
 	redraw();
 }

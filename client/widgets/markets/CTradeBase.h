@@ -35,6 +35,8 @@ public:
 	//highlighted items (nullptr if no highlight)
 	std::shared_ptr<CTradeableItem> hLeft;
 	std::shared_ptr<CTradeableItem> hRight;
+	std::shared_ptr<CLabel> lSubtitle;
+	std::shared_ptr<CLabel> rSubtitle;
 	std::shared_ptr<CButton> deal;
 	std::shared_ptr<CSlider> offerSlider;
 
@@ -49,6 +51,7 @@ public:
 	virtual void makeDeal() = 0;
 	virtual void deselect();
 	virtual void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
+	virtual void updateSlots() {};	// TODO make pure virtual
 };
 
 // Market subclasses
@@ -71,4 +74,14 @@ public:
 	CCreaturesSelling();
 	bool slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot);
 	void updateSubtitle();
+	void updateSlots() override;
+};
+
+class CResourcesMarket : virtual public CTradeBase, virtual public CIntObject
+{
+public:
+	CResourcesMarket(EMarketMode marketMode);
+
+private:
+	void updateSubtitles(EMarketMode marketMode);
 };

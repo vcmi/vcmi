@@ -24,7 +24,6 @@ public:
 	virtual const CGHeroInstance * getHero() const = 0;
 
 	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;
-	//void showAll(Canvas & to) override;
 
 	std::shared_ptr<CExperienceAltar> altar;
 };

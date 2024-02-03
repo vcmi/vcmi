@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CAltarWindow.h"
 
-#include "../render/Canvas.h"
 #include "../widgets/TextControls.h"
 
 #include "../CGameInfo.h"
@@ -54,18 +53,3 @@ void CAltarWindow::artifactMoved(const ArtifactLocation & srcLoc, const Artifact
 	}
 	CWindowWithArtifacts::artifactMoved(srcLoc, destLoc, withRedraw);
 }
-
-/*void CAltarWindow::showAll(Canvas& to)
-{
-	// This func is temporary workaround for compliance with CTradeWindow
-	CWindowObject::showAll(to);
-
-	if(altar->hRight)
-	{
-		altar->hRight->showAllAt(altar->pos.topLeft() + Point(396, 423), "", to);
-	}
-	if(altar->hLeft)
-	{
-		altar->hLeft->showAllAt(altar->pos.topLeft() + Point(150, 423), "", to);
-	}
-}*/

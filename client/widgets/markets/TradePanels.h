@@ -64,12 +64,14 @@ public:
 	DeleteSlotsCheck deleteSlotsCheck;
 	std::shared_ptr<CTradeableItem> selected;
 	const int selectionWidth = 2;
+	std::shared_ptr<CAnimImage> selectedImage;
 
 	virtual void updateSlots();
 	virtual void deselect();
 	virtual void clearSubtitles();
 	void updateOffer(CTradeableItem & slot, int, int);
 	void deleteSlots();
+	void setSelectedFrameIndex(std::optional<size_t> index);
 };
 
 class ResourcesPanel : public TradePanelBase

@@ -103,23 +103,7 @@ void CTradeWindow::initItems(bool Left)
 			CTradeBase::onSlotClickPressed(newSlot, left ? hLeft : hRight);
 			selectionChanged(left);
 		};
-
-		if(Left && mode == EMarketMode::CREATURE_RESOURCE)
-		{
-			CreaturesPanel::slotsData slots;
-			for(auto slotId = SlotID(0); slotId.num < GameConstants::ARMY_SIZE; slotId++)
-			{
-				if(const auto & creature = hero->getCreature(slotId))
-					slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
-			}
-			leftTradePanel = std::make_shared<CreaturesPanel>(std::bind(clickPressedTradePanel, _1, true), slots);
-			leftTradePanel->moveBy(Point(45, 123));
-			leftTradePanel->deleteSlotsCheck = [this](const std::shared_ptr<CTradeableItem> & slot)
-			{
-				return this->hero->getStackCount(SlotID(slot->serial)) == 0 ? true : false;
-			};
-		}
-		else if(Left && (mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::RESOURCE_PLAYER))
+		if(Left && (mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::RESOURCE_PLAYER))
 		{
 			leftTradePanel = std::make_shared<ResourcesPanel>(
 				[clickPressedTradePanel](const std::shared_ptr<CTradeableItem> & newSlot)
@@ -149,7 +133,7 @@ void CTradeWindow::initItems(bool Left)
 				});
 			rightTradePanel->moveBy(Point(327, 181));
 		}
-		else if(!Left && (mode == EMarketMode::ARTIFACT_RESOURCE || mode == EMarketMode::CREATURE_RESOURCE))
+		else if(!Left && (mode == EMarketMode::ARTIFACT_RESOURCE))
 		{
 			rightTradePanel = std::make_shared<ResourcesPanel>(std::bind(clickPressedTradePanel, _1, false),
 				std::bind(updRightSub, EMarketMode::ARTIFACT_RESOURCE));
@@ -175,7 +159,7 @@ void CTradeWindow::initItems(bool Left)
 
 void CTradeWindow::initSubs(bool Left)
 {
-	if(itemsType[Left] == EType::RESOURCE || itemsType[Left] == EType::ARTIFACT_TYPE)
+	if (itemsType[Left] == EType::RESOURCE || itemsType[Left] == EType::ARTIFACT_TYPE)
 	{ 
 		if(Left)
 			leftTradePanel->updateSlots();
@@ -236,8 +220,6 @@ ImagePath CMarketplaceWindow::getBackgroundForMode(EMarketMode mode)
 		return ImagePath::builtin("TPMRKRES.bmp");
 	case EMarketMode::RESOURCE_PLAYER:
 		return ImagePath::builtin("TPMRKPTS.bmp");
-	case EMarketMode::CREATURE_RESOURCE:
-		return ImagePath::builtin("TPMRKCRS.bmp");
 	case EMarketMode::RESOURCE_ARTIFACT:
 		return ImagePath::builtin("TPMRKABS.bmp");
 	case EMarketMode::ARTIFACT_RESOURCE:
@@ -318,8 +300,6 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		labels.push_back(std::make_shared<CLabel>(154, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
-		//%s's Creatures
-		labels.push_back(std::make_shared<CLabel>(152, 102, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		//%s's Artifacts
@@ -487,11 +467,6 @@ void CMarketplaceWindow::selectionChanged(bool side)
 
 void CMarketplaceWindow::updateGarrison()
 {
-	if(mode != EMarketMode::CREATURE_RESOURCE)
-		return;
-
-	leftTradePanel->deleteSlots();
-	leftTradePanel->updateSlots();
 }
 
 void CMarketplaceWindow::artifactsChanged(bool Left)

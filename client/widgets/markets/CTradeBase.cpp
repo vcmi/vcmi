@@ -20,6 +20,7 @@
 
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/mapObjects/CGMarket.h"
 
 CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)
 	: market(market)
@@ -83,6 +84,8 @@ CExperienceAltar::CExperienceAltar()
 
 CCreaturesSelling::CCreaturesSelling()
 {
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
 	assert(hero);
 	CreaturesPanel::slotsData slots;
 	for(auto slotId = SlotID(0); slotId.num < GameConstants::ARMY_SIZE; slotId++)
@@ -91,6 +94,7 @@ CCreaturesSelling::CCreaturesSelling()
 			slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
 	}
 	leftTradePanel = std::make_shared<CreaturesPanel>(nullptr, slots);
+	leftTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitle, this);
 }
 
 bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot)
@@ -103,3 +107,34 @@ void CCreaturesSelling::updateSubtitle()
 	for(auto & heroSlot : leftTradePanel->slots)
 		heroSlot->subtitle = std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial)));
 }
+
+void CCreaturesSelling::updateSlots()
+{
+	leftTradePanel->deleteSlots();
+	leftTradePanel->updateSlots();
+}
+
+CResourcesMarket::CResourcesMarket(EMarketMode marketMode)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	rightTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, [this, marketMode]()
+		{
+			updateSubtitles(marketMode);
+		});
+	labels.emplace_back(std::make_shared<CLabel>(400, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
+}
+
+void CResourcesMarket::updateSubtitles(EMarketMode marketMode)
+{
+	if(hLeft)
+		for(const auto & slot : rightTradePanel->slots)
+		{
+			int h1, h2; //hlp variables for getting offer
+			market->getOffer(hLeft->id, slot->id, h1, h2, marketMode);
+
+			rightTradePanel->updateOffer(*slot, h1, h2);
+		}
+	else
+		rightTradePanel->clearSubtitles();
+};

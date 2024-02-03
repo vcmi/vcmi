@@ -1,5 +1,5 @@
 /*
- * CAltarCreatures.h, part of VCMI engine
+ * CFreelancerGuild.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,24 +11,18 @@
 
 #include "CTradeBase.h"
 
-class CAltarCreatures : public CExperienceAltar, public CCreaturesSelling
+class CFreelancerGuild : public CCreaturesSelling , public CResourcesMarket
 {
 public:
-	CAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
-	void updateSlots() override;
-	void deselect() override;
-	TExpType calcExpAltarForHero() override;
+	CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero);
 	void makeDeal() override;
-	void sacrificeAll() override;
-	void updateAltarSlot(std::shared_ptr<CTradeableItem> slot);
+	void deselect() override;
 
 private:
 	std::shared_ptr<CButton> maxUnits;
-	std::vector<int> unitsOnAltar;
-	std::vector<int> expPerUnit;
+	int qtyPerPrice;
+	int price;
 
-	void readExpValues();
-	void updateControls();
 	void updateSelected();
 	void onOfferSliderMoved(int newVal);
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;

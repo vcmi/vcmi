@@ -12,17 +12,20 @@
 #include "CTradeWindow.h"
 #include "CAltarWindow.h"
 
-class CMarketWindow : public CStatusbarWindow, public CAltarWindow
+class CFreelancerGuild;
+
+class CMarketWindow : public CStatusbarWindow, public CAltarWindow // TODO remove CAltarWindow
 {
 public:
 	CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode);
 	void resourceChanged();
 	void artifactsChanged();
+	void updateGarrisons() override;
 	void close() override;
 	const CGHeroInstance * getHero() const;
 
 private:
-	void createChangeModeButtons(EMarketMode mode, const IMarket * market, const CGHeroInstance * hero);
+	void createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero);
 	void createInternals(EMarketMode mode, const IMarket * market, const CGHeroInstance * hero);
 
 	void createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero);
@@ -41,4 +44,5 @@ private:
 	const Point quitButtonPos = Point(516, 520);
 
 	std::shared_ptr<CMarketplaceWindow> market;
+	std::shared_ptr<CFreelancerGuild> guild;
 };

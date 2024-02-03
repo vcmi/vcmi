@@ -298,6 +298,20 @@ void TradePanelBase::deleteSlots()
 		slots.erase(std::remove_if(slots.begin(), slots.end(), deleteSlotsCheck), slots.end());
 }
 
+void TradePanelBase::setSelectedFrameIndex(std::optional<size_t> index)
+{
+	if(index.has_value())
+	{
+		selectedImage->enable();
+		selectedImage->setFrame(index.value());
+	}
+	else
+	{
+		selectedImage->disable();
+		selectedImage->setFrame(0);
+	}
+}
+
 ResourcesPanel::ResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles)
 {
 	assert(resourcesForTrade.size() == slotsPos.size());
@@ -311,6 +325,7 @@ ResourcesPanel::ResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 		slot->setSelectionWidth(selectionWidth);
 	}
 	updateSlotsCallback = updateSubtitles;
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), 0);
 }
 
 ArtifactsPanel::ArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles,
@@ -373,6 +388,7 @@ CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 			slot->subtitle = std::to_string(creaturesNum);
 		slot->setSelectionWidth(selectionWidth);
 	}
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0);
 }
 
 CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback,
@@ -389,4 +405,5 @@ CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 		slot->subtitle = emptySlots ? "" : srcSlot->subtitle;
 		slot->setSelectionWidth(selectionWidth);
 	}
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0);
 }

@@ -39,7 +39,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); });
 	labels.emplace_back(std::make_shared<CLabel>(450, 34, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
 	labels.emplace_back(std::make_shared<CLabel>(302, 423, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
-	selectedCost = std::make_shared<CLabel>(302, 500, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	lSubtitle = std::make_shared<CLabel>(302, 501, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	selectedArt = std::make_shared<CArtPlace>(Point(280, 442));
 
 	sacrificeAllButton = std::make_shared<CButton>(Point(393, 520), AnimationPath::builtin("ALTFILL.DEF"),
@@ -109,7 +109,7 @@ void CAltarArtifacts::sacrificeBackpack()
 void CAltarArtifacts::setSelectedArtifact(const CArtifactInstance * art)
 {
 	selectedArt->setArtifact(art);
-	selectedCost->setText(art == nullptr ? "" : std::to_string(calcExpCost(art)));
+	lSubtitle->setText(art == nullptr ? "" : std::to_string(calcExpCost(art)));
 }
 
 std::shared_ptr<CArtifactsOfHeroAltar> CAltarArtifacts::getAOHset() const
