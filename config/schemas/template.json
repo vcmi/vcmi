@@ -135,6 +135,10 @@
 			"description" : "Optional name - useful to have several template variations with same name",
 			"type": "string"
 		},
+		"description" : {
+			"description" : "Optional info about template, author or special rules",
+			"type": "string"
+		},
 		"zones" : {
 			"description" : "List of named zones",
 			"type" : "object",
