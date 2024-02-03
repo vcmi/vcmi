@@ -145,7 +145,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			Settings full = settings.write["video"]["fullscreen"];
 			full->Bool() = !full->Bool();
 
-			GH.onScreenResize();
+			GH.onScreenResize(false);
 			return;
 		}
 	}
@@ -163,7 +163,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-				GH.onScreenResize();
+				GH.onScreenResize(false);
 			}
 #endif
 			break;
