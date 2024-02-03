@@ -76,6 +76,7 @@ set(lib_SRCS
 
 	logging/CBasicLogConfigurator.cpp
 	logging/CLogger.cpp
+	logging/VisualLogger.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
 	mapObjectConstructors/CBankInstanceConstructor.cpp
@@ -424,6 +425,7 @@ set(lib_HEADERS
 
 	logging/CBasicLogConfigurator.h
 	logging/CLogger.h
+	logging/VisualLogger.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
 	mapObjectConstructors/CBankInstanceConstructor.h

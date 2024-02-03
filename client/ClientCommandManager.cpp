@@ -37,6 +37,7 @@
 #include "../lib/modding/ModUtility.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/logging/VisualLogger.h"
 #include "CMT.h"
 
 #ifdef SCRIPTING_ENABLED
@@ -427,6 +428,14 @@ void ClientCommandManager::handleCrashCommand()
 	//disaster!
 }
 
+void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
+{
+	std::string key;
+	singleWordBuffer >> key;
+
+	logVisual->setKey(key);
+}
+
 void ClientCommandManager::printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType)
 {
 	switch(messageType)
@@ -545,6 +554,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "crash")
 		handleCrashCommand();
+
+	else if(commandName == "vslog")
+		handleVsLog(singleWordBuffer);
 
 	else
 	{
