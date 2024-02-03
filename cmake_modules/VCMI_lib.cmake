@@ -151,6 +151,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/Zone.cpp
 		${MAIN_LIB_DIR}/rmg/Functions.cpp
 		${MAIN_LIB_DIR}/rmg/RmgMap.cpp
+		${MAIN_LIB_DIR}/rmg/PenroseTiling.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/Modificator.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.cpp
@@ -522,6 +523,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/RmgMap.h
 		${MAIN_LIB_DIR}/rmg/float3.h
 		${MAIN_LIB_DIR}/rmg/Functions.h
+		${MAIN_LIB_DIR}/rmg/PenroseTiling.h
 		${MAIN_LIB_DIR}/rmg/modificators/Modificator.h
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.h
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.h
