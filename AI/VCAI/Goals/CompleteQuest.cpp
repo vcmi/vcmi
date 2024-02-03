@@ -241,7 +241,7 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 {
 	TGoalVec solutions;
 
-	auto obj = cb->getObjByQuestIdentifier(q.quest->killTarget);
+	auto obj = cb->getObj(q.quest->killTarget);
 
 	if(!obj)
 		return ai->ah->howToVisitObj(q.obj);

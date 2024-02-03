@@ -210,7 +210,7 @@ TGoalVec CompleteQuest::missionResources() const
 
 TGoalVec CompleteQuest::missionDestroyObj() const
 {
-	auto obj = cb->getObjByQuestIdentifier(q.quest->killTarget);
+	auto obj = cb->getObj(q.quest->killTarget);
 
 	if(!obj)
 		return CaptureObjectsBehavior(q.obj).decompose();

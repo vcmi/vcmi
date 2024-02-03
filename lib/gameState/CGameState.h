@@ -13,6 +13,7 @@
 #include "IGameCallback.h"
 #include "LoadProgress.h"
 #include "ConstTransitivePtr.h"
+#include "../CRandomGenerator.h"
 
 namespace boost
 {

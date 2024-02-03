@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-using TradeItemSell = VariantIdentifier<GameResID, SlotID, ArtifactPosition, ArtifactInstanceID>;
+using TradeItemSell = VariantIdentifier<GameResID, SlotID, ArtifactInstanceID>;
 using TradeItemBuy = VariantIdentifier<GameResID, PlayerColor, ArtifactID, SecondarySkill>;
 
 VCMI_LIB_NAMESPACE_END

@@ -28,12 +28,12 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position)
 
 void CArtifactsOfHeroMarket::scrollBackpack(int offset)
 {
-	CArtifactsOfHeroBase::scrollBackpackForArtSet(offset, *curHero);
+	CArtifactsOfHeroBase::scrollBackpack(offset);
 
 	// We may have highlight on one of backpack artifacts
 	if(selectArtCallback)
 	{
-		for(auto & artPlace : backpack)
+		for(const auto & artPlace : backpack)
 		{
 			if(artPlace->isSelected())
 			{
@@ -42,5 +42,4 @@ void CArtifactsOfHeroMarket::scrollBackpack(int offset)
 			}
 		}
 	}
-	redraw();
 }

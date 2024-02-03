@@ -41,17 +41,6 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 	initAOHbackpack(visibleCapacityMax, backpackCap < 0 || visibleCapacityMax < backpackCap);
 }
 
-void CArtifactsOfHeroBackpack::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
-{
-	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-}
-
-void CArtifactsOfHeroBackpack::pickUpArtifact(CArtPlace & artPlace)
-{
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
-		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
-}
-
 void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 {
 	if(backpackListBox)
@@ -60,7 +49,7 @@ void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
 	for(auto artPlace : backpack)
 	{
-		setSlotData(artPlace, slot, *curHero);
+		setSlotData(artPlace, slot);
 		slot = slot + 1;
 	}
 	redraw();
@@ -188,9 +177,9 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		initAOHbackpack(requiredSlots, false);
 		auto artPlace = backpack.begin();
 		for(auto & art : filteredArts)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
+			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
 		for(auto & art : filteredScrolls)
-			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second), *curHero);
+			setSlotData(*artPlace++, curHero->getSlotByInstance(art.second));
 	}
 }
 
@@ -215,5 +204,5 @@ void CArtifactsOfHeroQuickBackpack::swapSelected()
 			break;
 		}
 	if(backpackLoc.slot != ArtifactPosition::PRE_FIRST && filterBySlot != ArtifactPosition::PRE_FIRST && curHero)
-		swapArtifacts(backpackLoc, ArtifactLocation(curHero->id, filterBySlot));
+		LOCPLINT->cb->swapArtifacts(backpackLoc, ArtifactLocation(curHero->id, filterBySlot));
 }

@@ -47,6 +47,25 @@ namespace RandomGeneratorUtil
 		return std::next(container.begin(), rand.getInt64Range(0, container.size() - 1)());
 	}
 
+	template<typename Container>
+	size_t nextItemWeighted(Container & container, vstd::RNG & rand)
+	{
+		assert(!container.empty());
+
+		int64_t totalWeight = std::accumulate(container.begin(), container.end(), 0);
+		assert(totalWeight > 0);
+
+		int64_t roll = rand.getInt64Range(0, totalWeight - 1)();
+
+		for (size_t i = 0; i < container.size(); ++i)
+		{
+			roll -= container[i];
+			if(roll < 0)
+				return i;
+		}
+		return container.size() - 1;
+	}
+
 	template<typename T>
 	void randomShuffle(std::vector<T> & container, vstd::RNG & rand)
 	{

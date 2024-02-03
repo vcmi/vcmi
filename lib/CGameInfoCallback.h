@@ -93,7 +93,6 @@ public:
 //	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 //	const CGObjectInstance * getTopObj (int3 pos) const;
 //	PlayerColor getOwner(ObjectInstanceID heroID) const;
-//	const CGObjectInstance *getObjByQuestIdentifier(ObjectInstanceID identifier) const; //nullptr if object has been removed (eg. killed)
 
 	//map
 //	int3 guardingCreaturePosition (int3 pos) const;
@@ -180,7 +179,7 @@ public:
 	virtual int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	virtual const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
 	virtual const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
-	virtual CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
+	virtual const CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
 	//virtual const CGObjectInstance * getArmyInstance(ObjectInstanceID oid) const;
 
 	//objects
@@ -190,7 +189,6 @@ public:
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	virtual const CGObjectInstance * getTopObj (int3 pos) const;
 	virtual PlayerColor getOwner(ObjectInstanceID heroID) const;
-	virtual const CGObjectInstance *getObjByQuestIdentifier(ObjectInstanceID identifier) const; //nullptr if object has been removed (eg. killed)
 
 	//map
 	virtual int3 guardingCreaturePosition (int3 pos) const;

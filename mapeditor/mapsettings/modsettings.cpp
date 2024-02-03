@@ -78,9 +78,8 @@ void ModSettings::initialize(MapController & c)
 		auto pieces = qmodName.split(".");
 		assert(pieces.size() > 1);
 
-		QString qs;
-		for(int i = 0; i < pieces.size() - 1; ++i)
-			qs += pieces[i];
+		pieces.pop_back();
+		auto qs = pieces.join(".");
 
 		if(addedMods.count(qs))
 		{

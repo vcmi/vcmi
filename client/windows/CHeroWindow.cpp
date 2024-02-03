@@ -190,7 +190,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	assert(hero == curHero);
 
 	name->setText(curHero->getNameTranslated());
-	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->type->heroClass->getNameTranslated()).str());
+	title->setText((boost::format(CGI->generaltexth->allTexts[342]) % curHero->level % curHero->getClassNameTranslated()).str());
 
 	specArea->text = curHero->type->getSpecialtyDescriptionTranslated();
 	specImage->setFrame(curHero->type->imageIndex);
@@ -199,8 +199,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
 	tacticsButton->addHoverText(CButton::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
 
-	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated()));
-	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated());
+	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->getClassNameTranslated()));
+	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->getClassNameTranslated());
 	portraitArea->text = curHero->getBiographyTranslated();
 	portraitImage->setFrame(curHero->getIconIndex());
 

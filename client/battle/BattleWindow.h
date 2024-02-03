@@ -76,6 +76,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
+	bool onlyOnePlayerHuman;
+
 public:
 	BattleWindow(BattleInterface & owner );
 	~BattleWindow();
@@ -99,6 +101,9 @@ public:
 
 	/// Refresh queue after turn order changes
 	void updateQueue();
+
+	// Set positions for hero & stack info window
+	void setPositionInfoWindow();
 
 	/// Refresh sticky variant of hero info window after spellcast, side same as in BattleSpellCast::side
 	void updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero);
@@ -125,5 +130,8 @@ public:
 
 	/// Set possible alternative options. If more than 1 - the last will be considered as default option
 	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
+
+	/// ends battle with autocombat
+	void endWithAutocombat();
 };
 

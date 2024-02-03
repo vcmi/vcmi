@@ -20,11 +20,13 @@
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
 
+#include "networkPacks/ArtifactLocation.h"
 #include "serializer/CLoadFile.h"
 #include "serializer/CSaveFile.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "mapObjects/CGMarket.h"
 #include "mapObjects/CGTownInstance.h"
 #include "mapObjects/CObjectHandler.h"
 #include "mapObjects/CQuest.h"
@@ -264,6 +266,32 @@ CGObjectInstance * CNonConstInfoCallback::getObjInstance(const ObjectInstanceID 
 CArmedInstance * CNonConstInfoCallback::getArmyInstance(const ObjectInstanceID & oid)
 {
 	return dynamic_cast<CArmedInstance *>(getObjInstance(oid));
+}
+
+CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
+{
+	if(auto hero = getHero(loc.artHolder))
+	{
+		if(loc.creature.has_value())
+		{
+			if(loc.creature.value() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+				return hero->commander;
+			else
+				return hero->getStackPtr(loc.creature.value());
+		}
+		else
+		{
+			return hero;
+		}
+	}
+	else if(auto market = dynamic_cast<CGArtifactsAltar*>(getObjInstance(loc.artHolder)))
+	{
+		return market;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)

@@ -149,6 +149,9 @@ public:
 	HeroTypeID getPortraitSource() const;
 	int32_t getIconIndex() const;
 
+	std::string getClassNameTranslated() const;
+	std::string getClassNameTextID() const;
+
 private:
 	std::string getNameTextID() const;
 	std::string getBiographyTextID() const;
@@ -305,6 +308,10 @@ public:
 	bool isCoastVisitable() const override;
 	bool isBlockedVisitable() const override;
 	BattleField getBattlefield() const override;
+
+	bool isCampaignYog() const;
+	bool isCampaignGem() const;
+
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;//synchr
 	///common part of hero instance and hero definition

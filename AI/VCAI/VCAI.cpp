@@ -1608,15 +1608,6 @@ void VCAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != QueryID::NONE)
-	{
-		status.addQuery(queryID, "Combat result dialog");
-		const int confirmAction = 0;
-		requestActionASAP([=]()
-		{
-			answerQuery(queryID, confirmAction);
-		});
-	}
 	CAdventureAI::battleEnd(battleID, br, queryID);
 }
 

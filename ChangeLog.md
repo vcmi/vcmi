@@ -1,14 +1,55 @@
 # 1.4.5 -> 1.5.0
 
 ### General
-* Added Chinese translation to map editor
-* Added Spanish translation to launcher
-* Fixed reversed Overlord and Warlock classes mapping
 * Added option to disable cheats in game
-* Added option for unlimited combat replays
-* Fixed assembly of artifacts in the backpack when backpack is full
+
+### Interface
+* Town Portal dialog will now show town icons
+* Town Portal dialog will now show town info on right click
+* Town Portal dialog will center on town on clicking it
+* Town Portal dialog now uses same town ordering as in adventure map interface
+* Heroes can now be recruited from the tavern by double-clicking on them
 * Added status bar to the backpack window
 * Quick backpack window is now only available when enabled Interface enhancements
+* Fixed assembly of artifacts in the backpack when backpack is full
+* Attempt to use enemy turn replay feature will now show "Not implemented" message
+
+### Campaigns
+* Game will now correctly track who defeated the hero or wandering monsters for related quests and victory conditions
+* Birth of a Barbarian: Yog will now start the third scenario with Angelic Alliance in his inventory
+* Birth of a Barbarian: Heroes with Angelic Alliance components are now considered to be mission-critical and can't be dismissed or lost in combat
+* Birth of a Barbarian: Yog can no longer purchase spellbook from the Mage Guild
+* Birth of a Barbarian: Yog will no longer gain Spellpower or Knowledge when leveling up
+* Birth of a Barbarian: Scenarios with mission to deliver an artifact will no longer end after just defeating enemies
+* Gem will now have her class set to "Sorceress" in campaigns
+* Fixed missing names for heroes who have their names customized in map after being transferred to the next scenario
+* Artifact transfer will now work correctly if the hero holding the transferable artifact is not also transferring
+* Fixed crash on opening of some campaigns in the French version from gog.com
+* It is now possible to replay the intro movie from the scenario information window
+* When playing the intro video, the subtitles are now correctly synchronized with the audio
+
+### Battles
+* Added option to enable unlimited combat replays during game setup
+* Added option to instantly end battle using quick combat (shotcut: 'e')
+* Added option to replace auto-combat button action with instant end using quick combat
+* Battles against AI players can now be done using quick combat
+* Disabling battle queue will now correctly reposition hero statistics preview popup
+* Fixed positioning of unit stack size label
+
+### Launcher
+* Added Spanish translation to launcher
+
+### Map Editor
+* Added Chinese translation to map editor
+
+### AI
+* Fixed possible crash on updating NKAI pathfinding data
+* Fixed counting mana usage cost of Fly spell
+* Added estimation of value of Pyramid and Cyclops Stockpile
+
+### Modding
+* Added new game setting that allows inviting heroes to taverns
+* Fixed reversed Overlord and Warlock classes mapping
 
 # 1.4.4 -> 1.4.5
 

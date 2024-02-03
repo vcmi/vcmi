@@ -19,6 +19,7 @@
 
 #include "../CGameInfo.h"
 
+#include "../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -78,14 +79,18 @@ void CAltarWindow::createAltarArtifacts(const IMarket * market, const CGHeroInst
 	auto altarArtifacts = std::make_shared<CAltarArtifacts>(market, hero);
 	altar = altarArtifacts;
 	artSets.clear();
-	addSetAndCallbacks(altarArtifacts->getAOHset());
+	addSetAndCallbacks(altarArtifacts->getAOHset()); altarArtifacts->putBackArtifacts();
 
 	changeModeButton = std::make_shared<CButton>(Point(516, 421), AnimationPath::builtin("ALTSACC.DEF"),
 		CGI->generaltexth->zelp[572], std::bind(&CAltarWindow::createAltarCreatures, this, market, hero));
 	if(altar->hero->getAlignment() == EAlignment::GOOD)
 		changeModeButton->block(true);
 	quitButton = std::make_shared<CButton>(Point(516, 520), AnimationPath::builtin("IOK6432.DEF"),
-		CGI->generaltexth->zelp[568], std::bind(&CAltarWindow::close, this), EShortcut::GLOBAL_RETURN);
+		CGI->generaltexth->zelp[568], [this, altarArtifacts]()
+		{
+			altarArtifacts->putBackArtifacts();
+			CAltarWindow::close();
+		}, EShortcut::GLOBAL_RETURN);
 	altar->setRedrawParent(true);
 	redraw();
 }
@@ -115,6 +120,9 @@ void CAltarWindow::artifactMoved(const ArtifactLocation & srcLoc, const Artifact
 
 	if(auto altarArtifacts = std::static_pointer_cast<CAltarArtifacts>(altar))
 	{
+		if(srcLoc.artHolder == altarArtifacts->getObjId() || destLoc.artHolder == altarArtifacts->getObjId())
+			altarArtifacts->updateSlots();
+
 		if(const auto pickedArt = getPickedArtifact())
 			altarArtifacts->setSelectedArtifact(pickedArt);
 		else

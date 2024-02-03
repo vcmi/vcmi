@@ -30,14 +30,3 @@ CArtifactsOfHeroMain::~CArtifactsOfHeroMain()
 {
 	putBackPickedArtifact();
 }
-
-void CArtifactsOfHeroMain::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
-{
-	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
-}
-
-void CArtifactsOfHeroMain::pickUpArtifact(CArtPlace & artPlace)
-{
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, artPlace.slot),
-		ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
-}

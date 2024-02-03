@@ -43,6 +43,7 @@
 
 #include "render/CAnimation.h"
 #include "render/IImage.h"
+#include "render/IRenderHandler.h"
 
 #include "widgets/Buttons.h"
 #include "widgets/CComponent.h"
@@ -145,6 +146,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
+	isAutoFightEndBattle = false;
 	ignoreEvents = false;
 	numOfMovedArts = 0;
 }
@@ -782,17 +784,20 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 
 		if(!battleInt)
 		{
-			bool allowManualReplay = queryID != QueryID::NONE;
+			bool allowManualReplay = queryID != QueryID::NONE && !isAutoFightEndBattle;
 
 			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
 
-			if (allowManualReplay)
+			if (allowManualReplay || isAutoFightEndBattle)
 			{
 				wnd->resultCallback = [=](ui32 selection)
 				{
 					cb->selectionMade(selection, queryID);
 				};
 			}
+			
+			isAutoFightEndBattle = false;
+
 			GH.windows().pushWindow(wnd);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
@@ -1064,6 +1069,19 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
+	std::vector<ObjectInstanceID> tmpObjects;
+	if(objects.size() && dynamic_cast<const CGTownInstance *>(cb->getObj(objects[0])))
+	{
+		// sorting towns (like in client)
+		std::vector <const CGTownInstance*> Towns = LOCPLINT->localState->getOwnedTowns();
+		for(auto town : Towns)
+			for(auto item : objects)
+				if(town == cb->getObj(item))
+					tmpObjects.push_back(item);
+	}
+	else // other object list than town
+		tmpObjects = objects;
+
 	auto selectCallback = [=](int selection)
 	{
 		cb->sendQueryReply(selection, askID);
@@ -1078,9 +1096,9 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	const std::string localDescription = description.toString();
 
 	std::vector<int> tempList;
-	tempList.reserve(objects.size());
+	tempList.reserve(tmpObjects.size());
 
-	for(auto item : objects)
+	for(auto item : tmpObjects)
 		tempList.push_back(item.getNum());
 
 	CComponent localIconC(icon);
@@ -1088,8 +1106,24 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	std::shared_ptr<CIntObject> localIcon = localIconC.image;
 	localIconC.removeChild(localIcon.get(), false);
 
-	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);
+	std::vector<std::shared_ptr<IImage>> images;
+	for(auto & obj : tmpObjects)
+	{
+		if(!settings["general"]["enableUiEnhancements"].Bool())
+			break;
+		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
+		if(t)
+		{
+			std::shared_ptr<CAnimation> a = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITPA"));
+			a->preload();
+			images.push_back(a->getImage(t->town->clientInfo.icons[t->hasFort()][false] + 2)->scaleFast(Point(35, 23)));
+		}
+	}
+
+	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
+	wnd->onPopup = [this, tmpObjects](int index) { CRClickPopup::createAndPush(cb->getObj(tmpObjects[index]), GH.getCursorPosition()); };
+	wnd->onClicked = [this, tmpObjects](int index) { adventureInt->centerOnObject(cb->getObj(tmpObjects[index])); GH.windows().totalRedraw(); };
 	GH.windows().pushWindow(wnd);
 }
 

@@ -13,6 +13,7 @@
 
 #include <vcmi/ServerCallback.h>
 #include <vcmi/spells/Spell.h>
+#include <vstd/RNG.h>
 
 #include "../CGeneralTextHandler.h"
 #include "../ArtifactUtils.h"
@@ -28,7 +29,9 @@
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMap.h"
+#include "../StartInfo.h"
 #include "CGTownInstance.h"
+#include "../campaign/CampaignState.h"
 #include "../pathfinder/TurnInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -555,7 +558,7 @@ std::string CGHeroInstance::getObjectName() const
 	{
 		std::string hoverName = VLC->generaltexth->allTexts[15];
 		boost::algorithm::replace_first(hoverName,"%s",getNameTranslated());
-		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->getNameTranslated());
+		boost::algorithm::replace_first(hoverName,"%s", getClassNameTranslated());
 		return hoverName;
 	}
 	else
@@ -1099,6 +1102,18 @@ std::string CGHeroInstance::getNameTranslated() const
 	return VLC->generaltexth->translate(getNameTextID());
 }
 
+std::string CGHeroInstance::getClassNameTranslated() const
+{
+	return VLC->generaltexth->translate(getClassNameTextID());
+}
+
+std::string CGHeroInstance::getClassNameTextID() const
+{
+	if (isCampaignGem())
+		return "core.genrltxt.735";
+	return type->heroClass->getNameTranslated();
+}
+
 std::string CGHeroInstance::getNameTextID() const
 {
 	if (!nameCustomTextId.empty())
@@ -1261,7 +1276,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 {
 	if(static_cast<int>(movement) < movementPointsLimit(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
-	if(ArtifactID(ArtifactID::GRAIL).toArtifact()->canBePutAt(this))
+	if(!ArtifactID(ArtifactID::GRAIL).toArtifact()->canBePutAt(this))
 		return EDiggingStatus::BACKPACK_IS_FULL;
 	return cb->getTileDigStatus(visitablePos());
 }
@@ -1353,28 +1368,17 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(CR
 PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
 {
 	assert(gainsLevel());
-	int randomValue = rand.nextInt(99);
-	int pom = 0;
-	int primarySkill = 0;
 	const auto isLowLevelHero = level < GameConstants::HERO_HIGH_LEVEL;
 	const auto & skillChances = isLowLevelHero ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
 
-	for(; primarySkill < GameConstants::PRIMARY_SKILLS; ++primarySkill)
+	if (isCampaignYog())
 	{
-		pom += skillChances[primarySkill];
-		if(randomValue < pom)
-		{
-			break;
-		}
+		// Yog can only receive Attack or Defence on level-up
+		std::vector<int> yogChances = { skillChances[0], skillChances[1]};
+		return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(yogChances, rand));
 	}
-	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
-	{
-		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
-		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->getNameTranslated());
-		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
-	}
-	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
-	return static_cast<PrimarySkill>(primarySkill);
+
+	return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(skillChances, rand));
 }
 
 std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
@@ -1773,6 +1777,12 @@ bool CGHeroInstance::isMissionCritical() const
 			if ((condition.condition == EventCondition::CONTROL) && condition.objectID != ObjectInstanceID::NONE)
 				return (id != condition.objectID);
 
+			if (condition.condition == EventCondition::HAVE_ARTIFACT)
+			{
+				if(hasArt(condition.objectType.as<ArtifactID>()))
+					return true;
+			}
+
 			if(condition.condition == EventCondition::IS_HUMAN)
 				return true;
 
@@ -1797,6 +1807,42 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
 		}
 	}
+}
+
+bool CGHeroInstance::isCampaignYog() const
+{
+	const StartInfo *si = cb->getStartInfo();
+
+	// it would be nice to find a way to move this hack to config/mapOverrides.json
+	if(!si || !si->campState)
+		return false;
+
+	std::string campaign = si->campState->getFilename();
+	if (!boost::starts_with(campaign, "DATA/YOG")) // "Birth of a Barbarian"
+		return false;
+
+	if (getHeroType() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
+		return false;
+
+	return true;
+}
+
+bool CGHeroInstance::isCampaignGem() const
+{
+	const StartInfo *si = cb->getStartInfo();
+
+	// it would be nice to find a way to move this hack to config/mapOverrides.json
+	if(!si || !si->campState)
+		return false;
+
+	std::string campaign = si->campState->getFilename();
+	if (!boost::starts_with(campaign, "DATA/GEM") &&  !boost::starts_with(campaign, "DATA/FINAL")) // "New Beginning" and "Unholy Alliance"
+		return false;
+
+	if (getHeroType() != HeroTypeID::GEM) // Yog (based on Solmyr)
+		return false;
+
+	return true;
 }
 
 VCMI_LIB_NAMESPACE_END

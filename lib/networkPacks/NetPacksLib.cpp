@@ -1161,6 +1161,9 @@ void RemoveObject::applyGs(CGameState *gs)
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
+	if (initiator.isValidPlayer())
+		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
+
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
 		auto * beatenHero = dynamic_cast<CGHeroInstance *>(obj);
@@ -1226,27 +1229,6 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 	}
 
-	for (TriggeredEvent & event : gs->map->triggeredEvents)
-	{
-		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
-		{
-			if (cond.objectID == obj->id)
-			{
-				if (cond.condition == EventCondition::DESTROY)
-				{
-					cond.condition = EventCondition::CONST_VALUE;
-					cond.value = 1; // destroyed object, from now on always fulfilled
-				}
-				else if (cond.condition == EventCondition::CONTROL)
-				{
-					cond.condition = EventCondition::CONST_VALUE;
-					cond.value = 0; // destroyed object, from now on can not be fulfilled
-				}
-			}
-			return cond;
-		};
-		event.trigger = event.trigger.morph(patcher);
-	}
 	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[objectID.getNum()].dellNull();
 	gs->map->calculateGuardingGreaturePositions();
@@ -1781,35 +1763,35 @@ void PutArtifact::applyGs(CGameState *gs)
 
 void EraseArtifact::applyGs(CGameState *gs)
 {
-	const auto hero = gs->getHero(al.artHolder);
-	assert(hero);
-	const auto slot = hero->getSlot(al.slot);
+	const auto artSet = gs->getArtSet(al.artHolder);
+	assert(artSet);
+	const auto slot = artSet->getSlot(al.slot);
 	if(slot->locked)
 	{
 		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getNameTranslated());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
 		
-		for(auto & slotInfo : hero->artifactsWorn)
+		for(auto & slotInfo : artSet->artifactsWorn)
 		{
 			auto art = slotInfo.second.artifact;
 			if(art->isCombined() && art->isPart(slot->artifact))
 			{
-				dis.al.slot = hero->getArtPos(art);
+				dis.al.slot = artSet->getArtPos(art);
 				break;
 			}
 		}
 		assert((dis.al.slot != ArtifactPosition::PRE_FIRST) && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", hero->getArt(dis.al.slot)->artType->getNameTranslated());
+		logGlobal->debug("Found the corresponding assembly: %s", artSet->getArt(dis.al.slot)->artType->getNameTranslated());
 		dis.applyGs(gs);
 	}
 	else
 	{
 		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getNameTranslated());
 	}
-	auto art = hero->getArt(al.slot);
+	auto art = artSet->getArt(al.slot);
 	assert(art);
-	art->removeFrom(*hero, al.slot);
+	art->removeFrom(*artSet, al.slot);
 }
 
 void MoveArtifact::applyGs(CGameState * gs)

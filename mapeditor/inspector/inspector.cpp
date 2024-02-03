@@ -370,7 +370,7 @@ void Inspector::updateProperties(CGMine * o)
 	
 	addProperty("Owner", o->tempOwner, false);
 	addProperty("Resource", o->producedResource);
-	addProperty("Productivity", o->producedQuantity, false);
+	addProperty("Productivity", o->producedQuantity);
 }
 
 void Inspector::updateProperties(CGResource * o)

@@ -124,20 +124,6 @@ TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
 	return TurnTimerInfo{};
 }
 
-const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(ObjectInstanceID identifier) const
-{
-	if(gs->map->questIdentifierToId.empty())
-	{
-		//assume that it is VCMI map and quest identifier equals instance identifier
-		return getObj(identifier, true);
-	}
-	else
-	{
-		ERROR_RET_VAL_IF(!vstd::contains(gs->map->questIdentifierToId, identifier.getNum()), "There is no object with such quest identifier!", nullptr);
-		return getObj(gs->map->questIdentifierToId[identifier.getNum()]);
-	}
-}
-
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/
@@ -968,20 +954,9 @@ const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid
 	return gs->map->objects[oid.num];
 }
 
-CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
+const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
 {
-	auto hero = const_cast<CGHeroInstance*>(getHero(loc.artHolder));
-	if(loc.creature.has_value())
-	{
-		if(loc.creature.value() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
-			return hero->commander;
-		else
-			return hero->getStackPtr(loc.creature.value());
-	}
-	else
-	{
-		return hero;
-	}
+	return gs->getArtSet(loc);
 }
 
 std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player) const
