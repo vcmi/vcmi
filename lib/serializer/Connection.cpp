@@ -62,8 +62,7 @@ CConnection::CConnection(std::weak_ptr<INetworkConnection> networkConnection)
 {
 	assert(networkConnection.lock() != nullptr);
 
-	enableSmartPointerSerialization();
-	disableStackSendingByID();
+	enterLobbyConnectionMode();
 	deserializer->version = ESerializationVersion::CURRENT;
 }
 
@@ -139,8 +138,7 @@ void CConnection::enterGameplayConnectionMode(CGameState * gs)
 	disableSmartPointerSerialization();
 
 	setCallback(gs->callback);
-	packWriter->addStdVecItems(gs);
-	packReader->addStdVecItems(gs);
+	enableSmartVectorMemberSerializatoin(gs);
 }
 
 void CConnection::disableSmartPointerSerialization()
@@ -161,10 +159,10 @@ void CConnection::disableSmartVectorMemberSerialization()
 	packWriter->smartVectorMembersSerialization = false;
 }
 
-void CConnection::enableSmartVectorMemberSerializatoin()
+void CConnection::enableSmartVectorMemberSerializatoin(CGameState * gs)
 {
-	packReader->smartVectorMembersSerialization = true;
-	packWriter->smartVectorMembersSerialization = true;
+	packWriter->addStdVecItems(gs);
+	packReader->addStdVecItems(gs);
 }
 
 VCMI_LIB_NAMESPACE_END

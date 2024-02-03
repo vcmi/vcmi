@@ -718,6 +718,11 @@ void LobbyStartGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyStartGame(*this);
 }
 
+void LobbyPrepareStartGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyPrepareStartGame(*this);
+}
+
 void LobbyChangeHost::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyChangeHost(*this);

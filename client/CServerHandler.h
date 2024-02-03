@@ -107,10 +107,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	void threadRunNetwork();
 	void threadRunServer(bool connectToLobby);
 
-	/// temporary helper member that exists while game in lobby mode
-	/// required to correctly deserialize gamestate using client-side game callback
-	std::unique_ptr<CClient> nextClient;
-
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
 	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<std::byte> & message) override;

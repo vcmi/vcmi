@@ -208,6 +208,11 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestar
 		c->enterLobbyConnectionMode();
 }
 
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
+{
+	result = srv.isClientHost(pack.c->connectionID);
+}
+
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
 	result = srv.isClientHost(pack.c->connectionID);

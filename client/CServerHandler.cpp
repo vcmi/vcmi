@@ -317,10 +317,8 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 	}
 
 	c = std::make_shared<CConnection>(netConnection);
-	nextClient = std::make_unique<CClient>();
 	c->uuid = uuid;
 	c->enterLobbyConnectionMode();
-	c->setCallback(nextClient.get());
 	sendClientConnecting();
 }
 
@@ -622,6 +620,9 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	if(!settings["session"]["headless"].Bool())
 		GH.windows().createAndPushWindow<CLoadingScreen>();
 	
+	LobbyPrepareStartGame lpsg;
+	sendLobbyPack(lpsg);
+
 	LobbyStartGame lsg;
 	if(client)
 	{
@@ -631,7 +632,6 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 		* si = * lsg.initializedStartInfo;
 	}
 	sendLobbyPack(lsg);
-	c->enterLobbyConnectionMode();
 }
 
 void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
@@ -643,8 +643,6 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 {
 	if(CMM)
 		CMM->disable();
-
-	std::swap(client, nextClient);
 
 	highScoreCalc = nullptr;
 
@@ -693,8 +691,6 @@ void CServerHandler::restartGameplay()
 	client->endGame();
 	client.reset();
 
-	nextClient = std::make_unique<CClient>();
-	c->setCallback(nextClient.get());
 	c->enterLobbyConnectionMode();
 }
 

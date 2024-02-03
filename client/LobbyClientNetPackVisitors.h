@@ -35,6 +35,7 @@ public:
 	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	virtual void visitLobbyRestartGame(LobbyRestartGame & pack) override;
+	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) override;
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 };

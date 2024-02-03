@@ -120,6 +120,15 @@ struct DLL_LINKAGE LobbyRestartGame : public CLobbyPackToPropagate
 	}
 };
 
+struct DLL_LINKAGE LobbyPrepareStartGame : public CLobbyPackToPropagate
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+	}
+};
+
 struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server

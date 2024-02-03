@@ -25,6 +25,7 @@
 
 #include "CServerHandler.h"
 #include "CGameInfo.h"
+#include "Client.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
@@ -142,6 +143,13 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame &
 	
 	if (handler.validateGameStart())
 		handler.sendStartGame();
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
+{
+	handler.client = std::make_unique<CClient>();
+	handler.c->enterLobbyConnectionMode();
+	handler.c->setCallback(handler.client.get());
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)

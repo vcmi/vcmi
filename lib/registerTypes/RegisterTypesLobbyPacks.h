@@ -38,6 +38,7 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToPropagate, LobbyGuiAction>();
 	s.template registerType<CLobbyPackToPropagate, LobbyLoadProgress>();
 	s.template registerType<CLobbyPackToPropagate, LobbyRestartGame>();
+	s.template registerType<CLobbyPackToPropagate, LobbyPrepareStartGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyStartGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyChangeHost>();
 	// Only server send

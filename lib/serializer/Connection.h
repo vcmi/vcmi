@@ -37,7 +37,7 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 	void disableSmartPointerSerialization();
 	void enableSmartPointerSerialization();
 	void disableSmartVectorMemberSerialization();
-	void enableSmartVectorMemberSerializatoin();
+	void enableSmartVectorMemberSerializatoin(CGameState * gs);
 
 public:
 	bool isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const;
