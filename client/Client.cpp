@@ -521,7 +521,6 @@ void CClient::handlePack(CPack * pack)
 	CBaseForCLApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
 	if(apply)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		apply->applyOnClBefore(this, pack);
 		logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 		gs->apply(pack);

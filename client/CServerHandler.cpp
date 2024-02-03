@@ -88,8 +88,6 @@ template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
 public:
 	bool applyOnLobbyHandler(CServerHandler * handler, CPackForLobby & pack) const override
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-
 		auto & ref = static_cast<T&>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
 
@@ -278,6 +276,9 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 {
+	assert(state == EClientState::CONNECTING);
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	if (isServerLocal())
 	{
 		// retry - local server might be still starting up
@@ -294,6 +295,8 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 
 void CServerHandler::onTimer()
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	if(state == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
@@ -306,6 +309,10 @@ void CServerHandler::onTimer()
 
 void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netConnection)
 {
+	assert(state == EClientState::CONNECTING);
+
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	networkConnection = netConnection;
 
 	logNetwork->info("Connection established");
@@ -324,7 +331,6 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 
 void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 	const CBaseForLobbyApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(&pack)); //find the applier
 	apply->applyOnLobbyScreen(dynamic_cast<CLobbyScreen *>(SEL), this, pack);
 	GH.windows().totalRedraw();
@@ -428,7 +434,7 @@ void CServerHandler::sendClientDisconnecting()
 		logNetwork->info("Sent leaving signal to the server");
 	}
 	sendLobbyPack(lcd);
-	c->getConnection()->close();
+	networkConnection.reset();
 	c.reset();
 }
 
@@ -861,6 +867,8 @@ public:
 
 void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	if(state == EClientState::DISCONNECTING)
 	{
 		assert(0); //Should not be possible - socket must be closed at this point
@@ -874,33 +882,35 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	networkConnection.reset();
-
 	if(state == EClientState::DISCONNECTING)
 	{
-		logNetwork->info("Successfully closed connection to server, ending listening thread!");
+		assert(networkConnection == nullptr);
+		// Note: this branch can be reached on app shutdown, when main thread holds mutex till destruction
+		logNetwork->info("Successfully closed connection to server!");
+		return;
+	}
+
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
+	logNetwork->error("Lost connection to server! Connection has been closed");
+	networkConnection.reset();
+
+	if(client)
+	{
+		state = EClientState::DISCONNECTING;
+
+		GH.dispatchMainThread([]()
+		{
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("main");
+		});
 	}
 	else
 	{
-		logNetwork->error("Lost connection to server, ending listening thread! Connection has been closed");
-
-		if(client)
-		{
-			state = EClientState::DISCONNECTING;
-
-			GH.dispatchMainThread([]()
-			{
-				CSH->endGameplay();
-				GH.defActionsDef = 63;
-				CMM->menu->switchToTab("main");
-			});
-		}
-		else
-		{
-			LobbyClientDisconnected lcd;
-			lcd.clientId = c->connectionID;
-			applyPackOnLobbyScreen(lcd);
-		}
+		LobbyClientDisconnected lcd;
+		lcd.clientId = c->connectionID;
+		applyPackOnLobbyScreen(lcd);
 	}
 }
 

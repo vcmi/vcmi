@@ -261,10 +261,11 @@ bool CVCMIServer::prepareToStartGame()
 	Load::ProgressAccumulator progressTracking;
 	Load::Progress current(1);
 	progressTracking.include(current);
-	auto currentProgress = std::numeric_limits<Load::Type>::max();
-	
-	auto progressTrackingThread = boost::thread([this, &progressTracking, &currentProgress]()
+
+	auto progressTrackingThread = boost::thread([this, &progressTracking]()
 	{
+		auto currentProgress = std::numeric_limits<Load::Type>::max();
+
 		while(!progressTracking.finished())
 		{
 			if(progressTracking.get() != currentProgress)

@@ -207,6 +207,8 @@ void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 
 void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	networkConnection = connection;
 
 	JsonNode toSend;
@@ -238,6 +240,8 @@ void GlobalLobbyClient::sendClientLogin()
 
 void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	auto loginWindowPtr = loginWindow.lock();
 
 	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
@@ -249,6 +253,8 @@ void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 
 void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
+	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+
 	assert(connection == networkConnection);
 	networkConnection.reset();
 
