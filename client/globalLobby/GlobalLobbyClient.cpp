@@ -66,7 +66,7 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 	if(json["type"].String() == "joinRoomSuccess")
 		return receiveJoinRoomSuccess(json);
 
-	throw std::runtime_error("Received unexpected message from lobby server: " + json["type"].String());
+	logGlobal->error("Received unexpected message from lobby server: %s", json["type"].String());
 }
 
 void GlobalLobbyClient::receiveAccountCreated(const JsonNode & json)
@@ -94,10 +94,10 @@ void GlobalLobbyClient::receiveOperationFailed(const JsonNode & json)
 {
 	auto loginWindowPtr = loginWindow.lock();
 
-	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
-		throw std::runtime_error("lobby connection finished without active login window!");
+	if(loginWindowPtr)
+		loginWindowPtr->onConnectionFailed(json["reason"].String());
 
-	loginWindowPtr->onConnectionFailed(json["reason"].String());
+	// TODO: handle errors in lobby menu
 }
 
 void GlobalLobbyClient::receiveLoginSuccess(const JsonNode & json)
@@ -257,7 +257,12 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 	assert(connection == networkConnection);
 	networkConnection.reset();
 
-	GH.windows().popWindows(1);
+	while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+	{
+		// if global lobby is open, pop all dialogs on top of it as well as lobby itself
+		GH.windows().popWindows(1);
+	}
+
 	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
 }
 
