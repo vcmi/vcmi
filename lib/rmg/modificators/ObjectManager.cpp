@@ -579,11 +579,15 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 
 		for (auto id : adjacentZones)
 		{
-			auto manager = map.getZones().at(id)->getModificator<ObjectManager>();
-			if (manager)
+			auto otherZone = map.getZones().at(id);
+			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType()	== ETemplateZoneType::WATER))
 			{
-				// TODO: Update distances for perimeter of guarded object, not just treasures
-				manager->updateDistances(object);
+				// Do not update other zone if only one is water
+				auto manager = otherZone->getModificator<ObjectManager>();
+				if (manager)
+				{
+					manager->updateDistances(object);
+				}
 			}
 		}
 	}
