@@ -490,7 +490,7 @@ std::string CMultiMode::getPlayerName()
 {
 	std::string name = settings["general"]["playerName"].String();
 	if(name == "Player")
-		name = CGI->generaltexth->translate("vcmi.mainMenu.playerName");
+		name = CGI->generaltexth->translate("core.genrltxt.434");
 	return name;
 }
 
@@ -588,15 +588,8 @@ void CSimpleJoinScreen::connectToServer()
 
 void CSimpleJoinScreen::leaveScreen()
 {
-	if(CSH->state == EClientState::CONNECTING)
-	{
-		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverClosing"));
-		CSH->state = EClientState::CONNECTION_CANCELLED;
-	}
-	else if(GH.windows().isTopWindow(this))
-	{
-		close();
-	}
+	textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverClosing"));
+	CSH->setState(EClientState::CONNECTION_CANCELLED);
 }
 
 void CSimpleJoinScreen::onChange(const std::string & newText)

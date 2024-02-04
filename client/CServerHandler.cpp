@@ -144,6 +144,7 @@ CServerHandler::CServerHandler()
 	, applier(std::make_unique<CApplier<CBaseForLobbyApply>>())
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
+	, serverPort(0)
 	, campaignStateToSend(nullptr)
 	, screenType(ESelectionScreen::unknown)
 	, serverMode(EServerMode::NONE)
@@ -165,7 +166,7 @@ void CServerHandler::threadRunNetwork()
 void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & names)
 {
 	hostClientId = -1;
-	state = EClientState::NONE;
+	setState(EClientState::NONE);
 	serverMode = newServerMode;
 	mapToStart = nullptr;
 	th = std::make_unique<CStopWatch>();
@@ -263,7 +264,7 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 {
 	logNetwork->info("Establishing connection to %s:%d...", addr, port);
-	state = EClientState::CONNECTING;
+	setState(EClientState::CONNECTING);
 	serverHostname = addr;
 	serverPort = port;
 
@@ -281,7 +282,7 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 {
-	assert(state == EClientState::CONNECTING);
+	assert(getState() == EClientState::CONNECTING);
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 	if (isServerLocal())
@@ -293,7 +294,7 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 	else
 	{
 		// remote server refused connection - show error message
-		state = EClientState::CONNECTION_FAILED;
+		setState(EClientState::NONE);
 		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
 	}
 }
@@ -302,7 +303,7 @@ void CServerHandler::onTimer()
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-	if(state == EClientState::CONNECTION_CANCELLED)
+	if(getState() == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
 		return;
@@ -314,7 +315,7 @@ void CServerHandler::onTimer()
 
 void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netConnection)
 {
-	assert(state == EClientState::CONNECTING);
+	assert(getState() == EClientState::CONNECTING);
 
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
@@ -359,6 +360,16 @@ bool CServerHandler::isMyColor(PlayerColor color) const
 ui8 CServerHandler::myFirstId() const
 {
 	return clientFirstId(c->connectionID);
+}
+
+EClientState CServerHandler::getState() const
+{
+	return state;
+}
+
+void CServerHandler::setState(EClientState newState)
+{
+	state = newState;
 }
 
 bool CServerHandler::isServerLocal() const
@@ -418,13 +429,13 @@ void CServerHandler::sendClientConnecting() const
 void CServerHandler::sendClientDisconnecting()
 {
 	// FIXME: This is workaround needed to make sure client not trying to sent anything to non existed server
-	if(state == EClientState::DISCONNECTING)
+	if(getState() == EClientState::DISCONNECTING)
 	{
 		assert(0);
 		return;
 	}
 
-	state = EClientState::DISCONNECTING;
+	setState(EClientState::DISCONNECTING);
 	mapToStart = nullptr;
 	LobbyClientDisconnected lcd;
 	lcd.clientId = c->connectionID;
@@ -439,13 +450,14 @@ void CServerHandler::sendClientDisconnecting()
 		logNetwork->info("Sent leaving signal to the server");
 	}
 	sendLobbyPack(lcd);
+	networkConnection->close();
 	networkConnection.reset();
 	c.reset();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
 {
-	state = EClientState::LOBBY_CAMPAIGN;
+	setState(EClientState::LOBBY_CAMPAIGN);
 	LobbySetCampaign lsc;
 	lsc.ourCampaign = newCampaign;
 	sendLobbyPack(lsc);
@@ -453,7 +465,7 @@ void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign
 
 void CServerHandler::setCampaignMap(CampaignScenarioID mapId) const
 {
-	if(state == EClientState::GAMEPLAY) // FIXME: UI shouldn't sent commands in first place
+	if(getState() == EClientState::GAMEPLAY) // FIXME: UI shouldn't sent commands in first place
 		return;
 
 	LobbySetCampaignMap lscm;
@@ -463,7 +475,7 @@ void CServerHandler::setCampaignMap(CampaignScenarioID mapId) const
 
 void CServerHandler::setCampaignBonus(int bonusId) const
 {
-	if(state == EClientState::GAMEPLAY) // FIXME: UI shouldn't sent commands in first place
+	if(getState() == EClientState::GAMEPLAY) // FIXME: UI shouldn't sent commands in first place
 		return;
 
 	LobbySetCampaignBonus lscb;
@@ -673,7 +685,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 	}
 	// After everything initialized we can accept CPackToClient netpacks
 	c->enterGameplayConnectionMode(client->gameState());
-	state = EClientState::GAMEPLAY;
+	setState(EClientState::GAMEPLAY);
 }
 
 void CServerHandler::endGameplay()
@@ -780,7 +792,7 @@ int CServerHandler::howManyPlayerInterfaces()
 
 ELoadMode CServerHandler::getLoadMode()
 {
-	if(loadMode != ELoadMode::TUTORIAL && state == EClientState::GAMEPLAY)
+	if(loadMode != ELoadMode::TUTORIAL && getState() == EClientState::GAMEPLAY)
 	{
 		if(si->campState)
 			return ELoadMode::CAMPAIGN;
@@ -874,7 +886,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-	if(state == EClientState::DISCONNECTING)
+	if(getState() == EClientState::DISCONNECTING)
 	{
 		assert(0); //Should not be possible - socket must be closed at this point
 		return;
@@ -887,7 +899,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	if(state == EClientState::DISCONNECTING)
+	if(getState() == EClientState::DISCONNECTING)
 	{
 		assert(networkConnection == nullptr);
 		// Note: this branch can be reached on app shutdown, when main thread holds mutex till destruction
@@ -898,18 +910,13 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 	logNetwork->error("Lost connection to server! Connection has been closed");
-	networkConnection.reset();
 
 	if(client)
 	{
-		state = EClientState::DISCONNECTING;
-
-		GH.dispatchMainThread([]()
-		{
-			CSH->endGameplay();
-			GH.defActionsDef = 63;
-			CMM->menu->switchToTab("main");
-		});
+		CSH->endGameplay();
+		GH.defActionsDef = 63;
+		CMM->menu->switchToTab("main");
+		CSH->showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else
 	{
@@ -917,6 +924,8 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 		lcd.clientId = c->connectionID;
 		applyPackOnLobbyScreen(lcd);
 	}
+
+	networkConnection.reset();
 }
 
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
@@ -970,15 +979,13 @@ void CServerHandler::threadRunServer(bool connectToLobby)
 	}
 	else
 	{
-		if (state != EClientState::DISCONNECTING)
-		{
-			if (state == EClientState::CONNECTING)
-				CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"), {});
-			else
-				CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.server.errors.serverCrashed"), {});
-		}
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
-		state = EClientState::CONNECTION_CANCELLED; // stop attempts to reconnect
+		if (getState() == EClientState::CONNECTING)
+		{
+			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
+			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
+		}
 		logNetwork->error("Error: server failed to close correctly or crashed!");
 		logNetwork->error("Check %s for more info", logName);
 	}
@@ -987,6 +994,6 @@ void CServerHandler::threadRunServer(bool connectToLobby)
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
-	if(state != EClientState::STARTING)
+	if(getState() != EClientState::STARTING)
 		c->sendPack(&pack);
 }

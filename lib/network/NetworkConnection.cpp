@@ -79,13 +79,13 @@ void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 {
 	boost::system::error_code ec;
 
+	// create array with single element - boost::asio::buffer can be constructed from containers, but not from plain integer
 	std::array<uint32_t, 1> messageSize{static_cast<uint32_t>(message.size())};
 
 	boost::asio::write(*socket, boost::asio::buffer(messageSize), ec );
 	boost::asio::write(*socket, boost::asio::buffer(message), ec );
 
-	if (ec)
-		listener.onDisconnected(shared_from_this(), ec.message());
+	//Note: ignoring error code, intended
 }
 
 void NetworkConnection::close()
@@ -93,7 +93,7 @@ void NetworkConnection::close()
 	boost::system::error_code ec;
 	socket->close(ec);
 
-	//NOTE: ignoring error code
+	//NOTE: ignoring error code, intended
 }
 
 VCMI_LIB_NAMESPACE_END

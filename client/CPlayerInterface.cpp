@@ -1870,14 +1870,9 @@ void CPlayerInterface::proposeLoadingGame()
 		CGI->generaltexth->allTexts[68],
 		[]()
 		{
-			GH.dispatchMainThread(
-				[]()
-				{
-					CSH->endGameplay();
-					GH.defActionsDef = 63;
-					CMM->menu->switchToTab("load");
-				}
-			);
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("load");
 		},
 		nullptr
 	);

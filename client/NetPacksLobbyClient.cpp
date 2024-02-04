@@ -73,7 +73,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType);
 		}
-		handler.state = EClientState::LOBBY;
+		handler.setState(EClientState::LOBBY);
 	}
 }
 
@@ -136,13 +136,10 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
-	if(handler.state == EClientState::GAMEPLAY)
-	{
-		handler.restartGameplay();
-	}
-	
-	if (handler.validateGameStart())
-		handler.sendStartGame();
+	assert(handler.getState() == EClientState::GAMEPLAY);
+
+	handler.restartGameplay();
+	handler.sendStartGame();
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
@@ -160,7 +157,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pac
 		return;
 	}
 	
-	handler.state = EClientState::STARTING;
+	handler.setState(EClientState::STARTING);
 	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.c->connectionID)
 	{
 		auto modeBackup = handler.si->mode;
@@ -206,7 +203,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	if(!lobby) //stub: ignore message for game mode
 		return;
 		
-	if(!lobby->bonusSel && handler.si->campState && handler.state == EClientState::LOBBY_CAMPAIGN)
+	if(!lobby->bonusSel && handler.si->campState && handler.getState() == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
 		GH.windows().pushWindow(lobby->bonusSel);

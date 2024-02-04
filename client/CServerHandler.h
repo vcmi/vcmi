@@ -54,7 +54,6 @@ enum class EClientState : ui8
 	STARTING, // Gameplay interfaces being created, we pause netpacks retrieving
 	GAMEPLAY, // In-game, used by some UI
 	DISCONNECTING, // We disconnecting, drop all netpacks
-	CONNECTION_FAILED // We could not connect to server
 };
 
 enum class EServerMode : uint8_t
@@ -108,6 +107,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	boost::thread threadRunLocalServer;
 	boost::thread threadNetwork;
 
+	std::atomic<EClientState> state;
+
 	void threadRunNetwork();
 	void threadRunServer(bool connectToLobby);
 
@@ -129,7 +130,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 public:
 	std::shared_ptr<CConnection> c;
 
-	std::atomic<EClientState> state;
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together
 
@@ -159,6 +159,9 @@ public:
 	PlayerColor myFirstColor() const;
 	bool isMyColor(PlayerColor color) const;
 	ui8 myFirstId() const; // Used by chat only!
+
+	EClientState getState() const;
+	void setState(EClientState newState);
 
 	bool isHost() const;
 	bool isGuest() const;
