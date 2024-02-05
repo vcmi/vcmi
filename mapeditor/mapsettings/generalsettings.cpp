@@ -35,23 +35,23 @@ void GeneralSettings::initialize(MapController & c)
 	//set difficulty
 	switch(controller->map()->difficulty)
 	{
-		case 0:
+		case EMapDifficulty::EASY:
 			ui->diffRadio1->setChecked(true);
 			break;
 
-		case 1:
+		case EMapDifficulty::NORMAL:
 			ui->diffRadio2->setChecked(true);
 			break;
 
-		case 2:
+		case EMapDifficulty::HARD:
 			ui->diffRadio3->setChecked(true);
 			break;
 
-		case 3:
+		case EMapDifficulty::EXPERT:
 			ui->diffRadio4->setChecked(true);
 			break;
 
-		case 4:
+		case EMapDifficulty::IMPOSSIBLE:
 			ui->diffRadio5->setChecked(true);
 			break;
 	};
@@ -67,11 +67,11 @@ void GeneralSettings::update()
 		controller->map()->levelLimit = 0;
 
 	//set difficulty
-	if(ui->diffRadio1->isChecked()) controller->map()->difficulty = 0;
-	if(ui->diffRadio2->isChecked()) controller->map()->difficulty = 1;
-	if(ui->diffRadio3->isChecked()) controller->map()->difficulty = 2;
-	if(ui->diffRadio4->isChecked()) controller->map()->difficulty = 3;
-	if(ui->diffRadio5->isChecked()) controller->map()->difficulty = 4;
+	if(ui->diffRadio1->isChecked()) controller->map()->difficulty = EMapDifficulty::EASY;
+	if(ui->diffRadio2->isChecked()) controller->map()->difficulty = EMapDifficulty::NORMAL;
+	if(ui->diffRadio3->isChecked()) controller->map()->difficulty = EMapDifficulty::HARD;
+	if(ui->diffRadio4->isChecked()) controller->map()->difficulty = EMapDifficulty::EXPERT;
+	if(ui->diffRadio5->isChecked()) controller->map()->difficulty = EMapDifficulty::IMPOSSIBLE;
 }
 
 void GeneralSettings::on_heroLevelLimitCheck_toggled(bool checked)

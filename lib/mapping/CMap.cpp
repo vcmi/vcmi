@@ -42,8 +42,12 @@ DisposedHero::DisposedHero() : heroId(0), portrait(255)
 
 }
 
-CMapEvent::CMapEvent() : players(0), humanAffected(0), computerAffected(0),
-	firstOccurence(0), nextOccurence(0)
+CMapEvent::CMapEvent()
+	: players(0)
+	, humanAffected(false)
+	, computerAffected(false)
+	, firstOccurence(0)
+	, nextOccurence(0)
 {
 
 }
