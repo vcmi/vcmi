@@ -191,6 +191,15 @@ struct DLL_LINKAGE TriggeredEvent
 	}
 };
 
+enum class EMapDifficulty : uint8_t
+{
+	EASY = 0,
+	NORMAL = 1,
+	HARD = 2,
+	EXPERT = 3,
+	IMPOSSIBLE = 4
+};
+
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
 class DLL_LINKAGE CMapHeader
 {
@@ -218,7 +227,7 @@ public:
 	bool twoLevel; /// The default value is true.
 	MetaString name;
 	MetaString description;
-	ui8 difficulty; /// The default value is 1 representing a normal map difficulty.
+	EMapDifficulty difficulty;
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
 	ui8 levelLimit;

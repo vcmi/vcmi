@@ -37,8 +37,8 @@ public:
 	MetaString message;
 	TResources resources;
 	ui8 players; // affected players, bit field?
-	ui8 humanAffected;
-	ui8 computerAffected;
+	bool humanAffected;
+	bool computerAffected;
 	ui32 firstOccurence;
 	ui32 nextOccurence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 

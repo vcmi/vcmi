@@ -40,6 +40,7 @@ public:
 	TerrainId readTerrain();
 	RoadId readRoad();
 	RiverId readRiver();
+	PrimarySkill readPrimary();
 	SecondarySkill readSkill();
 	SpellID readSpell();
 	SpellID readSpell32();
@@ -70,16 +71,16 @@ public:
 
 	bool readBool();
 
-	ui8 readUInt8();
-	si8 readInt8();
-	ui16 readUInt16();
-	si16 readInt16();
-	ui32 readUInt32();
-	si32 readInt32();
+	uint8_t readUInt8();
+	int8_t readInt8();
+	int8_t readInt8Checked(int8_t lowerLimit, int8_t upperLimit);
+
+	uint16_t readUInt16();
+
+	uint32_t readUInt32();
+	int32_t readInt32();
 
 	std::string readBaseString();
-
-	CBinaryReader & getInternalReader();
 
 private:
 	template<class Identifier>

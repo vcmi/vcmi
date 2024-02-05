@@ -183,6 +183,13 @@ RiverId MapReaderH3M::readRiver()
 	return result;
 }
 
+PrimarySkill MapReaderH3M::readPrimary()
+{
+	PrimarySkill result(readUInt8());
+	assert(result <= PrimarySkill::KNOWLEDGE );
+	return result;
+}
+
 SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
@@ -400,32 +407,35 @@ bool MapReaderH3M::readBool()
 	return result != 0;
 }
 
-ui8 MapReaderH3M::readUInt8()
+int8_t MapReaderH3M::readInt8Checked(int8_t lowerLimit, int8_t upperLimit)
+{
+	int8_t result = readInt8();
+	assert(result >= lowerLimit);
+	assert(result <= upperLimit);
+	return std::clamp(result, lowerLimit, upperLimit);
+}
+
+uint8_t MapReaderH3M::readUInt8()
 {
 	return reader->readUInt8();
 }
 
-si8 MapReaderH3M::readInt8()
+int8_t MapReaderH3M::readInt8()
 {
 	return reader->readInt8();
 }
 
-ui16 MapReaderH3M::readUInt16()
+uint16_t MapReaderH3M::readUInt16()
 {
 	return reader->readUInt16();
 }
 
-si16 MapReaderH3M::readInt16()
-{
-	return reader->readInt16();
-}
-
-ui32 MapReaderH3M::readUInt32()
+uint32_t MapReaderH3M::readUInt32()
 {
 	return reader->readUInt32();
 }
 
-si32 MapReaderH3M::readInt32()
+int32_t MapReaderH3M::readInt32()
 {
 	return reader->readInt32();
 }
@@ -433,11 +443,6 @@ si32 MapReaderH3M::readInt32()
 std::string MapReaderH3M::readBaseString()
 {
 	return reader->readBaseString();
-}
-
-CBinaryReader & MapReaderH3M::getInternalReader()
-{
-	return *reader;
 }
 
 VCMI_LIB_NAMESPACE_END

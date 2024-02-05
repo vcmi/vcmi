@@ -117,7 +117,7 @@ void CMapHeader::setupEvents()
 }
 
 CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
-	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
+	twoLevel(true), difficulty(EMapDifficulty::NORMAL), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
 	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();

@@ -177,7 +177,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
 	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
-	mapInfo->mapHeader->difficulty = 1; // Normal
+	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
 	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();

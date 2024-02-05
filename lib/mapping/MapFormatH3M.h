@@ -35,6 +35,50 @@ class SpellID;
 class PlayerColor;
 class int3;
 
+enum class EQuestMission {
+	NONE = 0,
+	LEVEL = 1,
+	PRIMARY_SKILL = 2,
+	KILL_HERO = 3,
+	KILL_CREATURE = 4,
+	ARTIFACT = 5,
+	ARMY = 6,
+	RESOURCES = 7,
+	HERO = 8,
+	PLAYER = 9,
+	HOTA_MULTI = 10,
+	// end of H3 missions
+	KEYMASTER = 100,
+	HOTA_HERO_CLASS = 101,
+	HOTA_REACH_DATE = 102
+};
+
+enum class EVictoryConditionType : int8_t
+{
+	WINSTANDARD = -1,
+	ARTIFACT = 0,
+	GATHERTROOP = 1,
+	GATHERRESOURCE = 2,
+	BUILDCITY = 3,
+	BUILDGRAIL = 4,
+	BEATHERO = 5,
+	CAPTURECITY = 6,
+	BEATMONSTER = 7,
+	TAKEDWELLINGS = 8,
+	TAKEMINES = 9,
+	TRANSPORTITEM = 10,
+	HOTA_ELIMINATE_ALL_MONSTERS = 11,
+	HOTA_SURVIVE_FOR_DAYS = 12
+};
+
+enum class ELossConditionType : int8_t
+{
+	LOSSSTANDARD = -1,
+	LOSSCASTLE = 0,
+	LOSSHERO = 1,
+	TIMEEXPIRES = 2
+};
+
 class DLL_LINKAGE CMapLoaderH3M : public IMapLoader
 {
 public:
@@ -204,7 +248,7 @@ private:
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	int readQuest(IQuestObject * guard, const int3 & position);
+	EQuestMission readQuest(IQuestObject * guard, const int3 & position);
 
 	void readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
