@@ -12,30 +12,26 @@
 
 #include "../lib/VCMIDirs.h"
 
-static CLauncherDirs launcherDirsGlobal;
-
-CLauncherDirs::CLauncherDirs()
+namespace CLauncherDirs
 {
-	QDir().mkdir(downloadsPath());
-	QDir().mkdir(modsPath());
+void prepare()
+{
+	for(auto path : {downloadsPath(), modsPath(), mapsPath()})
+		QDir{}.mkdir(path);
 }
 
-CLauncherDirs & CLauncherDirs::get()
-{
-	return launcherDirsGlobal;
-}
-
-QString CLauncherDirs::downloadsPath()
+QString downloadsPath()
 {
 	return pathToQString(VCMIDirs::get().userCachePath() / "downloads");
 }
 
-QString CLauncherDirs::modsPath()
+QString modsPath()
 {
 	return pathToQString(VCMIDirs::get().userDataPath() / "Mods");
 }
 
-QString CLauncherDirs::mapsPath()
+QString mapsPath()
 {
 	return pathToQString(VCMIDirs::get().userDataPath() / "Maps");
+}
 }

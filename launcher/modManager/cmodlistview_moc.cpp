@@ -841,7 +841,7 @@ void CModListView::installMods(QStringList archives)
 
 void CModListView::installMaps(QStringList maps)
 {
-	QString destDir = CLauncherDirs::get().mapsPath() + "/";
+	const auto destDir = CLauncherDirs::mapsPath() + QChar{'/'};
 
 	for(QString map : maps)
 	{
@@ -890,18 +890,18 @@ void CModListView::loadScreenshots()
 		QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 		assert(modModel->hasMod(modName)); //should be filtered out by check above
 
-		for(QString & url : modModel->getMod(modName).getValue("screenshots").toStringList())
+		for(QString url : modModel->getMod(modName).getValue("screenshots").toStringList())
 		{
 			// URL must be encoded to something else to get rid of symbols illegal in file names
-			auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
-			auto hashedStr = QString::fromUtf8(hashed.toHex());
+			const auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
+			const auto fileName = QString{QLatin1String{"%1.png"}}.arg(QLatin1String{hashed.toHex()});
 
-			QString fullPath = CLauncherDirs::get().downloadsPath() + '/' + hashedStr + ".png";
+			const auto fullPath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), fileName);
 			QPixmap pixmap(fullPath);
 			if(pixmap.isNull())
 			{
 				// image file not exists or corrupted - try to redownload
-				downloadFile(hashedStr + ".png", url, "screenshots");
+				downloadFile(fileName, url, "screenshots");
 			}
 			else
 			{
