@@ -12,6 +12,8 @@
 
 #include "CMemoryBuffer.h"
 
+#include <mutex>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 template<class Stream>
@@ -130,15 +132,28 @@ static voidpf ZCALLBACK MinizipOpenFunc(voidpf opaque, const void* filename, int
 zlib_filefunc64_def CDefaultIOApi::getApiStructure()
 {
 	static zlib_filefunc64_def MinizipFilefunc;
-	static bool initialized = false;
-	if (!initialized)
+	static std::once_flag flag;
+	std::call_once(flag, []
 	{
 		fill_fopen64_filefunc(&MinizipFilefunc);
 		MinizipFilefunc.zopen64_file = &MinizipOpenFunc;
-		initialized = true;
-	}
+	});
 	return MinizipFilefunc;
 }
+
+#if MINIZIP_NEEDS_32BIT_FUNCS
+zlib_filefunc_def CDefaultIOApi::getApiStructure32()
+{
+	static zlib_filefunc_def MinizipFilefunc;
+	static std::once_flag flag;
+	std::call_once(flag, []
+	{
+		fill_fopen_filefunc(&MinizipFilefunc);
+		MinizipFilefunc.zopen_file = reinterpret_cast<void*(*)(void*, const char*, int)>(&MinizipOpenFunc);
+	});
+	return MinizipFilefunc;
+}
+#endif
 
 ///CProxyIOApi
 CProxyIOApi::CProxyIOApi(CInputOutputStream * buffer):

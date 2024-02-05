@@ -181,12 +181,17 @@ std::vector<std::string> ZipArchive::listFiles()
 ZipArchive::ZipArchive(const boost::filesystem::path & from)
 {
 	CDefaultIOApi zipAPI;
-	auto zipStructure = zipAPI.getApiStructure();
 
+#if MINIZIP_NEEDS_32BIT_FUNCS
+	auto zipStructure = zipAPI.getApiStructure32();
+	archive = unzOpen2(from.c_str(), &zipStructure);
+#else
+	auto zipStructure = zipAPI.getApiStructure();
 	archive = unzOpen2_64(from.c_str(), &zipStructure);
+#endif
 
 	if (archive == nullptr)
-		throw std::runtime_error("Failed to open file" + from.string() + "'%s'! Unable to list files!");
+		throw std::runtime_error("Failed to open file '" + from.string() + "' - unable to list files!");
 }
 
 ZipArchive::~ZipArchive()
