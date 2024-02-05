@@ -135,9 +135,16 @@ void JsonSerializeFormat::readLICPart(const JsonNode & part, const JsonSerialize
 	{
 		const std::string & identifier = index.String();
 
-		const si32 rawId = decoder(identifier);
-		if(rawId != -1)
+		try
+		{
+			const si32 rawId = decoder(identifier);
 			value.insert(rawId);
+		}
+		catch (const IdentifierResolutionException & e)
+		{
+			// downgrade exception to warning (printed as part of exception generation
+			// this is usually caused by loading allowed heroes / artifacts list from vmap's
+		}
 	}
 }
 
