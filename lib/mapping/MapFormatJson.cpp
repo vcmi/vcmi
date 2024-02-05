@@ -1156,6 +1156,21 @@ void CMapLoaderJson::readObjects()
 	{
 		return a->getObjTypeIndex() < b->getObjTypeIndex();
 	});
+
+
+	std::set<HeroTypeID> debugHeroesOnMap;
+	for (auto const & object : map->objects)
+	{
+		if(object->ID != Obj::HERO && object->ID != Obj::PRISON)
+			continue;
+
+		auto * hero = dynamic_cast<const CGHeroInstance *>(object.get());
+
+		if (debugHeroesOnMap.count(hero->getHeroType()))
+			logGlobal->error("Hero is already on the map at %s", hero->visitablePos().toString());
+
+		debugHeroesOnMap.insert(hero->getHeroType());
+	}
 }
 
 void CMapLoaderJson::readTranslations()
