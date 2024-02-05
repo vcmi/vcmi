@@ -852,12 +852,19 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	uint32_t queueSize = QUEUE_SIZE_BIG;
+
 	if(embedded)
 	{
-		pos.w = QUEUE_SIZE * 41;
+		int32_t queueSmallOutsideYOffset = 65;
+		bool queueSmallOutside = settings["battle"]["queueSmallOutside"].Bool() && (pos.y - queueSmallOutsideYOffset) >= 0;
+		queueSize = std::clamp(static_cast<int>(settings["battle"]["queueSmallSlots"].Float()), 1, queueSmallOutside ? GH.screenDimensions().x / 41 : 19);
+
+		pos.w = queueSize * 41;
 		pos.h = 49;
 		pos.x += parent->pos.w/2 - pos.w/2;
-		pos.y += 10;
+		pos.y += queueSmallOutside ? -queueSmallOutsideYOffset : 10;
 
 		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"));
 		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
@@ -878,7 +885,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	}
 	stateIcons->preload();
 
-	stackBoxes.resize(QUEUE_SIZE);
+	stackBoxes.resize(queueSize);
 	for (int i = 0; i < stackBoxes.size(); i++)
 	{
 		stackBoxes[i] = std::make_shared<StackBox>(this);
