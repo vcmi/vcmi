@@ -5,11 +5,6 @@ cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
 # TODO
-# macOS:
-# - There is problem with running fixup_bundle in main project after subdirectories.
-# Cmake put them after all install code of main CMakelists in cmake_install.cmake
-# Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-#
 # Vckpg:
 # - Improve install code once there is better way to deploy DLLs and Qt plugins
 #
@@ -23,7 +18,7 @@ project(VCMI)
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
 
 if(APPLE)
-	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		set(APPLE_MACOS 1)
 	else()
 		set(APPLE_IOS 1)
