@@ -1111,7 +1111,7 @@ std::string CGHeroInstance::getClassNameTextID() const
 {
 	if (isCampaignGem())
 		return "core.genrltxt.735";
-	return type->heroClass->getNameTranslated();
+	return type->heroClass->getNameTextID();
 }
 
 std::string CGHeroInstance::getNameTextID() const
