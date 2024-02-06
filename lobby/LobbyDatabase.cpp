@@ -149,6 +149,12 @@ void LobbyDatabase::prepareStatements()
 		WHERE roomID = ?
 	)";
 
+	static const std::string updateAccountLoginTimeText = R"(
+		UPDATE accounts
+		SET lastLoginTime = CURRENT_TIMESTAMP
+		WHERE accountID = ?
+	)";
+
 	// SELECT FROM
 
 	static const std::string getRecentMessageHistoryText = R"(
@@ -263,6 +269,7 @@ void LobbyDatabase::prepareStatements()
 
 	setAccountOnlineStatement = database->prepare(setAccountOnlineText);
 	setGameRoomStatusStatement = database->prepare(setGameRoomStatusText);
+	updateAccountLoginTimeStatement = database->prepare(updateAccountLoginTimeText);
 
 	getRecentMessageHistoryStatement = database->prepare(getRecentMessageHistoryText);
 	getIdleGameRoomStatement = database->prepare(getIdleGameRoomText);
@@ -382,7 +389,7 @@ void LobbyDatabase::insertAccessCookie(const std::string & accountID, const std:
 
 void LobbyDatabase::updateAccountLoginTime(const std::string & accountID)
 {
-	assert(0);
+	updateAccountLoginTimeStatement->executeOnce(accountID);
 }
 
 std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)

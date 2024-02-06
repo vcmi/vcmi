@@ -33,7 +33,7 @@ class LobbyDatabase
 
 	SQLiteStatementPtr setAccountOnlineStatement;
 	SQLiteStatementPtr setGameRoomStatusStatement;
-	SQLiteStatementPtr setGameRoomPlayerLimitStatement;
+	SQLiteStatementPtr updateAccountLoginTimeStatement;
 
 	SQLiteStatementPtr getRecentMessageHistoryStatement;
 	SQLiteStatementPtr getIdleGameRoomStatement;
