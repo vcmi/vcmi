@@ -326,6 +326,8 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	{
 		JsonNode classConf = node["mapObject"];
 		classConf["heroClass"].String() = identifier;
+		if (!node["compatibilityIdentifiers"].isNull())
+			classConf["compatibilityIdentifiers"] = node["compatibilityIdentifiers"];
 		classConf.setMeta(scope);
 		VLC->objtypeh->loadSubObject(identifier, classConf, index, heroClass->getIndex());
 	});
@@ -756,6 +758,9 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	objects.emplace_back(object);
 
 	registerObject(scope, "hero", name, object->getIndex());
+
+	for(const auto & compatID : data["compatibilityIdentifiers"].Vector())
+		registerObject(scope, "hero", compatID.String(), object->getIndex());
 }
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -767,6 +772,8 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	objects[index] = object;
 
 	registerObject(scope, "hero", name, object->getIndex());
+	for(const auto & compatID : data["compatibilityIdentifiers"].Vector())
+		registerObject(scope, "hero", compatID.String(), object->getIndex());
 }
 
 ui32 CHeroHandler::level (TExpType experience) const

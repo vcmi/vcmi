@@ -330,7 +330,7 @@ public:
 	static BuildingID FORT_LEVEL(unsigned int level)
 	{
 		assert(level < 3);
-		return BuildingID(Type::TOWN_HALL + level);
+		return BuildingID(Type::FORT + level);
 	}
 
 	static std::string encode(int32_t index);

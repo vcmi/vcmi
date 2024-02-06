@@ -229,7 +229,7 @@ void InfoCard::changeSelection()
 	iconsLossCondition->setFrame(header->defeatIconIndex);
 	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
-	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
+	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)

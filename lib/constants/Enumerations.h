@@ -64,10 +64,10 @@ enum class EMarketMode : int8_t
 enum class EAiTactic : int8_t
 {
 	NONE = -1,
-	RANDOM,
-	WARRIOR,
-	BUILDER,
-	EXPLORER
+	RANDOM = 0,
+	WARRIOR = 1,
+	BUILDER = 2,
+	EXPLORER = 3
 };
 
 enum class EBuildingState : int8_t

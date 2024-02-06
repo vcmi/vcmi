@@ -184,10 +184,10 @@ void CMapLoaderH3M::readHeader()
 	mapHeader->twoLevel = reader->readBool();
 	mapHeader->name.appendTextID(readLocalizedString("header.name"));
 	mapHeader->description.appendTextID(readLocalizedString("header.description"));
-	mapHeader->difficulty = reader->readInt8();
+	mapHeader->difficulty = static_cast<EMapDifficulty>(reader->readInt8Checked(0, 4));
 
 	if(features.levelAB)
-		mapHeader->levelLimit = reader->readUInt8();
+		mapHeader->levelLimit = reader->readInt8Checked(0, std::min(100u, VLC->heroh->maxSupportedLevel()));
 	else
 		mapHeader->levelLimit = 0;
 
@@ -218,7 +218,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			continue;
 		}
 
-		playerInfo.aiTactic = static_cast<EAiTactic>(reader->readUInt8());
+		playerInfo.aiTactic = static_cast<EAiTactic>(reader->readInt8Checked(-1, 3));
 
 		if(features.levelSOD)
 			reader->skipUnused(1); //TODO: check meaning?
@@ -261,8 +261,8 @@ void CMapLoaderH3M::readPlayerInfo()
 		if(features.levelAB)
 		{
 			reader->skipUnused(1); //TODO: check meaning?
-			uint32_t heroCount = reader->readUInt32();
-			for(int pp = 0; pp < heroCount; ++pp)
+			size_t heroCount = reader->readUInt32();
+			for(size_t pp = 0; pp < heroCount; ++pp)
 			{
 				SHeroName vv;
 				vv.heroId = reader->readHero();
@@ -274,39 +274,13 @@ void CMapLoaderH3M::readPlayerInfo()
 	}
 }
 
-enum class EVictoryConditionType : uint8_t
-{
-	ARTIFACT = 0,
-	GATHERTROOP = 1,
-	GATHERRESOURCE = 2,
-	BUILDCITY = 3,
-	BUILDGRAIL = 4,
-	BEATHERO = 5,
-	CAPTURECITY = 6,
-	BEATMONSTER = 7,
-	TAKEDWELLINGS = 8,
-	TAKEMINES = 9,
-	TRANSPORTITEM = 10,
-	HOTA_ELIMINATE_ALL_MONSTERS = 11,
-	HOTA_SURVIVE_FOR_DAYS = 12,
-	WINSTANDARD = 255
-};
-
-enum class ELossConditionType : uint8_t
-{
-	LOSSCASTLE = 0,
-	LOSSHERO = 1,
-	TIMEEXPIRES = 2,
-	LOSSSTANDARD = 255
-};
-
 void CMapLoaderH3M::readVictoryLossConditions()
 {
 	mapHeader->triggeredEvents.clear();
 	mapHeader->victoryMessage.clear();
 	mapHeader->defeatMessage.clear();
 
-	auto vicCondition = static_cast<EVictoryConditionType>(reader->readUInt8());
+	auto vicCondition = static_cast<EVictoryConditionType>(reader->readInt8Checked(-1, 12));
 
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
 	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
@@ -395,9 +369,9 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventExpression::OperatorAll oper;
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.position = reader->readInt3();
-				cond.objectType = BuildingID::HALL_LEVEL(reader->readUInt8() + 1);
+				cond.objectType = BuildingID::HALL_LEVEL(reader->readInt8Checked(0,3) + 1);
 				oper.expressions.emplace_back(cond);
-				cond.objectType = BuildingID::FORT_LEVEL(reader->readUInt8());
+				cond.objectType = BuildingID::FORT_LEVEL(reader->readInt8Checked(0, 2));
 				oper.expressions.emplace_back(cond);
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.283");
@@ -578,7 +552,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	}
 
 	// Read loss conditions
-	auto lossCond = static_cast<ELossConditionType>(reader->readUInt8());
+	auto lossCond = static_cast<ELossConditionType>(reader->readInt8Checked(-1, 2));
 	if(lossCond == ELossConditionType::LOSSSTANDARD)
 	{
 		mapHeader->defeatIconIndex = 3;
@@ -685,9 +659,9 @@ void CMapLoaderH3M::readAllowedHeroes()
 
 	if(features.levelAB)
 	{
-		uint32_t placeholdersQty = reader->readUInt32();
+		size_t placeholdersQty = reader->readUInt32();
 
-		for (uint32_t i = 0; i < placeholdersQty; ++i)
+		for (size_t i = 0; i < placeholdersQty; ++i)
 		{
 			auto heroID = reader->readHero();
 			mapHeader->reservedCampaignHeroes.insert(heroID);
@@ -700,9 +674,9 @@ void CMapLoaderH3M::readDisposedHeroes()
 	// Reading disposed heroes (20 bytes)
 	if(features.levelSOD)
 	{
-		ui8 disp = reader->readUInt8();
+		size_t disp = reader->readUInt8();
 		map->disposedHeroes.resize(disp);
-		for(int g = 0; g < disp; ++g)
+		for(size_t g = 0; g < disp; ++g)
 		{
 			map->disposedHeroes[g].heroId = reader->readHero();
 			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
@@ -801,10 +775,10 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 
 void CMapLoaderH3M::readRumors()
 {
-	uint32_t rumorsCount = reader->readUInt32();
+	size_t rumorsCount = reader->readUInt32();
 	assert(rumorsCount < 1000); // sanity check
 
-	for(int it = 0; it < rumorsCount; it++)
+	for(size_t it = 0; it < rumorsCount; it++)
 	{
 		Rumor ourRumor;
 		ourRumor.name = readBasicString();
@@ -853,7 +827,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 			for(int yy = 0; yy < howMany; ++yy)
 			{
 				hero->secSkills[yy].first = reader->readSkill();
-				hero->secSkills[yy].second = reader->readUInt8();
+				hero->secSkills[yy].second = reader->readInt8Checked(1,3);
 			}
 		}
 
@@ -864,7 +838,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 			hero->biographyCustomTextId = readLocalizedString(TextIdentifier("heroes", heroID, "biography"));
 
 		// 0xFF is default, 00 male, 01 female
-		hero->gender = static_cast<EHeroGender>(reader->readUInt8());
+		hero->gender = static_cast<EHeroGender>(reader->readInt8Checked(-1, 1));
 		assert(hero->gender == EHeroGender::MALE || hero->gender == EHeroGender::FEMALE || hero->gender == EHeroGender::DEFAULT);
 
 		bool hasCustomSpells = reader->readBool();
@@ -910,8 +884,8 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	// bag artifacts
 	// number of artifacts in hero's bag
-	int amount = reader->readUInt16();
-	for(int i = 0; i < amount; ++i)
+	size_t amount = reader->readUInt16();
+	for(size_t i = 0; i < amount; ++i)
 	{
 		loadArtifactToSlot(hero, ArtifactPosition::BACKPACK_START + static_cast<int>(hero->artifactsInBackpack.size()));
 	}
@@ -1038,33 +1012,33 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
-	if(auto val = reader->readUInt8())
+	if(auto val = reader->readInt8Checked(-3, 3))
 		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
-	if(auto val = reader->readUInt8())
+	if(auto val = reader->readInt8Checked(-3, 3))
 		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
 
 	reader->readResourses(reward.resources);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
 		reward.primary.at(x) = reader->readUInt8();
 
-	int gabn = reader->readUInt8(); //number of gained abilities
-	for(int oo = 0; oo < gabn; ++oo)
+	size_t gabn = reader->readUInt8(); //number of gained abilities
+	for(size_t oo = 0; oo < gabn; ++oo)
 	{
 		auto rId = reader->readSkill();
-		auto rVal = reader->readUInt8();
+		auto rVal = reader->readInt8Checked(1,3);
 
 		reward.secondary[rId] = rVal;
 	}
-	int gart = reader->readUInt8(); //number of gained artifacts
-	for(int oo = 0; oo < gart; ++oo)
+	size_t gart = reader->readUInt8(); //number of gained artifacts
+	for(size_t oo = 0; oo < gart; ++oo)
 		reward.artifacts.push_back(reader->readArtifact());
 
-	int gspel = reader->readUInt8(); //number of gained spells
-	for(int oo = 0; oo < gspel; ++oo)
+	size_t gspel = reader->readUInt8(); //number of gained spells
+	for(size_t oo = 0; oo < gspel; ++oo)
 		reward.spells.push_back(reader->readSpell());
 
-	int gcre = reader->readUInt8(); //number of gained creatures
-	for(int oo = 0; oo < gcre; ++oo)
+	size_t gcre = reader->readUInt8(); //number of gained creatures
+	for(size_t oo = 0; oo < gcre; ++oo)
 	{
 		auto rId = reader->readCreature();
 		auto rVal = reader->readUInt16();
@@ -1094,7 +1068,7 @@ CGObjectInstance * CMapLoaderH3M::readMonster(const int3 & mapPosition, const Ob
 	//type will be set during initialization
 	object->putStack(SlotID(0), hlp);
 
-	object->character = reader->readInt8();
+	object->character = reader->readInt8Checked(0, 4);
 
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
@@ -1192,17 +1166,17 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 
 CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	enum class ScholarBonusType : uint8_t {
+	enum class ScholarBonusType : int8_t {
+		RANDOM = -1,
 		PRIM_SKILL = 0,
 		SECONDARY_SKILL = 1,
 		SPELL = 2,
-		RANDOM = 255
 	};
 
 	auto * object = readGeneric(position, objectTemplate);
 	auto * rewardable = dynamic_cast<CRewardableObject*>(object);
 
-	uint8_t bonusTypeRaw = reader->readUInt8();
+	uint8_t bonusTypeRaw = reader->readInt8Checked(-1, 2);
 	auto bonusType = static_cast<ScholarBonusType>(bonusTypeRaw);
 	auto bonusID = reader->readUInt8();
 
@@ -1477,7 +1451,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared
 		int32_t guardsPresetIndex = reader->readInt32();
 
 		// presence of upgraded stack: -1 = random, 0 = never, 1 = always
-		int8_t upgradedStackPresence = reader->readInt8();
+		int8_t upgradedStackPresence = reader->readInt8Checked(-1, 1);
 
 		assert(vstd::iswithin(guardsPresetIndex, -1, 4));
 		assert(vstd::iswithin(upgradedStackPresence, -1, 1));
@@ -1807,7 +1781,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		for(int i = 0; i < skillsCount; ++i)
 		{
 			object->secSkills[i].first = reader->readSkill();
-			object->secSkills[i].second = reader->readUInt8();
+			object->secSkills[i].second = reader->readInt8Checked(1,3);
 		}
 	}
 
@@ -1815,7 +1789,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	if(hasGarison)
 		readCreatureSet(object, 7);
 
-	object->formation = static_cast<EArmyFormation>(reader->readUInt8());
+	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
 	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
 
 	loadArtifactsOfHero(object);
@@ -1828,7 +1802,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		if(hasCustomBiography)
 			object->biographyCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "biography"));
 
-		object->gender = static_cast<EHeroGender>(reader->readUInt8());
+		object->gender = static_cast<EHeroGender>(reader->readInt8Checked(-1, 1));
 		assert(object->gender == EHeroGender::MALE || object->gender == EHeroGender::FEMALE || object->gender == EHeroGender::DEFAULT);
 	}
 	else
@@ -1938,30 +1912,12 @@ enum class ESeerHutRewardType : uint8_t
 	CREATURE = 10,
 };
 
-enum class EQuestMission {
-	NONE = 0,
-	LEVEL = 1,
-	PRIMARY_SKILL = 2,
-	KILL_HERO = 3,
-	KILL_CREATURE = 4,
-	ARTIFACT = 5,
-	ARMY = 6,
-	RESOURCES = 7,
-	HERO = 8,
-	PLAYER = 9,
-	HOTA_MULTI = 10,
-	// end of H3 missions
-	KEYMASTER = 100,
-	HOTA_HERO_CLASS = 101,
-	HOTA_REACH_DATE = 102
-};
-
 void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
 	EQuestMission missionType = EQuestMission::NONE;
 	if(features.levelAB)
 	{
-		missionType = static_cast<EQuestMission>(readQuest(hut, position));
+		missionType = readQuest(hut, position);
 	}
 	else
 	{
@@ -1981,7 +1937,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 
 	if(missionType != EQuestMission::NONE)
 	{
-		auto rewardType = static_cast<ESeerHutRewardType>(reader->readUInt8());
+		auto rewardType = static_cast<ESeerHutRewardType>(reader->readInt8Checked(0, 10));
 		Rewardable::VisitInfo vinfo;
 		auto & reward = vinfo.reward;
 		switch(rewardType)
@@ -2003,36 +1959,34 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::MORALE:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, reader->readUInt8(), BonusSourceID(idToBeGiven));
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
 				break;
 			}
 			case ESeerHutRewardType::LUCK:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, reader->readUInt8(), BonusSourceID(idToBeGiven));
+				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
 				break;
 			}
 			case ESeerHutRewardType::RESOURCES:
 			{
-				auto rId = reader->readUInt8();
+				auto rId = reader->readGameResID();
 				auto rVal = reader->readUInt32();
-
-				assert(rId < features.resourcesCount);
 
 				reward.resources[rId] = rVal;
 				break;
 			}
 			case ESeerHutRewardType::PRIMARY_SKILL:
 			{
-				auto rId = reader->readUInt8();
+				auto rId = reader->readPrimary();
 				auto rVal = reader->readUInt8();
 
-				reward.primary.at(rId) = rVal;
+				reward.primary.at(rId.getNum()) = rVal;
 				break;
 			}
 			case ESeerHutRewardType::SECONDARY_SKILL:
 			{
 				auto rId = reader->readSkill();
-				auto rVal = reader->readUInt8();
+				auto rVal = reader->readInt8Checked(1,3);
 
 				reward.secondary[rId] = rVal;
 				break;
@@ -2071,11 +2025,11 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 	}
 }
 
-int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
+EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 {
-	auto missionId = reader->readUInt8();
+	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
 
-	switch(static_cast<EQuestMission>(missionId))
+	switch(missionId)
 	{
 		case EQuestMission::NONE:
 			return missionId;
@@ -2100,8 +2054,8 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 		}
 		case EQuestMission::ARTIFACT:
 		{
-			int artNumber = reader->readUInt8();
-			for(int yy = 0; yy < artNumber; ++yy)
+			size_t artNumber = reader->readUInt8();
+			for(size_t yy = 0; yy < artNumber; ++yy)
 			{
 				auto artid = reader->readArtifact();
 				guard->quest->mission.artifacts.push_back(artid);
@@ -2111,9 +2065,9 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 		}
 		case EQuestMission::ARMY:
 		{
-			int typeNumber = reader->readUInt8();
+			size_t typeNumber = reader->readUInt8();
 			guard->quest->mission.creatures.resize(typeNumber);
-			for(int hh = 0; hh < typeNumber; ++hh)
+			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
 				guard->quest->mission.creatures[hh].type = reader->readCreature().toCreature();
 				guard->quest->mission.creatures[hh].count = reader->readUInt16();
@@ -2143,7 +2097,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 
 			if(missionSubID == 0)
 			{
-				missionId = int(EQuestMission::HOTA_HERO_CLASS);
+				missionId = EQuestMission::HOTA_HERO_CLASS;
 				std::set<HeroClassID> heroClasses;
 				reader->readBitmaskHeroClassesSized(heroClasses, false);
 				for(auto & hc : heroClasses)
@@ -2152,7 +2106,7 @@ int CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 			if(missionSubID == 1)
 			{
-				missionId = int(EQuestMission::HOTA_REACH_DATE);
+				missionId = EQuestMission::HOTA_REACH_DATE;
 				guard->quest->mission.daysPassed = reader->readUInt32() + 1;
 				break;
 			}
@@ -2194,7 +2148,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	if(hasGarrison)
 		readCreatureSet(object, 7);
 
-	object->formation = static_cast<EArmyFormation>(reader->readUInt8());
+	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
 	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
 
 	bool hasCustomBuildings = reader->readBool();
@@ -2252,7 +2206,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		else
 			event.humanAffected = true;
 
-		event.computerAffected = reader->readUInt8();
+		event.computerAffected = reader->readBool();
 		event.firstOccurence = reader->readUInt16();
 		event.nextOccurence = reader->readUInt8();
 

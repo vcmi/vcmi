@@ -23,7 +23,7 @@ class CGTownInstance;
 class CMap;
 struct TerrainTile;
 struct TurnInfo;
-enum class EHeroGender : uint8_t;
+enum class EHeroGender : int8_t;
 
 class DLL_LINKAGE CGHeroPlaceholder : public CGObjectInstance
 {
