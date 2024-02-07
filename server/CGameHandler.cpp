@@ -1195,7 +1195,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if (leavingTile == LEAVING_TILE)
 			leaveTile();
 
-		if (isInTheMap(guardPos))
+		if (lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
 			tmh.attackedFrom = std::make_optional(guardPos);
 
 		tmh.result = result;

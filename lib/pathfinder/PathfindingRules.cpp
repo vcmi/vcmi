@@ -301,7 +301,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 
 		if(source.guarded)
 		{
-			if(!(pathfinderConfig->options.originalMovementRules && source.node->layer == EPathfindingLayer::AIR) 
+			if(!(pathfinderConfig->options.originalFlyRules && source.node->layer == EPathfindingLayer::AIR)
 				&& !pathfinderConfig->options.ignoreGuards
 				&&	(!destination.isGuardianTile || pathfinderHelper->getGuardiansCount(source.coord) > 1)) // Can step into tile of guard
 			{
@@ -386,11 +386,8 @@ void LayerTransitionRule::process(
 		break;
 
 	case EPathfindingLayer::AIR:
-		if(pathfinderConfig->options.originalMovementRules)
+		if(pathfinderConfig->options.originalFlyRules)
 		{
-			if(destination.coord.x == 2 && destination.coord.y == 35)
-				logGlobal->error(source.node->coord.toString() + std::string(" Layer: ") + std::to_string(destination.node->layer) + std::string(" Accessibility: ") + std::to_string((int)source.node->accessible));
-
 			if(source.node->accessible != EPathAccessibility::ACCESSIBLE &&
 				source.node->accessible != EPathAccessibility::VISITABLE &&
 				destination.node->accessible != EPathAccessibility::VISITABLE &&
@@ -398,7 +395,7 @@ void LayerTransitionRule::process(
 			{
 				if(destination.node->accessible == EPathAccessibility::BLOCKVIS)
 				{
-					if(source.nodeObject || source.tile->blocked)
+					if(source.nodeObject || (source.tile->blocked && destination.tile->blocked))
 					{
 						destination.blocked = true;
 					}
