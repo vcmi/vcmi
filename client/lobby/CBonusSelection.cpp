@@ -15,6 +15,7 @@
 #include <vcmi/spells/Service.h>
 
 #include "CSelectionBase.h"
+#include "ExtraOptionsTab.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -103,8 +104,8 @@ CBonusSelection::CBonusSelection()
 
 	if(getCampaign()->playerSelectedDifficulty())
 	{
-		buttonDifficultyLeft = std::make_shared<CButton>(Point(694, 508), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
-		buttonDifficultyRight = std::make_shared<CButton>(Point(738, 508), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
+		buttonDifficultyLeft = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(693, 470) : Point(694, 508), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
+		buttonDifficultyRight = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(739, 470) : Point(738, 508), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
 	}
 
 	for(auto scenarioID : getCampaign()->allScenarios())
@@ -117,6 +118,16 @@ CBonusSelection::CBonusSelection()
 
 	if (!getCampaign()->getMusic().empty())
 		CCS->musich->playMusic( getCampaign()->getMusic(), true, false);
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
+		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
+		tabExtraOptions->recreate(true);
+		tabExtraOptions->setEnabled(false);
+		buttonExtraOptions = std::make_shared<CButton>(Point(642, 509), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); GH.windows().totalRedraw(); }, EShortcut::NONE);
+		buttonExtraOptions->addTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
+	}
 }
 
 void CBonusSelection::createBonusesIcons()

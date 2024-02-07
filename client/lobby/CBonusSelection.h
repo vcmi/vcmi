@@ -27,6 +27,7 @@ class CAnimImage;
 class CLabel;
 class CFlagBox;
 class ISelectionScreenInfo;
+class ExtraOptionsTab;
 
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CWindowObject
@@ -82,4 +83,7 @@ public:
 	std::shared_ptr<CButton> buttonDifficultyLeft;
 	std::shared_ptr<CButton> buttonDifficultyRight;
 	std::shared_ptr<CAnimImage> iconsMapSizes;
+
+	std::shared_ptr<ExtraOptionsTab> tabExtraOptions;
+	std::shared_ptr<CButton> buttonExtraOptions;
 };

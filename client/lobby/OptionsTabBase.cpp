@@ -12,6 +12,7 @@
 #include "CSelectionBase.h"
 
 #include "../widgets/ComboBox.h"
+#include "../widgets/Images.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
@@ -295,7 +296,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	}
 }
 
-void OptionsTabBase::recreate()
+void OptionsTabBase::recreate(bool campaign)
 {
 	auto const & generateSimturnsDurationText = [](int days) -> std::string
 	{
@@ -416,5 +417,11 @@ void OptionsTabBase::recreate()
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 		buttonUnlimitedReplay->block(SEL->screenType == ESelectionScreen::loadGame);
+	}
+
+	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
+	{
+		if(!campaign)
+			textureCampaignOverdraw->disable();
 	}
 }
