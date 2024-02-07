@@ -171,6 +171,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			//ask if player agrees to pay gold
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
+			ynd.components.emplace_back(ComponentType::RESOURCE, GameResID(GameResID::GOLD), action);
 			std::string tmp = VLC->generaltexth->advobtxt[90];
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
