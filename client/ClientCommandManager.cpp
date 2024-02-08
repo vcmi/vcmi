@@ -252,7 +252,7 @@ void ClientCommandManager::handleGetConfigCommand()
 
 				boost::algorithm::replace_all(name, ":", "_");
 
-				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
+				const boost::filesystem::path filePath = contentOutPath / (name + ".json5");
 				std::ofstream file(filePath.c_str());
 				file << object.toJson();
 			}

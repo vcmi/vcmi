@@ -188,7 +188,7 @@ void CModListView::loadRepositories()
 		auto hashed = QCryptographicHash::hash(entry.toUtf8(), QCryptographicHash::Md5);
 		auto hashedStr = QString::fromUtf8(hashed.toHex());
 
-		downloadFile(hashedStr + ".json", entry, "repository index");
+		downloadFile(hashedStr + ".json5", entry, "repository index");
 	}
 }
 
@@ -727,7 +727,7 @@ void CModListView::installFiles(QStringList files)
 			mods.push_back(filename);
 		else if(filename.endsWith(".h3m", Qt::CaseInsensitive) || filename.endsWith(".h3c", Qt::CaseInsensitive) || filename.endsWith(".vmap", Qt::CaseInsensitive) || filename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
-		else if(filename.endsWith(".json", Qt::CaseInsensitive))
+		else if(filename.endsWith(".json5", Qt::CaseInsensitive))
 		{
 			//download and merge additional files
 			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
@@ -738,7 +738,7 @@ void CModListView::installFiles(QStringList files)
 					auto modjson = repoData[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
-						downloadFile(key + ".json", modjson.toString(), "repository index");
+						downloadFile(key + ".json5", modjson.toString(), "repository index");
 					}
 				}
 			}

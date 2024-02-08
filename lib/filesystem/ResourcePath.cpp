@@ -95,6 +95,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 	{
 		{".TXT",   EResType::TEXT},
 		{".JSON",  EResType::JSON},
+		{".JSON5", EResType::JSON},
 		{".DEF",   EResType::ANIMATION},
 		{".MSK",   EResType::MASK},
 		{".MSG",   EResType::MASK},

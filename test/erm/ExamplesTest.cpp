@@ -96,7 +96,7 @@ TEST_F(ExamplesTest, ALL)
 		boost::filesystem::path baseName = scriptPath.stem();
 		boost::filesystem::path basePath = boost::filesystem::path("TEST/ERM/") / scriptPath.stem();
 
-		std::string dataName = basePath.string()+".JSON";
+		std::string dataName = basePath.string()+".JSON5";
 		std::string scriptName = basePath.string()+".VERM";
 
 		ResourceID dataPath(dataName);

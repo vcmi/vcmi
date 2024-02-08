@@ -1405,7 +1405,7 @@ const JsonNode & JsonUtils::getSchema(const std::string & URI)
 	else
 	{
 		std::string protocolName = URI.substr(0, posColon);
-		filename = URI.substr(posColon + 1, posHash - posColon - 1) + ".json";
+		filename = URI.substr(posColon + 1, posHash - posColon - 1) + ".json5";
 		if(protocolName != "vcmi")
 		{
 			logMod->error("Error: unsupported URI protocol for schema: %s", URI);

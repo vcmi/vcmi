@@ -1178,7 +1178,9 @@ void CMapLoaderJson::readTranslations()
 	std::list<Languages::Options> languages{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
 	for(auto & language : Languages::getLanguageList())
 	{
-		if(isExistArchive(language.identifier + ".json"))
+		if(isExistArchive(language.identifier + ".json5"))
+			mapHeader->translations.Struct()[language.identifier] = getFromArchive(language.identifier + ".json5");
+		else if(isExistArchive(language.identifier + ".json"))
 			mapHeader->translations.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
 	}
 	mapHeader->registerMapStrings();
@@ -1379,7 +1381,7 @@ void CMapSaverJson::writeTranslations()
 			continue;
 		}
 		logGlobal->trace("Saving translations, language: %s", language);
-		addToArchive(s.second, language + ".json");
+		addToArchive(s.second, language + ".json5");
 	}
 }
 
