@@ -86,15 +86,24 @@ Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 Point ScreenHandler::getPreferredLogicalResolution() const
 {
 	Point renderResolution = getRenderResolution();
+	logGlobal->error("renderResolution.x: %d", renderResolution.x);
+	logGlobal->error("renderResolution.y: %d", renderResolution.y);
+
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	logGlobal->error("availableResolution.x: %d", availableResolution.x);
+	logGlobal->error("availableResolution.y: %d", availableResolution.y);
 
 	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
 
 	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
+	logGlobal->error("userScaling: %d", userScaling);
 	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
+	logGlobal->error("scaling: %d", scaling);
 
 	Point logicalResolution = availableResolution * 100.0 / scaling;
+	logGlobal->error("logicalResolution.x: %d", logicalResolution.x);
+	logGlobal->error("logicalResolution.y: %d", logicalResolution.y);
 
 	return logicalResolution;
 }
@@ -312,9 +321,9 @@ void ScreenHandler::initializeScreenBuffers()
 #endif
 
 	auto logicalSize = getPreferredLogicalResolution();
-	SDL_RenderSetLogicalSize(mainRenderer, logicalSize.x, logicalSize.y);
+	SDL_RenderSetLogicalSize(mainRenderer, 0.5*logicalSize.x, 0.5*logicalSize.y);
 
-	screen = SDL_CreateRGBSurface(0, logicalSize.x, logicalSize.y, 32, rmask, gmask, bmask, amask);
+	screen = SDL_CreateRGBSurface(0, 2*logicalSize.x, 2*logicalSize.y, 32, rmask, gmask, bmask, amask);
 	if(nullptr == screen)
 	{
 		logGlobal->error("Unable to create surface %dx%d with %d bpp: %s", logicalSize.x, logicalSize.y, 32, SDL_GetError());

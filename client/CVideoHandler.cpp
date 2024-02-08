@@ -208,10 +208,14 @@ bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool overlay, 
 	}
 	else
 	{
-		dest = CSDL_Ext::newSurface(pos.w, pos.h);
+		int scaling = settings["video"]["resolution"]["scaling"].Integer();
+		logGlobal->error("scaling: %d", scaling);
+		float scalingmuliplier = 1;
+
+		dest = CSDL_Ext::newSurface(2*pos.w, 2*pos.h);
 		destRect.x = destRect.y = 0;
-		destRect.w = pos.w;
-		destRect.h = pos.h;
+		destRect.w = 2*pos.w;
+		destRect.h = 2*pos.h;
 	}
 
 	if (videoTexture == nullptr && dest == nullptr)
@@ -651,6 +655,12 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay, bool sh
 	// determine a resolution that has the 800:600 aspect ratio and fits inside the selected VCMI resolution
 	float resX = settings["video"]["resolution"]["width"].Float(); // Float, since we do some floating point calculations
 	float resY = settings["video"]["resolution"]["height"].Float();
+	logGlobal->error("resX: %f", resX);
+	logGlobal->error("resY: %f", resY);
+	int scaling = settings["video"]["resolution"]["scaling"].Integer();
+	logGlobal->error("scaling: %d", scaling);
+	float scalingmuliplier = 1;
+
 	int originalH3ResX = 800;
 	int originalH3ResY = 600;
 	float aspectRatio_OH3 = (float) originalH3ResX/originalH3ResY;
@@ -694,7 +704,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey, bool overlay, bool sh
 		backgroundTexture = SDL_CreateTextureFromSurface(mainRenderer, image);
 		videoRect = CSDL_Ext::toSDL(Rect(offset+pos.x*correctedResX/originalH3ResX, pos.y*correctedResY/originalH3ResY, H3INTROResX*correctedResX/originalH3ResX, H3INTROResY*correctedResY/originalH3ResY));
 	} else {
-		videoRect = CSDL_Ext::toSDL(Rect(pos.x, pos.y, correctedResX, correctedResY));
+		videoRect = CSDL_Ext::toSDL(Rect(pos.x, pos.y, 2*correctedResX, 2*correctedResY));
 	}
 
 	while(nextFrame())
