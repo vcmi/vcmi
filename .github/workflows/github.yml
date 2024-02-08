@@ -134,7 +134,7 @@ jobs:
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
-    - name: Ccache for PRs
+    - name: ccache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number != '' }}
       with:
@@ -146,9 +146,9 @@ jobs:
         max-size: "5G"
         verbose: 2
 
-    - name: Ccache for vcmi/vcmi's develop branch
+    - name: ccache for everything but PRs
       uses: hendrikmuhs/ccache-action@v1.2
-      if: ${{ github.event.number == '' && github.ref == 'refs/heads/develop' }}
+      if: ${{ (github.repository == 'vcmi/vcmi' && github.event.number == '' && github.ref == 'refs/heads/develop') ||  github.repository != 'vcmi/vcmi' }}
       with:
         key: ${{ matrix.preset }}-no-PR
         restore-keys: |
