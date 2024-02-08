@@ -3,7 +3,7 @@
 # Creating mod
 
 To make your own mod you need to create subdirectory in **<data dir>/Mods/** with name that will be used as identifier for your mod.
-Main mod is file called **mod.json** and should be placed into main folder of your mod, e.g. **Mods/myMod/mod.json**
+Main mod is file called **mod.json5** and should be placed into main folder of your mod, e.g. **Mods/myMod/mod.json5**
 All content of your mod should go into **Content** directory, e.g. **Mods/myMod/Content/**. Alternatively, it is possible to replace this directory with single .zip archive.
 
 Example of how directory structure of your mod may look like:
@@ -11,21 +11,21 @@ Example of how directory structure of your mod may look like:
 ```
     Mods/
         myMod/
-            mod.json
+            mod.json5
             Content/
                 config/  - json configuration files
                 data/    - unorganized files, mostly bitmap images (.bmp, .png, .pcx)
                 maps/    - h3m maps added or modified by mod
                 music/   - music files. Mp3 and ogg/vorbis are supported
                 sounds/  - sound files, in wav format.
-                sprites/ - animation, image sets (H3 .def files or VCMI .json files)
+                sprites/ - animation, image sets (H3 .def files or VCMI .json5 files)
                 video/   - video files, .bik or .smk
 ```
 
 ## Creating mod file
 
 All VCMI configuration files use [JSON format](http://en.wikipedia.org/wiki/Json) so you may want to familiarize yourself with it first.
-Mod.json is main file in your mod and must be present in any mod. This file contains basic description of your mod, dependencies or conflicting mods (if present), list of new content and so on.
+Mod.json5 is main file in your mod and must be present in any mod. This file contains basic description of your mod, dependencies or conflicting mods (if present), list of new content and so on.
 Minimalistic version of this file:
 
 ``` javascript
@@ -42,7 +42,7 @@ See [Mod file Format](Mod_File_Format.md) for its full description.
 In order to create new object use following steps:
 1. Create json file with definition of new object. See list of supported object types below.
 2. Add any resources needed for this object, such as images, animations or sounds.
-2. Add reference to new object in corresponding section of mod.json file
+2. Add reference to new object in corresponding section of mod.json5 file
 
 ### List of supported new object types
 

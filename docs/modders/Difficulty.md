@@ -4,7 +4,7 @@
 Since VCMI 1.4.0 there are more capabilities to configure difficulty parameters.
 It means, that modders can give different bonuses to AI or human players depending on selected difficulty
 
-Difficulty configuration is located in [config/difficulty.json](../config/difficulty.json) file and can be overriden by mods.
+Difficulty configuration is located in [config/difficulty.json5](../config/difficulty.json5) file and can be overriden by mods.
 
 ## Format summary
 
@@ -63,5 +63,5 @@ For both types of bonuses, `source` should be specified as `OTHER`.
 
 ## Compatibility
 
-Starting from VCMI 1.4 `startres.json` is not available anymore and will be ignored if present in any mod.
+Starting from VCMI 1.4 `startres.json5` is not available anymore and will be ignored if present in any mod.
 Thus, `Resourceful AI`  mod of version 1.2 won't work anymore.

@@ -5,7 +5,7 @@
 -   A logger belongs to a "domain", this enables us to change log level settings more selectively
 -   The log format can be customized
 -   The color of a log entry can be customized based on logger domain and logger level
--   Logger settings can be changed in the settings.json file
+-   Logger settings can be changed in the settings.json5 file
 -   No std::endl at the end of a log entry required
 -   Thread-safe
 -   Macros for tracing the application flow
@@ -17,12 +17,12 @@
 
 Some notes:
 
--   There are two methods `configure` and `configureDefault` of the class `CBasicLogConfigurator` to initialize and setup the logging system. The latter one setups default logging and isn't dependent on VCMI's filesystem, whereas the first one setups logging based on the user's settings which can be configured in the settings.json.
+-   There are two methods `configure` and `configureDefault` of the class `CBasicLogConfigurator` to initialize and setup the logging system. The latter one setups default logging and isn't dependent on VCMI's filesystem, whereas the first one setups logging based on the user's settings which can be configured in the settings.json5.
 -   The methods `isDebugEnabled` and `isTraceEnabled` return true if a log record of level debug respectively trace will be logged. This can be useful if composing the log message is a expensive task and performance is important.
 
 # Usage
 
-## Setup settings.json
+## Setup settings.json5
 
 ``` javascript
 {

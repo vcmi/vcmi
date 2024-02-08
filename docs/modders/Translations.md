@@ -30,8 +30,8 @@ VCMI allows translating game data into languages other than English. In order to
 
 - Copy existing translation, such as English translation from here: https://github.com/vcmi-mods/h3-for-vcmi-englisation (delete sound and video folders)
 - Rename mod to indicate your language, preferred form is "(language)-translation"
-- Update mod.json to match your mod
-- Translate all texts strings from game.json, campaigns.json and maps.json
+- Update mod.json5 to match your mod
+- Translate all texts strings from game.json5, campaigns.json5 and maps.json5
 - Replace images in data and sprites with translated ones (or delete it if you don't want to translate them)
 - If unicode characters needed for language: Create a submod with a free font like here: https://github.com/vcmi-mods/vietnamese-translation/tree/vcmi-1.4/vietnamese-translation/mods/VietnameseTrueTypeFonts
 
@@ -58,8 +58,8 @@ Before you start, make sure that you have copy of VCMI source code. If you are n
 ### Translation of in-game data
 
 In order to translate in-game data you need:
-- Add section with your language to `<VCMI>/Mods/VCMI/mod.json`, similar to other languages
-- Copy English translation file in `<VCMI>/Mods/VCMI/config/vcmi/english.json` and rename it to name of your language. Note that while you can copy any language other than English, other files might not be up to date and may have missing strings.
+- Add section with your language to `<VCMI>/Mods/VCMI/mod.json5`, similar to other languages
+- Copy English translation file in `<VCMI>/Mods/VCMI/config/vcmi/english.json5` and rename it to name of your language. Note that while you can copy any language other than English, other files might not be up to date and may have missing strings.
 - Translate copied file to your language.
 
 After this, you can set language in Launcher to your language and start game. All translated strings should show up in your language.
@@ -114,18 +114,18 @@ If everything is OK, your changes will be accepted and will be part of next rele
 TODO
 
 ### Translating mod information
-In order to display information in Launcher in language selected by user add following block into your mod.json:
+In order to display information in Launcher in language selected by user add following block into your mod.json5:
 ```
 	"<language>" : {
 		"name" : "<translated name>",
 		"description" : "<translated description>",
 		"author" : "<translated author>",
 		"translations" : [
-			"config/<modName>/<language>.json"
+			"config/<modName>/<language>.json5"
 		]
 	},
 ```
-However, normally you don't need to use block for English. Instead, English text should remain in root section of your mod.json file, to be used when game can not find translated version.
+However, normally you don't need to use block for English. Instead, English text should remain in root section of your mod.json5 file, to be used when game can not find translated version.
 
 # Developers documentation
 

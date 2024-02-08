@@ -1,6 +1,6 @@
 < [Documentation](../Readme.md) / [Modding](Readme.md) / Animation Format
 
-VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def this format allows:
+VCMI allows overriding HoMM3 .def files with .json5 replacement. Compared to .def this format allows:
 
 -   Overriding individual frames from json file (e.g. icons)
 -   Modern graphics formats (targa, png - all formats supported by VCMI image loader)

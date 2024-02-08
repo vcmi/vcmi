@@ -5,7 +5,7 @@
 Starting from version 1.3, VCMI supports its own campaign format.
 Campaigns have *.vcmp file format and it consists from campaign json and set of scenarios (can be both *.vmap and *.h3m)
 
-To start making campaign, create file named `00.json`. See also [Packing campaign](#packing-campaign)
+To start making campaign, create file named `00.json5`. See also [Packing campaign](#packing-campaign)
 
 Basic structure of this file is here, each section is described in details below
 ```js
@@ -170,7 +170,7 @@ If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus forma
 
 ## Regions description
 
-Predefined campaign regions are located in file `campaign_regions.json`
+Predefined campaign regions are located in file `campaign_regions.json5`
 
 ```js
 {
@@ -197,7 +197,7 @@ Your campaign should be stored in some folder with json describing campaign info
 Place all your scenarios inside same folder and enumerate their filenames, e.g `01.vmap`, '02.vmap', etc.
 ```
 my-campaign/
-|-- 00.json
+|-- 00.json5
 |-- 01.vmap
 |-- 02.vmap
 |-- 03.vmap

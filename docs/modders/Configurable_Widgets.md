@@ -39,10 +39,10 @@ extendedLobby/
 |  |- sprites/
 |  |- config/
 |  |  |- widgets/
-|- mod.json
+|- mod.json5
 ```
 
-File `mod.json` is generic and could look like this:
+File `mod.json5` is generic and could look like this:
 ```json
 {
 	"name" : "Configurable UI tutorial mod",
@@ -60,10 +60,10 @@ After that you can copy `extendedLobby/ folder to `mods/` folder and your mod wi
 
 ## Making layout for timer
 
-Let's copy `config/widgets/optionsTab.json` file from VCMI folder to `content/config/widgets/` folder from our mod.
+Let's copy `config/widgets/optionsTab.json5` file from VCMI folder to `content/config/widgets/` folder from our mod.
 It defines UI for options tab as it designed in original game, we will keep everything related to player settings and will modify only timer area.
 
-**It's important, that when you are modifying `optionsTab.json`, game restart is not needed! When you updated file, it's enough to go back to main menu and then open lobby and options again. However, when you add new assets (images), you have to restart game to make possible find them.**
+**It's important, that when you are modifying `optionsTab.json5`, game restart is not needed! When you updated file, it's enough to go back to main menu and then open lobby and options again. However, when you add new assets (images), you have to restart game to make possible find them.**
 
 It looks like on image below and has 3 elements: label with "Player Turn Duration", label with timer duration ("Unlimited" on picture) and slider to control timer.
 
@@ -73,7 +73,7 @@ So we need to modify turn duration label and add combo box with timer types
 
 <img width="345" alt="Снимок экрана 2023-08-30 в 14 53 02" src="https://github.com/vcmi/vcmi/assets/9308612/717b21e6-4ac9-4e27-b90b-b68b0ce65db2">
 
-Open `optionsTab.json` and scroll it until you see comment `timer`. Three elements after this comment are related to timer.
+Open `optionsTab.json5` and scroll it until you see comment `timer`. Three elements after this comment are related to timer.
 
 Let's find first element, which is label
 ```json
@@ -131,7 +131,7 @@ Now, let's add combo box.
 
 Copy image `DrDoCoBk.bmp` to `content/sprites/`. Button objects use animated images to show different button states.
 For normal, pressed, blocked and highlighted. Our combo box inherits this behavior, so let's convert image to animation.
-In order to do it, we need to create file `DrDoCoBk.json` in same folder `content/sprites/` with following content:
+In order to do it, we need to create file `DrDoCoBk.json5` in same folder `content/sprites/` with following content:
 
 ```json
 {
@@ -283,7 +283,7 @@ Now we can press drop-down menu and even select elements.
 After view part is done, let's make behavioural part.
 Let's hide elements, related to classic timer when chess timer is selected and show them back if classic selected.
 
-To do that, find `"variables"` part inside `optionsTab.json` and add there `"timers"` array, containing 2 elements:
+To do that, find `"variables"` part inside `optionsTab.json5` and add there `"timers"` array, containing 2 elements:
 ```json
 "variables":
 {

@@ -72,7 +72,7 @@
 	// If set to true, mod will not be enabled automatically on install
 	"keepDisabled" : false
 	
-	// List of game settings changed by a mod. See <VCMI Install>/config/gameConfig.json for reference
+	// List of game settings changed by a mod. See <VCMI Install>/config/gameConfig.json5 for reference
 	"settings" : {
 		"combat" : {
 			"goodLuckDice" : [] // disable luck
@@ -83,7 +83,7 @@
 
 ## Fields with description of mod content
 
-These are fields that are present only in local mod.json file
+These are fields that are present only in local mod.json5 file
 
 ``` javascript
  
@@ -96,19 +96,19 @@ These are fields that are present only in local mod.json file
 	// list of factions/towns configuration files
 	"factions" :
 	[
-		"config/myMod/faction.json"
+		"config/myMod/faction.json5"
 	]
 
 	// List of hero classes configuration files
 	"heroClasses" :
 	[
-		"config/myMod/heroClasses.json"
+		"config/myMod/heroClasses.json5"
 	],
 
 	// List of heroes configuration files
 	"heroes" :
 	[
-		"config/myMod/heroes.json"
+		"config/myMod/heroes.json5"
 	],
 	
 	// List of configuration files for skills
@@ -117,68 +117,68 @@ These are fields that are present only in local mod.json file
 	// list of creature configuration files
 	"creatures" :
 	[
-		"config/myMod/creatures.json"
+		"config/myMod/creatures.json5"
 	],
 
 	// List of artifacts configuration files
 	"artifacts" :
 	[
-		"config/myMod/artifacts.json"
+		"config/myMod/artifacts.json5"
 	],
 
 	// List of objects defined in this mod
 	"objects" :
 	[
-		"config/myMod/objects.json"
+		"config/myMod/objects.json5"
 	],
 
 	// List of spells defined in this mod
 	"spells" :
 	[
-		"config/myMod/spells.json"
+		"config/myMod/spells.json5"
 	],
 	
 	// List of configuration files for terrains
 	"terrains" :
 	[
-		"config/myMod/terrains.json"
+		"config/myMod/terrains.json5"
 	],
 	
 	// List of configuration files for roads
 	"roads" :
 	[
-		"config/myMod/roads.json"
+		"config/myMod/roads.json5"
 	],
 	
 	// List of configuration files for rivers
 	"rivers" :
 	[
-		"config/myMod/rivers.json"
+		"config/myMod/rivers.json5"
 	],
 	
 	// List of configuration files for battlefields
 	"battlefields" :
 	[
-		"config/myMod/battlefields.json"
+		"config/myMod/battlefields.json5"
 	],
 	
 	// List of configuration files for obstacles
 	"obstacles" :
 	[
-		"config/myMod/obstacles.json"
+		"config/myMod/obstacles.json5"
 	],
 
 	// List of RMG templates defined in this mod
 	"templates" :
 	[
-		"config/myMod/templates.json"
+		"config/myMod/templates.json5"
 	],
 	
 	// Optional, primaly used by translation mods
 	// Defines strings that are translated by mod into base language specified in "language" field
 	"translations" :
 	[
-		"config/myMod/englishStrings.json
+		"config/myMod/englishStrings.json5
 	]
 }
 ```
@@ -194,19 +194,19 @@ See [Translations](Translations.md) for more information
 		"description" : "<translated description>",
 		"author" : "<translated author>",
 		"translations" : [
-			"config/<modName>/<language>.json"
+			"config/<modName>/<language>.json5"
 		]
 	},
 ```
 
 ## Mod repository fields
 
-These are fields that are present only in remote repository and are generally not used in mod.json
+These are fields that are present only in remote repository and are generally not used in mod.json5
 
 ```jsonc
 {
-	// URL to mod.json that describes this mod
-	"mod" : "https://raw.githubusercontent.com/vcmi-mods/vcmi-extras/vcmi-1.4/mod.json",
+	// URL to mod.json5 that describes this mod
+	"mod" : "https://raw.githubusercontent.com/vcmi-mods/vcmi-extras/vcmi-1.4/mod.json5",
 	
 	// URL that player can use to download mod
 	"download" : "https://github.com/vcmi-mods/vcmi-extras/archive/refs/heads/vcmi-1.4.zip",
