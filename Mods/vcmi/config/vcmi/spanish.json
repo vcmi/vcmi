@@ -20,6 +20,7 @@
 	"vcmi.adventureMap.playerAttacked"         : "El jugador ha sido atacado: %s",
 	"vcmi.adventureMap.moveCostDetails"        : "Puntos de movimiento - Coste: %TURNS turnos + %POINTS puntos, Puntos restantes: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Puntos de movimiento - Coste: %POINTS puntos, Puntos restantes: %REMAINING",
+	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Disculpe, la repetición del turno del oponente aún no está implementada.",
 
 	"vcmi.capitalColors.0" : "Rojo",
 	"vcmi.capitalColors.1" : "Azul",
@@ -70,7 +71,9 @@
 	"vcmi.lobby.mapPreview" : "Vista previa del mapa",
 	"vcmi.lobby.noPreview" : "sin vista previa",
 	"vcmi.lobby.noUnderground" : "sin subterráneo",
+	"vcmi.lobby.sortDate" : "Ordena los mapas por la fecha de modificación",
 
+	"vcmi.client.errors.invalidMap" : "{Mapa o Campaña invalido}\n\n¡No se pudo iniciar el juego! El mapa o la campaña seleccionados pueden no ser válidos o estar dañados. Motivo:\n%s",
 	"vcmi.client.errors.missingCampaigns" : "{Archivos de datos faltantes}\n\n¡No se encontraron los archivos de datos de las campañas! Quizás estés utilizando archivos de datos incompletos o dañados de Heroes 3. Por favor, reinstala los datos del juego.",
 	"vcmi.server.errors.existingProcess" : "Otro servidor VCMI está en ejecución. Por favor, termínalo antes de comenzar un nuevo juego.",
 	"vcmi.server.errors.modsToEnable"    : "{Se requieren los siguientes mods}",
@@ -144,6 +147,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Establece la velocidad de desplazamiento del mapa como muy lenta",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Establece la velocidad de desplazamiento del mapa como muy rápida",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Establece la velocidad de desplazamiento del mapa como instantánea.",
+	"vcmi.adventureOptions.hideBackground.hover" : "Ocultar fondo",
+	"vcmi.adventureOptions.hideBackground.help" : "{Ocultar fondo}\n\nOculta el mapa de aventuras en el fondo y muestra una textura en su lugar..",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Mostrar orden de turno de criaturas",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "APAGADO",
@@ -168,6 +173,8 @@
 	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Mostrar ventanas de estadísticas de héroes}\n\nAlternar permanentemente las ventanas de estadísticas de héroes que muestran estadísticas primarias y puntos de hechizo.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Omitir música de introducción",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Omitir música de introducción}\n\nPermitir acciones durante la música de introducción que se reproduce al comienzo de cada batalla.",
+	"vcmi.battleOptions.endWithAutocombat.hover": "Finaliza la batalla",
+	"vcmi.battleOptions.endWithAutocombat.help": "{Finaliza la batalla}\n\nAutomatiza la batalla y la finaliza al instante",
 
 	"vcmi.adventureMap.revisitObject.hover" : "Revisitar objeto",
 	"vcmi.adventureMap.revisitObject.help" : "{Revisitar objeto}\n\nSi un héroe se encuentra actualmente en un objeto del mapa, puede volver a visitar la ubicación.",
@@ -183,6 +190,11 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d daño",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d perecerán",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d perecerá",
+	"vcmi.battleWindow.killed" : "Eliminados",
+	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s han sido eliminados por disparos certeros",
+	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s ha sido eliminado por un disparo certero",
+	"vcmi.battleWindow.accurateShot.resultDescription.2" : "%d %s han sido eliminados por disparos certeros",
+	"vcmi.battleWindow.endWithAutocombat" : "¿Quieres finalizar la batalla con combate automatizado?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Aplicar resultado de la batalla",
 
@@ -224,6 +236,8 @@
 	"vcmi.heroWindow.openCommander.help"  : "Muestra detalles sobre el comandante de este héroe.",
 	"vcmi.heroWindow.openBackpack.hover" : "Abrir ventana de mochila de artefactos",
 	"vcmi.heroWindow.openBackpack.help"  : "Abre la ventana que facilita la gestión de la mochila de artefactos.",
+
+	"vcmi.tavernWindow.inviteHero"  : "Invitar heroe",
 
 	"vcmi.commanderWindow.artifactMessage" : "¿Quieres devolver este artefacto al héroe?",
 
@@ -321,6 +335,7 @@
 	"vcmi.map.victoryCondition.collectArtifacts.message" : "Adquirir tres artefactos",
 	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "¡Felicidades! Todos tus enemigos han sido derrotados y tienes la Alianza Angelical. ¡La victoria es tuya!",
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Derrota a todos los enemigos y crea la Alianza Angelical",
+	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Por desgracia, has perdido parte de la Alianza Angélica. Todo se ha perdido.",
 
 	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» D e t a l l e s  d e  E x p e r i e n c i a  d e l  G r u p o «\n\nTipo de Criatura ................ : %s\nRango de Experiencia ............ : %s (%i)\nPuntos de Experiencia ............ : %i\nPuntos de Experiencia para el\nSiguiente Rango ............... : %i\nExperiencia Máxima por Batalla .. : %i%% (%i)\nNúmero de Criaturas en el grupo .. : %i\nMáximo de Nuevos Reclutas sin\nPerder el Rango Actual ......... : %i\nMultiplicador de Experiencia .... : %.2f\nMultiplicador de Actualización .. : %.2f\nExperiencia después del Rango 10 : %i\nMáximo de Nuevos Reclutas para\nMantener el Rango 10 si\nEstá en la Experiencia Máxima : %i",
@@ -374,6 +389,8 @@
 	"core.bonus.ENCHANTER.description": "Puede lanzar ${subtype.spell} masivo cada turno",
 	"core.bonus.ENCHANTED.name": "Encantado",
 	"core.bonus.ENCHANTED.description": "Afectado por el hechizo permanente ${subtype.spell}",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.name": "Ignorar ataque (${val}%)",
+	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "Al ser atacado, ${val}% del daño del atacante es ignorado",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name": "Ignorar Defensa (${val}%)",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "Ignora una parte de la defensa al atacar",
 	"core.bonus.FIRE_IMMUNITY.name": "Inmunidad al Fuego",
@@ -386,6 +403,8 @@
 	"core.bonus.FEAR.description": "Causa miedo a un grupo enemigo",
 	"core.bonus.FEARLESS.name": "Inmune al miedo",
 	"core.bonus.FEARLESS.description": "Inmune a la habilidad de miedo",
+	"core.bonus.FEROCITY.name": "Ferocidad",
+	"core.bonus.FEROCITY.description": "Ataca ${val} veces adicionales en caso de eliminar a alguien",
 	"core.bonus.FLYING.name": "Volar",
 	"core.bonus.FLYING.description": "Puede volar (ignora obstáculos)",
 	"core.bonus.FREE_SHOOTING.name": "Disparo cercano",
@@ -416,8 +435,8 @@
 	"core.bonus.MANA_DRAIN.description": "Drena ${val} de maná cada turno",
 	"core.bonus.MAGIC_MIRROR.name": "Espejo mágico (${val}%)",
 	"core.bonus.MAGIC_MIRROR.description": "Tiene una probabilidad del ${val}% de redirigir un hechizo ofensivo al enemigo",
-	"core.bonus.MAGIC_RESISTANCE.name": "Resistencia mágica (${MR}%)",
-	"core.bonus.MAGIC_RESISTANCE.description": "Tiene una probabilidad del ${MR}% de resistir el hechizo del enemigo",
+	"core.bonus.MAGIC_RESISTANCE.name": "Resistencia mágica (${val}%)",
+	"core.bonus.MAGIC_RESISTANCE.description": "Tiene una probabilidad del ${val}% de resistir el hechizo del enemigo",
 	"core.bonus.MIND_IMMUNITY.name": "Inmunidad a hechizos mentales",
 	"core.bonus.MIND_IMMUNITY.description": "Inmune a hechizos de tipo mental",
 	"core.bonus.NO_DISTANCE_PENALTY.name": "Sin penalización por distancia",
@@ -440,10 +459,12 @@
 	"core.bonus.REBIRTH.description": "El ${val}% del grupo resucitará después de la muerte",
 	"core.bonus.RETURN_AFTER_STRIKE.name": "Atacar y volver",
 	"core.bonus.RETURN_AFTER_STRIKE.description": "Regresa después de un ataque cuerpo a cuerpo",
+	"core.bonus.REVENGE.name": "Venganza",
+	"core.bonus.REVENGE.description": "Inflige daño adicional según la salud perdida del atacante en la batalla.",
 	"core.bonus.SHOOTER.name": "A distancia",
 	"core.bonus.SHOOTER.description": "La criatura puede disparar",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name": "Dispara en todas direcciones",
-	"core.bonus.SHOOTS_ALL_ADJACENT.description": "Los ataques a distancia de esta criatura impactan a todos los objetivos en un área pequeña",
+	"core.bonus.SHOOTS_ALL_ADJACENT.description": "Los ataques a distancia de esta criatura impactan a todos los objetivos en un área reducida",
 	"core.bonus.SOUL_STEAL.name": "Roba almas",
 	"core.bonus.SOUL_STEAL.description": "Gana ${val} nuevas criaturas por cada enemigo eliminado",
 	"core.bonus.SPELLCASTER.name": "Lanzador de hechizos",
