@@ -5,7 +5,8 @@ import sys
 from pathlib import Path
 from pprint import pprint
 
-import json5
+# VCMI supports JSON with comments, but not JSON5
+import jstyleson 
 
 validation_failed = False
 
@@ -17,10 +18,10 @@ for path in sorted(Path(".").glob("**/*.json"), key=lambda path: str(path).lower
 
     try:
         with open(path_str, "r") as file:
-            json5.load(file)
+            jstyleson.load(file)
         print(f"✅ {path_str}")
     except Exception as exc:
-        print(f"❌ {str(exc).replace('<string>', path_str)}")
+        print(f"❌ {path_str}: {exc}")
         validation_failed = True
 
 if validation_failed:

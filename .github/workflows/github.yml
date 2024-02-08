@@ -124,7 +124,7 @@ jobs:
       # also, running it on multiple presets is redundant and slightly increases already long CI built times
       if: ${{ startsWith(matrix.preset, 'linux-clang-test') }}
       run: |
-        pip3 install json5
+        pip3 install jstyleson
         python3 CI/linux-qt6/validate_json.py
 
     - name: Dependencies
