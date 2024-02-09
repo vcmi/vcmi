@@ -14,6 +14,7 @@
 class CLabel;
 class CTextBox;
 class CTextInput;
+class CToggleGroup;
 class FilledTexturePlayerColored;
 class TransparentFilledRectangle;
 class CButton;
@@ -29,7 +30,9 @@ class GlobalLobbyLoginWindow : public CWindowObject
 
 	std::shared_ptr<CButton> buttonLogin;
 	std::shared_ptr<CButton> buttonClose;
+	std::shared_ptr<CToggleGroup> toggleMode; // create account or use existing
 
+	void onLoginModeChanged(int value);
 	void onClose();
 	void onLogin();
 
@@ -37,5 +40,6 @@ public:
 	GlobalLobbyLoginWindow();
 
 	void onConnectionSuccess();
+	void onLoginSuccess();
 	void onConnectionFailed(const std::string & reason);
 };

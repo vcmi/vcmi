@@ -76,6 +76,8 @@
 	"vcmi.lobby.login.username" : "Username:",
 	"vcmi.lobby.login.connecting" : "Connecting...",
 	"vcmi.lobby.login.error" : "Connection error: %s",
+	"vcmi.lobby.login.create" : "New Account",
+	"vcmi.lobby.login.login" : "Login",
 
 	"vcmi.lobby.room.create" : "Create Room",
 	"vcmi.lobby.room.players.limit" : "Players Limit",

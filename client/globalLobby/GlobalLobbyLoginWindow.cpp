@@ -32,26 +32,56 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	pos.w = 200;
-	pos.h = 200;
+	pos.w = 284;
+	pos.h = 220;
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.lobby.login.title"));
-	labelUsername = std::make_shared<CLabel>( 10, 45, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
-	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 70, 180, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
-	inputUsername = std::make_shared<CTextInput>(Rect(15, 73, 176, 16), FONT_SMALL, nullptr, ETextAlignment::TOPLEFT, true);
-	buttonLogin = std::make_shared<CButton>(Point(10, 160), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); });
-	buttonClose = std::make_shared<CButton>(Point(126, 160), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
-	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 95, 175, 60), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.lobby.login.username"));
+	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 90, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
+	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, nullptr, ETextAlignment::TOPLEFT, true);
+	buttonLogin = std::make_shared<CButton>(Point(10, 180), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); });
+	buttonClose = std::make_shared<CButton>(Point(210, 180), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); });
+	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 115, 255, 60), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+
+	auto buttonRegister = std::make_shared<CToggleButton>(Point(10, 40),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
+	auto buttonLogin = std::make_shared<CToggleButton>(Point(146, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
+	buttonRegister->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonLogin->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
+
+	toggleMode = std::make_shared<CToggleGroup>(nullptr);
+	toggleMode->addToggle(0, buttonRegister);
+	toggleMode->addToggle(1, buttonLogin);
+	toggleMode->setSelected(settings["lobby"]["roomType"].Integer());
+	toggleMode->addCallback([this](int index){onLoginModeChanged(index);});
+
+	if (settings["lobby"]["accountID"].String().empty())
+	{
+		buttonLogin->block(true);
+		toggleMode->setSelected(0);
+	}
+	else
+		toggleMode->setSelected(1);
 
 	filledBackground->playerColored(PlayerColor(1));
-	inputUsername->setText(settings["lobby"]["displayName"].String());
 	inputUsername->cb += [this](const std::string & text)
 	{
-		buttonLogin->block(text.empty());
+		this->buttonLogin->block(text.empty());
 	};
 
 	center();
+}
+
+void GlobalLobbyLoginWindow::onLoginModeChanged(int value)
+{
+	if (value == 0)
+	{
+		inputUsername->setText("");
+	}
+	else
+	{
+		inputUsername->setText(settings["lobby"]["displayName"].String());
+	}
 }
 
 void GlobalLobbyLoginWindow::onClose()
@@ -62,16 +92,26 @@ void GlobalLobbyLoginWindow::onClose()
 
 void GlobalLobbyLoginWindow::onLogin()
 {
-	Settings config = settings.write["lobby"]["displayName"];
-	config->String() = inputUsername->getText();
-
 	labelStatus->setText(CGI->generaltexth->translate("vcmi.lobby.login.connecting"));
 	if(!CSH->getGlobalLobby().isConnected())
 		CSH->getGlobalLobby().connect();
+	else
+		onConnectionSuccess();
+
 	buttonClose->block(true);
 }
 
 void GlobalLobbyLoginWindow::onConnectionSuccess()
+{
+	std::string accountID = settings["lobby"]["accountID"].String();
+
+	if(toggleMode->getSelected() == 0)
+		CSH->getGlobalLobby().sendClientRegister(inputUsername->getText());
+	else
+		CSH->getGlobalLobby().sendClientLogin();
+}
+
+void GlobalLobbyLoginWindow::onLoginSuccess()
 {
 	close();
 	CSH->getGlobalLobby().activateInterface();

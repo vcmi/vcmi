@@ -207,24 +207,21 @@ void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
 {
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-
 	networkConnection = connection;
 
-	JsonNode toSend;
+	auto loginWindowPtr = loginWindow.lock();
 
-	std::string accountID = settings["lobby"]["accountID"].String();
+	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+		throw std::runtime_error("lobby connection established without active login window!");
 
-	if(accountID.empty())
-		sendClientRegister();
-	else
-		sendClientLogin();
+	loginWindowPtr->onConnectionSuccess();
 }
 
-void GlobalLobbyClient::sendClientRegister()
+void GlobalLobbyClient::sendClientRegister(const std::string & accountName)
 {
 	JsonNode toSend;
 	toSend["type"].String() = "clientRegister";
-	toSend["displayName"] = settings["lobby"]["displayName"];
+	toSend["displayName"].String() = accountName;
 	sendMessage(toSend);
 }
 

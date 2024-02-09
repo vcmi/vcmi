@@ -35,9 +35,6 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
 	void onDisconnected(const std::shared_ptr<INetworkConnection> &, const std::string & errorMessage) override;
 
-	void sendClientRegister();
-	void sendClientLogin();
-
 	void receiveAccountCreated(const JsonNode & json);
 	void receiveOperationFailed(const JsonNode & json);
 	void receiveLoginSuccess(const JsonNode & json);
@@ -60,6 +57,8 @@ public:
 	/// Activate interface and pushes lobby UI as top window
 	void activateInterface();
 	void sendMessage(const JsonNode & data);
+	void sendClientRegister(const std::string & accountName);
+	void sendClientLogin();
 	void sendOpenPublicRoom();
 	void sendOpenPrivateRoom();
 
