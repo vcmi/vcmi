@@ -417,14 +417,14 @@ public:
 	{
 	}
 
-	virtual bool callTyped() override { return false; }
+	bool callTyped() override { return false; }
 
-	virtual void visitForLobby(CPackForLobby & packForLobby) override
+	void visitForLobby(CPackForLobby & packForLobby) override
 	{
 		handler.handleReceivedPack(std::unique_ptr<CPackForLobby>(&packForLobby));
 	}
 
-	virtual void visitForServer(CPackForServer & serverPack) override
+	void visitForServer(CPackForServer & serverPack) override
 	{
 		if (gh)
 			gh->handleReceivedPack(&serverPack);
@@ -432,7 +432,7 @@ public:
 			logNetwork->error("Received pack for game server while in lobby!");
 	}
 
-	virtual void visitForClient(CPackForClient & clientPack) override
+	void visitForClient(CPackForClient & clientPack) override
 	{
 	}
 };

@@ -32,11 +32,11 @@ public:
 
 	bool getResult() const { return result; }
 
-	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) override;
-	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
-	virtual void visitLobbyEndGame(LobbyEndGame & pack) override;
-	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
-	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) override;
+	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
+	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
+	void visitLobbyEndGame(LobbyEndGame & pack) override;
+	void visitLobbyStartGame(LobbyStartGame & pack) override;
+	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 };
 
 class ApplyOnLobbyScreenNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
@@ -51,11 +51,11 @@ public:
 	{
 	}
 
-	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
-	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) override;
-	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) override;
-	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
-	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) override;
-	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) override;
-	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) override;
+	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
+	void visitLobbyChatMessage(LobbyChatMessage & pack) override;
+	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
+	void visitLobbyStartGame(LobbyStartGame & pack) override;
+	void visitLobbyLoadProgress(LobbyLoadProgress & pack) override;
+	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
+	void visitLobbyShowMessage(LobbyShowMessage & pack) override;
 };

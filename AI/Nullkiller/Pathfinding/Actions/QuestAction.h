@@ -28,11 +28,11 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual bool canAct(const AIPathNode * node) const override;
+		bool canAct(const AIPathNode * node) const override;
 
 		virtual Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
 
-		virtual void execute(const CGHeroInstance * hero) const override;
+		void execute(const CGHeroInstance * hero) const override;
 
 		virtual std::string toString() const override;
 	};

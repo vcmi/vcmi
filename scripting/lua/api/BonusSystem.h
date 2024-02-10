@@ -44,7 +44,7 @@ public:
 	static int toJsonNode(lua_State * L);
 
 protected:
-	virtual void adjustStaticTable(lua_State * L) const override;
+	void adjustStaticTable(lua_State * L) const override;
 };
 
 class BonusListProxy : public SharedWrapper<const BonusList, BonusListProxy>
@@ -56,7 +56,7 @@ public:
 
 	static std::shared_ptr<const Bonus> index(std::shared_ptr<const BonusList> self, int key);
 protected:
-	virtual void adjustMetatable(lua_State * L) const override;
+	void adjustMetatable(lua_State * L) const override;
 };
 
 class BonusBearerProxy : public OpaqueWrapper<const IBonusBearer, BonusBearerProxy>

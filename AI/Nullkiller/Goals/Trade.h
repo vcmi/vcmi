@@ -34,7 +34,7 @@ namespace Goals
 			value = val;
 			objid = Objid;
 		}
-		virtual bool operator==(const Trade & other) const override;
+		bool operator==(const Trade & other) const override;
 	};
 }
 

@@ -31,10 +31,10 @@ namespace Goals
 
 		virtual Goals::TGoalVec decompose() const override;
 		virtual std::string toString() const override;
-		virtual bool hasHash() const override { return true; }
-		virtual uint64_t getHash() const override;
+		bool hasHash() const override { return true; }
+		uint64_t getHash() const override;
 
-		virtual bool operator==(const CompleteQuest & other) const override;
+		bool operator==(const CompleteQuest & other) const override;
 
 	private:
 		TGoalVec tryCompleteQuest() const;

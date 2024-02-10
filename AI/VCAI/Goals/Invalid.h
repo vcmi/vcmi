@@ -33,7 +33,7 @@ namespace Goals
 			return iAmElementar();
 		}
 
-		virtual bool operator==(const Invalid & other) const override
+		bool operator==(const Invalid & other) const override
 		{
 			return true;
 		}

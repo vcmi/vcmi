@@ -36,6 +36,6 @@ namespace Goals
 			return TGoalVec();
 		}
 		TSubgoal whatToDoToAchieve() override;
-		virtual bool operator==(const DigAtTile & other) const override;
+		bool operator==(const DigAtTile & other) const override;
 	};
 }

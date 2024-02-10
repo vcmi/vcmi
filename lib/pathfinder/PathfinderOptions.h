@@ -104,7 +104,7 @@ public:
 	SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero);
 	virtual ~SingleHeroPathfinderConfig();
 
-	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
+	CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 
 	static std::vector<std::shared_ptr<IPathfindingRule>> buildRuleSet();
 };

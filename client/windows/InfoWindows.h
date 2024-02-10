@@ -79,7 +79,7 @@ public:
 class CRClickPopup : public WindowBase
 {
 public:
-	virtual void close() override;
+	void close() override;
 	bool isPopupWindow() const override;
 
 	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);

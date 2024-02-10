@@ -28,10 +28,10 @@ public:
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-	virtual bool blocksPack(const CPack *pack) const override;
-	virtual void onRemoval(PlayerColor color) override;
-	virtual void onExposure(QueryPtr topQuery) override;
+	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	bool blocksPack(const CPack *pack) const override;
+	void onRemoval(PlayerColor color) override;
+	void onExposure(QueryPtr topQuery) override;
 };
 
 class CBattleDialogQuery : public CDialogQuery
@@ -41,5 +41,5 @@ public:
 
 	const IBattleInfo * bi;
 
-	virtual void onRemoval(PlayerColor color) override;
+	void onRemoval(PlayerColor color) override;
 };
