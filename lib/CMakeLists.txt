@@ -13,6 +13,6 @@ if(ENABLE_STATIC_AI_LIBS)
 else()
 	add_main_lib(${VCMI_LIB_TARGET} SHARED)
 endif()
-if(ENABLE_SINGLE_APP_BUILD)
-	target_compile_definitions(${VCMI_LIB_TARGET} PUBLIC VCMI_LIB_NAMESPACE=LIB_CLIENT)
-endif()
+
+target_compile_definitions(${VCMI_LIB_TARGET} PUBLIC VCMI_LIB_NAMESPACE=VCMI)
+

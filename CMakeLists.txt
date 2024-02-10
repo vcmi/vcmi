@@ -41,41 +41,50 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
-set(buildLobby OFF)
-set(singleProcess OFF)
-set(staticAI OFF)
-if(ANDROID)
-	set(staticAI ON)
-	set(singleProcess ON)
-endif()
+# Platform-independent options
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
-if(NOT ANDROID)
-	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
-endif()
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
+option(ENABLE_SERVER "Enable compilation of dedicated server" ON)
+option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
+
+# Compilation options
+
+option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
+option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
+option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
+option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
+option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+
+# Platform-specific options
+
+if(ANDROID)
+	set(ENABLE_STATIC_AI_LIBS ON)
+else()
+	option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ON)
+	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+endif()
 
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
-	set(ENABLE_SINGLE_APP_BUILD ON)
-else()
-	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
-	option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" ${singleProcess})
 endif()
 
-option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
-option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
-option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
-option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
-option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
-option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
-option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
-
-option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
+if(APPLE_IOS OR ANDROID)
+	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF) # Used for Snap packages and also useful for debugging
+	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
+	set(ENABLE_SINGLE_APP_BUILD ON)
+	set(ENABLE_EDITOR OFF)
+	set(COPY_CONFIG_ON_BUILD OFF)
+else()
+	option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
+	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
+	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+endif()
 
 if(ENABLE_COLORIZED_COMPILER_OUTPUT)
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -85,20 +94,6 @@ if(ENABLE_COLORIZED_COMPILER_OUTPUT)
 	endif()
 endif()
 
-# Used for Snap packages and also useful for debugging
-if(NOT APPLE_IOS AND NOT ANDROID)
-	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
-endif()
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-	set(buildLobby ON)
-endif()
-
-if(NOT APPLE_IOS AND NOT ANDROID)
-	option(ENABLE_LOBBY "Enable compilation of lobby server" ${buildLobby})
-endif()
-
-option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
 if(ENABLE_CCACHE)
 	find_program(CCACHE ccache REQUIRED)
 endif()
@@ -131,11 +126,6 @@ set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 # ERM depends on LUA implicitly
 if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
-endif()
-
-# We don't want to deploy assets into build directory for android/iOS build
-if((APPLE_IOS OR ANDROID) AND COPY_CONFIG_ON_BUILD)
-	set(COPY_CONFIG_ON_BUILD OFF)
 endif()
 
 ############################################
@@ -614,16 +604,16 @@ add_subdirectory_with_folder("AI" AI)
 
 include(VCMI_lib)
 add_subdirectory(lib)
-if(ENABLE_SINGLE_APP_BUILD)
-	add_subdirectory(lib_server)
-endif()
+add_subdirectory(server)
 
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
 endif()
+
 if(ENABLE_LUA)
 	add_subdirectory(scripting/lua)
 endif()
+
 if(NOT TARGET minizip::minizip)
 	add_subdirectory_with_folder("3rdparty" lib/minizip)
 	add_library(minizip::minizip ALIAS minizip)
@@ -632,14 +622,21 @@ endif()
 if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
+
 if(ENABLE_EDITOR)
 	add_subdirectory(mapeditor)
 endif()
+
 if(ENABLE_LOBBY)
 	add_subdirectory(lobby)
 endif()
+
 add_subdirectory(client)
-add_subdirectory(server)
+
+if(ENABLE_SERVER)
+	add_subdirectory(serverapp)
+endif()
+
 if(ENABLE_TEST)
 	enable_testing()
 	add_subdirectory(test)

@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "CVCMIServer.h"
+#include "../server/CVCMIServer.h"
 
 #include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
