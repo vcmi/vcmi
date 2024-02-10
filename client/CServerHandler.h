@@ -36,6 +36,7 @@ VCMI_LIB_NAMESPACE_END
 class CClient;
 class CBaseForLobbyApply;
 class GlobalLobbyClient;
+class IServerRunner;
 
 class HighScoreCalculation;
 class HighScoreParameter;
@@ -100,17 +101,16 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::shared_ptr<INetworkConnection> networkConnection;
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
+	std::unique_ptr<IServerRunner> serverRunner;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> myNames;
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
-	boost::thread threadRunLocalServer;
 	boost::thread threadNetwork;
 
 	std::atomic<EClientState> state;
 
 	void threadRunNetwork();
-	void threadRunServer(bool connectToLobby);
 
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 

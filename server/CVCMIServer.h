@@ -12,12 +12,6 @@
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 
-#include <boost/program_options/variables_map.hpp>
-
-#if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
-#define VCMI_ANDROID_DUAL_PROCESS 1
-#endif
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapInfo;
@@ -64,6 +58,8 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	int currentClientId;
 	ui8 currentPlayerId;
+	uint16_t port;
+	bool runByClient;
 
 public:
 	/// List of all active connections
@@ -76,13 +72,13 @@ public:
 	void onTimer() override;
 
 	std::shared_ptr<CGameHandler> gh;
-	boost::program_options::variables_map cmdLineOptions;
 
-	CVCMIServer(boost::program_options::variables_map & opts);
+	CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient);
 	~CVCMIServer();
 
 	void run();
 
+	bool wasStartedByClient() const;
 	bool prepareToStartGame();
 	void prepareToRestart();
 	void startGameImmediately();
@@ -131,13 +127,4 @@ public:
 	void setCampaignBonus(int bonusId);
 
 	ui8 getIdOfFirstUnallocatedPlayer() const;
-
-#if VCMI_ANDROID_DUAL_PROCESS
-	static void create();
-#elif defined(SINGLE_PROCESS_APP)
-	static void create(boost::condition_variable * cond, const std::vector<std::string> & args);
-# ifdef VCMI_ANDROID
-	static void reuseClientJNIEnv(void * jniEnv);
-# endif // VCMI_ANDROID
-#endif // VCMI_ANDROID_DUAL_PROCESS
 };

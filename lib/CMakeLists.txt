@@ -14,5 +14,9 @@ else()
 	add_main_lib(${VCMI_LIB_TARGET} SHARED)
 endif()
 
-target_compile_definitions(${VCMI_LIB_TARGET} PUBLIC VCMI_LIB_NAMESPACE=VCMI)
+# no longer necessary, but might be useful to keep in future
+# unfortunately at the moment tests do not support namespaced build, so enable only on some systems
+if(APPLE_IOS OR ANDROID)
+	target_compile_definitions(${VCMI_LIB_TARGET} PUBLIC VCMI_LIB_NAMESPACE=VCMI)
+endif()
 

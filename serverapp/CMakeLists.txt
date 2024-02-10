@@ -1,20 +1,20 @@
-set(appserver_SRCS
+set(serverapp_SRCS
 		StdInc.cpp
 		EntryPoint.cpp
 )
 
-set(appserver_HEADERS
+set(serverapp_HEADERS
 		StdInc.h
 )
 
-assign_source_group(${appserver_SRCS} ${appserver_HEADERS})
-add_executable(vcmiserver ${appserver_SRCS} ${appserver_HEADERS})
-set(appserver_LIBS vcmi)
+assign_source_group(${serverapp_SRCS} ${serverapp_HEADERS})
+add_executable(vcmiserver ${serverapp_SRCS} ${serverapp_HEADERS})
+set(serverapp_LIBS vcmi)
 
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
-	set(appserver_LIBS execinfo ${appserver_LIBS})
+	set(serverapp_LIBS execinfo ${serverapp_LIBS})
 endif()
-target_link_libraries(vcmiserver PRIVATE ${appserver_LIBS} minizip::minizip libserver)
+target_link_libraries(vcmiserver PRIVATE ${serverapp_LIBS} minizip::minizip vcmiservercommon)
 
 target_include_directories(vcmiserver
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

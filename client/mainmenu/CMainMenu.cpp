@@ -60,11 +60,6 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CondSh.h"
 
-#if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
-#include "../../server/CVCMIServer.h"
-#include <SDL.h>
-#endif
-
 std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL;
 
@@ -599,13 +594,6 @@ void CSimpleJoinScreen::onChange(const std::string & newText)
 
 void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 {
-#if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
-	// in single process build server must use same JNIEnv as client
-	// as server runs in a separate thread, it must not attempt to search for Java classes (and they're already cached anyway)
-	// https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md#threads-and-the-java-vm
-	CVCMIServer::reuseClientJNIEnv(SDL_AndroidGetJNIEnv());
-#endif
-
 	if(addr.empty())
 		CSH->startLocalServerAndConnect(false);
 	else

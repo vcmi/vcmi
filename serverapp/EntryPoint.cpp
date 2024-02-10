@@ -16,12 +16,6 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
 
-#ifdef VCMI_ANDROID
-#include <jni.h>
-#include <android/log.h>
-#include "lib/CAndroidVMHelper.h"
-#endif
-
 #include <boost/program_options.hpp>
 
 const std::string SERVER_NAME_AFFIX = "server";
@@ -50,13 +44,8 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 		}
 	}
 
-#ifdef SINGLE_PROCESS_APP
-	options.emplace("run-by-client", po::variable_value{true, true});
-#endif
-
 	po::notify(options);
 
-#ifndef SINGLE_PROCESS_APP
 	if(options.count("help"))
 	{
 		auto time = std::time(nullptr);
@@ -75,31 +64,14 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 		std::cout << VCMIDirs::get().genHelpString();
 		exit(0);
 	}
-#endif
 }
 
-#ifdef SINGLE_PROCESS_APP
-#define main server_main
-#endif
-
-#if VCMI_ANDROID_DUAL_PROCESS
-void CVCMIServer::create()
-{
-	const int argc = 1;
-	const char * argv[argc] = { "android-server" };
-#else
 int main(int argc, const char * argv[])
 {
-#endif
-
-#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
-#endif
 
-#ifndef VCMI_IOS
 	console = new CConsoleHandler();
-#endif
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 	logGlobal->info(SERVER_NAME);
@@ -113,58 +85,21 @@ int main(int argc, const char * argv[])
 	std::srand(static_cast<uint32_t>(time(nullptr)));
 
 	{
-		CVCMIServer server(opts);
+		bool connectToLobby = opts.count("lobby");
+		bool runByClient = opts.count("runByClient");
+		uint16_t port = 3030;
+		if(opts.count("port"))
+			port = opts["port"].as<uint16_t>();
 
-#ifdef SINGLE_PROCESS_APP
-		boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(const_cast<char *>(argv[0]));
-		cond->notify_one();
-#endif
+		CVCMIServer server(port, connectToLobby, runByClient);
 
 		server.run();
 
 		// CVCMIServer destructor must be called here - before VLC cleanup
 	}
 
-
-#if VCMI_ANDROID_DUAL_PROCESS
-	CAndroidVMHelper envHelper;
-	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
-#endif
 	logConfig.deconfigure();
 	vstd::clear_pointer(VLC);
 
-#if !VCMI_ANDROID_DUAL_PROCESS
 	return 0;
-#endif
 }
-
-#if VCMI_ANDROID_DUAL_PROCESS
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_createServer(JNIEnv * env, jclass cls)
-{
-	__android_log_write(ANDROID_LOG_INFO, "VCMI", "Got jni call to init server");
-	CAndroidVMHelper::cacheVM(env);
-
-	CVCMIServer::create();
-}
-
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloader(JNIEnv * baseEnv, jclass cls)
-{
-	CAndroidVMHelper::initClassloader(baseEnv);
-}
-#elif defined(SINGLE_PROCESS_APP)
-void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
-{
-	std::vector<const void *> argv = {cond};
-	for(auto & a : args)
-		argv.push_back(a.c_str());
-	main(argv.size(), reinterpret_cast<const char **>(&*argv.begin()));
-}
-
-#ifdef VCMI_ANDROID
-void CVCMIServer::reuseClientJNIEnv(void * jniEnv)
-{
-	CAndroidVMHelper::initClassloader(jniEnv);
-	CAndroidVMHelper::alwaysUseLoadedClass = true;
-}
-#endif // VCMI_ANDROID
-#endif // VCMI_ANDROID_DUAL_PROCESS

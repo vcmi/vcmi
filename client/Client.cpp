@@ -46,10 +46,6 @@
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
-
-#ifndef SINGLE_PROCESS_APP
-std::atomic_bool androidTestServerReadyFlag;
-#endif
 #endif
 
 ThreadSafeVector<int> CClient::waitingRequest;
@@ -718,22 +714,6 @@ void CClient::removeGUI() const
 }
 
 #ifdef VCMI_ANDROID
-#ifndef SINGLE_PROCESS_APP
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jclass cls)
-{
-	logNetwork->info("Received server closed signal");
-	if (CSH) {
-		CSH->campaignServerRestartLock.setn(false);
-	}
-}
-
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jclass cls)
-{
-	logNetwork->info("Received server ready signal");
-	androidTestServerReadyFlag.store(true);
-}
-#endif
-
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
 	logGlobal->info("Received emergency save game request");

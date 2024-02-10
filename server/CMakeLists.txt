@@ -1,4 +1,4 @@
-set(libserver_SRCS
+set(vcmiservercommon_SRCS
 		StdInc.cpp
 
 		battles/BattleActionProcessor.cpp
@@ -24,7 +24,7 @@ set(libserver_SRCS
 		TurnTimerHandler.cpp
 )
 
-set(libserver_HEADERS
+set(vcmiservercommon_HEADERS
 		StdInc.h
 
 		battles/BattleActionProcessor.h
@@ -50,28 +50,28 @@ set(libserver_HEADERS
 		TurnTimerHandler.h
 )
 
-assign_source_group(${libserver_SRCS} ${libserver_HEADERS})
+assign_source_group(${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})
 
-add_library(libserver STATIC ${libserver_SRCS} ${libserver_HEADERS})
-set(libserver_LIBS vcmi)
+add_library(vcmiservercommon STATIC ${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})
+set(vcmiservercommon_LIBS vcmi)
 
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
-	set(libserver_LIBS execinfo ${libserver_LIBS})
+	set(vcmiservercommon_LIBS execinfo ${vcmiservercommon_LIBS})
 endif()
 
-target_link_libraries(libserver PRIVATE ${libserver_LIBS} minizip::minizip)
+target_link_libraries(vcmiservercommon PRIVATE ${vcmiservercommon_LIBS} minizip::minizip)
 
-target_include_directories(libserver
+target_include_directories(vcmiservercommon
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 if(WIN32)
-	set_target_properties(vcmiserver
+	set_target_properties(vcmiservercommon
 		PROPERTIES
-			OUTPUT_NAME "VCMI_libserver"
-			PROJECT_LABEL "VCMI_libserver"
+			OUTPUT_NAME "VCMI_vcmiservercommon"
+			PROJECT_LABEL "VCMI_vcmiservercommon"
 	)
 endif()
 
-vcmi_set_output_dir(libserver "")
-enable_pch(libserver)
+vcmi_set_output_dir(vcmiservercommon "")
+enable_pch(vcmiservercommon)

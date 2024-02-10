@@ -63,8 +63,9 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 
 if(ANDROID)
 	set(ENABLE_STATIC_AI_LIBS ON)
+	set(ENABLE_LAUNCHER OFF)
 else()
-	option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ON)
+	option(ENABLE_STATIC_AI_LIBS "Build all libraries statically (NOT only AI)" OFF)
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 endif()
 
@@ -75,15 +76,17 @@ endif()
 
 if(APPLE_IOS OR ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF) # Used for Snap packages and also useful for debugging
-	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
 	set(ENABLE_SINGLE_APP_BUILD ON)
 	set(ENABLE_EDITOR OFF)
+	set(ENABLE_TEST OFF)
+	set(ENABLE_LOBBY OFF)
 	set(COPY_CONFIG_ON_BUILD OFF)
 else()
 	option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
 	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
 endif()
 
 if(ENABLE_COLORIZED_COMPILER_OUTPUT)
@@ -240,7 +243,7 @@ if(ENABLE_EDITOR)
 endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
-	add_definitions(-DSINGLE_PROCESS_APP=1)
+	add_definitions(-DENABLE_SINGLE_APP_BUILD)
 endif()
 
 if(APPLE_IOS)

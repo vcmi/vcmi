@@ -116,10 +116,11 @@ public:
 	}
 };
 
-CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
+CVCMIServer::CVCMIServer(uint16_t port, bool connectToLobby, bool runByClient)
 	: currentClientId(1)
 	, currentPlayerId(1)
-	, cmdLineOptions(opts)
+	, port(port)
+	, runByClient(runByClient)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
@@ -128,7 +129,7 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 
 	networkHandler = INetworkHandler::createHandler();
 
-	if(cmdLineOptions.count("lobby"))
+	if(connectToLobby)
 		lobbyProcessor = std::make_unique<GlobalLobbyProcessor>(*this);
 	else
 		startAcceptingIncomingConnections();
@@ -138,10 +139,6 @@ CVCMIServer::~CVCMIServer() = default;
 
 void CVCMIServer::startAcceptingIncomingConnections()
 {
-	uint16_t port = 3030;
-
-	if(cmdLineOptions.count("port"))
-		port = cmdLineOptions["port"].as<uint16_t>();
 	logNetwork->info("Port %d will be used", port);
 
 	networkServer = networkHandler->createServerTCP(*this);
@@ -197,15 +194,13 @@ std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<I
 	throw std::runtime_error("Unknown connection received in CVCMIServer::findConnection");
 }
 
+bool CVCMIServer::wasStartedByClient() const
+{
+	return runByClient;
+}
+
 void CVCMIServer::run()
 {
-#if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
-	if(!restartGameplay)
-	{
-		CAndroidVMHelper vmHelper;
-		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
-	}
-#endif
 	networkHandler->run();
 }
 
