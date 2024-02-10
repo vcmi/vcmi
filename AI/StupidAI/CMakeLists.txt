@@ -8,12 +8,12 @@ set(stupidAI_HEADERS
 		StupidAI.h
 )
 
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	list(APPEND stupidAI_SRCS main.cpp StdInc.cpp)
 endif()
 assign_source_group(${stupidAI_SRCS} ${stupidAI_HEADERS})
 
-if(ENABLE_STATIC_AI_LIBS)
+if(ENABLE_STATIC_LIBS)
 	add_library(StupidAI STATIC ${stupidAI_SRCS} ${stupidAI_HEADERS})
 else()
 	add_library(StupidAI SHARED ${stupidAI_SRCS} ${stupidAI_HEADERS})

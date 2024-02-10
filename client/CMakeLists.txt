@@ -376,7 +376,7 @@ else()
 endif()
 
 add_dependencies(vcmiclient vcmiserver)
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclient
 		BattleAI
 		EmptyAI

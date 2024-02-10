@@ -62,31 +62,41 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 # Platform-specific options
 
 if(ANDROID)
-	set(ENABLE_STATIC_AI_LIBS ON)
+	set(ENABLE_STATIC_LIBS ON)
 	set(ENABLE_LAUNCHER OFF)
 else()
-	option(ENABLE_STATIC_AI_LIBS "Build all libraries statically (NOT only AI)" OFF)
+	option(ENABLE_STATIC_LIBS "Build library and all components such as AI statically" OFF)
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 endif()
 
-if(APPLE_IOS)
-	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
-	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
-endif()
-
 if(APPLE_IOS OR ANDROID)
-	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF) # Used for Snap packages and also useful for debugging
+	set(ENABLE_MONOLITHIC_INSTALL OFF)
 	set(ENABLE_SINGLE_APP_BUILD ON)
 	set(ENABLE_EDITOR OFF)
 	set(ENABLE_TEST OFF)
 	set(ENABLE_LOBBY OFF)
 	set(COPY_CONFIG_ON_BUILD OFF)
 else()
+	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF) # Used for Snap packages and also useful for debugging
 	option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
 	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
+endif()
+
+# ERM depends on LUA implicitly
+if(ENABLE_ERM AND NOT ENABLE_LUA)
+	set(ENABLE_LUA ON)
+endif()
+
+############################################
+#        Miscellaneous options             #
+############################################
+
+if(APPLE_IOS)
+	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
+	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
 endif()
 
 if(ENABLE_COLORIZED_COMPILER_OUTPUT)
@@ -125,15 +135,6 @@ endif()
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
-
-# ERM depends on LUA implicitly
-if(ENABLE_ERM AND NOT ENABLE_LUA)
-	set(ENABLE_LUA ON)
-endif()
-
-############################################
-#        Miscellaneous options             #
-############################################
 
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR}/CI)
 # Contains custom functions and macros, but don't altering any options

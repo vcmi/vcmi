@@ -94,12 +94,12 @@ set(VCAI_HEADERS
 		VCAI.h
 )
 
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	list(APPEND VCAI_SRCS main.cpp StdInc.cpp)
 endif()
 assign_source_group(${VCAI_SRCS} ${VCAI_HEADERS})
 
-if(ENABLE_STATIC_AI_LIBS)
+if(ENABLE_STATIC_LIBS)
 	add_library(VCAI STATIC ${VCAI_SRCS} ${VCAI_HEADERS})
 else()
 	add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})

@@ -1,4 +1,4 @@
-if(ENABLE_STATIC_AI_LIBS)
+if(ENABLE_STATIC_LIBS)
 	add_main_lib(${VCMI_LIB_TARGET} STATIC)
 	target_compile_definitions(${VCMI_LIB_TARGET} PRIVATE STATIC_AI)
 	target_link_libraries(${VCMI_LIB_TARGET} PRIVATE
