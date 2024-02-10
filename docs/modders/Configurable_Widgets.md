@@ -437,7 +437,7 @@ Full list is TBD
 ### [VCMI-1.4] Player color
 
 One of predefined values:
-`"red"`, `"blue"`, `"tan"`, `"green"`, `"orange"`, `"purple"`, `"teal"`, `"pink"`
+`"red"`, `"blue"`, `"tan"`, `"green"`, `"orange"`, `"purple"`, `"teal"`, `"pink"`, `"maroon"`, `"navy"`, `"brown"`, `"lime"`, `"gold"`, `"khaki"`, `"coral"`, `"olive"`,
 
 ## Configurable objects
 

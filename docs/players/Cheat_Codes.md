@@ -93,8 +93,8 @@ Note: These commands are not a cheats, and can be used in multiplayer by host pl
 
 - `game exit/quit/end` - finish the game  
 - `game save <filename>` - save the game into the specified file  
-- `game kick red/blue/tan/green/orange/purple/teal/pink` - kick player of specified color from the game  
-- `game kick 0/1/2/3/4/5/6/7/8` - kick player of specified ID from the game (_zero indexed!_) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`)  
+- `game kick red/blue/tan/green/orange/purple/teal/pink/maroon/navy/brown/lime/gold/khaki/coral/olive` - kick player of specified color from the game  
+- `game kick 0/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15` - kick player of specified ID from the game (_zero indexed!_) (`0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7, maroon: 8, navy: 9, brown: 10, lime: 11, gold: 12, khaki: 13, cobalt: 14, olive: 15`)  
 
 
 # Client Commands
@@ -124,7 +124,7 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 #### AI commands
 `setBattleAI <ai name>` - change battle AI used by neutral creatures to the one specified, persists through game quit  
 `gosolo` - AI takes over until the end of turn (unlike original H3 currently causes AI to take over until typed again)  
-`controlai <[red][blue][tan][green][orange][purple][teal][pink]>` - gives you control over specified AI player. If none is specified gives you control over all AI players  
+`controlai <[red][blue][tan][green][orange][purple][teal][pink][maroon][navy][brown][erin][gold][yellow][cobalt][olive]>` - gives you control over specified AI player. If none is specified gives you control over all AI players  
 `autoskip` - Toggles autoskip mode on and off. In this mode, player turns are automatically skipped and only AI moves. However, GUI is still present and allows to observe AI moves. After this option is activated, you need to end first turn manually. Press `[Shift]` before your turn starts to not skip it  
 
 #### Settings

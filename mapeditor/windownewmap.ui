@@ -329,6 +329,46 @@
           <string notr="true">8</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string notr="true">9</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">10</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">11</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">12</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">13</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">14</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">15</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">16</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="0" column="0">

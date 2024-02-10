@@ -1623,7 +1623,23 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	int counter = 0;
 	for(auto & iter : tgi.colorToBestHero)
 	{
-		banners.push_back(std::make_shared<CPicture>(ImagePath::builtin(colorToBox[iter.first.getNum()]), 253 + 66 * counter, 334));
+		ImagePath imagePath = [&]()
+		{
+			if(iter.first.getNum() < 7)
+			{
+				// Returns from homm3
+				return ImagePath::builtin(colorToBox[iter.first.getNum()]);
+			}
+			else
+			{
+				// Return new color for player 9...16
+				// TODO 16-players: Implement
+				return ImagePath::builtin(colorToBox[0]);
+			}
+		}();
+
+		banners.push_back(std::make_shared<CPicture>(imagePath, 253 + 66 * counter, 334));
+
 		if(iter.second.portraitSource.isValid())
 		{
 			bestHeroes.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), iter.second.getIconIndex(), 0, 260 + 66 * counter, 360));

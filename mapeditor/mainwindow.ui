@@ -114,6 +114,14 @@
     <addaction name="actionPlayer_6"/>
     <addaction name="actionPlayer_7"/>
     <addaction name="actionPlayer_8"/>
+    <addaction name="actionPlayer_9"/>
+    <addaction name="actionPlayer_10"/>
+    <addaction name="actionPlayer_11"/>
+    <addaction name="actionPlayer_12"/>
+    <addaction name="actionPlayer_13"/>
+    <addaction name="actionPlayer_14"/>
+    <addaction name="actionPlayer_15"/>
+    <addaction name="actionPlayer_16"/> 
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1389,6 +1397,94 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+8</string>
+   </property>
+  </action>
+  <action name="actionPlayer_9">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 9</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+1</string>
+   </property>
+  </action>
+  <action name="actionPlayer_10">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 10</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+2</string>
+   </property>
+  </action>
+  <action name="actionPlayer_11">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 11</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+3</string>
+   </property>
+  </action>
+  <action name="actionPlayer_12">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 12</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+4</string>
+   </property>
+  </action>
+  <action name="actionPlayer_13">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 13</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+5</string>
+   </property>
+  </action>
+  <action name="actionPlayer_14">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 14</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+6</string>
+   </property>
+  </action>
+  <action name="actionPlayer_15">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 15</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+7</string>
+   </property>
+  </action>
+  <action name="actionPlayer_16">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 16</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+8</string>
    </property>
   </action>
   <action name="actionExport">

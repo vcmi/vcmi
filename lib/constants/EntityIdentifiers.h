@@ -134,7 +134,7 @@ public:
 
 	enum EPlayerColor
 	{
-		PLAYER_LIMIT_I = 8,
+		PLAYER_LIMIT_I = 16,
 	};
 
 	static const PlayerColor SPECTATOR; //252

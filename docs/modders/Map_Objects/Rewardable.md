@@ -569,7 +569,7 @@ canLearnSpells
 - Only players with specific color can pass the limiter
 
 ```jsonc
-"colors" : [ "red", "blue", "tan", "green", "orange", "purple", "teal", "pink" ]
+"colors" : [ "red", "blue", "tan", "green", "orange", "purple", "teal", "pink", "maroon", "navy", "brown", "lime", "gold", "khaki", "coral", "olive" ]
 ```
 
 ### Hero types
