@@ -526,11 +526,13 @@ void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, c
 
 void LobbyServer::receiveLeaveGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
-	std::string gameRoomID = json["gameRoomID"].String();
-	std::string senderName = activeAccounts[connection];
+	std::string accountID = json["accountID"].String();
+	std::string gameRoomID = activeGameRooms[connection];
 
-	if(!database->isPlayerInGameRoom(senderName, gameRoomID))
+	if(!database->isPlayerInGameRoom(accountID, gameRoomID))
 		return sendOperationFailed(connection, "You are not in the room!");
+
+	database->deletePlayerFromGameRoom(accountID, gameRoomID);
 
 	broadcastActiveGameRooms();
 }

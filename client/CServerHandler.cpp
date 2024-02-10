@@ -997,3 +997,13 @@ void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 	if(getState() != EClientState::STARTING)
 		c->sendPack(&pack);
 }
+
+bool CServerHandler::inLobbyRoom() const
+{
+	return CSH->serverMode == EServerMode::LOBBY_HOST || CSH->serverMode == EServerMode::LOBBY_GUEST;
+}
+
+bool CServerHandler::inGame() const
+{
+	return c != nullptr;
+}

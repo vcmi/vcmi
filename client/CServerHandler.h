@@ -165,6 +165,8 @@ public:
 
 	bool isHost() const;
 	bool isGuest() const;
+	bool inLobbyRoom() const;
+	bool inGame() const;
 
 	const std::string & getCurrentHostname() const;
 	const std::string & getLocalHostname() const;

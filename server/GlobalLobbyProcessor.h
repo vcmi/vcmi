@@ -29,8 +29,6 @@ class GlobalLobbyProcessor : public INetworkClientListener
 	void onConnectionFailed(const std::string & errorMessage) override;
 	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
 
-	void sendMessage(const NetworkConnectionPtr & target, const JsonNode & data);
-
 	void receiveOperationFailed(const JsonNode & json);
 	void receiveLoginSuccess(const JsonNode & json);
 	void receiveAccountJoinsRoom(const JsonNode & json);

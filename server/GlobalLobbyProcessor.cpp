@@ -36,6 +36,21 @@ void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnecti
 	}
 	else
 	{
+		if (owner.getState() == EServerState::LOBBY)
+		{
+			for (auto const & proxy : proxyConnections)
+			{
+				if (proxy.second == connection)
+				{
+					JsonNode message;
+					message["type"].String() = "leaveGameRoom";
+					message["accountID"].String() = proxy.first;
+					controlConnection->sendPacket(message.toBytes(true));
+					break;
+				}
+			}
+		}
+
 		// player disconnected
 		owner.onDisconnected(connection, errorMessage);
 	}
@@ -107,7 +122,7 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["gameRoomID"].String() = owner.uuid;
 		toSend["accountID"] = settings["lobby"]["accountID"];
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
-		sendMessage(connection, toSend);
+		connection->sendPacket(toSend.toBytes(true));
 	}
 	else
 	{
@@ -122,14 +137,9 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["gameRoomID"].String() = owner.uuid;
 		toSend["guestAccountID"].String() = guestAccountID;
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
-		sendMessage(connection, toSend);
+		connection->sendPacket(toSend.toBytes(true));
 
 		proxyConnections[guestAccountID] = connection;
 		owner.onNewConnection(connection);
 	}
-}
-
-void GlobalLobbyProcessor::sendMessage(const NetworkConnectionPtr & target, const JsonNode & data)
-{
-	target->sendPacket(data.toBytes(true));
 }

@@ -55,7 +55,11 @@ void GlobalLobbyWindow::doCreateGameRoom()
 
 void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)
 {
-	assert(0); // TODO
+	JsonNode toSend;
+	toSend["type"].String() = "sendInvite";
+	toSend["accountID"].String() = accountID;
+
+	CSH->getGlobalLobby().sendMessage(toSend);
 }
 
 void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
@@ -88,4 +92,14 @@ void GlobalLobbyWindow::onActiveAccounts(const std::vector<GlobalLobbyAccount> &
 void GlobalLobbyWindow::onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms)
 {
 	widget->getRoomList()->reset();
+}
+
+void GlobalLobbyWindow::onJoinedRoom()
+{
+	widget->getAccountList()->reset();
+}
+
+void GlobalLobbyWindow::onLeftRoom()
+{
+	widget->getAccountList()->reset();
 }

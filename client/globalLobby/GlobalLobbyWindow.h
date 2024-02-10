@@ -33,4 +33,6 @@ public:
 	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when);
 	void onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts);
 	void onActiveRooms(const std::vector<GlobalLobbyRoom> & rooms);
+	void onJoinedRoom();
+	void onLeftRoom();
 };

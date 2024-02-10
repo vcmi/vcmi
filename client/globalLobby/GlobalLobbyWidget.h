@@ -38,8 +38,6 @@ class GlobalLobbyAccountCard : public CIntObject
 public:
 	GlobalLobbyAccountCard(GlobalLobbyWindow * window, const GlobalLobbyAccount & accountDescription);
 
-	GlobalLobbyWindow * window;
-
 	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 	std::shared_ptr<CLabel> labelName;
 	std::shared_ptr<CLabel> labelStatus;
@@ -50,8 +48,6 @@ class GlobalLobbyRoomCard : public CIntObject
 {
 public:
 	GlobalLobbyRoomCard(GlobalLobbyWindow * window, const GlobalLobbyRoom & roomDescription);
-
-	GlobalLobbyWindow * window;
 
 	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
 	std::shared_ptr<CLabel> labelName;

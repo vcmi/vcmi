@@ -66,6 +66,9 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 	if(json["type"].String() == "joinRoomSuccess")
 		return receiveJoinRoomSuccess(json);
 
+	if(json["type"].String() == "inviteReceived")
+		return receiveInviteReceived(json);
+
 	logGlobal->error("Received unexpected message from lobby server: %s", json["type"].String());
 }
 
@@ -188,6 +191,11 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 		lobbyWindowPtr->onActiveRooms(activeRooms);
 }
 
+void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
+{
+	assert(0); //TODO
+}
+
 void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
 	Settings configRoom = settings.write["lobby"]["roomID"];
@@ -293,7 +301,7 @@ void GlobalLobbyClient::connect()
 	CSH->getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
-bool GlobalLobbyClient::isConnected()
+bool GlobalLobbyClient::isConnected() const
 {
 	return networkConnection != nullptr;
 }

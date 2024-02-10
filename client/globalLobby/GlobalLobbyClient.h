@@ -43,6 +43,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	void receiveActiveAccounts(const JsonNode & json);
 	void receiveActiveGameRooms(const JsonNode & json);
 	void receiveJoinRoomSuccess(const JsonNode & json);
+	void receiveInviteReceived(const JsonNode & json);
 
 	std::shared_ptr<GlobalLobbyLoginWindow> createLoginWindow();
 	std::shared_ptr<GlobalLobbyWindow> createLobbyWindow();
@@ -65,5 +66,5 @@ public:
 	void sendProxyConnectionLogin(const NetworkConnectionPtr & netConnection);
 
 	void connect();
-	bool isConnected();
+	bool isConnected() const;
 };
