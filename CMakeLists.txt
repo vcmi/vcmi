@@ -47,7 +47,6 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
-option(ENABLE_SERVER "Enable compilation of dedicated server" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 
 # Compilation options
@@ -75,10 +74,12 @@ if(APPLE_IOS OR ANDROID)
 	set(ENABLE_EDITOR OFF)
 	set(ENABLE_TEST OFF)
 	set(ENABLE_LOBBY OFF)
+	set(ENABLE_SERVER OFF)
 	set(COPY_CONFIG_ON_BUILD OFF)
 else()
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF) # Used for Snap packages and also useful for debugging
 	option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
+	option(ENABLE_SERVER "Enable compilation of dedicated server" ON)
 	option(ENABLE_EDITOR "Enable compilation of map editor" ON)
 	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
@@ -93,6 +94,10 @@ endif()
 ############################################
 #        Miscellaneous options             #
 ############################################
+
+if (ENABLE_STATIC_LIBS AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
