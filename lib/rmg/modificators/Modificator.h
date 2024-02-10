@@ -40,7 +40,7 @@ public:
 	Modificator() = delete;
 	Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
-	void init() {/*override to add dependencies*/}
+	virtual void init() {/*override to add dependencies*/}
 	virtual char dump(const int3 &);
 	virtual ~Modificator() = default;
 
