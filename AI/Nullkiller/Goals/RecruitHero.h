@@ -38,7 +38,7 @@ namespace Goals
 		{
 		}
 
-		virtual bool operator==(const RecruitHero & other) const override
+		bool operator==(const RecruitHero & other) const override
 		{
 			return true;
 		}

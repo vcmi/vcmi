@@ -112,7 +112,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 CLobbyScreen::~CLobbyScreen()
 {
 	// TODO: For now we always destroy whole lobby when leaving bonus selection screen
-	if(CSH->state == EClientState::LOBBY_CAMPAIGN)
+	if(CSH->getState() == EClientState::LOBBY_CAMPAIGN)
 		CSH->sendClientDisconnecting();
 }
 

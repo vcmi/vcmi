@@ -18,15 +18,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CMemorySerializer
 	: public IBinaryReader, public IBinaryWriter
 {
-	std::vector<ui8> buffer;
+	std::vector<std::byte> buffer;
 
 	size_t readPos; //index of the next byte to be read
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
 
-	int read(void * data, unsigned size) override; //throws!
-	int write(const void * data, unsigned size) override;
+	int read(std::byte * data, unsigned size) override; //throws!
+	int write(const std::byte * data, unsigned size) override;
 
 	CMemorySerializer();
 

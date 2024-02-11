@@ -51,8 +51,6 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 
-#include "serializer/Connection.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const

@@ -49,8 +49,6 @@ CQuery::CQuery(CGameHandler * gameHandler)
 	: owner(gameHandler->queries.get())
 	, gh(gameHandler)
 {
-	boost::unique_lock<boost::mutex> l(QueriesProcessor::mx);
-
 	static QueryID QID = QueryID(0);
 
 	queryID = ++QID;

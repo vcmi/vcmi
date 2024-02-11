@@ -23,9 +23,9 @@ protected:
 public:
 	CSaverBase(IBinaryWriter * w): writer(w){};
 
-	inline int write(const void * data, unsigned size)
+	inline void write(const void * data, unsigned size)
 	{
-		return writer->write(data, size);
+		writer->write(reinterpret_cast<const std::byte*>(data), size);
 	};
 };
 
@@ -145,7 +145,7 @@ public:
 	void save(const T &data)
 	{
 		// save primitive - simply dump binary data to output
-		this->write(&data,sizeof(data));
+		this->write(static_cast<const void *>(&data), sizeof(data));
 	}
 
 	template < typename T, typename std::enable_if < std::is_enum<T>::value, int  >::type = 0 >
@@ -312,7 +312,7 @@ public:
 	void save(const std::string &data)
 	{
 		save(ui32(data.length()));
-		this->write(data.c_str(),(unsigned int)data.size());
+		this->write(static_cast<const void *>(data.data()), data.size());
 	}
 	template <typename T1, typename T2>
 	void save(const std::pair<T1,T2> &data)

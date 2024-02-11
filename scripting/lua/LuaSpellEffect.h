@@ -35,7 +35,7 @@ public:
 	LuaSpellEffectFactory(const Script * script_);
 	virtual ~LuaSpellEffectFactory();
 
-	virtual Effect * create() const override;
+	Effect * create() const override;
 
 private:
 	const Script * script;

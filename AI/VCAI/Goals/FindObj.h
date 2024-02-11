@@ -42,6 +42,6 @@ namespace Goals
 		}
 		TSubgoal whatToDoToAchieve() override;
 		bool fulfillsMe(TSubgoal goal) override;
-		virtual bool operator==(const FindObj & other) const override;
+		bool operator==(const FindObj & other) const override;
 	};
 }

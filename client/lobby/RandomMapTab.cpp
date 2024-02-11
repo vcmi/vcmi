@@ -189,7 +189,7 @@ void RandomMapTab::updateMapInfoByHost()
 		}
 	}
 
-	mapInfo->mapHeader->difficulty = 1; // Normal
+	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
 	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();

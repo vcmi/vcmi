@@ -54,9 +54,7 @@ private:
 private:
 	int width;
 	int height;
-	//metric coeficients
-	float scaleX;
-	float scaleY;
+	//metric coeficient
 	float mapSize;
 
 	float gravityConstant;

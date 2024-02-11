@@ -233,7 +233,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 
 	CDestinationNodeInfo();
 
-	virtual void setNode(CGameState * gs, CGPathNode * n) override;
+	void setNode(CGameState * gs, CGPathNode * n) override;
 
 	virtual bool isBetterWay() const;
 };

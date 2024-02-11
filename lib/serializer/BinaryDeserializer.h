@@ -23,9 +23,13 @@ protected:
 public:
 	CLoaderBase(IBinaryReader * r): reader(r){};
 
-	inline int read(void * data, unsigned size)
+	inline void read(void * data, unsigned size, bool reverseEndianess)
 	{
-		return reader->read(data, size);
+		auto bytePtr = reinterpret_cast<std::byte*>(data);
+
+		reader->read(bytePtr, size);
+		if(reverseEndianess)
+			std::reverse(bytePtr, bytePtr + size);
 	};
 };
 
@@ -170,11 +174,7 @@ public:
 	template < class T, typename std::enable_if < std::is_fundamental<T>::value && !std::is_same<T, bool>::value, int  >::type = 0 >
 	void load(T &data)
 	{
-		unsigned length = sizeof(data);
-		char * dataPtr = reinterpret_cast<char *>(&data);
-		this->read(dataPtr,length);
-		if(reverseEndianess)
-			std::reverse(dataPtr, dataPtr + length);
+		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianess);
 	}
 
 	template < typename T, typename std::enable_if < is_serializeable<BinaryDeserializer, T>::value, int  >::type = 0 >
@@ -439,7 +439,7 @@ public:
 	{
 		ui32 length = readAndCheckLength();
 		data.resize(length);
-		this->read((void*)data.c_str(),length);
+		this->read(static_cast<void *>(data.data()), length, false);
 	}
 
 	template<typename... TN>

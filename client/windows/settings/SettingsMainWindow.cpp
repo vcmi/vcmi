@@ -143,12 +143,9 @@ void SettingsMainWindow::mainMenuButtonCallback()
 		[this]()
 		{
 			close();
-			GH.dispatchMainThread( []()
-			{
-				CSH->endGameplay();
-				GH.defActionsDef = 63;
-				CMM->menu->switchToTab("main");
-			});
+			CSH->endGameplay();
+			GH.defActionsDef = 63;
+			CMM->menu->switchToTab("main");
 		},
 		0
 	);

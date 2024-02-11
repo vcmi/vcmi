@@ -126,7 +126,7 @@ public:
 	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
-	virtual const IBonusBearer * getBonusBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;

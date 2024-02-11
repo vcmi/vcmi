@@ -41,6 +41,7 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
+set(buildLobby OFF)
 set(singleProcess OFF)
 set(staticAI OFF)
 if(ANDROID)
@@ -87,6 +88,14 @@ endif()
 # Used for Snap packages and also useful for debugging
 if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	set(buildLobby ON)
+endif()
+
+if(NOT APPLE_IOS AND NOT ANDROID)
+	option(ENABLE_LOBBY "Enable compilation of lobby server" ${buildLobby})
 endif()
 
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
@@ -475,6 +484,10 @@ if(TARGET SDL2_ttf::SDL2_ttf)
 	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
 endif()
 
+if(ENABLE_LOBBY)
+	find_package(SQLite3 REQUIRED)
+endif()
+
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
@@ -621,6 +634,9 @@ if(ENABLE_LAUNCHER)
 endif()
 if(ENABLE_EDITOR)
 	add_subdirectory(mapeditor)
+endif()
+if(ENABLE_LOBBY)
+	add_subdirectory(lobby)
 endif()
 add_subdirectory(client)
 add_subdirectory(server)

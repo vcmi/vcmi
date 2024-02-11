@@ -35,6 +35,6 @@ namespace Goals
 		TSubgoal whatToDoToAchieve() override;
 		TSubgoal whatToDoToTrade();
 		bool fulfillsMe(TSubgoal goal) override; //TODO: Trade
-		virtual bool operator==(const CollectRes & other) const override;
+		bool operator==(const CollectRes & other) const override;
 	};
 }

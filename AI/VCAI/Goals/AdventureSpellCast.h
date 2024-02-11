@@ -39,6 +39,6 @@ namespace Goals
 		void accept(VCAI * ai) override;
 		std::string name() const override;
 		std::string completeMessage() const override;
-		virtual bool operator==(const AdventureSpellCast & other) const override;
+		bool operator==(const AdventureSpellCast & other) const override;
 	};
 }

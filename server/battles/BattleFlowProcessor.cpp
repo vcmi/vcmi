@@ -584,10 +584,10 @@ void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & batt
 	auto bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTED)));
 	for(auto b : bl)
 	{
-		const CSpell * sp = b->subtype.as<SpellID>().toSpell();
-		if(!sp)
+		if (!b->subtype.as<SpellID>().hasValue())
 			continue;
 
+		const CSpell * sp = b->subtype.as<SpellID>().toSpell();
 		const int32_t val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
 		const int32_t level = ((val > 3) ? (val - 3) : val);
 

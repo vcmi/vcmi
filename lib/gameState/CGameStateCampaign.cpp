@@ -39,7 +39,7 @@ CampaignHeroReplacement::CampaignHeroReplacement(CGHeroInstance * hero, const Ob
 CGameStateCampaign::CGameStateCampaign(CGameState * owner):
 	gameState(owner)
 {
-	assert(gameState->scenarioOps->mode == StartInfo::CAMPAIGN);
+	assert(gameState->scenarioOps->mode == EStartMode::CAMPAIGN);
 	assert(gameState->scenarioOps->campState != nullptr);
 }
 

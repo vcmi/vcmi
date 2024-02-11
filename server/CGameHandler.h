@@ -73,7 +73,6 @@ public:
 	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
 
 	//queries stuff
-	boost::recursive_mutex gsm;
 	ui32 QID;
 
 	SpellCastEnvironment * spellEnv;
@@ -261,7 +260,8 @@ public:
 
 	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
-	void run(bool resume);
+	void start(bool resume);
+	void tick(int millisecondsPassed);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactInstanceID> & arts);
 	void spawnWanderingMonsters(CreatureID creatureID);
 

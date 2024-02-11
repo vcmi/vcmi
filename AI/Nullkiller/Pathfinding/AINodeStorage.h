@@ -200,7 +200,7 @@ public:
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 
-	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
+	void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 
 	void commit(
 		AIPathNode * destination,

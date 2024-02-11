@@ -23,8 +23,6 @@ private:
 	std::map<PlayerColor, std::vector<QueryPtr>> queries; //player => stack of queries
 
 public:
-	static boost::mutex mx;
-
 	void addQuery(QueryPtr query);
 	void popQuery(const CQuery &query);
 	void popQuery(QueryPtr query);

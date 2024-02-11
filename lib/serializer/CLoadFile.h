@@ -23,7 +23,7 @@ public:
 
 	CLoadFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion = ESerializationVersion::CURRENT); //throws!
 	virtual ~CLoadFile();
-	int read(void * data, unsigned size) override; //throws!
+	int read(std::byte * data, unsigned size) override; //throws!
 
 	void openNextFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion); //throws!
 	void clear();

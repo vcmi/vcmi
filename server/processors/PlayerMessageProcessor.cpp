@@ -13,7 +13,6 @@
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 
-#include "../../lib/serializer/Connection.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/modding/IdentifierStorage.h"
@@ -22,11 +21,13 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
+#include "../../lib/serializer/Connection.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor()
 	:gameHandler(nullptr)
@@ -62,10 +63,7 @@ bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::st
 	std::vector<std::string> words;
 	boost::split(words, message, boost::is_any_of(" "));
 
-	bool isHost = false;
-	for(auto & c : gameHandler->connections[player])
-		if(gameHandler->gameLobby()->isClientHost(c->connectionID))
-			isHost = true;
+	bool isHost = gameHandler->gameLobby()->isPlayerHost(player);
 
 	if(!isHost || words.size() < 2 || words[0] != "game")
 		return false;

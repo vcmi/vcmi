@@ -31,11 +31,11 @@ class CRandomGenerator;
 class JsonSerializeFormat;
 class BattleField;
 
-enum class EHeroGender : uint8_t
+enum class EHeroGender : int8_t
 {
+	DEFAULT = -1, // from h3m, instance has same gender as hero type
 	MALE = 0,
 	FEMALE = 1,
-	DEFAULT = 0xff // from h3m, instance has same gender as hero type
 };
 
 class DLL_LINKAGE CHero : public HeroType

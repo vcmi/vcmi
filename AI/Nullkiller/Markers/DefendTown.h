@@ -30,7 +30,7 @@ namespace Goals
 		DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath, bool isCounterAttack = false);
 		DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const CGHeroInstance * defender);
 
-		virtual bool operator==(const DefendTown & other) const override;
+		bool operator==(const DefendTown & other) const override;
 		virtual std::string toString() const override;
 
 		const HitMapInfo & getTreat() const { return treat; }

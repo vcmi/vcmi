@@ -124,6 +124,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/IdentifierStorage.cpp
 		${MAIN_LIB_DIR}/modding/ModUtility.cpp
 
+		${MAIN_LIB_DIR}/network/NetworkConnection.cpp
+		${MAIN_LIB_DIR}/network/NetworkHandler.cpp
+		${MAIN_LIB_DIR}/network/NetworkServer.cpp
+
 		${MAIN_LIB_DIR}/networkPacks/NetPacksLib.cpp
 
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
@@ -151,6 +155,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/Zone.cpp
 		${MAIN_LIB_DIR}/rmg/Functions.cpp
 		${MAIN_LIB_DIR}/rmg/RmgMap.cpp
+		${MAIN_LIB_DIR}/rmg/PenroseTiling.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/Modificator.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.cpp
@@ -471,6 +476,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/modding/ModUtility.h
 		${MAIN_LIB_DIR}/modding/ModVerificationInfo.h
 
+		${MAIN_LIB_DIR}/network/NetworkConnection.h
+		${MAIN_LIB_DIR}/network/NetworkDefines.h
+		${MAIN_LIB_DIR}/network/NetworkHandler.h
+		${MAIN_LIB_DIR}/network/NetworkInterface.h
+		${MAIN_LIB_DIR}/network/NetworkServer.h
+
 		${MAIN_LIB_DIR}/networkPacks/ArtifactLocation.h
 		${MAIN_LIB_DIR}/networkPacks/BattleChanges.h
 		${MAIN_LIB_DIR}/networkPacks/Component.h
@@ -522,6 +533,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/RmgMap.h
 		${MAIN_LIB_DIR}/rmg/float3.h
 		${MAIN_LIB_DIR}/rmg/Functions.h
+		${MAIN_LIB_DIR}/rmg/PenroseTiling.h
 		${MAIN_LIB_DIR}/rmg/modificators/Modificator.h
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.h
 		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.h

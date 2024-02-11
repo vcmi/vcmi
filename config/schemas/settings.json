@@ -304,7 +304,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -354,6 +354,14 @@
 				"endWithAutocombat" : {
 					"type": "boolean",
 					"default": false
+				},
+				"queueSmallSlots" : {
+					"type": "number",
+					"default": 10
+				},
+				"queueSmallOutside" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
@@ -361,19 +369,23 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
 			"properties" : {
-				"server" : {
+				"localHostname" : {
 					"type" : "string",
 					"default" : "127.0.0.1"
 				},
-				"port" : {
+				"localPort" : {
 					"type" : "number",
 					"default" : 3030
 				},
-				"localInformation" : {
+				"remoteHostname" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"remotePort" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 3030
 				},
 				"playerAI" : {
 					"type" : "string",
@@ -394,23 +406,6 @@
 				"enemyAI" : {
 					"type" : "string",
 					"default" : "BattleAI"
-				},
-				"reconnect" : {
-					"type" : "boolean",
-					"default" : false
-				},
-				"uuid" : {
-					"type" : "string",
-					"default" : ""
-				},
-				"names" : {
-					"type" : "array",
-					"default" : [],
-					"items" :
-					{
-						"type" : "string",
-						"default" : ""
-					}
 				}
 			}
 		},
@@ -570,11 +565,47 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview" ],
+			"required" : [ "mapPreview", "accountID", "accountCookie", "displayName", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode", "roomID" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"accountID" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"accountCookie" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"displayName" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"hostname" : {
+					"type" : "string",
+					"default" : "127.0.0.1"
+				},
+				"port" : {
+					"type" : "number",
+					"default" : 30303
+				},
+				"roomPlayerLimit" : {
+					"type" : "number",
+					"default" : 2
+				},
+				"roomType" : {
+					"type" : "number",
+					"default" : 0
+				},
+				"roomMode" : {
+					"type" : "number",
+					"default" : 0
+				},
+				"roomID" : {
+					"type" : "string",
+					"default" : ""
 				}
 			}
 		},

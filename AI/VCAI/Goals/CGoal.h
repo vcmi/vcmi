@@ -76,7 +76,7 @@ namespace Goals
 			//h & value & resID & objid & aid & tile & hero & town & bid;
 		}
 
-		virtual bool operator==(const AbstractGoal & g) const override
+		bool operator==(const AbstractGoal & g) const override
 		{
 			if(goalType != g.goalType)
 				return false;
