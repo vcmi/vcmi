@@ -458,7 +458,7 @@ if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
 endif()
 
 target_link_libraries(vcmiclient PRIVATE
-		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
 if(ffmpeg_LIBRARIES)

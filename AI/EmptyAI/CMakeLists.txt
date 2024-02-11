@@ -21,7 +21,7 @@ else()
 endif()
 
 target_include_directories(EmptyAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(EmptyAI PRIVATE ${VCMI_LIB_TARGET})
+target_link_libraries(EmptyAI PRIVATE vcmi)
 
 vcmi_set_output_dir(EmptyAI "AI")
 enable_pch(EmptyAI)

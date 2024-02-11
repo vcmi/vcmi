@@ -20,7 +20,7 @@ else()
 	install(TARGETS StupidAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 
-target_link_libraries(StupidAI PRIVATE ${VCMI_LIB_TARGET})
+target_link_libraries(StupidAI PRIVATE vcmi)
 target_include_directories(StupidAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(StupidAI "AI")

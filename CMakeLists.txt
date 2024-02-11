@@ -608,10 +608,8 @@ if(APPLE_IOS)
 	add_subdirectory(ios)
 endif()
 
-set(VCMI_LIB_TARGET vcmi)
 add_subdirectory_with_folder("AI" AI)
 
-include(VCMI_lib)
 add_subdirectory(lib)
 add_subdirectory(server)
 
