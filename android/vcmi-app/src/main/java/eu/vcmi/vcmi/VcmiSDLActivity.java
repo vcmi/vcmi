@@ -20,9 +20,6 @@ import eu.vcmi.vcmi.util.Log;
 
 public class VcmiSDLActivity extends SDLActivity
 {
-    public static final int SERVER_MESSAGE_SERVER_READY = 1000;
-    public static final int SERVER_MESSAGE_SERVER_KILLED = 1001;
-    public static final String NATIVE_ACTION_CREATE_SERVER = "SDLActivity.Action.CreateServer";
     protected static final int COMMAND_USER = 0x8000;
 
     final Messenger mClientMessenger = new Messenger(
@@ -187,27 +184,6 @@ public class VcmiSDLActivity extends SDLActivity
                 final VcmiSDLActivity.IncomingServerMessageHandlerCallback callback)
         {
             mCallback = callback;
-        }
-
-        @Override
-        public void handleMessage(Message msg)
-        {
-            Log.i(this, "Got server msg " + msg);
-            switch (msg.what)
-            {
-                case SERVER_MESSAGE_SERVER_READY:
-                    NativeMethods.notifyServerReady();
-                    break;
-                case SERVER_MESSAGE_SERVER_KILLED:
-                    if (mCallback != null)
-                    {
-                        mCallback.unbindServer();
-                    }
-                    NativeMethods.notifyServerClosed();
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
         }
     }
 }
