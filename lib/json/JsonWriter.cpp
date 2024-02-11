@@ -63,9 +63,8 @@ void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 
 void JsonWriter::writeString(const std::string &string)
 {
-	static const std::string escaped = "\"\\\b\f\n\r\t/";
-
-	static const std::array<char, 8> escaped_code = {'\"', '\\', 'b', 'f', 'n', 'r', 't', '/'};
+	static const std::string escaped = "\"\\\b\f\n\r\t";
+	static const std::array escaped_code = {'\"', '\\', 'b', 'f', 'n', 'r', 't'};
 
 	out <<'\"';
 	size_t pos = 0;
