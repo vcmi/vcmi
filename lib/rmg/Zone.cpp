@@ -116,6 +116,7 @@ void Zone::initFreeTiles()
 	
 	if(dAreaFree.empty())
 	{
+		// Fixme: This might fail fot water zone, which doesn't need to have a tile in its center of the mass
 		dAreaPossible.erase(pos);
 		dAreaFree.add(pos); //zone must have at least one free tile where other paths go - for instance in the center
 	}
@@ -250,21 +251,30 @@ void Zone::fractalize()
 		treasureDensity += t.density;
 	}
 
-	if (treasureValue > 400)
+	if (getType() == ETemplateZoneType::WATER)
 	{
-		// A quater at max density
-		marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
+		// Set very little obstacles on water
+		spanFactor = 0.2;
 	}
-	else if (treasureValue < 125)
+	else //Scale with treasure density
 	{
-		//Dense obstacles
-		spanFactor *= (treasureValue / 125.f);
-		vstd::amax(spanFactor, 0.15f);
+		if (treasureValue > 400)
+		{
+			// A quater at max density
+			marginFactor = (0.25f + ((std::max(0, (600 - treasureValue))) / (600.f - 400)) * 0.75f);
+		}
+		else if (treasureValue < 125)
+		{
+			//Dense obstacles
+			spanFactor *= (treasureValue / 125.f);
+			vstd::amax(spanFactor, 0.15f);
+		}
+		if (treasureDensity <= 10)
+		{
+			vstd::amin(spanFactor, 0.1f + 0.01f * treasureDensity); //Add extra obstacles to fill up space
 	}
-	if (treasureDensity <= 10)
-	{
-		vstd::amin(spanFactor, 0.1f + 0.01f * treasureDensity); //Add extra obstacles to fill up space
 	}
+
 	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
 	freeDistance = freeDistance * marginFactor;
 	vstd::amax(freeDistance, 4 * 4);

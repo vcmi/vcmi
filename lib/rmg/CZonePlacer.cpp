@@ -908,7 +908,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, closestZone->getPos().z)); //Closest vertex belongs to zone
 	}
 
-	//Assign actual tiles to each zone using nonlinear norm for fine edges
+	//Assign actual tiles to each zone
 	for (pos.z = 0; pos.z < levels; pos.z++)
 	{
 		for (pos.x = 0; pos.x < width; pos.x++)
@@ -918,7 +918,6 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 				distances.clear();
 				for(const auto & zoneVertex : vertexMapping)
 				{
-					// FIXME: Find closest vertex, not closest zone
 					auto zone = zoneVertex.first;
 					for (const auto & vertex : zoneVertex.second)
 					{
@@ -929,7 +928,8 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 					}
 				}
 
-				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first; //closest tile belongs to zone
+				//Tile closes to vertex belongs to zone
+				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first;
 				closestZone->area().add(pos);
 				map.setZoneID(pos, closestZone->getId());
 			}
