@@ -14,7 +14,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-//Internal class for Json validation. Mostly compilant with json-schema v4 draft
+//Internal class for Json validation. Mostly compilant with json-schema v6 draft
 namespace Validation
 {
 	/// struct used to pass data around during validation

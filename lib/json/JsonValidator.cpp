@@ -21,13 +21,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-//TODO: integer support
-
 static const std::unordered_map<std::string, JsonNode::JsonType> stringToType =
 {
 	{"null",   JsonNode::JsonType::DATA_NULL},
 	{"boolean", JsonNode::JsonType::DATA_BOOL},
 	{"number", JsonNode::JsonType::DATA_FLOAT},
+	{"integer", JsonNode::JsonType::DATA_INTEGER},
 	{"string",  JsonNode::JsonType::DATA_STRING},
 	{"array",  JsonNode::JsonType::DATA_VECTOR},
 	{"object",  JsonNode::JsonType::DATA_STRUCT}
@@ -132,8 +131,8 @@ namespace
 
 			JsonNode::JsonType type = it->second;
 
-			//FIXME: hack for integer values
-			if(data.isNumber() && type == JsonNode::JsonType::DATA_FLOAT)
+			// for "number" type both float and integer are allowed
+			if(type == JsonNode::JsonType::DATA_FLOAT && data.isNumber())
 				return "";
 
 			if(type != data.getType() && data.getType() != JsonNode::JsonType::DATA_NULL)
@@ -201,31 +200,29 @@ namespace
 
 		std::string maximumCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			if (baseSchema["exclusiveMaximum"].Bool())
-			{
-				if (data.Float() >= schema.Float())
-					return validator.makeErrorMessage((boost::format("Value is bigger than %d") % schema.Float()).str());
-			}
-			else
-			{
-				if (data.Float() >  schema.Float())
-					return validator.makeErrorMessage((boost::format("Value is bigger than %d") % schema.Float()).str());
-			}
+			if (data.Float() > schema.Float())
+				return validator.makeErrorMessage((boost::format("Value is bigger than %d") % schema.Float()).str());
 			return "";
 		}
 
 		std::string minimumCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			if (baseSchema["exclusiveMinimum"].Bool())
-			{
-				if (data.Float() <= schema.Float())
-					return validator.makeErrorMessage((boost::format("Value is smaller than %d") % schema.Float()).str());
-			}
-			else
-			{
-				if (data.Float() <  schema.Float())
-					return validator.makeErrorMessage((boost::format("Value is smaller than %d") % schema.Float()).str());
-			}
+			if (data.Float() < schema.Float())
+				return validator.makeErrorMessage((boost::format("Value is smaller than %d") % schema.Float()).str());
+			return "";
+		}
+
+		std::string exclusiveMaximumCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
+		{
+			if (data.Float() >= schema.Float())
+				return validator.makeErrorMessage((boost::format("Value is bigger than %d") % schema.Float()).str());
+			return "";
+		}
+
+		std::string exclusiveMinimumCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
+		{
+			if (data.Float() <= schema.Float())
+				return validator.makeErrorMessage((boost::format("Value is smaller than %d") % schema.Float()).str());
 			return "";
 		}
 
@@ -536,6 +533,13 @@ namespace
 		ret["default"] = Common::emptyCheck;
 		ret["description"] = Common::emptyCheck;
 		ret["definitions"] = Common::emptyCheck;
+
+		// Not implemented
+		ret["propertyNames"] = Common::emptyCheck;
+		ret["contains"] = Common::emptyCheck;
+		ret["const"] = Common::emptyCheck;
+		ret["examples"] = Common::emptyCheck;
+
 		return ret;
 	}
 
@@ -556,8 +560,8 @@ namespace
 		ret["minimum"]    = Number::minimumCheck;
 		ret["multipleOf"] = Number::multipleOfCheck;
 
-		ret["exclusiveMaximum"] = Common::emptyCheck;
-		ret["exclusiveMinimum"] = Common::emptyCheck;
+		ret["exclusiveMaximum"] = Number::exclusiveMaximumCheck;
+		ret["exclusiveMinimum"] = Number::exclusiveMinimumCheck;
 		return ret;
 	}
 
@@ -597,6 +601,11 @@ namespace
 		ret["animationFile"] = Formats::animationFile;
 		ret["imageFile"]     = Formats::imageFile;
 		ret["videoFile"]     = Formats::videoFile;
+
+		//TODO:
+		// uri-reference
+		// uri-template
+		// json-pointer
 
 		return ret;
 	}
