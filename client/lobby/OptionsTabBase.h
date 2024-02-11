@@ -28,5 +28,5 @@ class OptionsTabBase : public InterfaceObjectConfigurable
 public:
 	OptionsTabBase(const JsonPath & configPath);
 
-	void recreate();
+	void recreate(bool campaign = false);
 };

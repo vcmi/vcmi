@@ -40,7 +40,7 @@ class CHoverableArea: public virtual CIntObject
 public:
 	std::string hoverText;
 
-	virtual void hover (bool on) override;
+	void hover (bool on) override;
 
 	CHoverableArea();
 	virtual ~CHoverableArea();

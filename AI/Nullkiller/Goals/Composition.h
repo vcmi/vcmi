@@ -26,15 +26,15 @@ namespace Goals
 		{
 		}
 
-		virtual bool operator==(const Composition & other) const override;
+		bool operator==(const Composition & other) const override;
 		virtual std::string toString() const override;
 		void accept(AIGateway * ai) override;
 		Composition & addNext(const AbstractGoal & goal);
 		Composition & addNext(TSubgoal goal);
 		Composition & addNextSequence(const TGoalVec & taskSequence);
-		virtual TGoalVec decompose() const override;
-		virtual bool isElementar() const override;
-		virtual int getHeroExchangeCount() const override;
+		TGoalVec decompose() const override;
+		bool isElementar() const override;
+		int getHeroExchangeCount() const override;
 	};
 }
 

@@ -424,7 +424,7 @@ class DLL_LINKAGE CGTerrainPatch : public CGObjectInstance
 public:
 	using CGObjectInstance::CGObjectInstance;
 
-	virtual bool isTile2Terrain() const override
+	bool isTile2Terrain() const override
 	{
 		return true;
 	}

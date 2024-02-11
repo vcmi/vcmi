@@ -171,7 +171,7 @@ public:
 	virtual void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
 
 	//hero
-	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
+	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
 	const CGHeroInstance * getHeroWithSubid(int subid) const override;
 	virtual int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
 	virtual bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
@@ -183,7 +183,7 @@ public:
 	//virtual const CGObjectInstance * getArmyInstance(ObjectInstanceID oid) const;
 
 	//objects
-	virtual const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
+	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
 	virtual std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
 	virtual std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true) const override;
 	virtual std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;

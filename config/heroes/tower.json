@@ -70,6 +70,7 @@
 	"torosar":
 	{
 		"index": 36,
+		"compatibilityIdentifiers" : [ "torosar " ],
 		"class" : "alchemist",
 		"female": false,
 		"spellbook": [ "magicArrow" ],

@@ -16,7 +16,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation>访问VCMI的GUTHUB</translation>
+        <translation>访问VCMI的Github</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="55"/>
@@ -574,7 +574,7 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="624"/>
         <source>Renderer</source>
-        <translation type="unfinished"></translation>
+        <translation>渲染器</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="246"/>
@@ -824,7 +824,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="156"/>
         <source>VCMI on Github</source>
-        <translation>访问VCMI的GUTHUB</translation>
+        <translation>访问VCMI的Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="163"/>
@@ -902,12 +902,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
         <source>Heroes III installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄无敌3安装目录已找到！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="143"/>
         <source>Copy data to VCMI folder?</source>
-        <translation type="unfinished"></translation>
+        <translation>复制数据到VCMI文件夹吗？</translation>
     </message>
 </context>
 <context>

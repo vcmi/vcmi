@@ -434,7 +434,7 @@ void CMapGenerator::addHeaderInfo()
 	m.twoLevel = mapGenOptions.getHasTwoLevels();
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	m.description.appendRawString(getMapDescription());
-	m.difficulty = 1;
+	m.difficulty = EMapDifficulty::NORMAL;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
 	m.banWaterContent();

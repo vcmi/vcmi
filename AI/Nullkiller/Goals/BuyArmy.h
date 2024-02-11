@@ -36,11 +36,11 @@ namespace Goals
 			priority = 3;//TODO: evaluate?
 		}
 
-		virtual bool operator==(const BuyArmy & other) const override;
+		bool operator==(const BuyArmy & other) const override;
 
 		virtual std::string toString() const override;
 
-		virtual void accept(AIGateway * ai) override;
+		void accept(AIGateway * ai) override;
 	};
 }
 

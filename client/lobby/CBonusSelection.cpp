@@ -15,6 +15,7 @@
 #include <vcmi/spells/Service.h>
 
 #include "CSelectionBase.h"
+#include "ExtraOptionsTab.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -86,7 +87,7 @@ CBonusSelection::CBonusSelection()
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
 
-	labelChooseBonus = std::make_shared<CLabel>(511, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
+	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
 
 	flagbox = std::make_shared<CFlagBox>(Rect(486, 407, 335, 23));
@@ -94,17 +95,17 @@ CBonusSelection::CBonusSelection()
 	std::vector<std::string> difficulty;
 	std::string difficultyString = CGI->generaltexth->allTexts[492];
 	boost::split(difficulty, difficultyString, boost::is_any_of(" "));
-	labelDifficulty = std::make_shared<CLabel>(689, 432, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, difficulty.back());
+	labelDifficulty = std::make_shared<CLabel>(724, settings["general"]["enableUiEnhancements"].Bool() ? 457 : 432, FONT_MEDIUM, ETextAlignment::TOPCENTER, Colors::WHITE, difficulty.back());
 
 	for(size_t b = 0; b < difficultyIcons.size(); ++b)
 	{
-		difficultyIcons[b] = std::make_shared<CAnimImage>(AnimationPath::builtinTODO("GSPBUT" + std::to_string(b + 3) + ".DEF"), 0, 0, 709, 455);
+		difficultyIcons[b] = std::make_shared<CAnimImage>(AnimationPath::builtinTODO("GSPBUT" + std::to_string(b + 3) + ".DEF"), 0, 0, 709, settings["general"]["enableUiEnhancements"].Bool() ? 480 : 455);
 	}
 
 	if(getCampaign()->playerSelectedDifficulty())
 	{
-		buttonDifficultyLeft = std::make_shared<CButton>(Point(694, 508), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
-		buttonDifficultyRight = std::make_shared<CButton>(Point(738, 508), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
+		buttonDifficultyLeft = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(693, 495) : Point(694, 508), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
+		buttonDifficultyRight = std::make_shared<CButton>(settings["general"]["enableUiEnhancements"].Bool() ? Point(739, 495) : Point(738, 508), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
 	}
 
 	for(auto scenarioID : getCampaign()->allScenarios())
@@ -117,6 +118,16 @@ CBonusSelection::CBonusSelection()
 
 	if (!getCampaign()->getMusic().empty())
 		CCS->musich->playMusic( getCampaign()->getMusic(), true, false);
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
+		tabExtraOptions->recActions = UPDATE | SHOWALL | LCLICK | RCLICK_POPUP;
+		tabExtraOptions->recreate(true);
+		tabExtraOptions->setEnabled(false);
+		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); GH.windows().totalRedraw(); }, EShortcut::NONE);
+		buttonExtraOptions->addTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
+	}
 }
 
 void CBonusSelection::createBonusesIcons()

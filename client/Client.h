@@ -173,7 +173,7 @@ public:
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
 	void giveResource(PlayerColor player, GameResID which, int val) override {};
-	virtual void giveResources(PlayerColor player, TResources resources) override {};
+	void giveResources(PlayerColor player, TResources resources) override {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet & creatures, bool remove) override {};
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> & creatures) override {};

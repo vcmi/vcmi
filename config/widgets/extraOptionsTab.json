@@ -10,6 +10,13 @@
 			"position": {"x": 0, "y": 6}
 		},
 		{
+			"name": "textureCampaignOverdraw",
+			"type": "texture",
+			"color" : "blue", 
+			"image": "DIBOXBCK",
+			"rect": {"x": 391, "y": 14, "w": 82, "h": 569}
+		},
+		{
 			"name": "labelTitle",
 			"type": "label",
 			"font": "big",

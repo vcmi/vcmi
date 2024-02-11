@@ -301,7 +301,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 
 		if(source.guarded)
 		{
-			if(!(pathfinderConfig->options.originalMovementRules && source.node->layer == EPathfindingLayer::AIR) 
+			if(!(pathfinderConfig->options.originalFlyRules && source.node->layer == EPathfindingLayer::AIR)
 				&& !pathfinderConfig->options.ignoreGuards
 				&&	(!destination.isGuardianTile || pathfinderHelper->getGuardiansCount(source.coord) > 1)) // Can step into tile of guard
 			{
@@ -386,14 +386,22 @@ void LayerTransitionRule::process(
 		break;
 
 	case EPathfindingLayer::AIR:
-		if(pathfinderConfig->options.originalMovementRules)
+		if(pathfinderConfig->options.originalFlyRules)
 		{
-			if((source.node->accessible != EPathAccessibility::ACCESSIBLE &&
-				source.node->accessible != EPathAccessibility::VISITABLE) &&
-				(destination.node->accessible != EPathAccessibility::VISITABLE &&
-				 destination.node->accessible != EPathAccessibility::ACCESSIBLE))
+			if(source.node->accessible != EPathAccessibility::ACCESSIBLE &&
+				source.node->accessible != EPathAccessibility::VISITABLE &&
+				destination.node->accessible != EPathAccessibility::VISITABLE &&
+				 destination.node->accessible != EPathAccessibility::ACCESSIBLE)
 			{
-				destination.blocked = true;
+				if(destination.node->accessible == EPathAccessibility::BLOCKVIS)
+				{
+					if(source.nodeObject || (source.tile->blocked && destination.tile->blocked))
+					{
+						destination.blocked = true;
+					}
+				}
+				else
+					destination.blocked = true;
 			}
 		}
 		else if(destination.node->accessible != EPathAccessibility::ACCESSIBLE)
