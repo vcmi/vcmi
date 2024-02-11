@@ -128,7 +128,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	bool isServerLocal() const;
 
 public:
-	std::shared_ptr<CConnection> c;
+	/// High-level connection overlay that is capable of (de)serializing network data
+	std::shared_ptr<CConnection> logicConnection;
 
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together

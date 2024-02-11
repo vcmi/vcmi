@@ -170,7 +170,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	serverMode = newServerMode;
 	mapToStart = nullptr;
 	th = std::make_unique<CStopWatch>();
-	c.reset();
+	logicConnection.reset();
 	si = std::make_shared<StartInfo>();
 	playerNames.clear();
 	si->difficulty = 1;
@@ -329,9 +329,9 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 		getGlobalLobby().sendProxyConnectionLogin(netConnection);
 	}
 
-	c = std::make_shared<CConnection>(netConnection);
-	c->uuid = uuid;
-	c->enterLobbyConnectionMode();
+	logicConnection = std::make_shared<CConnection>(netConnection);
+	logicConnection->uuid = uuid;
+	logicConnection->enterLobbyConnectionMode();
 	sendClientConnecting();
 }
 
@@ -344,22 +344,22 @@ void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 
 std::set<PlayerColor> CServerHandler::getHumanColors()
 {
-	return clientHumanColors(c->connectionID);
+	return clientHumanColors(logicConnection->connectionID);
 }
 
 PlayerColor CServerHandler::myFirstColor() const
 {
-	return clientFirstColor(c->connectionID);
+	return clientFirstColor(logicConnection->connectionID);
 }
 
 bool CServerHandler::isMyColor(PlayerColor color) const
 {
-	return isClientColor(c->connectionID, color);
+	return isClientColor(logicConnection->connectionID, color);
 }
 
 ui8 CServerHandler::myFirstId() const
 {
-	return clientFirstId(c->connectionID);
+	return clientFirstId(logicConnection->connectionID);
 }
 
 EClientState CServerHandler::getState() const
@@ -379,12 +379,12 @@ bool CServerHandler::isServerLocal() const
 
 bool CServerHandler::isHost() const
 {
-	return c && hostClientId == c->connectionID;
+	return logicConnection && hostClientId == logicConnection->connectionID;
 }
 
 bool CServerHandler::isGuest() const
 {
-	return !c || hostClientId != c->connectionID;
+	return !logicConnection || hostClientId != logicConnection->connectionID;
 }
 
 const std::string & CServerHandler::getLocalHostname() const
@@ -438,7 +438,7 @@ void CServerHandler::sendClientDisconnecting()
 	setState(EClientState::DISCONNECTING);
 	mapToStart = nullptr;
 	LobbyClientDisconnected lcd;
-	lcd.clientId = c->connectionID;
+	lcd.clientId = logicConnection->connectionID;
 	logNetwork->info("Connection has been requested to be closed.");
 	if(isServerLocal())
 	{
@@ -452,7 +452,7 @@ void CServerHandler::sendClientDisconnecting()
 	sendLobbyPack(lcd);
 	networkConnection->close();
 	networkConnection.reset();
-	c.reset();
+	logicConnection.reset();
 }
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
@@ -684,7 +684,7 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		throw std::runtime_error("Invalid mode");
 	}
 	// After everything initialized we can accept CPackToClient netpacks
-	c->enterGameplayConnectionMode(client->gameState());
+	logicConnection->enterGameplayConnectionMode(client->gameState());
 	setState(EClientState::GAMEPLAY);
 }
 
@@ -714,7 +714,7 @@ void CServerHandler::restartGameplay()
 	client->endGame();
 	client.reset();
 
-	c->enterLobbyConnectionMode();
+	logicConnection->enterLobbyConnectionMode();
 }
 
 void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs)
@@ -798,7 +798,7 @@ ELoadMode CServerHandler::getLoadMode()
 			return ELoadMode::CAMPAIGN;
 		for(auto pn : playerNames)
 		{
-			if(pn.second.connection != c->connectionID)
+			if(pn.second.connection != logicConnection->connectionID)
 				return ELoadMode::MULTI;
 		}
 		if(howManyPlayerInterfaces() > 1)  //this condition will work for hotseat mode OR multiplayer with allowed more than 1 color per player to control
@@ -892,7 +892,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 		return;
 	}
 
-	CPack * pack = c->retrievePack(message);
+	CPack * pack = logicConnection->retrievePack(message);
 	ServerHandlerCPackVisitor visitor(*this);
 	pack->visit(visitor);
 }
@@ -921,7 +921,7 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	else
 	{
 		LobbyClientDisconnected lcd;
-		lcd.clientId = c->connectionID;
+		lcd.clientId = logicConnection->connectionID;
 		applyPackOnLobbyScreen(lcd);
 	}
 
@@ -995,7 +995,7 @@ void CServerHandler::threadRunServer(bool connectToLobby)
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
 	if(getState() != EClientState::STARTING)
-		c->sendPack(&pack);
+		logicConnection->sendPack(&pack);
 }
 
 bool CServerHandler::inLobbyRoom() const
@@ -1005,5 +1005,5 @@ bool CServerHandler::inLobbyRoom() const
 
 bool CServerHandler::inGame() const
 {
-	return c != nullptr;
+	return logicConnection != nullptr;
 }

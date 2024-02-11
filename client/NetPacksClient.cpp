@@ -424,7 +424,7 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 			cl.initPlayerEnvironments();
 			initInterfaces();
 		}
-		else if(pack.playerConnectionId == CSH->c->connectionID)
+		else if(pack.playerConnectionId == CSH->logicConnection->connectionID)
 		{
 			plSettings.connectedPlayerIDs.insert(pack.playerConnectionId);
 			cl.playerint.clear();

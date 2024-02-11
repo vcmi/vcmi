@@ -40,9 +40,9 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	result = false;
 
 	// Check if it's LobbyClientConnected for our client
-	if(pack.uuid == handler.c->uuid)
+	if(pack.uuid == handler.logicConnection->uuid)
 	{
-		handler.c->connectionID = pack.clientId;
+		handler.logicConnection->connectionID = pack.clientId;
 		if(handler.mapToStart)
 		{
 			handler.setMapInfo(handler.mapToStart);
@@ -79,7 +79,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.clientId != handler.c->connectionID)
+	if(pack.clientId != handler.logicConnection->connectionID)
 	{
 		result = false;
 		return;
@@ -145,20 +145,20 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame &
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
 {
 	handler.client = std::make_unique<CClient>();
-	handler.c->enterLobbyConnectionMode();
-	handler.c->setCallback(handler.client.get());
+	handler.logicConnection->enterLobbyConnectionMode();
+	handler.logicConnection->setCallback(handler.client.get());
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId != -1 && pack.clientId != handler.c->connectionID)
+	if(pack.clientId != -1 && pack.clientId != handler.logicConnection->connectionID)
 	{
 		result = false;
 		return;
 	}
 	
 	handler.setState(EClientState::STARTING);
-	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.c->connectionID)
+	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.logicConnection->connectionID)
 	{
 		auto modeBackup = handler.si->mode;
 		handler.si = pack.initializedStartInfo;
