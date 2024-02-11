@@ -99,7 +99,7 @@ public:
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) override;
 
-	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
+	void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 
 	const AIPathNode * getAINode(const CGPathNode * node) const;
 	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);

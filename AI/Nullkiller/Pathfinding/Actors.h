@@ -28,7 +28,7 @@ class HeroExchangeArmy : public CArmedInstance
 public:
 	TResources armyCost;
 	bool requireBuyArmy;
-	virtual bool needsLastStack() const override;
+	bool needsLastStack() const override;
 	std::shared_ptr<SpecialAction> getActorAction() const;
 
 	HeroExchangeArmy(): CArmedInstance(nullptr, true), requireBuyArmy(false) {}
@@ -126,7 +126,7 @@ public:
 	HeroActor(const ChainActor * carrier, const ChainActor * other, const HeroExchangeArmy * army, const Nullkiller * ai);
 
 protected:
-	virtual ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const override;
+	ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const override;
 };
 
 class ObjectActor : public ChainActor

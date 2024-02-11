@@ -28,15 +28,15 @@ public:
 		return result;
 	}
 
-	virtual void visitForLobby(CPackForLobby & pack) override;
-	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) override;
-	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
-	virtual void visitLobbyEndGame(LobbyEndGame & pack) override;
-	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
-	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) override;
-	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
-	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) override;
-	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) override;
+	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
+	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
+	void visitLobbyEndGame(LobbyEndGame & pack) override;
+	void visitLobbyStartGame(LobbyStartGame & pack) override;
+	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
+	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
+	void visitLobbyChatMessage(LobbyChatMessage & pack) override;
+	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
@@ -50,12 +50,12 @@ public:
 	{
 	}
 
-	virtual void visitForLobby(CPackForLobby & pack) override;
-	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) override;
-	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
-	virtual void visitLobbyEndGame(LobbyEndGame & pack) override;
-	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
-	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) override;
+	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
+	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
+	void visitLobbyEndGame(LobbyEndGame & pack) override;
+	void visitLobbyStartGame(LobbyStartGame & pack) override;
+	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 };
 
 class ApplyOnServerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
@@ -75,21 +75,21 @@ public:
 		return result;
 	}
 
-	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) override;
-	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
-	virtual void visitLobbySetMap(LobbySetMap & pack) override;
-	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) override;
-	virtual void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) override;
-	virtual void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) override;
-	virtual void visitLobbyEndGame(LobbyEndGame & pack) override;
-	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
-	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) override;
-	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
-	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) override;
-	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) override;
-	virtual void visitLobbySetTurnTime(LobbySetTurnTime & pack) override;
-	virtual void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) override;
-	virtual void visitLobbySetSimturns(LobbySetSimturns & pack) override;
-	virtual void visitLobbySetDifficulty(LobbySetDifficulty & pack) override;
-	virtual void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) override;
+	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
+	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
+	void visitLobbySetMap(LobbySetMap & pack) override;
+	void visitLobbySetCampaign(LobbySetCampaign & pack) override;
+	void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) override;
+	void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) override;
+	void visitLobbyEndGame(LobbyEndGame & pack) override;
+	void visitLobbyStartGame(LobbyStartGame & pack) override;
+	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
+	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
+	void visitLobbySetPlayer(LobbySetPlayer & pack) override;
+	void visitLobbySetPlayerName(LobbySetPlayerName & pack) override;
+	void visitLobbySetTurnTime(LobbySetTurnTime & pack) override;
+	void visitLobbySetExtraOptions(LobbySetExtraOptions & pack) override;
+	void visitLobbySetSimturns(LobbySetSimturns & pack) override;
+	void visitLobbySetDifficulty(LobbySetDifficulty & pack) override;
+	void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) override;
 };

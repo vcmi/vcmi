@@ -26,7 +26,7 @@ namespace Goals
 
 		virtual Goals::TGoalVec decompose() const override;
 		virtual std::string toString() const override;
-		virtual bool operator==(const BuyArmyBehavior & other) const override
+		bool operator==(const BuyArmyBehavior & other) const override
 		{
 			return true;
 		}

@@ -899,14 +899,14 @@ public:
 	{
 	}
 
-	virtual bool callTyped() override { return false; }
+	bool callTyped() override { return false; }
 
-	virtual void visitForLobby(CPackForLobby & lobbyPack) override
+	void visitForLobby(CPackForLobby & lobbyPack) override
 	{
 		handler.visitForLobby(lobbyPack);
 	}
 
-	virtual void visitForClient(CPackForClient & clientPack) override
+	void visitForClient(CPackForClient & clientPack) override
 	{
 		handler.visitForClient(clientPack);
 	}

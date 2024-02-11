@@ -29,7 +29,7 @@ struct DLL_LINKAGE CLobbyPackToPropagate : public CPackForLobby
 
 struct DLL_LINKAGE CLobbyPackToServer : public CPackForLobby
 {
-	virtual bool isForServer() const override;
+	bool isForServer() const override;
 };
 
 struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate

@@ -33,6 +33,6 @@ namespace Goals
 			priority = 3; //trading is instant, but picking resources is free
 		}
 		TSubgoal whatToDoToAchieve() override;
-		virtual bool operator==(const Trade & other) const override;
+		bool operator==(const Trade & other) const override;
 	};
 }

@@ -36,6 +36,6 @@ namespace Goals
 
 		TSubgoal whatToDoToAchieve() override;
 		std::string completeMessage() const override;
-		virtual bool operator==(const BuyArmy & other) const override;
+		bool operator==(const BuyArmy & other) const override;
 	};
 }
