@@ -102,7 +102,7 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 
 static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename)
 {
-	auto s = data.toJson();
+	auto s = data.toString();
 	std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
 	if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())

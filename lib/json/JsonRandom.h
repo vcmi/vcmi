@@ -23,7 +23,7 @@ struct Bonus;
 struct Component;
 class CStackBasicDescriptor;
 
-class DLL_LINKAGE JsonRandom : public GameCallbackHolder
+class JsonRandom : public GameCallbackHolder
 {
 public:
 	using Variables = std::map<std::string, int>;
@@ -46,7 +46,7 @@ private:
 public:
 	using GameCallbackHolder::GameCallbackHolder;
 
-	struct DLL_LINKAGE RandomStackInfo
+	struct RandomStackInfo
 	{
 		std::vector<const CCreature *> allowedCreatures;
 		si32 minAmount;

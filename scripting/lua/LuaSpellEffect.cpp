@@ -76,7 +76,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m) const
 	if(response.getType() != JsonNode::JsonType::DATA_BOOL)
 	{
 		logMod->error("Invalid API response from script %s.", script->getName());
-		logMod->debug(response.toJson(true));
+		logMod->debug(response.toCompactString());
 		return false;
 	}
 	return response.Bool();
@@ -116,7 +116,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 	if(response.getType() != JsonNode::JsonType::DATA_BOOL)
 	{
 		logMod->error("Invalid API response from script %s.", script->getName());
-		logMod->debug(response.toJson(true));
+		logMod->debug(response.toCompactString());
 		return false;
 	}
 	return response.Bool();

@@ -116,8 +116,9 @@ public:
 	JsonNode & operator[](size_t child);
 	const JsonNode & operator[](size_t  child) const;
 
-	std::string toJson(bool compact = false) const;
-	std::vector<std::byte> toBytes(bool compact = false) const;
+	std::string toCompactString() const;
+	std::string toString() const;
+	std::vector<std::byte> toBytes() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

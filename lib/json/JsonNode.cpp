@@ -410,19 +410,27 @@ JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 	return ::resolvePointer(*this, jsonPointer);
 }
 
-std::vector<std::byte> JsonNode::toBytes(bool compact) const
+std::vector<std::byte> JsonNode::toBytes() const
 {
-	std::string jsonString = toJson(compact);
+	std::string jsonString = toString();
 	auto dataBegin = reinterpret_cast<const std::byte*>(jsonString.data());
 	auto dataEnd = dataBegin + jsonString.size();
 	std::vector<std::byte> result(dataBegin, dataEnd);
 	return result;
 }
 
-std::string JsonNode::toJson(bool compact) const
+std::string JsonNode::toCompactString() const
 {
 	std::ostringstream out;
-	JsonWriter writer(out, compact);
+	JsonWriter writer(out, true);
+	writer.writeNode(*this);
+	return out.str();
+}
+
+std::string JsonNode::toString() const
+{
+	std::ostringstream out;
+	JsonWriter writer(out, false);
 	writer.writeNode(*this);
 	return out.str();
 }

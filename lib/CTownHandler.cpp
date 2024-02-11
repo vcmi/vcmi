@@ -1201,7 +1201,7 @@ void CTownHandler::initializeRequirements()
 			{
 				logMod->error("Unexpected length of town buildings requirements: %d", node.Vector().size());
 				logMod->error("Entry contains: ");
-				logMod->error(node.toJson());
+				logMod->error(node.toString());
 			}
 
 			auto index = VLC->identifiers()->getIdentifier(requirement.town->getBuildingScope(), node[0]);

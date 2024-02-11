@@ -165,7 +165,7 @@ void JsonComparer::checkEqualJson(const JsonNode & actual, const JsonNode & expe
 	}
 	else
 	{
-		check(false, "type mismatch. \n expected:\n"+expected.toJson(true)+"\n actual:\n" +actual.toJson(true));
+		check(false, "type mismatch. \n expected:\n"+expected.toCompactString()+"\n actual:\n" +actual.toCompactString());
 	}
 }
 

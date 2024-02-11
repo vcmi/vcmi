@@ -134,7 +134,7 @@ bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, 
 	{
 		logMod->warn("Data in %s is invalid!", dataName);
 		logMod->warn(log);
-		logMod->trace("%s json: %s", dataName, node.toJson(true));
+		logMod->trace("%s json: %s", dataName, node.toCompactString());
 	}
 	return log.empty();
 }

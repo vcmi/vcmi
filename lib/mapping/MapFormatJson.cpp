@@ -1049,7 +1049,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	if(typeName.empty())
 	{
 		logGlobal->error("Object type missing");
-		logGlobal->debug(configuration.toJson());
+		logGlobal->debug(configuration.toString());
 		return;
 	}
 
@@ -1069,7 +1069,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	else if(subtypeName.empty())
 	{
 		logGlobal->error("Object subtype missing");
-		logGlobal->debug(configuration.toJson());
+		logGlobal->debug(configuration.toString());
 		return;
 	}
 

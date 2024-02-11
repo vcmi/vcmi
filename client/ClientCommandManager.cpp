@@ -254,7 +254,7 @@ void ClientCommandManager::handleGetConfigCommand()
 
 				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
 				std::ofstream file(filePath.c_str());
-				file << object.toJson();
+				file << object.toString();
 			}
 		}
 	}
@@ -358,7 +358,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 	auto format = [outputFormat](const BonusList & b) -> std::string
 	{
 		if(outputFormat == "json")
-			return b.toJsonNode().toJson(true);
+			return b.toJsonNode().toCompactString();
 
 		std::ostringstream ss;
 		ss << b;

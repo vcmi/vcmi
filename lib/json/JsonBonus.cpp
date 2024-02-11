@@ -553,7 +553,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	if (!parseBonus(ability, b.get()))
 	{
 		// caller code can not handle this case and presumes that returned bonus is always valid
-		logGlobal->error("Failed to parse bonus! Json config was %S ", ability.toJson());
+		logGlobal->error("Failed to parse bonus! Json config was %S ", ability.toString());
 		b->type = BonusType::NONE;
 		return b;
 	}
@@ -577,7 +577,7 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 {
 	if(vstd::contains(deprecatedBonusSet, ability["type"].String()))
 	{
-		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toJson());
+		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toString());
 		auto params = BonusParams(ability["type"].String(),
 											ability["subtype"].isString() ? ability["subtype"].String() : "",
 											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
@@ -589,11 +589,11 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 				params.targetType = BonusSource::SECONDARY_SKILL;
 			}
 
-			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toJson());
+			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toString());
 			return params;
 		}
 		else
-			logMod->error("Cannot convert bonus!\n%s", ability.toJson());
+			logMod->error("Cannot convert bonus!\n%s", ability.toString());
 	}
 	BonusParams ret;
 	ret.isConverted = false;

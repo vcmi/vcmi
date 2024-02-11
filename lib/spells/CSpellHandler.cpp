@@ -833,7 +833,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		{
 			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->getNameTranslated());
 			spell->targetCondition = spell->convertTargetCondition(immunities, absoluteImmunities, limiters, absoluteLimiters);
-			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toJson());
+			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toString());
 		}
 	}
 	else

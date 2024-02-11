@@ -72,7 +72,7 @@ si32 CAddInfo::operator[](size_type pos) const
 
 std::string CAddInfo::toString() const
 {
-	return toJsonNode().toJson(true);
+	return toJsonNode().toCompactString();
 }
 
 JsonNode CAddInfo::toJsonNode() const
