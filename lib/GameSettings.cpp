@@ -102,6 +102,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE, "pathfinder", "useMonolithOneWayUnique"   },
 		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM, "pathfinder", "useMonolithOneWayRandom"   },
 		{EGameSettings::PATHFINDER_USE_WHIRLPOOL,               "pathfinder", "useWhirlpool"              },
+		{EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES,          "pathfinder", "originalFlyRules"          },
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"        },
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"    },
 	};
