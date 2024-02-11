@@ -15,21 +15,23 @@ class IServerRunner
 {
 public:
 	virtual void start(uint16_t port, bool connectToLobby) = 0;
-	virtual void stop() = 0;
-	virtual int wait() = 0;
+	virtual void shutdown() = 0;
+	virtual void wait() = 0;
+	virtual int exitCode() = 0;
 
 	virtual ~IServerRunner() = default;
 };
 
-/// Server instance will run as a thread of client process
+/// Class that runs server instance as a thread of client process
 class ServerThreadRunner : public IServerRunner, boost::noncopyable
 {
 	std::unique_ptr<CVCMIServer> server;
 	boost::thread threadRunLocalServer;
 public:
 	void start(uint16_t port, bool connectToLobby) override;
-	void stop() override;
-	int wait() override;
+	void shutdown() override;
+	void wait() override;
+	int exitCode() override;
 
 	ServerThreadRunner();
 	~ServerThreadRunner();
@@ -41,15 +43,17 @@ namespace boost::process {
 class child;
 }
 
-/// Server instance will run as a separate process
+/// Class that runs server instance as a child process
+/// Available only on desktop systems where process management is allowed
 class ServerProcessRunner : public IServerRunner, boost::noncopyable
 {
 	std::unique_ptr<boost::process::child> child;
 
 public:
 	void start(uint16_t port, bool connectToLobby) override;
-	void stop() override;
-	int wait() override;
+	void shutdown() override;
+	void wait() override;
+	int exitCode() override;
 
 	ServerProcessRunner();
 	~ServerProcessRunner();

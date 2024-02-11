@@ -111,6 +111,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::atomic<EClientState> state;
 
 	void threadRunNetwork();
+	void waitForServerShutdown();
 
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 

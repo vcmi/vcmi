@@ -22,58 +22,50 @@
 
 ServerThreadRunner::ServerThreadRunner() = default;
 ServerThreadRunner::~ServerThreadRunner() = default;
-ServerProcessRunner::ServerProcessRunner() = default;
-ServerProcessRunner::~ServerProcessRunner() = default;
 
 void ServerThreadRunner::start(uint16_t port, bool connectToLobby)
 {
-	setThreadName("runServer");
-
 	server = std::make_unique<CVCMIServer>(port, connectToLobby, true);
 
 	threadRunLocalServer = boost::thread([this]{
+		setThreadName("runServer");
 		server->run();
 	});
 }
 
-void ServerThreadRunner::stop()
+void ServerThreadRunner::shutdown()
 {
 	server->setState(EServerState::SHUTDOWN);
 }
 
-int ServerThreadRunner::wait()
+void ServerThreadRunner::wait()
 {
 	threadRunLocalServer.join();
+}
+
+int ServerThreadRunner::exitCode()
+{
 	return 0;
 }
 
-void ServerProcessRunner::stop()
+#ifndef VCMI_MOBILE
+
+ServerProcessRunner::ServerProcessRunner() = default;
+ServerProcessRunner::~ServerProcessRunner() = default;
+
+void ServerProcessRunner::shutdown()
 {
 	child->terminate();
 }
 
-int ServerProcessRunner::wait()
+void ServerProcessRunner::wait()
 {
 	child->wait();
+}
 
+int ServerProcessRunner::exitCode()
+{
 	return child->exit_code();
-
-//	if (child->exit_code() == 0)
-//	{
-//		logNetwork->info("Server closed correctly");
-//	}
-//	else
-//	{
-//		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-//
-//		if (getState() == EClientState::CONNECTING)
-//		{
-//			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
-//			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
-//		}
-//		logNetwork->error("Error: server failed to close correctly or crashed!");
-//		logNetwork->error("Check %s for more info", logName);
-//	}
 }
 
 void ServerProcessRunner::start(uint16_t port, bool connectToLobby)
@@ -93,4 +85,4 @@ void ServerProcessRunner::start(uint16_t port, bool connectToLobby)
 		throw std::runtime_error("Failed to start server! Reason: " + ec.message());
 }
 
-
+#endif

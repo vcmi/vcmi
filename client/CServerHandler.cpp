@@ -177,6 +177,7 @@ INetworkHandler & CServerHandler::getNetworkHandler()
 
 void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 {
+	logNetwork->trace("\tLocal server startup has been requested");
 #ifdef VCMI_MOBILE
 	// mobile apps can't spawn separate processes - only thread mode is available
 	serverRunner.reset(new ServerThreadRunner());
@@ -187,10 +188,11 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 		serverRunner.reset(new ServerThreadRunner());
 #endif
 
+	logNetwork->trace("\tStarting local server");
 	serverRunner->start(getLocalPort(), connectToLobby);
+	logNetwork->trace("\tConnecting to local server");
 	connectToServer(getLocalHostname(), getLocalPort());
-
-	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
+	logNetwork->trace("\tWaiting for connection");
 }
 
 void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
@@ -238,6 +240,10 @@ void CServerHandler::onTimer()
 	if(getState() == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
+		serverRunner->wait();
+		serverRunner.reset();
+		if (GH.windows().topWindow<CSimpleJoinScreen>() != nullptr)
+			GH.windows().popWindows(1);
 		return;
 	}
 
@@ -301,6 +307,9 @@ EClientState CServerHandler::getState() const
 
 void CServerHandler::setState(EClientState newState)
 {
+	if (newState == EClientState::CONNECTION_CANCELLED && serverRunner != nullptr)
+		serverRunner->shutdown();
+
 	state = newState;
 }
 
@@ -830,11 +839,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	if (serverRunner)
-	{
-		serverRunner->wait();
-		serverRunner.reset();
-	}
+	waitForServerShutdown();
 
 	if(getState() == EClientState::DISCONNECTING)
 	{
@@ -863,6 +868,34 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	}
 
 	networkConnection.reset();
+}
+
+void CServerHandler::waitForServerShutdown()
+{
+	if (!serverRunner)
+		return; // may not exist for guest in MP
+
+	serverRunner->wait();
+	int exitCode = serverRunner->exitCode();
+	serverRunner.reset();
+
+	if (exitCode == 0)
+	{
+		logNetwork->info("Server closed correctly");
+	}
+	else
+	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+		if (getState() == EClientState::CONNECTING)
+		{
+			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
+			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
+		}
+		logNetwork->error("Error: server failed to close correctly or crashed!");
+		logNetwork->error("Check log file for more info");
+	}
+
+	serverRunner.reset();
 }
 
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
