@@ -375,7 +375,6 @@ else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-add_dependencies(vcmiclient vcmiserver)
 if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclient
 		BattleAI
@@ -454,7 +453,6 @@ elseif(APPLE_IOS)
 endif()
 
 target_link_libraries(vcmiclient PRIVATE vcmiservercommon)
-
 if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
 	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()

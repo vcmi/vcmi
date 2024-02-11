@@ -105,12 +105,12 @@ void setThreadName(const std::string &name)
 //not supported
 #endif
 
-#elif defined(VCMI_UNIX)
-	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #elif defined(VCMI_APPLE)
 	pthread_setname_np(name.c_str());
 #elif defined(VCMI_HAIKU)
 	rename_thread(find_thread(NULL), name.c_str());
+#elif defined(VCMI_UNIX)
+	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #endif
 }
 
