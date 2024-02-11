@@ -29,7 +29,8 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../lib//constants/StringConstants.h"
+#include "../../lib/constants/StringConstants.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 

@@ -10,7 +10,8 @@
 
 #include "StdInc.h"
 #include "Colors.h"
-#include "../../lib/JsonNode.h"
+
+#include "../../lib/json/JsonNode.h"
 
 const ColorRGBA Colors::YELLOW = { 229, 215, 123, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE = { 255, 243, 222, ColorRGBA::ALPHA_OPAQUE };

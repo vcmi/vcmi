@@ -15,6 +15,7 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
+#include "../json/JsonUtils.h"
 #include "../modding/CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../Languages.h"

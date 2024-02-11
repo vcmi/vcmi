@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "GameSettings.h"
-#include "JsonNode.h"
+#include "json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

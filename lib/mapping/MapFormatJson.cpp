@@ -13,7 +13,7 @@
 
 #include "../filesystem/CInputStream.h"
 #include "../filesystem/COutputStream.h"
-#include "../JsonDetail.h"
+#include "../json/JsonWriter.h"
 #include "CMap.h"
 #include "MapFormat.h"
 #include "../ArtifactUtils.h"
@@ -1201,7 +1201,7 @@ CMapSaverJson::~CMapSaverJson() = default;
 void CMapSaverJson::addToArchive(const JsonNode & data, const std::string & filename)
 {
 	std::ostringstream out;
-	JsonWriter writer(out);
+	JsonWriter writer(out, false);
 	writer.writeNode(data);
 	out.flush();
 

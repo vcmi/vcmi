@@ -13,21 +13,22 @@
 
 #include <vstd/StringUtils.h>
 
-#include "JsonNode.h"
-#include "CRandomGenerator.h"
-#include "constants/StringConstants.h"
-#include "VCMI_Lib.h"
-#include "CArtHandler.h"
-#include "CCreatureHandler.h"
-#include "CCreatureSet.h"
-#include "spells/CSpellHandler.h"
-#include "CSkillHandler.h"
-#include "CHeroHandler.h"
-#include "IGameCallback.h"
-#include "gameState/CGameState.h"
-#include "mapObjects/IObjectInterface.h"
-#include "modding/IdentifierStorage.h"
-#include "modding/ModScope.h"
+#include "JsonUtils.h"
+
+#include "../CRandomGenerator.h"
+#include "../constants/StringConstants.h"
+#include "../VCMI_Lib.h"
+#include "../CArtHandler.h"
+#include "../CCreatureHandler.h"
+#include "../CCreatureSet.h"
+#include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
+#include "../CHeroHandler.h"
+#include "../IGameCallback.h"
+#include "../gameState/CGameState.h"
+#include "../mapObjects/IObjectInterface.h"
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

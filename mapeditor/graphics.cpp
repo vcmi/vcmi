@@ -28,7 +28,6 @@
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "BitmapHandler.h"
-#include "../lib/JsonNode.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"

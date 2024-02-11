@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../windows/CWindowObject.h"
-#include "../../lib/JsonNode.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

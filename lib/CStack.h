@@ -9,7 +9,6 @@
  */
 
 #pragma once
-#include "JsonNode.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "CCreatureHandler.h" //todo: remove

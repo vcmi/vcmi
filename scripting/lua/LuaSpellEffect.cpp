@@ -18,6 +18,7 @@
 
 #include "../../lib/battle/Unit.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/serializer/JsonSerializeFormat.h"
 
 static const std::string APPLICABLE_GENERAL = "applicable";

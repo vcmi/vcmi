@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include "../constants/EntityIdentifiers.h"
 #include "RandomMapInfo.h"
 #include "SObjectSounds.h"
-#include "../JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -12,7 +12,6 @@
 #include "GameConstants.h"
 #include "ResourceSet.h"
 #include "constants/StringConstants.h"
-#include "JsonNode.h"
 #include "serializer/JsonSerializeFormat.h"
 #include "mapObjects/CObjectHandler.h"
 #include "VCMI_Lib.h"

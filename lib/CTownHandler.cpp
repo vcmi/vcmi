@@ -12,7 +12,6 @@
 
 #include "VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
-#include "JsonNode.h"
 #include "constants/StringConstants.h"
 #include "CCreatureHandler.h"
 #include "CHeroHandler.h"
@@ -23,6 +22,7 @@
 #include "filesystem/Filesystem.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/Propagators.h"
+#include "json/JsonUtils.h"
 #include "ResourceSet.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"

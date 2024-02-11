@@ -32,6 +32,7 @@
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
 #include "../campaign/CampaignState.h"
+#include "../json/JsonUtils.h"
 #include "../pathfinder/TurnInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"

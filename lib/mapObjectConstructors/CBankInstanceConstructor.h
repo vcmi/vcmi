@@ -14,6 +14,7 @@
 
 #include "../CCreatureSet.h"
 #include "../ResourceSet.h"
+#include "../json/JsonNode.h"
 #include "../mapObjects/CBank.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

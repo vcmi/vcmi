@@ -11,7 +11,7 @@
 
 #include "BonusSystem.h"
 
-#include "../../../lib/JsonNode.h"
+#include "../../../lib/json/JsonNode.h"
 
 #include "../../../lib/bonuses/BonusList.h"
 #include "../../../lib/bonuses/Bonus.h"

@@ -17,7 +17,7 @@
 
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
-#include "../JsonRandom.h"
+#include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
 #include "../CRandomGenerator.h"

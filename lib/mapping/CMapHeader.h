@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../constants/EntityIdentifiers.h"
+#include "../constants/Enumerations.h"
 #include "../constants/VariantIdentifier.h"
 #include "../modding/CModInfo.h"
 #include "../LogicalExpression.h"

@@ -25,6 +25,7 @@
 #include "../ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
+#include "../json/JsonUtils.h"
 #include "../spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -12,7 +12,8 @@
 #include "EffectFixture.h"
 
 #include <vstd/RNG.h>
-#include "lib/modding/ModScope.h"
+#include "../../../lib/modding/ModScope.h"
+#include "../../../lib/json/JsonNode.h"
 
 namespace test
 {

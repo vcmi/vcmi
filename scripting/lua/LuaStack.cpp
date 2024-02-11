@@ -11,7 +11,7 @@
 
 #include "LuaStack.h"
 
-#include "../../lib/JsonNode.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

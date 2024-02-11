@@ -75,7 +75,6 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/GameConstants.h"
-#include "../lib/JsonNode.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"

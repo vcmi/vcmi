@@ -11,7 +11,6 @@
 #include "ResourcePath.h"
 #include "FileInfo.h"
 
-#include "../JsonNode.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 

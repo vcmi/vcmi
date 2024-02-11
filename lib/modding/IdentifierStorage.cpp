@@ -13,7 +13,6 @@
 #include "CModHandler.h"
 #include "ModScope.h"
 
-#include "../JsonNode.h"
 #include "../VCMI_Lib.h"
 #include "../constants/StringConstants.h"
 #include "../spells/CSpellHandler.h"

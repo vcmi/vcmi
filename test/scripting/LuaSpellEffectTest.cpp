@@ -19,6 +19,7 @@
 #include "../mock/mock_ServerCallback.h"
 
 #include "../../../lib/VCMI_Lib.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../../lib/ScriptHandler.h"
 #include "../../../lib/CScriptingModule.h"
 

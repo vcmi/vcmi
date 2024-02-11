@@ -12,7 +12,7 @@
 #include "RiverHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

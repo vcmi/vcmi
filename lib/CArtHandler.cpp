@@ -15,7 +15,7 @@
 #include "GameSettings.h"
 #include "mapObjects/MapObjects.h"
 #include "constants/StringConstants.h"
-
+#include "json/JsonUtils.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "serializer/JsonSerializeFormat.h"

@@ -14,7 +14,7 @@
 #include "TextAlignment.h"
 #include "../render/EFont.h"
 
-#include "../../lib/JsonNode.h"
+#include "../../lib/json/JsonNode.h"
 
 class CPicture;
 class CLabel;

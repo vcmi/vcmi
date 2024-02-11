@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include <vcmi/Metatype.h>
+#include "../json/JsonNode.h"
 
-#include "../JsonNode.h"
+#include <vcmi/Metatype.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

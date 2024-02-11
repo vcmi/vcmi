@@ -12,7 +12,6 @@
 
 #include "ResourceConverter.h"
 
-#include "../lib/JsonNode.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 

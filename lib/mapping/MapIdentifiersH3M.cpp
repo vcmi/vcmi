@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "MapIdentifiersH3M.h"
 
-#include "../JsonNode.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"

@@ -10,10 +10,9 @@
 #include "StdInc.h"
 #include "JsonUpdater.h"
 
-#include "../JsonNode.h"
-
 #include "../bonuses/CBonusSystemNode.h"
 #include "../bonuses/Bonus.h"
+#include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

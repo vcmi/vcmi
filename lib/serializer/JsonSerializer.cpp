@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "JsonSerializer.h"
 
-#include "../JsonNode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 JsonSerializer::JsonSerializer(const IInstanceResolver * instanceResolver_, JsonNode & root_):
