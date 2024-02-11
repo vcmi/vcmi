@@ -13,37 +13,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-//Tiny string class that uses const char* as data for speed, members are private
-//for ease of debugging and some compatibility with std::string
-class constString
-{
-	const char *data;
-	const size_t datasize;
-
-public:
-	constString(const char * inputString, size_t stringSize):
-		data(inputString),
-		datasize(stringSize)
-	{
-	}
-
-	inline size_t size() const
-	{
-		return datasize;
-	};
-
-	inline const char& operator[] (size_t position)
-	{
-		assert (position < datasize);
-		return data[position];
-	}
-};
-
 //Internal class for string -> JsonNode conversion
 class JsonParser
 {
 	std::string errors;     // Contains description of all encountered errors
-	constString input;      // Input data
+	std::string_view input;      // Input data
 	ui32 lineCount; // Currently parsed line, starting from 1
 	size_t lineStart;       // Position of current line start
 	size_t pos;             // Current position of parser
