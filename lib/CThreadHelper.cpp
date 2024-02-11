@@ -55,10 +55,25 @@ void CThreadHelper::processTasks()
 	}
 }
 
-// set name for this thread.
-// NOTE: on *nix string will be trimmed to 16 symbols
+static thread_local std::string threadNameForLogging;
+
+std::string getThreadName()
+{
+	if (!threadNameForLogging.empty())
+		return threadNameForLogging;
+
+	return boost::lexical_cast<std::string>(boost::this_thread::get_id());
+}
+
+void setThreadNameLoggingOnly(const std::string &name)
+{
+	threadNameForLogging = name;
+}
+
 void setThreadName(const std::string &name)
 {
+	threadNameForLogging = name;
+
 #ifdef VCMI_WINDOWS
 #ifndef __GNUC__
 	//follows http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
@@ -90,7 +105,7 @@ void setThreadName(const std::string &name)
 //not supported
 #endif
 
-#elif defined(__linux__)
+#elif defined(VCMI_UNIX)
 	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #elif defined(VCMI_APPLE)
 	pthread_setname_np(name.c_str());

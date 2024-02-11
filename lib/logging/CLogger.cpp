@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CLogger.h"
+#include "../CThreadHelper.h"
 
 #ifdef VCMI_ANDROID
 #include <android/log.h>
@@ -427,8 +428,7 @@ void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { th
 CLogFileTarget::CLogFileTarget(const boost::filesystem::path & filePath, bool append):
 	file(filePath.c_str(), append ? std::ios_base::app : std::ios_base::out)
 {
-//	formatter.setPattern("%d %l %n [%t] - %m");
-	formatter.setPattern("%l %n [%t] - %m");
+	formatter.setPattern("[%c] %l %n [%t] - %m");
 }
 
 void CLogFileTarget::write(const LogRecord & record)
@@ -444,6 +444,16 @@ void CLogFileTarget::setFormatter(const CLogFormatter & formatter) { this->forma
 CLogFileTarget::~CLogFileTarget()
 {
 	file.close();
+}
+
+LogRecord::LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
+	: domain(domain),
+	level(level),
+	message(message),
+	timeStamp(boost::posix_time::microsec_clock::local_time()),
+	threadId(getThreadName())
+{
+
 }
 
 VCMI_LIB_NAMESPACE_END

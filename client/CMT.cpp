@@ -189,6 +189,7 @@ int main(int argc, char * argv[])
 	console->start();
 #endif
 
+	setThreadNameLoggingOnly("MainGUI");
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
@@ -397,7 +398,10 @@ void playIntro()
 
 static void mainLoop()
 {
+#ifndef VCMI_UNIX
+	// on Linux, name of main thread is also name of our process. Which we don't want to change
 	setThreadName("MainGUI");
+#endif
 
 	while(1) //main SDL events loop
 	{
