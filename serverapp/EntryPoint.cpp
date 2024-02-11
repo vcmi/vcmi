@@ -18,25 +18,24 @@
 
 #include <boost/program_options.hpp>
 
-const std::string SERVER_NAME_AFFIX = "server";
-const std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
+static const std::string SERVER_NAME_AFFIX = "server";
+static const std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
 
 static void handleCommandOptions(int argc, const char * argv[], boost::program_options::variables_map & options)
 {
-	namespace po = boost::program_options;
-	po::options_description opts("Allowed options");
+	boost::program_options::options_description opts("Allowed options");
 	opts.add_options()
 	("help,h", "display help and exit")
 	("version,v", "display version information and exit")
 	("run-by-client", "indicate that server launched by client on same machine")
-	("port", po::value<ui16>(), "port at which server will listen to connections from client")
+	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
 	("lobby", "start server in lobby mode in which server connects to a global lobby");
 
 	if(argc > 1)
 	{
 		try
 		{
-			po::store(po::parse_command_line(argc, argv, opts), options);
+			boost::program_options::store(boost::program_options::parse_command_line(argc, argv, opts), options);
 		}
 		catch(boost::program_options::error & e)
 		{
@@ -44,7 +43,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 		}
 	}
 
-	po::notify(options);
+	boost::program_options::notify(options);
 
 	if(options.count("help"))
 	{

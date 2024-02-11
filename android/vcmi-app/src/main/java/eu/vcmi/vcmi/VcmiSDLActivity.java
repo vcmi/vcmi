@@ -93,10 +93,6 @@ public class VcmiSDLActivity extends SDLActivity
     protected void onNewIntent(final Intent intent)
     {
         Log.i(this, "Got new intent with action " + intent.getAction());
-        if (NATIVE_ACTION_CREATE_SERVER.equals(intent.getAction()))
-        {
-            initService();
-        }
     }
 
     @Override

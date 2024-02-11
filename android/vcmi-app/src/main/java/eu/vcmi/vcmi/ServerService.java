@@ -58,15 +58,6 @@ public class ServerService extends Service
         void onClientRegistered(Messenger client);
     }
 
-    private static class ServerStartThread extends Thread
-    {
-        @Override
-        public void run()
-        {
-            NativeMethods.createServer();
-        }
-    }
-
     private static class IncomingClientMessageHandler extends Handler
     {
         private WeakReference<IncomingClientMessageHandlerCallback> mCallbackRef;
@@ -88,7 +79,6 @@ public class ServerService extends Service
                         callback.onClientRegistered(msg.replyTo);
                     }
                     NativeMethods.setupMsg(msg.replyTo);
-                    new ServerStartThread().start();
                     break;
                 default:
                     super.handleMessage(msg);
