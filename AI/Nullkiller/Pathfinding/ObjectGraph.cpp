@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "ObjectGraph.h"
 #include "AIPathfinderConfig.h"
+#include "../../../lib/CRandomGenerator.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
@@ -21,10 +22,10 @@ namespace NKAI
 void ObjectGraph::updateGraph(const Nullkiller * ai)
 {
 	auto cb = ai->cb;
-	auto mapSize = cb->getMapSize();
 
 	std::map<const CGHeroInstance *, HeroRole> actors;
 	std::map<const CGHeroInstance *, const CGObjectInstance *> actorObjectMap;
+	std::vector<CGBoat *> boats;
 
 	auto addObjectActor = [&](const CGObjectInstance * obj)
 	{
@@ -37,8 +38,14 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 		objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
 		objectActor->initObj(rng);
 
+		if(cb->getTile(visitablePos)->isWater())
+		{
+			boats.push_back(new CGBoat(objectActor->cb));
+			objectActor->boat = boats.back();
+		}
+
 		actorObjectMap[objectActor] = obj;
-		actors[objectActor] = obj->ID == Obj::TOWN ?  HeroRole::MAIN : HeroRole::SCOUT;
+		actors[objectActor] = obj->ID == Obj::TOWN || obj->ID == Obj::SHIPYARD ?  HeroRole::MAIN : HeroRole::SCOUT;
 		addObject(obj);
 	};
 
@@ -85,6 +92,17 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 					auto obj1 = actorObjectMap[path1.targetHero];
 					auto obj2 = actorObjectMap[path2.targetHero];
 
+					auto tile1 = cb->getTile(obj1->visitablePos());
+					auto tile2 = cb->getTile(obj2->visitablePos());
+
+					if(tile2->isWater() && !tile1->isWater())
+					{
+						auto linkTile = cb->getTile(pos);
+
+						if(!linkTile->isWater() || obj1->ID != Obj::BOAT || obj1->ID != Obj::SHIPYARD)
+							continue;
+					}
+
 					auto danger = ai->pathfinder->getStorage()->evaluateDanger(obj2->visitablePos(), path1.targetHero, true);
 
 					auto updated = nodes[obj1->visitablePos()].connections[obj2->visitablePos()].update(
@@ -108,9 +126,14 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 			}
 		});
 
-	for(auto h : actors)
+	for(auto h : actorObjectMap)
 	{
 		delete h.first;
+	}
+
+	for(auto boat : boats)
+	{
+		delete boat;
 	}
 
 #if NKAI_GRAPH_TRACE_LEVEL >= 1
@@ -121,6 +144,21 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 void ObjectGraph::addObject(const CGObjectInstance * obj)
 {
 	nodes[obj->visitablePos()].init(obj);
+}
+
+void ObjectGraph::removeObject(const CGObjectInstance * obj)
+{
+	nodes[obj->visitablePos()].objectExists = false;
+
+	if(obj->ID == Obj::BOAT)
+	{
+		vstd::erase_if(nodes[obj->visitablePos()].connections, [&](const std::pair<int3, ObjectLink> & link) -> bool
+			{
+				auto tile = cb->getTile(link.first, false);
+
+				return tile && tile->isWater();
+			});
+	}
 }
 
 void ObjectGraph::connectHeroes(const Nullkiller * ai)
@@ -170,7 +208,7 @@ void ObjectGraph::dumpToLog(std::string visualKey) const
 						node.second.danger);
 #endif
 
-					logBuilder.addLine(node.first, tile.first);
+					logBuilder.addLine(tile.first, node.first);
 				}
 			}
 		});
@@ -206,9 +244,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		graph.iterateConnections(pos.coord, [&](int3 target, ObjectLink o)
 			{
-				auto graphNode = graph.getNode(target);
 				auto targetNodeType = o.danger ? GrapthPathNodeType::BATTLE : pos.nodeType;
-
 				auto targetPointer = GraphPathNodePointer(target, targetNodeType);
 				auto & targetNode = getNode(targetPointer);
 

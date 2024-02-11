@@ -60,6 +60,7 @@ public:
 	void updateGraph(const Nullkiller * ai);
 	void addObject(const CGObjectInstance * obj);
 	void connectHeroes(const Nullkiller * ai);
+	void removeObject(const CGObjectInstance * obj);
 	void dumpToLog(std::string visualKey) const;
 
 	template<typename Func>

@@ -80,9 +80,12 @@ public:
 		auto pEnd = model->getTargetTileArea(end).topLeft();
 		auto viewPort = target.getRenderArea();
 
+		pStart.x += 3;
+		pEnd.x -= 3;
+
 		if(viewPort.isInside(pStart) && viewPort.isInside(pEnd))
 		{
-			target.drawLine(pStart, pEnd, ColorRGBA(255, 255, 0), ColorRGBA(255, 255, 0));
+			target.drawLine(pStart, pEnd, ColorRGBA(255, 255, 0), ColorRGBA(255, 0, 0));
 		}
 	}
 };
