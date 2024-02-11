@@ -8,6 +8,8 @@
 {
 	//Optional name - useful to have several template variations with same name
 	"name" : "Custom template name",
+	//Any info you want to be displayed in random map menu
+	"description" : "Detailed info and recommended rules",
 
 	/// Minimal and maximal size of the map. Possible formats:
 	/// Size code: s, m, l or xl for size with optional suffix "+u" for underground

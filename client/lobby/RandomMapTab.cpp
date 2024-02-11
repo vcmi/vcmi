@@ -177,6 +177,18 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->version = EMapFormat::VCMI;
 	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
+
+	const auto * temp = mapGenOptions->getMapTemplate();
+	if (temp)
+	{
+		auto randomTemplateDescription = temp->getDescription();
+		if (!randomTemplateDescription.empty())
+		{
+			auto description = std::string("\n\n") + randomTemplateDescription;
+			mapInfo->mapHeader->description.appendRawString(description);
+		}
+	}
+
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();

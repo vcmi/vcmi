@@ -541,6 +541,11 @@ const std::string & CRmgTemplate::getName() const
 	return name;
 }
 
+const std::string & CRmgTemplate::getDescription() const
+{
+	return description;
+}
+
 const std::string & CRmgTemplate::getId() const
 {
 	return id;
@@ -682,6 +687,7 @@ int CRmgTemplate::CPlayerCountRange::minValue() const
 void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
+	handler.serializeString("description", description);
 	serializeSize(handler, minSize, "minSize");
 	serializeSize(handler, maxSize, "maxSize");
 	serializePlayers(handler, players, "players");
