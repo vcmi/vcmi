@@ -204,7 +204,7 @@ public:
 	void setText(const std::string & nText, bool callCb);
 	void setHelpText(const std::string &);
 
-	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, bool giveFocusToInput = true);
+	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB, ETextAlignment alignment, bool giveFocusToInput);
 	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 

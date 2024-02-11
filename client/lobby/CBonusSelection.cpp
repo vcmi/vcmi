@@ -318,15 +318,12 @@ void CBonusSelection::createBonusesIcons()
 
 void CBonusSelection::updateAfterStateChange()
 {
-	if(CSH->state != EClientState::GAMEPLAY)
+	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
 		buttonRestart->disable();
 		buttonVideo->disable();
 		buttonStart->enable();
-		if(!getCampaign()->conqueredScenarios().empty())
-			buttonBack->block(true);
-		else
-			buttonBack->block(false);
+		buttonBack->block(!getCampaign()->conqueredScenarios().empty());
 	}
 	else
 	{
@@ -369,7 +366,7 @@ void CBonusSelection::updateAfterStateChange()
 
 void CBonusSelection::goBack()
 {
-	if(CSH->state != EClientState::GAMEPLAY)
+	if(CSH->getState() != EClientState::GAMEPLAY)
 	{
 		GH.windows().popWindows(2);
 	}

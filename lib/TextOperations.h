@@ -59,6 +59,9 @@ namespace TextOperations
 
 	/// get formatted DateTime depending on the language selected
 	DLL_LINKAGE std::string getFormattedDateTimeLocal(std::time_t dt);
+
+	/// get formatted time (without date)
+	DLL_LINKAGE std::string getFormattedTimeLocal(std::time_t dt);
 };
 
 

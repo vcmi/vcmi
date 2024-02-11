@@ -72,6 +72,10 @@ JsonNode::JsonNode(JsonType Type)
 	setType(Type);
 }
 
+JsonNode::JsonNode(const std::byte *data, size_t datasize)
+	:JsonNode(reinterpret_cast<const char*>(data), datasize)
+{}
+
 JsonNode::JsonNode(const char *data, size_t datasize)
 {
 	JsonParser parser(data, datasize);
@@ -415,6 +419,15 @@ const JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer) const
 JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 {
 	return ::resolvePointer(*this, jsonPointer);
+}
+
+std::vector<std::byte> JsonNode::toBytes(bool compact) const
+{
+	std::string jsonString = toJson(compact);
+	auto dataBegin = reinterpret_cast<const std::byte*>(jsonString.data());
+	auto dataEnd = dataBegin + jsonString.size();
+	std::vector<std::byte> result(dataBegin, dataEnd);
+	return result;
 }
 
 std::string JsonNode::toJson(bool compact) const

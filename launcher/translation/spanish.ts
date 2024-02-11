@@ -681,57 +681,29 @@ Pantalla completa - el juego cubrirá la totalidad de la pantalla y utilizará l
         <translation>Idioma de los datos de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="450"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="448"/>
         <source>Active</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="453"/>
         <source>Disabled</source>
         <translation>Desactivado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="456"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="454"/>
         <source>Enable</source>
         <translation>Activar</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="461"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="459"/>
         <source>Not Installed</source>
         <translation>No Instalado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="462"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="460"/>
         <source>Install</source>
         <translation>Instalar</translation>
-    </message>
-</context>
-<context>
-    <name>Chat</name>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="14"/>
-        <source>Form</source>
-        <translation>Formulario</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="40"/>
-        <source>Users in lobby</source>
-        <translation>Usuarios en la sala</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="50"/>
-        <source>Global chat</source>
-        <translation>Chat general</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="104"/>
-        <source>type you message</source>
-        <translation>Escribe tu mensaje</translation>
-    </message>
-    <message>
-        <location filename="../lobby/chat_moc.ui" line="111"/>
-        <source>send</source>
-        <translation>Enviar</translation>
     </message>
 </context>
 <context>
@@ -1048,118 +1020,6 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     </message>
 </context>
 <context>
-    <name>Lobby</name>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="42"/>
-        <location filename="../lobby/lobby_moc.cpp" line="403"/>
-        <source>Connect</source>
-        <translation>Conectar</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="29"/>
-        <source>Username</source>
-        <translation>Nombre de usuario</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="59"/>
-        <source>Server</source>
-        <translation>Servidor</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="173"/>
-        <source>Session</source>
-        <translation>Sesión</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="178"/>
-        <source>Players</source>
-        <translation>Jugadores</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="268"/>
-        <source>Resolve</source>
-        <translation>Resolver</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="280"/>
-        <source>New game</source>
-        <translation>Nueva partida</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="287"/>
-        <source>Load game</source>
-        <translation>Cargar partida</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="128"/>
-        <source>New room</source>
-        <translation>Nueva sala</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="138"/>
-        <source>Join room</source>
-        <translation>Unirse a la sala</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="261"/>
-        <source>Ready</source>
-        <translation>Listo</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="244"/>
-        <source>Mods mismatch</source>
-        <translation>No coinciden los mods</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="237"/>
-        <source>Leave</source>
-        <translation>Salir</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="210"/>
-        <source>Kick player</source>
-        <translation>Expulsar jugador</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.ui" line="230"/>
-        <source>Players in the room</source>
-        <translation>Jugadores en la sala</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="370"/>
-        <source>Disconnect</source>
-        <translation>Desconectar</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobby_moc.cpp" line="463"/>
-        <source>No issues detected</source>
-        <translation>No se han detectado problemas</translation>
-    </message>
-</context>
-<context>
-    <name>LobbyRoomRequest</name>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
-        <source>Room settings</source>
-        <translation>Configuración de la sala</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
-        <source>Room name</source>
-        <translation>Nombre de la sala</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="42"/>
-        <source>Maximum players</source>
-        <translation>Jugadores máximos</translation>
-    </message>
-    <message>
-        <location filename="../lobby/lobbyroomrequest_moc.ui" line="97"/>
-        <source>Password (optional)</source>
-        <translation>Contraseña (opcional)</translation>
-    </message>
-</context>
-<context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
@@ -1172,24 +1032,19 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="207"/>
+        <location filename="../mainwindow_moc.ui" line="157"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="276"/>
+        <location filename="../mainwindow_moc.ui" line="226"/>
         <source>Map Editor</source>
         <translation>Editor de Mapas</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="329"/>
+        <location filename="../mainwindow_moc.ui" line="279"/>
         <source>Start game</source>
         <translation>Iniciar juego</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow_moc.ui" line="157"/>
-        <source>Lobby</source>
-        <translation>Sala de Espera</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="57"/>

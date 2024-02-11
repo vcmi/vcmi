@@ -19,9 +19,13 @@
 #include "lobby/ExtraOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
+#include "globalLobby/GlobalLobbyWindow.h"
+#include "globalLobby/GlobalLobbyServerSetup.h"
+#include "globalLobby/GlobalLobbyClient.h"
 
 #include "CServerHandler.h"
 #include "CGameInfo.h"
+#include "Client.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
@@ -36,26 +40,50 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	result = false;
 
 	// Check if it's LobbyClientConnected for our client
-	if(pack.uuid == handler.c->uuid)
+	if(pack.uuid == handler.logicConnection->uuid)
 	{
-		handler.c->connectionID = pack.clientId;
+		handler.logicConnection->connectionID = pack.clientId;
 		if(handler.mapToStart)
+		{
 			handler.setMapInfo(handler.mapToStart);
+		}
 		else if(!settings["session"]["headless"].Bool())
-			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
-		handler.state = EClientState::LOBBY;
+		{
+			if (GH.windows().topWindow<CSimpleJoinScreen>())
+				GH.windows().popWindows(1);
+
+			if (!GH.windows().findWindows<GlobalLobbyServerSetup>().empty())
+			{
+				assert(handler.serverMode == EServerMode::LOBBY_HOST);
+				// announce opened game room
+				// TODO: find better approach?
+				int roomType = settings["lobby"]["roomType"].Integer();
+
+				if (roomType != 0)
+					handler.getGlobalLobby().sendOpenPrivateRoom();
+				else
+					handler.getGlobalLobby().sendOpenPublicRoom();
+			}
+
+			while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+			{
+				// if global lobby is open, pop all dialogs on top of it as well as lobby itself
+				GH.windows().popWindows(1);
+			}
+
+			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType);
+		}
+		handler.setState(EClientState::LOBBY);
 	}
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.clientId != handler.c->connectionID)
+	if(pack.clientId != handler.logicConnection->connectionID)
 	{
 		result = false;
 		return;
 	}
-
-	handler.stopServerConnection();
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
@@ -106,30 +134,31 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 	}
 }
 
-void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
-	if(handler.state == EClientState::GAMEPLAY)
-	{
-		handler.endGameplay(pack.closeConnection, pack.restart);
-	}
-	
-	if(pack.restart)
-	{
-		if (handler.validateGameStart())
-			handler.sendStartGame();
-	}
+	assert(handler.getState() == EClientState::GAMEPLAY);
+
+	handler.restartGameplay();
+	handler.sendStartGame();
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
+{
+	handler.client = std::make_unique<CClient>();
+	handler.logicConnection->enterLobbyConnectionMode();
+	handler.logicConnection->setCallback(handler.client.get());
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId != -1 && pack.clientId != handler.c->connectionID)
+	if(pack.clientId != -1 && pack.clientId != handler.logicConnection->connectionID)
 	{
 		result = false;
 		return;
 	}
 	
-	handler.state = EClientState::STARTING;
-	if(handler.si->mode != StartInfo::LOAD_GAME || pack.clientId == handler.c->connectionID)
+	handler.setState(EClientState::STARTING);
+	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.logicConnection->connectionID)
 	{
 		auto modeBackup = handler.si->mode;
 		handler.si = pack.initializedStartInfo;
@@ -174,7 +203,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	if(!lobby) //stub: ignore message for game mode
 		return;
 		
-	if(!lobby->bonusSel && handler.si->campState && handler.state == EClientState::LOBBY_CAMPAIGN)
+	if(!lobby->bonusSel && handler.si->campState && handler.getState() == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
 		GH.windows().pushWindow(lobby->bonusSel);

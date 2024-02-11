@@ -189,10 +189,10 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 
 	switch(scenarioOps->mode)
 	{
-	case StartInfo::NEW_GAME:
+	case EStartMode::NEW_GAME:
 		initNewGame(mapService, allowSavingRandomMap, progressTracking);
 		break;
-	case StartInfo::CAMPAIGN:
+	case EStartMode::CAMPAIGN:
 		initCampaign();
 		break;
 	default:
@@ -711,7 +711,7 @@ void CGameState::initFogOfWar()
 
 void CGameState::initStartingBonus()
 {
-	if (scenarioOps->mode == StartInfo::CAMPAIGN)
+	if (scenarioOps->mode == EStartMode::CAMPAIGN)
 		return;
 	// These are the single scenario bonuses; predefined
 	// campaign bonuses are spread out over other init* functions.

@@ -43,7 +43,6 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/serializer/Connection.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -769,7 +768,7 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 			mapInfo->saveInit(file);
 
 			// Filter out other game modes
-			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == StartInfo::CAMPAIGN;
+			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
 			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
 			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
 			switch(CSH->getLoadMode())

@@ -31,7 +31,8 @@ public:
 	void visitForLobby(CPackForLobby & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
-	void visitLobbyEndGame(LobbyEndGame & pack) override;
+	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
+	void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
@@ -53,7 +54,7 @@ public:
 	void visitForLobby(CPackForLobby & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
-	void visitLobbyEndGame(LobbyEndGame & pack) override;
+	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 };
@@ -81,7 +82,7 @@ public:
 	void visitLobbySetCampaign(LobbySetCampaign & pack) override;
 	void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) override;
 	void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) override;
-	void visitLobbyEndGame(LobbyEndGame & pack) override;
+	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;

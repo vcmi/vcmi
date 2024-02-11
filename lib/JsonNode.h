@@ -51,6 +51,7 @@ public:
 	JsonNode(JsonType Type = JsonType::DATA_NULL);
 	//Create tree from Json-formatted input
 	explicit JsonNode(const char * data, size_t datasize);
+	explicit JsonNode(const std::byte * data, size_t datasize);
 	//Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);
 	explicit JsonNode(const std::string & modName, const JsonPath & fileURI);
@@ -116,6 +117,7 @@ public:
 	const JsonNode & operator[](size_t  child) const;
 
 	std::string toJson(bool compact = false) const;
+	std::vector<std::byte> toBytes(bool compact = false) const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

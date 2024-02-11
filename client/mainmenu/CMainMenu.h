@@ -31,11 +31,11 @@ class CLabel;
 
 
 // TODO: Find new location for these enums
-enum ESelectionScreen : ui8 {
+enum class ESelectionScreen : ui8 {
 	unknown = 0, newGame, loadGame, saveGame, scenarioInfo, campaignList
 };
 
-enum ELoadMode : ui8
+enum class ELoadMode : ui8
 {
 	NONE = 0, SINGLE, MULTI, CAMPAIGN, TUTORIAL
 };
@@ -86,12 +86,14 @@ public:
 	std::shared_ptr<CPicture> picture;
 	std::shared_ptr<CTextInput> playerName;
 	std::shared_ptr<CButton> buttonHotseat;
+	std::shared_ptr<CButton> buttonLobby;
 	std::shared_ptr<CButton> buttonHost;
 	std::shared_ptr<CButton> buttonJoin;
 	std::shared_ptr<CButton> buttonCancel;
 	std::shared_ptr<CGStatusBar> statusBar;
 
 	CMultiMode(ESelectionScreen ScreenType);
+	void openLobby();
 	void hostTCP();
 	void joinTCP();
 	std::string getPlayerName();
@@ -148,7 +150,7 @@ public:
 	void activate() override;
 	void onScreenResize() override;
 	void update() override;
-	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode);
+	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode);
 	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
 	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
 	static void startTutorial();
@@ -175,8 +177,7 @@ class CSimpleJoinScreen : public WindowBase
 	void connectToServer();
 	void leaveScreen();
 	void onChange(const std::string & newText);
-	void startConnectThread(const std::string & addr = {}, ui16 port = 0);
-	void connectThread(const std::string & addr, ui16 port);
+	void startConnection(const std::string & addr = {}, ui16 port = 0);
 
 public:
 	CSimpleJoinScreen(bool host = true);

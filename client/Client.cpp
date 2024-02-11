@@ -30,11 +30,12 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/serializer/BinaryDeserializer.h"
+#include "../lib/serializer/BinarySerializer.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/registerTypes/RegisterTypesClientPacks.h"
-#include "../lib/serializer/Connection.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>
@@ -297,7 +298,7 @@ void CClient::serialize(BinaryDeserializer & h)
 
 		bool shouldResetInterface = true;
 		// Client no longer handle this player at all
-		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), pid))
+		if(!vstd::contains(CSH->getAllClientPlayers(CSH->logicConnection->connectionID), pid))
 		{
 			logGlobal->trace("Player %s is not belong to this client. Destroying interface", pid);
 		}
@@ -397,7 +398,7 @@ void CClient::initPlayerEnvironments()
 {
 	playerEnvironments.clear();
 
-	auto allPlayers = CSH->getAllClientPlayers(CSH->c->connectionID);
+	auto allPlayers = CSH->getAllClientPlayers(CSH->logicConnection->connectionID);
 	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
@@ -427,7 +428,7 @@ void CClient::initPlayerInterfaces()
 	for(auto & playerInfo : gs->scenarioOps->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
-		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), color))
+		if(!vstd::contains(CSH->getAllClientPlayers(CSH->logicConnection->connectionID), color))
 			continue;
 
 		if(!vstd::contains(playerint, color))
@@ -457,7 +458,7 @@ void CClient::initPlayerInterfaces()
 		installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
 	}
 
-	if(CSH->getAllClientPlayers(CSH->c->connectionID).count(PlayerColor::NEUTRAL))
+	if(CSH->getAllClientPlayers(CSH->logicConnection->connectionID).count(PlayerColor::NEUTRAL))
 		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String()), PlayerColor::NEUTRAL);
 
 	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
@@ -520,7 +521,6 @@ void CClient::handlePack(CPack * pack)
 	CBaseForCLApply * apply = applier->getApplier(CTypeList::getInstance().getTypeID(pack)); //find the applier
 	if(apply)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 		apply->applyOnClBefore(this, pack);
 		logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 		gs->apply(pack);
@@ -545,7 +545,7 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 	waitingRequest.pushBack(requestID);
 	request->requestID = requestID;
 	request->player = player;
-	CSH->c->sendPack(request);
+	CSH->logicConnection->sendPack(request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(request, requestID);
 

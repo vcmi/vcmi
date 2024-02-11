@@ -20,11 +20,11 @@
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/battle/IBattleState.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
