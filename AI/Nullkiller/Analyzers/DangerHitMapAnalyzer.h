@@ -18,7 +18,7 @@ struct AIPath;
 
 struct HitMapInfo
 {
-	static HitMapInfo NoThreat;
+	static const HitMapInfo NoThreat;
 
 	uint64_t danger;
 	uint8_t turn;

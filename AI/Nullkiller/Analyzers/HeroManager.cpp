@@ -17,7 +17,7 @@
 namespace NKAI
 {
 
-SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(
+const SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
 			std::map<SecondarySkill, float>
@@ -46,7 +46,7 @@ SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluato
 		std::make_shared<AtLeastOneMagicRule>()
 	});
 
-SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEvaluator(
+const SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
 			std::map<SecondarySkill, float>
@@ -332,7 +332,7 @@ void WisdomRule::evaluateScore(const CGHeroInstance * hero, SecondarySkill skill
 		score += 1.5;
 }
 
-std::vector<SecondarySkill> AtLeastOneMagicRule::magicSchools = {
+const std::vector<SecondarySkill> AtLeastOneMagicRule::magicSchools = {
 	SecondarySkill::AIR_MAGIC,
 	SecondarySkill::EARTH_MAGIC,
 	SecondarySkill::FIRE_MAGIC,

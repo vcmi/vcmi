@@ -2,7 +2,6 @@ set(battleAI_SRCS
 		AttackPossibility.cpp
 		BattleAI.cpp
 		BattleEvaluator.cpp
-		common.cpp
 		EnemyInfo.cpp
 		PossibleSpellcast.cpp
 		PotentialTargets.cpp
@@ -17,7 +16,6 @@ set(battleAI_HEADERS
 		AttackPossibility.h
 		BattleAI.h
 		BattleEvaluator.h
-		common.h
 		EnemyInfo.h
 		PotentialTargets.h
 		PossibleSpellcast.h

@@ -56,7 +56,6 @@ namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
 static std::atomic<bool> quitRequestedDuringOpeningPlayback = false;
-static po::variables_map vm;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
@@ -118,6 +117,8 @@ int main(int argc, char * argv[])
 #endif
 	std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
+	po::variables_map vm;
+
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")

@@ -30,7 +30,7 @@ class CMapGenerator;
 class Modificator;
 class CRandomGenerator;
 
-extern std::function<bool(const int3 &)> AREA_NO_FILTER;
+extern const std::function<bool(const int3 &)> AREA_NO_FILTER;
 
 typedef std::list<std::shared_ptr<Modificator>> TModificators;
 

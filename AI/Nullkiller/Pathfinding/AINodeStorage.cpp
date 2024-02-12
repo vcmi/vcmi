@@ -332,7 +332,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
-EPathfindingLayer phisycalLayers[2] = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
+constexpr std::array phisycalLayers = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
 
 bool AINodeStorage::increaseHeroChainTurnLimit()
 {
