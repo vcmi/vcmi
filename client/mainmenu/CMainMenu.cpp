@@ -278,9 +278,9 @@ CMainMenuConfig::CMainMenuConfig()
 
 }
 
-CMainMenuConfig & CMainMenuConfig::get()
+const CMainMenuConfig & CMainMenuConfig::get()
 {
-	static CMainMenuConfig config;
+	static const CMainMenuConfig config;
 	return config;
 }
 

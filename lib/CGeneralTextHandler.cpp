@@ -502,7 +502,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 
-	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
+	static const std::string QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
 	if (CResourceHandler::get()->existsResource(TextPath::builtin(QE_MOD_COMMANDS)))
 		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 

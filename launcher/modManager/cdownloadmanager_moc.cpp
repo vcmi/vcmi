@@ -54,9 +54,7 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
 		if(entry.reply == reply)
 			return entry;
 	}
-	assert(0);
-	static FileEntry errorValue;
-	return errorValue;
+	throw std::runtime_error("Failed to find download entry");
 }
 
 void CDownloadManager::downloadFinished(QNetworkReply * reply)

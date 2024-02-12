@@ -161,7 +161,7 @@ DefFile::DefFile(std::string Name):
 	#endif // 0
 
 	//First 8 colors in def palette used for transparency
-	static QRgb H3Palette[8] =
+	constexpr std::array H3Palette =
 	{
 		qRgba(0, 0, 0,   0), // 100% - transparency
 		qRgba(0, 0, 0,  32), //  75% - shadow border,

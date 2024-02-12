@@ -76,7 +76,7 @@ void CPuzzleWindow::showAll(Canvas & to)
 
 void CPuzzleWindow::show(Canvas & to)
 {
-	static int animSpeed = 2;
+	constexpr int animSpeed = 2;
 
 	if(currentAlpha < animSpeed)
 	{

@@ -137,7 +137,7 @@ void CBonusSelection::createBonusesIcons()
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
 
-	static const char * bonusPics[] =
+	constexpr std::array bonusPics =
 	{
 		"SPELLBON.DEF",	// Spell
 		"TWCRPORT.DEF", // Monster
