@@ -59,7 +59,7 @@ template <typename T> class CApplyOnGS;
 class CBaseForGSApply
 {
 public:
-	virtual void applyOnGS(CGameState *gs, void *pack) const =0;
+	virtual void applyOnGS(CGameState *gs, CPack * pack) const =0;
 	virtual ~CBaseForGSApply() = default;
 	template<typename U> static CBaseForGSApply *getApplier(const U * t=nullptr)
 	{
@@ -70,7 +70,7 @@ public:
 template <typename T> class CApplyOnGS : public CBaseForGSApply
 {
 public:
-	void applyOnGS(CGameState *gs, void *pack) const override
+	void applyOnGS(CGameState *gs, CPack * pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 

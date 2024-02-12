@@ -82,7 +82,7 @@ template <typename T> class CApplyOnGH;
 class CBaseForGHApply
 {
 public:
-	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const =0;
+	virtual bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const =0;
 	virtual ~CBaseForGHApply(){}
 	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
 	{
@@ -93,7 +93,7 @@ public:
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const override
+	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		try
@@ -116,7 +116,7 @@ template <>
 class CApplyOnGH<CPack> : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler * gh, CGameState * gs, void * pack) const override
+	bool applyOnGH(CGameHandler * gh, CGameState * gs, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply on GH plain CPack!");
 		assert(0);

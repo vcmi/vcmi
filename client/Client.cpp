@@ -59,8 +59,8 @@ template<typename T> class CApplyOnCL;
 class CBaseForCLApply
 {
 public:
-	virtual void applyOnClAfter(CClient * cl, void * pack) const =0;
-	virtual void applyOnClBefore(CClient * cl, void * pack) const =0;
+	virtual void applyOnClAfter(CClient * cl, CPack * pack) const =0;
+	virtual void applyOnClBefore(CClient * cl, CPack * pack) const =0;
 	virtual ~CBaseForCLApply(){}
 
 	template<typename U> static CBaseForCLApply * getApplier(const U * t = nullptr)
@@ -72,13 +72,13 @@ public:
 template<typename T> class CApplyOnCL : public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient * cl, void * pack) const override
+	void applyOnClAfter(CClient * cl, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ApplyClientNetPackVisitor visitor(*cl, *cl->gameState());
 		ptr->visit(visitor);
 	}
-	void applyOnClBefore(CClient * cl, void * pack) const override
+	void applyOnClBefore(CClient * cl, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ApplyFirstClientNetPackVisitor visitor(*cl, *cl->gameState());
@@ -89,12 +89,12 @@ public:
 template<> class CApplyOnCL<CPack>: public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient * cl, void * pack) const override
+	void applyOnClAfter(CClient * cl, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply on CL plain CPack!");
 		assert(0);
 	}
-	void applyOnClBefore(CClient * cl, void * pack) const override
+	void applyOnClBefore(CClient * cl, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply on CL plain CPack!");
 		assert(0);
