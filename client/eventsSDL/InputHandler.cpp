@@ -304,7 +304,7 @@ void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 	auto heapFunctor = new std::function<void()>(functor);
 
 	SDL_Event event;
-	event.type = SDL_USEREVENT;
+	event.user.type = SDL_USEREVENT;
 	event.user.code = 0;
 	event.user.data1 = static_cast <void*>(heapFunctor);
 	event.user.data2 = nullptr;
