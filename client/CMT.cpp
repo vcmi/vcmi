@@ -201,17 +201,17 @@ int main(int argc, char * argv[])
 	preinitDLL(::console, false);
 
 	Settings session = settings.write["session"];
-	auto setSettingBool = [](std::string key, std::string arg) {
+	auto setSettingBool = [&](std::string key, std::string arg) {
 		Settings s = settings.write(vstd::split(key, "/"));
-		if(::vm.count(arg))
+		if(vm.count(arg))
 			s->Bool() = true;
 		else if(s->isNull())
 			s->Bool() = false;
 	};
-	auto setSettingInteger = [](std::string key, std::string arg, si64 defaultValue) {
+	auto setSettingInteger = [&](std::string key, std::string arg, si64 defaultValue) {
 		Settings s = settings.write(vstd::split(key, "/"));
-		if(::vm.count(arg))
-			s->Integer() = ::vm[arg].as<si64>();
+		if(vm.count(arg))
+			s->Integer() = vm[arg].as<si64>();
 		else if(s->isNull())
 			s->Integer() = defaultValue;
 	};
