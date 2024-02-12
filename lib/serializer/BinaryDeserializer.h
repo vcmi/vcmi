@@ -315,7 +315,7 @@ public:
 	void ptrAllocated(const T *ptr, ui32 pid)
 	{
 		if(smartPointerSerialization && pid != 0xffffffff)
-			loadedPointers[pid] = static_cast<void*>(ptr); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
+			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
