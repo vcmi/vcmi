@@ -206,8 +206,8 @@ void ApplyOnServerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
-	for(const auto & c : srv.activeConnections)
-		c->enterLobbyConnectionMode();
+	for(const auto & connection : srv.activeConnections)
+		connection->enterLobbyConnectionMode();
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
@@ -250,11 +250,11 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGam
 		srv.startGameImmediately();
 	else
 	{
-		for(const auto & c : srv.activeConnections)
+		for(const auto & connection : srv.activeConnections)
 		{
-			if(c->connectionID == pack.clientId)
+			if(connection->connectionID == pack.clientId)
 			{
-				c->enterGameplayConnectionMode(srv.gh->gameState());
+				connection->enterGameplayConnectionMode(srv.gh->gameState());
 				srv.reconnectPlayer(pack.clientId);
 			}
 		}

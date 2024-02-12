@@ -22,7 +22,7 @@ bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 	if(accountName.size() < 4)
 		return false;
 
-	if(accountName.size() < 20)
+	if(accountName.size() > 20)
 		return false;
 
 	for(const auto & c : accountName)
