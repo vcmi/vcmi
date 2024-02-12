@@ -64,7 +64,7 @@ struct DLL_LINKAGE Query : public CPackForClient
 struct DLL_LINKAGE CPackForServer : public CPack
 {
 	mutable PlayerColor player = PlayerColor::NEUTRAL;
-	mutable si32 requestID;
+	mutable uint32_t requestID = 0;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

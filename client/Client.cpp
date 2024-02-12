@@ -537,7 +537,7 @@ void CClient::handlePack(CPack * pack)
 
 int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 {
-	static ui32 requestCounter = 0;
+	static ui32 requestCounter = 1;
 
 	ui32 requestID = requestCounter++;
 	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(*request).name(), requestID);
