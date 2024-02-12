@@ -108,9 +108,14 @@ public:
 
 CServerHandler::~CServerHandler()
 {
+	if (serverRunner)
+		serverRunner->shutdown();
 	networkHandler->stop();
 	try
 	{
+		if (serverRunner)
+			serverRunner->wait();
+		serverRunner.reset();
 		threadNetwork.join();
 	}
 	catch (const std::runtime_error & e)
