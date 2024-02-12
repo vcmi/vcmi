@@ -84,19 +84,13 @@ public:
 
 	constexpr bool operator<(const int3 & i) const
 	{
-		if (z < i.z)
-			return true;
-		if (z > i.z)
-			return false;
-		if (y < i.y)
-			return true;
-		if (y > i.y)
-			return false;
-		if (x < i.x)
-			return true;
-		if (x > i.x)
-			return false;
-		return false;
+		if (z != i.z)
+			return z < i.z;
+
+		if (y != i.y)
+			return y < i.y;
+
+		return x < i.x;
 	}
 
 	enum EDistanceFormula

@@ -126,12 +126,8 @@ public:
 			return true;
 		if (y>i.y)
 			return false;
-		if (x<i.x)
-			return true;
-		if (x>i.x)
-			return false;
 
-		return false;
+		return x<i.x;
 	}
 
 	std::string toString() const
