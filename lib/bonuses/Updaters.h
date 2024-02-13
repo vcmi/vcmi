@@ -48,7 +48,7 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
+	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
 
@@ -61,7 +61,7 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
+	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
 
@@ -74,7 +74,7 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
+	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
 
@@ -97,7 +97,7 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
-	virtual std::string toString() const override;
+	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
 
@@ -110,7 +110,7 @@ public:
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
-	virtual std::string toString() const override;
+	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
 

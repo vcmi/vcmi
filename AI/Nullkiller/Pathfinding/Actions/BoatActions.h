@@ -38,7 +38,7 @@ namespace AIPathfinding
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 
 	private:
 		int32_t getManaCost(const CGHeroInstance * hero) const;
@@ -60,11 +60,11 @@ namespace AIPathfinding
 
 		void execute(const CGHeroInstance * hero) const override;
 
-		virtual Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
+		Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 
 		const CGObjectInstance * targetObject() const override;
 	};

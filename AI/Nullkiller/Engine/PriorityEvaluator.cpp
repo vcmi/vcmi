@@ -702,7 +702,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 class HeroExchangeEvaluator : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::HERO_EXCHANGE)
 			return;
@@ -719,7 +719,7 @@ public:
 class ArmyUpgradeEvaluator : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::ARMY_UPGRADE)
 			return;
@@ -736,7 +736,7 @@ public:
 class StayAtTownManaRecoveryEvaluator : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::STAY_AT_TOWN)
 			return;
@@ -771,7 +771,7 @@ void addTileDanger(EvaluationContext & evaluationContext, const int3 & tile, uin
 class DefendTownEvaluator : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::DEFEND_TOWN)
 			return;
@@ -821,7 +821,7 @@ private:
 public:
 	ExecuteHeroChainEvaluationContextBuilder(const Nullkiller * ai) : ai(ai) {}
 
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::EXECUTE_HERO_CHAIN)
 			return;
@@ -879,7 +879,7 @@ class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
 public:
 	ClusterEvaluationContextBuilder(const Nullkiller * ai) {}
 
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::UNLOCK_CLUSTER)
 			return;
@@ -926,7 +926,7 @@ public:
 class ExchangeSwapTownHeroesContextBuilder : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::EXCHANGE_SWAP_TOWN_HEROES)
 			return;
@@ -954,7 +954,7 @@ private:
 public:
 	DismissHeroContextBuilder(const Nullkiller * ai) : ai(ai) {}
 
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::DISMISS_HERO)
 			return;
@@ -974,7 +974,7 @@ public:
 class BuildThisEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
-	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::BUILD_STRUCTURE)
 			return;

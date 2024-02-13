@@ -40,7 +40,7 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
+		Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,
@@ -66,6 +66,6 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
+		Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
 	};
 }

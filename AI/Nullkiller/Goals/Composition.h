@@ -27,7 +27,7 @@ namespace Goals
 		}
 
 		bool operator==(const Composition & other) const override;
-		virtual std::string toString() const override;
+		std::string toString() const override;
 		void accept(AIGateway * ai) override;
 		Composition & addNext(const AbstractGoal & goal);
 		Composition & addNext(TSubgoal goal);

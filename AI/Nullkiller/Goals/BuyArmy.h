@@ -38,7 +38,7 @@ namespace Goals
 
 		bool operator==(const BuyArmy & other) const override;
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 
 		void accept(AIGateway * ai) override;
 	};

@@ -34,7 +34,7 @@ public:
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 	virtual ~NodeStorage() = default;
 
-	virtual std::vector<CGPathNode *> getInitialNodes() override;
+	std::vector<CGPathNode *> getInitialNodes() override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,
