@@ -632,7 +632,8 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto topObj = objects.front()->id == hero->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
-				auto ratio = (float)nullkiller->dangerEvaluator->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
+				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, hero.get());
+				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
 
 				answer = topObj->id == goalObjectID; // no if we do not aim to visit this object
 				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name, ratio);
@@ -648,7 +649,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				}
 				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
 				{
-					bool dangerUnknown = ratio == 0;
+					bool dangerUnknown = danger == 0;
 					bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
 
 					answer = !dangerUnknown && !dangerTooHigh;

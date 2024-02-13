@@ -270,7 +270,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 	{
 		float score = evaluateExchange(ap, 0, targets, damageCache, hb);
 
-		if(score > result.score || (score == result.score && result.wait))
+		if(score > result.score || (vstd::isAlmostEqual(score, result.score) && result.wait))
 		{
 			result.score = score;
 			result.bestAttack = ap;

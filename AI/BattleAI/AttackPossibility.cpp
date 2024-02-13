@@ -62,16 +62,12 @@ void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int sid
 
 int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
 {
-	auto damage = damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
+	bool wasComputedBefore = damageCache[attacker->unitId()].count(defender->unitId());
 
-	if(damage == 0)
-	{
+	if (!wasComputedBefore)
 		cacheDamage(attacker, defender, hb);
 
-		damage = damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
-	}
-
-	return static_cast<int64_t>(damage);
+	return damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
 }
 
 int64_t DamageCache::getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)

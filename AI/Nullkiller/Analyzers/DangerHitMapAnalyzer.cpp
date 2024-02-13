@@ -226,7 +226,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 				}
 			}
 
-			if(ourDistance == enemyDistance)
+			if(vstd::isAlmostEqual(ourDistance, enemyDistance))
 			{
 				hitMap[pos.x][pos.y][pos.z].closestTown = nullptr;
 			}

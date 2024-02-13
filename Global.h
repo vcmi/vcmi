@@ -685,6 +685,19 @@ namespace vstd
 		return a + (b - a) * f;
 	}
 
+	template<typename Floating>
+	bool isAlmostZero(const Floating & value)
+	{
+		constexpr Floating epsilon(0.00001);
+		return std::abs(value) < epsilon;
+	}
+
+	template<typename Floating1, typename Floating2>
+	bool isAlmostEqual(const Floating1 & left, const Floating2 & right)
+	{
+		return isAlmostZero(left - right);
+	}
+
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr
 	static constexpr int abs(int i) {
 		if(i < 0) return -i;

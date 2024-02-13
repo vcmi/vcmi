@@ -844,8 +844,8 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 	missile["attackClimaxFrame"].Float() = parser.readNumber();
 
 	// assume that creature is not a shooter and should not have whole missile field
-	if (missile["frameAngles"].Vector()[0].Float() == 0 &&
-	    missile["attackClimaxFrame"].Float() == 0)
+	if (missile["frameAngles"].Vector()[0].Integer() == 0 &&
+		missile["attackClimaxFrame"].Integer() == 0)
 		graphics.Struct().erase("missile");
 }
 
@@ -987,10 +987,10 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			int lastVal = 0;
 			for (const JsonNode &val : values)
 			{
-				if (val.Float() != lastVal)
+				if (val.Integer() != lastVal)
 				{
 					JsonNode bonusInput = exp["bonus"];
-					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
+					bonusInput["val"].Float() = val.Integer() - lastVal;
 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;

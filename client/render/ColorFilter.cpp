@@ -41,10 +41,10 @@ bool ColorFilter::operator != (const ColorFilter & other) const
 bool ColorFilter::operator == (const ColorFilter & other) const
 {
 	return
-		r.r == other.r.r && r.g && other.r.g && r.b == other.r.b && r.a == other.r.a &&
-		g.r == other.g.r && g.g && other.g.g && g.b == other.g.b && g.a == other.g.a &&
-		b.r == other.b.r && b.g && other.b.g && b.b == other.b.b && b.a == other.b.a &&
-		a == other.a;
+		vstd::isAlmostEqual(r.r, other.r.r) && vstd::isAlmostEqual(r.g, other.r.g) && vstd::isAlmostEqual(r.b, other.r.b) && vstd::isAlmostEqual(r.a, other.r.a) &&
+		vstd::isAlmostEqual(g.r, other.g.r) && vstd::isAlmostEqual(g.g, other.g.g) && vstd::isAlmostEqual(g.b, other.g.b) && vstd::isAlmostEqual(g.a, other.g.a) &&
+		vstd::isAlmostEqual(b.r, other.b.r) && vstd::isAlmostEqual(b.g, other.b.g) && vstd::isAlmostEqual(b.b, other.b.b) && vstd::isAlmostEqual(b.a, other.b.a) &&
+		vstd::isAlmostEqual(a, other.a);
 }
 
 ColorFilter ColorFilter::genEmptyShifter( )
