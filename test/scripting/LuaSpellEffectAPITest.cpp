@@ -84,8 +84,8 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnLeftSideOfField)
 	BattleHex hex(2,2);
 
 	JsonNode first;
-	first.Vector().push_back(JsonNode(hex.hex));
-	first.Vector().push_back(JsonNode());
+	first.Vector().emplace_back(hex.hex);
+	first.Vector().emplace_back();
 
 	JsonNode targets;
 	targets.Vector().push_back(first);

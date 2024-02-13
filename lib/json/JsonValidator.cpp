@@ -81,7 +81,7 @@ namespace
 
 		std::string allOfCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			return schemaListCheck(validator, baseSchema, schema, data, "Failed to pass all schemas", [&](size_t count)
+			return schemaListCheck(validator, baseSchema, schema, data, "Failed to pass all schemas", [&schema](size_t count)
 			{
 				return count == schema.Vector().size();
 			});
@@ -89,7 +89,7 @@ namespace
 
 		std::string anyOfCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			return schemaListCheck(validator, baseSchema, schema, data, "Failed to pass any schema", [&](size_t count)
+			return schemaListCheck(validator, baseSchema, schema, data, "Failed to pass any schema", [](size_t count)
 			{
 				return count > 0;
 			});
@@ -97,7 +97,7 @@ namespace
 
 		std::string oneOfCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			return schemaListCheck(validator, baseSchema, schema, data, "Failed to pass exactly one schema", [&](size_t count)
+			return schemaListCheck(validator, baseSchema, schema, data, "Failed to pass exactly one schema", [](size_t count)
 			{
 				return count == 1;
 			});
@@ -228,7 +228,7 @@ namespace
 
 		std::string multipleOfCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			double result = data.Float() / schema.Float();
+			double result = data.Integer() / schema.Integer();
 			if (!vstd::isAlmostEqual(floor(result), result))
 				return validator.makeErrorMessage((boost::format("Value is not divisible by %d") % schema.Float()).str());
 			return "";
@@ -241,7 +241,7 @@ namespace
 		{
 			validator.currentPath.emplace_back();
 			validator.currentPath.back().Float() = static_cast<double>(index);
-			auto onExit = vstd::makeScopeGuard([&]()
+			auto onExit = vstd::makeScopeGuard([&validator]()
 			{
 				validator.currentPath.pop_back();
 			});
@@ -390,7 +390,7 @@ namespace
 		{
 			validator.currentPath.emplace_back();
 			validator.currentPath.back().String() = nodeName;
-			auto onExit = vstd::makeScopeGuard([&]()
+			auto onExit = vstd::makeScopeGuard([&validator]()
 			{
 				validator.currentPath.pop_back();
 			});
@@ -531,6 +531,9 @@ namespace
 		ret["title"] = Common::emptyCheck;
 		ret["$schema"] = Common::emptyCheck;
 		ret["default"] = Common::emptyCheck;
+		ret["defaultIOS"] = Common::emptyCheck;
+		ret["defaultAndroid"] = Common::emptyCheck;
+		ret["defaultWindows"] = Common::emptyCheck;
 		ret["description"] = Common::emptyCheck;
 		ret["definitions"] = Common::emptyCheck;
 
@@ -643,7 +646,7 @@ namespace Validation
 	std::string check(const std::string & schemaName, const JsonNode & data, ValidationData & validator)
 	{
 		validator.usedSchemas.push_back(schemaName);
-		auto onscopeExit = vstd::makeScopeGuard([&]()
+		auto onscopeExit = vstd::makeScopeGuard([&validator]()
 		{
 			validator.usedSchemas.pop_back();
 		});
@@ -659,8 +662,6 @@ namespace Validation
 			auto checker = knownFields.find(entry.first);
 			if (checker != knownFields.end())
 				errors += checker->second(validator, schema, entry.second, data);
-			//else
-			//	errors += validator.makeErrorMessage("Unknown entry in schema " + entry.first);
 		}
 		return errors;
 	}
@@ -687,7 +688,7 @@ namespace Validation
 
 	const TFormatMap & getKnownFormats()
 	{
-		static TFormatMap knownFormats = createFormatMap();
+		static const TFormatMap knownFormats = createFormatMap();
 		return knownFormats;
 	}
 

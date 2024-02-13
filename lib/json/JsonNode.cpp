@@ -15,8 +15,6 @@
 #include "JsonWriter.h"
 #include "filesystem/Filesystem.h"
 
-namespace
-{
 // to avoid duplicating const and non-const code
 template<typename Node>
 Node & resolvePointer(Node & in, const std::string & pointer)
@@ -45,14 +43,13 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 	}
 	return in[entry].resolvePointer(remainer);
 }
-}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+static const JsonNode nullNode;
+
 class LibClasses;
 class CModHandler;
-
-static const JsonNode nullNode;
 
 JsonNode::JsonNode(bool boolean)
 	: data(boolean)
@@ -91,15 +88,20 @@ JsonNode::JsonNode(const std::byte * data, size_t datasize)
 
 JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings)
 {
-	JsonParser parser(reinterpret_cast<const char *>(data), datasize, parserSettings);
+	JsonParser parser(data, datasize, parserSettings);
 	*this = parser.parse("<unknown>");
 }
 
 JsonNode::JsonNode(const JsonPath & fileURI)
+	:JsonNode(fileURI, JsonParsingSettings())
+{
+}
+
+JsonNode::JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<char *>(file.first.get()), file.second, JsonParsingSettings());
+	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, parserSettings);
 	*this = parser.parse(fileURI.getName());
 }
 
@@ -107,7 +109,7 @@ JsonNode::JsonNode(const JsonPath & fileURI, const std::string & idx)
 {
 	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<char *>(file.first.get()), file.second, JsonParsingSettings());
+	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 }
 
@@ -115,7 +117,7 @@ JsonNode::JsonNode(const JsonPath & fileURI, bool & isValidSyntax)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<char *>(file.first.get()), file.second, JsonParsingSettings());
+	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 	isValidSyntax = parser.isValid();
 }
@@ -206,7 +208,7 @@ void JsonNode::setType(JsonType Type)
 			data = JsonData(false);
 			break;
 		case JsonType::DATA_FLOAT:
-			data = JsonData(static_cast<double>(0.0));
+			data = JsonData(0.0);
 			break;
 		case JsonType::DATA_STRING:
 			data = JsonData(std::string());
@@ -355,9 +357,10 @@ JsonMap & JsonNode::Struct()
 	return std::get<JsonMap>(data);
 }
 
-const bool boolDefault = false;
 bool JsonNode::Bool() const
 {
+	static const bool boolDefault = false;
+
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_BOOL);
 
 	if(getType() == JsonType::DATA_BOOL)
@@ -366,9 +369,10 @@ bool JsonNode::Bool() const
 	return boolDefault;
 }
 
-const double floatDefault = 0;
 double JsonNode::Float() const
 {
+	static const double floatDefault = 0;
+
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT);
 
 	if(getType() == JsonType::DATA_FLOAT)
@@ -380,9 +384,10 @@ double JsonNode::Float() const
 	return floatDefault;
 }
 
-const si64 integerDefault = 0;
 si64 JsonNode::Integer() const
 {
+	static const si64 integerDefault = 0;
+
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT);
 
 	if(getType() == JsonType::DATA_INTEGER)
@@ -394,9 +399,10 @@ si64 JsonNode::Integer() const
 	return integerDefault;
 }
 
-const std::string stringDefault = std::string();
 const std::string & JsonNode::String() const
 {
+	static const std::string stringDefault = std::string();
+
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRING);
 
 	if(getType() == JsonType::DATA_STRING)
@@ -405,9 +411,10 @@ const std::string & JsonNode::String() const
 	return stringDefault;
 }
 
-const JsonVector vectorDefault = JsonVector();
 const JsonVector & JsonNode::Vector() const
 {
+	static const JsonVector vectorDefault = JsonVector();
+
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_VECTOR);
 
 	if(getType() == JsonType::DATA_VECTOR)
@@ -416,9 +423,10 @@ const JsonVector & JsonNode::Vector() const
 	return vectorDefault;
 }
 
-const JsonMap mapDefault = JsonMap();
 const JsonMap & JsonNode::Struct() const
 {
+	static const JsonMap mapDefault = JsonMap();
+
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRUCT);
 
 	if(getType() == JsonType::DATA_STRUCT)

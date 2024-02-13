@@ -354,7 +354,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 			JsonVector & data = node["allowedTerrains"].Vector();
 
 			for(auto type : allowedTerrains)
-				data.push_back(JsonNode(VLC->terrainTypeHandler->getById(type)->getJsonKey()));
+				data.emplace_back(VLC->terrainTypeHandler->getById(type)->getJsonKey());
 		}
 	}
 

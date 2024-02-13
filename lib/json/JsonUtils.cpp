@@ -13,18 +13,7 @@
 
 #include "JsonValidator.h"
 
-#include "../ScopeGuard.h"
-#include "../bonuses/BonusParams.h"
-#include "../bonuses/Bonus.h"
-#include "../bonuses/Limiters.h"
-#include "../bonuses/Propagators.h"
-#include "../bonuses/Updaters.h"
 #include "../filesystem/Filesystem.h"
-#include "../modding/IdentifierStorage.h"
-#include "../VCMI_Lib.h" //for identifier resolution
-#include "../CGeneralTextHandler.h"
-#include "../constants/StringConstants.h"
-#include "../battle/BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

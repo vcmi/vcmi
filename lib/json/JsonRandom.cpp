@@ -235,9 +235,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 					filteredAnyOf.insert(subset.begin(), subset.end());
 				}
 
-				vstd::erase_if(filteredTypes, [&](const IdentifierType & value)
+				vstd::erase_if(filteredTypes, [&filteredAnyOf](const IdentifierType & filteredValue)
 				{
-					return filteredAnyOf.count(value) == 0;
+					return filteredAnyOf.count(filteredValue) == 0;
 				});
 			}
 

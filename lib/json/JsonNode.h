@@ -76,6 +76,7 @@ public:
 
 	/// Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);
+	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings);
 	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
 	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
 

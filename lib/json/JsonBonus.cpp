@@ -13,22 +13,16 @@
 
 #include "JsonValidator.h"
 
-#include "../ScopeGuard.h"
+#include "../CGeneralTextHandler.h"
+#include "../VCMI_Lib.h"
 #include "../bonuses/BonusParams.h"
-#include "../bonuses/Bonus.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
-#include "../filesystem/Filesystem.h"
-#include "../modding/IdentifierStorage.h"
-#include "../VCMI_Lib.h" //for identifier resolution
-#include "../CGeneralTextHandler.h"
 #include "../constants/StringConstants.h"
-#include "../battle/BattleHex.h"
+#include "../modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-static const JsonNode nullNode;
 
 static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node)
 {

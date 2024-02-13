@@ -350,8 +350,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 		{
 			if(parser.readString() == "x")
 			{
-				artData["slot"].Vector().push_back(JsonNode());
-				artData["slot"].Vector().back().String() = artSlot;
+				artData["slot"].Vector().emplace_back(artSlot);
 			}
 		}
 		artData["class"].String() = classes.at(parser.readString()[0]);

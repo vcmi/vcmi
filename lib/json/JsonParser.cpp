@@ -11,16 +11,17 @@
 #include "StdInc.h"
 #include "JsonParser.h"
 
+#include "../ScopeGuard.h"
 #include "../TextOperations.h"
 #include "JsonFormatException.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-JsonParser::JsonParser(const char * inputString, size_t stringSize, const JsonParsingSettings & settings)
-	: input(inputString, stringSize)
-	, settings(settings)
-	, currentDepth(0)
+JsonParser::JsonParser(const std::byte * inputString, size_t stringSize, const JsonParsingSettings & settings)
+	: settings(settings)
+	, input(reinterpret_cast<const char *>(inputString), stringSize)
 	, lineCount(1)
+	, currentDepth(0)
 	, lineStart(0)
 	, pos(0)
 {
@@ -258,7 +259,6 @@ bool JsonParser::extractLiteral(std::string & literal)
 		pos++;
 	}
 
-	pos += literal.size();
 	return true;
 }
 
@@ -309,10 +309,14 @@ bool JsonParser::extractStruct(JsonNode & node)
 	node.setType(JsonNode::JsonType::DATA_STRUCT);
 
 	if(currentDepth > settings.maxDepth)
-		error("Macimum allowed depth of json structure has been reached", true);
+		error("Maximum allowed depth of json structure has been reached", true);
 
-	currentDepth++;
 	pos++;
+	currentDepth++;
+	auto guard = vstd::makeScopeGuard([this]()
+	{
+		currentDepth--;
+	});
 
 	if(!extractWhitespace())
 		return false;
@@ -393,6 +397,11 @@ bool JsonParser::extractArray(JsonNode & node)
 		error("Macimum allowed depth of json structure has been reached", true);
 
 	currentDepth++;
+	auto guard = vstd::makeScopeGuard([this]()
+	{
+		currentDepth--;
+	});
+
 	pos++;
 	node.setType(JsonNode::JsonType::DATA_VECTOR);
 
@@ -441,11 +450,9 @@ bool JsonParser::extractElement(JsonNode & node, char terminator)
 
 	if(input[pos] == terminator)
 	{
-		if(comma)
-		{
-			if(settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
-				error("Extra comma found!", true);
-		}
+		if(comma && settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
+			error("Extra comma found!", true);
+
 		return true;
 	}
 
@@ -500,11 +507,8 @@ bool JsonParser::extractFloat(JsonNode & node)
 		pos++;
 		double fractMult = 0.1;
 
-		if(settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
-		{
-			if(input[pos] < '0' || input[pos] > '9')
-				return error("Decimal part expected!");
-		}
+		if(settings.mode < JsonParsingSettings::JsonFormatMode::JSON5 && (input[pos] < '0' || input[pos] > '9'))
+			return error("Decimal part expected!");
 
 		while(input[pos] >= '0' && input[pos] <= '9')
 		{
