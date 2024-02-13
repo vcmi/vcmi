@@ -51,7 +51,8 @@
             "inherits": "linux-release",
             "hidden": true,
             "cacheVariables": {
-                "ENABLE_TEST": "ON",
+                "ENABLE_LOBBY": "ON",
+				"ENABLE_TEST": "ON",
                 "ENABLE_LUA": "ON"
             }
         },
