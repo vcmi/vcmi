@@ -43,10 +43,9 @@ private:
 
 	/// Mod-origin of this particular field
 	std::string modScope;
-public:
-	/// meta-flags like override
-	std::vector<std::string> flags;
 
+	bool overrideFlag = false;
+public:
 	JsonNode() = default;
 
 	/// Create single node with specified value
@@ -70,6 +69,9 @@ public:
 
 	const std::string & getModScope() const;
 	void setModScope(const std::string & metadata, bool recursive = true);
+
+	void setOverrideFlag(bool value);
+	bool getOverrideFlag() const;
 
 	/// Convert node to another type. Converting to nullptr will clear all data
 	void setType(JsonType Type);
@@ -132,7 +134,16 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & modScope;
-		h & flags;
+
+		if (h.version >= Handler::Version::JSON_FLAGS)
+		{
+			h & overrideFlag;
+		}
+		else
+		{
+			std::vector<std::string> oldFlags;
+			h & oldFlags;
+		}
 		h & data;
 	}
 };

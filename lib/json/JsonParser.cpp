@@ -255,20 +255,26 @@ bool JsonParser::extractStruct(JsonNode &node)
 		if (!extractWhitespace())
 			return false;
 
+		bool overrideFlag = false;
 		std::string key;
 		if (!extractString(key))
 			return false;
 
-		// split key string into actual key and meta-flags
-		std::vector<std::string> keyAndFlags;
-		boost::split(keyAndFlags, key, boost::is_any_of("#"));
-		key = keyAndFlags[0];
-		// check for unknown flags - helps with debugging
-		std::vector<std::string> knownFlags = { "override" };
-		for(int i = 1; i < keyAndFlags.size(); i++)
+		if (key.find('#') != std::string::npos)
 		{
-			if(!vstd::contains(knownFlags, keyAndFlags[i]))
-				error("Encountered unknown flag #" + keyAndFlags[i], true);
+			// split key string into actual key and meta-flags
+			std::vector<std::string> keyAndFlags;
+			boost::split(keyAndFlags, key, boost::is_any_of("#"));
+
+			key = keyAndFlags[0];
+
+			for(int i = 1; i < keyAndFlags.size(); i++)
+			{
+				if (keyAndFlags[i] == "override")
+					overrideFlag = true;
+				else
+					error("Encountered unknown flag #" + keyAndFlags[i], true);
+			}
 		}
 
 		if (node.Struct().find(key) != node.Struct().end())
@@ -280,9 +286,7 @@ bool JsonParser::extractStruct(JsonNode &node)
 		if (!extractElement(node.Struct()[key], '}'))
 			return false;
 
-		// flags from key string belong to referenced element
-		for(int i = 1; i < keyAndFlags.size(); i++)
-			node.Struct()[key].flags.push_back(keyAndFlags[i]);
+		node.Struct()[key].setOverrideFlag(overrideFlag);
 
 		if (input[pos] == '}')
 		{

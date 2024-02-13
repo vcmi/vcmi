@@ -129,6 +129,16 @@ const std::string & JsonNode::getModScope() const
 	return modScope;
 }
 
+void JsonNode::setOverrideFlag(bool value)
+{
+	overrideFlag = value;
+}
+
+bool JsonNode::getOverrideFlag() const
+{
+	return overrideFlag;
+}
+
 void JsonNode::setModScope(const std::string & metadata, bool recursive)
 {
 	modScope = metadata;

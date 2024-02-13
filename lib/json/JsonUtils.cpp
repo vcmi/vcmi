@@ -223,7 +223,7 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
-			if(!ignoreOverride && vstd::contains(source.flags, "override"))
+			if(!ignoreOverride && source.getOverrideFlag())
 			{
 				std::swap(dest, source);
 			}

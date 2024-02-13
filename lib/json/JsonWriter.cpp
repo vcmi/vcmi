@@ -39,8 +39,6 @@ void JsonWriter::writeEntry(JsonMap::const_iterator entry)
 	{
 		if (!entry->second.getModScope().empty())
 			out << prefix << " // " << entry->second.getModScope() << "\n";
-		if(!entry->second.flags.empty())
-			out << prefix << " // flags: " << boost::algorithm::join(entry->second.flags, ", ") << "\n";
 		out << prefix;
 	}
 	writeString(entry->first);
@@ -54,8 +52,6 @@ void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 	{
 		if (!entry->getModScope().empty())
 			out << prefix << " // " << entry->getModScope() << "\n";
-		if(!entry->flags.empty())
-			out << prefix << " // flags: " << boost::algorithm::join(entry->flags, ", ") << "\n";
 		out << prefix;
 	}
 	writeNode(*entry);
