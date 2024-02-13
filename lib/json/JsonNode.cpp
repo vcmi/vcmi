@@ -79,8 +79,12 @@ JsonNode::JsonNode(const std::string & string)
 {}
 
 JsonNode::JsonNode(const std::byte *data, size_t datasize)
+	:JsonNode(data, datasize, JsonParsingSettings())
+{}
+
+JsonNode::JsonNode(const std::byte *data, size_t datasize, const JsonParsingSettings & parserSettings)
 {
-	JsonParser parser(reinterpret_cast<const char*>(data), datasize);
+	JsonParser parser(reinterpret_cast<const char*>(data), datasize, parserSettings);
 	*this = parser.parse("<unknown>");
 }
 
@@ -88,7 +92,7 @@ JsonNode::JsonNode(const JsonPath & fileURI)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 }
 
@@ -96,7 +100,7 @@ JsonNode::JsonNode(const JsonPath & fileURI, const std::string & idx)
 {
 	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
 	
-	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 }
 
@@ -104,7 +108,7 @@ JsonNode::JsonNode(const JsonPath & fileURI, bool &isValidSyntax)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 	isValidSyntax = parser.isValid();
 }

@@ -16,6 +16,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 //Internal class for string -> JsonNode conversion
 class JsonParser
 {
+	const JsonParsingSettings settings;
+
 	std::string errors;     // Contains description of all encountered errors
 	std::string_view input;      // Input data
 	ui32 lineCount; // Currently parsed line, starting from 1
@@ -44,7 +46,7 @@ class JsonParser
 	bool error(const std::string &message, bool warning=false);
 
 public:
-	JsonParser(const char * inputString, size_t stringSize);
+	JsonParser(const char * inputString, size_t stringSize, const JsonParsingSettings & settings);
 
 	/// do actual parsing. filename is name of file that will printed to console if any errors were found
 	JsonNode parse(const std::string & fileName);

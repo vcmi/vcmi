@@ -17,10 +17,23 @@ class JsonNode;
 using JsonMap = std::map<std::string, JsonNode>;
 using JsonVector = std::vector<JsonNode>;
 
-struct Bonus;
-class CSelector;
-class CAddInfo;
-class ILimiter;
+struct JsonParsingSettings
+{
+	enum class JsonFormatMode
+	{
+		JSON, // strict implementation of json format
+		JSONC, // json format that also allows comments that start from '//'
+		//JSON5 // TODO?
+	};
+
+	JsonFormatMode mode = JsonFormatMode::JSONC;
+
+	/// Maximum depth of elements
+	uint32_t maxDepth = 30;
+
+	/// If set to true, parser will throw on any encountered error
+	bool strict = false;
+};
 
 class DLL_LINKAGE JsonNode
 {
@@ -58,6 +71,7 @@ public:
 
 	/// Create tree from Json-formatted input
 	explicit JsonNode(const std::byte * data, size_t datasize);
+	explicit JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings);
 
 	/// Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);

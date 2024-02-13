@@ -11,12 +11,14 @@
 #include "StdInc.h"
 #include "JsonParser.h"
 
+#include "JsonFormatException.h"
 #include "../TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-JsonParser::JsonParser(const char * inputString, size_t stringSize):
+JsonParser::JsonParser(const char * inputString, size_t stringSize, const JsonParsingSettings & settings):
 	input(inputString, stringSize),
+	settings(settings),
 	lineCount(1),
 	lineStart(0),
 	pos(0)
@@ -105,8 +107,12 @@ bool JsonParser::extractWhitespace(bool verbose)
 			}
 			pos++;
 		}
+
 		if (pos >= input.size() || input[pos] != '/')
 			break;
+
+		if (settings.mode == JsonParsingSettings::JsonFormatMode::JSON)
+			error("Comments are not permitted in json!", true);
 
 		pos++;
 		if (pos == input.size())
@@ -346,9 +352,8 @@ bool JsonParser::extractElement(JsonNode &node, char terminator)
 
 	if (input[pos] == terminator)
 	{
-		//FIXME: MOD COMPATIBILITY: Too many of these right now, re-enable later
-		//if (comma)
-			//error("Extra comma found!", true);
+		if (comma)
+			error("Extra comma found!", true);
 		return true;
 	}
 
@@ -456,6 +461,9 @@ bool JsonParser::extractFloat(JsonNode &node)
 
 bool JsonParser::error(const std::string &message, bool warning)
 {
+	if (settings.strict)
+		throw JsonFormatException(message);
+
 	std::ostringstream stream;
 	std::string type(warning?" warning: ":" error: ");
 
