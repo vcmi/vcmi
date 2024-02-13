@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 JsonParser::JsonParser(const char * inputString, size_t stringSize, const JsonParsingSettings & settings):
 	input(inputString, stringSize),
 	settings(settings),
+	currentDepth(0),
 	lineCount(1),
 	lineStart(0),
 	pos(0)
@@ -29,13 +30,13 @@ JsonNode JsonParser::parse(const std::string & fileName)
 {
 	JsonNode root;
 
-	if (input.size() == 0)
+	if (input.empty())
 	{
 		error("File is empty", false);
 	}
 	else
 	{
-		if (!TextOperations::isValidUnicodeString(&input[0], input.size()))
+		if (!TextOperations::isValidUnicodeString(input.data(), input.size()))
 			error("Not a valid UTF-8 file", false);
 
 		extractValue(root);
@@ -96,6 +97,9 @@ bool JsonParser::extractValue(JsonNode &node)
 
 bool JsonParser::extractWhitespace(bool verbose)
 {
+	//TODO: JSON5 - C-style multi-line comments
+	//TODO: JSON5 - Additional white space characters are allowed
+
 	while (true)
 	{
 		while(pos < input.size() && static_cast<ui8>(input[pos]) <= ' ')
@@ -133,6 +137,9 @@ bool JsonParser::extractWhitespace(bool verbose)
 
 bool JsonParser::extractEscaping(std::string &str)
 {
+	// TODO: support unicode escaping:
+	// \u1234
+
 	switch(input[pos])
 	{
 		break; case '\"': str += '\"';
@@ -150,15 +157,27 @@ bool JsonParser::extractEscaping(std::string &str)
 
 bool JsonParser::extractString(std::string &str)
 {
-	if (input[pos] != '\"')
-		return error("String expected!");
+	//TODO: JSON5 - line breaks escaping
+
+	if (settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
+	{
+		if (input[pos] != '\"')
+			return error("String expected!");
+	}
+	else
+	{
+		if (input[pos] != '\"' && input[pos] != '\'')
+			return error("String expected!");
+	}
+
+	char lineTerminator = input[pos];
 	pos++;
 
 	size_t first = pos;
 
 	while (pos != input.size())
 	{
-		if (input[pos] == '\"') // Correct end of string
+		if (input[pos] == lineTerminator) // Correct end of string
 		{
 			str.append( &input[first], pos-first);
 			pos++;
@@ -200,23 +219,43 @@ bool JsonParser::extractString(JsonNode &node)
 	return true;
 }
 
-bool JsonParser::extractLiteral(const std::string &literal)
+bool JsonParser::extractLiteral(std::string & literal)
 {
-	if (literal.compare(0, literal.size(), &input[pos], literal.size()) != 0)
+	while (pos < input.size() )
 	{
-		while (pos < input.size() && ((input[pos]>'a' && input[pos]<'z')
-								   || (input[pos]>'A' && input[pos]<'Z')))
-			pos++;
-		return error("Unknown literal found", true);
+		bool isUpperCase = input[pos]>='A' && input[pos]<='Z';
+		bool isLowerCase = input[pos]>='a' && input[pos]<='z';
+		bool isNumber = input[pos]>='0' && input[pos]<='9';
+
+		if (!isUpperCase && !isLowerCase && !isNumber)
+			break;
+
+		literal += input[pos];
+		pos++;
 	}
 
 	pos += literal.size();
 	return true;
 }
 
+bool JsonParser::extractAndCompareLiteral(const std::string &expectedLiteral)
+{
+	std::string literal;
+	if (!extractLiteral(literal))
+		return false;
+
+	if (literal != expectedLiteral)
+	{
+		return error("Expected " + expectedLiteral + ", but unknown literal found", true);
+		return false;
+	}
+
+	return true;
+}
+
 bool JsonParser::extractNull(JsonNode &node)
 {
-	if (!extractLiteral("null"))
+	if (!extractAndCompareLiteral("null"))
 		return false;
 
 	node.clear();
@@ -225,7 +264,7 @@ bool JsonParser::extractNull(JsonNode &node)
 
 bool JsonParser::extractTrue(JsonNode &node)
 {
-	if (!extractLiteral("true"))
+	if (!extractAndCompareLiteral("true"))
 		return false;
 
 	node.Bool() = true;
@@ -234,7 +273,7 @@ bool JsonParser::extractTrue(JsonNode &node)
 
 bool JsonParser::extractFalse(JsonNode &node)
 {
-	if (!extractLiteral("false"))
+	if (!extractAndCompareLiteral("false"))
 		return false;
 
 	node.Bool() = false;
@@ -244,6 +283,11 @@ bool JsonParser::extractFalse(JsonNode &node)
 bool JsonParser::extractStruct(JsonNode &node)
 {
 	node.setType(JsonNode::JsonType::DATA_STRUCT);
+
+	if (currentDepth > settings.maxDepth)
+		error("Macimum allowed depth of json structure has been reached", true);
+
+	currentDepth++;
 	pos++;
 
 	if (!extractWhitespace())
@@ -263,8 +307,25 @@ bool JsonParser::extractStruct(JsonNode &node)
 
 		bool overrideFlag = false;
 		std::string key;
-		if (!extractString(key))
-			return false;
+
+		if (settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
+		{
+			if (!extractString(key))
+				return false;
+		}
+		else
+		{
+			if (input[pos] == '\'' || input[pos] == '\"')
+			{
+				if (!extractString(key))
+					return false;
+			}
+			else
+			{
+				if (!extractLiteral(key))
+					return false;
+			}
+		}
 
 		if (key.find('#') != std::string::npos)
 		{
@@ -304,6 +365,10 @@ bool JsonParser::extractStruct(JsonNode &node)
 
 bool JsonParser::extractArray(JsonNode &node)
 {
+	if (currentDepth > settings.maxDepth)
+		error("Macimum allowed depth of json structure has been reached", true);
+
+	currentDepth++;
 	pos++;
 	node.setType(JsonNode::JsonType::DATA_VECTOR);
 
@@ -353,7 +418,10 @@ bool JsonParser::extractElement(JsonNode &node, char terminator)
 	if (input[pos] == terminator)
 	{
 		if (comma)
-			error("Extra comma found!", true);
+		{
+			if (settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
+				error("Extra comma found!", true);
+		}
 		return true;
 	}
 
@@ -365,20 +433,32 @@ bool JsonParser::extractElement(JsonNode &node, char terminator)
 
 bool JsonParser::extractFloat(JsonNode &node)
 {
+	//TODO: JSON5 - hexacedimal support
+	//TODO: JSON5 - Numbers may be IEEE 754 positive infinity, negative infinity, and NaN (why?)
+
 	assert(input[pos] == '-' || (input[pos] >= '0' && input[pos] <= '9'));
 	bool negative=false;
 	double result=0;
 	si64 integerPart = 0;
 	bool isFloat = false;
 
-	if (input[pos] == '-')
+	if (input[pos] == '+')
+	{
+		if (settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
+			error("Positive numbers should not have plus sign!", true);
+		pos++;
+	}
+	else if (input[pos] == '-')
 	{
 		pos++;
 		negative = true;
 	}
 
 	if (input[pos] < '0' || input[pos] > '9')
-		return error("Number expected!");
+	{
+		if (input[pos] != '.'  && settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
+			return error("Number expected!");
+	}
 
 	//Extract integer part
 	while (input[pos] >= '0' && input[pos] <= '9')
@@ -395,8 +475,12 @@ bool JsonParser::extractFloat(JsonNode &node)
 		isFloat = true;
 		pos++;
 		double fractMult = 0.1;
-		if (input[pos] < '0' || input[pos] > '9')
-			return error("Decimal part expected!");
+
+		if (settings.mode < JsonParsingSettings::JsonFormatMode::JSON5)
+		{
+			if (input[pos] < '0' || input[pos] > '9')
+				return error("Decimal part expected!");
+		}
 
 		while (input[pos] >= '0' && input[pos] <= '9')
 		{

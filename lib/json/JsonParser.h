@@ -20,13 +20,15 @@ class JsonParser
 
 	std::string errors;     // Contains description of all encountered errors
 	std::string_view input;      // Input data
-	ui32 lineCount; // Currently parsed line, starting from 1
+	uint32_t lineCount; // Currently parsed line, starting from 1
+	uint32_t currentDepth;
 	size_t lineStart;       // Position of current line start
 	size_t pos;             // Current position of parser
 
 	//Helpers
 	bool extractEscaping(std::string &str);
-	bool extractLiteral(const std::string &literal);
+	bool extractLiteral(std::string &literal);
+	bool extractAndCompareLiteral(const std::string &expectedLiteral);
 	bool extractString(std::string &string);
 	bool extractWhitespace(bool verbose = true);
 	bool extractSeparator();

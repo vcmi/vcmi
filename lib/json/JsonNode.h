@@ -23,10 +23,10 @@ struct JsonParsingSettings
 	{
 		JSON, // strict implementation of json format
 		JSONC, // json format that also allows comments that start from '//'
-		//JSON5 // TODO?
+		JSON5 // Partial support of 'json5' format
 	};
 
-	JsonFormatMode mode = JsonFormatMode::JSONC;
+	JsonFormatMode mode = JsonFormatMode::JSON5;
 
 	/// Maximum depth of elements
 	uint32_t maxDepth = 30;
