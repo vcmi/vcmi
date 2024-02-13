@@ -138,106 +138,65 @@ public:
 
 namespace JsonDetail
 {
-	// conversion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
 
-	template <typename T, int arithm>
-	struct JsonConvImpl;
+inline void convert(bool & value, const JsonNode & node)
+{
+	value = node.Bool();
+}
 
-	template <typename T>
-	struct JsonConvImpl<T, 1>
+template<typename T>
+auto convert(T & value, const JsonNode & node) -> std::enable_if_t<std::is_integral_v<T>>
+{
+	value = node.Integer();
+}
+
+template<typename T>
+auto convert(T & value, const JsonNode & node) -> std::enable_if_t<std::is_floating_point_v<T>>
+{
+	value = node.Float();
+}
+
+inline void convert(std::string & value, const JsonNode & node)
+{
+	value = node.String();
+}
+
+template <typename Type>
+void convert(std::map<std::string,Type> & value, const JsonNode & node)
+{
+	value.clear();
+	for (const JsonMap::value_type & entry : node.Struct())
+		value.insert(entry.first, entry.second.convertTo<Type>());
+}
+
+template <typename Type>
+void convert(std::set<Type> & value, const JsonNode & node)
+{
+	value.clear();
+	for(const JsonVector::value_type & entry : node.Vector())
 	{
-		static T convertImpl(const JsonNode & node)
-		{
-			return T((int)node.Float());
-		}
-	};
+		value.insert(entry.convertTo<Type>());
+	}
+}
 
-	template <typename T>
-	struct JsonConvImpl<T, 0>
+template <typename Type>
+void convert(std::vector<Type> & value, const JsonNode & node)
+{
+	value.clear();
+	for(const JsonVector::value_type & entry : node.Vector())
 	{
-		static T convertImpl(const JsonNode & node)
-		{
-			return T(node.Float());
-		}
-	};
+		value.push_back(entry.convertTo<Type>());
+	}
+}
 
-	template<typename Type>
-	struct JsonConverter
-	{
-		static Type convert(const JsonNode & node)
-		{
-			///this should be triggered only for numeric types and enums
-			static_assert(std::is_arithmetic_v<Type> || std::is_enum_v<Type> || std::is_class_v<Type>, "Unsupported type for JsonNode::convertTo()!");
-			return JsonConvImpl<Type, std::is_enum_v<Type> || std::is_class_v<Type> >::convertImpl(node);
-
-		}
-	};
-
-	template<typename Type>
-	struct JsonConverter<std::map<std::string, Type> >
-	{
-		static std::map<std::string, Type> convert(const JsonNode & node)
-		{
-			std::map<std::string, Type> ret;
-			for (const JsonMap::value_type & entry : node.Struct())
-			{
-				ret.insert(entry.first, entry.second.convertTo<Type>());
-			}
-			return ret;
-		}
-	};
-
-	template<typename Type>
-	struct JsonConverter<std::set<Type> >
-	{
-		static std::set<Type> convert(const JsonNode & node)
-		{
-			std::set<Type> ret;
-			for(const JsonVector::value_type & entry : node.Vector())
-			{
-				ret.insert(entry.convertTo<Type>());
-			}
-			return ret;
-		}
-	};
-
-	template<typename Type>
-	struct JsonConverter<std::vector<Type> >
-	{
-		static std::vector<Type> convert(const JsonNode & node)
-		{
-			std::vector<Type> ret;
-			for (const JsonVector::value_type & entry: node.Vector())
-			{
-				ret.push_back(entry.convertTo<Type>());
-			}
-			return ret;
-		}
-	};
-
-	template<>
-	struct JsonConverter<std::string>
-	{
-		static std::string convert(const JsonNode & node)
-		{
-			return node.String();
-		}
-	};
-
-	template<>
-	struct JsonConverter<bool>
-	{
-		static bool convert(const JsonNode & node)
-		{
-			return node.Bool();
-		}
-	};
 }
 
 template<typename Type>
 Type JsonNode::convertTo() const
 {
-	return JsonDetail::JsonConverter<Type>::convert(*this);
+	Type result;
+	JsonDetail::convert(result, *this);
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

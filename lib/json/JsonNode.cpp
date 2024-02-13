@@ -49,8 +49,6 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-using namespace JsonDetail;
-
 class LibClasses;
 class CModHandler;
 
