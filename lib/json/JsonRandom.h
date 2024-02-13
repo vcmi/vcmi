@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include "GameCallbackHolder.h"
 #include "GameConstants.h"
 #include "ResourceSet.h"
-#include "GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

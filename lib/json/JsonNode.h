@@ -58,6 +58,7 @@ private:
 	std::string modScope;
 
 	bool overrideFlag = false;
+
 public:
 	JsonNode() = default;
 
@@ -78,8 +79,8 @@ public:
 	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
 	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
 
-	bool operator == (const JsonNode &other) const;
-	bool operator != (const JsonNode &other) const;
+	bool operator==(const JsonNode & other) const;
+	bool operator!=(const JsonNode & other) const;
 
 	const std::string & getModScope() const;
 	void setModScope(const std::string & metadata, bool recursive = true);
@@ -139,17 +140,18 @@ public:
 	const JsonNode & operator[](const std::string & child) const;
 
 	JsonNode & operator[](size_t child);
-	const JsonNode & operator[](size_t  child) const;
+	const JsonNode & operator[](size_t child) const;
 
 	std::string toCompactString() const;
 	std::string toString() const;
 	std::vector<std::byte> toBytes() const;
 
-	template <typename Handler> void serialize(Handler &h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
 		h & modScope;
 
-		if (h.version >= Handler::Version::JSON_FLAGS)
+		if(h.version >= Handler::Version::JSON_FLAGS)
 		{
 			h & overrideFlag;
 		}
@@ -187,15 +189,15 @@ inline void convert(std::string & value, const JsonNode & node)
 	value = node.String();
 }
 
-template <typename Type>
-void convert(std::map<std::string,Type> & value, const JsonNode & node)
+template<typename Type>
+void convert(std::map<std::string, Type> & value, const JsonNode & node)
 {
 	value.clear();
-	for (const JsonMap::value_type & entry : node.Struct())
+	for(const JsonMap::value_type & entry : node.Struct())
 		value.insert(entry.first, entry.second.convertTo<Type>());
 }
 
-template <typename Type>
+template<typename Type>
 void convert(std::set<Type> & value, const JsonNode & node)
 {
 	value.clear();
@@ -205,7 +207,7 @@ void convert(std::set<Type> & value, const JsonNode & node)
 	}
 }
 
-template <typename Type>
+template<typename Type>
 void convert(std::vector<Type> & value, const JsonNode & node)
 {
 	value.clear();

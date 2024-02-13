@@ -11,9 +11,9 @@
 #include "StdInc.h"
 #include "JsonNode.h"
 
-#include "filesystem/Filesystem.h"
 #include "JsonParser.h"
 #include "JsonWriter.h"
+#include "filesystem/Filesystem.h"
 
 namespace
 {
@@ -40,7 +40,7 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 
 		auto index = boost::lexical_cast<size_t>(entry);
 
-		if (in.Vector().size() > index)
+		if(in.Vector().size() > index)
 			return in.Vector()[index].resolvePointer(remainer);
 	}
 	return in[entry].resolvePointer(remainer);
@@ -55,36 +55,43 @@ class CModHandler;
 static const JsonNode nullNode;
 
 JsonNode::JsonNode(bool boolean)
-	:data(boolean)
-{}
+	: data(boolean)
+{
+}
 
 JsonNode::JsonNode(int32_t number)
-	:data(static_cast<int64_t>(number))
-{}
+	: data(static_cast<int64_t>(number))
+{
+}
 
 JsonNode::JsonNode(uint32_t number)
-	:data(static_cast<int64_t>(number))
-{}
+	: data(static_cast<int64_t>(number))
+{
+}
 
 JsonNode::JsonNode(int64_t number)
-	:data(number)
-{}
+	: data(number)
+{
+}
 
 JsonNode::JsonNode(double number)
-	:data(number)
-{}
+	: data(number)
+{
+}
 
 JsonNode::JsonNode(const std::string & string)
-	:data(string)
-{}
-
-JsonNode::JsonNode(const std::byte *data, size_t datasize)
-	:JsonNode(data, datasize, JsonParsingSettings())
-{}
-
-JsonNode::JsonNode(const std::byte *data, size_t datasize, const JsonParsingSettings & parserSettings)
+	: data(string)
 {
-	JsonParser parser(reinterpret_cast<const char*>(data), datasize, parserSettings);
+}
+
+JsonNode::JsonNode(const std::byte * data, size_t datasize)
+	: JsonNode(data, datasize, JsonParsingSettings())
+{
+}
+
+JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings)
+{
+	JsonParser parser(reinterpret_cast<const char *>(data), datasize, parserSettings);
 	*this = parser.parse("<unknown>");
 }
 
@@ -92,33 +99,33 @@ JsonNode::JsonNode(const JsonPath & fileURI)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second, JsonParsingSettings());
+	JsonParser parser(reinterpret_cast<char *>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 }
 
 JsonNode::JsonNode(const JsonPath & fileURI, const std::string & idx)
 {
 	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
-	
-	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second, JsonParsingSettings());
+
+	JsonParser parser(reinterpret_cast<char *>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const JsonPath & fileURI, bool &isValidSyntax)
+JsonNode::JsonNode(const JsonPath & fileURI, bool & isValidSyntax)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second, JsonParsingSettings());
+	JsonParser parser(reinterpret_cast<char *>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
 	isValidSyntax = parser.isValid();
 }
 
-bool JsonNode::operator == (const JsonNode &other) const
+bool JsonNode::operator==(const JsonNode & other) const
 {
 	return data == other.data;
 }
 
-bool JsonNode::operator != (const JsonNode &other) const
+bool JsonNode::operator!=(const JsonNode & other) const
 {
 	return !(*this == other);
 }
@@ -146,18 +153,20 @@ bool JsonNode::getOverrideFlag() const
 void JsonNode::setModScope(const std::string & metadata, bool recursive)
 {
 	modScope = metadata;
-	if (recursive)
+	if(recursive)
 	{
-		switch (getType())
+		switch(getType())
 		{
-			break; case JsonType::DATA_VECTOR:
+			break;
+			case JsonType::DATA_VECTOR:
 			{
 				for(auto & node : Vector())
 				{
 					node.setModScope(metadata);
 				}
 			}
-			break; case JsonType::DATA_STRUCT:
+			break;
+			case JsonType::DATA_STRUCT:
 			{
 				for(auto & node : Struct())
 				{
@@ -170,7 +179,7 @@ void JsonNode::setModScope(const std::string & metadata, bool recursive)
 
 void JsonNode::setType(JsonType Type)
 {
-	if (getType() == Type)
+	if(getType() == Type)
 		return;
 
 	//float<->int conversion
@@ -190,13 +199,27 @@ void JsonNode::setType(JsonType Type)
 	//Set new node type
 	switch(Type)
 	{
-		break; case JsonType::DATA_NULL:    data = JsonData();
-		break; case JsonType::DATA_BOOL:    data = JsonData(false);
-		break; case JsonType::DATA_FLOAT:   data = JsonData(static_cast<double>(0.0));
-		break; case JsonType::DATA_STRING:  data = JsonData(std::string());
-		break; case JsonType::DATA_VECTOR:  data = JsonData(JsonVector());
-		break; case JsonType::DATA_STRUCT:  data = JsonData(JsonMap());
-		break; case JsonType::DATA_INTEGER: data = JsonData(static_cast<si64>(0));
+		case JsonType::DATA_NULL:
+			data = JsonData();
+			break;
+		case JsonType::DATA_BOOL:
+			data = JsonData(false);
+			break;
+		case JsonType::DATA_FLOAT:
+			data = JsonData(static_cast<double>(0.0));
+			break;
+		case JsonType::DATA_STRING:
+			data = JsonData(std::string());
+			break;
+		case JsonType::DATA_VECTOR:
+			data = JsonData(JsonVector());
+			break;
+		case JsonType::DATA_STRUCT:
+			data = JsonData(JsonMap());
+			break;
+		case JsonType::DATA_INTEGER:
+			data = JsonData(static_cast<si64>(0));
+			break;
 	}
 }
 
@@ -229,18 +252,18 @@ bool JsonNode::containsBaseData() const
 {
 	switch(getType())
 	{
-	case JsonType::DATA_NULL:
-		return false;
-	case JsonType::DATA_STRUCT:
-		for(const auto & elem : Struct())
-		{
-			if(elem.second.containsBaseData())
-				return true;
-		}
-		return false;
-	default:
-		//other types (including vector) cannot be extended via merge
-		return true;
+		case JsonType::DATA_NULL:
+			return false;
+		case JsonType::DATA_STRUCT:
+			for(const auto & elem : Struct())
+			{
+				if(elem.second.containsBaseData())
+					return true;
+			}
+			return false;
+		default:
+			//other types (including vector) cannot be extended via merge
+			return true;
 	}
 }
 
@@ -248,14 +271,14 @@ bool JsonNode::isCompact() const
 {
 	switch(getType())
 	{
-	case JsonType::DATA_VECTOR:
-		for(const JsonNode & elem : Vector())
-		{
-			if(!elem.isCompact())
-				return false;
-		}
-		return true;
-	case JsonType::DATA_STRUCT:
+		case JsonType::DATA_VECTOR:
+			for(const JsonNode & elem : Vector())
+			{
+				if(!elem.isCompact())
+					return false;
+			}
+			return true;
+		case JsonType::DATA_STRUCT:
 		{
 			auto propertyCount = Struct().size();
 			if(propertyCount == 0)
@@ -263,9 +286,9 @@ bool JsonNode::isCompact() const
 			else if(propertyCount == 1)
 				return Struct().begin()->second.isCompact();
 		}
-		return false;
-	default:
-		return true;
+			return false;
+		default:
+			return true;
 	}
 }
 
@@ -285,7 +308,7 @@ bool JsonNode::TryBoolFromString(bool & success) const
 
 		if(success)
 			return true;
-		
+
 		success = boolParamStr == "false";
 	}
 	return false;
@@ -337,7 +360,7 @@ bool JsonNode::Bool() const
 {
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_BOOL);
 
-	if (getType() == JsonType::DATA_BOOL)
+	if(getType() == JsonType::DATA_BOOL)
 		return std::get<bool>(data);
 
 	return boolDefault;
@@ -376,7 +399,7 @@ const std::string & JsonNode::String() const
 {
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRING);
 
-	if (getType() == JsonType::DATA_STRING)
+	if(getType() == JsonType::DATA_STRING)
 		return std::get<std::string>(data);
 
 	return stringDefault;
@@ -387,7 +410,7 @@ const JsonVector & JsonNode::Vector() const
 {
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_VECTOR);
 
-	if (getType() == JsonType::DATA_VECTOR)
+	if(getType() == JsonType::DATA_VECTOR)
 		return std::get<JsonVector>(data);
 
 	return vectorDefault;
@@ -398,7 +421,7 @@ const JsonMap & JsonNode::Struct() const
 {
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRUCT);
 
-	if (getType() == JsonType::DATA_STRUCT)
+	if(getType() == JsonType::DATA_STRUCT)
 		return std::get<JsonMap>(data);
 
 	return mapDefault;
@@ -412,32 +435,32 @@ JsonNode & JsonNode::operator[](const std::string & child)
 const JsonNode & JsonNode::operator[](const std::string & child) const
 {
 	auto it = Struct().find(child);
-	if (it != Struct().end())
+	if(it != Struct().end())
 		return it->second;
 	return nullNode;
 }
 
 JsonNode & JsonNode::operator[](size_t child)
 {
-	if (child >= Vector().size() )
+	if(child >= Vector().size())
 		Vector().resize(child + 1);
 	return Vector()[child];
 }
 
 const JsonNode & JsonNode::operator[](size_t child) const
 {
-	if (child < Vector().size() )
+	if(child < Vector().size())
 		return Vector()[child];
 
 	return nullNode;
 }
 
-const JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer) const
+const JsonNode & JsonNode::resolvePointer(const std::string & jsonPointer) const
 {
 	return ::resolvePointer(*this, jsonPointer);
 }
 
-JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
+JsonNode & JsonNode::resolvePointer(const std::string & jsonPointer)
 {
 	return ::resolvePointer(*this, jsonPointer);
 }
@@ -445,7 +468,7 @@ JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 std::vector<std::byte> JsonNode::toBytes() const
 {
 	std::string jsonString = toString();
-	auto dataBegin = reinterpret_cast<const std::byte*>(jsonString.data());
+	auto dataBegin = reinterpret_cast<const std::byte *>(jsonString.data());
 	auto dataEnd = dataBegin + jsonString.size();
 	std::vector<std::byte> result(dataBegin, dataEnd);
 	return result;

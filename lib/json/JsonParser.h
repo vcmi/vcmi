@@ -18,34 +18,34 @@ class JsonParser
 {
 	const JsonParsingSettings settings;
 
-	std::string errors;     // Contains description of all encountered errors
-	std::string_view input;      // Input data
+	std::string errors; // Contains description of all encountered errors
+	std::string_view input; // Input data
 	uint32_t lineCount; // Currently parsed line, starting from 1
 	uint32_t currentDepth;
-	size_t lineStart;       // Position of current line start
-	size_t pos;             // Current position of parser
+	size_t lineStart; // Position of current line start
+	size_t pos; // Current position of parser
 
 	//Helpers
-	bool extractEscaping(std::string &str);
-	bool extractLiteral(std::string &literal);
-	bool extractAndCompareLiteral(const std::string &expectedLiteral);
-	bool extractString(std::string &string);
+	bool extractEscaping(std::string & str);
+	bool extractLiteral(std::string & literal);
+	bool extractAndCompareLiteral(const std::string & expectedLiteral);
+	bool extractString(std::string & string);
 	bool extractWhitespace(bool verbose = true);
 	bool extractSeparator();
-	bool extractElement(JsonNode &node, char terminator);
+	bool extractElement(JsonNode & node, char terminator);
 
 	//Methods for extracting JSON data
-	bool extractArray(JsonNode &node);
-	bool extractFalse(JsonNode &node);
-	bool extractFloat(JsonNode &node);
-	bool extractNull(JsonNode &node);
-	bool extractString(JsonNode &node);
-	bool extractStruct(JsonNode &node);
-	bool extractTrue(JsonNode &node);
-	bool extractValue(JsonNode &node);
+	bool extractArray(JsonNode & node);
+	bool extractFalse(JsonNode & node);
+	bool extractFloat(JsonNode & node);
+	bool extractNull(JsonNode & node);
+	bool extractString(JsonNode & node);
+	bool extractStruct(JsonNode & node);
+	bool extractTrue(JsonNode & node);
+	bool extractValue(JsonNode & node);
 
 	//Add error\warning message to list
-	bool error(const std::string &message, bool warning=false);
+	bool error(const std::string & message, bool warning = false);
 
 public:
 	JsonParser(const char * inputString, size_t stringSize, const JsonParsingSettings & settings);
