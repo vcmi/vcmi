@@ -26,7 +26,7 @@ namespace Goals
 		}
 
 		TGoalVec decompose() const override;
-		virtual std::string toString() const override;
+		std::string toString() const override;
 
 		bool operator==(const StayAtTownBehavior & other) const override
 		{

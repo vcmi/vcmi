@@ -30,7 +30,7 @@ namespace Goals
 		ArmyUpgrade(const CGHeroInstance * targetMain, const CGObjectInstance * upgrader, const ArmyUpgradeInfo & upgrade);
 
 		bool operator==(const ArmyUpgrade & other) const override;
-		virtual std::string toString() const override;
+		std::string toString() const override;
 
 		uint64_t getUpgradeValue() const { return upgradeValue; }
 		uint64_t getInitialArmyValue() const { return initialValue; }

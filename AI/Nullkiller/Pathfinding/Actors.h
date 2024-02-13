@@ -136,7 +136,7 @@ private:
 
 public:
 	ObjectActor(const CGObjectInstance * obj, const CCreatureSet * army, uint64_t chainMask, int initialTurn);
-	virtual std::string toString() const override;
+	std::string toString() const override;
 	const CGObjectInstance * getActorObject() const override;
 };
 
@@ -154,7 +154,7 @@ private:
 public:
 	DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bool waitForGrowth, int dayOfWeek);
 	~DwellingActor();
-	virtual std::string toString() const override;
+	std::string toString() const override;
 
 protected:
 	int getInitialTurn(bool waitForGrowth, int dayOfWeek);
@@ -168,7 +168,7 @@ private:
 
 public:
 	TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask);
-	virtual std::string toString() const override;
+	std::string toString() const override;
 };
 
 }

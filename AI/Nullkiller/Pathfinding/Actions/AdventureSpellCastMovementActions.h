@@ -40,7 +40,7 @@ namespace AIPathfinding
 
 		bool canAct(const AIPathNode * source) const override;
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 	};
 
 	class WaterWalkingAction : public AdventureCastAction

@@ -108,7 +108,7 @@ public:
 	bool isPopupWindow() const override;
 
 	/// called only for windows whenever screen size changes
-	/// default behavior is to re-center, can be overriden
+	/// default behavior is to re-center, can be overridden
 	void onScreenResize() override;
 
 	/// returns true if UI elements wants to handle event of specific type (LCLICK, SHOW_POPUP ...)

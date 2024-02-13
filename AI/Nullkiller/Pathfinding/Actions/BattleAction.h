@@ -30,7 +30,7 @@ namespace AIPathfinding
 
 		void execute(const CGHeroInstance * hero) const override;
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 	};
 }
 

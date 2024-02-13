@@ -188,7 +188,7 @@ public:
 	bool selectFirstActor();
 	bool selectNextActor();
 
-	virtual std::vector<CGPathNode *> getInitialNodes() override;
+	std::vector<CGPathNode *> getInitialNodes() override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,

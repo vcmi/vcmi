@@ -27,7 +27,7 @@ namespace Goals
 		StayAtTown(const CGTownInstance * town, AIPath & path);
 
 		bool operator==(const StayAtTown & other) const override;
-		virtual std::string toString() const override;
+		std::string toString() const override;
 		void accept(AIGateway * ai) override;
 		float getMovementWasted() const { return movementWasted; }
 	};

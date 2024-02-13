@@ -40,7 +40,7 @@ namespace Goals
 		BuildThis(BuildingID Bid, const CGTownInstance * tid);
 
 		bool operator==(const BuildThis & other) const override;
-		virtual std::string toString() const override;
+		std::string toString() const override;
 		void accept(AIGateway * ai) override;
 	};
 }

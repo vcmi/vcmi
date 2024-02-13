@@ -27,8 +27,8 @@ public:
 	std::vector<JsonNode> loadLegacyData() override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
 	void afterLoadFinalization() override;
 	

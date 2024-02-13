@@ -92,7 +92,7 @@ namespace Goals
 
 		bool isElementar() const override { return true; }
 
-		virtual HeroPtr getHero() const override { return AbstractGoal::hero; }
+		HeroPtr getHero() const override { return AbstractGoal::hero; }
 
 		int getHeroExchangeCount() const override { return 0; }
 	};

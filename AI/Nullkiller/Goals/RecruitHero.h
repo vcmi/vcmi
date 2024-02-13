@@ -43,7 +43,7 @@ namespace Goals
 			return true;
 		}
 
-		virtual std::string toString() const override;
+		std::string toString() const override;
 		void accept(AIGateway * ai) override;
 	};
 }
