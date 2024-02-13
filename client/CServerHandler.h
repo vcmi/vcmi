@@ -101,7 +101,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<CApplier<CBaseForLobbyApply>> applier;
 	std::shared_ptr<CMapInfo> mapToStart;
-	std::vector<std::string> myNames;
+	std::vector<std::string> localPlayerNames;
 	std::shared_ptr<HighScoreCalculation> highScoreCalc;
 
 	boost::thread threadRunLocalServer;
@@ -148,7 +148,7 @@ public:
 	CServerHandler();
 	~CServerHandler();
 	
-	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & names);
+	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & playerNames);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
 

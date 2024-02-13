@@ -250,8 +250,8 @@ void CVCMIServer::prepareToRestart()
 		campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
 	}
 	
-	for(auto c : activeConnections)
-		c->enterLobbyConnectionMode();
+	for(auto activeConnection : activeConnections)
+		activeConnection->enterLobbyConnectionMode();
 
 	gh = nullptr;
 }
@@ -322,8 +322,8 @@ bool CVCMIServer::prepareToStartGame()
 
 void CVCMIServer::startGameImmediately()
 {
-	for(auto c : activeConnections)
-		c->enterGameplayConnectionMode(gh->gs);
+	for(auto activeConnection : activeConnections)
+		activeConnection->enterGameplayConnectionMode(gh->gs);
 
 	gh->start(si->mode == EStartMode::LOAD_GAME);
 	setState(EServerState::GAMEPLAY);
@@ -364,14 +364,13 @@ void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 
 void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 {
-	for(auto c : activeConnections)
+	for(auto activeConnection : activeConnections)
 	{
 		// FIXME: we need to avoid sending something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
 		//if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
 		//	continue;
-
-		c->sendPack(pack.get());
+		activeConnection->sendPack(pack.get());
 	}
 
 	applier->getApplier(CTypeList::getInstance().getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
@@ -396,14 +395,14 @@ void CVCMIServer::announceTxt(const std::string & txt, const std::string & playe
 
 bool CVCMIServer::passHost(int toConnectionId)
 {
-	for(auto c : activeConnections)
+	for(auto activeConnection : activeConnections)
 	{
-		if(isClientHost(c->connectionID))
+		if(isClientHost(activeConnection->connectionID))
 			continue;
-		if(c->connectionID != toConnectionId)
+		if(activeConnection->connectionID != toConnectionId)
 			continue;
 
-		hostClientId = c->connectionID;
+		hostClientId = activeConnection->connectionID;
 		announceTxt(boost::str(boost::format("Pass host to connection %d") % toConnectionId));
 		return true;
 	}
@@ -447,10 +446,10 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 	}
 }
 
-void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
+void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
 {
-	c->getConnection()->close();
-	vstd::erase(activeConnections, c);
+	connection->getConnection()->close();
+	vstd::erase(activeConnections, connection);
 
 //	PlayerReinitInterface startAiPack;
 //	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;

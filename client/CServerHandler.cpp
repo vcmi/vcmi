@@ -163,7 +163,7 @@ void CServerHandler::threadRunNetwork()
 	logGlobal->info("Ending network thread");
 }
 
-void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & names)
+void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & playerNames)
 {
 	hostClientId = -1;
 	setState(EClientState::NONE);
@@ -172,15 +172,15 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	th = std::make_unique<CStopWatch>();
 	logicConnection.reset();
 	si = std::make_shared<StartInfo>();
-	playerNames.clear();
+	localPlayerNames.clear();
 	si->difficulty = 1;
 	si->mode = mode;
 	screenType = screen;
-	myNames.clear();
-	if(!names.empty()) //if have custom set of player names - use it
-		myNames = names;
+	localPlayerNames.clear();
+	if(!playerNames.empty()) //if have custom set of player names - use it
+		localPlayerNames = playerNames;
 	else
-		myNames.push_back(settings["general"]["playerName"].String());
+		localPlayerNames.push_back(settings["general"]["playerName"].String());
 }
 
 GlobalLobbyClient & CServerHandler::getGlobalLobby()
@@ -421,7 +421,7 @@ void CServerHandler::sendClientConnecting() const
 {
 	LobbyClientConnected lcc;
 	lcc.uuid = uuid;
-	lcc.names = myNames;
+	lcc.names = localPlayerNames;
 	lcc.mode = si->mode;
 	sendLobbyPack(lcc);
 }
