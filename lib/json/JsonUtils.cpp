@@ -230,7 +230,7 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 			else
 			{
 				if (copyMeta)
-					dest.meta = source.meta;
+					dest.setModScope(source.getModScope(), false);
 
 				//recursively merge all entries from struct
 				for(auto & node : source.Struct())

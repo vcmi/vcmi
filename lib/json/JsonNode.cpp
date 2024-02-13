@@ -124,9 +124,14 @@ JsonNode::JsonType JsonNode::getType() const
 	return static_cast<JsonType>(data.index());
 }
 
-void JsonNode::setMeta(const std::string & metadata, bool recursive)
+const std::string & JsonNode::getModScope() const
 {
-	meta = metadata;
+	return modScope;
+}
+
+void JsonNode::setModScope(const std::string & metadata, bool recursive)
+{
+	modScope = metadata;
 	if (recursive)
 	{
 		switch (getType())
@@ -135,14 +140,14 @@ void JsonNode::setMeta(const std::string & metadata, bool recursive)
 			{
 				for(auto & node : Vector())
 				{
-					node.setMeta(metadata);
+					node.setModScope(metadata);
 				}
 			}
 			break; case JsonType::DATA_STRUCT:
 			{
 				for(auto & node : Struct())
 				{
-					node.second.setMeta(metadata);
+					node.second.setModScope(metadata);
 				}
 			}
 		}

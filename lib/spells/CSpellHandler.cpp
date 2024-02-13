@@ -719,7 +719,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		VLC->identifiers()->requestIdentifier(node.second.meta, "faction", node.first, [=](si32 factionID)
+		VLC->identifiers()->requestIdentifier(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -742,7 +742,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->identifiers()->requestIdentifier(counteredSpell.second.meta, "spell", counteredSpell.first, [=](si32 id)
+			VLC->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});

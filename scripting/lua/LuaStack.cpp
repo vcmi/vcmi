@@ -183,8 +183,8 @@ bool LuaStack::tryGet(int position, JsonNode & value)
 		return tryGet(position, value.String());
 	case LUA_TTABLE:
 		{
-			JsonNode asVector(JsonNode::JsonType::DATA_VECTOR);
-			JsonNode asStruct(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode asVector;
+			JsonNode asStruct;
 
 			lua_pushnil(L);  /* first key */
 

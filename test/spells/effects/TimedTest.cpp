@@ -77,11 +77,11 @@ TEST_P(TimedApplyTest, DISABLED_ChangesBonuses)
 	Bonus testBonus2(BonusDuration::N_TURNS, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, BonusSourceID(), BonusSubtypeID(PrimarySkill::KNOWLEDGE));
 	testBonus2.turnsRemain = 4;
 
-	JsonNode options(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode options;
 	options["cumulative"].Bool() = cumulative;
 	options["bonus"]["test1"] = testBonus1.toJsonNode();
 	options["bonus"]["test2"] = testBonus2.toJsonNode();
-	options.setMeta(ModScope::scopeBuiltin());
+	options.setModScope(ModScope::scopeBuiltin());
 	setupEffect(options);
 
 	const uint32_t unitId = 42;

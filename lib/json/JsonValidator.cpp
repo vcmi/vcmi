@@ -469,45 +469,45 @@ namespace
 
 		std::string textFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "", node.String(), EResType::JSON);
+			TEST_FILE(node.getModScope(), "", node.String(), EResType::JSON);
 			return "Text file \"" + node.String() + "\" was not found";
 		}
 
 		std::string musicFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "Music/", node.String(), EResType::SOUND);
-			TEST_FILE(node.meta, "", node.String(), EResType::SOUND);
+			TEST_FILE(node.getModScope(), "Music/", node.String(), EResType::SOUND);
+			TEST_FILE(node.getModScope(), "", node.String(), EResType::SOUND);
 			return "Music file \"" + node.String() + "\" was not found";
 		}
 
 		std::string soundFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "Sounds/", node.String(), EResType::SOUND);
+			TEST_FILE(node.getModScope(), "Sounds/", node.String(), EResType::SOUND);
 			return "Sound file \"" + node.String() + "\" was not found";
 		}
 
 		std::string defFile(const JsonNode & node)
 		{
-			return testAnimation(node.String(), node.meta);
+			return testAnimation(node.String(), node.getModScope());
 		}
 
 		std::string animationFile(const JsonNode & node)
 		{
-			return testAnimation(node.String(), node.meta);
+			return testAnimation(node.String(), node.getModScope());
 		}
 
 		std::string imageFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "Data/", node.String(), EResType::IMAGE);
-			TEST_FILE(node.meta, "Sprites/", node.String(), EResType::IMAGE);
+			TEST_FILE(node.getModScope(), "Data/", node.String(), EResType::IMAGE);
+			TEST_FILE(node.getModScope(), "Sprites/", node.String(), EResType::IMAGE);
 			if (node.String().find(':') != std::string::npos)
-				return testAnimation(node.String().substr(0, node.String().find(':')), node.meta);
+				return testAnimation(node.String().substr(0, node.String().find(':')), node.getModScope());
 			return "Image file \"" + node.String() + "\" was not found";
 		}
 
 		std::string videoFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "Video/", node.String(), EResType::VIDEO);
+			TEST_FILE(node.getModScope(), "Video/", node.String(), EResType::VIDEO);
 			return "Video file \"" + node.String() + "\" was not found";
 		}
 

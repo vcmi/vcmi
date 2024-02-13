@@ -461,7 +461,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	VLC->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
 	{
 		JsonNode conf;
-		conf.setMeta(scope);
+		conf.setModScope(scope);
 
 		VLC->objtypeh->loadSubObject(art->identifier, conf, Obj::ARTIFACT, art->getIndex());
 
@@ -469,7 +469,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		{
 			JsonNode templ;
 			templ["animation"].String() = art->advMapDef;
-			templ.setMeta(scope);
+			templ.setModScope(scope);
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3

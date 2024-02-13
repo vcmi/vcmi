@@ -248,7 +248,7 @@ void ClientCommandManager::handleGetConfigCommand()
 			{
 				const JsonNode& object = nameAndObject.second;
 
-				std::string name = ModUtility::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
+				std::string name = ModUtility::makeFullIdentifier(object.getModScope(), contentName, nameAndObject.first);
 
 				boost::algorithm::replace_all(name, ":", "_");
 

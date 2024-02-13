@@ -293,7 +293,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
 		int probability = static_cast<int>(skillPair.second.Integer());
-		VLC->identifiers()->requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
+		VLC->identifiers()->requestIdentifier(skillPair.second.getModScope(), "skill", skillPair.first, [heroClass, probability](si32 skillID)
 		{
 			heroClass->secSkillProbability[skillID] = probability;
 		});
@@ -310,7 +310,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	{
 		int value = static_cast<int>(tavern.second.Float());
 
-		VLC->identifiers()->requestIdentifier(tavern.second.meta, "faction", tavern.first,
+		VLC->identifiers()->requestIdentifier(tavern.second.getModScope(), "faction", tavern.first,
 		[=](si32 factionID)
 		{
 			heroClass->selectionProbability[FactionID(factionID)] = value;
@@ -329,7 +329,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 		classConf["heroClass"].String() = identifier;
 		if (!node["compatibilityIdentifiers"].isNull())
 			classConf["compatibilityIdentifiers"] = node["compatibilityIdentifiers"];
-		classConf.setMeta(scope);
+		classConf.setModScope(scope);
 		VLC->objtypeh->loadSubObject(identifier, classConf, index, heroClass->getIndex());
 	});
 

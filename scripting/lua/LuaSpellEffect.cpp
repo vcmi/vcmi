@@ -98,12 +98,12 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().push_back(JsonUtils::intNode(dest.hexValue.hex));
+		targetData.Vector().emplace_back(dest.hexValue.hex);
 
 		if(dest.unitValue)
-			targetData.Vector().push_back(JsonUtils::intNode(dest.unitValue->unitId()));
+			targetData.Vector().emplace_back(dest.unitValue->unitId());
 		else
-			targetData.Vector().push_back(JsonUtils::intNode(-1));
+			targetData.Vector().emplace_back(-1);
 
 		requestP.Vector().push_back(targetData);
 	}
@@ -141,12 +141,12 @@ void LuaSpellEffect::apply(ServerCallback * server, const Mechanics * m, const E
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().push_back(JsonUtils::intNode(dest.hexValue.hex));
+		targetData.Vector().emplace_back(dest.hexValue.hex);
 
 		if(dest.unitValue)
-			targetData.Vector().push_back(JsonUtils::intNode(dest.unitValue->unitId()));
+			targetData.Vector().emplace_back(dest.unitValue->unitId());
 		else
-			targetData.Vector().push_back(JsonUtils::intNode(-1));
+			targetData.Vector().emplace_back(-1);
 
 		requestP.Vector().push_back(targetData);
 	}

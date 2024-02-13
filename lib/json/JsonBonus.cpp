@@ -40,14 +40,14 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 
 	if (node.isNumber()) // Compatibility code for 1.3 or older
 	{
-		logMod->warn("Bonus subtype must be string! (%s)", node.meta);
+		logMod->warn("Bonus subtype must be string! (%s)", node.getModScope());
 		subtype = BonusCustomSubtype(node.Integer());
 		return;
 	}
 
 	if (!node.isString())
 	{
-		logMod->warn("Bonus subtype must be string! (%s)", node.meta);
+		logMod->warn("Bonus subtype must be string! (%s)", node.getModScope());
 		subtype = BonusSubtypeID();
 		return;
 	}

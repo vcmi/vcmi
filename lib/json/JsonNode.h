@@ -41,9 +41,9 @@ private:
 
 	JsonData data;
 
+	/// Mod-origin of this particular field
+	std::string modScope;
 public:
-	/// free to use metadata fields
-	std::string meta;
 	/// meta-flags like override
 	std::vector<std::string> flags;
 
@@ -68,7 +68,8 @@ public:
 	bool operator == (const JsonNode &other) const;
 	bool operator != (const JsonNode &other) const;
 
-	void setMeta(const std::string & metadata, bool recursive = true);
+	const std::string & getModScope() const;
+	void setModScope(const std::string & metadata, bool recursive = true);
 
 	/// Convert node to another type. Converting to nullptr will clear all data
 	void setType(JsonType Type);
@@ -130,7 +131,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & meta;
+		h & modScope;
 		h & flags;
 		h & data;
 	}

@@ -259,21 +259,21 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	{
 		if (!subData.second["index"].isNull())
 		{
-			const std::string & subMeta = subData.second["index"].meta;
+			const std::string & subMeta = subData.second["index"].getModScope();
 
 			if ( subMeta == "core")
 			{
 				size_t subIndex = subData.second["index"].Integer();
-				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get(), subIndex);
+				loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get(), subIndex);
 			}
 			else
 			{
 				logMod->error("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
-				loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
+				loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get());
 			}
 		}
 		else
-			loadSubObject(subData.second.meta, subData.first, subData.second, obj.get());
+			loadSubObject(subData.second.getModScope(), subData.first, subData.second, obj.get());
 	}
 
 	if (obj->id == MapObjectID::MONOLITH_TWO_WAY)
@@ -306,7 +306,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 		objects.at(ID.getNum())->objects.resize(subID.getNum()+1);
 
 	JsonUtils::inherit(config, objects.at(ID.getNum())->base);
-	loadSubObject(config.meta, identifier, config, objects.at(ID.getNum()).get(), subID.getNum());
+	loadSubObject(config.getModScope(), identifier, config, objects.at(ID.getNum()).get(), subID.getNum());
 }
 
 void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
