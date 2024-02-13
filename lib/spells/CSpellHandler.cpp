@@ -582,7 +582,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 	{
 		do
 		{
-			JsonNode lineNode(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode lineNode;
 
 			const auto id = legacyData.size();
 

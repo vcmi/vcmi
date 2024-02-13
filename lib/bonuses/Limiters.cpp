@@ -92,7 +92,7 @@ std::string ILimiter::toString() const
 
 JsonNode ILimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 	root["type"].String() = toString();
 	return root;
 }
@@ -127,11 +127,11 @@ std::string CCreatureTypeLimiter::toString() const
 
 JsonNode CCreatureTypeLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "CREATURE_TYPE_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(creature->getJsonKey()));
-	root["parameters"].Vector().push_back(JsonUtils::boolNode(includeUpgrades));
+	root["parameters"].Vector().emplace_back(creature->getJsonKey());
+	root["parameters"].Vector().emplace_back(includeUpgrades);
 
 	return root;
 }
@@ -199,16 +199,16 @@ std::string HasAnotherBonusLimiter::toString() const
 
 JsonNode HasAnotherBonusLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 	std::string typeName = vstd::findKey(bonusNameMap, type);
 	auto sourceTypeName = vstd::findKey(bonusSourceMap, source);
 
 	root["type"].String() = "HAS_ANOTHER_BONUS_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(typeName));
+	root["parameters"].Vector().emplace_back(typeName);
 	if(isSubtypeRelevant)
-		root["parameters"].Vector().push_back(JsonUtils::stringNode(subtype.toString()));
+		root["parameters"].Vector().emplace_back(subtype.toString());
 	if(isSourceRelevant)
-		root["parameters"].Vector().push_back(JsonUtils::stringNode(sourceTypeName));
+		root["parameters"].Vector().emplace_back(sourceTypeName);
 
 	return root;
 }
@@ -233,11 +233,11 @@ UnitOnHexLimiter::UnitOnHexLimiter(const std::set<BattleHex> & applicableHexes):
 
 JsonNode UnitOnHexLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "UNIT_ON_HEXES";
 	for(const auto & hex : applicableHexes)
-		root["parameters"].Vector().push_back(JsonUtils::intNode(hex));
+		root["parameters"].Vector().emplace_back(hex);
 
 	return root;
 }
@@ -278,11 +278,11 @@ std::string CreatureTerrainLimiter::toString() const
 
 JsonNode CreatureTerrainLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
 	auto terrainName = VLC->terrainTypeHandler->getById(terrainType)->getJsonKey();
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainName));
+	root["parameters"].Vector().emplace_back(terrainName);
 
 	return root;
 }
@@ -324,10 +324,10 @@ std::string FactionLimiter::toString() const
 
 JsonNode FactionLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "FACTION_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->factions()->getById(faction)->getJsonKey()));
+	root["parameters"].Vector().emplace_back(VLC->factions()->getById(faction)->getJsonKey());
 
 	return root;
 }
@@ -354,11 +354,11 @@ std::string CreatureLevelLimiter::toString() const
 
 JsonNode CreatureLevelLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "CREATURE_LEVEL_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::intNode(minLevel));
-	root["parameters"].Vector().push_back(JsonUtils::intNode(maxLevel));
+	root["parameters"].Vector().emplace_back(minLevel);
+	root["parameters"].Vector().emplace_back(maxLevel);
 
 	return root;
 }
@@ -392,10 +392,10 @@ std::string CreatureAlignmentLimiter::toString() const
 
 JsonNode CreatureAlignmentLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "CREATURE_ALIGNMENT_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)]));
+	root["parameters"].Vector().emplace_back(GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)]);
 
 	return root;
 }
@@ -450,8 +450,8 @@ void AggregateLimiter::add(const TLimiterPtr & limiter)
 
 JsonNode AggregateLimiter::toJsonNode() const
 {
-	JsonNode result(JsonNode::JsonType::DATA_VECTOR);
-	result.Vector().push_back(JsonUtils::stringNode(getAggregator()));
+	JsonNode result;
+	result.Vector().emplace_back(getAggregator());
 	for(const auto & l : limiters)
 		result.Vector().push_back(l->toJsonNode());
 	return result;

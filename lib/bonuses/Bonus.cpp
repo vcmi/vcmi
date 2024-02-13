@@ -26,7 +26,6 @@
 #include "../TerrainHandler.h"
 #include "../constants/StringConstants.h"
 #include "../battle/BattleInfo.h"
-#include "../json/JsonUtils.h"
 #include "../modding/ModUtility.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -79,13 +78,13 @@ JsonNode CAddInfo::toJsonNode() const
 {
 	if(size() < 2)
 	{
-		return JsonUtils::intNode(operator[](0));
+		return JsonNode(operator[](0));
 	}
 	else
 	{
-		JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+		JsonNode node;
 		for(si32 value : *this)
-			node.Vector().push_back(JsonUtils::intNode(value));
+			node.Vector().emplace_back(value);
 		return node;
 	}
 }
@@ -143,7 +142,7 @@ static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 	switch(type)
 	{
 	case BonusType::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
+		return JsonNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
 	default:
 		return addInfo.toJsonNode();
 	}
@@ -151,7 +150,7 @@ static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 
 JsonNode Bonus::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
 	if(subtype != BonusSubtypeID())

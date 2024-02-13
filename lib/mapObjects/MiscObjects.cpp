@@ -220,13 +220,10 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		if(handler.saving)
 		{
-			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+			JsonNode node;
 			for(const auto & resID : abandonedMineResources)
-			{
-				JsonNode one(JsonNode::JsonType::DATA_STRING);
-				one.String() = GameConstants::RESOURCE_NAMES[resID.getNum()];
-				node.Vector().push_back(one);
-			}
+				node.Vector().emplace_back(GameConstants::RESOURCE_NAMES[resID.getNum()]);
+
 			handler.serializeRaw("possibleResources", node, std::nullopt);
 		}
 		else

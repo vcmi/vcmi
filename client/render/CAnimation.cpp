@@ -102,7 +102,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 	std::string basepath;
 	basepath = config["basepath"].String();
 
-	JsonNode base(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode base;
 	base["margins"] = config["margins"];
 	base["width"] = config["width"];
 	base["height"] = config["height"];
@@ -114,7 +114,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 
 		for(const JsonNode & frame : group["frames"].Vector())
 		{
-			JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode toAdd;
 			JsonUtils::inherit(toAdd, base);
 			toAdd["file"].String() = basepath + frame.String();
 			source[groupID].push_back(toAdd);
@@ -129,7 +129,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 		if (source[group].size() <= frame)
 			source[group].resize(frame+1);
 
-		JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode toAdd;
 		JsonUtils::inherit(toAdd, base);
 		toAdd["file"].String() = basepath + node["file"].String();
 		source[group][frame] = toAdd;
@@ -191,7 +191,7 @@ void CAnimation::init()
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		const JsonNode config((char*)textData.get(), stream->getSize());
+		const JsonNode config(reinterpret_cast<const std::byte*>(textData.get()), stream->getSize());
 
 		initFromJson(config);
 	}

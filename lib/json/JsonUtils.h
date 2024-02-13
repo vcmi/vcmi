@@ -88,12 +88,6 @@ namespace JsonUtils
 	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
 	/// example: schema "vcmi:settings" is used to check user settings
 	DLL_LINKAGE const JsonNode & getSchema(const std::string & URI);
-
-	/// for easy construction of JsonNodes; helps with inserting primitives into vector node
-	DLL_LINKAGE JsonNode boolNode(bool value);
-	DLL_LINKAGE JsonNode floatNode(double value);
-	DLL_LINKAGE JsonNode stringNode(const std::string & value);
-	DLL_LINKAGE JsonNode intNode(si64 value);
 }
 
 VCMI_LIB_NAMESPACE_END

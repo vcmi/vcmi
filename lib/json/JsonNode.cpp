@@ -56,18 +56,33 @@ class CModHandler;
 
 static const JsonNode nullNode;
 
-JsonNode::JsonNode(JsonType Type)
-{
-	setType(Type);
-}
-
-JsonNode::JsonNode(const std::byte *data, size_t datasize)
-	:JsonNode(reinterpret_cast<const char*>(data), datasize)
+JsonNode::JsonNode(bool boolean)
+	:data(boolean)
 {}
 
-JsonNode::JsonNode(const char *data, size_t datasize)
+JsonNode::JsonNode(int32_t number)
+	:data(static_cast<int64_t>(number))
+{}
+
+JsonNode::JsonNode(uint32_t number)
+	:data(static_cast<int64_t>(number))
+{}
+
+JsonNode::JsonNode(int64_t number)
+	:data(number)
+{}
+
+JsonNode::JsonNode(double number)
+	:data(number)
+{}
+
+JsonNode::JsonNode(const std::string & string)
+	:data(string)
+{}
+
+JsonNode::JsonNode(const std::byte *data, size_t datasize)
 {
-	JsonParser parser(data, datasize);
+	JsonParser parser(reinterpret_cast<const char*>(data), datasize);
 	*this = parser.parse("<unknown>");
 }
 
@@ -79,7 +94,7 @@ JsonNode::JsonNode(const JsonPath & fileURI)
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const std::string & idx, const JsonPath & fileURI)
+JsonNode::JsonNode(const JsonPath & fileURI, const std::string & idx)
 {
 	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
 	

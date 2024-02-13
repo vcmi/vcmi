@@ -58,7 +58,7 @@ NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) c
 
 void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNode & json)
 {
-	target->sendPacket(json.toBytes(true));
+	target->sendPacket(json.toBytes());
 }
 
 void LobbyServer::sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie)

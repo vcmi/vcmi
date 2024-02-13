@@ -273,7 +273,7 @@ JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool prune
 	if(a.getType() == JsonNode::JsonType::DATA_STRUCT && b.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		// intersect individual properties
-		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode result;
 		for(const auto & property : a.Struct())
 		{
 			if(vstd::contains(b.Struct(), property.first))
@@ -313,7 +313,7 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 	if(node.getType() == JsonNode::JsonType::DATA_STRUCT && base.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		// subtract individual properties
-		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode result;
 		for(const auto & property : node.Struct())
 		{
 			if(vstd::contains(base.Struct(), property.first))
@@ -370,38 +370,10 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
-		JsonNode section(reinterpret_cast<char *>(textData.get()), stream->getSize());
+		JsonNode section(reinterpret_cast<std::byte *>(textData.get()), stream->getSize());
 		merge(result, section);
 	}
 	return result;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::boolNode(bool value)
-{
-	JsonNode node;
-	node.Bool() = value;
-	return node;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::floatNode(double value)
-{
-	JsonNode node;
-	node.Float() = value;
-	return node;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::stringNode(const std::string & value)
-{
-	JsonNode node;
-	node.String() = value;
-	return node;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::intNode(si64 value)
-{
-	JsonNode node;
-	node.Integer() = value;
-	return node;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -37,24 +37,32 @@ public:
 	};
 
 private:
-	using JsonData = std::variant<std::monostate, bool, double, std::string, JsonVector, JsonMap, si64>;
+	using JsonData = std::variant<std::monostate, bool, double, std::string, JsonVector, JsonMap, int64_t>;
 
 	JsonData data;
 
 public:
 	/// free to use metadata fields
 	std::string meta;
-	// meta-flags like override
+	/// meta-flags like override
 	std::vector<std::string> flags;
 
-	//Create empty node
-	JsonNode(JsonType Type = JsonType::DATA_NULL);
-	//Create tree from Json-formatted input
-	explicit JsonNode(const char * data, size_t datasize);
+	JsonNode() = default;
+
+	/// Create single node with specified value
+	explicit JsonNode(bool boolean);
+	explicit JsonNode(int32_t number);
+	explicit JsonNode(uint32_t number);
+	explicit JsonNode(int64_t number);
+	explicit JsonNode(double number);
+	explicit JsonNode(const std::string & string);
+
+	/// Create tree from Json-formatted input
 	explicit JsonNode(const std::byte * data, size_t datasize);
-	//Create tree from JSON file
+
+	/// Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);
-	explicit JsonNode(const std::string & modName, const JsonPath & fileURI);
+	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
 	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
 
 	bool operator == (const JsonNode &other) const;

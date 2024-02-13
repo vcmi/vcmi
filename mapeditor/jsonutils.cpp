@@ -96,7 +96,7 @@ QVariant JsonFromFile(QString filename)
 	}
 	else
 	{
-		JsonNode node(data.data(), data.size());
+		JsonNode node(reinterpret_cast<const std::byte*>(data.data()), data.size());
 		return toVariant(node);
 	}
 }

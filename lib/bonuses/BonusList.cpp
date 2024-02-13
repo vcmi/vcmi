@@ -213,7 +213,7 @@ int BonusList::valOfBonuses(const CSelector &select) const
 
 JsonNode BonusList::toJsonNode() const
 {
-	JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+	JsonNode node;
 	for(const std::shared_ptr<Bonus> & b : bonuses)
 		node.Vector().push_back(b->toJsonNode());
 	return node;
