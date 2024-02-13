@@ -562,27 +562,6 @@ void HeroSlots::swapArmies()
 		LOCPLINT->cb->swapGarrisonHero(town);
 }
 
-class SORTHELP
-{
-public:
-	bool operator() (const CIntObject * a, const CIntObject * b)
-	{
-		auto b1 = dynamic_cast<const CBuildingRect *>(a);
-		auto b2 = dynamic_cast<const CBuildingRect *>(b);
-
-		if(!b1 && !b2)
-			return intptr_t(a) < intptr_t(b);
-		if(b1 && !b2)
-			return false;
-		if(!b1 && b2)
-			return true;
-
-		return (*b1)<(*b2);
-	}
-};
-
-SORTHELP buildSorter;
-
 CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 	town(Town),
 	selectedBuilding(nullptr)
@@ -649,6 +628,21 @@ void CCastleBuildings::recreate()
 
 		buildings.push_back(std::make_shared<CBuildingRect>(this, town, toAdd));
 	}
+
+	auto const & buildSorter = [] (const CIntObject * a, const CIntObject * b)
+	{
+		auto b1 = dynamic_cast<const CBuildingRect *>(a);
+		auto b2 = dynamic_cast<const CBuildingRect *>(b);
+
+		if(!b1 && !b2)
+			return intptr_t(a) < intptr_t(b);
+		if(b1 && !b2)
+			return false;
+		if(!b1 && b2)
+			return true;
+
+		return (*b1)<(*b2);
+	};
 
 	boost::sort(children, buildSorter); //TODO: create building in blit order
 }
@@ -1427,11 +1421,11 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 
 	state = LOCPLINT->cb->canBuildStructure(town, building->bid);
 
-	static int panelIndex[12] =
+	constexpr std::array panelIndex =
 	{
 		3, 3, 3, 0, 0, 2, 2, 1, 2, 2,  3,  3
 	};
-	static int iconIndex[12] =
+	constexpr std::array iconIndex =
 	{
 		-1, -1, -1, 0, 0, 1, 2, -1, 1, 1, -1, -1
 	};

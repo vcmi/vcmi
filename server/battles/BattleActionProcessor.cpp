@@ -1573,8 +1573,11 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	else
 	{
 		auto active = battle.battleActiveUnit();
-		if(!active && gameHandler->complain("No active unit in battle!"))
+		if(!active)
+		{
+			gameHandler->complain("No active unit in battle!");
 			return false;
+		}
 
 		if (ba.isUnitAction() && ba.stackNumber != active->unitId())
 		{
@@ -1584,8 +1587,11 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 
 		auto unitOwner = battle.battleGetOwner(active);
 
-		if(player != unitOwner && gameHandler->complain("Can not make actions in battles you are not part of!"))
+		if(player != unitOwner)
+		{
+			gameHandler->complain("Can not make actions in battles you are not part of!");
 			return false;
+		}
 	}
 
 	return makeBattleActionImpl(battle, ba);

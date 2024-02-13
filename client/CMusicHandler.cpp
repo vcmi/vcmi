@@ -30,7 +30,7 @@
 #define VCMI_SOUND_FILE(y) #y,
 
 // sounds mapped to soundBase enum
-static std::string sounds[] = {
+static const std::string sounds[] = {
 	"", // invalid
 	"", // todo
 	VCMI_SOUND_LIST

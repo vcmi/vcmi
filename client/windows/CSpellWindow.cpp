@@ -94,7 +94,7 @@ public:
 
 		return A->getNameTranslated() < B->getNameTranslated();
 	}
-} spellsorter;
+};
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
 	CWindowObject(PLAYER_COLORED | (settings["gameTweaks"]["enableLargeSpellbook"].Bool() ? BORDERED : 0)),
@@ -293,6 +293,8 @@ void CSpellWindow::processSpells()
 		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && searchTextFound)
 			mySpells.push_back(spell);
 	}
+
+	SpellbookSpellSorter spellsorter;
 	std::sort(mySpells.begin(), mySpells.end(), spellsorter);
 
 	//initializing sizes of spellbook's parts

@@ -11,7 +11,6 @@
 
 #include "CEmptyAI.h"
 
-std::set<CGlobalAI*> ais;
 extern "C" DLL_EXPORT int GetGlobalAiVersion()
 {
 	return AI_INTERFACE_VER;

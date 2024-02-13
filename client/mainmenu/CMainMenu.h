@@ -125,7 +125,7 @@ public:
 class CMainMenuConfig
 {
 public:
-	static CMainMenuConfig & get();
+	static const CMainMenuConfig & get();
 	const JsonNode & getConfig() const;
 	const JsonNode & getCampaigns() const;
 

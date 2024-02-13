@@ -157,11 +157,11 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 		ret->format->palette->colors[0].g ==   0 &&
 		ret->format->palette->colors[0].b == 255 )
 	{
-		static SDL_Color shadow[3] =
+		constexpr std::array shadow =
 		{
-			{   0,   0,   0,   0},// 100% - transparency
-			{   0,   0,   0,  32},//  75% - shadow border,
-			{   0,   0,   0, 128},//  50% - shadow body
+			SDL_Color{   0,   0,   0,   0},// 100% - transparency
+			SDL_Color{   0,   0,   0,  32},//  75% - shadow border,
+			SDL_Color{   0,   0,   0, 128},//  50% - shadow body
 		};
 
 		CSDL_Ext::setColorKey(ret, ret->format->palette->colors[0]);

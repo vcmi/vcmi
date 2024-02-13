@@ -1259,7 +1259,7 @@ namespace Validation
 
 	const TFormatMap & getKnownFormats()
 	{
-		static TFormatMap knownFormats = createFormatMap();
+		static const TFormatMap knownFormats = createFormatMap();
 		return knownFormats;
 	}
 

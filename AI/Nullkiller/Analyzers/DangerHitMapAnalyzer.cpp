@@ -16,7 +16,7 @@
 namespace NKAI
 {
 
-HitMapInfo HitMapInfo::NoThreat;
+const HitMapInfo HitMapInfo::NoThreat;
 
 double HitMapInfo::value() const
 {
@@ -284,8 +284,6 @@ const HitMapNode & DangerHitMapAnalyzer::getTileThreat(const int3 & tile) const
 {
 	return hitMap[tile.x][tile.y][tile.z];
 }
-
-const std::set<const CGObjectInstance *> empty = {};
 
 std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const
 {

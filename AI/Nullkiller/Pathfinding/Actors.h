@@ -51,24 +51,24 @@ protected:
 
 public:
 	uint64_t chainMask;
-	bool isMovable;
-	bool allowUseResources;
-	bool allowBattle;
-	bool allowSpellCast;
+	bool isMovable = false;
+	bool allowUseResources = false;
+	bool allowBattle = false;
+	bool allowSpellCast = false;
 	std::shared_ptr<SpecialAction> actorAction;
 	const CGHeroInstance * hero;
 	HeroRole heroRole;
-	const CCreatureSet * creatureSet;
-	const ChainActor * battleActor;
-	const ChainActor * castActor;
-	const ChainActor * resourceActor;
-	const ChainActor * carrierParent;
-	const ChainActor * otherParent;
-	const ChainActor * baseActor;
+	const CCreatureSet * creatureSet = nullptr;
+	const ChainActor * battleActor = nullptr;
+	const ChainActor * castActor = nullptr;
+	const ChainActor * resourceActor = nullptr;
+	const ChainActor * carrierParent = nullptr;
+	const ChainActor * otherParent = nullptr;
+	const ChainActor * baseActor = nullptr;
 	int3 initialPosition;
 	EPathfindingLayer layer;
-	uint32_t initialMovement;
-	uint32_t initialTurn;
+	uint32_t initialMovement = 0;
+	uint32_t initialTurn = 0;
 	uint64_t armyValue;
 	float heroFightingStrength;
 	uint8_t actorExchangeCount;

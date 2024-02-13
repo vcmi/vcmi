@@ -31,8 +31,8 @@ template<typename T> class CApplyOnServer;
 class CBaseForServerApply
 {
 public:
-	virtual bool applyOnServerBefore(CVCMIServer * srv, void * pack) const =0;
-	virtual void applyOnServerAfter(CVCMIServer * srv, void * pack) const =0;
+	virtual bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const =0;
+	virtual void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const =0;
 	virtual ~CBaseForServerApply() {}
 	template<typename U> static CBaseForServerApply * getApplier(const U * t = nullptr)
 	{
@@ -43,7 +43,7 @@ public:
 template <typename T> class CApplyOnServer : public CBaseForServerApply
 {
 public:
-	bool applyOnServerBefore(CVCMIServer * srv, void * pack) const override
+	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ClientPermissionsCheckerNetPackVisitor checker(*srv);
@@ -59,7 +59,7 @@ public:
 			return false;
 	}
 
-	void applyOnServerAfter(CVCMIServer * srv, void * pack) const override
+	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnServerAfterAnnounceNetPackVisitor applier(*srv);
@@ -71,13 +71,13 @@ template <>
 class CApplyOnServer<CPack> : public CBaseForServerApply
 {
 public:
-	bool applyOnServerBefore(CVCMIServer * srv, void * pack) const override
+	bool applyOnServerBefore(CVCMIServer * srv, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply plain CPack!");
 		assert(0);
 		return false;
 	}
-	void applyOnServerAfter(CVCMIServer * srv, void * pack) const override
+	void applyOnServerAfter(CVCMIServer * srv, CPack * pack) const override
 	{
 		logGlobal->error("Cannot apply plain CPack!");
 		assert(0);

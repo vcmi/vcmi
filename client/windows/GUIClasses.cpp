@@ -1558,7 +1558,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//data for information table:
 	// fields[row][column] = list of id's of players for this box
-	static std::vector< std::vector< PlayerColor > > SThievesGuildInfo::* fields[] =
+	constexpr std::vector< std::vector< PlayerColor > > SThievesGuildInfo::* fields[] =
 		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes,       &SThievesGuildInfo::gold,
 		  &SThievesGuildInfo::woodOre,    &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks,
 		  &SThievesGuildInfo::artifacts,  &SThievesGuildInfo::army,              &SThievesGuildInfo::income };

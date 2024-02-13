@@ -154,7 +154,7 @@ InfoCard::InfoCard()
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
-			static const char * difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
+			constexpr std::array difButns = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
 
 			for(int i = 0; i < 5; i++)
 			{

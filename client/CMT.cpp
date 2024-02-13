@@ -56,7 +56,6 @@ namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
 static std::atomic<bool> quitRequestedDuringOpeningPlayback = false;
-static po::variables_map vm;
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
@@ -118,6 +117,8 @@ int main(int argc, char * argv[])
 #endif
 	std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
+	po::variables_map vm;
+
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
@@ -200,17 +201,17 @@ int main(int argc, char * argv[])
 	preinitDLL(::console, false);
 
 	Settings session = settings.write["session"];
-	auto setSettingBool = [](std::string key, std::string arg) {
+	auto setSettingBool = [&](std::string key, std::string arg) {
 		Settings s = settings.write(vstd::split(key, "/"));
-		if(::vm.count(arg))
+		if(vm.count(arg))
 			s->Bool() = true;
 		else if(s->isNull())
 			s->Bool() = false;
 	};
-	auto setSettingInteger = [](std::string key, std::string arg, si64 defaultValue) {
+	auto setSettingInteger = [&](std::string key, std::string arg, si64 defaultValue) {
 		Settings s = settings.write(vstd::split(key, "/"));
-		if(::vm.count(arg))
-			s->Integer() = ::vm[arg].as<si64>();
+		if(vm.count(arg))
+			s->Integer() = vm[arg].as<si64>();
 		else if(s->isNull())
 			s->Integer() = defaultValue;
 	};
