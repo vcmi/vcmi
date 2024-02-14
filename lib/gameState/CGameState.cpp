@@ -31,6 +31,7 @@
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/ResourcePath.h"
+#include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"

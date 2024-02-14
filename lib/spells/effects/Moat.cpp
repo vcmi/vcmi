@@ -18,7 +18,7 @@
 #include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
-#include "../../json/JsonUtils.h"
+#include "../../json/JsonBonus.h"
 #include "../../serializer/JsonSerializeFormat.h"
 #include "../../networkPacks/PacksForClient.h"
 #include "../../networkPacks/PacksForClientBattle.h"

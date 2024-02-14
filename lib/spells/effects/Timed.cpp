@@ -17,7 +17,7 @@
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
-#include "../../json/JsonUtils.h"
+#include "../../json/JsonBonus.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../networkPacks/SetStackEffect.h"

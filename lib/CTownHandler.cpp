@@ -22,7 +22,7 @@
 #include "filesystem/Filesystem.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/Propagators.h"
-#include "json/JsonUtils.h"
+#include "json/JsonBonus.h"
 #include "ResourceSet.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"

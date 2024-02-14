@@ -61,6 +61,7 @@ set(lib_SRCS
 	filesystem/MinizipExtensions.cpp
 	filesystem/ResourcePath.cpp
 
+	json/JsonBonus.cpp
 	json/JsonNode.cpp
 	json/JsonParser.cpp
 	json/JsonRandom.cpp
@@ -403,6 +404,7 @@ set(lib_HEADERS
 	filesystem/MinizipExtensions.h
 	filesystem/ResourcePath.h
 
+	json/JsonBonus.h
 	json/JsonNode.h
 	json/JsonParser.h
 	json/JsonRandom.h
