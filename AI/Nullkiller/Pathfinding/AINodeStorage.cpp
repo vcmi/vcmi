@@ -1265,8 +1265,8 @@ bool AINodeStorage::hasBetterChain(
 				&& nodeActor->heroFightingStrength >= candidateActor->heroFightingStrength
 				&& node.getCost() <= candidateNode->getCost())
 			{
-				if(nodeActor->heroFightingStrength == candidateActor->heroFightingStrength
-					&& node.getCost() == candidateNode->getCost()
+				if(vstd::isAlmostEqual(nodeActor->heroFightingStrength, candidateActor->heroFightingStrength)
+					&& vstd::isAlmostEqual(node.getCost(), candidateNode->getCost())
 					&& &node < candidateNode)
 				{
 					continue;
