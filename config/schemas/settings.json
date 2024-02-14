@@ -463,7 +463,7 @@
 					"properties" : {
 						"format" : {
 							"type" : "string",
-							"default" : "[%c] %l %n - %m"
+							"default" : "[%c] %l [%t] %n - %m"
 						}
 					}
 				},

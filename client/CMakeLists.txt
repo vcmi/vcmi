@@ -164,6 +164,7 @@ set(client_SRCS
 	HeroMovementController.cpp
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
+	ServerRunner.cpp
 )
 
 set(client_HEADERS
@@ -346,6 +347,7 @@ set(client_HEADERS
 	ClientNetPackVisitors.h
 	HeroMovementController.h
 	LobbyClientNetPackVisitors.h
+	ServerRunner.h
 	resource.h
 )
 
@@ -373,8 +375,7 @@ else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-add_dependencies(vcmiclient vcmiserver)
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclient
 		BattleAI
 		EmptyAI
@@ -451,14 +452,13 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(ENABLE_SINGLE_APP_BUILD)
-	target_link_libraries(vcmiclient PRIVATE vcmiserver)
-	if(ENABLE_LAUNCHER)
-		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
-	endif()
+target_link_libraries(vcmiclient PRIVATE vcmiservercommon)
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
+	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
+
 target_link_libraries(vcmiclient PRIVATE
-		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
 if(ffmpeg_LIBRARIES)

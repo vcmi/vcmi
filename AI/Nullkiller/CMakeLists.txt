@@ -125,12 +125,12 @@ set(Nullkiller_HEADERS
 		AIGateway.h
 )
 
-if(NOT ENABLE_STATIC_AI_LIBS)
+if(NOT ENABLE_STATIC_LIBS)
 	list(APPEND Nullkiller_SRCS main.cpp StdInc.cpp)
 endif()
 assign_source_group(${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
-if(ENABLE_STATIC_AI_LIBS)
+if(ENABLE_STATIC_LIBS)
 	add_library(Nullkiller STATIC ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 else()
 	add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
@@ -138,7 +138,7 @@ else()
 endif()
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Nullkiller PUBLIC ${VCMI_LIB_TARGET} fuzzylite::fuzzylite TBB::tbb)
+target_link_libraries(Nullkiller PUBLIC vcmi fuzzylite::fuzzylite TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)

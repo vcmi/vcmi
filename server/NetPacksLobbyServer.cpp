@@ -81,7 +81,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 
 	if(pack.shutdownServer)
 	{
-		if(!srv.cmdLineOptions.count("run-by-client"))
+		if(!srv.wasStartedByClient())
 		{
 			result = false;
 			return;

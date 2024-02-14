@@ -12,6 +12,7 @@
 #include "CServerHandler.h"
 #include "Client.h"
 #include "CGameInfo.h"
+#include "ServerRunner.h"
 #include "CPlayerInterface.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
@@ -24,17 +25,6 @@
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
 #include "mainmenu/CHighScoreScreen.h"
-
-#ifdef VCMI_ANDROID
-#include "../lib/CAndroidVMHelper.h"
-#elif defined(VCMI_IOS)
-#include "ios/utils.h"
-#include <dispatch/dispatch.h>
-#endif
-
-#ifdef SINGLE_PROCESS_APP
-#include "../server/CVCMIServer.h"
-#endif
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -61,15 +51,7 @@
 
 #include <vcmi/events/EventBus.h>
 
-#ifdef VCMI_WINDOWS
-#include <windows.h>
-#endif
-
 template<typename T> class CApplyOnLobby;
-
-#if defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
-extern std::atomic_bool androidTestServerReadyFlag;
-#endif
 
 class CBaseForLobbyApply
 {
@@ -126,9 +108,14 @@ public:
 
 CServerHandler::~CServerHandler()
 {
+	if (serverRunner)
+		serverRunner->shutdown();
 	networkHandler->stop();
 	try
 	{
+		if (serverRunner)
+			serverRunner->wait();
+		serverRunner.reset();
 		threadNetwork.join();
 	}
 	catch (const std::runtime_error & e)
@@ -195,70 +182,22 @@ INetworkHandler & CServerHandler::getNetworkHandler()
 
 void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 {
-	if(threadRunLocalServer.joinable())
-		threadRunLocalServer.join();
-
-	th->update();
-
-#if defined(SINGLE_PROCESS_APP)
-	boost::condition_variable cond;
-	std::vector<std::string> args{"--port=" + std::to_string(getLocalPort())};
-	if(connectToLobby)
-		args.push_back("--lobby");
-
-	threadRunLocalServer = boost::thread([&cond, args] {
-		setThreadName("CVCMIServer");
-		CVCMIServer::create(&cond, args);
-	});
-#elif defined(VCMI_ANDROID)
-	{
-		CAndroidVMHelper envHelper;
-		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
-	}
+	logNetwork->trace("\tLocal server startup has been requested");
+#ifdef VCMI_MOBILE
+	// mobile apps can't spawn separate processes - only thread mode is available
+	serverRunner.reset(new ServerThreadRunner());
 #else
-	threadRunLocalServer = boost::thread(&CServerHandler::threadRunServer, this, connectToLobby); //runs server executable;
-#endif
-	logNetwork->trace("Setting up thread calling server: %d ms", th->getDiff());
-
-	th->update();
-
-#ifdef SINGLE_PROCESS_APP
-	{
-#ifdef VCMI_IOS
-		dispatch_sync(dispatch_get_main_queue(), ^{
-			iOS_utils::showLoadingIndicator();
-		});
+	if (settings["server"]["useProcess"].Bool())
+		serverRunner.reset(new ServerProcessRunner());
+	else
+		serverRunner.reset(new ServerThreadRunner());
 #endif
 
-		boost::mutex m;
-		boost::unique_lock<boost::mutex> lock{m};
-		logNetwork->info("waiting for server");
-		cond.wait(lock);
-		logNetwork->info("server is ready");
-
-#ifdef VCMI_IOS
-		dispatch_sync(dispatch_get_main_queue(), ^{
-			iOS_utils::hideLoadingIndicator();
-		});
-#endif
-	}
-#elif defined(VCMI_ANDROID)
-	logNetwork->info("waiting for server");
-	while(!androidTestServerReadyFlag.load())
-	{
-		logNetwork->info("still waiting...");
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-	}
-	logNetwork->info("waiting for server finished...");
-	androidTestServerReadyFlag = false;
-#endif
-	logNetwork->trace("Waiting for server: %d ms", th->getDiff());
-
-	th->update(); //put breakpoint here to attach to server before it does something stupid
-
+	logNetwork->trace("\tStarting local server");
+	serverRunner->start(getLocalPort(), connectToLobby);
+	logNetwork->trace("\tConnecting to local server");
 	connectToServer(getLocalHostname(), getLocalPort());
-
-	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
+	logNetwork->trace("\tWaiting for connection");
 }
 
 void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
@@ -306,6 +245,10 @@ void CServerHandler::onTimer()
 	if(getState() == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
+		serverRunner->wait();
+		serverRunner.reset();
+		if (GH.windows().topWindow<CSimpleJoinScreen>() != nullptr)
+			GH.windows().popWindows(1);
 		return;
 	}
 
@@ -369,12 +312,15 @@ EClientState CServerHandler::getState() const
 
 void CServerHandler::setState(EClientState newState)
 {
+	if (newState == EClientState::CONNECTION_CANCELLED && serverRunner != nullptr)
+		serverRunner->shutdown();
+
 	state = newState;
 }
 
 bool CServerHandler::isServerLocal() const
 {
-	return threadRunLocalServer.joinable();
+	return serverRunner != nullptr;
 }
 
 bool CServerHandler::isHost() const
@@ -758,7 +704,6 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			}
 		};
 
-		threadRunLocalServer.join();
 		if(epilogue.hasPrologEpilog)
 		{
 			GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
@@ -899,6 +844,8 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
+	waitForServerShutdown();
+
 	if(getState() == EClientState::DISCONNECTING)
 	{
 		assert(networkConnection == nullptr);
@@ -928,6 +875,34 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	networkConnection.reset();
 }
 
+void CServerHandler::waitForServerShutdown()
+{
+	if (!serverRunner)
+		return; // may not exist for guest in MP
+
+	serverRunner->wait();
+	int exitCode = serverRunner->exitCode();
+	serverRunner.reset();
+
+	if (exitCode == 0)
+	{
+		logNetwork->info("Server closed correctly");
+	}
+	else
+	{
+		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+		if (getState() == EClientState::CONNECTING)
+		{
+			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
+			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
+		}
+		logNetwork->error("Error: server failed to close correctly or crashed!");
+		logNetwork->error("Check log file for more info");
+	}
+
+	serverRunner.reset();
+}
+
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 {
 	if(applier->getApplier(CTypeList::getInstance().getTypeID(&lobbyPack))->applyOnLobbyHandler(this, lobbyPack))
@@ -942,55 +917,6 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 	client->handlePack(&clientPack);
 }
 
-void CServerHandler::threadRunServer(bool connectToLobby)
-{
-#if !defined(VCMI_MOBILE)
-	setThreadName("runServer");
-	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
-	std::string comm = VCMIDirs::get().serverPath().string()
-		+ " --port=" + std::to_string(getLocalPort())
-		+ " --run-by-client";
-	if(connectToLobby)
-		comm += " --lobby";
-
-	comm += " > \"" + logName + '\"';
-	logGlobal->info("Server command line: %s", comm);
-
-#ifdef VCMI_WINDOWS
-	int result = -1;
-	const auto bufSize = ::MultiByteToWideChar(CP_UTF8, 0, comm.c_str(), comm.size(), nullptr, 0);
-	if(bufSize > 0)
-	{
-		std::wstring wComm(bufSize, {});
-		const auto convertResult = ::MultiByteToWideChar(CP_UTF8, 0, comm.c_str(), comm.size(), &wComm[0], bufSize);
-		if(convertResult > 0)
-			result = ::_wsystem(wComm.c_str());
-		else
-			logNetwork->error("Error " + std::to_string(GetLastError()) + ": failed to convert server launch command to wide string: " + comm);
-	}
-	else
-		logNetwork->error("Error " + std::to_string(GetLastError()) + ": failed to obtain buffer length to convert server launch command to wide string : " + comm);
-#else
-	int result = std::system(comm.c_str());
-#endif
-	if (result == 0)
-	{
-		logNetwork->info("Server closed correctly");
-	}
-	else
-	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-
-		if (getState() == EClientState::CONNECTING)
-		{
-			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
-			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
-		}
-		logNetwork->error("Error: server failed to close correctly or crashed!");
-		logNetwork->error("Check %s for more info", logName);
-	}
-#endif
-}
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
