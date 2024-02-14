@@ -156,9 +156,4 @@ void IShipyard::getBoatCost(TResources & cost) const
 	cost[EGameResID::GOLD] = 1000;
 }
 
-const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
-{
-	return dynamic_cast<const IShipyard *>(obj);
-}
-
 VCMI_LIB_NAMESPACE_END

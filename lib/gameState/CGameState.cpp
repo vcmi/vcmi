@@ -1385,10 +1385,8 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			int total = 0; //creature counter
 			for(auto object : map->objects)
 			{
-				const CArmedInstance *ai = nullptr;
-				if(object
-					&& object->tempOwner == player //object controlled by player
-					&& (ai = dynamic_cast<const CArmedInstance *>(object.get()))) //contains army
+				const auto * ai = dynamic_cast<const CArmedInstance *>(object.get());
+				if(ai && ai->getOwner() == player)
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
 						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
