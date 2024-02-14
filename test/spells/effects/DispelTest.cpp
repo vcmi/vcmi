@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "EffectFixture.h"
+#include "../../../lib/json/JsonNode.h"
 
 namespace test
 {

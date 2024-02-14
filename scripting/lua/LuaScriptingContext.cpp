@@ -19,7 +19,7 @@
 
 #include "api/Registry.h"
 
-#include "../../lib/JsonNode.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/CGameInfoCallback.h"

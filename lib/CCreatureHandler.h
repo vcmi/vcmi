@@ -14,7 +14,6 @@
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
-#include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "Color.h"
 #include "filesystem/ResourcePath.h"

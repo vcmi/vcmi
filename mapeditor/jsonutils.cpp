@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "jsonutils.h"
 
+#include "../lib/json/JsonNode.h"
+
 static QVariantMap JsonToMap(const JsonMap & json)
 {
 	QVariantMap map;

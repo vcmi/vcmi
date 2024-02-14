@@ -14,7 +14,6 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/JsonNode.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/int3.h"
 #include "../lib/CRandomGenerator.h"

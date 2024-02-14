@@ -12,7 +12,7 @@
 
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
-#include "../JsonRandom.h"
+#include "../json/JsonRandom.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../modding/IdentifierStorage.h"

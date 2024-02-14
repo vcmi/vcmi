@@ -12,7 +12,7 @@
 
 #include "LobbyDatabase.h"
 
-#include "../lib/JsonNode.h"
+#include "../lib/json/JsonNode.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>

@@ -10,9 +10,10 @@
 #include "StdInc.h"
 #include "CConfigHandler.h"
 
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/GameConstants.h"
-#include "../lib/VCMIDirs.h"
+#include "filesystem/Filesystem.h"
+#include "GameConstants.h"
+#include "VCMIDirs.h"
+#include "json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

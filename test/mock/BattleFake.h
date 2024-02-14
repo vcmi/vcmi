@@ -19,7 +19,6 @@
 #include "mock_scripting_Pool.h"
 #endif
 
-#include "../../lib/JsonNode.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 
 namespace test

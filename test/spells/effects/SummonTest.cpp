@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/CCreatureHandler.h"
+#include "../../../lib/json/JsonNode.h"
 
 namespace test
 {

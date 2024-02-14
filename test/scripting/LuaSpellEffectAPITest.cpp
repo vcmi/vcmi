@@ -12,6 +12,7 @@
 #include "ScriptFixture.h"
 
 #include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/json/JsonUtils.h"
 
 #include "../mock/mock_ServerCallback.h"
 

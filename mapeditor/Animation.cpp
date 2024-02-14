@@ -19,7 +19,7 @@
 #include "../lib/vcmi_endian.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/ISimpleResourceLoader.h"
-#include "../lib/JsonNode.h"
+#include "../lib/json/JsonUtils.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
 

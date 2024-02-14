@@ -13,8 +13,8 @@
 #include "CBitmapFont.h"
 #include "SDL_Extensions.h"
 
-#include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/Rect.h"
 

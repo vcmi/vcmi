@@ -24,6 +24,7 @@
 #include "../TerrainHandler.h"
 #include "../constants/StringConstants.h"
 #include "../battle/BattleInfo.h"
+#include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

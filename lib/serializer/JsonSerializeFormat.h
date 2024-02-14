@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../JsonNode.h"
+#include "../constants/IdentifierBase.h"
+#include "../json/JsonNode.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../VCMI_Lib.h"

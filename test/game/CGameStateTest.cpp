@@ -15,6 +15,7 @@
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"

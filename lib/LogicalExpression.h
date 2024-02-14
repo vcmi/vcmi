@@ -9,8 +9,7 @@
  */
 #pragma once
 
-//FIXME: move some of code into .cpp to avoid this include?
-#include "JsonNode.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

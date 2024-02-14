@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../JsonNode.h"
+#include "../json/JsonNode.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

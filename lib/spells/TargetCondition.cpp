@@ -17,7 +17,7 @@
 #include "../battle/Unit.h"
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
-
+#include "../json/JsonBonus.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"

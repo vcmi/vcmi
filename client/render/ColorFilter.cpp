@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "ColorFilter.h"
 
-#include "../../lib/JsonNode.h"
 #include "../../lib/Color.h"
+#include "../../lib/json/JsonNode.h"
 
 ColorRGBA ColorFilter::shiftColor(const ColorRGBA & in) const
 {

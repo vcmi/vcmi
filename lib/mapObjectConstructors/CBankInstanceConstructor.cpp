@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CBankInstanceConstructor.h"
 
-#include "../JsonRandom.h"
+#include "../json/JsonRandom.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../CRandomGenerator.h"

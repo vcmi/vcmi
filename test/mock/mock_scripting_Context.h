@@ -12,7 +12,7 @@
 
 #include <vcmi/scripting/Service.h>
 
-#include "../../../lib/JsonNode.h"
+#include "../../../lib/json/JsonNode.h"
 
 namespace scripting
 {

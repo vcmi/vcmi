@@ -14,7 +14,7 @@
 
 #include "Graphics.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/JsonNode.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../renderSDL/SDLImage.h"
 
 std::shared_ptr<IImage> CAnimation::getFromExtraDef(std::string filename)

@@ -31,6 +31,7 @@
 #include "../ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
+#include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
 #include "../spells/CSpellHandler.h"

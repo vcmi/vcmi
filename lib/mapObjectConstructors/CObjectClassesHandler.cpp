@@ -12,12 +12,12 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
+#include "../json/JsonUtils.h"
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../CGeneralTextHandler.h"
 #include "../GameSettings.h"
-#include "../JsonNode.h"
 #include "../CSoundBase.h"
 
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"

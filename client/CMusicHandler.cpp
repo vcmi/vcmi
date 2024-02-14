@@ -17,7 +17,6 @@
 #include "eventsSDL/InputHandler.h"
 #include "gui/CGuiHandler.h"
 
-#include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/constants/StringConstants.h"

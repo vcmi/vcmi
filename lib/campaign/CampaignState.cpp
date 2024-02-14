@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CampaignState.h"
 
-#include "../JsonNode.h"
 #include "../Point.h"
 #include "../filesystem/ResourcePath.h"
 #include "../VCMI_Lib.h"

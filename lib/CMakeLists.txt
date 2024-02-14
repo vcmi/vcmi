@@ -61,6 +61,14 @@ set(lib_SRCS
 	filesystem/MinizipExtensions.cpp
 	filesystem/ResourcePath.cpp
 
+	json/JsonBonus.cpp
+	json/JsonNode.cpp
+	json/JsonParser.cpp
+	json/JsonRandom.cpp
+	json/JsonUtils.cpp
+	json/JsonValidator.cpp
+	json/JsonWriter.cpp
+
 	gameState/CGameState.cpp
 	gameState/CGameStateCampaign.cpp
 	gameState/InfoAboutArmy.cpp
@@ -245,9 +253,6 @@ set(lib_SRCS
 	GameSettings.cpp
 	IGameCallback.cpp
 	IHandlerBase.cpp
-	JsonDetail.cpp
-	JsonNode.cpp
-	JsonRandom.cpp
 	LoadProgress.cpp
 	LogicalExpression.cpp
 	MetaString.cpp
@@ -398,6 +403,14 @@ set(lib_HEADERS
 	filesystem/ISimpleResourceLoader.h
 	filesystem/MinizipExtensions.h
 	filesystem/ResourcePath.h
+
+	json/JsonBonus.h
+	json/JsonNode.h
+	json/JsonParser.h
+	json/JsonRandom.h
+	json/JsonUtils.h
+	json/JsonValidator.h
+	json/JsonWriter.h
 
 	gameState/CGameState.h
 	gameState/CGameStateCampaign.h
@@ -636,9 +649,6 @@ set(lib_HEADERS
 	IGameEventsReceiver.h
 	IHandlerBase.h
 	int3.h
-	JsonDetail.h
-	JsonNode.h
-	JsonRandom.h
 	Languages.h
 	LoadProgress.h
 	LogicalExpression.h

@@ -14,7 +14,7 @@
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../IGameCallback.h"
-#include "../JsonRandom.h"
+#include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"

@@ -16,12 +16,11 @@
 
 #include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/ModUtility.h"
 #include "modding/ModScope.h"
-
-#include "JsonNode.h"
-
 #include "constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

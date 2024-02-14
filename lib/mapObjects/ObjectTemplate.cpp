@@ -16,7 +16,6 @@
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../CGeneralTextHandler.h"
-#include "../JsonNode.h"
 #include "../TerrainHandler.h"
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"

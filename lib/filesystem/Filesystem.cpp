@@ -16,10 +16,10 @@
 #include "CZipLoader.h"
 
 //For filesystem initialization
-#include "../JsonNode.h"
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
+#include "../json/JsonNode.h"
 #include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -13,6 +13,7 @@
 #include "Updaters.h"
 #include "Limiters.h"
 
+#include "../json/JsonUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"
 
