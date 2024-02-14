@@ -1383,7 +1383,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			int total = 0; //creature counter
 			for(auto object : map->objects)
 			{
-				const CArmedInstance *ai = dynamic_cast<const CArmedInstance *>(object.get());
+				const auto * ai = dynamic_cast<const CArmedInstance *>(object.get());
 				if(ai && ai->getOwner() == player)
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army

@@ -689,13 +689,14 @@ namespace vstd
 	bool isAlmostZero(const Floating & value)
 	{
 		constexpr Floating epsilon(0.00001);
-		return std::abs(value) < epsilon;
+		return std::abs(value) <= epsilon;
 	}
 
 	template<typename Floating1, typename Floating2>
 	bool isAlmostEqual(const Floating1 & left, const Floating2 & right)
 	{
-		return isAlmostZero(left - right);
+		const auto relativeEpsilon = std::max(std::abs(left), std::abs(right)) * 0.00001;
+		return std::abs(left - right) <= relativeEpsilon;
 	}
 
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr
