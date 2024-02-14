@@ -41,22 +41,6 @@ namespace JsonUtils
 	DLL_LINKAGE void inherit(JsonNode & descendant, const JsonNode & base);
 
 	/**
-	 * @brief construct node representing the common structure of input nodes
-	 * @param pruneEmpty - omit common properties whose intersection is empty
-	 * different types: null
-	 * struct: recursive intersect on common properties
-	 * other: input if equal, null otherwise
-	 */
-	DLL_LINKAGE JsonNode intersect(const JsonNode & a, const JsonNode & b, bool pruneEmpty = true);
-	DLL_LINKAGE JsonNode intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty = true);
-
-	/**
-	 * @brief construct node representing the difference "node - base"
-	 * merging difference with base gives node
-	 */
-	DLL_LINKAGE JsonNode difference(const JsonNode & node, const JsonNode & base);
-
-	/**
 	 * @brief generate one Json structure from multiple files
 	 * @param files - list of filenames with parts of json structure
 	 */

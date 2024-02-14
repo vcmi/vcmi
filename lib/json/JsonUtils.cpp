@@ -19,21 +19,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 static const JsonNode nullNode;
 
-//returns first Key with value equal to given one
-template<class Key, class Val>
-Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
-{
-	for(auto it : map)
-	{
-		if(it.second == val)
-		{
-			return it.first;
-		}
-	}
-	assert(0);
-	return "";
-}
-
 static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 {
 	const JsonNode & fieldProps = schema["properties"][fieldName];
@@ -65,8 +50,8 @@ static void eraseOptionalNodes(JsonNode & node, const JsonNode & schema)
 	for(const auto & entry : schema["required"].Vector())
 		foundEntries.insert(entry.String());
 
-	vstd::erase_if(node.Struct(), [&](const auto & node){
-		return !vstd::contains(foundEntries, node.first);
+	vstd::erase_if(node.Struct(), [&foundEntries](const auto & structEntry){
+		return !vstd::contains(foundEntries, structEntry.first);
 	});
 }
 
@@ -242,90 +227,6 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	std::swap(descendant, inheritedNode);
 }
 
-JsonNode JsonUtils::intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty)
-{
-	if(nodes.empty())
-		return nullNode;
-
-	JsonNode result = nodes[0];
-	for(int i = 1; i < nodes.size(); i++)
-	{
-		if(result.isNull())
-			break;
-		result = JsonUtils::intersect(result, nodes[i], pruneEmpty);
-	}
-	return result;
-}
-
-JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool pruneEmpty)
-{
-	if(a.getType() == JsonNode::JsonType::DATA_STRUCT && b.getType() == JsonNode::JsonType::DATA_STRUCT)
-	{
-		// intersect individual properties
-		JsonNode result;
-		for(const auto & property : a.Struct())
-		{
-			if(vstd::contains(b.Struct(), property.first))
-			{
-				JsonNode propertyIntersect = JsonUtils::intersect(property.second, b.Struct().find(property.first)->second);
-				if(pruneEmpty && !propertyIntersect.containsBaseData())
-					continue;
-				result[property.first] = propertyIntersect;
-			}
-		}
-		return result;
-	}
-	else
-	{
-		// not a struct - same or different, no middle ground
-		if(a == b)
-			return a;
-	}
-	return nullNode;
-}
-
-JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
-{
-	auto addsInfo = [](JsonNode diff) -> bool
-	{
-		switch(diff.getType())
-		{
-		case JsonNode::JsonType::DATA_NULL:
-			return false;
-		case JsonNode::JsonType::DATA_STRUCT:
-			return !diff.Struct().empty();
-		default:
-			return true;
-		}
-	};
-
-	if(node.getType() == JsonNode::JsonType::DATA_STRUCT && base.getType() == JsonNode::JsonType::DATA_STRUCT)
-	{
-		// subtract individual properties
-		JsonNode result;
-		for(const auto & property : node.Struct())
-		{
-			if(vstd::contains(base.Struct(), property.first))
-			{
-				const JsonNode propertyDifference = JsonUtils::difference(property.second, base.Struct().find(property.first)->second);
-				if(addsInfo(propertyDifference))
-					result[property.first] = propertyDifference;
-			}
-			else
-			{
-				result[property.first] = property.second;
-			}
-		}
-		return result;
-	}
-	else
-	{
-		if(node == base)
-			return nullNode;
-	}
-	return node;
-}
-
 JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
 {
 	bool isValid = false;
@@ -354,12 +255,8 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 
 	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
 	{
-		// FIXME: some way to make this code more readable
-		auto stream = loader->load(resID);
-		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
-		stream->read(textData.get(), stream->getSize());
-
-		JsonNode section(reinterpret_cast<std::byte *>(textData.get()), stream->getSize());
+		auto textData = loader->load(resID)->readAll();
+		JsonNode section(reinterpret_cast<std::byte *>(textData.first.get()), textData.second);
 		merge(result, section);
 	}
 	return result;
