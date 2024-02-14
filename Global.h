@@ -695,8 +695,11 @@ namespace vstd
 	template<typename Floating1, typename Floating2>
 	bool isAlmostEqual(const Floating1 & left, const Floating2 & right)
 	{
-		const auto relativeEpsilon = std::max(std::abs(left), std::abs(right)) * 0.00001;
-		return std::abs(left - right) <= relativeEpsilon;
+		using Floating = decltype(left + right);
+		constexpr Floating epsilon(0.00001);
+		const Floating relativeEpsilon = std::max(std::abs(left), std::abs(right)) * epsilon;
+		const Floating value = std::abs(left - right);
+		return value <= relativeEpsilon;
 	}
 
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr

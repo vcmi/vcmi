@@ -131,7 +131,7 @@ namespace AIPathfinding
 		{
 			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{
-				if(const IShipyard * shipyard = IShipyard::castFrom(obj))
+				if(const auto * shipyard = dynamic_cast<const IShipyard *>(obj))
 					shipyards.push_back(shipyard);
 			}
 		}

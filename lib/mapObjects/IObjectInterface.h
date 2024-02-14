@@ -101,8 +101,6 @@ class DLL_LINKAGE IShipyard : public IBoatGenerator
 {
 public:
 	virtual void getBoatCost(ResourceSet & cost) const;
-
-	static const IShipyard *castFrom(const CGObjectInstance *obj);
 };
 
 VCMI_LIB_NAMESPACE_END

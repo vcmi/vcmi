@@ -3528,7 +3528,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
 
 bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 {
-	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
+	const auto *obj = dynamic_cast<const IShipyard *>(getObj(objid));
 
 	if (obj->shipyardStatus() != IBoatGenerator::GOOD)
 	{

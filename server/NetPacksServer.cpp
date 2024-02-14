@@ -170,7 +170,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
 	const CGObjectInstance * object = gh.getObj(pack.marketId);
 	const CGHeroInstance * hero = gh.getHero(pack.heroId);
-	const IMarket * market = IMarket::castFrom(object);
+	const auto * market = dynamic_cast<const IMarket*>(object);
 
 	gh.throwIfWrongPlayer(&pack);
 

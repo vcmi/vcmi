@@ -1407,7 +1407,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 	int accquiredResources = 0;
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
 	{
-		if(const IMarket * m = IMarket::castFrom(obj, false))
+		if(const auto * m = dynamic_cast<const IMarket*>(obj))
 		{
 			auto freeRes = cb->getResourceAmount(); //trade only resources which are not reserved
 			for(auto it = ResourceSet::nziterator(freeRes); it.valid(); it++)
