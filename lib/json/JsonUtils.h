@@ -12,6 +12,8 @@
 #include "JsonNode.h"
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace JsonUtils
 {
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
@@ -102,3 +104,5 @@ namespace JsonUtils
 	DLL_LINKAGE JsonNode stringNode(const std::string & value);
 	DLL_LINKAGE JsonNode intNode(si64 value);
 }
+
+VCMI_LIB_NAMESPACE_END

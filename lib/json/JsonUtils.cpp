@@ -26,6 +26,8 @@
 #include "../constants/StringConstants.h"
 #include "../battle/BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const JsonNode nullNode;
 
 static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node)
@@ -1237,3 +1239,5 @@ DLL_LINKAGE JsonNode JsonUtils::intNode(si64 value)
 	node.Integer() = value;
 	return node;
 }
+
+VCMI_LIB_NAMESPACE_END
