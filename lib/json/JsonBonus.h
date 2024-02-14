@@ -21,13 +21,13 @@ class CAddInfo;
 
 namespace JsonUtils
 {
-	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
-	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode & ability);
-	DLL_LINKAGE std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode & ability, const FactionID & faction, const BuildingID & building, const std::string & description);
-	DLL_LINKAGE bool parseBonus(const JsonNode & ability, Bonus * placement);
-	DLL_LINKAGE std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
-	DLL_LINKAGE CSelector parseSelector(const JsonNode &ability);
-	DLL_LINKAGE void resolveAddInfo(CAddInfo & var, const JsonNode & node);
+	std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
+	std::shared_ptr<Bonus> parseBonus(const JsonNode & ability);
+	std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode & ability, const FactionID & faction, const BuildingID & building, const std::string & description);
+	bool parseBonus(const JsonNode & ability, Bonus * placement);
+	std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
+	CSelector parseSelector(const JsonNode &ability);
+	void resolveAddInfo(CAddInfo & var, const JsonNode & node);
 }
 
 VCMI_LIB_NAMESPACE_END

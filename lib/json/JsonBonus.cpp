@@ -22,7 +22,37 @@
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+VCMI_LIB_USING_NAMESPACE
+
+template <typename T>
+const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
+{
+	if (!val->isNull())
+	{
+		const std::string & type = val->String();
+		auto it = map.find(type);
+		if (it == map.end())
+		{
+			logMod->error("Error: invalid %s%s.", err, type);
+			return {};
+		}
+		else
+		{
+			return it->second;
+		}
+	}
+	else
+		return {};
+}
+
+template <typename T>
+const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
+{
+	if(val->isNumber())
+		return static_cast<T>(val->Integer());
+	else
+		return parseByMap<T>(map, val, err);
+}
 
 static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node)
 {
@@ -264,6 +294,77 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 	}
 }
 
+static BonusParams convertDeprecatedBonus(const JsonNode &ability)
+{
+	if(vstd::contains(deprecatedBonusSet, ability["type"].String()))
+	{
+		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toString());
+		auto params = BonusParams(ability["type"].String(),
+											ability["subtype"].isString() ? ability["subtype"].String() : "",
+											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
+		if(params.isConverted)
+		{
+			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && bonusValueMap.find(ability["valueType"].String())->second == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
+			{
+				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+				params.targetType = BonusSource::SECONDARY_SKILL;
+			}
+
+			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toString());
+			return params;
+		}
+		else
+			logMod->error("Cannot convert bonus!\n%s", ability.toString());
+	}
+	BonusParams ret;
+	ret.isConverted = false;
+	return ret;
+}
+
+static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
+{
+	switch(updaterJson.getType())
+	{
+	case JsonNode::JsonType::DATA_STRING:
+		return parseByMap(bonusUpdaterMap, &updaterJson, "updater type ");
+		break;
+	case JsonNode::JsonType::DATA_STRUCT:
+		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+		{
+			auto updater = std::make_shared<GrowsWithLevelUpdater>();
+			const JsonVector param = updaterJson["parameters"].Vector();
+			updater->valPer20 = static_cast<int>(param[0].Integer());
+			if(param.size() > 1)
+				updater->stepSize = static_cast<int>(param[1].Integer());
+			return updater;
+		}
+		else if (updaterJson["type"].String() == "ARMY_MOVEMENT")
+		{
+			auto updater = std::make_shared<ArmyMovementUpdater>();
+			if(updaterJson["parameters"].isVector())
+			{
+				const auto & param = updaterJson["parameters"].Vector();
+				if(param.size() < 4)
+					logMod->warn("Invalid ARMY_MOVEMENT parameters, using default!");
+				else
+				{
+					updater->base = static_cast<si32>(param.at(0).Integer());
+					updater->divider = static_cast<si32>(param.at(1).Integer());
+					updater->multiplier = static_cast<si32>(param.at(2).Integer());
+					updater->max = static_cast<si32>(param.at(3).Integer());
+				}
+				return updater;
+			}
+		}
+		else
+			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
+		break;
+	}
+	return nullptr;
+}
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 {
 	auto b = std::make_shared<Bonus>();
@@ -282,36 +383,6 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
 	return b;
-}
-
-template <typename T>
-const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
-{
-	if (!val->isNull())
-	{
-		const std::string & type = val->String();
-		auto it = map.find(type);
-		if (it == map.end())
-		{
-			logMod->error("Error: invalid %s%s.", err, type);
-			return {};
-		}
-		else
-		{
-			return it->second;
-		}
-	}
-	else
-		return {};
-}
-
-template <typename T>
-const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
-{
-	if(val->isNumber())
-		return static_cast<T>(val->Integer());
-	else
-		return parseByMap<T>(map, val, err);
 }
 
 void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
@@ -565,75 +636,6 @@ std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, c
 	if(!parseBonus(ability, b.get()))
 		return nullptr;
 	return b;
-}
-
-static BonusParams convertDeprecatedBonus(const JsonNode &ability)
-{
-	if(vstd::contains(deprecatedBonusSet, ability["type"].String()))
-	{
-		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toString());
-		auto params = BonusParams(ability["type"].String(),
-											ability["subtype"].isString() ? ability["subtype"].String() : "",
-											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
-		if(params.isConverted)
-		{
-			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && bonusValueMap.find(ability["valueType"].String())->second == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
-			{
-				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
-				params.targetType = BonusSource::SECONDARY_SKILL;
-			}
-
-			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toString());
-			return params;
-		}
-		else
-			logMod->error("Cannot convert bonus!\n%s", ability.toString());
-	}
-	BonusParams ret;
-	ret.isConverted = false;
-	return ret;
-}
-
-static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
-{
-	switch(updaterJson.getType())
-	{
-	case JsonNode::JsonType::DATA_STRING:
-		return parseByMap(bonusUpdaterMap, &updaterJson, "updater type ");
-		break;
-	case JsonNode::JsonType::DATA_STRUCT:
-		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
-		{
-			auto updater = std::make_shared<GrowsWithLevelUpdater>();
-			const JsonVector param = updaterJson["parameters"].Vector();
-			updater->valPer20 = static_cast<int>(param[0].Integer());
-			if(param.size() > 1)
-				updater->stepSize = static_cast<int>(param[1].Integer());
-			return updater;
-		}
-		else if (updaterJson["type"].String() == "ARMY_MOVEMENT")
-		{
-			auto updater = std::make_shared<ArmyMovementUpdater>();
-			if(updaterJson["parameters"].isVector())
-			{
-				const auto & param = updaterJson["parameters"].Vector();
-				if(param.size() < 4)
-					logMod->warn("Invalid ARMY_MOVEMENT parameters, using default!");
-				else
-				{
-					updater->base = static_cast<si32>(param.at(0).Integer());
-					updater->divider = static_cast<si32>(param.at(1).Integer());
-					updater->multiplier = static_cast<si32>(param.at(2).Integer());
-					updater->max = static_cast<si32>(param.at(3).Integer());
-				}
-				return updater;
-			}
-		}
-		else
-			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
-		break;
-	}
-	return nullptr;
 }
 
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
