@@ -401,7 +401,7 @@ si64 JsonNode::Integer() const
 
 const std::string & JsonNode::String() const
 {
-	static const std::string stringDefault = std::string();
+	static const std::string stringDefault;
 
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRING);
 
@@ -413,7 +413,7 @@ const std::string & JsonNode::String() const
 
 const JsonVector & JsonNode::Vector() const
 {
-	static const JsonVector vectorDefault = JsonVector();
+	static const JsonVector vectorDefault;
 
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_VECTOR);
 
@@ -425,7 +425,7 @@ const JsonVector & JsonNode::Vector() const
 
 const JsonMap & JsonNode::Struct() const
 {
-	static const JsonMap mapDefault = JsonMap();
+	static const JsonMap mapDefault;
 
 	assert(getType() == JsonType::DATA_NULL || getType() == JsonType::DATA_STRUCT);
 
