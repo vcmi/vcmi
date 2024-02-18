@@ -133,7 +133,6 @@ public:
 	HeroSlots(const CGTownInstance * town, Point garrPos, Point visitPos, std::shared_ptr<CGarrisonInt> Garrison, bool ShowEmpty);
 	~HeroSlots();
 
-	void splitClicked(); //for hero meeting only (splitting stacks is handled by garrison int)
 	void update();
 	void swapArmies(); //exchange garrisoned and visiting heroes or move hero to\from garrison
 };

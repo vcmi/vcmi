@@ -427,7 +427,11 @@ void CHeroGSlot::clickPressed(const Point & cursorPosition)
 	if(hero && isSelected())
 	{
 		setHighlight(false);
-		LOCPLINT->openHeroWindow(hero);
+
+		if(other->hero)
+			LOCPLINT->showHeroExchange(hero->id, other->hero->id);
+		else
+			LOCPLINT->openHeroWindow(hero);
 	}
 	else if(other->hero && other->isSelected())
 	{
@@ -513,14 +517,6 @@ void HeroSlots::update()
 {
 	garrisonedHero->set(town->garrisonHero);
 	visitingHero->set(town->visitingHero);
-}
-
-void HeroSlots::splitClicked()
-{
-	if(!!town->visitingHero && town->garrisonHero && (visitingHero->isSelected() || garrisonedHero->isSelected()))
-	{
-		LOCPLINT->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
-	}
 }
 
 void HeroSlots::swapArmies()
@@ -1217,11 +1213,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	exit = std::make_shared<CButton>(Point(744, 544), AnimationPath::builtin("TSBTNS"), CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
 	exit->setImageOrder(4, 5, 6, 7);
 
-	auto split = std::make_shared<CButton>(Point(744, 382), AnimationPath::builtin("TSBTNS"), CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
-	{
-		garr->splitClick();
-		heroes->splitClicked();
-	});
+	auto split = std::make_shared<CButton>(Point(744, 382), AnimationPath::builtin("TSBTNS"), CButton::tooltip(CGI->generaltexth->tcommands[3]), [this]() { garr->splitClick(); });
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
