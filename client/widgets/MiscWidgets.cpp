@@ -699,4 +699,5 @@ void SelectableSlot::setSelectionWidth(int width)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	selection = std::make_shared<TransparentFilledRectangle>( selection->pos - pos.topLeft(), Colors::TRANSPARENCY, Colors::YELLOW, width);
+	selectSlot(selected);
 }

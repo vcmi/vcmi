@@ -75,7 +75,7 @@ TransparentFilledRectangle::TransparentFilledRectangle(Rect position, ColorRGBA 
 {
 	addBox(Point(0,0), Point(-1, -1), color);
 	for (int i = 0; i < width; ++i)
-		addRectangle(Point(i,i), Point(-1-i, -1-i), colorLine);
+		addRectangle(Point(i,i), Point(-1-i*2, -1-i*2), colorLine);
 }
 
 SimpleLine::SimpleLine(Point pos1, Point pos2, ColorRGBA color) :
