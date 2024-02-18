@@ -222,6 +222,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initHeroes();
 	initStartingBonus();
 	initTowns();
+	initTownNames();
 	placeHeroesInTowns();
 	initMapObjects();
 	buildBonusSystemTree();
@@ -763,6 +764,51 @@ void CGameState::initStartingBonus()
 	}
 }
 
+void CGameState::initTownNames()
+{
+	std::map<FactionID, std::vector<int>> availableNames;
+	for (auto const & faction : VLC->townh->getDefaultAllowed())
+	{
+		std::vector<int> potentialNames;
+		if (faction.toFaction()->town->getRandomNamesCount() > 0)
+		{
+			for (int i = 0; i < faction.toFaction()->town->getRandomNamesCount(); ++i)
+				potentialNames.push_back(i);
+
+			availableNames[faction] = potentialNames;
+		}
+	}
+
+	for (auto & elem : map->towns)
+	{
+		CGTownInstance * vti =(elem);
+		assert(vti->town);
+
+		if(!vti->getNameTextID().empty())
+			continue;
+
+		FactionID faction = vti->getFaction();
+
+		if (availableNames.empty())
+		{
+			logGlobal->warn("Failed to find available name for a random town!");
+			vti->setNameTextId("core.genrltxt.508"); // Unnamed
+			continue;
+		}
+
+		// If town has no available names (for example - all were picked) - pick names from some other faction that still has names available
+		if (!availableNames.count(faction))
+			faction = RandomGeneratorUtil::nextItem(availableNames, getRandomGenerator())->first;
+
+		auto nameIt = RandomGeneratorUtil::nextItem(availableNames[faction], getRandomGenerator());
+		vti->setNameTextId(faction.toFaction()->town->getRandomNameTextID(*nameIt));
+
+		availableNames[faction].erase(nameIt);
+		if (availableNames[faction].empty())
+			availableNames.erase(faction);
+	}
+}
+
 void CGameState::initTowns()
 {
 	logGlobal->debug("\tTowns");
@@ -777,15 +823,9 @@ void CGameState::initTowns()
 	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
 
 	for (auto & elem : map->towns)
-	{
-		CGTownInstance * vti =(elem);
-		assert(vti->town);
-
-		if(vti->getNameTextID().empty())
 		{
-			size_t nameID = getRandomGenerator().nextInt(vti->getTown()->getRandomNamesCount() - 1);
-			vti->setNameTextId(vti->getTown()->getRandomNameTextID(nameID));
-		}
+			CGTownInstance * vti =(elem);
+			assert(vti->town);
 
 		static const BuildingID basicDwellings[] = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
 		static const BuildingID upgradedDwellings[] = { BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP };

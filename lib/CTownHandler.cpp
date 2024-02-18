@@ -243,11 +243,6 @@ CTown::~CTown()
 		str.dellNull();
 }
 
-std::string CTown::getRandomNameTranslated(size_t index) const
-{
-	return VLC->generaltexth->translate(getRandomNameTextID(index));
-}
-
 std::string CTown::getRandomNameTextID(size_t index) const
 {
 	return TextIdentifier("faction", faction->modScope, faction->identifier, "randomName", index).get();
