@@ -13,6 +13,7 @@
 
 class GraphicalPrimitiveCanvas : public CIntObject
 {
+public:
 	enum class PrimitiveType
 	{
 		LINE,
@@ -20,6 +21,7 @@ class GraphicalPrimitiveCanvas : public CIntObject
 		FILLED_BOX
 	};
 
+private:
 	struct PrimitiveEntry
 	{
 		ColorRGBA color;
