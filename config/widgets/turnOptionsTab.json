@@ -33,10 +33,8 @@
 			"offset": {"x": 0, "y": 0}
 		},
 		"timeInputBackground" : {
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 0, "y": 0, "w": 86, "h": 23},
-			"color": [0, 0, 0, 128],
-			"colorLine": [64, 80, 128, 128]
+			"type": "boxWithBackground",
+			"rect": {"x": 0, "y": 0, "w": 86, "h": 23}
 		}
 	},
 	

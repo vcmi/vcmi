@@ -35,8 +35,9 @@
 		]
 	},
 	"checkboxFake" : {
-		"type": "picture",
-		"image": "settingsWindow/checkBoxEmpty"
+		"type": "boxWithBackground",
+		"rect": { "x" : 0, "y" : 0, "w": 32, "h": 24}
+		
 	},
 	"audioSlider" : {
 		"type": "slider",
