@@ -232,7 +232,7 @@ namespace
 		std::string multipleOfCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			double result = data.Float() / schema.Float();
-			if (floor(result) != result)
+			if (!vstd::isAlmostEqual(floor(result), result))
 				return validator.makeErrorMessage((boost::format("Value is not divisible by %d") % schema.Float()).str());
 			return "";
 		}

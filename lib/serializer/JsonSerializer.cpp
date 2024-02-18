@@ -35,7 +35,7 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, si32 & val
 
 void JsonSerializer::serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue)
 {
-	if(!defaultValue || defaultValue.value() != value)
+	if(!defaultValue || !vstd::isAlmostEqual(defaultValue.value(), value))
 		currentObject->operator[](fieldName).Float() = value;
 }
 

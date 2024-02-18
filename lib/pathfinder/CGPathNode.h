@@ -102,7 +102,7 @@ struct DLL_LINKAGE CGPathNode
 	STRONG_INLINE
 	void setCost(float value)
 	{
-		if(value == cost)
+		if(vstd::isAlmostEqual(value, cost))
 			return;
 
 		bool getUpNode = value < cost;
