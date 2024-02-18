@@ -37,25 +37,25 @@ void CRandomGenerator::resetSeed()
 
 TRandI CRandomGenerator::getIntRange(int lower, int upper)
 {
-	assert(lower <= upper);
-	return std::bind(TIntDist(lower, upper), std::ref(rand));
+	if (lower <= upper)
+		return std::bind(TIntDist(lower, upper), std::ref(rand));
+	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 }
 
 vstd::TRandI64 CRandomGenerator::getInt64Range(int64_t lower, int64_t upper)
 {
-	assert(lower <= upper);
-	return std::bind(TInt64Dist(lower, upper), std::ref(rand));
+	if(lower <= upper)
+		return std::bind(TInt64Dist(lower, upper), std::ref(rand));
+	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
 }
 
 int CRandomGenerator::nextInt(int upper)
 {
-	assert(0 <= upper);
 	return getIntRange(0, upper)();
 }
 
 int CRandomGenerator::nextInt(int lower, int upper)
 {
-	assert(lower <= upper);
 	return getIntRange(lower, upper)();
 }
 
@@ -66,19 +66,19 @@ int CRandomGenerator::nextInt()
 
 vstd::TRand CRandomGenerator::getDoubleRange(double lower, double upper)
 {
-	assert(lower <= upper);
-	return std::bind(TRealDist(lower, upper), std::ref(rand));
+	if(lower <= upper)
+		return std::bind(TRealDist(lower, upper), std::ref(rand));
+	throw std::runtime_error("Invalid range provided: " + std::to_string(lower) + " ... " + std::to_string(upper));
+
 }
 
 double CRandomGenerator::nextDouble(double upper)
 {
-	assert(0 <= upper);
 	return getDoubleRange(0, upper)();
 }
 
 double CRandomGenerator::nextDouble(double lower, double upper)
 {
-	assert(lower <= upper);
 	return getDoubleRange(lower, upper)();
 }
 
