@@ -226,7 +226,6 @@ class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 	std::shared_ptr<CTownInfo> fort;
 
 	std::shared_ptr<CButton> exit;
-	std::shared_ptr<CButton> split;
 	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
 	std::shared_ptr<LRClickableArea> fastMarket;
