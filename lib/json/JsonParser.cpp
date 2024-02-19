@@ -81,6 +81,7 @@ bool JsonParser::extractValue(JsonNode & node)
 	switch(input[pos])
 	{
 		case '\"':
+		case '\'':
 			return extractString(node);
 		case 'n':
 			return extractNull(node);
@@ -93,6 +94,8 @@ bool JsonParser::extractValue(JsonNode & node)
 		case '[':
 			return extractArray(node);
 		case '-':
+		case '+':
+		case '.':
 			return extractFloat(node);
 		default:
 		{
