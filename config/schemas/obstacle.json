@@ -45,7 +45,7 @@
 			"type" : "string",
 			"description" : "Image resource",
 			"anyOf" : [
-				{ "format" : "defFile" },
+				{ "format" : "animationFile" },
 				{ "format" : "imageFile" }
 			]
 		},

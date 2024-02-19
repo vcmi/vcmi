@@ -29,7 +29,7 @@
 		"battleImage" : {
 			"type" : "string",
 			"description" : "Custom animation to be used on battle, overrides hero class property",
-			"format" : "defFile"
+			"format" : "animationFile"
 		},
 		"images" : {
 			"type" : "object",
