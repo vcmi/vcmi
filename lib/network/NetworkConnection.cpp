@@ -49,6 +49,12 @@ void NetworkConnection::onHeaderReceived(const boost::system::error_code & ecHea
 		return;
 	}
 
+	if (messageSize == 0)
+	{
+		listener.onDisconnected(shared_from_this(), "Zero-sized packet!");
+		return;
+	}
+
 	boost::asio::async_read(*socket,
 							readBuffer,
 							boost::asio::transfer_exactly(messageSize),
