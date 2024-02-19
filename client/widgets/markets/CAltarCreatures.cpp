@@ -36,11 +36,8 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
 	texts.emplace_back(std::make_unique<CTextBox>(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
-	lSubtitle = std::make_shared<CLabel>(180, 503, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	rSubtitle = std::make_shared<CLabel>(426, 503, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-
 	offerSlider = std::make_shared<CSlider>(Point(231, 481), 137, std::bind(&CAltarCreatures::onOfferSliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
-	maxUnits = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, offerSlider));
+	maxAmount = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, offerSlider));
 
 	unitsOnAltar.resize(GameConstants::ARMY_SIZE, 0);
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
@@ -49,9 +46,9 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 
 	// Hero creatures panel
 	assert(leftTradePanel);
-	leftTradePanel->selectedImage->moveTo(pos.topLeft() + Point(104, 312));
-
-	leftTradePanel->moveBy(Point(45, 110));
+	leftTradePanel->moveTo(pos.topLeft() + Point(45, 110));
+	leftTradePanel->selectedImage->moveTo(pos.topLeft() + Point(149, 422));
+	leftTradePanel->selectedSubtitle->moveTo(pos.topLeft() + Point(180, 503));
 	for(const auto & slot : leftTradePanel->slots)
 		slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot) {CAltarCreatures::onSlotClickPressed(heroSlot, hLeft);};
 
@@ -60,22 +57,22 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 		{
 			CAltarCreatures::onSlotClickPressed(altarSlot, hRight);
 		}, leftTradePanel->slots);
-	rightTradePanel->selectedImage->moveTo(pos.topLeft() + Point(61, 312));
-	rightTradePanel->moveBy(Point(334, 110));
-
+	rightTradePanel->moveTo(pos.topLeft() + Point(334, 110));
+	rightTradePanel->selectedImage->moveTo(pos.topLeft() + Point(395, 422));
+	rightTradePanel->selectedSubtitle->moveTo(pos.topLeft() + Point(426, 503));
 	leftTradePanel->deleteSlotsCheck = rightTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
+	
 	readExpValues();
-	expForHero->setText(std::to_string(0));
 	CAltarCreatures::deselect();
 };
 
 void CAltarCreatures::readExpValues()
 {
-	int dump;
+	int bidQty = 0;
 	for(auto heroSlot : leftTradePanel->slots)
 	{
 		if(heroSlot->id >= 0)
-			market->getOffer(heroSlot->id, 0, dump, expPerUnit[heroSlot->serial], EMarketMode::CREATURE_EXP);
+			market->getOffer(heroSlot->id, 0, bidQty, expPerUnit[heroSlot->serial], EMarketMode::CREATURE_EXP);
 	}
 }
 
@@ -108,7 +105,7 @@ void CAltarCreatures::updateControls()
 	offerSlider->block(!offerSlider->getAmount());
 	if(hLeft)
 		offerSlider->scrollTo(unitsOnAltar[hLeft->serial]);
-	maxUnits->block(offerSlider->getAmount() == 0);
+	maxAmount->block(offerSlider->getAmount() == 0);
 }
 
 void CAltarCreatures::updateSelected()
@@ -118,26 +115,25 @@ void CAltarCreatures::updateSelected()
 
 	if(hLeft)
 	{
-		lSubtitle->setText(std::to_string(offerSlider->getValue()));
+		leftTradePanel->selectedSubtitle->setText(std::to_string(offerSlider->getValue()));
 		lImageIndex = CGI->creatures()->getByIndex(hLeft->id)->getIconIndex();
 	}
 	else
 	{
-		lSubtitle->setText("");
+		leftTradePanel->selectedSubtitle->setText("");
 	}
 	if(hRight)
 	{
-		rSubtitle->setText(hRight->subtitle);
+		rightTradePanel->selectedSubtitle->setText(hRight->subtitle);
 		if(offerSlider->getValue() != 0)
 			rImageIndex = CGI->creatures()->getByIndex(hRight->id)->getIconIndex();
 	}
 	else
 	{
-		rSubtitle->setText("");
+		rightTradePanel->selectedSubtitle->setText("");
 	}
 	leftTradePanel->setSelectedFrameIndex(lImageIndex);
 	rightTradePanel->setSelectedFrameIndex(rImageIndex);
-	rightTradePanel->selectedImage->redraw();
 }
 
 void CAltarCreatures::updateSlots()
@@ -151,10 +147,8 @@ void CAltarCreatures::updateSlots()
 void CAltarCreatures::deselect()
 {
 	CTradeBase::deselect();
-	offerSlider->block(true);
-	maxUnits->block(true);
-	offerSlider->scrollTo(0);
 	updateSelected();
+	expForHero->setText(std::to_string(0));
 }
 
 TExpType CAltarCreatures::calcExpAltarForHero()
@@ -171,7 +165,6 @@ TExpType CAltarCreatures::calcExpAltarForHero()
 void CAltarCreatures::makeDeal()
 {
 	deselect();
-	expForHero->setText(std::to_string(0));
 
 	std::vector<TradeItemSell> ids;
 	std::vector<ui32> toSacrifice;
@@ -242,6 +235,7 @@ void CAltarCreatures::onOfferSliderMoved(int newVal)
 	deal->block(calcExpAltarForHero() == 0);
 	updateControls();
 	updateSelected();
+	redraw();
 }
 
 void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)

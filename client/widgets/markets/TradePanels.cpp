@@ -325,7 +325,8 @@ ResourcesPanel::ResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 		slot->setSelectionWidth(selectionWidth);
 	}
 	updateSlotsCallback = updateSubtitles;
-	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), 0);
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), 0, 0, selectedImagePos.x, selectedImagePos.y);
+	selectedSubtitle = std::make_shared<CLabel>(selectedSubtitlePos.x, selectedSubtitlePos.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 ArtifactsPanel::ArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles,
@@ -388,7 +389,8 @@ CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 			slot->subtitle = std::to_string(creaturesNum);
 		slot->setSelectionWidth(selectionWidth);
 	}
-	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0);
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0, 0, selectedImagePos.x, selectedImagePos.y);
+	selectedSubtitle = std::make_shared<CLabel>(selectedSubtitlePos.x, selectedSubtitlePos.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback,
@@ -405,5 +407,6 @@ CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 		slot->subtitle = emptySlots ? "" : srcSlot->subtitle;
 		slot->setSelectionWidth(selectionWidth);
 	}
-	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0);
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), 0, 0, selectedImagePos.x, selectedImagePos.y);
+	selectedSubtitle = std::make_shared<CLabel>(selectedSubtitlePos.x, selectedSubtitlePos.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }

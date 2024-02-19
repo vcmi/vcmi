@@ -35,13 +35,11 @@ public:
 	//highlighted items (nullptr if no highlight)
 	std::shared_ptr<CTradeableItem> hLeft;
 	std::shared_ptr<CTradeableItem> hRight;
-	std::shared_ptr<CLabel> lSubtitle;
-	std::shared_ptr<CLabel> rSubtitle;
 	std::shared_ptr<CButton> deal;
 	std::shared_ptr<CSlider> offerSlider;
+	std::shared_ptr<CButton> maxAmount;
 
 	std::vector<std::shared_ptr<CLabel>> labels;
-	std::vector<std::shared_ptr<CButton>> buttons;
 	std::vector<std::shared_ptr<CTextBox>> texts;
 
 	CTradeBase(const IMarket * market, const CGHeroInstance * hero);
@@ -77,11 +75,21 @@ public:
 	void updateSlots() override;
 };
 
-class CResourcesMarket : virtual public CTradeBase, virtual public CIntObject
+class CResourcesPurchasing : virtual public CTradeBase, virtual public CIntObject
 {
 public:
-	CResourcesMarket(EMarketMode marketMode);
-
-private:
+	CResourcesPurchasing(TradePanelBase::UpdateSlotsFunctor callback);
 	void updateSubtitles(EMarketMode marketMode);
+	void deselect() override;
+
+protected:
+	int bidQty;
+	int offerQty;
+};
+
+class CResourcesSelling : virtual public CTradeBase, virtual public CIntObject
+{
+public:
+	CResourcesSelling();
+	void updateSlots() override;
 };

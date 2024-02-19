@@ -17,6 +17,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/markets/CFreelancerGuild.h"
+#include "../widgets/markets/CMarketResources.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -69,7 +70,8 @@ void CMarketWindow::updateGarrisons()
 
 void CMarketWindow::resourceChanged()
 {
-	//market->initSubs(true);
+	if(resRes)
+		resRes->updateSlots();
 }
 
 void CMarketWindow::close()
@@ -181,8 +183,17 @@ void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroIn
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
 	background = createBg(ImagePath::builtin("TPMRKRES.bmp"), PLAYER_COLORED);
-	this->market = std::make_shared<CMarketplaceWindow>(market, hero, []() {}, EMarketMode::RESOURCE_RESOURCE);
-	createInternals(EMarketMode::RESOURCE_RESOURCE, market, hero);
+	resRes = std::make_shared<CMarketResources>(market, hero);
+
+	background->center();
+	pos = background->pos;
+	resRes->setRedrawParent(true);
+	resRes->moveTo(pos.topLeft());
+
+	createChangeModeButtons(EMarketMode::RESOURCE_RESOURCE, market, hero);
+	quitButton = std::make_shared<CButton>(quitButtonPos, AnimationPath::builtin("IOK6432.DEF"),
+		CGI->generaltexth->zelp[600], [this]() {close(); }, EShortcut::GLOBAL_RETURN);
+	redraw();
 }
 
 void CMarketWindow::createFreelancersGuild(const IMarket * market, const CGHeroInstance * hero)
@@ -195,7 +206,7 @@ void CMarketWindow::createFreelancersGuild(const IMarket * market, const CGHeroI
 	background->center();
 	pos = background->pos;
 	guild->setRedrawParent(true);
-	guild->moveTo(Point(257, 211));
+	guild->moveTo(pos.topLeft());
 
 	createChangeModeButtons(EMarketMode::CREATURE_RESOURCE, market, hero);
 	quitButton = std::make_shared<CButton>(quitButtonPos, AnimationPath::builtin("IOK6432.DEF"),

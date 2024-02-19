@@ -1,5 +1,5 @@
 /*
- * CFreelancerGuild.h, part of VCMI engine
+ * CMarketResources.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,15 +11,16 @@
 
 #include "CTradeBase.h"
 
-class CFreelancerGuild : public CCreaturesSelling , public CResourcesPurchasing
+class CMarketResources : public CResourcesSelling, public CResourcesPurchasing
 {
 public:
-	CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero);
+	CMarketResources(const IMarket * market, const CGHeroInstance * hero);
 	void makeDeal() override;
 	void deselect() override;
 
 private:
 	void updateSelected();
 	void onOfferSliderMoved(int newVal);
-	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
+	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
+	void updateSubtitles();
 };

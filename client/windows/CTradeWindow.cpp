@@ -103,7 +103,7 @@ void CTradeWindow::initItems(bool Left)
 			CTradeBase::onSlotClickPressed(newSlot, left ? hLeft : hRight);
 			selectionChanged(left);
 		};
-		if(Left && (mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::RESOURCE_PLAYER))
+		if(Left && (mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::RESOURCE_PLAYER))
 		{
 			leftTradePanel = std::make_shared<ResourcesPanel>(
 				[clickPressedTradePanel](const std::shared_ptr<CTradeableItem> & newSlot)
@@ -117,21 +117,6 @@ void CTradeWindow::initItems(bool Left)
 				});
 			leftTradePanel->moveBy(Point(39, 182));
 			leftTradePanel->updateSlots();
-		}
-		else if(!Left && mode == EMarketMode::RESOURCE_RESOURCE)
-		{
-			rightTradePanel = std::make_shared<ResourcesPanel>(
-				[clickPressedTradePanel](const std::shared_ptr<CTradeableItem> & newSlot)
-				{
-					clickPressedTradePanel(newSlot, false);
-				},
-				[this, updRightSub]()
-				{
-					updRightSub(EMarketMode::RESOURCE_RESOURCE);
-					if(hLeft)
-						rightTradePanel->slots[hLeft->serial]->subtitle = CGI->generaltexth->allTexts[164]; // n/a
-				});
-			rightTradePanel->moveBy(Point(327, 181));
 		}
 		else if(!Left && (mode == EMarketMode::ARTIFACT_RESOURCE))
 		{
@@ -216,8 +201,6 @@ ImagePath CMarketplaceWindow::getBackgroundForMode(EMarketMode mode)
 {
 	switch(mode)
 	{
-	case EMarketMode::RESOURCE_RESOURCE:
-		return ImagePath::builtin("TPMRKRES.bmp");
 	case EMarketMode::RESOURCE_PLAYER:
 		return ImagePath::builtin("TPMRKPTS.bmp");
 	case EMarketMode::RESOURCE_ARTIFACT:

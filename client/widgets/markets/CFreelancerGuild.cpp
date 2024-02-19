@@ -28,29 +28,27 @@
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
-	, CResourcesMarket(EMarketMode::CREATURE_RESOURCE)
+	, CResourcesPurchasing([this](){CResourcesPurchasing::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	labels.emplace_back(std::make_shared<CLabel>(254, -96, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
+	labels.emplace_back(std::make_shared<CLabel>(299, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		(*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->getNameTranslated()));
-	labels.emplace_back(std::make_shared<CLabel>(110, -20, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
+	labels.emplace_back(std::make_shared<CLabel>(155, 103, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
 		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
-	deal = std::make_shared<CButton>(Point(262, 397), AnimationPath::builtin("ALTSACR.DEF"),
+	deal = std::make_shared<CButton>(Point(306, 520), AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();});
-	deal->block(true);
-	maxUnits = std::make_shared<CButton>(Point(183, 397), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
+	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
 		[this]() {offerSlider->scrollToMax();});
-	maxUnits->block(true);
-	lSubtitle = std::make_shared<CLabel>(113, 403, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	rSubtitle = std::make_shared<CLabel>(400, 382, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	offerSlider = std::make_shared<CSlider>(Point(232, 489), 137, [this](int newVal)
+		{
+			CFreelancerGuild::onOfferSliderMoved(newVal);
+		}, 0, 0, 0, Orientation::HORIZONTAL);
 
 	// Hero creatures panel
 	assert(leftTradePanel);
-	leftTradePanel->deleteSlotsCheck = [this, hero](const std::shared_ptr<CTradeableItem> & slot)
-	{
-		return hero->getStackCount(SlotID(slot->serial)) == 0 ? true : false;
-	};
+	leftTradePanel->moveTo(pos.topLeft() + Point(45, 123));
+	leftTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
 	std::for_each(leftTradePanel->slots.cbegin(), leftTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
@@ -58,11 +56,10 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 				CFreelancerGuild::onSlotClickPressed(heroSlot, hLeft);
 			};
 		});
-	leftTradePanel->selectedImage->moveTo(pos.topLeft() + Point(83, 327));
 
 	// Guild resources panel
 	assert(rightTradePanel);
-	rightTradePanel->moveBy(Point(282, 58));
+	rightTradePanel->moveBy(Point(327, 181));
 	std::for_each(rightTradePanel->slots.cbegin(), rightTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
@@ -70,12 +67,6 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 				CFreelancerGuild::onSlotClickPressed(heroSlot, hRight);
 			};
 		});
-	rightTradePanel->selectedImage->moveTo(pos.topLeft() + Point(383, 335));
-
-	offerSlider = std::make_shared<CSlider>(Point(187, 366), 137, [this](int newVal)
-		{
-			CFreelancerGuild::onOfferSliderMoved(newVal);
-		}, 0, 0, 0, Orientation::HORIZONTAL);
 
 	CFreelancerGuild::deselect();
 }
@@ -87,15 +78,15 @@ void CFreelancerGuild::updateSelected()
 	
 	if(hLeft && hRight)
 	{
-		lSubtitle->setText(std::to_string(qtyPerPrice * offerSlider->getValue()));
-		rSubtitle->setText(std::to_string(price * offerSlider->getValue()));
+		leftTradePanel->selectedSubtitle->setText(std::to_string(bidQty * offerSlider->getValue()));
+		rightTradePanel->selectedSubtitle->setText(std::to_string(offerQty * offerSlider->getValue()));
 		lImageIndex = CGI->creatures()->getByIndex(hLeft->id)->getIconIndex();
 		rImageIndex = hRight->id;
 	}
 	else
 	{
-		lSubtitle->setText("");
-		rSubtitle->setText("");
+		leftTradePanel->selectedSubtitle->setText("");
+		rightTradePanel->selectedSubtitle->setText("");
 	}
 	leftTradePanel->setSelectedFrameIndex(lImageIndex);
 	rightTradePanel->setSelectedFrameIndex(rImageIndex);
@@ -103,18 +94,17 @@ void CFreelancerGuild::updateSelected()
 
 void CFreelancerGuild::makeDeal()
 {
-	LOCPLINT->cb->trade(market, EMarketMode::CREATURE_RESOURCE, SlotID(hLeft->serial), GameResID(hRight->id), qtyPerPrice * offerSlider->getValue(), hero);
-	deselect();
+	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
+	{
+		LOCPLINT->cb->trade(market, EMarketMode::CREATURE_RESOURCE, SlotID(hLeft->serial), GameResID(hRight->id), bidQty * toTrade, hero);
+		deselect();
+	}
 }
 
 void CFreelancerGuild::deselect()
 {
-	CTradeBase::deselect();
-	maxUnits->block(true);
+	CResourcesPurchasing::deselect();
 	updateSelected();
-	qtyPerPrice = 0;
-	price = 0;
-	offerSlider->scrollTo(0);
 }
 
 void CFreelancerGuild::onOfferSliderMoved(int newVal)
@@ -129,16 +119,19 @@ void CFreelancerGuild::onOfferSliderMoved(int newVal)
 
 void CFreelancerGuild::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
 {
+	if(newSlot == hCurSlot)
+		return;
+
 	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
-	
 	if(hLeft)
 	{
 		if(hRight)
 		{
-			market->getOffer(hLeft->id, hRight->id, qtyPerPrice, price, EMarketMode::CREATURE_RESOURCE);
-			offerSlider->setAmount((hero->getStackCount(SlotID(hLeft->serial)) - (hero->stacksCount() == 1 && hero->needsLastStack() ? 1 : 0)) / qtyPerPrice);
+			market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::CREATURE_RESOURCE);
+			offerSlider->setAmount((hero->getStackCount(SlotID(hLeft->serial)) - (hero->stacksCount() == 1 && hero->needsLastStack() ? 1 : 0)) / bidQty);
 			offerSlider->scrollTo(0);
-			maxUnits->block(false);
+			offerSlider->block(false);
+			maxAmount->block(false);
 			deal->block(false);
 		}
 		updateSelected();

@@ -23,7 +23,6 @@ public:
 	void updateAltarSlot(std::shared_ptr<CTradeableItem> slot);
 
 private:
-	std::shared_ptr<CButton> maxUnits;
 	std::vector<int> unitsOnAltar;
 	std::vector<int> expPerUnit;
 

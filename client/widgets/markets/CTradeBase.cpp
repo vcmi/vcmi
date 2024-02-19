@@ -14,9 +14,13 @@
 
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
+#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
+#include "../../CPlayerInterface.h"
+
+#include "../../../CCallback.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -57,6 +61,13 @@ void CTradeBase::deselect()
 		hRight->selectSlot(false);
 	hLeft = hRight = nullptr;
 	deal->block(true);
+	if(maxAmount)
+		maxAmount->block(true);
+	if(offerSlider)
+	{
+		offerSlider->scrollTo(0);
+		offerSlider->block(true);
+	}
 }
 
 void CTradeBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
@@ -114,19 +125,18 @@ void CCreaturesSelling::updateSlots()
 	leftTradePanel->updateSlots();
 }
 
-CResourcesMarket::CResourcesMarket(EMarketMode marketMode)
+CResourcesPurchasing::CResourcesPurchasing(TradePanelBase::UpdateSlotsFunctor callback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	rightTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, [this, marketMode]()
-		{
-			updateSubtitles(marketMode);
-		});
-	labels.emplace_back(std::make_shared<CLabel>(400, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
+	rightTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, callback);
+	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 }
 
-void CResourcesMarket::updateSubtitles(EMarketMode marketMode)
+void CResourcesPurchasing::updateSubtitles(EMarketMode marketMode)
 {
+	assert(marketMode == EMarketMode::RESOURCE_RESOURCE || marketMode == EMarketMode::CREATURE_RESOURCE || marketMode == EMarketMode::ARTIFACT_RESOURCE);
+
 	if(hLeft)
 		for(const auto & slot : rightTradePanel->slots)
 		{
@@ -138,3 +148,27 @@ void CResourcesMarket::updateSubtitles(EMarketMode marketMode)
 	else
 		rightTradePanel->clearSubtitles();
 };
+
+void CResourcesPurchasing::deselect()
+{
+	CTradeBase::deselect();
+	bidQty = 0;
+	offerQty = 0;
+}
+
+CResourcesSelling::CResourcesSelling()
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	leftTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, [this]()
+		{
+			for(const auto & slot : leftTradePanel->slots)
+				slot->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial)));
+		});
+	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
+}
+
+void CResourcesSelling::updateSlots()
+{
+	leftTradePanel->updateSlots();
+}

@@ -65,6 +65,7 @@ public:
 	std::shared_ptr<CTradeableItem> selected;
 	const int selectionWidth = 2;
 	std::shared_ptr<CAnimImage> selectedImage;
+	std::shared_ptr<CLabel> selectedSubtitle;
 
 	virtual void updateSlots();
 	virtual void deselect();
@@ -89,6 +90,8 @@ class ResourcesPanel : public TradePanelBase
 		Point(83, 158)
 	};
 	const Point slotDimension = Point(69, 66);
+	const Point selectedImagePos = Point(102, 276);
+	const Point selectedSubtitlePos = Point(118, 324);
 
 public:
 	ResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles);
@@ -133,6 +136,8 @@ class CreaturesPanel : public TradePanelBase
 		Point(83, 196)
 	};
 	const Point slotDimension = Point(58, 64);
+	const Point selectedImagePos = Point(83, 327);
+	const Point selectedSubtitlePos = Point(113, 403);
 
 public:
 	using slotsData = std::vector<std::tuple<CreatureID, SlotID, int>>;
