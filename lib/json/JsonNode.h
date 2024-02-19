@@ -17,7 +17,7 @@ class JsonNode;
 using JsonMap = std::map<std::string, JsonNode>;
 using JsonVector = std::vector<JsonNode>;
 
-struct JsonParsingSettings
+struct DLL_LINKAGE JsonParsingSettings
 {
 	enum class JsonFormatMode
 	{

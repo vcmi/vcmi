@@ -105,7 +105,8 @@ void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)
 
 bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
 {
-	std::string log = Validation::check(schemaName, node);
+	JsonValidator validator;
+	std::string log = validator.check(schemaName, node);
 	if (!log.empty())
 	{
 		logMod->warn("Data in %s is invalid!", dataName);

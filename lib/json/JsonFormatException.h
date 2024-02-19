@@ -11,7 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class JsonFormatException : public std::runtime_error
+class DLL_LINKAGE JsonFormatException : public std::runtime_error
 {
 public:
 	using runtime_error::runtime_error;
