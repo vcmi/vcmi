@@ -40,6 +40,11 @@ JsonNode JsonParser::parse(const std::string & fileName)
 		if(!TextOperations::isValidUnicodeString(input.data(), input.size()))
 			error("Not a valid UTF-8 file", false);
 
+		// If file starts with BOM - skip it
+		uint32_t firstCharacter = TextOperations::getUnicodeCodepoint(input.data(), input.size());
+		if (firstCharacter == 0xFEFF)
+			pos += TextOperations::getUnicodeCharacterSize(input[0]);
+
 		extractValue(root);
 		extractWhitespace(false);
 
