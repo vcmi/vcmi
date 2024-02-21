@@ -134,11 +134,6 @@ void CTradeWindow::initItems(bool Left)
 				return vstd::contains(market->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), ArtifactID(slot->id)) ? false : true;
 			};
 		}
-		else if(!Left && mode == EMarketMode::RESOURCE_PLAYER)
-		{
-			rightTradePanel = std::make_shared<PlayersPanel>(std::bind(clickPressedTradePanel, _1, false));
-			rightTradePanel->moveBy(Point(333, 83));
-		}
 	}
 }
 

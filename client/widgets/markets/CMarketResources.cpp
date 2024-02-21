@@ -27,7 +27,7 @@
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
-	, CResourcesPurchasing([this](){CMarketResources::updateSubtitles();})
+	, CResourcesBuying([this](){CMarketResources::updateSubtitles();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -78,7 +78,7 @@ void CMarketResources::makeDeal()
 
 void CMarketResources::deselect()
 {
-	CResourcesPurchasing::deselect();
+	CResourcesBuying::deselect();
 	updateSelected();
 }
 
@@ -139,7 +139,7 @@ void CMarketResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> 
 
 void CMarketResources::updateSubtitles()
 {
-	CResourcesPurchasing::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
+	CResourcesBuying::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
 	if(hLeft)
 		rightTradePanel->slots[hLeft->serial]->subtitle = CGI->generaltexth->allTexts[164]; // n/a
 }

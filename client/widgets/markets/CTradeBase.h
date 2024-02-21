@@ -75,10 +75,10 @@ public:
 	void updateSlots() override;
 };
 
-class CResourcesPurchasing : virtual public CTradeBase, virtual public CIntObject
+class CResourcesBuying : virtual public CTradeBase, virtual public CIntObject
 {
 public:
-	CResourcesPurchasing(TradePanelBase::UpdateSlotsFunctor callback);
+	CResourcesBuying(TradePanelBase::UpdateSlotsFunctor callback);
 	void updateSubtitles(EMarketMode marketMode);
 	void deselect() override;
 

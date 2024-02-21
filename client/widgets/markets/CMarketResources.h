@@ -11,7 +11,7 @@
 
 #include "CTradeBase.h"
 
-class CMarketResources : public CResourcesSelling, public CResourcesPurchasing
+class CMarketResources : public CResourcesSelling, public CResourcesBuying
 {
 public:
 	CMarketResources(const IMarket * market, const CGHeroInstance * hero);

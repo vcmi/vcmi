@@ -122,6 +122,8 @@ class PlayersPanel : public TradePanelBase
 		Point(83, 236)
 	};
 	const Point slotDimension = Point(58, 64);
+	const Point selectedImagePos = Point(83, 368);
+	const Point selectedSubtitlePos = Point(112, 443);
 
 public:
 	explicit PlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback);

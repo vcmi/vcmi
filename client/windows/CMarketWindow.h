@@ -12,8 +12,10 @@
 #include "CTradeWindow.h"
 #include "CAltarWindow.h"
 
+class CArtifactsBuying;
 class CFreelancerGuild;
 class CMarketResources;
+class CTransferResources;
 
 class CMarketWindow : public CStatusbarWindow, public CAltarWindow // TODO remove CAltarWindow
 {
@@ -47,4 +49,6 @@ private:
 	std::shared_ptr<CMarketplaceWindow> market;
 	std::shared_ptr<CFreelancerGuild> guild;
 	std::shared_ptr<CMarketResources> resRes;
+	std::shared_ptr<CTransferResources> trRes;
+	std::shared_ptr<CArtifactsBuying> artsBuy;
 };

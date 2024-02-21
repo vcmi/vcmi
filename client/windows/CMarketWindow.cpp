@@ -16,8 +16,10 @@
 
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/markets/CArtifactsBuying.h"
 #include "../widgets/markets/CFreelancerGuild.h"
 #include "../widgets/markets/CMarketResources.h"
+#include "../widgets/markets/CTransferResources.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -72,6 +74,8 @@ void CMarketWindow::resourceChanged()
 {
 	if(resRes)
 		resRes->updateSlots();
+	if(trRes)
+		trRes->updateSlots();
 }
 
 void CMarketWindow::close()
@@ -165,8 +169,20 @@ void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroIn
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
 	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
-	this->market = std::make_shared<CMarketplaceWindow>(market, hero, []() {}, EMarketMode::RESOURCE_ARTIFACT);
-	createInternals(EMarketMode::RESOURCE_ARTIFACT, market, hero);
+	//this->market = std::make_shared<CMarketplaceWindow>(market, hero, []() {}, EMarketMode::RESOURCE_ARTIFACT);
+	//createInternals(EMarketMode::RESOURCE_ARTIFACT, market, hero);
+
+	artsBuy = std::make_shared<CArtifactsBuying>(market, hero);
+
+	background->center();
+	pos = background->pos;
+	artsBuy->setRedrawParent(true);
+	artsBuy->moveTo(pos.topLeft());
+
+	createChangeModeButtons(EMarketMode::RESOURCE_ARTIFACT, market, hero);
+	quitButton = std::make_shared<CButton>(quitButtonPos, AnimationPath::builtin("IOK6432.DEF"),
+		CGI->generaltexth->zelp[600], [this]() {close(); }, EShortcut::GLOBAL_RETURN);
+	redraw();
 }
 
 void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
@@ -219,8 +235,17 @@ void CMarketWindow::createTransferResources(const IMarket * market, const CGHero
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
 	background = createBg(ImagePath::builtin("TPMRKPTS.bmp"), PLAYER_COLORED);
-	this->market = std::make_shared<CMarketplaceWindow>(market, hero, []() {}, EMarketMode::RESOURCE_PLAYER);
-	createInternals(EMarketMode::RESOURCE_PLAYER, market, hero);
+	trRes = std::make_shared<CTransferResources>(market, hero);
+
+	background->center();
+	pos = background->pos;
+	trRes->setRedrawParent(true);
+	trRes->moveTo(pos.topLeft());
+
+	createChangeModeButtons(EMarketMode::RESOURCE_PLAYER, market, hero);
+	quitButton = std::make_shared<CButton>(quitButtonPos, AnimationPath::builtin("IOK6432.DEF"),
+		CGI->generaltexth->zelp[600], [this]() {close(); }, EShortcut::GLOBAL_RETURN);
+	redraw();
 }
 
 void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)

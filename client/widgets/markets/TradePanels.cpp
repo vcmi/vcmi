@@ -196,11 +196,18 @@ void CTradeableItem::hover(bool on)
 	case EType::CREATURE_PLACEHOLDER:
 		GH.statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
 		break;
+	case EType::ARTIFACT_TYPE:
 	case EType::ARTIFACT_PLACEHOLDER:
 		if(id < 0)
 			GH.statusbar()->write(CGI->generaltexth->zelp[582].first);
 		else
 			GH.statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
+		break;
+	case EType::RESOURCE:
+		GH.statusbar()->write(CGI->generaltexth->restypes[id]);
+		break;
+	case EType::PLAYER:
+		GH.statusbar()->write(CGI->generaltexth->capColors[id]);
 		break;
 	}
 }
@@ -372,6 +379,8 @@ PlayersPanel::PlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallb
 		slot->subtitle = CGI->generaltexth->capColors[players[slotNum].num];
 		slotNum++;
 	}
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), 0, 0, selectedImagePos.x, selectedImagePos.y);
+	selectedSubtitle = std::make_shared<CLabel>(selectedSubtitlePos.x, selectedSubtitlePos.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 CreaturesPanel::CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, const slotsData & initialSlots)

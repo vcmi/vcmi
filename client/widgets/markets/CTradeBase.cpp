@@ -125,7 +125,7 @@ void CCreaturesSelling::updateSlots()
 	leftTradePanel->updateSlots();
 }
 
-CResourcesPurchasing::CResourcesPurchasing(TradePanelBase::UpdateSlotsFunctor callback)
+CResourcesBuying::CResourcesBuying(TradePanelBase::UpdateSlotsFunctor callback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -133,7 +133,7 @@ CResourcesPurchasing::CResourcesPurchasing(TradePanelBase::UpdateSlotsFunctor ca
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 }
 
-void CResourcesPurchasing::updateSubtitles(EMarketMode marketMode)
+void CResourcesBuying::updateSubtitles(EMarketMode marketMode)
 {
 	assert(marketMode == EMarketMode::RESOURCE_RESOURCE || marketMode == EMarketMode::CREATURE_RESOURCE || marketMode == EMarketMode::ARTIFACT_RESOURCE);
 
@@ -149,7 +149,7 @@ void CResourcesPurchasing::updateSubtitles(EMarketMode marketMode)
 		rightTradePanel->clearSubtitles();
 };
 
-void CResourcesPurchasing::deselect()
+void CResourcesBuying::deselect()
 {
 	CTradeBase::deselect();
 	bidQty = 0;

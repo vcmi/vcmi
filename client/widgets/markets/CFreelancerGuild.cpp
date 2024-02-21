@@ -28,7 +28,7 @@
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
-	, CResourcesPurchasing([this](){CResourcesPurchasing::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
+	, CResourcesBuying([this](){CResourcesBuying::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -103,7 +103,7 @@ void CFreelancerGuild::makeDeal()
 
 void CFreelancerGuild::deselect()
 {
-	CResourcesPurchasing::deselect();
+	CResourcesBuying::deselect();
 	updateSelected();
 }
 
