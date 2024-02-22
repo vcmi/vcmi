@@ -60,6 +60,11 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	rightTradePanel->moveTo(pos.topLeft() + Point(334, 110));
 	rightTradePanel->selectedImage->moveTo(pos.topLeft() + Point(395, 422));
 	rightTradePanel->selectedSubtitle->moveTo(pos.topLeft() + Point(426, 503));
+	rightTradePanel->updateSlotsCallback = [this]()
+	{
+		for(const auto & altarSlot : rightTradePanel->slots)
+			updateAltarSlot(altarSlot);
+	};
 	leftTradePanel->deleteSlotsCheck = rightTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
 	
 	readExpValues();
@@ -69,7 +74,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 void CAltarCreatures::readExpValues()
 {
 	int bidQty = 0;
-	for(auto heroSlot : leftTradePanel->slots)
+	for(const auto & heroSlot : leftTradePanel->slots)
 	{
 		if(heroSlot->id >= 0)
 			market->getOffer(heroSlot->id, 0, bidQty, expPerUnit[heroSlot->serial], EMarketMode::CREATURE_EXP);
@@ -138,10 +143,9 @@ void CAltarCreatures::updateSelected()
 
 void CAltarCreatures::updateSlots()
 {
-	rightTradePanel->deleteSlots();
+	rightTradePanel->updateSlots();
 	CCreaturesSelling::updateSlots();
 	assert(leftTradePanel->slots.size() == rightTradePanel->slots.size());
-	readExpValues();
 }
 
 void CAltarCreatures::deselect()
@@ -211,14 +215,13 @@ void CAltarCreatures::sacrificeAll()
 
 	if(hRight)
 		offerSlider->scrollTo(unitsOnAltar[hRight->serial]);
-	for(auto altarSlot : rightTradePanel->slots)
-		updateAltarSlot(altarSlot);
+	rightTradePanel->updateSlots();
 	updateSelected();
 
 	deal->block(calcExpAltarForHero() == 0);
 }
 
-void CAltarCreatures::updateAltarSlot(std::shared_ptr<CTradeableItem> slot)
+void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & slot)
 {
 	auto units = unitsOnAltar[slot->serial];
 	slot->setType(units > 0 ? EType::CREATURE : EType::CREATURE_PLACEHOLDER);

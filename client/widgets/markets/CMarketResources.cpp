@@ -22,12 +22,12 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
-#include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
 	, CResourcesBuying([this](){CMarketResources::updateSubtitles();})
+	, CMarketMisc([this](){return CMarketResources::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -54,7 +54,6 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 
 	// Market resources panel
 	assert(rightTradePanel);
-	rightTradePanel->moveTo(pos.topLeft() + Point(327, 181));
 	std::for_each(rightTradePanel->slots.cbegin(), rightTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & resSlot)
@@ -64,7 +63,7 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 		});
 
 	CResourcesSelling::updateSlots();
-	CMarketResources::deselect();
+	CMarketMisc::deselect();
 }
 
 void CMarketResources::makeDeal()
@@ -76,31 +75,13 @@ void CMarketResources::makeDeal()
 	}
 }
 
-void CMarketResources::deselect()
+CMarketMisc::SelectionParams CMarketResources::getSelectionParams()
 {
-	CResourcesBuying::deselect();
-	updateSelected();
-}
-
-void CMarketResources::updateSelected()
-{
-	std::optional<size_t> lImageIndex = std::nullopt;
-	std::optional<size_t> rImageIndex = std::nullopt;
-
 	if(hLeft && hRight && hLeft->id != hRight->id)
-	{
-		leftTradePanel->selectedSubtitle->setText(std::to_string(bidQty * offerSlider->getValue()));
-		rightTradePanel->selectedSubtitle->setText(std::to_string(offerQty * offerSlider->getValue()));
-		lImageIndex = hLeft->id;
-		rImageIndex = hRight->id;
-	}
+		return std::make_tuple(std::to_string(bidQty * offerSlider->getValue()),
+			std::to_string(offerQty * offerSlider->getValue()), hLeft->id, hRight->id);
 	else
-	{
-		leftTradePanel->selectedSubtitle->setText("");
-		rightTradePanel->selectedSubtitle->setText("");
-	}
-	leftTradePanel->setSelectedFrameIndex(lImageIndex);
-	rightTradePanel->setSelectedFrameIndex(rImageIndex);
+		return std::nullopt;
 }
 
 void CMarketResources::onOfferSliderMoved(int newVal)

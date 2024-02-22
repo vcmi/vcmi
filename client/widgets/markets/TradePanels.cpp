@@ -273,6 +273,9 @@ void CTradeableItem::setArtInstance(const CArtifactInstance * art)
 
 void TradePanelBase::updateSlots()
 {
+	if(deleteSlotsCheck)
+		slots.erase(std::remove_if(slots.begin(), slots.end(), deleteSlotsCheck), slots.end());
+
 	if(updateSlotsCallback)
 		updateSlotsCallback();
 }
@@ -297,12 +300,6 @@ void TradePanelBase::updateOffer(CTradeableItem & slot, int cost, int qty)
 		slot.subtitle.append("/");
 		slot.subtitle.append(std::to_string(cost));
 	}
-}
-
-void TradePanelBase::deleteSlots()
-{
-	if(deleteSlotsCheck)
-		slots.erase(std::remove_if(slots.begin(), slots.end(), deleteSlotsCheck), slots.end());
 }
 
 void TradePanelBase::setSelectedFrameIndex(std::optional<size_t> index)
@@ -355,6 +352,8 @@ ArtifactsPanel::ArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedC
 		}
 	}
 	updateSlotsCallback = updateSubtitles;
+	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), 0, 0, selectedImagePos.x, selectedImagePos.y);
+	selectedSubtitle = std::make_shared<CLabel>(selectedSubtitlePos.x, selectedSubtitlePos.y, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 PlayersPanel::PlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback)

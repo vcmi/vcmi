@@ -71,7 +71,6 @@ public:
 	virtual void deselect();
 	virtual void clearSubtitles();
 	void updateOffer(CTradeableItem & slot, int, int);
-	void deleteSlots();
 	void setSelectedFrameIndex(std::optional<size_t> index);
 };
 
@@ -90,7 +89,7 @@ class ResourcesPanel : public TradePanelBase
 		Point(83, 158)
 	};
 	const Point slotDimension = Point(69, 66);
-	const Point selectedImagePos = Point(102, 276);
+	const Point selectedImagePos = Point(101, 276);
 	const Point selectedSubtitlePos = Point(118, 324);
 
 public:
@@ -101,12 +100,14 @@ class ArtifactsPanel : public TradePanelBase
 {
 	const std::vector<Point> slotsPos =
 	{
-		Point(0, 0), Point(83, 0), Point(166, 0),
-		Point(0, 79), Point(83, 79), Point(166, 79),
+		Point(0, 0), Point(83, 0), Point(165, 0),
+		Point(0, 79), Point(83, 79), Point(165, 79),
 		Point(83, 158)
 	};
 	const size_t slotsForTrade = 7;
 	const Point slotDimension = Point(69, 66);
+	const Point selectedImagePos = Point(96, 266);
+	const Point selectedSubtitlePos = Point(118, 324);
 
 public:
 	ArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles,

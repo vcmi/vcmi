@@ -80,11 +80,6 @@ class CResourcesBuying : virtual public CTradeBase, virtual public CIntObject
 public:
 	CResourcesBuying(TradePanelBase::UpdateSlotsFunctor callback);
 	void updateSubtitles(EMarketMode marketMode);
-	void deselect() override;
-
-protected:
-	int bidQty;
-	int offerQty;
 };
 
 class CResourcesSelling : virtual public CTradeBase, virtual public CIntObject
@@ -92,4 +87,20 @@ class CResourcesSelling : virtual public CTradeBase, virtual public CIntObject
 public:
 	CResourcesSelling();
 	void updateSlots() override;
+};
+
+class CMarketMisc : virtual public CTradeBase, virtual public CIntObject
+{
+public:
+	using SelectionParams = std::optional<std::tuple<std::string, std::string, int, int>>;
+	using SelectionParamsFunctor = std::function<SelectionParams()>;
+
+	CMarketMisc(SelectionParamsFunctor callback);
+	void deselect() override;
+	void updateSelected();
+
+protected:
+	int bidQty;
+	int offerQty;
+	SelectionParamsFunctor selectionParamsCallback;
 };

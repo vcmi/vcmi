@@ -29,6 +29,7 @@
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
 	, CResourcesBuying([this](){CResourcesBuying::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
+	, CMarketMisc([this](){return CFreelancerGuild::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -59,7 +60,6 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 
 	// Guild resources panel
 	assert(rightTradePanel);
-	rightTradePanel->moveBy(Point(327, 181));
 	std::for_each(rightTradePanel->slots.cbegin(), rightTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
@@ -68,28 +68,7 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 			};
 		});
 
-	CFreelancerGuild::deselect();
-}
-
-void CFreelancerGuild::updateSelected()
-{
-	std::optional<size_t> lImageIndex = std::nullopt;
-	std::optional<size_t> rImageIndex = std::nullopt;
-	
-	if(hLeft && hRight)
-	{
-		leftTradePanel->selectedSubtitle->setText(std::to_string(bidQty * offerSlider->getValue()));
-		rightTradePanel->selectedSubtitle->setText(std::to_string(offerQty * offerSlider->getValue()));
-		lImageIndex = CGI->creatures()->getByIndex(hLeft->id)->getIconIndex();
-		rImageIndex = hRight->id;
-	}
-	else
-	{
-		leftTradePanel->selectedSubtitle->setText("");
-		rightTradePanel->selectedSubtitle->setText("");
-	}
-	leftTradePanel->setSelectedFrameIndex(lImageIndex);
-	rightTradePanel->setSelectedFrameIndex(rImageIndex);
+	CMarketMisc::deselect();
 }
 
 void CFreelancerGuild::makeDeal()
@@ -101,10 +80,13 @@ void CFreelancerGuild::makeDeal()
 	}
 }
 
-void CFreelancerGuild::deselect()
+CMarketMisc::SelectionParams CFreelancerGuild::getSelectionParams()
 {
-	CResourcesBuying::deselect();
-	updateSelected();
+	if(hLeft && hRight)
+		return std::make_tuple(std::to_string(bidQty * offerSlider->getValue()), std::to_string(offerQty * offerSlider->getValue()),
+			CGI->creatures()->getByIndex(hLeft->id)->getIconIndex(), hRight->id);
+	else
+		return std::nullopt;
 }
 
 void CFreelancerGuild::onOfferSliderMoved(int newVal)

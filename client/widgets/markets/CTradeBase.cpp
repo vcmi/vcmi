@@ -121,7 +121,6 @@ void CCreaturesSelling::updateSubtitle()
 
 void CCreaturesSelling::updateSlots()
 {
-	leftTradePanel->deleteSlots();
 	leftTradePanel->updateSlots();
 }
 
@@ -130,13 +129,12 @@ CResourcesBuying::CResourcesBuying(TradePanelBase::UpdateSlotsFunctor callback)
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
 	rightTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, callback);
+	rightTradePanel->moveTo(pos.topLeft() + Point(327, 181));
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 }
 
 void CResourcesBuying::updateSubtitles(EMarketMode marketMode)
 {
-	assert(marketMode == EMarketMode::RESOURCE_RESOURCE || marketMode == EMarketMode::CREATURE_RESOURCE || marketMode == EMarketMode::ARTIFACT_RESOURCE);
-
 	if(hLeft)
 		for(const auto & slot : rightTradePanel->slots)
 		{
@@ -148,13 +146,6 @@ void CResourcesBuying::updateSubtitles(EMarketMode marketMode)
 	else
 		rightTradePanel->clearSubtitles();
 };
-
-void CResourcesBuying::deselect()
-{
-	CTradeBase::deselect();
-	bidQty = 0;
-	offerQty = 0;
-}
 
 CResourcesSelling::CResourcesSelling()
 {
@@ -171,4 +162,39 @@ CResourcesSelling::CResourcesSelling()
 void CResourcesSelling::updateSlots()
 {
 	leftTradePanel->updateSlots();
+}
+
+CMarketMisc::CMarketMisc(SelectionParamsFunctor callback)
+	: selectionParamsCallback(callback)
+{
+}
+
+void CMarketMisc::deselect()
+{
+	CTradeBase::deselect();
+	bidQty = 0;
+	offerQty = 0;
+	updateSelected();
+}
+
+void CMarketMisc::updateSelected()
+{
+	std::optional<size_t> lImageIndex = std::nullopt;
+	std::optional<size_t> rImageIndex = std::nullopt;
+
+	assert(selectionParamsCallback);
+	if(auto params = selectionParamsCallback())
+	{
+		leftTradePanel->selectedSubtitle->setText(std::get<0>(params.value()));
+		rightTradePanel->selectedSubtitle->setText(std::get<1>(params.value()));
+		lImageIndex = std::get<2>(params.value());
+		rImageIndex = std::get<3>(params.value());
+	}
+	else
+	{
+		leftTradePanel->selectedSubtitle->setText("");
+		rightTradePanel->selectedSubtitle->setText("");
+	}
+	leftTradePanel->setSelectedFrameIndex(lImageIndex);
+	rightTradePanel->setSelectedFrameIndex(rImageIndex);
 }

@@ -20,12 +20,12 @@ public:
 	TExpType calcExpAltarForHero() override;
 	void makeDeal() override;
 	void sacrificeAll() override;
-	void updateAltarSlot(std::shared_ptr<CTradeableItem> slot);
 
 private:
 	std::vector<int> unitsOnAltar;
 	std::vector<int> expPerUnit;
 
+	void updateAltarSlot(const std::shared_ptr<CTradeableItem> & slot);
 	void readExpValues();
 	void updateControls();
 	void updateSelected();

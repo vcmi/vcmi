@@ -449,12 +449,6 @@ void CMarketplaceWindow::updateGarrison()
 
 void CMarketplaceWindow::artifactsChanged(bool Left)
 {
-	assert(!Left);
-	if(mode != EMarketMode::RESOURCE_ARTIFACT)
-		return;
-	
-	rightTradePanel->deleteSlots();
-	redraw();
 }
 
 std::string CMarketplaceWindow::updateSlotSubtitle(bool Left) const

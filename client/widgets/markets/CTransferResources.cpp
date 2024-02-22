@@ -25,6 +25,7 @@
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
+	, CMarketMisc([this](){return CTransferResources::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -70,31 +71,13 @@ void CTransferResources::makeDeal()
 	}
 }
 
-void CTransferResources::deselect()
+CMarketMisc::SelectionParams CTransferResources::getSelectionParams()
 {
-	CTradeBase::deselect();
-	updateSelected();
-}
-
-void CTransferResources::updateSelected()
-{
-	std::optional<size_t> lImageIndex = std::nullopt;
-	std::optional<size_t> rImageIndex = std::nullopt;
-
 	if(hLeft && hRight)
-	{
-		leftTradePanel->selectedSubtitle->setText(std::to_string(offerSlider->getValue()));
-		rightTradePanel->selectedSubtitle->setText(CGI->generaltexth->capColors[hRight->id]);
-		lImageIndex = hLeft->id;
-		rImageIndex = hRight->id;
-	}
+		return std::make_tuple(std::to_string(offerSlider->getValue()),
+			CGI->generaltexth->capColors[hRight->id], hLeft->id, hRight->id);
 	else
-	{
-		leftTradePanel->selectedSubtitle->setText("");
-		rightTradePanel->selectedSubtitle->setText("");
-	}
-	leftTradePanel->setSelectedFrameIndex(lImageIndex);
-	rightTradePanel->setSelectedFrameIndex(rImageIndex);
+		return std::nullopt;
 }
 
 void CTransferResources::onOfferSliderMoved(int newVal)

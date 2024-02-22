@@ -59,13 +59,13 @@ CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero
 
 void CMarketWindow::artifactsChanged()
 {
-	market->artifactsChanged(false);
+	//market->artifactsChanged(false);
+	if(artsBuy)
+		artsBuy->updateSlots();
 }
 
 void CMarketWindow::updateGarrisons()
 {
-	CAltarWindow::updateGarrisons();
-
 	if(guild)
 		guild->updateSlots();
 }
@@ -169,9 +169,6 @@ void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroIn
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
 	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
-	//this->market = std::make_shared<CMarketplaceWindow>(market, hero, []() {}, EMarketMode::RESOURCE_ARTIFACT);
-	//createInternals(EMarketMode::RESOURCE_ARTIFACT, market, hero);
-
 	artsBuy = std::make_shared<CArtifactsBuying>(market, hero);
 
 	background->center();
