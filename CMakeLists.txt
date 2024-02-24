@@ -799,10 +799,12 @@ if(WIN32)
 	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 		CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\${VCMI_MAIN_EXECUTABLE}.exe\\\"
 		ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_server dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_server.exe\\\" enable=yes profile=public,private' SW_HIDE
+		ExecShell '' 'netsh' 'advfirewall firewall add rule name=vcmi_client dir=in action=allow program=\\\"$INSTDIR\\\\vcmi_client.exe\\\" enable=yes profile=public,private' SW_HIDE
 	")
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
 		Delete \\\"$DESKTOP\\\\VCMI.lnk\\\"
 		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_server' SW_HIDE
+		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_client' SW_HIDE
 	")
 
 	# Strip MinGW CPack target if build configuration without debug info
