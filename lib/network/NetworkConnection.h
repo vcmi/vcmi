@@ -19,7 +19,6 @@ class NetworkConnection : public INetworkConnection, public std::enable_shared_f
 	static const int messageMaxSize = 64 * 1024 * 1024; // arbitrary size to prevent potential massive allocation if we receive garbage input
 
 	std::shared_ptr<NetworkSocket> socket;
-	boost::mutex writeMutex;
 
 	NetworkBuffer readBuffer;
 	INetworkConnectionListener & listener;
