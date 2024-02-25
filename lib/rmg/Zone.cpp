@@ -278,7 +278,7 @@ void Zone::fractalize()
 	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
 	freeDistance = freeDistance * marginFactor;
 	vstd::amax(freeDistance, 4 * 4);
-	logGlobal->info("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
+	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -381,7 +381,6 @@ void Zone::initModificators()
 	{
 		modificator->init();
 	}
-	logGlobal->info("Zone %d modificators initialized", getId());
 }
 
 CRandomGenerator& Zone::getRand()

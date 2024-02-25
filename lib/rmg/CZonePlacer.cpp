@@ -24,6 +24,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+//#define ZONE_PLACEMENT_LOG true
+
 class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
@@ -248,7 +250,8 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	}
 
 	//TODO: toggle with a flag
-	logGlobal->info("Initial zone grid:");
+#ifdef ZONE_PLACEMENT_LOG
+	logGlobal->trace("Initial zone grid:");
 	for (size_t x = 0; x < gridSize; ++x)
 	{
 		std::string s;
@@ -263,8 +266,9 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 				s += " -- ";
 			}
 		}
-		logGlobal->info(s);
+		logGlobal->trace(s);
 	}
+#endif
 
 	//Set initial position for zones - random position in square centered around (x, y)
 	for (size_t x = 0; x < gridSize; ++x)
@@ -372,7 +376,9 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 				bestSolution[zone.second] = zone.second->getCenter();
 		}
 
+#ifdef ZONE_PLACEMENT_LOG
 		logGlobal->trace("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s", totalDistance, totalOverlap , improvement);
+#endif
 
 		return improvement;
 	};
@@ -419,7 +425,9 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	for(const auto & zone : zones) //finalize zone positions
 	{
 		zone.second->setPos (cords (bestSolution[zone.second]));
+#ifdef ZONE_PLACEMENT_LOG
 		logGlobal->trace("Placed zone %d at relative position %s and coordinates %s", zone.first, zone.second->getCenter().toString(), zone.second->getPos().toString());
+#endif
 	}
 }
 
@@ -688,7 +696,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		return lhs.first > rhs.first; //Largest dispalcement first
 	});
 
+#ifdef ZONE_PLACEMENT_LOG
 	logGlobal->trace("Worst misplacement/movement ratio: %3.2f", misplacedZones.front().first);
+#endif
 
 	if (misplacedZones.size() >= 2)
 	{
@@ -721,7 +731,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		}
 		if (secondZone)
 		{
+#ifdef ZONE_PLACEMENT_LOG
 			logGlobal->trace("Swapping two misplaced zones %d and %d", firstZone->getId(), secondZone->getId());
+#endif
 
 			auto firstCenter = firstZone->getCenter();
 			auto secondCenter = secondZone->getCenter();
@@ -764,7 +776,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		{
 			float3 vec = targetZone->getCenter() - ourCenter;
 			float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
+#ifdef ZONE_PLACEMENT_LOG
 			logGlobal->trace("Trying to move zone %d %s towards %d %s. Direction is %s", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), vec.toString());
+#endif
 
 			misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
 		}
@@ -792,7 +806,9 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		{
 			float3 vec = ourCenter - targetZone->getCenter();
 			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
+#ifdef ZONE_PLACEMENT_LOG
 			logGlobal->trace("Trying to move zone %d %s away from %d %s. Direction is %s", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), vec.toString());
+#endif
 
 			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
 		}
