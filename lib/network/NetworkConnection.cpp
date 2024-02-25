@@ -88,7 +88,6 @@ void NetworkConnection::sendPacket(const std::vector<std::byte> & message)
 	// create array with single element - boost::asio::buffer can be constructed from containers, but not from plain integer
 	std::array<uint32_t, 1> messageSize{static_cast<uint32_t>(message.size())};
 
-	boost::mutex::scoped_lock lock(writeMutex);
 	boost::asio::write(*socket, boost::asio::buffer(messageSize), ec );
 	boost::asio::write(*socket, boost::asio::buffer(message), ec );
 
