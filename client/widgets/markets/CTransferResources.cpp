@@ -41,22 +41,22 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 		}, 0, 0, 0, Orientation::HORIZONTAL);
 
 	// Player's resources
-	assert(leftTradePanel);
-	std::for_each(leftTradePanel->slots.cbegin(), leftTradePanel->slots.cend(), [this](auto & slot)
+	assert(bidTradePanel);
+	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
 			{
 				CTransferResources::onSlotClickPressed(heroSlot, hLeft);
 			};
 		});
-	leftTradePanel->moveTo(pos.topLeft() + Point(40, 182));
+	bidTradePanel->moveTo(pos.topLeft() + Point(40, 182));
 
 	// Players panel
-	rightTradePanel = std::make_shared<PlayersPanel>([this](const std::shared_ptr<CTradeableItem> & heroSlot)
+	offerTradePanel = std::make_shared<PlayersPanel>([this](const std::shared_ptr<CTradeableItem> & heroSlot)
 		{
 			CTransferResources::onSlotClickPressed(heroSlot, hRight);
 		});
-	rightTradePanel->moveTo(pos.topLeft() + Point(333, 83));
+	offerTradePanel->moveTo(pos.topLeft() + Point(333, 83));
 
 	CResourcesSelling::updateSlots();
 	CTransferResources::deselect();
@@ -74,10 +74,11 @@ void CTransferResources::makeDeal()
 CMarketMisc::SelectionParams CTransferResources::getSelectionParams()
 {
 	if(hLeft && hRight)
-		return std::make_tuple(std::to_string(offerSlider->getValue()),
-			CGI->generaltexth->capColors[hRight->id], hLeft->id, hRight->id);
+		return std::make_tuple(
+			SelectionParamOneSide {std::to_string(offerSlider->getValue()), hLeft->id},
+			SelectionParamOneSide {CGI->generaltexth->capColors[hRight->id], hRight->id});
 	else
-		return std::nullopt;
+		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CTransferResources::onOfferSliderMoved(int newVal)
@@ -107,7 +108,7 @@ void CTransferResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem
 			deal->block(false);
 		}
 		updateSelected();
-		rightTradePanel->updateSlots();
+		offerTradePanel->updateSlots();
 	}
 	redraw();
 }

@@ -40,7 +40,7 @@ void CTradeBase::removeItems(const std::set<std::shared_ptr<CTradeableItem>> & t
 
 void CTradeBase::removeItem(std::shared_ptr<CTradeableItem> item)
 {
-	rightTradePanel->slots.erase(std::remove(rightTradePanel->slots.begin(), rightTradePanel->slots.end(), item));
+	offerTradePanel->slots.erase(std::remove(offerTradePanel->slots.begin(), offerTradePanel->slots.end(), item));
 
 	if(hRight == item)
 		hRight.reset();
@@ -48,7 +48,7 @@ void CTradeBase::removeItem(std::shared_ptr<CTradeableItem> item)
 
 void CTradeBase::getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRemove)
 {
-	for(auto item : leftTradePanel->slots)
+	for(auto item : bidTradePanel->slots)
 		if(!hero->getStackCount(SlotID(item->serial)))
 			toRemove.insert(item);
 }
@@ -104,8 +104,8 @@ CCreaturesSelling::CCreaturesSelling()
 		if(const auto & creature = hero->getCreature(slotId))
 			slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
 	}
-	leftTradePanel = std::make_shared<CreaturesPanel>(nullptr, slots);
-	leftTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitle, this);
+	bidTradePanel = std::make_shared<CreaturesPanel>(nullptr, slots);
+	bidTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitle, this);
 }
 
 bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot)
@@ -115,45 +115,45 @@ bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> 
 
 void CCreaturesSelling::updateSubtitle()
 {
-	for(auto & heroSlot : leftTradePanel->slots)
+	for(auto & heroSlot : bidTradePanel->slots)
 		heroSlot->subtitle = std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial)));
 }
 
 void CCreaturesSelling::updateSlots()
 {
-	leftTradePanel->updateSlots();
+	bidTradePanel->updateSlots();
 }
 
 CResourcesBuying::CResourcesBuying(TradePanelBase::UpdateSlotsFunctor callback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	rightTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, callback);
-	rightTradePanel->moveTo(pos.topLeft() + Point(327, 181));
+	offerTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, callback);
+	offerTradePanel->moveTo(pos.topLeft() + Point(327, 181));
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 }
 
 void CResourcesBuying::updateSubtitles(EMarketMode marketMode)
 {
 	if(hLeft)
-		for(const auto & slot : rightTradePanel->slots)
+		for(const auto & slot : offerTradePanel->slots)
 		{
 			int h1, h2; //hlp variables for getting offer
 			market->getOffer(hLeft->id, slot->id, h1, h2, marketMode);
 
-			rightTradePanel->updateOffer(*slot, h1, h2);
+			offerTradePanel->updateOffer(*slot, h1, h2);
 		}
 	else
-		rightTradePanel->clearSubtitles();
+		offerTradePanel->clearSubtitles();
 };
 
 CResourcesSelling::CResourcesSelling()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	leftTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, [this]()
+	bidTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, [this]()
 		{
-			for(const auto & slot : leftTradePanel->slots)
+			for(const auto & slot : bidTradePanel->slots)
 				slot->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial)));
 		});
 	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
@@ -161,7 +161,7 @@ CResourcesSelling::CResourcesSelling()
 
 void CResourcesSelling::updateSlots()
 {
-	leftTradePanel->updateSlots();
+	bidTradePanel->updateSlots();
 }
 
 CMarketMisc::CMarketMisc(SelectionParamsFunctor callback)
@@ -179,22 +179,25 @@ void CMarketMisc::deselect()
 
 void CMarketMisc::updateSelected()
 {
-	std::optional<size_t> lImageIndex = std::nullopt;
-	std::optional<size_t> rImageIndex = std::nullopt;
+	const auto updateSelectedBody = [](std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const SelectionParamOneSide> & params)
+	{
+		std::optional<size_t> lImageIndex = std::nullopt;
+		if(params.has_value())
+		{
+			tradePanel->selectedSubtitle->setText(params.value().text);
+			lImageIndex = params.value().imageIndex;
+		}
+		else
+		{
+			tradePanel->selectedSubtitle->setText("");
+		}
+		tradePanel->setSelectedFrameIndex(lImageIndex);
+	};
 
 	assert(selectionParamsCallback);
-	if(auto params = selectionParamsCallback())
-	{
-		leftTradePanel->selectedSubtitle->setText(std::get<0>(params.value()));
-		rightTradePanel->selectedSubtitle->setText(std::get<1>(params.value()));
-		lImageIndex = std::get<2>(params.value());
-		rImageIndex = std::get<3>(params.value());
-	}
-	else
-	{
-		leftTradePanel->selectedSubtitle->setText("");
-		rightTradePanel->selectedSubtitle->setText("");
-	}
-	leftTradePanel->setSelectedFrameIndex(lImageIndex);
-	rightTradePanel->setSelectedFrameIndex(rImageIndex);
+	const auto params = selectionParamsCallback();
+	if(bidTradePanel)
+		updateSelectedBody(bidTradePanel, std::get<0>(params));
+	if(offerTradePanel)
+		updateSelectedBody(offerTradePanel, std::get<1>(params));
 }

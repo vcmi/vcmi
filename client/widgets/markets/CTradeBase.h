@@ -29,8 +29,8 @@ public:
 
 	//all indexes: 1 = left, 0 = right
 	std::array<std::vector<std::shared_ptr<CTradeableItem>>, 2> items;
-	std::shared_ptr<TradePanelBase> leftTradePanel;
-	std::shared_ptr<TradePanelBase> rightTradePanel;
+	std::shared_ptr<TradePanelBase> bidTradePanel;
+	std::shared_ptr<TradePanelBase> offerTradePanel;
 
 	//highlighted items (nullptr if no highlight)
 	std::shared_ptr<CTradeableItem> hLeft;
@@ -92,7 +92,12 @@ public:
 class CMarketMisc : virtual public CTradeBase, virtual public CIntObject
 {
 public:
-	using SelectionParams = std::optional<std::tuple<std::string, std::string, int, int>>;
+	struct SelectionParamOneSide
+	{ 
+		std::string text; 
+		int imageIndex; 
+	};
+	using SelectionParams = std::tuple<std::optional<const SelectionParamOneSide>, std::optional<const SelectionParamOneSide>>;
 	using SelectionParamsFunctor = std::function<SelectionParams()>;
 
 	CMarketMisc(SelectionParamsFunctor callback);

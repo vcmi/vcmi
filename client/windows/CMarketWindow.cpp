@@ -17,6 +17,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/markets/CArtifactsBuying.h"
+#include "../widgets/markets/CArtifactsSelling.h"
 #include "../widgets/markets/CFreelancerGuild.h"
 #include "../widgets/markets/CMarketResources.h"
 #include "../widgets/markets/CTransferResources.h"
@@ -185,10 +186,22 @@ void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroIn
 void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
-
+	artsBuy.reset();
 	background = createBg(ImagePath::builtin("TPMRKASS.bmp"), PLAYER_COLORED);
-	this->market = std::make_shared<CMarketplaceWindow>(market, hero, []() {}, EMarketMode::ARTIFACT_RESOURCE);
-	createInternals(EMarketMode::ARTIFACT_RESOURCE, market, hero);
+
+	artsSel = std::make_shared<CArtifactsSelling>(market, hero);
+	artSets.clear();
+	addSetAndCallbacks(artsSel->getAOHset());
+
+	background->center();
+	pos = background->pos;
+	artsSel->setRedrawParent(true);
+	artsSel->moveTo(pos.topLeft());
+
+	createChangeModeButtons(EMarketMode::ARTIFACT_RESOURCE, market, hero);
+	quitButton = std::make_shared<CButton>(quitButtonPos, AnimationPath::builtin("IOK6432.DEF"),
+		CGI->generaltexth->zelp[600], [this]() {close(); }, EShortcut::GLOBAL_RETURN);
+	redraw();
 }
 
 void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroInstance * hero)
@@ -253,7 +266,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	auto altarArtifacts = std::make_shared<CAltarArtifacts>(market, hero);
 	altar = altarArtifacts;
 	artSets.clear();
-	addSetAndCallbacks(altarArtifacts->getAOHset()); altarArtifacts->putBackArtifacts();
+	addSetAndCallbacks(altarArtifacts->getAOHset());
 
 	background->center();
 	pos = background->pos;

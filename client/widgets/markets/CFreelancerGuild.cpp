@@ -47,10 +47,10 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 		}, 0, 0, 0, Orientation::HORIZONTAL);
 
 	// Hero creatures panel
-	assert(leftTradePanel);
-	leftTradePanel->moveTo(pos.topLeft() + Point(45, 123));
-	leftTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
-	std::for_each(leftTradePanel->slots.cbegin(), leftTradePanel->slots.cend(), [this](auto & slot)
+	assert(bidTradePanel);
+	bidTradePanel->moveTo(pos.topLeft() + Point(45, 123));
+	bidTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
+	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
 			{
@@ -59,8 +59,8 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 		});
 
 	// Guild resources panel
-	assert(rightTradePanel);
-	std::for_each(rightTradePanel->slots.cbegin(), rightTradePanel->slots.cend(), [this](auto & slot)
+	assert(offerTradePanel);
+	std::for_each(offerTradePanel->slots.cbegin(), offerTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
 			{
@@ -83,10 +83,11 @@ void CFreelancerGuild::makeDeal()
 CMarketMisc::SelectionParams CFreelancerGuild::getSelectionParams()
 {
 	if(hLeft && hRight)
-		return std::make_tuple(std::to_string(bidQty * offerSlider->getValue()), std::to_string(offerQty * offerSlider->getValue()),
-			CGI->creatures()->getByIndex(hLeft->id)->getIconIndex(), hRight->id);
+		return std::make_tuple(
+			SelectionParamOneSide {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(hLeft->id)->getIconIndex()},
+			SelectionParamOneSide {std::to_string(offerQty * offerSlider->getValue()), hRight->id});
 	else
-		return std::nullopt;
+		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CFreelancerGuild::onOfferSliderMoved(int newVal)
@@ -117,7 +118,7 @@ void CFreelancerGuild::onSlotClickPressed(const std::shared_ptr<CTradeableItem> 
 			deal->block(false);
 		}
 		updateSelected();
-		rightTradePanel->updateSlots();
+		offerTradePanel->updateSlots();
 	}
 	redraw();
 }

@@ -50,6 +50,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 		CGI->generaltexth->zelp[570], std::bind(&CAltarArtifacts::sacrificeBackpack, this));
 	sacrificeBackpackButton->block(hero->artifactsInBackpack.empty());
 
+	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -11));
 	heroArts->setHero(hero);
 

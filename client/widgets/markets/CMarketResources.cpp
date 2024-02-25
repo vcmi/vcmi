@@ -42,19 +42,19 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 		}, 0, 0, 0, Orientation::HORIZONTAL);
 
 	// Player's resources
-	assert(leftTradePanel);
-	std::for_each(leftTradePanel->slots.cbegin(), leftTradePanel->slots.cend(), [this](auto & slot)
+	assert(bidTradePanel);
+	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
 			{
 				CMarketResources::onSlotClickPressed(heroSlot, hLeft);
 			};
 		});
-	leftTradePanel->moveTo(pos.topLeft() + Point(39, 181));
+	bidTradePanel->moveTo(pos.topLeft() + Point(39, 181));
 
 	// Market resources panel
-	assert(rightTradePanel);
-	std::for_each(rightTradePanel->slots.cbegin(), rightTradePanel->slots.cend(), [this](auto & slot)
+	assert(offerTradePanel);
+	std::for_each(offerTradePanel->slots.cbegin(), offerTradePanel->slots.cend(), [this](auto & slot)
 		{
 			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & resSlot)
 			{
@@ -78,10 +78,11 @@ void CMarketResources::makeDeal()
 CMarketMisc::SelectionParams CMarketResources::getSelectionParams()
 {
 	if(hLeft && hRight && hLeft->id != hRight->id)
-		return std::make_tuple(std::to_string(bidQty * offerSlider->getValue()),
-			std::to_string(offerQty * offerSlider->getValue()), hLeft->id, hRight->id);
+		return std::make_tuple(
+			SelectionParamOneSide {std::to_string(bidQty * offerSlider->getValue()), hLeft->id},
+			SelectionParamOneSide {std::to_string(offerQty * offerSlider->getValue()), hRight->id});
 	else
-		return std::nullopt;
+		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CMarketResources::onOfferSliderMoved(int newVal)
@@ -113,7 +114,7 @@ void CMarketResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> 
 			deal->block(isControlsBlocked);
 		}
 		updateSelected();
-		rightTradePanel->updateSlots();
+		offerTradePanel->updateSlots();
 	}
 	redraw();
 }
@@ -122,5 +123,5 @@ void CMarketResources::updateSubtitles()
 {
 	CResourcesBuying::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
 	if(hLeft)
-		rightTradePanel->slots[hLeft->serial]->subtitle = CGI->generaltexth->allTexts[164]; // n/a
+		offerTradePanel->slots[hLeft->serial]->subtitle = CGI->generaltexth->allTexts[164]; // n/a
 }

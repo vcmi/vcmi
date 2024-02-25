@@ -13,6 +13,7 @@
 #include "CAltarWindow.h"
 
 class CArtifactsBuying;
+class CArtifactsSelling;
 class CFreelancerGuild;
 class CMarketResources;
 class CTransferResources;
@@ -51,4 +52,5 @@ private:
 	std::shared_ptr<CMarketResources> resRes;
 	std::shared_ptr<CTransferResources> trRes;
 	std::shared_ptr<CArtifactsBuying> artsBuy;
+	std::shared_ptr<CArtifactsSelling> artsSel;
 };

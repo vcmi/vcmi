@@ -126,6 +126,7 @@ set(client_SRCS
 	widgets/markets/CAltarArtifacts.cpp
 	widgets/markets/CAltarCreatures.cpp
 	widgets/markets/CArtifactsBuying.cpp
+	widgets/markets/CArtifactsSelling.cpp
 	widgets/markets/CFreelancerGuild.cpp
 	widgets/markets/CMarketResources.cpp
 	widgets/markets/CTransferResources.cpp
@@ -315,6 +316,7 @@ set(client_HEADERS
 	widgets/markets/CAltarArtifacts.h
 	widgets/markets/CAltarCreatures.h
 	widgets/markets/CArtifactsBuying.h
+	widgets/markets/CArtifactsSelling.h
 	widgets/markets/CFreelancerGuild.h
 	widgets/markets/CMarketResources.h
 	widgets/markets/CTransferResources.h
