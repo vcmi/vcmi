@@ -677,9 +677,9 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					&& components.size() == 2
 					&& components.front().type == ComponentType::RESOURCE
 					&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
-						|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
+						|| nullkiller->buildAnalyzer->isGoldPreasureHigh()))
 				{
-					sel = 1; // for now lets pick gold from a chest.
+					sel = 1;
 				}
 		}
 

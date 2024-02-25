@@ -27,15 +27,11 @@ namespace NKAI
 
 using namespace Goals;
 
-#if NKAI_TRACE_LEVEL >= 1
-#define MAXPASS 1000000
-#else
-#define MAXPASS 30
-#endif
-
 Nullkiller::Nullkiller()
+	:activeHero(nullptr), scanDepth(ScanDepth::MAIN_FULL), useHeroChain(true)
 {
-	memory.reset(new AIMemory());
+	memory = std::make_unique<AIMemory>();
+	settings = std::make_unique<Settings>();
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
@@ -166,12 +162,12 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		if(scanDepth == ScanDepth::SMALL)
 		{
-			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
+			cfg.mainTurnDistanceLimit = ai->nullkiller->settings->getMainHeroTurnDistanceLimit();
 		}
 
 		if(scanDepth != ScanDepth::ALL_FULL)
 		{
-			cfg.scoutTurnDistanceLimit = SCOUT_TURN_DISTANCE_LIMIT;
+			cfg.scoutTurnDistanceLimit = ai->nullkiller->settings->getScoutHeroTurnDistanceLimit();
 		}
 
 		boost::this_thread::interruption_point();
@@ -235,13 +231,13 @@ void Nullkiller::makeTurn()
 
 	resetAiState();
 
-	for(int i = 1; i <= MAXPASS; i++)
+	for(int i = 1; i <= settings->getMaxPass(); i++)
 	{
 		updateAiState(i);
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
-		for(;i <= MAXPASS; i++)
+		for(;i <= settings->getMaxPass(); i++)
 		{
 			Goals::TTaskVec fastTasks = {
 				choseBestTask(sptr(BuyArmyBehavior()), 1),
@@ -328,9 +324,9 @@ void Nullkiller::makeTurn()
 
 		executeTask(bestTask);
 
-		if(i == MAXPASS)
+		if(i == settings->getMaxPass())
 		{
-			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", taskDescription);
+			logAi->warn("Goal %s exceeded maxpass. Terminating AI turn.", taskDescription);
 		}
 	}
 }
