@@ -832,10 +832,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
 
 	if(getState() == EClientState::DISCONNECTING)
-	{
-		assert(0); //Should not be possible - socket must be closed at this point
 		return;
-	}
 
 	CPack * pack = logicConnection->retrievePack(message);
 	ServerHandlerCPackVisitor visitor(*this);

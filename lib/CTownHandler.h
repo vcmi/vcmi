@@ -217,7 +217,6 @@ public:
 	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const; //may affect only mutable field
 	BuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
-	std::string getRandomNameTranslated(size_t index) const;
 	std::string getRandomNameTextID(size_t index) const;
 	size_t getRandomNamesCount() const;
 

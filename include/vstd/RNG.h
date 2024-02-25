@@ -36,14 +36,18 @@ namespace RandomGeneratorUtil
 	template<typename Container>
 	auto nextItem(const Container & container, vstd::RNG & rand) -> decltype(std::begin(container))
 	{
-		assert(!container.empty());
+		if(container.empty())
+			throw std::runtime_error("Unable to select random item from empty container!");
+
 		return std::next(container.begin(), rand.getInt64Range(0, container.size() - 1)());
 	}
 
 	template<typename Container>
 	auto nextItem(Container & container, vstd::RNG & rand) -> decltype(std::begin(container))
 	{
-		assert(!container.empty());
+		if(container.empty())
+			throw std::runtime_error("Unable to select random item from empty container!");
+
 		return std::next(container.begin(), rand.getInt64Range(0, container.size() - 1)());
 	}
 

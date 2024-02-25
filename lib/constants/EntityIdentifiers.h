@@ -24,6 +24,7 @@ class CHero;
 class CHeroClass;
 class HeroClass;
 class HeroTypeService;
+class CFaction;
 class Faction;
 class Skill;
 class RoadType;
@@ -261,6 +262,7 @@ public:
 
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
+	const CFaction * toFaction() const;
 	const Faction * toEntity(const Services * service) const;
 	static std::string entityType();
 
