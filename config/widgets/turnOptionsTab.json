@@ -1,5 +1,8 @@
 {
-	"library" : "config/widgets/turnOptionsDropdownLibrary.json",
+	"library" : [
+		"config/widgets/turnOptionsDropdownLibrary.json",
+		"config/widgets/commonPrimitives.json",
+	],
 
 	"customTypes" : {
 		"verticalLayout66" : {
@@ -30,10 +33,8 @@
 			"offset": {"x": 0, "y": 0}
 		},
 		"timeInputBackground" : {
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 0, "y": 0, "w": 86, "h": 23},
-			"color": [0, 0, 0, 128],
-			"colorLine": [64, 80, 128, 128]
+			"type": "boxWithBackground",
+			"rect": {"x": 0, "y": 0, "w": 86, "h": 23}
 		}
 	},
 	
@@ -66,15 +67,7 @@
 			"rect": {"x": 60, "y": 48, "w": 320, "h": 0},
 			"adoptHeight": true
 		},
-		
-//		{
-//			"type": "label",
-//			"font": "medium",
-//			"alignment": "center",
-//			"color": "yellow",
-//			"text": "vcmi.optionsTab.selectPreset",
-//			"position": {"x": 105, "y": 100}
-//		},
+	
 		{
 			"type" : "dropDownTimers",
 			"name": "timerPresetSelector",
@@ -94,36 +87,20 @@
 			"color" : "blue", 
 			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124}
 		},
+		
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124},
-			"color": [0, 0, 0, 0],
-			"colorLine": [64, 80, 128, 128]
+			"type": "boxWithNoBackground",
+			"rect": {"x" : 64, "y" : 394, "w": 316, "h": 124}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 416, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [80, 96, 160, 128]
+			"type": "horizontalLine",
+			"rect": {"x" : 65, "y" : 416, "w": 314, "h": 2}
 		},
 		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 417, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [32, 40, 128, 128]
+			"type": "horizontalLine",
+			"rect": {"x" : 65, "y" : 466, "w": 314, "h": 2}
 		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 466, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [80, 96, 160, 128]
-		},
-		{
-			"type": "transparentFilledRectangle",
-			"rect": {"x" : 65, "y" : 467, "w": 314, "h": 1},
-			"color": [0, 0, 0, 0],
-			"colorLine": [32, 40, 128, 128]
-		},
+
 		{
 			"type" : "verticalLayout66",
 			"customType" : "labelTitle",

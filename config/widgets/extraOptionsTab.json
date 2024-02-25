@@ -37,27 +37,27 @@
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x": 54, "y": 127, "w": 335, "h": 1},
+			"rect": {"x": 54, "y": 127, "w": 335, "h": 2},
 			"color": [24, 41, 90, 255]
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x": 158, "y": 90, "w": 2, "h": 37},
+			"rect": {"x": 159, "y": 90, "w": 2, "h": 38},
 			"color": [24, 41, 90, 255]
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x": 234, "y": 90, "w": 2, "h": 37},
+			"rect": {"x": 235, "y": 90, "w": 2, "h": 38},
 			"color": [24, 41, 90, 255]
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x": 310, "y": 90, "w": 2, "h": 37},
+			"rect": {"x": 311, "y": 90, "w": 2, "h": 38},
 			"color": [24, 41, 90, 255]
 		},
 		{
 			"type": "transparentFilledRectangle",
-			"rect": {"x": 55, "y": 556, "w": 334, "h": 18},
+			"rect": {"x": 55, "y": 556, "w": 335, "h": 19},
 			"color": [24, 41, 90, 255]
 		},
 		{

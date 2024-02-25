@@ -18,6 +18,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"

@@ -108,6 +108,7 @@ protected:
 	std::shared_ptr<ComboBox> buildComboBox(const JsonNode &);
 	std::shared_ptr<CTextInput> buildTextInput(const JsonNode &) const;
 	std::shared_ptr<TransparentFilledRectangle> buildTransparentFilledRectangle(const JsonNode & config) const;
+	std::shared_ptr<CIntObject> buildGraphicalPrimitive(const JsonNode & config) const;
 	std::shared_ptr<CTextBox> buildTextBox(const JsonNode & config) const;
 		
 	//composite widgets

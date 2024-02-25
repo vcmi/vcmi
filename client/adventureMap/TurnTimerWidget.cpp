@@ -18,7 +18,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Graphics.h"
 #include "../widgets/Images.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/TextControls.h"
 
 #include "../../CCallback.h"
