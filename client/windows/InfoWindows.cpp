@@ -11,19 +11,14 @@
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
-#include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
-#include "../CMusicHandler.h"
+#include "../PlayerLocalState.h"
 
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "../render/Canvas.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
@@ -35,35 +30,32 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CondSh.h"
-#include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
-#include "../../lib/gameState/InfoAboutArmy.h"
 
-CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()> > > &Buttons, QueryID askID)
+CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
 	ID = askID;
-	for (int i = 0; i < Buttons.size(); i++)
+	for(int i = 0; i < Buttons.size(); i++)
 	{
 		buttons.push_back(std::make_shared<CButton>(Point(0, 0), Buttons[i].first, CButton::tooltip(), Buttons[i].second));
-		if (!i  &&  askID.getNum() >= 0)
+		if(!i && askID.getNum() >= 0)
 			buttons.back()->addCallback(std::bind(&CSelWindow::madeChoice, this));
 		buttons[i]->addCallback(std::bind(&CInfoWindow::close, this)); //each button will close the window apart from call-defined actions
 	}
 
 	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
-	if (buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
+	if(buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
 	{
-		buttons.back()->addCallback([askID]() {
-			LOCPLINT->cb.get()->selectionMade(0, askID);
-		});
+		buttons.back()->addCallback([askID](){LOCPLINT->cb.get()->selectionMade(0, askID);});
 		//buttons.back()->addCallback(std::bind(&CCallback::selectionMade, LOCPLINT->cb.get(), 0, askID));
 	}
 
@@ -76,8 +68,8 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
 	}
 
-	if (!comps.empty())
-		components = std::make_shared<CComponentBox>(comps, Rect(0,0,600,300));
+	if(!comps.empty())
+		components = std::make_shared<CComponentBox>(comps, Rect(0, 0, 600, 300));
 
 	CMessage::drawIWindow(this, Text, player);
 }
@@ -87,10 +79,10 @@ void CSelWindow::madeChoice()
 	if(ID.getNum() < 0)
 		return;
 	int ret = -1;
-	if (components)
+	if(components)
 		ret = components->selectedIndex();
 
-	LOCPLINT->cb->selectionMade(ret+1,ID);
+	LOCPLINT->cb->selectionMade(ret + 1, ID);
 }
 
 void CSelWindow::madeChoiceAndClose()
@@ -101,14 +93,14 @@ void CSelWindow::madeChoiceAndClose()
 
 CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
 	ID = QueryID(-1);
 	for(auto & Button : Buttons)
 	{
-		std::shared_ptr<CButton> button = std::make_shared<CButton>(Point(0,0), Button.first, CButton::tooltip(), std::bind(&CInfoWindow::close, this));
+		std::shared_ptr<CButton> button = std::make_shared<CButton>(Point(0, 0), Button.first, CButton::tooltip(), std::bind(&CInfoWindow::close, this));
 		button->setBorderColor(Colors::METALLIC_GOLD);
 		button->addCallback(Button.second); //each button will close the window apart from call-defined actions
 		buttons.push_back(button);
@@ -131,10 +123,10 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
 	}
 
-	if (!comps.empty())
-		components = std::make_shared<CComponentBox>(comps, Rect(0,0,600,300));
+	if(!comps.empty())
+		components = std::make_shared<CComponentBox>(comps, Rect(0, 0, 600, 300));
 
-	CMessage::drawIWindow(this,Text,player);
+	CMessage::drawIWindow(this, Text, player);
 }
 
 CInfoWindow::CInfoWindow()
@@ -158,28 +150,28 @@ void CInfoWindow::showAll(Canvas & to)
 
 CInfoWindow::~CInfoWindow() = default;
 
-void CInfoWindow::showInfoDialog(const std::string &text, const TCompsInfo & components, PlayerColor player)
+void CInfoWindow::showInfoDialog(const std::string & text, const TCompsInfo & components, PlayerColor player)
 {
 	GH.windows().pushWindow(CInfoWindow::create(text, player, components));
 }
 
-void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, PlayerColor player)
+void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player)
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
-	std::vector<std::pair<AnimationPath,CFunctionList<void()> > > pom;
-	pom.push_back( { AnimationPath::builtin("IOKAY.DEF"), 0 });
-	pom.push_back( { AnimationPath::builtin("ICANCEL.DEF"), 0 });
-	std::shared_ptr<CInfoWindow> temp =  std::make_shared<CInfoWindow>(text, player, components, pom);
+	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
+	pom.push_back({AnimationPath::builtin("IOKAY.DEF"), 0});
+	pom.push_back({AnimationPath::builtin("ICANCEL.DEF"), 0});
+	std::shared_ptr<CInfoWindow> temp = std::make_shared<CInfoWindow>(text, player, components, pom);
 
-	temp->buttons[0]->addCallback( onYes );
-	temp->buttons[1]->addCallback( onNo );
+	temp->buttons[0]->addCallback(onYes);
+	temp->buttons[1]->addCallback(onNo);
 
 	GH.windows().pushWindow(temp);
 }
 
-std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string &text, PlayerColor playerID, const TCompsInfo & components)
+std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string & text, PlayerColor playerID, const TCompsInfo & components)
 {
-	std::vector<std::pair<AnimationPath,CFunctionList<void()> > > pom;
+	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
 	pom.push_back({AnimationPath::builtin("IOKAY.DEF"), 0});
 	return std::make_shared<CInfoWindow>(text, playerID, components, pom);
 }
@@ -199,10 +191,10 @@ void CRClickPopup::close()
 	WindowBase::close();
 }
 
-void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps)
+void CRClickPopup::createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo & comps)
 {
 	PlayerColor player = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1); //if no player, then use blue
-	if(settings["session"]["spectate"].Bool())//TODO: there must be better way to implement this
+	if(settings["session"]["spectate"].Bool()) //TODO: there must be better way to implement this
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
@@ -233,7 +225,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	else
 	{
 		std::vector<Component> components;
-		if (settings["general"]["enableUiEnhancements"].Bool())
+		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
 			if(LOCPLINT->localState->getCurrentHero())
 				components = obj->getPopupComponents(LOCPLINT->localState->getCurrentHero());
@@ -242,7 +234,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 		}
 
 		std::vector<std::shared_ptr<CComponent>> guiComponents;
-		for (auto & component : components)
+		for(auto & component : components)
 			guiComponents.push_back(std::make_shared<CComponent>(component));
 
 		if(LOCPLINT->localState->getCurrentHero())
@@ -282,7 +274,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	InfoAboutTown iah;
 	LOCPLINT->cb->getTownInfo(town, iah, LOCPLINT->localState->getCurrentTown()); //todo: should this be nearest hero?
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
 }
 
@@ -290,9 +282,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("HEROQVBK"), toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentHero());//todo: should this be nearest hero?
+	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentHero()); //todo: should this be nearest hero?
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
 }
 
@@ -302,18 +294,19 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 	InfoAboutTown iah;
 	LOCPLINT->cb->getTownInfo(garr, iah);
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGCreature * creature)
-		: CWindowObject(RCLICK_POPUP | BORDERED, ImagePath::builtin("DIBOXBCK"), toScreen(position))
+	: CWindowObject(RCLICK_POPUP | BORDERED, ImagePath::builtin("DIBOXBCK"), toScreen(position))
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	tooltip = std::make_shared<CreatureTooltip>(Point(9, 10), creature);
 }
 
-std::shared_ptr<WindowBase> CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
+std::shared_ptr<WindowBase>
+CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if(nullptr == specific)
 		specific = LOCPLINT->localState->getCurrentArmy();
@@ -326,16 +319,16 @@ std::shared_ptr<WindowBase> CRClickPopup::createCustomInfoWindow(Point position,
 
 	switch(specific->ID)
 	{
-	case Obj::HERO:
-		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGHeroInstance *>(specific));
-	case Obj::TOWN:
-		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGTownInstance *>(specific));
-	case Obj::MONSTER:
-		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGCreature *>(specific));
-	case Obj::GARRISON:
-	case Obj::GARRISON2:
-		return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGGarrison *>(specific));
-	default:
-		return std::shared_ptr<WindowBase>();
+		case Obj::HERO:
+			return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGHeroInstance *>(specific));
+		case Obj::TOWN:
+			return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGTownInstance *>(specific));
+		case Obj::MONSTER:
+			return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGCreature *>(specific));
+		case Obj::GARRISON:
+		case Obj::GARRISON2:
+			return std::make_shared<CInfoBoxPopup>(position, dynamic_cast<const CGGarrison *>(specific));
+		default:
+			return std::shared_ptr<WindowBase>();
 	}
 }
