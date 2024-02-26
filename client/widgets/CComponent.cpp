@@ -80,13 +80,14 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 
 	pos.h += 4; //distance between text and image
 
-	auto max = 80;
+	// WARNING: too low values will lead to bad line-breaks in CPlayerOptionTooltipBox - check right-click on starting town in pregame
+	int max = 80;
 	if (size < large)
 		max = 72;
 	if (size < medium)
-		max = 40;
+		max = 60;
 	if (size < small)
-		max = 30;
+		max = 55;
 
 	if(Type == ComponentType::RESOURCE && !ValText.empty())
 		max = 80;
