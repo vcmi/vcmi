@@ -95,14 +95,14 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 
 	auto data = archive.load(resource)->readAll();
 
-	JsonNode res(reinterpret_cast<char*>(data.first.get()), data.second);
+	JsonNode res(reinterpret_cast<const std::byte *>(data.first.get()), data.second);
 
 	return res;
 }
 
 static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename)
 {
-	auto s = data.toJson();
+	auto s = data.toString();
 	std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
 	if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())

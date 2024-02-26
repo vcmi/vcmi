@@ -13,28 +13,23 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-//Internal class for Json validation. Mostly compilant with json-schema v4 draft
-namespace Validation
+/// Class for Json validation. Mostly compilant with json-schema v6 draf
+struct JsonValidator
 {
-	/// struct used to pass data around during validation
-	struct ValidationData
-	{
-		/// path from root node to current one.
-		/// JsonNode is used as variant - either string (name of node) or as float (index in list)
-		std::vector<JsonNode> currentPath;
+	/// path from root node to current one.
+	/// JsonNode is used as variant - either string (name of node) or as float (index in list)
+	std::vector<JsonNode> currentPath;
 
-		/// Stack of used schemas. Last schema is the one used currently.
-		/// May contain multiple items in case if remote references were found
-		std::vector<std::string> usedSchemas;
+	/// Stack of used schemas. Last schema is the one used currently.
+	/// May contain multiple items in case if remote references were found
+	std::vector<std::string> usedSchemas;
 
-		/// generates error message
-		std::string makeErrorMessage(const std::string &message);
-	};
+	/// generates error message
+	std::string makeErrorMessage(const std::string &message);
 
 	using TFormatValidator = std::function<std::string(const JsonNode &)>;
 	using TFormatMap = std::unordered_map<std::string, TFormatValidator>;
-	using TFieldValidator = std::function<std::string(ValidationData &, const JsonNode &, const JsonNode &, const JsonNode &)>;
+	using TFieldValidator = std::function<std::string(JsonValidator &, const JsonNode &, const JsonNode &, const JsonNode &)>;
 	using TValidatorMap = std::unordered_map<std::string, TFieldValidator>;
 
 	/// map of known fields in schema
@@ -42,8 +37,7 @@ namespace Validation
 	const TFormatMap & getKnownFormats();
 
 	std::string check(const std::string & schemaName, const JsonNode & data);
-	std::string check(const std::string & schemaName, const JsonNode & data, ValidationData & validator);
-	std::string check(const JsonNode & schema, const JsonNode & data, ValidationData & validator);
-}
+	std::string check(const JsonNode & schema, const JsonNode & data);
+};
 
 VCMI_LIB_NAMESPACE_END

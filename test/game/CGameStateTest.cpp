@@ -420,6 +420,6 @@ TEST_F(CGameStateTest, updateEntity)
 
 	JsonNode actual;
 	EXPECT_CALL(services, updateEntity(Eq(Metatype::CREATURE), Eq(424242), _)).WillOnce(SaveArg<2>(&actual));
-	gameState->updateEntity(Metatype::CREATURE, 424242, JsonUtils::stringNode("TEST"));
+	gameState->updateEntity(Metatype::CREATURE, 424242, JsonNode("TEST"));
 	EXPECT_EQ(actual.String(), "TEST");
 }

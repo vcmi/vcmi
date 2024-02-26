@@ -90,7 +90,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 		JsonUtils::minimize(savedConf, schema);
 
 	std::fstream file(CResourceHandler::get()->getResourceName(JsonPath::builtin(dataFilename))->c_str(), std::ofstream::out | std::ofstream::trunc);
-	file << savedConf.toJson();
+	file << savedConf.toString();
 }
 
 JsonNode & SettingsStorage::getNode(const std::vector<std::string> & path)

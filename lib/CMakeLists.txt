@@ -405,6 +405,7 @@ set(lib_HEADERS
 	filesystem/ResourcePath.h
 
 	json/JsonBonus.h
+	json/JsonFormatException.h
 	json/JsonNode.h
 	json/JsonParser.h
 	json/JsonRandom.h

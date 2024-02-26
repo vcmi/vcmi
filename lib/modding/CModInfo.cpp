@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 static JsonNode addMeta(JsonNode config, const std::string & meta)
 {
-	config.setMeta(meta);
+	config.setModScope(meta);
 	return config;
 }
 

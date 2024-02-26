@@ -13,37 +13,11 @@
 
 #include "JsonValidator.h"
 
-#include "../ScopeGuard.h"
-#include "../bonuses/BonusParams.h"
-#include "../bonuses/Bonus.h"
-#include "../bonuses/Limiters.h"
-#include "../bonuses/Propagators.h"
-#include "../bonuses/Updaters.h"
 #include "../filesystem/Filesystem.h"
-#include "../modding/IdentifierStorage.h"
-#include "../VCMI_Lib.h" //for identifier resolution
-#include "../CGeneralTextHandler.h"
-#include "../constants/StringConstants.h"
-#include "../battle/BattleHex.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
+VCMI_LIB_USING_NAMESPACE
 
 static const JsonNode nullNode;
-
-//returns first Key with value equal to given one
-template<class Key, class Val>
-Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
-{
-	for(auto it : map)
-	{
-		if(it.second == val)
-		{
-			return it.first;
-		}
-	}
-	assert(0);
-	return "";
-}
 
 static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 {
@@ -76,8 +50,8 @@ static void eraseOptionalNodes(JsonNode & node, const JsonNode & schema)
 	for(const auto & entry : schema["required"].Vector())
 		foundEntries.insert(entry.String());
 
-	vstd::erase_if(node.Struct(), [&](const auto & node){
-		return !vstd::contains(foundEntries, node.first);
+	vstd::erase_if(node.Struct(), [&foundEntries](const auto & structEntry){
+		return !vstd::contains(foundEntries, structEntry.first);
 	});
 }
 
@@ -117,6 +91,8 @@ static void maximizeNode(JsonNode & node, const JsonNode & schema)
 	eraseOptionalNodes(node, schema);
 }
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
 {
 	minimizeNode(node, getSchema(schemaName));
@@ -129,12 +105,13 @@ void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)
 
 bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
 {
-	std::string log = Validation::check(schemaName, node);
+	JsonValidator validator;
+	std::string log = validator.check(schemaName, node);
 	if (!log.empty())
 	{
 		logMod->warn("Data in %s is invalid!", dataName);
 		logMod->warn(log);
-		logMod->trace("%s json: %s", dataName, node.toJson(true));
+		logMod->trace("%s json: %s", dataName, node.toCompactString());
 	}
 	return log.empty();
 }
@@ -223,14 +200,14 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
-			if(!ignoreOverride && vstd::contains(source.flags, "override"))
+			if(!ignoreOverride && source.getOverrideFlag())
 			{
 				std::swap(dest, source);
 			}
 			else
 			{
 				if (copyMeta)
-					dest.meta = source.meta;
+					dest.setModScope(source.getModScope(), false);
 
 				//recursively merge all entries from struct
 				for(auto & node : source.Struct())
@@ -251,90 +228,6 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	JsonNode inheritedNode(base);
 	merge(inheritedNode, descendant, true, true);
 	std::swap(descendant, inheritedNode);
-}
-
-JsonNode JsonUtils::intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty)
-{
-	if(nodes.empty())
-		return nullNode;
-
-	JsonNode result = nodes[0];
-	for(int i = 1; i < nodes.size(); i++)
-	{
-		if(result.isNull())
-			break;
-		result = JsonUtils::intersect(result, nodes[i], pruneEmpty);
-	}
-	return result;
-}
-
-JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool pruneEmpty)
-{
-	if(a.getType() == JsonNode::JsonType::DATA_STRUCT && b.getType() == JsonNode::JsonType::DATA_STRUCT)
-	{
-		// intersect individual properties
-		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
-		for(const auto & property : a.Struct())
-		{
-			if(vstd::contains(b.Struct(), property.first))
-			{
-				JsonNode propertyIntersect = JsonUtils::intersect(property.second, b.Struct().find(property.first)->second);
-				if(pruneEmpty && !propertyIntersect.containsBaseData())
-					continue;
-				result[property.first] = propertyIntersect;
-			}
-		}
-		return result;
-	}
-	else
-	{
-		// not a struct - same or different, no middle ground
-		if(a == b)
-			return a;
-	}
-	return nullNode;
-}
-
-JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
-{
-	auto addsInfo = [](JsonNode diff) -> bool
-	{
-		switch(diff.getType())
-		{
-		case JsonNode::JsonType::DATA_NULL:
-			return false;
-		case JsonNode::JsonType::DATA_STRUCT:
-			return !diff.Struct().empty();
-		default:
-			return true;
-		}
-	};
-
-	if(node.getType() == JsonNode::JsonType::DATA_STRUCT && base.getType() == JsonNode::JsonType::DATA_STRUCT)
-	{
-		// subtract individual properties
-		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
-		for(const auto & property : node.Struct())
-		{
-			if(vstd::contains(base.Struct(), property.first))
-			{
-				const JsonNode propertyDifference = JsonUtils::difference(property.second, base.Struct().find(property.first)->second);
-				if(addsInfo(propertyDifference))
-					result[property.first] = propertyDifference;
-			}
-			else
-			{
-				result[property.first] = property.second;
-			}
-		}
-		return result;
-	}
-	else
-	{
-		if(node == base)
-			return nullNode;
-	}
-	return node;
 }
 
 JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
@@ -365,43 +258,11 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 
 	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
 	{
-		// FIXME: some way to make this code more readable
-		auto stream = loader->load(resID);
-		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
-		stream->read(textData.get(), stream->getSize());
-
-		JsonNode section(reinterpret_cast<char *>(textData.get()), stream->getSize());
+		auto textData = loader->load(resID)->readAll();
+		JsonNode section(reinterpret_cast<std::byte *>(textData.first.get()), textData.second);
 		merge(result, section);
 	}
 	return result;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::boolNode(bool value)
-{
-	JsonNode node;
-	node.Bool() = value;
-	return node;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::floatNode(double value)
-{
-	JsonNode node;
-	node.Float() = value;
-	return node;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::stringNode(const std::string & value)
-{
-	JsonNode node;
-	node.String() = value;
-	return node;
-}
-
-DLL_LINKAGE JsonNode JsonUtils::intNode(si64 value)
-{
-	JsonNode node;
-	node.Integer() = value;
-	return node;
 }
 
 VCMI_LIB_NAMESPACE_END

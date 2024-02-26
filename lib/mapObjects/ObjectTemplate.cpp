@@ -354,11 +354,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 			JsonVector & data = node["allowedTerrains"].Vector();
 
 			for(auto type : allowedTerrains)
-			{
-				JsonNode value(JsonNode::JsonType::DATA_STRING);
-				value.String() = VLC->terrainTypeHandler->getById(type)->getJsonKey();
-				data.push_back(value);
-			}
+				data.emplace_back(VLC->terrainTypeHandler->getById(type)->getJsonKey());
 		}
 	}
 
@@ -398,13 +394,11 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 
 	for(size_t i=0; i < height; i++)
 	{
-		JsonNode lineNode(JsonNode::JsonType::DATA_STRING);
-
-		std::string & line = lineNode.String();
+		std::string line;
 		line.resize(width);
 		for(size_t j=0; j < width; j++)
 			line[j] = tileToChar(usedTiles[height - 1 - i][width - 1 - j]);
-		mask.push_back(lineNode);
+		mask.emplace_back(line);
 	}
 
 	if(printPriority != 0)

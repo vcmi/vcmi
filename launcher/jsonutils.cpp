@@ -89,7 +89,7 @@ QVariant JsonFromFile(QString filename)
 	}
 
 	const auto data = file.readAll();
-	JsonNode node(data.data(), data.size());
+	JsonNode node(reinterpret_cast<const std::byte*>(data.data()), data.size());
 	return toVariant(node);
 }
 
@@ -116,7 +116,7 @@ JsonNode toJson(QVariant object)
 void JsonToFile(QString filename, QVariant object)
 {
 	std::fstream file(qstringToPath(filename).c_str(), std::ios::out | std::ios_base::binary);
-	file << toJson(object).toJson();
+	file << toJson(object).toString();
 }
 
 }

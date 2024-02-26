@@ -67,13 +67,13 @@ namespace BonusDuration
 		}
 		if(durationNames.size() == 1)
 		{
-			return JsonUtils::stringNode(durationNames[0]);
+			return JsonNode(durationNames[0]);
 		}
 		else
 		{
-			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+			JsonNode node;
 			for(const std::string & dur : durationNames)
-				node.Vector().push_back(JsonUtils::stringNode(dur));
+				node.Vector().emplace_back(dur);
 			return node;
 		}
 	}

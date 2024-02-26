@@ -545,13 +545,10 @@ void CMapFormatJson::writeTeams(JsonSerializer & handler)
 
 		for(const std::set<PlayerColor> & teamData : teamsData)
 		{
-			JsonNode team(JsonNode::JsonType::DATA_VECTOR);
+			JsonNode team;
 			for(const PlayerColor & player : teamData)
-			{
-				JsonNode member(JsonNode::JsonType::DATA_STRING);
-				member.String() = GameConstants::PLAYER_COLOR_NAMES[player.getNum()];
-				team.Vector().push_back(std::move(member));
-			}
+				team.Vector().emplace_back(GameConstants::PLAYER_COLOR_NAMES[player.getNum()]);
+
 			dest.Vector().push_back(std::move(team));
 		}
 		handler.serializeRaw("teams", dest, std::nullopt);
@@ -586,7 +583,7 @@ void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode &
 
 void CMapFormatJson::writeTriggeredEvents(JsonSerializer & handler)
 {
-	JsonNode triggeredEvents(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode triggeredEvents;
 
 	for(const auto & event : mapHeader->triggeredEvents)
 		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
@@ -657,7 +654,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 
 		auto definition = definitions->enterStruct(type);
 
-		JsonNode players(JsonNode::JsonType::DATA_VECTOR);
+		JsonNode players;
 		definition->serializeIdArray("availableFor", hero.players);
 	}
 }
@@ -812,7 +809,7 @@ JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 
 	auto data = loader.load(resource)->readAll();
 
-	JsonNode res(reinterpret_cast<char*>(data.first.get()), data.second);
+	JsonNode res(reinterpret_cast<const std::byte*>(data.first.get()), data.second);
 
 	return res;
 }
@@ -1049,7 +1046,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	if(typeName.empty())
 	{
 		logGlobal->error("Object type missing");
-		logGlobal->debug(configuration.toJson());
+		logGlobal->debug(configuration.toString());
 		return;
 	}
 
@@ -1069,7 +1066,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	else if(subtypeName.empty())
 	{
 		logGlobal->error("Object subtype missing");
-		logGlobal->debug(configuration.toJson());
+		logGlobal->debug(configuration.toString());
 		return;
 	}
 
@@ -1329,7 +1326,7 @@ void CMapSaverJson::writeTerrain()
 void CMapSaverJson::writeObjects()
 {
 	logGlobal->trace("Saving objects");
-	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode data;
 
 	JsonSerializer handler(mapObjectResolver.get(), data);
 
@@ -1343,7 +1340,7 @@ void CMapSaverJson::writeObjects()
 
 	if(map->grailPos.valid())
 	{
-		JsonNode grail(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode grail;
 		grail["type"].String() = "grail";
 
 		grail["x"].Float() = map->grailPos.x;

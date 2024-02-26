@@ -147,7 +147,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
 	using namespace ::battle;
 
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["killByPercentage"].Bool() = true;
 		EffectFixture::setupEffect(config);
 	}
@@ -192,7 +192,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByCount)
 	using namespace ::battle;
 
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["killByCount"].Bool() = true;
 		EffectFixture::setupEffect(config);
 	}

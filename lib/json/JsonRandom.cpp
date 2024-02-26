@@ -235,9 +235,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 					filteredAnyOf.insert(subset.begin(), subset.end());
 				}
 
-				vstd::erase_if(filteredTypes, [&](const IdentifierType & value)
+				vstd::erase_if(filteredTypes, [&filteredAnyOf](const IdentifierType & filteredValue)
 				{
-					return filteredAnyOf.count(value) == 0;
+					return filteredAnyOf.count(filteredValue) == 0;
 				});
 			}
 
@@ -321,7 +321,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		{
 			for(const auto & pair : value.Struct())
 			{
-				PrimarySkill id = decodeKey<PrimarySkill>(pair.second.meta, pair.first, variables);
+				PrimarySkill id = decodeKey<PrimarySkill>(pair.second.getModScope(), pair.first, variables);
 				ret[id.getNum()] += loadValue(pair.second, rng, variables);
 			}
 		}
@@ -357,7 +357,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 		{
 			for(const auto & pair : value.Struct())
 			{
-				SecondarySkill id = decodeKey<SecondarySkill>(pair.second.meta, pair.first, variables);
+				SecondarySkill id = decodeKey<SecondarySkill>(pair.second.getModScope(), pair.first, variables);
 				ret[id] = loadValue(pair.second, rng, variables);
 			}
 		}

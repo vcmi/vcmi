@@ -273,7 +273,7 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
-	networkConnection->sendPacket(data.toBytes(true));
+	networkConnection->sendPacket(data.toBytes());
 }
 
 void GlobalLobbyClient::sendOpenPublicRoom()
@@ -362,5 +362,5 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 	toSend["gameRoomID"] = settings["lobby"]["roomID"];
 
-	netConnection->sendPacket(toSend.toBytes(true));
+	netConnection->sendPacket(toSend.toBytes());
 }

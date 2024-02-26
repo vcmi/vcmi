@@ -40,7 +40,7 @@ protected:
 TEST_F(CloneTest, ApplicableToValidTarget)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["maxTier"].Integer() = 7;
 		EffectFixture::setupEffect(config);
 	}

@@ -180,12 +180,12 @@ void CIdentifierStorage::requestIdentifier(const std::string & scope, const std:
 
 void CIdentifierStorage::requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
 {
-	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, false));
+	requestIdentifier(ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback) const
 {
-	requestIdentifier(ObjectCallback::fromNameWithType(name.meta, name.String(), callback, false));
+	requestIdentifier(ObjectCallback::fromNameWithType(name.getModScope(), name.String(), callback, false));
 }
 
 void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const
@@ -195,7 +195,7 @@ void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const s
 
 void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
 {
-	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, true));
+	requestIdentifier(ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), callback, true));
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent) const
@@ -210,7 +210,7 @@ std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, 
 {
 	assert(state != ELoadingState::LOADING);
 
-	auto options = ObjectCallback::fromNameAndType(name.meta, type, name.String(), std::function<void(si32)>(), silent);
+	auto options = ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), std::function<void(si32)>(), silent);
 
 	return getIdentifierImpl(options, silent);
 }
@@ -219,7 +219,7 @@ std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, boo
 {
 	assert(state != ELoadingState::LOADING);
 
-	auto options = ObjectCallback::fromNameWithType(name.meta, name.String(), std::function<void(si32)>(), silent);
+	auto options = ObjectCallback::fromNameWithType(name.getModScope(), name.String(), std::function<void(si32)>(), silent);
 	return getIdentifierImpl(options, silent);
 }
 

@@ -23,7 +23,7 @@ ScriptFixture::~ScriptFixture() = default;
 
 void ScriptFixture::loadScriptFromFile(const std::string & path)
 {
-	JsonNode scriptConfig(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode scriptConfig;
 	scriptConfig["source"].String() = path;
 	loadScript(scriptConfig);
 }

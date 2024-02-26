@@ -171,7 +171,7 @@ static JsonNode loadPatches(const std::string & path)
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 
-	node.setMeta(ModScope::scopeMap());
+	node.setModScope(ModScope::scopeMap());
 	return node;
 }
 

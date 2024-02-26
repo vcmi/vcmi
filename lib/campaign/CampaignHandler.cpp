@@ -46,7 +46,7 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 	}
 	else // text format (json)
 	{
-		JsonNode jsonCampaign((const char*)input.data(), input.size());
+		JsonNode jsonCampaign(reinterpret_cast<const std::byte*>(input.data()), input.size());
 		readHeaderFromJson(*ret, jsonCampaign, filename, modName, encoding);
 
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())

@@ -107,7 +107,7 @@ void Graphics::initializeBattleGraphics()
 		if(!CResourceHandler::get(mod)->existsResource(ResourcePath("config/battles_graphics.json")))
 			continue;
 			
-		const JsonNode config(mod, JsonPath::builtin("config/battles_graphics.json"));
+		const JsonNode config(JsonPath::builtin("config/battles_graphics.json"), mod);
 
 		//initialization of AC->def name mapping
 		if(!config["ac_mapping"].isNull())

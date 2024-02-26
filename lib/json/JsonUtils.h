@@ -41,22 +41,6 @@ namespace JsonUtils
 	DLL_LINKAGE void inherit(JsonNode & descendant, const JsonNode & base);
 
 	/**
-	 * @brief construct node representing the common structure of input nodes
-	 * @param pruneEmpty - omit common properties whose intersection is empty
-	 * different types: null
-	 * struct: recursive intersect on common properties
-	 * other: input if equal, null otherwise
-	 */
-	DLL_LINKAGE JsonNode intersect(const JsonNode & a, const JsonNode & b, bool pruneEmpty = true);
-	DLL_LINKAGE JsonNode intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty = true);
-
-	/**
-	 * @brief construct node representing the difference "node - base"
-	 * merging difference with base gives node
-	 */
-	DLL_LINKAGE JsonNode difference(const JsonNode & node, const JsonNode & base);
-
-	/**
 	 * @brief generate one Json structure from multiple files
 	 * @param files - list of filenames with parts of json structure
 	 */
@@ -88,12 +72,6 @@ namespace JsonUtils
 	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
 	/// example: schema "vcmi:settings" is used to check user settings
 	DLL_LINKAGE const JsonNode & getSchema(const std::string & URI);
-
-	/// for easy construction of JsonNodes; helps with inserting primitives into vector node
-	DLL_LINKAGE JsonNode boolNode(bool value);
-	DLL_LINKAGE JsonNode floatNode(double value);
-	DLL_LINKAGE JsonNode stringNode(const std::string & value);
-	DLL_LINKAGE JsonNode intNode(si64 value);
 }
 
 VCMI_LIB_NAMESPACE_END
