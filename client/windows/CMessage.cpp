@@ -30,51 +30,13 @@
 #include "../render/IFont.h"
 #include "../renderSDL/SDL_Extensions.h"
 
-#include <SDL_surface.h>
-
-const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;
-const int BETWEEN_COMPS = 30;
 const int SIDE_MARGIN = 30;
-
-template <typename T, typename U> std::pair<T,U> max(const std::pair<T,U> &x, const std::pair<T,U> &y)
-{
-	std::pair<T,U> ret;
-	ret.first = std::max(x.first,y.first);
-	ret.second = std::max(x.second,y.second);
-	return ret;
-}
-
-//One image component + subtitles below it
-class ComponentResolved : public CIntObject
-{
-public:
-	std::shared_ptr<CComponent> comp;
-
-	//blit component with image centered at this position
-	void showAll(Canvas & to) override;
-
-	//ComponentResolved();
-	ComponentResolved(std::shared_ptr<CComponent> Comp);
-	~ComponentResolved();
-};
-// Full set of components for blitting on dialog box
-struct ComponentsToBlit
-{
-	std::vector< std::vector<std::shared_ptr<ComponentResolved>>> comps;
-	int w, h;
-
-	void blitCompsOnSur(bool blitOr, int inter, int &curh, SDL_Surface *ret);
-	ComponentsToBlit(std::vector<std::shared_ptr<CComponent>> & SComps, int maxw, bool blitOr);
-	~ComponentsToBlit();
-};
 
 namespace
 {
 	std::array<std::shared_ptr<CAnimation>, PlayerColor::PLAYER_LIMIT_I> dialogBorders;
 	std::array<std::vector<std::shared_ptr<IImage>>, PlayerColor::PLAYER_LIMIT_I> piecesOfBox;
-
-	std::shared_ptr<IImage> background;//todo: should be CFilledTexture
 }
 
 void CMessage::init()
@@ -93,30 +55,12 @@ void CMessage::init()
 			piecesOfBox[i].push_back(image);
 		}
 	}
-
-	background = GH.renderHandler().loadImage(ImagePath::builtin("DIBOXBCK.BMP"), EImageBlitMode::OPAQUE);
 }
 
 void CMessage::dispose()
 {
 	for(auto & item : dialogBorders)
 		item.reset();
-}
-
-SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
-{
-	//prepare surface
-	SDL_Surface * ret = CSDL_Ext::newSurface(w,h);
-	for (int i=0; i<w; i+=background->width())//background
-	{
-		for (int j=0; j<h; j+=background->height())
-		{
-			background->draw(ret, i, j);
-		}
-	}
-
-	drawBorder(playerColor, ret, w, h);
-	return ret;
 }
 
 std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWidth, EFonts font )
@@ -157,7 +101,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 				opened=true;
 
 				std::smatch match;
-   				std::regex expr("^\\{(.*?)\\|");
+				std::regex expr("^\\{(.*?)\\|");
 				std::string tmp = text.substr(currPos);
 				if(std::regex_search(tmp, match, expr))
 				{
@@ -263,42 +207,30 @@ int CMessage::getEstimatedComponentHeight(int numComps)
 
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player)
 {
-	bool blitOr = false;
-	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
-		blitOr = true;
-
-	constexpr std::array sizes = {
-		Point(400, 125),
-		Point(500, 150),
-		Point(600, 200),
-		Point(480, 400)
+	constexpr std::array textAreaSizes = {
+		Point(300, 200),  // if message is small, h3 will use 300px-wide text box with up to 200px height
+		Point(400, 200),  // once text no longer fits into 300x200 box, h3 will start using 400px - wide boxes
+		Point(600, 200)   // if 400px is not enough either, h3 will use largest, 600px-wide textbox, potentially with slider
 	};
 
 	assert(ret && ret->text);
-	for(int i = 0;
-		i < std::size(sizes)
-			&& sizes[i].x < GH.screenDimensions().x - 150
-			&& sizes[i].y < GH.screenDimensions().y - 150
-			&& ret->text->slider;
-		i++)
+
+	for (auto const & area : textAreaSizes)
 	{
-		ret->text->resize(sizes[i]);
+		ret->text->resize(area);
+		if (!ret->text->slider)
+			break; // suitable size found, use it
 	}
 
 	if(ret->text->slider)
-	{
 		ret->text->slider->addUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD);
-	}
-	else
-	{
-		ret->text->resize(ret->text->label->textSize + Point(10, 10));
-	}
 
-	std::pair<int,int> winSize(ret->text->pos.w, ret->text->pos.h); //start with text size
+	ret->text->trimToFit();
 
-	ComponentsToBlit comps(ret->components,500, blitOr);
-	if (ret->components.size())
-		winSize.second += 10 + comps.h; //space to first component
+	Point winSize(ret->text->pos.w, ret->text->pos.h); //start with text size
+
+	if (ret->components)
+		winSize.y += 10 + ret->components->pos.h; //space to first component
 
 	int bw = 0;
 	if (ret->buttons.size())
@@ -311,26 +243,27 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 			bw+=elem->pos.w;
 			vstd::amax(bh, elem->pos.h);
 		}
-		winSize.second += 20 + bh;//before button + button
+		winSize.y += 20 + bh;//before button + button
 	}
 
 	// Clip window size
-	vstd::amax(winSize.second, 50);
-	vstd::amax(winSize.first, 80);
-	vstd::amax(winSize.first, comps.w);
-	vstd::amax(winSize.first, bw);
+	vstd::amax(winSize.y, 50);
+	vstd::amax(winSize.x, 80);
+	if (ret->components)
+		vstd::amax(winSize.x, ret->components->pos.w);
+	vstd::amax(winSize.x, bw);
 
-	vstd::amin(winSize.first, GH.screenDimensions().x - 150);
+	vstd::amin(winSize.x, GH.screenDimensions().x - 150);
 
-	ret->pos.h = winSize.second + 2 * SIDE_MARGIN;
-	ret->pos.w = winSize.first + 2 * SIDE_MARGIN;
+	ret->pos.h = winSize.y + 2 * SIDE_MARGIN;
+	ret->pos.w = winSize.x + 2 * SIDE_MARGIN;
 	ret->center();
 	ret->backgroundTexture->pos = ret->pos;
 
 	int curh = SIDE_MARGIN;
 	int xOffset = (ret->pos.w - ret->text->pos.w)/2;
 
-	if(!ret->buttons.size() && !ret->components.size()) //improvement for very small text only popups -> center text vertically
+	if(ret->buttons.empty() && !ret->components) //improvement for very small text only popups -> center text vertically
 	{
 		if(ret->pos.h > ret->text->pos.h + 2*SIDE_MARGIN)
 			curh = (ret->pos.h - ret->text->pos.h)/2;
@@ -340,11 +273,11 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	curh += ret->text->pos.h;
 
-	//if (ret->components.size())
-	//{
-	//	curh += BEFORE_COMPONENTS;
-	//	comps.blitCompsOnSur (blitOr, BETWEEN_COMPS, curh, ret->bitmap);
-	//}
+	if (ret->components)
+	{
+		curh += BEFORE_COMPONENTS;
+		curh += ret->components->pos.h;
+	}
 
 	if(ret->buttons.size())
 	{
@@ -358,11 +291,11 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 			bw += elem->pos.w + 20;
 		}
 	}
-	for(size_t i=0; i<ret->components.size(); i++)
-		ret->components[i]->moveBy(Point(ret->pos.x, ret->pos.y));
+	if (ret->components)
+		ret->components->moveBy(Point(ret->pos.x, ret->pos.y));
 }
 
-void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int h, int x, int y)
+void CMessage::drawBorder(PlayerColor playerColor, Canvas & to, int w, int h, int x, int y)
 {
 	if(playerColor.isSpectator())
 		playerColor = PlayerColor(1);
@@ -375,20 +308,13 @@ void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int
 	const int stop_x = x + w - box[1]->width();
 	const int bottom_y = y+h-box[7]->height()+1;
 	while (start_x < stop_x) {
-		int cur_w = stop_x - start_x;
-		if (cur_w > box[6]->width())
-			cur_w = box[6]->width();
 
 		// Top border
-		Rect srcR(0, 0, cur_w, box[6]->height());
-		Rect dstR(start_x, y, 0, 0);
-		box[6]->draw(ret, &dstR, &srcR);
-
+		to.draw(box[6], Point(start_x, y));
 		// Bottom border
-		dstR.y = bottom_y;
-		box[7]->draw(ret, &dstR, &srcR);
+		to.draw(box[7], Point(start_x, bottom_y));
 
-		start_x += cur_w;
+		start_x += box[6]->width();
 	}
 
 	// Vertical borders
@@ -396,165 +322,18 @@ void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int
 	const int stop_y = y + h - box[2]->height()+1;
 	const int right_x = x+w-box[5]->width();
 	while (start_y < stop_y) {
-		int cur_h = stop_y - start_y;
-		if (cur_h > box[4]->height())
-			cur_h = box[4]->height();
 
 		// Left border
-		Rect srcR(0, 0, box[4]->width(), cur_h);
-		Rect dstR(x, start_y, 0, 0);
-		box[4]->draw(ret, &dstR, &srcR);
-
+		to.draw(box[4], Point(x, start_y));
 		// Right border
-		dstR.x = right_x;
-		box[5]->draw(ret, &dstR, &srcR);
+		to.draw(box[5], Point(right_x, start_y));
 
-		start_y += cur_h;
+		start_y += box[4]->height();
 	}
 
 	//corners
-	Rect dstR(x, y, box[0]->width(), box[0]->height());
-	box[0]->draw(ret, &dstR, nullptr);
-
-	dstR=Rect(x+w-box[1]->width(), y,   box[1]->width(), box[1]->height());
-	box[1]->draw(ret, &dstR, nullptr);
-
-	dstR=Rect(x, y+h-box[2]->height()+1, box[2]->width(), box[2]->height());
-	box[2]->draw(ret, &dstR, nullptr);
-
-	dstR=Rect(x+w-box[3]->width(), y+h-box[3]->height()+1, box[3]->width(), box[3]->height());
-	box[3]->draw(ret, &dstR, nullptr);
-}
-
-ComponentResolved::ComponentResolved(std::shared_ptr<CComponent> Comp):
-	comp(Comp)
-{
-	//Temporary assign ownership on comp
-	if (parent)
-		parent->removeChild(this);
-	if (comp->parent)
-	{
-		comp->parent->addChild(this);
-		comp->parent->removeChild(comp.get());
-	}
-
-	addChild(comp.get());
-	defActions = 255 - DISPOSE;
-	pos.x = pos.y = 0;
-
-	pos.w = comp->pos.w;
-	pos.h = comp->pos.h;
-}
-
-ComponentResolved::~ComponentResolved()
-{
-	if (parent)
-	{
-		removeChild(comp.get());
-		parent->addChild(comp.get());
-	}
-}
-
-void ComponentResolved::showAll(Canvas & to)
-{
-	CIntObject::showAll(to);
-	comp->showAll(to);
-}
-
-ComponentsToBlit::~ComponentsToBlit() = default;
-
-ComponentsToBlit::ComponentsToBlit(std::vector<std::shared_ptr<CComponent>> & SComps, int maxw, bool blitOr)
-{
-	int orWidth = static_cast<int>(graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]));
-
-	w = h = 0;
-	if(SComps.empty())
-		return;
-
-	comps.resize(1);
-	int curw = 0;
-	int curr = 0; //current row
-
-	for(auto & SComp : SComps)
-	{
-		auto cur = std::make_shared<ComponentResolved>(SComp);
-
-		int toadd = (cur->pos.w + BETWEEN_COMPS + (blitOr ? orWidth : 0));
-		if (curw + toadd > maxw)
-		{
-			curr++;
-			vstd::amax(w,curw);
-			curw = cur->pos.w;
-			comps.resize(curr+1);
-		}
-		else
-		{
-			curw += toadd;
-			vstd::amax(w,curw);
-		}
-
-		comps[curr].push_back(cur);
-	}
-
-	for(auto & elem : comps)
-	{
-		int maxHeight = 0;
-		for(size_t j=0;j<elem.size();j++)
-			vstd::amax(maxHeight, elem[j]->pos.h);
-
-		h += maxHeight + BETWEEN_COMPS_ROWS;
-	}
-}
-
-void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Surface *ret )
-{
-	int orWidth = static_cast<int>(graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]));
-
-	for (auto & elem : comps)//for each row
-	{
-		int totalw=0, maxHeight=0;
-		for(size_t j=0;j<elem.size();j++)//find max height & total width in this row
-		{
-			auto cur = elem[j];
-			totalw += cur->pos.w;
-			vstd::amax(maxHeight, cur->pos.h);
-		}
-
-		//add space between comps in this row
-		if(blitOr)
-			totalw += (inter*2+orWidth) * ((int)elem.size() - 1);
-		else
-			totalw += (inter) * ((int)elem.size() - 1);
-
-		int middleh = curh + maxHeight/2;//axis for image aligment
-		int curw = ret->w/2 - totalw/2;
-
-		for(size_t j=0;j<elem.size();j++)
-		{
-			auto cur = elem[j];
-			cur->moveTo(Point(curw, curh));
-
-			//blit component
-			Canvas canvas = Canvas::createFromSurface(ret);
-
-			cur->showAll(canvas);
-			curw += cur->pos.w;
-
-			//if there is subsequent component blit "or"
-			if(j<(elem.size()-1))
-			{
-				if(blitOr)
-				{
-					curw+=inter;
-
-					graphics->fonts[FONT_MEDIUM]->renderTextLeft(ret, CGI->generaltexth->allTexts[4], Colors::WHITE,
-							Point(curw,middleh-((int)graphics->fonts[FONT_MEDIUM]->getLineHeight()/2)));
-
-					curw+=orWidth;
-				}
-				curw+=inter;
-			}
-		}
-		curh += maxHeight + BETWEEN_COMPS_ROWS;
-	}
+	to.draw(box[0], Point(x,y));
+	to.draw(box[1], Point(x+w-box[1]->width(), y));
+	to.draw(box[2], Point(x, y+h-box[2]->height()+1));
+	to.draw(box[3], Point(x+w-box[3]->width(), y+h-box[3]->height()+1));
 }

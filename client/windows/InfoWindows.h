@@ -29,6 +29,7 @@ class CAnimImage;
 class CLabel;
 class CAnimation;
 class CComponent;
+class CComponentBox;
 class CSelectableComponent;
 class CTextBox;
 class CButton;
@@ -45,8 +46,8 @@ public:
 	QueryID ID; //for identification
 	std::shared_ptr<CFilledTexture> backgroundTexture;
 	std::shared_ptr<CTextBox> text;
+	std::shared_ptr<CComponentBox> components;
 	std::vector<std::shared_ptr<CButton>> buttons;
-	TCompsInfo components;
 
 	void close() override;
 	void showAll(Canvas & to) override;
@@ -104,7 +105,6 @@ public:
 class CSelWindow : public CInfoWindow
 {
 public:
-	void selectionChange(unsigned to);
 	void madeChoice(); //looks for selected component and calls callback
 	void madeChoiceAndClose();
 	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath,CFunctionList<void()> > > &Buttons, QueryID askID);

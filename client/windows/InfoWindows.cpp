@@ -42,20 +42,6 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 
-#include <SDL_surface.h>
-
-void CSelWindow::selectionChange(unsigned to)
-{
-	for (unsigned i=0;i<components.size();i++)
-	{
-		auto pom = std::dynamic_pointer_cast<CSelectableComponent>(components[i]);
-		if (!pom)
-			continue;
-		pom->select(i==to);
-	}
-	redraw();
-}
-
 CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()> > > &Buttons, QueryID askID)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -90,16 +76,9 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
 	}
 
-	for(int i=0;i<comps.size();i++)
-	{
-		comps[i]->recActions = 255-DISPOSE;
-		addChild(comps[i].get());
-		components.push_back(comps[i]);
-		comps[i]->onSelect = std::bind(&CSelWindow::selectionChange,this,i);
-		comps[i]->onChoose = std::bind(&CSelWindow::madeChoiceAndClose,this);
-		if(i<8)
-			comps[i]->assignedKey = vstd::next(EShortcut::SELECT_INDEX_1,i);
-	}
+	if (!comps.empty())
+		components = std::make_shared<CComponentBox>(comps, Rect(0,0,600,300));
+
 	CMessage::drawIWindow(this, Text, player);
 }
 
@@ -108,13 +87,9 @@ void CSelWindow::madeChoice()
 	if(ID.getNum() < 0)
 		return;
 	int ret = -1;
-	for (int i=0;i<components.size();i++)
-	{
-		if(std::dynamic_pointer_cast<CSelectableComponent>(components[i])->selected)
-		{
-			ret = i;
-		}
-	}
+	if (components)
+		ret = components->selectedIndex();
+
 	LOCPLINT->cb->selectionMade(ret+1,ID);
 }
 
@@ -156,13 +131,8 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
 	}
 
-	for(auto & comp : comps)
-	{
-		comp->recActions = 0xff & ~DISPOSE;
-		addChild(comp.get());
-		comp->recActions &= ~(SHOWALL | UPDATE);
-		components.push_back(comp);
-	}
+	if (!comps.empty())
+		components = std::make_shared<CComponentBox>(comps, Rect(0,0,600,300));
 
 	CMessage::drawIWindow(this,Text,player);
 }
@@ -183,7 +153,7 @@ void CInfoWindow::close()
 void CInfoWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
-	CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to.getInternalSurface(), pos.w, pos.h, pos.x, pos.y);
+	CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to, pos.w, pos.h, pos.x, pos.y);
 }
 
 CInfoWindow::~CInfoWindow() = default;
