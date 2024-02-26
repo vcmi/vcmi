@@ -97,21 +97,6 @@ public:
 	virtual ~CRClickPopupInt();
 };
 
-class CInfoPopup : public CRClickPopup
-{
-public:
-	bool free; //TODO: comment me
-	SDL_Surface * bitmap; //popup background
-	void close() override;
-	void show(Canvas & to) override;
-	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false);
-	CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free=false);
-	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false);
-
-	void init(int x, int y);
-	~CInfoPopup();
-};
-
 /// popup on adventure map for town\hero and other objects with customized popup content
 class CInfoBoxPopup : public CWindowObject
 {
