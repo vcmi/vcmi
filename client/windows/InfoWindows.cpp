@@ -145,7 +145,7 @@ void CInfoWindow::close()
 void CInfoWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
-	CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to, pos.w, pos.h, pos.x, pos.y);
+	CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 CInfoWindow::~CInfoWindow() = default;
