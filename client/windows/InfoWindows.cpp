@@ -15,20 +15,21 @@
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 
-#include "../widgets/CComponent.h"
-#include "../widgets/MiscWidgets.h"
-#include "../widgets/Buttons.h"
-#include "../widgets/TextControls.h"
-#include "../gui/CGuiHandler.h"
-#include "../gui/WindowHandler.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
-#include "../adventureMap/AdventureMapInterface.h"
-#include "../windows/CMessage.h"
-#include "../render/Canvas.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
+#include "../render/Canvas.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
+#include "../widgets/Images.h"
+#include "../widgets/MiscWidgets.h"
+#include "../widgets/TextControls.h"
+#include "../windows/CMessage.h"
 
 #include "../../CCallback.h"
 
@@ -42,20 +43,6 @@
 #include "../../lib/gameState/InfoAboutArmy.h"
 
 #include <SDL_surface.h>
-
-void CSimpleWindow::show(Canvas & to)
-{
-	if(bitmap)
-		CSDL_Ext::blitAt(bitmap, pos.x, pos.y, to.getInternalSurface());
-}
-CSimpleWindow::~CSimpleWindow()
-{
-	if (bitmap)
-	{
-		SDL_FreeSurface(bitmap);
-		bitmap=nullptr;
-	}
-}
 
 void CSelWindow::selectionChange(unsigned to)
 {
@@ -72,6 +59,9 @@ void CSelWindow::selectionChange(unsigned to)
 CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()> > > &Buttons, QueryID askID)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
+
 	ID = askID;
 	for (int i = 0; i < Buttons.size(); i++)
 	{
@@ -138,6 +128,8 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
+
 	ID = QueryID(-1);
 	for(auto & Button : Buttons)
 	{
@@ -188,18 +180,13 @@ void CInfoWindow::close()
 		LOCPLINT->showingDialog->setn(false);
 }
 
-void CInfoWindow::show(Canvas & to)
+void CInfoWindow::showAll(Canvas & to)
 {
-	CIntObject::show(to);
+	CIntObject::showAll(to);
+	CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to.getInternalSurface(), pos.w, pos.h, pos.x, pos.y);
 }
 
 CInfoWindow::~CInfoWindow() = default;
-
-void CInfoWindow::showAll(Canvas & to)
-{
-	CSimpleWindow::show(to);
-	CIntObject::showAll(to);
-}
 
 void CInfoWindow::showInfoDialog(const std::string &text, const TCompsInfo & components, PlayerColor player)
 {

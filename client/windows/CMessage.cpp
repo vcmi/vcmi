@@ -16,6 +16,7 @@
 #include "../../lib/TextOperations.h"
 
 #include "../windows/InfoWindows.h"
+#include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Slider.h"
@@ -266,17 +267,22 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		blitOr = true;
 
-	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
+	constexpr std::array sizes = {
+		Point(400, 125),
+		Point(500, 150),
+		Point(600, 200),
+		Point(480, 400)
+	};
 
 	assert(ret && ret->text);
 	for(int i = 0;
 		i < std::size(sizes)
-			&& sizes[i][0] < GH.screenDimensions().x - 150
-			&& sizes[i][1] < GH.screenDimensions().y - 150
+			&& sizes[i].x < GH.screenDimensions().x - 150
+			&& sizes[i].y < GH.screenDimensions().y - 150
 			&& ret->text->slider;
 		i++)
 	{
-		ret->text->resize(Point(sizes[i][0], sizes[i][1]));
+		ret->text->resize(sizes[i]);
 	}
 
 	if(ret->text->slider)
@@ -316,34 +322,35 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	vstd::amin(winSize.first, GH.screenDimensions().x - 150);
 
-	ret->bitmap = drawDialogBox (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
-	ret->pos.h=ret->bitmap->h;
-	ret->pos.w=ret->bitmap->w;
+	ret->pos.h = winSize.second + 2 * SIDE_MARGIN;
+	ret->pos.w = winSize.first + 2 * SIDE_MARGIN;
 	ret->center();
+	ret->backgroundTexture->pos = ret->pos;
 
 	int curh = SIDE_MARGIN;
 	int xOffset = (ret->pos.w - ret->text->pos.w)/2;
 
 	if(!ret->buttons.size() && !ret->components.size()) //improvement for very small text only popups -> center text vertically
 	{
-		if(ret->bitmap->h > ret->text->pos.h + 2*SIDE_MARGIN)
-			curh = (ret->bitmap->h - ret->text->pos.h)/2;
+		if(ret->pos.h > ret->text->pos.h + 2*SIDE_MARGIN)
+			curh = (ret->pos.h - ret->text->pos.h)/2;
 	}
 
 	ret->text->moveBy(Point(xOffset, curh));
 
 	curh += ret->text->pos.h;
 
-	if (ret->components.size())
-	{
-		curh += BEFORE_COMPONENTS;
-		comps.blitCompsOnSur (blitOr, BETWEEN_COMPS, curh, ret->bitmap);
-	}
+	//if (ret->components.size())
+	//{
+	//	curh += BEFORE_COMPONENTS;
+	//	comps.blitCompsOnSur (blitOr, BETWEEN_COMPS, curh, ret->bitmap);
+	//}
+
 	if(ret->buttons.size())
 	{
 		// Position the buttons at the bottom of the window
-		bw = (ret->bitmap->w/2) - (bw/2);
-		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->pos.h;
+		bw = (ret->pos.w/2) - (bw/2);
+		curh = ret->pos.h - SIDE_MARGIN - ret->buttons[0]->pos.h;
 
 		for(auto & elem : ret->buttons)
 		{

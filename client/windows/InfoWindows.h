@@ -34,32 +34,23 @@ class CTextBox;
 class CButton;
 class CSlider;
 class CArmyTooltip;
-
-// Window GUI class
-class CSimpleWindow : public WindowBase
-{
-public:
-	SDL_Surface * bitmap; //background
-	void show(Canvas & to) override;
-	CSimpleWindow():bitmap(nullptr){};
-	virtual ~CSimpleWindow();
-};
+class CFilledTexture;
 
 /// text + comp. + ok button
-class CInfoWindow : public CSimpleWindow
+class CInfoWindow : public WindowBase
 {
 public:
 	using TButtonsInfo = std::vector<std::pair<AnimationPath, CFunctionList<void()>>>;
 	using TCompsInfo = std::vector<std::shared_ptr<CComponent>>;
 	QueryID ID; //for identification
+	std::shared_ptr<CFilledTexture> backgroundTexture;
 	std::shared_ptr<CTextBox> text;
 	std::vector<std::shared_ptr<CButton>> buttons;
 	TCompsInfo components;
 
 	void close() override;
-
-	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+
 	void sliderMoved(int to);
 
 	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
