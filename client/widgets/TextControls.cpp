@@ -374,9 +374,6 @@ void CTextBox::trimToFit()
 	if (slider)
 		return;
 
-	if(label->alignment == ETextAlignment::CENTER)
-		moveBy((pos.dimensions() - label->textSize) / 2);
-
 	pos.w = label->textSize.x;
 	pos.h = label->textSize.y;
 	label->pos.w = label->textSize.x;

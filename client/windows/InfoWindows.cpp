@@ -69,7 +69,7 @@ CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charpe
 	}
 
 	if(!comps.empty())
-		components = std::make_shared<CComponentBox>(comps, Rect(0, 0, 600, 300));
+		components = std::make_shared<CComponentBox>(comps, Rect(0,0,0,0));
 
 	CMessage::drawIWindow(this, Text, player);
 }
@@ -124,7 +124,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 	}
 
 	if(!comps.empty())
-		components = std::make_shared<CComponentBox>(comps, Rect(0, 0, 600, 300));
+		components = std::make_shared<CComponentBox>(comps, Rect(0,0,0,0));
 
 	CMessage::drawIWindow(this, Text, player);
 }

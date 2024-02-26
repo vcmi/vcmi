@@ -27,6 +27,7 @@
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 
+constexpr int RIGHT_CLICK_POPUP_MIN_SIZE = 100;
 constexpr int BEFORE_COMPONENTS = 30;
 constexpr int SIDE_MARGIN = 11;
 constexpr int TOP_MARGIN = 20;
@@ -220,6 +221,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	assert(ret && ret->text);
 
+	// STEP 1: DETERMINE SIZE OF ALL ELEMENTS
+
 	for(const auto & area : textAreaSizes)
 	{
 		ret->text->resize(area);
@@ -227,70 +230,83 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 			break; // suitable size found, use it
 	}
 
+//	int textWidth = ret->text->pos.w;
+	int textHeight = ret->text->pos.h;
+
 	if(ret->text->slider)
 		ret->text->slider->addUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD);
 
-	Point winSize(ret->text->pos.w, ret->text->pos.h); //start with text size
-
-	if(ret->components)
-		winSize.y += 10 + ret->components->pos.h; //space to first component
-
 	int buttonsWidth = 0;
-	if(ret->buttons.size())
+	int buttonsHeight = 0;
+	if(!ret->buttons.empty())
 	{
-		int bh = 0;
 		// Compute total width of buttons
 		buttonsWidth = INTERVAL_BETWEEN_BUTTONS * (ret->buttons.size() - 1); // space between all buttons
 		for(auto & elem : ret->buttons) //and add buttons width
 		{
 			buttonsWidth += elem->pos.w;
-			vstd::amax(bh, elem->pos.h);
+			vstd::amax(buttonsHeight, elem->pos.h);
 		}
-		winSize.y += INTERVAL_BETWEEN_TEXT_AND_BUTTONS + bh; //before button + button
 	}
 
-	// Clip window size
-	if(ret->components)
-		vstd::amax(winSize.x, ret->components->pos.w);
-	vstd::amax(winSize.x, buttonsWidth);
-
-	vstd::amin(winSize.x, GH.screenDimensions().x);
-	vstd::amin(winSize.y, GH.screenDimensions().y);
-
-	ret->pos.h = winSize.y + TOP_MARGIN + BOTTOM_MARGIN;
-	ret->pos.w = winSize.x + 2 * SIDE_MARGIN;
-	ret->center();
-
-	Point marginTopLeft(SIDE_MARGIN, TOP_MARGIN);
-	ret->text->moveBy(marginTopLeft);
-	ret->text->trimToFit();
+	// STEP 2: COMPUTE WINDOW SIZE
 
 	if(ret->buttons.empty() && !ret->components)
 	{
-		//improvement for text only right-click popups -> center text
-		Point distance = ret->pos.topLeft() - ret->text->pos.topLeft() + marginTopLeft;
-		ret->text->moveBy(distance);
+		// use more compact form for right-click popup with no buttons / components
 
-		ret->pos.h = ret->text->pos.h + TOP_MARGIN + BOTTOM_MARGIN;
-		ret->pos.w = ret->text->pos.w + 2 * SIDE_MARGIN;
+		ret->pos.w = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.x + 2 * SIDE_MARGIN);
+		ret->pos.h = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.y + TOP_MARGIN + BOTTOM_MARGIN);
+	}
+	else
+	{
+		int windowContentWidth = ret->text->pos.w;
+		int windowContentHeight = ret->text->pos.h;
+		if(ret->components)
+		{
+			vstd::amax(windowContentWidth, ret->components->pos.w);
+			windowContentHeight += INTERVAL_BETWEEN_TEXT_AND_BUTTONS + ret->components->pos.h;
+		}
+		if(!ret->buttons.empty())
+		{
+			vstd::amax(windowContentWidth, buttonsWidth);
+			windowContentHeight += INTERVAL_BETWEEN_TEXT_AND_BUTTONS + buttonsHeight;
+		}
+
+		ret->pos.w = windowContentWidth + 2 * SIDE_MARGIN;
+		ret->pos.h = windowContentHeight + TOP_MARGIN + BOTTOM_MARGIN;
 	}
 
-	if(!ret->buttons.empty())
-	{
-		int buttonPosX = ret->pos.w / 2 - buttonsWidth / 2;
-		int buttonPosY = ret->pos.h - BOTTOM_MARGIN - ret->buttons[0]->pos.h;
+	// STEP 3: MOVE ALL ELEMENTS IN PLACE
 
-		for(auto & elem : ret->buttons)
+	if(ret->buttons.empty() && !ret->components)
+	{
+		ret->text->trimToFit();
+		ret->text->center(ret->pos.center());
+	}
+	else
+	{
+		if(ret->components)
+			ret->components->moveBy(Point((ret->pos.w - ret->components->pos.w) / 2, TOP_MARGIN + ret->text->pos.h + INTERVAL_BETWEEN_TEXT_AND_BUTTONS));
+
+		ret->text->trimToFit();
+		ret->text->moveBy(Point((ret->pos.w - ret->text->pos.w) / 2, TOP_MARGIN + (textHeight - ret->text->pos.h) / 2 ));
+
+		if(!ret->buttons.empty())
 		{
-			elem->moveBy(Point(buttonPosX, buttonPosY));
-			buttonPosX += elem->pos.w + INTERVAL_BETWEEN_BUTTONS;
+			int buttonPosX = ret->pos.w / 2 - buttonsWidth / 2;
+			int buttonPosY = ret->pos.h - BOTTOM_MARGIN - ret->buttons[0]->pos.h;
+
+			for(auto & elem : ret->buttons)
+			{
+				elem->moveBy(Point(buttonPosX, buttonPosY));
+				buttonPosX += elem->pos.w + INTERVAL_BETWEEN_BUTTONS;
+			}
 		}
 	}
 
-	if(ret->components)
-		ret->components->moveBy(Point(ret->pos.x, ret->pos.y));
-
 	ret->backgroundTexture->pos = ret->pos;
+	ret->center();
 }
 
 void CMessage::drawBorder(PlayerColor playerColor, Canvas & to, int w, int h, int x, int y)
