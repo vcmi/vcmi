@@ -28,7 +28,9 @@
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
-	, CResourcesBuying([this](){CResourcesBuying::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
+	, CResourcesBuying(
+		[this](const std::shared_ptr<CTradeableItem> & heroSlot){CFreelancerGuild::onSlotClickPressed(heroSlot, hLeft);},
+		[this](){CTradeBase::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
 	, CMarketMisc([this](){return CFreelancerGuild::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -49,6 +51,7 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 	// Hero creatures panel
 	assert(bidTradePanel);
 	bidTradePanel->moveTo(pos.topLeft() + Point(45, 123));
+	bidTradePanel->selectedSlot->subtitle->moveBy(Point(0, -1));
 	bidTradePanel->deleteSlotsCheck = std::bind(&CCreaturesSelling::slotDeletingCheck, this, _1);
 	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
 		{

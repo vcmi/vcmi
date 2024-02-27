@@ -57,9 +57,9 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	int slotNum = 0;
 	for(auto & altarSlotPos : posSlotsAltar)
 	{
-		auto altarSlot = std::make_shared<CTradeableItem>(Rect(altarSlotPos, Point(44, 44)), EType::ARTIFACT_PLACEHOLDER, -1, false, slotNum);
+		auto altarSlot = std::make_shared<CTradeableItem>(Rect(altarSlotPos, Point(44, 44)), EType::ARTIFACT_PLACEHOLDER, -1, slotNum);
 		altarSlot->clickPressedCallback = std::bind(&CAltarArtifacts::onSlotClickPressed, this, _1, hRight);
-		altarSlot->subtitle.clear();
+		altarSlot->subtitle->clear();
 		items.front().emplace_back(altarSlot);
 		slotNum++;
 	}
@@ -91,7 +91,7 @@ void CAltarArtifacts::makeDeal()
 	for(auto item : items[0])
 	{
 		item->setID(-1);
-		item->subtitle.clear();
+		item->subtitle->clear();
 	}
 	calcExpAltarForHero();
 	deal->block(tradeSlotsMap.empty());
@@ -135,7 +135,7 @@ void CAltarArtifacts::updateSlots()
 			if(tradeSlotsMap.find(altarSlot->getArtInstance()) == tradeSlotsMap.end())
 			{
 				altarSlot->setID(-1);
-				altarSlot->subtitle.clear();
+				altarSlot->subtitle->clear();
 			}
 			else
 			{
@@ -148,7 +148,7 @@ void CAltarArtifacts::updateSlots()
 		assert(tradeSlot.second->id == -1);
 		assert(altarArtifacts->getSlotByInstance(tradeSlot.first) != ArtifactPosition::PRE_FIRST);
 		tradeSlot.second->setArtInstance(tradeSlot.first);
-		tradeSlot.second->subtitle = std::to_string(calcExpCost(tradeSlot.first));
+		tradeSlot.second->subtitle->setText(std::to_string(calcExpCost(tradeSlot.first)));
 	}
 	for(auto & slotInfo : altarArtifacts->artifactsInBackpack)
 	{
@@ -158,7 +158,7 @@ void CAltarArtifacts::updateSlots()
 				if(altarSlot->id == -1)
 				{
 					altarSlot->setArtInstance(slotInfo.artifact);
-					altarSlot->subtitle = std::to_string(calcExpCost(slotInfo.artifact));
+					altarSlot->subtitle->setText(std::to_string(calcExpCost(slotInfo.artifact)));
 					tradeSlotsMap.try_emplace(slotInfo.artifact, altarSlot);
 					break;
 				}

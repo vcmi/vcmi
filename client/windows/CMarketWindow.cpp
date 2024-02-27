@@ -69,6 +69,8 @@ void CMarketWindow::updateGarrisons()
 {
 	if(guild)
 		guild->updateSlots();
+	if(altar)
+		altar->updateSlots();
 }
 
 void CMarketWindow::resourceChanged()
@@ -152,17 +154,6 @@ void CMarketWindow::createChangeModeButtons(EMarketMode currentMode, const IMark
 		if(altar->hero->getAlignment() == EAlignment::EVIL)
 			changeModeButtons.back()->block(true);
 	}
-}
-
-void CMarketWindow::createInternals(EMarketMode mode, const IMarket * market, const CGHeroInstance * hero)
-{
-	background->center();
-	pos = background->pos;
-	this->market->setRedrawParent(true);
-	createChangeModeButtons(mode, market, hero);
-	quitButton = std::make_shared<CButton>(quitButtonPos, AnimationPath::builtin("IOK6432.DEF"),
-		CGI->generaltexth->zelp[600], [this]() {close(); }, EShortcut::GLOBAL_RETURN);
-	redraw();
 }
 
 void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)

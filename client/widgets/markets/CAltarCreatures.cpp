@@ -27,6 +27,7 @@
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
+	, CMarketMisc([this](){return CAltarCreatures::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
@@ -47,8 +48,8 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	// Hero creatures panel
 	assert(bidTradePanel);
 	bidTradePanel->moveTo(pos.topLeft() + Point(45, 110));
-	bidTradePanel->selectedImage->moveTo(pos.topLeft() + Point(149, 422));
-	bidTradePanel->selectedSubtitle->moveTo(pos.topLeft() + Point(180, 503));
+	bidTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(149, 422));
+	bidTradePanel->selectedSlot->subtitle->moveBy(Point(0, 3));
 	for(const auto & slot : bidTradePanel->slots)
 		slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot) {CAltarCreatures::onSlotClickPressed(heroSlot, hLeft);};
 
@@ -58,8 +59,8 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 			CAltarCreatures::onSlotClickPressed(altarSlot, hRight);
 		}, bidTradePanel->slots);
 	offerTradePanel->moveTo(pos.topLeft() + Point(334, 110));
-	offerTradePanel->selectedImage->moveTo(pos.topLeft() + Point(395, 422));
-	offerTradePanel->selectedSubtitle->moveTo(pos.topLeft() + Point(426, 503));
+	offerTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(395, 422));
+	offerTradePanel->selectedSlot->subtitle->moveBy(Point(0, 3));
 	offerTradePanel->updateSlotsCallback = [this]()
 	{
 		for(const auto & altarSlot : offerTradePanel->slots)
@@ -113,38 +114,9 @@ void CAltarCreatures::updateControls()
 	maxAmount->block(offerSlider->getAmount() == 0);
 }
 
-void CAltarCreatures::updateSelected()
-{
-	std::optional<size_t> lImageIndex = std::nullopt;
-	std::optional<size_t> rImageIndex = std::nullopt;
-
-	if(hLeft)
-	{
-		bidTradePanel->selectedSubtitle->setText(std::to_string(offerSlider->getValue()));
-		lImageIndex = CGI->creatures()->getByIndex(hLeft->id)->getIconIndex();
-	}
-	else
-	{
-		bidTradePanel->selectedSubtitle->setText("");
-	}
-	if(hRight)
-	{
-		offerTradePanel->selectedSubtitle->setText(hRight->subtitle);
-		if(offerSlider->getValue() != 0)
-			rImageIndex = CGI->creatures()->getByIndex(hRight->id)->getIconIndex();
-	}
-	else
-	{
-		offerTradePanel->selectedSubtitle->setText("");
-	}
-	bidTradePanel->setSelectedFrameIndex(lImageIndex);
-	offerTradePanel->setSelectedFrameIndex(rImageIndex);
-}
-
 void CAltarCreatures::updateSlots()
 {
-	offerTradePanel->updateSlots();
-	CCreaturesSelling::updateSlots();
+	CTradeBase::updateSlots();
 	assert(bidTradePanel->slots.size() == offerTradePanel->slots.size());
 }
 
@@ -190,8 +162,19 @@ void CAltarCreatures::makeDeal()
 	for(auto heroSlot : offerTradePanel->slots)
 	{
 		heroSlot->setType(EType::CREATURE_PLACEHOLDER);
-		heroSlot->subtitle.clear();
+		heroSlot->subtitle->clear();
 	}
+}
+
+CMarketMisc::SelectionParams CAltarCreatures::getSelectionParams()
+{
+	std::optional<SelectionParamOneSide> bidSelected = std::nullopt;
+	std::optional<SelectionParamOneSide> offerSelected = std::nullopt;
+	if(hLeft)
+		bidSelected = SelectionParamOneSide {std::to_string(offerSlider->getValue()), CGI->creatures()->getByIndex(hLeft->id)->getIconIndex()};
+	if(hRight && offerSlider->getValue() > 0)
+		offerSelected = SelectionParamOneSide {hRight->subtitle->getText(), CGI->creatures()->getByIndex(hRight->id)->getIconIndex()};
+	return std::make_tuple(bidSelected, offerSelected);
 }
 
 void CAltarCreatures::sacrificeAll()
@@ -225,8 +208,8 @@ void CAltarCreatures::updateAltarSlot(const std::shared_ptr<CTradeableItem> & sl
 {
 	auto units = unitsOnAltar[slot->serial];
 	slot->setType(units > 0 ? EType::CREATURE : EType::CREATURE_PLACEHOLDER);
-	slot->subtitle = units > 0 ?
-		boost::str(boost::format(CGI->generaltexth->allTexts[122]) % std::to_string(hero->calculateXp(units * expPerUnit[slot->serial]))) : "";
+	slot->subtitle->setText(units > 0 ?
+		boost::str(boost::format(CGI->generaltexth->allTexts[122]) % std::to_string(hero->calculateXp(units * expPerUnit[slot->serial]))) : "");
 }
 
 void CAltarCreatures::onOfferSliderMoved(int newVal)

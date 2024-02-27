@@ -12,6 +12,7 @@
 
 #include "../MiscWidgets.h"
 
+#include "../Images.h"
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/Slider.h"
@@ -81,6 +82,28 @@ void CTradeBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newS
 	newSlot->selectSlot(true);
 }
 
+void CTradeBase::updateSlots()
+{
+	if(bidTradePanel)
+		bidTradePanel->updateSlots();
+	if(offerTradePanel)
+		offerTradePanel->updateSlots();
+}
+
+void CTradeBase::updateSubtitles(EMarketMode marketMode)
+{
+	if(hLeft)
+		for(const auto & slot : offerTradePanel->slots)
+		{
+			int bidQty = 0;
+			int offerQty = 0;
+			market->getOffer(hLeft->id, slot->id, bidQty, offerQty, marketMode);
+			offerTradePanel->updateOffer(*slot, bidQty, offerQty);
+		}
+	else
+		offerTradePanel->clearSubtitles();
+};
+
 CExperienceAltar::CExperienceAltar()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -116,55 +139,34 @@ bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> 
 void CCreaturesSelling::updateSubtitle()
 {
 	for(auto & heroSlot : bidTradePanel->slots)
-		heroSlot->subtitle = std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial)));
+		heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
 }
 
-void CCreaturesSelling::updateSlots()
-{
-	bidTradePanel->updateSlots();
-}
-
-CResourcesBuying::CResourcesBuying(TradePanelBase::UpdateSlotsFunctor callback)
+CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
+	const TradePanelBase::UpdateSlotsFunctor & updSlotsCallback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	offerTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, callback);
-	offerTradePanel->moveTo(pos.topLeft() + Point(327, 181));
+	offerTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, updSlotsCallback);
+	offerTradePanel->moveTo(pos.topLeft() + Point(327, 182));
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 }
 
-void CResourcesBuying::updateSubtitles(EMarketMode marketMode)
-{
-	if(hLeft)
-		for(const auto & slot : offerTradePanel->slots)
-		{
-			int h1, h2; //hlp variables for getting offer
-			market->getOffer(hLeft->id, slot->id, h1, h2, marketMode);
-
-			offerTradePanel->updateOffer(*slot, h1, h2);
-		}
-	else
-		offerTradePanel->clearSubtitles();
-};
-
-CResourcesSelling::CResourcesSelling()
+CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	bidTradePanel = std::make_shared<ResourcesPanel>([](const std::shared_ptr<CTradeableItem>&) {}, [this]()
-		{
-			for(const auto & slot : bidTradePanel->slots)
-				slot->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial)));
-		});
+	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitle, this));
 	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
 }
 
-void CResourcesSelling::updateSlots()
+void CResourcesSelling::updateSubtitle()
 {
-	bidTradePanel->updateSlots();
+	for(const auto & slot : bidTradePanel->slots)
+		slot->subtitle->setText(std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
 }
 
-CMarketMisc::CMarketMisc(SelectionParamsFunctor callback)
+CMarketMisc::CMarketMisc(const SelectionParamsFunctor & callback)
 	: selectionParamsCallback(callback)
 {
 }
@@ -184,12 +186,12 @@ void CMarketMisc::updateSelected()
 		std::optional<size_t> lImageIndex = std::nullopt;
 		if(params.has_value())
 		{
-			tradePanel->selectedSubtitle->setText(params.value().text);
+			tradePanel->setSelectedSubtitleText(params.value().text);
 			lImageIndex = params.value().imageIndex;
 		}
 		else
 		{
-			tradePanel->selectedSubtitle->setText("");
+			tradePanel->clearSelectedSubtitleText();
 		}
 		tradePanel->setSelectedFrameIndex(lImageIndex);
 	};

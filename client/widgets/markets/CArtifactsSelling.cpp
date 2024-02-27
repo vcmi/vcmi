@@ -24,15 +24,16 @@
 
 CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
-	, CResourcesBuying([this](){CArtifactsSelling::updateSubtitles();})
+	, CResourcesBuying(
+		[this](const std::shared_ptr<CTradeableItem> & resSlot){CArtifactsSelling::onSlotClickPressed(resSlot, hRight);},
+		[this](){CTradeBase::updateSubtitles(EMarketMode::ARTIFACT_RESOURCE);})
 	, CMarketMisc([this](){return CArtifactsSelling::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
 	deal = std::make_shared<CButton>(Point(270, 520), AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this](){CArtifactsSelling::makeDeal();});
-	selectedImage = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), 10, 0, 136, 470);
-	bidSelectedSubtitle = std::make_shared<CLabel>(157, 529, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	bidSelectedSlot = std::make_shared<CTradeableItem>(Rect(Point(123, 470), Point(69, 66)), EType::ARTIFACT_TYPE, 0, 0);
 
 	// Hero's artifacts
 	heroArts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46));
@@ -40,11 +41,13 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	heroArts->selectArtCallback = [this](CArtPlace * artPlace)
 	{
 		assert(artPlace);
-		artForTrade = artPlace->getArt();
-		assert(artForTrade.has_value());
+		const auto artForTrade = artPlace->getArt();
+		assert(artForTrade);
+		bidSelectedSlot->setID(artForTrade->getTypeId().num);
+		hLeft = bidSelectedSlot;
 		if(hRight)
-		{
-			this->market->getOffer(artForTrade.value()->getTypeId().num, hRight->id, bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
+		{	// dublicate
+			this->market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
 			deal->block(false);
 		}
 		CArtifactsSelling::updateSelected();
@@ -54,20 +57,11 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 
 	// Market resources panel
 	assert(offerTradePanel);
-	std::for_each(offerTradePanel->slots.cbegin(), offerTradePanel->slots.cend(), [this](auto & slot)
-		{
-			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & resSlot)
-			{
-				CArtifactsSelling::onSlotClickPressed(resSlot, hRight);
-			};
-		});
-	offerTradePanel->selectedImage->moveTo(pos.topLeft() + Point(428, 479));
-	offerTradePanel->selectedSubtitle->moveTo(pos.topLeft() + Point(445, 526));
-	offerTradePanel->moveTo(pos.topLeft() + Point(326, 183));
+	offerTradePanel->moveTo(pos.topLeft() + Point(326, 184));
+	offerTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(409, 473));
 	
-
 	CArtifactsSelling::updateSelected();
-	CArtifactsSelling::deselect();
+	CMarketMisc::deselect();
 }
 
 void CArtifactsSelling::makeDeal()
@@ -75,27 +69,21 @@ void CArtifactsSelling::makeDeal()
 
 }
 
-void CArtifactsSelling::deselect()
-{
-	CTradeBase::deselect();
-	artForTrade = std::nullopt;
-}
-
 void CArtifactsSelling::updateSelected()
 {
 	CMarketMisc::updateSelected();
 
-	if(artForTrade.has_value() && hRight)
+	if(hLeft && hRight)
 	{
-		bidSelectedSubtitle->setText(std::to_string(bidQty));
-		selectedImage->enable();
-		selectedImage->setFrame(CGI->artifacts()->getByIndex(artForTrade.value()->getTypeId())->getIconIndex());
+		bidSelectedSlot->image->enable();
+		bidSelectedSlot->image->setFrame(CGI->artifacts()->getByIndex(hLeft->id)->getIconIndex());
+		bidSelectedSlot->subtitle->setText(std::to_string(bidQty));
 	}
 	else
 	{
-		selectedImage->disable();
-		selectedImage->setFrame(0);
-		bidSelectedSubtitle->setText("");
+		bidSelectedSlot->image->disable();
+		bidSelectedSlot->image->setFrame(0);
+		bidSelectedSlot->subtitle->clear();
 	}
 }
 
@@ -106,27 +94,13 @@ std::shared_ptr<CArtifactsOfHeroMarket> CArtifactsSelling::getAOHset() const
 
 CMarketMisc::SelectionParams CArtifactsSelling::getSelectionParams()
 {
-	if(artForTrade.has_value() && hRight)
+	if(hLeft && hRight)
 		return std::make_tuple(
 			std::nullopt,
 			SelectionParamOneSide {std::to_string(offerQty), GameResID(hRight->id)}
 		);
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);
-}
-
-void CArtifactsSelling::updateSubtitles()
-{
-	if(artForTrade.has_value())
-		for(const auto & slot : offerTradePanel->slots)
-		{
-			int bidQty = 0;
-			int offerQty = 0;
-			market->getOffer(artForTrade.value()->getTypeId().num, slot->id, bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
-			offerTradePanel->updateOffer(*slot, bidQty, offerQty);
-		}
-	else
-		offerTradePanel->clearSubtitles();
 }
 
 void CArtifactsSelling::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
@@ -136,11 +110,11 @@ void CArtifactsSelling::onSlotClickPressed(const std::shared_ptr<CTradeableItem>
 		return;
 
 	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
-	if(artForTrade.has_value())
+	if(hLeft)
 	{
 		if(hRight)
 		{
-			market->getOffer(artForTrade.value()->getTypeId().num, hRight->id, bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
+			market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
 			deal->block(false);
 		}
 		updateSelected();

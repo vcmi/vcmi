@@ -25,6 +25,7 @@
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, hLeft);})
 	, CMarketMisc([this](){return CTransferResources::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -42,23 +43,16 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 
 	// Player's resources
 	assert(bidTradePanel);
-	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
-		{
-			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
-			{
-				CTransferResources::onSlotClickPressed(heroSlot, hLeft);
-			};
-		});
-	bidTradePanel->moveTo(pos.topLeft() + Point(40, 182));
+	bidTradePanel->moveTo(pos.topLeft() + Point(40, 183));
 
 	// Players panel
 	offerTradePanel = std::make_shared<PlayersPanel>([this](const std::shared_ptr<CTradeableItem> & heroSlot)
 		{
 			CTransferResources::onSlotClickPressed(heroSlot, hRight);
 		});
-	offerTradePanel->moveTo(pos.topLeft() + Point(333, 83));
+	offerTradePanel->moveTo(pos.topLeft() + Point(333, 84));
 
-	CResourcesSelling::updateSlots();
+	CTradeBase::updateSlots();
 	CTransferResources::deselect();
 }
 

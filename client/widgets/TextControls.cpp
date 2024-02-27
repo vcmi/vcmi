@@ -95,6 +95,19 @@ void CLabel::setText(const std::string & Txt)
 	}
 }
 
+void CLabel::clear()
+{
+	text.clear();
+
+	if(autoRedraw)
+	{
+		if(background || !parent)
+			redraw();
+		else
+			parent->redraw();
+	}
+}
+
 void CLabel::setMaxWidth(int width)
 {
 	maxWidth = width;

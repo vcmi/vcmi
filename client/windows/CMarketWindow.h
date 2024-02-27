@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "CTradeWindow.h"
+#include "../widgets/markets/CTradeBase.h"
+#include "CWindowObject.h"
 #include "CAltarWindow.h"
 
 class CArtifactsBuying;
@@ -30,7 +31,6 @@ public:
 
 private:
 	void createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero);
-	void createInternals(EMarketMode mode, const IMarket * market, const CGHeroInstance * hero);
 
 	void createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero);
 	void createArtifactsSelling(const IMarket * market, const CGHeroInstance * hero);
@@ -47,7 +47,6 @@ private:
 	std::function<void()> windowClosedCallback;
 	const Point quitButtonPos = Point(516, 520);
 
-	std::shared_ptr<CMarketplaceWindow> market;
 	std::shared_ptr<CFreelancerGuild> guild;
 	std::shared_ptr<CMarketResources> resRes;
 	std::shared_ptr<CTransferResources> trRes;

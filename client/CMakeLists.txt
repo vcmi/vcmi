@@ -145,7 +145,6 @@ set(client_SRCS
 	windows/CPuzzleWindow.cpp
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
-	windows/CTradeWindow.cpp
 	windows/CTutorialWindow.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
@@ -335,7 +334,6 @@ set(client_HEADERS
 	windows/CPuzzleWindow.h
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
-	windows/CTradeWindow.h
 	windows/CTutorialWindow.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h

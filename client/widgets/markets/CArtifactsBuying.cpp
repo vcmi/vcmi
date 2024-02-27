@@ -27,6 +27,7 @@
 
 CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, hLeft);})
 	, CMarketMisc([this](){return CArtifactsBuying::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
@@ -40,34 +41,16 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 
 	// Player's resources
 	assert(bidTradePanel);
-	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
-		{
-			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
-			{
-				CArtifactsBuying::onSlotClickPressed(heroSlot, hLeft);
-			};
-		});
-	bidTradePanel->moveTo(pos.topLeft() + Point(39, 182));
-	bidTradePanel->selectedImage->moveTo(pos.topLeft() + Point(141, 453));
+	bidTradePanel->moveTo(pos.topLeft() + Point(39, 184));
+	bidTradePanel->selectedSlot->image->moveTo(pos.topLeft() + Point(141, 454));
 
 	// Artifacts panel
 	offerTradePanel = std::make_shared<ArtifactsPanel>([this](const std::shared_ptr<CTradeableItem> & newSlot)
 		{
 			CArtifactsBuying::onSlotClickPressed(newSlot, hRight);
-		
 		}, [this]()
 		{
-			// TODO move to parent
-			if(hLeft)
-				for(const auto & slot : offerTradePanel->slots)
-				{
-					int h1, h2; //hlp variables for getting offer
-					this->market->getOffer(hLeft->id, slot->id, h1, h2, EMarketMode::RESOURCE_ARTIFACT);
-
-					offerTradePanel->updateOffer(*slot, h1, h2);
-				}
-			else
-				offerTradePanel->clearSubtitles();
+			CTradeBase::updateSubtitles(EMarketMode::RESOURCE_ARTIFACT);
 		}, market->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT));
 	offerTradePanel->deleteSlotsCheck = [this](const std::shared_ptr<CTradeableItem> & slot)
 	{
@@ -75,7 +58,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 	};
 	offerTradePanel->moveTo(pos.topLeft() + Point(328, 182));
 
-	CArtifactsBuying::updateSlots();
+	CTradeBase::updateSlots();
 	CMarketMisc::deselect();
 }
 
@@ -83,12 +66,6 @@ void CArtifactsBuying::makeDeal()
 {
 	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_ARTIFACT, GameResID(hLeft->id), ArtifactID(hRight->id), offerQty, hero);
 	deselect();
-}
-
-void CArtifactsBuying::updateSlots()
-{
-	CResourcesSelling::updateSlots();
-	offerTradePanel->updateSlots();
 }
 
 CMarketMisc::SelectionParams CArtifactsBuying::getSelectionParams()

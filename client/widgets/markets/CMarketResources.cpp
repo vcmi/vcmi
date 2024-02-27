@@ -26,7 +26,10 @@
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
 	: CTradeBase(market, hero)
-	, CResourcesBuying([this](){CMarketResources::updateSubtitles();})
+	, CResourcesBuying(
+		[this](const std::shared_ptr<CTradeableItem> & resSlot){CMarketResources::onSlotClickPressed(resSlot, hRight);},
+		[this](){CMarketResources::updateSubtitles();})
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, hLeft);})
 	, CMarketMisc([this](){return CMarketResources::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -43,14 +46,7 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 
 	// Player's resources
 	assert(bidTradePanel);
-	std::for_each(bidTradePanel->slots.cbegin(), bidTradePanel->slots.cend(), [this](auto & slot)
-		{
-			slot->clickPressedCallback = [this](const std::shared_ptr<CTradeableItem> & heroSlot)
-			{
-				CMarketResources::onSlotClickPressed(heroSlot, hLeft);
-			};
-		});
-	bidTradePanel->moveTo(pos.topLeft() + Point(39, 181));
+	bidTradePanel->moveTo(pos.topLeft() + Point(39, 182));
 
 	// Market resources panel
 	assert(offerTradePanel);
@@ -62,7 +58,7 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 			};
 		});
 
-	CResourcesSelling::updateSlots();
+	CTradeBase::updateSlots();
 	CMarketMisc::deselect();
 }
 
@@ -121,7 +117,7 @@ void CMarketResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> 
 
 void CMarketResources::updateSubtitles()
 {
-	CResourcesBuying::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
+	CTradeBase::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
 	if(hLeft)
-		offerTradePanel->slots[hLeft->serial]->subtitle = CGI->generaltexth->allTexts[164]; // n/a
+		offerTradePanel->slots[hLeft->serial]->subtitle->setText(CGI->generaltexth->allTexts[164]); // n/a
 }

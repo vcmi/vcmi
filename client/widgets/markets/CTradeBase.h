@@ -21,7 +21,7 @@ VCMI_LIB_NAMESPACE_END
 class CButton;
 class CSlider;
 
-class CTradeBase
+class CTradeBase : public CIntObject
 {
 public:
 	const IMarket * market;
@@ -49,11 +49,12 @@ public:
 	virtual void makeDeal() = 0;
 	virtual void deselect();
 	virtual void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
-	virtual void updateSlots() {};	// TODO make pure virtual
+	virtual void updateSlots();
+	virtual void updateSubtitles(EMarketMode marketMode);
 };
 
 // Market subclasses
-class CExperienceAltar : virtual public CTradeBase, virtual public CIntObject
+class CExperienceAltar : virtual public CTradeBase
 {
 public:
 	std::shared_ptr<CLabel> expToLevel;
@@ -66,30 +67,29 @@ public:
 	virtual TExpType calcExpAltarForHero() = 0;
 };
 
-class CCreaturesSelling : virtual public CTradeBase, virtual public CIntObject
+class CCreaturesSelling : virtual public CTradeBase
 {
 public:
 	CCreaturesSelling();
 	bool slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot);
 	void updateSubtitle();
-	void updateSlots() override;
 };
 
-class CResourcesBuying : virtual public CTradeBase, virtual public CIntObject
+class CResourcesBuying : virtual public CTradeBase
 {
 public:
-	CResourcesBuying(TradePanelBase::UpdateSlotsFunctor callback);
-	void updateSubtitles(EMarketMode marketMode);
+	CResourcesBuying(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
+		const TradePanelBase::UpdateSlotsFunctor & updSlotsCallback);
 };
 
-class CResourcesSelling : virtual public CTradeBase, virtual public CIntObject
+class CResourcesSelling : virtual public CTradeBase
 {
 public:
-	CResourcesSelling();
-	void updateSlots() override;
+	CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback);
+	void updateSubtitle();
 };
 
-class CMarketMisc : virtual public CTradeBase, virtual public CIntObject
+class CMarketMisc : virtual public CTradeBase
 {
 public:
 	struct SelectionParamOneSide
@@ -98,9 +98,9 @@ public:
 		int imageIndex; 
 	};
 	using SelectionParams = std::tuple<std::optional<const SelectionParamOneSide>, std::optional<const SelectionParamOneSide>>;
-	using SelectionParamsFunctor = std::function<SelectionParams()>;
+	using SelectionParamsFunctor = std::function<const SelectionParams()>;
 
-	CMarketMisc(SelectionParamsFunctor callback);
+	CMarketMisc(const SelectionParamsFunctor & callback);
 	void deselect() override;
 	void updateSelected();
 

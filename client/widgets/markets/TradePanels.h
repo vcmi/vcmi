@@ -31,8 +31,7 @@ public:
 	EType type;
 	int id;
 	const int serial;
-	const bool left;
-	std::string subtitle;
+	std::shared_ptr<CLabel> subtitle;
 	ClickPressedFunctor clickPressedCallback;
 
 	void setType(EType newType);
@@ -41,16 +40,10 @@ public:
 	const CArtifactInstance * getArtInstance() const;
 	void setArtInstance(const CArtifactInstance * art);
 
-	bool downSelection;
-
-	void showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to);
-
 	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
-	void showAll(Canvas & to) override;
 	void clickPressed(const Point & cursorPosition) override;
-	std::string getName(int number = -1) const;
-	CTradeableItem(const Rect & area, EType Type, int ID, bool Left, int Serial);
+	CTradeableItem(const Rect & area, EType Type, int ID, int Serial);
 };
 
 class TradePanelBase : public CIntObject
@@ -64,14 +57,15 @@ public:
 	DeleteSlotsCheck deleteSlotsCheck;
 	std::shared_ptr<CTradeableItem> selected;
 	const int selectionWidth = 2;
-	std::shared_ptr<CAnimImage> selectedImage;
-	std::shared_ptr<CLabel> selectedSubtitle;
+	std::shared_ptr<CTradeableItem> selectedSlot;
 
 	virtual void updateSlots();
 	virtual void deselect();
 	virtual void clearSubtitles();
 	void updateOffer(CTradeableItem & slot, int, int);
-	void setSelectedFrameIndex(std::optional<size_t> index);
+	void setSelectedFrameIndex(const std::optional<size_t> & index);
+	void setSelectedSubtitleText(const std::string & text);
+	void clearSelectedSubtitleText();
 };
 
 class ResourcesPanel : public TradePanelBase
@@ -89,11 +83,10 @@ class ResourcesPanel : public TradePanelBase
 		Point(83, 158)
 	};
 	const Point slotDimension = Point(69, 66);
-	const Point selectedImagePos = Point(101, 276);
-	const Point selectedSubtitlePos = Point(118, 324);
+	const Point selectedPos = Point(83, 267);
 
 public:
-	ResourcesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles);
+	ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback, const UpdateSlotsFunctor & updateSubtitles);
 };
 
 class ArtifactsPanel : public TradePanelBase
@@ -106,12 +99,11 @@ class ArtifactsPanel : public TradePanelBase
 	};
 	const size_t slotsForTrade = 7;
 	const Point slotDimension = Point(69, 66);
-	const Point selectedImagePos = Point(96, 266);
-	const Point selectedSubtitlePos = Point(118, 324);
+	const Point selectedPos = Point(83, 266);
 
 public:
-	ArtifactsPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, UpdateSlotsFunctor updateSubtitles,
-		const std::vector<TradeItemBuy> & arts);
+	ArtifactsPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
+		const UpdateSlotsFunctor & updateSubtitles, const std::vector<TradeItemBuy> & arts);
 };
 
 class PlayersPanel : public TradePanelBase
@@ -123,11 +115,10 @@ class PlayersPanel : public TradePanelBase
 		Point(83, 236)
 	};
 	const Point slotDimension = Point(58, 64);
-	const Point selectedImagePos = Point(83, 368);
-	const Point selectedSubtitlePos = Point(112, 443);
+	const Point selectedPos = Point(83, 367);
 
 public:
-	explicit PlayersPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback);
+	explicit PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback);
 };
 
 class CreaturesPanel : public TradePanelBase
@@ -138,14 +129,13 @@ class CreaturesPanel : public TradePanelBase
 		Point(0, 98), Point(83, 98), Point(166, 98),
 		Point(83, 196)
 	};
-	const Point slotDimension = Point(58, 64);
-	const Point selectedImagePos = Point(83, 327);
-	const Point selectedSubtitlePos = Point(113, 403);
+	const Point slotDimension = Point(59, 64);
+	const Point selectedPos = Point(83, 327);
 
 public:
 	using slotsData = std::vector<std::tuple<CreatureID, SlotID, int>>;
 
-	CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback, const slotsData & initialSlots);
-	CreaturesPanel(CTradeableItem::ClickPressedFunctor clickPressedCallback,
+	CreaturesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback, const slotsData & initialSlots);
+	CreaturesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
 		const std::vector<std::shared_ptr<CTradeableItem>> & srcSlots, bool emptySlots = true);
 };

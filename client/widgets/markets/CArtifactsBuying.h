@@ -16,7 +16,6 @@ class CArtifactsBuying : public CResourcesSelling, public CMarketMisc
 public:
 	CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero);
 	void makeDeal() override;
-	void updateSlots() override;
 
 private:
 	CMarketMisc::SelectionParams getSelectionParams();
