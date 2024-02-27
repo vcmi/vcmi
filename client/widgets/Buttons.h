@@ -22,63 +22,76 @@ class CAnimImage;
 class CLabel;
 class CAnimation;
 
+enum class EButtonState
+{
+	NORMAL=0,
+	PRESSED=1,
+	BLOCKED=2,
+	HIGHLIGHTED=3 // used for: highlighted state for selectable buttons, hovered state for hoverable buttons (e.g. main menu)
+};
+
+class ButtonBase : public CKeyShortcut
+{
+	std::shared_ptr<CAnimImage> image; //image for this button
+	std::shared_ptr<CIntObject> overlay;//object-overlay, can be null
+
+	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
+
+	EButtonState state;//current state of button from enum
+
+	void update();//to refresh button after image or text change
+
+protected:
+	ButtonBase(Point position, const AnimationPath & defName, EShortcut key, bool playerColoredButton);
+
+	void setStateImpl(EButtonState state);
+	EButtonState getState();
+
+public:
+	/// Appearance modifiers
+	void setPlayerColor(PlayerColor player);
+	void setImage(const AnimationPath & defName, bool playerColoredButton = false);
+	void setImageOrder(int state1, int state2, int state3, int state4);
+
+	/// adds overlay on top of button image. Only one overlay can be active at once
+	void setOverlay(std::shared_ptr<CIntObject> newOverlay);
+	void setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color);
+};
+
 /// Typical Heroes 3 button which can be inactive or active and can
 /// hold further information if you right-click it
-class CButton : public CKeyShortcut
+class CButton : public ButtonBase
 {
 	CFunctionList<void()> callback;
 
-public:
-	enum ButtonState
-	{
-		NORMAL=0,
-		PRESSED=1,
-		BLOCKED=2,
-		HIGHLIGHTED=3
-	};
-protected:
-	std::vector<AnimationPath> imageNames;//store list of images that can be used by this button
-	size_t currentImage;
-
-	ButtonState state;//current state of button from enum
-
-	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
 	std::optional<ColorRGBA> borderColor; // mapping of button state to border color
 	std::string helpBox; //for right-click help
 
-	std::shared_ptr<CAnimImage> image; //image for this button
-	std::shared_ptr<CIntObject> overlay;//object-overlay, can be null
-	bool animateLonelyFrame = false;
+	bool actOnDown; //runs when mouse is pressed down over it, not when up
+	bool hoverable; //if true, button will be highlighted when hovered (e.g. main menu)
+	bool soundDisabled;
+
 protected:
 	void onButtonClicked(); // calls callback
-	void update();//to refresh button after image or text change
 
 	// internal method to change state. Public change can be done only via block()
-	void setState(ButtonState newState);
-	ButtonState getState();
+	void setState(EButtonState newState);
 
 public:
-	bool actOnDown,//runs when mouse is pressed down over it, not when up
-		hoverable,//if true, button will be highlighted when hovered (e.g. main menu)
-		soundDisabled;
-
 	// sets the same border color for all button states.
 	void setBorderColor(std::optional<ColorRGBA> borderColor);
 
 	/// adds one more callback to on-click actions
 	void addCallback(const std::function<void()> & callback);
 
-	/// adds overlay on top of button image. Only one overlay can be active at once
-	void addOverlay(std::shared_ptr<CIntObject> newOverlay);
-	void addTextOverlay(const std::string & Text, EFonts font, ColorRGBA color);
+	void addHoverText(EButtonState state, std::string text);
 
-	void addImage(const AnimationPath & filename);
-	void addHoverText(ButtonState state, std::string text);
-
-	void setImageOrder(int state1, int state2, int state3, int state4);
-	void setAnimateLonelyFrame(bool agreement);
 	void block(bool on);
+
+	void setHoverable(bool on);
+	void setSoundDisabled(bool on);
+	void setActOnDown(bool on);
 
 	/// State modifiers
 	bool isBlocked();
@@ -87,11 +100,6 @@ public:
 	/// Constructor
 	CButton(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help,
 			CFunctionList<void()> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
-
-	/// Appearance modifiers
-	void setIndex(size_t index);
-	void setImage(std::shared_ptr<CAnimation> anim, int animFlags=0);
-	void setPlayerColor(PlayerColor player);
 
 	/// CIntObject overrides
 	void showPopupWindow(const Point & cursorPosition) override;
@@ -110,10 +118,13 @@ public:
 class CToggleBase
 {
 	CFunctionList<void(bool)> callback;
-protected:
 
 	bool selected;
 
+	/// if set to false - button can not be deselected normally
+	bool allowDeselection;
+
+protected:
 	// internal method for overrides
 	virtual void doSelect(bool on);
 
@@ -121,9 +132,6 @@ protected:
 	bool canActivate();
 
 public:
-	/// if set to false - button can not be deselected normally
-	bool allowDeselection;
-
 	CToggleBase(CFunctionList<void(bool)> callback);
 	virtual ~CToggleBase();
 
@@ -132,6 +140,10 @@ public:
 
 	/// Changes selection to "on" without calling callback
 	void setSelectedSilent(bool on);
+
+	bool isSelected() const;
+
+	void setAllowDeselection(bool on);
 
 	void addCallback(std::function<void(bool)> callback);
 

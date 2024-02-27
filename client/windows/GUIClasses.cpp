@@ -481,24 +481,24 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 
 	if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
-		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
+		recruit->addHoverText(EButtonState::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
 	}
 	else if(LOCPLINT->cb->howManyHeroes(true) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP))
 	{
 		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(true)));
+		recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(true)));
 		recruit->block(true);
 	}
 	else if(LOCPLINT->cb->howManyHeroes(false) >= CGI->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
 	{
 		//Cannot recruit. You already have %d Heroes.
-		recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(false)));
+		recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[1]) % LOCPLINT->cb->howManyHeroes(false)));
 		recruit->block(true);
 	}
 	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->visitingHero)
 	{
-		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
+		recruit->addHoverText(EButtonState::NORMAL, CGI->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
 		recruit->block(true);
 	}
 	else
@@ -586,7 +586,7 @@ void CTavernWindow::show(Canvas & to)
 
 			//Recruit %s the %s
 			if (!recruit->isBlocked())
-				recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
+				recruit->addHoverText(EButtonState::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->getClassNameTranslated()));
 
 		}
 
@@ -880,10 +880,10 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(false, equipped, baclpack);}));
 		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			std::bind(openBackpack, heroInst[0]));
-		backpackButtonLeft->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
 		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			std::bind(openBackpack, heroInst[1]));
-		backpackButtonRight->addOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
 
 		auto leftHeroBlock = heroInst[0]->tempOwner != LOCPLINT->cb->getPlayerID();
 		auto rightHeroBlock = heroInst[1]->tempOwner != LOCPLINT->cb->getPlayerID();
@@ -1355,9 +1355,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 
 	for(int i = 0; i < slotsCount; i++)
 	{
-		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), AnimationPath(), CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, vstd::next(EShortcut::SELECT_INDEX_1, i));
-		for(auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
-			upgrade[i]->addImage(AnimationPath::builtin(image));
+		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), AnimationPath::builtin("APHLF1R"), CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, vstd::next(EShortcut::SELECT_INDEX_1, i));
 
 		for(int j : {0,1})
 		{
@@ -1366,9 +1364,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 		}
 	}
 
-	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath(), CButton::tooltip(CGI->generaltexth->allTexts[432]), [&](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
-	for(auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
-		upgradeAll->addImage(AnimationPath::builtin(image));
+	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath::builtin("APHLF4R"), CButton::tooltip(CGI->generaltexth->allTexts[432]), [&](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
 
 	quit = std::make_shared<CButton>(Point(294, 275), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), std::bind(&CHillFortWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
@@ -1384,6 +1380,9 @@ bool CHillFortWindow::holdsGarrison(const CArmedInstance * army)
 
 void CHillFortWindow::updateGarrisons()
 {
+	constexpr std::array slotImages = { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" };
+	constexpr std::array allImages =  { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" };
+
 	std::array<TResources, slotsCount> costs;// costs [slot ID] [resource ID] = resource count for upgrade
 
 	TResources totalSum; // totalSum[resource ID] = value
@@ -1404,9 +1403,9 @@ void CHillFortWindow::updateGarrisons()
 		}
 
 		currState[i] = newState;
-		upgrade[i]->setIndex(currState[i] == -1 ? 0 : currState[i]);
+		upgrade[i]->setImage(AnimationPath::builtin(currState[i] == -1 ? slotImages[0] : slotImages[currState[i]]));
 		upgrade[i]->block(currState[i] == -1);
-		upgrade[i]->addHoverText(CButton::NORMAL, getTextForSlot(SlotID(i)));
+		upgrade[i]->addHoverText(EButtonState::NORMAL, getTextForSlot(SlotID(i)));
 	}
 
 	//"Upgrade all" slot
@@ -1426,7 +1425,7 @@ void CHillFortWindow::updateGarrisons()
 	}
 
 	currState[slotsCount] = newState;
-	upgradeAll->setIndex(newState);
+	upgradeAll->setImage(AnimationPath::builtin(allImages[newState]));
 
 	garr->recreateSlots();
 

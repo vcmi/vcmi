@@ -30,30 +30,25 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 
-void CButton::update()
+void ButtonBase::update()
 {
 	if (overlay)
 	{
 		Point targetPos = Rect::createCentered( pos, overlay->pos.dimensions()).topLeft();
 
-		if (state == PRESSED)
+		if (state == EButtonState::PRESSED)
 			overlay->moveTo(targetPos + Point(1,1));
 		else
 			overlay->moveTo(targetPos);
 	}
 
 	int newPos = stateToIndex[int(state)];
-	if(animateLonelyFrame)
-	{
-		if(state == PRESSED)
-			image->moveBy(Point(1,1));
-		else
-			image->moveBy(Point(-1,-1));
-	}
 	if (newPos < 0)
 		newPos = 0;
 
-	if (state == HIGHLIGHTED && image->size() < 4)
+	// checkbox - has only have two frames: normal and pressed/highlighted
+	// hero movement speed buttons: only three frames: normal, pressed and blocked/highlighted
+	if (state == EButtonState::HIGHLIGHTED && image->size() < 4)
 		newPos = (int)image->size()-1;
 	image->setFrame(newPos);
 
@@ -71,14 +66,14 @@ void CButton::addCallback(const std::function<void()> & callback)
 	this->callback += callback;
 }
 
-void CButton::addTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
+void ButtonBase::setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
+	setOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
 
-void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
+void ButtonBase::setOverlay(std::shared_ptr<CIntObject> newOverlay)
 {
 	overlay = newOverlay;
 	if(overlay)
@@ -90,17 +85,23 @@ void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 	update();
 }
 
-void CButton::addImage(const AnimationPath & filename)
+void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButton)
 {
-	imageNames.push_back(filename);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+
+	image = std::make_shared<CAnimImage>(defName, vstd::to_underlying(getState()));
+	pos = image->pos;
+
+	if (playerColoredButton)
+		image->playerColored(LOCPLINT->playerID);
 }
 
-void CButton::addHoverText(ButtonState state, std::string text)
+void CButton::addHoverText(EButtonState state, std::string text)
 {
-	hoverTexts[state] = text;
+	hoverTexts[vstd::to_underlying(state)] = text;
 }
 
-void CButton::setImageOrder(int state1, int state2, int state3, int state4)
+void ButtonBase::setImageOrder(int state1, int state2, int state3, int state4)
 {
 	stateToIndex[0] = state1;
 	stateToIndex[1] = state2;
@@ -109,44 +110,65 @@ void CButton::setImageOrder(int state1, int state2, int state3, int state4)
 	update();
 }
 
-void CButton::setAnimateLonelyFrame(bool agreement)
+//TODO:
+//void CButton::setAnimateLonelyFrame(bool agreement)
+//{
+//	animateLonelyFrame = agreement;
+//}
+
+void ButtonBase::setStateImpl(EButtonState newState)
 {
-	animateLonelyFrame = agreement;
-}
-void CButton::setState(ButtonState newState)
-{
-	if (state == newState)
-		return;
-
-	if (newState == BLOCKED)
-		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
-	else
-		addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
-
-
 	state = newState;
 	update();
 }
 
-CButton::ButtonState CButton::getState()
+void CButton::setState(EButtonState newState)
+{
+	if (getState() == newState)
+		return;
+
+	if (newState == EButtonState::BLOCKED)
+		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+	else
+		addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+
+	setStateImpl(newState);
+}
+
+EButtonState ButtonBase::getState()
 {
 	return state;
 }
 
 bool CButton::isBlocked()
 {
-	return state == BLOCKED;
+	return getState() == EButtonState::BLOCKED;
 }
 
 bool CButton::isHighlighted()
 {
-	return state == HIGHLIGHTED;
+	return getState() == EButtonState::HIGHLIGHTED;
+}
+
+void CButton::setHoverable(bool on)
+{
+	hoverable = on;
+}
+
+void CButton::setSoundDisabled(bool on)
+{
+	soundDisabled = on;
+}
+
+void CButton::setActOnDown(bool on)
+{
+	actOnDown = on;
 }
 
 void CButton::block(bool on)
 {
-	if(on || state == BLOCKED) //dont change button state if unblock requested, but it's not blocked
-		setState(on ? BLOCKED : NORMAL);
+	if(on || getState() == EButtonState::BLOCKED) //dont change button state if unblock requested, but it's not blocked
+		setState(on ? EButtonState::BLOCKED : EButtonState::NORMAL);
 }
 
 void CButton::onButtonClicked()
@@ -169,14 +191,14 @@ void CButton::clickPressed(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	if (getState() != PRESSED)
+	if (getState() != EButtonState::PRESSED)
 	{
 		if (!soundDisabled)
 		{
 			CCS->soundh->playSound(soundBase::button);
 			GH.input().hapticFeedback();
 		}
-		setState(PRESSED);
+		setState(EButtonState::PRESSED);
 
 		if (actOnDown)
 			onButtonClicked();
@@ -185,12 +207,12 @@ void CButton::clickPressed(const Point & cursorPosition)
 
 void CButton::clickReleased(const Point & cursorPosition)
 {
-	if (getState() == PRESSED)
+	if (getState() == EButtonState::PRESSED)
 	{
 		if(hoverable && isHovered())
-			setState(HIGHLIGHTED);
+			setState(EButtonState::HIGHLIGHTED);
 		else
-			setState(NORMAL);
+			setState(EButtonState::NORMAL);
 
 		if (!actOnDown)
 			onButtonClicked();
@@ -199,12 +221,12 @@ void CButton::clickReleased(const Point & cursorPosition)
 
 void CButton::clickCancel(const Point & cursorPosition)
 {
-	if (getState() == PRESSED)
+	if (getState() == EButtonState::PRESSED)
 	{
 		if(hoverable && isHovered())
-			setState(HIGHLIGHTED);
+			setState(EButtonState::HIGHLIGHTED);
 		else
-			setState(NORMAL);
+			setState(EButtonState::NORMAL);
 	}
 }
 
@@ -219,17 +241,17 @@ void CButton::hover (bool on)
 	if(hoverable && !isBlocked())
 	{
 		if(on)
-			setState(HIGHLIGHTED);
+			setState(EButtonState::HIGHLIGHTED);
 		else
-			setState(NORMAL);
+			setState(EButtonState::NORMAL);
 	}
 
 	/*if(pressedL && on) // WTF is this? When this is used?
 		setState(PRESSED);*/
 
-	std::string name = hoverTexts[getState()].empty()
+	std::string name = hoverTexts[vstd::to_underlying(getState())].empty()
 		? hoverTexts[0]
-		: hoverTexts[getState()];
+		: hoverTexts[vstd::to_underlying(getState())];
 
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
@@ -240,55 +262,30 @@ void CButton::hover (bool on)
 	}
 }
 
+ButtonBase::ButtonBase(Point position, const AnimationPath & defName, EShortcut key, bool playerColoredButton)
+	: CKeyShortcut(key)
+	, stateToIndex({0, 1, 2, 3})
+	, state(EButtonState::NORMAL)
+{
+	pos.x += position.x;
+	pos.y += position.y;
+
+	setImage(defName);
+}
+
 CButton::CButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
-    CKeyShortcut(key),
+	ButtonBase(position, defName, key, playerColoredButton),
     callback(Callback)
 {
 	defActions = 255-DISPOSE;
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 
-	stateToIndex[0] = 0;
-	stateToIndex[1] = 1;
-	stateToIndex[2] = 2;
-	stateToIndex[3] = 3;
-
-	state=NORMAL;
-
-	currentImage = -1;
 	hoverable = actOnDown = soundDisabled = false;
 	hoverTexts[0] = help.first;
 	helpBox=help.second;
-
-	pos.x += position.x;
-	pos.y += position.y;
-
-	if (!defName.empty())
-	{
-		imageNames.push_back(defName);
-		setIndex(0);
-		if (playerColoredButton)
-			image->playerColored(LOCPLINT->playerID);
-	}
 }
 
-void CButton::setIndex(size_t index)
-{
-	if (index == currentImage || index>=imageNames.size())
-		return;
-	currentImage = index;
-	auto anim = GH.renderHandler().loadAnimation(imageNames[index]);
-	setImage(anim);
-}
-
-void CButton::setImage(std::shared_ptr<CAnimation> anim, int animFlags)
-{
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-
-	image = std::make_shared<CAnimImage>(anim, getState(), 0, 0, 0, animFlags);
-	pos = image->pos;
-}
-
-void CButton::setPlayerColor(PlayerColor player)
+void ButtonBase::setPlayerColor(PlayerColor player)
 {
 	if (image && image->isPlayerColored())
 		image->playerColored(player);
@@ -353,6 +350,11 @@ void CToggleBase::setSelected(bool on)
 		callback(on);
 }
 
+bool CToggleBase::isSelected() const
+{
+	return selected;
+}
+
 bool CToggleBase::canActivate()
 {
 	if (selected && !allowDeselection)
@@ -365,29 +367,33 @@ void CToggleBase::addCallback(std::function<void(bool)> function)
 	callback += function;
 }
 
+void CToggleBase::setAllowDeselection(bool on)
+{
+	allowDeselection = on;
+}
+
 CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
 							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton):
   CButton(position, defName, help, 0, key, playerColoredButton),
   CToggleBase(callback)
 {
-	allowDeselection = true;
 }
 
 void CToggleButton::doSelect(bool on)
 {
 	if (on)
 	{
-		setState(HIGHLIGHTED);
+		setState(EButtonState::HIGHLIGHTED);
 	}
 	else
 	{
-		setState(NORMAL);
+		setState(EButtonState::NORMAL);
 	}
 }
 
 void CToggleButton::setEnabled(bool enabled)
 {
-	setState(enabled ? NORMAL : BLOCKED);
+	setState(enabled ? EButtonState::NORMAL : EButtonState::BLOCKED);
 }
 
 void CToggleButton::clickPressed(const Point & cursorPosition)
@@ -403,7 +409,7 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 	{
 		CCS->soundh->playSound(soundBase::button);
 		GH.input().hapticFeedback();
-		setState(PRESSED);
+		setState(EButtonState::PRESSED);
 	}
 }
 
@@ -416,13 +422,13 @@ void CToggleButton::clickReleased(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	if (getState() == PRESSED && canActivate())
+	if (getState() == EButtonState::PRESSED && canActivate())
 	{
 		onButtonClicked();
-		setSelected(!selected);
+		setSelected(!isSelected());
 	}
 	else
-		doSelect(selected); // restore
+		doSelect(isSelected()); // restore
 }
 
 void CToggleButton::clickCancel(const Point & cursorPosition)
@@ -434,7 +440,7 @@ void CToggleButton::clickCancel(const Point & cursorPosition)
 	if(isBlocked())
 		return;
 
-	doSelect(selected);
+	doSelect(isSelected());
 }
 
 void CToggleGroup::addCallback(std::function<void(int)> callback)
@@ -455,7 +461,7 @@ void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button
 	}
 
 	button->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
-	button->allowDeselection = false;
+	button->setAllowDeselection(false);
 
 	if(buttons.count(identifier)>0)
 		logAnim->error("Duplicated toggle button id %d", identifier);

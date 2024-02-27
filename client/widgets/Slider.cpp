@@ -206,10 +206,10 @@ CSlider::CSlider(Point position, int totalw, const std::function<void(int)> & Mo
 		right = std::make_shared<CButton>(Point(), AnimationPath::builtin(getOrientation() == Orientation::HORIZONTAL ? "SCNRBRT.DEF" : "SCNRBDN.DEF"), CButton::tooltip());
 		slider = std::make_shared<CButton>(Point(), AnimationPath::builtin("SCNRBSL.DEF"), CButton::tooltip());
 	}
-	slider->actOnDown = true;
-	slider->soundDisabled = true;
-	left->soundDisabled = true;
-	right->soundDisabled = true;
+	slider->setActOnDown(true);
+	slider->setSoundDisabled(true);
+	left->setSoundDisabled(true);
+	right->setSoundDisabled(true);
 
 	if (getOrientation() == Orientation::HORIZONTAL)
 		right->moveBy(Point(totalw - right->pos.w, 0));

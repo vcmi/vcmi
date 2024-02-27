@@ -364,9 +364,9 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
+			w->setTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
+			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	for(auto r : VLC->roadTypeHandler->objects)
 	{
@@ -388,9 +388,9 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
+			w->setTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
+			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	updateMapInfoByHost();
 }
@@ -532,11 +532,11 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 				assert(button);
 				if(sel == teamId)
 				{
-					button->addOverlay(buildWidget(variables["flagsAnimation"]));
+					button->setOverlay(buildWidget(variables["flagsAnimation"]));
 				}
 				else
 				{
-					button->addOverlay(nullptr);
+					button->setOverlay(nullptr);
 				}
 				button->addCallback([this](bool)
 				{

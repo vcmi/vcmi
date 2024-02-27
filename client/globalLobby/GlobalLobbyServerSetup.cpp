@@ -50,8 +50,8 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 
 	auto buttonPublic  = std::make_shared<CToggleButton>(Point(10, 120),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
 	auto buttonPrivate = std::make_shared<CToggleButton>(Point(146, 120), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	buttonPublic->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.public"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonPrivate->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.private"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonPublic->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.public"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonPrivate->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.private"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	toggleRoomType = std::make_shared<CToggleGroup>(nullptr);
 	toggleRoomType->addToggle(0, buttonPublic);
@@ -61,8 +61,8 @@ GlobalLobbyServerSetup::GlobalLobbyServerSetup()
 
 	auto buttonNewGame = std::make_shared<CToggleButton>(Point(10, 170),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
 	auto buttonLoadGame = std::make_shared<CToggleButton>(Point(146, 170), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	buttonNewGame->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.new"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonLoadGame->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.load"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonNewGame->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.new"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonLoadGame->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.room.load"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	toggleGameMode = std::make_shared<CToggleGroup>(nullptr);
 	toggleGameMode->addToggle(0, buttonNewGame);
