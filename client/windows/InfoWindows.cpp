@@ -55,7 +55,7 @@ CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charpe
 
 	if(buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
 	{
-		buttons.back()->addCallback([askID](){LOCPLINT->cb.get()->selectionMade(0, askID);});
+		buttons.back()->addCallback([askID](){LOCPLINT->cb->selectionMade(0, askID);});
 		//buttons.back()->addCallback(std::bind(&CCallback::selectionMade, LOCPLINT->cb.get(), 0, askID));
 	}
 
@@ -91,16 +91,16 @@ void CSelWindow::madeChoiceAndClose()
 	close();
 }
 
-CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons)
+CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps, const TButtonsInfo & Buttons)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
 	ID = QueryID(-1);
-	for(auto & Button : Buttons)
+	for(const auto & Button : Buttons)
 	{
-		std::shared_ptr<CButton> button = std::make_shared<CButton>(Point(0, 0), Button.first, CButton::tooltip(), std::bind(&CInfoWindow::close, this));
+		auto button = std::make_shared<CButton>(Point(0, 0), Button.first, CButton::tooltip(), std::bind(&CInfoWindow::close, this));
 		button->setBorderColor(Colors::METALLIC_GOLD);
 		button->addCallback(Button.second); //each button will close the window apart from call-defined actions
 		buttons.push_back(button);
@@ -159,9 +159,9 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
-	pom.push_back({AnimationPath::builtin("IOKAY.DEF"), 0});
-	pom.push_back({AnimationPath::builtin("ICANCEL.DEF"), 0});
-	std::shared_ptr<CInfoWindow> temp = std::make_shared<CInfoWindow>(text, player, components, pom);
+	pom.emplace_back(AnimationPath::builtin("IOKAY.DEF"), nullptr);
+	pom.emplace_back(AnimationPath::builtin("ICANCEL.DEF"), nullptr);
+	auto temp = std::make_shared<CInfoWindow>(text, player, components, pom);
 
 	temp->buttons[0]->addCallback(onYes);
 	temp->buttons[1]->addCallback(onNo);
@@ -172,11 +172,11 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string & text, PlayerColor playerID, const TCompsInfo & components)
 {
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
-	pom.push_back({AnimationPath::builtin("IOKAY.DEF"), 0});
+	pom.emplace_back(AnimationPath::builtin("IOKAY.DEF"), nullptr);
 	return std::make_shared<CInfoWindow>(text, playerID, components, pom);
 }
 
-std::string CInfoWindow::genText(std::string title, std::string description)
+std::string CInfoWindow::genText(const std::string & title, const std::string & description)
 {
 	return std::string("{") + title + "}" + "\n\n" + description;
 }
@@ -207,7 +207,7 @@ void CRClickPopup::createAndPush(const std::string & txt, const CInfoWindow::TCo
 	GH.windows().createAndPushWindow<CRClickPopupInt>(temp);
 }
 
-void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CComponent> component)
+void CRClickPopup::createAndPush(const std::string & txt, const std::shared_ptr<CComponent> & component)
 {
 	CInfoWindow::TCompsInfo intComps;
 	intComps.push_back(component);
@@ -244,7 +244,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	}
 }
 
-CRClickPopupInt::CRClickPopupInt(std::shared_ptr<CIntObject> our)
+CRClickPopupInt::CRClickPopupInt(const std::shared_ptr<CIntObject> & our)
 {
 	CCS->curh->hide();
 	defActions = SHOWALL | UPDATE;

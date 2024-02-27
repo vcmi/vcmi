@@ -47,7 +47,7 @@ public:
 
 	void sliderMoved(int to);
 
-	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
+	CInfoWindow(const std::string & Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
 	CInfoWindow();
 	~CInfoWindow();
 
@@ -57,7 +57,7 @@ public:
 	static std::shared_ptr<CInfoWindow> create(const std::string & text, PlayerColor playerID = PlayerColor(1), const TCompsInfo & components = TCompsInfo());
 
 	/// create text from title and description: {title}\n\n description
-	static std::string genText(std::string title, std::string description);
+	static std::string genText(const std::string & title, const std::string & description);
 };
 
 /// popup displayed on R-click
@@ -69,7 +69,7 @@ public:
 
 	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo & comps = CInfoWindow::TCompsInfo());
-	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);
+	static void createAndPush(const std::string & txt, const std::shared_ptr<CComponent> & component);
 	static void createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment = ETextAlignment::BOTTOMRIGHT);
 };
 
@@ -79,8 +79,8 @@ class CRClickPopupInt : public CRClickPopup
 	std::shared_ptr<CIntObject> inner;
 
 public:
-	CRClickPopupInt(std::shared_ptr<CIntObject> our);
-	virtual ~CRClickPopupInt();
+	CRClickPopupInt(const std::shared_ptr<CIntObject> & our);
+	~CRClickPopupInt();
 };
 
 /// popup on adventure map for town\hero and other objects with customized popup content

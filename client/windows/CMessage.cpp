@@ -28,7 +28,6 @@
 #include "../windows/InfoWindows.h"
 
 constexpr int RIGHT_CLICK_POPUP_MIN_SIZE = 100;
-constexpr int BEFORE_COMPONENTS = 30;
 constexpr int SIDE_MARGIN = 11;
 constexpr int TOP_MARGIN = 20;
 constexpr int BOTTOM_MARGIN = 16;
@@ -79,7 +78,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 		ui32 wordBreak = -1; //last position for line break (last space character)
 		ui32 currPos = 0; //current position in text
 		bool opened = false; //set to true when opening brace is found
-		std::string color = ""; //color found
+		std::string color; //color found
 
 		size_t symbolSize = 0; // width of character, in bytes
 		size_t glyphWidth = 0; // width of printable glyph, pixels
@@ -118,8 +117,8 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 				color = "";
 			}
 			else
-				lineWidth += (ui32)glyphWidth;
-			currPos += (ui32)symbolSize;
+				lineWidth += glyphWidth;
+			currPos += symbolSize;
 		}
 
 		// long line, create line break
@@ -128,7 +127,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 			if(wordBreak != ui32(-1))
 				currPos = wordBreak;
 			else
-				currPos -= (ui32)symbolSize;
+				currPos -= symbolSize;
 		}
 
 		//non-blank line
@@ -188,18 +187,18 @@ std::string CMessage::guessHeader(const std::string & msg)
 int CMessage::guessHeight(const std::string & txt, int width, EFonts font)
 {
 	const auto f = graphics->fonts[font];
-	auto lines = CMessage::breakText(txt, width, font);
-	int lineHeight = static_cast<int>(f->getLineHeight());
-	return lineHeight * (int)lines.size();
+	const auto lines = CMessage::breakText(txt, width, font);
+	size_t lineHeight = f->getLineHeight();
+	return lineHeight * lines.size();
 }
 
 int CMessage::getEstimatedComponentHeight(int numComps)
 {
 	if(numComps > 8) //Bigger than 8 components - return invalid value
 		return std::numeric_limits<int>::max();
-	else if(numComps > 2)
+	if(numComps > 2)
 		return 160; // 32px * 1 row + 20 to offset
-	else if(numComps)
+	if(numComps > 0)
 		return 118; // 118 px to offset
 	return 0;
 }
@@ -210,7 +209,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	// game should pick smallest one that can fit text without slider
 	// or, if not possible - pick last one and use slider
 	constexpr std::array textAreaSizes = {
-//		Point(206, 72), // NOTE: this one should only be used for single-line texts
+		// FIXME: this size should only be used for single-line texts: Point(206, 72),
 		Point(270, 72),
 		Point(270, 136),
 		Point(270, 200),
@@ -230,7 +229,6 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 			break; // suitable size found, use it
 	}
 
-//	int textWidth = ret->text->pos.w;
 	int textHeight = ret->text->pos.h;
 
 	if(ret->text->slider)
@@ -242,7 +240,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	{
 		// Compute total width of buttons
 		buttonsWidth = INTERVAL_BETWEEN_BUTTONS * (ret->buttons.size() - 1); // space between all buttons
-		for(auto & elem : ret->buttons) //and add buttons width
+		for(const auto & elem : ret->buttons) //and add buttons width
 		{
 			buttonsWidth += elem->pos.w;
 			vstd::amax(buttonsHeight, elem->pos.h);
@@ -297,7 +295,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 			int buttonPosX = ret->pos.w / 2 - buttonsWidth / 2;
 			int buttonPosY = ret->pos.h - BOTTOM_MARGIN - ret->buttons[0]->pos.h;
 
-			for(auto & elem : ret->buttons)
+			for(const auto & elem : ret->buttons)
 			{
 				elem->moveBy(Point(buttonPosX, buttonPosY));
 				buttonPosX += elem->pos.w + INTERVAL_BETWEEN_BUTTONS;
