@@ -19,16 +19,9 @@
 #include "../../lib/battle/SideInBattle.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 #include "../../lib/serializer/Cast.h"
-
-void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
-{
-	assert(result);
-
-	if(result)
-		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
-}
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 	CQuery(owner),
@@ -75,9 +68,10 @@ void CBattleQuery::onExposure(QueryPtr topQuery)
 		owner->popQuery(*this);
 }
 
-CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi):
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi, std::optional<BattleResult> Br):
 	CDialogQuery(owner),
-	bi(bi)
+	bi(bi),
+	result(Br)
 {
 	addPlayer(bi->getSidePlayer(0));
 	addPlayer(bi->getSidePlayer(1));
@@ -104,6 +98,9 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	else
 	{
+		if(result && bi->getDefendedTown())
+			bi->getDefendedTown()->battleFinished(bi->getSideHero(BattleSide::ATTACKER), *result);
+
 		gh->battles->endBattleConfirm(bi->getBattleID());
 	}
 }

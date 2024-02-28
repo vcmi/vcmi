@@ -28,7 +28,6 @@ public:
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
-	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 	bool blocksPack(const CPack *pack) const override;
 	void onRemoval(PlayerColor color) override;
 	void onExposure(QueryPtr topQuery) override;
@@ -37,9 +36,9 @@ public:
 class CBattleDialogQuery : public CDialogQuery
 {
 public:
-	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi);
+	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, std::optional<BattleResult> Br);
 
 	const IBattleInfo * bi;
-
+	std::optional<BattleResult> result;
 	void onRemoval(PlayerColor color) override;
 };
