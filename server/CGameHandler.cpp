@@ -4194,6 +4194,19 @@ const CGHeroInstance * CGameHandler::getVisitingHero(const CGObjectInstance *obj
 	return nullptr;
 }
 
+const CGObjectInstance * CGameHandler::getVisitingObject(const CGHeroInstance *hero)
+{
+	assert(hero);
+
+	for(const auto & query : queries->allQueries())
+	{
+		auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(query);
+		if (visit && visit->visitingHero == hero)
+			return visit->visitedObject;
+	}
+	return nullptr;
+}
+
 bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
 	assert(obj);

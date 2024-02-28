@@ -98,9 +98,12 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	else
 	{
-		if(result && bi->getDefendedTown())
-			bi->getDefendedTown()->battleFinished(bi->getSideHero(BattleSide::ATTACKER), *result);
-
+		auto hero = bi->getSideHero(BattleSide::ATTACKER);
+		auto visitingObj = bi->getDefendedTown() ? bi->getDefendedTown() : gh->getVisitingObject(hero);
+		
 		gh->battles->endBattleConfirm(bi->getBattleID());
+		
+		if(visitingObj)
+			visitingObj->battleFinished(hero, *result);
 	}
 }
