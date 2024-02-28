@@ -821,13 +821,13 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*(int)i, 78), town, (int)i, true, false));
 	}
 
-	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("ITMTL.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
-	fastTownHall->setImageOrder(town->hallLevel(), town->hallLevel(), town->hallLevel(), town->hallLevel());
-//TODO:	fastTownHall->setAnimateLonelyFrame(true);
+	fastTownHall = std::make_shared<CButton>(Point(69, 31), AnimationPath::builtin("castleInterfaceQuickAccessz"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterTownHall(); });
+	fastTownHall->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("ITMTL"), town->hallLevel()));
+
 	int imageIndex = town->fortLevel() == CGTownInstance::EFortLevel::NONE ? 3 : town->fortLevel() - 1;
-	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("itmcl.def"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
-	fastArmyPurchase->setImageOrder(imageIndex, imageIndex, imageIndex, imageIndex);
-//TODO:	fastArmyPurchase->setAnimateLonelyFrame(true);
+	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("castleInterfaceQuickAccessz"), CButton::tooltip(), [&]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
+	fastArmyPurchase->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("itmcl"), imageIndex));
+
 	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
 	{
 		if(town->builtBuildings.count(BuildingID::TAVERN))

@@ -22,6 +22,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -29,6 +30,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 void ButtonBase::update()
 {
@@ -42,15 +44,14 @@ void ButtonBase::update()
 			overlay->moveTo(targetPos);
 	}
 
-	int newPos = stateToIndex[int(state)];
-	if (newPos < 0)
-		newPos = 0;
-
-	// checkbox - has only have two frames: normal and pressed/highlighted
-	// hero movement speed buttons: only three frames: normal, pressed and blocked/highlighted
-	if (state == EButtonState::HIGHLIGHTED && image->size() < 4)
-		newPos = (int)image->size()-1;
-	image->setFrame(newPos);
+	if (image)
+	{
+		// checkbox - has only have two frames: normal and pressed/highlighted
+		// hero movement speed buttons: only three frames: normal, pressed and blocked/highlighted
+		if (state == EButtonState::HIGHLIGHTED && image->size() < 4)
+			image->setFrame(image->size()-1);
+		image->setFrame(stateToIndex[vstd::to_underlying(state)]);
+	}
 
 	if (isActive())
 		redraw();
@@ -89,8 +90,44 @@ void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButto
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
+	configurable.reset();
 	image = std::make_shared<CAnimImage>(defName, vstd::to_underlying(getState()));
 	pos = image->pos;
+
+	if (playerColoredButton)
+		image->playerColored(LOCPLINT->playerID);
+}
+
+const JsonNode & ButtonBase::getCurrentConfig() const
+{
+	if (!config)
+		throw std::runtime_error("No config found in button!");
+
+	static constexpr std::array stateToConfig = {
+		"normal",
+		"pressed",
+		"blocked",
+		"highlighted"
+	};
+
+	std::string key = stateToConfig[vstd::to_underlying(getState())];
+	const JsonNode & value = (*config)[key];
+
+	if (value.isNull())
+		throw std::runtime_error("No config found in button for state " + key + "!");
+
+	return value;
+}
+
+void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredButton)
+{
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+
+	config = std::make_unique<JsonNode>(jsonName);
+
+	image.reset();
+	configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
+	pos = configurable->pos;
 
 	if (playerColoredButton)
 		image->playerColored(LOCPLINT->playerID);
@@ -110,15 +147,24 @@ void ButtonBase::setImageOrder(int state1, int state2, int state3, int state4)
 	update();
 }
 
-//TODO:
-//void CButton::setAnimateLonelyFrame(bool agreement)
-//{
-//	animateLonelyFrame = agreement;
-//}
-
 void ButtonBase::setStateImpl(EButtonState newState)
 {
 	state = newState;
+
+	if (configurable)
+	{
+		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		configurable = std::make_shared<InterfaceObjectConfigurable>(getCurrentConfig());
+		pos = configurable->pos;
+
+		if (overlay)
+		{
+			// Force overlay on top
+			removeChild(overlay.get());
+			addChild(overlay.get());
+		}
+	}
+
 	update();
 }
 
@@ -135,7 +181,7 @@ void CButton::setState(EButtonState newState)
 	setStateImpl(newState);
 }
 
-EButtonState ButtonBase::getState()
+EButtonState ButtonBase::getState() const
 {
 	return state;
 }
@@ -270,8 +316,20 @@ ButtonBase::ButtonBase(Point position, const AnimationPath & defName, EShortcut 
 	pos.x += position.x;
 	pos.y += position.y;
 
-	setImage(defName);
+	JsonPath jsonConfig = defName.toType<EResType::JSON>().addPrefix("CONFIG/WIDGETS/BUTTONS/");
+	if (CResourceHandler::get()->existsResource(jsonConfig))
+	{
+		setConfigurable(jsonConfig, playerColoredButton);
+		return;
+	}
+	else
+	{
+		setImage(defName, playerColoredButton);
+		return;
+	}
 }
+
+ButtonBase::~ButtonBase() = default;
 
 CButton::CButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
 	ButtonBase(position, defName, key, playerColoredButton),

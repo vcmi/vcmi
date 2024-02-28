@@ -19,8 +19,7 @@ class Rect;
 VCMI_LIB_NAMESPACE_END
 
 class CAnimImage;
-class CLabel;
-class CAnimation;
+class InterfaceObjectConfigurable;
 
 enum class EButtonState
 {
@@ -33,7 +32,9 @@ enum class EButtonState
 class ButtonBase : public CKeyShortcut
 {
 	std::shared_ptr<CAnimImage> image; //image for this button
+	std::shared_ptr<InterfaceObjectConfigurable> configurable; //image for this button
 	std::shared_ptr<CIntObject> overlay;//object-overlay, can be null
+	std::unique_ptr<JsonNode> config;
 
 	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
 
@@ -41,16 +42,20 @@ class ButtonBase : public CKeyShortcut
 
 	void update();//to refresh button after image or text change
 
+	const JsonNode & getCurrentConfig() const;
+
 protected:
 	ButtonBase(Point position, const AnimationPath & defName, EShortcut key, bool playerColoredButton);
+	~ButtonBase();
 
 	void setStateImpl(EButtonState state);
-	EButtonState getState();
+	EButtonState getState() const;
 
 public:
 	/// Appearance modifiers
 	void setPlayerColor(PlayerColor player);
 	void setImage(const AnimationPath & defName, bool playerColoredButton = false);
+	void setConfigurable(const JsonPath & jsonName, bool playerColoredButton = false);
 	void setImageOrder(int state1, int state2, int state3, int state4);
 
 	/// adds overlay on top of button image. Only one overlay can be active at once
