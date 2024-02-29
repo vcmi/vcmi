@@ -837,23 +837,13 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeString("templateName", templateName);
 	if(!handler.saving)
 	{
-		// FIXME: doesn't load correctly? Name is "Jebus Cross"
 		setMapTemplate(templateName);
-		if (mapTemplate)
-		{
-			logGlobal->warn("Loaded previous RMG template");
-			// FIXME: Update dropdown menu
-		}
-		else
-		{
-			logGlobal->warn("Failed to deserialize previous map template");
-		}
 	}
 
 	handler.serializeIdArray("roads", enabledRoads);
-	//TODO: Serialize  CMapGenOptions::CPlayerSettings ? This won't b saved between sessions
 	if (!handler.saving)
 	{
+		// Player settings won't be saved
 		resetPlayersMap();
 	}
 }

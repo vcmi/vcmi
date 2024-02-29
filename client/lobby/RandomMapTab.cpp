@@ -590,33 +590,21 @@ void RandomMapTab::saveOptions(const CMapGenOptions & options)
 
 void RandomMapTab::loadOptions()
 {
-	// FIXME: Potential leak?
-	auto options = new CMapGenOptions();
-
-
 	auto rmgSettings = persistentStorage["rmg"]["rmg"];
 	if (!rmgSettings.Struct().empty())
 	{
+		mapGenOptions.reset(new CMapGenOptions());
 		JsonDeserializer handler(nullptr, rmgSettings);
-		handler.serializeStruct("lastSettings", *options);
+		handler.serializeStruct("lastSettings", *mapGenOptions);
 
-		// FIXME: Regenerate players, who are not saved
-		mapGenOptions.reset(options);
 		// Will check template and set other options as well
 		setTemplate(mapGenOptions->getMapTemplate());
 		if(auto w = widget<ComboBox>("templateList"))
 		{
-			// FIXME: Private function, need id
 			w->setItem(mapGenOptions->getMapTemplate());
-			logGlobal->warn("Set RMG template on drop-down list");
 		}
-		
-		// TODO: Else? Set default
-		logGlobal->warn("Loaded previous RMG settings");
-	}
-	else
-	{
-		logGlobal->warn("Did not load previous RMG settings");
 	}
 	updateMapInfoByHost();
+
+	// TODO: Save & load difficulty?
 }
