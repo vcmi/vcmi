@@ -76,6 +76,11 @@ JsonNode::JsonNode(double number)
 {
 }
 
+JsonNode::JsonNode(const char * string)
+	: data(std::string(string))
+{
+}
+
 JsonNode::JsonNode(const std::string & string)
 	: data(string)
 {
