@@ -219,6 +219,17 @@ void WindowNewMap::saveUserSettings()
 	}
 }
 
+void WindowNewMap::saveOptions(const CMapGenOptions & options)
+{
+	// TODO
+}
+
+void WindowNewMap::loadOptions()
+{
+	mapGenOptions = CMapGenOptions();
+	// TODO
+}
+
 void WindowNewMap::on_cancelButton_clicked()
 {
 	close();

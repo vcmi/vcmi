@@ -12,13 +12,14 @@
 
 #include <QDialog>
 #include "../lib/rmg/CMapGenOptions.h"
+#include "../lib/rmg/MapGenOptionsSaver.h"
 
 namespace Ui
 {
 	class WindowNewMap;
 }
 
-class WindowNewMap : public QDialog
+class WindowNewMap : public QDialog, public MapGenOptionsSaver
 {
 	Q_OBJECT
 
@@ -64,10 +65,13 @@ class WindowNewMap : public QDialog
 	
 	const std::map<int, std::pair<int, int>> mapSizes
 	{
-		{0, {36, 36}},
-		{1, {72, 72}},
-		{2, {108, 108}},
-		{3, {144, 144}},
+		{0, {CMapHeader::MAP_SIZE_SMALL, 	CMapHeader::MAP_SIZE_SMALL}},
+		{1, {CMapHeader::MAP_SIZE_MIDDLE,	CMapHeader::MAP_SIZE_MIDDLE}},
+		{2, {CMapHeader::MAP_SIZE_LARGE,	CMapHeader::MAP_SIZE_LARGE}},
+		{3, {CMapHeader::MAP_SIZE_XLARGE,	CMapHeader::MAP_SIZE_XLARGE}},
+		{4, {CMapHeader::MAP_SIZE_HUGE,		CMapHeader::MAP_SIZE_HUGE}},
+		{5, {CMapHeader::MAP_SIZE_XHUGE,	CMapHeader::MAP_SIZE_XHUGE}},
+		{6, {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT}},
 	};
 
 public:
@@ -107,6 +111,9 @@ private:
 
 	void loadUserSettings();
 	void saveUserSettings();
+
+	void saveOptions(const CMapGenOptions & options) override;
+	void loadOptions() override;
 
 private:
 	Ui::WindowNewMap *ui;

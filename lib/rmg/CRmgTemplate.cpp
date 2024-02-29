@@ -841,20 +841,20 @@ void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, co
 {
 	static const std::map<std::string, int3> sizeMapping =
 	{
-		{"s",    { 36,  36, 1}},
-		{"s+u",  { 36,  36, 2}},
-		{"m",    { 72,  72, 1}},
-		{"m+u",  { 72,  72, 2}},
-		{"l",    {108, 108, 1}},
-		{"l+u",  {108, 108, 2}},
-		{"xl",   {144, 144, 1}},
-		{"xl+u", {144, 144, 2}},
-		{"h",    {180, 180, 1}},
-		{"h+u",  {180, 180, 2}},
-		{"xh",   {216, 216, 1}},
-		{"xh+u", {216, 216, 2}},
-		{"g",    {252, 252, 1}},
-		{"g+u",  {252, 252, 2}}
+		{"s",    {CMapHeader::MAP_SIZE_SMALL, 	CMapHeader::MAP_SIZE_SMALL, 	1}},
+		{"s+u",  {CMapHeader::MAP_SIZE_SMALL, 	CMapHeader::MAP_SIZE_SMALL, 	2}},
+		{"m",    {CMapHeader::MAP_SIZE_MIDDLE, 	CMapHeader::MAP_SIZE_MIDDLE, 	1}},
+		{"m+u",  {CMapHeader::MAP_SIZE_MIDDLE, 	CMapHeader::MAP_SIZE_MIDDLE, 	2}},
+		{"l",    {CMapHeader::MAP_SIZE_LARGE, 	CMapHeader::MAP_SIZE_LARGE, 	1}},
+		{"l+u",  {CMapHeader::MAP_SIZE_LARGE, 	CMapHeader::MAP_SIZE_LARGE, 	2}},
+		{"xl",   {CMapHeader::MAP_SIZE_XLARGE, 	CMapHeader::MAP_SIZE_XLARGE, 	1}}	,
+		{"xl+u", {CMapHeader::MAP_SIZE_XLARGE, 	CMapHeader::MAP_SIZE_XLARGE, 	2}}	,
+		{"h",    {CMapHeader::MAP_SIZE_HUGE, 	CMapHeader::MAP_SIZE_HUGE, 		1}},
+		{"h+u",  {CMapHeader::MAP_SIZE_HUGE, 	CMapHeader::MAP_SIZE_HUGE, 		2}},
+		{"xh",   {CMapHeader::MAP_SIZE_XHUGE, 	CMapHeader::MAP_SIZE_XHUGE, 	1}},
+		{"xh+u", {CMapHeader::MAP_SIZE_XHUGE, 	CMapHeader::MAP_SIZE_XHUGE, 	2}},
+		{"g",    {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT,		1}},
+		{"g+u",  {CMapHeader::MAP_SIZE_GIANT,	CMapHeader::MAP_SIZE_GIANT,		2}}
 	};
 
 	static const std::map<int3, std::string> sizeReverseMapping = vstd::invertMap(sizeMapping);

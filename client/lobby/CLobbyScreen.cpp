@@ -156,6 +156,12 @@ void CLobbyScreen::startCampaign()
 
 void CLobbyScreen::startScenario(bool allowOnlyAI)
 {
+	if (tabRand && CSH->si->mapGenOptions)
+	{
+		// Save RMG settings at game start
+		tabRand->saveOptions(*CSH->si->mapGenOptions);
+	}
+
 	if (CSH->validateGameStart(allowOnlyAI))
 	{
 		CSH->sendStartGame(allowOnlyAI);

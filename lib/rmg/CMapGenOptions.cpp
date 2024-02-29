@@ -17,6 +17,7 @@
 #include "CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+#include "serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -814,6 +815,47 @@ TeamID CMapGenOptions::CPlayerSettings::getTeam() const
 void CMapGenOptions::CPlayerSettings::setTeam(const TeamID & value)
 {
 	team = value;
+}
+
+void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeInt("width", width);
+	handler.serializeInt("height", height);
+	handler.serializeBool("haswoLevels", hasTwoLevels);
+	handler.serializeInt("humanOrCpuPlayerCount", humanOrCpuPlayerCount);
+	handler.serializeInt("teamCount", teamCount);
+	handler.serializeInt("compOnlyPlayerCount", compOnlyPlayerCount);
+	handler.serializeInt("compOnlyTeamCount", compOnlyTeamCount);
+	handler.serializeInt("waterContent", waterContent);
+	handler.serializeInt("monsterStrength", monsterStrength);
+
+	std::string templateName;
+	if(mapTemplate && handler.saving)
+	{
+		templateName = mapTemplate->getId();
+	}
+	handler.serializeString("templateName", templateName);
+	if(!handler.saving)
+	{
+		// FIXME: doesn't load correctly? Name is "Jebus Cross"
+		setMapTemplate(templateName);
+		if (mapTemplate)
+		{
+			logGlobal->warn("Loaded previous RMG template");
+			// FIXME: Update dropdown menu
+		}
+		else
+		{
+			logGlobal->warn("Failed to deserialize previous map template");
+		}
+	}
+
+	handler.serializeIdArray("roads", enabledRoads);
+	//TODO: Serialize  CMapGenOptions::CPlayerSettings ? This won't b saved between sessions
+	if (!handler.saving)
+	{
+		resetPlayersMap();
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

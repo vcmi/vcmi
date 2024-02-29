@@ -167,6 +167,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		inputName->filters += CTextInput::filenameFilter;
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
+		// TODO: Global constants?
 		int sizes[] = {36, 72, 108, 144, 0};
 		const char * filterIconNmes[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 		for(int i = 0; i < 5; i++)

@@ -210,6 +210,8 @@ public:
 
 		h & enabledRoads;
 	}
+
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -38,6 +38,11 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"
 
+//#include "../../lib/GameSettings.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/serializer/JsonSerializer.h"
+#include "../../lib/serializer/JsonDeserializer.h"
+
 RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable()
 {
@@ -162,7 +167,8 @@ RandomMapTab::RandomMapTab():
 		};
 	}
 	
-	updateMapInfoByHost();
+	loadOptions();
+	//updateMapInfoByHost();
 }
 
 void RandomMapTab::updateMapInfoByHost()
@@ -568,4 +574,49 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 
 	buttonOk = widget<CButton>("buttonOK");
 	buttonCancel = widget<CButton>("buttonCancel");
+}
+
+void RandomMapTab::saveOptions(const CMapGenOptions & options)
+{
+	JsonNode data;
+	JsonSerializer ser(nullptr, data);
+
+	ser.serializeStruct("lastSettings", const_cast<CMapGenOptions & >(options));
+
+	// FIXME: Do not nest fields
+	Settings rmgSettings = persistentStorage.write["rmg"];
+	rmgSettings["rmg"] = data;
+}
+
+void RandomMapTab::loadOptions()
+{
+	// FIXME: Potential leak?
+	auto options = new CMapGenOptions();
+
+
+	auto rmgSettings = persistentStorage["rmg"]["rmg"];
+	if (!rmgSettings.Struct().empty())
+	{
+		JsonDeserializer handler(nullptr, rmgSettings);
+		handler.serializeStruct("lastSettings", *options);
+
+		// FIXME: Regenerate players, who are not saved
+		mapGenOptions.reset(options);
+		// Will check template and set other options as well
+		setTemplate(mapGenOptions->getMapTemplate());
+		if(auto w = widget<ComboBox>("templateList"))
+		{
+			// FIXME: Private function, need id
+			w->setItem(mapGenOptions->getMapTemplate());
+			logGlobal->warn("Set RMG template on drop-down list");
+		}
+		
+		// TODO: Else? Set default
+		logGlobal->warn("Loaded previous RMG settings");
+	}
+	else
+	{
+		logGlobal->warn("Did not load previous RMG settings");
+	}
+	updateMapInfoByHost();
 }
