@@ -10,7 +10,7 @@
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 52, "h": 36}
+				"rect": {"x": 0, "y": 0, "w": 52, "h": 36},
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 2, "y" : 2}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 80 ] },
 				
@@ -40,7 +40,7 @@
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 52, "h": 36}
+				"rect": {"x": 0, "y": 0, "w": 52, "h": 36},
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 3, "y" : 3}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 96 ] },
 				
@@ -66,7 +66,7 @@
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 52, "h": 36}
+				"rect": {"x": 0, "y": 0, "w": 52, "h": 36},
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 2, "y" : 2}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 80 ] },
 				
@@ -96,7 +96,7 @@
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 52, "h": 36}
+				"rect": {"x": 0, "y": 0, "w": 52, "h": 36},
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 2, "y" : 2}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 80 ] },
 				
