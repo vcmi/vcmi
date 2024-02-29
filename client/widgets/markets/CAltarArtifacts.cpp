@@ -26,7 +26,7 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero)
+	: CTradeBase(market, hero, [this](){return CAltarArtifacts::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -37,10 +37,8 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("ALTSACR.DEF"),
 		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); });
-	labels.emplace_back(std::make_shared<CLabel>(450, 34, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
-	labels.emplace_back(std::make_shared<CLabel>(302, 423, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
-	selectedSubtitle = std::make_shared<CLabel>(302, 501, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	selectedArt = std::make_shared<CArtPlace>(Point(280, 442));
+	labels.emplace_back(std::make_shared<CLabel>(450, 32, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
+	labels.emplace_back(std::make_shared<CLabel>(302, 424, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
 
 	sacrificeAllButton = std::make_shared<CButton>(Point(393, 520), AnimationPath::builtin("ALTFILL.DEF"),
 		CGI->generaltexth->zelp[571], std::bind(&CExperienceAltar::sacrificeAll, this));
@@ -54,47 +52,49 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	heroArts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -11));
 	heroArts->setHero(hero);
 
-	int slotNum = 0;
-	for(auto & altarSlotPos : posSlotsAltar)
-	{
-		auto altarSlot = std::make_shared<CTradeableItem>(Rect(altarSlotPos, Point(44, 44)), EType::ARTIFACT_PLACEHOLDER, -1, slotNum);
-		altarSlot->clickPressedCallback = std::bind(&CAltarArtifacts::onSlotClickPressed, this, _1, hRight);
-		altarSlot->subtitle->clear();
-		items.front().emplace_back(altarSlot);
-		slotNum++;
-	}
+	// Altar
+	offerTradePanel = std::make_shared<ArtifactsAltarPanel>([this](const std::shared_ptr<CTradeableItem> & altarSlot)
+		{
+			CAltarArtifacts::onSlotClickPressed(altarSlot, hRight);
+		});
+	offerTradePanel->updateSlotsCallback = std::bind(&CAltarArtifacts::updateAltarSlots, this);
+	offerTradePanel->moveTo(pos.topLeft() + Point(315, 52));
 
-	expForHero->setText(std::to_string(0));
-	CTradeBase::deselect();
+	CTradeBase::updateSelected();
+	CAltarArtifacts::deselect();
 };
 
 TExpType CAltarArtifacts::calcExpAltarForHero()
 {
 	TExpType expOnAltar(0);
 	for(const auto & tradeSlot : tradeSlotsMap)
-		expOnAltar += calcExpCost(tradeSlot.first);
+		expOnAltar += calcExpCost(tradeSlot.second->getTypeId());
 	expForHero->setText(std::to_string(expOnAltar));
 	return expOnAltar;
+}
+
+void CAltarArtifacts::deselect()
+{
+	CTradeBase::deselect();
+	expForHero->setText(std::to_string(0));
+	tradeSlotsMap.clear();
+	// The event for removing artifacts from the altar will not be triggered. Therefore, we clean the altar immediately.
+	for(auto & slot : offerTradePanel->slots)
+	{
+		slot->setID(-1);
+		slot->subtitle->clear();
+	}
 }
 
 void CAltarArtifacts::makeDeal()
 {
 	std::vector<TradeItemSell> positions;
-	for(const auto & [artInst, altarSlot] : tradeSlotsMap)
+	for(const auto & [altarSlot, artInst] : tradeSlotsMap)
 	{
 		positions.push_back(artInst->getId());
 	}
 	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_EXP, positions, std::vector<TradeItemBuy>(), std::vector<ui32>(), hero);
-
-	tradeSlotsMap.clear();
-	// The event for removing artifacts from the altar will not be triggered. Therefore, we clean the altar immediately.
-	for(auto item : items[0])
-	{
-		item->setID(-1);
-		item->subtitle->clear();
-	}
-	calcExpAltarForHero();
-	deal->block(tradeSlotsMap.empty());
+	deselect();
 }
 
 void CAltarArtifacts::sacrificeAll()
@@ -107,10 +107,20 @@ void CAltarArtifacts::sacrificeBackpack()
 	LOCPLINT->cb->bulkMoveArtifacts(heroArts->getHero()->id, altarId, false, false, true);
 }
 
-void CAltarArtifacts::setSelectedArtifact(const CArtifactInstance * art)
+void CAltarArtifacts::setSelectedArtifact(std::optional<ArtifactID> id)
 {
-	selectedArt->setArtifact(art);
-	selectedSubtitle->setText(art == nullptr ? "" : std::to_string(calcExpCost(art)));
+	if(id.has_value())
+	{
+		hRight = offerTradePanel->selectedSlot;
+		hRight->setID(id.value().num);
+		offerQty = calcExpCost(id.value());
+	}
+	else
+	{
+		hRight.reset();
+		offerQty = 0;
+	}
+	updateSelected();
 }
 
 std::shared_ptr<CArtifactsOfHeroAltar> CAltarArtifacts::getAOHset() const
@@ -123,47 +133,54 @@ ObjectInstanceID CAltarArtifacts::getObjId() const
 	return altarId;
 }
 
-void CAltarArtifacts::updateSlots()
+void CAltarArtifacts::updateAltarSlots()
 {
 	assert(altarArtifacts->artifactsInBackpack.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
 	assert(tradeSlotsMap.size() <= GameConstants::ALTAR_ARTIFACTS_SLOTS);
 	
-	auto slotsToAdd = tradeSlotsMap;
-	for(auto & altarSlot : items[0])
+	auto tradeSlotsMapNewArts = tradeSlotsMap;
+	for(auto & altarSlot : offerTradePanel->slots)
 		if(altarSlot->id != -1)
 		{
-			if(tradeSlotsMap.find(altarSlot->getArtInstance()) == tradeSlotsMap.end())
+			if(tradeSlotsMap.find(altarSlot) == tradeSlotsMap.end())
 			{
 				altarSlot->setID(-1);
 				altarSlot->subtitle->clear();
 			}
 			else
 			{
-				slotsToAdd.erase(altarSlot->getArtInstance());
+				tradeSlotsMapNewArts.erase(altarSlot);
 			}
 		}
 
-	for(auto & tradeSlot : slotsToAdd)
+	for(auto & tradeSlot : tradeSlotsMapNewArts)
 	{
-		assert(tradeSlot.second->id == -1);
-		assert(altarArtifacts->getSlotByInstance(tradeSlot.first) != ArtifactPosition::PRE_FIRST);
-		tradeSlot.second->setArtInstance(tradeSlot.first);
-		tradeSlot.second->subtitle->setText(std::to_string(calcExpCost(tradeSlot.first)));
+		assert(tradeSlot.first->id == -1);
+		assert(altarArtifacts->getSlotByInstance(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
+		tradeSlot.first->setID(tradeSlot.second->getTypeId());
+		tradeSlot.first->subtitle->setText(std::to_string(calcExpCost(tradeSlot.second->getTypeId())));
 	}
-	for(auto & slotInfo : altarArtifacts->artifactsInBackpack)
+
+	auto newArtsFromBulkMove = altarArtifacts->artifactsInBackpack;
+	for(const auto & [altarSlot, art] : tradeSlotsMap)
 	{
-		if(tradeSlotsMap.find(slotInfo.artifact) == tradeSlotsMap.end())
-		{
-			for(auto & altarSlot : items[0])
-				if(altarSlot->id == -1)
-				{
-					altarSlot->setArtInstance(slotInfo.artifact);
-					altarSlot->subtitle->setText(std::to_string(calcExpCost(slotInfo.artifact)));
-					tradeSlotsMap.try_emplace(slotInfo.artifact, altarSlot);
-					break;
-				}
-		}
+		newArtsFromBulkMove.erase(std::remove_if(newArtsFromBulkMove.begin(), newArtsFromBulkMove.end(), [art = art](auto & slotInfo)
+			{
+				return slotInfo.artifact == art;
+			}));
 	}
+	for(const auto & slotInfo : newArtsFromBulkMove)
+	{
+		for(auto & altarSlot : offerTradePanel->slots)
+			if(altarSlot->id == -1)
+			{
+				altarSlot->setID(slotInfo.artifact->getTypeId());
+				altarSlot->subtitle->setText(std::to_string(calcExpCost(slotInfo.artifact->getTypeId())));
+				tradeSlotsMap.try_emplace(altarSlot, slotInfo.artifact);
+				break;
+			}
+	}
+
 	calcExpAltarForHero();
 	deal->block(tradeSlotsMap.empty());
 }
@@ -174,6 +191,16 @@ void CAltarArtifacts::putBackArtifacts()
 	// Perhaps should be erased in CGameHandler::objectVisitEnded if id of visited object will be available
 	if(!altarArtifacts->artifactsInBackpack.empty())
 		LOCPLINT->cb->bulkMoveArtifacts(altarId, heroArts->getHero()->id, false, true, true);
+}
+
+CTradeBase::SelectionParams CAltarArtifacts::getSelectionParams() const
+{
+	if(hRight)
+		return std::make_tuple(
+			std::nullopt,
+			SelectionParamOneSide {std::to_string(offerQty), GameResID(hRight->id)}
+	);
+	return std::make_tuple(std::nullopt, std::nullopt);
 }
 
 void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
@@ -187,7 +214,7 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 			if(pickedArtInst->artType->isTradable())
 			{
 				if(altarSlot->id == -1)
-					tradeSlotsMap.try_emplace(pickedArtInst, altarSlot);
+					tradeSlotsMap.try_emplace(altarSlot, pickedArtInst);
 				deal->block(false);
 
 				LOCPLINT->cb->swapArtifacts(ArtifactLocation(heroArts->getHero()->id, ArtifactPosition::TRANSITION_POS),
@@ -200,19 +227,20 @@ void CAltarArtifacts::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 			}
 		}
 	}
-	else if(const CArtifactInstance * art = altarSlot->getArtInstance())
+	else if(altarSlot->id != -1)
 	{
-		const auto slot = altarArtifacts->getSlotByInstance(art);
+		assert(tradeSlotsMap.at(altarSlot));
+		const auto slot = altarArtifacts->getSlotByInstance(tradeSlotsMap.at(altarSlot));
 		assert(slot != ArtifactPosition::PRE_FIRST);
 		LOCPLINT->cb->swapArtifacts(ArtifactLocation(altarId, slot), ArtifactLocation(hero->id, ArtifactPosition::TRANSITION_POS));
-		tradeSlotsMap.erase(art);
+		tradeSlotsMap.erase(altarSlot);
 	}
 }
 
-TExpType CAltarArtifacts::calcExpCost(const CArtifactInstance * art)
+TExpType CAltarArtifacts::calcExpCost(ArtifactID id)
 {
 	int bidQty = 0;
 	int expOfArt = 0;
-	market->getOffer(art->getTypeId(), 0, bidQty, expOfArt, EMarketMode::ARTIFACT_EXP);
+	market->getOffer(id, 0, bidQty, expOfArt, EMarketMode::ARTIFACT_EXP);
 	return hero->calculateXp(expOfArt);
 }

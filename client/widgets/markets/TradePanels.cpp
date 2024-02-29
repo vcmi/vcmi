@@ -25,7 +25,6 @@
 
 CTradeableItem::CTradeableItem(const Rect & area, EType Type, int ID, int Serial)
 	: SelectableSlot(area, Point(1, 2))
-	, artInstance(nullptr)
 	, type(EType(-1)) // set to invalid, will be corrected in setType
 	, id(ID)
 	, serial(Serial)
@@ -75,6 +74,7 @@ void CTradeableItem::setType(EType newType)
 			break;
 		case EType::ARTIFACT_PLACEHOLDER:
 		case EType::ARTIFACT_INSTANCE:
+			subtitle->moveTo(pos.topLeft() + Point(22, 55));
 			break;
 		case EType::ARTIFACT_TYPE:
 			subtitle->moveTo(pos.topLeft() + Point(35, 57));
@@ -193,28 +193,6 @@ void CTradeableItem::showPopupWindow(const Point & cursorPosition)
 			CRClickPopup::createAndPush(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated());
 		break;
 	}
-}
-
-const CArtifactInstance* CTradeableItem::getArtInstance() const
-{
-	switch(type)
-	{
-	case EType::ARTIFACT_PLACEHOLDER:
-	case EType::ARTIFACT_INSTANCE:
-		return artInstance;
-	default:
-		return nullptr;
-	}
-}
-
-void CTradeableItem::setArtInstance(const CArtifactInstance * art)
-{
-	assert(type == EType::ARTIFACT_PLACEHOLDER || type == EType::ARTIFACT_INSTANCE);
-	artInstance = art;
-	if(art)
-		setID(art->getTypeId());
-	else
-		setID(-1);
 }
 
 void TradePanelBase::updateSlots()
@@ -369,4 +347,20 @@ CreaturesPanel::CreaturesPanel(const CTradeableItem::ClickPressedFunctor & click
 		slot->setSelectionWidth(selectionWidth);
 	}
 	selectedSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::CREATURE, 0, 0);
+}
+
+ArtifactsAltarPanel::ArtifactsAltarPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
+{
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
+
+	int slotNum = 0;
+	for(auto & altarSlotPos : slotsPos)
+	{
+		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(Rect(altarSlotPos, Point(44, 44)), EType::ARTIFACT_PLACEHOLDER, -1, slotNum));
+		slot->clickPressedCallback = clickPressedCallback;
+		slot->subtitle->clear();
+		slotNum++;
+	}
+	selectedSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::ARTIFACT_TYPE, 0, 0);
+	selectedSlot->subtitle->moveBy(Point(0, 3));
 }

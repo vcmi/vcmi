@@ -26,9 +26,8 @@
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
 CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero)
+	: CTradeBase(market, hero, [this](){return CArtifactsBuying::getSelectionParams();})
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, hLeft);})
-	, CMarketMisc([this](){return CArtifactsBuying::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
@@ -59,7 +58,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 	offerTradePanel->moveTo(pos.topLeft() + Point(328, 182));
 
 	CTradeBase::updateSlots();
-	CMarketMisc::deselect();
+	CTradeBase::deselect();
 }
 
 void CArtifactsBuying::makeDeal()
@@ -68,7 +67,7 @@ void CArtifactsBuying::makeDeal()
 	deselect();
 }
 
-CMarketMisc::SelectionParams CArtifactsBuying::getSelectionParams()
+CTradeBase::SelectionParams CArtifactsBuying::getSelectionParams() const
 {
 	if(hLeft && hRight)
 		return std::make_tuple(

@@ -23,11 +23,10 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero)
+	: CTradeBase(market, hero, [this](){return CArtifactsSelling::getSelectionParams();})
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CArtifactsSelling::onSlotClickPressed(resSlot, hRight);},
 		[this](){CTradeBase::updateSubtitles(EMarketMode::ARTIFACT_RESOURCE);})
-	, CMarketMisc([this](){return CArtifactsSelling::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
@@ -61,7 +60,7 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	offerTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(409, 473));
 	
 	CArtifactsSelling::updateSelected();
-	CMarketMisc::deselect();
+	CTradeBase::deselect();
 }
 
 void CArtifactsSelling::makeDeal()
@@ -71,7 +70,7 @@ void CArtifactsSelling::makeDeal()
 
 void CArtifactsSelling::updateSelected()
 {
-	CMarketMisc::updateSelected();
+	CTradeBase::updateSelected();
 
 	if(hLeft && hRight)
 	{
@@ -92,7 +91,7 @@ std::shared_ptr<CArtifactsOfHeroMarket> CArtifactsSelling::getAOHset() const
 	return heroArts;
 }
 
-CMarketMisc::SelectionParams CArtifactsSelling::getSelectionParams()
+CTradeBase::SelectionParams CArtifactsSelling::getSelectionParams() const
 {
 	if(hLeft && hRight)
 		return std::make_tuple(

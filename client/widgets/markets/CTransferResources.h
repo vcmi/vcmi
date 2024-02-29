@@ -11,14 +11,14 @@
 
 #include "CTradeBase.h"
 
-class CTransferResources : public CResourcesSelling, public CMarketMisc
+class CTransferResources : public CResourcesSelling
 {
 public:
 	CTransferResources(const IMarket * market, const CGHeroInstance * hero);
 	void makeDeal() override;
 
 private:
-	CMarketMisc::SelectionParams getSelectionParams();
+	CTradeBase::SelectionParams getSelectionParams() const override;
 	void onOfferSliderMoved(int newVal);
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
 };

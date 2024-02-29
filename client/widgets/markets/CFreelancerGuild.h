@@ -11,14 +11,14 @@
 
 #include "CTradeBase.h"
 
-class CFreelancerGuild : public CCreaturesSelling , public CResourcesBuying, public CMarketMisc
+class CFreelancerGuild : public CCreaturesSelling , public CResourcesBuying
 {
 public:
 	CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero);
 	void makeDeal() override;
 
 private:
-	CMarketMisc::SelectionParams getSelectionParams();
+	CTradeBase::SelectionParams getSelectionParams() const override;
 	void onOfferSliderMoved(int newVal);
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
 };

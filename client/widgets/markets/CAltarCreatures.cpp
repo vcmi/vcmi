@@ -26,8 +26,7 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero)
-	, CMarketMisc([this](){return CAltarCreatures::getSelectionParams();})
+	: CTradeBase(market, hero, [this](){return CAltarCreatures::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
@@ -166,7 +165,7 @@ void CAltarCreatures::makeDeal()
 	}
 }
 
-CMarketMisc::SelectionParams CAltarCreatures::getSelectionParams()
+CTradeBase::SelectionParams CAltarCreatures::getSelectionParams() const
 {
 	std::optional<SelectionParamOneSide> bidSelected = std::nullopt;
 	std::optional<SelectionParamOneSide> offerSelected = std::nullopt;

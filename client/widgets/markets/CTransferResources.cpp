@@ -24,9 +24,8 @@
 #include "../../../lib/CGeneralTextHandler.h"
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero)
+	: CTradeBase(market, hero, [this](){return CTransferResources::getSelectionParams();})
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, hLeft);})
-	, CMarketMisc([this](){return CTransferResources::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -65,7 +64,7 @@ void CTransferResources::makeDeal()
 	}
 }
 
-CMarketMisc::SelectionParams CTransferResources::getSelectionParams()
+CTradeBase::SelectionParams CTransferResources::getSelectionParams() const
 {
 	if(hLeft && hRight)
 		return std::make_tuple(

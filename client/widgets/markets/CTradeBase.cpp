@@ -27,31 +27,11 @@
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
-CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero)
+CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero, const SelectionParamsFunctor & getParamsCallback)
 	: market(market)
 	, hero(hero)
+	, selectionParamsCallback(getParamsCallback)
 {
-}
-
-void CTradeBase::removeItems(const std::set<std::shared_ptr<CTradeableItem>> & toRemove)
-{
-	for(auto item : toRemove)
-		removeItem(item);
-}
-
-void CTradeBase::removeItem(std::shared_ptr<CTradeableItem> item)
-{
-	offerTradePanel->slots.erase(std::remove(offerTradePanel->slots.begin(), offerTradePanel->slots.end(), item));
-
-	if(hRight == item)
-		hRight.reset();
-}
-
-void CTradeBase::getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toRemove)
-{
-	for(auto item : bidTradePanel->slots)
-		if(!hero->getStackCount(SlotID(item->serial)))
-			toRemove.insert(item);
 }
 
 void CTradeBase::deselect()
@@ -69,6 +49,9 @@ void CTradeBase::deselect()
 		offerSlider->scrollTo(0);
 		offerSlider->block(true);
 	}
+	bidQty = 0;
+	offerQty = 0;
+	updateSelected();
 }
 
 void CTradeBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
@@ -104,6 +87,31 @@ void CTradeBase::updateSubtitles(EMarketMode marketMode)
 		offerTradePanel->clearSubtitles();
 };
 
+void CTradeBase::updateSelected()
+{
+	const auto updateSelectedBody = [](std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const SelectionParamOneSide> & params)
+	{
+		std::optional<size_t> lImageIndex = std::nullopt;
+		if(params.has_value())
+		{
+			tradePanel->setSelectedSubtitleText(params.value().text);
+			lImageIndex = params.value().imageIndex;
+		}
+		else
+		{
+			tradePanel->clearSelectedSubtitleText();
+		}
+		tradePanel->setSelectedFrameIndex(lImageIndex);
+	};
+
+	assert(selectionParamsCallback);
+	const auto params = selectionParamsCallback();
+	if(bidTradePanel)
+		updateSelectedBody(bidTradePanel, std::get<0>(params));
+	if(offerTradePanel)
+		updateSelectedBody(offerTradePanel, std::get<1>(params));
+}
+
 CExperienceAltar::CExperienceAltar()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
@@ -128,7 +136,7 @@ CCreaturesSelling::CCreaturesSelling()
 			slots.emplace_back(std::make_tuple(creature->getId(), slotId, hero->getStackCount(slotId)));
 	}
 	bidTradePanel = std::make_shared<CreaturesPanel>(nullptr, slots);
-	bidTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitle, this);
+	bidTradePanel->updateSlotsCallback = std::bind(&CCreaturesSelling::updateSubtitles, this);
 }
 
 bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> & slot)
@@ -136,7 +144,7 @@ bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> 
 	return hero->getStackCount(SlotID(slot->serial)) == 0 ? true : false;
 }
 
-void CCreaturesSelling::updateSubtitle()
+void CCreaturesSelling::updateSubtitles()
 {
 	for(auto & heroSlot : bidTradePanel->slots)
 		heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
@@ -156,50 +164,12 @@ CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor &
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitle, this));
+	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitles, this));
 	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
 }
 
-void CResourcesSelling::updateSubtitle()
+void CResourcesSelling::updateSubtitles()
 {
 	for(const auto & slot : bidTradePanel->slots)
 		slot->subtitle->setText(std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
-}
-
-CMarketMisc::CMarketMisc(const SelectionParamsFunctor & callback)
-	: selectionParamsCallback(callback)
-{
-}
-
-void CMarketMisc::deselect()
-{
-	CTradeBase::deselect();
-	bidQty = 0;
-	offerQty = 0;
-	updateSelected();
-}
-
-void CMarketMisc::updateSelected()
-{
-	const auto updateSelectedBody = [](std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const SelectionParamOneSide> & params)
-	{
-		std::optional<size_t> lImageIndex = std::nullopt;
-		if(params.has_value())
-		{
-			tradePanel->setSelectedSubtitleText(params.value().text);
-			lImageIndex = params.value().imageIndex;
-		}
-		else
-		{
-			tradePanel->clearSelectedSubtitleText();
-		}
-		tradePanel->setSelectedFrameIndex(lImageIndex);
-	};
-
-	assert(selectionParamsCallback);
-	const auto params = selectionParamsCallback();
-	if(bidTradePanel)
-		updateSelectedBody(bidTradePanel, std::get<0>(params));
-	if(offerTradePanel)
-		updateSelectedBody(offerTradePanel, std::get<1>(params));
 }

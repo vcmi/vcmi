@@ -27,11 +27,10 @@
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero)
+	: CTradeBase(market, hero, [this](){return CFreelancerGuild::getSelectionParams();})
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & heroSlot){CFreelancerGuild::onSlotClickPressed(heroSlot, hLeft);},
 		[this](){CTradeBase::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
-	, CMarketMisc([this](){return CFreelancerGuild::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -71,7 +70,7 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 			};
 		});
 
-	CMarketMisc::deselect();
+	CTradeBase::deselect();
 }
 
 void CFreelancerGuild::makeDeal()
@@ -83,7 +82,7 @@ void CFreelancerGuild::makeDeal()
 	}
 }
 
-CMarketMisc::SelectionParams CFreelancerGuild::getSelectionParams()
+CTradeBase::SelectionParams CFreelancerGuild::getSelectionParams() const
 {
 	if(hLeft && hRight)
 		return std::make_tuple(

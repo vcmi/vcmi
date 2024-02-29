@@ -12,12 +12,12 @@
 #include "../CArtifactsOfHeroMarket.h"
 #include "CTradeBase.h"
 
-class CArtifactsSelling : public CResourcesBuying, public CMarketMisc
+class CArtifactsSelling : public CResourcesBuying
 {
 public:
 	CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero);
 	void makeDeal() override;
-	void updateSelected();
+	void updateSelected() override;
 	std::shared_ptr<CArtifactsOfHeroMarket> getAOHset() const;
 
 private:
@@ -25,6 +25,6 @@ private:
 	std::shared_ptr<CLabel> bidSelectedSubtitle;
 	std::shared_ptr<CTradeableItem> bidSelectedSlot;
 
-	CMarketMisc::SelectionParams getSelectionParams();
+	CTradeBase::SelectionParams getSelectionParams() const override;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
 };

@@ -27,7 +27,6 @@ public:
 	int getIndex();
 	using ClickPressedFunctor = std::function<void(const std::shared_ptr<CTradeableItem>&)>;
 
-	const CArtifactInstance * artInstance; //holds ptr to artifact instance id type artifact
 	EType type;
 	int id;
 	const int serial;
@@ -36,9 +35,6 @@ public:
 
 	void setType(EType newType);
 	void setID(int newID);
-
-	const CArtifactInstance * getArtInstance() const;
-	void setArtInstance(const CArtifactInstance * art);
 
 	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
@@ -138,4 +134,24 @@ public:
 	CreaturesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback, const slotsData & initialSlots);
 	CreaturesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
 		const std::vector<std::shared_ptr<CTradeableItem>> & srcSlots, bool emptySlots = true);
+};
+
+class ArtifactsAltarPanel : public TradePanelBase
+{
+	const std::vector<Point> slotsPos =
+	{
+		Point(0, 0), Point(54, 0), Point(108, 0),
+		Point(162, 0), Point(216, 0), Point(0, 70),
+		Point(54, 70), Point(108, 70), Point(162, 70),
+		Point(216, 70), Point(0, 140), Point(54, 140),
+		Point(108, 140), Point(162, 140), Point(216, 140),
+		Point(0, 210), Point(54, 210), Point(108, 210),
+		Point(162, 210), Point(216, 210), Point(81, 280),
+		Point(135, 280)
+	};
+	const Point slotDimension = Point(69, 66);
+	const Point selectedPos = Point(-48, 389);
+
+public:
+	ArtifactsAltarPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback);
 };

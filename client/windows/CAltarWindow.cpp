@@ -47,9 +47,9 @@ void CAltarWindow::artifactMoved(const ArtifactLocation & srcLoc, const Artifact
 			altarArtifacts->updateSlots();
 
 		if(const auto pickedArt = getPickedArtifact())
-			altarArtifacts->setSelectedArtifact(pickedArt);
+			altarArtifacts->setSelectedArtifact(pickedArt->getTypeId());
 		else
-			altarArtifacts->setSelectedArtifact(nullptr);
+			altarArtifacts->setSelectedArtifact(std::nullopt);
 	}
 	CWindowWithArtifacts::artifactMoved(srcLoc, destLoc, withRedraw);
 }

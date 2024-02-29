@@ -25,12 +25,11 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero)
+	: CTradeBase(market, hero, [this](){return CMarketResources::getSelectionParams();})
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CMarketResources::onSlotClickPressed(resSlot, hRight);},
 		[this](){CMarketResources::updateSubtitles();})
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, hLeft);})
-	, CMarketMisc([this](){return CMarketResources::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
@@ -59,7 +58,7 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 		});
 
 	CTradeBase::updateSlots();
-	CMarketMisc::deselect();
+	CTradeBase::deselect();
 }
 
 void CMarketResources::makeDeal()
@@ -71,7 +70,7 @@ void CMarketResources::makeDeal()
 	}
 }
 
-CMarketMisc::SelectionParams CMarketResources::getSelectionParams()
+CTradeBase::SelectionParams CMarketResources::getSelectionParams() const
 {
 	if(hLeft && hRight && hLeft->id != hRight->id)
 		return std::make_tuple(
