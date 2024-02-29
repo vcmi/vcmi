@@ -23,6 +23,7 @@ class WindowNewMap : public QDialog, public MapGenOptionsSaver
 {
 	Q_OBJECT
 
+	const QString newMapWindow = "NewMapWindow/Settings";
 	const QString newMapWidth = "NewMapWindow/Width";
 	const QString newMapHeight = "NewMapWindow/Height";
 	const QString newMapTwoLevel = "NewMapWindow/TwoLevel";
@@ -109,7 +110,7 @@ private:
 
 	void updateTemplateList();
 
-	void loadUserSettings();
+	bool loadUserSettings();
 	void saveUserSettings();
 
 	void saveOptions(const CMapGenOptions & options) override;
