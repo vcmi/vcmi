@@ -169,6 +169,8 @@ bool WindowNewMap::loadUserSettings()
 		}
 		ret = true;
 	}
+
+	return ret;
 }
 
 void WindowNewMap::saveUserSettings()
@@ -183,17 +185,6 @@ void WindowNewMap::saveUserSettings()
 	auto variant = JsonUtils::toVariant(data);
 	s.setValue(newMapWindow, variant);
 	s.setValue(newMapGenerateRandom, ui->randomMapCheck->isChecked());
-}
-
-void WindowNewMap::saveOptions(const CMapGenOptions & options)
-{
-	// TODO
-}
-
-void WindowNewMap::loadOptions()
-{
-	mapGenOptions = CMapGenOptions();
-	// TODO
 }
 
 void WindowNewMap::on_cancelButton_clicked()

@@ -534,7 +534,6 @@ set(lib_HEADERS
 	rmg/RmgPath.h
 	rmg/CMapGenerator.h
 	rmg/CMapGenOptions.h
-	rmg/MapGenOptionsSaver.h
 	rmg/CRmgTemplate.h
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h

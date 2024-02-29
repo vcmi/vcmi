@@ -15,7 +15,6 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 #include "../gui/InterfaceObjectConfigurable.h"
-#include "../lib/rmg/MapGenOptionsSaver.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,7 +28,7 @@ class CLabelGroup;
 class CSlider;
 class CPicture;
 
-class RandomMapTab : public InterfaceObjectConfigurable, public MapGenOptionsSaver
+class RandomMapTab : public InterfaceObjectConfigurable
 {
 public:
 	RandomMapTab();
@@ -38,8 +37,8 @@ public:
 	void setMapGenOptions(std::shared_ptr<CMapGenOptions> opts);
 	void setTemplate(const CRmgTemplate *);
 
-	void saveOptions(const CMapGenOptions & options) override;
-	void loadOptions() override;
+	void saveOptions(const CMapGenOptions & options);
+	void loadOptions();
 	CMapGenOptions & obtainMapGenOptions() {return *mapGenOptions;}
 
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;

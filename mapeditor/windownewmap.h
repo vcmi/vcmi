@@ -12,14 +12,13 @@
 
 #include <QDialog>
 #include "../lib/rmg/CMapGenOptions.h"
-#include "../lib/rmg/MapGenOptionsSaver.h"
 
 namespace Ui
 {
 	class WindowNewMap;
 }
 
-class WindowNewMap : public QDialog, public MapGenOptionsSaver
+class WindowNewMap : public QDialog
 {
 	Q_OBJECT
 
@@ -112,9 +111,6 @@ private:
 
 	bool loadUserSettings();
 	void saveUserSettings();
-
-	void saveOptions(const CMapGenOptions & options) override;
-	void loadOptions() override;
 
 private:
 	Ui::WindowNewMap *ui;
