@@ -74,7 +74,7 @@ void ButtonBase::setTextOverlay(const std::string & Text, EFonts font, ColorRGBA
 	update();
 }
 
-void ButtonBase::setOverlay(std::shared_ptr<CIntObject> newOverlay)
+void ButtonBase::setOverlay(const std::shared_ptr<CIntObject>& newOverlay)
 {
 	overlay = newOverlay;
 	if(overlay)
@@ -133,7 +133,7 @@ void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredBu
 		image->playerColored(LOCPLINT->playerID);
 }
 
-void CButton::addHoverText(EButtonState state, std::string text)
+void CButton::addHoverText(EButtonState state, const std::string & text)
 {
 	hoverTexts[vstd::to_underlying(state)] = text;
 }
@@ -278,7 +278,7 @@ void CButton::clickCancel(const Point & cursorPosition)
 
 void CButton::showPopupWindow(const Point & cursorPosition)
 {
-	if(helpBox.size()) //there is no point to show window with nothing inside...
+	if(!helpBox.empty()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
 
@@ -333,14 +333,15 @@ ButtonBase::~ButtonBase() = default;
 
 CButton::CButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
 	ButtonBase(position, defName, key, playerColoredButton),
-    callback(Callback)
+	callback(Callback),
+	helpBox(help.second),
+	hoverable(false),
+	actOnDown(false),
+	soundDisabled(false)
 {
 	defActions = 255-DISPOSE;
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
-
-	hoverable = actOnDown = soundDisabled = false;
 	hoverTexts[0] = help.first;
-	helpBox=help.second;
 }
 
 void ButtonBase::setPlayerColor(PlayerColor player)
@@ -413,14 +414,12 @@ bool CToggleBase::isSelected() const
 	return selected;
 }
 
-bool CToggleBase::canActivate()
+bool CToggleBase::canActivate() const
 {
-	if (selected && !allowDeselection)
-		return false;
-	return true;
+	return !selected || allowDeselection;
 }
 
-void CToggleBase::addCallback(std::function<void(bool)> function)
+void CToggleBase::addCallback(const std::function<void(bool)> & function)
 {
 	callback += function;
 }
@@ -501,7 +500,7 @@ void CToggleButton::clickCancel(const Point & cursorPosition)
 	doSelect(isSelected());
 }
 
-void CToggleGroup::addCallback(std::function<void(int)> callback)
+void CToggleGroup::addCallback(const std::function<void(int)> & callback)
 {
 	onChange += callback;
 }
@@ -511,7 +510,7 @@ void CToggleGroup::resetCallback()
 	onChange.clear();
 }
 
-void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button)
+void CToggleGroup::addToggle(int identifier, const std::shared_ptr<CToggleBase> & button)
 {
 	if(auto intObj = std::dynamic_pointer_cast<CIntObject>(button)) // hack-ish workagound to avoid diamond problem with inheritance
 	{
@@ -538,11 +537,8 @@ void CToggleGroup::setSelected(int id)
 
 void CToggleGroup::setSelectedOnly(int id)
 {
-	for(auto it = buttons.begin(); it != buttons.end(); it++)
-	{
-		int buttonId = it->first;
-		buttons[buttonId]->setEnabled(buttonId == id);
-	}
+	for(const auto & button : buttons)
+		button.second->setEnabled(button.first == id);
 
 	selectionChanged(id);
 }

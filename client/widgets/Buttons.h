@@ -59,7 +59,7 @@ public:
 	void setImageOrder(int state1, int state2, int state3, int state4);
 
 	/// adds overlay on top of button image. Only one overlay can be active at once
-	void setOverlay(std::shared_ptr<CIntObject> newOverlay);
+	void setOverlay(const std::shared_ptr<CIntObject>& newOverlay);
 	void setTextOverlay(const std::string & Text, EFonts font, ColorRGBA color);
 };
 
@@ -90,7 +90,7 @@ public:
 	/// adds one more callback to on-click actions
 	void addCallback(const std::function<void()> & callback);
 
-	void addHoverText(EButtonState state, std::string text);
+	void addHoverText(EButtonState state, const std::string & text);
 
 	void block(bool on);
 
@@ -134,7 +134,7 @@ protected:
 	virtual void doSelect(bool on);
 
 	// returns true if toggle can change its state
-	bool canActivate();
+	bool canActivate() const;
 
 public:
 	CToggleBase(CFunctionList<void(bool)> callback);
@@ -150,7 +150,7 @@ public:
 
 	void setAllowDeselection(bool on);
 
-	void addCallback(std::function<void(bool)> callback);
+	void addCallback(const std::function<void(bool)> & callback);
 
 	/// Set whether the toggle is currently enabled for user to use, this is only inplemented in ToggleButton, not for other toggles yet.
 	virtual void setEnabled(bool enabled);
@@ -186,11 +186,11 @@ public:
 
 	CToggleGroup(const CFunctionList<void(int)> & OnChange);
 
-	void addCallback(std::function<void(int)> callback);
+	void addCallback(const std::function<void(int)> & callback);
 	void resetCallback();
 
 	/// add one toggle/button into group
-	void addToggle(int index, std::shared_ptr<CToggleBase> button);
+	void addToggle(int index, const std::shared_ptr<CToggleBase> & button);
 	/// Changes selection to specific value. Will select toggle with this ID, if present
 	void setSelected(int id);
 	/// in some cases, e.g. LoadGame difficulty selection, after refreshing the UI, the ToggleGroup should 
