@@ -1355,7 +1355,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 
 	for(int i = 0; i < slotsCount; i++)
 	{
-		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), AnimationPath::builtin("APHLF1R"), CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, vstd::next(EShortcut::SELECT_INDEX_1, i));
+		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), AnimationPath::builtin("APHLF1R"), CButton::tooltip(getTextForSlot(SlotID(i))), [this, i](){ makeDeal(SlotID(i)); }, vstd::next(EShortcut::SELECT_INDEX_1, i));
 
 		for(int j : {0,1})
 		{
@@ -1364,9 +1364,9 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 		}
 	}
 
-	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath::builtin("APHLF4R"), CButton::tooltip(CGI->generaltexth->allTexts[432]), [&](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
+	upgradeAll = std::make_shared<CButton>(Point(30, 231), AnimationPath::builtin("APHLF4R"), CButton::tooltip(CGI->generaltexth->allTexts[432]), [this](){ makeDeal(SlotID(slotsCount));}, EShortcut::RECRUITMENT_UPGRADE_ALL);
 
-	quit = std::make_shared<CButton>(Point(294, 275), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), std::bind(&CHillFortWindow::close, this), EShortcut::GLOBAL_ACCEPT);
+	quit = std::make_shared<CButton>(Point(294, 275), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), [this](){close();}, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);

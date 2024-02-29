@@ -299,14 +299,13 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		}
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath(), CButton::tooltip(desc.toString(), desc.toString()));
+		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()));
 
 		if(picNumber != -1)
-			picName += ":" + std::to_string(picNumber);
+			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
+		else
+			bonusButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin(picName)));
 
-		auto anim = GH.renderHandler().createAnimation();
-		anim->setCustom(picName, 0);
-//TODO:		bonusButton->setImage(anim);
 		if(CSH->campaignBonus == i)
 			bonusButton->setBorderColor(Colors::BRIGHT_YELLOW);
 		groupBonuses->addToggle(i, bonusButton);

@@ -147,6 +147,11 @@ void ButtonBase::setImageOrder(int state1, int state2, int state3, int state4)
 	update();
 }
 
+std::shared_ptr<CIntObject> ButtonBase::getOverlay()
+{
+	return overlay;
+}
+
 void ButtonBase::setStateImpl(EButtonState newState)
 {
 	state = newState;
@@ -335,8 +340,8 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 	ButtonBase(position, defName, key, playerColoredButton),
 	callback(Callback),
 	helpBox(help.second),
-	hoverable(false),
 	actOnDown(false),
+	hoverable(false),
 	soundDisabled(false)
 {
 	defActions = 255-DISPOSE;

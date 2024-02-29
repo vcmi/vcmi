@@ -48,6 +48,7 @@ protected:
 	ButtonBase(Point position, const AnimationPath & defName, EShortcut key, bool playerColoredButton);
 	~ButtonBase();
 
+	std::shared_ptr<CIntObject> getOverlay();
 	void setStateImpl(EButtonState state);
 	EButtonState getState() const;
 

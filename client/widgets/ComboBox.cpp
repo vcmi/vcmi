@@ -168,11 +168,9 @@ ComboBox::ComboBox(Point position, const AnimationPath & defName, const std::pai
 
 void ComboBox::setItem(const void * item)
 {
-	// TODO:
-	//auto w = std::dynamic_pointer_cast<CLabel>(overlay);
-
-	//if( w && getItemText)
-	//	setTextOverlay(getItemText(0, item), w->font, w->color);
+	auto w = std::dynamic_pointer_cast<CLabel>(getOverlay());
+	if( w && getItemText)
+		setTextOverlay(getItemText(0, item), w->font, w->color);
 	
 	if(onSetItem)
 		onSetItem(item);
