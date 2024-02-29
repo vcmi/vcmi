@@ -59,7 +59,6 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	bool useLoaded = loadUserSettings();
 	if (!useLoaded)
 	{
-		// FIXME This will change the teams, and map sizes as well
 		for(auto * combo : {ui->humanCombo, ui->cpuCombo, ui->humanTeamsCombo, ui->cpuTeamsCombo})
 			combo->setCurrentIndex(0);
 	}
@@ -76,7 +75,6 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		bool twoLevel = ui->twoLevelCheck->isChecked();
 		mapGenOptions.setHasTwoLevels(twoLevel);
 
-		// FIXME: Do not reset loaded template
 		updateTemplateList();
 	}
 }
@@ -91,7 +89,6 @@ bool WindowNewMap::loadUserSettings()
 	bool ret = false;
 	CRmgTemplate * templ = nullptr;
 
-	//load window settings
 	QSettings s(Ui::teamName, Ui::appName);
 
 	auto generateRandom = s.value(newMapGenerateRandom);
@@ -124,13 +121,7 @@ bool WindowNewMap::loadUserSettings()
 
 		ui->twoLevelCheck->setChecked(mapGenOptions.getHasTwoLevels());
 
-		auto humanComboIndex = mapGenOptions.getHumanOrCpuPlayerCount();
-		if (humanComboIndex == CMapGenOptions::RANDOM_SIZE)
-		{
-			humanComboIndex = 0;
-		}
-		ui->humanCombo->setCurrentIndex(humanComboIndex);
-		//Can't be 0
+		ui->humanCombo->setCurrentIndex(mapGenOptions.getHumanOrCpuPlayerCount());
 		ui->cpuCombo->setCurrentIndex(mapGenOptions.getCompOnlyPlayerCount());
 		ui->humanTeamsCombo->setCurrentIndex(mapGenOptions.getTeamCount());
 		ui->cpuTeamsCombo->setCurrentIndex(mapGenOptions.getCompOnlyTeamCount());
@@ -162,131 +153,22 @@ bool WindowNewMap::loadUserSettings()
 		ret = true;
 	}
 
-	// FIXME: This cleans the list absolutely, and removes any template set
 	updateTemplateList();
 	mapGenOptions.setMapTemplate(templ); // Can be null
 
 	if (templ)
 	{
-		std::string name = templ->getId();
+		std::string name = templ->getName();
 		for (size_t i = 0; i < ui->templateCombo->count(); i++)
 		{
-			auto * t = data_cast<const CRmgTemplate>(ui->templateCombo->itemData(i).toLongLong());
-			if (t && t->getId() == name)
-			{
-				ui->templateCombo->setCurrentIndex(i);
-				break;
-			}
-
-			/*
-			// FIXME: It is serialized with a scope
 			if (ui->templateCombo->itemText(i).toStdString() == name)
 			{
 				ui->templateCombo->setCurrentIndex(i);
 				break;
 			}
-			*/
 		}
 		ret = true;
 	}
-
-	/*
-	auto width = s.value(newMapWidth);
-	if (width.isValid())
-	{
-		ui->widthTxt->setText(width.toString());
-	}
-	auto height = s.value(newMapHeight);
-	if (height.isValid())
-	{
-		ui->heightTxt->setText(height.toString());
-	}
-	for(auto & sz : mapSizes)
-	{
-		if(sz.second.first == width.toInt() && sz.second.second == height.toInt())
-			ui->sizeCombo->setCurrentIndex(sz.first);
-	}
-	auto twoLevel = s.value(newMapTwoLevel);
-	if (twoLevel.isValid())
-	{
-		ui->twoLevelCheck->setChecked(twoLevel.toBool());
-	}
-	auto generateRandom = s.value(newMapGenerateRandom);
-	if (generateRandom.isValid())
-	{
-		ui->randomMapCheck->setChecked(generateRandom.toBool());
-	}
-	auto players = s.value(newMapPlayers);
-	if (players.isValid())
-	{
-		ui->humanCombo->setCurrentIndex(players.toInt());
-	}
-	auto cpuPlayers = s.value(newMapCpuPlayers);
-	if (cpuPlayers.isValid())
-	{
-		ui->cpuCombo->setCurrentIndex(cpuPlayers.toInt());
-	}
-	auto teams = s.value(newMapHumanTeams);
-	if(teams.isValid())
-	{
-		ui->humanTeamsCombo->setCurrentIndex(teams.toInt());
-	}
-	auto cputeams = s.value(newMapCpuTeams);
-	if(cputeams.isValid())
-	{
-		ui->cpuTeamsCombo->setCurrentIndex(cputeams.toInt());
-	}
-	
-	auto waterContent = s.value(newMapWaterContent);
-	if (waterContent.isValid())
-	{
-		switch (waterContent.toInt())
-		{
-			case EWaterContent::RANDOM:
-				ui->waterOpt1->setChecked(true); break;
-			case EWaterContent::NONE:
-				ui->waterOpt2->setChecked(true); break;
-			case EWaterContent::NORMAL:
-				ui->waterOpt3->setChecked(true); break;
-			case EWaterContent::ISLANDS:
-				ui->waterOpt4->setChecked(true); break;
-		}
-
-	}
-	auto monsterStrength = s.value(newMapMonsterStrength);
-	if (monsterStrength.isValid())
-	{
-		switch (monsterStrength.toInt())
-		{
-			case EMonsterStrength::RANDOM:
-				ui->monsterOpt1->setChecked(true); break;
-			case EMonsterStrength::GLOBAL_WEAK:
-				ui->monsterOpt2->setChecked(true); break;
-			case EMonsterStrength::GLOBAL_NORMAL:
-				ui->monsterOpt3->setChecked(true); break;
-			case EMonsterStrength::GLOBAL_STRONG:
-				ui->monsterOpt4->setChecked(true); break;
-		}
-	}
-
-	auto templateName = s.value(newMapTemplate);
-	if (templateName.isValid())
-	{
-		updateTemplateList();
-		
-		auto* templ = VLC->tplh->getTemplate(templateName.toString().toStdString());
-		if (templ)
-		{
-			ui->templateCombo->setCurrentText(templateName.toString());
-			//TODO: validate inside this method
-			mapGenOptions.setMapTemplate(templ);
-		}
-		else
-		{
-			//Display problem on status bar
-		}
-	}
-	*/
 }
 
 void WindowNewMap::saveUserSettings()
@@ -301,46 +183,6 @@ void WindowNewMap::saveUserSettings()
 	auto variant = JsonUtils::toVariant(data);
 	s.setValue(newMapWindow, variant);
 	s.setValue(newMapGenerateRandom, ui->randomMapCheck->isChecked());
-
-	/*
-	s.setValue(newMapWidth, ui->widthTxt->text().toInt());
-	s.setValue(newMapHeight, ui->heightTxt->text().toInt());
-	s.setValue(newMapTwoLevel, ui->twoLevelCheck->isChecked());
-	s.setValue(newMapGenerateRandom, ui->randomMapCheck->isChecked());
-
-	s.setValue(newMapPlayers,ui->humanCombo->currentIndex());
-	s.setValue(newMapCpuPlayers,ui->cpuCombo->currentIndex());
-	s.setValue(newMapHumanTeams, ui->humanTeamsCombo->currentIndex());
-	s.setValue(newMapCpuTeams, ui->cpuTeamsCombo->currentIndex());
-
-	EWaterContent::EWaterContent water = EWaterContent::RANDOM;
-	if(ui->waterOpt1->isChecked())
-		water = EWaterContent::RANDOM;
-	else if(ui->waterOpt2->isChecked())
-		water = EWaterContent::NONE;
-	else if(ui->waterOpt3->isChecked())
-		water = EWaterContent::NORMAL;
-	else if(ui->waterOpt4->isChecked())
-		water = EWaterContent::ISLANDS;
-	s.setValue(newMapWaterContent, static_cast<int>(water));
-
-	EMonsterStrength::EMonsterStrength monster = EMonsterStrength::RANDOM;
-	if(ui->monsterOpt1->isChecked())
-		monster = EMonsterStrength::RANDOM;
-	else if(ui->monsterOpt2->isChecked())
-		monster = EMonsterStrength::GLOBAL_WEAK;
-	else if(ui->monsterOpt3->isChecked())
-		monster = EMonsterStrength::GLOBAL_NORMAL;
-	else if(ui->monsterOpt4->isChecked())
-		monster = EMonsterStrength::GLOBAL_STRONG;
-	s.setValue(newMapMonsterStrength, static_cast<int>(monster));
-
-	auto templateName = ui->templateCombo->currentText();
-	if (templateName.size())
-	{
-		s.setValue(newMapTemplate, templateName);
-	}
-	*/
 }
 
 void WindowNewMap::saveOptions(const CMapGenOptions & options)
