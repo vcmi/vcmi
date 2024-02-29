@@ -374,7 +374,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 		if(!elem.empty())
 			components.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, elem.front(), std::nullopt, CComponent::tiny));
 	}
-	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140));
+	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140), 20, 10, 22, 4);
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()

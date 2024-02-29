@@ -369,6 +369,17 @@ void CTextBox::sliderMoved(int to)
 	label->scrollTextTo(to);
 }
 
+void CTextBox::trimToFit()
+{
+	if (slider)
+		return;
+
+	pos.w = label->textSize.x;
+	pos.h = label->textSize.y;
+	label->pos.w = label->textSize.x;
+	label->pos.h = label->textSize.y;
+}
+
 void CTextBox::resize(Point newSize)
 {
 	pos.w = newSize.x;

@@ -15,11 +15,11 @@
 struct SDL_Surface;
 class CInfoWindow;
 class CComponent;
+class Canvas;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class ColorRGBA;
 VCMI_LIB_NAMESPACE_END
-
 
 /// Class which draws formatted text messages and generates chat windows
 class CMessage
@@ -29,7 +29,7 @@ class CMessage
 
 public:
 	/// Draw border on exiting surface
-	static void drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int h, int x=0, int y=0);
+	static void drawBorder(PlayerColor playerColor, Canvas & to, int w, int h, int x, int y);
 
 	static void drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player);
 
