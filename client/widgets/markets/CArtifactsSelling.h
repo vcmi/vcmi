@@ -16,14 +16,17 @@ class CArtifactsSelling : public CResourcesBuying
 {
 public:
 	CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero);
+	void deselect() override;
 	void makeDeal() override;
 	void updateSelected() override;
+	void updateSlots() override;
 	std::shared_ptr<CArtifactsOfHeroMarket> getAOHset() const;
 
 private:
 	std::shared_ptr<CArtifactsOfHeroMarket> heroArts;
 	std::shared_ptr<CLabel> bidSelectedSubtitle;
 	std::shared_ptr<CTradeableItem> bidSelectedSlot;
+	ArtifactPosition selectedHeroSlot;
 
 	CTradeBase::SelectionParams getSelectionParams() const override;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;

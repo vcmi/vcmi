@@ -72,6 +72,7 @@ public:
 	const Point dealButtonPos = Point(269, 520);
 
 	CExperienceAltar();
+	void updateSlots() override;
 	virtual void sacrificeAll() = 0;
 	virtual TExpType calcExpAltarForHero() = 0;
 };

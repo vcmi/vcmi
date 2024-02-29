@@ -133,7 +133,6 @@ set(client_SRCS
 	widgets/markets/CTradeBase.cpp
 	widgets/markets/TradePanels.cpp
 
-	windows/CAltarWindow.cpp
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
 	windows/CHeroOverview.cpp
@@ -322,7 +321,6 @@ set(client_HEADERS
 	widgets/markets/CTradeBase.h
 	widgets/markets/TradePanels.h
 
-	windows/CAltarWindow.h
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
 	windows/CHeroOverview.h

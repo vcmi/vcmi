@@ -86,6 +86,23 @@ void CAltarArtifacts::deselect()
 	}
 }
 
+void CAltarArtifacts::updateSlots()
+{
+	CExperienceAltar::updateSlots();
+	if(const auto art = hero->getArt(ArtifactPosition::TRANSITION_POS))
+	{
+		hRight = offerTradePanel->selectedSlot;
+		hRight->setID(art->getTypeId().num);
+		offerQty = calcExpCost(art->getTypeId());
+	}
+	else
+	{
+		hRight.reset();
+		offerQty = 0;
+	}
+	updateSelected();
+}
+
 void CAltarArtifacts::makeDeal()
 {
 	std::vector<TradeItemSell> positions;
@@ -107,30 +124,9 @@ void CAltarArtifacts::sacrificeBackpack()
 	LOCPLINT->cb->bulkMoveArtifacts(heroArts->getHero()->id, altarId, false, false, true);
 }
 
-void CAltarArtifacts::setSelectedArtifact(std::optional<ArtifactID> id)
-{
-	if(id.has_value())
-	{
-		hRight = offerTradePanel->selectedSlot;
-		hRight->setID(id.value().num);
-		offerQty = calcExpCost(id.value());
-	}
-	else
-	{
-		hRight.reset();
-		offerQty = 0;
-	}
-	updateSelected();
-}
-
 std::shared_ptr<CArtifactsOfHeroAltar> CAltarArtifacts::getAOHset() const
 {
 	return heroArts;
-}
-
-ObjectInstanceID CAltarArtifacts::getObjId() const
-{
-	return altarId;
 }
 
 void CAltarArtifacts::updateAltarSlots()
@@ -157,7 +153,7 @@ void CAltarArtifacts::updateAltarSlots()
 	{
 		assert(tradeSlot.first->id == -1);
 		assert(altarArtifacts->getSlotByInstance(tradeSlot.second) != ArtifactPosition::PRE_FIRST);
-		tradeSlot.first->setID(tradeSlot.second->getTypeId());
+		tradeSlot.first->setID(tradeSlot.second->getTypeId().num);
 		tradeSlot.first->subtitle->setText(std::to_string(calcExpCost(tradeSlot.second->getTypeId())));
 	}
 
@@ -174,7 +170,7 @@ void CAltarArtifacts::updateAltarSlots()
 		for(auto & altarSlot : offerTradePanel->slots)
 			if(altarSlot->id == -1)
 			{
-				altarSlot->setID(slotInfo.artifact->getTypeId());
+				altarSlot->setID(slotInfo.artifact->getTypeId().num);
 				altarSlot->subtitle->setText(std::to_string(calcExpCost(slotInfo.artifact->getTypeId())));
 				tradeSlotsMap.try_emplace(altarSlot, slotInfo.artifact);
 				break;
@@ -198,7 +194,7 @@ CTradeBase::SelectionParams CAltarArtifacts::getSelectionParams() const
 	if(hRight)
 		return std::make_tuple(
 			std::nullopt,
-			SelectionParamOneSide {std::to_string(offerQty), GameResID(hRight->id)}
+			SelectionParamOneSide {std::to_string(offerQty), CGI->artifacts()->getByIndex(hRight->id)->getIconIndex()}
 	);
 	return std::make_tuple(std::nullopt, std::nullopt);
 }

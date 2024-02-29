@@ -17,9 +17,13 @@
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
+#include "../../CPlayerInterface.h"
+
+#include "../../../CCallback.h"
 
 #include "../../../lib/CArtifactInstance.h"
 #include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstance * hero)
@@ -44,6 +48,7 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 		assert(artForTrade);
 		bidSelectedSlot->setID(artForTrade->getTypeId().num);
 		hLeft = bidSelectedSlot;
+		selectedHeroSlot = artPlace->slot;
 		if(hRight)
 		{	// dublicate
 			this->market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
@@ -58,14 +63,24 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	assert(offerTradePanel);
 	offerTradePanel->moveTo(pos.topLeft() + Point(326, 184));
 	offerTradePanel->selectedSlot->moveTo(pos.topLeft() + Point(409, 473));
+	offerTradePanel->selectedSlot->subtitle->moveBy(Point(0, 1));
 	
 	CArtifactsSelling::updateSelected();
+	CArtifactsSelling::deselect();
+}
+
+void CArtifactsSelling::deselect()
+{
 	CTradeBase::deselect();
+	selectedHeroSlot = ArtifactPosition::PRE_FIRST;
+	heroArts->unmarkSlots();
 }
 
 void CArtifactsSelling::makeDeal()
 {
-
+	const auto art = hero->getArt(selectedHeroSlot);
+	assert(art);
+	LOCPLINT->cb->trade(market, EMarketMode::ARTIFACT_RESOURCE, art->getId(), GameResID(hRight->id), offerQty, hero);
 }
 
 void CArtifactsSelling::updateSelected()
@@ -86,6 +101,16 @@ void CArtifactsSelling::updateSelected()
 	}
 }
 
+void CArtifactsSelling::updateSlots()
+{
+	CTradeBase::updateSlots();
+	if(selectedHeroSlot != ArtifactPosition::PRE_FIRST)
+	{
+		if(hero->getArt(selectedHeroSlot) == nullptr)
+			deselect();
+	}
+}
+
 std::shared_ptr<CArtifactsOfHeroMarket> CArtifactsSelling::getAOHset() const
 {
 	return heroArts;
@@ -96,7 +121,7 @@ CTradeBase::SelectionParams CArtifactsSelling::getSelectionParams() const
 	if(hLeft && hRight)
 		return std::make_tuple(
 			std::nullopt,
-			SelectionParamOneSide {std::to_string(offerQty), GameResID(hRight->id)}
+			SelectionParamOneSide {std::to_string(offerQty), hRight->id}
 		);
 	else
 		return std::make_tuple(std::nullopt, std::nullopt);

@@ -94,7 +94,7 @@ class ArtifactsPanel : public TradePanelBase
 		Point(83, 158)
 	};
 	const size_t slotsForTrade = 7;
-	const Point slotDimension = Point(69, 66);
+	const Point slotDimension = Point(69, 68);
 	const Point selectedPos = Point(83, 266);
 
 public:

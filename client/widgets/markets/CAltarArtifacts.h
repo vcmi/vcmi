@@ -19,11 +19,10 @@ public:
 	TExpType calcExpAltarForHero() override;
 	void deselect() override;
 	void makeDeal() override;
+	void updateSlots() override;
 	void sacrificeAll() override;
 	void sacrificeBackpack();
-	void setSelectedArtifact(std::optional<ArtifactID> id);
 	std::shared_ptr<CArtifactsOfHeroAltar> getAOHset() const;
-	ObjectInstanceID getObjId() const;
 	void putBackArtifacts();
 
 private:

@@ -55,7 +55,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 	{
 		return vstd::contains(this->market->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), ArtifactID(slot->id)) ? false : true;
 	};
-	offerTradePanel->moveTo(pos.topLeft() + Point(328, 182));
+	offerTradePanel->moveTo(pos.topLeft() + Point(328, 181));
 
 	CTradeBase::updateSlots();
 	CTradeBase::deselect();

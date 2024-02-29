@@ -115,7 +115,7 @@ void CAltarCreatures::updateControls()
 
 void CAltarCreatures::updateSlots()
 {
-	CTradeBase::updateSlots();
+	CExperienceAltar::updateSlots();
 	assert(bidTradePanel->slots.size() == offerTradePanel->slots.size());
 }
 

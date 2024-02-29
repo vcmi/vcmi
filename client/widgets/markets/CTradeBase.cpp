@@ -25,6 +25,7 @@
 
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/CHeroHandler.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero, const SelectionParamsFunctor & getParamsCallback)
@@ -120,8 +121,14 @@ CExperienceAltar::CExperienceAltar()
 	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	// Total experience on the Altar
 	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
-	expToLevel = std::make_shared<CLabel>(75, 477, FONT_SMALL, ETextAlignment::CENTER);
-	expForHero = std::make_shared<CLabel>(75, 545, FONT_SMALL, ETextAlignment::CENTER);
+	expToLevel = std::make_shared<CLabel>(76, 477, FONT_SMALL, ETextAlignment::CENTER);
+	expForHero = std::make_shared<CLabel>(76, 545, FONT_SMALL, ETextAlignment::CENTER);
+}
+
+void CExperienceAltar::updateSlots()
+{
+	CTradeBase::updateSlots();
+	expToLevel->setText(std::to_string(CGI->heroh->reqExp(CGI->heroh->level(hero->exp) + 1) - hero->exp));
 }
 
 CCreaturesSelling::CCreaturesSelling()

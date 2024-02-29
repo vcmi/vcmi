@@ -419,8 +419,8 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, Prim
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (which == PrimarySkill::EXPERIENCE)
 	{
-		for (auto ctw : GH.windows().findWindows<CAltarWindow>())
-			ctw->updateExpToLevel();
+		for(auto ctw : GH.windows().findWindows<CMarketWindow>())
+			ctw->updateHero();
 	}
 	else
 		adventureInt->onHeroChanged(hero);
@@ -450,7 +450,7 @@ void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for (auto mw : GH.windows().findWindows<CMarketWindow>())
-		mw->resourceChanged();
+		mw->updateResource();
 
 	GH.windows().totalRedraw();
 }
@@ -1696,7 +1696,7 @@ void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for (auto cmw : GH.windows().findWindows<CMarketWindow>())
-		cmw->artifactsChanged();
+		cmw->updateArtifacts();
 }
 
 void CPlayerInterface::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)

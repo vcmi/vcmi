@@ -24,7 +24,7 @@
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
 CTradeableItem::CTradeableItem(const Rect & area, EType Type, int ID, int Serial)
-	: SelectableSlot(area, Point(1, 2))
+	: SelectableSlot(area, Point(1, 1))
 	, type(EType(-1)) // set to invalid, will be corrected in setType
 	, id(ID)
 	, serial(Serial)
@@ -74,7 +74,8 @@ void CTradeableItem::setType(EType newType)
 			break;
 		case EType::ARTIFACT_PLACEHOLDER:
 		case EType::ARTIFACT_INSTANCE:
-			subtitle->moveTo(pos.topLeft() + Point(22, 55));
+			image->moveTo(pos.topLeft() + Point(0, 1));
+			subtitle->moveTo(pos.topLeft() + Point(22, 56));
 			break;
 		case EType::ARTIFACT_TYPE:
 			subtitle->moveTo(pos.topLeft() + Point(35, 57));
@@ -287,6 +288,7 @@ ArtifactsPanel::ArtifactsPanel(const CTradeableItem::ClickPressedFunctor & click
 	}
 	updateSlotsCallback = updateSubtitles;
 	selectedSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::ARTIFACT_TYPE, 0, 0);
+	selectedSlot->subtitle->moveBy(Point(0, 1));
 }
 
 PlayersPanel::PlayersPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
@@ -359,6 +361,7 @@ ArtifactsAltarPanel::ArtifactsAltarPanel(const CTradeableItem::ClickPressedFunct
 		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(Rect(altarSlotPos, Point(44, 44)), EType::ARTIFACT_PLACEHOLDER, -1, slotNum));
 		slot->clickPressedCallback = clickPressedCallback;
 		slot->subtitle->clear();
+		slot->subtitle->moveBy(Point(0, -1));
 		slotNum++;
 	}
 	selectedSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::ARTIFACT_TYPE, 0, 0);

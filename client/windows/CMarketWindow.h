@@ -10,27 +10,25 @@
 #pragma once
 
 #include "../widgets/markets/CTradeBase.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
-#include "CAltarWindow.h"
 
-class CArtifactsBuying;
-class CArtifactsSelling;
-class CFreelancerGuild;
-class CMarketResources;
-class CTransferResources;
-
-class CMarketWindow : public CStatusbarWindow, public CAltarWindow // TODO remove CAltarWindow
+class CMarketWindow : public CStatusbarWindow, public CWindowWithArtifacts, public IGarrisonHolder
 {
 public:
 	CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode);
-	void resourceChanged();
-	void artifactsChanged();
+	void updateResource();
+	void updateArtifacts();
 	void updateGarrisons() override;
+	void updateHero();
 	void close() override;
-	const CGHeroInstance * getHero() const;
+	bool holdsGarrison(const CArmedInstance * army) override;
+	void artifactRemoved(const ArtifactLocation & artLoc) override;
+	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;
 
 private:
 	void createChangeModeButtons(EMarketMode currentMode, const IMarket * market, const CGHeroInstance * hero);
+	void initWidgetInternals(const EMarketMode mode, const std::pair<std::string, std::string> & quitButtonHelpContainer);
 
 	void createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero);
 	void createArtifactsSelling(const IMarket * market, const CGHeroInstance * hero);
@@ -41,15 +39,9 @@ private:
 	void createAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
 
 	const int buttonHeightWithMargin = 32 + 3;
-	const CGHeroInstance * hero;
 	std::vector<std::shared_ptr<CButton>> changeModeButtons;
 	std::shared_ptr<CButton> quitButton;
 	std::function<void()> windowClosedCallback;
 	const Point quitButtonPos = Point(516, 520);
-
-	std::shared_ptr<CFreelancerGuild> guild;
-	std::shared_ptr<CMarketResources> resRes;
-	std::shared_ptr<CTransferResources> trRes;
-	std::shared_ptr<CArtifactsBuying> artsBuy;
-	std::shared_ptr<CArtifactsSelling> artsSel;
+	std::shared_ptr<CTradeBase> marketWidget;
 };

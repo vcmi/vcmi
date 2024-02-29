@@ -685,7 +685,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 	logGlobal->trace("You've clicked on %d", (int)building.toEnum());
 	const CBuilding *b = town->town->buildings.find(building)->second;
 
-	if(building >= BuildingID::DWELL_FIRST)
+	if (building >= BuildingID::DWELL_FIRST)
 	{
 		enterDwelling((building-BuildingID::DWELL_FIRST)%GameConstants::CREATURES_PER_TOWN);
 	}
@@ -744,7 +744,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 		case BuildingID::SPECIAL_1:
 		case BuildingID::SPECIAL_2:
 		case BuildingID::SPECIAL_3:
-				switch(subID)
+				switch (subID)
 				{
 				case BuildingSubID::NONE:
 						enterBuilding(building);
