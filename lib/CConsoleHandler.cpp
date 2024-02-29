@@ -31,8 +31,8 @@ VCMI_LIB_NAMESPACE_END
 	#define CONSOLE_GRAY "\x1b[1;30m"
 	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
-	#include <windows.h>
-	#include <dbghelp.h>
+	#include <Windows.h>
+	#include <DbgHelp.h>
 #ifndef __MINGW32__
 	#pragma comment(lib, "dbghelp.lib")
 #endif

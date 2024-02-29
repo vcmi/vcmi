@@ -11,7 +11,7 @@
 #include "CThreadHelper.h"
 
 #ifdef VCMI_WINDOWS
-	#include <windows.h>
+	#include <Windows.h>
 #elif defined(VCMI_HAIKU)
 	#include <OS.h>
 #elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD) && \
