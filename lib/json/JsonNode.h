@@ -68,6 +68,7 @@ public:
 	explicit JsonNode(uint32_t number);
 	explicit JsonNode(int64_t number);
 	explicit JsonNode(double number);
+	explicit JsonNode(const char * string);
 	explicit JsonNode(const std::string & string);
 
 	/// Create tree from Json-formatted input
