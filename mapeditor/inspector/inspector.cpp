@@ -298,7 +298,8 @@ void Inspector::updateProperties(CGHeroInstance * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), o->ID == Obj::PRISON); //field is not editable for prison
+	auto isPrison = o->ID == Obj::PRISON;
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller, isPrison), isPrison); //field is not editable for prison
 	addProperty<int>("Experience", o->exp, false);
 	addProperty("Hero class", o->type ? o->type->heroClass->getNameTranslated() : "", true);
 	
@@ -923,9 +924,10 @@ void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 	}
 }
 
-OwnerDelegate::OwnerDelegate(MapController & controller)
+OwnerDelegate::OwnerDelegate(MapController & controller, bool addNeutral)
 {
-	options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum()) });
+	if(addNeutral)
+		options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum()) });
 	for(int p = 0; p < controller.map()->players.size(); ++p)
 		if(controller.map()->players[p].canAnyonePlay())
 			options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum()) });

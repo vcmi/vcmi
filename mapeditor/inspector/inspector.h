@@ -177,5 +177,5 @@ class OwnerDelegate : public InspectorDelegate
 {
 	Q_OBJECT
 public:
-	OwnerDelegate(MapController &);
+	OwnerDelegate(MapController & controller, bool addNeutral = true);
 };
