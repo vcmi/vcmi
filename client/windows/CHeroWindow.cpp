@@ -88,8 +88,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
 		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
-		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
-		backpackButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		backpackButton = std::make_shared<CButton>(Point(424, 429), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
+		backpackButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 		dismissButton = std::make_shared<CButton>(Point(534, 429), AnimationPath::builtin("hsbtns2.def"), CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
 	}
 	else
@@ -106,7 +106,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	if(hero->commander)
 	{
-		commanderButton = std::make_shared<CButton>(Point(317, 18), AnimationPath::builtin("buttons/commander"), CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
+		commanderButton = std::make_shared<CButton>(Point(317, 18), AnimationPath::builtin("heroCommander"), CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
+		commanderButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/commanderButtonIcon")));
 	}
 
 	//right list of heroes

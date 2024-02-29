@@ -1,16 +1,16 @@
 {
 	"normal" : {
-		"width": 46,
-		"height": 32,
+		"width": 92,
+		"height": 38,
 		"items" : [
 			{
 				"type": "texture",
 				"image": "DiBoxBck",
-				"rect": {"x": 0, "y": 0, "w": 46, "h": 32}
+				"rect": {"x": 0, "y": 0, "w": 92, "h": 38}
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 46, "h": 32}
+				"rect": {"x": 0, "y": 0, "w": 92, "h": 38}
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 2, "y" : 2}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 80 ] },
 				
@@ -22,7 +22,7 @@
 
 					{ "type" : "line", "a" : { "x" : 1, "y" : -2}, "b" : { "x" : -2, "y" : -2}, "color" : [ 0, 0, 0, 192 ] },
 					{ "type" : "line", "a" : { "x" : -2, "y" : 1}, "b" : { "x" : -2, "y" : -2}, "color" : [ 0, 0, 0, 192 ] },
-					
+
 					{ "type" : "line", "a" : { "x" : 0, "y" : -1}, "b" : { "x" : -1, "y" : -1}, "color" : [ 0, 0, 0, 255 ] },
 					{ "type" : "line", "a" : { "x" : -1, "y" : 0}, "b" : { "x" : -1, "y" : -1}, "color" : [ 0, 0, 0, 255 ] },
 				]
@@ -30,17 +30,17 @@
 		]
 	},
 	"pressed" : {
-		"width": 46,
-		"height": 32,
+		"width": 92,
+		"height": 38,
 		"items" : [
 			{
 				"type": "texture",
 				"image": "DiBoxBck",
-				"rect": {"x": 1, "y": 1, "w": 45, "h": 31}
+				"rect": {"x": 1, "y": 1, "w": 91, "h": 37}
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 46, "h": 32}
+				"rect": {"x": 0, "y": 0, "w": 92, "h": 38}
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 3, "y" : 3}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 96 ] },
 				
@@ -56,17 +56,17 @@
 		]
 	},
 	"blocked" : {
-		"width": 46,
-		"height": 32,
+		"width": 92,
+		"height": 38,
 		"items" : [
 			{
 				"type": "texture",
 				"image": "DiBoxBck",
-				"rect": {"x": 0, "y": 0, "w": 46, "h": 32}
+				"rect": {"x": 0, "y": 0, "w": 92, "h": 38}
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 46, "h": 32}
+				"rect": {"x": 0, "y": 0, "w": 92, "h": 38}
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 2, "y" : 2}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 80 ] },
 				
@@ -86,24 +86,24 @@
 		]
 	},
 	"highlighted" : {
-		"width": 46,
-		"height": 32,
+		"width": 92,
+		"height": 38,
 		"items" : [
 			{
 				"type": "texture",
 				"image": "DiBoxBck",
-				"rect": {"x": 0, "y": 0, "w": 46, "h": 32}
+				"rect": {"x": 0, "y": 0, "w": 92, "h": 38}
 			},
 			{
 				"type": "graphicalPrimitive",
-				"rect": {"x": 0, "y": 0, "w": 46, "h": 32}
+				"rect": {"x": 0, "y": 0, "w": 92, "h": 38}
 				"primitives" : [
 					{ "type" : "filledBox", "a" : { "x" : 2, "y" : 2}, "b" : { "x" : -3, "y" : -3}, "color" : [ 0, 0, 0, 80 ] },
 				
 					{ "type" : "rectangle", "a" : { "x" : 2, "y" : 2}, "b" : { "x" : -3, "y" : -3}, "color" : [ 255, 255, 255, 255 ] },
 					
-					{ "type" : "line", "a" : { "x" : 1, "y" : -2}, "b" : { "x" : -2, "y" : -2}, "color" : [ 255, 255, 255, 255 ] },
-					{ "type" : "line", "a" : { "x" : -2, "y" : 1}, "b" : { "x" : -2, "y" : -2}, "color" : [ 255, 255, 255, 255 ] },
+					{ "type" : "line", "a" : { "x" : 1, "y" : -2}, "b" : { "x" : -2, "y" : -2}, "color" : [ 0, 0, 0, 255 ] },
+					{ "type" : "line", "a" : { "x" : -2, "y" : 1}, "b" : { "x" : -2, "y" : -2}, "color" : [ 0, 0, 0, 255 ] },
 					
 					{ "type" : "line", "a" : { "x" : 1, "y" : 1}, "b" : { "x" : 1, "y" : -2}, "color" : [ 255, 255, 255, 160 ] },
 					{ "type" : "line", "a" : { "x" : 1, "y" : 1}, "b" : { "x" : -2, "y" : 1}, "color" : [ 255, 255, 255, 160 ] },

@@ -878,12 +878,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.swapArtifacts(equipped, baclpack);}));
 		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), AnimationPath::builtin(QUICK_EXCHANGE_MOD_PREFIX + "/artLeft.DEF"), CButton::tooltip(CGI->generaltexth->qeModCommands[3]),
 			std::bind(moveArtifacts, [this](bool equipped, bool baclpack) -> void {controller.moveArtifacts(false, equipped, baclpack);}));
-		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		backpackButtonLeft       = std::make_shared<CButton>(Point(325, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			std::bind(openBackpack, heroInst[0]));
-		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
-		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("buttons/backpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
+		backpackButtonLeft->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
+		backpackButtonRight      = std::make_shared<CButton>(Point(419, 518), AnimationPath::builtin("heroBackpack"), CButton::tooltipLocalized("vcmi.heroWindow.openBackpack"),
 			std::bind(openBackpack, heroInst[1]));
-		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("buttons/backpackButtonIcon")));
+		backpackButtonRight->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/backpackButtonIcon")));
 
 		auto leftHeroBlock = heroInst[0]->tempOwner != LOCPLINT->cb->getPlayerID();
 		auto rightHeroBlock = heroInst[1]->tempOwner != LOCPLINT->cb->getPlayerID();
