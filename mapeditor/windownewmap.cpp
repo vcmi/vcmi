@@ -101,7 +101,6 @@ bool WindowNewMap::loadUserSettings()
 
 	if (settings.isValid())
 	{
-		mapGenOptions = CMapGenOptions();
 		auto node = JsonUtils::toJson(settings);
 		JsonDeserializer handler(nullptr, node);
 		handler.serializeStruct("lastSettings", mapGenOptions);
