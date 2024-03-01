@@ -140,6 +140,12 @@ CServerHandler::CServerHandler()
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	registerTypesLobbyPacks(*applier);
+
+	auto lastDifficulty = settings["general"]["lastDifficulty"];
+	if (lastDifficulty.isNumber())
+	{
+		si->difficulty = lastDifficulty.Integer();
+	}
 }
 
 void CServerHandler::threadRunNetwork()
@@ -193,8 +199,16 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 		serverRunner.reset(new ServerThreadRunner());
 #endif
 
+	auto si = std::make_shared<StartInfo>();
+
+	auto lastDifficulty = settings["general"]["lastDifficulty"];
+	if (lastDifficulty.isNumber())
+	{
+		si->difficulty = lastDifficulty.Integer();
+	}
+
 	logNetwork->trace("\tStarting local server");
-	serverRunner->start(getLocalPort(), connectToLobby);
+	serverRunner->start(getLocalPort(), connectToLobby, si);
 	logNetwork->trace("\tConnecting to local server");
 	connectToServer(getLocalHostname(), getLocalPort());
 	logNetwork->trace("\tWaiting for connection");

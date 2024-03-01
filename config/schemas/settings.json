@@ -28,6 +28,7 @@
 				"lastSave",
 				"lastSettingsTab",
 				"lastCampaign",
+				"lastDifficulty",
 				"saveFrequency",
 				"notifications",
 				"extraDump",
@@ -84,6 +85,10 @@
 				"lastCampaign" : {
 					"type" : "string",
 					"default" : ""
+				},
+				"lastDifficulty" : {
+					"type" : "number",
+					"default" : 1
 				},
 				"saveFrequency" : {
 					"type" : "number",

@@ -162,6 +162,10 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 		tabRand->saveOptions(*CSH->si->mapGenOptions);
 	}
 
+	// Save chosen difficulty
+	Settings lastDifficulty = settings.write["general"]["lastDifficulty"];
+	lastDifficulty->Integer() = getCurrentDifficulty();
+
 	if (CSH->validateGameStart(allowOnlyAI))
 	{
 		CSH->sendStartGame(allowOnlyAI);
