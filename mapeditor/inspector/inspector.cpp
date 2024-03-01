@@ -233,7 +233,7 @@ void Inspector::updateProperties(CGDwelling * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	
 	if (o->ID == Obj::RANDOM_DWELLING || o->ID == Obj::RANDOM_DWELLING_LVL)
 	{
@@ -245,15 +245,15 @@ void Inspector::updateProperties(CGDwelling * o)
 void Inspector::updateProperties(CGLighthouse * o)
 {
 	if(!o) return;
-	
-	addProperty("Owner", o->tempOwner, false);
+
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 }
 
 void Inspector::updateProperties(CGGarrison * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	addProperty("Removable units", o->removableUnits, false);
 }
 
@@ -261,14 +261,14 @@ void Inspector::updateProperties(CGShipyard * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 }
 
 void Inspector::updateProperties(CGHeroPlaceholder * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	
 	bool type = false;
 	if(o->heroType.has_value())
@@ -298,7 +298,8 @@ void Inspector::updateProperties(CGHeroInstance * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, o->ID == Obj::PRISON); //field is not editable for prison
+	auto isPrison = o->ID == Obj::PRISON;
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller, isPrison), isPrison); //field is not editable for prison
 	addProperty<int>("Experience", o->exp, false);
 	addProperty("Hero class", o->type ? o->type->heroClass->getNameTranslated() : "", true);
 	
@@ -368,7 +369,7 @@ void Inspector::updateProperties(CGMine * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner, false);
+	addProperty("Owner", o->tempOwner, new OwnerDelegate(controller), false);
 	addProperty("Resource", o->producedResource);
 	addProperty("Productivity", o->producedQuantity);
 }
@@ -474,12 +475,7 @@ void Inspector::updateProperties()
 		addProperty("IsStatic", factory->isStaticObject());
 	}
 	
-	auto * delegate = new InspectorDelegate();
-	delegate->options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum())});
-	for(int p = 0; p < controller.map()->players.size(); ++p)
-		if(controller.map()->players[p].canAnyonePlay())
-			delegate->options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum())});
-	addProperty("Owner", obj->tempOwner, delegate, true);
+	addProperty("Owner", obj->tempOwner, new OwnerDelegate(controller), true);
 	
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
 	UPDATE_OBJ_PROPERTIES(CGResource);
@@ -926,4 +922,13 @@ void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+OwnerDelegate::OwnerDelegate(MapController & controller, bool addNeutral)
+{
+	if(addNeutral)
+		options.push_back({QObject::tr("neutral"), QVariant::fromValue(PlayerColor::NEUTRAL.getNum()) });
+	for(int p = 0; p < controller.map()->players.size(); ++p)
+		if(controller.map()->players[p].canAnyonePlay())
+			options.push_back({QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[p]), QVariant::fromValue(PlayerColor(p).getNum()) });
 }

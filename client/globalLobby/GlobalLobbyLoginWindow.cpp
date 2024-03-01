@@ -20,6 +20,7 @@
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/TextControls.h"
 

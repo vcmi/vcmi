@@ -116,7 +116,7 @@ private:
 TEST_F(CatapultApplyTest, DISABLED_DamageToIntactPart)
 {
 	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode config;
 		config["targetsToAttack"].Integer() = 1;
 		config["chanceToNormalHit"].Integer() = 100;
 		EffectFixture::setupEffect(config);

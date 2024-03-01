@@ -1,4 +1,8 @@
 {
+	"library" : [
+		"config/widgets/commonPrimitives.json"
+	],
+	
 	"items":
 	[
 		{
@@ -9,14 +13,12 @@
 		},
 		{
 			"name": "lineTabs",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
+			"type": "horizontalLine",
 			"rect": { "x" : 10, "y" : 45, "w": 580, "h": 3}
 		},
 		{
 			"name": "lineColumns",
-			"type": "texture",
-			"image": "settingsWindow/lineVertical",
+			"type": "verticalLine",
 			"rect": { "x" : 370, "y" : 50, "w": 3, "h": 420}
 		},
 
@@ -91,8 +93,7 @@
 
 		{
 			"name": "lineButtons",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
+			"type": "horizontalLine",
 			"rect": { "x" : 375, "y" : 289, "w": 220, "h": 3}
 		},
 		{

@@ -45,7 +45,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 void CHeroBackpackWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
-	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)
@@ -87,6 +87,6 @@ void CHeroQuickBackpackWindow::showAll(Canvas & to)
 		close();
 		return;
 	}
-	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to.getInternalSurface(), pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
+	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to, pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
 	CIntObject::showAll(to);
 }

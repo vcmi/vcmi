@@ -22,6 +22,7 @@ class JsonWriter
 	bool compact;
 	//tracks whether we are currently using single-line format
 	bool compactMode = false;
+
 public:
 	template<typename Iterator>
 	void writeContainer(Iterator begin, Iterator end);

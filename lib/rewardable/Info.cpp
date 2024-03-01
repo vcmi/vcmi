@@ -75,7 +75,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
 		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
-			VLC->generaltexth->registerString(entry.meta, textID, entry.String());
+			VLC->generaltexth->registerString(entry.getModScope(), textID, entry.String());
 	};
 
 	parameters = objectConfig;
@@ -201,8 +201,8 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 
 	for ( auto node : source["changeCreatures"].Struct() )
 	{
-		CreatureID from(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.first).value());
-		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.second.String()).value());
+		CreatureID from(VLC->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.first).value());
+		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.getModScope(), "creature", node.second.String()).value());
 
 		reward.extraComponents.emplace_back(ComponentType::CREATURE, dest);
 

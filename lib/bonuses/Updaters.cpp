@@ -13,7 +13,7 @@
 #include "Updaters.h"
 #include "Limiters.h"
 
-#include "../json/JsonUtils.h"
+#include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"
 
@@ -39,7 +39,7 @@ std::string IUpdater::toString() const
 
 JsonNode IUpdater::toJsonNode() const
 {
-	return JsonNode(JsonNode::JsonType::DATA_NULL);
+	return JsonNode();
 }
 
 GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
@@ -69,12 +69,12 @@ std::string GrowsWithLevelUpdater::toString() const
 
 JsonNode GrowsWithLevelUpdater::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "GROWS_WITH_LEVEL";
-	root["parameters"].Vector().push_back(JsonUtils::intNode(valPer20));
+	root["parameters"].Vector().emplace_back(valPer20);
 	if(stepSize > 1)
-		root["parameters"].Vector().push_back(JsonUtils::intNode(stepSize));
+		root["parameters"].Vector().emplace_back(stepSize);
 
 	return root;
 }
@@ -98,7 +98,7 @@ std::string TimesHeroLevelUpdater::toString() const
 
 JsonNode TimesHeroLevelUpdater::toJsonNode() const
 {
-	return JsonUtils::stringNode("TIMES_HERO_LEVEL");
+	return JsonNode("TIMES_HERO_LEVEL");
 }
 
 ArmyMovementUpdater::ArmyMovementUpdater():
@@ -141,13 +141,13 @@ std::string ArmyMovementUpdater::toString() const
 
 JsonNode ArmyMovementUpdater::toJsonNode() const
 {
-	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	JsonNode root;
 
 	root["type"].String() = "ARMY_MOVEMENT";
-	root["parameters"].Vector().push_back(JsonUtils::intNode(base));
-	root["parameters"].Vector().push_back(JsonUtils::intNode(divider));
-	root["parameters"].Vector().push_back(JsonUtils::intNode(multiplier));
-	root["parameters"].Vector().push_back(JsonUtils::intNode(max));
+	root["parameters"].Vector().emplace_back(base);
+	root["parameters"].Vector().emplace_back(divider);
+	root["parameters"].Vector().emplace_back(multiplier);
+	root["parameters"].Vector().emplace_back(max);
 
 	return root;
 }
@@ -183,7 +183,7 @@ std::string TimesStackLevelUpdater::toString() const
 
 JsonNode TimesStackLevelUpdater::toJsonNode() const
 {
-	return JsonUtils::stringNode("TIMES_STACK_LEVEL");
+	return JsonNode("TIMES_STACK_LEVEL");
 }
 
 std::string OwnerUpdater::toString() const
@@ -193,7 +193,7 @@ std::string OwnerUpdater::toString() const
 
 JsonNode OwnerUpdater::toJsonNode() const
 {
-	return JsonUtils::stringNode("BONUS_OWNER_UPDATER");
+	return JsonNode("BONUS_OWNER_UPDATER");
 }
 
 std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const

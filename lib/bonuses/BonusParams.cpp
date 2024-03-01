@@ -353,7 +353,7 @@ const JsonNode & BonusParams::toJson()
 			ret["targetSourceType"].String() = vstd::findKey(bonusSourceMap, *targetType);
 		jsonCreated = true;
 	}
-	ret.setMeta(ModScope::scopeGame());
+	ret.setModScope(ModScope::scopeGame());
 	return ret;
 };
 

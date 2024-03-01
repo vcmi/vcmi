@@ -418,7 +418,7 @@ void CCreatureHandler::loadCommanders()
 
 	std::string modSource = VLC->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
-	data.setMeta(modSource);
+	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 
@@ -640,7 +640,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [=](si32 index)
 	{
 		JsonNode conf;
-		conf.setMeta(scope);
+		conf.setModScope(scope);
 
 		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!advMapFile.isNull())
@@ -649,7 +649,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 			templ["animation"] = advMapFile;
 			if (!advMapMask.isNull())
 				templ["mask"] = advMapMask;
-			templ.setMeta(scope);
+			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();

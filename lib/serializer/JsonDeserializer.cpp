@@ -43,7 +43,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, si32 & v
 		if(rawId < 0) //may be, user has installed the mod into another directory...
 		{
 			auto internalId = vstd::splitStringToPair(identifier, ':').second;
-			auto currentScope = getCurrent().meta;
+			auto currentScope = getCurrent().getModScope();
 			auto actualId = currentScope.length() > 0 ? currentScope + ":" + internalId : internalId;
 
 			rawId = decoder(actualId);

@@ -1,12 +1,14 @@
 {
-	"library" : "config/widgets/settings/library.json",
+	"library" : [
+		"config/widgets/settings/library.json",
+		"config/widgets/commonPrimitives.json",
+	],
 
 	"items":
 	[
 		{
 			"name": "lineLabelsEnd",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
+			"type": "horizontalLine",
 			"rect": { "x" : 5, "y" : 229, "w": 365, "h": 3}
 		},
 /////////////////////////////////////// Left section - Hero Speed and Map Scrolling

@@ -45,7 +45,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 {
 	for(auto & node : originalData)
 	{
-		node.setMeta(ModScope::scopeBuiltin());
+		node.setModScope(ModScope::scopeBuiltin());
 	}
 }
 
@@ -53,7 +53,7 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const std::
 {
 	bool result = false;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
-	data.setMeta(modName);
+	data.setModScope(modName);
 
 	ModInfo & modInfo = modData[modName];
 
@@ -104,7 +104,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 		const std::string & name = entry.first;
 		JsonNode & data = entry.second;
 
-		if (data.meta != modName)
+		if (data.getModScope() != modName)
 		{
 			// in this scenario, entire object record comes from another mod
 			// normally, this is used to "patch" object from another mod (which is legal)
@@ -112,7 +112,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			// - another mod attempts to add object into this mod (technically can be supported, but might lead to weird edge cases)
 			// - another mod attempts to edit object from this mod that no longer exist - DANGER since such patch likely has very incomplete data
 			// so emit warning and skip such case
-			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.meta, name, objectName, modName);
+			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.getModScope(), name, objectName, modName);
 			continue;
 		}
 
@@ -163,7 +163,7 @@ void ContentTypeHandler::afterLoadFinalization()
 		if (data.second.modData.isNull())
 		{
 			for (auto node : data.second.patches.Struct())
-				logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.meta, node.first, data.first);
+				logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.getModScope(), node.first, data.first);
 		}
 
 		for(auto & otherMod : modData)

@@ -93,7 +93,7 @@
 				"map" : {
 					"type" : "string",
 					"description" : ".def file for adventure map",
-					"format" : "defFile"
+					"format" : "animationFile"
 				}
 			}
 		},

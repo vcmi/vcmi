@@ -20,7 +20,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
-#include "../widgets/MiscWidgets.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 
 #include "../../lib/GameSettings.h"
 #include "../../lib/CGeneralTextHandler.h"

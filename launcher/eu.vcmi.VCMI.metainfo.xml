@@ -5,8 +5,10 @@
 	<summary>Open-source game engine for Heroes of Might and Magic III</summary>
 	<summary xml:lang="cs">Herní engine s otevřeným kódem pro Heroes of Might and Magic III</summary>
 	<summary xml:lang="de">Open-Source-Spielengine für Heroes of Might and Magic III</summary>
-	<developer_name>VCMI Team</developer_name>
-	<developer_name xml:lang="cs">Tým VCMI</developer_name>
+	<developer id="eu.vcmi">
+		<name>VCMI Team</name>
+		<name xml:lang="cs">Tým VCMI</name>
+	</developer>
 	<metadata_license>CC-BY-SA-4.0</metadata_license>
 	<project_license>GPL-2.0-or-later</project_license>
 	<description>
@@ -75,6 +77,7 @@
 			<image type="source">https://play-lh.googleusercontent.com/wD6xJK2nuzVyKUFODfQs2SEbUuSyEglojpp_FE6GeAuzdA_R44Dp6gTyN70KCwpRtD9M=w2560-h1440</image>
 		</screenshot>
 	</screenshots>
+	<launchable type="desktop-id">vcmilauncher.desktop</launchable>
 	<releases>
 		<release version="1.5.0" date="2024-03-01" type="development"/>
 		<release version="1.4.5" date="2024-01-23" type="stable"/>

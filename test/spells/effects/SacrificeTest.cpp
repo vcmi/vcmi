@@ -39,7 +39,7 @@ protected:
 		EffectFixture::setUp();
 
 		{
-			JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode config;
 			config["healLevel"].String() = "resurrect";
 			EffectFixture::setupEffect(config);
 		}
@@ -146,7 +146,7 @@ protected:
 		EffectFixture::setUp();
 
 		{
-			JsonNode config(JsonNode::JsonType::DATA_STRUCT);
+			JsonNode config;
 			config["healLevel"].String() = "resurrect";
 			config["healPower"].String() = "permanent";
 			EffectFixture::setupEffect(config);

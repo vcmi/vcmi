@@ -1153,7 +1153,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut(const int3 & position, std::share
 				variable["anyOf"].Vector() = anyOfList;
 			}
 
-			variable.setMeta(ModScope::scopeGame()); // list may include skills from all mods
+			variable.setModScope(ModScope::scopeGame()); // list may include skills from all mods
 			rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 		}
 		else
@@ -1189,7 +1189,7 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared
 				JsonNode variable;
 				JsonNode dice;
 				variable.String() = NPrimarySkill::names[bonusID];
-				variable.setMeta(ModScope::scopeGame());
+				variable.setModScope(ModScope::scopeGame());
 				dice.Integer() = 80;
 				rewardable->configuration.presetVariable("primarySkill", "gainedStat", variable);
 				rewardable->configuration.presetVariable("dice", "0", dice);
@@ -1200,7 +1200,7 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared
 				JsonNode variable;
 				JsonNode dice;
 				variable.String() = VLC->skills()->getByIndex(bonusID)->getJsonKey();
-				variable.setMeta(ModScope::scopeGame());
+				variable.setModScope(ModScope::scopeGame());
 				dice.Integer() = 50;
 				rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
 				rewardable->configuration.presetVariable("dice", "0", dice);
@@ -1211,7 +1211,7 @@ CGObjectInstance * CMapLoaderH3M::readScholar(const int3 & position, std::shared
 				JsonNode variable;
 				JsonNode dice;
 				variable.String() = VLC->spells()->getByIndex(bonusID)->getJsonKey();
-				variable.setMeta(ModScope::scopeGame());
+				variable.setModScope(ModScope::scopeGame());
 				dice.Integer() = 20;
 				rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
 				rewardable->configuration.presetVariable("dice", "0", dice);
@@ -1356,7 +1356,7 @@ CGObjectInstance * CMapLoaderH3M::readShrine(const int3 & position, std::shared_
 		{
 			JsonNode variable;
 			variable.String() = VLC->spells()->getById(spell)->getJsonKey();
-			variable.setMeta(ModScope::scopeGame()); // list may include spells from all mods
+			variable.setModScope(ModScope::scopeGame()); // list may include spells from all mods
 			rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
 		}
 	}

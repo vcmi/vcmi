@@ -14,6 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct Bonus;
+
 namespace spells
 {
 namespace effects

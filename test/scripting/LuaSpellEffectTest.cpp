@@ -91,7 +91,7 @@ public:
 
 	JsonNode saveRequest(const std::string &, const JsonNode & parameters)
 	{
-		JsonNode response = JsonUtils::boolNode(true);
+		JsonNode response(true);
 
 		request = parameters;
 		return response;
@@ -99,7 +99,7 @@ public:
 
 	JsonNode saveRequest2(ServerCallback *, const std::string &, const JsonNode & parameters)
 	{
-		JsonNode response = JsonUtils::boolNode(true);
+		JsonNode response(true);
 
 		request = parameters;
 		return response;
@@ -123,7 +123,7 @@ TEST_F(LuaSpellEffectTest, ApplicableRedirected)
 {
 	setDefaultExpectations();
 
-	JsonNode response = JsonUtils::boolNode(true);
+	JsonNode response(true);
 
 	EXPECT_CALL(*contextMock, callGlobal(Eq("applicable"),_)).WillOnce(Return(response));//TODO: check call parameter
 
@@ -154,12 +154,12 @@ TEST_F(LuaSpellEffectTest, ApplicableTargetRedirected)
 
 
 	JsonNode first;
-	first.Vector().push_back(JsonUtils::intNode(hex1.hex));
-	first.Vector().push_back(JsonUtils::intNode(id1));
+	first.Vector().emplace_back(hex1.hex);
+	first.Vector().emplace_back(id1);
 
 	JsonNode second;
-	second.Vector().push_back(JsonUtils::intNode(hex2.hex));
-	second.Vector().push_back(JsonUtils::intNode(-1));
+	second.Vector().emplace_back(hex2.hex);
+	second.Vector().emplace_back(-1);
 
 	JsonNode targets;
 	targets.Vector().push_back(first);
@@ -193,8 +193,8 @@ TEST_F(LuaSpellEffectTest, ApplyRedirected)
 	subject->apply(&serverMock, &mechanicsMock, target);
 
 	JsonNode first;
-	first.Vector().push_back(JsonUtils::intNode(hex1.hex));
-	first.Vector().push_back(JsonUtils::intNode(id1));
+	first.Vector().emplace_back(hex1.hex);
+	first.Vector().emplace_back(id1);
 
 	JsonNode targets;
 	targets.Vector().push_back(first);

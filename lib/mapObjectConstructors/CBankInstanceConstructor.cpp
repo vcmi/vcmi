@@ -27,7 +27,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Bank %s missing name!", getJsonKey());
 
-	VLC->generaltexth->registerString(input.meta, getNameTextID(), input["name"].String());
+	VLC->generaltexth->registerString(input.getModScope(), getNameTextID(), input["name"].String());
 
 	levels = input["levels"].Vector();
 	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());

@@ -17,10 +17,23 @@ class JsonNode;
 using JsonMap = std::map<std::string, JsonNode>;
 using JsonVector = std::vector<JsonNode>;
 
-struct Bonus;
-class CSelector;
-class CAddInfo;
-class ILimiter;
+struct DLL_LINKAGE JsonParsingSettings
+{
+	enum class JsonFormatMode
+	{
+		JSON, // strict implementation of json format
+		JSONC, // json format that also allows comments that start from '//'
+		JSON5 // Partial support of 'json5' format
+	};
+
+	JsonFormatMode mode = JsonFormatMode::JSON5;
+
+	/// Maximum depth of elements
+	uint32_t maxDepth = 30;
+
+	/// If set to true, parser will throw on any encountered error
+	bool strict = false;
+};
 
 class DLL_LINKAGE JsonNode
 {
@@ -37,30 +50,45 @@ public:
 	};
 
 private:
-	using JsonData = std::variant<std::monostate, bool, double, std::string, JsonVector, JsonMap, si64>;
+	using JsonData = std::variant<std::monostate, bool, double, std::string, JsonVector, JsonMap, int64_t>;
 
 	JsonData data;
 
-public:
-	/// free to use metadata fields
-	std::string meta;
-	// meta-flags like override
-	std::vector<std::string> flags;
+	/// Mod-origin of this particular field
+	std::string modScope;
 
-	//Create empty node
-	JsonNode(JsonType Type = JsonType::DATA_NULL);
-	//Create tree from Json-formatted input
-	explicit JsonNode(const char * data, size_t datasize);
+	bool overrideFlag = false;
+
+public:
+	JsonNode() = default;
+
+	/// Create single node with specified value
+	explicit JsonNode(bool boolean);
+	explicit JsonNode(int32_t number);
+	explicit JsonNode(uint32_t number);
+	explicit JsonNode(int64_t number);
+	explicit JsonNode(double number);
+	explicit JsonNode(const char * string);
+	explicit JsonNode(const std::string & string);
+
+	/// Create tree from Json-formatted input
 	explicit JsonNode(const std::byte * data, size_t datasize);
-	//Create tree from JSON file
+	explicit JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings);
+
+	/// Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);
-	explicit JsonNode(const std::string & modName, const JsonPath & fileURI);
+	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings);
+	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
 	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
 
-	bool operator == (const JsonNode &other) const;
-	bool operator != (const JsonNode &other) const;
+	bool operator==(const JsonNode & other) const;
+	bool operator!=(const JsonNode & other) const;
 
-	void setMeta(const std::string & metadata, bool recursive = true);
+	const std::string & getModScope() const;
+	void setModScope(const std::string & metadata, bool recursive = true);
+
+	void setOverrideFlag(bool value);
+	bool getOverrideFlag() const;
 
 	/// Convert node to another type. Converting to nullptr will clear all data
 	void setType(JsonType Type);
@@ -114,121 +142,91 @@ public:
 	const JsonNode & operator[](const std::string & child) const;
 
 	JsonNode & operator[](size_t child);
-	const JsonNode & operator[](size_t  child) const;
+	const JsonNode & operator[](size_t child) const;
 
-	std::string toJson(bool compact = false) const;
-	std::vector<std::byte> toBytes(bool compact = false) const;
+	std::string toCompactString() const;
+	std::string toString() const;
+	std::vector<std::byte> toBytes() const;
 
-	template <typename Handler> void serialize(Handler &h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
-		h & meta;
-		h & flags;
+		h & modScope;
+
+		if(h.version >= Handler::Version::JSON_FLAGS)
+		{
+			h & overrideFlag;
+		}
+		else
+		{
+			std::vector<std::string> oldFlags;
+			h & oldFlags;
+		}
 		h & data;
 	}
 };
 
 namespace JsonDetail
 {
-	// conversion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
 
-	template <typename T, int arithm>
-	struct JsonConvImpl;
+inline void convert(bool & value, const JsonNode & node)
+{
+	value = node.Bool();
+}
 
-	template <typename T>
-	struct JsonConvImpl<T, 1>
+template<typename T>
+auto convert(T & value, const JsonNode & node) -> std::enable_if_t<std::is_integral_v<T>>
+{
+	value = node.Integer();
+}
+
+template<typename T>
+auto convert(T & value, const JsonNode & node) -> std::enable_if_t<std::is_floating_point_v<T>>
+{
+	value = node.Float();
+}
+
+inline void convert(std::string & value, const JsonNode & node)
+{
+	value = node.String();
+}
+
+template<typename Type>
+void convert(std::map<std::string, Type> & value, const JsonNode & node)
+{
+	value.clear();
+	for(const JsonMap::value_type & entry : node.Struct())
+		value.insert(entry.first, entry.second.convertTo<Type>());
+}
+
+template<typename Type>
+void convert(std::set<Type> & value, const JsonNode & node)
+{
+	value.clear();
+	for(const JsonVector::value_type & entry : node.Vector())
 	{
-		static T convertImpl(const JsonNode & node)
-		{
-			return T((int)node.Float());
-		}
-	};
+		value.insert(entry.convertTo<Type>());
+	}
+}
 
-	template <typename T>
-	struct JsonConvImpl<T, 0>
+template<typename Type>
+void convert(std::vector<Type> & value, const JsonNode & node)
+{
+	value.clear();
+	for(const JsonVector::value_type & entry : node.Vector())
 	{
-		static T convertImpl(const JsonNode & node)
-		{
-			return T(node.Float());
-		}
-	};
+		value.push_back(entry.convertTo<Type>());
+	}
+}
 
-	template<typename Type>
-	struct JsonConverter
-	{
-		static Type convert(const JsonNode & node)
-		{
-			///this should be triggered only for numeric types and enums
-			static_assert(std::is_arithmetic_v<Type> || std::is_enum_v<Type> || std::is_class_v<Type>, "Unsupported type for JsonNode::convertTo()!");
-			return JsonConvImpl<Type, std::is_enum_v<Type> || std::is_class_v<Type> >::convertImpl(node);
-
-		}
-	};
-
-	template<typename Type>
-	struct JsonConverter<std::map<std::string, Type> >
-	{
-		static std::map<std::string, Type> convert(const JsonNode & node)
-		{
-			std::map<std::string, Type> ret;
-			for (const JsonMap::value_type & entry : node.Struct())
-			{
-				ret.insert(entry.first, entry.second.convertTo<Type>());
-			}
-			return ret;
-		}
-	};
-
-	template<typename Type>
-	struct JsonConverter<std::set<Type> >
-	{
-		static std::set<Type> convert(const JsonNode & node)
-		{
-			std::set<Type> ret;
-			for(const JsonVector::value_type & entry : node.Vector())
-			{
-				ret.insert(entry.convertTo<Type>());
-			}
-			return ret;
-		}
-	};
-
-	template<typename Type>
-	struct JsonConverter<std::vector<Type> >
-	{
-		static std::vector<Type> convert(const JsonNode & node)
-		{
-			std::vector<Type> ret;
-			for (const JsonVector::value_type & entry: node.Vector())
-			{
-				ret.push_back(entry.convertTo<Type>());
-			}
-			return ret;
-		}
-	};
-
-	template<>
-	struct JsonConverter<std::string>
-	{
-		static std::string convert(const JsonNode & node)
-		{
-			return node.String();
-		}
-	};
-
-	template<>
-	struct JsonConverter<bool>
-	{
-		static bool convert(const JsonNode & node)
-		{
-			return node.Bool();
-		}
-	};
 }
 
 template<typename Type>
 Type JsonNode::convertTo() const
 {
-	return JsonDetail::JsonConverter<Type>::convert(*this);
+	Type result;
+	JsonDetail::convert(result, *this);
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

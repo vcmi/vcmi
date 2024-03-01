@@ -116,6 +116,9 @@ public:
 	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE);
 
 	void resize(Point newSize);
+	/// Resizes text box to minimal size needed to fit current text
+	/// No effect if text is too large to fit and requires slider
+	void trimToFit();
 	void setText(const std::string & Txt);
 	void sliderMoved(int to);
 };

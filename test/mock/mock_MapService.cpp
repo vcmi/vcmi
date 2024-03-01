@@ -84,7 +84,7 @@ void MapServiceMock::saveMap(const std::unique_ptr<CMap> & map, boost::filesyste
 
 void MapServiceMock::addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename)
 {
-	auto s = data.toJson();
+	auto s = data.toString();
 	std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
 	if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())
