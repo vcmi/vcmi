@@ -624,7 +624,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				rp->areaIsolated().unite(borderAbove);
 			}
 
-			if (instance->object().ID == Obj::MONSTER)
+			if (object.isGuarded())
 			{
 				rp->areaVisitable().add(instance->getVisitablePosition());
 			}
