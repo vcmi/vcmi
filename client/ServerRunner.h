@@ -9,10 +9,13 @@
  */
 #pragma once
 
-#include "../lib/StartInfo.h"
+VCMI_LIB_NAMESPACE_BEGIN
+
+struct StartInfo;
+
+VCMI_LIB_NAMESPACE_END
 
 class CVCMIServer;
-struct StartInfo;
 
 class IServerRunner
 {
