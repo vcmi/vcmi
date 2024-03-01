@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../lib/StartInfo.h"
+
 class CVCMIServer;
 struct StartInfo;
 
