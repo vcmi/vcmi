@@ -624,7 +624,10 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				rp->areaIsolated().unite(borderAbove);
 			}
 
-			rp->areaVisitable().add(instance->getVisitablePosition());
+			if (instance->object().ID == Obj::MONSTER)
+			{
+				rp->areaVisitable().add(instance->getVisitablePosition());
+			}
 		}
 
 		switch (instance->object().ID.toEnum())
