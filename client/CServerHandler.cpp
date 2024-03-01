@@ -140,12 +140,6 @@ CServerHandler::CServerHandler()
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	registerTypesLobbyPacks(*applier);
-
-	auto lastDifficulty = settings["general"]["lastDifficulty"];
-	if (lastDifficulty.isNumber())
-	{
-		si->difficulty = lastDifficulty.Integer();
-	}
 }
 
 void CServerHandler::threadRunNetwork()
