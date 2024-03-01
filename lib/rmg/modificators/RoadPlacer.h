@@ -25,8 +25,10 @@ public:
 	void addRoadNode(const int3 & node);
 	void connectRoads(); //fills "roads" according to "roadNodes"
 	
+	// TODO: Use setters?
 	rmg::Area & areaForRoads();
 	rmg::Area & areaIsolated();
+	rmg::Area & areaVisitable();
 	const rmg::Area & getRoads() const;
 	
 protected:
@@ -38,6 +40,7 @@ protected:
 	rmg::Area roads; //all tiles with roads
 	rmg::Area areaRoads;
 	rmg::Area isolated;
+	rmg::Area visitableTiles; // Tiles occupied by removable or passable objects
 };
 
 VCMI_LIB_NAMESPACE_END
