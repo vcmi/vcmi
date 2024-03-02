@@ -397,25 +397,6 @@ void CSettingsView::on_comboBoxCursorType_currentIndexChanged(int index)
 	node->String() = cursorTypesList[index];
 }
 
-void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
-{
-	QVector<QWidget*> targetWidgets = {
-		ui->labelGeneral,
-		ui->labelVideo,
-		ui->labelArtificialIntelligence,
-		ui->labelRepositories
-	};
-
-	QWidget * currentTarget = targetWidgets[currentRow];
-
-	// We want to scroll in a way that will put target widget in topmost visible position
-	// To show not just header, but all settings in this group as well
-	// In order to do that, let's scroll to the very bottom and the scroll back up until target widget is visible
-	int maxPosition = ui->settingsScrollArea->verticalScrollBar()->maximum();
-	ui->settingsScrollArea->verticalScrollBar()->setValue(maxPosition);
-	ui->settingsScrollArea->ensureWidgetVisible(currentTarget, 5, 5);
-}
-
 void CSettingsView::loadTranslation()
 {
 	Languages::fillLanguages(ui->comboBoxLanguageBase, true);
