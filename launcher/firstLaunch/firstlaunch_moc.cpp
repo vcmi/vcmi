@@ -363,7 +363,7 @@ void FirstLaunchView::extractGogData()
 
 void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 {
-	QDir sourceRoot = QDir(path);
+	QDir sourceRoot{path};
 	
 	if(path.isEmpty())
 		sourceRoot.setPath(QFileDialog::getExistingDirectory(this, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
@@ -387,9 +387,10 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 	QStringList dirMaps = sourceRoot.entryList({"maps"}, QDir::Filter::Dirs);
 	QStringList dirMp3 = sourceRoot.entryList({"mp3"}, QDir::Filter::Dirs);
 
+	const auto noDataMessage = tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data.");
 	if(dirData.empty())
 	{
-		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
+		QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
 		return;
 	}
 
@@ -403,7 +404,7 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 		if (roeFiles.empty())
 		{
 			// Directory structure is correct (Data/Maps/Mp3) but no .lod archives that should be present in any install
-			QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select directory with installed Heroes III data."));
+			QMessageBox::critical(this, tr("Heroes III data not found!"), noDataMessage);
 			return;
 		}
 

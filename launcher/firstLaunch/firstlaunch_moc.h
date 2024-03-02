@@ -96,5 +96,4 @@ private slots:
 
 private:
 	Ui::FirstLaunchView * ui;
-
 };
