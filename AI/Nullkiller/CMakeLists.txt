@@ -17,6 +17,7 @@ set(Nullkiller_SRCS
 		AIUtility.cpp
 		Analyzers/ArmyManager.cpp
 		Analyzers/HeroManager.cpp
+		Engine/Settings.cpp
 		Engine/FuzzyEngines.cpp
 		Engine/FuzzyHelper.cpp
 		Engine/AIMemory.cpp
@@ -80,6 +81,7 @@ set(Nullkiller_HEADERS
 		AIUtility.h
 		Analyzers/ArmyManager.h
 		Analyzers/HeroManager.h
+		Engine/Settings.h
 		Engine/FuzzyEngines.h
 		Engine/FuzzyHelper.h
 		Engine/AIMemory.h

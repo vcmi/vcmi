@@ -24,9 +24,6 @@
 
 namespace NKAI
 {
-	const int SCOUT_TURN_DISTANCE_LIMIT = 5;
-	const int MAIN_TURN_DISTANCE_LIMIT = 10;
-
 namespace AIPathfinding
 {
 #ifdef ENVIRONMENT64
