@@ -1,15 +1,6 @@
 package eu.vcmi.vcmi;
 
-import android.content.Context;
 import android.os.Build;
-import android.os.Environment;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
 
 /**
  * @author F

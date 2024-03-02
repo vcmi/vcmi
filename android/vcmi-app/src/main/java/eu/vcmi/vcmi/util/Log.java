@@ -1,15 +1,6 @@
 package eu.vcmi.vcmi.util;
 
-import android.os.Environment;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
-
 import eu.vcmi.vcmi.BuildConfig;
-import eu.vcmi.vcmi.Const;
 
 /**
  * @author F
@@ -18,8 +9,6 @@ import eu.vcmi.vcmi.Const;
 public class Log
 {
     private static final boolean LOGGING_ENABLED_CONSOLE = BuildConfig.DEBUG;
-    private static final boolean LOGGING_ENABLED_FILE = true;
-    private static final String FILELOG_PATH = "/" + Const.VCMI_DATA_ROOT_FOLDER_NAME + "/cache/VCMI_launcher.log";
     private static final String TAG_PREFIX = "VCMI/";
     private static final String STATIC_TAG = "static";
 
@@ -33,19 +22,6 @@ public class Log
         if (LOGGING_ENABLED_CONSOLE)
         {
             android.util.Log.println(priority, TAG_PREFIX + tagString, msg);
-        }
-        if (LOGGING_ENABLED_FILE) // this is probably very inefficient, but should be enough for now...
-        {
-            try
-            {
-                final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory() + FILELOG_PATH, true));
-                fileWriter.write(String.format("[%s] %s: %s\n", formatPriority(priority), tagString, msg));
-                fileWriter.flush();
-                fileWriter.close();
-            }
-            catch (IOException ignored)
-            {
-            }
         }
     }
 
@@ -75,23 +51,6 @@ public class Log
             return "null";
         }
         return obj.getClass().getSimpleName();
-    }
-
-    public static void init()
-    {
-        if (LOGGING_ENABLED_FILE) // clear previous log
-        {
-            try
-            {
-                final BufferedWriter fileWriter = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory() + FILELOG_PATH, false));
-                fileWriter.write("Starting VCMI launcher log, " + DateFormat.getDateTimeInstance().format(new Date()) + "\n");
-                fileWriter.flush();
-                fileWriter.close();
-            }
-            catch (IOException ignored)
-            {
-            }
-        }
     }
 
     public static void v(final String msg)

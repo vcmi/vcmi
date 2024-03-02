@@ -12,9 +12,12 @@ import eu.vcmi.vcmi.NativeMethods;
  */
 public final class LibsLoader
 {
+    public static final String CLIENT_LIB = "vcmiclient_"
+        + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? Build.SUPPORTED_ABIS[0] : Build.CPU_ABI);
+
     public static void loadClientLibs(Context ctx)
     {
-        SDL.loadLibrary("vcmiclient");
+        SDL.loadLibrary(CLIENT_LIB);
         SDL.setContext(ctx);
     }
 
