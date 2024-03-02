@@ -277,7 +277,7 @@ void CWindowWithArtifacts::gestureArtPlaceHero(CArtifactsOfHeroBase & artsInst, 
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation & artLoc)
 {
-	updateSlots();
+	updateSlots(artLoc.slot);
 }
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw)
@@ -361,14 +361,14 @@ void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
 	updateSlots();
 }
 
-void CWindowWithArtifacts::updateSlots()
+void CWindowWithArtifacts::updateSlots(const ArtifactPosition & removedSlot)
 {
-	auto updateSlotBody = [](auto artSetWeak) -> void
+	auto updateSlotBody = [removedSlot](auto artSetWeak) -> void
 	{
 		if(const auto artSetPtr = artSetWeak.lock())
 		{
 			artSetPtr->updateWornSlots();
-			artSetPtr->updateBackpackSlots();
+			artSetPtr->updateBackpackSlots(removedSlot);
 			artSetPtr->redraw();
 		}
 	};

@@ -56,11 +56,11 @@ void CArtifactsOfHeroBackpack::onSliderMoved(int newVal)
 	redraw();
 }
 
-void CArtifactsOfHeroBackpack::updateBackpackSlots()
+void CArtifactsOfHeroBackpack::updateBackpackSlots(const std::optional<const ArtifactPosition> & removedSlot)
 {
 	if(backpackListBox)
 		backpackListBox->resize(getActiveSlotRowsNum());
-	CArtifactsOfHeroBase::updateBackpackSlots();
+	CArtifactsOfHeroBase::updateBackpackSlots(removedSlot);
 }
 
 size_t CArtifactsOfHeroBackpack::getActiveSlotRowsNum()

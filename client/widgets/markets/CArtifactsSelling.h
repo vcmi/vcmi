@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../CArtifactsOfHeroMarket.h"
-#include "CTradeBase.h"
+#include "CMarketBase.h"
 
 class CArtifactsSelling : public CResourcesBuying
 {
@@ -19,7 +19,7 @@ public:
 	void deselect() override;
 	void makeDeal() override;
 	void updateSelected() override;
-	void updateSlots() override;
+	void update() override;
 	std::shared_ptr<CArtifactsOfHeroMarket> getAOHset() const;
 
 private:
@@ -28,6 +28,7 @@ private:
 	std::shared_ptr<CTradeableItem> bidSelectedSlot;
 	ArtifactPosition selectedHeroSlot;
 
-	CTradeBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::SelectionParams getSelectionParams() const override;
+	void highlightingChanged();
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
 };

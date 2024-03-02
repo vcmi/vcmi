@@ -175,7 +175,7 @@ bool CSlider::receiveEvent(const Point &position, int eventType) const
 	return testTarget.isInside(position);
 }
 
-CSlider::CSlider(Point position, int totalw, const std::function<void(int)> & Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle style)
+CSlider::CSlider(Point position, int totalw, const SliderMovingFunctor & Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle style)
 	: Scrollable(LCLICK | DRAG, position, orientation ),
 	capacity(Capacity),
 	amount(Amount),

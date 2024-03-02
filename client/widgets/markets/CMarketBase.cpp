@@ -1,5 +1,5 @@
 /*
- * CTradeBase.cpp, part of VCMI engine
+ * CMarketBase.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,14 +8,13 @@
  *
  */
 #include "StdInc.h"
-#include "CTradeBase.h"
+#include "CMarketBase.h"
 
 #include "../MiscWidgets.h"
 
 #include "../Images.h"
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
-#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
@@ -28,14 +27,14 @@
 #include "../../../lib/CHeroHandler.h"
 #include "../../../lib/mapObjects/CGMarket.h"
 
-CTradeBase::CTradeBase(const IMarket * market, const CGHeroInstance * hero, const SelectionParamsFunctor & getParamsCallback)
+CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero, const SelectionParamsFunctor & getParamsCallback)
 	: market(market)
 	, hero(hero)
 	, selectionParamsCallback(getParamsCallback)
 {
 }
 
-void CTradeBase::deselect()
+void CMarketBase::deselect()
 {
 	if(hLeft)
 		hLeft->selectSlot(false);
@@ -43,19 +42,12 @@ void CTradeBase::deselect()
 		hRight->selectSlot(false);
 	hLeft = hRight = nullptr;
 	deal->block(true);
-	if(maxAmount)
-		maxAmount->block(true);
-	if(offerSlider)
-	{
-		offerSlider->scrollTo(0);
-		offerSlider->block(true);
-	}
 	bidQty = 0;
 	offerQty = 0;
 	updateSelected();
 }
 
-void CTradeBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+void CMarketBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
 {
 	if(newSlot == hCurSlot)
 		return;
@@ -66,15 +58,15 @@ void CTradeBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newS
 	newSlot->selectSlot(true);
 }
 
-void CTradeBase::updateSlots()
+void CMarketBase::update()
 {
 	if(bidTradePanel)
-		bidTradePanel->updateSlots();
+		bidTradePanel->update();
 	if(offerTradePanel)
-		offerTradePanel->updateSlots();
+		offerTradePanel->update();
 }
 
-void CTradeBase::updateSubtitles(EMarketMode marketMode)
+void CMarketBase::updateSubtitles(EMarketMode marketMode)
 {
 	if(hLeft)
 		for(const auto & slot : offerTradePanel->slots)
@@ -88,7 +80,7 @@ void CTradeBase::updateSubtitles(EMarketMode marketMode)
 		offerTradePanel->clearSubtitles();
 };
 
-void CTradeBase::updateSelected()
+void CMarketBase::updateSelected()
 {
 	const auto updateSelectedBody = [](std::shared_ptr<TradePanelBase> & tradePanel, const std::optional<const SelectionParamOneSide> & params)
 	{
@@ -125,9 +117,13 @@ CExperienceAltar::CExperienceAltar()
 	expForHero = std::make_shared<CLabel>(76, 545, FONT_SMALL, ETextAlignment::CENTER);
 }
 
-void CExperienceAltar::updateSlots()
+void CExperienceAltar::deselect()
 {
-	CTradeBase::updateSlots();
+	expForHero->setText(std::to_string(0));
+}
+
+void CExperienceAltar::update()
+{
 	expToLevel->setText(std::to_string(CGI->heroh->reqExp(CGI->heroh->level(hero->exp) + 1) - hero->exp));
 }
 
@@ -179,4 +175,33 @@ void CResourcesSelling::updateSubtitles()
 {
 	for(const auto & slot : bidTradePanel->slots)
 		slot->subtitle->setText(std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
+}
+
+CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
+
+	offerSlider = std::make_shared<CSlider>(Point(230, 489), 137, movingCallback, 0, 0, 0, Orientation::HORIZONTAL);
+	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
+		[this]()
+		{
+			offerSlider->scrollToMax();
+		});
+}
+
+void CMarketSlider::deselect()
+{
+	maxAmount->block(true);
+	offerSlider->scrollTo(0);
+	offerSlider->block(true);
+}
+
+void CMarketSlider::onOfferSliderMoved(int newVal)
+{
+	if(hLeft && hRight)
+	{
+		offerSlider->scrollTo(newVal);
+		updateSelected();
+		redraw();
+	}
 }

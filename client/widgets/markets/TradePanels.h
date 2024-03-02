@@ -51,11 +51,11 @@ public:
 	std::vector<std::shared_ptr<CTradeableItem>> slots;
 	UpdateSlotsFunctor updateSlotsCallback;
 	DeleteSlotsCheck deleteSlotsCheck;
-	std::shared_ptr<CTradeableItem> selected;
 	const int selectionWidth = 2;
-	std::shared_ptr<CTradeableItem> selectedSlot;
+	std::shared_ptr<CTradeableItem> selectedSlot;		// Separate slot that displays the contents of the highlighted slot
+	std::shared_ptr<CTradeableItem> highlightedSlot;	// One of the slots highlighted by a frame
 
-	virtual void updateSlots();
+	virtual void update();
 	virtual void deselect();
 	virtual void clearSubtitles();
 	void updateOffer(CTradeableItem & slot, int, int);

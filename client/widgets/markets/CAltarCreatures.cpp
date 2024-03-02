@@ -13,7 +13,6 @@
 
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
-#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
@@ -26,18 +25,19 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero, [this](){return CAltarCreatures::getSelectionParams();})
+	: CMarketBase(market, hero, [this](){return CAltarCreatures::getSelectionParams();})
+	, CMarketSlider(std::bind(&CAltarCreatures::onOfferSliderMoved, this, _1))
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
-	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("ALTSACR.DEF"),
+	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
 		CGI->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();});
 	labels.emplace_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
 		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
 	texts.emplace_back(std::make_unique<CTextBox>(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
-	offerSlider = std::make_shared<CSlider>(Point(231, 481), 137, std::bind(&CAltarCreatures::onOfferSliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
-	maxAmount = std::make_shared<CButton>(Point(147, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, offerSlider));
+	offerSlider->moveTo(pos.topLeft() + Point(231, 481));
+	maxAmount->setHelp(CGI->generaltexth->zelp[578]);
 
 	unitsOnAltar.resize(GameConstants::ARMY_SIZE, 0);
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
@@ -81,7 +81,7 @@ void CAltarCreatures::readExpValues()
 	}
 }
 
-void CAltarCreatures::updateControls()
+void CAltarCreatures::highlightingChanged()
 {
 	int sliderAmount = 0;
 	if(hLeft)
@@ -111,19 +111,21 @@ void CAltarCreatures::updateControls()
 	if(hLeft)
 		offerSlider->scrollTo(unitsOnAltar[hLeft->serial]);
 	maxAmount->block(offerSlider->getAmount() == 0);
+	updateSelected();
 }
 
-void CAltarCreatures::updateSlots()
+void CAltarCreatures::update()
 {
-	CExperienceAltar::updateSlots();
+	CMarketBase::update();
+	CExperienceAltar::update();
 	assert(bidTradePanel->slots.size() == offerTradePanel->slots.size());
 }
 
 void CAltarCreatures::deselect()
 {
-	CTradeBase::deselect();
-	updateSelected();
-	expForHero->setText(std::to_string(0));
+	CMarketBase::deselect();
+	CExperienceAltar::deselect();
+	CMarketSlider::deselect();
 }
 
 TExpType CAltarCreatures::calcExpAltarForHero()
@@ -139,8 +141,6 @@ TExpType CAltarCreatures::calcExpAltarForHero()
 
 void CAltarCreatures::makeDeal()
 {
-	deselect();
-
 	std::vector<TradeItemSell> ids;
 	std::vector<ui32> toSacrifice;
 
@@ -163,9 +163,10 @@ void CAltarCreatures::makeDeal()
 		heroSlot->setType(EType::CREATURE_PLACEHOLDER);
 		heroSlot->subtitle->clear();
 	}
+	deselect();
 }
 
-CTradeBase::SelectionParams CAltarCreatures::getSelectionParams() const
+CMarketBase::SelectionParams CAltarCreatures::getSelectionParams() const
 {
 	std::optional<SelectionParamOneSide> bidSelected = std::nullopt;
 	std::optional<SelectionParamOneSide> offerSelected = std::nullopt;
@@ -197,7 +198,7 @@ void CAltarCreatures::sacrificeAll()
 
 	if(hRight)
 		offerSlider->scrollTo(unitsOnAltar[hRight->serial]);
-	offerTradePanel->updateSlots();
+	offerTradePanel->update();
 	updateSelected();
 
 	deal->block(calcExpAltarForHero() == 0);
@@ -218,8 +219,7 @@ void CAltarCreatures::onOfferSliderMoved(int newVal)
 	if(hRight)
 		updateAltarSlot(hRight);
 	deal->block(calcExpAltarForHero() == 0);
-	updateControls();
-	updateSelected();
+	highlightingChanged();
 	redraw();
 }
 
@@ -230,7 +230,7 @@ void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 
 	auto * oppositeSlot = &hLeft;
 	auto oppositePanel = bidTradePanel;
-	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
+	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
 	if(hCurSlot == hLeft)
 	{
 		oppositeSlot = &hRight;
@@ -244,8 +244,7 @@ void CAltarCreatures::onSlotClickPressed(const std::shared_ptr<CTradeableItem> &
 			break;
 		}
 	assert(oppositeNewSlot);
-	CTradeBase::onSlotClickPressed(oppositeNewSlot, *oppositeSlot);
-	updateControls();
-	updateSelected();
+	CMarketBase::onSlotClickPressed(oppositeNewSlot, *oppositeSlot);
+	highlightingChanged();
 	redraw();
 }

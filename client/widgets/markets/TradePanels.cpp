@@ -196,7 +196,7 @@ void CTradeableItem::showPopupWindow(const Point & cursorPosition)
 	}
 }
 
-void TradePanelBase::updateSlots()
+void TradePanelBase::update()
 {
 	if(deleteSlotsCheck)
 		slots.erase(std::remove_if(slots.begin(), slots.end(), deleteSlotsCheck), slots.end());

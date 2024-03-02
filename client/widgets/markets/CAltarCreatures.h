@@ -9,13 +9,13 @@
  */
 #pragma once
 
-#include "CTradeBase.h"
+#include "CMarketBase.h"
 
-class CAltarCreatures : public CExperienceAltar, public CCreaturesSelling
+class CAltarCreatures : public CExperienceAltar, public CCreaturesSelling, public CMarketSlider
 {
 public:
 	CAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
-	void updateSlots() override;
+	void update() override;
 	void deselect() override;
 	TExpType calcExpAltarForHero() override;
 	void makeDeal() override;
@@ -25,10 +25,10 @@ private:
 	std::vector<int> unitsOnAltar;
 	std::vector<int> expPerUnit;
 
-	CTradeBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::SelectionParams getSelectionParams() const override;
 	void updateAltarSlot(const std::shared_ptr<CTradeableItem> & slot);
 	void readExpValues();
-	void updateControls();
-	void onOfferSliderMoved(int newVal);
+	void highlightingChanged();
+	void onOfferSliderMoved(int newVal) override;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
 };

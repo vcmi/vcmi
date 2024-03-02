@@ -9,16 +9,17 @@
  */
 #pragma once
 
-#include "CTradeBase.h"
+#include "CMarketBase.h"
 
-class CFreelancerGuild : public CCreaturesSelling , public CResourcesBuying
+class CFreelancerGuild : public CCreaturesSelling , public CResourcesBuying, public CMarketSlider
 {
 public:
 	CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero);
+	void deselect() override;
 	void makeDeal() override;
 
 private:
-	CTradeBase::SelectionParams getSelectionParams() const override;
-	void onOfferSliderMoved(int newVal);
+	CMarketBase::SelectionParams getSelectionParams() const override;
+	void highlightingChanged();
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
 };

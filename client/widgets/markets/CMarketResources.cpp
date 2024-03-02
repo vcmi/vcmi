@@ -13,7 +13,6 @@
 
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
-#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
@@ -25,23 +24,18 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero, [this](){return CMarketResources::getSelectionParams();})
+	: CMarketBase(market, hero, [this](){return CMarketResources::getSelectionParams();})
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CMarketResources::onSlotClickPressed(resSlot, hRight);},
 		[this](){CMarketResources::updateSubtitles();})
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, hLeft);})
+	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	labels.emplace_back(std::make_shared<CLabel>(299, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
-	deal = std::make_shared<CButton>(Point(306, 520), AnimationPath::builtin("TPMRKB.DEF"),
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
+	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this]() {CMarketResources::makeDeal(); });
-	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
-		[this]() {offerSlider->scrollToMax(); });
-	offerSlider = std::make_shared<CSlider>(Point(230, 489), 137, [this](int newVal)
-		{
-			CMarketResources::onOfferSliderMoved(newVal);
-		}, 0, 0, 0, Orientation::HORIZONTAL);
 
 	// Player's resources
 	assert(bidTradePanel);
@@ -57,8 +51,14 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 			};
 		});
 
-	CTradeBase::updateSlots();
-	CTradeBase::deselect();
+	CMarketBase::update();
+	CMarketResources::deselect();
+}
+
+void CMarketResources::deselect()
+{
+	CMarketBase::deselect();
+	CMarketSlider::deselect();
 }
 
 void CMarketResources::makeDeal()
@@ -70,7 +70,7 @@ void CMarketResources::makeDeal()
 	}
 }
 
-CTradeBase::SelectionParams CMarketResources::getSelectionParams() const
+CMarketBase::SelectionParams CMarketResources::getSelectionParams() const
 {
 	if(hLeft && hRight && hLeft->id != hRight->id)
 		return std::make_tuple(
@@ -80,22 +80,8 @@ CTradeBase::SelectionParams CMarketResources::getSelectionParams() const
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
-void CMarketResources::onOfferSliderMoved(int newVal)
+void CMarketResources::highlightingChanged()
 {
-	if(hLeft && hRight)
-	{
-		offerSlider->scrollTo(newVal);
-		updateSelected();
-		redraw();
-	}
-}
-
-void CMarketResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
-{
-	if(newSlot == hCurSlot)
-		return;
-
-	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
 	if(hLeft)
 	{
 		if(hRight)
@@ -108,15 +94,25 @@ void CMarketResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> 
 			maxAmount->block(isControlsBlocked);
 			deal->block(isControlsBlocked);
 		}
-		updateSelected();
-		offerTradePanel->updateSlots();
+		offerTradePanel->update();
 	}
+	updateSelected();
+}
+
+void CMarketResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+{
+	assert(newSlot);
+	if(newSlot == hCurSlot)
+		return;
+
+	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
+	highlightingChanged();
 	redraw();
 }
 
 void CMarketResources::updateSubtitles()
 {
-	CTradeBase::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
+	CMarketBase::updateSubtitles(EMarketMode::RESOURCE_RESOURCE);
 	if(hLeft)
 		offerTradePanel->slots[hLeft->serial]->subtitle->setText(CGI->generaltexth->allTexts[164]); // n/a
 }

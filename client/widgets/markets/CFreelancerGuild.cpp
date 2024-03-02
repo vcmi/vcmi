@@ -13,7 +13,6 @@
 
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
-#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
@@ -27,25 +26,21 @@
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero, [this](){return CFreelancerGuild::getSelectionParams();})
+	: CMarketBase(market, hero, [this](){return CFreelancerGuild::getSelectionParams();})
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & heroSlot){CFreelancerGuild::onSlotClickPressed(heroSlot, hLeft);},
-		[this](){CTradeBase::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
+		[this](){CMarketBase::updateSubtitles(EMarketMode::CREATURE_RESOURCE);})
+	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	labels.emplace_back(std::make_shared<CLabel>(299, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		(*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->getNameTranslated()));
 	labels.emplace_back(std::make_shared<CLabel>(155, 103, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
 		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
-	deal = std::make_shared<CButton>(Point(306, 520), AnimationPath::builtin("TPMRKB.DEF"),
+	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();});
-	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
-		[this]() {offerSlider->scrollToMax();});
-	offerSlider = std::make_shared<CSlider>(Point(232, 489), 137, [this](int newVal)
-		{
-			CFreelancerGuild::onOfferSliderMoved(newVal);
-		}, 0, 0, 0, Orientation::HORIZONTAL);
+	offerSlider->moveTo(pos.topLeft() + Point(232, 489));
 
 	// Hero creatures panel
 	assert(bidTradePanel);
@@ -70,7 +65,13 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 			};
 		});
 
-	CTradeBase::deselect();
+	CFreelancerGuild::deselect();
+}
+
+void CFreelancerGuild::deselect()
+{
+	CMarketBase::deselect();
+	CMarketSlider::deselect();
 }
 
 void CFreelancerGuild::makeDeal()
@@ -82,7 +83,7 @@ void CFreelancerGuild::makeDeal()
 	}
 }
 
-CTradeBase::SelectionParams CFreelancerGuild::getSelectionParams() const
+CMarketBase::SelectionParams CFreelancerGuild::getSelectionParams() const
 {
 	if(hLeft && hRight)
 		return std::make_tuple(
@@ -92,22 +93,8 @@ CTradeBase::SelectionParams CFreelancerGuild::getSelectionParams() const
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
-void CFreelancerGuild::onOfferSliderMoved(int newVal)
+void CFreelancerGuild::highlightingChanged()
 {
-	if(hLeft && hRight)
-	{
-		offerSlider->scrollTo(newVal);
-		updateSelected();
-		redraw();
-	}
-}
-
-void CFreelancerGuild::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
-{
-	if(newSlot == hCurSlot)
-		return;
-
-	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
 	if(hLeft)
 	{
 		if(hRight)
@@ -119,8 +106,18 @@ void CFreelancerGuild::onSlotClickPressed(const std::shared_ptr<CTradeableItem> 
 			maxAmount->block(false);
 			deal->block(false);
 		}
-		updateSelected();
-		offerTradePanel->updateSlots();
+		offerTradePanel->update();
 	}
+	updateSelected();
+}
+
+void CFreelancerGuild::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+{
+	assert(newSlot);
+	if(newSlot == hCurSlot)
+		return;
+
+	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
+	highlightingChanged();
 	redraw();
 }

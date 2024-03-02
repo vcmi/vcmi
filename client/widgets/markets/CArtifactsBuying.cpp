@@ -13,7 +13,6 @@
 
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
-#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
@@ -26,16 +25,19 @@
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
 CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero, [this](){return CArtifactsBuying::getSelectionParams();})
+	: CMarketBase(market, hero, [this](){return CArtifactsBuying::getSelectionParams();})
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, hLeft);})
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 
-	assert(dynamic_cast<const CGTownInstance*>(market));
-	labels.emplace_back(std::make_shared<CLabel>(299, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
-		(*CGI->townh)[dynamic_cast<const CGTownInstance*>(market)->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated()));
-	deal = std::make_shared<CButton>(Point(270, 520), AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CArtifactsBuying::makeDeal(); });
+	std::string title;
+	if(auto townMarket = dynamic_cast<const CGTownInstance*>(market))
+		title = (*CGI->townh)[townMarket->getFaction()]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
+	else
+		title = "Black market";	// find string allTexts!!
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
+	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
+		CGI->generaltexth->zelp[595], [this](){CArtifactsBuying::makeDeal();});
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 
 	// Player's resources
@@ -49,7 +51,7 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 			CArtifactsBuying::onSlotClickPressed(newSlot, hRight);
 		}, [this]()
 		{
-			CTradeBase::updateSubtitles(EMarketMode::RESOURCE_ARTIFACT);
+			CMarketBase::updateSubtitles(EMarketMode::RESOURCE_ARTIFACT);
 		}, market->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT));
 	offerTradePanel->deleteSlotsCheck = [this](const std::shared_ptr<CTradeableItem> & slot)
 	{
@@ -57,8 +59,8 @@ CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance 
 	};
 	offerTradePanel->moveTo(pos.topLeft() + Point(328, 181));
 
-	CTradeBase::updateSlots();
-	CTradeBase::deselect();
+	CMarketBase::update();
+	CMarketBase::deselect();
 }
 
 void CArtifactsBuying::makeDeal()
@@ -67,7 +69,7 @@ void CArtifactsBuying::makeDeal()
 	deselect();
 }
 
-CTradeBase::SelectionParams CArtifactsBuying::getSelectionParams() const
+CMarketBase::SelectionParams CArtifactsBuying::getSelectionParams() const
 {
 	if(hLeft && hRight)
 		return std::make_tuple(
@@ -77,12 +79,8 @@ CTradeBase::SelectionParams CArtifactsBuying::getSelectionParams() const
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
-void CArtifactsBuying::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+void CArtifactsBuying::highlightingChanged()
 {
-	if(newSlot == hCurSlot)
-		return;
-
-	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
 	if(hLeft)
 	{
 		if(hRight)
@@ -90,8 +88,18 @@ void CArtifactsBuying::onSlotClickPressed(const std::shared_ptr<CTradeableItem> 
 			market->getOffer(hLeft->id, hRight->id, bidQty, offerQty, EMarketMode::RESOURCE_ARTIFACT);
 			deal->block(LOCPLINT->cb->getResourceAmount(GameResID(hLeft->id)) >= bidQty ? false : true);
 		}
-		updateSelected();
-		offerTradePanel->updateSlots();
+		offerTradePanel->update();
 	}
+	updateSelected();
+}
+
+void CArtifactsBuying::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+{
+	assert(newSlot);
+	if(newSlot == hCurSlot)
+		return;
+
+	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
+	highlightingChanged();
 	redraw();
 }

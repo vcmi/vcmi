@@ -13,7 +13,6 @@
 
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
-#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 
 #include "../../CGameInfo.h"
@@ -24,21 +23,16 @@
 #include "../../../lib/CGeneralTextHandler.h"
 
 CTransferResources::CTransferResources(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero, [this](){return CTransferResources::getSelectionParams();})
+	: CMarketBase(market, hero, [this](){return CTransferResources::getSelectionParams();})
 	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CTransferResources::onSlotClickPressed(heroSlot, hLeft);})
+	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	labels.emplace_back(std::make_shared<CLabel>(299, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
+	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[158]));
 	labels.emplace_back(std::make_shared<CLabel>(445, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]));
-	deal = std::make_shared<CButton>(Point(306, 520), AnimationPath::builtin("TPMRKB.DEF"),
+	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
 		CGI->generaltexth->zelp[595], [this]() {CTransferResources::makeDeal();});
-	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
-		[this]() {offerSlider->scrollToMax();});
-	offerSlider = std::make_shared<CSlider>(Point(230, 489), 137, [this](int newVal)
-		{
-			CTransferResources::onOfferSliderMoved(newVal);
-		}, 0, 0, 0, Orientation::HORIZONTAL);
 
 	// Player's resources
 	assert(bidTradePanel);
@@ -51,8 +45,14 @@ CTransferResources::CTransferResources(const IMarket * market, const CGHeroInsta
 		});
 	offerTradePanel->moveTo(pos.topLeft() + Point(333, 84));
 
-	CTradeBase::updateSlots();
+	CMarketBase::update();
 	CTransferResources::deselect();
+}
+
+void CTransferResources::deselect()
+{
+	CMarketBase::deselect();
+	CMarketSlider::deselect();
 }
 
 void CTransferResources::makeDeal()
@@ -64,7 +64,7 @@ void CTransferResources::makeDeal()
 	}
 }
 
-CTradeBase::SelectionParams CTransferResources::getSelectionParams() const
+CMarketBase::SelectionParams CTransferResources::getSelectionParams() const
 {
 	if(hLeft && hRight)
 		return std::make_tuple(
@@ -74,22 +74,8 @@ CTradeBase::SelectionParams CTransferResources::getSelectionParams() const
 		return std::make_tuple(std::nullopt, std::nullopt);
 }
 
-void CTransferResources::onOfferSliderMoved(int newVal)
+void CTransferResources::highlightingChanged()
 {
-	if(hLeft && hRight)
-	{
-		offerSlider->scrollTo(newVal);
-		updateSelected();
-		redraw();
-	}
-}
-
-void CTransferResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
-{
-	if(newSlot == hCurSlot)
-		return;
-
-	CTradeBase::onSlotClickPressed(newSlot, hCurSlot);
 	if(hLeft)
 	{
 		if(hRight)
@@ -100,8 +86,18 @@ void CTransferResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem
 			maxAmount->block(false);
 			deal->block(false);
 		}
-		updateSelected();
-		offerTradePanel->updateSlots();
+		offerTradePanel->update();
 	}
+	updateSelected();
+}
+
+void CTransferResources::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot)
+{
+	assert(newSlot);
+	if(newSlot == hCurSlot)
+		return;
+
+	CMarketBase::onSlotClickPressed(newSlot, hCurSlot);
+	highlightingChanged();
 	redraw();
 }

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../CArtifactsOfHeroAltar.h"
-#include "CTradeBase.h"
+#include "CMarketBase.h"
 
 class CAltarArtifacts : public CExperienceAltar
 {
@@ -19,7 +19,7 @@ public:
 	TExpType calcExpAltarForHero() override;
 	void deselect() override;
 	void makeDeal() override;
-	void updateSlots() override;
+	void update() override;
 	void sacrificeAll() override;
 	void sacrificeBackpack();
 	std::shared_ptr<CArtifactsOfHeroAltar> getAOHset() const;
@@ -33,7 +33,7 @@ private:
 	std::map<std::shared_ptr<CTradeableItem>, const CArtifactInstance*> tradeSlotsMap;
 
 	void updateAltarSlots();
-	CTradeBase::SelectionParams getSelectionParams() const override;
+	CMarketBase::SelectionParams getSelectionParams() const override;
 	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & altarSlot, std::shared_ptr<CTradeableItem> & hCurSlot) override;
 	TExpType calcExpCost(ArtifactID id);
 };

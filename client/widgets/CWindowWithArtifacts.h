@@ -46,7 +46,7 @@ protected:
 	std::vector<CArtifactsOfHeroPtr> artSets;
 	CloseCallback closeCallback;
 
-	void updateSlots();
+	void updateSlots(const ArtifactPosition & removedSlot = ArtifactPosition::PRE_FIRST);
 	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
 	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
 	void markPossibleSlots();

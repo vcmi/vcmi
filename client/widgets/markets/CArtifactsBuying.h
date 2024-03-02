@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CTradeBase.h"
+#include "CMarketBase.h"
 
 class CArtifactsBuying : public CResourcesSelling
 {
@@ -18,6 +18,7 @@ public:
 	void makeDeal() override;
 
 private:
-	CTradeBase::SelectionParams getSelectionParams() const override;
-	void CArtifactsBuying::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
+	CMarketBase::SelectionParams getSelectionParams() const override;
+	void highlightingChanged();
+	void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<CTradeableItem> & hCurSlot);
 };

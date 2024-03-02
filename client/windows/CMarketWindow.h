@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/markets/CTradeBase.h"
+#include "../widgets/markets/CMarketBase.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 
@@ -43,5 +43,8 @@ private:
 	std::shared_ptr<CButton> quitButton;
 	std::function<void()> windowClosedCallback;
 	const Point quitButtonPos = Point(516, 520);
-	std::shared_ptr<CTradeBase> marketWidget;
+	std::shared_ptr<CMarketBase> marketWidget;
+
+	// This is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
+	std::shared_ptr<CPicture> artSlotBack;
 };

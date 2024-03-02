@@ -26,16 +26,16 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 
 CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * hero)
-	: CTradeBase(market, hero, [this](){return CAltarArtifacts::getSelectionParams();})
+	: CMarketBase(market, hero, [this](){return CAltarArtifacts::getSelectionParams();})
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 
-	assert(market);
+	assert(dynamic_cast<const CGArtifactsAltar*>(market));
 	auto altarObj = dynamic_cast<const CGArtifactsAltar*>(market);
 	altarId = altarObj->id;
 	altarArtifacts = altarObj;
 
-	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("ALTSACR.DEF"),
+	deal = std::make_shared<CButton>(Point(269, 520), AnimationPath::builtin("ALTSACR.DEF"),
 		CGI->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); });
 	labels.emplace_back(std::make_shared<CLabel>(450, 32, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
 	labels.emplace_back(std::make_shared<CLabel>(302, 424, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
@@ -60,7 +60,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	offerTradePanel->updateSlotsCallback = std::bind(&CAltarArtifacts::updateAltarSlots, this);
 	offerTradePanel->moveTo(pos.topLeft() + Point(315, 52));
 
-	CTradeBase::updateSelected();
+	CMarketBase::updateSelected();
 	CAltarArtifacts::deselect();
 };
 
@@ -75,8 +75,8 @@ TExpType CAltarArtifacts::calcExpAltarForHero()
 
 void CAltarArtifacts::deselect()
 {
-	CTradeBase::deselect();
-	expForHero->setText(std::to_string(0));
+	CMarketBase::deselect();
+	CExperienceAltar::deselect();
 	tradeSlotsMap.clear();
 	// The event for removing artifacts from the altar will not be triggered. Therefore, we clean the altar immediately.
 	for(auto & slot : offerTradePanel->slots)
@@ -86,9 +86,10 @@ void CAltarArtifacts::deselect()
 	}
 }
 
-void CAltarArtifacts::updateSlots()
+void CAltarArtifacts::update()
 {
-	CExperienceAltar::updateSlots();
+	CMarketBase::update();
+	CExperienceAltar::update();
 	if(const auto art = hero->getArt(ArtifactPosition::TRANSITION_POS))
 	{
 		hRight = offerTradePanel->selectedSlot;
@@ -189,7 +190,7 @@ void CAltarArtifacts::putBackArtifacts()
 		LOCPLINT->cb->bulkMoveArtifacts(altarId, heroArts->getHero()->id, false, true, true);
 }
 
-CTradeBase::SelectionParams CAltarArtifacts::getSelectionParams() const
+CMarketBase::SelectionParams CAltarArtifacts::getSelectionParams() const
 {
 	if(hRight)
 		return std::make_tuple(
