@@ -75,7 +75,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		PathfinderSettings ps;
 
-		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
+		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = ai->settings->getMainHeroTurnDistanceLimit();
 		ps.useHeroChain = false;
 
 		ai->pathfinder->updatePaths(pair.second, ps);
@@ -189,7 +189,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	}
 
 	PathfinderSettings ps;
-	ps.mainTurnDistanceLimit = ps.scoutTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
+	ps.mainTurnDistanceLimit = ps.scoutTurnDistanceLimit = ai->settings->getMainHeroTurnDistanceLimit();
 
 	ai->pathfinder->updatePaths(townHeroes, ps);
 

@@ -25,6 +25,7 @@ namespace NKAI
 {
 
 const float MIN_PRIORITY = 0.01f;
+const float SMALL_SCAN_MIN_PRIORITY = 0.4f;
 
 enum class HeroLockedReason
 {
@@ -37,6 +38,15 @@ enum class HeroLockedReason
 	HERO_CHAIN = 3
 };
 
+enum class ScanDepth
+{
+	MAIN_FULL = 0,
+
+	SMALL = 1,
+
+	ALL_FULL = 2
+};
+
 class Nullkiller
 {
 private:
@@ -44,6 +54,7 @@ private:
 	int3 targetTile;
 	ObjectInstanceID targetObject;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
+	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;
 
@@ -85,6 +96,7 @@ public:
 	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);
 	const TResources & getLockedResources() const { return lockedResources; }
+	ScanDepth getScanDepth() const { return scanDepth; }
 
 private:
 	void resetAiState();
