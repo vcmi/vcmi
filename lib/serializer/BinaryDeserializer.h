@@ -96,7 +96,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	{
 		static T *invoke(IGameCallback *cb)
 		{
-			static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+			static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
 			return new T(cb);
 		}
 	};
@@ -171,21 +171,21 @@ public:
 		return * this;
 	}
 
-	template < class T, typename std::enable_if < std::is_fundamental<T>::value && !std::is_same<T, bool>::value, int  >::type = 0 >
+	template < class T, typename std::enable_if_t < std::is_fundamental_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
 	void load(T &data)
 	{
 		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianess);
 	}
 
-	template < typename T, typename std::enable_if < is_serializeable<BinaryDeserializer, T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < is_serializeable<BinaryDeserializer, T>::value, int  > = 0 >
 	void load(T &data)
 	{
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
-		typedef typename std::remove_const<T>::type nonConstT;
+		typedef typename std::remove_const_t<T> nonConstT;
 		auto & hlp = const_cast<nonConstT &>(data);
 		hlp.serialize(*this);
 	}
-	template < typename T, typename std::enable_if < std::is_array<T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_array_v<T>, int  > = 0 >
 	void load(T &data)
 	{
 		ui32 size = std::size(data);
@@ -193,7 +193,7 @@ public:
 			load(data[i]);
 	}
 
-	template < typename T, typename std::enable_if < std::is_enum<T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
 	void load(T &data)
 	{
 		si32 read;
@@ -201,7 +201,7 @@ public:
 		data = static_cast<T>(read);
 	}
 
-	template < typename T, typename std::enable_if < std::is_same<T, bool>::value, int >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_same_v<T, bool>, int > = 0 >
 	void load(T &data)
 	{
 		ui8 read;
@@ -209,7 +209,7 @@ public:
 		data = static_cast<bool>(read);
 	}
 
-	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
+	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void load(std::vector<T> &data)
 	{
 		ui32 length = readAndCheckLength();
@@ -218,7 +218,7 @@ public:
 			load( data[i]);
 	}
 
-	template < typename T, typename std::enable_if < std::is_pointer<T>::value, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_pointer_v<T>, int  > = 0 >
 	void load(T &data)
 	{
 		bool isNull;
@@ -232,7 +232,7 @@ public:
 		loadPointerImpl(data);
 	}
 
-	template < typename T, typename std::enable_if < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
 	void loadPointerImpl(T &data)
 	{
 		using DataType = std::remove_pointer_t<T>;
@@ -245,12 +245,12 @@ public:
 		data = const_cast<DataType *>(constData);
 	}
 
-	template < typename T, typename std::enable_if < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  >::type = 0 >
+	template < typename T, typename std::enable_if_t < !std::is_base_of_v<Entity, std::remove_pointer_t<T>>, int  > = 0 >
 	void loadPointerImpl(T &data)
 	{
 		if(reader->smartVectorMembersSerialization)
 		{
-			typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
+			typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
 			typedef typename VectorizedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
 			typedef typename VectorizedIDType<TObjectType>::type IDType;
 			if(const auto *info = reader->getVectorizedTypeInfo<VType, IDType>())
@@ -292,8 +292,8 @@ public:
 
 		if(!tid)
 		{
-			typedef typename std::remove_pointer<T>::type npT;
-			typedef typename std::remove_const<npT>::type ncpT;
+			typedef typename std::remove_pointer_t<T> npT;
+			typedef typename std::remove_const_t<npT> ncpT;
 			data = ClassObjectCreator<ncpT>::invoke(cb);
 			ptrAllocated(data, pid);
 			load(*data);
@@ -326,7 +326,7 @@ public:
 	template <typename T>
 	void load(std::shared_ptr<T> &data)
 	{
-		typedef typename std::remove_const<T>::type NonConstT;
+		typedef typename std::remove_const_t<T> NonConstT;
 		NonConstT *internalPtr;
 		load(internalPtr);
 

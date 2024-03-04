@@ -194,7 +194,7 @@ public:
 template<typename Container>
 int3 findClosestTile (Container & container, int3 dest)
 {
-	static_assert(std::is_same<typename Container::value_type, int3>::value,
+	static_assert(std::is_same_v<typename Container::value_type, int3>,
 		"findClosestTile requires <int3> container.");
 
 	int3 result(-1, -1, -1);
