@@ -38,7 +38,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"
 
-//#include "../../lib/GameSettings.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/serializer/JsonSerializer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
@@ -168,7 +167,6 @@ RandomMapTab::RandomMapTab():
 	}
 	
 	loadOptions();
-	//updateMapInfoByHost();
 }
 
 void RandomMapTab::updateMapInfoByHost()
@@ -467,7 +465,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	//int totalPlayers = randomMapTab.obtainMapGenOptions().getPlayerLimit();
 	int totalPlayers = randomMapTab.obtainMapGenOptions().getMaxPlayersCount();
 	assert(totalPlayers <= PlayerColor::PLAYER_LIMIT_I);
-	auto settings = randomMapTab.obtainMapGenOptions().getPlayersSettings();
+	auto playerSettings = randomMapTab.obtainMapGenOptions().getPlayersSettings();
 	variables["totalPlayers"].Integer() = totalPlayers;
 	
 	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
@@ -508,20 +506,20 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	// Window should have X * X columns, where X is max players allowed for current settings
 	// For random player count, X is 8
 
-	if (totalPlayers > settings.size())
+	if (totalPlayers > playerSettings.size())
 	{
 		auto savedPlayers = randomMapTab.obtainMapGenOptions().getSavedPlayersMap();
 		for (const auto & player : savedPlayers)
 		{
-			if (!vstd::contains(settings, player.first))
+			if (!vstd::contains(playerSettings, player.first))
 			{
-				settings[player.first] = player.second;
+				playerSettings[player.first] = player.second;
 			}
 		}
 	}
 
 	std::vector<CMapGenOptions::CPlayerSettings> settingsVec;
-	for (const auto & player : settings)
+	for (const auto & player : playerSettings)
 	{
 		settingsVec.push_back(player.second);
 	}

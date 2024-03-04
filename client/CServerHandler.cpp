@@ -196,10 +196,7 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 	auto si = std::make_shared<StartInfo>();
 
 	auto lastDifficulty = settings["general"]["lastDifficulty"];
-	if (lastDifficulty.isNumber())
-	{
-		si->difficulty = lastDifficulty.Integer();
-	}
+	si->difficulty = lastDifficulty.Integer();
 
 	logNetwork->trace("\tStarting local server");
 	serverRunner->start(getLocalPort(), connectToLobby, si);

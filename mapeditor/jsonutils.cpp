@@ -69,8 +69,10 @@ QVariant toVariant(const JsonNode & node)
 		return QVariant(node.Bool());
 		break;
 	case JsonNode::JsonType::DATA_FLOAT:
-	case JsonNode::JsonType::DATA_INTEGER:
 		return QVariant(node.Float());
+		break;
+	case JsonNode::JsonType::DATA_INTEGER:
+		return QVariant(node.Integer());
 		break;
 	case JsonNode::JsonType::DATA_STRING:
 		return QVariant(QString::fromUtf8(node.String().c_str()));

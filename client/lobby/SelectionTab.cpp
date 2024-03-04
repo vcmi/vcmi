@@ -168,7 +168,11 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
 		// TODO: Global constants?
-		int sizes[] = {36, 72, 108, 144, 0};
+		int sizes[] = {CMapHeader::MAP_SIZE_SMALL,
+						CMapHeader::MAP_SIZE_MIDDLE,
+						CMapHeader::MAP_SIZE_LARGE,
+						CMapHeader::MAP_SIZE_XLARGE,
+						0};
 		const char * filterIconNmes[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 		for(int i = 0; i < 5; i++)
 			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true)));
