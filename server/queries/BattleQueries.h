@@ -23,11 +23,13 @@ public:
 	std::array<const CArmedInstance *,2> belligerents;
 	std::array<int, 2> initialHeroMana;
 
+	bool isAiVsHuman;
 	BattleID battleID;
 	std::optional<BattleResult> result;
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
+	void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 	bool blocksPack(const CPack *pack) const override;
 	void onRemoval(PlayerColor color) override;
 	void onExposure(QueryPtr topQuery) override;
