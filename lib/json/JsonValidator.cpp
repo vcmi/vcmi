@@ -105,6 +105,14 @@ static std::string enumCheck(JsonValidator & validator, const JsonNode & baseSch
 	return validator.makeErrorMessage("Key must have one of predefined values");
 }
 
+static std::string constCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
+{
+	if (data == schema)
+		return "";
+
+	return validator.makeErrorMessage("Key must have have constant value");
+}
+
 static std::string typeCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 {
 	static const std::unordered_map<std::string, JsonNode::JsonType> stringToType =
@@ -496,6 +504,7 @@ JsonValidator::TValidatorMap createCommonFields()
 	ret["anyOf"] = anyOfCheck;
 	ret["oneOf"] = oneOfCheck;
 	ret["enum"]  = enumCheck;
+	ret["const"]  = constCheck;
 	ret["type"]  = typeCheck;
 	ret["not"]   = notCheck;
 	ret["$ref"]  = refCheck;
