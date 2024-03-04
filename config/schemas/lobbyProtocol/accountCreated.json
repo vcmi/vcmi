@@ -1,0 +1,26 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: accountCreated",
+	"description" : "Sent by server when player successfully creates a new account. Note that it does not automatically logs in created account",
+	"required" : [ "type", "accountID", "accountCookie" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "accountCreated"
+		},
+		"accountID" :
+		{
+			"type" : "string",
+			"description" : "Unique ID of account that client must remember for future login attempts"
+		},
+		"accountCookie" :
+		{
+			"type" : "string",
+			"description" : "Private access cookie of account that client must remember for future login attempts"
+		}
+	}
+}

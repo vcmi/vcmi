@@ -1,0 +1,37 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: clientLogin",
+	"description" : "Sent by client when player requests lobby login",
+
+	"required" : [ "type", "accountID", "accountCookie", "language", "version" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "clientLogin"
+		},
+		"accountID" :
+		{
+			"type" : "string",
+			"description" : "ID of existing account to login with"
+		},
+		"accountCookie" :
+		{
+			"type" : "string",
+			"description" : "Secret UUID for identification"
+		},
+		"language" :
+		{
+			"type" : "string",
+			"description" : "Language of client, see lib/Languages.h for full list"
+		},
+		"version" :
+		{
+			"type" : "string",
+			"description" : "Version of client, e.g. 1.5.0"
+		}
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: sendChatMessage",
+	"description" : "Sent by client when player requests lobby login",
+	"required" : [ "accountID", "accountCookie", "language", "version" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "sendChatMessage"
+		},
+		"messageText" :
+		{
+			"type" : "string",
+			"description" : "Text of sent message"
+		}
+	}
+}

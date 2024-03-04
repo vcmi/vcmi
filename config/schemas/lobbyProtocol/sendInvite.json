@@ -1,0 +1,21 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: sendInvite",
+	"description" : "Sent by client when player invites another player into his current game room",
+	"required" : [ "type", "accountID" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "sendInvite"
+		},
+		"accountID" :
+		{
+			"type" : "string",
+			"description" : "ID of account to invite into the room"
+		}
+	}
+}

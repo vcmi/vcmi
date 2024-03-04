@@ -1,0 +1,27 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: activateGameRoom",
+	"description" : "Sent by client when player wants to activate a game room",
+	"required" : [ "accountID", "accountCookie", "language", "version" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "activateGameRoom"
+		},
+		"hostAccountID" :
+		{
+			"type" : "string",
+			"description" : "Account ID that hosts match server that player wants to activate"
+		},
+		"roomType" :
+		{
+			"type" : "string",
+			"enum" : [ "public", "private" ],
+			"description" : "Room type to use for activation"
+		}
+	}
+}
