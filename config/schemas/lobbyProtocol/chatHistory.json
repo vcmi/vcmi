@@ -15,7 +15,7 @@
 		"messages" :
 		{
 			"type" : "array",
-			"description" : "List of recent chat messages"
+			"description" : "List of recent chat messages",
 			"items" :
 			{
 				"type" : "object",

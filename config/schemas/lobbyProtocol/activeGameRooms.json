@@ -15,7 +15,7 @@
 		"gameRooms" :
 		{
 			"type" : "array",
-			"description" : "List of currently available game rooms"
+			"description" : "List of currently available game rooms",
 			"items" :
 			{
 				"type" : "object",

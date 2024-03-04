@@ -15,7 +15,7 @@
 		"accounts" :
 		{
 			"type" : "array",
-			"description" : "List of accounts that are currently online"
+			"description" : "List of accounts that are currently online",
 			"items" :
 			{
 				"type" : "object",
