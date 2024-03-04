@@ -22,6 +22,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/MetaString.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/TextOperations.h"
 
 GlobalLobbyClient::GlobalLobbyClient() = default;
@@ -273,6 +274,7 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
+	assert(JsonUtils::validate(data, "vcmi:lobbyProtocol/" + data["type"].String(), "network"));
 	networkConnection->sendPacket(data.toBytes());
 }
 
@@ -362,5 +364,6 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 	toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 	toSend["gameRoomID"] = settings["lobby"]["roomID"];
 
+	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), "network"));
 	netConnection->sendPacket(toSend.toBytes());
 }

@@ -60,6 +60,7 @@ NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) c
 
 void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNode & json)
 {
+	assert(JsonUtils::validate(json, "vcmi:lobbyProtocol/" + json["type"].String(), "network"));
 	target->sendPacket(json.toBytes());
 }
 
@@ -264,6 +265,7 @@ JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & mes
 	if (!JsonUtils::validate(json, schemaName, "network"))
 	{
 		logGlobal->info("Json validation error encountered!");
+		assert(0);
 		return JsonNode();
 	}
 
