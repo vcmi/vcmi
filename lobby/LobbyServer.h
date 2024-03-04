@@ -77,7 +77,7 @@ class LobbyServer final : public INetworkServerListener
 	void receiveServerProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 	void receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json);
-	void receiveOpenGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
+	void receiveActivateGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveJoinGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveLeaveGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveSendInvite(const NetworkConnectionPtr & connection, const JsonNode & json);

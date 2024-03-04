@@ -279,7 +279,7 @@ void GlobalLobbyClient::sendMessage(const JsonNode & data)
 void GlobalLobbyClient::sendOpenPublicRoom()
 {
 	JsonNode toSend;
-	toSend["type"].String() = "openGameRoom";
+	toSend["type"].String() = "activateGameRoom";
 	toSend["hostAccountID"] = settings["lobby"]["accountID"];
 	toSend["roomType"].String() = "public";
 	sendMessage(toSend);
@@ -288,7 +288,7 @@ void GlobalLobbyClient::sendOpenPublicRoom()
 void GlobalLobbyClient::sendOpenPrivateRoom()
 {
 	JsonNode toSend;
-	toSend["type"].String() = "openGameRoom";
+	toSend["type"].String() = "activateGameRoom";
 	toSend["hostAccountID"] = settings["lobby"]["accountID"];
 	toSend["roomType"].String() = "private";
 	sendMessage(toSend);

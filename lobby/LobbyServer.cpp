@@ -258,8 +258,8 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 		if(messageType == "sendChatMessage")
 			return receiveSendChatMessage(connection, json);
 
-		if(messageType == "openGameRoom")
-			return receiveOpenGameRoom(connection, json);
+		if(messageType == "activateGameRoom")
+			return receiveActivateGameRoom(connection, json);
 
 		if(messageType == "joinGameRoom")
 			return receiveJoinGameRoom(connection, json);
@@ -464,7 +464,7 @@ void LobbyServer::receiveServerProxyLogin(const NetworkConnectionPtr & connectio
 	//connection->close();
 }
 
-void LobbyServer::receiveOpenGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
+void LobbyServer::receiveActivateGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
 	std::string hostAccountID = json["hostAccountID"].String();
 	std::string accountID = activeAccounts[connection];
