@@ -12,7 +12,9 @@
 
 #include "LobbyDatabase.h"
 
+#include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
+#include "../lib/json/JsonUtils.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -230,6 +232,44 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 	broadcastActiveGameRooms();
 }
 
+JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & message) const
+{
+	JsonParsingSettings parserSettings;
+	parserSettings.mode = JsonParsingSettings::JsonFormatMode::JSON;
+	parserSettings.maxDepth = 2;
+	parserSettings.strict = true;
+
+	JsonNode json;
+	try
+	{
+		JsonNode jsonTemp(message.data(), message.size());
+		json = std::move(jsonTemp);
+	}
+	catch (const JsonFormatException & e)
+	{
+		logGlobal->info(std::string("Json parsing error encountered: ") + e.what());
+		return JsonNode();
+	}
+
+	std::string messageType = json["type"].String();
+
+	if (messageType.empty())
+	{
+		logGlobal->info("Json parsing error encountered: Message type not set!");
+		return JsonNode();
+	}
+
+	std::string schemaName = "vcmi:lobbyProtocol/" + messageType;
+
+	if (!JsonUtils::validate(json, schemaName, "network"))
+	{
+		logGlobal->info("Json validation error encountered!");
+		return JsonNode();
+	}
+
+	return json;
+}
+
 void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<std::byte> & message)
 {
 	// proxy connection - no processing, only redirect
@@ -242,10 +282,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 		logGlobal->info("Received unexpected message for inactive proxy!");
 	}
 
-	JsonNode json(message.data(), message.size());
-
-	// TODO: check for json parsing errors
-	// TODO: validate json based on received message type
+	JsonNode json = parseAndValidateMessage(message);
 
 	std::string messageType = json["type"].String();
 
