@@ -216,8 +216,9 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(enableUiEnhancements)
 	{
-		buttonsSortBy.push_back(std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("lobby/selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate)));
-		buttonsSortBy.back()->setAnimateLonelyFrame(true);
+		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate));
+		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
+		buttonsSortBy.push_back(sortByDate);
 	}
 
 	iconsMapFormats = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCSELC.DEF"));

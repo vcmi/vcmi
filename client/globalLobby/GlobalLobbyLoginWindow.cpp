@@ -47,8 +47,8 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 
 	auto buttonRegister = std::make_shared<CToggleButton>(Point(10, 40),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
 	auto buttonLogin = std::make_shared<CToggleButton>(Point(146, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	buttonRegister->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonLogin->addTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonRegister->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonLogin->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	toggleMode = std::make_shared<CToggleGroup>(nullptr);
 	toggleMode->addToggle(0, buttonRegister);

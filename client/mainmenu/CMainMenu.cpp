@@ -260,7 +260,7 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 	for(const JsonNode & node : config["buttons"].Vector())
 	{
 		buttons.push_back(createButton(parent, node));
-		buttons.back()->hoverable = true;
+		buttons.back()->setHoverable(true);
 		buttons.back()->setRedrawParent(true);
 	}
 }

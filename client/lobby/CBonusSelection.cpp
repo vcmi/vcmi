@@ -126,7 +126,7 @@ CBonusSelection::CBonusSelection()
 		tabExtraOptions->recreate(true);
 		tabExtraOptions->setEnabled(false);
 		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), CGI->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); GH.windows().totalRedraw(); }, EShortcut::NONE);
-		buttonExtraOptions->addTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
+		buttonExtraOptions->setTextOverlay(CGI->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
 	}
 }
 
@@ -299,14 +299,13 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		}
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath(), CButton::tooltip(desc.toString(), desc.toString()));
+		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()));
 
 		if(picNumber != -1)
-			picName += ":" + std::to_string(picNumber);
+			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
+		else
+			bonusButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin(picName)));
 
-		auto anim = GH.renderHandler().createAnimation();
-		anim->setCustom(picName, 0);
-		bonusButton->setImage(anim);
 		if(CSH->campaignBonus == i)
 			bonusButton->setBorderColor(Colors::BRIGHT_YELLOW);
 		groupBonuses->addToggle(i, bonusButton);

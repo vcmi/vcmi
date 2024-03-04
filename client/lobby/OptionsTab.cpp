@@ -917,7 +917,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 			CGI->generaltexth->zelp[180],
 			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);
-		flag->hoverable = true;
+		flag->setHoverable(true);
 		flag->block(CSH->isGuest());
 	}
 	else

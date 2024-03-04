@@ -396,7 +396,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 	{
 		for(const auto & item : config["items"].Vector())
 		{
-			button->addOverlay(buildWidget(item));
+			button->setOverlay(buildWidget(item));
 		}
 	}
 	if(!config["selected"].isNull())
@@ -422,7 +422,7 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 	{
 		for(const auto & item : config["items"].Vector())
 		{
-			button->addOverlay(buildWidget(item));
+			button->setOverlay(buildWidget(item));
 		}
 	}
 	if(!config["imageOrder"].isNull())
@@ -589,7 +589,7 @@ std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonN
 	{
 		for(const auto & item : config["items"].Vector())
 		{
-			result->addOverlay(buildWidget(item));
+			result->setOverlay(buildWidget(item));
 		}
 	}
 	if(!config["imageOrder"].isNull())

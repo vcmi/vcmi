@@ -563,9 +563,8 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 			iconName = AnimationPath::fromJson(variables["actionIconNoReturn"]);
 			break;
 	}
-		
-	auto anim = GH.renderHandler().loadAnimation(iconName);
-	w->setImage(anim);
+
+	w->setImage(iconName);
 	w->redraw();
 }
 
