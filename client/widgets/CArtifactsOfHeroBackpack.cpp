@@ -26,6 +26,7 @@
 CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax)
 	: slotsColumnsMax(slotsColumnsMax)
 	, slotsRowsMax(slotsRowsMax)
+	, backpackPos(0)
 {
 	setRedrawParent(true);
 }

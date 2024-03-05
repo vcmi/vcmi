@@ -36,6 +36,7 @@ protected:
 	size_t slotsRowsMax;
 	const int slotSizeWithMargin = 46;
 	const int sliderPosOffsetX = 5;
+	int backpackPos; // Position to display artifacts in heroes backpack
 
 	void initAOHbackpack(size_t slots, bool slider);
 	size_t calcRows(size_t slots);

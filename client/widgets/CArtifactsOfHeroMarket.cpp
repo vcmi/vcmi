@@ -18,7 +18,7 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position)
 		std::bind(&CArtifactsOfHeroBase::clickPrassedArtPlace, this, _1, _2),
 		std::bind(&CArtifactsOfHeroBase::showPopupArtPlace, this, _1, _2),
 		position,
-		std::bind(&CArtifactsOfHeroMarket::scrollBackpack, this, _1));
+		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
 
 	for(const auto & [slot, artPlace] : artWorn)
 		artPlace->setSelectionWidth(2);

@@ -52,7 +52,6 @@ protected:
 	std::vector<ArtPlacePtr> backpack;
 	std::shared_ptr<CButton> leftBackpackRoll;
 	std::shared_ptr<CButton> rightBackpackRoll;
-	int backpackPos; // Position to display artifacts in heroes backpack
 	PutBackPickedArtCallback putBackPickedArtCallback;
 
 	const std::vector<Point> slotPos =
@@ -66,8 +65,8 @@ protected:
 		Point(381,295) //18
 	};
 
-	virtual void init(CHeroArtPlace::ClickFunctor lClickCallback, CHeroArtPlace::ClickFunctor showPopupCallback,
-		const Point & position, BpackScrollFunctor scrollCallback);
+	virtual void init(const CHeroArtPlace::ClickFunctor & lClickCallback, const CHeroArtPlace::ClickFunctor & showPopupCallback,
+		const Point & position, const BpackScrollFunctor & scrollCallback);
 	// Assigns an artifacts to an artifact place depending on it's new slot ID
 	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot);
 };

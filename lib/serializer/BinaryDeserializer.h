@@ -218,6 +218,15 @@ public:
 			load( data[i]);
 	}
 
+	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
+	void load(std::deque<T> & data)
+	{
+		ui32 length = readAndCheckLength();
+		data.resize(length);
+		for(ui32 i = 0; i < length; i++)
+			load(data[i]);
+	}
+
 	template < typename T, typename std::enable_if_t < std::is_pointer_v<T>, int  > = 0 >
 	void load(T &data)
 	{
