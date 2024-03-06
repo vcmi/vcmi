@@ -130,6 +130,7 @@ public:
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	bool bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
+	bool scrollBackpackArtifacts(const ObjectInstanceID heroID, bool left);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
 	void synchronizeArtifactHandlerLists();
 

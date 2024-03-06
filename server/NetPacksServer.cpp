@@ -148,6 +148,27 @@ void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & p
 	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
 }
 
+void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts & pack)
+{
+	if(gh.getPlayerRelations(pack.player, gh.getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
+	{
+		if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_LEFT)
+			result = gh.scrollBackpackArtifacts(pack.artHolder, true);
+		else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SCROLL_RIGHT)
+			result = gh.scrollBackpackArtifacts(pack.artHolder, false);
+		else
+		{
+			gh.throwIfWrongOwner(&pack, pack.artHolder);
+			if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_CLASS)
+				result = true;
+			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_COST)
+				result = true;
+			else if(pack.cmd == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
+				result = true;
+		}
+	}
+}
+
 void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.heroID);

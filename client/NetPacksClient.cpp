@@ -290,7 +290,7 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 			callInterfaceIfPresent(cl, player, &IGameEventsReceiver::askToAssembleArtifact, pack.dst);
 	};
 
-	moveArtifact(cl.getOwner(pack.src.artHolder));
+	moveArtifact(LOCPLINT->playerID);
 	if(cl.getOwner(pack.src.artHolder) != cl.getOwner(pack.dst.artHolder))
 		moveArtifact(cl.getOwner(pack.dst.artHolder));
 

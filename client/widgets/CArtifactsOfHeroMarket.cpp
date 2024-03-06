@@ -26,9 +26,9 @@ CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position)
 		artPlace->setSelectionWidth(2);
 };
 
-void CArtifactsOfHeroMarket::scrollBackpack(int offset)
+void CArtifactsOfHeroMarket::scrollBackpack(bool left)
 {
-	CArtifactsOfHeroBase::scrollBackpack(offset);
+	CArtifactsOfHeroBase::scrollBackpack(left);
 
 	// We may have highlight on one of backpack artifacts
 	if(selectArtCallback)

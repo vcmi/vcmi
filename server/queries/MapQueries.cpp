@@ -128,6 +128,9 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	if(auto arts = dynamic_ptr_cast<BulkExchangeArtifacts>(pack))
 		return !vstd::contains(ourIds, arts->srcHero) || !vstd::contains(ourIds, arts->dstHero);
 
+	if(auto arts = dynamic_ptr_cast<ManageBackpackArtifacts>(pack))
+		return !vstd::contains(ourIds, arts->artHolder);
+
 	if(auto art = dynamic_ptr_cast<EraseArtifactByClient>(pack))
 	{
 		if(auto id = art->al.artHolder)

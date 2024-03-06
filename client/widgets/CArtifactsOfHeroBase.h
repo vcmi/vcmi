@@ -36,7 +36,7 @@ public:
 	virtual void gestureArtPlace(CArtPlace & artPlace, const Point & cursorPosition);
 	virtual void setHero(const CGHeroInstance * hero);
 	virtual const CGHeroInstance * getHero() const;
-	virtual void scrollBackpack(int offset);
+	virtual void scrollBackpack(bool left);
 	virtual void markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved = true);
 	virtual void unmarkSlots();
 	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);

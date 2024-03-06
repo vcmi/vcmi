@@ -2857,6 +2857,25 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID ds
 	return true;
 }
 
+bool CGameHandler::scrollBackpackArtifacts(const ObjectInstanceID heroID, bool left)
+{
+	auto artSet = getArtSet(heroID);
+	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
+
+	BulkMoveArtifacts bma(heroID, heroID, false);
+
+	const auto backpackEnd = ArtifactPosition(ArtifactPosition::BACKPACK_START + artSet->artifactsInBackpack.size() - 1);
+	if(backpackEnd > ArtifactPosition::BACKPACK_START)
+	{
+		if(left)
+			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(backpackEnd, ArtifactPosition::BACKPACK_START));
+		else
+			bma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(ArtifactPosition::BACKPACK_START, backpackEnd));
+		sendAndApply(&bma);
+	}
+	return true;
+}
+
 /**
  * Assembles or disassembles a combination artifact.
  * @param heroID ID of hero holding the artifact(s).
