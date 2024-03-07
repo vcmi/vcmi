@@ -206,6 +206,9 @@ bool OpenWindowQuery::blocksPack(const CPack *pack) const
 		if(dynamic_ptr_cast<BulkExchangeArtifacts>(pack) != nullptr)
 			return false;
 
+		if(dynamic_ptr_cast<ManageBackpackArtifacts>(pack) != nullptr)
+			return false;
+
 		if(dynamic_ptr_cast<AssembleArtifacts>(pack))
 			return false;
 

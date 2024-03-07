@@ -24,7 +24,7 @@ class CArtifactsOfHeroBackpack : public CArtifactsOfHeroBase
 public:
 	CArtifactsOfHeroBackpack(size_t slotsColumnsMax, size_t slotsRowsMax);
 	CArtifactsOfHeroBackpack();
-	void scrollBackpack(int offset);
+	void onSliderMoved(int newVal);
 	void updateBackpackSlots() override;
 	size_t getActiveSlotRowsNum();
 	size_t getSlotsNum();

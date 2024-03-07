@@ -110,7 +110,7 @@ public:
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) = 0;
 	virtual bool putArtifact(const ArtifactLocation & al, const CArtifactInstance * art, std::optional<bool> askAssemble = std::nullopt) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
-	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
+	virtual bool moveArtifact(const PlayerColor & player, const ArtifactLocation & al1, const ArtifactLocation & al2) = 0;
 
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero)=0;

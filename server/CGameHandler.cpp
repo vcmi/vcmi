@@ -2690,7 +2690,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 
 // With the amount of changes done to the function, it's more like transferArtifacts.
 // Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
-bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLocation & dst)
+bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst)
 {
 	const auto srcArtSet = getArtSet(src);
 	const auto dstArtSet = getArtSet(dst);
@@ -2733,7 +2733,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	if(src.slot == dstSlot && src.artHolder == dst.artHolder)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
 	
-	BulkMoveArtifacts ma(src.artHolder, dst.artHolder, false);
+	BulkMoveArtifacts ma(player, src.artHolder, dst.artHolder, false);
 	ma.srcCreature = src.creature;
 	ma.dstCreature = dst.creature;
 	
@@ -2756,7 +2756,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation & src, const ArtifactLoca
 	return true;
 }
 
-bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
+bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack)
 {
 	// Make sure exchange is even possible between the two heroes.
 	if(!isAllowedExchange(srcId, dstId))
@@ -2767,7 +2767,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID ds
 	if((!psrcSet) || (!pdstSet))
 		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
 
-	BulkMoveArtifacts ma(srcId, dstId, swap);
+	BulkMoveArtifacts ma(player, srcId, dstId, swap);
 	auto & slotsSrcDst = ma.artsPack0;
 	auto & slotsDstSrc = ma.artsPack1;
 
@@ -2857,12 +2857,12 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcId, ObjectInstanceID ds
 	return true;
 }
 
-bool CGameHandler::scrollBackpackArtifacts(const ObjectInstanceID heroID, bool left)
+bool CGameHandler::scrollBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, bool left)
 {
 	auto artSet = getArtSet(heroID);
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "scrollBackpackArtifacts: wrong hero's ID");
 
-	BulkMoveArtifacts bma(heroID, heroID, false);
+	BulkMoveArtifacts bma(player, heroID, heroID, false);
 
 	const auto backpackEnd = ArtifactPosition(ArtifactPosition::BACKPACK_START + artSet->artifactsInBackpack.size() - 1);
 	if(backpackEnd > ArtifactPosition::BACKPACK_START)

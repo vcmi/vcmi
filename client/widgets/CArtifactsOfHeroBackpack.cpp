@@ -42,11 +42,11 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack()
 	initAOHbackpack(visibleCapacityMax, backpackCap < 0 || visibleCapacityMax < backpackCap);
 }
 
-void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
+void CArtifactsOfHeroBackpack::onSliderMoved(int newVal)
 {
 	if(backpackListBox)
 		backpackListBox->resize(getActiveSlotRowsNum());
-	backpackPos += offset;
+	backpackPos += newVal;
 	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
 	for(auto artPlace : backpack)
 	{
@@ -99,7 +99,7 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 		};
 		CListBoxWithCallback::MovedPosCallback posMoved = [this](size_t pos) -> void
 		{
-			scrollBackpack(static_cast<int>(pos) * slotsColumnsMax - backpackPos);
+			onSliderMoved(static_cast<int>(pos) * slotsColumnsMax - backpackPos);
 		};
 		backpackListBox = std::make_shared<CListBoxWithCallback>(
 			posMoved, onCreate, Point(0, 0), Point(0, 0), slotsRowsMax, 0, 0, 1,
