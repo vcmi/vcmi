@@ -23,6 +23,7 @@ public:
 	std::array<const CArmedInstance *,2> belligerents;
 	std::array<int, 2> initialHeroMana;
 
+	bool isAiVsHuman;
 	BattleID battleID;
 	std::optional<BattleResult> result;
 
@@ -37,9 +38,9 @@ public:
 class CBattleDialogQuery : public CDialogQuery
 {
 public:
-	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi);
+	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi, std::optional<BattleResult> Br);
 
 	const IBattleInfo * bi;
-
+	std::optional<BattleResult> result;
 	void onRemoval(PlayerColor color) override;
 };
