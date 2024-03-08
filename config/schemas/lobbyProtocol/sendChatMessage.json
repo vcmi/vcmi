@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-06/schema",
 	"title" : "Lobby protocol: sendChatMessage",
 	"description" : "Sent by client when player requests lobby login",
-	"required" : [ "accountID", "accountCookie", "language", "version" ],
+	"required" : [ "type", "messageText" ],
 	"additionalProperties" : false,
 
 	"properties" : {

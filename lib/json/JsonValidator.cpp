@@ -522,7 +522,6 @@ JsonValidator::TValidatorMap createCommonFields()
 	// Not implemented
 	ret["propertyNames"] = notImplementedCheck;
 	ret["contains"] = notImplementedCheck;
-	ret["const"] = notImplementedCheck;
 	ret["examples"] = notImplementedCheck;
 
 	return ret;

@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-06/schema",
 	"title" : "Lobby protocol: activateGameRoom",
 	"description" : "Sent by client when player wants to activate a game room",
-	"required" : [ "accountID", "accountCookie", "language", "version" ],
+	"required" : [ "type", "hostAccountID", "roomType" ],
 	"additionalProperties" : false,
 
 	"properties" : {

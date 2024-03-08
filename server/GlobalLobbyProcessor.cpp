@@ -47,7 +47,7 @@ void GlobalLobbyProcessor::onDisconnected(const std::shared_ptr<INetworkConnecti
 					message["type"].String() = "leaveGameRoom";
 					message["accountID"].String() = proxy.first;
 
-					assert(JsonUtils::validate(message, "vcmi:lobbyProtocol/" + message["type"].String(), "network"));
+					assert(JsonUtils::validate(message, "vcmi:lobbyProtocol/" + message["type"].String(), message["type"].String() + " pack"));
 					controlConnection->sendPacket(message.toBytes());
 					break;
 				}
@@ -125,8 +125,9 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["gameRoomID"].String() = owner.uuid;
 		toSend["accountID"] = settings["lobby"]["accountID"];
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
+		toSend["version"].String() = VCMI_VERSION_STRING;
 
-		assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), "network"));
+		assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 		connection->sendPacket(toSend.toBytes());
 	}
 	else
@@ -143,7 +144,7 @@ void GlobalLobbyProcessor::onConnectionEstablished(const std::shared_ptr<INetwor
 		toSend["guestAccountID"].String() = guestAccountID;
 		toSend["accountCookie"] = settings["lobby"]["accountCookie"];
 
-		assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), "network"));
+		assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 		connection->sendPacket(toSend.toBytes());
 
 		proxyConnections[guestAccountID] = connection;

@@ -22,10 +22,15 @@
 			"type" : "string",
 			"description" : "ID of account that have sent this message"
 		},
+		"displayName" :
+		{
+			"type" : "string",
+			"description" : "Display name of account that have sent this message"
+		},
 		"roomMode" :
 		{
 			"type" : "string",
-			"const" : "general",
+			"const" : "global",
 			"description" : "Type of room to which this message has been set. Right now can only be 'general'"
 		},
 		"roomName" :

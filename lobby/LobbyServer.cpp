@@ -60,7 +60,7 @@ NetworkConnectionPtr LobbyServer::findGameRoom(const std::string & gameRoomID) c
 
 void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNode & json)
 {
-	assert(JsonUtils::validate(json, "vcmi:lobbyProtocol/" + json["type"].String(), "network"));
+	assert(JsonUtils::validate(json, "vcmi:lobbyProtocol/" + json["type"].String(), json["type"].String() + " pack"));
 	target->sendPacket(json.toBytes());
 }
 
@@ -104,6 +104,7 @@ void LobbyServer::sendChatHistory(const NetworkConnectionPtr & target, const std
 {
 	JsonNode reply;
 	reply["type"].String() = "chatHistory";
+	reply["messages"].Vector(); // force creation of empty vector
 
 	for(const auto & message : boost::adaptors::reverse(history))
 	{
@@ -126,6 +127,7 @@ void LobbyServer::broadcastActiveAccounts()
 
 	JsonNode reply;
 	reply["type"].String() = "activeAccounts";
+	reply["accounts"].Vector(); // force creation of empty vector
 
 	for(const auto & account : activeAccountsStats)
 	{
@@ -145,6 +147,7 @@ JsonNode LobbyServer::prepareActiveGameRooms()
 	auto activeGameRoomStats = database->getActiveGameRooms();
 	JsonNode reply;
 	reply["type"].String() = "activeGameRooms";
+	reply["gameRooms"].Vector(); // force creation of empty vector
 
 	for(const auto & gameRoom : activeGameRoomStats)
 	{
@@ -262,7 +265,7 @@ JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & mes
 
 	std::string schemaName = "vcmi:lobbyProtocol/" + messageType;
 
-	if (!JsonUtils::validate(json, schemaName, "network"))
+	if (!JsonUtils::validate(json, schemaName, messageType + " pack"))
 	{
 		logGlobal->info("Json validation error encountered!");
 		assert(0);
@@ -369,7 +372,7 @@ void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection,
 	std::string displayName = json["displayName"].String();
 	std::string language = json["language"].String();
 
-	if(isAccountNameValid(displayName))
+	if(!isAccountNameValid(displayName))
 		return sendOperationFailed(connection, "Illegal account name");
 
 	if(database->isAccountNameExists(displayName))
