@@ -1030,7 +1030,7 @@ struct DLL_LINKAGE EraseArtifact : CArtifactOperationPack
 struct DLL_LINKAGE MoveArtifact : CArtifactOperationPack
 {
 	MoveArtifact() = default;
-	MoveArtifact(const PlayerColor & interfaceOwner, const ArtifactLocation & src, ArtifactLocation & dst, bool askAssemble = true)
+	MoveArtifact(const PlayerColor & interfaceOwner, const ArtifactLocation & src, const ArtifactLocation & dst, bool askAssemble = true)
 		: interfaceOwner(interfaceOwner), src(src), dst(dst), askAssemble(askAssemble)
 	{
 	}
@@ -1089,8 +1089,8 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 	}
 	BulkMoveArtifacts(const PlayerColor & interfaceOwner, const ObjectInstanceID srcArtHolder, const ObjectInstanceID dstArtHolder, bool swap)
 		: interfaceOwner(interfaceOwner)
-		, srcArtHolder(std::move(srcArtHolder))
-		, dstArtHolder(std::move(dstArtHolder))
+		, srcArtHolder(srcArtHolder)
+		, dstArtHolder(dstArtHolder)
 		, swap(swap)
 		, askAssemble(false)
 		, srcCreature(std::nullopt)

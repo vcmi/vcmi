@@ -55,8 +55,8 @@ void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCall
 }
 
 void CArtifactsOfHeroBase::init(
-	const CArtPlace::ClickFunctor & lClickCallback,
-	const CArtPlace::ClickFunctor & showPopupCallback,
+	const CArtPlace::ClickFunctor & onClickPressedCallback,
+	const CArtPlace::ClickFunctor & onShowPopupCallback,
 	const Point & position,
 	const BpackScrollFunctor & scrollCallback)
 {
@@ -77,14 +77,14 @@ void CArtifactsOfHeroBase::init(
 	{
 		artPlace.second->slot = artPlace.first;
 		artPlace.second->setArtifact(nullptr);
-		artPlace.second->setClickPressedCallback(lClickCallback);
-		artPlace.second->setShowPopupCallback(showPopupCallback);
+		artPlace.second->setClickPressedCallback(onClickPressedCallback);
+		artPlace.second->setShowPopupCallback(onShowPopupCallback);
 	}
 	for(auto artPlace : backpack)
 	{
 		artPlace->setArtifact(nullptr);
-		artPlace->setClickPressedCallback(lClickCallback);
-		artPlace->setShowPopupCallback(showPopupCallback);
+		artPlace->setClickPressedCallback(onClickPressedCallback);
+		artPlace->setShowPopupCallback(onShowPopupCallback);
 	}
 	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(),
 		[scrollCallback](){scrollCallback(true);}, EShortcut::MOVE_LEFT);
@@ -183,7 +183,7 @@ void CArtifactsOfHeroBase::updateWornSlots()
 void CArtifactsOfHeroBase::updateBackpackSlots()
 {
 	ArtifactPosition slot = ArtifactPosition::BACKPACK_START;
-	for(auto & artPlace : backpack)
+	for(const auto & artPlace : backpack)
 	{
 		setSlotData(artPlace, slot);
 		slot = slot + 1;
