@@ -12,7 +12,7 @@
 
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
 #define NKAI_GRAPH_TRACE_LEVEL 0
-#define NKAI_TRACE_LEVEL 0
+#define NKAI_TRACE_LEVEL 1
 
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
@@ -27,11 +27,9 @@ namespace NKAI
 {
 namespace AIPathfinding
 {
-
-    const int BUCKET_COUNT = 5;
+	const int BUCKET_COUNT = 5;
 	const int BUCKET_SIZE = 3;
 	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
-	const int THREAD_COUNT = 8;
 	const int CHAIN_MAX_DEPTH = 4;
 }
 

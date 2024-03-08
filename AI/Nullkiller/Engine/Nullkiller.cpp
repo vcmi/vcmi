@@ -125,7 +125,7 @@ void Nullkiller::resetAiState()
 	dangerHitMap->reset();
 	useHeroChain = true;
 
-	if(!baseGraph)
+	if(!baseGraph && ai->nullkiller->settings->isObjectGraphAllowed())
 	{
 		baseGraph = std::make_unique<ObjectGraph>();
 		baseGraph->updateGraph(this);
@@ -172,20 +172,24 @@ void Nullkiller::updateAiState(int pass, bool fast)
 		cfg.useHeroChain = useHeroChain;
 		cfg.allowBypassObjects = true;
 
-		if(scanDepth == ScanDepth::SMALL)
+		if(scanDepth == ScanDepth::SMALL || settings->isObjectGraphAllowed())
 		{
-			cfg.mainTurnDistanceLimit = ai->nullkiller->settings->getMainHeroTurnDistanceLimit();
+			cfg.mainTurnDistanceLimit = settings->getMainHeroTurnDistanceLimit();
 		}
 
-		if(scanDepth != ScanDepth::ALL_FULL)
+		if(scanDepth != ScanDepth::ALL_FULL || settings->isObjectGraphAllowed())
 		{
-			cfg.scoutTurnDistanceLimit = ai->nullkiller->settings->getScoutHeroTurnDistanceLimit();
+			cfg.scoutTurnDistanceLimit =settings->getScoutHeroTurnDistanceLimit();
 		}
 
 		boost::this_thread::interruption_point();
 
 		pathfinder->updatePaths(activeHeroes, cfg);
-		pathfinder->updateGraphs(activeHeroes);
+
+		if(settings->isObjectGraphAllowed())
+		{
+			pathfinder->updateGraphs(activeHeroes);
+		}
 
 		boost::this_thread::interruption_point();
 
@@ -299,7 +303,8 @@ void Nullkiller::makeTurn()
 
 		// TODO: better to check turn distance here instead of priority
 		if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
-			&& scanDepth == ScanDepth::MAIN_FULL)
+			&& scanDepth == ScanDepth::MAIN_FULL
+			&& !settings->isObjectGraphAllowed())
 		{
 			useHeroChain = false;
 			scanDepth = ScanDepth::SMALL;
@@ -312,22 +317,25 @@ void Nullkiller::makeTurn()
 
 		if(bestTask->priority < MIN_PRIORITY)
 		{
-			auto heroes = cb->getHeroesInfo();
-			auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
-				{
-					return h->movementPointsRemaining() > 100;
-				});
-
-			if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+			if(!settings->isObjectGraphAllowed())
 			{
-				logAi->trace(
-					"Goal %s has too low priority %f so increasing scan depth to full.",
-					taskDescription,
-					bestTask->priority);
+				auto heroes = cb->getHeroesInfo();
+				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
+					{
+						return h->movementPointsRemaining() > 100;
+					});
 
-				scanDepth = ScanDepth::ALL_FULL;
-				useHeroChain = false;
-				continue;
+				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+				{
+					logAi->trace(
+						"Goal %s has too low priority %f so increasing scan depth to full.",
+						taskDescription,
+						bestTask->priority);
+
+					scanDepth = ScanDepth::ALL_FULL;
+					useHeroChain = false;
+					continue;
+				}
 			}
 
 			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", taskDescription);

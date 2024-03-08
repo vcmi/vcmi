@@ -42,7 +42,7 @@ Goals::TGoalVec ClusterBehavior::decompose() const
 Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster> cluster) const
 {
 	auto center = cluster->calculateCenter();
-	auto paths = ai->nullkiller->pathfinder->getPathInfo(center->visitablePos(), true);
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(center->visitablePos(), ai->nullkiller->settings->isObjectGraphAllowed());
 	auto blockerPos = cluster->blocker->visitablePos();
 	std::vector<AIPath> blockerPaths;
 

@@ -27,7 +27,8 @@ namespace NKAI
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
 		maxGoldPreasure(0.3f), 
-		maxpass(30)
+		maxpass(30),
+		allowObjectGraph(false)
 	{
 		ResourcePath resource("config/ai/nkai/nkai-settings", EResType::JSON);
 
@@ -73,6 +74,11 @@ namespace NKAI
 		if(node.Struct()["maxGoldPreasure"].isNumber())
 		{
 			maxGoldPreasure = node.Struct()["maxGoldPreasure"].Float();
+		}
+
+		if(!node.Struct()["allowObjectGraph"].isNull())
+		{
+			allowObjectGraph = node.Struct()["allowObjectGraph"].Bool();
 		}
 	}
 }
