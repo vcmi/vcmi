@@ -94,13 +94,13 @@
 		
 		{
 			"type": "areaFilled",
-			"rect": {"x": 430, "y": 565, "w": 395, "h": 25}
+			"rect": {"x": 430, "y": 565, "w": 397, "h": 25}
 		},
 		{
 			"name" : "messageInput",
 			"type": "textInput",
 			"alignment" : "left",
-			"rect": {"x": 440, "y": 568, "w": 375, "h": 20}
+			"rect": {"x": 440, "y": 568, "w": 377, "h": 20}
 		},
 		
 		{
@@ -121,28 +121,28 @@
 			"sliderSize" : { "x" : 520, "y" : 520 }
 		},
 
-		{
-			"type": "button",
-			"position": {"x": 840, "y": 10},
-			"image": "settingsWindow/button80",
-			"help": "core.help.288",
-			"callback": "closeWindow",
-			"items":
-			[
-				{
-					"type": "label",
-					"font": "medium",
-					"alignment": "center",
-					"color": "yellow",
-					"text": "Leave"
-				}
-			]
-		},
+//		{
+//			"type": "button",
+//			"position": {"x": 840, "y": 10},
+//			"image": "settingsWindow/button80",
+//			"help": "core.help.288",
+//			"callback": "closeWindow",
+//			"items":
+//			[
+//				{
+//					"type": "label",
+//					"font": "medium",
+//					"alignment": "center",
+//					"color": "yellow",
+//					"text": "Leave"
+//				}
+//			]
+//		},
 		
 		{
 			"type": "button",
-			"position": {"x": 940, "y": 10},
-			"image": "settingsWindow/button80",
+			"position": {"x": 870, "y": 10},
+			"image": "lobbyHideWindow",
 			"help": "core.help.288",
 			"callback": "closeWindow",
 			"hotkey": "globalCancel",
@@ -153,7 +153,7 @@
 					"font": "medium",
 					"alignment": "center",
 					"color": "yellow",
-					"text": "Close"
+					"text": "Back"
 				}
 			]
 		},
@@ -161,18 +161,15 @@
 		{
 			"type": "button",
 			"position": {"x": 828, "y": 565},
-			"image": "settingsWindow/button32",
+			"image": "lobbySendMessage",
 			"help": "core.help.288",
 			"callback": "sendMessage",
 			"hotkey": "globalAccept",
 			"items":
 			[
 				{
-					"type": "label",
-					"font": "medium",
-					"alignment": "center",
-					"color": "yellow",
-					"text": ">"
+					"type": "picture",
+					"image": "lobby/iconSend"
 				}
 			]
 		},
@@ -180,7 +177,7 @@
 		{
 			"type": "button",
 			"position": {"x": 10, "y": 555},
-			"image": "settingsWindow/button190",
+			"image": "lobbyCreateRoom",
 			"help": "core.help.288",
 			"callback": "createGameRoom",
 			"items":
