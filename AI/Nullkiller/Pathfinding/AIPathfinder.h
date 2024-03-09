@@ -46,8 +46,8 @@ public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);
 	std::vector<AIPath> getPathInfo(const int3 & tile, bool includeGraph = false) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
-	void updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings);
-	void updateGraphs(std::map<const CGHeroInstance *, HeroRole> heroes);
+	void updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings);
+	void updateGraphs(const std::map<const CGHeroInstance *, HeroRole> & heroes);
 	void init();
 
 	std::shared_ptr<AINodeStorage>getStorage()

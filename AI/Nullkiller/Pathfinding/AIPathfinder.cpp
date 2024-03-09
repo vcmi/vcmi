@@ -58,7 +58,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile, bool includeGra
 	return info;
 }
 
-void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings)
+void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings)
 {
 	if(!storage)
 	{
@@ -125,7 +125,7 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
 }
 
-void AIPathfinder::updateGraphs(std::map<const CGHeroInstance *, HeroRole> heroes)
+void AIPathfinder::updateGraphs(const std::map<const CGHeroInstance *, HeroRole> & heroes)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::vector<const CGHeroInstance *> heroesVector;
@@ -134,22 +134,23 @@ void AIPathfinder::updateGraphs(std::map<const CGHeroInstance *, HeroRole> heroe
 
 	for(auto hero : heroes)
 	{
-		heroGraphs.emplace(hero.first->id, GraphPaths());
-		heroesVector.push_back(hero.first);
+		if(heroGraphs.try_emplace(hero.first->id, GraphPaths()).second)
+			heroesVector.push_back(hero.first);
 	}
 
-	parallel_for(blocked_range<size_t>(0, heroesVector.size()), [&](const blocked_range<size_t> & r)
+	parallel_for(blocked_range<size_t>(0, heroesVector.size()), [this, &heroesVector](const blocked_range<size_t> & r)
 		{
 			for(auto i = r.begin(); i != r.end(); i++)
 				heroGraphs.at(heroesVector[i]->id).calculatePaths(heroesVector[i], ai);
 		});
 
-#if NKAI_GRAPH_TRACE_LEVEL >= 1
-	for(auto hero : heroes)
+	if(NKAI_GRAPH_TRACE_LEVEL >= 1)
 	{
-		heroGraphs[hero.first->id].dumpToLog();
+		for(auto hero : heroes)
+		{
+			heroGraphs[hero.first->id].dumpToLog();
+		}
 	}
-#endif
 
 	logAi->trace("Graph paths updated in %lld", timeElapsed(start));
 }

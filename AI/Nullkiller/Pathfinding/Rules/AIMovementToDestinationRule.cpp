@@ -45,7 +45,7 @@ namespace AIPathfinding
 
 			if(!allowBypassObjects)
 			{
-				if (source.node->getCost() == 0)
+				if (source.node->getCost() < 0.0001f)
 					return;
 
 				// when actor represents moster graph node, we need to let him escape monster

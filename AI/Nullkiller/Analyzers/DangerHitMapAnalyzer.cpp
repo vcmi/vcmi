@@ -157,12 +157,13 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
 
-	std::map<const CGHeroInstance *, HeroRole> townHeroes;
+	std::vector<std::unique_ptr<CGHeroInstance>> temporaryHeroes;
 	std::map<const CGHeroInstance *, const CGTownInstance *> heroTownMap;
+	std::map<const CGHeroInstance *, HeroRole> townHeroes;
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
-			auto townHero = new CGHeroInstance(town->cb);
+			auto townHero = temporaryHeroes.emplace_back(std::make_unique<CGHeroInstance>(town->cb)).get();
 			CRandomGenerator rng;
 			auto visitablePos = town->visitablePos();
 			
@@ -238,11 +239,6 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 				hitMap[pos.x][pos.y][pos.z].closestTown = enemyTown;
 			}
 		});
-
-	for(auto h : townHeroes)
-	{
-		delete h.first;
-	}
 }
 
 const std::vector<HitMapInfo> & DangerHitMapAnalyzer::getTownThreats(const CGTownInstance * town) const

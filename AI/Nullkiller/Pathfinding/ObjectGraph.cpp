@@ -19,17 +19,100 @@
 namespace NKAI
 {
 
-void ObjectGraph::updateGraph(const Nullkiller * ai)
+class ObjectGraphCalculator
 {
-	auto cb = ai->cb;
+private:
+	ObjectGraph * target;
+	const Nullkiller * ai;
 
 	std::map<const CGHeroInstance *, HeroRole> actors;
 	std::map<const CGHeroInstance *, const CGObjectInstance *> actorObjectMap;
-	std::vector<CGBoat *> boats;
 
-	auto addObjectActor = [&](const CGObjectInstance * obj)
+	std::vector<std::unique_ptr<CGBoat>> temporaryBoats;
+	std::vector<std::unique_ptr<CGHeroInstance>> temporaryActorHeroes;
+
+public:
+	ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai)
+		:ai(ai), target(target)
 	{
-		auto objectActor = new CGHeroInstance(obj->cb);
+		for(auto obj : ai->memory->visitableObjs)
+		{
+			if(obj && obj->isVisitable() && obj->ID != Obj::HERO)
+			{
+				addObjectActor(obj);
+			}
+		}
+
+		for(auto town : ai->cb->getTownsInfo())
+		{
+			addObjectActor(town);
+		}
+
+		PathfinderSettings ps;
+
+		ps.mainTurnDistanceLimit = 5;
+		ps.scoutTurnDistanceLimit = 1;
+		ps.allowBypassObjects = false;
+
+		ai->pathfinder->updatePaths(actors, ps);
+	}
+
+	void calculateConnections(const int3 & pos)
+	{
+		auto guarded = ai->cb->getGuardingCreaturePosition(pos).valid();
+
+		if(guarded)
+			return;
+
+		auto paths = ai->pathfinder->getPathInfo(pos);
+
+		for(AIPath & path1 : paths)
+		{
+			for(AIPath & path2 : paths)
+			{
+				if(path1.targetHero == path2.targetHero)
+					continue;
+
+				auto obj1 = actorObjectMap[path1.targetHero];
+				auto obj2 = actorObjectMap[path2.targetHero];
+
+				auto tile1 = cb->getTile(obj1->visitablePos());
+				auto tile2 = cb->getTile(obj2->visitablePos());
+
+				if(tile2->isWater() && !tile1->isWater())
+				{
+					auto linkTile = cb->getTile(pos);
+
+					if(!linkTile->isWater() || obj1->ID != Obj::BOAT || obj1->ID != Obj::SHIPYARD)
+						continue;
+				}
+
+				auto danger = ai->pathfinder->getStorage()->evaluateDanger(obj2->visitablePos(), path1.targetHero, true);
+
+				auto updated = target->tryAddConnection(
+					obj1->visitablePos(),
+					obj2->visitablePos(), 
+					path1.movementCost() + path2.movementCost(),
+					danger);
+
+				if(NKAI_GRAPH_TRACE_LEVEL >= 2 && updated)
+				{
+					logAi->trace(
+						"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
+						obj1->getObjectName(), obj1->visitablePos().toString(),
+						obj2->getObjectName(), obj2->visitablePos().toString(),
+						pos.toString(),
+						path1.movementCost() + path2.movementCost());
+				}
+			}
+		}
+	}
+
+private:
+	void addObjectActor(const CGObjectInstance * obj)
+	{
+		auto objectActor = temporaryActorHeroes.emplace_back(std::make_unique<CGHeroInstance>(obj->cb)).get();
+
 		CRandomGenerator rng;
 		auto visitablePos = obj->visitablePos();
 
@@ -40,105 +123,42 @@ void ObjectGraph::updateGraph(const Nullkiller * ai)
 
 		if(cb->getTile(visitablePos)->isWater())
 		{
-			boats.push_back(new CGBoat(objectActor->cb));
-			objectActor->boat = boats.back();
+			objectActor->boat = temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get();
 		}
 
 		actorObjectMap[objectActor] = obj;
-		actors[objectActor] = obj->ID == Obj::TOWN || obj->ID == Obj::SHIPYARD ?  HeroRole::MAIN : HeroRole::SCOUT;
-		addObject(obj);
+		actors[objectActor] = obj->ID == Obj::TOWN || obj->ID == Obj::SHIPYARD ? HeroRole::MAIN : HeroRole::SCOUT;
+
+		target->addObject(obj);
 	};
+};
 
-	for(auto obj : ai->memory->visitableObjs)
-	{
-		if(obj && obj->isVisitable() && obj->ID != Obj::HERO)
-		{
-			addObjectActor(obj);
-		}
-	}
+bool ObjectGraph::tryAddConnection(
+	const int3 & from,
+	const int3 & to,
+	float cost,
+	uint64_t danger)
+{
+	return nodes[from].connections[to].update(cost, danger);
+}
 
-	for(auto town : cb->getTownsInfo())
-	{
-		addObjectActor(town);
-	}
+void ObjectGraph::updateGraph(const Nullkiller * ai)
+{
+	auto cb = ai->cb;
 
-	PathfinderSettings ps;
-	
-	ps.mainTurnDistanceLimit = 5;
-	ps.scoutTurnDistanceLimit = 1;
-	ps.allowBypassObjects = false;
+	ObjectGraphCalculator calculator(this, ai);
 
-	ai->pathfinder->updatePaths(actors, ps);
-
-	foreach_tile_pos(cb.get(), [&](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
+	foreach_tile_pos(cb.get(), [this, &calculator](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
 		{
 			if(nodes.find(pos) != nodes.end())
 				return;
 
-			auto guarded = ai->cb->getGuardingCreaturePosition(pos).valid();
-
-			if(guarded)
-				return;
-
-			auto paths = ai->pathfinder->getPathInfo(pos);
-
-			for(AIPath & path1 : paths)
-			{
-				for(AIPath & path2 : paths)
-				{
-					if(path1.targetHero == path2.targetHero)
-						continue;
-
-					auto obj1 = actorObjectMap[path1.targetHero];
-					auto obj2 = actorObjectMap[path2.targetHero];
-
-					auto tile1 = cb->getTile(obj1->visitablePos());
-					auto tile2 = cb->getTile(obj2->visitablePos());
-
-					if(tile2->isWater() && !tile1->isWater())
-					{
-						auto linkTile = cb->getTile(pos);
-
-						if(!linkTile->isWater() || obj1->ID != Obj::BOAT || obj1->ID != Obj::SHIPYARD)
-							continue;
-					}
-
-					auto danger = ai->pathfinder->getStorage()->evaluateDanger(obj2->visitablePos(), path1.targetHero, true);
-
-					auto updated = nodes[obj1->visitablePos()].connections[obj2->visitablePos()].update(
-						path1.movementCost() + path2.movementCost(),
-						danger);
-
-#if NKAI_GRAPH_TRACE_LEVEL >= 2
-					if(updated)
-					{
-						logAi->trace(
-							"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
-							obj1->getObjectName(), obj1->visitablePos().toString(),
-							obj2->getObjectName(), obj2->visitablePos().toString(),
-							pos.toString(),
-							path1.movementCost() + path2.movementCost());
-					}
-#else
-					(void)updated;
-#endif
-				}
-			}
+			calculator.calculateConnections(pos);
 		});
 
-	for(auto h : actorObjectMap)
-	{
-		delete h.first;
-	}
+	if(NKAI_GRAPH_TRACE_LEVEL >= 1)
+		dumpToLog("graph");
 
-	for(auto boat : boats)
-	{
-		delete boat;
-	}
-
-#if NKAI_GRAPH_TRACE_LEVEL >= 1
-	dumpToLog("graph");
-#endif
 }
 
 void ObjectGraph::addObject(const CGObjectInstance * obj)
@@ -199,14 +219,15 @@ void ObjectGraph::dumpToLog(std::string visualKey) const
 			{
 				for(auto & node : tile.second.connections)
 				{
-#if NKAI_GRAPH_TRACE_LEVEL >= 2
-					logAi->trace(
-						"%s -> %s: %f !%d",
-						node.first.toString(),
-						tile.first.toString(),
-						node.second.cost,
-						node.second.danger);
-#endif
+					if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+					{
+						logAi->trace(
+							"%s -> %s: %f !%d",
+							node.first.toString(),
+							tile.first.toString(),
+							node.second.cost,
+							node.second.danger);
+					}
 
 					logBuilder.addLine(tile.first, node.first);
 				}
@@ -278,14 +299,15 @@ void GraphPaths::dumpToLog() const
 					if(!node.previous.valid())
 						continue;
 
-#if NKAI_GRAPH_TRACE_LEVEL >= 2
-					logAi->trace(
-						"%s -> %s: %f !%d",
-						node.previous.coord.toString(),
-						tile.first.toString(),
-						node.cost,
-						node.danger);
-#endif
+					if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+					{
+						logAi->trace(
+							"%s -> %s: %f !%d",
+							node.previous.coord.toString(),
+							tile.first.toString(),
+							node.cost,
+							node.danger);
+					}
 
 					logBuilder.addLine(node.previous.coord, tile.first);
 				}
@@ -343,7 +365,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 			auto currentNode = currentTile->second[current.nodeType];
 
-			if(currentNode.cost == 0)
+			if(!currentNode.previous.valid())
 				break;
 
 			allowBattle = allowBattle || currentNode.nodeType == GrapthPathNodeType::BATTLE;
@@ -352,7 +374,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 			tilesToPass.push_back(current.coord);
 
-			if(currentNode.cost < 2)
+			if(currentNode.cost < 2.0f)
 				break;
 
 			current = currentNode.previous;
@@ -377,6 +399,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				n.turns = static_cast<ui8>(cost) + 1; // just in case lets select worst scenario
 				n.danger = danger;
 				n.targetHero = hero;
+				n.parentIndex = 0;
 
 				for(auto & node : path.nodes)
 				{

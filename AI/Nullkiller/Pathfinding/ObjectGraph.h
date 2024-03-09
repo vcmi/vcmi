@@ -76,6 +76,8 @@ public:
 	{
 		return nodes.at(tile);
 	}
+
+	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
 };
 
 struct GraphPathNode;
